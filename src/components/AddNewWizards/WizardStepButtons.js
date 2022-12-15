@@ -24,6 +24,7 @@ function WizardStepButtons (props) {
     spinOnClick,
     terminateLabel,
     nextLabel,
+    marketToken
   } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -62,7 +63,7 @@ function WizardStepButtons (props) {
       )}
 
       {showLink && (
-        <WorkspaceInviteLinker marketToken={formData.marketToken}/>
+        <WorkspaceInviteLinker marketToken={marketToken || formData.marketToken}/>
       )}
 
       <div className={classes.actionContainer}>

@@ -10,12 +10,16 @@ import { addMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { inviteParticipants } from '../../../api/users'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function InviteByEmailStep(props) {
   const { formData, finish, marketId } = props;
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [marketsState] = useContext(MarketsContext);
+  const market = getMarket(marketsState, marketId) || {};
 
   const myOnFinish = () => {
     const emails = getEmailList(marketId);
@@ -41,7 +45,8 @@ function InviteByEmailStep(props) {
       </Typography>
       <EmailEntryBox marketId={marketId} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
       <div className={classes.borderBottom} />
-      <WizardStepButtons {...props} showSkip={false} showLink={true} finish={myOnFinish} formData={formData}/>
+      <WizardStepButtons {...props} showSkip={false} showLink={true} finish={myOnFinish} formData={formData}
+                         marketToken={market.invite_capability}/>
     </div>
     </WizardStepContainer>
   );

@@ -11,18 +11,29 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { wizardFinish } from '../InboxWizardUtils';
+import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { useHistory } from 'react-router';
 
 
 function JobDescriptionStep (props) {
-  const {marketId, investibleId, updateFormData} = props;
+  const {marketId, investibleId, updateFormData, message} = props;
   const classes = wizardStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const history = useHistory();
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const userId = getMyUserForMarket(marketsState, marketId);
   const { assigned } = marketInfo || {};
   const isAssigned = (assigned || []).includes(userId);
+
+  function myOnFinish() {
+    wizardFinish({link: `${formInvestibleLink(marketId, investibleId)}#approve`},
+      setOperationRunning, message, history);
+  }
 
   return (
     <WizardStepContainer
@@ -46,6 +57,7 @@ function JobDescriptionStep (props) {
         onOtherNext={() => updateFormData({ commentType: ISSUE_TYPE })}
         onNext={() => updateFormData({ isApprove: true, investibleId })}
         showTerminate={true}
+        onFinish={myOnFinish}
         terminateLabel="ApproveWizardGotoJob"/>
     </div>
     </WizardStepContainer>

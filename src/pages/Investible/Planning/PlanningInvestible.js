@@ -438,7 +438,7 @@ function PlanningInvestible(props) {
       const element = document.getElementById(hash.substring(1, hash.length));
       // Check if already on the right tab and only change tab if not
       if (!element) {
-        if (hash.startsWith('#cv')) {
+        if (hash.startsWith('#cv') || hash.startsWith('#approve')) {
           updatePageState({ sectionOpen: 'descriptionVotingSection' })
         } else {
           const found = investibleComments.find((comment) => hash.includes(comment.id));

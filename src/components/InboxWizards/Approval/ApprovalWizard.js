@@ -18,7 +18,8 @@ function ApprovalWizard(props) {
 
   return (
     <FormdataWizard name={`approval_wizard${investibleId}`}>
-      <JobDescriptionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
+      <JobDescriptionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}
+                                  message={message}/>
       <ActionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
     </FormdataWizard>
   );

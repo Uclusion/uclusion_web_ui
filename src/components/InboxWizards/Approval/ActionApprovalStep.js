@@ -10,11 +10,16 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { getMarketInfo } from '../../../utils/userFunctions'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import _ from 'lodash'
-import { formCommentLink } from '../../../utils/marketIdPathFunctions'
+import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { wizardFinish } from '../InboxWizardUtils';
+import { useHistory } from 'react-router';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function ActionApprovalStep(props) {
   const {marketId, investibleId, formData, onFinish, message } = props;
   const classes = wizardStyles();
+  const history = useHistory();
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const { investible: myInvestible } = inv || {};
@@ -30,6 +35,11 @@ function ActionApprovalStep(props) {
     return React.Fragment;
   }
 
+  function myOnFinish() {
+    wizardFinish({link: `${formInvestibleLink(marketId, investibleId)}#approve`},
+      setOperationRunning, message, history);
+  }
+
   function onSave(comment) {
     const link = formCommentLink(marketId, groupId, investibleId, comment.id);
     onFinish({ link });
@@ -41,6 +51,7 @@ function ActionApprovalStep(props) {
   } else if (commentType === SUGGEST_CHANGE_TYPE) {
     introText = "What is your suggestion?";
   }
+  const wizardProps = { ...props, onFinish: myOnFinish };
   return (
     <WizardStepContainer
       {...props}
@@ -57,7 +68,7 @@ function ActionApprovalStep(props) {
         issueWarningId={'issueWarningPlanning'}
         isInReview={false}
         isStory
-        wizardProps={props}
+        wizardProps={wizardProps}
         onSave={onSave}
         nameDifferentiator="actionApproval"
       />

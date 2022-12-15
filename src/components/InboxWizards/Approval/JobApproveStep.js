@@ -18,10 +18,13 @@ import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsCont
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { wizardFinish } from '../InboxWizardUtils';
+import { useHistory } from 'react-router';
 
 function JobApproveStep(props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish, marketInfo,
     message } = props;
+  const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
@@ -88,8 +91,8 @@ function JobApproveStep(props) {
   const {approveQuantity} = formData;
 
   function onFinish(formData) {
-    resetEditor(editorName);
-    parentOnFinish(formData);
+    wizardFinish({link: `${formInvestibleLink(marketId, investibleId)}#approve`},
+      setOperationRunning, message, history);
   }
 
   function onCompleteFinish(formData) {

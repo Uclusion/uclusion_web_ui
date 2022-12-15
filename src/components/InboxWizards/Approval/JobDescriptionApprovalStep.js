@@ -12,7 +12,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { wizardFinish } from '../InboxWizardUtils';
-import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
 

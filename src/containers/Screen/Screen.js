@@ -23,7 +23,6 @@ import Sidebar from '../../components/Menus/Sidebar'
 import AddIcon from '@material-ui/icons/Add'
 import { Group, Inbox } from '@material-ui/icons'
 import { getFirstGroup, getFirstWorkspace, setCurrentGroup, setCurrentWorkspace } from '../../utils/redirectUtils'
-import GroupsNavigation from './GroupsNavigation'
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { useIntl } from 'react-intl'
 import WorkspaceMenu from '../../pages/Home/WorkspaceMenu'
@@ -155,7 +154,6 @@ function Screen(props) {
   const [groupsState] = useContext(MarketGroupsContext);
   const [marketsState] = useContext(MarketsContext);
   const { results, search } = searchResults;
-  const [open, setOpen] = React.useState(false);
   const {
     hidden,
     loading,
@@ -209,8 +207,7 @@ function Screen(props) {
             getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState)
             : undefined}
       ],
-      navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
-                              setOpen={setOpen}/>,
+      navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull} />,
       navListItemTextArray: !_.isEmpty(defaultMarket) ? [
         {
           icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
@@ -265,9 +262,6 @@ function Screen(props) {
         <Container className={classes.bannerContainer}>
           {banner}
         </Container>
-      )}
-      {!hideMenu && (
-        <GroupsNavigation defaultMarket={defaultMarket} open={open} setOpen={setOpen} />
       )}
       <div className={contentClass}>
         {!reallyAmLoading && (

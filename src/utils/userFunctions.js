@@ -11,6 +11,7 @@ import _ from 'lodash'
 import config from '../config'
 import { clearRedirect } from './redirectUtils'
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
+import { PLACEHOLDER } from '../constants/global';
 
 const LOGOUT_MARKER_KEY = 'logout_marker';
 
@@ -28,9 +29,11 @@ export function extractUsersList(marketPresencesState, marketState, addToMarketP
     const macc = {};
     marketPresences.forEach((presence) => {
       const {
-        id: user_id, name, account_id, external_id, email, market_banned: banned, current_user
+        id: user_id, name, account_id, external_id, email, market_banned: banned, current_user,
+        placeholder_type: placeholderType
       } = presence;
-      if (!banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
+      const isPlaceHolder = placeholderType === PLACEHOLDER;
+      if (!isPlaceHolder && !banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
         addToMarketPresencesHash[external_id] = true;
         macc[user_id] = {
           user_id, name, account_id, email, external_id, current_user

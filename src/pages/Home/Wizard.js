@@ -9,9 +9,15 @@ import {
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import GroupWizard from '../../components/AddNewWizards/Group/GroupWizard'
 import queryString from 'query-string'
-import { JOB_WIZARD_TYPE, PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets'
+import {
+  ADD_COLLABORATOR_WIZARD_TYPE,
+  JOB_WIZARD_TYPE,
+  PLANNING_TYPE,
+  WORKSPACE_WIZARD_TYPE
+} from '../../constants/markets';
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
+import CollaboratorWizard from '../../components/AddNewWizards/Collaborator/CollaboratorWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -44,6 +50,9 @@ function Wizard(props) {
       )}
       {createType === JOB_WIZARD_TYPE.toLowerCase() && (
         <JobWizard marketId={marketId} groupId={groupId} assigneeId={assigneeId} onFinish={onWizardFinish} />
+      )}
+      {createType === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase() && (
+        <CollaboratorWizard marketId={marketId} onFinish={onWizardFinish} />
       )}
     </Screen>
   );

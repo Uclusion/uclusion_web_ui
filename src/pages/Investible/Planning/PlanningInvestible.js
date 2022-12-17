@@ -726,8 +726,6 @@ function PlanningInvestible(props) {
     return menuItems;
   }
 
-  const todoWarning = isInVoting || isFurtherWork || isInBlocked || isRequiresInput ? null : 'todoWarningPlanning';
-
   function handleDateChange(date) {
     const daysEstimate = marketDaysEstimate ? new Date(marketDaysEstimate) : undefined;
     if (!_.isEqual(date, daysEstimate)) {
@@ -1237,7 +1235,6 @@ function PlanningInvestible(props) {
                     marketId={marketId}
                     groupId={groupId}
                     issueWarningId={isFurtherWork ? undefined : 'issueWarningPlanning'}
-                    todoWarningId={todoWarning}
                     isInReview={isInReview}
                     isAssignee={isAssigned}
                     isStory

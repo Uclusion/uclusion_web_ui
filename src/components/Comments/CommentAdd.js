@@ -216,12 +216,11 @@ function getReportWarningId(isReadyForApproval) {
   return undefined;
 }
 
-export function getCommentCreationWarning(type, todoWarningId, issueWarningId, createInlineInitiative,
-  investibleRequiresInput, numReports, isReadyForApproval) {
-  return type === TODO_TYPE ? todoWarningId : type === ISSUE_TYPE ? issueWarningId :
-    type === REPORT_TYPE ? getReportWarningId(isReadyForApproval) :
-      createInlineInitiative ? 'noInitiativeType' :
-      investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined;
+export function getCommentCreationWarning(type, issueWarningId, createInlineInitiative, investibleRequiresInput,
+  numReports, isReadyForApproval) {
+  return type === ISSUE_TYPE ? issueWarningId : (type === REPORT_TYPE ? getReportWarningId(isReadyForApproval) :
+    (createInlineInitiative ? 'noInitiativeType' :
+      (investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined)));
 }
 
 export function getOlderReports(currentId, allComments, marketId, investibleId, myPresence) {
@@ -289,7 +288,7 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
 
 function CommentAdd(props) {
   const {
-    marketId, groupId, onSave, onCancel, type, investible, parent, issueWarningId, todoWarningId, isStory, nameKey,
+    marketId, groupId, onSave, onCancel, type, investible, parent, issueWarningId, isStory, nameKey,
     defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
     autoFocus=true, isStandAlone, threadMessages, nameDifferentiator='', wizardProps
   } = props;
@@ -488,8 +487,8 @@ function CommentAdd(props) {
   const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
     && type === SUGGEST_CHANGE_TYPE;
   const isReadyForApproval = currentStageId === readyForApprovalStage.id
-  const myWarningId = getCommentCreationWarning(type, todoWarningId, issueWarningId, createInlineInitiative,
-    investibleRequiresInput, numReports, isReadyForApproval);
+  const myWarningId = getCommentCreationWarning(type, issueWarningId, createInlineInitiative, investibleRequiresInput,
+    numReports, isReadyForApproval);
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];
   const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;

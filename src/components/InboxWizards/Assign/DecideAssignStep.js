@@ -15,13 +15,19 @@ import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork
 import JobDescription from '../JobDescription'
 import { updateInvestible } from '../../../api/investibles'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 
 
 function DecideAssignStep(props) {
   const { marketId, investibleId, clearFormData, message } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [, invDispatch] = useContext(InvestiblesContext)
+  const [, invDispatch] = useContext(InvestiblesContext);
+  const [commentsState] = useContext(CommentsContext);
+  const marketComments = getMarketComments(commentsState, marketId);
+  const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
@@ -58,7 +64,7 @@ function DecideAssignStep(props) {
       <Typography className={classes.introText}>
         Can you take this job?
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
       <WizardStepButtons
         {...props}
         nextLabel="DecideAssignMe"

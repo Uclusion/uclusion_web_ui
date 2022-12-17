@@ -351,8 +351,8 @@ function navigateEditReplyBack(history, id, marketId, groupId, investibleId, rep
  */
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId,
-    stagePreventsActions, isInbox, replyEditId, issueWarningId, todoWarningId, currentStageId, numReports,
-    marketInfo, investible, isOutbox, removeActions, showVoting } = props;
+    stagePreventsActions, isInbox, replyEditId, issueWarningId, currentStageId, numReports, marketInfo, investible,
+    isOutbox, removeActions, showVoting } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
@@ -436,7 +436,7 @@ function Comment(props) {
   const createdInReview = currentStageId === inReviewStageId;
   const investibleRequiresInput = (commentType === QUESTION_TYPE || commentType === SUGGEST_CHANGE_TYPE)
     && creatorAssigned && currentStageId !== blockingStageId && currentStageId !== requiresInputStageId;
-  const myWarningId = getCommentCreationWarning(commentType, todoWarningId, issueWarningId, createInlineInitiative,
+  const myWarningId = getCommentCreationWarning(commentType, issueWarningId, createInlineInitiative,
     investibleRequiresInput, numReports, createdInReview);
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];

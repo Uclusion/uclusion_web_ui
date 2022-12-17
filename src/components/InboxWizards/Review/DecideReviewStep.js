@@ -8,11 +8,11 @@ import JobDescription from '../JobDescription'
 import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import _ from 'lodash'
 import { wizardFinish } from '../InboxWizardUtils';
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 
 function DecideReviewStep(props) {
   const { marketId, investibleId, message, updateFormData, clearFormData } = props;
@@ -22,17 +22,7 @@ function DecideReviewStep(props) {
   const [commentsState] = useContext(CommentsContext);
   const isUnread = message.type_object_id.startsWith('UNREAD');
   const marketComments = getMarketComments(commentsState, marketId);
-  const commentsRaw = marketComments.filter((comment) => comment.investible_id === investibleId &&
-    (comment.comment_type === TODO_TYPE || (comment.comment_type === REPORT_TYPE && comment.creator_assigned)));
-  const comments = _.orderBy(commentsRaw, [(comment) => {
-    const { comment_type: commentType } = comment;
-    switch (commentType) {
-      case 'REPORT_TYPE':
-        return 2;
-      default:
-        return 1;
-    }
-  }], ['desc'] )
+  const comments = getCommentsSortedByType(marketComments, investibleId, true);
 
   function goToJob() {
     clearFormData();

@@ -184,7 +184,6 @@ function CommentAddBox(props) {
     marketInfo,
     allowedTypes,
     issueWarningId,
-    todoWarningId,
     isStory,
     isInReview,
     isAssignee,
@@ -221,8 +220,7 @@ function CommentAddBox(props) {
 
   if (!_.isEmpty(draftComments)) {
     return <CommentBox comments={draftComments} marketId={marketId} allowedTypes={[]} usePadding={false}
-                       issueWarningId={issueWarningId} todoWarningId={todoWarningId} marketInfo={marketInfo}
-                       investible={investible} isDraft />;
+                       issueWarningId={issueWarningId} marketInfo={marketInfo} investible={investible} isDraft />;
   }
 
   return (
@@ -279,7 +277,6 @@ function CommentAddBox(props) {
           marketId={marketId}
           groupId={groupId}
           issueWarningId={issueWarningId}
-          todoWarningId={todoWarningId}
           isStory={isStory}
           nameDifferentiator={nameDifferentiator}
           autoFocus={false}

@@ -21,7 +21,9 @@ import {
 import { useIntl } from 'react-intl';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getCommentsSortedByType } from '../../../utils/commentFunctions';
+import _ from 'lodash'
 
 function DecideStageStep(props) {
   const { marketId, investibleId } = props;
@@ -29,7 +31,9 @@ function DecideStageStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [investiblesState, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [commentsState, commentsDispatch] = useContext(CommentsContext)
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const marketComments = getMarketComments(commentsState, marketId);
+  const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
   const classes = wizardStyles();
   const inv = getInvestible(investiblesState, investibleId);
@@ -51,9 +55,15 @@ function DecideStageStep(props) {
     destinationLabel = 'planningInvestibleNextStageInReviewLabel';
     destinationExplanation = 'planningInvestibleInReviewExplanation';
   } else if (currentStageId === inReviewStage.id) {
-    destinationStage = verifiedStage;
-    destinationLabel = 'planningInvestibleMoveToVerifiedLabel';
-    destinationExplanation = 'planningInvestibleVerifiedExplanation';
+    if (!_.isEmpty(comments)) {
+      destinationStage = acceptedStage;
+      destinationExplanation = 'planningInvestibleAcceptedExplanation';
+      destinationLabel = 'planningInvestibleTasksInReviewExplanation';
+    } else {
+      destinationStage = verifiedStage;
+      destinationLabel = 'planningInvestibleMoveToVerifiedLabel';
+      destinationExplanation = 'planningInvestibleVerifiedExplanation';
+    }
   }
 
   function moveToTarget(isGotoJob) {
@@ -87,7 +97,7 @@ function DecideStageStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         {intl.formatMessage({ id: destinationExplanation })}.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
       <WizardStepButtons
         {...props}
         nextLabel="DecideStageMove"

@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import { addInvestible, getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper'
 import { getBlockedStage, getRequiredInputStage } from '../contexts/MarketStagesContext/marketStagesContextHelper'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../constants/comments'
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../constants/comments';
 import { addCommentToMarket } from '../contexts/CommentsContext/commentsContextHelper'
 import { pushMessage } from './MessageBusUtils'
 import { LOAD_EVENT } from '../contexts/InvestibesContext/investiblesContextMessages'
@@ -111,4 +111,19 @@ export function notifyImmediate(userId, comment, messagesDispatch) {
     comment_id: comment.id, user_id: userId, text: 'Please assign', level: RED_LEVEL,
     is_highlighted: false, name: 'Immediate TODOs', link: commentLink, market_type: PLANNING_TYPE,
     link_type: 'MARKET_TODO' }));
+}
+
+export function getCommentsSortedByType(marketComments, investibleId, includeStatusReports) {
+  const commentsRaw = marketComments.filter((comment) => comment.investible_id === investibleId && !comment.resolved &&
+    (comment.comment_type === TODO_TYPE ||
+      (includeStatusReports && comment.comment_type === REPORT_TYPE && comment.creator_assigned)));
+  return _.orderBy(commentsRaw, [(comment) => {
+    const { comment_type: commentType } = comment;
+    switch (commentType) {
+      case 'REPORT_TYPE':
+        return 2;
+      default:
+        return 1;
+    }
+  }], ['desc'] );
 }

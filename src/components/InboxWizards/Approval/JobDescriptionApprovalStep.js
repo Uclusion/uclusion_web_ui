@@ -15,6 +15,9 @@ import { wizardFinish } from '../InboxWizardUtils';
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 
 
 function JobDescriptionStep (props) {
@@ -23,6 +26,9 @@ function JobDescriptionStep (props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [commentsState] = useContext(CommentsContext);
+  const marketComments = getMarketComments(commentsState, marketId);
+  const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -48,7 +54,7 @@ function JobDescriptionStep (props) {
           Keep in mind that you are assigned to this job.
         </Typography>
       )}
-      <JobDescription marketId={marketId} investibleId={investibleId} />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
       <WizardStepButtons
         {...props}
         nextLabel="ApprovalWizardApprove"

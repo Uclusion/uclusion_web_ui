@@ -95,14 +95,7 @@ export function isInInbox(message, marketState, marketPresencesState, commentsSt
   return true;
 }
 
-export function getInboxTarget(messagesState) {
-  if (!_.isEmpty(messagesState)) {
-    const { current } = messagesState;
-    if (!_.isEmpty(current)) {
-      const { type_object_id: typeObjectId, id } = current;
-      return `/inbox#workListItem${id || typeObjectId}`;
-    }
-  }
+export function getInboxTarget() {
   return '/inbox';
 }
 

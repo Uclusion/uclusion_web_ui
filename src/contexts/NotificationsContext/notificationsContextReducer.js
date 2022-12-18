@@ -14,8 +14,6 @@ const LEVEL_MESSAGE = 'LEVEL_MESSAGE';
 const ADD_MESSAGE = 'ADD_MESSAGE';
 const REMOVE_FOR_INVESTIBLE = 'REMOVE_FOR_INVESTIBLE';
 const DEHIGHLIGHT_MESSAGES = 'DEHIGHLIGHT_MESSAGES';
-const CURRENT_MESSAGE = 'CURRENT_MESSAGE';
-const REMOVE_CURRENT_MESSAGE = 'REMOVE_CURRENT_MESSAGE';
 
 /** Messages you can send the reducer */
 
@@ -24,19 +22,6 @@ export function updateMessages(messages) {
     type: UPDATE_MESSAGES,
     messages,
   };
-}
-
-export function makeCurrentMessage(message) {
-  return {
-    type: CURRENT_MESSAGE,
-    message
-  }
-}
-
-export function removeCurrentMessage() {
-  return {
-    type: REMOVE_CURRENT_MESSAGE
-  }
 }
 
 export function removeMessages(messages) {
@@ -83,30 +68,6 @@ export function initializeState (newState) {
   };
 }
 
-function keepRelevantState(state, found, messagesToStore, current) {
-  const { initializing } = state;
-  if (initializing) {
-    if (found) {
-      return {
-        messages: messagesToStore,
-        current
-      };
-    }
-    return {
-      messages: messagesToStore,
-    };
-  }
-  if (found) {
-    return {
-      ...state,
-      messages: messagesToStore
-    };
-  }
-  return {
-    messages: messagesToStore,
-  };
-}
-
 /**
  * Stores messages in the state.
  * @param state
@@ -114,11 +75,9 @@ function keepRelevantState(state, found, messagesToStore, current) {
  * @returns {*}
  */
 function storeMessagesInState(state, messagesToStore) {
-  const { current } = state;
-  const useCurrent = current || {};
-  const found = (messagesToStore || []).find((aMessage) => aMessage.market_id_user_id === useCurrent.market_id_user_id
-    && aMessage.type_object_id === useCurrent.type_object_id);
-  return keepRelevantState(state, found, messagesToStore, current);
+  return {
+    messages: messagesToStore,
+  };
 }
 
 /**
@@ -223,26 +182,6 @@ function doDehighlightMessages(state, action) {
   return storeMessagesInState(state, newMessages);
 }
 
-function markMessageCurrent(state, action) {
-  const { message } = action;
-  const { messages: existingMessages } = state;
-  const found = (existingMessages || []).find((aMessage) => aMessage.market_id_user_id === message.market_id_user_id
-    && aMessage.type_object_id === message.type_object_id);
-  if (found && !message.id) {
-    return { ...state, current: found };
-  }
-  if (message.id) {
-    // Messages with IDs are coming from outbox
-    return { ...state, current: message };
-  }
-  return removeMessageCurrent(state);
-}
-
-function removeMessageCurrent(state) {
-  const { messages } = state;
-  return keepRelevantState(state, false, messages);
-}
-
 function computeNewState (state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
@@ -259,10 +198,6 @@ function computeNewState (state, action) {
       return changeLevelSingleMessage(state, action);
     case REMOVE_FOR_INVESTIBLE:
       return removeForInvestible(state, action);
-    case CURRENT_MESSAGE:
-      return markMessageCurrent(state, action);
-    case REMOVE_CURRENT_MESSAGE:
-      return removeMessageCurrent(state);
     default:
       return state;
   }

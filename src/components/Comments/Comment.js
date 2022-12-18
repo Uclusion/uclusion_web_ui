@@ -336,9 +336,9 @@ function useMarketId() {
   return React.useContext(LocalCommentsContext).marketId;
 }
 function navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply=false,
-  isFromInbox, messagesState) {
+  isFromInbox) {
   if (replyEditId) {
-    const path = isFromInbox ? getInboxTarget(messagesState) : formCommentLink(marketId, groupId, investibleId, id);
+    const path = isFromInbox ? getInboxTarget() : formCommentLink(marketId, groupId, investibleId, id);
     navigate(history, path);
   } else {
     navigate(history, formCommentEditReplyLink(marketId, id, isReply), false, true);
@@ -493,10 +493,9 @@ function Comment(props) {
     if (parentCommentId && replyEditId && !isFromInbox) {
       const rootComment = getComment(commentState, parentMarketId, parentCommentId);
       navigateEditReplyBack(history, parentCommentId, parentMarketId, rootComment.group_id, rootComment.investible_id,
-        replyEditId, isReply, isFromInbox, messagesState);
+        replyEditId, isReply, isFromInbox);
     } else {
-      navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply, isFromInbox,
-        messagesState);
+      navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply, isFromInbox);
     }
   }
 
@@ -1373,7 +1372,7 @@ function Reply(props) {
 
   function handleEditClick() {
     navigateEditReplyBack(history, comment.id, marketId, comment.group_id, comment.investible_id, replyEditId,
-      false, isFromInbox, messagesState);
+      false, isFromInbox);
   }
 
   function setBeingEdited(value, event) {
@@ -1385,7 +1384,7 @@ function Reply(props) {
 
   function setReplyOpen() {
     navigateEditReplyBack(history, comment.id, marketId, comment.group_id, comment.investible_id, replyEditId,
-      true, isFromInbox, messagesState);
+      true, isFromInbox);
   }
   const { level: myHighlightedLevel } = myMessage;
   const intl = useIntl();

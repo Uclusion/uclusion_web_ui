@@ -13,10 +13,9 @@ import { useHistory } from 'react-router'
 import RaisedCard from '../../../components/Cards/RaisedCard'
 import { pushMessage } from '../../../utils/MessageBusUtils'
 import {
-  CURRENT_EVENT,
   DEHIGHLIGHT_EVENT, DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL
-} from '../../../contexts/NotificationsContext/notificationsContextMessages'
+} from '../../../contexts/NotificationsContext/notificationsContextMessages';
 import { ExpandLess } from '@material-ui/icons'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { usesExpansion } from './InboxExpansionPanel'
@@ -234,8 +233,7 @@ function WorkListItem(props) {
           </Div>
         </div>
         <div id={`workListItemExpansion${id}`} style={{visibility: expansionPanelVisible ? 'visible' : 'hidden',
-          height: expansionPanelVisible ? undefined : 0}}
-             onClick={() => pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: CURRENT_EVENT, message })}>
+          height: expansionPanelVisible ? undefined : 0}}>
           {expansionPanel || <React.Fragment />}
         </div>
       </RaisedCard>

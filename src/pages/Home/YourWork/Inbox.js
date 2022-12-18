@@ -23,11 +23,6 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
 import { createDefaultInboxRow } from './InboxExpansionPanel'
 import Outbox from './Outbox'
-import { pushMessage } from '../../../utils/MessageBusUtils'
-import {
-  MODIFY_NOTIFICATIONS_CHANNEL,
-  REMOVE_CURRENT_EVENT
-} from '../../../contexts/NotificationsContext/notificationsContextMessages'
 import {
   contractAll,
   expandAll,
@@ -125,7 +120,6 @@ function Inbox(props) {
       <GmailTabs
         value={tabIndex}
         onChange={(event, value) => {
-          pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: REMOVE_CURRENT_EVENT });
           inboxDispatch(setTab(value));
         }}
         indicatorColors={[htmlColor, '#00008B', '#00008B']}

@@ -201,7 +201,7 @@ function Screen(props) {
   const navigationMenu =
     {
       headerItemTextArray: [
-        {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(messagesState),
+        {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(),
           newPage: true, isBold: _.isEmpty(marketId),
           num: _.isEmpty(search) ?
             getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState)

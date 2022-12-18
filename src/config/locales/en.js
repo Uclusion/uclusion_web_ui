@@ -457,6 +457,7 @@ const messages = defineMessages({
   reassignWarning: 'Re-assigning will remove all approval.',
   planningUnacceptedLabel: 'Unaccepted',
   planningAcceptLabel: 'Accept',
+  wizardAcceptLabel: 'Move to task',
   planningAcceptExplanation: 'Has not accepted',
   // Issues
   issueResolveLabel: 'Resolve',

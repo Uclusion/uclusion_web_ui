@@ -10,19 +10,20 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInfo } from '../../../utils/userFunctions'
-import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getFullStage, getStageNameForId } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useHistory } from 'react-router'
-import { wizardFinish } from '../InboxWizardUtils'
-import { formCommentLink } from '../../../utils/marketIdPathFunctions'
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { resolveComment, updateComment } from '../../../api/comments'
-import { TODO_TYPE } from '../../../constants/comments'
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { getFormerStageId, isSingleAssisted } from '../../../utils/commentFunctions';
+import { useIntl } from 'react-intl';
 
 
-function DecideAcceptRejectStep(props) {
-  const { marketId, commentId, message } = props;
+function DecideAssistanceStep(props) {
+  const { marketId, commentId } = props;
+  const intl = useIntl();
   const [commentState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -33,24 +34,23 @@ function DecideAcceptRejectStep(props) {
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
-  const workItemClasses = workListStyles();
-  const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : {} ;
-  const { investible: myInvestible } = inv;
-  const { name } = myInvestible || {};
+  const inv = getInvestible(investibleState, commentRoot.investible_id) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage } = marketInfo;
-  const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
+  const fullStage = getFullStage(marketStagesState, marketId, stage);
+  const nextStageId = getFormerStageId(formerStageId, marketId, marketStagesState);
+  const nextStageName = getStageNameForId(marketStagesState, marketId, nextStageId, intl);
+  const isSingle = isSingleAssisted(comments, assigned);
+  const isSuggest = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
+
 
   function myOnFinish() {
-    wizardFinish({link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
-          commentRoot.id)},
-      setOperationRunning, message, history);
+    navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentRoot.id));
   }
 
   function accept() {
     return updateComment(marketId, commentId, undefined, TODO_TYPE).then((comment) => {
       addCommentToMarket(comment, commentsState, commentsDispatch);
-      removeWorkListItem(message, workItemClasses.removed);
       setOperationRunning(false);
     })
   }
@@ -59,7 +59,6 @@ function DecideAcceptRejectStep(props) {
     return resolveComment(marketId, commentId)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
-        removeWorkListItem(message, workItemClasses.removed);
         setOperationRunning(false);
       });
   }
@@ -70,8 +69,14 @@ function DecideAcceptRejectStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Do you accept this suggestion for "{name}"?
+        Are you done with this
+        {commentRoot.comment_type === QUESTION_TYPE ? ' question' : (isSuggest ? ' suggestion' : ' blocking issue')}?
       </Typography>
+      {isSingle && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Resolving moves this job to {nextStageName}.
+        </Typography>
+      )}
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}
@@ -87,9 +92,15 @@ function DecideAcceptRejectStep(props) {
       <WizardStepButtons
         {...props}
         onFinish={myOnFinish}
-        nextLabel="wizardAcceptLabel"
-        onNext={accept}
-        showOtherNext
+        finish={myOnFinish}
+        nextLabel={isSuggest ? 'wizardAcceptLabel' : 'commentResolveLabel'}
+        onNext={() => {
+          if (isSuggest) {
+            return accept();
+          }
+          resolve();
+        }}
+        showOtherNext={isSuggest}
         otherNextLabel="saveReject"
         onOtherNext={resolve}
         showTerminate={true}
@@ -100,14 +111,14 @@ function DecideAcceptRejectStep(props) {
   );
 }
 
-DecideAcceptRejectStep.propTypes = {
+DecideAssistanceStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
 };
 
-DecideAcceptRejectStep.defaultProps = {
+DecideAssistanceStep.defaultProps = {
   updateFormData: () => {},
   formData: {}
 };
 
-export default DecideAcceptRejectStep;
+export default DecideAssistanceStep;

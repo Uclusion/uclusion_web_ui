@@ -1,6 +1,10 @@
 import _ from 'lodash'
 import { addInvestible, getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper'
-import { getBlockedStage, getRequiredInputStage } from '../contexts/MarketStagesContext/marketStagesContextHelper'
+import {
+  getBlockedStage,
+  getFullStage, getInCurrentVotingStage,
+  getRequiredInputStage, isFurtherWorkStage
+} from '../contexts/MarketStagesContext/marketStagesContextHelper';
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../constants/comments';
 import { addCommentToMarket } from '../contexts/CommentsContext/commentsContextHelper'
 import { pushMessage } from './MessageBusUtils'
@@ -126,4 +130,25 @@ export function getCommentsSortedByType(marketComments, investibleId, includeSta
         return 1;
     }
   }], ['desc'] );
+}
+
+export function getFormerStageId(formerStageId, marketId, marketStagesState) {
+  if (!formerStageId) {
+    return formerStageId;
+  }
+  const formerStage = getFullStage(marketStagesState, marketId, formerStageId);
+  if (!isFurtherWorkStage(formerStage)) {
+    return formerStageId;
+  }
+  return (getInCurrentVotingStage(marketStagesState, marketId) || {}).id;
+}
+
+export function isSingleAssisted(comments, assigned) {
+  if (_.isEmpty(assigned)) {
+    return false;
+  }
+  return _.size(comments.filter(
+    comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
+      && !comment.resolved && assigned.includes(comment.created_by))) +
+    _.size(comments.filter(comment => comment.comment_type === ISSUE_TYPE && !comment.resolved)) === 1;
 }

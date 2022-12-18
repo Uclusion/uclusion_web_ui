@@ -6,15 +6,12 @@ import Comment from '../../components/Comments/Comment';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import {
-  getFullStage,
-  getInCurrentVotingStage,
-  isFurtherWorkStage
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { getOlderReports } from '../../components/Comments/CommentAdd'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { FormattedMessage } from 'react-intl'
+import { getFormerStageId, isSingleAssisted } from '../../utils/commentFunctions';
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   let myRootUpdatedAt = rootUpdatedAt;
@@ -87,22 +84,8 @@ function CommentBox(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const sortedRoots = getSortedRoots(comments, searchResults);
   const useFullStage = _.isEmpty(fullStage) && stage ? getFullStage(marketStagesState, marketId, stage) : fullStage;
-  function getFormerStageId() {
-    if (!formerStageId) {
-      return formerStageId;
-    }
-    const formerStage = getFullStage(marketStagesState, marketId, formerStageId);
-    if (!isFurtherWorkStage(formerStage)) {
-      return formerStageId;
-    }
-    return (getInCurrentVotingStage(marketStagesState, marketId) || {}).id;
-  }
-  const resolvedStageId = (isRequiresInput && _.size(comments.filter(
-    comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
-      && !comment.resolved && assigned.includes(comment.created_by)
-  )) === 1) || (isInBlocking && _.size(comments.filter(
-    comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
-  )) === 1) ? getFormerStageId() : undefined;
+  const resolvedStageId = isSingleAssisted(comments, assigned) ?
+    getFormerStageId(formerStageId, marketId, marketStagesState) : undefined;
 
   function getCommentCards() {
     const presences = getMarketPresences(marketPresencesState, marketId) || [];

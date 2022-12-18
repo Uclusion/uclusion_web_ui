@@ -39,6 +39,7 @@ import AssignWizard from '../../../components/InboxWizards/Assign/AssignWizard'
 import ReviewWizard from '../../../components/InboxWizards/Review/ReviewWizard'
 import BlockedWizard from '../../../components/InboxWizards/Unblock/BlockedWizard'
 import StageWizard from '../../../components/InboxWizards/Stage/StageWizard';
+import WaitingAssistanceWizard from '../../../components/InboxWizards/WaitingAssistance/WaitingAssistanceWizard';
 
 export function usesExpansion(item) {
   const { message } = item;
@@ -54,8 +55,8 @@ export function usesExpansion(item) {
       return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNREAD_RESOLVED', 'FULLY_VOTED', 'NOT_FULLY_VOTED', 'ISSUE',
         'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE'].includes(message.type);
     }
-    //Pending always just clicks through if not assigned
-    return message.isOutboxType && message.isAssigned;
+    //Pending just clicks through if not assigned or needs assistance
+    return message.isOutboxType && (message.isAssigned || (message.isCommentType && !_.isEmpty(message.investible)));
   }
   return false;
 }
@@ -68,8 +69,12 @@ export function addExpansionPanel(props) {
   if (!messageType || messageType === 'ASSIGNED_UNREVIEWABLE') {
     if (messageType === 'ASSIGNED_UNREVIEWABLE') {
       item.expansionPanel = <StageWizard investibleId={investibleId} marketId={marketId} />;
-    } else if (message.isOutboxType && message.isAssigned) {
-      item.expansionPanel = <StageWizard investibleId={message.id} marketId={message.marketId} />;
+    } else if (message.isOutboxType) {
+      if (message.isAssigned) {
+        item.expansionPanel = <StageWizard investibleId={message.id} marketId={message.marketId}/>;
+      } else {
+        item.expansionPanel = <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId} />;
+      }
     }
   } else if (messageType === 'NOT_FULLY_VOTED') {
     if (marketType === PLANNING_TYPE) {

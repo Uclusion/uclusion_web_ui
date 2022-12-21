@@ -408,7 +408,7 @@ const messages = defineMessages({
   DecideStageMove: 'Move',
   planningInvestibleAcceptedExplanation: 'Move to Started when you have approval and are beginning',
   planningInvestibleTasksInReviewExplanation: 'This job has open tasks and so cannot be moved to Verified',
-  planningInvestibleInReviewExplanation: 'Move to Ready for Feedback as early as possible for feedback',
+  planningInvestibleInReviewExplanation: 'Get team opinions as early as possible',
   planningInvestibleNotDoingExplanation: 'Move to Not Doing will unassign and archive the job',
   planningInvestibleVerifiedExplanation: 'Move to Verified when you no longer anticipate further work on the job',
   planningInvestibleFurtherWorkExplanation: 'Move to this stage when a handoff to another assignee is expected for this job',

@@ -92,7 +92,7 @@ function DecideStageStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Is this job ready to move to {intl.formatMessage({ id: destinationLabel })}?
+        Move this job to {intl.formatMessage({ id: destinationLabel })}?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         {intl.formatMessage({ id: destinationExplanation })}.

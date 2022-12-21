@@ -249,7 +249,7 @@ const messages = defineMessages({
   swimLanes: 'Swimlanes',
   inbox: 'Inbox',
   unread: 'Primary',
-  teamUnresolved: 'Read',
+  teamUnresolved: 'Deferred',
   outbox: 'From You',
   seeFullInbox: 'SEE FULL',
   seeFullOutbox: 'SEE FULL',

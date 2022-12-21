@@ -158,6 +158,7 @@ function getMessageForInvestible(investible, market, labelId, Icon, intl, messag
     investible: investible.investible.name,
     title: intl.formatMessage({ id: labelId }),
     updatedAt: investible.investible.updated_at,
+    updated_at: investible.investible.updated_at,
     link: formInvestibleLink(market.id, investibleId),
     isOutboxAccepted: investible.notAccepted,
     isOutboxType: true,

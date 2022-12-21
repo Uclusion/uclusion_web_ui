@@ -23,10 +23,13 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 
 function getPriorityIcon(message, isAssigned) {
-  const { level, link_type: linkType } = message;
+  const { level, link_type: linkType, is_highlighted: isHighlighted } = message;
   const Icon = isAssigned ? Assignment :
     (['UNASSIGNED', 'UNREAD_DRAFT', 'UNREAD_GROUP'].includes(message.type) || (message.type === 'UNREAD_REVIEWABLE'
       && linkType === 'MARKET_TODO') ? PersonAddOutlined : Quiz);
+  if (!isHighlighted) {
+    return <Icon style={{fontSize: 24, color: '#706f6f'}}/>;
+  }
   switch (level) {
     case 'RED':
       return <Icon style={{fontSize: 24, color: '#E85757'}}/>;
@@ -99,7 +102,7 @@ function InboxRow(props) {
     addExpansionPanel({ item });
   }
   return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}
-                       determinateDispatch={determinateDispatch}
+                       determinateDispatch={determinateDispatch} useSelect={isHighlighted}
                        inboxDispatch={inboxDispatch} expansionOpen={expansionOpen} {...item} />;
 }
 

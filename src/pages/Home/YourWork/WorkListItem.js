@@ -147,7 +147,8 @@ function WorkListItem(props) {
     id,
     expansionPanel,
     expansionOpen,
-    isDeletable = false
+    isDeletable = false,
+    useSelect
   } = props;
   const history = useHistory();
   const classes = workListStyles();
@@ -156,8 +157,7 @@ function WorkListItem(props) {
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [isHovered, setIsHovered] = useState(false);
-  const { link, isAssigned, isOutboxType } = message;
-  const useSelect = isAssigned !== true && isOutboxType !== true;
+  const { link } = message;
   let fullText =  investible || comment || market;
   if (!moreDescription && investible && comment) {
     fullText += ' - ' + comment;
@@ -186,7 +186,7 @@ function WorkListItem(props) {
             }
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-          <Div className={cx(read && 'MailListItem-read')}>
+          <Div>
             <Box flexShrink={0} className={gutterStyles.parent}>
               {!mobileLayout && (
                 <StyledIconButton
@@ -202,7 +202,7 @@ function WorkListItem(props) {
                   {checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />}
                 </StyledIconButton>
               )}
-              {(!useSelect || !mobileLayout) && (
+              {!mobileLayout && (
                 <StyledIconButton
                   disabled
                   classes={actionStyles}

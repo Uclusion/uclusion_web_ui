@@ -120,6 +120,7 @@ function Inbox(props) {
       <GmailTabs
         value={tabIndex}
         onChange={(event, value) => {
+          window.scrollTo(0, 0);
           inboxDispatch(setTab(value));
         }}
         indicatorColors={[htmlColor, '#00008B', '#00008B']}

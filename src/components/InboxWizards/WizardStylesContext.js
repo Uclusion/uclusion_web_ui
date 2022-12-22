@@ -182,9 +182,10 @@ export const wizardStyles = makeStyles(
       },
       wizardCommentBoxDiv: {
         maxHeight: '300px',
+        paddingBottom: '0.5rem',
         overflowY: 'auto',
         overflowX: 'hidden',
-        marginBottom: '1rem',
+        marginBottom: '0.5rem',
         paddingLeft: '4px',
         paddingRight: '4px'
       }

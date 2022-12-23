@@ -40,6 +40,7 @@ import ReviewWizard from '../../../components/InboxWizards/Review/ReviewWizard'
 import BlockedWizard from '../../../components/InboxWizards/Unblock/BlockedWizard'
 import StageWizard from '../../../components/InboxWizards/Stage/StageWizard';
 import WaitingAssistanceWizard from '../../../components/InboxWizards/WaitingAssistance/WaitingAssistanceWizard';
+import AssignToOtherWizard from '../../../components/InboxWizards/AssignToOther/AssignToOtherWizard';
 
 export function usesExpansion(item) {
   const { message } = item;
@@ -55,7 +56,10 @@ export function usesExpansion(item) {
       return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNREAD_RESOLVED', 'FULLY_VOTED', 'NOT_FULLY_VOTED', 'ISSUE',
         'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE'].includes(message.type);
     }
-    //Pending just clicks through if not assigned or needs assistance
+    if (message.isOutboxAccepted) {
+      return true;
+    }
+    //Other pending just clicks through if not assigned or needs assistance
     return message.isOutboxType && (message.isAssigned || (message.isCommentType && !_.isEmpty(message.investible)));
   }
   return false;
@@ -65,10 +69,12 @@ export function addExpansionPanel(props) {
   const { item } = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
-    link_type: linkType, investible_id: investibleId, market_type: marketType } = message;
-  if (!messageType || messageType === 'ASSIGNED_UNREVIEWABLE') {
+    link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted } = message;
+  if (isOutboxAccepted) {
+    item.expansionPanel = <AssignToOtherWizard investibleId={message.id} marketId={message.marketId} />;
+  } else if (!messageType || messageType === 'ASSIGNED_UNREVIEWABLE') {
     if (messageType === 'ASSIGNED_UNREVIEWABLE') {
-      item.expansionPanel = <StageWizard investibleId={investibleId} marketId={marketId} />;
+      item.expansionPanel = <StageWizard investibleId={message} marketId={marketId} />;
     } else if (message.isOutboxType) {
       if (message.isAssigned) {
         item.expansionPanel = <StageWizard investibleId={message.id} marketId={message.marketId}/>;

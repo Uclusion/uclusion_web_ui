@@ -1133,6 +1133,8 @@ const messages = defineMessages({
   DecideWizardMute: 'Mute this thread',
   DecideResolveAndGoJob: 'Resolve and go to job',
   DecideResolveAndMoveToJob: 'Resolve and move to job',
+  DecideWizardReassign: 'Reassign',
+  DecideMoveBacklog: 'Move to backlog',
 
   //SignupWizard
   SignupWizardTitle: 'What do you want to create?',

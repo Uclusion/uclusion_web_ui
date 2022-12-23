@@ -35,8 +35,7 @@ function JobDescription(props) {
 
   return (
     <>
-      <div style={{maxHeight: '300px', minHeight: editorIsEmpty ? undefined : '200px', overflowY: 'auto',
-        overflowX: 'hidden', paddingLeft: '4px', paddingRight: '4px', paddingTop: '1rem'}}>
+      <div style={{paddingLeft: '4px', paddingRight: '4px', paddingTop: '1rem'}}>
         {!_.isEmpty(assignedPresences) && (
           <div style={{alignItems: 'center', display: 'flex', paddingBottom: '1rem'}}>
             <Typography variant='body2' style={{ paddingRight: '0.5rem'}}>
@@ -51,7 +50,8 @@ function JobDescription(props) {
           <DescriptionOrDiff id={investibleId} description={description} showDiff={false} />
         )}
         {!_.isEmpty(comments) && (
-          <div style={{paddingTop: '1rem'}}>
+          <div style={{paddingTop: '1rem', maxHeight: '300px', minHeight: '200px', overflowY: 'auto',
+            overflowX: 'hidden', }}>
             <CommentBox
               comments={comments}
               marketId={marketId}

@@ -44,6 +44,7 @@ import { deleteOrDehilightMessages } from '../../../api/users'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { workListStyles } from '../../Home/YourWork/WorkListItem'
 import { getTicketNumber } from '../../../utils/stringFunctions'
+import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
 
 const myClasses = makeStyles(
   theme => {
@@ -178,9 +179,9 @@ function MarketTodos(props) {
     return comment.comment_type === TODO_TYPE && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   }) || [];
-  const blueComments = todoComments.filter((comment) => comment.notification_type === 'BLUE');
-  const yellowComments = todoComments.filter((comment) => comment.notification_type === 'YELLOW');
-  const redComments = todoComments.filter((comment) => comment.notification_type === 'RED');
+  const blueComments = todoComments.filter((comment) => comment.notification_type === BLUE_LEVEL);
+  const yellowComments = todoComments.filter((comment) => comment.notification_type === YELLOW_LEVEL);
+  const redComments = todoComments.filter((comment) => comment.notification_type === RED_LEVEL);
   const location = useLocation();
   const { hash } = location;
   const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);

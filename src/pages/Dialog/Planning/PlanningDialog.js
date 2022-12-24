@@ -159,7 +159,7 @@ function PlanningDialog(props) {
   useEffect(() => {
     if (hash && !hidden) {
       if (hash.includes('workspaceMain')) {
-        updatePageState({ sectionOpen: 'workspaceMain' })
+        updatePageState({ sectionOpen: 'workspaceMain', tabIndex: 6 })
       } else {
         const element = document.getElementById(hash.substring(1, hash.length));
         if (!element) {
@@ -169,12 +169,12 @@ function PlanningDialog(props) {
             if (_.isEmpty(rootComment.investible_id)) {
               if (!rootComment.resolved) {
                 if (rootComment.comment_type === TODO_TYPE) {
-                  updatePageState({ sectionOpen: 'marketTodos' });
+                  updatePageState({ sectionOpen: 'marketTodos', tabIndex: 1 });
                 } else {
-                  updatePageState({ sectionOpen: 'workspaceMain' });
+                  updatePageState({ sectionOpen: 'workspaceMain', tabIndex: 6 });
                 }
               } else {
-                updatePageState({ sectionOpen: 'archive' });
+                updatePageState({ sectionOpen: 'archive', tabIndex: 4 });
               }
             }
           }

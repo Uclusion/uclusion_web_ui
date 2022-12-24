@@ -9,3 +9,4 @@ export const USER_POKED_TYPE = 'USER_POKED';
 
 export const RED_LEVEL = 'RED';
 export const YELLOW_LEVEL = 'YELLOW';
+export const BLUE_LEVEL = 'BLUE';

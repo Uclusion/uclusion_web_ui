@@ -18,10 +18,14 @@ import { useHistory } from 'react-router';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
+import { JUSTIFY_TYPE } from '../../../constants/comments';
+import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
+import { setUclusionLocalStorageItem } from '../../localStorageUtils';
+import { getJobApproveEditorName } from './JobApproveStep';
 
 
 function JobDescriptionStep (props) {
-  const {marketId, investibleId, updateFormData, message} = props;
+  const { marketId, investibleId, updateFormData, message, yourVote } = props;
   const classes = wizardStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
@@ -35,6 +39,9 @@ function JobDescriptionStep (props) {
   const userId = getMyUserForMarket(marketsState, marketId);
   const { assigned } = marketInfo || {};
   const isAssigned = (assigned || []).includes(userId);
+  const wasDeleted = yourVote && yourVote.deleted;
+  const yourReason = comments.find((comment) => comment.created_by === userId && comment.investible_id === investibleId
+    && comment.comment_type === JUSTIFY_TYPE);
 
   function myOnFinish() {
     wizardFinish({link: `${formInvestibleLink(marketId, investibleId)}#approve`},
@@ -49,7 +56,12 @@ function JobDescriptionStep (props) {
       <Typography className={classes.introText}>
         Should this job be done now?
       </Typography>
-      {isAssigned && (
+      {wasDeleted && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Your approval was deleted or expired.
+        </Typography>
+      )}
+      {!wasDeleted && isAssigned && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Keep in mind that you are assigned to this job.
         </Typography>
@@ -61,7 +73,16 @@ function JobDescriptionStep (props) {
         showOtherNext
         otherNextLabel="ApprovalWizardBlock"
         onOtherNext={() => updateFormData({ commentType: ISSUE_TYPE })}
-        onNext={() => updateFormData({ isApprove: true, investibleId })}
+        onNext={() => {
+          const { body } = yourReason || {};
+          if (!editorEmpty(body)) {
+            setUclusionLocalStorageItem(getJobApproveEditorName(investibleId), body);
+          }
+          updateFormData({
+            isApprove: true, investibleId,
+            approveQuantity: yourVote ? yourVote.quantity : undefined
+          });
+        }}
         showTerminate={true}
         onFinish={myOnFinish}
         terminateLabel="ApproveWizardGotoJob"/>

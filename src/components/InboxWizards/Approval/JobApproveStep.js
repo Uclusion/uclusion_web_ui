@@ -21,6 +21,9 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { wizardFinish } from '../InboxWizardUtils';
 import { useHistory } from 'react-router';
 
+export function getJobApproveEditorName(investibleId) {
+  return `jobapproveeditor${investibleId}`;
+}
 function JobApproveStep(props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish, marketInfo,
     message } = props;
@@ -36,7 +39,7 @@ function JobApproveStep(props) {
   const validForm = formData.approveQuantity != null;
   const classes = wizardStyles();
   const { investibleId } = formData;
-  const editorName = `jobapproveeditor${investibleId}`;
+  const editorName = getJobApproveEditorName(investibleId);
 
   function onNext(isGotoJob) {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;

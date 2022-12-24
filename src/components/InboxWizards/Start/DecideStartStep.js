@@ -14,7 +14,6 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { useHistory } from 'react-router'
 import { wizardFinish } from '../InboxWizardUtils'
 import {
-  formCommentEditReplyLink,
   formCommentLink,
   formInvestibleLink,
   navigate

@@ -73,6 +73,7 @@ function convertDescriptionForSeparator(description, separator, maxLength = 80) 
   if (_.isEmpty(description)) {
     return nameDescriptionMap;
   }
+  const ampersand = separator === ". " ? '' : '...';
   const list = ["p", "li", "td", "h1", "h2"];
   let found = -1;
   let latestExtract = undefined;
@@ -106,20 +107,22 @@ function convertDescriptionForSeparator(description, separator, maxLength = 80) 
                 if (beforePartIndex < 0) {
                   beforePartIndex = 0;
                 }
-                latestDescription = `${description.substring(0, beforePartIndex + entryBeginElement.length)}...${description.substring(indexAfter)}`;
+                latestDescription = `${description.substring(0, beforePartIndex + entryBeginElement.length)}${ampersand}${description.substring(indexAfter)}`;
                 //Remove html from the part between the components to avoid dangling or unclosed html
                 const endElementPosition = latestDescription.indexOf(entryEndElement);
                 const endElementPart = latestDescription.substring(entryBeginElement.length, endElementPosition);
                 if (endElementPart.indexOf('<img') < 0) {
                   // Only strip out html if no img tags
                   const latestDescriptionInnerStripped = stripHTML(endElementPart);
-                  latestDescription = `${entryBeginElement}${latestDescriptionInnerStripped}${latestDescription.substring(endElementPosition)}`;
+                  if (!_.isEmpty(latestDescriptionInnerStripped)) {
+                    latestDescription = `${entryBeginElement}${latestDescriptionInnerStripped}${latestDescription.substring(endElementPosition)}`;
+                  }
                 }
-                const emptyAmpersand = `${entryBeginElement}...${entryEndElement}`;
+                const emptyAmpersand = `${entryBeginElement}${ampersand}${entryEndElement}`;
                 // replaceAll not supported when running jest so use this syntax
                 latestDescription = latestDescription.split(emptyAmpersand).join('');
                 if (latestExtract.endsWith(' ')) {
-                  latestExtract = `${latestExtract.substring(0, latestExtract.length - 1)}...`;
+                  latestExtract = `${latestExtract.substring(0, latestExtract.length - 1)}${ampersand}`;
                 }
                 found = index;
               }

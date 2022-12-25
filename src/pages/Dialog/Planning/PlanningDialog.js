@@ -318,30 +318,32 @@ function PlanningDialog(props) {
           {isSectionOpen('storiesSection') && (
             <div id="storiesSection">
               {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
-                <SubSection
-                  type={SECTION_TYPE_SECONDARY_WARNING}
-                  bolder
-                  titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
-                    <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, maxHeight: '20px',
-                      borderRadius: 12, paddingRight: '2.79px', paddingLeft: '2.79px', marginRight: '1rem'}}>
-                      {blockedOrRequiresInputInvestibles.length} total
-                    </span> : undefined}
-                  title={intl.formatMessage({ id: 'blockedHeader' })}
-                  helpLink='https://documentation.uclusion.com/channels/jobs/stages/#blocked'
-                  id="blocked"
-                >
-                  <ArchiveInvestbiles
-                    comments={comments}
-                    elevation={0}
-                    marketId={marketId}
-                    presenceMap={presenceMap}
-                    investibles={blockedOrRequiresInputInvestibles}
-                    presenceId={myPresence.id}
-                    allowDragDrop
-                  />
-                </SubSection>
+                <>
+                  <SubSection
+                    type={SECTION_TYPE_SECONDARY_WARNING}
+                    bolder
+                    titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
+                      <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, maxHeight: '20px',
+                        borderRadius: 12, paddingRight: '2.79px', paddingLeft: '2.79px', marginRight: '1rem'}}>
+                        {blockedOrRequiresInputInvestibles.length} total
+                      </span> : undefined}
+                    title={intl.formatMessage({ id: 'blockedHeader' })}
+                    helpLink='https://documentation.uclusion.com/channels/jobs/stages/#blocked'
+                    id="blocked"
+                  >
+                    <ArchiveInvestbiles
+                      comments={comments}
+                      elevation={0}
+                      marketId={marketId}
+                      presenceMap={presenceMap}
+                      investibles={blockedOrRequiresInputInvestibles}
+                      presenceId={myPresence.id}
+                      allowDragDrop
+                    />
+                  </SubSection>
+                  <div style={{ paddingBottom: '2rem' }}/>
+                </>
               )}
-              <div style={{ paddingBottom: '2rem' }}/>
               <InvestiblesByPerson
                 comments={comments}
                 investibles={investibles}
@@ -362,9 +364,9 @@ function PlanningDialog(props) {
                                  isInStages(investible, visibleStages, marketId)))}
                                text={
                 <div>
-                  Use the "Add job" button above and each team member's inbox will have
-                  a <Link href="https://documentation.uclusion.com/notifications" target="_blank">notification</Link> until
-                  they approve, give feedback or answer questions as necessary.
+                  Use the "Add job" button above and
+                  a <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> are
+                  sent backed by instructional wizards.
                 </div>
               }/>
             </div>

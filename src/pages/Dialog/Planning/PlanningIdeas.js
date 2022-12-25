@@ -46,6 +46,9 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { getTicketNumber } from '../../../utils/stringFunctions'
+import { Schedule } from '@material-ui/icons';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -639,22 +642,34 @@ function StageInvestible(props) {
     );
   }
 
+  function requiresStatus(messagesState, id) {
+    if (!_.isEmpty(findMessageOfTypeAndId(id, messagesState, 'REPORT'))) {
+      return true;
+    }
+    return !_.isEmpty(findMessageOfType('REPORT_REQUIRED', id, messagesState));
+  }
+
   const { completion_estimate: daysEstimate, ticket_code: ticketCode } = marketInfo;
   const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [messagesState] = useContext(NotificationsContext)
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
   const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
-
   const commenterPresences = getCommenterPresences(marketPresences, commentsForInvestible, marketPresencesState);
   const votersForInvestible = getInvestibleVoters(marketPresences, id);
   const concated = [...votersForInvestible, ...commenterPresences];
   const hasDaysEstimate = showCompletion && daysEstimate;
   const collaboratorsForInvestible = _.uniqBy(concated, 'id');
-  const chip = mobileLayout ? undefined : getChip(numQuestionsSuggestions, numQuestionsSuggestions === 0,
+  let chip = mobileLayout ? undefined : getChip(numQuestionsSuggestions, numQuestionsSuggestions === 0,
     'inputRequiredCountExplanation');
+  if (!chip && requiresStatus(messagesState, id)) {
+    chip = <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
+      <Schedule style={{fontSize: 24, color: '#E85757'}}/>
+    </Tooltip>;
+  }
   const ticketNumber = getTicketNumber(ticketCode);
   return (
     <Grid container>

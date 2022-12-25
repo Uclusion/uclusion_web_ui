@@ -115,13 +115,16 @@ export function removeWorkListItem(message, removeClass) {
   const event = typeObjectId.startsWith('UNREAD') ? DELETE_EVENT : DEHIGHLIGHT_EVENT;
   const item = document.getElementById(`workListItem${typeObjectId}`);
   if (item) {
-    item.addEventListener("transitionend",() => {
-      pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: typeObjectId });
-    });
     const itemExpansion = document.getElementById(`workListItemExpansion${typeObjectId}`);
     if (itemExpansion) {
-      // Close expasion first, or it takes up too much area to transition nicely
+      // Close expansion first, or it takes up too much area to transition nicely
       itemExpansion.style.display = "none";
+      pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: typeObjectId });
+    } else {
+      // Only do transition style when no expansion panel as it might be flaky when other actions
+      item.addEventListener("transitionend",() => {
+        pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: typeObjectId });
+      });
     }
     item.classList.add(removeClass);
   } else {

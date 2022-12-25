@@ -138,7 +138,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
     return (
       <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                   variant="body1">
-        Your Unread tab is empty.<br/><br/> Unfinished team collaboration will be shown here.
+        Your Deferred tab is empty.<br/><br/> Unfinished team collaboration will be shown here.
       </Typography>
     );
   }

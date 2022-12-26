@@ -364,8 +364,8 @@ function PlanningDialog(props) {
                                  isInStages(investible, visibleStages, marketId)))}
                                text={
                 <div>
-                  Use the "Add job" button above and
-                  a <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> are
+                  Use the "Add job" button above
+                  and <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> are
                   sent backed by instructional wizards.
                 </div>
               }/>

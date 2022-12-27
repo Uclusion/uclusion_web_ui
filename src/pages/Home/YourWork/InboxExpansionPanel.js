@@ -74,7 +74,7 @@ export function addExpansionPanel(props) {
     item.expansionPanel = <AssignToOtherWizard investibleId={message.id} marketId={message.marketId} />;
   } else if (!messageType || messageType === 'ASSIGNED_UNREVIEWABLE') {
     if (messageType === 'ASSIGNED_UNREVIEWABLE') {
-      item.expansionPanel = <StageWizard investibleId={message} marketId={marketId} />;
+      item.expansionPanel = <StageWizard investibleId={investibleId} marketId={marketId} />;
     } else if (message.isOutboxType) {
       if (message.isAssigned) {
         item.expansionPanel = <StageWizard investibleId={message.id} marketId={message.marketId}/>;

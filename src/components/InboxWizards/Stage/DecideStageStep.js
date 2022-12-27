@@ -86,6 +86,10 @@ function DecideStageStep(props) {
       });
   }
 
+  if (!destinationLabel) {
+    return React.Fragment;
+  }
+
   return (
     <WizardStepContainer
       {...props}

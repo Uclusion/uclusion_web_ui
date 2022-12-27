@@ -12,7 +12,6 @@ import {
   useTheme,
   Link
 } from '@material-ui/core'
-import Summary from './Summary'
 import Screen from '../../../containers/Screen/Screen'
 import {
   QUESTION_TYPE, REPLY_TYPE,
@@ -112,7 +111,7 @@ function PlanningDialog(props) {
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [pageStateFull, pageDispatch] = usePageStateReducer('group');
-  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, groupId,
+  const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, groupId,
     {sectionOpen: 'storiesSection', tabIndex: 0 });
   const {
     sectionOpen,
@@ -289,11 +288,7 @@ function PlanningDialog(props) {
       <div style={{paddingTop: '4rem'}}>
         {isSectionOpen('workspaceMain') && (
           <div id="workspaceMain">
-            {(_.isEmpty(search) || results.find((item) => item.id === marketId)) && (
-              <Summary group={group} hidden={hidden} pageState={pageState} updatePageState={updatePageState}
-                       pageStateReset={pageStateReset}/>
-            )}
-            <Grid item id="commentAddArea" xs={12} style={{marginTop: '2rem'}}>
+            <Grid item id="commentAddArea" xs={12}>
               {_.isEmpty(search) && marketId && !hidden && (
                 <>
                   <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(notTodoComments)} text={

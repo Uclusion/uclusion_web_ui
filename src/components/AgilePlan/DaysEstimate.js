@@ -29,7 +29,7 @@ export function DaysEstimate(props) {
   const datePickerOpen = Boolean(anchorEl);
 
   const myClassName = classes.daysEstimation;
-  const dueDate = new Date(value);
+  const dueDate = value ? new Date(value) : undefined;
 
   function getDueText () {
     if (isInPast(dueDate)) {
@@ -67,6 +67,7 @@ export function DaysEstimate(props) {
         id="estimatedCompletionPopper"
         open={datePickerOpen}
         anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
       >
         <DatePicker
           placeholderText={intl.formatMessage({ id: "selectDate" })}

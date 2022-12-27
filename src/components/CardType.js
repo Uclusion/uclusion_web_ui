@@ -233,7 +233,7 @@ export default function CardType(props) {
           </Typography>
         </Grid>
       )}
-      {marketDaysEstimate && isInAccepted && (
+      {isInAccepted && (
         <DaysEstimate marketId={marketId} onChange={onEstimateChange} value={marketDaysEstimate} />
       )}
       {createdAt && (

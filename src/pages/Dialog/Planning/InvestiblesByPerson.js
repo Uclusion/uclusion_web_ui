@@ -145,7 +145,7 @@ function InvestiblesByPerson(props) {
     <>
       <SpinningIconLabelButton
         onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}
-        doSpin={false} icon={AddIcon} id='addJob' style={{marginTop: '0.5rem', marginBottom: '0.5rem'}}>
+        doSpin={false} icon={AddIcon} id='addJob' style={{marginTop: '1rem', marginBottom: '1rem'}}>
         {intl.formatMessage({ id: 'addStoryLabel' })}
       </SpinningIconLabelButton>
 

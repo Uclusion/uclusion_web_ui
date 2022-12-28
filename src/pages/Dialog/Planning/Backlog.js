@@ -4,11 +4,13 @@ import SubSection from '../../../containers/SubSection/SubSection'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import AddIcon from '@material-ui/icons/Add'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
-import _ from 'lodash'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { navigate } from '../../../utils/marketIdPathFunctions';
 import { JOB_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
+import _ from 'lodash';
+import { Link } from '@material-ui/core';
+import DismissableText from '../../../components/Notifications/DismissableText';
 
 function Backlog(props) {
   const {
@@ -28,15 +30,23 @@ function Backlog(props) {
     && <span className={'MuiTabItem-tag'} style={{backgroundColor: '#e6e969', borderRadius: 12,
       padding: '2.79px', marginRight: '1rem'}}>
     {furtherWorkReadyToStart.length} total</span>;
-
+  const isEmptyBacklog = _.isEmpty(furtherWorkInvestibles) && _.isEmpty(furtherWorkReadyToStart);
   return (
     <>
     <div style={{paddingTop: '1rem'}} />
     <SpinningIconLabelButton
       onClick={() => navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`)}
-      doSpin={false} icon={AddIcon} id='addJob' style={{marginBottom: '1rem'}}>
+      doSpin={false} icon={AddIcon} id='addJob' style={{marginBottom: isEmptyBacklog ? undefined : '1rem'}}>
       {intl.formatMessage({ id: 'addStoryLabel' })}
     </SpinningIconLabelButton>
+    <DismissableText textId="backlogHelp" noPad={true}
+                     display={isEmptyBacklog}
+                     text={
+                         <div>
+                           Use the "Add job" button above to create backlog. Moving a job to "Ready to Start" sends
+                           notifications to this group.
+                         </div>
+                     }/>
     <SubSection
       type={SECTION_TYPE_SECONDARY_WARNING}
       bolder
@@ -55,8 +65,7 @@ function Backlog(props) {
         isReadyToStart
       />
     </SubSection>
-    {!_.isEmpty(furtherWorkInvestibles) && (<div style={{ paddingBottom: '15px' }}/>)}
-
+    <div style={{ paddingBottom: '15px' }}/>
     <SubSection
       type={SECTION_TYPE_SECONDARY_WARNING}
       bolder

@@ -58,6 +58,7 @@ import DialogArchives from '../../DialogArchives/DialogArchives'
 import { baseNavListItem, formMarketLink } from '../../../utils/marketIdPathFunctions'
 import { isInStages } from './userUtils'
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -358,10 +359,16 @@ function PlanningDialog(props) {
                                display={_.isEmpty(investibles.find((investible) =>
                                  isInStages(investible, visibleStages, marketId)))}
                                text={
+                                 isEveryoneGroup(groupId, marketId) ?
+                                   <div>
+                                     Use the "Add job" button above
+                                     and <Link href="https://documentation.uclusion.com/everyone" target="_blank">everyone</Link> will
+                                     be notified.
+                                   </div> :
                 <div>
                   Use the "Add job" button above
                   and <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> are
-                  sent backed by instructional wizards.
+                  sent to this group backed by instructional wizards.
                 </div>
               }/>
             </div>

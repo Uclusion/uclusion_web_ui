@@ -2,7 +2,7 @@ import React from 'react'
 import { FormattedMessage } from 'react-intl'
 import PropTypes from 'prop-types'
 import { darken, makeStyles } from '@material-ui/core/styles';
-import Dialog from './Dialog';
+import { Dialog } from '../../components/Dialogs';
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton';
 import { Clear } from '@material-ui/icons';
 import WarningIcon from '@material-ui/icons/Warning';

@@ -12,6 +12,7 @@ export function withSpinLock(Component) {
       onError,
       children,
       disabled,
+      doSpin,
       ...rest
     } = props;
 
@@ -25,9 +26,12 @@ export function withSpinLock(Component) {
     }
 
     function myOnClick(event) {
-      event.preventDefault();
-      setOperationRunning(id);
-      return Promise.resolve(onClick()).catch((error) => myOnError(error));
+      if (doSpin) {
+        event.preventDefault();
+        setOperationRunning(id);
+        return Promise.resolve(onClick()).catch((error) => myOnError(error));
+      }
+      onClick(event);
     }
 
     return (
@@ -51,12 +55,14 @@ export function withSpinLock(Component) {
     onClick: PropTypes.func,
     onError: PropTypes.func,
     disabled: PropTypes.bool,
+    doSpin: PropTypes.bool,
     id: PropTypes.string.isRequired
   };
   Spinning.defaultProps = {
     onClick: () => {},
     onError: () => {},
-    disabled: false
+    disabled: false,
+    doSpin: true
   };
   return Spinning;
 }

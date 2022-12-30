@@ -7,7 +7,6 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { makeStyles } from '@material-ui/styles'
 import { Dialog } from '../../Dialogs'
-import { ListItemText, Tooltip } from '@material-ui/core'
 import { useLockedDialogStyles } from '../../../pages/Dialog/DialogBodyEdit'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -113,6 +112,8 @@ function StageChangeAction(props) {
       });
   }
 
+  const spinningId = `stageChangeAction${investibleId}${targetStageId}`;
+
   if (operationBlocked) {
     return (
       <>
@@ -123,13 +124,10 @@ function StageChangeAction(props) {
           </SpinningIconLabelButton>
         )}
         {!standAlone && (
-          <>
-            <Tooltip title={intl.formatMessage({ id: explanationId })}>
-              <ListItemText className={classes.menuTitleDisabled} onClick={handleOpen}>
-                {intl.formatMessage({ id: translationId })}
-              </ListItemText>
-            </Tooltip>
-          </>
+          <SpinBlockingListAction label={intl.formatMessage({ id: explanationId })}
+                                  onClick={handleOpen} id={spinningId} doSpin={false}
+                                  openLabel={intl.formatMessage({ id: translationId })}
+                                  customClasses={classes} />
         )}
         <br />
         <Dialog
@@ -168,8 +166,6 @@ function StageChangeAction(props) {
       </SpinningIconLabelButton>
     );
   }
-
-  const spinningId = `stageChangeAction${investibleId}${targetStageId}`;
 
   return (
     <SpinBlockingListAction

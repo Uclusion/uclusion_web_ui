@@ -9,7 +9,6 @@ import { navigate } from '../../../utils/marketIdPathFunctions';
 import { JOB_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
-import { Link } from '@material-ui/core';
 import DismissableText from '../../../components/Notifications/DismissableText';
 
 function Backlog(props) {

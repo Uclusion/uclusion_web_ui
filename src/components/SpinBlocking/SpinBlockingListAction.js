@@ -27,6 +27,7 @@ function SpinBlockingListAction(props) {
     onClick,
     customClasses,
     disabled,
+    doSpin
   } = props;
   const myClasses = useStyles()
   const classes = customClasses || myClasses
@@ -40,6 +41,7 @@ function SpinBlockingListAction(props) {
       onClick={onClick}
       className={classes.menuItem}
       disabled={disabled}
+      doSpin={doSpin}
     >
       <Tooltip title={label}>
         <div style={{fontSize: '0.8rem', paddingLeft: '8px'}}>
@@ -51,17 +53,19 @@ function SpinBlockingListAction(props) {
 }
 
 SpinBlockingListAction.propTypes = {
-  icon: PropTypes.element.isRequired,
+  icon: PropTypes.element,
   label: PropTypes.string.isRequired,
   openLabel: PropTypes.string.isRequired,
   onClick: PropTypes.func.isRequired,
   id: PropTypes.string.isRequired,
   customClasses: PropTypes.object,
   disabled: PropTypes.bool,
+  doSpin: PropTypes.bool
 };
 
 SpinBlockingListAction.defaultProps = {
   disabled: false,
+  doSpin: true
 };
 
 export default SpinBlockingListAction;

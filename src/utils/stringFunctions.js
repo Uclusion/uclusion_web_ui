@@ -73,7 +73,8 @@ function convertDescriptionForSeparator(description, separator, maxLength = 80) 
   if (_.isEmpty(description)) {
     return nameDescriptionMap;
   }
-  const ampersand = separator === ". " ? '' : '...';
+  const isSentenceSearch = separator === ". ";
+  const ampersand = isSentenceSearch ? '' : '...';
   const list = ["p", "li", "td", "h1", "h2"];
   let found = -1;
   let latestExtract = undefined;
@@ -81,9 +82,9 @@ function convertDescriptionForSeparator(description, separator, maxLength = 80) 
   list.forEach((htmlComponent) => {
     const entryBeginElement = `<${htmlComponent}>`;
     const entryEndElement = `</${htmlComponent}>`;
-    const parts = description.split(entryBeginElement) || [];
+    let parts = description.split(entryBeginElement) || [];
     if (parts.length >= 2) {
-      parts.forEach((wholePart) => {
+      for (const wholePart of parts) {
         if (!_.isEmpty(wholePart) && wholePart.includes(entryEndElement)) {
           const index = description.indexOf(wholePart);
           const part = wholePart.substring(0, wholePart.indexOf(entryEndElement));
@@ -94,6 +95,10 @@ function convertDescriptionForSeparator(description, separator, maxLength = 80) 
             const isSubIndex = subIndex > 0;
             if (isSubIndex) {
               extracted = extracted.substring(0, subIndex + 1);
+            }
+            if (extracted.length > maxLength && isSentenceSearch) {
+              // We've found a viable sentence so need to split it up instead of moving to next sentence
+              return convertDescriptionForSeparator(description, " ", maxLength - 3);
             }
             if (extracted.length <= maxLength) {
               if (found < 0 || index < found || (index === found &&
@@ -129,7 +134,7 @@ function convertDescriptionForSeparator(description, separator, maxLength = 80) 
             }
           }
         }
-      });
+      }
     }
   });
   if (latestExtract) {

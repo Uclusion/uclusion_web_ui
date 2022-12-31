@@ -32,8 +32,8 @@ export function onCommentOpen(investibleState, investibleId, marketStagesState, 
     && currentStageId !== requiresInputStage.id;
   const investibleBlocks = (investibleId && comment.comment_type === ISSUE_TYPE)
     && currentStageId !== blockingStage.id;
-  changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
-    blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment);
+  changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput,
+    blockingStage, requiresInputStage, market_infos, rootInvestible, investibleDispatch, comment);
   addCommentToMarket(comment, commentsState, commentsDispatch);
 }
 
@@ -51,35 +51,50 @@ export function getThreadIds(parents, comments) {
   return commentIds;
 }
 
-export function changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
-  blockingStage, requiresInputStage, info, market_infos, rootInvestible, investibleDispatch, comment) {
+function changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos, rootInvestible, investibleDispatch) {
+  if (newStage?.id || _.isEmpty(assigned)) {
+    // If in further work just remove ready to start
+    const newInfo = {
+      ...info,
+      open_for_investment: false,
+      last_stage_change_date: updatedAt,
+    };
+    if (!_.isEmpty(assigned)) {
+      newInfo.stage = newStage.id;
+      newInfo.stage_name = newStage.name;
+    }
+    const newInfos = _.unionBy([newInfo], market_infos, 'id');
+    const newInvestible = {
+      investible: rootInvestible,
+      market_infos: newInfos
+    };
+    if (investibleDispatch) {
+      // no diff here, so no diff dispatch
+      addInvestible(investibleDispatch, () => {}, newInvestible);
+    } else {
+      pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [newInvestible] });
+    }
+  }
+}
+
+export function changeInvestibleStageOnCommentClose(market_infos, rootInvestible, investibleDispatch, comment,
+  marketStagesState) {
+  const [info] = (market_infos || []);
+  const { former_stage_id: formerStageId, assigned, market_id: marketId } = (info || {});
+  const nextStageId = getFormerStageId(formerStageId, marketId, marketStagesState);
+  const newStage = getFullStage(marketStagesState, marketId, nextStageId);
+  changeInvestibleStage(newStage, assigned, comment.updated_at, info, market_infos, rootInvestible,
+    investibleDispatch);
+}
+
+export function changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput,
+  blockingStage, requiresInputStage, market_infos, rootInvestible, investibleDispatch, comment) {
   if (investibleBlocks || investibleRequiresInput) {
     const [info] = (market_infos || []);
     const { assigned } = (info || {});
     const newStage = investibleBlocks ? blockingStage : requiresInputStage;
-    if (newStage.id || _.isEmpty(assigned)) {
-      // If in further work just remove ready to start
-      const newInfo = {
-        ...info,
-        open_for_investment: false,
-        last_stage_change_date: comment.updated_at,
-      };
-      if (!_.isEmpty(assigned)) {
-        newInfo.stage = newStage.id;
-        newInfo.stage_name = newStage.name;
-      }
-      const newInfos = _.unionBy([newInfo], market_infos, 'id');
-      const newInvestible = {
-        investible: rootInvestible,
-        market_infos: newInfos
-      };
-      if (investibleDispatch) {
-        // no diff here, so no diff dispatch
-        addInvestible(investibleDispatch, () => {}, newInvestible);
-      } else {
-        pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [newInvestible] });
-      }
-    }
+    changeInvestibleStage(newStage, assigned, comment.updated_at, info, market_infos, rootInvestible,
+      investibleDispatch);
   }
 }
 

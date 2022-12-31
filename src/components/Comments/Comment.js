@@ -63,10 +63,10 @@ import {
 import { useHistory } from 'react-router'
 import { marketAbstain, updateMarket } from '../../api/markets'
 import {
-  allowVotingForSuggestion,
-  changeInvestibleStageOnCommentChange,
+  allowVotingForSuggestion, changeInvestibleStageOnCommentClose,
+  changeInvestibleStageOnCommentOpen,
   onCommentOpen
-} from '../../utils/commentFunctions'
+} from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import {
   findMessageForCommentId, findMessagesForCommentId,
@@ -645,7 +645,8 @@ function Comment(props) {
     }
     if (marketType === INITIATIVE_TYPE) {
       return <InlineInitiativeBox anInlineMarket={anInlineMarket} inlineUserId={inlineUserId}
-                                  isInbox={isInbox || isOutbox} showAcceptReject={showAcceptReject}
+                                  isInbox={isInbox || isOutbox}
+                                  showAcceptReject={showAcceptReject || commentType !== SUGGEST_CHANGE_TYPE}
                                   inArchives={marketStage !== ACTIVE_STAGE || inArchives || resolved} />;
     }
     return getDialog(anInlineMarket);
@@ -690,6 +691,10 @@ function Comment(props) {
   function myAccept () {
     setOperationRunning(true)
     return updateComment(marketId, id, undefined, TODO_TYPE).then((comment) => {
+      if (myPresence === createdBy) {
+        changeInvestibleStageOnCommentClose([marketInfo], investible, investibleDispatch,
+          comment, marketStagesState);
+      }
       addCommentToMarket(comment, commentsState, commentsDispatch);
       removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
       setOperationRunning(false);
@@ -755,8 +760,8 @@ function Comment(props) {
         addInvestible(investibleDispatch, () => {}, returnedInvestible);
       }
       const investibleBlocks = (investibleId && commentType === ISSUE_TYPE) && currentStageId !== blockingStageId
-      changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
-        blockingStage, requiresInputStage, marketInfo, [marketInfo], investible, investibleDispatch,
+      changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput,
+        blockingStage, requiresInputStage, [marketInfo], investible, investibleDispatch,
         comment);
       addCommentToMarket(comment, commentsState, commentDispatch);
       quickNotificationChanges(commentType, inReviewStage, inReviewStageId === currentStageId, investibleId,

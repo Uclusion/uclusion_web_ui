@@ -35,7 +35,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { changeInvestibleStageOnCommentChange } from '../../utils/commentFunctions'
+import { changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../utils/messageUtils'
 import {
   changeLevelMessage, dehighlightMessages
@@ -442,8 +442,8 @@ function CommentAdd(props) {
         commentAddStateReset();
         resetEditor();
         if (isSent !== false) {
-          changeInvestibleStageOnCommentChange(investibleBlocks, investibleRequiresInput,
-            blockingStage, requiresInputStage, info, market_infos, useRootInvestible, investibleDispatch, comment);
+          changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput,
+            blockingStage, requiresInputStage, market_infos, useRootInvestible, investibleDispatch, comment);
         }
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (isSent !== false) {

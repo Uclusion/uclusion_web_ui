@@ -19,7 +19,6 @@ import { loadStripe } from '@stripe/stripe-js';
 import { SearchIndexProvider } from '../../contexts/SearchIndexContext/SearchIndexContext';
 import { SearchResultsProvider } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { ScrollProvider } from '../../contexts/ScrollContext';
-import { ExpandedCommentProvider } from '../../contexts/CommentsContext/ExpandedCommentContext';
 import { NonParticipantsMarketsProvider } from '../../contexts/NonParticipantMarketsContext/NonParticipantMarketsContext';
 import { TicketIndexProvider } from '../../contexts/TicketContext/TicketIndexContext';
 import { MarketGroupsProvider } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
@@ -29,36 +28,34 @@ function Main () {
   return (
     <div>
       <AccountProvider>
-        <ExpandedCommentProvider>
-          <TicketIndexProvider>
-            <SearchIndexProvider>
-              <SearchResultsProvider>
-                <DiffProvider>
-                  <OperationInProgressProvider>
-                    <OperationInProgressGlobalProvider>
-                      <ScrollProvider>
-                        <NotificationsProvider>
-                          <NonParticipantsMarketsProvider>
-                            <MarketStagesProvider>
-                              <MarketGroupsProvider>
-                                <LocaleProvider>
-                                  <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
-                                  <Elements stripe={stripePromise}>
-                                    <AppWithAuth/>
-                                  </Elements>
-                                </LocaleProvider>
-                              </MarketGroupsProvider>
-                            </MarketStagesProvider>
-                          </NonParticipantsMarketsProvider>
-                        </NotificationsProvider>
-                      </ScrollProvider>
-                    </OperationInProgressGlobalProvider>
-                  </OperationInProgressProvider>
-                </DiffProvider>
-              </SearchResultsProvider>
-            </SearchIndexProvider>
-          </TicketIndexProvider>
-        </ExpandedCommentProvider>
+        <TicketIndexProvider>
+          <SearchIndexProvider>
+            <SearchResultsProvider>
+              <DiffProvider>
+                <OperationInProgressProvider>
+                  <OperationInProgressGlobalProvider>
+                    <ScrollProvider>
+                      <NotificationsProvider>
+                        <NonParticipantsMarketsProvider>
+                          <MarketStagesProvider>
+                            <MarketGroupsProvider>
+                              <LocaleProvider>
+                                <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
+                                <Elements stripe={stripePromise}>
+                                  <AppWithAuth/>
+                                </Elements>
+                              </LocaleProvider>
+                            </MarketGroupsProvider>
+                          </MarketStagesProvider>
+                        </NonParticipantsMarketsProvider>
+                      </NotificationsProvider>
+                    </ScrollProvider>
+                  </OperationInProgressGlobalProvider>
+                </OperationInProgressProvider>
+              </DiffProvider>
+            </SearchResultsProvider>
+          </SearchIndexProvider>
+        </TicketIndexProvider>
       </AccountProvider>
     </div>
   );

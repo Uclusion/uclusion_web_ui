@@ -42,7 +42,6 @@ import {
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { red } from '@material-ui/core/colors'
-import { EXPANDED_CONTROL, ExpandedCommentContext } from '../../contexts/CommentsContext/ExpandedCommentContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime'
 import { addInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import SubSection from '../../containers/SubSection/SubSection'
@@ -88,7 +87,7 @@ import {
   Edit,
   Eject,
   ExpandLess,
-  ExpandMore, Lock, LockOpen,
+  Lock, LockOpen,
   NotInterested, Send,
   SettingsBackupRestore
 } from '@material-ui/icons'
@@ -391,7 +390,6 @@ function Comment(props) {
   const inArchives = !activeMarket;
   const replies = comments.filter(comment => comment.reply_id === id);
   const sortedReplies = _.sortBy(replies, "created_at");
-  const [expandedCommentState, expandedCommentDispatch] = useContext(ExpandedCommentContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -420,11 +418,6 @@ function Comment(props) {
     showDiff: storedShowDiff
   } = editState;
   const showDiff = storedShowDiff || (storedShowDiff === undefined && defaultShowDiff);
-  const myExpandedState = expandedCommentState[id] || {};
-  const { expanded: myRepliesExpanded } = myExpandedState;
-  // If I resolved a comment then I am done with it and so hide the thread
-  const repliesExpanded = noAuthor ? true : (myRepliesExpanded === undefined ?
-    (resolved ? myPresence !== updatedBy : true) : myRepliesExpanded);
   const myMessage = findMessageForCommentId(id, messagesState);
   const createInlineInitiative = inlineMarketId && commentType === SUGGEST_CHANGE_TYPE;
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
@@ -824,7 +817,7 @@ function Comment(props) {
       }
       return classes.containerRed;
     }
-    if (!_.isEmpty(highlighted) && !repliesExpanded) {
+    if (!_.isEmpty(highlighted)) {
       return classes.containerYellow;
     }
     return classes.container;
@@ -1006,24 +999,6 @@ function Comment(props) {
                     {intl.formatMessage({ id: 'commentAddSendLabel' })}
                   </SpinningIconLabelButton>
                 )}
-                {isSent !== false && !mobileLayout && !noAuthor && (replies.length > 0 || inlineMarketId) &&
-                  !removeActions && (
-                  <SpinningIconLabelButton
-                    icon={repliesExpanded ? ExpandLess : ExpandMore}
-                    doSpin={false}
-                    onClick={() => {
-                      expandedCommentDispatch({ type: EXPANDED_CONTROL, commentId: id, expanded: !repliesExpanded });
-                    }}
-                  >
-                    <FormattedMessage
-                      id={
-                        repliesExpanded
-                          ? "commentCloseThreadLabel"
-                          : "commentViewThreadLabel"
-                      }
-                    />
-                  </SpinningIconLabelButton>
-                )}
                 {showDone && (
                   <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
                     {!mobileLayout && intl.formatMessage({ id: 'done' })}
@@ -1189,8 +1164,7 @@ function Comment(props) {
       )}
       <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
         <LocalCommentsContext.Provider value={{ comments, marketId }}>
-          {repliesExpanded &&
-            sortedReplies.map(child => {
+          {sortedReplies.map(child => {
               const { id: childId } = child;
               return (
                 <InitialReply
@@ -1205,7 +1179,7 @@ function Comment(props) {
             })}
         </LocalCommentsContext.Provider>
       </Box>
-      {repliesExpanded && getDecision(inlineMarketId)}
+      {getDecision(inlineMarketId)}
     </div>
   );
 }

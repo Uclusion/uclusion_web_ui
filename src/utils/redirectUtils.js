@@ -4,6 +4,8 @@ import {
   setUclusionLocalStorageItem
 } from '../components/localStorageUtils'
 import _ from 'lodash'
+import { getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from './userFunctions';
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
@@ -33,6 +35,12 @@ export function getFirstWorkspace(markets, marketId) {
   const lastActive = marketId || getCurrentWorkspace();
   const lastMarket = markets.find((workspace) => workspace.id === lastActive);
   return lastMarket || markets[0];
+}
+
+export function getGroupForInvestibleId(investibleId, marketId, investiblesState) {
+  const inv = getInvestible(investiblesState, investibleId);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  return marketInfo.group_id;
 }
 
 export function getFirstGroup(groupState, marketId) {

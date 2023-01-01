@@ -426,7 +426,7 @@ function CommentAdd(props) {
       (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     let label = undefined;
-    if (creatorIsAssigned && type === REPORT_TYPE && isSent) {
+    if (creatorIsAssigned && type === REPORT_TYPE && isSent !== false) {
       label = nameFromDescription(tokensRemoved);
     }
     return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
@@ -438,6 +438,7 @@ function CommentAdd(props) {
           const { comment: returnedComment, investible: returnedInvestible } = response;
           comment = returnedComment;
           useRootInvestible = returnedInvestible;
+          addInvestible(investibleDispatch, () => {}, returnedInvestible);
         }
         commentAddStateReset();
         resetEditor();

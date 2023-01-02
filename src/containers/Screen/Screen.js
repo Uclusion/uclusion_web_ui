@@ -30,10 +30,11 @@ import {
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { useIntl } from 'react-intl'
 import WorkspaceMenu from '../../pages/Home/WorkspaceMenu'
-import { PLANNING_TYPE } from '../../constants/markets'
+import { ADD_COLLABORATOR_WIZARD_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper'
 import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import { MenuItem } from 'react-pro-sidebar';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -218,6 +219,10 @@ function Screen(props) {
           icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
           target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
         },
+        {
+          icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
+          target: `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
+        }
       ] : null}
   ;
 

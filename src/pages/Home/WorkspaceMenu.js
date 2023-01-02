@@ -156,16 +156,6 @@ function WorkspaceMenu(props) {
             <SidebarContent>
               <ProMenu iconShape="circle">
                 <MenuItem icon={<AddIcon htmlColor="black" />}
-                          key="addWorkspaceNewUsersKey" id="addWorkspaceIconId"
-                          onClick={() => {
-                            recordPositionToggle();
-                            navigate(history,
-                              `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`);
-                          }}
-                >
-                  {intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
-                </MenuItem>
-                <MenuItem icon={<AddIcon htmlColor="black" />}
                           key="addWorkspace Key" id="addWorkspaceIconId"
                           onClick={()=> {
                             recordPositionToggle();

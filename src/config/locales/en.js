@@ -605,7 +605,6 @@ const messages = defineMessages({
   todosSelectForStory: 'Select bugs for job',
   todosCreateStory: 'Create job from bugs',
   planningDialogAddInvestibleExplanation: 'Create a job and collaborate on what to do',
-  planningDialogManageParticipantsExplanation: 'Add collaborators to this group',
   planningDialogViewArchivesExplanation: 'See archived comments and jobs in Verified and Not Doing',
   planningDialogViewArchivesLabel: 'Archive',
   seeArchives: 'See muted',

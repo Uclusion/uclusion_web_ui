@@ -55,7 +55,7 @@ function PlanningDialogEdit(props) {
   const classes = usePlanFormStyles();
   const wizardClasses = wizardStyles(theme);
   const myClasses = useStyles();
-  const [mutableGroup, setMutableGroup] = useState({...group, ticket_sub_code: decodeURI(group.ticket_sub_code)});
+  const [mutableGroup, setMutableGroup] = useState(getInitialGroup());
   const {
     use_budget,
     budget_unit,
@@ -63,6 +63,10 @@ function PlanningDialogEdit(props) {
     ticket_sub_code,
     name
   } = mutableGroup;
+
+  function getInitialGroup() {
+    return {...group, ticket_sub_code: decodeURI(group.ticket_sub_code)};
+  }
 
   function handleChange(name) {
     return event => {
@@ -190,7 +194,7 @@ function PlanningDialogEdit(props) {
         </Grid>
       </CardContent>
       <CardActions className={myClasses.actions}>
-        <SpinningIconLabelButton onClick={() => setMutableGroup(group)} doSpin={false} icon={Clear}>
+        <SpinningIconLabelButton onClick={() => setMutableGroup(getInitialGroup())} doSpin={false} icon={Clear}>
           {intl.formatMessage({ id: 'marketEditCancelLabel' })}
         </SpinningIconLabelButton>
         <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton"

@@ -1004,9 +1004,8 @@ function PlanningInvestible(props) {
                 classes={classes}
                 marketPresences={marketPresences}
                 assigned={addressedIds}
-                toggleAssign={toggleEditState('addressed')}
                 toolTipId='storyAddressedLabel'
-                toggleIconButton={toggleEditState('assign')}
+                toggleIconButton={toggleEditState('addressed')}
                 assignmentColumnMessageId='addressed'
               />
             </div>

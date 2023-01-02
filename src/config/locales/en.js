@@ -422,9 +422,9 @@ const messages = defineMessages({
   inputRequiredCountExplanation: 'Open questions or suggestions for assignee',
   planningVerifiedStageLabel: 'Verified',
   planningFurtherWorkStageLabel: 'Backlog',
-  requiresInputStageLabel: 'Requires Input',
+  requiresInputStageLabel: 'Assistance',
   planningNotDoingStageLabel: 'Not Doing',
-  planningBlockedStageLabel: 'Blocked',
+  planningBlockedStageLabel: 'Assistance',
   allowedStagesDropdownLabel: 'Stage',
   planningInvestibleAssignments: 'Assigned',
   requiredApprovers: 'Required Approvers',
@@ -464,7 +464,7 @@ const messages = defineMessages({
   issueReplyLabel: 'Reply',
   issueProceed: 'Proceed',
   requiresInputWarning: 'With these assignments, some comments require input.',
-  proceedRequiresInput: 'Requires Input',
+  proceedRequiresInput: 'Assistance',
   resolveComment: 'Resolve Comments',
   commentCloseNewStage: 'Resolving moves this job to {x}.',
   // lock dialog
@@ -745,7 +745,7 @@ const messages = defineMessages({
   // Assignment List
   assignmentListHeader: 'Assigned to (X to remove)',
   emptyAssignmentHeader: 'Unassigned goes to Backlog',
-  requiresInputListHeader: 'Warning: unless you resolve some comments the current assignment will move the job to Requires Input.',
+  requiresInputListHeader: 'Warning: unless you resolve some comments the current assignment will move the job to Assistance.',
   reviewListHeader: 'Required reviewers (X to remove)',
   approveListHeader: 'Required approvers (X to remove)',
   followingListHeader: 'Following (X to remove)',
@@ -774,7 +774,7 @@ const messages = defineMessages({
   readyToStartHeader: 'Ready to Start',
   notReadyToStartHeader: 'Not Ready',
   createFurtherWorkExplanation: 'Create a new job that sends a notification demanding assignment.',
-  requiresInputHeader: 'Requires Input',
+  requiresInputHeader: 'Assistance Needed',
   blockedHeader: 'Assistance Needed',
 
   // SignIn

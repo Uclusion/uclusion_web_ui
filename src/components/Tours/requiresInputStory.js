@@ -22,7 +22,7 @@ export function requiresInputStorySteps(variables) {
       disableBeacon: true,
       placement: 'center',
       target: 'body',
-      title: 'About Requires Input',
+      title: 'About Assistance',
       content: (
         <Typography style={{textAlign: 'left'}} variant="body2">
           Please help resolve the open assignee questions and suggestions in this job.

@@ -342,11 +342,16 @@ export function getCollaborators(marketPresences, investibleComments, marketPres
   return _.uniq((concated || []).map((presence) => presence.id));
 }
 
-function countUnresolved(comments) {
+function countUnresolved(comments, search) {
   if (_.isEmpty(comments)) {
     return undefined;
   }
-  const unresolvedComments = comments.filter((comment) => !comment.resolved);
+  let unresolvedComments;
+  if (!_.isEmpty(search)) {
+    unresolvedComments =  comments;
+  } else {
+    unresolvedComments = comments.filter((comment) => !comment.resolved);
+  }
   return _.isEmpty(unresolvedComments) ? undefined : `${_.size(unresolvedComments)}`;
 }
 
@@ -508,7 +513,7 @@ function PlanningInvestible(props) {
   const suggestionComments = investibleComments.filter(
     comment => comment.comment_type === SUGGEST_CHANGE_TYPE
   );
-  const reportsCommentsSearched = investibleComments.filter(
+  const reportsCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === REPORT_TYPE
   );
   const myReports = reportsCommentsSearched.filter((comment) => comment.created_by === userId);
@@ -868,21 +873,21 @@ function PlanningInvestible(props) {
     ];
     if (displayBockingSection) {
       navListItemTextArray.push(createNavListItem(DescriptionIcon, 'reportsSectionLabel',
-        'blockersSection', _.size(reportsCommentsSearched)));
+        'blockersSection', countUnresolved(reportsCommentsSearched, search)));
     }
     navListItemTextArray.push(createNavListItem(AssignmentIcon, 'tasksSection', 'tasksSection',
-      _.size(todoCommentsSearched)));
+      countUnresolved(todoCommentsSearched, search)));
     if (displayQuestionSection) {
       navListItemTextArray.push(createNavListItem(HelpIcon, 'questions', 'questionsSection',
-        _.size(questionCommentsSearched)));
+        countUnresolved(questionCommentsSearched, search)));
     }
     if (displaySuggestionsSection) {
       navListItemTextArray.push(createNavListItem(EmojiObjectsIcon, 'suggestions', 'suggestionsSection',
-        _.size(suggestionCommentsSearched)));
+        countUnresolved(suggestionCommentsSearched, search)));
     }
     if (displayReportsSection) {
       navListItemTextArray.push(createNavListItem(BlockIcon, 'blocking', 'reportsSection',
-        _.size(blockingCommentsSearched)));
+        countUnresolved(blockingCommentsSearched, search)));
     }
   }
   function getTagLabel(tagLabelId) {
@@ -1061,25 +1066,28 @@ function PlanningInvestible(props) {
           {(!singleTabLayout || sectionOpen === 'reportsSection') && displayReportsSection && (
             <GmailTabItem icon={getIcon(REPORT_TYPE)}
                           label={intl.formatMessage({id: 'reportsSectionLabel'})}
-                          tag={countUnresolved(reportsCommentsSearched)} tagLabel={getTagLabel('total')} />
+                          tag={countUnresolved(reportsCommentsSearched, search)}
+                          tagLabel={getTagLabel('total')} />
           )}
           {(!singleTabLayout || sectionOpen === 'tasksSection') && (
             <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
-                          tag={countUnresolved(todoCommentsSearched)} tagLabel={getTagLabel('open')} />
+                          tag={countUnresolved(todoCommentsSearched, search)} tagLabel={getTagLabel('open')} />
           )}
           {(!singleTabLayout || sectionOpen === 'questionsSection') && displayQuestionSection && (
             <GmailTabItem icon={getIcon(QUESTION_TYPE)} label={intl.formatMessage({id: 'questions'})}
-                          tag={countUnresolved(questionCommentsSearched)} tagLabel={getTagLabel('open')} />
+                          tag={countUnresolved(questionCommentsSearched, search)}
+                          tagLabel={getTagLabel('open')} />
           )}
           {(!singleTabLayout || sectionOpen === 'suggestionsSection') && displaySuggestionsSection && (
             <GmailTabItem icon={getIcon(SUGGEST_CHANGE_TYPE)}
                           label={intl.formatMessage({id: 'suggestions'})}
-                          tag={countUnresolved(suggestionCommentsSearched)} tagLabel={getTagLabel('open')} />
+                          tag={countUnresolved(suggestionCommentsSearched, search)}
+                          tagLabel={getTagLabel('open')} />
           )}
           {(!singleTabLayout || sectionOpen === 'blockersSection') && displayBockingSection && (
             <GmailTabItem icon={getIcon(ISSUE_TYPE)} tagLabel={getTagLabel('open')}
                           label={intl.formatMessage({id: 'blocking'})}
-                          tag={countUnresolved(blockingCommentsSearched)}
+                          tag={countUnresolved(blockingCommentsSearched, search)}
             />
           )}
         </GmailTabs>

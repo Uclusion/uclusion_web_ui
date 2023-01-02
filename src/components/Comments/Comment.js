@@ -871,8 +871,8 @@ function Comment(props) {
               />
             )}
             {!overrideLabel && (
-              <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
-                        gravatar={noAuthor || mobileLayout ? undefined :
+              <CardType className={classes.commentType} type={commentType} resolved={resolved || isSent === false}
+                        compact gravatar={noAuthor || mobileLayout ? undefined :
                           <GravatarAndName key={myPresence.id} email={createdBy.email}
                                            name={createdBy.name} typographyVariant="caption"
                                            typographyClassName={classes.createdBy}

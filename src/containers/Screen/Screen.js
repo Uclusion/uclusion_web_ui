@@ -23,10 +23,8 @@ import Sidebar from '../../components/Menus/Sidebar'
 import AddIcon from '@material-ui/icons/Add'
 import { Group, Inbox } from '@material-ui/icons'
 import {
-  getFirstGroup,
   getFirstWorkspace,
   getGroupForInvestibleId,
-  setCurrentGroup,
   setCurrentWorkspace
 } from '../../utils/redirectUtils';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
@@ -204,8 +202,7 @@ function Screen(props) {
     navigate(history, formMarketLink(newMarketId, newMarketId));
   }
   const useGroupId = groupId ? groupId : (investibleId ?
-    getGroupForInvestibleId(investibleId, defaultMarket.id, investiblesState) :
-    getFirstGroup(groupsState, defaultMarket.id));
+    getGroupForInvestibleId(investibleId, defaultMarket.id, investiblesState) : undefined);
   const navigationMenu =
     {
       headerItemTextArray: [
@@ -236,7 +233,6 @@ function Screen(props) {
       return {icon: Group, text: group.name, num, isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
-          setCurrentGroup(group.id);
           if (onGroupClick) {
             onGroupClick();
           }

@@ -9,7 +9,6 @@ import { getMarketInfo } from './userFunctions';
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
-const GROUP_LOCAL_STORAGE_KEY = 'current_group';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
 const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
 export const IS_INVITED = 'is_invited';
@@ -43,18 +42,6 @@ export function getGroupForInvestibleId(investibleId, marketId, investiblesState
   return marketInfo.group_id;
 }
 
-export function getFirstGroup(groupState, marketId) {
-  const groupDetails = groupState[marketId] || [];
-  if (_.isEmpty(groupDetails)) {
-    return marketId;
-  }
-  const lastActive = getCurrentGroup();
-  if (groupDetails.find((group) => group.id === lastActive)) {
-    return lastActive;
-  }
-  return marketId;
-}
-
 export function setRedirect(location) {
   setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, location);
   // The only way you have a redirect is if you are part of some workspace already
@@ -67,10 +54,6 @@ export function clearRedirect() {
 
 export function setCurrentWorkspace(location) {
   setLoginPersistentItem(WORKSPACE_LOCAL_STORAGE_KEY, location);
-}
-
-export function setCurrentGroup(location) {
-  setLoginPersistentItem(GROUP_LOCAL_STORAGE_KEY, location);
 }
 
 export function setUtm(utm) {
@@ -87,10 +70,6 @@ export function getRedirect() {
 
 export function getCurrentWorkspace() {
   return getLoginPersistentItem(WORKSPACE_LOCAL_STORAGE_KEY);
-}
-
-export function getCurrentGroup() {
-  return getLoginPersistentItem(GROUP_LOCAL_STORAGE_KEY);
 }
 
 export function getUtm() {

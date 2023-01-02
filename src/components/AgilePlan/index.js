@@ -372,7 +372,7 @@ export function VoteExpiration(props) {
 export {DaysEstimate};
 
 export function Votes(props) {
-  const { readOnly, value } = props;
+  const { readOnly, value, onChange } = props;
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const inputClasses = useInputSuffixStyles();
@@ -383,6 +383,7 @@ export function Votes(props) {
         className={classes.input}
         id="agile-plan-votes-required"
         InputProps={{ readOnly }}
+        onChange={onChange}
         inputProps={{
           className: inputClasses.input,
           inputMode: "numeric",

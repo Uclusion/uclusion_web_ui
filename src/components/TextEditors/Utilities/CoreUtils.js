@@ -145,8 +145,8 @@ function removeToolbarTabs (editorNode) {
 
 
 export function resetEditor(id, contents, configOverrides) {
+  storeState(id, null);
   if (id) {
-    storeState(id, null);
     if (contents || configOverrides) {
       const { editor, config } = QuillEditorRegistry.getEditor(id);
       const fullConfig = {

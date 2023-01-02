@@ -28,7 +28,7 @@ import Screen from '../../../containers/Screen/Screen'
 import ManageMarketUsers from '../UserManagement/ManageMarketUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { useHistory } from 'react-router'
-import { decomposeMarketPath, navigate } from '../../../utils/marketIdPathFunctions'
+import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions'
 import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
 
 const useStyles = makeStyles((theme) => {
@@ -64,12 +64,14 @@ function PlanningMarketEdit() {
   const nameId = `marketEdit${marketId}`;
 
   function clear() {
-    console.debug('clearing')
     clearNameStoredState(nameId);
+    const nameInput = document.getElementById(nameId);
+    if (nameInput) {
+      nameInput.value = market.name;
+    }
     setAllowedInvestibles(undefined);
     setShowInvestiblesAge(undefined);
     setInvestmentExpiration(undefined);
-    navigate(history);
   }
 
   function onAllowedInvestiblesChange(event) {
@@ -91,11 +93,7 @@ function PlanningMarketEdit() {
     });
   }
 
-  console.debug(`${allowedInvestibles} ${showInvestiblesAge} ${investmentExpiration}`)
-
-
   function handleSave() {
-    console.debug(`allowed investibles is ${allowedInvestibles}`)
     const name = getNameStoredState(nameId);
     return updateMarket(
       marketId,
@@ -159,14 +157,14 @@ function PlanningMarketEdit() {
             <VoteExpiration
               onChange={(event) => setInvestmentExpiration(event.target.value)}
               defaultValue={market.investment_expiration}
-              value={investmentExpiration}
+              value={investmentExpiration || market.investment_expiration}
             />
           </Grid>
         </Grid>
       </CardContent>
       <CardActions className={myClasses.actions}>
         <SpinningIconLabelButton onClick={clear} doSpin={false} icon={Clear}>
-          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
+          {intl.formatMessage({ id: 'clear' })}
         </SpinningIconLabelButton>
         <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton">
           {intl.formatMessage({ id: 'marketEditSaveLabel' })}

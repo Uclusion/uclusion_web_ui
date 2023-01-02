@@ -216,12 +216,12 @@ function Screen(props) {
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull} />,
       navListItemTextArray: !_.isEmpty(defaultMarket) ? [
         {
-          icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
-          target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
-        },
-        {
           icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
           target: `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
+        },
+        {
+          icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
+          target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
         }
       ] : null}
   ;

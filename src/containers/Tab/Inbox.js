@@ -2,10 +2,14 @@ import React from 'react';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import { useGmailTabsStyles, useGmailTabItemStyles } from '@mui-treasury/styles/tabs/gmail';
+import { useMediaQuery, useTheme } from '@material-ui/core';
 
 export function GmailTabItem(props) {
-  const { color='#055099', label, subLabel, tag, tagLabel = 'total', tagColor='#055099', ...other } = props
+  const { color='#055099', label, subLabel, tag, isInbox, tagLabel = 'total', tagColor='#055099', ...other } = props
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const tabItemStyles = useGmailTabItemStyles({ ...props, color });
+  const useLabel = mobileLayout && isInbox ? '' : label;
   return (
     <Tab
       disableTouchRipple
@@ -16,7 +20,7 @@ export function GmailTabItem(props) {
       label={
         <div className={'MuiTabItem-labelGroup'}>
           <div className={'MuiTabItem-label'}>
-            {label} {tag && <span className={'MuiTabItem-tag'} style={{backgroundColor: tagColor,
+            {useLabel} {tag && <span className={'MuiTabItem-tag'} style={{backgroundColor: tagColor,
             borderRadius: 12, padding: '2.79px'}}>
             {tag} {tagLabel}</span>}
           </div>

@@ -112,7 +112,7 @@ function Inbox(props) {
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(unpaginatedItems, page, PAGE_SIZE);
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
     determinate, determinateDispatch, checkAll, tabIndex);
-  const {outBoxMessagesOrdered, teamMessagesOrdered } = messagesHash;
+  const {outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered } = messagesHash;
 
   return (
     <>
@@ -126,13 +126,15 @@ function Inbox(props) {
         indicatorColors={[htmlColor, '#00008B', '#00008B']}
         style={{ paddingBottom: '0.5rem', paddingTop: '1rem', marginTop: '-1rem' }}>
         <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}
-                      color='black' tagLabel={intl.formatMessage({id: 'new'})}
-                      tag={unreadCount > 0 && !mobileLayout ? `${unreadCount}` : undefined} />
+                      color='black' tagLabel={unreadCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                      tagColor={unreadCount > 0 ? '#E85757' : undefined}
+                      tag={unreadCount > 0 ? `${unreadCount}` :
+                        (_.size(inboxMessagesOrdered) > 0 ? `${_.size(inboxMessagesOrdered)}` : undefined)} />
         <GmailTabItem icon={<GroupIcon />} label={intl.formatMessage({id: 'teamUnresolved'})}
-                      tag={_.size(teamMessagesOrdered) > 0 && !mobileLayout ?
+                      tag={_.size(teamMessagesOrdered) > 0 ?
                         `${_.size(teamMessagesOrdered)}` : undefined} />
         <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})}
-                      tag={_.size(outBoxMessagesOrdered) > 0 && !mobileLayout ?
+                      tag={_.size(outBoxMessagesOrdered) > 0 ?
                         `${_.size(outBoxMessagesOrdered)}` : undefined} />
       </GmailTabs>
       <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>

@@ -34,7 +34,6 @@ import { ADD_COLLABORATOR_WIZARD_TYPE, PLANNING_TYPE } from '../../constants/mar
 import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper'
 import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
-import { MenuItem } from 'react-pro-sidebar';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {

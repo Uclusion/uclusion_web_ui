@@ -83,10 +83,8 @@ function YourVoting(props) {
       {yourVote && yourVote.deleted && (
         <h3>{intl.formatMessage({ id: 'voteDeletedStory' })}</h3>
       )}
-      {!yourVote && !isAssigned && (
-        <h3>{isDecision ? allowMultiVote ? intl.formatMessage({ id: 'addMultiVote' })
-            : intl.formatMessage({ id: 'addAVote' }) : isInitiative ? intl.formatMessage({ id: 'pleaseVote' })
-            : intl.formatMessage({ id: 'pleaseVoteStory' }) }</h3>
+      {!yourVote && !isAssigned && isDecision && allowMultiVote && (
+        <h3>{intl.formatMessage({ id: 'addMultiVote' })}</h3>
       )}
       {isInitiative && (
         <Card elevation={0}>

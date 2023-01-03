@@ -111,7 +111,7 @@ export function allowVotingForSuggestion(commentId, setOperationRunning, markets
   }
   return createInitiative(addInfo)
     .then((result) => {
-      addMarket(result, marketsDispatch, () => {}, presenceDispatch);
+      addMarket(result, marketsDispatch, presenceDispatch);
       const { market: { id: inlineMarketId }, parent, token, investible } = result;
       addCommentToMarket(parent, commentState, commentDispatch);
       addInvestible(investiblesDispatch, () => {}, investible);

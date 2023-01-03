@@ -453,7 +453,7 @@ function CommentAdd(props) {
             commentDispatch, marketId, myPresence);
         }
         if (marketType) {
-          addMarket(response, marketsDispatch, () => {}, presenceDispatch);
+          addMarket(response, marketsDispatch, presenceDispatch);
           const { market: { id: inlineMarketId }, parent, token, investible } = response;
           addCommentToMarket(parent, commentsState, commentDispatch);
           if (investible) {

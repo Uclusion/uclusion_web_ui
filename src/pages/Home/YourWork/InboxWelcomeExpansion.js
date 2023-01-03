@@ -99,7 +99,7 @@ function InboxWelcomeExpansion() {
     }
     return createPlanning(addInfo).then((result) => {
       const { market: { id: marketId }, token, investible } = result;
-      addMarket(result, marketsDispatch, () => {}, marketPresencesDispatch);
+      addMarket(result, marketsDispatch, marketPresencesDispatch);
       addInvestible(investiblesDispatch, () => {}, investible);
       const link = formInvestibleLink(marketId, investible.investible.id);
       const tokenStorageManager = new TokenStorageManager();

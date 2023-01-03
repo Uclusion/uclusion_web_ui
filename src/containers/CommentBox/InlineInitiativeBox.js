@@ -25,8 +25,11 @@ function InlineInitiativeBox(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
-  const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user);
+  const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
+  const { created_by: createdBy } = anInlineMarket;
+  const isCreator = myInlinePresence.id === createdBy;
+  console.debug(`created by is ${createdBy} and inline presence is ${myInlinePresence.id}`)
   const [fullInlineInvestible] = inlineInvestibles;
   const inlineInvestibleId = fullInlineInvestible ? fullInlineInvestible.investible.id : undefined;
   const comments = getMarketComments(commentsState, anInlineMarket.id);
@@ -55,7 +58,7 @@ function InlineInitiativeBox(props) {
 
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
-      {!showAcceptReject && !yourVote && inlineInvestibleId && (
+      {!showAcceptReject && !isCreator && !yourVote && inlineInvestibleId && (
         <YourVoting
           investibleId={inlineInvestibleId}
           marketPresences={anInlineMarketPresences}

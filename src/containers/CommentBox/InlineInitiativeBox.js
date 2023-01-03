@@ -29,7 +29,6 @@ function InlineInitiativeBox(props) {
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
   const { created_by: createdBy } = anInlineMarket;
   const isCreator = myInlinePresence.id === createdBy;
-  console.debug(`created by is ${createdBy} and inline presence is ${myInlinePresence.id}`)
   const [fullInlineInvestible] = inlineInvestibles;
   const inlineInvestibleId = fullInlineInvestible ? fullInlineInvestible.investible.id : undefined;
   const comments = getMarketComments(commentsState, anInlineMarket.id);

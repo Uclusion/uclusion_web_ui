@@ -12,6 +12,7 @@ import { versionsUpdateGroupMembers } from '../../../contexts/GroupMembersContex
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 
 function WorkspaceGroupNameStep (props) {
   const { updateFormData, formData, onboarding, onStartOnboarding } = props;
@@ -70,9 +71,10 @@ function WorkspaceGroupNameStep (props) {
           onChange={onNameChange}
           placeholder="Ex: Awesome Ones"
           variant="outlined"
+          inputProps={{ maxLength : NAME_MAX_LENGTH }}
           endAdornment={
             <InputAdornment position={'end'} style={{ marginRight: '1rem' }}>
-              {80 - (formData?.groupName?.length ?? 0)}
+              {NAME_MAX_LENGTH - (formData?.groupName?.length ?? 0)}
             </InputAdornment>
           }
         />

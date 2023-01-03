@@ -19,6 +19,7 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 import { formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData, onboarding, onStartOnboarding } = props;
@@ -96,9 +97,10 @@ function WorkspaceNameStep (props) {
           onChange={onNameChange}
           placeholder="Ex: ACME Corp"
           variant="outlined"
+          inputProps={{ maxLength : NAME_MAX_LENGTH }}
           endAdornment={
             <InputAdornment position={'end'} style={{ marginRight: '1rem' }}>
-              {80 - (formData?.name?.length ?? 0)}
+              {NAME_MAX_LENGTH - (formData?.name?.length ?? 0)}
             </InputAdornment>
           }
         />

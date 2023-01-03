@@ -12,6 +12,7 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { useHistory } from 'react-router'
+import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 
 function GroupNameStep (props) {
   const { updateFormData, clearFormData, formData, marketId } = props;
@@ -79,9 +80,10 @@ function GroupNameStep (props) {
         onChange={onNameChange}
         placeholder={intl.formatMessage({ id: 'GroupWizardMeetingName' })}
         variant="outlined"
+        inputProps={{ maxLength : NAME_MAX_LENGTH }}
         endAdornment={
           <InputAdornment position={'end'} style={{ marginRight: '1rem' }}>
-            {80 - (formData?.name?.length ?? 0)}
+            {NAME_MAX_LENGTH - (formData?.name?.length ?? 0)}
           </InputAdornment>
         }
       />

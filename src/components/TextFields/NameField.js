@@ -15,13 +15,15 @@ export function clearNameStoredState(id) {
   setUclusionLocalStorageItem(`name-editor-${id}`, null);
 }
 
+export const NAME_MAX_LENGTH = 80;
+
 function NameField(props) {
   const {
     editorName, label, placeHolder, id, useCreateDefault, scrollId, initialValue
   } = props;
   const intl = useIntl();
   const defaultValue = getNameStoredState(id) || initialValue;
-  const [charactersLeft, setCharactersLeft] = useState(80 - (defaultValue || '').length);
+  const [charactersLeft, setCharactersLeft] = useState(NAME_MAX_LENGTH - (defaultValue || '').length);
 
   const focusWorkAround = useCallback((element) => {
     if (element) {
@@ -68,6 +70,7 @@ function NameField(props) {
         ref={focusWorkAround}
         defaultValue={defaultValue}
         onChange={handleChange}
+        inputProps={{ maxLength : NAME_MAX_LENGTH }}
         placeholder={intl.formatMessage({
           id: placeHolder
         })}

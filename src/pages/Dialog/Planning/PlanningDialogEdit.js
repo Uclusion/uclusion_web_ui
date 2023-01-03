@@ -31,6 +31,7 @@ import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketG
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext'
 import DialogManage from '../DialogManage'
+import { NAME_MAX_LENGTH } from '../../../components/TextFields/NameField';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -145,9 +146,10 @@ function PlanningDialogEdit(props) {
             onChange={handleChange('name')}
             placeholder={name}
             variant="outlined"
+            inputProps={{ maxLength : NAME_MAX_LENGTH }}
             endAdornment={
               <InputAdornment position={'end'} style={{ marginRight: '1rem' }}>
-                {80 - (name?.length ?? 0)}
+                {NAME_MAX_LENGTH - (name?.length ?? 0)}
               </InputAdornment>
             }
           />

@@ -12,6 +12,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { removeWorkListItem, workListStyles } from './WorkListItem'
 import WizardStepButtons from '../../../components/InboxWizards/WizardStepButtons'
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function InvestibleStatus(props) {
   const { marketId, investibleId, message, wizardProps } = props;
@@ -21,6 +22,7 @@ function InvestibleStatus(props) {
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const marketInvestible = getInvestible(investiblesState, investibleId) || {};
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { completion_estimate: daysEstimate } = marketInfo;
@@ -54,7 +56,7 @@ function InvestibleStatus(props) {
       return updateInvestible(updateInfo).then((fullInvestible) => {
         refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
         if (message) {
-          removeWorkListItem(message, workItemClasses.removed);
+          removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
         }
         setOperationRunning(false);
         clearFormData();

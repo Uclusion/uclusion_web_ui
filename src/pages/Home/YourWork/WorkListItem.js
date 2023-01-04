@@ -21,6 +21,10 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { usesExpansion } from './InboxExpansionPanel'
 import NotificationDeletion from './NotificationDeletion'
 import { expandOrContract } from './InboxContext'
+import {
+  dehighlightMessages,
+  removeMessages
+} from '../../../contexts/NotificationsContext/notificationsContextReducer';
 
 const Item = styled("div")`
   margin-bottom: 20px;
@@ -110,7 +114,19 @@ export const workListStyles = makeStyles(() => {
   };
 });
 
-export function removeWorkListItem(message, removeClass) {
+function modifyNotifications (event, typeObjectId, messagesDispatch, message) {
+  if (messagesDispatch) {
+    if (DELETE_EVENT === event) {
+      messagesDispatch(removeMessages([message]));
+    } else {
+      messagesDispatch(dehighlightMessages([message]));
+    }
+  } else {
+    pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: typeObjectId });
+  }
+}
+
+export function removeWorkListItem(message, removeClass, messagesDispatch) {
   const { type_object_id: typeObjectId } = message;
   const event = typeObjectId.startsWith('UNREAD') ? DELETE_EVENT : DEHIGHLIGHT_EVENT;
   const item = document.getElementById(`workListItem${typeObjectId}`);
@@ -119,16 +135,16 @@ export function removeWorkListItem(message, removeClass) {
     if (itemExpansion) {
       // Close expansion first, or it takes up too much area to transition nicely
       itemExpansion.style.display = "none";
-      pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: typeObjectId });
+      modifyNotifications(event, typeObjectId, messagesDispatch, message);
     } else {
       // Only do transition style when no expansion panel as it might be flaky when other actions
       item.addEventListener("transitionend",() => {
-        pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: typeObjectId });
+        modifyNotifications(event, typeObjectId, messagesDispatch, message);
       });
     }
     item.classList.add(removeClass);
   } else {
-    pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: typeObjectId });
+    modifyNotifications(event, typeObjectId, messagesDispatch, message);
   }
 }
 

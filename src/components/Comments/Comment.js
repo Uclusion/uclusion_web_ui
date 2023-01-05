@@ -336,11 +336,11 @@ function useMarketId() {
   return React.useContext(LocalCommentsContext).marketId;
 }
 function navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply=false,
-  isFromInbox) {
+  isFromInbox, setNoHighlightId) {
   if (replyEditId) {
-    // TODO need to turn off highlighting on the return
     const path = isFromInbox ? getInboxTarget() : formCommentLink(marketId, groupId, investibleId, id);
     navigate(history, path);
+    setNoHighlightId(id);
   } else {
     navigate(history, formCommentEditReplyLink(marketId, id, isReply), false, true);
   }
@@ -401,6 +401,7 @@ function Comment(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [userState] = useContext(AccountContext);
+  const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const hasUser = userIsLoaded(userState);
   const [openIssue, setOpenIssue] = useState(false);
   const enableActions = !inArchives && !stagePreventsActions;
@@ -488,9 +489,10 @@ function Comment(props) {
     if (parentCommentId && replyEditId && !isFromInbox) {
       const rootComment = getComment(commentState, parentMarketId, parentCommentId);
       navigateEditReplyBack(history, parentCommentId, parentMarketId, rootComment.group_id, rootComment.investible_id,
-        replyEditId, isReply, isFromInbox);
+        replyEditId, isReply, isFromInbox, setNoHighlightId);
     } else {
-      navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply, isFromInbox);
+      navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply, isFromInbox,
+        setNoHighlightId);
     }
   }
 
@@ -824,7 +826,7 @@ function Comment(props) {
       }
       return classes.containerRed;
     }
-    if (!_.isEmpty(highlighted)) {
+    if (!_.isEmpty(highlighted) || (noHighlightId !== id && hashFragment?.includes(id))) {
       return classes.containerYellow;
     }
     return classes.container;
@@ -1340,7 +1342,7 @@ function Reply(props) {
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
-  const hashFragment = useContext(ScrollContext);
+  const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const [messagesState] = useContext(NotificationsContext);
   const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || {};
@@ -1354,7 +1356,7 @@ function Reply(props) {
 
   function handleEditClick() {
     navigateEditReplyBack(history, comment.id, marketId, comment.group_id, comment.investible_id, replyEditId,
-      false, isFromInbox);
+      false, isFromInbox, setNoHighlightId);
   }
 
   function setBeingEdited(value, event) {
@@ -1366,10 +1368,10 @@ function Reply(props) {
 
   function setReplyOpen() {
     navigateEditReplyBack(history, comment.id, marketId, comment.group_id, comment.investible_id, replyEditId,
-      true, isFromInbox);
+      true, isFromInbox, setNoHighlightId);
   }
   const { level: myHighlightedLevel } = myMessage;
-  const isLinkedTo = hashFragment?.includes(comment.id);
+  const isLinkedTo = noHighlightId !== comment.id && hashFragment?.includes(comment.id);
   const isHighlighted = myHighlightedLevel || isLinkedTo;
   const intl = useIntl();
   return (

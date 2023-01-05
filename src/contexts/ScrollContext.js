@@ -30,9 +30,10 @@ function ScrollProvider(props) {
   const { children } = props;
   const history = useHistory();
   const location = useLocation();
-  const { pathname, search, hash } = location;
+  const { pathname, hash } = location;
   const [hashFragment, setHashFragment] = useState(undefined);
   const [processedPath, setProcessedPath] = useState(undefined);
+  const [noHighlightId, setNoHighlightId] = useState(undefined);
 
   useLayoutEffect(() => {
     // See https://github.com/rafrex/react-router-hash-link/blob/master/src/index.js
@@ -84,6 +85,7 @@ function ScrollProvider(props) {
         const { payload: { event } } = data;
         if (event === VIEW_EVENT) {
           setHashFragment(undefined);
+          setNoHighlightId(undefined);
         }
       });
     }
@@ -109,7 +111,7 @@ function ScrollProvider(props) {
   }, [pathname, hash, processedPath, history, hashFragment]);
 
   return (
-    <ScrollContext.Provider value={hashFragment}>
+    <ScrollContext.Provider value={[hashFragment, noHighlightId, setNoHighlightId]}>
       {children}
     </ScrollContext.Provider>
   );

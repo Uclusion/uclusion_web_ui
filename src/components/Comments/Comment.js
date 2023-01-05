@@ -338,8 +338,8 @@ function useMarketId() {
 function navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply=false,
   isFromInbox) {
   if (replyEditId) {
-    // TODO need to turn off highlighting on the return - add nh=true or something
-    const path = isFromInbox ? getInboxTarget() : `${formCommentLink(marketId, groupId, investibleId, id)}`;
+    // TODO need to turn off highlighting on the return
+    const path = isFromInbox ? getInboxTarget() : formCommentLink(marketId, groupId, investibleId, id);
     navigate(history, path);
   } else {
     navigate(history, formCommentEditReplyLink(marketId, id, isReply), false, true);

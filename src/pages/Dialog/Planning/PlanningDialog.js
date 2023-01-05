@@ -159,7 +159,7 @@ function PlanningDialog(props) {
   useEffect(() => {
     if (hash && !hidden) {
       if (hash.includes('workspaceMain')) {
-        updatePageState({ sectionOpen: 'workspaceMain', tabIndex: 6 })
+        updatePageState({ sectionOpen: 'workspaceMain', tabIndex: 3 })
       } else {
         const element = document.getElementById(hash.substring(1, hash.length));
         if (!element) {
@@ -171,7 +171,7 @@ function PlanningDialog(props) {
                 if (rootComment.comment_type === TODO_TYPE) {
                   updatePageState({ sectionOpen: 'marketTodos', tabIndex: 1 });
                 } else {
-                  updatePageState({ sectionOpen: 'workspaceMain', tabIndex: 6 });
+                  updatePageState({ sectionOpen: 'workspaceMain', tabIndex: 3 });
                 }
               } else {
                 updatePageState({ sectionOpen: 'archive', tabIndex: 4 });

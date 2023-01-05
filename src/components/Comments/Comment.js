@@ -114,6 +114,7 @@ import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { nameFromDescription } from '../../utils/stringFunctions';
 import { removeMessages } from '../../contexts/NotificationsContext/notificationsContextReducer';
+import { ScrollContext } from '../../contexts/ScrollContext';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -337,7 +338,8 @@ function useMarketId() {
 function navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply=false,
   isFromInbox) {
   if (replyEditId) {
-    const path = isFromInbox ? getInboxTarget() : formCommentLink(marketId, groupId, investibleId, id);
+    // TODO need to turn off highlighting on the return - add nh=true or something
+    const path = isFromInbox ? getInboxTarget() : `${formCommentLink(marketId, groupId, investibleId, id)}`;
     navigate(history, path);
   } else {
     navigate(history, formCommentEditReplyLink(marketId, id, isReply), false, true);
@@ -1338,6 +1340,7 @@ function Reply(props) {
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || unknownPresence;
   const [marketsState] = useContext(MarketsContext);
+  const hashFragment = useContext(ScrollContext);
   const [messagesState] = useContext(NotificationsContext);
   const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || {};
@@ -1366,11 +1369,13 @@ function Reply(props) {
       true, isFromInbox);
   }
   const { level: myHighlightedLevel } = myMessage;
+  const isLinkedTo = hashFragment?.includes(comment.id);
+  const isHighlighted = myHighlightedLevel || isLinkedTo;
   const intl = useIntl();
   return (
     <div>
-      <Card className={!myHighlightedLevel ? classes.container : myMessage.level === 'RED'
-        ? classes.containerRed : classes.containerYellow} id={`c${comment.id}`}>
+      <Card className={!isHighlighted ? classes.container : (isLinkedTo || (myMessage.level === 'RED')
+        ? classes.containerRed : classes.containerYellow)} id={`c${comment.id}`}>
         <CardContent className={classes.cardContent}>
           <Typography className={classes.commenter} variant="body2">
             {commenter.name}

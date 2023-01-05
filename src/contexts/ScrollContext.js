@@ -1,6 +1,8 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { useHistory, useLocation } from 'react-router'
-import { decomposeMarketPath } from '../utils/marketIdPathFunctions'
+import { decomposeMarketPath, VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions';
+import { isSignedOut } from '../utils/userFunctions';
+import { registerListener } from '../utils/MessageBusUtils';
 
 const ScrollContext = React.createContext({});
 
@@ -28,7 +30,7 @@ function ScrollProvider(props) {
   const { children } = props;
   const history = useHistory();
   const location = useLocation();
-  const { pathname, hash } = location;
+  const { pathname, search, hash } = location;
   const [hashFragment, setHashFragment] = useState(undefined);
   const [processedPath, setProcessedPath] = useState(undefined);
 
@@ -74,6 +76,21 @@ function ScrollProvider(props) {
   }, [hashFragment, history]);
 
   useEffect(() => {
+    if (!isSignedOut()) {
+      registerListener(VISIT_CHANNEL, 'storedURLHashRefresher', (data) => {
+        if (!data) {
+          return;
+        }
+        const { payload: { event } } = data;
+        if (event === VIEW_EVENT) {
+          setHashFragment(undefined);
+        }
+      });
+    }
+    return () => {};
+  }, []);
+
+  useEffect(() => {
     const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
     if (processedPath !== pathname || hashFragment !== myHashFragment) {
       setProcessedPath(pathname);
@@ -83,8 +100,7 @@ function ScrollProvider(props) {
         if (!hashFragment) {
           window.scrollTo(0, 0);
         }
-        setHashFragment(undefined);
-      } else {
+      } else if (myHashFragment !== hashFragment) {
         setHashFragment(myHashFragment);
       } 
     }

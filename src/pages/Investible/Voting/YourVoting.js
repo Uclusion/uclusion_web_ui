@@ -77,13 +77,15 @@ function YourVoting(props) {
       myUpdateVotingPageState({storedType: value});
     }
   }
-
+  const showAddmulti = !yourVote && !isAssigned && isDecision && allowMultiVote;
+  const isTitled = (yourVote && yourVote.deleted) || showAddmulti;
   return (
-    <div  id="pleaseVote" className={voteMessage && myClasses.containerYellow}>
+    <div  id="pleaseVote" className={voteMessage && myClasses.containerYellow}
+          style={{paddingTop: isTitled ? undefined : '1rem'}}>
       {yourVote && yourVote.deleted && (
         <h3>{intl.formatMessage({ id: 'voteDeletedStory' })}</h3>
       )}
-      {!yourVote && !isAssigned && isDecision && allowMultiVote && (
+      {showAddmulti && (
         <h3>{intl.formatMessage({ id: 'addMultiVote' })}</h3>
       )}
       {isInitiative && (

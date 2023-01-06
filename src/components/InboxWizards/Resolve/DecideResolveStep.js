@@ -27,6 +27,7 @@ import { reopenComment, resolveComment } from '../../../api/comments'
 import _ from 'lodash'
 import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import { onCommentOpen } from '../../../utils/commentFunctions'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 
 function DecideResolveStep(props) {
@@ -36,6 +37,7 @@ function DecideResolveStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
@@ -58,7 +60,7 @@ function DecideResolveStep(props) {
         },
         setOperationRunning, message, history);
     } else {
-      removeWorkListItem(message, workItemClasses.removed);
+      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
     }
   }
 
@@ -68,7 +70,7 @@ function DecideResolveStep(props) {
         onCommentOpen(investiblesState, commentRoot.investible_id, marketStagesState, marketId, comment,
           investiblesDispatch, commentState, commentDispatch);
         setOperationRunning(false);
-        removeWorkListItem(message, workItemClasses.removed);
+        removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
       });
   }
 
@@ -104,7 +106,7 @@ function DecideResolveStep(props) {
           }
         } else {
           setOperationRunning(false);
-          removeWorkListItem(message, workItemClasses.removed);
+          removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
         }
       });
   }

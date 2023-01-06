@@ -20,6 +20,7 @@ import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { wizardFinish } from '../InboxWizardUtils';
 import { useHistory } from 'react-router';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
@@ -32,6 +33,7 @@ function JobApproveStep(props) {
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const workItemClasses = workListStyles();
   const userId = getMyUserForMarket(marketsState, marketId);
   const { assigned } = marketInfo || {};
@@ -102,7 +104,7 @@ function JobApproveStep(props) {
     if (_.isEmpty(formData) || _.isEmpty(formData.link)) {
       setOperationRunning(false);
       resetEditor(editorName);
-      removeWorkListItem(message, workItemClasses.removed);
+      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
     } else {
       parentOnFinish(formData);
     }

@@ -10,11 +10,13 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import _ from 'lodash'
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function ActionReviewStep(props) {
   const {marketId, investibleId, formData, message } = props;
   const classes = wizardStyles();
   const [investiblesState] = useContext(InvestiblesContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const workItemClasses = workListStyles();
   const inv = getInvestible(investiblesState, investibleId);
   const { investible: myInvestible } = inv || {};
@@ -27,7 +29,7 @@ function ActionReviewStep(props) {
   }
 
   function onSave() {
-    removeWorkListItem(message, workItemClasses.removed);
+    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
   }
 
   let introText;

@@ -31,6 +31,7 @@ import { resolveComment } from '../../../api/comments'
 import _ from 'lodash'
 import { stageChangeInvestible } from '../../../api/investibles'
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function DecideUnblockStep(props) {
   const { marketId, commentId, clearFormData, message } = props;
@@ -39,6 +40,7 @@ function DecideUnblockStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
@@ -75,7 +77,7 @@ function DecideUnblockStep(props) {
         investiblesDispatch, () => {}, marketStagesState, undefined, fullStage);
       clearFormData();
       setOperationRunning(false);
-      removeWorkListItem(message, workItemClasses.removed);
+      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
     });
   }
 
@@ -98,7 +100,7 @@ function DecideUnblockStep(props) {
         }
         clearFormData();
         setOperationRunning(false);
-        removeWorkListItem(message, workItemClasses.removed);
+        removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
       });
   }
 

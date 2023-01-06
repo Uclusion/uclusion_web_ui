@@ -255,7 +255,7 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
   if (apiType === REPORT_TYPE || (apiType === TODO_TYPE && isInReview)) {
     const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState)
     if (message) {
-      removeWorkListItem(message, workItemClasses.removed);
+      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
     }
     if (apiType === REPORT_TYPE) {
       quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);

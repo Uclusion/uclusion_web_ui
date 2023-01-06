@@ -18,6 +18,7 @@ import { refreshInvestibles } from '../../../contexts/InvestibesContext/investib
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 
 function DecideAssignStep(props) {
@@ -26,6 +27,7 @@ function DecideAssignStep(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
@@ -35,7 +37,7 @@ function DecideAssignStep(props) {
   const workItemClasses = workListStyles();
 
   function myTerminate() {
-    removeWorkListItem(message, workItemClasses.removed);
+    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
   }
 
   function goToJob() {

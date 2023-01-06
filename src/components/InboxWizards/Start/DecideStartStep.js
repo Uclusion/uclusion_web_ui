@@ -25,6 +25,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
 import { updateComment } from '../../../api/comments';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 
 function DecideStartStep(props) {
@@ -34,6 +35,7 @@ function DecideStartStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, invDispatch] = useContext(InvestiblesContext)
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const intl = useIntl();
   const history = useHistory();
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -49,7 +51,7 @@ function DecideStartStep(props) {
 
   function myTerminate() {
     if (message.is_highlighted) {
-      removeWorkListItem(message, workItemClasses.removed);
+      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
     } else {
       navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentId))
     }
@@ -70,7 +72,7 @@ function DecideStartStep(props) {
       undefined, notificationType)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentsDispatch);
-        removeWorkListItem(message, workItemClasses.removed);
+        removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
       }).finally(() => {
         setOperationRunning(false);
       });

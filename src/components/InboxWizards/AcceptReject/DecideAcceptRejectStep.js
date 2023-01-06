@@ -19,6 +19,7 @@ import { formCommentLink } from '../../../utils/marketIdPathFunctions'
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
 import { resolveComment, updateComment } from '../../../api/comments'
 import { TODO_TYPE } from '../../../constants/comments'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 
 function DecideAcceptRejectStep(props) {
@@ -28,6 +29,7 @@ function DecideAcceptRejectStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
@@ -50,7 +52,7 @@ function DecideAcceptRejectStep(props) {
   function accept() {
     return updateComment(marketId, commentId, undefined, TODO_TYPE).then((comment) => {
       addCommentToMarket(comment, commentsState, commentsDispatch);
-      removeWorkListItem(message, workItemClasses.removed);
+      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
       setOperationRunning(false);
     })
   }
@@ -59,7 +61,7 @@ function DecideAcceptRejectStep(props) {
     return resolveComment(marketId, commentId)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
-        removeWorkListItem(message, workItemClasses.removed);
+        removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
         setOperationRunning(false);
       });
   }

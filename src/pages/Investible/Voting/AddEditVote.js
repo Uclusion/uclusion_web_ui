@@ -36,6 +36,7 @@ import { processTextAndFilesForSave } from '../../../api/files'
 import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
 import { focusEditor, getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
 import WizardStepButtons from '../../../components/InboxWizards/WizardStepButtons'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 const useStyles = makeStyles(
   theme => {
@@ -146,6 +147,7 @@ function AddEditVote(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const [open, setOpen] = useState(false);
   const [openIssue, setOpenIssue] = useState(false);
   const warnClearVotes = !allowMultiVote && hasVoted && _.isEmpty(investment);
@@ -233,7 +235,7 @@ function AddEditVote(props) {
     }
     partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);
     if (voteMessage) {
-      removeWorkListItem(voteMessage, workItemClasses.removed);
+      removeWorkListItem(voteMessage, workItemClasses.removed, messagesDispatch);
     }
     if (open) {
       toggleOpen();

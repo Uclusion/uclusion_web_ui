@@ -24,6 +24,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import _ from 'lodash'
+import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 
 function DecideStageStep(props) {
   const { marketId, investibleId } = props;
@@ -43,13 +44,25 @@ function DecideStageStep(props) {
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inVotingStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
+  const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
+  const [, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
+    {sectionOpen: 'descriptionVotingSection'});
   let destinationStage;
   let destinationExplanation;
   let destinationLabel;
+  let onOtherNextFunc = () => moveToTarget(true);
+  let otherNextLabelId = 'stageAndGotoJob';
+  let nextLabelId = 'DecideStageMove';
   if (currentStageId === inVotingStage.id) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
     destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
+    otherNextLabelId = 'commentIconAskQuestionLabel';
+    onOtherNextFunc = () => {
+      updatePageState({sectionOpen: 'questionsSection'});
+      navigate(history, formInvestibleLink(marketId, investibleId));
+    };
+    nextLabelId = 'startJob';
   } else if (currentStageId === acceptedStage.id) {
     destinationStage = inReviewStage;
     destinationLabel = 'planningInvestibleNextStageInReviewLabel';
@@ -104,11 +117,11 @@ function DecideStageStep(props) {
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
       <WizardStepButtons
         {...props}
-        nextLabel="DecideStageMove"
+        nextLabel={nextLabelId}
         onNext={() => moveToTarget(false)}
         showOtherNext
-        onOtherNext={() => moveToTarget(true)}
-        otherNextLabel="stageAndGotoJob"
+        onOtherNext={onOtherNextFunc}
+        otherNextLabel={otherNextLabelId}
         showTerminate
         terminateLabel="DecideWizardContinue"
         onFinish={() => navigate(history, formInvestibleLink(marketId, investibleId))}

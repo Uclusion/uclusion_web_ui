@@ -498,9 +498,9 @@ const messages = defineMessages({
   proceedRestricted: 'Just me',
 
   // CommentBox
-  commentIconRaiseIssueLabel: 'Raise Issue',
-  commentIconAskQuestionLabel: 'Ask Question',
-  commentIconSuggestChangesLabel: 'Suggest Changes',
+  commentIconRaiseIssueLabel: 'Raise issue',
+  commentIconAskQuestionLabel: 'Ask question',
+  commentIconSuggestChangesLabel: 'Suggest changes',
 
   // Comments
   commentReplyDefault: 'Your reply...',
@@ -1035,7 +1035,8 @@ const messages = defineMessages({
   moveTodoRed: 'Move to Red',
   moveTodoYellow: 'Move to Yellow',
   moveTodoBlue: 'Move to Blue',
-  startTodo: 'Start Bug',
+  startTodo: 'Start bug',
+  startJob: 'Start job',
   DecideStartBug: 'Create job from bug',
   DecideAddReview: 'Add review',
   DecideAddTask: 'Add task',

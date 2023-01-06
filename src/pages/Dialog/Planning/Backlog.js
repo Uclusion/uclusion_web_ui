@@ -21,7 +21,7 @@ function Backlog(props) {
     furtherWorkStage,
     myPresence
   } = props;
-  const { market_id: marketId, id: groupId} = group;
+  const { market_id: marketId, id: groupId} = group || {};
   const intl = useIntl();
   const history = useHistory();
 

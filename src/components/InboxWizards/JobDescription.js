@@ -50,8 +50,8 @@ function JobDescription(props) {
           <DescriptionOrDiff id={investibleId} description={description} showDiff={false} />
         )}
         {!_.isEmpty(comments) && (
-          <div style={{paddingTop: '1rem', maxHeight: '300px', minHeight: '200px', overflowY: 'auto',
-            overflowX: 'hidden', }}>
+          <div style={{paddingTop: '1rem', paddingLeft: '0.25rem', paddingRight: '0.5rem', maxHeight: '300px',
+            minHeight: '200px', overflowY: 'auto', overflowX: 'hidden', }}>
             <CommentBox
               comments={comments}
               marketId={marketId}

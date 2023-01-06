@@ -92,7 +92,7 @@ function AddInitialVote(props) {
             aria-labelledby="add-vote-certainty"
             className={classes.certaintyGroup}
             onChange={onChange}
-            value={newQuantity}
+            value={newQuantity || 0}
           >
             {[5, 25, 50, 75, 100].map(certainty => {
               return (
@@ -108,7 +108,7 @@ function AddInitialVote(props) {
                   control={<Radio />}
                   label={<FormattedMessage id={`certainty${certainty}`} />}
                   labelPlacement="start"
-                  value={`${certainty}`}
+                  value={certainty}
                 />
               );
             })}
@@ -150,7 +150,7 @@ AddInitialVote.propTypes = {
   onBudgetChange: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
   onEditorChange: PropTypes.func,
-  newQuantity: PropTypes.string,
+  newQuantity: PropTypes.number,
   maxBudget: PropTypes.any,
   maxBudgetUnit: PropTypes.any,
   body: PropTypes.string

@@ -70,7 +70,6 @@ function ScrollProvider(props) {
         }
       }, 0);
     }
-
     if (hashFragment) {
       hashLinkScroll(hashFragment)
     }
@@ -82,8 +81,9 @@ function ScrollProvider(props) {
         if (!data) {
           return;
         }
-        const { payload: { event } } = data;
-        if (event === VIEW_EVENT) {
+        const { payload: { event, message: { isEntry } } } = data;
+        if (event === VIEW_EVENT && isEntry === false) {
+          // use isEntry false to make sure not clearing these on initial page load
           setHashFragment(undefined);
           setNoHighlightId(undefined);
         }
@@ -97,7 +97,7 @@ function ScrollProvider(props) {
     if (processedPath !== pathname || hashFragment !== myHashFragment) {
       setProcessedPath(pathname);
       const { action } = decomposeMarketPath(pathname);
-      if (!myHashFragment || (!['dialog', 'inbox'].includes(action) && pathname !== '/')) {
+      if (!myHashFragment || (!['dialog', 'inbox', 'comment'].includes(action) && pathname !== '/')) {
         //Scroll to the top if its a new page and there is no anchor to scroll to
         if (!hashFragment) {
           window.scrollTo(0, 0);

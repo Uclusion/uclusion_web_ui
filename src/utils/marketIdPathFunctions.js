@@ -164,18 +164,11 @@ export function formatGroupLinkWithPrefix(prefix, marketId, groupId) {
 }
 
 export function formCommentEditReplyLink(marketId, commentId, isReply=false) {
-  const { action: fromAction } = decomposeMarketPath(window.location.pathname);
   let base = `/comment/${marketId}/${commentId}`;
-  if (fromAction === 'inbox') {
-    base += '?inbox=true';
-    if (isReply) {
-      return `${base}&reply=true`;
-    }
-  }
   if (isReply) {
-    return `${base}?reply=true`;
+    return `${base}?reply=true#c${commentId}`;
   }
-  return base;
+  return `base#c${commentId}`;
 }
 
 /**

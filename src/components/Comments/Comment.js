@@ -497,6 +497,7 @@ function Comment(props) {
   }
 
   function toggleReply() {
+    // TODO this is wrong needs to be passed id of the newly created reply and go back to that
     toggleBase(true);
   }
 

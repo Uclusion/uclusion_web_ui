@@ -10,13 +10,13 @@ export function invalidEditEvent(event, history) {
   if (selection && selection.type === 'Range') {
     return true;
   }
-  const isLink = event && event.target && event.target.localName === 'a';
-  if (isLink && event.target.href && event.target.href.includes(window.location.host)) {
+  const isLink = event?.target?.localName === 'a';
+  if (isLink && event?.target?.href?.includes(window.location.host)) {
     preventDefaultAndProp(event);
     // Hacky but the url can be modified on storage so intercept here
     navigate(history, `${event.target.pathname}${event.target.search}${event.target.hash}`);
   }
-  return isLink || !event;
+  return isLink || event === true;
 }
 
 export function doSetEditWhenValid(isEdit, isEditableByUser, setBeingEdited, event, history) {

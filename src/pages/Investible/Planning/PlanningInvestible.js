@@ -1099,23 +1099,6 @@ function PlanningInvestible(props) {
             </div>
           }/>
         )}
-        {isAssigned && sectionOpen === 'descriptionVotingSection' && (
-          <DismissableText textId='planningInvestibleAcceptedHelp' text={
-            <div>
-              For help create
-              a <Link href="https://documentation.uclusion.com/structured-comments/#questions" target="_blank">question</Link> and
-              add options to it.
-            </div>
-          } />
-        )}
-        {!yourVote && !inArchives && canVote && !isAssigned && sectionOpen === 'descriptionVotingSection' && (
-          <DismissableText textId='planningInvestibleVotingHelp' text={
-            <div>
-              Input how certain you are this story should be done or open
-              a <Link href="https://documentation.uclusion.com/structured-comments/#blocking-issues" target="_blank">blocking issue</Link>.
-            </div>
-          } />
-        )}
         {!hidden && editCollaborators && (
           <>
             <PlanningInvestibleEdit

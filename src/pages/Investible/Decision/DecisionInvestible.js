@@ -284,7 +284,7 @@ function DecisionInvestible(props) {
       {activeMarket && inProposed && isAdmin && (
         <DismissableText textId='decisionInvestibleProposedHelp' text={
           <div>
-            You can move this option to be approved by using the highlighted up arrow.
+            You can move this option to be approved by using the up arrow.
           </div>
         } />
       )}

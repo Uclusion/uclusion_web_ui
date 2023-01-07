@@ -37,7 +37,7 @@ import {
 import CardType, { BUG, DECISION_TYPE } from '../CardType'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../constants/global'
 import {
-  addCommentToMarket, getComment, getMarketComments, removeComments
+  addCommentToMarket, getMarketComments, removeComments
 } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
@@ -381,8 +381,7 @@ function Comment(props) {
   const { allow_multi_vote: originalAllowMultiVote, created_by: inlineCreatedBy } = inlineMarket;
   const [multiVote, setMultiVote] = useState(originalAllowMultiVote);
   const market = getMarket(marketsState, marketId) || {};
-  const { market_stage: marketStage, market_type: marketType, parent_comment_id: parentCommentId,
-    parent_comment_market_id: parentMarketId } = market;
+  const { market_stage: marketStage, market_type: marketType } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const { assigned: invAssigned } = marketInfo || {};

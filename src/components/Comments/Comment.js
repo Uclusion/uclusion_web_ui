@@ -486,18 +486,11 @@ function Comment(props) {
   }
 
   function toggleBase(isReply) {
-    if (parentCommentId && replyEditId && !isFromInbox) {
-      const rootComment = getComment(commentState, parentMarketId, parentCommentId);
-      navigateEditReplyBack(history, parentCommentId, parentMarketId, rootComment.group_id, rootComment.investible_id,
-        replyEditId, isReply, isFromInbox, setNoHighlightId);
-    } else {
-      navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply, isFromInbox,
-        setNoHighlightId);
-    }
+    navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply, isFromInbox,
+      setNoHighlightId);
   }
 
   function toggleReply() {
-    // TODO this is wrong needs to be passed id of the newly created reply and go back to that
     toggleBase(true);
   }
 

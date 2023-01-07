@@ -168,7 +168,7 @@ export function formCommentEditReplyLink(marketId, commentId, isReply=false) {
   if (isReply) {
     return `${base}?reply=true#c${commentId}`;
   }
-  return `base#c${commentId}`;
+  return `${base}#c${commentId}`;
 }
 
 /**

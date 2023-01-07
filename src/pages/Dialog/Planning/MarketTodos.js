@@ -77,8 +77,6 @@ const myClasses = makeStyles(
       cardSelected: {
         backgroundColor: theme.palette.grey['200'],
         padding: theme.spacing(1, 0, 0, 2),
-        overflowY: 'auto',
-        overflowX: 'hidden',
         maxHeight: '275px'
       },
       raisedCardSelected: {

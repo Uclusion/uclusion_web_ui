@@ -38,19 +38,25 @@ function WizardStepButtons(props) {
 
   async function nextState(nextFunction) {
     const nextReturn = nextFunction();
-    const resolved = await Promise.resolve(nextReturn);
     if (lastStep) {
+      const resolved = await Promise.resolve(nextReturn);
       return finish(resolved);
     }else{
       setOperationRunning(false);
       nextStep();
     }
-    return resolved.then(() => {
-      const item = document.getElementById(formData.parentElementId);
-      if (item) {
-        scrollToElement(item);
-      }
-    });
+    if (nextReturn) {
+      return nextReturn.then(() => {
+        const item = document.getElementById(formData.parentElementId);
+        if (item) {
+          scrollToElement(item);
+        }
+      });
+    }
+    const item = document.getElementById(formData.parentElementId);
+    if (item) {
+      scrollToElement(item);
+    }
   }
 
   async function myNext () {

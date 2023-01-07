@@ -4,9 +4,11 @@ import { useIntl } from 'react-intl';
 import SpinningButton from '../SpinBlocking/SpinningButton';
 import { wizardStyles } from './WizardStylesContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { scrollToElement } from '../../contexts/ScrollContext';
 
 function WizardStepButtons(props) {
   const {
+    formData,
     onNext,
     onOtherNext,
     nextStep,
@@ -43,7 +45,12 @@ function WizardStepButtons(props) {
       setOperationRunning(false);
       nextStep();
     }
-    return resolved;
+    return resolved.then(() => {
+      const item = document.getElementById(formData.parentElementId);
+      if (item) {
+        scrollToElement(item);
+      }
+    });
   }
 
   async function myNext () {
@@ -53,7 +60,6 @@ function WizardStepButtons(props) {
   async function myOtherNext () {
     return nextState(onOtherNext);
   }
-
 
   return (
     <div className={classes.buttonContainer}>

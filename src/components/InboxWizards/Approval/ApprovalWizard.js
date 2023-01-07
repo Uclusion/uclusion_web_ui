@@ -24,7 +24,8 @@ function ApprovalWizard(props) {
   }
 
   return (
-    <FormdataWizard name={`approval_wizard${investibleId}`}>
+    <FormdataWizard name={`approval_wizard${investibleId}`}
+                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
       <JobDescriptionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}
                                   message={message} yourVote={yourVote}/>
       <ActionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message} />

@@ -8,7 +8,8 @@ function ReviewWizard(props) {
   const { marketId, investibleId, message } = props;
 
   return (
-    <FormdataWizard name={`review_wizard${investibleId}`}>
+    <FormdataWizard name={`review_wizard${investibleId}`}
+                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
       <DecideReviewStep marketId={marketId} investibleId={investibleId} message={message} />
       <ActionReviewStep marketId={marketId} investibleId={investibleId} message={message} />
     </FormdataWizard>

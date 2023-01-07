@@ -7,7 +7,8 @@ function BlockedWizard(props) {
   const { marketId, commentId, message } = props;
 
   return (
-    <FormdataWizard name={`unblock_wizard${commentId}`}>
+    <FormdataWizard name={`unblock_wizard${commentId}`}
+                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
       <DecideUnblockStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
   );

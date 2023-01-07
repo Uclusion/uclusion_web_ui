@@ -17,7 +17,8 @@ function StatusWizard(props) {
   }
 
   return (
-    <FormdataWizard name={`status_wizard${investibleId}`}>
+    <FormdataWizard name={`status_wizard${investibleId}`}
+                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
       <JobDescriptionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
       <ActionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
     </FormdataWizard>

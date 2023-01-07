@@ -7,7 +7,8 @@ function StartWizard(props) {
   const { marketId, commentId, message } = props;
 
   return (
-    <FormdataWizard name={`start_wizard${commentId}`}>
+    <FormdataWizard name={`start_wizard${commentId}`}
+                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
       <DecideStartStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
   );

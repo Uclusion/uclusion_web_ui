@@ -4,10 +4,10 @@ import FormdataWizard from 'react-formdata-wizard';
 import DecideStageStep from './DecideStageStep'
 
 function StageWizard(props) {
-  const { marketId, investibleId } = props;
+  const { marketId, investibleId, rowId } = props;
 
   return (
-    <FormdataWizard name={`stage_wizard${investibleId}`}>
+    <FormdataWizard name={`stage_wizard${investibleId}`} defaultFormData={{parentElementId: rowId}}>
       <DecideStageStep marketId={marketId} investibleId={investibleId} />
     </FormdataWizard>
   );

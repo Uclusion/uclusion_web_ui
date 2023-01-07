@@ -69,17 +69,22 @@ export function addExpansionPanel(props) {
   const { item } = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
-    link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted } = message;
+    link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted,
+    type_object_id: typeObjectId } = message;
   if (isOutboxAccepted) {
-    item.expansionPanel = <AssignToOtherWizard investibleId={message.id} marketId={message.marketId} />;
+    item.expansionPanel = <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}
+                                               rowId={`outboxRow${message.id}`} />;
   } else if (!messageType || messageType === 'ASSIGNED_UNREVIEWABLE') {
     if (messageType === 'ASSIGNED_UNREVIEWABLE') {
-      item.expansionPanel = <StageWizard investibleId={investibleId} marketId={marketId} />;
+      item.expansionPanel = <StageWizard investibleId={investibleId} marketId={marketId}
+                                         rowId={`workListItem${typeObjectId}`} />;
     } else if (message.isOutboxType) {
       if (message.isAssigned) {
-        item.expansionPanel = <StageWizard investibleId={message.id} marketId={message.marketId}/>;
+        item.expansionPanel = <StageWizard investibleId={message.id} marketId={message.marketId}
+                                           rowId={`outboxRow${message.id}`}/>;
       } else {
-        item.expansionPanel = <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId} />;
+        item.expansionPanel = <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId}
+                                                       rowId={`outboxRow${message.id}`} />;
       }
     }
   } else if (messageType === 'NOT_FULLY_VOTED') {

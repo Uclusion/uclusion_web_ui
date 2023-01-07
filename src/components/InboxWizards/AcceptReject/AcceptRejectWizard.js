@@ -7,7 +7,8 @@ function AcceptRejectWizard(props) {
   const { marketId, commentId, message } = props;
 
   return (
-    <FormdataWizard name={`accept_wizard${commentId}`}>
+    <FormdataWizard name={`accept_wizard${commentId}`}
+                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
       <DecideAcceptRejectStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
   );

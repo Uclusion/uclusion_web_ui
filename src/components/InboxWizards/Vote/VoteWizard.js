@@ -24,7 +24,8 @@ function VoteWizard(props) {
   }
 
   return (
-    <FormdataWizard name={`vote_wizard${commentId}`}>
+    <FormdataWizard name={`vote_wizard${commentId}`}
+                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
       <DecideVoteStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
       <VoteCertaintyStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
     </FormdataWizard>

@@ -4,10 +4,10 @@ import FormdataWizard from 'react-formdata-wizard';
 import DecideAssistanceStep from './DecideAssistanceStep'
 
 function WaitingAssistanceWizard(props) {
-  const { marketId, commentId } = props;
+  const { marketId, commentId, rowId } = props;
 
   return (
-    <FormdataWizard name={`waiting_wizard${commentId}`}>
+    <FormdataWizard name={`waiting_wizard${commentId}`} defaultFormData={{parentElementId: rowId}}>
       <DecideAssistanceStep marketId={marketId} commentId={commentId} />
     </FormdataWizard>
   );

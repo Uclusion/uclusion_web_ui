@@ -7,7 +7,8 @@ function AnswerWizard(props) {
   const { marketId, commentId, message } = props;
 
   return (
-    <FormdataWizard name={`answer_wizard${commentId}`}>
+    <FormdataWizard name={`answer_wizard${commentId}`}
+                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
       <DecideAnswerStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
   );

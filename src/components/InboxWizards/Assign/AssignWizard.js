@@ -7,7 +7,8 @@ function AssignWizard(props) {
   const { marketId, investibleId, message } = props;
 
   return (
-    <FormdataWizard name={`assign_wizard${investibleId}`}>
+    <FormdataWizard name={`assign_wizard${investibleId}`}
+                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
       <DecideAssignStep marketId={marketId} investibleId={investibleId} message={message}/>
     </FormdataWizard>
   );

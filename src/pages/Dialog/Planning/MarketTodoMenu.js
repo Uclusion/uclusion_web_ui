@@ -1,21 +1,24 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
-import { List, ListItem, ListItemText, ListSubheader, Menu } from '@material-ui/core'
+import { List, ListItem, ListItemText, Menu } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import GravatarAndName from '../../../components/Avatars/GravatarAndName'
-import { updateComment } from '../../../api/comments'
-import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { resolveComment, updateComment } from '../../../api/comments';
+import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { doRemoveEdit, onDropTodo } from './userUtils'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { doRemoveEdit } from './userUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { removeMessagesForCommentId } from '../../../utils/messageUtils'
+import {
+  removeMessagesForCommentId
+} from '../../../utils/messageUtils';
 import { notifyImmediate } from '../../../utils/commentFunctions'
 import { RED_LEVEL } from '../../../constants/notifications'
+import { formCommentEditReplyLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { workListStyles } from '../../Home/YourWork/WorkListItem';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -43,37 +46,20 @@ const useStyles = makeStyles((theme) => {
 
 function MarketTodoMenu(props) {
   const { comment, editViewFunc, openIdFunc, anchorEl } = props;
+  const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
+  const workItemClasses = workListStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [, invDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const { market_id: marketId, id: commentId, notification_type: myNotificationType } = comment;
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const { market_id: marketId, id: commentId, notification_type: myNotificationType, group_id: groupId } = comment;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const assignablePresences = marketPresences.filter((presence) => !presence.market_banned) || [];
 
-  function renderAssignedEntry(presence) {
-    const { name, email, id } = presence;
-
-    return (
-      <ListItem key={`assignTodo${id}`} button
-                onClick={() => onDropTodo(commentId, commentState, marketId, setOperationRunning, intl,
-                  commentDispatch, invDispatch, id)}>
-        <GravatarAndName
-          key={id}
-          email={email}
-          name={name}
-          typographyVariant="caption"
-          typographyClassName={classes.avatarName}
-        />
-      </ListItem>
-    );
-  }
-
-  function doEdit() {
+  function doView() {
     editViewFunc(comment);
     openIdFunc(undefined);
     doRemoveEdit(commentId);
@@ -96,6 +82,15 @@ function MarketTodoMenu(props) {
     });
   }
 
+  function resolve() {
+    return resolveComment(marketId, commentId)
+      .then((comment) => {
+        addCommentToMarket(comment, commentsState, commentsDispatch);
+        removeMessagesForCommentId(commentId, messagesState, workItemClasses.removed);
+        setOperationRunning(false);
+      });
+  }
+
   function setClosed() {
     openIdFunc(undefined);
   }
@@ -115,8 +110,19 @@ function MarketTodoMenu(props) {
         dense
         className={classes.scrollableList}
       >
-        <ListItem button onClick={doEdit}>
+        <ListItem button onClick={doView}>
+          <ListItemText primary={intl.formatMessage({ id: 'viewTodo' })} />
+        </ListItem>
+        <ListItem button onClick={() => navigate(history, formCommentEditReplyLink(marketId, commentId, false),
+          false, true)}>
           <ListItemText primary={intl.formatMessage({ id: 'editTodo' })} />
+        </ListItem>
+        <ListItem button onClick={() => navigate(history,
+          `${formMarketAddInvestibleLink(marketId, groupId)}&fromCommentId=${commentId}`)}>
+          <ListItemText primary={intl.formatMessage({ id: 'storyFromComment' })} />
+        </ListItem>
+        <ListItem button onClick={resolve}>
+          <ListItemText primary={intl.formatMessage({ id: 'issueResolveLabel' })} />
         </ListItem>
         {myNotificationType !== 'RED' && (
           <ListItem onClick={() => moveTodo('RED')} button >
@@ -133,10 +139,6 @@ function MarketTodoMenu(props) {
             <ListItemText primary={intl.formatMessage({ id: 'moveTodoBlue' })} />
           </ListItem>
         )}
-        <ListSubheader>
-          {intl.formatMessage({ id: 'todoAddressListHeader' })}
-        </ListSubheader>
-        {assignablePresences.map((entry) => renderAssignedEntry(entry))}
       </List>
     </Menu>
   );

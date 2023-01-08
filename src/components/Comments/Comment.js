@@ -707,10 +707,7 @@ function Comment(props) {
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
-        let shouldResolveMessages = true;
-        if (shouldResolveMessages) {
-          removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
-        }
+        removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
         if (inlineMarketId) {
           const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || []
           const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || []

@@ -114,7 +114,7 @@ export const workListStyles = makeStyles(() => {
   };
 });
 
-function modifyNotifications (event, typeObjectId, messagesDispatch, message) {
+export function modifyNotifications (event, typeObjectId, messagesDispatch, message) {
   if (messagesDispatch) {
     if (DELETE_EVENT === event) {
       messagesDispatch(removeMessages([message]));

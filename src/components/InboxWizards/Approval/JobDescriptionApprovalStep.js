@@ -22,6 +22,7 @@ import { JUSTIFY_TYPE } from '../../../constants/comments';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import { setUclusionLocalStorageItem } from '../../localStorageUtils';
 import { getJobApproveEditorName } from './JobApproveStep';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 
 function JobDescriptionStep (props) {
@@ -31,6 +32,7 @@ function JobDescriptionStep (props) {
   const [marketsState] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState] = useContext(CommentsContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
@@ -45,7 +47,7 @@ function JobDescriptionStep (props) {
 
   function myOnFinish() {
     wizardFinish({link: `${formInvestibleLink(marketId, investibleId)}#approve`},
-      setOperationRunning, message, history);
+      setOperationRunning, message, history, marketId, investibleId, messagesDispatch);
   }
 
   return (

@@ -9,18 +9,20 @@ import { useHistory } from 'react-router'
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function VoteWizard(props) {
   const { marketId, commentId, message } = props;
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
 
   function myOnFinish() {
     wizardFinish({link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
           commentRoot.id)},
-      setOperationRunning, message, history);
+      setOperationRunning, message, history, marketId, commentRoot.investible_id, messagesDispatch);
   }
 
   return (

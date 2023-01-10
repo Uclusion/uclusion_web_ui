@@ -8,19 +8,21 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { wizardFinish } from '../InboxWizardUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function ApprovalWizard(props) {
   const { marketId, investibleId, message } = props;
   const history = useHistory();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   let yourPresence = marketPresences.find((presence) => presence.current_user);
   let yourVote = yourPresence && yourPresence.investments && yourPresence.investments.find((investment) =>
     investment.investible_id === investibleId);
 
   function myOnFinish(formData) {
-    wizardFinish(formData, setOperationRunning, message, history, marketId, investibleId);
+    wizardFinish(formData, setOperationRunning, message, history, marketId, investibleId, messagesDispatch);
   }
 
   return (

@@ -13,6 +13,7 @@ import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function DecideReviewStep(props) {
   const { marketId, investibleId, message, updateFormData, clearFormData } = props;
@@ -20,6 +21,7 @@ function DecideReviewStep(props) {
   const classes = wizardStyles();
   const history = useHistory();
   const [commentsState] = useContext(CommentsContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const isUnread = message.type_object_id.startsWith('UNREAD');
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, true);
@@ -27,7 +29,7 @@ function DecideReviewStep(props) {
   function goToJob() {
     clearFormData();
     wizardFinish( { link: formInvestibleLink(marketId, investibleId) }, setOperationRunning, message,
-      history);
+      history, marketId, investibleId, messagesDispatch);
   }
 
   return (

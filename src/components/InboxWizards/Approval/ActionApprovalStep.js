@@ -14,6 +14,7 @@ import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPath
 import { wizardFinish } from '../InboxWizardUtils';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function ActionApprovalStep(props) {
   const {marketId, investibleId, formData, onFinish, message } = props;
@@ -21,6 +22,7 @@ function ActionApprovalStep(props) {
   const history = useHistory();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [investiblesState] = useContext(InvestiblesContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const inv = getInvestible(investiblesState, investibleId);
   const { investible: myInvestible } = inv || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -37,7 +39,7 @@ function ActionApprovalStep(props) {
 
   function myOnFinish() {
     wizardFinish({link: `${formInvestibleLink(marketId, investibleId)}#approve`},
-      setOperationRunning, message, history);
+      setOperationRunning, message, history, marketId, investibleId, messagesDispatch);
   }
 
   function onSave(comment) {

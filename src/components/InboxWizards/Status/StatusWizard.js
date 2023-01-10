@@ -6,14 +6,16 @@ import { useHistory } from 'react-router'
 import ActionStatusStep from './ActionStatusStep'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { wizardFinish } from '../InboxWizardUtils'
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function StatusWizard(props) {
   const { marketId, investibleId, message } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
 
   function myOnFinish(formData) {
-    wizardFinish(formData, setOperationRunning, message, history, marketId, investibleId);
+    wizardFinish(formData, setOperationRunning, message, history, marketId, investibleId, messagesDispatch);
   }
 
   return (

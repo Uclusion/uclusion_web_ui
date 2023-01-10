@@ -1,18 +1,18 @@
 import {
   DEHIGHLIGHT_EVENT,
   DELETE_EVENT,
-  MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../contexts/NotificationsContext/notificationsContextMessages'
-import { pushMessage } from '../../utils/MessageBusUtils'
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
+import { modifyNotifications } from '../../pages/Home/YourWork/WorkListItem';
 
-export function wizardFinish(formData, setOperationRunning, message, history, marketId, investibleId) {
+export function wizardFinish(formData, setOperationRunning, message, history, marketId, investibleId,
+  messagesDispatch) {
   setOperationRunning(false);
   let event = DEHIGHLIGHT_EVENT;
   if (message.type_object_id.startsWith('UNREAD')) {
     event = DELETE_EVENT;
   }
-  pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: (message.id || message.type_object_id) });
+  modifyNotifications(event, message.id || message.type_object_id, messagesDispatch, message)
   let link = formInvestibleLink(marketId, investibleId);
   if (formData) {
     const { link: passedLink } = formData;

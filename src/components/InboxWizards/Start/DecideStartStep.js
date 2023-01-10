@@ -63,7 +63,7 @@ function DecideStartStep(props) {
       .then((investibleId) => {
         clearFormData();
         wizardFinish( { link: formInvestibleLink(marketId, investibleId) }, setOperationRunning, message,
-          history);
+          history, marketId, investibleId, messagesDispatch);
       });
   }
 

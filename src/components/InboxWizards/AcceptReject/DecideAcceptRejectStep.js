@@ -46,7 +46,7 @@ function DecideAcceptRejectStep(props) {
   function myOnFinish() {
     wizardFinish({link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
           commentRoot.id)},
-      setOperationRunning, message, history);
+      setOperationRunning, message, history, marketId, commentRoot.investible_id, messagesDispatch);
   }
 
   function accept() {

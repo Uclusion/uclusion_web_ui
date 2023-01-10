@@ -97,7 +97,7 @@ function JobApproveStep(props) {
 
   function onFinish(formData) {
     wizardFinish({link: `${formInvestibleLink(marketId, investibleId)}#approve`},
-      setOperationRunning, message, history);
+      setOperationRunning, message, history, marketId, investibleId, messagesDispatch);
   }
 
   function onCompleteFinish(formData) {

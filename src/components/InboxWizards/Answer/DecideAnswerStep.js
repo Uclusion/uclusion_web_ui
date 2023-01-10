@@ -31,7 +31,7 @@ function DecideAnswerStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
@@ -46,7 +46,7 @@ function DecideAnswerStep(props) {
   function myOnFinish() {
     wizardFinish({link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
           commentRoot.id)},
-      setOperationRunning, message, history);
+      setOperationRunning, message, history, marketId, commentRoot.investible_id, messagesDispatch);
   }
 
   function abstain() {

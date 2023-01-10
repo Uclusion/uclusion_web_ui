@@ -58,7 +58,7 @@ function DecideResolveStep(props) {
           link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
             commentRoot.id)
         },
-        setOperationRunning, message, history);
+        setOperationRunning, message, history, marketId, commentRoot.investible_id, messagesDispatch);
     } else {
       removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
     }
@@ -96,13 +96,13 @@ function DecideResolveStep(props) {
           if (inv) {
             wizardFinish({
               link: `${formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentId)}`
-            }, setOperationRunning, message, history);
+            }, setOperationRunning, message, history, marketId, commentRoot.investible_id, messagesDispatch);
           } else {
             wizardFinish(
               {
                 link: `${formMarketAddInvestibleLink(marketId, commentRoot.group_id)}&fromCommentId=${commentId}`
               },
-              setOperationRunning, message, history);
+              setOperationRunning, message, history, marketId, commentRoot.investible_id, messagesDispatch);
           }
         } else {
           setOperationRunning(false);

@@ -34,7 +34,11 @@ import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../..
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { getFullStage, getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getFullStage,
+  getStages,
+  isVerifiedStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { removeHeader, restoreHeader } from '../../../containers/Header'
@@ -643,12 +647,14 @@ function StageInvestible(props) {
     return !_.isEmpty(findMessageOfType('REPORT_REQUIRED', id, messagesState));
   }
 
-  const { completion_estimate: daysEstimate, ticket_code: ticketCode } = marketInfo;
+  const { completion_estimate: daysEstimate, ticket_code: ticketCode, stage: stageId } = marketInfo;
   const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext)
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const stage = getFullStage(marketStagesState, marketId, stageId) || {};
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
   const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
@@ -698,13 +704,15 @@ function StageInvestible(props) {
           }}
         >
           <Typography color='initial' variant="subtitle2">{name}</Typography>
-          <div className={classes.chipsClass} style={{paddingTop: `${!_.isEmpty(labelList) ? '0.5rem': '0'}`}}>
-            {labelList && labelList.map((label) =>
-              <div key={label}>
-                <Chip size="small" label={label} className={classes.chipClass} color="primary"/>
-              </div>
-            )}
-          </div>
+          {!_.isEmpty(labelList) && !isVerifiedStage(stage) && (
+            <div className={classes.chipsClass} style={{paddingTop: '0.5rem'}}>
+              {labelList.map((label) =>
+                <div key={label}>
+                  <Chip size="small" label={label} className={classes.chipClass} color="primary"/>
+                </div>
+              )}
+            </div>
+          )}
         </StageLink>
       </Grid>
     </Grid>

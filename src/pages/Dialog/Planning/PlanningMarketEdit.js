@@ -10,10 +10,8 @@ import clsx from 'clsx'
 import CardActions from '@material-ui/core/CardActions'
 import Card from '@material-ui/core/Card'
 import { usePlanFormStyles, VoteExpiration } from '../../../components/AgilePlan'
-import AllowedInProgress from './AllowedInProgress';
 import {
   getStages,
-  isAcceptedStage,
   updateStagesForMarket
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -55,9 +53,7 @@ function PlanningMarketEdit() {
   const { pathname } = location;
   const { marketId } = decomposeMarketPath(pathname);
   const marketStages = getStages(marketStagesState, marketId);
-  const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
   const verifiedStage = marketStages.find(stage => stage.appears_in_market_summary) || {};
-  const [allowedInvestibles, setAllowedInvestibles] = useState(undefined);
   const [showInvestiblesAge, setShowInvestiblesAge] = useState(undefined);
   const market = getMarket(marketsState, marketId) || {};
   const [investmentExpiration, setInvestmentExpiration] = useState(undefined);
@@ -69,14 +65,8 @@ function PlanningMarketEdit() {
     if (nameInput) {
       nameInput.value = market.name;
     }
-    setAllowedInvestibles(undefined);
     setShowInvestiblesAge(undefined);
     setInvestmentExpiration(undefined);
-  }
-
-  function onAllowedInvestiblesChange(event) {
-    const { value } = event.target;
-    setAllowedInvestibles(parseInt(value, 10));
   }
 
   function onShowInvestiblesAgeChange(event) {
@@ -101,17 +91,6 @@ function PlanningMarketEdit() {
       investmentExpiration ? parseInt(investmentExpiration, 10) : null
     ).then(market => {
       addMarketToStorage(marketsDispatch, market);
-      if (allowedInvestibles) {
-        return updateStage(marketId, acceptedStage.id, allowedInvestibles).then((newStage) => {
-          const marketStages = getStages(marketStagesState, marketId)
-          const newStages = _.unionBy([newStage], marketStages, 'id')
-          updateStagesForMarket(marketStagesDispatch, marketId, newStages)
-          if (showInvestiblesAge) {
-            return updateShowInvestibles();
-          }
-          setOperationRunning(false);
-        });
-      }
       if (showInvestiblesAge) {
         return updateShowInvestibles();
       }
@@ -140,12 +119,6 @@ function PlanningMarketEdit() {
               <Typography variant="h6">
                 {intl.formatMessage({ id: 'marketOptions' })}
               </Typography>
-          </Grid>
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <AllowedInProgress
-              onChange={onAllowedInvestiblesChange}
-              value={allowedInvestibles || acceptedStage.allowed_investibles}
-            />
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <ShowInVerifiedStageAge

@@ -118,9 +118,6 @@ function PlanningIdeas(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
-  const acceptedInvestibles = myInvestiblesStageHash[acceptedStageId] || [];
-  const acceptedOverFull = acceptedStage.allowed_investibles > 0
-    && acceptedInvestibles.length > acceptedStage.allowed_investibles;
 
   function isBlockedByTodo(investibleId, currentStageId, targetStageId) {
     const investibleComments = comments.filter((comment) => comment.investible_id === investibleId) || [];
@@ -342,9 +339,6 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, acceptedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
-        {acceptedOverFull && !_.isEmpty(beingDraggedHack) && (
-          <FormattedMessage id="planningAcceptedStageFullLabel"/>
-        )}
         <AcceptedStage
           className={classes.stage}
           id={acceptedStageId}

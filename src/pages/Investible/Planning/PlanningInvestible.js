@@ -5,7 +5,7 @@ import {
   Button,
   Checkbox, FormControlLabel,
   Grid,
-  IconButton, Link,
+  IconButton,
   makeStyles, Menu,
   MenuItem,
   Tooltip,
@@ -1092,13 +1092,6 @@ function PlanningInvestible(props) {
           )}
         </GmailTabs>
         <div style={{paddingTop: '4rem'}} />
-        {!inArchives && isInVoting && isAssigned && acceptedFull && (
-          <DismissableText textId='planningInvestibleAcceptedFullHelp' text={
-            <div>
-              Starting this job is not recommended because at the <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started" target="_blank">Started</Link> stage limit.
-            </div>
-          }/>
-        )}
         {!hidden && editCollaborators && (
           <>
             <PlanningInvestibleEdit

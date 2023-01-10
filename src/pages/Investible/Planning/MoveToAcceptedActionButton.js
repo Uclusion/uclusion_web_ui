@@ -6,7 +6,7 @@ import { getAcceptedStage, } from '../../../contexts/MarketStagesContext/marketS
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction'
 
 function MoveToAcceptedActionButton(props) {
-  const { marketId, disabled, full, hasAssignedQuestions } = props;
+  const { marketId, disabled, hasAssignedQuestions } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const acceptedStage = getAcceptedStage(marketStagesState, marketId);
 
@@ -14,14 +14,13 @@ function MoveToAcceptedActionButton(props) {
     return React.Fragment;
   }
 
-  const translationId = full? 'planningInvestibleNextStageAcceptedFullLabel' : 'planningInvestibleNextStageAcceptedLabel';
+  const translationId = 'planningInvestibleNextStageAcceptedLabel';
   return (
     <StageChangeAction
       {...props}
       icon={hasAssignedQuestions ? <PlayForWorkIcon color="disabled" /> : <PlayForWorkIcon /> }
       targetStageId={acceptedStage.id}
       translationId={translationId}
-      highlighted={full}
       operationBlocked={hasAssignedQuestions}
       blockedOperationTranslationId="mustResolveAssignedQuestions"
       explanationId="planningInvestibleAcceptedExplanation"

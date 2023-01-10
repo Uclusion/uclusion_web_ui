@@ -582,9 +582,6 @@ function PlanningInvestible(props) {
       marketId
     ));
   }, []);
-  const acceptedFull = inAcceptedStage.allowed_investibles > 0
-    && assignedInAcceptedStage.length >= inAcceptedStage.allowed_investibles;
-
 
   function getStageActions(onSpinStop) {
     if (inArchives) {
@@ -620,7 +617,6 @@ function PlanningInvestible(props) {
           marketId={marketId}
           currentStageId={stage}
           onSpinStop={onSpinStop}
-          full={isInAccepted ? false : acceptedFull}
           hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
         />
       </MenuItem>
@@ -1029,7 +1025,6 @@ function PlanningInvestible(props) {
           blockingComments={blockingCommentsUnresolved}
           todoComments={todoComments}
           isInVoting={isInVoting}
-          acceptedFull={acceptedFull}
           questionByAssignedComments={questionSuggestionsByAssignedComments}
           pageState={pageState}
           updatePageState={updatePageState}

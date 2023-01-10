@@ -45,7 +45,6 @@ import MoveToInReviewActionButton from './MoveToInReviewActionButton'
 import EditMarketButton from '../../Dialog/EditMarketButton'
 import CardType from '../../../components/CardType'
 import clsx from 'clsx'
-import DismissableText from '../../../components/Notifications/DismissableText'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { PLACEHOLDER } from '../../../constants/global'
 import {
@@ -516,7 +515,6 @@ function PlanningInvestible(props) {
   const reportsCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === REPORT_TYPE
   );
-  const myReports = reportsCommentsSearched.filter((comment) => comment.created_by === userId);
   const reportComments = investibleComments.filter(comment => comment.comment_type === REPORT_TYPE);
   const questionComments = investibleComments.filter(
     comment => comment.comment_type === QUESTION_TYPE
@@ -1219,11 +1217,6 @@ function PlanningInvestible(props) {
                     numProgressReport={reportComments.length}
                     nameDifferentiator={sectionOpen}
                   />
-                )}
-              {isAssigned && showCommentAddBox && !isInReview && sectionOpen === 'reportsSection'
-                && !_.isEmpty(myReports) && (
-                  <DismissableText textId="reportTypeCommentHelp"
-                                   text={<div>Change stage to 'Ready for Feedback' if you need this progress reviewed.</div>}/>
                 )}
               <CommentBox
                 comments={sectionComments.concat(replies)}

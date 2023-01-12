@@ -1117,7 +1117,7 @@ const messages = defineMessages({
   // Approve Wizard
   ApprovalWizardApprove: 'Approve job',
   ApprovalWizardBlock: 'Block job',
-  ApproveWizardGotoJob: 'Got to job to clarify',
+  ApproveWizardGotoJob: 'Go to job to clarify',
   ISSUEApproveWizard: 'Create issue',
   QUESTIONApproveWizard: 'Create question',
   SUGGESTApproveWizard: 'Create suggestion',

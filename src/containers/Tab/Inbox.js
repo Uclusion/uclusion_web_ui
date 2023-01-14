@@ -18,12 +18,12 @@ export const tabTheme = createTheme({
 });
 
 export function GmailTabItem(props) {
-  const { color='#055099', label, subLabel, tag, tagLabel = 'total', tagColor='#055099', ...other } = props;
+  const { color='#055099', label, subLabel, tag, isInbox, tagLabel = 'total', tagColor='#055099', ...other } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intermediateLayout = useMediaQuery(tabTheme.breakpoints.down('lg'));
   const tabItemStyles = useGmailTabItemStyles({ ...props, color });
-  const useLabel = intermediateLayout && !mobileLayout ? '' : label;
+  const useLabel = isInbox ? (mobileLayout ? '' : label) : (intermediateLayout && !mobileLayout ? '' : label);
   return (
     <Tab
       disableTouchRipple

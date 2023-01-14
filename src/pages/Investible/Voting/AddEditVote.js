@@ -9,11 +9,11 @@ import {
   darken,
   FormControl,
   FormControlLabel,
-  makeStyles,
+  makeStyles, MenuItem,
   Radio,
-  RadioGroup,
-  TextField
-} from '@material-ui/core'
+  RadioGroup, Select,
+  TextField, useMediaQuery, useTheme
+} from '@material-ui/core';
 import { removeInvestment, updateInvestment } from '../../../api/marketInvestibles'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -136,6 +136,8 @@ function AddEditVote(props) {
   const intl = useIntl();
   const classes = useStyles();
   const workItemClasses = workListStyles();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const addMode = _.isEmpty(investment) || investment.deleted;
   const { quantity, max_budget: initialMaxBudget, max_budget_unit: initialMaxBudgetUnit } = investment || {};
   const initialInvestment = !quantity ? undefined : Math.abs(quantity);
@@ -278,6 +280,7 @@ function AddEditVote(props) {
   const voteId = multiplier < 0 ? "saveReject" : "saveVote";
   const updateVoteId = multiplier < 0 ? "updateReject" : "updateVote";
   const removeVoteId = multiplier < 0 ? "removeReject" : "removeVote";
+  const certainties = [5, 25, 50, 75, 100];
   return (
     <React.Fragment>
       <Card className={classes.visible} id="approve">
@@ -286,31 +289,49 @@ function AddEditVote(props) {
             {_.isEmpty(wizardProps) && (
               <FormattedMessage id="certaintyQuestion" />
             )}
-            <RadioGroup
-              aria-labelledby="add-vote-certainty"
-              className={classes.certaintyGroup}
-              onChange={onChange}
-              value={newQuantity || 0}
-            >
-              {[5, 25, 50, 75, 100].map(certainty => {
-                return (
-                  <FormControlLabel
+            {mobileLayout && (
+              <Select
+                value={newQuantity || 0}
+                onChange={onChange}
+                style={{paddingBottom: '1rem'}}
+              >
+                {certainties.map(certainty => {
+                 return ( <MenuItem
                     key={certainty}
-                    id={`${isInbox ? 'inbox' : ''}${certainty}`}
-                    className={classes.certaintyValue}
-                    classes={{
-                      label: classes.certaintyValueLabel
-                    }}
-                    /* prevent clicking the label stealing focus */
-                    onMouseDown={e => e.preventDefault()}
-                    control={<Radio />}
-                    label={<FormattedMessage id={`certainty${certainty}`} />}
-                    labelPlacement="start"
                     value={certainty}
-                  />
-                );
-              })}
-            </RadioGroup>
+                  >
+                    {<FormattedMessage id={`certainty${certainty}`} />}
+                  </MenuItem> );
+                })}
+              </Select>
+            )}
+            {!mobileLayout && (
+              <RadioGroup
+                aria-labelledby="add-vote-certainty"
+                className={classes.certaintyGroup}
+                onChange={onChange}
+                value={newQuantity || 0}
+              >
+                {certainties.map(certainty => {
+                  return (
+                    <FormControlLabel
+                      key={certainty}
+                      id={`${isInbox ? 'inbox' : ''}${certainty}`}
+                      className={classes.certaintyValue}
+                      classes={{
+                        label: classes.certaintyValueLabel
+                      }}
+                      /* prevent clicking the label stealing focus */
+                      onMouseDown={e => e.preventDefault()}
+                      control={<Radio />}
+                      label={<FormattedMessage id={`certainty${certainty}`} />}
+                      labelPlacement="start"
+                      value={certainty}
+                    />
+                  );
+                })}
+              </RadioGroup>
+            )}
           </FormControl>
           {showBudget && (
             <>

@@ -110,7 +110,7 @@ import {
 import { addEditVotingHasContents } from '../Voting/AddEditVote'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker'
-import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
+import { GmailTabItem, GmailTabs, tabTheme } from '../../../containers/Tab/Inbox';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { baseNavListItem, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import AssignmentIcon from '@material-ui/icons/Assignment'
@@ -377,6 +377,7 @@ function PlanningInvestible(props) {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const intermediateLayout = useMediaQuery(tabTheme.breakpoints.down('lg'));
   const singleTabLayout = mobileLayout;
   const classes = usePlanningInvestibleStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -891,7 +892,9 @@ function PlanningInvestible(props) {
     return intl.formatMessage({ id: tagLabelId });
   }
   const showCommentAddBox = !inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId &&
-    !_.isEmpty(investible) && !hidden && !_.isEmpty(allowedCommentTypes)
+    !_.isEmpty(investible) && !hidden && !_.isEmpty(allowedCommentTypes);
+  const headerMargin = intermediateLayout && !mobileLayout ? '4vw' : undefined;
+  const headerPaddingBottom = mobileLayout ? '1rem' : undefined;
   return (
     <Screen
       title={title}
@@ -911,12 +914,14 @@ function PlanningInvestible(props) {
         autoStart={true}
         steps={requiresInputStorySteps({isAssigned})}
       />
-      <div className={mobileLayout ? undefined : classes.paper}>
-        <div style={{maxWidth: '11rem', paddingBottom: '1rem'}}>
+      <div className={mobileLayout ? undefined : (intermediateLayout ? classes.root : classes.paper)}
+           style={{paddingBottom: intermediateLayout ? '1rem' : undefined}}>
+        <div style={{maxWidth: '11rem', paddingBottom: '1rem', width: intermediateLayout ? '100%' : undefined}}>
         {name}
         </div>
         {market.id && marketInvestible.investible && (
-          <div className={clsx(classes.group, classes.assignments)}>
+          <div className={clsx(classes.group, classes.assignments)}
+               style={{marginRight: headerMargin, paddingBottom: headerPaddingBottom}}>
             <div className={classes.assignmentContainer}>
               <Assignments
                 classes={classes}
@@ -932,7 +937,8 @@ function PlanningInvestible(props) {
           </div>
         )}
         {market.id && marketInvestible.investible && isFurtherWork && (
-          <div className={classes.assignmentContainer}>
+          <div className={classes.assignmentContainer}
+               style={{marginRight: headerMargin, paddingBottom: headerPaddingBottom}}>
             <FormControlLabel
               id='readyToStartCheckbox'
               control={
@@ -970,7 +976,8 @@ function PlanningInvestible(props) {
           </div>
         )}
         {!isFurtherWork && (
-          <div className={clsx(classes.group, classes.assignments)}>
+          <div className={clsx(classes.group, classes.assignments)}
+               style={{marginRight: headerMargin, paddingBottom: headerPaddingBottom}}>
             <div className={classes.assignmentContainer}>
               <b><FormattedMessage id="collaborators"/></b>
               <Assignments
@@ -983,7 +990,8 @@ function PlanningInvestible(props) {
           </div>
         )}
         {market.id && marketInvestible.investible && !isFurtherWork && (
-          <div className={clsx(classes.group, classes.assignments)}>
+          <div className={clsx(classes.group, classes.assignments)}
+               style={{marginRight: headerMargin, paddingBottom: headerPaddingBottom}}>
             <div className={classes.assignmentContainer}>
               <Assignments
                 classes={classes}
@@ -997,7 +1005,8 @@ function PlanningInvestible(props) {
           </div>
         )}
         {!isEveryoneGroup(groupId, marketId) && (
-          <div className={clsx(classes.group, classes.assignments)}>
+          <div className={clsx(classes.group, classes.assignments)}
+               style={{marginRight: headerMargin, paddingBottom: headerPaddingBottom}}>
             <div className={classes.assignmentContainer}>
               <Assignments
                 classes={classes}
@@ -1031,15 +1040,15 @@ function PlanningInvestible(props) {
           accepted={accepted || []}
           myUserId={userId}
         />
+        <div style={{paddingBottom: headerPaddingBottom, marginLeft: headerMargin}} />
         <AttachedFilesList
           marketId={market.id}
           onUpload={onAttachFiles}
           onDeleteClick={onDeleteFile}
           attachedFiles={attachedFiles}
         />
-
       </div>
-      <div style={{paddingRight: mobileLayout ? undefined : '13rem'}}>
+      <div style={{paddingRight: intermediateLayout ? undefined : '13rem'}}>
         <GmailTabs
           value={singleTabLayout ? 0 : sections.findIndex((section) => section === sectionOpen)}
           onChange={(event, value) => {
@@ -1049,8 +1058,11 @@ function PlanningInvestible(props) {
           }}
           id='investible-header'
           indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
-          style={{ paddingBottom: '0.25rem', zIndex: 8, position: 'fixed', paddingTop: '0.5rem',
-            marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem', paddingRight: '25rem' }}>
+          style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
+            paddingTop: '0.5rem',
+            width: intermediateLayout ? 'unset': undefined,
+            marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem',
+            paddingRight: mobileLayout ? undefined : '25rem' }}>
           {(!singleTabLayout || sectionOpen === 'descriptionVotingSection') && (
             <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('votes')}
                           label={intl.formatMessage({id: 'descriptionVotingLabel'})}
@@ -1084,7 +1096,7 @@ function PlanningInvestible(props) {
             />
           )}
         </GmailTabs>
-        <div style={{paddingTop: '4rem'}} />
+        <div style={{paddingTop: mobileLayout ? undefined : '4rem'}} />
         {!hidden && editCollaborators && (
           <>
             <PlanningInvestibleEdit
@@ -1202,7 +1214,7 @@ function PlanningInvestible(props) {
         )}
         {sectionOpen !== 'descriptionVotingSection' && (
           <Grid container spacing={2}>
-            <Grid item xs={12} style={{ marginTop: '15px' }}>
+            <Grid item xs={12} style={{ marginTop: mobileLayout ? undefined : '15px' }}>
               {showCommentAddBox && (
                   <CommentAddBox
                     allowedTypes={allowedCommentTypes}

@@ -3,20 +3,34 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import { useGmailTabsStyles, useGmailTabItemStyles } from '@mui-treasury/styles/tabs/gmail';
 import { useMediaQuery, useTheme } from '@material-ui/core';
+import { createTheme } from '@material-ui/core/styles';
+
+export const tabTheme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 900,
+      lg: 1200,
+      xl: 1536,
+    },
+  },
+});
 
 export function GmailTabItem(props) {
-  const { color='#055099', label, subLabel, tag, isInbox, tagLabel = 'total', tagColor='#055099', ...other } = props
+  const { color='#055099', label, subLabel, tag, tagLabel = 'total', tagColor='#055099', ...other } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const intermediateLayout = useMediaQuery(tabTheme.breakpoints.down('lg'));
   const tabItemStyles = useGmailTabItemStyles({ ...props, color });
-  const useLabel = mobileLayout && isInbox ? '' : label;
+  const useLabel = intermediateLayout && !mobileLayout ? '' : label;
   return (
     <Tab
       disableTouchRipple
       classes={tabItemStyles}
       {...other}
       id={label.replace(/[ &]/g, '')}
-      style={{maxWidth: '14rem'}}
+      style={{maxWidth: mobileLayout ? undefined : '12vw'}}
       label={
         <div className={'MuiTabItem-labelGroup'}>
           <div className={'MuiTabItem-label'}>

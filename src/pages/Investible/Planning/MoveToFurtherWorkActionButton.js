@@ -29,7 +29,7 @@ function MoveToFurtherWorkActionButton(props) {
 
 MoveToFurtherWorkActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
-  disabled: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
 };
 
 export default MoveToFurtherWorkActionButton;

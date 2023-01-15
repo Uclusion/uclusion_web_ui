@@ -35,7 +35,7 @@ function MoveToInReviewActionButton(props) {
 
 MoveToInReviewActionButton.propTypes = {
   marketId: PropTypes.string.isRequired,
-  disabled: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
   hasAssignedQuestions: PropTypes.bool.isRequired
 }
 

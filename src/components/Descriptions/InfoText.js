@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import InfoIcon from '@material-ui/icons/Info';
-import { useMetaDataStyles } from '../../pages/Investible/Planning/PlanningInvestible';
+import { useMetaDataStyles } from '../../pages/Investible/Planning/PlanningInvestibleNav';
 import { Tooltip } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 

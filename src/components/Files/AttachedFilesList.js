@@ -10,7 +10,7 @@ import LoadingOverlay from 'react-loading-overlay'
 
 import { makeStyles } from '@material-ui/styles'
 import FileUploader from './FileUploader'
-import { useMetaDataStyles } from '../../pages/Investible/Planning/PlanningInvestible'
+import { useMetaDataStyles } from '../../pages/Investible/Planning/PlanningInvestibleNav'
 import { getMarketLogin } from '../../api/uclusionClient'
 import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton';
 

@@ -23,7 +23,7 @@ import { addInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import CardActions from '@material-ui/core/CardActions'
 import clsx from 'clsx'
 import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import { useMetaDataStyles } from '../Planning/PlanningInvestible'
+import { useMetaDataStyles } from '../Planning/PlanningInvestibleNav'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
 import { doSetEditWhenValid } from '../../../utils/windowUtils'

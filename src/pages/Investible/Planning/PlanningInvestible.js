@@ -699,8 +699,8 @@ function PlanningInvestible(props) {
           indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
           style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
             paddingTop: '0.5rem',
-            width: intermediateLayout ? 'unset': undefined,
-            marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem',
+            width: intermediateNotSingle ? 'unset': undefined,
+            marginTop: singleTabLayout? '-29px': '-15px', paddingLeft: 0, marginLeft: '-0.5rem',
             paddingRight: mobileLayout ? undefined : '25rem' }}>
           {(!singleTabLayout || sectionOpen === 'descriptionVotingSection') && (
             <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('votes')}

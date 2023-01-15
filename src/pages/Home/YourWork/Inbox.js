@@ -116,7 +116,8 @@ function Inbox(props) {
 
   return (
     <>
-    <div style={{zIndex: 8, position: 'fixed', width: '100%', marginLeft: '-0.5rem'}}>
+    <div style={{zIndex: 8, position: 'fixed', width: '100%', marginLeft: '-0.5rem',
+      marginTop: mobileLayout ? '-13px' : undefined}}>
       <GmailTabs
         value={tabIndex}
         onChange={(event, value) => {

@@ -77,6 +77,7 @@ import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextH
 import { getStagesInfo } from '../../../utils/stageUtils';
 import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import PlanningInvestibleNav, { useMetaDataStyles } from './PlanningInvestibleNav';
+import MenuIcon from '@material-ui/icons/Menu';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -268,10 +269,8 @@ export const usePlanningInvestibleStyles = makeStyles(
       position: 'fixed',
       top: '3.8rem',
       paddingLeft: '1rem',
-      paddingTop: '2rem',
       minWidth: '15rem',
       textOverflow: 'ellipsis',
-      transform: 'translateX(calc(100vw - 490px))'
     },
     group: {
       borderRadius: 6,
@@ -364,7 +363,8 @@ function PlanningInvestible(props) {
   const {
     beingEdited,
     editCollaborators,
-    sectionOpen
+    sectionOpen,
+    isOpenMobile
   } = pageState;
 
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting')
@@ -616,6 +616,11 @@ function PlanningInvestible(props) {
       createNavListItem(ThumbsUpDownIcon, 'descriptionVotingLabel', 'descriptionVotingSection',
         descriptionSectionResults),
     ];
+    if (mobileLayout) {
+      const text = intl.formatMessage({id: 'planningInvestibleOpenLabel'});
+      navListItemTextArray.unshift({icon: MenuIcon, text,
+        onClickFunc: () => updatePageState({isOpenMobile: true})});
+    }
     if (displayBockingSection) {
       navListItemTextArray.push(createNavListItem(DescriptionIcon, 'reportsSectionLabel',
         'blockersSection', countUnresolved(reportsCommentsSearched, search)));
@@ -663,18 +668,25 @@ function PlanningInvestible(props) {
         autoStart={true}
         steps={requiresInputStorySteps({isAssigned})}
       />
-      <div className={mobileLayout ? undefined : classes.paper}
-           style={{paddingBottom: intermediateNotSingle ? '1rem' : undefined,
-             transform: leftNavBreak && !mobileLayout ? 'translateX(calc(100vw - 270px))' : undefined}}>
-        <PlanningInvestibleNav investibles={investibles} name={name} intermediateNotSingle={intermediateNotSingle}
-                               market={market} marketInvestible={marketInvestible} classes={classes}
-                               blockingCommentsUnresolved={blockingCommentsUnresolved} userId={userId}
-                               questionSuggestionsByAssignedComments={questionSuggestionsByAssignedComments}
-                               inArchives={inArchives} myPresence={myPresence} isAssigned={isAssigned}
-                               pageState={pageState} invested={invested} marketPresences={marketPresences}
-                               assigned={assigned} isInVoting={isInVoting} investibleComments={investibleComments}
-                               marketInfo={marketInfo} marketId={marketId} updatePageState={updatePageState} />
-      </div>
+      {(!mobileLayout || isOpenMobile) && (
+        <div className={classes.paper} onClick={() => {
+          if (mobileLayout) {
+            updatePageState({ isOpenMobile: false })
+          }
+        }} style={{ paddingTop: mobileLayout ? undefined : '2rem',
+          paddingBottom: intermediateNotSingle ? '1rem' : undefined,
+          transform: mobileLayout ? undefined :
+                 (leftNavBreak ? 'translateX(calc(100vw - 270px))' : 'translateX(calc(100vw - 490px))')}}>
+          <PlanningInvestibleNav investibles={investibles} name={name} intermediateNotSingle={intermediateNotSingle}
+                                 market={market} marketInvestible={marketInvestible} classes={classes}
+                                 investibleId={investibleId} blockingCommentsUnresolved={blockingCommentsUnresolved}
+                                 userId={userId} inArchives={inArchives} myPresence={myPresence} isAssigned={isAssigned}
+                                 questionSuggestionsByAssignedComments={questionSuggestionsByAssignedComments}
+                                 pageState={pageState} invested={invested} marketPresences={marketPresences}
+                                 assigned={assigned} isInVoting={isInVoting} investibleComments={investibleComments}
+                                 marketInfo={marketInfo} marketId={marketId} updatePageState={updatePageState} />
+        </div>
+      )}
       <div style={{paddingRight: mobileLayout ? undefined : '13rem'}}>
         <GmailTabs
           value={singleTabLayout ? 0 : sections.findIndex((section) => section === sectionOpen)}

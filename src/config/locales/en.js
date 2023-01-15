@@ -561,6 +561,7 @@ const messages = defineMessages({
   orProgressReport: 'or create or update a progress report.',
   orProgressReportOnly: 'or create a progress report.',
   descriptionVotingLabel: 'Overview',
+  planningInvestibleOpenLabel: 'Details',
 
   // Home
   homeAddPlanning: 'Create a workspace',

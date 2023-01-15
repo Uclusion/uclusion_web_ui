@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import {
   Button,
   Checkbox,
-  FormControlLabel,
+  FormControlLabel, List,
   makeStyles,
   Menu,
   MenuItem,
@@ -49,11 +49,15 @@ import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit';
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import Divider from '@material-ui/core/Divider';
 
 export default function PlanningInvestibleNav(props) {
   const { name, intermediateNotSingle, market, marketInvestible, classes, blockingCommentsUnresolved, userId,
     questionSuggestionsByAssignedComments, investibles, inArchives, myPresence, isAssigned, pageState, invested,
-    marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId, updatePageState } = props;
+    marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId, updatePageState,
+    investibleId } = props;
   const lockedDialogClasses = useLockedDialogStyles();
   const intl = useIntl();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -65,12 +69,10 @@ export default function PlanningInvestibleNav(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const [open, setOpen] = useState(false);
-  const { stage, addressed, investible_id: investibleId, required_approvers:  requiredApprovers,
-    required_reviews: requiredReviewers, open_for_investment: openForInvestment, accepted,
-    group_id: groupId } = marketInfo;
+  const { stage, addressed, required_approvers:  requiredApprovers, required_reviews: requiredReviewers,
+    open_for_investment: openForInvestment, accepted, group_id: groupId } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
-
   function onDeleteFile(path) {
     return deleteAttachedFilesFromInvestible(market.id, investibleId, [path]).then((investible) => {
       addInvestible(investiblesDispatch, diffDispatch, investible);
@@ -286,6 +288,14 @@ export default function PlanningInvestibleNav(props) {
   const headerPaddingBottom = mobileLayout ? '1rem' : undefined;
   return (
     <>
+      {mobileLayout && (
+        <List style={{width: '100%', paddingBottom: '1rem'}}>
+          <IconButton edge="start" aria-label="close details" onClick={() => updatePageState({ isOpenMobile: false })}>
+            <CloseIcon />
+          </IconButton>
+          <Divider />
+        </List>
+      )}
       <div style={{maxWidth: '11rem', paddingBottom: '1rem', width: intermediateNotSingle ? '100%' : undefined}}>
         {name}
       </div>

@@ -335,6 +335,7 @@ function CommentAdd(props) {
   const marketComments = getMarketComments(commentsState, marketId) || [];
   const olderReports = getOlderReports(undefined, marketComments, marketId, investibleId, myPresence);
   const numReports = _.size(olderReports);
+  const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
 
   function toggleIssue () {
     if (openIssue === false) {
@@ -347,18 +348,6 @@ function CommentAdd(props) {
       setOpenIssue(false)
     }
   }
-
-  const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
-  const useBody = getQuillStoredState(editorName);
-  const editorSpec = {
-    value: useBody,
-    participants: presences,
-    marketId,
-    placeholder: placeHolder,
-    onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
-    mentionsAllowed
-  }
-  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
   useEffect(() => {
     // If didn't focus to begin with then focus when type is changed
@@ -495,6 +484,62 @@ function CommentAdd(props) {
   const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;
   const lockedDialogClasses = useLockedDialogStyles();
 
+  // Having to pass in buttons because of issues with LoadingOverlay in intermediate sizes
+  const buttons = (
+    <div style={{marginTop: '0.5rem', display: (isWizard ? 'none' : undefined)}}>
+      {!isStory && onDone && (
+        <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={isStandAlone ? Clear : Delete}>
+          {intl.formatMessage({ id: 'cancel' })}
+        </SpinningIconLabelButton>
+      )}
+      {!isStandAlone && (
+        <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
+          {intl.formatMessage({ id: commentCancelLabel })}
+        </SpinningIconLabelButton>
+      )}
+      {_.isEmpty(defaultNotificationType) && type !== REPLY_TYPE && (
+        <SpinningIconLabelButton
+          onClick={() => handleSave(undefined, false)}
+          icon={Add}
+          id={`commentSaveButton${nameDifferentiator}`}
+        >
+          {intl.formatMessage({ id: 'commentAddSaveLabel' })}
+        </SpinningIconLabelButton>
+      )}
+      {!showIssueWarning && (
+        <SpinningIconLabelButton
+          onClick={() => handleSave()}
+          icon={Send}
+          id={`commentSendButton${nameDifferentiator}`}
+        >
+          {intl.formatMessage({ id: 'commentAddSendLabel' })}
+        </SpinningIconLabelButton>
+      )}
+      {showIssueWarning && (
+        <SpinningIconLabelButton onClick={toggleIssue} icon={Send} doSpin={false} id="commentSendButton">
+          {intl.formatMessage({ id: 'commentAddSendLabel' })}
+        </SpinningIconLabelButton>
+      )}
+      {!mobileLayout && (
+        <Typography className={classes.storageIndicator}>
+          {intl.formatMessage({ id: 'edited' })}
+        </Typography>
+      )}
+    </div>
+  );
+
+  const useBody = getQuillStoredState(editorName);
+  const editorSpec = {
+    value: useBody,
+    participants: presences,
+    marketId,
+    placeholder: placeHolder,
+    onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
+    mentionsAllowed,
+    buttons
+  }
+  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
+
   return (
     <>
       <Paper
@@ -504,44 +549,6 @@ function CommentAdd(props) {
       >
         <div className={classes.editor} style={{paddingBottom: '1rem'}}>
           {Editor}
-          <div style={{marginTop: '0.5rem', display: (isWizard ? 'none' : undefined)}}>
-            {!isStory && onDone && (
-              <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={isStandAlone ? Clear : Delete}>
-                {intl.formatMessage({ id: 'cancel' })}
-              </SpinningIconLabelButton>
-            )}
-            {!isStandAlone && (
-              <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
-                {intl.formatMessage({ id: commentCancelLabel })}
-              </SpinningIconLabelButton>
-            )}
-            {_.isEmpty(defaultNotificationType) && type !== REPLY_TYPE && (
-              <SpinningIconLabelButton
-                onClick={() => handleSave(undefined, false)}
-                icon={Add}
-                id={`commentSaveButton${nameDifferentiator}`}
-              >
-                {intl.formatMessage({ id: 'commentAddSaveLabel' })}
-              </SpinningIconLabelButton>
-            )}
-            {!showIssueWarning && (
-              <SpinningIconLabelButton
-                onClick={() => handleSave()}
-                icon={Send}
-                id={`commentSendButton${nameDifferentiator}`}
-              >
-                {intl.formatMessage({ id: 'commentAddSendLabel' })}
-              </SpinningIconLabelButton>
-            )}
-            {showIssueWarning && (
-              <SpinningIconLabelButton onClick={toggleIssue} icon={Send} doSpin={false} id="commentSendButton">
-                {intl.formatMessage({ id: 'commentAddSendLabel' })}
-              </SpinningIconLabelButton>
-            )}
-            <Typography className={classes.storageIndicator}>
-              {intl.formatMessage({ id: 'edited' })}
-            </Typography>
-          </div>
           {isWizard && (
             <div style={{marginTop: '2rem'}}>
               <WizardStepButtons

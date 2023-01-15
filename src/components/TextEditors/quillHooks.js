@@ -17,7 +17,8 @@ export function useEditor (name, spec) {
     noToolbar,
     mentionsAllowed,
     className,
-    onChange
+    onChange,
+    buttons
   } = spec;
 
   registerListener(`editor-${name}`, `${name}-controller`, (message) => {
@@ -58,6 +59,7 @@ export function useEditor (name, spec) {
       uploadDisabled={uploadDisabled}
       simple={simple}
       noToolbar={noToolbar}
+      buttons={buttons}
     />
   );
   return [editor, resetBinder(name)];

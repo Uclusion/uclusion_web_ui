@@ -72,7 +72,8 @@ function QuillEditor2 (props) {
     participants,
     marketId,
     mentionsAllowed,
-    placeholder
+    placeholder,
+    buttons = React.Fragment
   } = props;
   const useCssId = cssId || id;
   const classes = useStyles();
@@ -236,6 +237,7 @@ function QuillEditor2 (props) {
             text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
           >
             <div ref={boxRef} id={boundsId} style={editorStyle}/>
+            {buttons}
           </LoadingOverlay>
         )}
       </div>

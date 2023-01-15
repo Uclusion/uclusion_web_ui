@@ -376,9 +376,10 @@ function PlanningInvestible(props) {
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = useState(false);
   const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const leftNavBreak = useMediaQuery(theme.breakpoints.down('md'));
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const intermediateLayout = useMediaQuery(tabTheme.breakpoints.down('lg'));
-  const singleTabLayout = mobileLayout;
+  const singleTabLayout = leftNavBreak;
   const classes = usePlanningInvestibleStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -893,7 +894,7 @@ function PlanningInvestible(props) {
   }
   const showCommentAddBox = !inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId &&
     !_.isEmpty(investible) && !hidden && !_.isEmpty(allowedCommentTypes);
-  const headerMargin = intermediateLayout && !mobileLayout ? '4vw' : undefined;
+  const intermediateNotSingle = intermediateLayout && !singleTabLayout;
   const headerPaddingBottom = mobileLayout ? '1rem' : undefined;
   return (
     <Screen
@@ -914,14 +915,14 @@ function PlanningInvestible(props) {
         autoStart={true}
         steps={requiresInputStorySteps({isAssigned})}
       />
-      <div className={mobileLayout ? undefined : (intermediateLayout ? classes.root : classes.paper)}
-           style={{paddingBottom: intermediateLayout ? '1rem' : undefined}}>
-        <div style={{maxWidth: '11rem', paddingBottom: '1rem', width: intermediateLayout ? '100%' : undefined}}>
+      <div className={mobileLayout ? undefined : classes.paper}
+           style={{paddingBottom: intermediateNotSingle ? '1rem' : undefined,
+             transform: leftNavBreak && !mobileLayout ? 'translateX(calc(100vw - 270px))' : undefined}}>
+        <div style={{maxWidth: '11rem', paddingBottom: '1rem', width: intermediateNotSingle ? '100%' : undefined}}>
         {name}
         </div>
         {market.id && marketInvestible.investible && (
-          <div className={clsx(classes.group, classes.assignments)}
-               style={{marginRight: headerMargin, paddingBottom: headerPaddingBottom}}>
+          <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
             <div className={classes.assignmentContainer}>
               <Assignments
                 classes={classes}
@@ -937,8 +938,7 @@ function PlanningInvestible(props) {
           </div>
         )}
         {market.id && marketInvestible.investible && isFurtherWork && (
-          <div className={classes.assignmentContainer}
-               style={{marginRight: headerMargin, paddingBottom: headerPaddingBottom}}>
+          <div className={classes.assignmentContainer} style={{paddingBottom: headerPaddingBottom}}>
             <FormControlLabel
               id='readyToStartCheckbox'
               control={
@@ -976,8 +976,7 @@ function PlanningInvestible(props) {
           </div>
         )}
         {!isFurtherWork && (
-          <div className={clsx(classes.group, classes.assignments)}
-               style={{marginRight: headerMargin, paddingBottom: headerPaddingBottom}}>
+          <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
             <div className={classes.assignmentContainer}>
               <b><FormattedMessage id="collaborators"/></b>
               <Assignments
@@ -990,8 +989,7 @@ function PlanningInvestible(props) {
           </div>
         )}
         {market.id && marketInvestible.investible && !isFurtherWork && (
-          <div className={clsx(classes.group, classes.assignments)}
-               style={{marginRight: headerMargin, paddingBottom: headerPaddingBottom}}>
+          <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
             <div className={classes.assignmentContainer}>
               <Assignments
                 classes={classes}
@@ -1005,8 +1003,7 @@ function PlanningInvestible(props) {
           </div>
         )}
         {!isEveryoneGroup(groupId, marketId) && (
-          <div className={clsx(classes.group, classes.assignments)}
-               style={{marginRight: headerMargin, paddingBottom: headerPaddingBottom}}>
+          <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
             <div className={classes.assignmentContainer}>
               <Assignments
                 classes={classes}
@@ -1040,7 +1037,7 @@ function PlanningInvestible(props) {
           accepted={accepted || []}
           myUserId={userId}
         />
-        <div style={{paddingBottom: headerPaddingBottom, marginLeft: headerMargin}} />
+        <div style={{paddingBottom: headerPaddingBottom}} />
         <AttachedFilesList
           marketId={market.id}
           onUpload={onAttachFiles}
@@ -1048,7 +1045,7 @@ function PlanningInvestible(props) {
           attachedFiles={attachedFiles}
         />
       </div>
-      <div style={{paddingRight: intermediateLayout ? undefined : '13rem'}}>
+      <div style={{paddingRight: mobileLayout ? undefined : '13rem'}}>
         <GmailTabs
           value={singleTabLayout ? 0 : sections.findIndex((section) => section === sectionOpen)}
           onChange={(event, value) => {

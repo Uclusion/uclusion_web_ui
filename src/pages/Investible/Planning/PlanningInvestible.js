@@ -687,7 +687,7 @@ function PlanningInvestible(props) {
                                  marketInfo={marketInfo} marketId={marketId} updatePageState={updatePageState} />
         </div>
       )}
-      <div style={{paddingRight: mobileLayout ? undefined : '13rem'}}>
+      <div style={{paddingRight: mobileLayout ? undefined : '15rem'}}>
         <GmailTabs
           value={singleTabLayout ? 0 : sections.findIndex((section) => section === sectionOpen)}
           onChange={(event, value) => {

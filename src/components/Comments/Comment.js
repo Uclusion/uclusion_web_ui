@@ -357,7 +357,8 @@ function Comment(props) {
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
+  const isReallyMobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investibleDispatch] = useContext(InvestiblesContext);
   const [doNotShowAgain, setDoNotShowAgain] = useState(undefined);
@@ -498,7 +499,7 @@ function Comment(props) {
   }
 
   function setBeingEdited(value, event) {
-    if (mobileLayout || invalidEditEvent(event, history)) {
+    if (isReallyMobileLayout || invalidEditEvent(event, history)) {
       return;
     }
     toggleEdit();
@@ -902,7 +903,7 @@ function Comment(props) {
                 )}
               </>
             )}
-            {displayEditing && mobileLayout && !beingEdited && (
+            {displayEditing && isReallyMobileLayout && !beingEdited && (
               <TooltipIconButton
                 onClick={toggleEdit}
                 icon={<Edit fontSize='small' />}
@@ -942,7 +943,7 @@ function Comment(props) {
               {!beingEdited && !displayingDiff && !_.isEmpty(comment) && (
                 <ReadOnlyQuillEditor value={body} setBeingEdited={setBeingEdited}
                                      id={isInbox ? `inboxComment${id}` : (isOutbox ? `outboxComment${id}` : id)}
-                                     isEditable={!mobileLayout && displayEditing}/>
+                                     isEditable={!isReallyMobileLayout && displayEditing}/>
               )}
               {!beingEdited && displayingDiff && (
                 <DiffDisplay id={id} />

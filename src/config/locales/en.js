@@ -637,7 +637,7 @@ const messages = defineMessages({
   yesAndProceed: 'Change stage and deactivate',
   planningMarketActivate: 'Activate group',
   immediate: 'Persistent Notification',
-  storyFromComment: 'Convert to Job',
+  storyFromComment: 'Move',
   channelOptions: 'Group Options',
   marketOptions: 'Workspace Options',
   marketName: 'Choose a name for the new workspace.',

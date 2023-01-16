@@ -90,9 +90,7 @@ function Inbox(props) {
     }], ['desc'] ) || [];
   const unreadCount = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
   const firstMessage = _.isEmpty(messagesFull) ? undefined : messagesJarOrdered[0];
-  const htmlColor = _.isEmpty(firstMessage) ? '#8f8f8f' :
-    (firstMessage.level === 'RED' ? '#E85757' : (firstMessage.level === 'YELLOW' ?
-      (isDisabled ? '#ffff00' : '#ffc61a') : '#2D9CDB'));
+  const htmlColor = _.isEmpty(firstMessage) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex);
 
   useEffect(() => {

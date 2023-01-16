@@ -118,7 +118,7 @@ function SearchBox () {
   return (
     <div id='search-box' onClick={(event) => event.stopPropagation()} style={{flex: 1}}>
       <TextField
-        style={{backgroundColor: '#e5edee', width: '100%'}}
+        style={{backgroundColor: '#e5edee', width: '100%', minWidth: '10rem'}}
         onChange={onSearchChange}
         onKeyPress={(ev) => {
           if (ev.key === 'Enter') {

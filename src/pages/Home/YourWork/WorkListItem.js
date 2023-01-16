@@ -81,6 +81,9 @@ const Title = styled(Text)`
   @media (max-width: 768px) {
     flex-basis: 100px;
   }
+  @media (max-width: 1000px) {
+    margin-left: 8px;
+  }
 `;
 
 const TitleB = styled(Title)`

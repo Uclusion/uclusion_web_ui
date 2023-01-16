@@ -212,6 +212,7 @@ export const useCommentStyles = makeStyles(
       smallGravatar: {
         width: '30px',
         height: '30px',
+        marginTop: '2px'
       },
       createdBy: {
         fontSize: '15px',
@@ -912,12 +913,12 @@ function Comment(props) {
             )}
             {!mobileLayout && !isInbox && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
               && marketType !== DECISION_TYPE && (
-              <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
+              <div style={{marginRight: '2rem', marginTop: '-0.25rem'}}>
                 <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
               </div>
             )}
             {(myPresence.is_admin || isEditable) && enableActions && isDeletable && (
-              <div style={{marginRight: '2rem', marginTop: '0.5rem'}}>
+              <div style={{marginRight: '2rem'}}>
                 <TooltipIconButton
                   disabled={operationRunning !== false}
                   onClick={remove}

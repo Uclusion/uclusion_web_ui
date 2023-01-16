@@ -762,9 +762,9 @@ function PlanningInvestible(props) {
                   onEstimateChange={handleDateChange}
                   isInAccepted={isInAccepted}
                   className={classes.cardType}
-                  createdAt={createdAt}
-                  myBeingEdited={beingEdited}
-                  stageChangedAt={new Date(marketInfo.last_stage_change_date)}
+                  createdAt={mobileLayout ? undefined : createdAt}
+                  myBeingEdited={mobileLayout ? undefined : beingEdited}
+                  stageChangedAt={mobileLayout ? undefined : new Date(marketInfo.last_stage_change_date)}
                 />
               </div>
             </div>

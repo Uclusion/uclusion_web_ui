@@ -58,7 +58,7 @@ const useVoteStyles = makeStyles(
         display: "flex",
         flexDirection: "column",
         position: "absolute",
-        right: '4rem',
+        right: '0rem',
         top: 0
       },
       expiresDisplay: {
@@ -182,15 +182,15 @@ function Voting(props) {
                             />}
                 />
                 {isEditable && mobileLayout && (
-                  <CardActions className={classes.editVoteDisplay}>
+                  <div className={classes.editVoteDisplay}>
                     <TooltipIconButton
                       onClick={() => updateVotingPageState({votingBeingEdited: true})}
                       icon={<Edit fontSize='small' />}
                       translationId="edit"
                     />
-                  </CardActions>
+                  </div>
                 )}
-                {showExpiration && (
+                {showExpiration && !mobileLayout && (
                   <div className={classes.expiresDisplay}>
                     <ProgressBar
                       createdAt={new Date(updatedAt)}

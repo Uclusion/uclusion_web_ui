@@ -34,8 +34,7 @@ import {
 } from './InboxContext'
 
 function Inbox(props) {
-  const { isDisabled = false, loadingFromInvite=false, messagesFull, inboxState, inboxDispatch,
-    messagesHash } = props;
+  const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash } = props;
   const intl = useIntl();
   const workItemClasses = workListStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -75,22 +74,7 @@ function Inbox(props) {
     return { determinate: newDeterminate, indeterminate: newIndeterminate, checkAll: newCheckAll};
   }, {determinate: {}, indeterminate: false, checkAll: false});
   const { indeterminate, determinate, checkAll } = determinateState;
-
-  const messagesJarOrdered = _.orderBy(messagesFull, [(message) => {
-    const { level } = message;
-    // Ignore read or not because not relevant to the priority of the inbox
-    switch (level) {
-      case 'RED':
-        return 3;
-      case 'YELLOW':
-        return 2;
-      default:
-        return 1;
-    }
-    }], ['desc'] ) || [];
   const unreadCount = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
-  const firstMessage = _.isEmpty(messagesFull) ? undefined : messagesJarOrdered[0];
-  const htmlColor = _.isEmpty(firstMessage) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex);
 
   useEffect(() => {
@@ -111,7 +95,7 @@ function Inbox(props) {
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
     determinate, determinateDispatch, checkAll, tabIndex);
   const {outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered } = messagesHash;
-
+  const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   return (
     <>
     <div style={{zIndex: 8, position: 'fixed', width: '100%', marginLeft: '-0.5rem',

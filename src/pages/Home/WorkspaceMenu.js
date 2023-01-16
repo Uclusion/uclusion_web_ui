@@ -12,7 +12,7 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import { useIntl } from 'react-intl'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import AddIcon from '@material-ui/icons/Add'
-import { formMarketEditLink, navigate } from '../../utils/marketIdPathFunctions'
+import { formMarketEditLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 import { setUclusionLocalStorageItem } from '../../components/localStorageUtils'
 
@@ -105,6 +105,7 @@ function WorkspaceMenu(props) {
   const history = useHistory();
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
+      preventDefaultAndProp(event);
       setAnchorEl(event.currentTarget);
       setMenuOpen(true);
     } else {

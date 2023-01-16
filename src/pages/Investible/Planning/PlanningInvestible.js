@@ -767,6 +767,17 @@ function PlanningInvestible(props) {
                   stageChangedAt={mobileLayout ? undefined : new Date(marketInfo.last_stage_change_date)}
                 />
               </div>
+              <div className={classes.editRow}>
+                {mobileLayout && !inMarketArchives && isEditableByUser() && !beingEdited && (
+                  <div>
+                    <EditMarketButton
+                      labelId="edit"
+                      marketId={marketId}
+                      onClick={(event) => mySetBeingEdited(true, event)}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
             <div className={beingEdited ? classes.editCardContent : classes.votingCardContent}
                  style={{display: 'flex'}}>
@@ -791,17 +802,6 @@ function PlanningInvestible(props) {
                     setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
                     isEditableByUser={isEditableByUser}/>
                 )}
-                <div className={classes.editRow}>
-                  {mobileLayout && !inMarketArchives && isEditableByUser() && !beingEdited && (
-                    <div>
-                      <EditMarketButton
-                        labelId="edit"
-                        marketId={marketId}
-                        onClick={(event) => mySetBeingEdited(true, event)}
-                      />
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
             <div style={{paddingLeft: mobileLayout ? undefined : '8rem',

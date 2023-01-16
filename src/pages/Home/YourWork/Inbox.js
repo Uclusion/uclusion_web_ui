@@ -195,7 +195,7 @@ function Inbox(props) {
     <div id="inbox" style={{paddingBottom: '45vh', paddingTop: '8rem'}}>
       {defaultRow}
       { data.map((message) => {
-          if (message.isOutboxType) {
+          if (message.isOutboxType || !message.type_object_id) {
             return React.Fragment;
           }
           const isDeletable =  message.type_object_id.startsWith('UNREAD');

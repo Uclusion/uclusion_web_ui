@@ -100,7 +100,7 @@ function DecideStartStep(props) {
         nextLabel="DecideStartBug"
         onNext={myAccept}
         showOtherNext
-        otherNextLabel={isRedLevel ? 'moveTodoYellow' : 'moveTodoBlue'}
+        otherNextLabel="DecideMove"
         onOtherNext={() => moveTodo( isRedLevel ? YELLOW_LEVEL : BLUE_LEVEL)}
         terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss'
           : (message.is_highlighted ? 'markRead' : 'DecideWizardContinue' ) }

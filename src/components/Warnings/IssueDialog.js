@@ -35,11 +35,10 @@ function IssueDialog(props) {
           )}
         </React.Fragment>
       }
-      content={issueWarningId ? <FormattedMessage id={issueWarningId} /> : issueWarningText}
       title={
         <React.Fragment>
           <WarningIcon className={classes.warningTitleIcon} />
-          <FormattedMessage id="warning" />
+          {issueWarningId ? <FormattedMessage id={issueWarningId} /> : issueWarningText}
         </React.Fragment>
       }
     />

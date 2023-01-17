@@ -10,9 +10,9 @@ import { makeStyles } from "@material-ui/core/styles";
 const useDialogStyles = makeStyles(
   {
     root: {},
-    actions: {paddingBottom: '1.25rem'},
+    actions: {paddingBottom: '1.25rem', paddingTop: '1.25rem'},
     content: {},
-    title: {}
+    title: {textTransform: 'none !important'}
   },
   { name: "Dialog" }
 );
@@ -20,8 +20,7 @@ const useDialogStyles = makeStyles(
 export default function Dialog(props) {
   const classes = useDialogStyles(props);
   const { actions, autoFocusRef, content, open, onClose, title, disableActionClass } = props;
-
-  const uniqueId = useClientSideId();
+  const uniqueId = Math.random().toString(36).slice(2);
   const labelId = `dialog-name-${uniqueId}`;
   const descriptionId = `dialog-description-${uniqueId}`;
 
@@ -50,9 +49,11 @@ export default function Dialog(props) {
       <DialogTitle className={classes.title} id={labelId}>
         {title}
       </DialogTitle>
-      <DialogContent className={classes.content} id={descriptionId}>
-        {content}
-      </DialogContent>
+      {content && (
+        <DialogContent className={classes.content} id={descriptionId}>
+          {content}
+        </DialogContent>
+      )}
       <DialogActions className={disableActionClass ? undefined : classes.actions}>{actions}</DialogActions>
     </MuiDialog>
   );
@@ -60,22 +61,8 @@ export default function Dialog(props) {
 
 Dialog.propTypes = {
   actions: PropTypes.node.isRequired,
-  content: PropTypes.node.isRequired,
+  content: PropTypes.node,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   title: PropTypes.node
 };
-
-function useClientSideId() {
-  const [id, setId] = React.useState(undefined);
-
-  React.useEffect(() => {
-    setId(
-      Math.random()
-        .toString(36)
-        .slice(2)
-    );
-  }, []);
-
-  return id;
-}

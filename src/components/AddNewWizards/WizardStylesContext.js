@@ -96,7 +96,7 @@ export const wizardStyles = makeStyles(
           fontWeight: 'bold'
         },
         [theme.breakpoints.down('xs')]: {
-          flexDirection: 'column-reverse',
+          flexDirection: 'column',
           '& button': {
             width: '100%',
             marginBottom: '20px'

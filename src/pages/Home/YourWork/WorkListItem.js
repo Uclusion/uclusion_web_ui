@@ -25,6 +25,7 @@ import {
   dehighlightMessages,
   removeMessages
 } from '../../../contexts/NotificationsContext/notificationsContextReducer';
+import { scrollToElement } from '../../../contexts/ScrollContext';
 
 const Item = styled("div")`
   margin-bottom: 20px;
@@ -202,6 +203,12 @@ function WorkListItem(props) {
             }
             if (isUsingExpansion) {
               inboxDispatch(expandOrContract(id));
+              if (!expansionPanelVisible) {
+                const item = document.getElementById(`workListItem${id}`);
+                if (item) {
+                  scrollToElement(item);
+                }
+              }
             } else {
               // Do not remember what row on if not using expansion
               return navigate(history, link);

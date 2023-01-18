@@ -73,8 +73,8 @@ function DecideStageStep(props) {
   } else if (currentStageId === inReviewStage.id) {
     if (!_.isEmpty(comments)) {
       destinationStage = acceptedStage;
-      destinationExplanation = 'planningInvestibleAcceptedExplanation';
-      destinationLabel = 'planningInvestibleTasksInReviewExplanation';
+      destinationExplanation = 'planningInvestibleTasksInReviewExplanation';
+      destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
     } else {
       destinationStage = verifiedStage;
       destinationLabel = 'planningInvestibleMoveToVerifiedLabel';

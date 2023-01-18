@@ -18,6 +18,10 @@ export function scrollToElement(element) {
     // Dialog page is not kept when hidden so if in dom we are on that page
     headerOffset += dialogHeaderElement.offsetHeight;
   }
+  const inboxHeaderElement = document.getElementById('inbox-header');
+  if (inboxHeaderElement && window.location.pathname === '/inbox') {
+    headerOffset += inboxHeaderElement.offsetHeight;
+  }
   const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
   const offsetPosition = elementPosition - headerOffset;
   window.scrollTo({

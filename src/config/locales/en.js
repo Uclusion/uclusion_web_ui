@@ -851,6 +851,8 @@ const messages = defineMessages({
   yourVotingVoteForThisDecision: 'Approve this option',
   approveAndGotoJob: 'Approve and go to job',
   stageAndGotoJob: 'Move and go to job',
+  modifyTasks: 'Modify tasks',
+  startReview: 'Start review',
   voteFor: 'For',
   voteAgainst: 'Against',
   clearVotes: 'Your other approval will be cleared',

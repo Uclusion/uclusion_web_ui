@@ -10,8 +10,6 @@ import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctio
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import JobDescription from '../JobDescription'
 import { stageChangeInvestible } from '../../../api/investibles';
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getAcceptedStage,
@@ -27,19 +25,16 @@ import _ from 'lodash'
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 
 function DecideStageStep(props) {
-  const { marketId, investibleId } = props;
+  const { marketId, investibleId, currentStageId } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [investiblesState, invDispatch] = useContext(InvestiblesContext);
+  const [, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
   const classes = wizardStyles();
-  const inv = getInvestible(investiblesState, investibleId);
-  const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage: currentStageId } = marketInfo || {};
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inVotingStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
@@ -53,6 +48,7 @@ function DecideStageStep(props) {
   let onOtherNextFunc = () => moveToTarget(true);
   let otherNextLabelId = 'stageAndGotoJob';
   let nextLabelId = 'DecideStageMove';
+  let onNextFunc = () => moveToTarget(false);
   if (currentStageId === inVotingStage.id) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
@@ -67,6 +63,13 @@ function DecideStageStep(props) {
     destinationStage = inReviewStage;
     destinationLabel = 'planningInvestibleNextStageInReviewLabel';
     destinationExplanation = 'planningInvestibleInReviewExplanation';
+    otherNextLabelId='modifyTasks';
+    onOtherNextFunc = () => {
+      updatePageState({sectionOpen: 'tasksSection'});
+      navigate(history, formInvestibleLink(marketId, investibleId));
+    };
+    onNextFunc = undefined;
+    nextLabelId='startReview';
   } else if (currentStageId === inReviewStage.id) {
     if (!_.isEmpty(comments)) {
       destinationStage = acceptedStage;
@@ -118,12 +121,12 @@ function DecideStageStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel={nextLabelId}
-        onNext={() => moveToTarget(false)}
+        onNext={onNextFunc}
         showOtherNext
         onOtherNext={onOtherNextFunc}
         otherNextLabel={otherNextLabelId}
         showTerminate
-        terminateLabel="DecideWizardContinue"
+        terminateLabel="JobWizardGotoJob"
         onFinish={() => navigate(history, formInvestibleLink(marketId, investibleId))}
       />
     </div>

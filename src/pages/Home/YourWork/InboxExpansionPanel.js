@@ -73,7 +73,7 @@ export function addExpansionPanel(props) {
     type_object_id: typeObjectId } = message;
   if (isOutboxAccepted) {
     item.expansionPanel = <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}
-                                               rowId={`outboxRow${message.id}`} />;
+                                               rowId={message.id} />;
   } else if (!messageType || messageType === 'ASSIGNED_UNREVIEWABLE') {
     if (messageType === 'ASSIGNED_UNREVIEWABLE') {
       item.expansionPanel = <StageWizard investibleId={investibleId} marketId={marketId}
@@ -81,10 +81,10 @@ export function addExpansionPanel(props) {
     } else if (message.isOutboxType) {
       if (message.isAssigned) {
         item.expansionPanel = <StageWizard investibleId={message.id} marketId={message.marketId}
-                                           rowId={`outboxRow${message.id}`}/>;
+                                           rowId={message.id}/>;
       } else {
         item.expansionPanel = <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId}
-                                                       rowId={`outboxRow${message.id}`} />;
+                                                       rowId={message.id} />;
       }
     }
   } else if (messageType === 'NOT_FULLY_VOTED') {

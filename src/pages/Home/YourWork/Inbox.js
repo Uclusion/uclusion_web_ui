@@ -1,4 +1,4 @@
-import { workListStyles } from './WorkListItem'
+import WorkListItem, { workListStyles } from './WorkListItem'
 import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useEffect, useReducer } from 'react'
 import { useIntl } from 'react-intl'
@@ -21,8 +21,7 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
-import { createDefaultInboxRow } from './InboxExpansionPanel'
-import Outbox from './Outbox'
+import { addExpansionPanel, createDefaultInboxRow, usesExpansion } from './InboxExpansionPanel';
 import {
   contractAll,
   expandAll,
@@ -32,6 +31,7 @@ import {
   setPage,
   setTab
 } from './InboxContext'
+import { nameFromDescription } from '../../../utils/stringFunctions';
 
 function Inbox(props) {
   const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash } = props;
@@ -183,12 +183,45 @@ function Inbox(props) {
           const isDeletable =  message.type_object_id.startsWith('UNREAD');
           const determinateChecked = determinate[message.type_object_id];
           const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-          return <InboxRow message={message} inboxDispatch={inboxDispatch}
+          return <InboxRow message={message} inboxDispatch={inboxDispatch} key={message.type_object_id}
                            determinateDispatch={determinateDispatch}
                            expansionOpen={!!expansionState[message.type_object_id]}
                            isDeletable={isDeletable} checked={checked} />;
       })}
-      <Outbox inboxState={inboxState} inboxDispatch={inboxDispatch} page={page} messagesOrdered={data} />
+      {
+        data.map((message) => {
+          if (!message.isOutboxType) {
+            return React.Fragment;
+          }
+          const { id, investible, updatedAt, title, icon, comment, debtors, expansionPanel } = message;
+          const item = {
+            title,
+            read: true,
+            isDeletable: false,
+            people: debtors,
+            date: intl.formatDate(updatedAt),
+            expansionPanel,
+            icon,
+            message
+          }
+
+          if (investible) {
+            item.investible = investible;
+          }
+          if (comment) {
+            const commentName = nameFromDescription(comment);
+            if (commentName) {
+              item.comment = commentName;
+            }
+          }
+          const expansionOpen = !!expansionState[id];
+          if (expansionOpen && usesExpansion(item)) {
+            addExpansionPanel({ item });
+          }
+          return <WorkListItem id={id} useSelect={false} {...item} inboxDispatch={inboxDispatch} key={id}
+                               expansionOpen={expansionOpen} />;
+        })
+      }
     </div>
     </>
   );

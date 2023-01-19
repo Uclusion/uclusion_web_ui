@@ -190,8 +190,8 @@ function WorkListItem(props) {
   const expansionPanelVisible = isUsingExpansion && expansionOpen;
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`} style={{minWidth: useSelect ? undefined : '80vw'}}>
-      <RaisedCard elevation={3} rowStyle>
-        <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} onClick={
+      <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
+        <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`} onClick={
           (event) => {
             preventDefaultAndProp(event);
             if (!isUsingExpansion && !read) {
@@ -215,8 +215,8 @@ function WorkListItem(props) {
             }
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-          <Div>
-            <Box flexShrink={0} className={gutterStyles.parent}>
+          <Div key={`actions${id}`}>
+            <Box flexShrink={0} className={gutterStyles.parent} key={`box${id}`}>
               {!mobileLayout && (
                 <StyledIconButton
                   className={cx(checked && "MailListItem-checked")}

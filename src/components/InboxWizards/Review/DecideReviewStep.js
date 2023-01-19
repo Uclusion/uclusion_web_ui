@@ -53,7 +53,7 @@ function DecideReviewStep(props) {
         showOtherNext
         onOtherNext={() => updateFormData({ commentType: TODO_TYPE })}
         otherNextLabel="DecideAddTask"
-        terminateLabel="DecideWizardContinue"
+        terminateLabel="JobWizardGotoJob"
         showTerminate={true}
         onFinish={goToJob}
       />

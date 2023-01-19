@@ -104,7 +104,7 @@ function DecideAssistanceStep(props) {
         otherNextLabel="saveReject"
         onOtherNext={resolve}
         showTerminate={true}
-        terminateLabel="JobWizardGotoJob"
+        terminateLabel="DecideWizardContinue"
       />
     </div>
     </WizardStepContainer>

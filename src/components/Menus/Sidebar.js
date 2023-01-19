@@ -21,11 +21,12 @@ function processRegularItem(properties) {
       </MenuItem>
     )
   }
+  const key = `${index}${textNoSpaces}`;
   return (
-    <>
+    <div key={`sidebarMenuHolder${key}`}>
       <MenuItem icon={<Icon htmlColor="black" />}
                 style={{backgroundColor: isBold && !isSubMenu ? '#b4d0d8' : undefined}}
-                key={`${index}${textNoSpaces}`} id={textNoSpaces}
+                key={key} id={textNoSpaces}
                 suffix={num > 0 ?
                   <Chip label={`${num}`} size='small' style={{
                     backgroundColor: 'white',
@@ -46,7 +47,7 @@ function processRegularItem(properties) {
           : <span style={{fontSize: isLarge ? '1.25rem' : undefined}}>{text}</span>}
       </MenuItem>
       {!_.isEmpty(openMenuItems) && (
-        <div style={{paddingLeft: '1rem'}}>
+        <div style={{paddingLeft: '1rem'}} key="openMenuItems">
           {openMenuItems.map((subItem, index) => {
             const { text, target, num, icon: Icon, onClickFunc, newPage, isBold } = subItem
             return processRegularItem({classes, history, text, target, num, Icon, onClickFunc,
@@ -54,7 +55,7 @@ function processRegularItem(properties) {
           })}
         </div>
       )}
-    </>
+    </div>
   );
 }
 

@@ -943,6 +943,7 @@ function Comment(props) {
             <Box marginTop={1}>
               {!beingEdited && !displayingDiff && !_.isEmpty(comment) && (
                 <ReadOnlyQuillEditor value={body} setBeingEdited={setBeingEdited}
+                                     noOverflow={isInbox || isOutbox}
                                      id={isInbox ? `inboxComment${id}` : (isOutbox ? `outboxComment${id}` : id)}
                                      isEditable={!isReallyMobileLayout && displayEditing}/>
               )}
@@ -1397,6 +1398,7 @@ function Reply(props) {
               className={classes.editor}
               value={comment.body}
               id={comment.id}
+              noOverflow={isFromInbox}
               setBeingEdited={setBeingEdited}
               isEditable={!mobileLayout && enableEditing && isEditable}
             />

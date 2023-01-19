@@ -73,6 +73,7 @@ function QuillEditor2 (props) {
     marketId,
     mentionsAllowed,
     placeholder,
+    noOverflow,
     buttons = React.Fragment
   } = props;
   const useCssId = cssId || id;
@@ -214,8 +215,8 @@ function QuillEditor2 (props) {
     <div
       id={`${useCssId}scroll`}
       style={{
-        maxHeight: '50vh',
-        overflowY: 'auto',
+        maxHeight: noOverflow ? undefined : '50vh',
+        overflowY: noOverflow ? undefined : 'auto',
       }}
     >
       {createVideoUi(id)}

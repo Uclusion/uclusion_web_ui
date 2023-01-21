@@ -14,6 +14,9 @@ const reducer = (state, action) => {
   return state;
 };
 
+let ticketContextHack;
+export { ticketContextHack };
+
 function TicketIndexProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
 
@@ -21,6 +24,8 @@ function TicketIndexProvider(props) {
     beginListening(dispatch);
     return () => {};
   }, []);
+
+  ticketContextHack = state;
 
   return (
     <TicketIndexContext.Provider value={[state]} >

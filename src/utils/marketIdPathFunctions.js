@@ -9,6 +9,8 @@ import { getCommentRoot } from '../contexts/CommentsContext/commentsContextHelpe
 import { nameFromDescription } from './stringFunctions'
 import { commentsContextHack } from '../contexts/CommentsContext/CommentsContext'
 import { JOB_WIZARD_TYPE } from '../constants/markets'
+import { ticketContextHack } from '../contexts/TicketContext/TicketIndexContext';
+import { getTicket, isJobTicket, isTicketPath } from '../contexts/TicketContext/ticketIndexContextHelper';
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -105,13 +107,19 @@ export function getNameForUrl(url) {
   const marketState = marketsContextHack;
   const investibleState = investibleContextHack;
   const commentsState = commentsContextHack;
+  const ticketState = ticketContextHack;
   const urlParts = new URL(url);
-  const isComment = urlParts.hash && urlParts.hash.startsWith('#c') && !urlParts.hash.startsWith('#cv');
-  if (urlParts.host === window.location.host && (!urlParts.hash || isComment)) {
-    const { action, marketId, investibleId } = decomposeMarketPath(urlParts.pathname);
-    if (action === 'dialog') {
-      if (isComment) {
-        const commentId = urlParts.hash.substring(2, urlParts.hash.length);
+  if (isTicketPath(urlParts.pathname)) {
+    const ticket = getTicket(ticketState, urlParts.pathname.substring(1));
+    if (ticket) {
+      if (isJobTicket(urlParts.pathname)) {
+        const { investibleId } = ticket;
+        const name = getInvestibleName(investibleState, investibleId);
+        if (!_.isEmpty(name)) {
+          return name;
+        }
+      } else {
+        const { marketId, commentId } = ticket;
         const rootComment = getCommentRoot(commentsState, marketId, commentId);
         if (rootComment) {
           const name = nameFromDescription(rootComment.body);
@@ -120,17 +128,34 @@ export function getNameForUrl(url) {
           }
         }
       }
-      if (investibleId) {
-        const name = getInvestibleName(investibleState, investibleId);
-        if (!_.isEmpty(name)) {
-          return name;
+    }
+  } else {
+    const isComment = urlParts.hash && urlParts.hash.startsWith('#c') && !urlParts.hash.startsWith('#cv');
+    if (urlParts.host === window.location.host && (!urlParts.hash || isComment)) {
+      const { action, marketId, investibleId } = decomposeMarketPath(urlParts.pathname);
+      if (action === 'dialog') {
+        if (isComment) {
+          const commentId = urlParts.hash.substring(2, urlParts.hash.length);
+          const rootComment = getCommentRoot(commentsState, marketId, commentId);
+          if (rootComment) {
+            const name = nameFromDescription(rootComment.body);
+            if (!_.isEmpty(name)) {
+              return name;
+            }
+          }
         }
-      }
-      if (marketId) {
-        const market = getMarket(marketState, marketId);
-        if (!_.isEmpty(market)) {
-          const { name } = market;
-          return name;
+        if (investibleId) {
+          const name = getInvestibleName(investibleState, investibleId);
+          if (!_.isEmpty(name)) {
+            return name;
+          }
+        }
+        if (marketId) {
+          const market = getMarket(marketState, marketId);
+          if (!_.isEmpty(market)) {
+            const { name } = market;
+            return name;
+          }
         }
       }
     }

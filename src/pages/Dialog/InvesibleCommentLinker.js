@@ -56,7 +56,7 @@ function InvesibleCommentLinker(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   let ticketCode = marketInfo.ticket_code;
   const market = getMarket(marketsState, marketId) || {};
-  let link = `${window.location.host}/${ticketCode}`;
+  let link = `${window.location.protocol}//${window.location.host}/${ticketCode}`;
   let useTextInsteadOfLink = false;
   if (market.parent_comment_id) {
     useTextInsteadOfLink = true;
@@ -64,7 +64,7 @@ function InvesibleCommentLinker(props) {
   } else if (commentId) {
     if (comment.ticket_code) {
       ticketCode = comment.ticket_code;
-      link = `${window.location.host}/${ticketCode}`;
+      link = `${window.location.protocol}//${window.location.host}/${comment.ticketCode}`;
     } else {
       useTextInsteadOfLink = true;
       link = `${window.location.href}#c${commentId}`;

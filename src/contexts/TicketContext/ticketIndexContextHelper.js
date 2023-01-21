@@ -1,6 +1,10 @@
 
 export function getTicket(state, value) {
-  return state[value];
+  const fromUndecoded = state[value];
+  if (fromUndecoded) {
+    return fromUndecoded;
+  }
+  return state[decodeURI(value)];
 }
 
 export function isTicketPath(pathname) {

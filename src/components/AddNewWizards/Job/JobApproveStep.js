@@ -77,7 +77,7 @@ function JobApproveStep(props) {
   function onQuantityChange(event) {
     const {value} = event.target;
     updateFormData({
-      approveQuantity: value
+      approveQuantity: parseInt(value, 10)
     });
   }
 

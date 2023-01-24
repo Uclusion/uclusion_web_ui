@@ -45,6 +45,8 @@
     white-space: -pre-wrap;
     white-space: -o-pre-wrap;
 }
+.ql-editor h1,
+.ql-editor h2,
 .ql-editor div,
 .ql-editor ol,
 .ql-editor table,

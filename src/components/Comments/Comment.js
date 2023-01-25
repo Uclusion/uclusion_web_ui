@@ -1337,8 +1337,12 @@ function Reply(props) {
   const [marketsState] = useContext(MarketsContext);
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [, commentsDispatch] = useContext(CommentsContext);
+  const workItemClasses = workListStyles();
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || {};
+  const myPresence = presences.find(presence => presence.id === userId);
   const isEditable = comment.created_by === userId;
   const classes = useReplyStyles();
   const [replyAddStateFull, replyAddDispatch] = usePageStateReducer('replyAdd');
@@ -1350,6 +1354,16 @@ function Reply(props) {
   function handleEditClick() {
     navigateEditReplyBack(history, comment.id, marketId, comment.group_id, comment.investible_id, replyEditId,
       false, isFromInbox, setNoHighlightId);
+  }
+
+  function remove() {
+    setOperationRunning(true);
+    return removeComment(marketId, comment.id)
+      .then(() => {
+        removeComments(commentsDispatch, marketId, [comment.id]);
+        removeMessagesForCommentId(comment.id, messagesState, workItemClasses.removed);
+        setOperationRunning(false);
+      });
   }
 
   function setBeingEdited(value, event) {
@@ -1380,6 +1394,16 @@ function Reply(props) {
               value={comment.created_at}
             />
           </Typography>
+          {(myPresence.is_admin || isEditable) && enableEditing && !isFromInbox && (
+            <TooltipIconButton
+              disabled={operationRunning !== false}
+              onClick={remove}
+              icon={<Delete fontSize={mobileLayout ? 'small' : undefined} />}
+              size={mobileLayout ? 'small' : undefined}
+              translationId="commentRemoveLabel"
+              doFloatRight
+            />
+          )}
           {beingEdited && (
             <CommentEdit
               intl={intl}

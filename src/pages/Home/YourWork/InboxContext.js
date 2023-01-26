@@ -44,24 +44,31 @@ export function expandOrContract(id) {
   };
 }
 
-export function getMessages(allOutBoxMessagesOrdered, messagesUnsafe, messagesFull, searchResults) {
+function searchFiltered(raw, searchResults) {
   const { results, parentResults, search } = searchResults;
+  return _.isEmpty(search) ? raw : raw.filter((message) => {
+      const { type_object_id: typeObjectId,  investible_id: investibleId, comment_id: commentId, id } = message;
+      const allIds = [investibleId, commentId, id];
+      const typeObjectIdSafe = typeObjectId || '';
+      return results.find((result) => typeObjectIdSafe.endsWith(result.id) || allIds.includes(result.id)) ||
+        parentResults.find((id) => typeObjectIdSafe.endsWith(id) || parentResults.find((id) => allIds.includes(id)));
+    });
+}
+
+export function getMessages(allOutBoxMessagesOrderedRaw, messagesFullRaw, searchResults) {
+  const messagesFull = searchFiltered(messagesFullRaw, searchResults);
+  const allOutBoxMessagesOrdered = searchFiltered(allOutBoxMessagesOrderedRaw, searchResults);
   let inboxMessagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
   const outBoxMessagesOrdered = allOutBoxMessagesOrdered.filter((message) => message.comment ||
     message.isOutboxAccepted);
   const outBoxAssigned = allOutBoxMessagesOrdered.filter((message) => !message.isOutboxAccepted && !message.comment);
-  const assignedNotifications = (messagesUnsafe || []).filter((message) => message.alert_type &&
+  const assignedNotifications = (messagesFull || []).filter((message) => message.alert_type &&
     !message.is_highlighted);
   const assignedMessagesRaw = _.union(assignedNotifications, outBoxAssigned) || [];
   const assignedMessages = assignedMessagesRaw.map((message) =>  {
     return {...message, isAssigned: true};
   });
   const assignedMessagesOrdered = _.orderBy(assignedMessages, ['updated_at'], ['desc']) || [];
-  inboxMessagesOrdered = _.isEmpty(search) ? inboxMessagesOrdered : inboxMessagesOrdered.filter((message) => {
-    const { type_object_id: typeObjectId,  investible_id: investibleId } = message;
-    return results.find((result) => typeObjectId.endsWith(result.id) || result.id === investibleId) ||
-      parentResults.find((id) => typeObjectId.endsWith(id) || parentResults.find((id) => investibleId === id));
-  });
   const teamMessagesOrdered = inboxMessagesOrdered.filter((message) => !message.alert_type && !message.is_highlighted);
   inboxMessagesOrdered = _.union(inboxMessagesOrdered.filter((message) => message.is_highlighted),
     assignedMessagesOrdered);

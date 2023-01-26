@@ -51,7 +51,7 @@ function InboxFull(props) {
   });
   const allOutBoxMessagesOrdered = getOutboxMessages({messagesState, marketsState, marketPresencesState,
     investiblesState, marketStagesState, commentsState, intl});
-  const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesMapped, messagesFull, searchResults);
+  const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesFull, searchResults);
   const [inboxState, inboxDispatch] = useReducer(getReducer(messagesHash),
     {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
@@ -87,7 +87,7 @@ function InboxFull(props) {
       isInbox
     >
       <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} loadingFromInvite={fromInvite}
-             messagesHash={messagesHash} messagesFull={messagesFull}
+             messagesHash={messagesHash} messagesFull={messagesFull} searchResults={searchResults}
       />
     </Screen>
   );

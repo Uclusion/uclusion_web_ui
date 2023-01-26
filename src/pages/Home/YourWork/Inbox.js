@@ -34,7 +34,7 @@ import {
 import { nameFromDescription } from '../../../utils/stringFunctions';
 
 function Inbox(props) {
-  const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash } = props;
+  const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults } = props;
   const intl = useIntl();
   const workItemClasses = workListStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -47,6 +47,7 @@ function Inbox(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { tabIndex, page, expansionState } = inboxState;
+  const { search } = searchResults;
   const [determinateState, determinateDispatch] = useReducer((state, action) => {
     const { determinate, checkAll } = state;
     const { type, id } = action;
@@ -74,7 +75,8 @@ function Inbox(props) {
     return { determinate: newDeterminate, indeterminate: newIndeterminate, checkAll: newCheckAll};
   }, {determinate: {}, indeterminate: false, checkAll: false});
   const { indeterminate, determinate, checkAll } = determinateState;
-  const unreadCount = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
+  const unreadCount = _.isEmpty(search) ?
+    getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState) : 0;
   const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex);
 
   useEffect(() => {

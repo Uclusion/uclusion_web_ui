@@ -99,7 +99,7 @@ function InboxRow(props) {
   item.title =  titleText(message, mobileLayout, intl, rootComment, userId,
     fullStage.allows_investment, assigned);
   if (expansionOpen && usesExpansion(item)) {
-    addExpansionPanel({ item });
+    addExpansionPanel({ item, inboxDispatch });
   }
   return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}
                        determinateDispatch={determinateDispatch} useSelect={isHighlighted}

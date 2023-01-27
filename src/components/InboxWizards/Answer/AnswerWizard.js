@@ -2,13 +2,15 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import FormdataWizard from 'react-formdata-wizard';
 import DecideAnswerStep from './DecideAnswerStep'
+import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
 
 function AnswerWizard(props) {
-  const { marketId, commentId, message } = props;
-
+  const { marketId, commentId, message, inboxDispatch } = props;
+  const  parentElementId = message.type_object_id;
   return (
     <FormdataWizard name={`answer_wizard${commentId}`}
-                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
+                    onStartOver={() => inboxDispatch(expandOrContract(parentElementId))}
+                    defaultFormData={{parentElementId}}>
       <DecideAnswerStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
   );

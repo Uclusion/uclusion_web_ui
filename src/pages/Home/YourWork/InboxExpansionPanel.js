@@ -66,59 +66,65 @@ export function usesExpansion(item) {
 }
 
 export function addExpansionPanel(props) {
-  const { item } = props;
+  const { item, inboxDispatch } = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted,
     type_object_id: typeObjectId } = message;
   if (isOutboxAccepted) {
     item.expansionPanel = <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}
-                                               rowId={message.id} />;
+                                               rowId={message.id} inboxDispatch={inboxDispatch} />;
   } else if (!messageType || messageType === 'ASSIGNED_UNREVIEWABLE') {
     if (messageType === 'ASSIGNED_UNREVIEWABLE') {
-      item.expansionPanel = <StageWizard investibleId={investibleId} marketId={marketId}
-                                         rowId={`workListItem${typeObjectId}`} />;
+      item.expansionPanel = <StageWizard investibleId={investibleId} marketId={marketId} inboxDispatch={inboxDispatch}
+                                         rowId={typeObjectId} />;
     } else if (message.isOutboxType) {
       if (message.isAssigned) {
         item.expansionPanel = <StageWizard investibleId={message.id} marketId={message.marketId}
-                                           rowId={message.id}/>;
+                                           rowId={message.id} inboxDispatch={inboxDispatch}/>;
       } else {
         item.expansionPanel = <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId}
-                                                       rowId={message.id} />;
+                                                       rowId={message.id} inboxDispatch={inboxDispatch} />;
       }
     }
   } else if (messageType === 'NOT_FULLY_VOTED') {
     if (marketType === PLANNING_TYPE) {
-      item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}/>;
+      item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}
+                                            inboxDispatch={inboxDispatch}/>;
     } else if (marketType === DECISION_TYPE) {
       item.expansionPanel = <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                          message={message}/>
+                                          message={message} inboxDispatch={inboxDispatch}/>
     } else {
       item.expansionPanel = <VoteWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                          message={message}/>
+                                          message={message} inboxDispatch={inboxDispatch}/>
     }
   } else if (messageType === 'REPORT_REQUIRED') {
-    item.expansionPanel = <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />;
+    item.expansionPanel = <StatusWizard investibleId={investibleId} marketId={marketId} message={message}
+                                        inboxDispatch={inboxDispatch} />;
   } else if (messageType === 'ISSUE') {
     if (linkType === 'INVESTIBLE_SUGGESTION') {
-      item.expansionPanel = <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message}/>;
+      item.expansionPanel = <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message}
+                                                inboxDispatch={inboxDispatch}/>;
     } else if (linkType === 'INVESTIBLE_QUESTION') {
       item.expansionPanel = <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                          message={message}/>
+                                          message={message} inboxDispatch={inboxDispatch}/>
     } else {
       item.expansionPanel = <BlockedWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                           message={message}/>
+                                           message={message} inboxDispatch={inboxDispatch}/>
     }
   } else if (['FULLY_VOTED', 'UNREAD_RESOLVED'].includes(messageType)) {
     item.expansionPanel = <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
-                                         message={message}/>;
+                                         message={message} inboxDispatch={inboxDispatch}/>;
   } else if (['UNREAD_REVIEWABLE', 'UNASSIGNED', 'REVIEW_REQUIRED'].includes(messageType)) {
     if (linkType === 'MARKET_TODO') {
-      item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId} message={message}/>;
+      item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId} message={message}
+                                         inboxDispatch={inboxDispatch}/>;
     } else if (linkType === 'INVESTIBLE_REVIEW') {
-      item.expansionPanel = <ReviewWizard investibleId={investibleId} marketId={marketId} message={message}/>;
+      item.expansionPanel = <ReviewWizard investibleId={investibleId} marketId={marketId} message={message}
+                                          inboxDispatch={inboxDispatch}/>;
     } else {
-      item.expansionPanel = <AssignWizard investibleId={investibleId} marketId={marketId} message={message}/>;
+      item.expansionPanel = <AssignWizard investibleId={investibleId} marketId={marketId} message={message}
+                                          inboxDispatch={inboxDispatch}/>;
     }
   }
 }

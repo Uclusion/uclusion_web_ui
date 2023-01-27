@@ -9,9 +9,10 @@ import { wizardFinish } from '../InboxWizardUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
 
 function ApprovalWizard(props) {
-  const { marketId, investibleId, message } = props;
+  const { marketId, investibleId, message, inboxDispatch } = props;
   const history = useHistory();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -20,14 +21,15 @@ function ApprovalWizard(props) {
   let yourPresence = marketPresences.find((presence) => presence.current_user);
   let yourVote = yourPresence && yourPresence.investments && yourPresence.investments.find((investment) =>
     investment.investible_id === investibleId);
-
+  const parentElementId =  message.type_object_id;
   function myOnFinish(formData) {
     wizardFinish(formData, setOperationRunning, message, history, marketId, investibleId, messagesDispatch);
   }
 
   return (
     <FormdataWizard name={`approval_wizard${investibleId}`}
-                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
+                    onStartOver={() => inboxDispatch(expandOrContract(parentElementId))}
+                    defaultFormData={{parentElementId}}>
       <JobDescriptionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}
                                   message={message} yourVote={yourVote}/>
       <ActionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message} />

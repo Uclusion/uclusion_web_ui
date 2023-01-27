@@ -7,20 +7,22 @@ import ActionStatusStep from './ActionStatusStep'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { wizardFinish } from '../InboxWizardUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
 
 function StatusWizard(props) {
-  const { marketId, investibleId, message } = props;
+  const { marketId, investibleId, message, inboxDispatch } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
-
+  const parentElementId = message.type_object_id;
   function myOnFinish(formData) {
     wizardFinish(formData, setOperationRunning, message, history, marketId, investibleId, messagesDispatch);
   }
 
   return (
     <FormdataWizard name={`status_wizard${investibleId}`}
-                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
+                    onStartOver={() => inboxDispatch(expandOrContract(parentElementId))}
+                    defaultFormData={{parentElementId}}>
       <JobDescriptionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
       <ActionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
     </FormdataWizard>

@@ -24,15 +24,16 @@ function WizardStepButtons(props) {
     spinOnClick,
     terminateLabel,
     nextLabel,
-    clearFormData
+    startOver
   } = props;
   const intl = useIntl();
   const classes = wizardStyles();
+  const { parentElementId } = formData;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const lastStep = currentStep === totalSteps - 1; //zero indexed
 
   function onTerminate() {
-    clearFormData();
+    startOver();
     onFinish();
   }
 
@@ -47,13 +48,13 @@ function WizardStepButtons(props) {
     }
     if (nextReturn) {
       return nextReturn.then(() => {
-        const item = document.getElementById(formData.parentElementId);
+        const item = document.getElementById(`workListItem${parentElementId}`);
         if (item) {
           scrollToElement(item);
         }
       });
     }
-    const item = document.getElementById(formData.parentElementId);
+    const item = document.getElementById(`workListItem${parentElementId}`);
     if (item) {
       scrollToElement(item);
     }

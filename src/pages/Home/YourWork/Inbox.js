@@ -218,7 +218,7 @@ function Inbox(props) {
           }
           const expansionOpen = !!expansionState[id];
           if (expansionOpen && usesExpansion(item)) {
-            addExpansionPanel({ item });
+            addExpansionPanel({ item, inboxDispatch });
           }
           return <WorkListItem id={id} useSelect={false} {...item} inboxDispatch={inboxDispatch} key={id}
                                expansionOpen={expansionOpen} />;

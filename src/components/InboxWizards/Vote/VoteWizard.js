@@ -10,15 +10,16 @@ import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContex
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
 
 function VoteWizard(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId, message, inboxDispatch } = props;
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-
+  const parentElementId =  message.type_object_id;
   function myOnFinish() {
     wizardFinish({link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
           commentRoot.id)},
@@ -27,7 +28,8 @@ function VoteWizard(props) {
 
   return (
     <FormdataWizard name={`vote_wizard${commentId}`}
-                    defaultFormData={{parentElementId: `workListItem${message.type_object_id}`}}>
+                    onStartOver={() => inboxDispatch(expandOrContract(parentElementId))}
+                    defaultFormData={{parentElementId}}>
       <DecideVoteStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
       <VoteCertaintyStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
     </FormdataWizard>

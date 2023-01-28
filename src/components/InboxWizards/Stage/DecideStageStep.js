@@ -45,6 +45,29 @@ function DecideStageStep(props) {
   let destinationStage;
   let destinationExplanation;
   let destinationLabel;
+
+  function moveToStage(aStage, isGotoJob) {
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: currentStageId,
+        stage_id: aStage.id,
+      },
+    };
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(aStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
+          invDispatch, () => {}, marketStagesState, undefined, aStage);
+        setOperationRunning(false);
+        if (isGotoJob) {
+          navigate(history, formInvestibleLink(marketId, investibleId));
+        }
+      });
+  }
+  function moveToTarget(isGotoJob) {
+    return moveToStage(destinationStage, isGotoJob);
+  }
   let onOtherNextFunc = () => moveToTarget(true);
   let otherNextLabelId = 'stageAndGotoJob';
   let nextLabelId = 'DecideStageMove';
@@ -76,30 +99,12 @@ function DecideStageStep(props) {
       destinationExplanation = 'planningInvestibleTasksInReviewExplanation';
       destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
     } else {
+      otherNextLabelId = 'planningInvestibleMoveToAcceptedLabel';
+      onOtherNextFunc = () => moveToStage(acceptedStage, true);
       destinationStage = verifiedStage;
       destinationLabel = 'planningInvestibleMoveToVerifiedLabel';
       destinationExplanation = 'planningInvestibleVerifiedExplanation';
     }
-  }
-
-  function moveToTarget(isGotoJob) {
-    const moveInfo = {
-      marketId,
-      investibleId,
-      stageInfo: {
-        current_stage_id: currentStageId,
-        stage_id: destinationStage.id,
-      },
-    };
-    return stageChangeInvestible(moveInfo)
-      .then((newInv) => {
-        onInvestibleStageChange(destinationStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
-          invDispatch, () => {}, marketStagesState, undefined, destinationStage);
-        setOperationRunning(false);
-        if (isGotoJob) {
-          navigate(history, formInvestibleLink(marketId, investibleId));
-        }
-      });
   }
 
   if (!destinationLabel) {

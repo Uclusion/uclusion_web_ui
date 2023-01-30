@@ -17,6 +17,7 @@ import { getMarketInfo } from '../../utils/userFunctions';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import clsx from 'clsx';
+import { getTicketNumber } from '../../utils/stringFunctions';
 
 function ChooseJob(props) {
   const {
@@ -57,6 +58,10 @@ function ChooseJob(props) {
     const { investible } = inv;
     const myInvestibleId = investible.id;
     const isChecked = investibleId === myInvestibleId;
+    const marketInfo = getMarketInfo(inv, marketId);
+    const { ticket_code: ticketCode } = marketInfo;
+    const ticketNumber = getTicketNumber(ticketCode);
+    const displayName = ticketNumber ? `J-${ticketNumber} ${investible.name}` : investible.name;
     return (
       <ListItem
         key={myInvestibleId}
@@ -69,7 +74,7 @@ function ChooseJob(props) {
           />
         </ListItemIcon>
         <ListItemText>
-          {investible.name}
+          {displayName}
         </ListItemText>
       </ListItem>
     );

@@ -1109,6 +1109,9 @@ const messages = defineMessages({
   JobWizardGotoJob: 'Go to job',
   JobWizardAssignJob: 'Assign job to someone',
   JobWizardApproveJob: 'Approve job',
+  JobWizardNewJob: 'New job',
+  JobWizardExistingJob: 'Existing job',
+  JobWizardStartOver: 'Start over',
 
   //GroupWizard
   GroupWizardMeetingName: 'Your group name',

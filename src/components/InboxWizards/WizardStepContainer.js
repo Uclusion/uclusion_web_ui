@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { wizardStyles } from './WizardStylesContext'
 
@@ -13,13 +12,4 @@ function WizardStepContainer (props) {
       </div>
     </div>);
 }
-
-WizardStepContainer.propTypes = {
-  titleId: PropTypes.string,
-};
-
-WizardStepContainer.defaultProps = {
-  hideSteppers: false,
-};
-
 export default WizardStepContainer;

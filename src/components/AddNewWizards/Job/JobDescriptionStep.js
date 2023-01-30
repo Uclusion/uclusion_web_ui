@@ -19,10 +19,12 @@ import { moveComments } from '../../../api/comments'
 import { removeMessagesForCommentId } from '../../../utils/messageUtils'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import FindJobStep from './FindJobStep';
 
 
 function JobDescriptionStep (props) {
-  const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments } = props;
+  const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData,
+    startOver, clearFormData } = props;
   const editorName = `addJobWizard${groupId}`;
   if (_.size(fromCommentIds) === 1) {
     const fromComment = marketComments.find((comment) => comment.id === fromCommentIds[0]);
@@ -50,6 +52,17 @@ function JobDescriptionStep (props) {
   };
 
   const [Editor] = useEditor(editorName, editorSpec);
+
+  if (comments.find((comment) => comment.id === 'notFound')) {
+    return React.Fragment;
+  }
+
+  const { isMoveExisting } = formData;
+
+  if (isMoveExisting && !_.isEmpty(comments)) {
+    return <FindJobStep marketId={marketId} groupId={groupId} comments={comments} marketComments={marketComments}
+      updateFormData={updateFormData} formData={formData} startOver={startOver} clearFormData={clearFormData}/>;
+  }
 
   function createJob() {
     const {
@@ -108,10 +121,6 @@ function JobDescriptionStep (props) {
           link
         });
       });
-  }
-
-  if (comments.find((comment) => comment.id === 'notFound')) {
-    return React.Fragment;
   }
 
   return (

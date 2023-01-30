@@ -12,6 +12,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import ResolveCommentsStep from './ResolveCommentsStep'
+import DecideWhereStep from './DecideWhereStep';
 
 function JobWizard(props) {
   const { onFinish, marketId, groupId, assigneeId } = props;
@@ -46,6 +47,10 @@ function JobWizard(props) {
   return (
     <WizardStylesProvider>
       <FormdataWizard name="job_wizard">
+        {fromCommentId && (
+          <DecideWhereStep fromCommentIds={fromCommentIds} marketId={marketId} groupId={groupId}
+                           marketComments={comments} />
+        )}
         {(requiresInputId || (fromCommentId && resolvedId === fromCommentId)) && (
           <ResolveCommentsStep marketId={marketId} commentId={requiresInputId} marketComments={comments}
                                setResolvedId={setResolvedId} />

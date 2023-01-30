@@ -13,7 +13,7 @@ import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { processTextAndFilesForSave } from '../../../api/files'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import { getCommentThreads, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { moveComments } from '../../../api/comments'
 import { removeMessagesForCommentId } from '../../../utils/messageUtils'
@@ -40,8 +40,9 @@ function JobDescriptionStep (props) {
   const [, commentsDispatch] = useContext(CommentsContext);
   const [messagesState] = useContext(NotificationsContext);
   const classes = useContext(WizardStylesContext);
-  const comments = (fromCommentIds || []).map((fromCommentId) =>
+  const roots = (fromCommentIds || []).map((fromCommentId) =>
     marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
+  const comments = getCommentThreads(roots, marketComments);
 
   const editorSpec = {
     placeholder: "Ex: make magic happen via A, B, C",
@@ -60,7 +61,7 @@ function JobDescriptionStep (props) {
   const { isMoveExisting } = formData;
 
   if (isMoveExisting && !_.isEmpty(comments)) {
-    return <FindJobStep marketId={marketId} groupId={groupId} comments={comments} marketComments={marketComments}
+    return <FindJobStep marketId={marketId} groupId={groupId} roots={roots} marketComments={marketComments}
       updateFormData={updateFormData} formData={formData} startOver={startOver} clearFormData={clearFormData}/>;
   }
 

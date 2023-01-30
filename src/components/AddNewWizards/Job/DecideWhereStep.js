@@ -5,12 +5,14 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
+import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function DecideWhereStep (props) {
   const { marketId, updateFormData, fromCommentIds, marketComments } = props;
   const classes = useContext(WizardStylesContext);
-  const comments = (fromCommentIds || []).map((fromCommentId) =>
+  const roots = (fromCommentIds || []).map((fromCommentId) =>
     marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
+  const comments = getCommentThreads(roots, marketComments);
 
   if (comments.find((comment) => comment.id === 'notFound')) {
     return React.Fragment;

@@ -21,14 +21,14 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function FindJobStep(props) {
-  const { marketId, groupId, updateFormData, formData, comments, marketComments, startOver, clearFormData } = props;
+  const { marketId, groupId, updateFormData, formData, marketComments, startOver, clearFormData, roots } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
   const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const { investibleId } = formData;
-  const currentInvestibleId = comments[0].investible_id;
+  const currentInvestibleId = roots[0].investible_id;
   const marketStages = getStages(marketStagesState, marketId);
   const activeMarketStages = marketStages.filter((stage) => {
     return !isVerifiedStage(stage) && !isNotDoingStage(stage);
@@ -36,7 +36,7 @@ function FindJobStep(props) {
 
   function onTerminate() {
     let checkedString;
-    comments.forEach((comment) => {
+    roots.forEach((comment) => {
       if (checkedString) {
         checkedString += `&fromCommentId=${comment.id}`;
       } else {
@@ -49,13 +49,13 @@ function FindJobStep(props) {
 
   function onNext() {
     const link = formInvestibleLink(marketId, investibleId);
-    const fromCommentIds = comments.map((comment) => comment.id);
+    const fromCommentIds = roots.map((comment) => comment.id);
     return moveComments(marketId, investibleId, fromCommentIds)
       .then((movedComments) => {
         let threads = []
         fromCommentIds.forEach((commentId) => {
           removeMessagesForCommentId(commentId, messagesState);
-          const thread = comments.filter((aComment) => {
+          const thread = marketComments.filter((aComment) => {
             return aComment.root_comment_id === commentId;
           });
           const fixedThread = thread.map((aComment) => {

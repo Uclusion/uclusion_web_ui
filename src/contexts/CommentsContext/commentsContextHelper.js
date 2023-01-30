@@ -64,6 +64,15 @@ export function getMarketComments(state, marketId) {
   return marketComments.filter((comment) => !comment.deleted && comment.is_sent !== false);
 }
 
+export function getCommentThreads(roots, marketComments) {
+  let allThreads = [];
+  (roots || []).forEach((root) => {
+    allThreads = allThreads.concat((marketComments || []).filter((comment) => comment.root_comment_id === root.id
+      || comment.id === root.id));
+  });
+  return allThreads;
+}
+
 /**
  * Comment removal is top level. The replies won't show once orphaned and will be cleaned up by async.
  * @param dispatch

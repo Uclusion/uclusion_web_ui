@@ -1342,7 +1342,7 @@ function Reply(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || {};
-  const myPresence = presences.find(presence => presence.id === userId);
+  const myPresence = presences.find(presence => presence.id === userId) || {};
   const isEditable = comment.created_by === userId;
   const classes = useReplyStyles();
   const [replyAddStateFull, replyAddDispatch] = usePageStateReducer('replyAdd');

@@ -164,7 +164,7 @@ function doDehighlightMessages(state, action) {
   const { messages: existingMessages } = state;
   let allMessages = [];
   messages.forEach((id) => {
-    const message = existingMessages.find((message) => message.type_object_id = id);
+    const message = existingMessages.find((message) => message.type_object_id === id);
     if (message) {
       allMessages = allMessages.concat(message);
     }

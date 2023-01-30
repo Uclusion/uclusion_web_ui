@@ -118,12 +118,12 @@ export const workListStyles = makeStyles(() => {
   };
 });
 
-export function modifyNotifications (event, typeObjectId, messagesDispatch, message) {
+export function modifyNotifications (event, typeObjectId, messagesDispatch) {
   if (messagesDispatch) {
     if (DELETE_EVENT === event) {
-      messagesDispatch(removeMessages([message]));
+      messagesDispatch(removeMessages([typeObjectId]));
     } else {
-      messagesDispatch(dehighlightMessages([message]));
+      messagesDispatch(dehighlightMessages([typeObjectId]));
     }
   } else {
     pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: typeObjectId });
@@ -139,16 +139,16 @@ export function removeWorkListItem(message, removeClass, messagesDispatch) {
     if (itemExpansion) {
       // Close expansion first, or it takes up too much area to transition nicely
       itemExpansion.style.display = "none";
-      modifyNotifications(event, typeObjectId, messagesDispatch, message);
+      modifyNotifications(event, typeObjectId, messagesDispatch);
     } else {
       // Only do transition style when no expansion panel as it might be flaky when other actions
       item.addEventListener("transitionend",() => {
-        modifyNotifications(event, typeObjectId, messagesDispatch, message);
+        modifyNotifications(event, typeObjectId, messagesDispatch);
       });
     }
     item.classList.add(removeClass);
   } else {
-    modifyNotifications(event, typeObjectId, messagesDispatch, message);
+    modifyNotifications(event, typeObjectId, messagesDispatch);
   }
 }
 

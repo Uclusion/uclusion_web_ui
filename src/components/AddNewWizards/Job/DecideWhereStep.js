@@ -43,6 +43,7 @@ function DecideWhereStep (props) {
         showOtherNext
         otherNextLabel="JobWizardExistingJob"
         onOtherNext={() => updateFormData({ isMoveExisting: true })}
+        otherSpinOnClick={false}
         showTerminate={false}
       />
     </div>

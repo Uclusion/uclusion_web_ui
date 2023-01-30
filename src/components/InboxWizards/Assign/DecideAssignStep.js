@@ -73,6 +73,7 @@ function DecideAssignStep(props) {
         onNext={myAssign}
         showOtherNext
         onOtherNext={goToJob}
+        otherSpinOnClick={false}
         otherNextLabel="JobWizardGotoJob"
         terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'markRead' }
         showTerminate={true}

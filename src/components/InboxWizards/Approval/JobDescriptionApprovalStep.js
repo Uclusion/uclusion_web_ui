@@ -85,6 +85,8 @@ function JobDescriptionStep (props) {
             approveQuantity: yourVote ? yourVote.quantity : undefined
           });
         }}
+        spinOnClick={false}
+        otherSpinOnClick={false}
         showTerminate={true}
         onFinish={myOnFinish}
         terminateLabel="ApproveWizardGotoJob"/>

@@ -49,9 +49,11 @@ function DecideVoteStep(props) {
         {...props}
         nextLabel="voteFor"
         onNext={() => updateFormData({ isFor: true })}
+        spinOnClick={false}
         showOtherNext
         otherNextLabel="voteAgainst"
         onOtherNext={() => updateFormData({ isFor: false })}
+        otherSpinOnClick={false}
         showTerminate={true}
         terminateLabel="DecideWizardContinue"
       />

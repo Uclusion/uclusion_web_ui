@@ -30,9 +30,11 @@ function JobDescriptionStatusStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="StatusWizardEstimate"
+        spinOnClick={false}
         showOtherNext
         otherNextLabel="StatusWizardReport"
         onOtherNext={() => updateFormData({ commentType: REPORT_TYPE })}
+        otherSpinOnClick={false}
         showTerminate={true}
         terminateLabel="ApproveWizardGotoJob"/>
     </div>

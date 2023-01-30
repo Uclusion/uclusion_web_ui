@@ -50,7 +50,9 @@ function DecideReviewStep(props) {
         {...props}
         nextLabel="DecideAddReview"
         onNext={() => updateFormData({ commentType: REPORT_TYPE })}
+        spinOnClick={false}
         showOtherNext
+        otherSpinOnClick={false}
         onOtherNext={() => updateFormData({ commentType: TODO_TYPE })}
         otherNextLabel="DecideAddTask"
         terminateLabel="JobWizardGotoJob"

@@ -87,6 +87,7 @@ function DecideAnswerStep(props) {
         {...props}
         nextLabel="DecideWizardContinue"
         onNext={myOnFinish}
+        spinOnClick={false}
         showOtherNext
         otherNextLabel="DecideWizardMute"
         onOtherNext={abstain}

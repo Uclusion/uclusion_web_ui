@@ -22,6 +22,7 @@ function WizardStepButtons(props) {
     showTerminate,
     otherNextLabel,
     spinOnClick,
+    otherSpinOnClick,
     terminateLabel,
     nextLabel,
     startOver
@@ -80,7 +81,7 @@ function WizardStepButtons(props) {
       <div className={classes.actionContainer}>
         {showOtherNext && (
           <SpinningButton id="OnboardingWizardOtherNext" className={classes.actionPrimary} variant="text"
-                          doSpin={false} onClick={myOtherNext}>
+                          doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
           </SpinningButton>
         )}
@@ -115,6 +116,7 @@ WizardStepButtons.propTypes = {
   startOverLabel: PropTypes.string,
   showNext: PropTypes.bool,
   spinOnClick: PropTypes.bool,
+  otherSpinOnClick: PropTypes.bool,
   nextLabel: PropTypes.string,
 };
 WizardStepButtons.defaultProps = {
@@ -133,6 +135,7 @@ WizardStepButtons.defaultProps = {
   showNext: true,
   showTerminate: false,
   spinOnClick: true,
+  otherSpinOnClick: true,
   nextLabel: 'OnboardingWizardContinue',
 };
 

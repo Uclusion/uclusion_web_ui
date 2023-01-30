@@ -75,6 +75,7 @@ function DecideAssignStep(props) {
         nextLabel="DecideMoveBacklog"
         onNext={moveToBacklog}
         showOtherNext
+        otherSpinOnClick={false}
         onOtherNext={goToJob}
         otherNextLabel="DecideWizardReassign"
       />

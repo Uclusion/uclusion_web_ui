@@ -154,6 +154,7 @@ function DecideResolveStep(props) {
           }
           return myTerminate(true);
         }}
+        otherSpinOnClick={isFullyVoted}
         showTerminate={true}
         onFinish={() => myTerminate(isFullyVoted)}
         terminateLabel={isFullyVoted ? 'DecideWizardContinue': 'notificationDismiss'}

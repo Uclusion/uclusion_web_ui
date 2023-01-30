@@ -88,10 +88,6 @@ export function isInInbox(message, marketState, marketPresencesState, commentsSt
     const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
     return market.created_by !== yourPresence.id;
   }
-  if (message.alert_type) {
-    // These go only in the assignments tab unless they are new
-    return message.is_highlighted;
-  }
   return true;
 }
 

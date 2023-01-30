@@ -40,6 +40,7 @@ function DecideWhereStep (props) {
       <WizardStepButtons
         {...props}
         nextLabel="JobWizardNewJob"
+        spinOnClick={false}
         showOtherNext
         otherNextLabel="JobWizardExistingJob"
         onOtherNext={() => updateFormData({ isMoveExisting: true })}

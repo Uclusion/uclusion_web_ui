@@ -2,7 +2,7 @@
  * A message passing based quill editor
  */
 
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import LoadingOverlay from 'react-loading-overlay';
 import { useIntl } from 'react-intl';
 import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
@@ -19,7 +19,6 @@ import QuillS3ImageUploader from './QuillS3ImageUploader';
 import ImageResize from 'quill-image-resize-module-withfix';
 import QuillMention from 'quill-mention-uclusion';
 import CustomCodeBlock from './CustomCodeBlock';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import PropTypes from 'prop-types';
 import { getNameForUrl } from '../../utils/marketIdPathFunctions';
 import ImageBlot from './ImageBlot';

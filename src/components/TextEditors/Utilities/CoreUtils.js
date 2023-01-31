@@ -312,7 +312,6 @@ export function generateEditorOptions (id, config) {
     noToolbar,
     onS3Upload,
     setUploadInProgress,
-    setOperationInProgress,
     setVideoDialogOpen,
     setLinkDialogOpen,
     simple,
@@ -371,11 +370,9 @@ export function generateEditorOptions (id, config) {
       onS3Upload,
       onUploadStart: () => {
         setUploadInProgress(true);
-        setOperationInProgress(true);
       },
       onUploadStop: () => {
         setUploadInProgress(false);
-        setOperationInProgress(false);
       },
     },
 

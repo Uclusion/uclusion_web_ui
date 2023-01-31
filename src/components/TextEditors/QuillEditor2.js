@@ -86,7 +86,6 @@ function QuillEditor2 (props) {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const intl = useIntl();
   const theme = useTheme();
-  const [, setOperationInProgress] = useContext(OperationInProgressContext);
   const boundsId = getBoundsId(useCssId);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -179,7 +178,6 @@ function QuillEditor2 (props) {
         noToolbar,
         onS3Upload,
         setUploadInProgress,
-        setOperationInProgress,
         setVideoDialogOpen,
         setLinkDialogOpen,
         simple,
@@ -195,7 +193,7 @@ function QuillEditor2 (props) {
     // This is probably a bad idea, but the create should be fine
     // due to the checks above (missing createEditor dep)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mobileLayout, noToolbar, onS3Upload, setUploadInProgress, setOperationInProgress, setVideoDialogOpen,
+  }, [mobileLayout, noToolbar, onS3Upload, setUploadInProgress, setVideoDialogOpen,
     setLinkDialogOpen, simple, uploadDisabled, participants, mentionsAllowed, boundsId, boxRef, marketId,
     containerRef, placeholder, value
   ]);
@@ -253,7 +251,6 @@ QuillEditor2.propTypes = {
   placeholder: PropTypes.string,
   uploadDisabled: PropTypes.bool,
   noToolbar: PropTypes.bool,
-  setOperationInProgress: PropTypes.func,
   id: PropTypes.string.isRequired,
   simple: PropTypes.bool,
   participants: PropTypes.arrayOf(PropTypes.object),

@@ -14,7 +14,6 @@ import {
 } from '../../utils/marketIdPathFunctions'
 import Home from '../../pages/Home/Home'
 import Investible from '../../pages/Investible/Investible'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { OnlineStateContext } from '../../contexts/OnlineStateContext'
 import SlackInvite from '../../pages/Invites/SlackInvite'
 import ChangePassword from '../../pages/Authentication/ChangePassword'
@@ -31,6 +30,7 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import Onboarding from '../../pages/Onboarding/Onboarding';
 import { IS_INVITED } from '../../utils/redirectUtils'
 import { getUclusionLocalStorageItem } from '../../components/localStorageUtils'
+import { setOperationInProgress } from '../../components/ContextHacks/OperationInProgressGlobalProvider';
 
 const useStyles = makeStyles({
   body: {
@@ -61,7 +61,6 @@ function Root() {
   const { pathname } = location;
   const [accountState] = useContext(AccountContext);
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
-  const [, setOperationsLocked] = useContext(OperationInProgressContext);
   const [, setOnline] = useContext(OnlineStateContext);
   const [ticketState] = useContext(TicketIndexContext);
 
@@ -172,7 +171,7 @@ function Root() {
       window.addEventListener('online', () => {
         // console.debug('Back Online listener');
         setOnline(true)
-        setOperationsLocked(false)
+        setOperationInProgress(false)
       }, { passive: true })
       window.addEventListener('offline', () => {
         // console.debug('Offline listener');
@@ -190,7 +189,7 @@ function Root() {
     //  window.onanimationiteration = console.debug;
       registerMarketTokenListeners();
     }
-  },  [history, setOnline, setOperationsLocked, location]);
+  },  [history, setOnline, location]);
   // onboarding overrides _EVERYTHING_ except invited
   const {user} = accountState;
   const {needs_onboarding: needsOnboarding} = user;

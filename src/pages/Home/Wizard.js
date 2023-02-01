@@ -1,12 +1,8 @@
-import React, { useContext } from 'react'
-import { useHistory, useLocation } from 'react-router'
+import React from 'react'
+import { useLocation } from 'react-router'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
-import {
-  navigate
-} from '../../utils/marketIdPathFunctions'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import GroupWizard from '../../components/AddNewWizards/Group/GroupWizard'
 import queryString from 'query-string'
 import {
@@ -21,19 +17,11 @@ import CollaboratorWizard from '../../components/AddNewWizards/Collaborator/Coll
 
 function Wizard(props) {
   const { hidden } = props;
-  const history = useHistory();
   const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
   const { type: createType, marketId, groupId, assigneeId } = values;
   const intl = useIntl();
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
-
-  function onWizardFinish (formData) {
-    const { link } = formData;
-    setOperationRunning(false);
-    navigate(history, link);
-  }
 
   return (
     <Screen
@@ -42,17 +30,17 @@ function Wizard(props) {
       hidden={hidden}
     >
       {createType === PLANNING_TYPE.toLowerCase() && (
-        <GroupWizard marketId={marketId} onFinish={onWizardFinish} />
+        <GroupWizard marketId={marketId} />
       )}
 
       {createType === WORKSPACE_WIZARD_TYPE.toLowerCase() && (
-        <WorkspaceWizard onFinish={onWizardFinish} />
+        <WorkspaceWizard />
       )}
       {createType === JOB_WIZARD_TYPE.toLowerCase() && (
-        <JobWizard marketId={marketId} groupId={groupId} assigneeId={assigneeId} onFinish={onWizardFinish} />
+        <JobWizard marketId={marketId} groupId={groupId} assigneeId={assigneeId} />
       )}
       {createType === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase() && (
-        <CollaboratorWizard marketId={marketId} onFinish={onWizardFinish} />
+        <CollaboratorWizard marketId={marketId} />
       )}
     </Screen>
   );

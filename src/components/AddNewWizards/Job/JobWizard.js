@@ -5,7 +5,7 @@ import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import JobAssignStep from './JobAssignStep'
 import JobApproveStep from './JobApproveStep';
-import { useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router';
 import queryString from 'query-string'
 import _ from 'lodash'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -13,17 +13,27 @@ import { getMarketComments } from '../../../contexts/CommentsContext/commentsCon
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import ResolveCommentsStep from './ResolveCommentsStep'
 import DecideWhereStep from './DecideWhereStep';
+import { navigate } from '../../../utils/marketIdPathFunctions';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function JobWizard(props) {
-  const { onFinish, marketId, groupId, assigneeId } = props;
+  const { marketId, groupId, assigneeId } = props;
   const [resolvedId, setResolvedId] = useState(undefined);
   const location = useLocation();
+  const history = useHistory();
   const { hash } = location;
   const values = queryString.parse(hash || '') || {};
   const { fromCommentId } = values;
   const fromCommentIds = _.isArray(fromCommentId) ? fromCommentId : (fromCommentId ? [fromCommentId] : undefined);
   const [commentsState] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const comments = marketId ? getMarketComments(commentsState, marketId) : [];
+
+  function onFinish(formData) {
+    const { link } = formData;
+    setOperationRunning(false);
+    navigate(history, link);
+  }
 
   function getOpenQuestionSuggestionId() {
     // For now only supporting one since no UI to get more than one

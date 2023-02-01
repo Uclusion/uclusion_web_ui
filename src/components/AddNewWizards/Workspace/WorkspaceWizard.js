@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types'
 import WorkspaceNameStep from './WorkspaceNameStep'
 import { WizardStylesProvider } from '../WizardStylesContext'
@@ -6,9 +6,15 @@ import FormdataWizard from 'react-formdata-wizard'
 import WorkspaceMembersStep from './WorkspaceMemberStep'
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../localStorageUtils'
 import WorkspaceGroupNameStep from './WorkspaceGroupNameStep'
+import { navigate } from '../../../utils/marketIdPathFunctions';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { useHistory } from 'react-router';
 
 function WorkspaceWizard (props) {
-  const { onboarding, onFinish, onStartOnboarding } = props
+  const { onboarding, onStartOnboarding } = props
+  const history = useHistory();
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+
 
   // figure out what step we're on
   // if we've created the workspace already, then we're on step 2, otherwise 1
@@ -17,7 +23,9 @@ function WorkspaceWizard (props) {
 
   const myOnFinish = (formData) => {
     setUclusionLocalStorageItem('workspace_created', false)
-    onFinish(formData)
+    const { link } = formData;
+    setOperationRunning(false);
+    navigate(history, link);
   }
 
   return (

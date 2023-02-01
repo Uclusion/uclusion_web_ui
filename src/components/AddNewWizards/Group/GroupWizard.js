@@ -29,7 +29,7 @@ function GroupWizard(props) {
 }
 
 GroupWizard.propTypes = {
-  makerId: PropTypes.string.isRequired,
+  marketId: PropTypes.string.isRequired,
 };
 
 

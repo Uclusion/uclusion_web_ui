@@ -7,7 +7,6 @@ import OutboxIcon from '../../../components/CustomChip/Outbox'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import _ from 'lodash'
 import { deleteOrDehilightMessages } from '../../../api/users'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import ArchiveIcon from '@material-ui/icons/Archive'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
@@ -32,12 +31,12 @@ import {
   setTab
 } from './InboxContext'
 import { nameFromDescription } from '../../../utils/stringFunctions';
+import { setOperationInProgress } from '../../../components/ContextHacks/OperationInProgressGlobalProvider';
 
 function Inbox(props) {
   const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults } = props;
   const intl = useIntl();
   const workItemClasses = workListStyles();
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -151,7 +150,7 @@ function Inbox(props) {
                   .then(() => {
                     determinateDispatch({type: 'clear'});
                   }).finally(() => {
-                    setOperationRunning(false);
+                    setOperationInProgress(false);
                   });
               }} translationId={tabIndex === 0 ? 'inboxMarkRead' : 'inboxArchive'} />
           )}

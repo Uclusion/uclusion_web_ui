@@ -57,13 +57,13 @@ function JobWizard(props) {
   return (
     <WizardStylesProvider>
       <FormdataWizard name="job_wizard">
-        {fromCommentId && (
-          <DecideWhereStep fromCommentIds={fromCommentIds} marketId={marketId} groupId={groupId}
-                           marketComments={comments} />
-        )}
         {(requiresInputId || (fromCommentId && resolvedId === fromCommentId)) && (
           <ResolveCommentsStep marketId={marketId} commentId={requiresInputId} marketComments={comments}
                                setResolvedId={setResolvedId} />
+        )}
+        {fromCommentId && (
+          <DecideWhereStep fromCommentIds={fromCommentIds} marketId={marketId} groupId={groupId}
+                           marketComments={comments} />
         )}
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} fromCommentIds={fromCommentIds}
                             marketComments={comments}/>

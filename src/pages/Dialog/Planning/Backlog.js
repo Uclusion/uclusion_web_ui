@@ -5,11 +5,11 @@ import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import AddIcon from '@material-ui/icons/Add'
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { navigate } from '../../../utils/marketIdPathFunctions';
-import { JOB_WIZARD_TYPE } from '../../../constants/markets';
+import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
 import DismissableText from '../../../components/Notifications/DismissableText';
+import { storeState } from '../../../components/TextEditors/Utilities/CoreUtils';
 
 function Backlog(props) {
   const {
@@ -34,7 +34,10 @@ function Backlog(props) {
     <>
     <div style={{paddingTop: '1rem'}} />
     <SpinningIconLabelButton
-      onClick={() => navigate(history, `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`)}
+      onClick={() => {
+        storeState(`addJobWizard${groupId}`, null);
+        navigate(history, formMarketAddInvestibleLink(marketId, groupId));
+      }}
       doSpin={false} icon={AddIcon} id='addJob' style={{marginBottom: isEmptyBacklog ? undefined : '1rem'}}>
       {intl.formatMessage({ id: 'addStoryLabel' })}
     </SpinningIconLabelButton>

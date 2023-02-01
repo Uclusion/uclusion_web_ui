@@ -8,7 +8,6 @@ import { yellow } from '@material-ui/core/colors';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   formInvestibleLink,
-  formMarketAddInvestibleLink,
   navigate,
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions'
@@ -539,24 +538,13 @@ function Stage(props) {
 Stage.propTypes = {
   id: PropTypes.string.isRequired,
   investibles: PropTypes.array.isRequired,
-  marketId: PropTypes.string.isRequired,
-  fallbackOnClick: PropTypes.func
+  marketId: PropTypes.string.isRequired
 };
 
 function VotingStage (props) {
-  const { marketId, presenceId, groupId } = props;
-  const history = useHistory();
-  const assignedLink = formMarketAddInvestibleLink(marketId, groupId, presenceId);
-
-  function onClick (event) {
-    preventDefaultAndProp(event);
-    navigate(history, assignedLink);
-  }
-
   return (
     <Stage
       isVoting
-      fallbackOnClick={onClick}
       {...props}
     />
   );

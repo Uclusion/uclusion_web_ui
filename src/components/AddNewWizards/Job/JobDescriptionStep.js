@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import _ from 'lodash'
@@ -25,8 +25,9 @@ import FindJobStep from './FindJobStep';
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData,
     startOver, clearFormData } = props;
-  const editorName = `addJobWizard${groupId}`;
-  if (_.size(fromCommentIds) === 1) {
+  const isSingleComment = _.size(fromCommentIds) === 1;
+  const editorName = isSingleComment ? `addJobWizard${fromCommentIds[0]}` : `addJobWizard${groupId}`;
+  if (isSingleComment && _.isEmpty(getQuillStoredState(editorName))) {
     const fromComment = marketComments.find((comment) => comment.id === fromCommentIds[0]);
     const { body } = fromComment || {};
     const name = nameFromDescription(body);

@@ -21,6 +21,7 @@ import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas'
 import { Info } from '@material-ui/icons'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { storeState } from '../../../components/TextEditors/Utilities/CoreUtils';
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -138,13 +139,14 @@ function InvestiblesByPerson(props) {
   });
 
   function onClick(id) {
+    storeState(`addJobWizard${groupId}`, null);
     navigate(history, formMarketAddInvestibleLink(marketId, groupId, id));
   }
 
   return (
     <>
       <SpinningIconLabelButton
-        onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}
+        onClick={() => onClick()}
         doSpin={false} icon={AddIcon} id='addJob' style={{marginTop: '1rem', marginBottom: '1rem'}}>
         {intl.formatMessage({ id: 'addStoryLabel' })}
       </SpinningIconLabelButton>

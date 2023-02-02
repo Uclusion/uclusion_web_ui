@@ -4,7 +4,11 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { formInvestibleLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  formCommentLink,
+  formMarketAddInvestibleLink,
+  navigate
+} from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -48,8 +52,8 @@ function FindJobStep(props) {
   }
 
   function onNext() {
-    const link = formInvestibleLink(marketId, investibleId);
     const fromCommentIds = roots.map((comment) => comment.id);
+    const link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
     return moveComments(marketId, investibleId, fromCommentIds)
       .then((movedComments) => {
         let threads = []

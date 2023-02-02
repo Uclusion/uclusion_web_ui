@@ -9,7 +9,7 @@ import { editorEmpty, getQuillStoredState, resetEditor, storeState } from '../..
 import { useEditor } from '../../TextEditors/quillHooks'
 import { convertDescription, nameFromDescription } from '../../../utils/stringFunctions'
 import { addPlanningInvestible } from '../../../api/investibles'
-import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
+import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../../api/files'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
@@ -84,7 +84,7 @@ function JobDescriptionStep (props) {
         refreshInvestibles(investiblesDispatch, () => {}, [inv]);
         const { id: investibleId } = inv.investible;
         // reset the editor box
-        const link = formInvestibleLink(marketId, investibleId);
+        let link = formInvestibleLink(marketId, investibleId);
         resetEditor(editorName);
         // update the form data with the saved investible
         updateFormData({
@@ -108,6 +108,11 @@ function JobDescriptionStep (props) {
               });
               refreshMarketComments(commentsDispatch, marketId,
                 [...movedComments, ...threads, ...marketComments]);
+              link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
+              updateFormData({
+                investibleId,
+                link,
+              });
               return {link};
             });
         }

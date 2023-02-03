@@ -26,8 +26,7 @@ function DecideWhereStep (props) {
       <Typography className={classes.introText}>
         Where do you want to move?
       </Typography>
-      <div style={{maxHeight: '300px', overflowY: 'auto', overflowX: 'hidden', paddingRight: '0.5rem',
-        paddingLeft: '0.5rem'}}>
+      <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}
           marketId={marketId}

@@ -133,6 +133,7 @@ function JobDescriptionStep (props) {
   return (
     <WizardStepContainer
       {...props}
+      isLarge
     >
     <div>
       <Typography className={classes.introText}>
@@ -140,7 +141,7 @@ function JobDescriptionStep (props) {
       </Typography>
       <div style={{maxHeight: '300px', overflowY: 'auto', overflowX: 'hidden'}}>
         {Editor}
-        <div style={{paddingTop: '1rem', paddingRight: '0.5rem', paddingLeft: '0.5rem'}}>
+        <div className={classes.wizardCommentBoxDiv}>
           <CommentBox
             comments={comments}
             marketId={marketId}

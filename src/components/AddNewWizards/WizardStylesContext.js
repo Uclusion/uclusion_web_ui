@@ -131,11 +131,11 @@ export const wizardStyles = makeStyles(
       actionPrimary: {
         width: 200,
         backgroundColor: '#2D9CDB',
-        color: 'white',
-        textTransform: 'unset',
+        color: 'white !important',
+        textTransform: 'unset !important',
         marginRight: '20px',
         '&:hover': {
-          backgroundColor: '#2D9CDB'
+          backgroundColor: '#2D9CDB !important'
         },
         '&:disabled': {
           color: 'black',
@@ -151,7 +151,7 @@ export const wizardStyles = makeStyles(
         }
       },
       actionSkip: {
-        textTransform: 'unset',
+        textTransform: 'unset !important',
         marginRight: '20px',
 
       },
@@ -182,13 +182,18 @@ export const wizardStyles = makeStyles(
       marginBottom: {
         marginBottom: '20px'
       },
-      stepDefault: {
-        maxWidth: '725px'
-      },
-
       maxBudgetUnit: {
         backgroundColor: '#ecf0f1'
       },
+      wizardCommentBoxDiv: {
+        maxHeight: '300px',
+        paddingBottom: '0.5rem',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        marginBottom: '0.5rem',
+        paddingLeft: '4px',
+        paddingRight: '4px'
+      }
     };
   }
 );

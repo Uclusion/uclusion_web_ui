@@ -57,7 +57,7 @@ function DecideResolveStep(props) {
       <Typography className={classes.introText}>
         First, will you resolve this {isSuggestion ? 'suggestion' : 'question'}?
       </Typography>
-      <div style={{paddingBottom: '1rem'}}>
+      <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={[comment]}
           marketId={marketId}

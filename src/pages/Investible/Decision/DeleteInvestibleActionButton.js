@@ -8,7 +8,7 @@ import SpinningTooltipIconButton from '../../../components/SpinBlocking/Spinning
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 
 function DeleteInvestibleActionButton(props) {
-  const { investibleId, marketId } = props;
+  const { investibleId, marketId, groupId } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
 
@@ -16,8 +16,7 @@ function DeleteInvestibleActionButton(props) {
     return deleteInvestible(marketId, investibleId)
       .then(() => {
         setOperationRunning(false);
-        //TODO need groupId in formMarketLink and all over here
-        navigate(history, formMarketLink(marketId));
+        navigate(history, formMarketLink(marketId, groupId));
       });
   }
 

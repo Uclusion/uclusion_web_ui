@@ -257,6 +257,7 @@ function DecisionInvestible(props) {
           key="delete"
           investibleId={investibleId}
           marketId={marketId}
+          groupId={groupId}
         />
       )}
     </dl>

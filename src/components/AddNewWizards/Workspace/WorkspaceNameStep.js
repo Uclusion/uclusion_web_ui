@@ -71,7 +71,7 @@ function WorkspaceNameStep (props) {
             setUclusionLocalStorageItem("workspace_created", true);
             updateFormData({
               marketId: market.id,
-              link: formMarketLink(market.id),
+              link: formMarketLink(market.id, market.id),
               marketToken: market.invite_capability,
             });
           });

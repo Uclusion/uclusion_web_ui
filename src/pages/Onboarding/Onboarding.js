@@ -4,14 +4,14 @@ import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceW
 import Screen from '../../containers/Screen/Screen';
 
 function Onboarding(props) {
-  const { onFinish, onStartOnboarding } = props;
+  const { setInOnboarding } = props;
 
   return (
     <Screen
       title="Welcome To Uclusion"
       tabTitle="Welcome to Uclusion"
     >
-      <WorkspaceWizard onboarding={true} onStartOnboarding={onStartOnboarding} onFinish={onFinish}/>
+      <WorkspaceWizard onboarding={true} setInOnboarding={setInOnboarding} />
     </Screen>
   )
 }

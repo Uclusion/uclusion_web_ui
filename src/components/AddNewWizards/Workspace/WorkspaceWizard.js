@@ -11,7 +11,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { useHistory } from 'react-router';
 
 function WorkspaceWizard (props) {
-  const { onboarding, onStartOnboarding } = props
+  const { onboarding, setInOnboarding } = props
   const history = useHistory();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
 
@@ -22,10 +22,16 @@ function WorkspaceWizard (props) {
   const startStep = workspaceCreated ? 1 : 0
 
   const myOnFinish = (formData) => {
+    setInOnboarding(false);
     setUclusionLocalStorageItem('workspace_created', false)
     const { link } = formData;
+    console.debug(`link is ${link}`)
     setOperationRunning(false);
     navigate(history, link);
+  }
+
+  function onStartOnboarding() {
+    setInOnboarding(true);
   }
 
   return (
@@ -45,14 +51,12 @@ function WorkspaceWizard (props) {
 
 WorkspaceWizard.propTypes = {
   onboarding: PropTypes.bool,
-  onFinish: PropTypes.func,
-  onStartOnboarding: PropTypes.func,
+  setInOnboarding: PropTypes.func,
 }
 
 WorkspaceWizard.defaultProps = {
   onboarding: false,
-  onFinish: () => {},
-  onStartOnboarding: () => {},
+  setInOnboarding: () => {},
 }
 
 export default WorkspaceWizard

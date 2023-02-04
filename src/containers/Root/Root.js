@@ -9,7 +9,7 @@ import PageNotFound from '../../pages/PageNotFound/PageNotFound'
 import {
   broadcastView,
   decomposeMarketPath, formCommentLink,
-  formInvestibleLink, formMarketLink,
+  formInvestibleLink,
   navigate,
 } from '../../utils/marketIdPathFunctions'
 import Home from '../../pages/Home/Home'
@@ -201,13 +201,7 @@ function Root() {
         <div className={classes.body}>
           <div className={classes.root}>
             <div className={classes.content}>
-              <Onboarding onFinish={(formData) => {
-                setInOnboarding(false);
-                const { marketId, groupId } = formData || {};
-                if (marketId && groupId) {
-                  navigate(history, formMarketLink(marketId, groupId));
-                }
-              }} onStartOnboarding={() => setInOnboarding(true)}/>
+              <Onboarding setInOnboarding={setInOnboarding}/>
             </div>
           </div>
         </div>

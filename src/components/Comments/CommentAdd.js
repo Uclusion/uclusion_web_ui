@@ -537,7 +537,7 @@ function CommentAdd(props) {
       <Paper
         id={`${nameKey ? nameKey : ''}cabox`}
         className={classes.add}
-        style={{padding: wizardProps?.isBug ? 0 : undefined}}
+        style={{padding: wizardProps ? 0 : undefined}}
         elevation={0}
       >
         <div className={classes.editor} style={{paddingBottom: '1rem'}}>

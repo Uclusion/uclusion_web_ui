@@ -15,17 +15,16 @@ import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEd
 import Comment from '../../../components/Comments/Comment'
 import { TODO_TYPE } from '../../../constants/comments'
 import AddIcon from '@material-ui/icons/Add'
-import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
-import CommentAdd from '../../../components/Comments/CommentAdd'
 import { updateComment } from '../../../api/comments'
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import {
+  formMarketAddBugLink,
   formMarketAddInvestibleLink,
   formMarketLink,
   navigate
-} from '../../../utils/marketIdPathFunctions'
+} from '../../../utils/marketIdPathFunctions';
 import Chip from '@material-ui/core/Chip'
 import { removeHeader, restoreHeader } from '../../../containers/Header'
 import { findMessageForCommentId, removeMessagesForCommentId } from '../../../utils/messageUtils'
@@ -185,25 +184,12 @@ function MarketTodos(props) {
   const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
   const pageName = isInArchives ? 'archives' : '';
-  const [commentAddRedStateFull, commentAddRedDispatch] = usePageStateReducer(`commentAddRed${pageName}`);
-  const [commentAddRedState, updateCommentAddRedState, commentAddStateRedReset] =
-    getPageReducerPage(commentAddRedStateFull, commentAddRedDispatch, groupId);
-  const {
-    createRedCard,
-  } = commentAddRedState;
   const [commentRedStateFull, commentRedDispatch] = usePageStateReducer(`commentRed${pageName}`);
   const [commentRedState, updateCommentRedState, commentStateRedReset] =
     getPageReducerPage(commentRedStateFull, commentRedDispatch, groupId);
   const {
     cardEditing: editRedCardId,
   } = commentRedState;
-  const [commentAddYellowStateFull, commentAddYellowDispatch] =
-    usePageStateReducer(`commentAddYellow${pageName}`);
-  const [commentAddYellowState, updateCommentAddYellowState, commentAddStateYellowReset] =
-    getPageReducerPage(commentAddYellowStateFull, commentAddYellowDispatch, groupId);
-  const {
-    createYellowCard,
-  } = commentAddYellowState;
   const [commentYellowStateFull, commentYellowDispatch] =
     usePageStateReducer(`commentYellow${pageName}`);
   const [commentYellowState, updateCommentYellowState, commentStateYellowReset] =
@@ -211,13 +197,6 @@ function MarketTodos(props) {
   const {
     cardEditing: editYellowCardId,
   } = commentYellowState;
-  const [commentAddBlueStateFull, commentAddBlueDispatch] =
-    usePageStateReducer(`commentBlueAdd${pageName}`);
-  const [commentAddBlueState, updateCommentAddBlueState, commentAddStateBlueReset] =
-    getPageReducerPage(commentAddBlueStateFull, commentAddBlueDispatch, groupId);
-  const {
-    createCard,
-  } = commentAddBlueState;
   const [commentBlueStateFull, commentBlueDispatch] =
     usePageStateReducer(`commentBlue${pageName}`);
   const [commentBlueState, updateCommentBlueState, commentStateBlueReset] =
@@ -473,24 +452,6 @@ function MarketTodos(props) {
     }
   }
 
-  function onCreateRed(comment) {
-    setEditRedCard(undefined);
-    if (comment) {
-      notifyImmediate(userId, comment, messagesDispatch);
-    }
-    updateCommentAddRedState({ createRedCard: !createRedCard });
-  }
-
-  function onCreate () {
-    setEditCard(undefined);
-    updateCommentAddBlueState({ createCard: !createCard });
-  }
-
-  function onCreateYellow () {
-    setEditYellowCard(undefined);
-    updateCommentAddYellowState({ createYellowCard: !createYellowCard });
-  }
-
   function setElementGreen(elementId) {
     removeElementGreen();
     document.getElementById(elementId).classList.add(classes.containerGreen);
@@ -606,22 +567,13 @@ function MarketTodos(props) {
             <FormattedMessage id='removeNotifications'/>
           </SpinningIconLabelButton>
         ))}
+        {!isInArchives && (
+          <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+                                   onClick={() => navigate(history, formMarketAddBugLink(marketId, groupId))}>
+            <FormattedMessage id='createTODO'/>
+          </SpinningIconLabelButton>
+        )}
         <div style={{paddingTop: '1rem'}}>
-          {createRedCard && marketId && (
-            <CommentAdd
-              nameKey="CommentAddRed"
-              type={TODO_TYPE}
-              commentAddState={commentAddRedState}
-              updateCommentAddState={updateCommentAddRedState}
-              commentAddStateReset={commentAddStateRedReset}
-              marketId={marketId}
-              groupId={groupId}
-              onSave={onCreateRed}
-              onDone={onCreateRed}
-              defaultNotificationType="RED"
-              isStory={false}
-            />
-          )}
           {editRedCard && (
             <div id={`c${editRedCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
               <Comment
@@ -642,16 +594,6 @@ function MarketTodos(props) {
             bolder
             title={intl.formatMessage({ id: 'immediate' })}
             titleIcon={immediateTodosChip}
-            actionButton={ isInArchives ? null :
-              (<ExpandableAction
-                id="immediateTodosButton"
-                icon={<AddIcon htmlColor='#E85757'/>}
-                label={intl.formatMessage({ id: 'createRedExplanation' })}
-                openLabel={intl.formatMessage({ id: 'createTODO' })}
-                onClick={onCreateRed}
-                disabled={createRedCard}
-                tipPlacement="top-end"
-              />)}
           >
             <Grid
               container
@@ -665,21 +607,6 @@ function MarketTodos(props) {
             </Grid>
           </SubSection>
           <div style={{ paddingBottom: '15px' }}/>
-          {createYellowCard && marketId && groupId && (
-            <CommentAdd
-              nameKey="CommentAddYellow"
-              type={TODO_TYPE}
-              commentAddState={commentAddYellowState}
-              updateCommentAddState={updateCommentAddYellowState}
-              commentAddStateReset={commentAddStateYellowReset}
-              marketId={marketId}
-              groupId={groupId}
-              onSave={onCreateYellow}
-              onDone={onCreateYellow}
-              defaultNotificationType="YELLOW"
-              isStory={false}
-            />
-          )}
           {editYellowCard && (
             <div id={`c${editYellowCardId}`} style={{marginBottom: '2rem', marginRight: '1rem',
               marginLeft: '1rem'}}>
@@ -701,16 +628,6 @@ function MarketTodos(props) {
             bolder
             title={intl.formatMessage({ id: 'able' })}
             titleIcon={yellowChip}
-            actionButton={ isInArchives ? null :
-              (<ExpandableAction
-                id="whenAbleTodosButton"
-                icon={<AddIcon htmlColor='#F6BE00' />}
-                label={intl.formatMessage({ id: 'createYellowExplanation' })}
-                openLabel={intl.formatMessage({ id: 'createTODO' })}
-                onClick={onCreateYellow}
-                disabled={createYellowCard}
-                tipPlacement="top-end"
-              />)}
           >
             <Grid
               container
@@ -724,21 +641,6 @@ function MarketTodos(props) {
             </Grid>
           </SubSection>
           <div style={{ paddingBottom: '15px' }}/>
-          {createCard && marketId && (
-            <CommentAdd
-              nameKey="CommentAddBlue"
-              type={TODO_TYPE}
-              commentAddState={commentAddBlueState}
-              updateCommentAddState={updateCommentAddBlueState}
-              commentAddStateReset={commentAddStateBlueReset}
-              marketId={marketId}
-              groupId={groupId}
-              onDone={onCreate}
-              onSave={onCreate}
-              defaultNotificationType="BLUE"
-              isStory={false}
-            />
-          )}
           {editCard && (
             <div id={`c${editCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
               <Comment
@@ -759,16 +661,6 @@ function MarketTodos(props) {
             title={intl.formatMessage({ id: 'convenient' })}
             titleIcon={blueChip}
             id="whenConvenientTodos"
-            actionButton={ isInArchives ? null :
-              (<ExpandableAction
-                id="whenConvenientTodosButton"
-                icon={<AddIcon htmlColor="#2F80ED"/>}
-                label={intl.formatMessage({ id: 'createBlueExplanation' })}
-                openLabel={intl.formatMessage({ id: 'createTODO' })}
-                onClick={onCreate}
-                disabled={createCard}
-                tipPlacement="top-end"
-              />)}
           >
             <Grid
               container

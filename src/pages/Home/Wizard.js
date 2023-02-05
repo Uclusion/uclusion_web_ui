@@ -6,7 +6,7 @@ import Screen from '../../containers/Screen/Screen'
 import GroupWizard from '../../components/AddNewWizards/Group/GroupWizard'
 import queryString from 'query-string'
 import {
-  ADD_COLLABORATOR_WIZARD_TYPE,
+  ADD_COLLABORATOR_WIZARD_TYPE, BUG_WIZARD_TYPE,
   JOB_WIZARD_TYPE,
   PLANNING_TYPE,
   WORKSPACE_WIZARD_TYPE
@@ -14,6 +14,7 @@ import {
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
 import CollaboratorWizard from '../../components/AddNewWizards/Collaborator/CollaboratorWizard';
+import BugWizard from '../../components/AddNewWizards/Bug/BugWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -38,6 +39,9 @@ function Wizard(props) {
       )}
       {createType === JOB_WIZARD_TYPE.toLowerCase() && (
         <JobWizard marketId={marketId} groupId={groupId} assigneeId={assigneeId} />
+      )}
+      {createType === BUG_WIZARD_TYPE.toLowerCase() && (
+        <BugWizard marketId={marketId} groupId={groupId} />
       )}
       {createType === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase() && (
         <CollaboratorWizard marketId={marketId} />

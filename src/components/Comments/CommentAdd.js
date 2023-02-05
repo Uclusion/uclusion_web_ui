@@ -288,13 +288,12 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
 
 function CommentAdd(props) {
   const {
-    marketId, groupId, onSave, onCancel, type, investible, parent, issueWarningId, isStory, nameKey,
-    defaultNotificationType, onDone, mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset,
-    autoFocus=true, isStandAlone, threadMessages, nameDifferentiator='', wizardProps
+    marketId, groupId, onSave, onCancel, type, investible, parent, issueWarningId, isStory, nameKey, onDone,
+    mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset, autoFocus=true, threadMessages,
+    nameDifferentiator='', wizardProps
   } = props;
   const {
-    uploadedFiles,
-    notificationType
+    uploadedFiles
   } = commentAddState;
 
   const intl = useIntl();
@@ -386,17 +385,12 @@ function CommentAdd(props) {
     onSave(comment)
   }
 
-  function handleSave(isRestricted, isSent) {
+  function handleSave(isRestricted, isSent, passedNotificationType) {
     const currentUploadedFiles = uploadedFiles || []
     const myBodyNow = getQuillStoredState(editorName)
     if (_.isEmpty(myBodyNow) || _.isEmpty(type)) {
       setOperationRunning(false);
       setOpenIssue(_.isEmpty(type) ? 'noType' : 'noCommentBody');
-      return;
-    }
-    if (isStandAlone && _.isEmpty(notificationType)) {
-      setOperationRunning(false);
-      setOpenIssue('noNotificationType');
       return;
     }
     const apiType = (type === REPLY_TYPE) ? undefined : type;
@@ -419,7 +413,7 @@ function CommentAdd(props) {
       label = nameFromDescription(tokensRemoved);
     }
     return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
-      (notificationType || defaultNotificationType), marketType, isRestricted, isSent, label)
+      passedNotificationType, marketType, isRestricted, isSent, label)
       .then((response) => {
         let comment = marketType ? response.parent : response;
         let useRootInvestible = rootInvestible;
@@ -488,16 +482,14 @@ function CommentAdd(props) {
   const buttons = (
     <div style={{marginTop: '0.5rem', display: (isWizard ? 'none' : undefined)}}>
       {!isStory && onDone && (
-        <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={isStandAlone ? Clear : Delete}>
+        <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={Delete}>
           {intl.formatMessage({ id: 'cancel' })}
         </SpinningIconLabelButton>
       )}
-      {!isStandAlone && (
-        <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
-          {intl.formatMessage({ id: commentCancelLabel })}
-        </SpinningIconLabelButton>
-      )}
-      {_.isEmpty(defaultNotificationType) && type !== REPLY_TYPE && (
+      <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
+        {intl.formatMessage({ id: commentCancelLabel })}
+      </SpinningIconLabelButton>
+      {type !== REPLY_TYPE && (
         <SpinningIconLabelButton
           onClick={() => handleSave(undefined, false)}
           icon={Add}
@@ -545,18 +537,33 @@ function CommentAdd(props) {
       <Paper
         id={`${nameKey ? nameKey : ''}cabox`}
         className={classes.add}
+        style={{padding: wizardProps?.isBug ? 0 : undefined}}
         elevation={0}
       >
         <div className={classes.editor} style={{paddingBottom: '1rem'}}>
           {Editor}
           {isWizard && (
             <div style={{marginTop: '2rem'}}>
-              <WizardStepButtons
-                {...wizardProps}
-                nextLabel={`${type}ApproveWizard`}
-                onNext={() => handleSave()}
-                showTerminate={true}
-                terminateLabel="JobWizardGotoJob"/>
+              {wizardProps.isBug && (
+                <WizardStepButtons
+                  {...wizardProps}
+                  nextLabel="redBugAdd"
+                  onNext={() => handleSave(false, true, 'RED')}
+                  showOtherNext={true}
+                  otherNextLabel="yellowBugAdd"
+                  onOtherNext={() => handleSave(false, true, 'YELLOW')}
+                  onFinish={() => handleSave(false, true, 'BLUE')}
+                  showTerminate={true}
+                  terminateLabel="blueBugAdd"/>
+              )}
+              {!wizardProps.isBug && (
+                <WizardStepButtons
+                  {...wizardProps}
+                  nextLabel={`${type}ApproveWizard`}
+                  onNext={() => handleSave()}
+                  showTerminate={true}
+                  terminateLabel="JobWizardGotoJob"/>
+              )}
             </div>
           )}
           {openIssue !== false && openIssue !== 'noInitiativeType' && (
@@ -617,7 +624,6 @@ CommentAdd.propTypes = {
   onCancel: PropTypes.func,
   clearType: PropTypes.func,
   isStory: PropTypes.bool,
-  defaultNotificationType: PropTypes.string,
   mentionsAllowed: PropTypes.bool,
 };
 
@@ -625,7 +631,6 @@ CommentAdd.defaultProps = {
   parent: null,
   investible: null,
   todoWarningId: null,
-  defaultNotificationType: undefined,
   onCancel: () => {},
   onSave: () => {},
   clearType: () => {},

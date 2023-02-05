@@ -17,7 +17,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments';
 import Screen from '../../../containers/Screen/Screen';
-import CommentAddBox, { getIcon } from '../../../containers/CommentBox/CommentAddBox';
+import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import { getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions';
 import {
   getFullStage,
@@ -78,6 +78,7 @@ import { getStagesInfo } from '../../../utils/stageUtils';
 import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import PlanningInvestibleNav, { useMetaDataStyles } from './PlanningInvestibleNav';
 import MenuIcon from '@material-ui/icons/Menu';
+import { getIcon } from '../../../components/Comments/CommentEdit';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({

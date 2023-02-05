@@ -4,7 +4,6 @@ import AddEditVote from './AddEditVote'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets'
 import { Card, CardContent, FormControl, FormControlLabel, Radio, RadioGroup } from '@material-ui/core'
-import { useStyles } from '../../../containers/CommentBox/CommentAddBox'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { makeStyles } from '@material-ui/styles'
 import { NOT_FULLY_VOTED_TYPE } from '../../../constants/notifications'
@@ -14,6 +13,133 @@ import { getPageReducerPage, usePageStateReducer } from '../../../components/Pag
 const FOR = "FOR";
 const AGAINST = "AGAINST";
 
+const useStyles = makeStyles((theme) => ({
+  hidden: {
+    display: 'none',
+  },
+  addBox: {
+    paddingTop: '1rem',
+    paddingBottom: '0.1rem'
+  },
+  commentType: {
+    paddingTop: '1rem',
+    [theme.breakpoints.down('sm')]: {
+      display: 'block',
+      marginLeft: 'auto',
+      marginRight: 'auto'
+    }
+  },
+  commentTypeGroup: {
+    display: "flex",
+    flexDirection: "row",
+    [theme.breakpoints.down('sm')]: {
+      display: 'block'
+    }
+  },
+  chipItemBlack: {
+    color: '#fff',
+    borderRadius: '8px',
+    '& .MuiChip-label': {
+      fontSize: 12,
+    },
+    '& .MuiFormControlLabel-label': {
+      paddingRight: '5px',
+      fontWeight: 'bold',
+      textTransform: 'capitalize',
+      [theme.breakpoints.down('sm')]: {
+        height: '100%',
+        verticalAlign: 'middle',
+        display: 'inline-block',
+        '& .MuiSvgIcon-root': {
+          display: 'block'
+        }
+      },
+    },
+    '& .MuiChip-avatar': {
+      width: '16px',
+      height: '14px',
+      color: '#fff',
+    },
+    '& .MuiRadio-colorPrimary.Mui-checked':{
+      '&.Mui-checked': {
+        color: 'black'
+      }
+    },
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
+    margin: theme.spacing(0, 0, 0, 4),
+    [theme.breakpoints.down('sm')]: {
+      margin: '10px'
+    },
+  },
+  chipItem: {
+    color: '#fff',
+    borderRadius: '8px',
+    '& .MuiChip-label': {
+      fontSize: 12,
+    },
+    '& .MuiFormControlLabel-label': {
+      paddingRight: '5px',
+      fontWeight: 'bold',
+      textTransform: 'capitalize',
+      [theme.breakpoints.down('sm')]: {
+        height: '100%',
+        verticalAlign: 'middle',
+        display: 'inline-block',
+        '& .MuiSvgIcon-root': {
+          display: 'block'
+        }
+      },
+    },
+    '& .MuiChip-avatar': {
+      width: '16px',
+      height: '14px',
+      color: '#fff',
+    },
+    '& .MuiRadio-colorPrimary.Mui-checked':{
+      '&.Mui-checked': {
+        color: 'white'
+      }
+    },
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1),
+    margin: theme.spacing(0, 0, 0, 4),
+    [theme.breakpoints.down('sm')]: {
+      margin: '10px'
+    },
+  },
+  selected: {
+    opacity: 1
+  },
+  unselected: {
+    opacity: '.6'
+  },
+  chipItemQuestion: {
+    background: '#2F80ED',
+  },
+  chipItemIssue: {
+    background: '#E85757',
+    color: 'black'
+  },
+  chipItemSuggestion: {
+    background: '#e6e969',
+    color: 'black'
+  },
+  chipItemTodo: {
+    background: '#F29100',
+    color: 'black'
+  },
+  chipItemFor: {
+    background: '#73B76C',
+  },
+  chipItemAgainst: {
+    background: '#D54F22',
+  },
+  chipItemReport: {
+    background: '#73B76C',
+  },
+  commentTypeContainer: {}
+}));
 
 const useMyStyles = makeStyles(
   () => {
@@ -163,7 +289,6 @@ YourVoting.defaultProps = {
   showBudget: false,
   comments: [],
   marketPresences: [],
-  updateVotingPageState: () => {},
   votingPageState: {},
 };
 

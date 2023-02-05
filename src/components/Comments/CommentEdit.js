@@ -22,12 +22,11 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import _ from 'lodash';
 import clsx from 'clsx'
-import { getIcon } from '../../containers/CommentBox/CommentAddBox'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { findMessageOfType } from '../../utils/messageUtils'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import { Clear, Update } from '@material-ui/icons'
+import { Clear, Feedback, Update } from '@material-ui/icons';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import {  useEditor } from '../TextEditors/quillHooks'
 import { deleteOrDehilightMessages } from '../../api/users'
@@ -36,6 +35,10 @@ import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils'
 import { nameFromDescription } from '../../utils/stringFunctions';
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { removeMessages } from '../../contexts/NotificationsContext/notificationsContextReducer';
+import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
+import BlockIcon from '@material-ui/icons/Block';
+import HelpIcon from '@material-ui/icons/Help';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -158,6 +161,30 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '4px 4px 0 0'
   }
 }), { name: 'CommentEdit' });
+
+export function getIcon(commentType) {
+
+  switch (commentType) {
+    case SUGGEST_CHANGE_TYPE: {
+      return <EmojiObjectsIcon />;
+    }
+    case ISSUE_TYPE: {
+      return <BlockIcon />;
+    }
+    case QUESTION_TYPE: {
+      return <HelpIcon />;
+    }
+    case TODO_TYPE: {
+      return <AssignmentIcon />;
+    }
+    case REPORT_TYPE: {
+      return <Feedback />;
+    }
+    default: {
+      return null;
+    }
+  }
+}
 
 function CommentEdit(props) {
   const {

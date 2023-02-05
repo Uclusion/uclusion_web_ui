@@ -1,22 +1,26 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
-import { wizardStyles } from '../WizardStylesContext'
-import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { getMarketInfo } from '../../../utils/userFunctions'
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
-import _ from 'lodash'
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
+import { wizardStyles } from '../WizardStylesContext';
+import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import _ from 'lodash';
+import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import CommentAdd from '../../Comments/CommentAdd';
+import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 
 function ActionReviewStep(props) {
   const {marketId, investibleId, formData, message } = props;
   const classes = wizardStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('commentAddReview');
+  const [commentAddState, updateCommentAddState, commentAddStateReset] =
+    getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId || marketId);
   const workItemClasses = workListStyles();
   const inv = getInvestible(investiblesState, investibleId);
   const { investible: myInvestible } = inv || {};
@@ -46,17 +50,20 @@ function ActionReviewStep(props) {
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
         {introText}
       </Typography>
-      <CommentAddBox
-        allowedTypes={[commentType]}
-        investible={myInvestible}
+      <CommentAdd
+        nameKey="CommentAddReview"
+        type={commentType}
+        wizardProps={props}
+        commentAddState={commentAddState}
+        updateCommentAddState={updateCommentAddState}
+        commentAddStateReset={commentAddStateReset}
+        issueWarningId='issueWarningPlanning'
         marketId={marketId}
         groupId={groupId}
-        issueWarningId={'issueWarningPlanning'}
-        isInReview={false}
-        isStory
-        wizardProps={props}
+        investible={myInvestible}
         onSave={onSave}
         nameDifferentiator="actionReview"
+        isStory
       />
     </div>
     </WizardStepContainer>

@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
-import { wizardStyles } from '../WizardStylesContext'
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
+import { wizardStyles } from '../WizardStylesContext';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { REPORT_TYPE } from '../../../constants/comments';
 import { stageChangeInvestible } from '../../../api/investibles';
@@ -14,6 +13,8 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useHistory } from 'react-router';
 import { getInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import CommentAdd from '../../Comments/CommentAdd';
+import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 
 function StartReviewStep(props) {
   const { marketId, investibleId, inv, groupId, currentStageId } = props;
@@ -21,6 +22,9 @@ function StartReviewStep(props) {
   const [, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('commentAddStartReview');
+  const [commentAddState, updateCommentAddState, commentAddStateReset] =
+    getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId || marketId);
   const classes = wizardStyles();
   const history = useHistory();
   const { investible: myInvestible } = inv || {};
@@ -53,17 +57,20 @@ function StartReviewStep(props) {
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
         What do you want reviewed?
       </Typography>
-      <CommentAddBox
-        allowedTypes={[REPORT_TYPE]}
-        investible={myInvestible}
+      <CommentAdd
+        nameKey="CommentAddStartReview"
+        type={REPORT_TYPE}
+        wizardProps={props}
+        commentAddState={commentAddState}
+        updateCommentAddState={updateCommentAddState}
+        commentAddStateReset={commentAddStateReset}
+        issueWarningId='issueWarningPlanning'
         marketId={marketId}
         groupId={groupId}
-        issueWarningId={'issueWarningPlanning'}
-        isInReview={false}
-        isStory
-        wizardProps={props}
+        investible={myInvestible}
         onSave={onSave}
         nameDifferentiator="startReview"
+        isStory
       />
     </div>
     </WizardStepContainer>

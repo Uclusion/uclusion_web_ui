@@ -1,20 +1,21 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
-import { wizardStyles } from '../WizardStylesContext'
-import { ISSUE_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
-import JobApproveStep from './JobApproveStep'
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { getMarketInfo } from '../../../utils/userFunctions'
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
-import _ from 'lodash'
+import { wizardStyles } from '../WizardStylesContext';
+import { ISSUE_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import JobApproveStep from './JobApproveStep';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import _ from 'lodash';
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { wizardFinish } from '../InboxWizardUtils';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import CommentAdd from '../../Comments/CommentAdd';
+import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 
 function ActionApprovalStep(props) {
   const {marketId, investibleId, formData, onFinish, message } = props;
@@ -23,6 +24,9 @@ function ActionApprovalStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('commentAddApproval');
+  const [commentAddState, updateCommentAddState, commentAddStateReset] =
+    getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId || marketId);
   const inv = getInvestible(investiblesState, investibleId);
   const { investible: myInvestible } = inv || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -62,17 +66,20 @@ function ActionApprovalStep(props) {
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
         {introText}
       </Typography>
-      <CommentAddBox
-        allowedTypes={[commentType]}
-        investible={myInvestible}
+      <CommentAdd
+        nameKey="CommentAddApproval"
+        type={commentType}
+        wizardProps={wizardProps}
+        commentAddState={commentAddState}
+        updateCommentAddState={updateCommentAddState}
+        commentAddStateReset={commentAddStateReset}
+        issueWarningId='issueWarningPlanning'
         marketId={marketId}
         groupId={groupId}
-        issueWarningId={'issueWarningPlanning'}
-        isInReview={false}
-        isStory
-        wizardProps={wizardProps}
+        investible={myInvestible}
         onSave={onSave}
         nameDifferentiator="actionApproval"
+        isStory
       />
     </div>
     </WizardStepContainer>

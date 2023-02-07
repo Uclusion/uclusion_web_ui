@@ -9,11 +9,10 @@ import YourVoting from '../Voting/YourVoting'
 import Voting from './Voting'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments'
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { ACTIVE_STAGE } from '../../../constants/markets'
+import { ACTIVE_STAGE, DECISION_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton'
 import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
@@ -39,6 +38,8 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker'
+import AddIcon from '@material-ui/icons/Add';
+import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -369,19 +370,6 @@ function DecisionInvestible(props) {
             updateVotingPageState={updateVotingPageState}
             votingPageStateReset={votingPageStateReset}
           />
-          {!yourVote && marketId && !_.isEmpty(investible) && !hidden && (
-            <>
-              <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
-              <CommentAddBox
-                allowedTypes={allowedCommentTypes}
-                investible={investible}
-                marketId={marketId}
-                groupId={groupId}
-                issueWarningId="issueWarningInvestible"
-                nameDifferentiator="decisionInvestible"
-              />
-            </>
-          )}
         </>
       )}
       {!inProposed && (
@@ -403,17 +391,14 @@ function DecisionInvestible(props) {
           />
         </>
       )}
-      <Grid container spacing={2}>
+      <Grid container spacing={2} style={{paddingBottom: '1rem'}}>
         <Grid item xs={12} style={{ marginTop: '2rem' }}>
-          {!inArchives && (inProposed || yourVote) && marketId && !_.isEmpty(investible) && !hidden && (
-            <CommentAddBox
-              allowedTypes={allowedCommentTypes}
-              investible={investible}
-              marketId={marketId}
-              groupId={groupId}
-              issueWarningId={inProposed ? undefined : 'issueWarningInvestible'}
-              nameDifferentiator="decisionInvestible"
-            />
+          {!inArchives && marketId && !_.isEmpty(investible) && !hidden && (
+            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+                                     onClick={() => navigate(history,
+                                       formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId))}>
+              <FormattedMessage id='createComment'/>
+            </SpinningIconLabelButton>
           )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
                       isInbox />

@@ -211,6 +211,17 @@ export function formMarketEditLink(marketId) {
   return `/marketEdit/${marketId}`;
 }
 
+export function formInvestibleAddCommentLink(wizardType, investibleId, marketId, commentType) {
+  const baseLink = `/wizard#type=${wizardType.toLowerCase()}&investibleId=${investibleId}`;
+  if (commentType) {
+    return `${baseLink}&commentType=${commentType}`;
+  }
+  if (marketId) {
+    return `${baseLink}&marketId=${marketId}`;
+  }
+  return baseLink;
+}
+
 export function formMarketAddBugLink(marketId, groupId) {
   return `/wizard#type=${BUG_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`
 }

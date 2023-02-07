@@ -50,10 +50,11 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { removeWorkListItem, workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 import { deleteOrDehilightMessages } from '../../api/users'
 import {
+  editorEmpty,
   focusEditor,
   getQuillStoredState,
   replaceEditorContents,
-} from '../TextEditors/Utilities/CoreUtils'
+} from '../TextEditors/Utilities/CoreUtils';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
@@ -335,6 +336,7 @@ function CommentAdd(props) {
   const olderReports = getOlderReports(undefined, marketComments, marketId, investibleId, myPresence);
   const numReports = _.size(olderReports);
   const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
+  const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
 
   function toggleIssue () {
     if (openIssue === false) {
@@ -528,7 +530,8 @@ function CommentAdd(props) {
     placeholder: placeHolder,
     onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
     mentionsAllowed,
-    buttons
+    buttons,
+    onChange: () => setHasValue(true),
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
@@ -559,10 +562,11 @@ function CommentAdd(props) {
               {!wizardProps.isBug && (
                 <WizardStepButtons
                   {...wizardProps}
+                  validForm={hasValue}
                   nextLabel={`${type}ApproveWizard`}
                   onNext={() => handleSave()}
                   showTerminate={true}
-                  terminateLabel="JobWizardGotoJob"/>
+                  terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}
             </div>
           )}

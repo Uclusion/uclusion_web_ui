@@ -12,7 +12,7 @@ import { useHistory } from 'react-router';
 function BugDescriptionStep (props) {
   const { marketId, groupId } = props;
   const history = useHistory();
-  const [commentAddBugStateFull, commentAddBugDispatch] = usePageStateReducer(`addBugWizard${groupId}`);
+  const [commentAddBugStateFull, commentAddBugDispatch] = usePageStateReducer('addBugWizard');
   const [commentAddBugState, updateCommentAddBugState, commentAddStateBugReset] =
     getPageReducerPage(commentAddBugStateFull, commentAddBugDispatch, groupId);
   const classes = useContext(WizardStylesContext);

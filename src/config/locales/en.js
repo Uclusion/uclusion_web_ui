@@ -487,7 +487,6 @@ const messages = defineMessages({
   commentAddCancelLabel: 'Clear',
   commentAddSelectIssueLabel: 'Please select a type',
   issueWarning: 'Opening an issue will halt voting on this dialog.',
-  issueWarningInvestible: 'Opening an issue will halt voting on this option.',
   issueWarningPlanning: 'Opening an issue moves this job to blocked and stops new approval.',
   requiresInputWarningPlanning: 'Comment moves job to Assistance.',
   addReportInReadyForApprovalWarning: 'Consider moving job to \'Started\'.',
@@ -860,7 +859,7 @@ const messages = defineMessages({
   addAVote: 'Approve your preferred option',
   addMultiVote: 'Approve all options you consider desirable',
   pleaseVoteStory: 'Approve this assignment',
-  orStructuredComment: 'Or create a structured comment',
+  orStructuredComment: 'Or create a comment',
   voteDeletedStory: 'Your approval was deleted or expired. Save or modify to approve again.',
   changeVote: 'Change approval',
   changeVoteInitiative: 'Change vote',
@@ -1027,7 +1026,8 @@ const messages = defineMessages({
   blueBugAdd: 'No notification',
   able: 'Notified Once',
   convenient: 'Not Notified',
-  createTODO: 'Create New',
+  createTODO: 'Create new',
+  createComment: 'Create comment',
   createRedExplanation: 'Create a new bug with a notification that remains till resolved',
   createYellowExplanation: 'Create a new bug with a notification that can be dismissed',
   createBlueExplanation: 'Create a new bug without notification',
@@ -1083,6 +1083,7 @@ const messages = defineMessages({
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',
 
   // AddNewWizards
+  WizardContinue: 'Next',
   wizardBreadCrumb: 'Compose',
   OnboardingInviteDialog: 'Almost ready to go! Loading fully complete momentarily.',
   OnboardingWizardTitle: 'Welcome to Uclusion',
@@ -1125,6 +1126,9 @@ const messages = defineMessages({
   ApprovalRestrictYes: 'Assignees need approval from others.',
   BudgetRestrictNo: 'Allow approvers to suggest a budget.',
   BudgetRestrictYes: 'Do not allow approvers to suggest a budget.',
+
+  // Decision comment wizard
+  DecisionCommmentWizardTerminate: 'Go to option',
 
   // Approve Wizard
   ApprovalWizardApprove: 'Approve job',

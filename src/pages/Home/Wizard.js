@@ -6,7 +6,11 @@ import Screen from '../../containers/Screen/Screen'
 import GroupWizard from '../../components/AddNewWizards/Group/GroupWizard'
 import queryString from 'query-string'
 import {
-  ADD_COLLABORATOR_WIZARD_TYPE, BUG_WIZARD_TYPE,
+  ADD_COLLABORATOR_WIZARD_TYPE,
+  BUG_WIZARD_TYPE,
+  DECISION_COMMENT_WIZARD_TYPE,
+  DISCUSSION_WIZARD_TYPE,
+  JOB_COMMENT_WIZARD_TYPE,
   JOB_WIZARD_TYPE,
   PLANNING_TYPE,
   WORKSPACE_WIZARD_TYPE
@@ -15,13 +19,16 @@ import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceW
 import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
 import CollaboratorWizard from '../../components/AddNewWizards/Collaborator/CollaboratorWizard';
 import BugWizard from '../../components/AddNewWizards/Bug/BugWizard';
+import DecisionCommentWizard from '../../components/AddNewWizards/DecisionComment/DecisionCommentWizard';
+import DiscussionWizard from '../../components/AddNewWizards/Discussion/DiscussionWizard';
+import JobCommentWizard from '../../components/AddNewWizards/JobComment/JobCommentWizard';
 
 function Wizard(props) {
   const { hidden } = props;
   const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
-  const { type: createType, marketId, groupId, assigneeId } = values;
+  const { type: createType, marketId, groupId, assigneeId, investibleId } = values;
   const intl = useIntl();
 
   return (
@@ -45,6 +52,15 @@ function Wizard(props) {
       )}
       {createType === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase() && (
         <CollaboratorWizard marketId={marketId} />
+      )}
+      {createType === DECISION_COMMENT_WIZARD_TYPE.toLowerCase() && (
+        <DecisionCommentWizard investibleId={investibleId} />
+      )}
+      {createType === JOB_COMMENT_WIZARD_TYPE.toLowerCase() && (
+        <JobCommentWizard investibleId={investibleId} marketId={marketId} />
+      )}
+      {createType === DISCUSSION_WIZARD_TYPE.toLowerCase() && (
+        <DiscussionWizard marketId={marketId} groupId={groupId} />
       )}
     </Screen>
   );

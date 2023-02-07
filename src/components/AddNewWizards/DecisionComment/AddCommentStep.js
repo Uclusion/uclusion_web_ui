@@ -21,9 +21,9 @@ function AddCommentStep (props) {
   const [commentsState] = useContext(CommentsContext);
   const { useType, marketId, groupId } = formData;
   const history = useHistory();
-  const [commentAddBugStateFull, commentAddBugDispatch] = usePageStateReducer('addDecisionCommentWizard');
-  const [commentAddBugState, updateCommentAddBugState, commentAddStateBugReset] =
-    getPageReducerPage(commentAddBugStateFull, commentAddBugDispatch, investibleId);
+  const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
+  const [commentAddState, updateCommentAddState, commentAddStateReset] =
+    getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId);
   const market = getMarket(marketsState, marketId) || {};
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId) || {};
@@ -48,9 +48,9 @@ function AddCommentStep (props) {
         nameKey="DecisionCommentAdd"
         type={useType}
         wizardProps={{...props, onFinish, terminateLabel: 'DecisionCommmentWizardTerminate'}}
-        commentAddState={commentAddBugState}
-        updateCommentAddState={updateCommentAddBugState}
-        commentAddStateReset={commentAddStateBugReset}
+        commentAddState={commentAddState}
+        updateCommentAddState={updateCommentAddState}
+        commentAddStateReset={commentAddStateReset}
         marketId={marketId}
         groupId={groupId}
         investible={{id: investibleId}}

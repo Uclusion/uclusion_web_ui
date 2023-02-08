@@ -27,7 +27,7 @@ function BugDescriptionStep (props) {
         What has to be fixed?
       </Typography>
       <CommentAdd
-        nameKey="CommentAddBlue"
+        nameKey="CommentAddBug"
         type={TODO_TYPE}
         wizardProps={{...props, isBug: true}}
         commentAddState={commentAddBugState}

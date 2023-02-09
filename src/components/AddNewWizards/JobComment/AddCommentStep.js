@@ -37,12 +37,12 @@ function AddCommentStep (props) {
   const isAssistance = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useType);
   const inAssistanceStage = [requiresInputStage.id, blockingStage.id].includes(currentStageId);
 
-  function onFinish(comment) {
-    if (isRequiresInputComment) {
-      updateFormData({inlineMarketId: comment.inline_market_id, commentId: comment.id, marketId, investibleId,
-        currentStageId})
-    } else {
+  function onSave(comment) {
+    if (comment.is_sent) {
       navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
+    } else {
+      updateFormData({inlineMarketId: comment.inline_market_id, commentId: comment.id, marketId, investibleId,
+        currentStageId});
     }
   }
   return (
@@ -66,14 +66,15 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="JobCommentAdd"
         type={useType}
-        wizardProps={{...props, onFinish, isSent: !isRequiresInputComment, isAddWizard: true}}
+        wizardProps={{...props, isSent: !isRequiresInputComment, isAddWizard: true,
+          showTerminate: isRequiresInputComment, saveOnTerminate: true}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}
         marketId={marketId}
         groupId={groupId}
         investible={inv.investible}
-        onSave={onFinish}
+        onSave={onSave}
         nameDifferentiator="jobComment"
         isStory={true}
       />

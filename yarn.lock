@@ -13634,10 +13634,10 @@ react-floater@^0.7.6:
     react-proptype-conditional-require "^1.0.4"
     tree-changes "^0.9.1"
 
-react-formdata-wizard@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/react-formdata-wizard/-/react-formdata-wizard-0.0.5.tgz#fe555d9af543122fd4b6fc9571445202f10b55ec"
-  integrity sha512-QlJtkOsnhpCvz5pvYgBhZhIlu2tRBVerACnBpfjqUv0ZMUmBircMz5tfSStenHVO0M7JlBbcyiMbrkWp8AO15Q==
+react-formdata-wizard@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/react-formdata-wizard/-/react-formdata-wizard-0.0.6.tgz#ee9d2050e1f6a49bf1365b6efa42f4273eabf76e"
+  integrity sha512-umcDpu57/61SrPRCDvLLiP+NRZUNVhso0zTI9XvLZ3wscGfiX6XN7vah0Dai8Qmsza3TtLiYwIGvtMjtmRqVcw==
 
 react-intl@^5.12.1:
   version "5.25.1"

@@ -80,11 +80,15 @@ export function addMarket(result, marketDispatch, presenceDispatch) {
   } = result;
   const { id: marketId } = market;
   addMarketToStorage(marketDispatch, market);
-  pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[marketId]: stages}});
-  if (presenceDispatch) {
-    addPresenceToMarket(presenceDispatch, marketId, presence);
-  } else {
-    pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId, presence });
+  if (stages) {
+    pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: { [marketId]: stages } });
+  }
+  if (presence) {
+    if (presenceDispatch) {
+      addPresenceToMarket(presenceDispatch, marketId, presence);
+    } else {
+      pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId, presence });
+    }
   }
 }
 

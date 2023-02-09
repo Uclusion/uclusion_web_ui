@@ -26,11 +26,14 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 function ConfigureCommentStep(props) {
   const { updateFormData, formData } = props;
   const classes = useContext(WizardStylesContext);
   const workItemClasses = workListStyles();
+  const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
@@ -57,6 +60,7 @@ function ConfigureCommentStep(props) {
         commentState, commentDispatch, marketId, myPresence);
     }
     setOperationRunning(false);
+    navigate(history, formCommentLink(marketId, comment.group_id, investibleId, commentId));
   }
 
   function myOnFinish() {
@@ -66,28 +70,29 @@ function ConfigureCommentStep(props) {
   }
 
   function configureComment() {
+    const useAnswerBool = useAnswer === 'Yes';
     if (useType === QUESTION_TYPE) {
-      if (useAnswer) {
+      if (useAnswerBool) {
         updateComment(marketId, commentId, undefined, undefined, undefined,
           undefined, undefined, true, undefined, true)
           .then((response) => {
-            const { comment, market } = response;
+            const { comment } = response;
+            addMarket(response, marketsDispatch, presenceDispatch);
             quickAddComment(comment);
-            addMarket(market, marketsDispatch, presenceDispatch);
           });
       } else {
         myOnFinish();
       }
     } else {
-      if (useAnswer) {
+      if (useAnswerBool) {
         myOnFinish();
       } else {
         updateComment(marketId, commentId, undefined, undefined, undefined,
           undefined, undefined, true, undefined, undefined,
           true).then((response) => {
-            const { comment, market } = response;
+            const { comment } = response;
+            addMarket(response, marketsDispatch, presenceDispatch);
             quickAddComment(comment);
-            addMarket(market, marketsDispatch, presenceDispatch);
           });
       }
     }
@@ -128,7 +133,7 @@ function ConfigureCommentStep(props) {
                 control={<Radio color="primary" />}
                 label={<FormattedMessage id={`${answerId}Config`} />}
                 labelPlacement="end"
-                value={answer === 'Yes'}
+                value={answer}
               />
             );
           })}

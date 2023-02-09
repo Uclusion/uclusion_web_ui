@@ -10,7 +10,6 @@ import ConfigureCommentStep from '../ConfigureCommentStep';
 function DiscussionWizard(props) {
   const { marketId, groupId } = props;
 
-  // TODO if choose suggestion just invoke nextStep twice in add comment to skip over AddOptionStep
   return (
     <WizardStylesProvider>
       <FormdataWizard name="discussion_wizard">
@@ -24,7 +23,8 @@ function DiscussionWizard(props) {
 }
 
 DiscussionWizard.propTypes = {
-  investibleId: PropTypes.string.isRequired
+  marketId: PropTypes.string.isRequired,
+  groupId: PropTypes.string.isRequired
 };
 export default DiscussionWizard;
 

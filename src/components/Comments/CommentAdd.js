@@ -448,7 +448,7 @@ function CommentAdd(props) {
                   showOtherNext={true}
                   otherNextLabel="yellowBugAdd"
                   onOtherNext={() => handleSave( true, 'YELLOW')}
-                  onFinish={() => handleSave( true, 'BLUE')}
+                  finish={() => handleSave( true, 'BLUE')}
                   showTerminate={true}
                   terminateLabel="blueBugAdd"/>
               )}
@@ -467,7 +467,8 @@ function CommentAdd(props) {
                   validForm={hasValue}
                   nextLabel={`${nameKey}${type}`}
                   onNext={() => handleSave( wizardProps.isSent !== false)}
-                  showTerminate={true}
+                  onTerminate={wizardProps.saveOnTerminate ? handleSave : wizardProps.onTerminate}
+                  showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate: true}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}
             </div>

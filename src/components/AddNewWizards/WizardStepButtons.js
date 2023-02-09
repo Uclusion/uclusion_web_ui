@@ -29,7 +29,8 @@ function WizardStepButtons (props) {
     otherNextLabel,
     onOtherNext,
     marketToken,
-    onOtherDoAdvance
+    onOtherDoAdvance,
+    skipNextStep
   } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -45,7 +46,11 @@ function WizardStepButtons (props) {
     } else {
       setOperationRunning(false);
       if (!isOther || onOtherDoAdvance) {
-        nextStep();
+        if (skipNextStep) {
+          nextStep(2);
+        } else {
+          nextStep();
+        }
       }
     }
     return resolved;

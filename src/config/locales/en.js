@@ -513,7 +513,7 @@ const messages = defineMessages({
   commentCloseThreadLabel: 'Hide Thread',
   lastUpdatedBy: ' by',
   comments: 'Comments',
-  JobCommentConfigure: 'Add',
+  JobCommentConfigure: 'Create and configure',
   JobCommentCreateAnotherOption: 'Create and add another',
   DiscussionCommentAddQUESTION: 'Add options',
   DiscussionCommentAddSUGGEST: 'Configure',
@@ -1143,6 +1143,7 @@ const messages = defineMessages({
 
   // Decision comment wizard
   DecisionCommmentWizardTerminate: 'Go to option',
+  DiscussionCommentWizardTerminate: 'Go to comment',
 
   // Approve Wizard
   ApprovalWizardApprove: 'Approve job',

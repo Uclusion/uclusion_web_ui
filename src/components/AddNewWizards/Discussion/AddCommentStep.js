@@ -6,18 +6,26 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import { useIntl } from 'react-intl';
 import CommentAdd from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
+import { SUGGEST_CHANGE_TYPE } from '../../CardType';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 function AddCommentStep (props) {
   const { marketId, groupId, formData, updateFormData } = props;
   const intl = useIntl();
+  const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
     getPageReducerPage(commentAddStateFull, commentAddDispatch, groupId);
   const { useType } = formData;
 
-  function onFinish(comment) {
-    updateFormData({inlineMarketId: comment.inline_market_id, commentId: comment.id, marketId, groupId})
+  function onSave(comment) {
+    if (comment.is_sent) {
+      navigate(history, formCommentLink(marketId, groupId, undefined, comment.id));
+    } else {
+      updateFormData({ inlineMarketId: comment.inline_market_id, commentId: comment.id, marketId, groupId });
+    }
   }
 
   return (
@@ -31,13 +39,14 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="DiscussionCommentAdd"
         type={useType}
-        wizardProps={{...props, onFinish, isSent: false, isAddWizard: true}}
+        wizardProps={{...props, isSent: false, isAddWizard: true, terminateLabel: 'DiscussionCommentWizardTerminate',
+          saveOnTerminate: true, skipNextStep: useType === SUGGEST_CHANGE_TYPE}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}
         marketId={marketId}
         groupId={groupId}
-        onSave={onFinish}
+        onSave={onSave}
         nameDifferentiator="marketComment"
         isStory={true}
       />

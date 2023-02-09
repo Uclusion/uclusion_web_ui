@@ -133,6 +133,8 @@ export const wizardStyles = makeStyles(
         backgroundColor: '#2D9CDB',
         color: 'white !important',
         textTransform: 'unset !important',
+        maxHeight: '2.6rem',
+        whiteSpace: 'nowrap',
         marginRight: '20px',
         '&:hover': {
           backgroundColor: '#2D9CDB !important'
@@ -153,7 +155,8 @@ export const wizardStyles = makeStyles(
       actionSkip: {
         textTransform: 'unset !important',
         marginRight: '20px',
-
+        maxHeight: '2.6rem',
+        whiteSpace: 'nowrap'
       },
       borderBottom: {
         borderBottom: '1px solid transparent',

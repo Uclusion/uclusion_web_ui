@@ -42,8 +42,10 @@ function CommentReplyEdit(props) {
       tabTitle={intl.formatMessage({id: 'commentReplyEdit'})}
       hidden={hidden}
     >
-      <CommentBox comments={comments} marketId={marketId} replyEditId={commentId}
-                  allowedTypes={[QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, ISSUE_TYPE]}/>
+      {!hidden && (
+        <CommentBox comments={comments} marketId={marketId} replyEditId={commentId}
+                    allowedTypes={[QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, ISSUE_TYPE]}/>
+      )}
     </Screen>
   );
 }

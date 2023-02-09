@@ -17,7 +17,6 @@ import {
   TODO_TYPE
 } from '../../../constants/comments';
 import Screen from '../../../containers/Screen/Screen';
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox';
 import { getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions';
 import {
   getFullStage,
@@ -58,7 +57,7 @@ import { BLOCKED_STORY_TOUR, REQUIRES_INPUT_STORY_TOUR } from '../../../contexts
 import UclusionTour from '../../../components/Tours/UclusionTour';
 import { blockedStorySteps } from '../../../components/Tours/blockedStory';
 import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory';
-import { ACTIVE_STAGE } from '../../../constants/markets';
+import { ACTIVE_STAGE, JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import {
   OPERATION_HUB_CHANNEL,
   STOP_OPERATION
@@ -67,7 +66,11 @@ import { addEditVotingHasContents } from '../Voting/AddEditVote';
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
 import { GmailTabItem, GmailTabs, tabTheme } from '../../../containers/Tab/Inbox';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
-import { baseNavListItem, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import {
+  baseNavListItem, formInvestibleAddCommentLink,
+  formInvestibleLink,
+  navigate
+} from '../../../utils/marketIdPathFunctions';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import HelpIcon from '@material-ui/icons/Help';
 import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
@@ -79,6 +82,8 @@ import { removeMessages } from '../../../contexts/NotificationsContext/notificat
 import PlanningInvestibleNav, { useMetaDataStyles } from './PlanningInvestibleNav';
 import MenuIcon from '@material-ui/icons/Menu';
 import { getIcon } from '../../../components/Comments/CommentEdit';
+import AddIcon from '@material-ui/icons/Add';
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -462,7 +467,6 @@ function PlanningInvestible(props) {
   const reportsCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === REPORT_TYPE
   );
-  const reportComments = investibleComments.filter(comment => comment.comment_type === REPORT_TYPE);
   const questionComments = investibleComments.filter(
     comment => comment.comment_type === QUESTION_TYPE
   );
@@ -647,7 +651,7 @@ function PlanningInvestible(props) {
     }
     return intl.formatMessage({ id: tagLabelId });
   }
-  const showCommentAddBox = !inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId &&
+  const showCommentAdd = !inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId &&
     !_.isEmpty(investible) && !hidden && !_.isEmpty(allowedCommentTypes);
   const intermediateNotSingle = intermediateLayout && !singleTabLayout;
   return (
@@ -855,21 +859,14 @@ function PlanningInvestible(props) {
         {sectionOpen !== 'descriptionVotingSection' && (
           <Grid container spacing={2}>
             <Grid item xs={12} style={{ marginTop: mobileLayout ? undefined : '15px' }}>
-              {showCommentAddBox && (
-                  <CommentAddBox
-                    allowedTypes={allowedCommentTypes}
-                    investible={investible}
-                    marketInfo={marketInfo}
-                    marketId={marketId}
-                    groupId={groupId}
-                    issueWarningId={isFurtherWork ? undefined : 'issueWarningPlanning'}
-                    isInReview={isInReview}
-                    isAssignee={isAssigned}
-                    isStory
-                    numProgressReport={reportComments.length}
-                    nameDifferentiator={sectionOpen}
-                  />
-                )}
+              {showCommentAdd && (
+                <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+                                         onClick={() => navigate(history,
+                                           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                                             allowedCommentTypes[0]))}>
+                  <FormattedMessage id='createNew'/>
+                </SpinningIconLabelButton>
+              )}
               <CommentBox
                 comments={sectionComments.concat(replies)}
                 marketId={marketId}

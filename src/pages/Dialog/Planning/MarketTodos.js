@@ -20,7 +20,7 @@ import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsCo
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import {
-  formMarketAddBugLink,
+  formMarketAddCommentLink,
   formMarketAddInvestibleLink,
   formMarketLink,
   navigate
@@ -44,6 +44,7 @@ import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { workListStyles } from '../../Home/YourWork/WorkListItem'
 import { getTicketNumber } from '../../../utils/stringFunctions'
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
+import { BUG_WIZARD_TYPE } from '../../../constants/markets';
 
 const myClasses = makeStyles(
   theme => {
@@ -569,8 +570,9 @@ function MarketTodos(props) {
         ))}
         {!isInArchives && (
           <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
-                                   onClick={() => navigate(history, formMarketAddBugLink(marketId, groupId))}>
-            <FormattedMessage id='createTODO'/>
+                                   onClick={() => navigate(history,
+                                     formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId))}>
+            <FormattedMessage id='createNew'/>
           </SpinningIconLabelButton>
         )}
         <div style={{paddingTop: '1rem'}}>

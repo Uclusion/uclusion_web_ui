@@ -9,14 +9,15 @@ import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { wizardFinish } from '../InboxWizardUtils';
-import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleAddCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideReviewStep(props) {
-  const { marketId, investibleId, message, updateFormData, clearFormData } = props;
+  const { marketId, investibleId, message, clearFormData } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = wizardStyles();
   const history = useHistory();
@@ -49,11 +50,13 @@ function DecideReviewStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="DecideAddReview"
-        onNext={() => updateFormData({ commentType: REPORT_TYPE })}
+        onNext={() => navigate(history,
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE))}
         spinOnClick={false}
         showOtherNext
         otherSpinOnClick={false}
-        onOtherNext={() => updateFormData({ commentType: TODO_TYPE })}
+        onOtherNext={() => navigate(history,
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE))}
         otherNextLabel="DecideAddTask"
         terminateLabel="JobWizardGotoJob"
         showTerminate={true}

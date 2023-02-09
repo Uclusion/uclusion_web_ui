@@ -8,7 +8,7 @@ import { investibleContextHack } from '../contexts/InvestibesContext/Investibles
 import { getCommentRoot } from '../contexts/CommentsContext/commentsContextHelper'
 import { nameFromDescription } from './stringFunctions'
 import { commentsContextHack } from '../contexts/CommentsContext/CommentsContext'
-import { BUG_WIZARD_TYPE, JOB_WIZARD_TYPE } from '../constants/markets';
+import { JOB_WIZARD_TYPE } from '../constants/markets';
 import { ticketContextHack } from '../contexts/TicketContext/TicketIndexContext';
 import { getTicket, isJobTicket, isTicketPath } from '../contexts/TicketContext/ticketIndexContextHelper';
 
@@ -222,8 +222,8 @@ export function formInvestibleAddCommentLink(wizardType, investibleId, marketId,
   return baseLink;
 }
 
-export function formMarketAddBugLink(marketId, groupId) {
-  return `/wizard#type=${BUG_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`
+export function formMarketAddCommentLink(wizardType, marketId, groupId) {
+  return `/wizard#type=${wizardType}&marketId=${marketId}&groupId=${groupId}`
 }
 
 export function formMarketAddInvestibleLink(marketId, groupId, assigneeId) {

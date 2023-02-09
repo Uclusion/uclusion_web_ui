@@ -9,12 +9,16 @@ import { REPORT_TYPE } from '../../../constants/comments'
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { useHistory } from 'react-router';
 
 
 function JobDescriptionStatusStep(props) {
-  const {marketId, investibleId, updateFormData} = props;
+  const {marketId, investibleId, startOver} = props;
   const classes = wizardStyles();
   const [commentsState] = useContext(CommentsContext);
+  const history = useHistory();
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, true);
 
@@ -33,7 +37,11 @@ function JobDescriptionStatusStep(props) {
         spinOnClick={false}
         showOtherNext
         otherNextLabel="StatusWizardReport"
-        onOtherNext={() => updateFormData({ commentType: REPORT_TYPE })}
+        onOtherNext={() => {
+          startOver();
+          navigate(history,
+            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE));
+        }}
         otherSpinOnClick={false}
         showTerminate={true}
         terminateLabel="ApproveWizardGotoJob"/>

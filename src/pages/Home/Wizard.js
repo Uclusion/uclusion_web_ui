@@ -28,7 +28,7 @@ function Wizard(props) {
   const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
-  const { type: createType, marketId, groupId, assigneeId, investibleId } = values;
+  const { type: createType, marketId, groupId, assigneeId, investibleId, commentType } = values;
   const intl = useIntl();
 
   return (
@@ -57,7 +57,7 @@ function Wizard(props) {
         <DecisionCommentWizard investibleId={investibleId} />
       )}
       {createType === JOB_COMMENT_WIZARD_TYPE.toLowerCase() && (
-        <JobCommentWizard investibleId={investibleId} marketId={marketId} />
+        <JobCommentWizard investibleId={investibleId} marketId={marketId} commentType={commentType} />
       )}
       {createType === DISCUSSION_WIZARD_TYPE.toLowerCase() && (
         <DiscussionWizard marketId={marketId} groupId={groupId} />

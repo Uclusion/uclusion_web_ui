@@ -1,6 +1,8 @@
 import { addMarketPresence, patchInvestment } from './marketPresencesContextReducer'
 import _ from 'lodash'
 import { isEveryoneGroup } from '../GroupMembersContext/groupMembersHelper'
+import { useContext } from 'react';
+import { MarketPresencesContext } from './MarketPresencesContext';
 
 export function addPresenceToMarket(dispatch, marketId, presence) {
   dispatch(addMarketPresence(marketId, presence));
@@ -60,6 +62,11 @@ export function getGroupPresences(presences, groupMembersState, marketId, groupI
     });
   }
   return groupPresences;
+}
+
+export function usePresences(marketId) {
+  const [presencesState] = useContext(MarketPresencesContext);
+  return getMarketPresences(presencesState, marketId) || [];
 }
 
 export function getMarketPresence(state, marketId, userId) {

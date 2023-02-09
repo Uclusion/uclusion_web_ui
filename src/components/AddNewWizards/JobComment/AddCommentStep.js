@@ -1,64 +1,81 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, Radio, RadioGroup, Tooltip, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import WizardStepButtons from '../WizardStepButtons';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
-import { FormattedMessage } from 'react-intl';
+import { useIntl } from 'react-intl';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import CommentAdd from '../../Comments/CommentAdd';
+import { useHistory } from 'react-router';
+import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import {
+  getBlockedStage,
+  getRequiredInputStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function AddCommentStep (props) {
-  const { investibleId, updateFormData, formData } = props;
+  const { investibleId, marketId, useType, updateFormData } = props;
+  const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const allowedTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
-  const { useType } = formData;
+  const [investibleState] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const inv = getInvestible(investibleState, investibleId) || {};
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { group_id: groupId, stage: currentStageId } = marketInfo;
+  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
+  const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
+  const history = useHistory();
+  const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
+  const [commentAddState, updateCommentAddState, commentAddStateReset] =
+    getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId);
+  const isRequiresInputComment = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useType);
+  const isAssistance = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useType);
+  const inAssistanceStage = [requiresInputStage.id, blockingStage.id].includes(currentStageId);
 
-  // TODO Drop the popup warning in favor of just warning issueWarningInvestible
-
+  function onFinish(comment) {
+    if (isRequiresInputComment) {
+      updateFormData({inlineMarketId: comment.inline_market_id, commentId: comment.id, marketId, investibleId,
+        currentStageId})
+    } else {
+      navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
+    }
+  }
   return (
     <WizardStepContainer
       {...props}
     >
     <div>
       <Typography className={classes.introText}>
-        What type of comment do you need?
+        What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Tip` }).toLowerCase()}?
       </Typography>
-      <FormControl component="fieldset">
-        <RadioGroup
-          aria-labelledby="comment-type-choice"
-          onChange={(event) => {
-            const { value } = event.target;
-            updateFormData({ useType: value });
-          }}
-          value={useType || ''}
-          row
-        >
-          {allowedTypes.map((commentType) => {
-            return (
-              <Tooltip key={`tip${commentType}`}
-                       title={<FormattedMessage id={`${commentType.toLowerCase()}Tip`} />}>
-                <FormControlLabel
-                  id={`commentAddLabel${commentType}`}
-                  key={commentType}
-                  /* prevent clicking the label stealing focus */
-                  onMouseDown={e => e.preventDefault()}
-                  control={<Radio color="primary" />}
-                  label={<FormattedMessage id={`${commentType.toLowerCase()}Present`} />}
-                  labelPlacement="end"
-                  value={commentType}
-                />
-              </Tooltip>
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
-      <div className={classes.borderBottom} />
-      <WizardStepButtons
-        {...props}
-        nextLabel="WizardContinue"
-        spinOnClick={false}
-        otherSpinOnClick={false}
-        showTerminate={false}
+      {isAssistance && !inAssistanceStage && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Opening this comment moves the job to Assistance stage.
+        </Typography>
+      )}
+      {useType === TODO_TYPE && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Opening a task prevents moving this job to Verified stage until resolved.
+        </Typography>
+      )}
+      <CommentAdd
+        nameKey="JobCommentAdd"
+        type={useType}
+        wizardProps={{...props, onFinish, isSent: !isRequiresInputComment}}
+        commentAddState={commentAddState}
+        updateCommentAddState={updateCommentAddState}
+        commentAddStateReset={commentAddStateReset}
+        marketId={marketId}
+        groupId={groupId}
+        investible={inv.investible}
+        onSave={onFinish}
+        nameDifferentiator="jobComment"
+        isStory={true}
       />
     </div>
     </WizardStepContainer>

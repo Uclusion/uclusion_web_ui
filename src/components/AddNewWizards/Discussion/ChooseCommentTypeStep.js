@@ -4,16 +4,17 @@ import { FormControl, FormControlLabel, Radio, RadioGroup, Tooltip, Typography }
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import { FormattedMessage } from 'react-intl';
+import _ from 'lodash';
 
 function ChooseCommentTypeStep (props) {
-  const { investibleId, updateFormData, formData } = props;
+  const { updateFormData, formData } = props;
   const classes = useContext(WizardStylesContext);
-  const allowedTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
+  const allowedTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const { useType } = formData;
 
-  // TODO Drop the popup warning in favor of just warning issueWarningInvestible
+  //TODO fix finish
 
   return (
     <WizardStepContainer
@@ -21,7 +22,7 @@ function ChooseCommentTypeStep (props) {
     >
     <div>
       <Typography className={classes.introText}>
-        What type of comment do you need?
+        What type of discussion do you need?
       </Typography>
       <FormControl component="fieldset">
         <RadioGroup
@@ -55,9 +56,9 @@ function ChooseCommentTypeStep (props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
+        validForm={!_.isEmpty(useType)}
         nextLabel="WizardContinue"
         spinOnClick={false}
-        otherSpinOnClick={false}
         showTerminate={false}
       />
     </div>

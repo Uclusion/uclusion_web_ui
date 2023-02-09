@@ -26,7 +26,11 @@ import {
 import { removeComment, reopenComment, resolveComment, sendComment, updateComment } from '../../api/comments'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { changeMyPresence, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import {
+  changeMyPresence,
+  getMarketPresences,
+  usePresences
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CommentEdit from './CommentEdit'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import {
@@ -1568,15 +1572,6 @@ function ThreadedReply(props) {
  * @property {string} updated_by - presence id of updater
  * @property {string} updated_at -
  */
-
-/**
- * @param {string} marketId
- * @returns {Presence[]}
- */
-function usePresences(marketId) {
-  const [presencesState] = useContext(MarketPresencesContext);
-  return getMarketPresences(presencesState, marketId) || [];
-}
 
 /**
  * @param {Comment} comment

@@ -4,7 +4,7 @@ import _ from 'lodash'
 import {
   darken,
   makeStyles,
-  Paper, Typography, useMediaQuery, useTheme,
+  Paper,
 } from '@material-ui/core';
 import PropTypes from 'prop-types'
 import { getMentionsFromText, saveComment } from '../../api/comments';
@@ -24,9 +24,8 @@ import {
   getMarketComments,
   refreshMarketComments
 } from '../../contexts/CommentsContext/commentsContextHelper'
-import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
 import {
-  getBlockedStage, getInCurrentVotingStage,
+  getBlockedStage,
   getInReviewStage,
   getRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
@@ -41,11 +40,7 @@ import {
   changeLevelMessage, dehighlightMessages
 } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import { Add, Clear, Delete, Lock, LockOpen, Send } from '@material-ui/icons'
 import { useEditor } from '../TextEditors/quillHooks'
-import { getUiPreferences } from '../../contexts/AccountContext/accountUserContextHelper'
-import IssueDialog from '../Warnings/IssueDialog'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { removeWorkListItem, workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 import { deleteOrDehilightMessages } from '../../api/users'
@@ -59,7 +54,6 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/m
 import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
-import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import WizardStepButtons from '../InboxWizards/WizardStepButtons'
 import { nameFromDescription } from '../../utils/stringFunctions';
 
@@ -289,7 +283,7 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
 
 function CommentAdd(props) {
   const {
-    marketId, groupId, onSave, onCancel, type, investible, parent, issueWarningId, isStory, nameKey, onDone,
+    marketId, groupId, onSave, type, investible, parent, nameKey,
     mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset, autoFocus=true, threadMessages,
     nameDifferentiator='', wizardProps
   } = props;
@@ -305,8 +299,6 @@ function CommentAdd(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
-  const [openIssue, setOpenIssue] = useState(false);
-  const [doNotShowAgain, setDoNotShowAgain] = useState(undefined);
   const classes = useStyles();
   const usedParent = parent || {};
   const { investible_id: parentInvestible, id: parentId } = usedParent;
@@ -317,7 +309,6 @@ function CommentAdd(props) {
   const [info] = (market_infos || []);
   const { assigned, stage: currentStageId } = (info || {});
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {id: 'fake'};
-  const readyForApprovalStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
@@ -325,30 +316,12 @@ function CommentAdd(props) {
     creatorIsAssigned);
   const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [userState] = useContext(AccountContext);
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const investibleRequiresInput = (type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE) && creatorIsAssigned
     && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id;
-  const marketComments = getMarketComments(commentsState, marketId) || [];
-  const olderReports = getOlderReports(undefined, marketComments, marketId, investibleId, myPresence);
-  const numReports = _.size(olderReports);
   const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
-
-  function toggleIssue () {
-    if (openIssue === false) {
-      if (_.isEmpty(getQuillStoredState(editorName))) {
-        setOpenIssue('noCommentBody')
-      } else {
-        setOpenIssue(myWarningId)
-      }
-    } else {
-      setOpenIssue(false)
-    }
-  }
 
   useEffect(() => {
     // If didn't focus to begin with then focus when type is changed
@@ -369,17 +342,6 @@ function CommentAdd(props) {
   function clearMe () {
     replaceEditorContents('', editorName);
     commentAddStateReset();
-    setOpenIssue(false);
-  }
-
-  function myOnDone() {
-    clearMe();
-    onDone();
-  }
-
-  function handleClear () {
-    replaceEditorContents('', editorName);
-    onCancel();
   }
 
   function handleSpinStop (comment) {
@@ -387,14 +349,9 @@ function CommentAdd(props) {
     onSave(comment)
   }
 
-  function handleSave(isRestricted, isSent, passedNotificationType) {
-    const currentUploadedFiles = uploadedFiles || []
-    const myBodyNow = getQuillStoredState(editorName)
-    if (_.isEmpty(myBodyNow) || _.isEmpty(type)) {
-      setOperationRunning(false);
-      setOpenIssue(_.isEmpty(type) ? 'noType' : 'noCommentBody');
-      return;
-    }
+  function handleSave(isSent, passedNotificationType) {
+    const currentUploadedFiles = uploadedFiles || [];
+    const myBodyNow = getQuillStoredState(editorName);
     const apiType = (type === REPLY_TYPE) ? undefined : type;
     const {
       uploadedFiles: filteredUploads,
@@ -415,7 +372,7 @@ function CommentAdd(props) {
       label = nameFromDescription(tokensRemoved);
     }
     return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
-      passedNotificationType, marketType, isRestricted, isSent, label)
+      passedNotificationType, marketType, undefined, isSent, label)
       .then((response) => {
         let comment = marketType ? response.parent : response;
         let useRootInvestible = rootInvestible;
@@ -446,81 +403,17 @@ function CommentAdd(props) {
           }
           const tokenStorageManager = new TokenStorageManager();
           return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token).then(() => {
-            if (doNotShowAgain) {
-              return doNotShowAgain().then(() => {
-                setOperationRunning(false);
-                handleSpinStop(comment);
-              });
-            } else {
-              setOperationRunning(false);
-              handleSpinStop(comment);
-            }
-          });
-        }
-        if (doNotShowAgain) {
-          return doNotShowAgain().then(() => {
             setOperationRunning(false);
             handleSpinStop(comment);
           });
-        } else {
-          setOperationRunning(false);
-          handleSpinStop(comment);
         }
+        setOperationRunning(false);
+        handleSpinStop(comment);
       });
   }
   const isWizard = !_.isEmpty(wizardProps);
-  const commentCancelLabel = parent ? 'commentReplyCancelLabel' : 'commentAddCancelLabel';
   const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
     && type === SUGGEST_CHANGE_TYPE;
-  const isReadyForApproval = currentStageId === readyForApprovalStage.id
-  const myWarningId = getCommentCreationWarning(type, issueWarningId, createInlineInitiative, investibleRequiresInput,
-    numReports, isReadyForApproval);
-  const userPreferences = getUiPreferences(userState) || {};
-  const previouslyDismissed = userPreferences.dismissedText || [];
-  const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;
-  const lockedDialogClasses = useLockedDialogStyles();
-
-  // Having to pass in buttons because of issues with LoadingOverlay in intermediate sizes
-  const buttons = (
-    <div style={{marginTop: '0.5rem', display: (isWizard ? 'none' : undefined)}}>
-      {!isStory && onDone && (
-        <SpinningIconLabelButton onClick={myOnDone} doSpin={false} icon={Delete}>
-          {intl.formatMessage({ id: 'cancel' })}
-        </SpinningIconLabelButton>
-      )}
-      <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
-        {intl.formatMessage({ id: commentCancelLabel })}
-      </SpinningIconLabelButton>
-      {type !== REPLY_TYPE && (
-        <SpinningIconLabelButton
-          onClick={() => handleSave(undefined, false)}
-          icon={Add}
-          id={`commentSaveButton${nameDifferentiator}`}
-        >
-          {intl.formatMessage({ id: 'commentAddSaveLabel' })}
-        </SpinningIconLabelButton>
-      )}
-      {!showIssueWarning && (
-        <SpinningIconLabelButton
-          onClick={() => handleSave()}
-          icon={Send}
-          id={`commentSendButton${nameDifferentiator}`}
-        >
-          {intl.formatMessage({ id: 'commentAddSendLabel' })}
-        </SpinningIconLabelButton>
-      )}
-      {showIssueWarning && (
-        <SpinningIconLabelButton onClick={toggleIssue} icon={Send} doSpin={false} id="commentSendButton">
-          {intl.formatMessage({ id: 'commentAddSendLabel' })}
-        </SpinningIconLabelButton>
-      )}
-      {!mobileLayout && (
-        <Typography className={classes.storageIndicator}>
-          {intl.formatMessage({ id: 'edited' })}
-        </Typography>
-      )}
-    </div>
-  );
 
   const useBody = getQuillStoredState(editorName);
   const editorSpec = {
@@ -530,7 +423,6 @@ function CommentAdd(props) {
     placeholder: placeHolder,
     onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
     mentionsAllowed,
-    buttons,
     onChange: () => setHasValue(true),
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
@@ -551,11 +443,11 @@ function CommentAdd(props) {
                 <WizardStepButtons
                   {...wizardProps}
                   nextLabel="redBugAdd"
-                  onNext={() => handleSave(false, true, 'RED')}
+                  onNext={() => handleSave( true, 'RED')}
                   showOtherNext={true}
                   otherNextLabel="yellowBugAdd"
-                  onOtherNext={() => handleSave(false, true, 'YELLOW')}
-                  onFinish={() => handleSave(false, true, 'BLUE')}
+                  onOtherNext={() => handleSave( true, 'YELLOW')}
+                  onFinish={() => handleSave( true, 'BLUE')}
                   showTerminate={true}
                   terminateLabel="blueBugAdd"/>
               )}
@@ -564,52 +456,11 @@ function CommentAdd(props) {
                   {...wizardProps}
                   validForm={hasValue}
                   nextLabel={`${type}ApproveWizard`}
-                  onNext={() => handleSave()}
+                  onNext={() => handleSave( wizardProps.isSent !== false)}
                   showTerminate={true}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}
             </div>
-          )}
-          {openIssue !== false && openIssue !== 'noInitiativeType' && (
-            <IssueDialog
-              classes={lockedDialogClasses}
-              open={openIssue !== false}
-              onClose={toggleIssue}
-              issueWarningId={openIssue}
-              showDismiss={!['noCommentBody', 'noType', 'noNotificationType'].includes(openIssue)}
-              checkBoxFunc={setDoNotShowAgain}
-              /* slots */
-              actions={
-                (!['noCommentBody', 'noType', 'noNotificationType'].includes(openIssue)) ?
-                  <SpinningIconLabelButton onClick={() => handleSave()} icon={Add} id="issueProceedButton">
-                    {intl.formatMessage({ id: 'issueProceed' })}
-                  </SpinningIconLabelButton> : undefined
-              }
-            />
-          )}
-          {openIssue === 'noInitiativeType' && (
-            <IssueDialog
-              classes={lockedDialogClasses}
-              open={openIssue !== false}
-              onClose={toggleIssue}
-              issueWarningId={openIssue}
-              showDismiss={false}
-              /* slots */
-              actions={
-                (<>
-                  <SpinningIconLabelButton onClick={() => {
-                    return handleSave(false, true);
-                  }} icon={LockOpen} id="proceedNormalButton">
-                    {intl.formatMessage({ id: 'proceedNormal' })}
-                  </SpinningIconLabelButton>
-                  <SpinningIconLabelButton onClick={() => {
-                    return handleSave(true, true);
-                  }} icon={Lock} id="proceedRestrictedButton">
-                    {intl.formatMessage({ id: 'proceedRestricted' })}
-                  </SpinningIconLabelButton>
-                </>)
-              }
-            />
           )}
         </div>
       </Paper>
@@ -620,25 +471,16 @@ function CommentAdd(props) {
 CommentAdd.propTypes = {
   type: PropTypes.string,
   marketId: PropTypes.string.isRequired,
-  issueWarningId: PropTypes.string,
-  todoWarningId: PropTypes.string,
   onSave: PropTypes.func,
   investible: PropTypes.object,
   parent: PropTypes.object,
-  onCancel: PropTypes.func,
-  clearType: PropTypes.func,
-  isStory: PropTypes.bool,
   mentionsAllowed: PropTypes.bool,
 };
 
 CommentAdd.defaultProps = {
   parent: null,
   investible: null,
-  todoWarningId: null,
-  onCancel: () => {},
   onSave: () => {},
-  clearType: () => {},
-  isStory: false,
   mentionsAllowed: true,
 };
 

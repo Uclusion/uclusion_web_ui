@@ -64,13 +64,11 @@ function StartReviewStep(props) {
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}
-        issueWarningId='issueWarningPlanning'
         marketId={marketId}
         groupId={groupId}
         investible={myInvestible}
         onSave={onSave}
         nameDifferentiator="startReview"
-        isStory
       />
     </div>
     </WizardStepContainer>

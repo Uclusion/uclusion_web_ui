@@ -2,8 +2,8 @@
  * A component that renders a single group's view of a planning market
  */
 import React, { useContext, useEffect, useState } from 'react'
-import { useLocation } from 'react-router'
-import { useIntl } from 'react-intl'
+import { useHistory, useLocation } from 'react-router';
+import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import {
@@ -19,7 +19,6 @@ import {
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
 } from '../../../constants/comments'
-import CommentAddBox from '../../../containers/CommentBox/CommentAddBox'
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import {
@@ -55,10 +54,13 @@ import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import DialogArchives from '../../DialogArchives/DialogArchives'
-import { baseNavListItem, formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { baseNavListItem, formMarketAddCommentLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { isInStages } from './userUtils'
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
+import AddIcon from '@material-ui/icons/Add';
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
+import { DISCUSSION_WIZARD_TYPE } from '../../../constants/markets';
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -91,6 +93,7 @@ function PlanningDialog(props) {
   } = props;
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
+  const history = useHistory();
   const location = useLocation();
   const { hash, search: querySearch } = location;
   const values = queryString.parse(querySearch);
@@ -298,12 +301,11 @@ function PlanningDialog(props) {
                       be used at the workspace level and later moved to a job.
                     </div>
                   }/>
-                  <CommentAddBox
-                    groupId={groupId}
-                    allowedTypes={allowedCommentTypes}
-                    marketId={marketId}
-                    nameDifferentiator="planningDialog"
-                  />
+                  <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+                                           onClick={() => navigate(history,
+                                             formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId))}>
+                    <FormattedMessage id='createDiscussion'/>
+                  </SpinningIconLabelButton>
                 </>
               )}
               <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>

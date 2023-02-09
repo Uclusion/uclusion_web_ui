@@ -5,7 +5,6 @@ import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
 import JobDescription from '../JobDescription'
-import { ISSUE_TYPE } from '../../CardType'
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
@@ -74,7 +73,6 @@ function JobDescriptionStep (props) {
         nextLabel="ApprovalWizardApprove"
         showOtherNext
         otherNextLabel="ApprovalWizardBlock"
-        onOtherNext={() => updateFormData({ commentType: ISSUE_TYPE })}
         onNext={() => {
           const { body } = yourReason || {};
           if (!editorEmpty(body)) {

@@ -487,13 +487,10 @@ const messages = defineMessages({
   commentAddCancelLabel: 'Clear',
   commentAddSelectIssueLabel: 'Please select a type',
   issueWarning: 'Opening an issue will halt voting on this dialog.',
-  issueWarningPlanning: 'Opening an issue moves this job to blocked and stops new approval.',
-  requiresInputWarningPlanning: 'Comment moves job to Assistance.',
   addReportInReadyForApprovalWarning: 'Consider moving job to \'Started\'.',
   noCommentBody: 'Create a comment message.',
   noNotificationType: 'Choose a comment priority.',
   noType: 'Choose a comment type.',
-  noInitiativeType: 'Choose vote visibility.',
   proceedNormal: 'Everyone',
   proceedRestricted: 'Just me',
 
@@ -643,6 +640,10 @@ const messages = defineMessages({
   marketName: 'Choose a name for the new workspace.',
   mutingExplanation: 'Muting prevents notifications unless you are mentioned, assigned or a required approver or reviewer.',
   groupDiscussionDesc: 'About and links to external group info',
+  QUESTIONYesConfig: 'Allow approve multiple options',
+  QUESTIONNoConfig: 'Allow approve only one option',
+  SUGGESTYesConfig: 'Everyone sees results',
+  SUGGESTNoConfig: 'Only you see results',
 
   // Decision Dialog
   decisionDialogCurrentVotingLabel: 'Approvable Options',
@@ -1026,8 +1027,9 @@ const messages = defineMessages({
   blueBugAdd: 'No notification',
   able: 'Notified Once',
   convenient: 'Not Notified',
-  createTODO: 'Create new',
+  createNew: 'Create new',
   createComment: 'Create comment',
+  createDiscussion: 'Create discussion',
   createRedExplanation: 'Create a new bug with a notification that remains till resolved',
   createYellowExplanation: 'Create a new bug with a notification that can be dismissed',
   createBlueExplanation: 'Create a new bug without notification',
@@ -1132,7 +1134,7 @@ const messages = defineMessages({
 
   // Approve Wizard
   ApprovalWizardApprove: 'Approve job',
-  ApprovalWizardBlock: 'Block job',
+  ApprovalWizardBlock: 'Comment instead',
   ApproveWizardGotoJob: 'Go to job',
   ISSUEApproveWizard: 'Create issue',
   QUESTIONApproveWizard: 'Create question',

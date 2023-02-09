@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import JobDescriptionStatusStep from './JobDescriptionStatusStep'
 import FormdataWizard from 'react-formdata-wizard'
 import { useHistory } from 'react-router'
-import ActionStatusStep from './ActionStatusStep'
+import EstimateCompletionStep from './EstimateCompletionStep'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { wizardFinish } from '../InboxWizardUtils'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -24,7 +24,7 @@ function StatusWizard(props) {
                     onStartOver={() => inboxDispatch(expandOrContract(parentElementId))}
                     defaultFormData={{parentElementId}}>
       <JobDescriptionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
-      <ActionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
+      <EstimateCompletionStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
     </FormdataWizard>
   );
 }

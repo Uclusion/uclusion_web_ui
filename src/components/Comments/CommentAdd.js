@@ -55,6 +55,7 @@ import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsConte
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
 import WizardStepButtons from '../InboxWizards/WizardStepButtons'
+import AddWizardStepButtons from '../AddNewWizards/WizardStepButtons'
 import { nameFromDescription } from '../../utils/stringFunctions';
 
 function getPlaceHolderLabelId(type, isInReview, isAssigned) {
@@ -440,7 +441,7 @@ function CommentAdd(props) {
           {isWizard && (
             <div style={{marginTop: '2rem'}}>
               {wizardProps.isBug && (
-                <WizardStepButtons
+                <AddWizardStepButtons
                   {...wizardProps}
                   nextLabel="redBugAdd"
                   onNext={() => handleSave( true, 'RED')}
@@ -451,11 +452,20 @@ function CommentAdd(props) {
                   showTerminate={true}
                   terminateLabel="blueBugAdd"/>
               )}
-              {!wizardProps.isBug && (
+              {!wizardProps.isBug && !wizardProps.isAddWizard && (
                 <WizardStepButtons
                   {...wizardProps}
                   validForm={hasValue}
                   nextLabel={`${type}ApproveWizard`}
+                  onNext={() => handleSave( wizardProps.isSent !== false)}
+                  showTerminate={true}
+                  terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
+              )}
+              {wizardProps.isAddWizard && (
+                <AddWizardStepButtons
+                  {...wizardProps}
+                  validForm={hasValue}
+                  nextLabel={`${nameKey}${type}`}
                   onNext={() => handleSave( wizardProps.isSent !== false)}
                   showTerminate={true}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>

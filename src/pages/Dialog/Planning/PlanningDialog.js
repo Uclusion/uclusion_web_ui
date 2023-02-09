@@ -301,7 +301,8 @@ function PlanningDialog(props) {
                       be used at the workspace level and later moved to a job.
                     </div>
                   }/>
-                  <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+                  <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
+                    alignItems: 'center', marginRight: 'auto', marginLeft: 'auto', marginTop: '1rem'}}
                                            onClick={() => navigate(history,
                                              formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId))}>
                     <FormattedMessage id='createDiscussion'/>

@@ -80,7 +80,7 @@ function WizardStepButtons(props) {
 
       <div className={classes.actionContainer}>
         {showOtherNext && (
-          <SpinningButton id="OnboardingWizardOtherNext" className={classes.actionPrimary} variant="text"
+          <SpinningButton id="OnboardingWizardOtherNext" className={classes.actionPrimary} disabled={!validForm}
                           doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
           </SpinningButton>

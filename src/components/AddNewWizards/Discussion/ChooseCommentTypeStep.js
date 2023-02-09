@@ -14,15 +14,13 @@ function ChooseCommentTypeStep (props) {
   const allowedTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const { useType } = formData;
 
-  //TODO fix finish
-
   return (
     <WizardStepContainer
       {...props}
     >
     <div>
       <Typography className={classes.introText}>
-        What type of discussion do you need?
+        What kind of discussion do you need?
       </Typography>
       <FormControl component="fieldset">
         <RadioGroup
@@ -32,7 +30,6 @@ function ChooseCommentTypeStep (props) {
             updateFormData({ useType: value });
           }}
           value={useType || ''}
-          row
         >
           {allowedTypes.map((commentType) => {
             return (

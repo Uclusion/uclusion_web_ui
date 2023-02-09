@@ -37,14 +37,14 @@ function WizardStepButtons (props) {
   const lastStep = currentStep === totalSteps - 1; //zero indexed
 
 
-  async function nextState(nextFunction) {
+  async function nextState(nextFunction, isOther) {
     const nextReturn = nextFunction();
     const resolved = await Promise.resolve(nextReturn);
     if (lastStep) {
       return finish(resolved);
     } else {
       setOperationRunning(false);
-      if (onOtherDoAdvance) {
+      if (!isOther || onOtherDoAdvance) {
         nextStep();
       }
     }
@@ -56,7 +56,7 @@ function WizardStepButtons (props) {
   }
 
   async function myOtherNext () {
-    return nextState(onOtherNext);
+    return nextState(onOtherNext, true);
   }
 
   async function mySkip () {
@@ -79,7 +79,7 @@ function WizardStepButtons (props) {
 
       <div className={classes.actionContainer}>
         {showOtherNext && (
-          <SpinningButton id="OnboardingWizardOtherNext" className={classes.actionPrimary} variant="text"
+          <SpinningButton id="OnboardingWizardOtherNext" className={classes.actionPrimary} disabled={!validForm}
                           doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
           </SpinningButton>

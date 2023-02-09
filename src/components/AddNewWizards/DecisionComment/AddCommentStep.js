@@ -47,7 +47,7 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="DecisionCommentAdd"
         type={useType}
-        wizardProps={{...props, onFinish, terminateLabel: 'DecisionCommmentWizardTerminate'}}
+        wizardProps={{...props, onFinish, terminateLabel: 'DecisionCommmentWizardTerminate', isAddWizard: true}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

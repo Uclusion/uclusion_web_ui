@@ -19,8 +19,8 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function AddOptionStep(props) {
-  const { formData, marketId } = props;
-  const { inlineMarketId, commentId } = formData;
+  const { formData } = props;
+  const { inlineMarketId, commentId, marketId } = formData;
   const editorName = `addOptionWizard${inlineMarketId}`;
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -60,7 +60,7 @@ function AddOptionStep(props) {
       .then((inv) => {
         refreshInvestibles(investiblesDispatch, () => {}, [inv]);
         // reset the editor box
-        resetEditor(editorName);
+        resetEditor(editorName, '', {placeholder: 'Your option...'});
         setUploadedFiles([]);
       })
   }

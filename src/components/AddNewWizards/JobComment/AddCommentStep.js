@@ -66,7 +66,7 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="JobCommentAdd"
         type={useType}
-        wizardProps={{...props, onFinish, isSent: !isRequiresInputComment}}
+        wizardProps={{...props, onFinish, isSent: !isRequiresInputComment, isAddWizard: true}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

@@ -81,7 +81,7 @@ function AddOptionStep(props) {
       .then((inv) => {
         refreshInvestibles(investiblesDispatch, () => {}, [inv]);
         // reset the editor box
-        resetEditor(editorName);
+        resetEditor(editorName, '', {placeholder: 'Your option...'});
         setUploadedFiles([]);
       })
   }

@@ -8,15 +8,16 @@ import CommentAdd from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 
 function AddCommentStep (props) {
-  const { marketId, groupId, useType, updateFormData } = props;
+  const { marketId, groupId, formData, updateFormData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
     getPageReducerPage(commentAddStateFull, commentAddDispatch, groupId);
+  const { useType } = formData;
 
   function onFinish(comment) {
-    updateFormData({inlineMarketId: comment.inline_market_id, commentId: comment.id})
+    updateFormData({inlineMarketId: comment.inline_market_id, commentId: comment.id, marketId, groupId})
   }
 
   return (
@@ -28,9 +29,9 @@ function AddCommentStep (props) {
         What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Tip` }).toLowerCase()}?
       </Typography>
       <CommentAdd
-        nameKey="MarketCommentAdd"
+        nameKey="DiscussionCommentAdd"
         type={useType}
-        wizardProps={{...props, onFinish, isSent: false}}
+        wizardProps={{...props, onFinish, isSent: false, isAddWizard: true}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

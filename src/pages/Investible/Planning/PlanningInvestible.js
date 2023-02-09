@@ -506,9 +506,7 @@ function PlanningInvestible(props) {
     }
     sectionComments = suggestionCommentsSearched;
   } else if (sectionOpen === 'reportsSection') {
-    if (isInAccepted || isInReview) {
-      allowedCommentTypes = [REPORT_TYPE];
-    }
+    allowedCommentTypes = [REPORT_TYPE];
     sectionComments = reportsCommentsSearched;
   } else if (sectionOpen === 'blockersSection') {
     if (canOpenBlocking()) {
@@ -860,7 +858,9 @@ function PlanningInvestible(props) {
           <Grid container spacing={2}>
             <Grid item xs={12} style={{ marginTop: mobileLayout ? undefined : '15px' }}>
               {showCommentAdd && (
-                <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+                <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
+                  alignItems: 'center', marginRight: 'auto', marginLeft: 'auto', marginTop: '0.75rem',
+                  marginBottom: '0.75rem'}}
                                          onClick={() => navigate(history,
                                            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                              allowedCommentTypes[0]))}>

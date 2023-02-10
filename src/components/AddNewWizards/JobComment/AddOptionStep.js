@@ -28,10 +28,12 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 function AddOptionStep(props) {
   const { formData, marketId, investibleId } = props;
-  const { inlineMarketId, commentId } = formData;
+  const { inlineMarketId, commentId, groupId } = formData;
   const editorName = `addOptionWizard${inlineMarketId}`;
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -42,6 +44,7 @@ function AddOptionStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const history = useHistory();
   const presences = usePresences(marketId);
   const marketStages = getStages(marketStagesState, inlineMarketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
@@ -96,6 +99,7 @@ function AddOptionStep(props) {
         messagesState, workItemClasses, messagesDispatch, [], comment, undefined, commentState,
         commentDispatch, marketId, myPresence);
       setOperationRunning(false);
+      navigate(history, formCommentLink(marketId, groupId, investibleId, commentId));
     });
   }
 

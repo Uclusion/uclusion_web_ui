@@ -42,7 +42,7 @@ function AddCommentStep (props) {
       navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
     } else {
       updateFormData({inlineMarketId: comment.inline_market_id, commentId: comment.id, marketId, investibleId,
-        currentStageId});
+        currentStageId, groupId});
     }
   }
   return (

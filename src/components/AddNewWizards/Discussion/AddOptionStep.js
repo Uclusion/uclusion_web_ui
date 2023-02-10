@@ -17,13 +17,16 @@ import { sendComment } from '../../../api/comments';
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 function AddOptionStep(props) {
   const { formData } = props;
-  const { inlineMarketId, commentId, marketId } = formData;
+  const { inlineMarketId, commentId, marketId, groupId } = formData;
   const editorName = `addOptionWizard${inlineMarketId}`;
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const history = useHistory();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -69,6 +72,7 @@ function AddOptionStep(props) {
     return sendComment(marketId, commentId).then((response) => {
       addCommentToMarket(response, commentState, commentDispatch);
       setOperationRunning(false);
+      navigate(history, formCommentLink(marketId, groupId, undefined, commentId));
     });
   }
 

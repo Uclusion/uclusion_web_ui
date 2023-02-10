@@ -65,66 +65,86 @@ export function usesExpansion(item) {
   return false;
 }
 
-export function addExpansionPanel(props) {
-  const { item, inboxDispatch } = props;
+function setItem(item, isOpen, panel, titleId, intl) {
+  if (isOpen) {
+    item.expansionPanel = panel;
+  }
+  if (usesExpansion(item)) {
+    item.title = intl.formatMessage({ id: titleId });
+  }
+}
+
+export function calculateTitleExpansionPanel(props) {
+  const { item, inboxDispatch, openExpansion, intl } = props;
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted,
     type_object_id: typeObjectId } = message;
   if (isOutboxAccepted) {
-    item.expansionPanel = <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}
-                                               rowId={message.id} inboxDispatch={inboxDispatch} />;
+    setItem(item, openExpansion, <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}
+                                               rowId={message.id} inboxDispatch={inboxDispatch} />,
+      'DecideAssignTitle', intl);
   } else if (!messageType || messageType === 'ASSIGNED_UNREVIEWABLE') {
     if (messageType === 'ASSIGNED_UNREVIEWABLE') {
-      item.expansionPanel = <StageWizard investibleId={investibleId} marketId={marketId} inboxDispatch={inboxDispatch}
-                                         rowId={typeObjectId} />;
+      setItem(item, openExpansion, <StageWizard investibleId={investibleId} marketId={marketId}
+                                                inboxDispatch={inboxDispatch} rowId={typeObjectId} />,
+        'DecideStageTitle', intl);
     } else if (message.isOutboxType) {
       if (message.isAssigned) {
-        item.expansionPanel = <StageWizard investibleId={message.id} marketId={message.marketId}
-                                           rowId={message.id} inboxDispatch={inboxDispatch}/>;
+        setItem(item, openExpansion, <StageWizard investibleId={message.id} marketId={message.marketId}
+                                                  rowId={message.id} inboxDispatch={inboxDispatch}/>,
+          'DecideStageTitle', intl);
       } else {
-        item.expansionPanel = <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId}
-                                                       rowId={message.id} inboxDispatch={inboxDispatch} />;
+        setItem(item, openExpansion, <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId}
+                                                              rowId={message.id} inboxDispatch={inboxDispatch} />,
+        'WaitingAssistanceTitle', intl);
       }
     }
   } else if (messageType === 'NOT_FULLY_VOTED') {
     if (marketType === PLANNING_TYPE) {
-      item.expansionPanel = <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}
-                                            inboxDispatch={inboxDispatch}/>;
+      setItem(item, openExpansion, <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}
+                                                   inboxDispatch={inboxDispatch}/>, 'JobApprovalTitle', intl);
     } else if (marketType === DECISION_TYPE) {
-      item.expansionPanel = <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                          message={message} inboxDispatch={inboxDispatch}/>
+      setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                          message={message} inboxDispatch={inboxDispatch}/>,
+        'DecideAnswerTitle', intl);
     } else {
-      item.expansionPanel = <VoteWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                          message={message} inboxDispatch={inboxDispatch}/>
+      setItem(item, openExpansion, <VoteWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                               message={message} inboxDispatch={inboxDispatch}/>,
+        'DecideVoteTitle', intl);
     }
   } else if (messageType === 'REPORT_REQUIRED') {
-    item.expansionPanel = <StatusWizard investibleId={investibleId} marketId={marketId} message={message}
-                                        inboxDispatch={inboxDispatch} />;
+    setItem(item, openExpansion, <StatusWizard investibleId={investibleId} marketId={marketId} message={message}
+                                               inboxDispatch={inboxDispatch} />, 'JobStatusTitle', intl);
   } else if (messageType === 'ISSUE') {
     if (linkType === 'INVESTIBLE_SUGGESTION') {
-      item.expansionPanel = <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message}
-                                                inboxDispatch={inboxDispatch}/>;
+      setItem(item, openExpansion, <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message}
+                                                       inboxDispatch={inboxDispatch}/>,
+        'DecideAcceptRejectTitle', intl);
     } else if (linkType === 'INVESTIBLE_QUESTION') {
-      item.expansionPanel = <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                          message={message} inboxDispatch={inboxDispatch}/>
+      setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                                 message={message} inboxDispatch={inboxDispatch}/>,
+        'DecideAnswerTitle', intl);
     } else {
-      item.expansionPanel = <BlockedWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                           message={message} inboxDispatch={inboxDispatch}/>
+      setItem(item, openExpansion, <BlockedWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                                  message={message} inboxDispatch={inboxDispatch}/>,
+        'DecideUnblockTitle', intl);
     }
   } else if (['FULLY_VOTED', 'UNREAD_RESOLVED'].includes(messageType)) {
-    item.expansionPanel = <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
-                                         message={message} inboxDispatch={inboxDispatch}/>;
+    setItem(item, openExpansion, <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
+                                                message={message} inboxDispatch={inboxDispatch}/>,
+      messageType === 'UNREAD_RESOLVED' ? 'DecideResolveReopenTitle' : 'DecideResolveTitle', intl);
   } else if (['UNREAD_REVIEWABLE', 'UNASSIGNED', 'REVIEW_REQUIRED'].includes(messageType)) {
     if (linkType === 'MARKET_TODO') {
-      item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId} message={message}
-                                         inboxDispatch={inboxDispatch}/>;
+      setItem(item, openExpansion, item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId}
+                                                                      message={message} inboxDispatch={inboxDispatch}/>,
+      'DecideStartTitle', intl);
     } else if (linkType === 'INVESTIBLE_REVIEW') {
-      item.expansionPanel = <ReviewWizard investibleId={investibleId} marketId={marketId} message={message}
-                                          inboxDispatch={inboxDispatch}/>;
+      setItem(item, openExpansion, <ReviewWizard investibleId={investibleId} marketId={marketId} message={message}
+                                                 inboxDispatch={inboxDispatch}/>, 'DecideReviewTitle', intl);
     } else {
-      item.expansionPanel = <AssignWizard investibleId={investibleId} marketId={marketId} message={message}
-                                          inboxDispatch={inboxDispatch}/>;
+      setItem(item, openExpansion, <AssignWizard investibleId={investibleId} marketId={marketId} message={message}
+                                                 inboxDispatch={inboxDispatch}/>, 'DecideAssignmentTitle', intl);
     }
   }
 }

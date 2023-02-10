@@ -84,7 +84,7 @@ function DecideStartStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Can you start this bug now?
+        {intl.formatMessage({id: 'DecideStartTitle'})}
       </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox

@@ -22,6 +22,7 @@ import { formCommentLink } from '../../../utils/marketIdPathFunctions'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
+import { useIntl } from 'react-intl';
 
 
 function DecideAnswerStep(props) {
@@ -37,6 +38,7 @@ function DecideAnswerStep(props) {
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
+  const intl = useIntl();
   const workItemClasses = workListStyles();
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -69,7 +71,7 @@ function DecideAnswerStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Can you help answer this question?
+        {intl.formatMessage({id: 'DecideAnswerTitle'})}
       </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox

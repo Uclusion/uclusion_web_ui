@@ -32,6 +32,7 @@ import _ from 'lodash'
 import { stageChangeInvestible } from '../../../api/investibles'
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { useIntl } from 'react-intl';
 
 function DecideUnblockStep(props) {
   const { marketId, commentId, clearFormData, message } = props;
@@ -42,6 +43,7 @@ function DecideUnblockStep(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
+  const intl = useIntl();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
@@ -110,7 +112,7 @@ function DecideUnblockStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        How will you help unblock?
+        {intl.formatMessage({id: 'DecideUnblockTitle'})}
       </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox

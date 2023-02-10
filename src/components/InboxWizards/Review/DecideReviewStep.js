@@ -15,12 +15,14 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { useIntl } from 'react-intl';
 
 function DecideReviewStep(props) {
   const { marketId, investibleId, message, clearFormData } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = wizardStyles();
   const history = useHistory();
+  const intl = useIntl();
   const [commentsState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const isUnread = message.type_object_id.startsWith('UNREAD');
@@ -39,7 +41,7 @@ function DecideReviewStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        How will you review this job?
+        {intl.formatMessage({id: 'DecideReviewTitle'})}
       </Typography>
       {!isUnread && (
         <Typography className={classes.introSubText} variant="subtitle1">

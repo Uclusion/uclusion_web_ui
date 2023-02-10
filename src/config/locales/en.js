@@ -1013,6 +1013,22 @@ const messages = defineMessages({
   warningOffline: 'You are offline',
   optionalEdit: 'These fields are optional and can be changed at any time',
 
+  // Inbox row titles
+  DecideAssignTitle: 'Wil you reassign?',
+  DecideStageTitle: 'Move this job?',
+  WaitingAssistanceTitle: 'Do you still need help?',
+  JobApprovalTitle: 'Do you approve this job?',
+  DecideAnswerTitle: 'Can you help answer?',
+  DecideVoteTitle: 'How do you vote?',
+  JobStatusTitle: 'How will you report?',
+  DecideAcceptRejectTitle: 'Follow this suggestion?',
+  DecideUnblockTitle: 'How will you help unblock?',
+  DecideResolveReopenTitle: 'Do you reopen?',
+  DecideResolveTitle: 'Can you resolve this?',
+  DecideStartTitle: 'Can you start this bug?',
+  DecideReviewTitle: 'How will you review?',
+  DecideAssignmentTitle: 'Can you take this job?',
+
   // Comments
   issuePresent: 'Blocking Issue',
   nonBlockIssuePresent: 'Issue',

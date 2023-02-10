@@ -11,6 +11,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { useIntl } from 'react-intl';
 
 function DecideVoteStep(props) {
   const { marketId, commentRoot, updateFormData } = props;
@@ -20,6 +21,7 @@ function DecideVoteStep(props) {
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
+  const intl = useIntl();
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage } = marketInfo;
@@ -31,7 +33,7 @@ function DecideVoteStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        How do you vote?
+        {intl.formatMessage({id: 'DecideVoteTitle'})}
       </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox

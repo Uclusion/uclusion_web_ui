@@ -18,6 +18,7 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
+import { useIntl } from 'react-intl';
 
 
 function DecideAssignStep(props) {
@@ -29,6 +30,7 @@ function DecideAssignStep(props) {
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const history = useHistory();
+  const intl = useIntl();
   const classes = wizardStyles();
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
@@ -63,7 +65,7 @@ function DecideAssignStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Does this job assignment work?
+        {intl.formatMessage({id: 'DecideAssignTitle'})}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         You assigned this job <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/> and

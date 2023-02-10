@@ -12,6 +12,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
+import { useIntl } from 'react-intl';
 
 
 function JobDescriptionStatusStep(props) {
@@ -19,6 +20,7 @@ function JobDescriptionStatusStep(props) {
   const classes = wizardStyles();
   const [commentsState] = useContext(CommentsContext);
   const history = useHistory();
+  const intl = useIntl();
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, true);
 
@@ -28,7 +30,7 @@ function JobDescriptionStatusStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        How will you report status?
+        {intl.formatMessage({id: 'JobStatusTitle'})}
       </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
       <WizardStepButtons

@@ -19,6 +19,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { useIntl } from 'react-intl';
 
 
 function DecideAssignStep(props) {
@@ -31,6 +32,7 @@ function DecideAssignStep(props) {
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
+  const intl = useIntl();
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const classes = wizardStyles();
@@ -64,7 +66,7 @@ function DecideAssignStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Can you take this job?
+        {intl.formatMessage({id: 'DecideAssignmentTitle'})}
       </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
       <WizardStepButtons

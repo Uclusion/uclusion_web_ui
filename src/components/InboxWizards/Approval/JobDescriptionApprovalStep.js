@@ -22,6 +22,7 @@ import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import { setUclusionLocalStorageItem } from '../../localStorageUtils';
 import { getJobApproveEditorName } from './JobApproveStep';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { useIntl } from 'react-intl';
 
 
 function JobDescriptionStep (props) {
@@ -35,6 +36,7 @@ function JobDescriptionStep (props) {
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
+  const intl = useIntl();
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const userId = getMyUserForMarket(marketsState, marketId);
@@ -55,7 +57,7 @@ function JobDescriptionStep (props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Should this job be done now?
+        {intl.formatMessage({id: 'JobApprovalTitle'})}
       </Typography>
       {wasDeleted && (
         <Typography className={classes.introSubText} variant="subtitle1">

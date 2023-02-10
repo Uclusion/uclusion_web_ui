@@ -448,7 +448,7 @@ function CommentAdd(props) {
                   showOtherNext={true}
                   otherNextLabel="yellowBugAdd"
                   onOtherNext={() => handleSave( true, 'YELLOW')}
-                  finish={() => handleSave( true, 'BLUE')}
+                  onTerminate={() => handleSave( true, 'BLUE')}
                   showTerminate={true}
                   terminateLabel="blueBugAdd"/>
               )}

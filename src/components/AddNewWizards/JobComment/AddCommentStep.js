@@ -51,7 +51,7 @@ function AddCommentStep (props) {
     >
     <div>
       <Typography className={classes.introText}>
-        What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Tip` }).toLowerCase()}?
+        What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?
       </Typography>
       {isAssistance && !inAssistanceStage && (
         <Typography className={classes.introSubText} variant="subtitle1">

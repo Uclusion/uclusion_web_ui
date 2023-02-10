@@ -212,14 +212,14 @@ export function formMarketEditLink(marketId) {
 }
 
 export function formInvestibleAddCommentLink(wizardType, investibleId, marketId, commentType) {
-  const baseLink = `/wizard#type=${wizardType.toLowerCase()}&investibleId=${investibleId}`;
-  if (commentType) {
-    return `${baseLink}&commentType=${commentType}`;
-  }
+  let link = `/wizard#type=${wizardType.toLowerCase()}&investibleId=${investibleId}`;
   if (marketId) {
-    return `${baseLink}&marketId=${marketId}`;
+    link += `&marketId=${marketId}`;
   }
-  return baseLink;
+  if (commentType) {
+    link += `&commentType=${commentType}`;
+  }
+  return link;
 }
 
 export function formMarketAddCommentLink(wizardType, marketId, groupId) {

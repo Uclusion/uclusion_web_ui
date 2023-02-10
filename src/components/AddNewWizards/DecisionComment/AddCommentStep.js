@@ -39,6 +39,7 @@ function AddCommentStep (props) {
   return (
     <WizardStepContainer
       {...props}
+      isLarge
     >
     <div>
       <Typography className={classes.introText}>

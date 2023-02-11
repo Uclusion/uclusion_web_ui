@@ -28,7 +28,7 @@ import {
 import { scrollToElement } from '../../../contexts/ScrollContext';
 
 const Item = styled("div")`
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   min-width: 40vw;
 `
 

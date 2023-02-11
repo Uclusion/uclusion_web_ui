@@ -81,7 +81,7 @@ function AddInitialVote(props) {
   const [Editor] = useEditor(editorName, editorSpec);
 
   return (
-    <div style={{paddingLeft: '1rem', paddingBottom: '0.5rem'}}>
+    <div style={{paddingBottom: '0.5rem'}}>
         <FormControl className={classes.certainty}>
           <FormLabel
             className={classes.certaintyLabel}

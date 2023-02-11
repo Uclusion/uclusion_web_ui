@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { addCommentToMarket, getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { getStages, isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
@@ -23,8 +23,6 @@ import { onDropTodo } from '../../../pages/Dialog/Planning/userUtils'
 import { useIntl } from 'react-intl'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
-import { updateComment } from '../../../api/comments';
-import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 
@@ -47,13 +45,16 @@ function DecideStartStep(props) {
   const workItemClasses = workListStyles();
   const marketStages = getStages(marketStagesState, marketId) || [];
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
-  const isRedLevel = commentRoot.notification_type === RED_LEVEL;
+
+  function goToComment() {
+    navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentId));
+  }
 
   function myTerminate() {
     if (message.is_highlighted) {
       removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
     } else {
-      navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentId))
+      goToComment();
     }
   }
 
@@ -64,17 +65,6 @@ function DecideStartStep(props) {
         clearFormData();
         wizardFinish( { link: formInvestibleLink(marketId, investibleId) }, setOperationRunning, message,
           history, marketId, investibleId, messagesDispatch);
-      });
-  }
-
-  function moveTodo(notificationType) {
-    return updateComment(marketId, commentId, undefined, undefined, undefined,
-      undefined, notificationType)
-      .then((comment) => {
-        addCommentToMarket(comment, commentState, commentsDispatch);
-        removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
-      }).finally(() => {
-        setOperationRunning(false);
       });
   }
 
@@ -99,9 +89,9 @@ function DecideStartStep(props) {
         {...props}
         nextLabel="DecideStartBug"
         onNext={myAccept}
-        showOtherNext
-        otherNextLabel="DecideMove"
-        onOtherNext={() => moveTodo( isRedLevel ? YELLOW_LEVEL : BLUE_LEVEL)}
+        showOtherNext={message.is_highlighted}
+        otherNextLabel="DecideWizardContinue"
+        onOtherNext={goToComment}
         terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss'
           : (message.is_highlighted ? 'markRead' : 'DecideWizardContinue' ) }
         showTerminate={true}

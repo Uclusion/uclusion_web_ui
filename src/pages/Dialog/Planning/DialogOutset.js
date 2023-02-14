@@ -41,7 +41,7 @@ function DialogOutset(props) {
       height: '100vh',
       marginRight: '1rem',
       overflowY: 'none',
-      boxShadow: "2px 2px 2px grey",
+      boxShadow: "2px 2px 2px lightgrey",
       display: 'none'
     }}
          onMouseEnter={() => {

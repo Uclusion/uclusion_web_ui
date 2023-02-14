@@ -284,7 +284,10 @@ function PlanningDialog(props) {
                   </SpinningIconLabelButton>
                 </>
               )}
-              <CommentBox comments={questions} marketId={marketId} allowedTypes={[QUESTION_TYPE]}/>
+              <CommentBox
+                comments={notTodoComments.filter((comment) =>
+                  [QUESTION_TYPE, REPLY_TYPE].includes(comment.comment_type))}
+                marketId={marketId} allowedTypes={[QUESTION_TYPE]}/>
             </Grid>
           </div>
         )}
@@ -308,7 +311,10 @@ function PlanningDialog(props) {
                   </SpinningIconLabelButton>
                 </>
               )}
-              <CommentBox comments={suggestions} marketId={marketId} allowedTypes={[SUGGEST_CHANGE_TYPE]}/>
+              <CommentBox
+                comments={notTodoComments.filter((comment) =>
+                [SUGGEST_CHANGE_TYPE, REPLY_TYPE].includes(comment.comment_type))}
+                marketId={marketId} allowedTypes={[SUGGEST_CHANGE_TYPE]}/>
             </Grid>
           </div>
         )}

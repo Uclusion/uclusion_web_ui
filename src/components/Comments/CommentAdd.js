@@ -4,7 +4,7 @@ import _ from 'lodash'
 import {
   darken,
   makeStyles,
-  Paper,
+  Paper, Typography, useMediaQuery, useTheme,
 } from '@material-ui/core';
 import PropTypes from 'prop-types'
 import { getMentionsFromText, saveComment } from '../../api/comments';
@@ -57,6 +57,8 @@ import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
 import WizardStepButtons from '../InboxWizards/WizardStepButtons'
 import AddWizardStepButtons from '../AddNewWizards/WizardStepButtons'
 import { nameFromDescription } from '../../utils/stringFunctions';
+import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
+import { Clear, Send } from '@material-ui/icons';
 
 function getPlaceHolderLabelId(type, isInReview, isAssigned) {
   switch (type) {
@@ -284,14 +286,15 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
 
 function CommentAdd(props) {
   const {
-    marketId, groupId, onSave, type, investible, parent, nameKey,
+    marketId, groupId, onSave, type, investible, parent, nameKey, onCancel,
     mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset, autoFocus=true, threadMessages,
     nameDifferentiator='', wizardProps
   } = props;
   const {
     uploadedFiles
   } = commentAddState;
-
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const workItemClasses = workListStyles();
   const [commentsState, commentDispatch] = useContext(CommentsContext);
@@ -323,6 +326,32 @@ function CommentAdd(props) {
     && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id;
   const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
+
+  function handleClear () {
+    replaceEditorContents('', editorName);
+    onCancel();
+  }
+
+  // Having to pass in buttons because of issues with LoadingOverlay in intermediate sizes
+  const buttons = (
+    <div style={{marginTop: '0.5rem'}}>
+      <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
+        {intl.formatMessage({ id: 'commentReplyCancelLabel' })}
+      </SpinningIconLabelButton>
+      <SpinningIconLabelButton
+        onClick={() => handleSave()}
+        icon={Send}
+        id={`commentSendButton${nameDifferentiator}`}
+      >
+        {intl.formatMessage({ id: 'commentAddSendLabel' })}
+      </SpinningIconLabelButton>
+      {!mobileLayout && (
+        <Typography className={classes.storageIndicator}>
+          {intl.formatMessage({ id: 'edited' })}
+        </Typography>
+      )}
+    </div>
+  );
 
   useEffect(() => {
     // If didn't focus to begin with then focus when type is changed
@@ -425,6 +454,7 @@ function CommentAdd(props) {
     onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
     mentionsAllowed,
     onChange: () => setHasValue(true),
+    buttons: type === REPLY_TYPE ? buttons : undefined
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 

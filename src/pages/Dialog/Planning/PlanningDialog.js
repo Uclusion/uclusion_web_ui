@@ -50,7 +50,13 @@ import InvestiblesByPerson from './InvestiblesByPerson'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { baseNavListItem, formMarketAddCommentLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  baseNavListItem,
+  formArchiveCommentLink,
+  formMarketAddCommentLink,
+  formMarketLink,
+  navigate
+} from '../../../utils/marketIdPathFunctions';
 import { isInStages } from './userUtils'
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
@@ -151,30 +157,29 @@ function PlanningDialog(props) {
 
   useEffect(() => {
     if (hash && !hidden) {
-      if (hash.includes('workspaceMain')) {
-        updatePageState({ sectionOpen: 'workspaceMain', tabIndex: 3 })
-      } else {
-        const element = document.getElementById(hash.substring(1, hash.length));
-        if (!element) {
-          const found = comments.find((comment) => hash.includes(comment.id));
-          if (!_.isEmpty(found)) {
-            const rootComment = filterToRoot(comments, found.id);
-            if (_.isEmpty(rootComment.investible_id)) {
-              if (!rootComment.resolved) {
-                if (rootComment.comment_type === TODO_TYPE) {
-                  updatePageState({ sectionOpen: 'marketTodos', tabIndex: 1 });
-                } else {
-                  updatePageState({ sectionOpen: 'workspaceMain', tabIndex: 3 });
-                }
+      const element = document.getElementById(hash.substring(1, hash.length));
+      if (!element) {
+        const found = comments.find((comment) => hash.includes(comment.id));
+        if (!_.isEmpty(found)) {
+          const rootComment = filterToRoot(comments, found.id);
+          if (_.isEmpty(rootComment.investible_id)) {
+            if (!rootComment.resolved) {
+              if (rootComment.comment_type === TODO_TYPE) {
+                updatePageState({ sectionOpen: 'marketTodos', tabIndex: 2 });
+              } else if (rootComment.comment_type === QUESTION_TYPE) {
+                updatePageState({ sectionOpen: 'questions', tabIndex: 3 });
               } else {
-                // TODO send over to the archives
+                updatePageState({ sectionOpen: 'suggestions', tabIndex: 4 });
               }
+            } else {
+              // send over to the archives
+              navigate(history, formArchiveCommentLink(marketId, groupId, found.id), true);
             }
           }
         }
       }
     }
-  }, [comments, hash, hidden, sectionOpen, updatePageState]);
+  }, [comments, groupId, hash, hidden, history, marketId, updatePageState]);
 
   function openSubSection(subSection) {
     updatePageState({sectionOpen: subSection});

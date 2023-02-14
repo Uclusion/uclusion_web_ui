@@ -176,6 +176,10 @@ export function formCommentLink(marketId, groupId, investibleId, commentId) {
   return formMarketLink(marketId, groupId) + commentPart;
 }
 
+export function formArchiveCommentLink(marketId, groupId, commentId) {
+  return formGroupArchiveLink(marketId, groupId) + `#c${commentId}`;
+}
+
 export function formInvestibleLinkWithPrefix(preFix, marketId, investibleId) {
   return `/${preFix}/${marketId}/${investibleId}`;
 }

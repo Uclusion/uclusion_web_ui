@@ -70,10 +70,10 @@ function getAnchorId(tabIndex) {
       return 'backlogSection';
     case 2:
       return 'marketTodos'
-    case 4:
-      return 'archive';
+    case 3:
+      return 'questions';
     default:
-      return 'workspaceMain';
+      return 'suggestions';
   }
 }
 
@@ -106,7 +106,6 @@ function PlanningDialog(props) {
   // There is no link to a reply so including them should be okay
   const notTodoComments = unResolvedMarketComments.filter(comment =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
-  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const [marketPresencesState] = useContext(MarketPresencesContext);
   // For security reasons you can't access source data while being dragged in case you are not the target website
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
@@ -279,12 +278,13 @@ function PlanningDialog(props) {
                   <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
                     alignItems: 'center', marginRight: 'auto', marginLeft: 'auto', marginTop: '1rem'}}
                                            onClick={() => navigate(history,
-                                             formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId))}>
+                                             formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
+                                               QUESTION_TYPE))}>
                     <FormattedMessage id='createDiscussion'/>
                   </SpinningIconLabelButton>
                 </>
               )}
-              <CommentBox comments={questions} marketId={marketId} allowedTypes={allowedCommentTypes}/>
+              <CommentBox comments={questions} marketId={marketId} allowedTypes={[QUESTION_TYPE]}/>
             </Grid>
           </div>
         )}
@@ -302,12 +302,13 @@ function PlanningDialog(props) {
                   <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
                     alignItems: 'center', marginRight: 'auto', marginLeft: 'auto', marginTop: '1rem'}}
                                            onClick={() => navigate(history,
-                                             formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId))}>
+                                             formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
+                                               SUGGEST_CHANGE_TYPE))}>
                     <FormattedMessage id='createDiscussion'/>
                   </SpinningIconLabelButton>
                 </>
               )}
-              <CommentBox comments={questions} marketId={marketId} allowedTypes={allowedCommentTypes}/>
+              <CommentBox comments={suggestions} marketId={marketId} allowedTypes={[SUGGEST_CHANGE_TYPE]}/>
             </Grid>
           </div>
         )}

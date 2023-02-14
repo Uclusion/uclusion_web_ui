@@ -230,8 +230,8 @@ export function formInvestibleAddCommentLink(wizardType, investibleId, marketId,
   return link;
 }
 
-export function formMarketAddCommentLink(wizardType, marketId, groupId) {
-  return `/wizard#type=${wizardType}&marketId=${marketId}&groupId=${groupId}`
+export function formMarketAddCommentLink(wizardType, marketId, groupId, commentType) {
+  return `/wizard#type=${wizardType}&marketId=${marketId}&groupId=${groupId}&commentType=${commentType}`
 }
 
 export function formMarketAddInvestibleLink(marketId, groupId, assigneeId) {

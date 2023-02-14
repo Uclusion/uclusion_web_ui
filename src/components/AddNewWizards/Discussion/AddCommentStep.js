@@ -11,14 +11,13 @@ import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 
 function AddCommentStep (props) {
-  const { marketId, groupId, formData, updateFormData } = props;
+  const { marketId, groupId, updateFormData, useType } = props;
   const intl = useIntl();
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
     getPageReducerPage(commentAddStateFull, commentAddDispatch, groupId);
-  const { useType } = formData;
 
   function onSave(comment) {
     if (comment.is_sent) {

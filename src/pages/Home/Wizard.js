@@ -60,7 +60,7 @@ function Wizard(props) {
         <JobCommentWizard investibleId={investibleId} marketId={marketId} commentType={commentType} />
       )}
       {createType === DISCUSSION_WIZARD_TYPE.toLowerCase() && (
-        <DiscussionWizard marketId={marketId} groupId={groupId} />
+        <DiscussionWizard marketId={marketId} groupId={groupId} commentType={commentType} />
       )}
     </Screen>
   );

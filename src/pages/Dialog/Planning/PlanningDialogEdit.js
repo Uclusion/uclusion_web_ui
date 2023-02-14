@@ -25,7 +25,6 @@ import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import ManageExistingUsers from '../UserManagement/ManageExistingUsers'
 import Autocomplete from '@material-ui/lab/Autocomplete'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
 import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
@@ -46,10 +45,9 @@ const useStyles = makeStyles((theme) => {
 });
 
 function PlanningDialogEdit(props) {
-  const { group, userId } = props;
+  const { group } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
-  const [, diffDispatch] = useContext(DiffContext);
   const { id, market_id: marketId } = group;
   const intl = useIntl();
   const theme = useTheme();
@@ -85,12 +83,7 @@ function PlanningDialogEdit(props) {
   }
 
   function onSaveSettings(savedGroup) {
-    const diffSafe = {
-      ...savedGroup,
-      updated_by: userId,
-      updated_by_you: true,
-    };
-    addGroupToStorage(groupsDispatch, diffDispatch, marketId, diffSafe);
+    addGroupToStorage(groupsDispatch, marketId, savedGroup);
   }
 
   function handleSave() {
@@ -210,7 +203,6 @@ function PlanningDialogEdit(props) {
 
 PlanningDialogEdit.propTypes = {
   group: PropTypes.object.isRequired,
-  acceptedStage: PropTypes.object.isRequired
 };
 
 export default PlanningDialogEdit;

@@ -26,7 +26,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { Dialog } from '../../../components/Dialogs'
 import WarningIcon from '@material-ui/icons/Warning'
-import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
+import { useLockedDialogStyles } from '../../Dialog/LockedDialog'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Add, Clear, Delete, SettingsBackupRestore } from '@material-ui/icons'
 import { useEditor } from '../../../components/TextEditors/quillHooks';

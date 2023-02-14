@@ -7,7 +7,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { makeStyles } from '@material-ui/styles'
 import { Dialog } from '../../Dialogs'
-import { useLockedDialogStyles } from '../../../pages/Dialog/DialogBodyEdit'
+import { useLockedDialogStyles } from '../../../pages/Dialog/LockedDialog'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'

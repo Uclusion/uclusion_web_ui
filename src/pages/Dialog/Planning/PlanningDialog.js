@@ -37,11 +37,8 @@ import {
   isInReviewStage, isRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
-import MenuBookIcon from '@material-ui/icons/MenuBook'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
-import SettingsIcon from '@material-ui/icons/Settings'
-import PlanningDialogEdit from './PlanningDialogEdit'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import queryString from 'query-string'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
@@ -53,7 +50,6 @@ import InvestiblesByPerson from './InvestiblesByPerson'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
 import SubSection from '../../../containers/SubSection/SubSection'
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
-import DialogArchives from '../../DialogArchives/DialogArchives'
 import { baseNavListItem, formMarketAddCommentLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { isInStages } from './userUtils'
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
@@ -61,6 +57,8 @@ import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMemb
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { DISCUSSION_WIZARD_TYPE } from '../../../constants/markets';
+import DialogOutset from './DialogOutset';
+import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory';
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -74,8 +72,6 @@ function getAnchorId(tabIndex) {
       return 'marketTodos'
     case 4:
       return 'archive';
-    case 5:
-      return 'settingsSection';
     default:
       return 'workspaceMain';
   }
@@ -148,11 +144,6 @@ function PlanningDialog(props) {
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
     return stage && stage.appears_in_context && !stage.appears_in_market_summary;
   });
-  const archiveInvestibles = investibles.filter((inv) => {
-    const marketInfo = getMarketInfo(inv, marketId) || {};
-    const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
-    return stage && stage.close_comments_on_entrance;
-  });
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const presenceMap = getPresenceMap(marketPresences);
   function isSectionOpen(section) {
@@ -177,7 +168,7 @@ function PlanningDialog(props) {
                   updatePageState({ sectionOpen: 'workspaceMain', tabIndex: 3 });
                 }
               } else {
-                updatePageState({ sectionOpen: 'archive', tabIndex: 4 });
+                // TODO send over to the archives
               }
             }
           }
@@ -200,17 +191,6 @@ function PlanningDialog(props) {
     return comment.comment_type === TODO_TYPE && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   });
-  const resolvedMarketComments = comments.filter((comment) => {
-    if (_.isEmpty(search)) {
-      return !comment.investible_id && comment.resolved;
-    }
-    return !comment.investible_id && comment.resolved && (results.find((item) => item.id === comment.id)
-      || parentResults.find((id) => id === comment.id));
-  });
-  const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
-
-  const discussionSearchResults = (results.find((result) => result.id === marketId) ? 1 : 0) + _.size(questions)
-                        + _.size(suggestions);
   const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
   let navListItemTextArray = undefined;
@@ -231,14 +211,11 @@ function PlanningDialog(props) {
       createNavListItem(AssignmentInd, 'planningDialogNavStoriesLabel', 0, jobsSearchResults),
       createNavListItem(AssignmentIcon, 'planningDialogBacklog', 1, backlogSearchResults),
       createNavListItem(BugReport, 'todoSection', 2, _.size(todoComments)),
-      createNavListItem(QuestionIcon, 'planningDialogNavDiscussionLabel', 3, discussionSearchResults),
-      createNavListItem(MenuBookIcon, 'planningDialogViewArchivesLabel', 4, archivedSize),
-      createNavListItem(SettingsIcon, 'settings', 5)
+      createNavListItem(QuestionIcon, 'questions', 3, _.size(questions)),
+      createNavListItem(ChangeSuggstionIcon, 'suggestions', 4, _.size(suggestions)),
     ];
   }
-  function resetTabs() {
-    updatePageState({sectionOpen: undefined, tabIndex: 0});
-  }
+
   return (
     <Screen
       title={groupName}
@@ -246,6 +223,7 @@ function PlanningDialog(props) {
       tabTitle={groupName}
       banner={banner}
       openMenuItems={navListItemTextArray}
+      navigationOptions={{useHoverFunctions: true}}
     >
       <GmailTabs
         value={singleTabLayout ? 0 : tabIndex}
@@ -273,31 +251,28 @@ function PlanningDialog(props) {
           <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
                         tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
         )}
-        {(!singleTabLayout || sectionOpen === 'workspaceMain') && (
+        {(!singleTabLayout || sectionOpen === 'questions') && (
           <GmailTabItem icon={<QuestionIcon />}
-                        label={intl.formatMessage({id: 'planningDialogNavDiscussionLabel'})}
-                        tag={_.isEmpty(search) || discussionSearchResults === 0 ? undefined :
-                          `${discussionSearchResults}`} />
+                        label={intl.formatMessage({id: 'questions'})}
+                        tag={_.isEmpty(search) || _.isEmpty(questions) ? undefined : `${_.size(questions)}`} />
         )}
-        {(!singleTabLayout || sectionOpen === 'archive') && (
-          <GmailTabItem icon={<MenuBookIcon />}
-                        label={intl.formatMessage({id: 'planningDialogViewArchivesLabel'})}
-                        tag={_.isEmpty(search) ? undefined : `${archivedSize}`} />
-        )}
-        {(!singleTabLayout || sectionOpen === 'settingsSection') && (
-          <GmailTabItem icon={<SettingsIcon />}
-                        label={intl.formatMessage({id: 'settings'})} />
+        {(!singleTabLayout || sectionOpen === 'suggestions') && (
+          <GmailTabItem icon={<ChangeSuggstionIcon />}
+                        label={intl.formatMessage({id: 'suggestions'})}
+                        tag={_.isEmpty(search) || _.isEmpty(suggestions) ? undefined : `${_.size(suggestions)}`} />
         )}
       </GmailTabs>
-      <div style={{paddingTop: '4rem'}}>
-        {isSectionOpen('workspaceMain') && (
-          <div id="workspaceMain">
-            <Grid item id="commentAddArea" xs={12}>
+      <div style={{display: 'flex'}}>
+        <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} />
+      <div style={{paddingTop: '4rem', width: '100%'}}>
+        {isSectionOpen('questions') && (
+          <div id="questions">
+            <Grid item id="questionAddArea" xs={12}>
               {_.isEmpty(search) && marketId && !hidden && (
                 <>
-                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(notTodoComments)} text={
+                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questions)} text={
                     <div>
-                      <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Comments</Link> can
+                      <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions</Link> can
                       be used at the workspace level and later moved to a job.
                     </div>
                   }/>
@@ -309,7 +284,30 @@ function PlanningDialog(props) {
                   </SpinningIconLabelButton>
                 </>
               )}
-              <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={allowedCommentTypes}/>
+              <CommentBox comments={questions} marketId={marketId} allowedTypes={allowedCommentTypes}/>
+            </Grid>
+          </div>
+        )}
+        {isSectionOpen('suggestions') && (
+          <div id="suggestions">
+            <Grid item id="suggestionAddArea" xs={12}>
+              {_.isEmpty(search) && marketId && !hidden && (
+                <>
+                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(suggestions)} text={
+                    <div>
+                      <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Suggestions</Link> can
+                      be used at the workspace level and later moved to a job.
+                    </div>
+                  }/>
+                  <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
+                    alignItems: 'center', marginRight: 'auto', marginLeft: 'auto', marginTop: '1rem'}}
+                                           onClick={() => navigate(history,
+                                             formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId))}>
+                    <FormattedMessage id='createDiscussion'/>
+                  </SpinningIconLabelButton>
+                </>
+              )}
+              <CommentBox comments={questions} marketId={marketId} allowedTypes={allowedCommentTypes}/>
             </Grid>
           </div>
         )}
@@ -392,21 +390,7 @@ function PlanningDialog(props) {
                          updatePageState({sectionOpen: 'marketTodos', tabIndex: 1});
                        }} group={group} userId={myPresence.id}/>
         </LocalPlanningDragContext.Provider>
-        {!hidden && isSectionOpen('archive') && (
-          <DialogArchives />
-        )}
-        <Grid container spacing={2} id="settingsSection">
-          {!hidden && !_.isEmpty(acceptedStage) && !_.isEmpty(inVerifiedStage) &&
-            isSectionOpen('settingsSection') && _.isEmpty(search) && (
-              <PlanningDialogEdit
-                group={group}
-                userId={myPresence.id}
-                onCancel={() => resetTabs()}
-                acceptedStage={acceptedStage}
-                verifiedStage={inVerifiedStage}
-              />
-          )}
-        </Grid>
+      </div>
       </div>
     </Screen>
   );

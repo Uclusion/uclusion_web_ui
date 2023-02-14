@@ -11,7 +11,6 @@ export function doCreateGroup(dispatchers, formData) {
   const { marketId, name, votesRequired, investmentExpiration } = formData;
   const {
     groupsDispatch,
-    diffDispatch,
     groupMembersDispatch
   } = dispatchers;
 
@@ -29,7 +28,7 @@ export function doCreateGroup(dispatchers, formData) {
   return createGroup(marketId, groupInfo)
     .then((response) => {
       const { group, members } = response;
-      addGroupToStorage(groupsDispatch, diffDispatch, marketId, group);
+      addGroupToStorage(groupsDispatch, marketId, group);
       groupMembersDispatch(versionsUpdateGroupMembers(members));
       return group;
     });

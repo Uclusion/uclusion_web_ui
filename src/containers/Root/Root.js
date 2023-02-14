@@ -31,6 +31,8 @@ import Onboarding from '../../pages/Onboarding/Onboarding';
 import { IS_INVITED } from '../../utils/redirectUtils'
 import { getUclusionLocalStorageItem } from '../../components/localStorageUtils'
 import { setOperationInProgress } from '../../components/ContextHacks/OperationInProgressGlobalProvider';
+import GroupEdit from '../../pages/DialogSettings/GroupEdit';
+import DialogArchives from '../../pages/DialogArchives/DialogArchives';
 
 const useStyles = makeStyles({
   body: {
@@ -52,7 +54,6 @@ const useStyles = makeStyles({
     display: 'none',
   },
 });
-
 
 function Root() {
   const history = useHistory();
@@ -124,11 +125,19 @@ function Root() {
     return action !== 'marketEdit';
   }
 
+  function hideGroupSettings() {
+    return action !== 'groupEdit';
+  }
+
+  function hideGroupArchive() {
+    return action !== 'groupArchive';
+  }
+
   const isShortLink = pathname && (pathname.startsWith('/J-') || pathname.startsWith('/B-'));
 
   // Page Not Found
   const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWorkspaceWizard() && hideInbox()
-    && hideSlackInvite() && hideChangePassword() && hideMarketEdit()
+    && hideSlackInvite() && hideChangePassword() && hideMarketEdit() && hideGroupSettings() && hideGroupArchive()
     && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit() && !isShortLink);
 
   useEffect(() => {
@@ -232,6 +241,12 @@ function Root() {
             <ChangeNotificationPreferences hidden={hideChangeNotification()}/>
             {!hideMarketEdit() && (
               <PlanningMarketEdit />
+            )}
+            {!hideGroupSettings() && (
+              <GroupEdit />
+            )}
+            {!hideGroupArchive() && (
+              <DialogArchives />
             )}
             <PageNotFound hidden={hidePNF}/>
           </div>

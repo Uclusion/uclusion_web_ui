@@ -111,7 +111,7 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import GravatarGroup from '../Avatars/GravatarGroup'
 import SpinningButton from '../SpinBlocking/SpinningButton'
 import IssueDialog from '../Warnings/IssueDialog'
-import { useLockedDialogStyles } from '../../pages/Dialog/DialogBodyEdit'
+import { useLockedDialogStyles } from '../../pages/Dialog/LockedDialog'
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { getUiPreferences, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper'
 import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker'

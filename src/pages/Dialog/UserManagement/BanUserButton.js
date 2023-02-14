@@ -4,7 +4,7 @@ import BlockIcon from '@material-ui/icons/Block';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import WarningDialog from '../../../components/Warnings/WarningDialog';
 import { FormattedMessage } from 'react-intl';
-import { useLockedDialogStyles } from '../DialogBodyEdit';
+import { useLockedDialogStyles } from '../LockedDialog';
 import { banUser } from '../../../api/users';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { changeBanStatus } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';

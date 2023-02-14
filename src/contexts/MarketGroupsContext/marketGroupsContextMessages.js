@@ -30,7 +30,7 @@ function beginListening(dispatch, diffDispatch) {
     pushMessage(OPERATION_HUB_CHANNEL, { event: START_OPERATION, id: LOCK_GROUP });
     lockGroupForEdit(marketId, groupId).then((group) => {
       pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION, id: LOCK_GROUP });
-      addGroupToStorage(dispatch, () => {}, marketId, group);
+      addGroupToStorage(dispatch, marketId, group);
     });
   });
 }

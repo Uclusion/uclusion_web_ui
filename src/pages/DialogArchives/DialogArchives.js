@@ -22,9 +22,11 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { getMarketInfo } from '../../utils/userFunctions'
 import queryString from 'query-string'
+import Screen from '../../containers/Screen/Screen';
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 
 function DialogArchives() {
-
   const intl = useIntl();
   const location = useLocation();
   const { pathname, search: querySearch } = location;
@@ -38,6 +40,8 @@ function DialogArchives() {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [searchResults] = useContext(SearchResultsContext);
+  const [groupState] = useContext(MarketGroupsContext);
+  const group = getGroup(groupState, marketId, groupId) || {};
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const presenceMap = getPresenceMap(marketPresences);
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
@@ -82,8 +86,10 @@ function DialogArchives() {
   }
 
   return (
-    <>
-      <div style={{paddingBottom: '1rem'}} />
+    <Screen
+      title={`${group.name} Settings`}
+      tabTitle={`${group.name} Settings`}
+    >
       <SubSection
         type={SECTION_TYPE_SECONDARY_WARNING}
         bolder
@@ -126,7 +132,7 @@ function DialogArchives() {
           <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={[]} />
         </Grid>
       </Grid>
-    </>
+    </Screen>
   );
 }
 

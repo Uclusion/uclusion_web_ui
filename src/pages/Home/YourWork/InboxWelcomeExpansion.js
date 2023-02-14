@@ -23,7 +23,7 @@ import { useHistory } from 'react-router'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, Send } from '@material-ui/icons'
 import IssueDialog from '../../../components/Warnings/IssueDialog'
-import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
+import { useLockedDialogStyles } from '../../Dialog/LockedDialog'
 
 function InboxWelcomeExpansion() {
   const intl = useIntl();

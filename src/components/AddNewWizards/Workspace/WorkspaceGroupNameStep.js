@@ -9,7 +9,6 @@ import WizardStepButtons from '../WizardStepButtons'
 import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { versionsUpdateGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { formMarketLink } from '../../../utils/marketIdPathFunctions'
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
@@ -20,7 +19,6 @@ function WorkspaceGroupNameStep (props) {
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
-  const [, diffDispatch] = useContext(DiffContext);
   const [, groupMembersDispatch] = useContext(GroupMembersContext);
 
   function onNameChange (event) {
@@ -43,7 +41,7 @@ function WorkspaceGroupNameStep (props) {
     return createGroup(formData.marketId, groupInfo)
       .then((response) => {
         const { group, members } = response;
-        addGroupToStorage(groupsDispatch, diffDispatch, formData.marketId, group);
+        addGroupToStorage(groupsDispatch, formData.marketId, group);
         groupMembersDispatch(versionsUpdateGroupMembers(members));
         updateFormData({
           link: formMarketLink(formData.marketId, group.id),

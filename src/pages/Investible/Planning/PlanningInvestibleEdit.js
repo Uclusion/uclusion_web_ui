@@ -15,7 +15,7 @@ import CardType, {
 import { useIntl } from 'react-intl'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
-import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
+import { useLockedDialogStyles } from '../../Dialog/LockedDialog'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { makeStyles } from '@material-ui/core/styles'

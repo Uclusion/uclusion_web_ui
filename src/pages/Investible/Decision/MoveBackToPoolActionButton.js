@@ -9,7 +9,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { moveInvestibleBackToOptionPool } from '../../../api/investibles'
 import { Dialog } from '../../../components/Dialogs'
-import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit'
+import { useLockedDialogStyles } from '../../Dialog/LockedDialog'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'

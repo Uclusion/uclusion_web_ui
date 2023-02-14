@@ -211,6 +211,14 @@ export function formMarketEditLink(marketId) {
   return `/marketEdit/${marketId}`;
 }
 
+export function formGroupEditLink(marketId, groupId) {
+  return formatGroupLinkWithPrefix('groupEdit', marketId, groupId);
+}
+
+export function formGroupArchiveLink(marketId, groupId) {
+  return formatGroupLinkWithPrefix('groupArchive', marketId, groupId);
+}
+
 export function formInvestibleAddCommentLink(wizardType, investibleId, marketId, commentType) {
   let link = `/wizard#type=${wizardType.toLowerCase()}&investibleId=${investibleId}`;
   if (marketId) {

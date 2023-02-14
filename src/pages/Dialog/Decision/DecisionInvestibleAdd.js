@@ -13,7 +13,7 @@ import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLab
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { useEditor } from '../../../components/TextEditors/quillHooks';
 import IssueDialog from '../../../components/Warnings/IssueDialog'
-import { useLockedDialogStyles } from '../DialogBodyEdit'
+import { useLockedDialogStyles } from '../LockedDialog'
 import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'

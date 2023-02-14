@@ -34,6 +34,7 @@ import { ADD_COLLABORATOR_WIZARD_TYPE, PLANNING_TYPE } from '../../constants/mar
 import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper'
 import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -226,7 +227,7 @@ function Screen(props) {
   ;
 
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
-    const { onGroupClick } = navigationOptions || {};
+    const { onGroupClick, useHoverFunctions } = navigationOptions || {};
     const itemsSorted = _.sortBy(groupsState[defaultMarket.id], 'name');
     const items = itemsSorted.map((group) => {
       const isChosen = group.id === useGroupId;
@@ -241,7 +242,32 @@ function Screen(props) {
             onGroupClick();
           }
           navigate(history, formMarketLink(defaultMarket.id, group.id));
-        }};
+        },
+        onEnterFunc: () => {
+          if (isChosen && useHoverFunctions) {
+            const dialogOutset = document.getElementById(`dialogOutset`);
+            if (dialogOutset) {
+              if (DIALOG_OUTSET_STATE_HACK.timerId) {
+                clearTimeout(DIALOG_OUTSET_STATE_HACK.timerId);
+                DIALOG_OUTSET_STATE_HACK.timerId = undefined;
+              }
+              dialogOutset.style.display = 'block';
+            }
+          }
+        },
+        onLeaveFunc: () => {
+          if (isChosen && useHoverFunctions) {
+            const dialogOutset = document.getElementById(`dialogOutset`);
+            if (dialogOutset) {
+              DIALOG_OUTSET_STATE_HACK.timerId = setTimeout(function () {
+                if (DIALOG_OUTSET_STATE_HACK.open !== 1) {
+                  dialogOutset.style.display = 'none';
+                }
+              }, 2000);
+            }
+          }
+        }
+      }
     });
     navigationMenu.navListItemTextArray.push(...items);
   }

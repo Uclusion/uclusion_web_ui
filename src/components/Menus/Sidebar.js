@@ -9,7 +9,7 @@ import Chip from '@material-ui/core/Chip'
 
 function processRegularItem(properties) {
   const {classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-    index, search, openMenuItems, isLarge, isSubMenu} = properties;
+    index, search, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc} = properties;
   if (!text) {
     return React.Fragment
   }
@@ -39,6 +39,20 @@ function processRegularItem(properties) {
                       onClickFunc(event)
                     } else {
                       navigate(history, target, false, !newPage)
+                    }
+                  }
+                }
+                onMouseEnter={
+                  (event) => {
+                    if (onEnterFunc) {
+                      onEnterFunc(event);
+                    }
+                  }
+                }
+                onMouseLeave={
+                  (event) => {
+                    if (onLeaveFunc) {
+                      onLeaveFunc(event);
                     }
                   }
                 }
@@ -96,7 +110,8 @@ export default function Sidebar(props) {
       {!_.isEmpty(navListItemTextArray) && (
         <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {
-            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, openMenuItems } = navItem;
+            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, openMenuItems,
+              onEnterFunc, onLeaveFunc } = navItem;
             if (subItems) {
               return (
                 <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
@@ -111,7 +126,7 @@ export default function Sidebar(props) {
               );
             }
             return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-              index: topIndex, search, openMenuItems})
+              index: topIndex, search, openMenuItems, onEnterFunc, onLeaveFunc})
           })}
         </Menu>
       )}

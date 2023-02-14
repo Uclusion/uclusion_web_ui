@@ -45,7 +45,7 @@ import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton';
 import MoveToVerifiedActionButton from './MoveToVerifiedActionButton';
 import MoveToNotDoingActionButton from './MoveToNotDoingActionButton';
 import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction';
-import { useLockedDialogStyles } from '../../Dialog/DialogBodyEdit';
+import { useLockedDialogStyles } from '../../Dialog/LockedDialog';
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';

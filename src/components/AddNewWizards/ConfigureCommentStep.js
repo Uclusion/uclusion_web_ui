@@ -30,7 +30,7 @@ import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 
 function ConfigureCommentStep(props) {
-  const { updateFormData, formData } = props;
+  const { updateFormData, formData, useType } = props;
   const classes = useContext(WizardStylesContext);
   const workItemClasses = workListStyles();
   const history = useHistory();
@@ -41,7 +41,7 @@ function ConfigureCommentStep(props) {
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
-  const { useType, useAnswer, marketId, commentId, investibleId, currentStageId } = formData;
+  const { useAnswer, marketId, commentId, investibleId, currentStageId } = formData;
   const presences = usePresences(marketId);
 
   function quickAddComment(comment) {

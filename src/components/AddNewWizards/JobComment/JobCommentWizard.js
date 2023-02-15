@@ -18,7 +18,7 @@ function JobCommentWizard(props) {
           <AddOptionStep investibleId={investibleId} marketId={marketId} />
         )}
         {[QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) && (
-          <ConfigureCommentStep />
+          <ConfigureCommentStep useType={commentType} />
         )}
       </FormdataWizard>
     </WizardStylesProvider>

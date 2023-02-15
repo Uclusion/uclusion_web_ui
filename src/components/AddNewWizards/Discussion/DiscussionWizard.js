@@ -14,7 +14,7 @@ function DiscussionWizard(props) {
       <FormdataWizard name="discussion_wizard">
         <AddCommentStep marketId={marketId} groupId={groupId} useType={commentType}  />
         <AddOptionStep />
-        <ConfigureCommentStep />
+        <ConfigureCommentStep useType={commentType} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

@@ -63,12 +63,6 @@ function ConfigureCommentStep(props) {
     navigate(history, formCommentLink(marketId, comment.group_id, investibleId, commentId));
   }
 
-  function myOnFinish() {
-    return sendComment(marketId, commentId).then((response) => {
-      quickAddComment(response);
-    });
-  }
-
   function configureComment() {
     const useAnswerBool = useAnswer === 'Yes';
     if (useType === QUESTION_TYPE) {
@@ -97,7 +91,7 @@ function ConfigureCommentStep(props) {
       }
     }
   }
-
+  const defaultAnswer = useType === QUESTION_TYPE ? 'No' : 'Yes';
   return (
     <WizardStepContainer
       {...props}
@@ -120,7 +114,7 @@ function ConfigureCommentStep(props) {
             const { value } = event.target;
             updateFormData({ useAnswer: value });
           }}
-          value={useAnswer || ''}
+          value={useAnswer || defaultAnswer}
         >
           {['Yes', 'No'].map((answer) => {
             const answerId = `${useType}${answer}`;
@@ -146,9 +140,7 @@ function ConfigureCommentStep(props) {
         nextLabel="WizardContinue"
         onNext={configureComment}
         spinOnClick={true}
-        showTerminate={true}
-        finish={myOnFinish}
-        terminateLabel="DecideWizardContinue"
+        showTerminate={false}
       />
     </div>
     </WizardStepContainer>

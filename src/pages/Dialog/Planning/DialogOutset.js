@@ -9,24 +9,34 @@ import { Menu, MenuItem, ProSidebar, SidebarContent } from 'react-pro-sidebar';
 import { formGroupArchiveLink, formGroupEditLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
+import _ from 'lodash';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import Chip from '@material-ui/core/Chip';
 
 export const DIALOG_OUTSET_STATE_HACK = {};
 
 function DialogOutset(props) {
-  const { marketPresences, marketId, groupId } = props;
+  const { marketPresences, marketId, groupId, hidden, investibles, marketStages, comments } = props;
   const history = useHistory();
   const intl = useIntl();
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { results, parentResults, search } = searchResults;
   const groupCollaborators = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId)
   const classes = usePlanningInvestibleStyles();
-  // TODO handle popopen on search with number next to menu item (or however did for groups)
-  /*
-    const archiveInvestibles = investibles.filter((inv) => {
+
+  const archiveInvestibles = investibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
-    return stage && stage.close_comments_on_entrance;
+    const archived = stage && stage.close_comments_on_entrance;
+    if (_.isEmpty(search)) {
+      return archived;
+    }
+    return archived && (results.find((item) => item.id === inv.investible.id)
+      || parentResults.find((id) => id === inv.investible.id));
   });
-    const resolvedMarketComments = comments.filter((comment) => {
+  const resolvedMarketComments = comments.filter((comment) => {
     if (_.isEmpty(search)) {
       return !comment.investible_id && comment.resolved;
     }
@@ -34,7 +44,7 @@ function DialogOutset(props) {
       || parentResults.find((id) => id === comment.id));
   });
   const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
-   */
+  const isArchivedSearch = !hidden && !_.isEmpty(search) && archivedSize > 0;
   return (
     <div id="dialogOutset" style={{
       paddingTop: '4rem',
@@ -42,7 +52,7 @@ function DialogOutset(props) {
       marginRight: '1rem',
       overflowY: 'none',
       boxShadow: "2px 2px 2px lightgrey",
-      display: 'none'
+      display: isArchivedSearch ? 'block' : 'none'
     }}
          onMouseEnter={() => {
            const dialogOutset = document.getElementById(`dialogOutset`);
@@ -75,6 +85,12 @@ function DialogOutset(props) {
                         () => navigate(history, formGroupArchiveLink(marketId, groupId),
                           false, true)
                       }
+                      suffix={isArchivedSearch ?
+                        <Chip label={`${archivedSize}`} size='small' style={{
+                          backgroundColor: 'white',
+                          fontWeight: 'bold',
+                          border: '0.5px solid grey'
+                        }} /> : undefined}
             >
               {intl.formatMessage({id: 'planningDialogViewArchivesLabel'})}
             </MenuItem>

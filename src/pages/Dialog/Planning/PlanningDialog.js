@@ -267,7 +267,8 @@ function PlanningDialog(props) {
         )}
       </GmailTabs>
       <div style={{display: 'flex'}}>
-        <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} />
+        <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}
+                      investibles={investibles} marketStages={marketStages} comments={comments} />
       <div style={{paddingTop: '4rem', width: '100%'}}>
         {isSectionOpen('questions') && (
           <div id="questions">

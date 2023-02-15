@@ -569,7 +569,7 @@ function MarketTodos(props) {
           </SpinningIconLabelButton>
         ))}
         {!isInArchives && (
-          <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+          <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id="newMarketTodo"
                                    onClick={() => navigate(history,
                                      formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId))}>
             <FormattedMessage id='createNew'/>

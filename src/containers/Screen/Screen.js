@@ -218,10 +218,6 @@ function Screen(props) {
         {
           icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
           target: `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
-        },
-        {
-          icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }),
-          target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
         }
       ] : null}
   ;

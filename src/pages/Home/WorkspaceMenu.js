@@ -13,7 +13,7 @@ import { useIntl } from 'react-intl'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import AddIcon from '@material-ui/icons/Add'
 import { formMarketEditLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
-import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
+import { ADD_COLLABORATOR_WIZARD_TYPE, PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 import { setUclusionLocalStorageItem } from '../../components/localStorageUtils'
 
 const useStyles = makeStyles((theme) => ({
@@ -156,6 +156,16 @@ function WorkspaceMenu(props) {
           <ProSidebar width="14rem">
             <SidebarContent>
               <ProMenu iconShape="circle">
+                <MenuItem icon={<AddIcon htmlColor="black" />}
+                          key="addGroupKey" id="addGroupId"
+                          onClick={() => {
+                            recordPositionToggle();
+                            navigate(history,
+                              `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`);
+                          }}
+                >
+                  {intl.formatMessage({ id: 'homeAddGroup' })}
+                </MenuItem>
                 <MenuItem icon={<AddIcon htmlColor="black" />}
                           key="addWorkspace Key" id="addWorkspaceIconId"
                           onClick={()=> {

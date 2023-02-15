@@ -5,7 +5,6 @@ import { WizardStylesProvider } from '../WizardStylesContext'
 import FormdataWizard from 'react-formdata-wizard'
 import WorkspaceMembersStep from './WorkspaceMemberStep'
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../../localStorageUtils'
-import WorkspaceGroupNameStep from './WorkspaceGroupNameStep'
 import { navigate } from '../../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
@@ -42,7 +41,6 @@ function WorkspaceWizard (props) {
         onFinish={myOnFinish}
       >
         <WorkspaceNameStep onboarding={onboarding} onStartOnboarding={onStartOnboarding}/>
-        <WorkspaceGroupNameStep onboarding={onboarding} onStartOnboarding={onStartOnboarding}/>
         <WorkspaceMembersStep onboarding={onboarding}/>
       </FormdataWizard>
     </WizardStylesProvider>

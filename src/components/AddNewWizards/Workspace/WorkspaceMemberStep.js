@@ -21,7 +21,7 @@ function WorkspaceMembersStep(props) {
     const addToMarketId = formData.marketId;
     const value = getEmailList(addToMarketId);
     if (!_.isEmpty(value)) {
-      return inviteParticipants(addToMarketId, value, formData.groupId).then((result) => {
+      return inviteParticipants(addToMarketId, value).then((result) => {
         setEmailList([], addToMarketId);
         setOperationRunning(false);
         marketPresencesDispatch(addMarketPresences(addToMarketId, result));
@@ -32,19 +32,17 @@ function WorkspaceMembersStep(props) {
     finish();
   }
 
-  const teamText = formData.groupName ? `is on ${formData.groupName}` : 'needs to be in the workspace';
-
   return (
     <WizardStepContainer
       {...props}
     >
     <div>
       <Typography className={classes.introText} variant="h6">
-        Who else {teamText}?
+        Who else needs to be in the workspace?
       </Typography>
       <EmailEntryBox marketId={formData.marketId} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
       <div className={classes.borderBottom} />
-      <WizardStepButtons {...props} showSkip={false} showLink={true} finish={myOnFinish} formData={formData}/>
+      <WizardStepButtons {...props} showSkip={false} showLink={true} finish={myOnFinish} />
     </div>
     </WizardStepContainer>
   );

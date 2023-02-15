@@ -70,7 +70,7 @@ function ConfigureCommentStep(props) {
   }
 
   function configureComment() {
-    const useAnswerBool = useAnswer === 'Yes';
+    const useAnswerBool = (useAnswer || defaultAnswer) === 'Yes';
     if (useType === QUESTION_TYPE) {
       if (useAnswerBool) {
         updateComment(marketId, commentId, undefined, undefined, undefined,
@@ -142,7 +142,6 @@ function ConfigureCommentStep(props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
-        validForm={useAnswer !== undefined && useAnswer !== ''}
         nextLabel="WizardContinue"
         onNext={configureComment}
         spinOnClick={true}

@@ -63,6 +63,12 @@ function ConfigureCommentStep(props) {
     navigate(history, formCommentLink(marketId, comment.group_id, investibleId, commentId));
   }
 
+  function myOnFinish() {
+    return sendComment(marketId, commentId).then((response) => {
+      quickAddComment(response);
+    });
+  }
+
   function configureComment() {
     const useAnswerBool = useAnswer === 'Yes';
     if (useType === QUESTION_TYPE) {

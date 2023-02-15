@@ -139,17 +139,20 @@ export function removeWorkListItem(message, removeClass, messagesDispatch) {
     if (itemExpansion) {
       // Close expansion first, or it takes up too much area to transition nicely
       itemExpansion.style.display = "none";
-      modifyNotifications(event, typeObjectId, messagesDispatch);
-    } else {
-      // Only do transition style when no expansion panel as it might be flaky when other actions
-      item.addEventListener("transitionend",() => {
-        modifyNotifications(event, typeObjectId, messagesDispatch);
-      });
     }
+    item.addEventListener("transitionend",() => {
+      item.style.display = "none";
+      modifyNotifications(event, typeObjectId, messagesDispatch);
+    });
     item.classList.add(removeClass);
-  } else {
-    modifyNotifications(event, typeObjectId, messagesDispatch);
   }
+  // If event listener fails make sure to remove after 2s no matter what
+  setTimeout(function () {
+    modifyNotifications(event, typeObjectId, messagesDispatch);
+    if (item) {
+      item.style.display = "none";
+    }
+  }, 2000);
 }
 
 function WorkListItem(props) {

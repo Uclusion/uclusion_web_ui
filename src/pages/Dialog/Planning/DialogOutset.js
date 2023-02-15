@@ -11,39 +11,20 @@ import { useHistory } from 'react-router';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import _ from 'lodash';
-import { getMarketInfo } from '../../../utils/userFunctions';
 import Chip from '@material-ui/core/Chip';
 
 export const DIALOG_OUTSET_STATE_HACK = {};
 
 function DialogOutset(props) {
-  const { marketPresences, marketId, groupId, hidden, investibles, marketStages, comments } = props;
+  const { marketPresences, marketId, groupId, hidden, archivedSize } = props;
   const history = useHistory();
   const intl = useIntl();
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const { results, parentResults, search } = searchResults;
+  const { search } = searchResults;
   const groupCollaborators = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId)
   const classes = usePlanningInvestibleStyles();
 
-  const archiveInvestibles = investibles.filter((inv) => {
-    const marketInfo = getMarketInfo(inv, marketId) || {};
-    const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
-    const archived = stage && stage.close_comments_on_entrance;
-    if (_.isEmpty(search)) {
-      return archived;
-    }
-    return archived && (results.find((item) => item.id === inv.investible.id)
-      || parentResults.find((id) => id === inv.investible.id));
-  });
-  const resolvedMarketComments = comments.filter((comment) => {
-    if (_.isEmpty(search)) {
-      return !comment.investible_id && comment.resolved;
-    }
-    return !comment.investible_id && comment.resolved && (results.find((item) => item.id === comment.id)
-      || parentResults.find((id) => id === comment.id));
-  });
-  const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
   const isArchivedSearch = !hidden && !_.isEmpty(search) && archivedSize > 0;
   return (
     <div id="dialogOutset" style={{

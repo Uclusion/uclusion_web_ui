@@ -52,7 +52,7 @@ import SubSection from '../../../containers/SubSection/SubSection'
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import {
   baseNavListItem,
-  formArchiveCommentLink,
+  formArchiveCommentLink, formGroupArchiveLink, formGroupEditLink,
   formMarketAddCommentLink,
   formMarketLink,
   navigate
@@ -65,6 +65,8 @@ import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLab
 import { DISCUSSION_WIZARD_TYPE } from '../../../constants/markets';
 import DialogOutset from './DialogOutset';
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory';
+import SettingsIcon from '@material-ui/icons/Settings';
+import MenuBookIcon from '@material-ui/icons/MenuBook';
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -195,6 +197,24 @@ function PlanningDialog(props) {
     return comment.comment_type === TODO_TYPE && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   });
+  const archiveInvestibles = investibles.filter((inv) => {
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
+    const archived = stage && stage.close_comments_on_entrance;
+    if (_.isEmpty(search)) {
+      return archived;
+    }
+    return archived && (results.find((item) => item.id === inv.investible.id)
+      || parentResults.find((id) => id === inv.investible.id));
+  });
+  const resolvedMarketComments = comments.filter((comment) => {
+    if (_.isEmpty(search)) {
+      return !comment.investible_id && comment.resolved;
+    }
+    return !comment.investible_id && comment.resolved && (results.find((item) => item.id === comment.id)
+      || parentResults.find((id) => id === comment.id));
+  });
+  const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
   const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
   let navListItemTextArray = undefined;
@@ -217,6 +237,10 @@ function PlanningDialog(props) {
       createNavListItem(BugReport, 'todoSection', 2, _.size(todoComments)),
       createNavListItem(QuestionIcon, 'questions', 3, _.size(questions)),
       createNavListItem(ChangeSuggstionIcon, 'suggestions', 4, _.size(suggestions)),
+      {icon: SettingsIcon, text: intl.formatMessage({id: 'settings'}),
+        target: formGroupEditLink(marketId, groupId), num: 0, isBold: false},
+      {icon: MenuBookIcon, text: intl.formatMessage({id: 'planningDialogViewArchivesLabel'}),
+        target: formGroupArchiveLink(marketId, groupId), num: archivedSize, isBold: false}
     ];
   }
 
@@ -268,7 +292,7 @@ function PlanningDialog(props) {
       </GmailTabs>
       <div style={{display: 'flex'}}>
         <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}
-                      investibles={investibles} marketStages={marketStages} comments={comments} />
+                      archivedSize={archivedSize} />
       <div style={{paddingTop: '4rem', width: '100%'}}>
         {isSectionOpen('questions') && (
           <div id="questions">

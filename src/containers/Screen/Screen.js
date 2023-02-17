@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { Container, useMediaQuery, useTheme } from '@material-ui/core'
+import { useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
 import { useHistory, useLocation } from 'react-router'
 import Header from '../Header'
@@ -289,16 +289,15 @@ function Screen(props) {
         </div>
       )}
       {banner && !hidden && (
-        <Container className={classes.bannerContainer}>
+        <div className={classes.bannerContainer}>
           {banner}
-        </Container>
+        </div>
       )}
       <div className={contentClass}>
         {!reallyAmLoading && (
-          <Container className={myContainerClass}
-                     maxWidth={!hideMenu ? 'xl' : 'lg'}>
+          <div className={myContainerClass}>
             {children}
-          </Container>
+          </div>
         )}
         {reallyAmLoading && (
          <LoadingDisplay showMessage messageId="loadingMessage" />

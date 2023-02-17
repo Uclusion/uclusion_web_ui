@@ -270,7 +270,8 @@ CardType.propTypes = {
     NOT_DOING,
     ASSIGN_TYPE,
     OPTION,
-    PROPOSED
+    PROPOSED,
+    BUG
   ]),
   type: PropTypes.oneOf([
     "certainty5",

@@ -10,12 +10,12 @@ import {
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { useHistory } from 'react-router'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { pushMessage } from '../../../utils/MessageBusUtils'
+import { pushMessage, registerListener } from '../../../utils/MessageBusUtils';
 import queryString from 'query-string'
 import { INVITE_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
 import { userIsLoaded } from '../../../contexts/AccountContext/accountUserContextHelper'
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
-import { getMessages } from './InboxContext'
+import { contract, getMessages } from './InboxContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -24,6 +24,8 @@ import getReducer from './InboxContext'
 import { getOutboxMessages } from './InboxExpansionPanel'
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
+
+export const CLOSE_PANEL_CHANNEL = 'closePanel';
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -54,6 +56,12 @@ function InboxFull(props) {
   const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesFull, searchResults);
   const [inboxState, inboxDispatch] = useReducer(getReducer(messagesHash),
     {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
+  registerListener(CLOSE_PANEL_CHANNEL, 'inboxClosePanel', (data) => {
+    const { payload: { id } } = data;
+    if (id) {
+      inboxDispatch(contract(id));
+    }
+  });
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
   if (fromInvite && fromInvite !== 'loaded') {
     pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: fromInvite });

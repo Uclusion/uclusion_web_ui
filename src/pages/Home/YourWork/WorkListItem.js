@@ -26,6 +26,7 @@ import {
   removeMessages
 } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { scrollToElement } from '../../../contexts/ScrollContext';
+import { CLOSE_PANEL_CHANNEL } from './InboxFull';
 
 const Item = styled("div")`
   margin-bottom: 10px;
@@ -123,6 +124,7 @@ export function modifyNotifications (event, typeObjectId, messagesDispatch) {
     if (DELETE_EVENT === event) {
       messagesDispatch(removeMessages([typeObjectId]));
     } else {
+      pushMessage(CLOSE_PANEL_CHANNEL, { id: typeObjectId });
       messagesDispatch(dehighlightMessages([typeObjectId]));
     }
   } else {

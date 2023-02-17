@@ -5,6 +5,7 @@ const UPDATE_TAB = 'SET_TAB';
 const EXPAND_ALL_ON_PAGE = 'EXPAND_ALL_ON_PAGE';
 const CONTRACT_ALL_ON_PAGE = 'CONTRACT_ALL_ON_PAGE';
 const EXPAND_OR_CONTRACT = 'EXPAND_OR_CONTRACT';
+const CONTRACT = 'CONTRACT';
 const DEHIGHLIGHT_EXPANDED = 'DEHIGHLIGHT_EXPANDED';
 
 export const PAGE_SIZE = 15;
@@ -40,6 +41,13 @@ export function contractAll() {
 export function expandOrContract(id) {
   return {
     type: EXPAND_OR_CONTRACT,
+    id
+  };
+}
+
+export function contract(id) {
+  return {
+    type: CONTRACT,
     id
   };
 }
@@ -93,6 +101,18 @@ function toggleExpandRow(state, action) {
   return { ...state, expansionState: newExpandedState }
 }
 
+function contractRow(state, action) {
+  const { id } = action;
+  const { expansionState } = state;
+  let newExpandedState;
+  if (expansionState[id] === true) {
+    newExpandedState = _.omit(expansionState, id);
+  } else {
+    return state;
+  }
+  return { ...state, expansionState: newExpandedState }
+}
+
 function updateTab(state, action) {
   const { pageState, defaultPage } = state;
   const { tabNum } = action;
@@ -133,6 +153,8 @@ function getReducer(messagesHash) {
       case EXPAND_OR_CONTRACT:
         // Dehighlight happens on click method
         return toggleExpandRow(state, action);
+      case CONTRACT:
+        return contractRow(state, action);
       case DEHIGHLIGHT_EXPANDED:
         return state;
       default:

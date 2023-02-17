@@ -13,6 +13,7 @@ export const tabTheme = createTheme({
       md: 900,
       lg: 1200,
       xl: 1536,
+      xxl: 2000
     },
   },
 });
@@ -22,6 +23,7 @@ export function GmailTabItem(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intermediateLayout = useMediaQuery(tabTheme.breakpoints.down('lg'));
+  const largeLayout = useMediaQuery(tabTheme.breakpoints.up('xxl'));
   const tabItemStyles = useGmailTabItemStyles({ ...props, color });
   const useLabel = isInbox ? (mobileLayout ? '' : label) : (intermediateLayout ? '' : label);
   return (
@@ -30,7 +32,7 @@ export function GmailTabItem(props) {
       classes={tabItemStyles}
       {...other}
       id={label.replace(/[ &]/g, '')}
-      style={{maxWidth: mobileLayout ? undefined : '12vw'}}
+      style={{maxWidth: mobileLayout ? undefined : (largeLayout ? '16rem' : '12vw')}}
       label={
         <div className={'MuiTabItem-labelGroup'}>
           <div className={'MuiTabItem-label'}>

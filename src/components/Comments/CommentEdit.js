@@ -1,15 +1,12 @@
-import React, { useContext, useState } from 'react'
-import { FormattedMessage, useIntl } from 'react-intl'
+import React, { useContext } from 'react'
+import { useIntl } from 'react-intl'
 import {
   Card,
   CardActions,
   CardContent,
   darken,
-  FormControl,
-  FormControlLabel,
   makeStyles,
-  Radio,
-  RadioGroup, Typography, useMediaQuery, useTheme
+  Typography, useMediaQuery, useTheme
 } from '@material-ui/core';
 import PropTypes from 'prop-types'
 import { getMentionsFromText, updateComment } from '../../api/comments';
@@ -21,7 +18,6 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import _ from 'lodash';
-import clsx from 'clsx'
 import { onCommentOpen } from '../../utils/commentFunctions'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { findMessageOfType } from '../../utils/messageUtils'
@@ -46,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
   cardContent: {
     padding: 0,
+    paddingTop: '1rem'
   },
   cardActions: {
     padding: 8,
@@ -188,8 +185,7 @@ export function getIcon(commentType) {
 
 function CommentEdit(props) {
   const {
-    marketId, onSave, onCancel, comment, allowedTypes, myNotificationType, isInReview, editState, updateEditState,
-    editStateReset, messages
+    marketId, onSave, onCancel, comment, myNotificationType, editState, updateEditState, editStateReset, messages
   } = props;
   const {
     uploadedFiles,
@@ -199,12 +195,11 @@ function CommentEdit(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const workItemClasses = workListStyles();
-  const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, inline_market_id: inlineMarketId,
-    investible_id: investibleId, body: initialBody, creator_assigned: creatorAssigned } = comment;
+  const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, investible_id: investibleId,
+    body: initialBody, creator_assigned: creatorAssigned } = comment;
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
-  const [type, setType] = useState(commentType);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -220,7 +215,7 @@ function CommentEdit(props) {
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
-  function handleSave(isSend) {
+  function handleSave() {
     const currentUploadedFiles = uploadedFiles || [];
     const existingUploadedFiles = initialUploadedFiles || [];
     const newUploadedFiles = _.uniqBy([...existingUploadedFiles, ...currentUploadedFiles], 'path');
@@ -230,15 +225,14 @@ function CommentEdit(props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(newUploadedFiles, body);
     const mentions = getMentionsFromText(tokensRemoved);
-    const updatedType = type !== commentType ? type : undefined;
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType :
       (commentType === REPORT_TYPE ? notificationType : undefined);
     let label = undefined;
-    if (creatorAssigned && type === REPORT_TYPE) {
+    if (creatorAssigned && commentType === REPORT_TYPE) {
       label = nameFromDescription(tokensRemoved);
     }
-    return updateComment(marketId, id, tokensRemoved, updatedType, filteredUploads, mentions, myActualNotificationType,
-      undefined, label)
+    return updateComment(marketId, id, tokensRemoved, undefined, filteredUploads, mentions,
+      myActualNotificationType, undefined, label)
       .then((response) => {
         let comment = response;
         if (!_.isEmpty(label)) {
@@ -273,50 +267,9 @@ function CommentEdit(props) {
     onCancel();
   }
 
-  function onTypeChange(event) {
-    const { value } = event.target;
-    setType(value);
-  }
-
   return (
     <Card elevation={0} className={classes.visible} >
       <CardContent className={classes.cardContent}>
-        {allowedTypes.length > 1 && !inlineMarketId && (
-          <FormControl component="fieldset" className={classes.commentType}>
-            <RadioGroup
-              aria-labelledby="comment-type-choice"
-              className={classes.commentTypeGroup}
-              onChange={onTypeChange}
-              value={type}
-              row
-            >
-              {allowedTypes.map((commentType) => {
-                return (
-                  <FormControlLabel
-                    key={commentType}
-                    className={clsx(
-                      commentType === ISSUE_TYPE
-                        ? `${classes.chipItem} ${classes.chipItemIssue}`
-                        : commentType === QUESTION_TYPE ? `${classes.chipItem} ${classes.chipItemQuestion}`
-                        : commentType === SUGGEST_CHANGE_TYPE ? `${classes.chipItem} ${classes.chipItemSuggestion}`
-                          : commentType === TODO_TYPE ? `${classes.chipItem} ${classes.chipItemTodo}`
-                            : `${classes.chipItem} ${classes.chipItemReport}`,
-                      type === commentType ? classes.selected : classes.unselected
-                    )}
-                    /* prevent clicking the label stealing focus */
-                    onMouseDown={e => e.preventDefault()}
-                    control={<Radio color="primary" />}
-                    label={mobileLayout ? getIcon(commentType) :
-                      <FormattedMessage id={isInReview && commentType === REPORT_TYPE ? 'reviewReportPresent'
-                        : `${commentType.toLowerCase()}Present`} />}
-                    labelPlacement="end"
-                    value={commentType}
-                  />
-                );
-              })}
-            </RadioGroup>
-          </FormControl>
-        )}
         {Editor}
       </CardContent>
       <CardActions className={classes.cardActions}>
@@ -350,7 +303,6 @@ CommentEdit.propTypes = {
 
 CommentEdit.defaultProps = {
   allowedTypes: [],
-  onCancel: () => {},
   onSave: () => {},
 };
 

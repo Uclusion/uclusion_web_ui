@@ -53,10 +53,6 @@ import { SearchResultsContext } from '../../../contexts/SearchResultsContext/Sea
 import PlanningInvestibleEdit from './PlanningInvestibleEdit';
 import { removeInvestibleInvestments } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
-import { BLOCKED_STORY_TOUR, REQUIRES_INPUT_STORY_TOUR } from '../../../contexts/TourContext/tourContextHelper';
-import UclusionTour from '../../../components/Tours/UclusionTour';
-import { blockedStorySteps } from '../../../components/Tours/blockedStory';
-import { requiresInputStorySteps } from '../../../components/Tours/requiresInputStory';
 import { ACTIVE_STAGE, JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import {
   OPERATION_HUB_CHANNEL,
@@ -659,18 +655,6 @@ function PlanningInvestible(props) {
       hidden={hidden}
       openMenuItems={navListItemTextArray}
     >
-      <UclusionTour
-        name={BLOCKED_STORY_TOUR}
-        hidden={hidden || !isInBlocked}
-        autoStart={true}
-        steps={blockedStorySteps({isAssigned})}
-      />
-      <UclusionTour
-        name={REQUIRES_INPUT_STORY_TOUR}
-        hidden={hidden || !isRequiresInput}
-        autoStart={true}
-        steps={requiresInputStorySteps({isAssigned})}
-      />
       {(!mobileLayout || isOpenMobile) && (
         <div className={classes.paper} onClick={() => {
           if (mobileLayout) {

@@ -53,7 +53,11 @@ import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Divider from '@material-ui/core/Divider';
 import { formWizardCollaboratorsLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { JOB_ASSIGNEE_WIZARD_TYPE, JOB_COLLABORATOR_WIZARD_TYPE } from '../../../constants/markets';
+import {
+  JOB_APPROVERS_WIZARD_TYPE,
+  JOB_ASSIGNEE_WIZARD_TYPE,
+  JOB_COLLABORATOR_WIZARD_TYPE, JOB_REVIEWERS_WIZARD_TYPE
+} from '../../../constants/markets';
 import { useHistory } from 'react-router';
 
 export default function PlanningInvestibleNav(props) {
@@ -268,10 +272,6 @@ export default function PlanningInvestibleNav(props) {
     return menuItems;
   }
 
-  function toggleEditState(editType) {
-    return () => updatePageState({editCollaborators: editType});
-  }
-
   function setReadyToStart(isReadyToStart) {
     const updateInfo = {
       marketId,
@@ -378,7 +378,9 @@ export default function PlanningInvestibleNav(props) {
               marketPresences={marketPresences}
               assigned={isInVoting ? requiredApprovers : requiredReviewers}
               toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
-              toggleIconButton={isInVoting ? toggleEditState('approve') : toggleEditState('review')}
+              toggleIconButton={() => navigate(history,
+                formWizardCollaboratorsLink(isInVoting ? JOB_APPROVERS_WIZARD_TYPE :
+                  JOB_REVIEWERS_WIZARD_TYPE, marketId, investibleId))}
               assignmentColumnMessageId={isInVoting ? 'requiredApprovers' : 'requiredReviewers'}
             />
           </div>

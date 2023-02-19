@@ -1,0 +1,144 @@
+import React, { useContext } from 'react'
+import PropTypes from 'prop-types'
+import { Typography } from '@material-ui/core'
+import _ from 'lodash'
+import WizardStepContainer from '../WizardStepContainer'
+import { WizardStylesContext } from '../WizardStylesContext'
+import WizardStepButtons from '../WizardStepButtons'
+import AssignmentList from '../../../pages/Dialog/Planning/AssignmentList'
+import {
+  getMarketPresences,
+  removeInvestibleInvestments
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router'
+import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { getInvestibleVoters } from '../../../utils/votingUtils';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
+import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+
+function JobAssignStep (props) {
+  const { marketId, clearFormData, updateFormData, formData, onFinish, investibleId } = props;
+  const history = useHistory();
+  const [presencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const presences = getMarketPresences(presencesState, marketId);
+  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const classes = useContext(WizardStylesContext);
+  const inv = getInvestible(investibleState, investibleId);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { assigned } = marketInfo;
+  const value = (formData.wasSet ? formData.assigned : assigned) || [];
+  const validForm = !_.isEqual(formData.assigned, assigned);
+  const voters = getInvestibleVoters(marketPresences, investibleId);
+
+  function onAssignmentChange(newAssignments){
+    updateFormData({
+      assigned: newAssignments,
+      wasSet: true
+    });
+  }
+
+  function finish() {
+    clearFormData();
+    navigate(history, formInvestibleLink(marketId, investibleId));
+  }
+
+  function assignJob() {
+    if (_.isEmpty(value)) {
+      const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
+      const moveInfo = {
+        marketId,
+        investibleId,
+        stageInfo: {
+          current_stage_id: marketInfo.stage,
+          stage_id: furtherWorkStage.id,
+        },
+      };
+      return stageChangeInvestible(moveInfo)
+        .then((newInv) => {
+          onInvestibleStageChange(furtherWorkStage.id, newInv, investibleId, marketId, commentsState,
+            commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+            getFullStage(marketStagesState, marketId, marketInfo.stage));
+          setOperationRunning(false);
+          finish();
+        });
+    }
+    const updateInfo = {
+      marketId,
+      investibleId,
+      assignments: value,
+    };
+    return updateInvestible(updateInfo).then((fullInvestible) => {
+      refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
+      const messages = findMessagesForInvestibleId(investibleId, messagesState) || [];
+      const messageIds = messages.map((message) => message.type_object_id);
+      messagesDispatch(removeMessages(messageIds));
+      removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
+      setOperationRunning(false);
+      finish();
+    });
+  }
+
+  const reassigningWarning = _.isEmpty(voters) ? '' : 'Reassigning a job removes all approvals.';
+  const unassignedWarning = _.isEmpty(assigned) ? '' : 'An unassigned job will be sent to the job backlog.';
+
+  return (
+    <WizardStepContainer
+      {...props}
+    >
+      <div>
+        <Typography className={classes.introText} variant="h6">
+          Who should be working on the job?
+        </Typography>
+        <Typography className={classes.introSubText} variant="subtitle1">
+          {unassignedWarning} {reassigningWarning}
+        </Typography>
+        <AssignmentList
+          fullMarketPresences={presences}
+          previouslyAssigned={assigned}
+          onChange={onAssignmentChange}
+        />
+
+        <div className={classes.borderBottom}/>
+        <WizardStepButtons
+          {...props}
+          finish={onFinish}
+          validForm={validForm}
+          showNext={true}
+          showTerminate={true}
+          onNext={assignJob}
+          onTerminate={finish}
+          terminateLabel="JobWizardGotoJob"
+        />
+      </div>
+    </WizardStepContainer>
+  )
+}
+
+JobAssignStep.propTypes = {
+  updateFormData: PropTypes.func,
+  formData: PropTypes.object,
+}
+
+JobAssignStep.defaultProps = {
+  updateFormData: () => {},
+  formData: {},
+}
+
+export default JobAssignStep

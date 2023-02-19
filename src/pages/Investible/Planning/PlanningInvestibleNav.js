@@ -52,6 +52,9 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Divider from '@material-ui/core/Divider';
+import { formWizardCollaboratorsLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { JOB_ASSIGNEE_WIZARD_TYPE } from '../../../constants/markets';
+import { useHistory } from 'react-router';
 
 export default function PlanningInvestibleNav(props) {
   const { name, intermediateNotSingle, market, marketInvestible, classes, blockingCommentsUnresolved, userId,
@@ -60,6 +63,7 @@ export default function PlanningInvestibleNav(props) {
     investibleId } = props;
   const lockedDialogClasses = useLockedDialogStyles();
   const intl = useIntl();
+  const history = useHistory();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -307,10 +311,10 @@ export default function PlanningInvestibleNav(props) {
               marketPresences={marketPresences}
               assigned={assigned}
               highlighted={isInVoting ? assignedNotAccepted : undefined}
-              toggleIconButton={toggleEditState('assign')}
+              toggleIconButton={() => navigate(history,
+                formWizardCollaboratorsLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
               assignmentColumnMessageId='planningInvestibleAssignments'
               toolTipId='storyAddParticipantsLabel'
-              showMoveMessage
             />
           </div>
         </div>

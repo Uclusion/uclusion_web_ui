@@ -38,9 +38,8 @@ import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences } from '../../Dialog/Planning/userUtils';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { findMessageOfType, findMessagesForInvestibleId } from '../../../utils/messageUtils';
+import { findMessageOfType } from '../../../utils/messageUtils';
 import InvestibleBodyEdit from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
 import { pushMessage } from '../../../utils/MessageBusUtils';
@@ -50,8 +49,6 @@ import {
 } from '../../../contexts/InvestibesContext/investiblesContextMessages';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
-import PlanningInvestibleEdit from './PlanningInvestibleEdit';
-import { removeInvestibleInvestments } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import { ACTIVE_STAGE, JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import {
@@ -337,7 +334,6 @@ function PlanningInvestible(props) {
   const classes = usePlanningInvestibleStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
@@ -364,7 +360,6 @@ function PlanningInvestible(props) {
     {sectionOpen: 'descriptionVotingSection'});
   const {
     beingEdited,
-    editCollaborators,
     sectionOpen,
     isOpenMobile
   } = pageState;
@@ -560,21 +555,6 @@ function PlanningInvestible(props) {
 
   const displayApprovalsBySearch = _.isEmpty(search) ? _.size(invested) : _.size(investmentReasonsSearched);
 
-  function onSaveAssignments (result) {
-    // the edit ony contains the investible data and assignments, not the full market infos
-    if (result) {
-      const { fullInvestible, assignmentChanged } = result;
-      refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
-      if (assignmentChanged) {
-        const messages = findMessagesForInvestibleId(investibleId, messagesState) || [];
-        const messageIds = messages.map((message) => message.type_object_id);
-        messagesDispatch(removeMessages(messageIds));
-        removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
-      }
-    }
-    updatePageState({editCollaborators: false});
-  }
-
   function openSubSection(subSection) {
     updatePageState({sectionOpen: subSection});
   }
@@ -723,22 +703,6 @@ function PlanningInvestible(props) {
           )}
         </GmailTabs>
         <div style={{paddingTop: mobileLayout ? undefined : '4rem'}} />
-        {!hidden && editCollaborators && (
-          <>
-            <PlanningInvestibleEdit
-              fullInvestible={marketInvestible}
-              marketId={marketId}
-              marketPresences={marketPresences}
-              onSave={onSaveAssignments}
-              onCancel={() => updatePageState({editCollaborators: false})}
-              isAssign={editCollaborators === 'assign'}
-              isReview={editCollaborators === 'review'}
-              isApprove={editCollaborators === 'approve'}
-              isFollow={editCollaborators === 'addressed'}
-            />
-            <div style={{marginTop: '1rem'}} />
-          </>
-        )}
         {sectionOpen === 'descriptionVotingSection' && (
           <>
             <div style={{display: 'flex'}}>
@@ -913,7 +877,7 @@ export function rejectInvestible(marketId, investibleId, marketInvestible, comme
 }
 
 export function Assignments(props) {
-  const { marketPresences, classes, assigned, showMoveMessage, toolTipId, toggleIconButton, assignmentColumnMessageId,
+  const { marketPresences, classes, assigned, toolTipId, toggleIconButton, assignmentColumnMessageId,
     highlighted } = props;
   const intl = useIntl();
   const metaClasses = useMetaDataStyles();
@@ -947,11 +911,6 @@ export function Assignments(props) {
         </div>
       )}
       <div className={classes.assignmentFlexRow}>
-        {_.isEmpty(sortedAssigned) && showMoveMessage && (
-          <Typography key="unassigned" component="li" style={{maxWidth: '8rem'}}>
-            {intl.formatMessage({ id: 'reassignToMove' })}
-          </Typography>
-        )}
         {sortedAssigned.map((presence, index) => {
           const showAsPlaceholder = presence.placeholder_type === PLACEHOLDER;
           const isHighlighted = (highlighted || []).includes(presence.id);

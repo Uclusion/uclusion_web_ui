@@ -238,6 +238,10 @@ export function formMarketAddCommentLink(wizardType, marketId, groupId, commentT
   return `/wizard#type=${wizardType}&marketId=${marketId}&groupId=${groupId}&commentType=${commentType}`
 }
 
+export function formWizardCollaboratorsLink(wizardType, marketId, investibleId) {
+  return `/wizard#type=${wizardType.toLowerCase()}&marketId=${marketId}&investibleId=${investibleId}`
+}
+
 export function formMarketAddInvestibleLink(marketId, groupId, assigneeId) {
   const baseLink = `/wizard#type=${JOB_WIZARD_TYPE}&marketId=${marketId}&groupId=${groupId}`
   if (assigneeId) {

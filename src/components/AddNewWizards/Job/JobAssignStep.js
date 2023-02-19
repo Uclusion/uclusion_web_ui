@@ -61,11 +61,13 @@ function JobAssignStep (props) {
   return (
     <WizardStepContainer
       {...props}
-      isLarge
     >
       <div>
         <Typography className={classes.introText} variant="h6">
           Who should be working on the job?
+        </Typography>
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Not assigning sends to job backlog.
         </Typography>
         <AssignmentList
           fullMarketPresences={presences}

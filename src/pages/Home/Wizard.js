@@ -9,7 +9,7 @@ import {
   ADD_COLLABORATOR_WIZARD_TYPE,
   BUG_WIZARD_TYPE,
   DECISION_COMMENT_WIZARD_TYPE,
-  DISCUSSION_WIZARD_TYPE, JOB_ASSIGNEE_WIZARD_TYPE,
+  DISCUSSION_WIZARD_TYPE, JOB_ASSIGNEE_WIZARD_TYPE, JOB_COLLABORATOR_WIZARD_TYPE,
   JOB_COMMENT_WIZARD_TYPE,
   JOB_WIZARD_TYPE,
   PLANNING_TYPE,
@@ -23,6 +23,7 @@ import DecisionCommentWizard from '../../components/AddNewWizards/DecisionCommen
 import DiscussionWizard from '../../components/AddNewWizards/Discussion/DiscussionWizard';
 import JobCommentWizard from '../../components/AddNewWizards/JobComment/JobCommentWizard';
 import JobAssigneeWizard from '../../components/AddNewWizards/JobAssignees/JobAssigneeWizard';
+import JobCollaboratorWizard from '../../components/AddNewWizards/JobCollaborator/JobCollaboratorWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -62,6 +63,9 @@ function Wizard(props) {
       )}
       {createType === JOB_ASSIGNEE_WIZARD_TYPE.toLowerCase() && (
         <JobAssigneeWizard investibleId={investibleId} marketId={marketId} />
+      )}
+      {createType === JOB_COLLABORATOR_WIZARD_TYPE.toLowerCase() && (
+        <JobCollaboratorWizard investibleId={investibleId} marketId={marketId} />
       )}
       {createType === DISCUSSION_WIZARD_TYPE.toLowerCase() && (
         <DiscussionWizard marketId={marketId} groupId={groupId} commentType={commentType} />

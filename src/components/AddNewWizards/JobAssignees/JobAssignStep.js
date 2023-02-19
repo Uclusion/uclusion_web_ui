@@ -30,21 +30,19 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 function JobAssignStep (props) {
   const { marketId, clearFormData, updateFormData, formData, onFinish, investibleId } = props;
   const history = useHistory();
-  const [presencesState] = useContext(MarketPresencesContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const presences = getMarketPresences(presencesState, marketId);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
   const inv = getInvestible(investibleState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned } = marketInfo;
   const value = (formData.wasSet ? formData.assigned : assigned) || [];
-  const validForm = !_.isEqual(formData.assigned, assigned);
+  const validForm = !_.isEqual(value, assigned);
   const voters = getInvestibleVoters(marketPresences, investibleId);
 
   function onAssignmentChange(newAssignments){
@@ -110,7 +108,7 @@ function JobAssignStep (props) {
           {unassignedWarning} {reassigningWarning}
         </Typography>
         <AssignmentList
-          fullMarketPresences={presences}
+          fullMarketPresences={marketPresences}
           previouslyAssigned={assigned}
           onChange={onAssignmentChange}
         />

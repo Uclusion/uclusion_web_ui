@@ -2,31 +2,31 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
-import JobAssignStep from './JobAssignStep';
+import JobCollaboratorStep from './JobCollaboratorStep';
 
-function JobAssigneeWizard(props) {
+function JobCollaboratorWizard(props) {
   const { marketId, investibleId } = props;
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="job_assignee_wizard">
-        <JobAssignStep marketId={marketId} investibleId={investibleId} />
+      <FormdataWizard name="job_collaborator_wizard">
+        <JobCollaboratorStep marketId={marketId} investibleId={investibleId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );
 }
 
-JobAssigneeWizard.propTypes = {
+JobCollaboratorWizard.propTypes = {
   onStartOver: PropTypes.func,
   onFinish: PropTypes.func,
   showCancel: PropTypes.bool
 };
 
-JobAssigneeWizard.defaultProps = {
+JobCollaboratorWizard.defaultProps = {
   onStartOver: () => {},
   onFinish: () => {},
   showCancel: true
 }
 
-export default JobAssigneeWizard;
+export default JobCollaboratorWizard;
 

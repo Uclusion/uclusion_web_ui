@@ -5,6 +5,7 @@ export const BUG_WIZARD_TYPE = 'bug';
 export const DISCUSSION_WIZARD_TYPE = 'discussion';
 export const JOB_COMMENT_WIZARD_TYPE = 'jobComment';
 export const JOB_ASSIGNEE_WIZARD_TYPE = 'jobAssignee';
+export const JOB_COLLABORATOR_WIZARD_TYPE = 'jobCollaborator';
 export const DECISION_COMMENT_WIZARD_TYPE = 'decisionComment';
 export const ADD_COLLABORATOR_WIZARD_TYPE = 'collaborator';
 export const DECISION_TYPE = 'DECISION';

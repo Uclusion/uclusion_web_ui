@@ -15,7 +15,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import {
   getFullStage,
   getStageNameForId,
-  getStages, isFurtherWorkStage,
+  getStages, isAcceptedStage, isFurtherWorkStage,
   isNotDoingStage,
   isVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -26,6 +26,8 @@ import { useIntl } from 'react-intl';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { TODO_TYPE } from '../../../constants/comments';
+import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function JobStageStep (props) {
   const { marketId, updateFormData, formData, investibleId } = props;
@@ -35,13 +37,17 @@ function JobStageStep (props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [marketsState] = useContext(MarketsContext);
   const classes = useContext(WizardStylesContext);
+  const userId = getMyUserForMarket(marketsState, marketId)
   const inv = getInvestible(investibleState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage } = marketInfo;
+  const { stage, assigned } = marketInfo;
   const value = formData.stageWasSet ? formData.stage : stage;
   const validForm = !_.isEqual(value, stage);
-  const fullStages = getStages(marketStagesState, marketId).filter((fullStage) => !fullStage.move_on_comment);
+  const isAssigned = (assigned || []).includes(userId);
+  const fullStages = getStages(marketStagesState, marketId).filter((fullStage) => !fullStage.move_on_comment &&
+    (isAssigned || !isAcceptedStage(fullStage)));
   const fullCurrentStage = getFullStage(marketStagesState, marketId, stage) || {};
   const fullMoveStage = getFullStage(marketStagesState, marketId, value) || {};
   const needsAssigning = isFurtherWorkStage(fullCurrentStage) && !isNotDoingStage(fullMoveStage);
@@ -107,7 +113,7 @@ function JobStageStep (props) {
           To where will you move this job?
         </Typography>
         <Typography className={classes.introSubText} variant="subtitle1">
-          Moving to backlog will remove assignment and approvals.
+          Moving to backlog will remove assignment and approvals. {isAssigned ? '' : 'Must be assigned to move to started.'}
         </Typography>
         <FormControl component="fieldset">
           <RadioGroup

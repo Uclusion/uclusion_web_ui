@@ -13,7 +13,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import {
   getFullStage,
   getStageNameForId,
-  getStages, isAcceptedStage, isFurtherWorkStage,
+  getStages, isAcceptedStage, isFurtherWorkStage, isInReviewStage,
   isNotDoingStage,
   isVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -42,7 +42,7 @@ function JobStageStep (props) {
   const value = formData.stageWasSet ? formData.stage : stage;
   const validForm = !_.isEqual(value, stage);
   const isAssigned = (assigned || []).includes(userId);
-  const fullStages = getStages(marketStagesState, marketId).filter((fullStage) => !fullStage.move_on_comment &&
+  const fullStagesRaw = getStages(marketStagesState, marketId).filter((fullStage) => !fullStage.move_on_comment &&
     (isAssigned || !isAcceptedStage(fullStage)));
   const fullCurrentStage = getFullStage(marketStagesState, marketId, stage) || {};
   const fullMoveStage = getFullStage(marketStagesState, marketId, value) || {};
@@ -50,6 +50,24 @@ function JobStageStep (props) {
   const marketComments = getMarketComments(commentsState, marketId) || [];
   const comments = getCommentsSortedByType(marketComments, investibleId, false) || [];
   const openTodos = comments.filter((comment) => comment.comment_type === TODO_TYPE);
+  const fullStages = _.orderBy(fullStagesRaw, (aStage) => {
+    if (isFurtherWorkStage(aStage)) {
+      return 0;
+    }
+    if (aStage.allows_investment) {
+      return 1;
+    }
+    if (isAcceptedStage(aStage)) {
+      return 2;
+    }
+    if (isInReviewStage(aStage)) {
+      return 3;
+    }
+    if (isVerifiedStage(aStage)) {
+      return 4;
+    }
+    return 5;
+  });
 
   function onStageChange(newStage){
     updateFormData({

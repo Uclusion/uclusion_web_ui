@@ -696,7 +696,8 @@ function StageInvestible(props) {
             <div className={classes.chipsClass} style={{paddingTop: '0.5rem'}}>
               {labelList.map((label) =>
                 <div key={label}>
-                  <Chip size="small" label={label} className={classes.chipClass} color="primary"/>
+                  <Chip size="small" label={label} className={classes.chipClass} color="primary"
+                        style={{maxWidth: '90%'}}/>
                 </div>
               )}
             </div>

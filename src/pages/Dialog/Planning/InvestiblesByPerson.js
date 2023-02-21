@@ -13,7 +13,6 @@ import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import { Link, Typography, useTheme } from '@material-ui/core'
 import NotificationCountChips from '../NotificationCountChips'
-import ExpandableAction from '../../../components/SidebarActions/Planning/ExpandableAction'
 import AddIcon from '@material-ui/icons/Add'
 import Gravatar from '../../../components/Avatars/Gravatar'
 import CardContent from '@material-ui/core/CardContent'
@@ -121,7 +120,6 @@ function InvestiblesByPerson(props) {
     requiresInputStage,
     inVerifiedStage,
     group,
-    isAdmin,
     mobileLayout
   } = props;
   const intl = useIntl();
@@ -218,15 +216,6 @@ function InvestiblesByPerson(props) {
                         <NotificationCountChips id={id} presence={presence || {}}/>
                       )}
                     </Typography>
-                    <div style={{ flexGrow: 1 }}/>
-                    <ExpandableAction
-                      icon={<AddIcon htmlColor="black"/>}
-                      label={intl.formatMessage({ id: 'createAssignmentExplanation' })}
-                      openLabel={intl.formatMessage({ id: 'createAssignment' })}
-                      onClick={() => onClick(id)}
-                      disabled={!isAdmin}
-                      tipPlacement="top-end"
-                    />
                   </div>}
                 avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}
                 titleTypographyProps={{ variant: "subtitle2" }}

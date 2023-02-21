@@ -18,7 +18,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 function JobCollaboratorStep (props) {
-  const { marketId, clearFormData, updateFormData, formData, onFinish, investibleId } = props;
+  const { marketId, updateFormData, formData, onFinish, investibleId } = props;
   const history = useHistory();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -44,14 +44,12 @@ function JobCollaboratorStep (props) {
   }
 
   function finish() {
-    clearFormData();
     navigate(history, formInvestibleLink(marketId, investibleId));
   }
 
   function addressJob() {
     const following = value.map((userId) => { return {user_id: userId, is_following: true}; });
-    const notFollowingNow = addressedIds.filter((userId) =>
-      !following.find((item) => item.user_id === userId))
+    const notFollowingNow = addressedIds.filter((userId) => !value.includes(userId))
       .map((userId) => { return {user_id: userId, is_following: false}; });
     const newAddressed = _.union(following, notFollowingNow);
     return addressInvestible(marketId, investibleId, newAddressed).then((fullInvestible) => {

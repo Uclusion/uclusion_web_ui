@@ -1,23 +1,21 @@
 import clsx from 'clsx';
 import {
-  Button,
   Checkbox,
   FormControlLabel, List,
   makeStyles,
-  Menu,
-  MenuItem,
+  Tooltip,
   useMediaQuery,
   useTheme
 } from '@material-ui/core';
 import _ from 'lodash';
 import WarningDialog from '../../../components/Warnings/WarningDialog';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { ExpandLess, SettingsBackupRestore } from '@material-ui/icons';
+import { ExpandLess, SettingsBackupRestore, SyncAlt } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
 import React, { useContext, useState } from 'react';
-import { Assignments, countUnresolved, getCollaborators, rejectInvestible } from './PlanningInvestible';
+import { Assignments, getCollaborators, rejectInvestible } from './PlanningInvestible';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -33,18 +31,7 @@ import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible, updateInvestible } from '../../../api/investibles';
 import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications';
-import { assignedInStage } from '../../../utils/userFunctions';
-import {
-  getAcceptedStage, getFullStage, getFurtherWorkStage,
-  getInCurrentVotingStage, getInReviewStage, getNotDoingStage, getVerifiedStage
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import MoveToVotingActionButton from './MoveToVotingActionButton';
-import MoveToAcceptedActionButton from './MoveToAcceptedActionButton';
-import MoveToInReviewActionButton from './MoveToInReviewActionButton';
-import MoveToFurtherWorkActionButton from './MoveToFurtherWorkActionButton';
-import MoveToVerifiedActionButton from './MoveToVerifiedActionButton';
-import MoveToNotDoingActionButton from './MoveToNotDoingActionButton';
-import StageChangeAction from '../../../components/SidebarActions/Planning/StageChangeAction';
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { useLockedDialogStyles } from '../../Dialog/LockedDialog';
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -56,13 +43,14 @@ import { formWizardCollaboratorsLink, navigate } from '../../../utils/marketIdPa
 import {
   JOB_APPROVERS_WIZARD_TYPE,
   JOB_ASSIGNEE_WIZARD_TYPE,
-  JOB_COLLABORATOR_WIZARD_TYPE, JOB_REVIEWERS_WIZARD_TYPE
+  JOB_COLLABORATOR_WIZARD_TYPE, JOB_REVIEWERS_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE
 } from '../../../constants/markets';
 import { useHistory } from 'react-router';
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 
 export default function PlanningInvestibleNav(props) {
   const { name, intermediateNotSingle, market, marketInvestible, classes, blockingCommentsUnresolved, userId,
-    questionSuggestionsByAssignedComments, investibles, inArchives, myPresence, isAssigned, pageState, invested,
+    questionSuggestionsByAssignedComments, inArchives, myPresence, isAssigned, pageState, invested,
     marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId, updatePageState,
     investibleId } = props;
   const lockedDialogClasses = useLockedDialogStyles();
@@ -95,16 +83,7 @@ export default function PlanningInvestibleNav(props) {
 
   const stagesInfo = getStagesInfo(market.id, marketStagesState, stage);
   const {
-    isInReview,
-    inAcceptedStage,
-    isInAccepted,
-    inBlockedStage,
-    isInBlocked,
-    isInVerified,
     isFurtherWork,
-    requiresInputStage,
-    isRequiresInput,
-    isInNotDoing,
   } = stagesInfo;
   const addressedIds = (addressed || []).filter((address) => !address.deleted && !address.abstain)
     .map((address) => address.user_id);
@@ -118,159 +97,6 @@ export default function PlanningInvestibleNav(props) {
   const todoComments = investibleComments.filter(
     comment => comment.comment_type === TODO_TYPE
   );
-
-  const assignedInAcceptedStage = assigned.reduce((acc, userId) => {
-    return acc.concat(assignedInStage(
-      investibles,
-      userId,
-      inAcceptedStage.id,
-      marketId
-    ));
-  }, []);
-
-  function getStageActions(onSpinStop) {
-    if (inArchives) {
-      return []
-    }
-    const notAssigned = isFurtherWork || isInNotDoing
-    const menuItems = [];
-    const votingDisabled = isInVoting || !_.isEmpty(blockingCommentsUnresolved) || notAssigned;
-    if(!votingDisabled){
-      menuItems.push(
-        <MenuItem
-          key={(getInCurrentVotingStage(marketStagesState, marketId) || {}).id}
-          value={(getInCurrentVotingStage(marketStagesState, marketId) || {}).id}
-        >
-          <MoveToVotingActionButton
-            investibleId={investibleId}
-            marketId={marketId}
-            currentStageId={stage}
-            onSpinStop={onSpinStop}
-            hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
-          />
-        </MenuItem>);
-    }
-    const acceptedDisabled = isInAccepted || !isAssigned || !_.isEmpty(blockingCommentsUnresolved) || notAssigned;
-    if(!acceptedDisabled){
-      menuItems.push(
-        <MenuItem
-          key={(getAcceptedStage(marketStagesState, marketId) || {}).id}
-          value={(getAcceptedStage(marketStagesState, marketId) || {}).id}
-        >
-          <MoveToAcceptedActionButton
-            investibleId={investibleId}
-            marketId={marketId}
-            currentStageId={stage}
-            onSpinStop={onSpinStop}
-            hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
-          />
-        </MenuItem>
-      )
-    }
-    const inReviewDisabled = isInReview || !_.isEmpty(blockingCommentsUnresolved) || notAssigned;
-    if(!inReviewDisabled){
-      menuItems.push(
-        <MenuItem
-          key={(getInReviewStage(marketStagesState, marketId) || {}).id}
-          value={(getInReviewStage(marketStagesState, marketId) || {}).id}
-        >
-          <MoveToInReviewActionButton
-            investibleId={investibleId}
-            marketId={marketId}
-            currentStageId={stage}
-            onSpinStop={onSpinStop}
-            hasAssignedQuestions={!_.isEmpty(questionSuggestionsByAssignedComments)}
-          />
-        </MenuItem>
-      );
-    }
-    if(!isFurtherWork){
-      menuItems.push(
-        <MenuItem
-          key={(getFurtherWorkStage(marketStagesState, marketId) || {}).id}
-          value={(getFurtherWorkStage(marketStagesState, marketId) || {}).id}
-        >
-          <MoveToFurtherWorkActionButton
-            investibleId={investibleId}
-            marketId={marketId}
-            currentStageId={stage}
-            onSpinStop={onSpinStop}
-          />
-        </MenuItem>
-      );
-    }
-    const verifiedDisabled = isInVerified || countUnresolved(todoComments) > 0 || !_.isEmpty(blockingCommentsUnresolved)
-      || notAssigned;
-    if(!verifiedDisabled){
-      menuItems.push(
-        <MenuItem
-          key={(getVerifiedStage(marketStagesState, marketId) || {}).id}
-          value={(getVerifiedStage(marketStagesState, marketId) || {}).id}
-        >
-          <MoveToVerifiedActionButton
-            investibleId={investibleId}
-            marketId={marketId}
-            currentStageId={stage}
-            hasTodos={false}
-            onSpinStop={onSpinStop}
-          />
-        </MenuItem>
-      );
-    }
-    if(!isInNotDoing){
-      menuItems.push(
-        <MenuItem
-          key={(getNotDoingStage(marketStagesState, marketId) || {}).id}
-          value={(getNotDoingStage(marketStagesState, marketId) || {}).id}
-        >
-          <MoveToNotDoingActionButton
-            investibleId={investibleId}
-            marketId={marketId}
-            currentStageId={stage}
-            disabled={false}
-            onSpinStop={onSpinStop}
-          />
-        </MenuItem>
-      );
-    }
-    if (isInBlocked) {
-      menuItems.unshift(
-        <MenuItem
-          onClick={onSpinStop}
-          value={inBlockedStage.id}
-          key={inBlockedStage.id}>
-          <StageChangeAction
-            translationId="planningBlockedStageLabel"
-            investibleId={investibleId}
-            disabled={true}
-            operationBlocked={false}
-            targetStageId={inBlockedStage.id}
-            explanationId="planningInvestibleVerifiedExplanation"
-            blockedOperationTranslationId="mustRemoveTodosExplanation"
-          />
-        </MenuItem>
-      )
-    }
-    if (isRequiresInput) {
-      menuItems.unshift(
-        <MenuItem
-          value={requiresInputStage.id}
-          onClick={onSpinStop}
-          key={requiresInputStage.id}>
-          <StageChangeAction
-            translationId="requiresInputHeader"
-            investibleId={investibleId}
-            disabled={true}
-            operationBlocked={false}
-            targetStageId={requiresInputStage.id}
-            explanationId="requiresInputHeader"
-            blockedOperationTranslationId="requiresInputHeader"
-          />
-        </MenuItem>
-      )
-    }
-    return menuItems;
-  }
 
   function setReadyToStart(isReadyToStart) {
     const updateInfo = {
@@ -408,7 +234,6 @@ export default function PlanningInvestibleNav(props) {
         market={market}
         marketInvestible={marketInvestible}
         isAdmin={!inArchives}
-        stageActions={getStageActions}
         inArchives={inArchives}
         isAssigned={isAssigned}
         blockingComments={blockingCommentsUnresolved}
@@ -417,7 +242,6 @@ export default function PlanningInvestibleNav(props) {
         questionByAssignedComments={questionSuggestionsByAssignedComments}
         pageState={pageState}
         updatePageState={updatePageState}
-        acceptedEmpty={assignedInAcceptedStage.length === 0}
         invested={invested}
         accepted={accepted || []}
         myUserId={userId}
@@ -587,7 +411,6 @@ function MarketMetaData(props) {
     market,
     marketInvestible,
     investibleId,
-    stageActions,
     stagesInfo,
     isAssigned,
     accepted,
@@ -598,9 +421,8 @@ function MarketMetaData(props) {
   const {
     showDiff
   } = pageState
+  const history = useHistory();
   const [diffState, diffDispatch] = useContext(DiffContext);
-  const [stageAnchorEl, setStageAnchorEl] = useState(null);
-  const stageMenuOpen = Boolean(stageAnchorEl);
   const [messagesState] = useContext(NotificationsContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -617,58 +439,39 @@ function MarketMetaData(props) {
       diffDispatch, marketStagesState);
   }
 
-  function handleStageMenuClose() {
-    setStageAnchorEl(null);
-  }
-  function handleStageClick(event){
-    setStageAnchorEl(event.currentTarget);
-  }
-
   function toggleDiffShow() {
     if (showDiff) {
       markDiffViewed(diffDispatch, investibleId);
     }
     updatePageState({showDiff: !showDiff});
   }
-  const stagesMenu = stageActions(handleStageMenuClose);
 
   return (
     <div>
-      {!_.isEmpty(stagesMenu) &&
-        (
-          <React.Fragment>
-            <div
-              style={{maxWidth: '15rem', marginRight: '1rem', overflowY: 'auto', maxHeight: '8rem'}}>
-              <div style={{marginBottom: '0.5rem'}}>
-                <b><FormattedMessage id={'allowedStagesDropdownLabel'}/></b>
-              </div>
-              <Button
-                variant="outlined"
-                style={{textTransform: 'none', paddingLeft: '0.5rem', paddingRight: '0.5rem', borderRadius: '8px',}}
-                aria-label="allowed-stages-label"
-                endIcon={<ExpandMoreIcon/>}
-                onClick={handleStageClick}
-              >
-                {intl.formatMessage({id: stageLabelId})}
-              </Button>
-            </div>
-            <Menu
-              anchorEl={stageAnchorEl}
-              open={stageMenuOpen}
-              onClose={handleStageMenuClose}
+      <div style={{maxWidth: '15rem', marginRight: '1rem'}}>
+        <div style={{marginBottom: '0.5rem', display: 'flex', flexDirection: 'row'}}>
+          <b><FormattedMessage id={'allowedStagesDropdownLabel'}/></b>
+          <Tooltip
+            title={intl.formatMessage({ id: 'investibleEditStageHelper' })}
+          >
+            <IconButton
+              style={{paddingTop: 0, marginBottom: 0, paddingBottom: 0, marginTop: '-0.25rem'}}
+              onClick={() => navigate(history,
+                formWizardCollaboratorsLink(JOB_STAGE_WIZARD_TYPE, market.id, investibleId))}
             >
-              {stagesMenu}
-            </Menu>
-            {unaccepted && (
-              <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
-                <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary} id='reject'>
-                  {intl.formatMessage({ id: 'saveReject' })}
-                </SpinningButton>
-              </div>
-            )}
-
-          </React.Fragment>
-        )}
+              <SyncAlt htmlColor={ACTION_BUTTON_COLOR}/>
+            </IconButton>
+          </Tooltip>
+        </div>
+          {intl.formatMessage({id: stageLabelId})}
+      </div>
+      {unaccepted && (
+        <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
+          <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary} id='reject'>
+            {intl.formatMessage({ id: 'saveReject' })}
+          </SpinningButton>
+        </div>
+      )}
       {myMessageDescription && diff && (
         <>
           <div style={{paddingTop: '0.5rem'}} />

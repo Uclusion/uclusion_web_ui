@@ -17,7 +17,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function JobApproverStep (props) {
-  const { marketId, clearFormData, updateFormData, formData, onFinish, investibleId } = props;
+  const { marketId, updateFormData, formData, onFinish, investibleId } = props;
   const history = useHistory();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -38,7 +38,6 @@ function JobApproverStep (props) {
   }
 
   function finish() {
-    clearFormData();
     navigate(history, formInvestibleLink(marketId, investibleId));
   }
 

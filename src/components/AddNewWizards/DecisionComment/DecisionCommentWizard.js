@@ -10,7 +10,7 @@ function BugWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="decision_comment_wizard">
+      <FormdataWizard name={`decision_comment_wizard${investibleId}`}>
         <ChooseCommentTypeStep investibleId={investibleId} />
         <AddCommentStep investibleId={investibleId} />
       </FormdataWizard>

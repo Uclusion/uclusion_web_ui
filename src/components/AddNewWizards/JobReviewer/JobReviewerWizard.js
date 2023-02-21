@@ -9,7 +9,7 @@ function JobReviewerWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="job_reviewer_wizard">
+      <FormdataWizard name={`job_reviewer_wizard${investibleId}`} useLocalStorage={false}>
         <JobReviewerStep marketId={marketId} investibleId={investibleId} />
       </FormdataWizard>
     </WizardStylesProvider>

@@ -1,0 +1,117 @@
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
+import WizardStepContainer from '../WizardStepContainer';
+import { WizardStylesContext } from '../WizardStylesContext';
+import WizardStepButtons from '../WizardStepButtons';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
+import { getCommentThreads, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import _ from 'lodash';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { stageChangeInvestible } from '../../../api/investibles';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+
+function CloseCommentsStep(props) {
+  const { marketId, investibleId, formData } = props;
+  const history = useHistory();
+  const classes = useContext(WizardStylesContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const marketComments = getMarketComments(commentsState, marketId);
+  const unresolvedComments = marketComments.filter(comment => comment.investible_id === investibleId &&
+    !comment.resolved);
+  const { hasOpenTodos, stage } = formData;
+  const inv = getInvestible(investibleState, investibleId);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { assigned } = marketInfo;
+  const mustResolveComments = hasOpenTodos ?
+    unresolvedComments.filter((comment) => comment.comment_type === TODO_TYPE) :
+    unresolvedComments.filter((comment) => [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
+      (assigned || []).includes(comment.created_by));
+  const commentThreads = getCommentThreads(mustResolveComments, marketComments);
+
+  function finish() {
+    navigate(history, formInvestibleLink(marketId, investibleId));
+  }
+
+  function move() {
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: marketInfo.stage,
+        stage_id: stage,
+        resolve_comment_ids: mustResolveComments.map((comment) => comment.id)
+      },
+    };
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(stage, newInv, investibleId, marketId, commentsState,
+          commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+          getFullStage(marketStagesState, marketId, stage));
+        setOperationRunning(false);
+        finish();
+      });
+  }
+
+  if (_.isEmpty(mustResolveComments)) {
+    return React.Fragment;
+  }
+
+  return (
+    <WizardStepContainer
+      {...props}
+    >
+    <div>
+      <Typography className={classes.introText}>
+        {hasOpenTodos ? 'Can you resolve open tasks?' : 'Does the job still need assistance?'}
+      </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        {hasOpenTodos ? 'Cannot move a job to Verified which has open tasks.'
+          : 'Jobs do not move while an assignee has a question or suggestion.'}
+      </Typography>
+      <div className={classes.wizardCommentBoxDiv}>
+        <CommentBox
+          comments={commentThreads}
+          marketId={marketId}
+          allowedTypes={[]}
+          isInbox
+          removeActions
+        />
+      </div>
+      <div className={classes.borderBottom} />
+      <WizardStepButtons
+        {...props}
+        showNext={true}
+        showTerminate={true}
+        onNext={move}
+        onTerminate={finish}
+        terminateLabel="JobWizardGotoJob"
+      />
+    </div>
+    </WizardStepContainer>
+  );
+}
+
+CloseCommentsStep.propTypes = {
+  updateFormData: PropTypes.func,
+  formData: PropTypes.object
+};
+
+CloseCommentsStep.defaultProps = {
+  updateFormData: () => {},
+  formData: {}
+};
+
+export default CloseCommentsStep;

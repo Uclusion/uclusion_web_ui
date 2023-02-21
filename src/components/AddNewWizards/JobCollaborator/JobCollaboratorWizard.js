@@ -9,7 +9,7 @@ function JobCollaboratorWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="job_collaborator_wizard">
+      <FormdataWizard name={`job_collaborator_wizard${investibleId}`} useLocalStorage={false}>
         <JobCollaboratorStep marketId={marketId} investibleId={investibleId} />
       </FormdataWizard>
     </WizardStylesProvider>

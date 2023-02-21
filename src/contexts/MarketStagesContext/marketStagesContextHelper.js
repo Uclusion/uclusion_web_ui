@@ -96,6 +96,15 @@ export function getStageNameForId(state, marketId, stageId, intl) {
   if (_.isEmpty(fullStage)) {
     return '';
   }
+  if (isFurtherWorkStage(fullStage)) {
+    return intl.formatMessage({ id: 'planningInvestibleMoveToFurtherWorkLabel' });
+  }
+  if (isNotDoingStage(fullStage)) {
+    return intl.formatMessage({ id: 'planningInvestibleMoveToNotDoingLabel' });
+  }
+  if (isVerifiedStage(fullStage)) {
+    return intl.formatMessage({ id: 'planningInvestibleMoveToVerifiedLabel' });
+  }
   if (isInReviewStage(fullStage)) {
     return intl.formatMessage({ id: 'planningInvestibleNextStageInReviewLabel' });
   }

@@ -8,6 +8,7 @@ export const JOB_ASSIGNEE_WIZARD_TYPE = 'jobAssignee';
 export const JOB_COLLABORATOR_WIZARD_TYPE = 'jobCollaborator';
 export const JOB_APPROVERS_WIZARD_TYPE = 'jobApprover';
 export const JOB_REVIEWERS_WIZARD_TYPE = 'jobReviewer';
+export const JOB_STAGE_WIZARD_TYPE = 'jobStage';
 export const DECISION_COMMENT_WIZARD_TYPE = 'decisionComment';
 export const ADD_COLLABORATOR_WIZARD_TYPE = 'collaborator';
 export const DECISION_TYPE = 'DECISION';

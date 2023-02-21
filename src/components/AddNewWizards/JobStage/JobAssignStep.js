@@ -1,28 +1,27 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
-import _ from 'lodash'
-import WizardStepContainer from '../WizardStepContainer'
-import { WizardStylesContext } from '../WizardStylesContext'
-import WizardStepButtons from '../WizardStepButtons'
-import AssignmentList from '../../../pages/Dialog/Planning/AssignmentList'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
+import _ from 'lodash';
+import WizardStepContainer from '../WizardStepContainer';
+import { WizardStylesContext } from '../WizardStylesContext';
+import WizardStepButtons from '../WizardStepButtons';
+import AssignmentList from '../../../pages/Dialog/Planning/AssignmentList';
 import {
   getMarketPresences,
   removeInvestibleInvestments
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router';
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
-import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
 import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -30,7 +29,7 @@ import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function JobAssignStep (props) {
-  const { marketId, updateFormData, formData, onFinish, investibleId } = props;
+  const { marketId, updateFormData, formData, investibleId } = props;
   const history = useHistory();
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -45,10 +44,10 @@ function JobAssignStep (props) {
   const { assigned } = marketInfo;
   const value = (formData.wasSet ? formData.assigned : assigned) || [];
   const validForm = !_.isEqual(value, assigned);
-  const voters = getInvestibleVoters(marketPresences, investibleId);
   const comments = getMarketComments(commentsState, marketId);
   const unresolvedComments = comments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);
+  const newStageId = formData.stage;
 
   function onAssignmentChange(newAssignments){
     updateFormData({
@@ -62,25 +61,6 @@ function JobAssignStep (props) {
   }
 
   function assignJob() {
-    if (_.isEmpty(value)) {
-      const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
-      const moveInfo = {
-        marketId,
-        investibleId,
-        stageInfo: {
-          current_stage_id: marketInfo.stage,
-          stage_id: furtherWorkStage.id,
-        },
-      };
-      return stageChangeInvestible(moveInfo)
-        .then((newInv) => {
-          onInvestibleStageChange(furtherWorkStage.id, newInv, investibleId, marketId, commentsState,
-            commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
-            getFullStage(marketStagesState, marketId, marketInfo.stage));
-          setOperationRunning(false);
-          finish();
-        });
-    }
     const updateInfo = {
       marketId,
       investibleId,
@@ -92,8 +72,22 @@ function JobAssignStep (props) {
       const messageIds = messages.map((message) => message.type_object_id);
       messagesDispatch(removeMessages(messageIds));
       removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
-      setOperationRunning(false);
-      finish();
+      const moveInfo = {
+        marketId,
+        investibleId,
+        stageInfo: {
+          current_stage_id: marketInfo.stage,
+          stage_id: newStageId,
+        },
+      };
+      return stageChangeInvestible(moveInfo)
+        .then((newInv) => {
+          onInvestibleStageChange(newStageId, newInv, investibleId, marketId, commentsState,
+            commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+            getFullStage(marketStagesState, marketId, marketInfo.stage));
+          setOperationRunning(false);
+          finish();
+        });
     });
   }
 
@@ -107,8 +101,6 @@ function JobAssignStep (props) {
     });
     return isInputRequired;
   }
-  const reassigningWarning = _.isEmpty(voters) ? '' : 'Reassigning a job removes all approvals.';
-  const unassignedWarning = _.isEmpty(assigned) ? '' : 'An unassigned job will be sent to the job backlog.';
 
   return (
     <WizardStepContainer
@@ -119,7 +111,7 @@ function JobAssignStep (props) {
           Who should be working on the job?
         </Typography>
         <Typography className={classes.introSubText} variant="subtitle1">
-          {unassignedWarning} {reassigningWarning}
+          You are moving to a stage that requires the job be assigned.
         </Typography>
         <AssignmentList
           fullMarketPresences={marketPresences}
@@ -127,11 +119,9 @@ function JobAssignStep (props) {
           requiresInput={isRequiresInput()}
           onChange={onAssignmentChange}
         />
-
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
-          finish={onFinish}
           validForm={validForm}
           showNext={true}
           showTerminate={true}

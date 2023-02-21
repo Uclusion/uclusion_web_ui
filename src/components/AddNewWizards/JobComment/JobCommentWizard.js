@@ -12,7 +12,7 @@ function JobCommentWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="job_comment_wizard">
+      <FormdataWizard name={`job_comment_wizard${investibleId}`}>
         <AddCommentStep investibleId={investibleId} marketId={marketId} useType={commentType} />
         {commentType === QUESTION_TYPE && (
           <AddOptionStep investibleId={investibleId} marketId={marketId} />

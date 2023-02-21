@@ -7,14 +7,12 @@ import {
   useMediaQuery,
   useTheme
 } from '@material-ui/core';
-import _ from 'lodash';
-import WarningDialog from '../../../components/Warnings/WarningDialog';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { ExpandLess, SettingsBackupRestore, SyncAlt } from '@material-ui/icons';
+import { ExpandLess, SyncAlt } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Assignments, getCollaborators, rejectInvestible } from './PlanningInvestible';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -27,12 +25,10 @@ import { getCurrentStageLabelId, getStagesInfo } from '../../../utils/stageUtils
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import PropTypes from 'prop-types';
-import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible, updateInvestible } from '../../../api/investibles';
 import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications';
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { useLockedDialogStyles } from '../../Dialog/LockedDialog';
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -49,11 +45,9 @@ import { useHistory } from 'react-router';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 
 export default function PlanningInvestibleNav(props) {
-  const { name, intermediateNotSingle, market, marketInvestible, classes, blockingCommentsUnresolved, userId,
-    questionSuggestionsByAssignedComments, inArchives, myPresence, isAssigned, pageState, invested,
-    marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId, updatePageState,
-    investibleId } = props;
-  const lockedDialogClasses = useLockedDialogStyles();
+  const { name, intermediateNotSingle, market, marketInvestible, classes, userId, myPresence, isAssigned,
+    pageState, marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId,
+    updatePageState, investibleId } = props;
   const intl = useIntl();
   const history = useHistory();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -64,7 +58,6 @@ export default function PlanningInvestibleNav(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
-  const [open, setOpen] = useState(false);
   const { stage, addressed, required_approvers:  requiredApprovers, required_reviews: requiredReviewers,
     open_for_investment: openForInvestment, accepted, group_id: groupId } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
@@ -89,14 +82,7 @@ export default function PlanningInvestibleNav(props) {
     .map((address) => address.user_id);
   const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
     investibleId);
-  const investmentReasonsRemoved = investibleComments.filter(comment => comment.comment_type !== JUSTIFY_TYPE) || [];
-  const openComments = investmentReasonsRemoved.filter((comment) => !comment.resolved) || [];
-  const openProblemComments = openComments.filter((comment) =>
-    [QUESTION_TYPE, ISSUE_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
-  const todoComments = investibleComments.filter(
-    comment => comment.comment_type === TODO_TYPE
-  );
 
   function setReadyToStart(isReadyToStart) {
     const updateInfo = {
@@ -154,33 +140,11 @@ export default function PlanningInvestibleNav(props) {
                 value={openForInvestment}
                 disabled={operationRunning !== false}
                 checked={openForInvestment}
-                onClick={() => {
-                  if (!openForInvestment && !_.isEmpty(openProblemComments) && !mobileLayout) {
-                    setOpen(true);
-                  } else {
-                    setReadyToStart(!openForInvestment);
-                  }
-                }}
+                onClick={() => setReadyToStart(!openForInvestment)}
               />
             }
             label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
           />
-          {!openForInvestment && !mobileLayout && (
-            <WarningDialog
-              classes={lockedDialogClasses}
-              open={open}
-              onClose={() => setOpen(false)}
-              issueWarningId="unresolvedReadyToStartWarning"
-              /* slots */
-              actions={
-                <SpinningIconLabelButton onClick={() => setReadyToStart(true)}
-                                         icon={SettingsBackupRestore}
-                                         id="issueProceedReadyToStartButton">
-                  {intl.formatMessage({ id: 'issueProceed' })}
-                </SpinningIconLabelButton>
-              }
-            />
-          )}
         </div>
       )}
       {!isFurtherWork && (
@@ -228,21 +192,13 @@ export default function PlanningInvestibleNav(props) {
         </div>
       )}
       <MarketMetaData
-        stage={stage}
         stagesInfo={stagesInfo}
         investibleId={investibleId}
         market={market}
         marketInvestible={marketInvestible}
-        isAdmin={!inArchives}
-        inArchives={inArchives}
         isAssigned={isAssigned}
-        blockingComments={blockingCommentsUnresolved}
-        todoComments={todoComments}
-        isInVoting={isInVoting}
-        questionByAssignedComments={questionSuggestionsByAssignedComments}
         pageState={pageState}
         updatePageState={updatePageState}
-        invested={invested}
         accepted={accepted || []}
         myUserId={userId}
       />

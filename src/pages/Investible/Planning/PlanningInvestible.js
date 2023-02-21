@@ -646,10 +646,9 @@ function PlanningInvestible(props) {
                  (leftNavBreak ? 'translateX(calc(100vw - 270px))' : 'translateX(calc(100vw - 490px))')}}>
           <PlanningInvestibleNav investibles={investibles} name={name} intermediateNotSingle={intermediateNotSingle}
                                  market={market} marketInvestible={marketInvestible} classes={classes}
-                                 investibleId={investibleId} blockingCommentsUnresolved={blockingCommentsUnresolved}
-                                 userId={userId} inArchives={inArchives} myPresence={myPresence} isAssigned={isAssigned}
-                                 questionSuggestionsByAssignedComments={questionSuggestionsByAssignedComments}
-                                 pageState={pageState} invested={invested} marketPresences={marketPresences}
+                                 investibleId={investibleId}
+                                 userId={userId} myPresence={myPresence} isAssigned={isAssigned}
+                                 pageState={pageState} marketPresences={marketPresences}
                                  assigned={assigned} isInVoting={isInVoting} investibleComments={investibleComments}
                                  marketInfo={marketInfo} marketId={marketId} updatePageState={updatePageState} />
         </div>

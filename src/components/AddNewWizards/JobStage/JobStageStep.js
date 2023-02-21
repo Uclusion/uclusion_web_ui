@@ -43,7 +43,7 @@ function JobStageStep (props) {
   const validForm = !_.isEqual(value, stage);
   const fullStages = getStages(marketStagesState, marketId).filter((fullStage) => !fullStage.move_on_comment);
   const fullCurrentStage = getFullStage(marketStagesState, marketId, stage) || {};
-  const fullMoveStage = getFullStage(marketStagesState, marketId, value);
+  const fullMoveStage = getFullStage(marketStagesState, marketId, value) || {};
   const needsAssigning = isFurtherWorkStage(fullCurrentStage) && !isNotDoingStage(fullMoveStage);
   const marketComments = getMarketComments(commentsState, marketId) || [];
   const comments = getCommentsSortedByType(marketComments, investibleId, false) || [];
@@ -92,6 +92,10 @@ function JobStageStep (props) {
         setOperationRunning(false);
         finish();
       });
+  }
+
+  if (!value) {
+    return React.Fragment;
   }
 
   return (

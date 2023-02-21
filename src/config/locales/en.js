@@ -387,7 +387,7 @@ const messages = defineMessages({
   createAssignmentExplanation: 'Assign new job to this person.',
   investibleAssignForVotingLabel: 'Assign & Move Voting',
   investibleAddHeader: 'Add Investible',
-  investibleEditStageHelper: 'Select to change stage',
+  investibleEditStageHelper: 'Click to change stage',
   investibleEditInvestibleFetchFailed: 'There was a problem loading your investible for edit. Please try again later',
   investibleAddToVotingLabel: 'Move to Voting',
   investibleAddToVotingExplanation: 'Move to approvable option. Can be moved back to proposed later.',

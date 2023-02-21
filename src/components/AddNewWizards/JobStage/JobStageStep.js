@@ -8,9 +8,7 @@ import WizardStepButtons from '../WizardStepButtons';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { getMarketInfo } from '../../../utils/userFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import {
   getFullStage,
@@ -30,18 +28,16 @@ import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsCont
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function JobStageStep (props) {
-  const { marketId, updateFormData, formData, investibleId } = props;
+  const { marketId, updateFormData, formData, investibleId, marketInfo } = props;
   const history = useHistory();
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
   const classes = useContext(WizardStylesContext);
   const userId = getMyUserForMarket(marketsState, marketId)
-  const inv = getInvestible(investibleState, investibleId);
-  const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, assigned } = marketInfo;
   const value = formData.stageWasSet ? formData.stage : stage;
   const validForm = !_.isEqual(value, stage);
@@ -100,7 +96,7 @@ function JobStageStep (props) {
       });
   }
 
-  if (!value) {
+  if (!value || _.isEmpty(assigned)) {
     return React.Fragment;
   }
 
@@ -113,7 +109,7 @@ function JobStageStep (props) {
           To where will you move this job?
         </Typography>
         <Typography className={classes.introSubText} variant="subtitle1">
-          Moving to backlog will remove assignment and approvals. {isAssigned ? '' : 'Must be assigned to move to started.'}
+          Moving to backlog will remove assignment and approvals. {isAssigned ? '' : 'You must be assigned to move to started.'}
         </Typography>
         <FormControl component="fieldset">
           <RadioGroup

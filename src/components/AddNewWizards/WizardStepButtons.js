@@ -30,7 +30,8 @@ function WizardStepButtons (props) {
     onOtherNext,
     marketToken,
     onOtherDoAdvance,
-    skipNextStep
+    skipNextStep,
+    onIncrement
   } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -45,11 +46,15 @@ function WizardStepButtons (props) {
       return finish(resolved);
     } else {
       setOperationRunning(false);
-      if (!isOther || onOtherDoAdvance) {
-        if (skipNextStep) {
-          nextStep(2);
-        } else {
-          nextStep();
+      if (onIncrement) {
+        onIncrement();
+      } else {
+        if (!isOther || onOtherDoAdvance) {
+          if (skipNextStep) {
+            nextStep(2);
+          } else {
+            nextStep();
+          }
         }
       }
     }
@@ -125,6 +130,7 @@ WizardStepButtons.propTypes = {
   terminateLabel: PropTypes.string,
   finish: PropTypes.func,
   onTerminate: PropTypes.func,
+  onIncrement: PropTypes.func,
   showTerminate: PropTypes.bool,
   startOverLabel: PropTypes.string,
   showNext: PropTypes.bool,

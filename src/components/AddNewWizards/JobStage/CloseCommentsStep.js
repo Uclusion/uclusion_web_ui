@@ -13,8 +13,6 @@ import {
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import _ from 'lodash';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
@@ -25,19 +23,17 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function CloseCommentsStep(props) {
-  const { marketId, investibleId, formData } = props;
+  const { marketId, investibleId, formData, marketInfo } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const marketComments = getMarketComments(commentsState, marketId);
   const unresolvedComments = marketComments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);
   const { hasOpenTodos, stage } = formData;
-  const inv = getInvestible(investibleState, investibleId);
-  const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned } = marketInfo;
   const mustResolveComments = hasOpenTodos ?
     unresolvedComments.filter((comment) => comment.comment_type === TODO_TYPE) :

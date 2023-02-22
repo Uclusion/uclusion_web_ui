@@ -237,9 +237,6 @@ function Screen(props) {
           if (onGroupClick) {
             onGroupClick();
           }
-          navigate(history, formMarketLink(defaultMarket.id, group.id));
-        },
-        onEnterFunc: () => {
           if (isChosen && useHoverFunctions) {
             const dialogOutset = document.getElementById(`dialogOutset`);
             if (dialogOutset) {
@@ -249,6 +246,8 @@ function Screen(props) {
               }
               dialogOutset.style.display = 'block';
             }
+          } else {
+            navigate(history, formMarketLink(defaultMarket.id, group.id));
           }
         },
         onLeaveFunc: () => {

@@ -7,7 +7,7 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { editorEmpty, getQuillStoredState, resetEditor, storeState } from '../../TextEditors/Utilities/CoreUtils'
 import { useEditor } from '../../TextEditors/quillHooks'
-import { convertDescription, nameFromDescription } from '../../../utils/stringFunctions'
+import { convertDescription } from '../../../utils/stringFunctions'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../../api/files'
@@ -30,7 +30,8 @@ function JobDescriptionStep (props) {
   if (isSingleComment && _.isEmpty(getQuillStoredState(editorName))) {
     const fromComment = marketComments.find((comment) => comment.id === fromCommentIds[0]);
     const { body } = fromComment || {};
-    const name = nameFromDescription(body);
+    // No need to clip to 80 here as that will happen when save
+    const { name } = convertDescription(body, 200);
     if (!_.isEmpty(name)) {
       storeState(editorName,`<p>${name}</p>`);
     }

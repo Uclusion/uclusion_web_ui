@@ -9,7 +9,7 @@ import Chip from '@material-ui/core/Chip'
 
 function processRegularItem(properties) {
   const {classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-    index, search, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc} = properties;
+    index, search, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon} = properties;
   if (!text) {
     return React.Fragment
   }
@@ -32,7 +32,7 @@ function processRegularItem(properties) {
                     backgroundColor: 'white',
                     fontWeight: 'bold',
                     border: '0.5px solid grey'
-                  }} /> : undefined}
+                  }} /> : (EndIcon ? <EndIcon htmlColor="white" /> : undefined)}
                 onClick={
                   (event) => {
                     if (onClickFunc) {
@@ -111,7 +111,7 @@ export default function Sidebar(props) {
         <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {
             const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, openMenuItems,
-              onEnterFunc, onLeaveFunc } = navItem;
+              onEnterFunc, onLeaveFunc, endIcon } = navItem;
             if (subItems) {
               return (
                 <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
@@ -126,7 +126,7 @@ export default function Sidebar(props) {
               );
             }
             return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-              index: topIndex, search, openMenuItems, onEnterFunc, onLeaveFunc})
+              index: topIndex, search, openMenuItems, onEnterFunc, onLeaveFunc, endIcon})
           })}
         </Menu>
       )}

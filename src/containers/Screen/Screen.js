@@ -35,6 +35,7 @@ import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/
 import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -227,17 +228,19 @@ function Screen(props) {
     const itemsSorted = _.sortBy(groupsState[defaultMarket.id], 'name');
     const items = itemsSorted.map((group) => {
       const isChosen = group.id === useGroupId;
+      const outsetAvailable = isChosen && useHoverFunctions;
       let num = undefined;
       if (!_.isEmpty(search)) {
         num = (results || []).filter((item) => item.groupId === group.id);
       }
-      return {icon: Group, text: group.name, num, isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
+      return {icon: Group, endIcon: outsetAvailable ? ExpandMoreIcon : undefined, text: group.name, num,
+        isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
           if (onGroupClick) {
             onGroupClick();
           }
-          if (isChosen && useHoverFunctions) {
+          if (outsetAvailable) {
             const dialogOutset = document.getElementById(`dialogOutset`);
             if (dialogOutset) {
               if (DIALOG_OUTSET_STATE_HACK.timerId) {

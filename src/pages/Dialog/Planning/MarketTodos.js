@@ -572,7 +572,7 @@ function MarketTodos(props) {
           <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id="newMarketTodo"
                                    onClick={() => navigate(history,
                                      formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId))}>
-            <FormattedMessage id='createNew'/>
+            <FormattedMessage id='createBug'/>
           </SpinningIconLabelButton>
         )}
         <div style={{paddingTop: '1rem'}}>

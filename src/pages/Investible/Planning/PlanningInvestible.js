@@ -806,12 +806,12 @@ function PlanningInvestible(props) {
             <Grid item xs={12} style={{ marginTop: mobileLayout ? undefined : '15px' }}>
               {showCommentAdd && (
                 <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
-                  alignItems: 'center', marginRight: 'auto', marginLeft: 'auto', marginTop: '0.75rem',
+                  marginTop: '0.75rem',
                   marginBottom: '0.75rem'}}
                                          onClick={() => navigate(history,
                                            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                              allowedCommentTypes[0]))}>
-                  <FormattedMessage id='createNew'/>
+                  <FormattedMessage id={`createNew${allowedCommentTypes[0]}`}/>
                 </SpinningIconLabelButton>
               )}
               <CommentBox

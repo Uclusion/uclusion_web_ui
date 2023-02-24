@@ -306,12 +306,11 @@ function PlanningDialog(props) {
                     </div>
                   }/>
                   <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id="newMarketQuestion"
-                                           style={{display: "flex",
-                    alignItems: 'center', marginRight: 'auto', marginLeft: 'auto', marginTop: '1rem'}}
+                                           style={{display: "flex", marginTop: '1rem'}}
                                            onClick={() => navigate(history,
                                              formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
                                                QUESTION_TYPE))}>
-                    <FormattedMessage id='createDiscussion'/>
+                    <FormattedMessage id='createQuestion'/>
                   </SpinningIconLabelButton>
                 </>
               )}
@@ -334,11 +333,11 @@ function PlanningDialog(props) {
                     </div>
                   }/>
                   <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
-                    alignItems: 'center', marginRight: 'auto', marginLeft: 'auto', marginTop: '1rem'}}
+                    marginTop: '1rem'}}
                                            onClick={() => navigate(history,
                                              formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
                                                SUGGEST_CHANGE_TYPE))}>
-                    <FormattedMessage id='createDiscussion'/>
+                    <FormattedMessage id='createSuggestion'/>
                   </SpinningIconLabelButton>
                 </>
               )}

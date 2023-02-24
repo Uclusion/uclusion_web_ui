@@ -754,8 +754,8 @@ function PlanningInvestible(props) {
                 )}
               </div>
             </div>
-            <div style={{paddingLeft: mobileLayout ? undefined : '8rem',
-              paddingRight: mobileLayout ? undefined : '8rem', paddingTop: '2rem'}}>
+            <div style={{paddingLeft: mobileLayout ? undefined : '1rem',
+              paddingRight: mobileLayout ? undefined : '1rem', paddingTop: '2rem'}}>
               {(_.isEmpty(search) || displayApprovalsBySearch > 0) && (
                 <>
                   <h2 id="approvals">
@@ -794,9 +794,6 @@ function PlanningInvestible(props) {
                     isAssigned={isAssigned}
                   />
                 </>
-              )}
-              {displayVotingInput && investibleId && !isAssigned && (
-                <h3>{intl.formatMessage({ id: 'orStructuredComment' })}</h3>
               )}
             </div>
           </>

@@ -75,7 +75,7 @@ function DecideStageStep(props) {
   if (currentStageId === inVotingStage.id) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
-    destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
+    destinationLabel = 'startJobQ';
     otherNextLabelId = 'commentIconAskQuestionLabel';
     onOtherNextFunc = () => {
       updatePageState({sectionOpen: 'questionsSection'});
@@ -84,7 +84,7 @@ function DecideStageStep(props) {
     nextLabelId = 'startJob';
   } else if (currentStageId === acceptedStage.id) {
     destinationStage = inReviewStage;
-    destinationLabel = 'planningInvestibleNextStageInReviewLabel';
+    destinationLabel = 'reviewJobQ';
     destinationExplanation = 'planningInvestibleInReviewExplanation';
     otherNextLabelId='modifyTasks';
     onOtherNextFunc = () => {
@@ -97,12 +97,12 @@ function DecideStageStep(props) {
     if (!_.isEmpty(comments)) {
       destinationStage = acceptedStage;
       destinationExplanation = 'planningInvestibleTasksInReviewExplanation';
-      destinationLabel = 'planningInvestibleNextStageAcceptedLabel';
+      destinationLabel = 'restartJobQ';
     } else {
       otherNextLabelId = 'planningInvestibleMoveToAcceptedLabel';
       onOtherNextFunc = () => moveToStage(acceptedStage, true);
       destinationStage = verifiedStage;
-      destinationLabel = 'planningInvestibleMoveToVerifiedLabel';
+      destinationLabel = 'finishJobQ';
       destinationExplanation = 'planningInvestibleVerifiedExplanation';
     }
   }
@@ -117,7 +117,7 @@ function DecideStageStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Move this job to {intl.formatMessage({ id: destinationLabel })}?
+        {intl.formatMessage({ id: destinationLabel })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         {intl.formatMessage({ id: destinationExplanation })}.

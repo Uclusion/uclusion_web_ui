@@ -41,6 +41,7 @@ import BlockedWizard from '../../../components/InboxWizards/Unblock/BlockedWizar
 import StageWizard from '../../../components/InboxWizards/Stage/StageWizard';
 import WaitingAssistanceWizard from '../../../components/InboxWizards/WaitingAssistance/WaitingAssistanceWizard';
 import AssignToOtherWizard from '../../../components/InboxWizards/AssignToOther/AssignToOtherWizard';
+import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 
 export function usesExpansion(item) {
   const { message } = item;
@@ -69,7 +70,7 @@ function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
     item.expansionPanel = panel;
   }
-  if (usesExpansion(item)) {
+  if (usesExpansion(item) && titleId) {
     item.title = intl.formatMessage({ id: titleId });
   }
 }
@@ -88,12 +89,12 @@ export function calculateTitleExpansionPanel(props) {
     if (messageType === 'ASSIGNED_UNREVIEWABLE') {
       setItem(item, openExpansion, <StageWizard investibleId={investibleId} marketId={marketId}
                                                 inboxDispatch={inboxDispatch} rowId={typeObjectId} />,
-        'DecideStageTitle', intl);
+        'reviewJobQ', intl);
     } else if (message.isOutboxType) {
       if (message.isAssigned) {
         setItem(item, openExpansion, <StageWizard investibleId={message.id} marketId={message.marketId}
                                                   rowId={message.id} inboxDispatch={inboxDispatch}/>,
-          'DecideStageTitle', intl);
+          undefined, intl);
       } else {
         setItem(item, openExpansion, <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId}
                                                               rowId={message.id} inboxDispatch={inboxDispatch} />,
@@ -343,7 +344,9 @@ export function getOutboxMessages(props) {
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     inReviewInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;
-      const outboxMessage = getMessageForInvestible(investible, market, 'feedback',
+      const investibleComments = getCommentsSortedByType(comments, investibleId, false);
+      const outboxMessage = getMessageForInvestible(investible, market,
+        _.isEmpty(investibleComments) ? 'finishJobQ' : 'restartJobQ',
         <RateReviewIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, 'UNREAD_REVIEWABLE');
       const marketInfo = getMarketInfo(investible, market.id);
       if (!_.isEmpty(marketInfo.required_reviews)) {
@@ -369,7 +372,7 @@ export function getOutboxMessages(props) {
     inVotingInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;
       const notAccepted = investible.notAccepted;
-      const label = notAccepted ? 'planningUnacceptedLabel' : 'inboxVotingLabel';
+      const label = notAccepted ? 'planningUnacceptedLabel' : 'startJobQ';
       const messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
         <ThumbsUpDownIcon style={{ fontSize: 24, color: '#ffc61a', }}/>;
       const message = getMessageForInvestible(investible, market, label, messageIcon, intl,

@@ -50,7 +50,7 @@ export default function PlanningInvestibleNav(props) {
     updatePageState, investibleId } = props;
   const intl = useIntl();
   const history = useHistory();
-  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -96,7 +96,7 @@ export default function PlanningInvestibleNav(props) {
         undefined, investiblesDispatch, diffDispatch, marketStagesState, [UNASSIGNED_TYPE],
         fullStage);
       if (isReadyToStart) {
-        notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, investiblesState, market, messagesDispatch);
+        notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, market, messagesDispatch);
       }
       setOperationRunning(false);
     });

@@ -1,4 +1,4 @@
-import { getInvestibleName, refreshInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper'
+import { refreshInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper'
 import { getFullStage } from '../contexts/MarketStagesContext/marketStagesContextHelper'
 import {
   reopenAutoclosedInvestibleComments,
@@ -31,13 +31,10 @@ export function onInvestibleStageChange(targetStageId, newInv, investibleId, mar
   pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: STAGE_CHANGE_EVENT, investibleId, useRemoveTypes });
 }
 
-export function notify(userId, investibleId, notificationType, notificationLevel, investiblesState, market,
-  messagesDispatch) {
+export function notify(userId, investibleId, notificationType, notificationLevel, market, messagesDispatch) {
   const investibleLink = formInvestibleLink(market.id, investibleId);
-  const investibleName = getInvestibleName(investiblesState, investibleId);
   messagesDispatch(addMessage({ market_id_user_id: `${market.id}_${userId}`,
     type_object_id: `${notificationType}_${investibleId}`, type: notificationType, market_id: market.id,
     investible_id: investibleId, user_id: userId, level: notificationLevel, link: investibleLink,
-    market_type: market.market_type, link_type: 'INVESTIBLE', investible_name: investibleName,
-    investible_link: investibleLink }));
+    market_type: market.market_type, link_type: 'INVESTIBLE', investible_link: investibleLink }));
 }

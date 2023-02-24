@@ -20,6 +20,12 @@ import { removeMessagesForCommentId } from '../../../utils/messageUtils'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import FindJobStep from './FindJobStep';
+import { notify } from '../../../utils/investibleFunctions';
+import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 
 function JobDescriptionStep (props) {
@@ -40,8 +46,13 @@ function JobDescriptionStep (props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketsState] = useContext(MarketsContext);
   const classes = useContext(WizardStylesContext);
+  const market = getMarket(marketsState, marketId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
   const comments = getCommentThreads(roots, marketComments);
@@ -67,7 +78,7 @@ function JobDescriptionStep (props) {
       updateFormData={updateFormData} formData={formData} startOver={startOver} clearFormData={clearFormData}/>;
   }
 
-  function createJob() {
+  function createJob(readyToStart) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -80,13 +91,19 @@ function JobDescriptionStep (props) {
       marketId,
       uploadedFiles: filteredUploads
     }
+    if (readyToStart !== undefined) {
+      addInfo.openForInvestment = readyToStart;
+    }
     return addPlanningInvestible(addInfo)
       .then((inv) => {
         refreshInvestibles(investiblesDispatch, () => {}, [inv]);
         const { id: investibleId } = inv.investible;
-        // reset the editor box
         let link = formInvestibleLink(marketId, investibleId);
+        // reset the editor box
         resetEditor(editorName);
+        if (readyToStart) {
+          notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, market, messagesDispatch);
+        }
         // update the form data with the saved investible
         updateFormData({
           investibleId,
@@ -160,7 +177,16 @@ function JobDescriptionStep (props) {
         onNext={createJob}
         onTerminate={myOnFinish}
         showTerminate={hasValue}
-        terminateLabel="JobWizardGotoJob"/>
+        showOtherNext={true}
+        onOtherDoAdvance={false}
+        onOtherNext={() => createJob(true).then(({link}) => {
+          onFinish({
+            ...formData,
+            link
+          });
+        })}
+        otherNextLabel="JobWizardReady"
+        terminateLabel="JobWizardNoAssign"/>
     </div>
     </WizardStepContainer>
   );

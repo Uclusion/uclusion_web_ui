@@ -812,7 +812,6 @@ function Comment(props) {
     && createdStageId === inReviewStageId && !creatorAssigned) ? <FormattedMessage id="reviewReportPresent" /> :
     (isMarketTodo ? <FormattedMessage id={`notificationLabel${myNotificationType}`} /> : undefined);
   const color = isMarketTodo ? myNotificationType : undefined;
-  const shouldInline = inlineMarketId || ((creatorAssigned || !investibleId) && commentType === SUGGEST_CHANGE_TYPE);
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;
   function getCommentHighlightStyle() {
@@ -974,7 +973,7 @@ function Comment(props) {
           {showActions && !beingEdited && (
             <CardActions>
               <div className={classes.actions}>
-                {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !shouldInline
+                {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId
                   && marketType === PLANNING_TYPE && (
                   <div style={{marginRight: '0.5rem', paddingTop: '0.25rem'}}>
                     <Typography style={{ whiteSpace:'nowrap',}}>

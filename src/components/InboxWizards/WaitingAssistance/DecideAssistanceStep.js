@@ -69,7 +69,7 @@ function DecideAssistanceStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        Are you done with this
+        Done with this
         {commentRoot.comment_type === QUESTION_TYPE ? ' question' : (isSuggest ? ' suggestion' : ' blocking issue')}?
       </Typography>
       {isSingle && (

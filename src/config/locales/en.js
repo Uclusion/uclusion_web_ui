@@ -1020,9 +1020,8 @@ const messages = defineMessages({
   optionalEdit: 'These fields are optional and can be changed at any time',
 
   // Inbox row titles
-  DecideAssignTitle: 'Wil you reassign?',
+  DecideAssignTitle: 'Will you reassign?',
   DecideStageTitle: 'Move this job?',
-  WaitingAssistanceTitle: 'Do you still need help?',
   JobApprovalTitle: 'Do you approve this job?',
   DecideAnswerTitle: 'Can you help answer?',
   DecideVoteTitle: 'How do you vote?',

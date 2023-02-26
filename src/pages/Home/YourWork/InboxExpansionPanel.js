@@ -98,7 +98,7 @@ export function calculateTitleExpansionPanel(props) {
       } else {
         setItem(item, openExpansion, <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId}
                                                               rowId={message.id} inboxDispatch={inboxDispatch} />,
-        'WaitingAssistanceTitle', intl);
+        undefined, intl);
       }
     }
   } else if (messageType === 'NOT_FULLY_VOTED') {
@@ -205,7 +205,7 @@ function getMessageForInvestible(investible, market, labelId, Icon, intl, messag
   };
 }
 
-function getMessageForComment(comment, market, labelId, Icon, intl, investibleState, marketStagesState,
+function getMessageForComment(comment, market, type, Icon, intl, investibleState, marketStagesState,
   comments, marketPresences) {
   const commentId = comment.id
   const message = {
@@ -214,7 +214,8 @@ function getMessageForComment(comment, market, labelId, Icon, intl, investibleSt
     marketId: market.id,
     icon: Icon,
     comment: comment.body,
-    title: intl.formatMessage({ id: labelId }),
+    title: `Done with this
+        ${type === QUESTION_TYPE ? ' question' : (type === SUGGEST_CHANGE_TYPE ? ' suggestion' : ' blocking issue')}?`,
     updatedAt: comment.updated_at,
     link: formCommentLink(market.id, comment.group_id, comment.investible_id, commentId),
     inFurtherWork: false,
@@ -313,7 +314,7 @@ export function getOutboxMessages(props) {
     const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE) || [];
     const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
     questions.forEach((comment) => {
-      const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
+      const message = getMessageForComment(comment, market, QUESTION_TYPE,
         <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences)
       if (message) {
@@ -321,7 +322,7 @@ export function getOutboxMessages(props) {
       }
     });
     issues.forEach((comment) => {
-      const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
+      const message = getMessageForComment(comment, market, ISSUE_TYPE,
         <IssueIcon style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences)
       if (message) {
@@ -329,7 +330,7 @@ export function getOutboxMessages(props) {
       }
     });
     suggestions.forEach((comment) => {
-      const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
+      const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
         <ChangeSuggstionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences)
       if (message) {
@@ -407,7 +408,7 @@ export function getOutboxMessages(props) {
       messages.push(message);
     });
     questions.forEach((comment) => {
-      const message = getMessageForComment(comment, market, 'cardTypeLabelQuestion',
+      const message = getMessageForComment(comment, market, QUESTION_TYPE,
         <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences)
       if (message) {
@@ -415,7 +416,7 @@ export function getOutboxMessages(props) {
       }
     });
     issues.forEach((comment) => {
-      const message = getMessageForComment(comment, market, 'cardTypeLabelIssue',
+      const message = getMessageForComment(comment, market, ISSUE_TYPE,
         <IssueIcon style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences)
       if (message) {
@@ -423,7 +424,7 @@ export function getOutboxMessages(props) {
       }
     });
     suggestions.forEach((comment) => {
-      const message = getMessageForComment(comment, market, 'cardTypeLabelSuggestedChange',
+      const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
         <ChangeSuggstionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences)
       if (message) {

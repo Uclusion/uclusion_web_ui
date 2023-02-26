@@ -639,6 +639,8 @@ const messages = defineMessages({
   createDialogApprovableExplanation: 'New approvable option',
   createDialogProposedExplanation: 'New proposed option',
   allowVoteSuggestion: 'Allow voting',
+  noVoteSuggestion: 'Add without voting',
+  voteSuggestion: 'Add with voting',
   allowVoteSuggestionMobile: 'Voting',
   uploadFilesDisplay: 'Attach New Files',
   uploadFilesTooltip: 'Drag files here or click to attach new files',

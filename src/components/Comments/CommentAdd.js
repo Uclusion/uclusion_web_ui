@@ -394,8 +394,8 @@ function CommentAdd(props) {
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
     const createInlineDecision = ourMarket.market_type === PLANNING_TYPE && apiType === QUESTION_TYPE;
     // Inline question markets use draft but initiatives do not since nothing to edit
-    const marketType = (createInlineInitiative && isSent) || doCreateInitiative ? INITIATIVE_TYPE :
-      (createInlineDecision ? DECISION_TYPE : undefined);
+    const marketType = (createInlineInitiative && isSent && doCreateInitiative === undefined)
+    || doCreateInitiative ? INITIATIVE_TYPE : (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     let label = undefined;
     if (creatorIsAssigned && type === REPORT_TYPE && isSent !== false) {
@@ -458,6 +458,7 @@ function CommentAdd(props) {
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
   const isMarketCreate = type === QUESTION_TYPE || (type === SUGGEST_CHANGE_TYPE && createInlineInitiative);
+  const isJobSuggestion = ourMarket.market_type === PLANNING_TYPE && type === SUGGEST_CHANGE_TYPE && investibleId;
   return (
     <>
       <Paper
@@ -495,15 +496,17 @@ function CommentAdd(props) {
                 <AddWizardStepButtons
                   {...wizardProps}
                   validForm={hasValue}
-                  nextLabel={`${nameKey}${type}`}
+                  nextLabel={isJobSuggestion ? (createInlineInitiative ? 'voteSuggestion' : 'noVoteSuggestion')
+                    : `${nameKey}${type}`}
                   onNext={() => handleSave( wizardProps.isSent === undefined ? !isMarketCreate
-                    : wizardProps.isSent)}
+                    : wizardProps.isSent, undefined,
+                    isJobSuggestion ? createInlineInitiative : undefined)}
                   onNextDoAdvance={isMarketCreate}
-                  showOtherNext={ourMarket.market_type === PLANNING_TYPE &&
-                    ((type === SUGGEST_CHANGE_TYPE && !createInlineInitiative)||type === QUESTION_TYPE)}
-                  otherNextLabel={type === SUGGEST_CHANGE_TYPE ? 'allowVoteSuggestion' : 'createNewQUESTION'}
+                  showOtherNext={isJobSuggestion ||(ourMarket.market_type === PLANNING_TYPE && type === QUESTION_TYPE)}
+                  otherNextLabel={type === SUGGEST_CHANGE_TYPE ?
+                    (createInlineInitiative ? 'noVoteSuggestion' : 'voteSuggestion') : 'createNewQUESTION'}
                   onOtherNext={() => handleSave( type === QUESTION_TYPE, undefined,
-                    type === SUGGEST_CHANGE_TYPE)}
+                    type === SUGGEST_CHANGE_TYPE ? !createInlineInitiative : undefined)}
                   onTerminate={wizardProps.saveOnTerminate ? () => {
                     setOperationRunning(true);
                     handleSave();

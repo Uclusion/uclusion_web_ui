@@ -841,7 +841,7 @@ function Comment(props) {
   }
 
   const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && investibleId && !resolved &&
-    (myPresenceIsAssigned || myPresence === createdBy);
+    (myPresenceIsAssigned || myPresence === createdBy) && marketType === PLANNING_TYPE;
   const showMoveButton = isSent !== false && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType)
     && !inArchives
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;

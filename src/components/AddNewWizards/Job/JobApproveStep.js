@@ -109,11 +109,11 @@ function JobApproveStep(props) {
           finish={onFinish}
           validForm={validForm}
           showNext={validForm}
-          showTerminate={!validForm}
+          showTerminate={true}
           onNext={onNext}
           onTerminate={onTerminate}
           terminateLabel="JobWizardGotoJob"
-          nextLabel="JobWizardGotoJob"
+          nextLabel="JobWizardApproveJob"
         />
       </div>
     </WizardStepContainer>

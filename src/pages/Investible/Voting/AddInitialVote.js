@@ -66,7 +66,8 @@ function AddInitialVote(props) {
     onEditorChange,
     maxBudget,
     maxBudgetUnit,
-    editorName
+    editorName,
+    defaultReason
   } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -74,7 +75,7 @@ function AddInitialVote(props) {
   const editorSpec = {
     marketId,
     placeholder: intl.formatMessage({ id: "yourReason" }),
-    value: getQuillStoredState(editorName),
+    value: getQuillStoredState(editorName) || defaultReason,
     onUpload,
     onChange: onEditorChange,
   };

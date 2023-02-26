@@ -14,9 +14,8 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router'
-import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { getMarketInfo } from '../../../utils/userFunctions';
+import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
@@ -30,7 +29,7 @@ import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function JobAssignStep (props) {
-  const { marketId, updateFormData, formData, onFinish, investibleId } = props;
+  const { marketId, updateFormData, formData, onFinish, investibleId, marketInfo } = props;
   const history = useHistory();
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -38,10 +37,8 @@ function JobAssignStep (props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
-  const inv = getInvestible(investibleState, investibleId);
-  const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned } = marketInfo;
   const value = (formData.wasSet ? formData.assigned : assigned) || [];
   const validForm = !_.isEqual(value, assigned);
@@ -93,7 +90,6 @@ function JobAssignStep (props) {
       messagesDispatch(removeMessages(messageIds));
       removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
       setOperationRunning(false);
-      finish();
     });
   }
 
@@ -137,8 +133,9 @@ function JobAssignStep (props) {
           showNext={true}
           showTerminate={true}
           onNext={assignJob}
+          onNextDoAdvance={!_.isEmpty(value)}
           onTerminate={finish}
-          terminateLabel="JobWizardGotoJob"
+          terminateLabel="JobWizardBacktoJob"
         />
       </div>
     </WizardStepContainer>

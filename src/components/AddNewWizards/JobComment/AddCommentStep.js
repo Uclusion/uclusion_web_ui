@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { useIntl } from 'react-intl';
-import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import CommentAdd from '../../Comments/CommentAdd';
 import { useHistory } from 'react-router';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
@@ -67,8 +67,10 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="JobCommentAdd"
         type={useType}
-        wizardProps={{...props, isSent: !isRequiresInputComment, isAddWizard: true,
-          showTerminate: isRequiresInputComment, saveOnTerminate: true}}
+        wizardProps={{...props, isAddWizard: true,
+          terminateLabel: 'JobWizardBacktoJob',
+          onTerminate: () => navigate(history, formInvestibleLink(marketId, investibleId)),
+          showTerminate: isRequiresInputComment}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

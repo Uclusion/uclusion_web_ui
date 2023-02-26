@@ -31,7 +31,8 @@ function WizardStepButtons (props) {
     marketToken,
     onOtherDoAdvance,
     skipNextStep,
-    onIncrement
+    onIncrement,
+    onNextDoAdvance
   } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -49,7 +50,7 @@ function WizardStepButtons (props) {
       if (onIncrement) {
         onIncrement();
       } else {
-        if (!isOther || onOtherDoAdvance) {
+        if ((isOther && onOtherDoAdvance)||(!isOther && onNextDoAdvance)) {
           if (skipNextStep) {
             nextStep(2);
           } else {
@@ -140,6 +141,7 @@ WizardStepButtons.propTypes = {
   otherSpinOnClick: PropTypes.bool,
   onOtherDoAdvance: PropTypes.bool,
   nextLabel: PropTypes.string,
+  onNextDoAdvance: PropTypes.bool
 };
 WizardStepButtons.defaultProps = {
   onNext: () => {},
@@ -159,6 +161,7 @@ WizardStepButtons.defaultProps = {
   spinOnClick: true,
   otherSpinOnClick: true,
   onOtherDoAdvance: true,
+  onNextDoAdvance: true,
   nextLabel: 'OnboardingWizardContinue',
 };
 

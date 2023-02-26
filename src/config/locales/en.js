@@ -522,13 +522,13 @@ const messages = defineMessages({
   DiscussionCommentAddQUESTION: 'Add options',
   DiscussionCommentAddSUGGEST: 'Configure',
   JobCommentAddQUESTION: 'Add options',
-  JobCommentAddSUGGEST: 'Configure',
-  JobCommentAddISSUE: 'Create',
-  JobCommentAddTODO: 'Create',
-  JobCommentAddREPORT: 'Create',
-  DecisionCommentAddQUESTION: 'Create',
-  DecisionCommentAddSUGGEST: 'Create',
-  DecisionCommentAddISSUE: 'Create',
+  JobCommentAddSUGGEST: 'Add',
+  JobCommentAddISSUE: 'Add',
+  JobCommentAddTODO: 'Add',
+  JobCommentAddREPORT: 'Add',
+  DecisionCommentAddQUESTION: 'Add',
+  DecisionCommentAddSUGGEST: 'Add',
+  DecisionCommentAddISSUE: 'Add',
 
   // card types
   cardTypeLabelIssue: 'Blocking issue',
@@ -1156,6 +1156,7 @@ const messages = defineMessages({
 
   // Job Wizard
   JobWizardGotoJob: 'Go to job',
+  JobWizardBacktoJob: 'Back to job',
   JobWizardAssignJob: 'Assign job to someone',
   JobWizardApproveJob: 'Approve job',
   JobWizardNewJob: 'New job',
@@ -1176,8 +1177,7 @@ const messages = defineMessages({
   BudgetRestrictYes: 'Do not allow approvers to suggest a budget.',
 
   // Decision comment wizard
-  DecisionCommmentWizardTerminate: 'Go to option',
-  DiscussionCommentWizardTerminate: 'Go to comment',
+  DecisionCommmentWizardTerminate: 'Back to option',
 
   // Approve Wizard
   ApprovalWizardApprove: 'Approve job',

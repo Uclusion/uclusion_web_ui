@@ -326,6 +326,7 @@ function CommentAdd(props) {
     && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id;
   const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
+  const ourMarket = getMarket(marketsState, marketId) || {};
 
   function handleClear () {
     replaceEditorContents('', editorName);
@@ -379,7 +380,7 @@ function CommentAdd(props) {
     onSave(comment)
   }
 
-  function handleSave(isSent, passedNotificationType) {
+  function handleSave(isSent, passedNotificationType, doCreateInitiative) {
     const currentUploadedFiles = uploadedFiles || [];
     const myBodyNow = getQuillStoredState(editorName);
     const apiType = (type === REPLY_TYPE) ? undefined : type;
@@ -391,10 +392,9 @@ function CommentAdd(props) {
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     // what about not doing state?
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
-    const ourMarket = getMarket(marketsState, marketId) || {};
     const createInlineDecision = ourMarket.market_type === PLANNING_TYPE && apiType === QUESTION_TYPE;
     // Inline question markets use draft but initiatives do not since nothing to edit
-    const marketType = createInlineInitiative && isSent ? INITIATIVE_TYPE :
+    const marketType = (createInlineInitiative && isSent) || doCreateInitiative ? INITIATIVE_TYPE :
       (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     let label = undefined;
@@ -443,7 +443,7 @@ function CommentAdd(props) {
   }
   const isWizard = !_.isEmpty(wizardProps);
   const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
-    && type === SUGGEST_CHANGE_TYPE;
+    && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE;
 
   const useBody = getQuillStoredState(editorName);
   const editorSpec = {
@@ -457,7 +457,7 @@ function CommentAdd(props) {
     buttons: type === REPLY_TYPE ? buttons : undefined
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
-
+  const isMarketCreate = type === QUESTION_TYPE || (type === SUGGEST_CHANGE_TYPE && createInlineInitiative);
   return (
     <>
       <Paper
@@ -496,9 +496,19 @@ function CommentAdd(props) {
                   {...wizardProps}
                   validForm={hasValue}
                   nextLabel={`${nameKey}${type}`}
-                  onNext={() => handleSave( wizardProps.isSent !== false)}
-                  onTerminate={wizardProps.saveOnTerminate ? handleSave : wizardProps.onTerminate}
-                  showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate: true}
+                  onNext={() => handleSave( wizardProps.isSent === undefined ? !isMarketCreate
+                    : wizardProps.isSent)}
+                  onNextDoAdvance={isMarketCreate}
+                  showOtherNext={ourMarket.market_type === PLANNING_TYPE &&
+                    ((type === SUGGEST_CHANGE_TYPE && !createInlineInitiative)||type === QUESTION_TYPE)}
+                  otherNextLabel={type === SUGGEST_CHANGE_TYPE ? 'allowVoteSuggestion' : 'createNewQUESTION'}
+                  onOtherNext={() => handleSave( type === QUESTION_TYPE, undefined,
+                    type === SUGGEST_CHANGE_TYPE)}
+                  onTerminate={wizardProps.saveOnTerminate ? () => {
+                    setOperationRunning(true);
+                    handleSave();
+                  } : wizardProps.onTerminate}
+                  showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : true}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}
             </div>

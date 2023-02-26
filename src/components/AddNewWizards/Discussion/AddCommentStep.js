@@ -39,8 +39,8 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="DiscussionCommentAdd"
         type={useType}
-        wizardProps={{...props, isSent: false, isAddWizard: true, terminateLabel: 'DiscussionCommentWizardTerminate',
-          saveOnTerminate: true, skipNextStep: useType === SUGGEST_CHANGE_TYPE}}
+        wizardProps={{...props, isSent: false, isAddWizard: true, skipNextStep: useType === SUGGEST_CHANGE_TYPE,
+          showTerminate: false}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

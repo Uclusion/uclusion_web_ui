@@ -36,6 +36,7 @@ function AddCommentStep (props) {
         `${formMarketLink(parentMarketId, parentComment.group_id)}#option${investibleId}`);
     }
   }
+
   return (
     <WizardStepContainer
       {...props}
@@ -48,7 +49,8 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="DecisionCommentAdd"
         type={useType}
-        wizardProps={{...props, finish: onFinish, terminateLabel: 'DecisionCommmentWizardTerminate', isAddWizard: true}}
+        wizardProps={{...props, finish: onFinish, terminateLabel: 'DecisionCommmentWizardTerminate', isAddWizard: true,
+          isSent: true, onTerminate: onFinish}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

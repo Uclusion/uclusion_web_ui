@@ -379,8 +379,9 @@ function CommentAdd(props) {
     clearMe()
     onSave(comment)
   }
-
+  const isJobSuggestion = ourMarket.market_type === PLANNING_TYPE && type === SUGGEST_CHANGE_TYPE && investibleId;
   function handleSave(isSent, passedNotificationType, doCreateInitiative) {
+    const useIsSent = isJobSuggestion ? !doCreateInitiative : isSent;
     const currentUploadedFiles = uploadedFiles || [];
     const myBodyNow = getQuillStoredState(editorName);
     const apiType = (type === REPLY_TYPE) ? undefined : type;
@@ -394,7 +395,7 @@ function CommentAdd(props) {
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
     const createInlineDecision = ourMarket.market_type === PLANNING_TYPE && apiType === QUESTION_TYPE;
     // Inline question markets use draft but initiatives do not since nothing to edit
-    const marketType = (createInlineInitiative && isSent && doCreateInitiative === undefined)
+    const marketType = (createInlineInitiative && useIsSent && doCreateInitiative === undefined)
     || doCreateInitiative ? INITIATIVE_TYPE : (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     let label = undefined;
@@ -402,7 +403,7 @@ function CommentAdd(props) {
       label = nameFromDescription(tokensRemoved);
     }
     return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
-      passedNotificationType, marketType, undefined, isSent, label)
+      passedNotificationType, marketType, undefined, useIsSent, label)
       .then((response) => {
         let comment = marketType ? response.parent : response;
         let useRootInvestible = rootInvestible;
@@ -458,7 +459,6 @@ function CommentAdd(props) {
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
   const isMarketCreate = type === QUESTION_TYPE || (type === SUGGEST_CHANGE_TYPE && createInlineInitiative);
-  const isJobSuggestion = ourMarket.market_type === PLANNING_TYPE && type === SUGGEST_CHANGE_TYPE && investibleId;
   return (
     <>
       <Paper
@@ -506,7 +506,8 @@ function CommentAdd(props) {
                   otherNextLabel={type === SUGGEST_CHANGE_TYPE ?
                     (createInlineInitiative ? 'noVoteSuggestion' : 'voteSuggestion') : 'createNewQUESTION'}
                   onOtherNext={() => handleSave( type === QUESTION_TYPE, undefined,
-                    type === SUGGEST_CHANGE_TYPE ? !createInlineInitiative : undefined)}
+                    isJobSuggestion ? !createInlineInitiative : undefined)}
+                  onOtherDoAdvance={isJobSuggestion && createInlineInitiative ? false : undefined }
                   onTerminate={wizardProps.saveOnTerminate ? () => {
                     setOperationRunning(true);
                     handleSave();

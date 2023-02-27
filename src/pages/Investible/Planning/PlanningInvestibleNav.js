@@ -43,6 +43,7 @@ import {
 } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
+import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
 
 export default function PlanningInvestibleNav(props) {
   const { name, intermediateNotSingle, market, marketInvestible, classes, userId, myPresence, isAssigned,
@@ -112,9 +113,10 @@ export default function PlanningInvestibleNav(props) {
           <Divider />
         </List>
       )}
-      <div style={{maxWidth: '11rem', paddingBottom: '1rem', width: intermediateNotSingle ? '100%' : undefined}}>
+      <div style={{maxWidth: '11rem', width: intermediateNotSingle ? '100%' : undefined}}>
         {name}
       </div>
+      <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
       {market.id && marketInvestible.investible && (
         <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
           <div className={classes.assignmentContainer}>

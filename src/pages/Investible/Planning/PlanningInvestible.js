@@ -705,18 +705,15 @@ function PlanningInvestible(props) {
         {sectionOpen === 'descriptionVotingSection' && (
           <>
             <div style={{display: 'flex'}}>
-              <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
-              <div style={{width: '80%'}}>
-                <CardType
-                  marketDaysEstimate={marketDaysEstimate}
-                  onEstimateChange={handleDateChange}
-                  isInAccepted={isInAccepted}
-                  className={classes.cardType}
-                  createdAt={mobileLayout ? undefined : createdAt}
-                  myBeingEdited={mobileLayout ? undefined : beingEdited}
-                  stageChangedAt={mobileLayout ? undefined : new Date(marketInfo.last_stage_change_date)}
-                />
-              </div>
+              <CardType
+                marketDaysEstimate={marketDaysEstimate}
+                onEstimateChange={handleDateChange}
+                isInAccepted={isInAccepted}
+                className={classes.cardType}
+                createdAt={mobileLayout ? undefined : createdAt}
+                myBeingEdited={mobileLayout ? undefined : beingEdited}
+                stageChangedAt={mobileLayout ? undefined : new Date(marketInfo.last_stage_change_date)}
+              />
               <div className={classes.editRow}>
                 {mobileLayout && !inMarketArchives && isEditableByUser() && !beingEdited && (
                   <div>

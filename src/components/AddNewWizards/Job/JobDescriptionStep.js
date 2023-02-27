@@ -26,6 +26,7 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 
 function JobDescriptionStep (props) {
@@ -49,6 +50,7 @@ function JobDescriptionStep (props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
   const market = getMarket(marketsState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -138,7 +140,8 @@ function JobDescriptionStep (props) {
       })
   }
 
-  function myOnFinish(formData){
+  function onTerminate(formData){
+    setOperationRunning(true);
      createJob()
       .then(({link}) => {
         onFinish({
@@ -175,7 +178,7 @@ function JobDescriptionStep (props) {
         validForm={hasValue}
         nextLabel="JobWizardAssignJob"
         onNext={createJob}
-        onTerminate={myOnFinish}
+        onTerminate={onTerminate}
         showTerminate={hasValue}
         showOtherNext={true}
         onOtherDoAdvance={false}

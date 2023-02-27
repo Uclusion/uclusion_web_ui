@@ -1165,7 +1165,7 @@ const messages = defineMessages({
   JobWizardStartOver: 'Start over',
   JobAssignNotDoing: 'Move to Not Doing',
   JobWizardReady: 'Backlog ready to start',
-  JobWizardNoAssign: 'See in backlog',
+  JobWizardNoAssign: 'Backlog not ready',
 
   //GroupWizard
   GroupWizardMeetingName: 'Your group name',

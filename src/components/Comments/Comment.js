@@ -526,7 +526,8 @@ function Comment(props) {
   }
 
   const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId;
-  const isEditable = comment.created_by === myPresence.id || isMarketTodo;
+  const isTask = marketType === PLANNING_TYPE && commentType === TODO_TYPE && investibleId;
+  const isEditable = comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned);
 
   function getDialog(anInlineMarket) {
     const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults) || [];

@@ -217,7 +217,7 @@ function PlanningIdeas(props) {
   function onDropAccepted (event) {
     const currentStageId = event.dataTransfer.getData('stageId');
     if (checkStageMatching(currentStageId)) {
-      if (isAssignedInvestible(event, myPresence.id) && myPresence.id === presenceId) {
+      if (isAssignedInvestible(event, myPresence.id)) {
         stageChange(event, acceptedStageId);
       }
     }
@@ -261,7 +261,7 @@ function PlanningIdeas(props) {
       return true;
     }
     if (divId === acceptedStageId) {
-      return draggerIsAssigned && myPresence.id === presenceId;
+      return draggerIsAssigned;
     }
     if (divId === inReviewStageId) {
       return swimLaneIsAssigned;

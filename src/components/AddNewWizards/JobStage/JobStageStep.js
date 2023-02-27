@@ -77,7 +77,7 @@ function JobStageStep (props) {
   }
 
   function finish(fullMoveStage) {
-    if (fullMoveStage && isNotDoingStage(fullMoveStage)) {
+    if (fullMoveStage && (isNotDoingStage(fullMoveStage)||isVerifiedStage(fullMoveStage))) {
       navigate(history, formMarketLink(marketId, groupId));
     } else {
       navigate(history, formInvestibleLink(marketId, investibleId));

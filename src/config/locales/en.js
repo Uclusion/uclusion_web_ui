@@ -355,6 +355,7 @@ const messages = defineMessages({
   notificationSummary: 'Summary',
   viewInChannel: 'View in group',
   viewInChannelLower: 'view in group',
+  inactiveGroups: 'Inactive groups',
 
   // Address list
   addressAddCancelLabel: 'Close',

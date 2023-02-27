@@ -12,9 +12,10 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import { useIntl } from 'react-intl'
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import AddIcon from '@material-ui/icons/Add'
-import { formMarketEditLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
+import { formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 import { setUclusionLocalStorageItem } from '../../components/localStorageUtils'
+import { GroupOutlined } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -97,7 +98,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function WorkspaceMenu(props) {
-  const { markets, defaultMarket, setChosenMarketId } = props;
+  const { markets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup } = props;
   const classes = useStyles();
   const intl = useIntl();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -203,6 +204,25 @@ function WorkspaceMenu(props) {
                 >
                   {intl.formatMessage({ id: 'settings' })}
                 </MenuItem>
+                <SubMenu title={intl.formatMessage({ id: 'inactiveGroups' })}
+                         key="inactiveGroups" style={{paddingLeft: '0.7rem'}}>
+                  {inactiveGroups.map((group) => {
+                    const key = `group${group.id}`;
+
+                    if (chosenGroup?.id === group.id) {
+                      return <React.Fragment key={key}/>;
+                    }
+                    return <MenuItem icon={<GroupOutlined htmlColor="black" />}
+                                     id={key}
+                                     key={key}
+                                     onClick={() => {
+                                       navigate(history, formMarketLink(defaultMarket.id, group.id))
+                                     }}
+                    >
+                      {group.name}
+                    </MenuItem>
+                  })}
+                </SubMenu>
               </ProMenu>
             </SidebarContent>
           </ProSidebar>

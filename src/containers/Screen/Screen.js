@@ -21,7 +21,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import Sidebar from '../../components/Menus/Sidebar'
 import AddIcon from '@material-ui/icons/Add'
-import { Group, Inbox } from '@material-ui/icons'
+import { Group, GroupOutlined, Inbox } from '@material-ui/icons';
 import {
   getFirstWorkspace,
   getGroupForInvestibleId,
@@ -36,6 +36,8 @@ import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
+import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -158,6 +160,7 @@ function Screen(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
   const [groupsState] = useContext(MarketGroupsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const [marketsState] = useContext(MarketsContext);
   const { results, search } = searchResults;
   const {
@@ -205,35 +208,29 @@ function Screen(props) {
   }
   const useGroupId = groupId ? groupId : (investibleId ?
     getGroupForInvestibleId(investibleId, defaultMarket.id, investiblesState) : undefined);
-  const navigationMenu =
-    {
-      headerItemTextArray: [
-        {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(),
-          newPage: true, isBold: _.isEmpty(marketId),
-          num: _.isEmpty(search) ?
-            getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState)
-            : undefined}
-      ],
-      navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull} />,
-      navListItemTextArray: !_.isEmpty(defaultMarket) ? [
-        {
-          icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
-          target: `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
-        }
-      ] : null}
-  ;
-
+  const navListItemTextArray = [];
+  const inactiveGroups = [];
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const { onGroupClick, useHoverFunctions } = navigationOptions || {};
     const itemsSorted = _.sortBy(groupsState[defaultMarket.id], 'name');
-    const items = itemsSorted.map((group) => {
+    const marketPresences = getMarketPresences(marketPresencesState, defaultMarket.id) || [];
+    const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+    const itemsRaw = itemsSorted.map((group) => {
+      const groupPresences = getGroupPresences(marketPresences, groupPresencesState, defaultMarket.id, group.id) || [];
       const isChosen = group.id === useGroupId;
+      if (_.isEmpty(groupPresences)) {
+        inactiveGroups.push(group);
+        if (!isChosen) {
+          return {};
+        }
+      }
+      const myIcon = groupPresences.find((presence) => presence.id === myPresence.id) ? Group : GroupOutlined;
       const outsetAvailable = isChosen && useHoverFunctions;
       let num = undefined;
       if (!_.isEmpty(search)) {
         num = (results || []).filter((item) => item.groupId === group.id);
       }
-      return {icon: Group, endIcon: outsetAvailable ? ExpandMoreIcon : undefined, text: group.name, num,
+      return {icon: myIcon, endIcon: outsetAvailable ? ExpandMoreIcon : undefined, text: group.name, num,
         isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
@@ -267,7 +264,29 @@ function Screen(props) {
         }
       }
     });
-    navigationMenu.navListItemTextArray.push(...items);
+    const items = itemsRaw.filter((item) => !_.isEmpty(item));
+    navListItemTextArray.push(...items);
+  }
+  const navigationMenu =
+    {
+      headerItemTextArray: [
+        {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(),
+          newPage: true, isBold: _.isEmpty(marketId),
+          num: _.isEmpty(search) ?
+            getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState)
+            : undefined}
+      ],
+      navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
+                              inactiveGroups={inactiveGroups} chosenGroup={useGroupId}/>,
+      navListItemTextArray: !_.isEmpty(defaultMarket) ? [
+        {
+          icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
+          target: `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
+        }
+      ] : null}
+  ;
+  if (navigationMenu.navListItemTextArray) {
+    navigationMenu.navListItemTextArray = navigationMenu.navListItemTextArray.concat(navListItemTextArray);
   }
   const myContainerClass = !hideMenu && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
   const contentClass = mobileLayout || hideMenu ? classes.contentNoStyle : classes.content;

@@ -1,5 +1,4 @@
 import React, { useContext } from 'react'
-import { getTomorrow } from '../../../utils/timerUtils'
 import DatePicker from 'react-datepicker'
 import { useIntl } from 'react-intl'
 import _ from 'lodash'
@@ -72,7 +71,7 @@ function InvestibleStatus(props) {
         onChange={handleDateChange}
         disabled={operationRunning}
         popperPlacement="top"
-        minDate={getTomorrow()}
+        minDate={new Date()}
         inline
       />
       <div style={{paddingBottom: '1rem'}} />

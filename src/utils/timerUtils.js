@@ -40,9 +40,3 @@ export function isInPast(someDate) {
   const today = new Date();
   return today.getTime() - someDate.getTime() > 0;
 }
-
-export function getTomorrow() {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return tomorrow;
-}

@@ -130,7 +130,6 @@ function SearchBox () {
         }}
         inputRef={inputRef}
         placeholder={intl.formatMessage({ id: 'searchBoxPlaceholder' })}
-        variant="outlined"
         size="small"
         defaultValue={searchResults.search}
         InputProps={{

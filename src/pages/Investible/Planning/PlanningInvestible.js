@@ -56,7 +56,6 @@ import {
   STOP_OPERATION
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages';
 import { addEditVotingHasContents } from '../Voting/AddEditVote';
-import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
 import { GmailTabItem, GmailTabs, tabTheme } from '../../../containers/Tab/Inbox';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import {

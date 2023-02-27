@@ -33,7 +33,6 @@ function AddCommentStep (props) {
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
     getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId);
-  const isRequiresInputComment = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useType);
   const isAssistance = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useType);
   const inAssistanceStage = [requiresInputStage.id, blockingStage.id].includes(currentStageId);
 

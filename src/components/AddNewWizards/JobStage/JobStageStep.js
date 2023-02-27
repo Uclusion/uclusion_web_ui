@@ -6,7 +6,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { stageChangeInvestible } from '../../../api/investibles';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -38,7 +38,7 @@ function JobStageStep (props) {
   const [marketsState] = useContext(MarketsContext);
   const classes = useContext(WizardStylesContext);
   const userId = getMyUserForMarket(marketsState, marketId)
-  const { stage, assigned } = marketInfo;
+  const { stage, assigned, group_id: groupId } = marketInfo;
   const value = formData.stageWasSet ? formData.stage : stage;
   const validForm = !_.isEqual(value, stage);
   const isAssigned = (assigned || []).includes(userId);
@@ -76,8 +76,12 @@ function JobStageStep (props) {
     });
   }
 
-  function finish() {
-    navigate(history, formInvestibleLink(marketId, investibleId));
+  function finish(fullMoveStage) {
+    if (fullMoveStage && isNotDoingStage(fullMoveStage)) {
+      navigate(history, formMarketLink(marketId, groupId));
+    } else {
+      navigate(history, formInvestibleLink(marketId, investibleId));
+    }
   }
 
   function move() {
@@ -110,7 +114,7 @@ function JobStageStep (props) {
           commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
           fullCurrentStage);
         setOperationRunning(false);
-        finish();
+        finish(fullMoveStage);
       });
   }
 

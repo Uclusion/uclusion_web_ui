@@ -70,7 +70,7 @@ function AddCommentStep (props) {
         wizardProps={{...props, isAddWizard: true,
           terminateLabel: 'JobWizardBacktoJob',
           onTerminate: () => navigate(history, formInvestibleLink(marketId, investibleId)),
-          showTerminate: isRequiresInputComment}}
+          showTerminate: true}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

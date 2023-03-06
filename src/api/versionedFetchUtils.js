@@ -66,7 +66,7 @@ export function refreshVersions (ignoreIfInProgress=false) {
     return matchErrorHandlingVersionRefresh();
   }else{
     if(runner == null){
-      startRefreshRunner();
+      return startRefreshRunner();
     }
   }
 }

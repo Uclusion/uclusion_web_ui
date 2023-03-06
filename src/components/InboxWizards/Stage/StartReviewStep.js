@@ -17,7 +17,7 @@ import CommentAdd from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 
 function StartReviewStep(props) {
-  const { marketId, investibleId, inv, groupId, currentStageId } = props;
+  const { marketId, investibleId, groupId, currentStageId } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -27,7 +27,6 @@ function StartReviewStep(props) {
     getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId || marketId);
   const classes = wizardStyles();
   const history = useHistory();
-  const { investible: myInvestible } = inv || {};
   const destinationStage = getInReviewStage(marketStagesState, marketId) || {};
 
   function onSave(comment) {
@@ -66,7 +65,7 @@ function StartReviewStep(props) {
         commentAddStateReset={commentAddStateReset}
         marketId={marketId}
         groupId={groupId}
-        investible={myInvestible}
+        investibleId={investibleId}
         onSave={onSave}
         nameDifferentiator="startReview"
       />

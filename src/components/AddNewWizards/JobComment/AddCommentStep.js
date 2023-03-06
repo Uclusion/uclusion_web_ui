@@ -75,7 +75,7 @@ function AddCommentStep (props) {
         commentAddStateReset={commentAddStateReset}
         marketId={marketId}
         groupId={groupId}
-        investible={inv.investible}
+        fromInvestibleId={investibleId}
         onSave={onSave}
         nameDifferentiator="jobComment"
         isStory={true}

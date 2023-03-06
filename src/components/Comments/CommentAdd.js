@@ -286,7 +286,7 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
 
 function CommentAdd(props) {
   const {
-    marketId, groupId, onSave, type, investible, parent, nameKey, onCancel,
+    marketId, groupId, onSave, type, parent, nameKey, onCancel, fromInvestibleId,
     mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset, autoFocus=true, threadMessages,
     nameDifferentiator='', wizardProps
   } = props;
@@ -306,7 +306,7 @@ function CommentAdd(props) {
   const classes = useStyles();
   const usedParent = parent || {};
   const { investible_id: parentInvestible, id: parentId } = usedParent;
-  const investibleId = investible ? investible.id : parentInvestible;
+  const investibleId = fromInvestibleId || parentInvestible;
   // TODO: this breaks if investible exists in more than one market
   const inv = getInvestible(investibleState, investibleId) || {};
   const { market_infos, investible: rootInvestible } = inv;

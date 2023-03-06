@@ -6,7 +6,6 @@ import { getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatu
 import { fetchComments } from './comments'
 import { fetchInvestibles } from './marketInvestibles'
 import { LimitedParallelMap } from '../utils/PromiseUtils'
-import { startTimerChain } from '../utils/timerUtils'
 import { checkInStorage, checkSignatureInStorage } from './storageIntrospector'
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { COMMENTS_CONTEXT_NAMESPACE } from '../contexts/CommentsContext/CommentsContext'
@@ -17,6 +16,7 @@ import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext
 import { getFailedSignatures } from '../contexts/MarketsContext/marketsContextHelper'
 import { MARKET_GROUPS_CONTEXT_NAMESPACE } from '../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GROUP_MEMBERS_CONTEXT_NAMESPACE } from '../contexts/GroupMembersContext/GroupMembersContext'
+import { RepeatingFunction } from '../utils/RepeatingFunction';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -35,80 +35,45 @@ export const VERSIONS_EVENT = 'version_push';
 export const BANNED_LIST = 'banned_list';
 export const SYNC_ERROR_EVENT = 'sync_error';
 
-export class MatchError extends Error {
+export class MatchError extends Error {}
 
-}
-
-let globalFetchPromiseChain = Promise.resolve(true);
-let globalFetchPromiseTracker = {inProgress: 0};
-
-export function executeRefreshTimerChain(refreshAll, resolve, reject) {
-  const execFunction = () => {
-    return doVersionRefresh().then(() => {
-        globalFetchPromiseTracker.inProgress -= 1;
-        resolve(true);
-        return Promise.resolve(true);
-      }).catch((error) => {
-        console.error(error);
-        // we'll log match problems, but raise the rest
-        if (error instanceof MatchError) {
-          return false;
-        } else {
-          reject(error);
-        }
-      });
-  };
-  startTimerChain(6000, MAX_RETRIES, execFunction);
+let runner;
+const matchErrorHandlingVersionRefresh = () => {
+  return doVersionRefresh()
+    .catch((error) => {
+      console.error(error);
+      // we'll log match problems, but raise the rest
+      if (error instanceof MatchError) {
+        return;
+      } else {
+        throw(error);
+      }
+    });
+};
+export function startRefreshRunner() {
+  runner = new RepeatingFunction(matchErrorHandlingVersionRefresh, 6000, MAX_RETRIES);
+  return runner.start();
 }
 
 /**
- * Starts off a global refresh timer.
- * @returns {Promise<unknown>}
+ * If ignoreIfInProgress is false, then will execute a single version refresh.
+ * Otherwise will start up a refreshRunner or if it's already started do nothing
+ * @param ignoreIfInProgress
+ * @returns {Promise<*>}
  */
-function startGlobalRefreshTimerChain(refreshAll) {
-  return new Promise((resolve, reject) => {
-    executeRefreshTimerChain(refreshAll, resolve, reject);
-  });
-}
-
 export function refreshVersions (ignoreIfInProgress=false) {
-  return refreshGlobalVersion(ignoreIfInProgress)
+  if(!ignoreIfInProgress){
+    return matchErrorHandlingVersionRefresh();
+  }else{
+    if(runner == null){
+      startRefreshRunner();
+    }
+  }
 }
 
 export function refreshNotifications () {
   // check if new notifications
   pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
-}
-
-/**
- * Refreshes the global version to consider the fetch complete.
- * At most need one running and one queued as each call does the same thing.
- * @returns {Promise<*>}
- */
-export function refreshGlobalVersion(ignoreIfInProgress) {
-  if (!globalFetchPromiseTracker) {
-    console.warn('No fetch tracking');
-    globalFetchPromiseTracker = {inProgress: 0};
-  } else {
-    console.info(globalFetchPromiseTracker);
-  }
-  const { inProgress } = globalFetchPromiseTracker;
-  if (!globalFetchPromiseChain || inProgress < 1) {
-    // Spec says you can call then multiple times but Chrome might have some limit so re-init
-    globalFetchPromiseChain = Promise.resolve(true);
-  }
-  if (inProgress > 1) {
-    return globalFetchPromiseChain;
-  }
-  if (inProgress > 0 && ignoreIfInProgress) {
-    return globalFetchPromiseChain;
-  }
-  globalFetchPromiseTracker.inProgress += 1;
-  // Always chain to avoid fetching the same version over and over
-  globalFetchPromiseChain = globalFetchPromiseChain.then(() => {
-    return startGlobalRefreshTimerChain();
-  });
-  return globalFetchPromiseChain;
 }
 
 /**

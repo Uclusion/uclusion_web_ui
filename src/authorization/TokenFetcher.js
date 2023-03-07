@@ -34,11 +34,7 @@ class TokenFetcher {
             return Promise.resolve(token);
           }
           //console.log(`refreshing token for ${this.tokenType} id ${this.itemId}`);
-          return this.getRefreshedToken(this.itemId)
-            .then((token) => {
-              this.tokenStorageManager.storeToken(this.tokenType, this.itemId, token);
-              return Promise.resolve(token);
-            });
+          return this.getRefreshedToken(this.itemId); // this will automatically store
         })
     });
   }

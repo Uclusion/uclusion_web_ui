@@ -24,16 +24,23 @@ class TokenFetcher {
    * Gets a token for our type of token and item id
    * @returns {void|undefined|Promise<the>}
    */
-  getToken () {
-    return this.tokenStorageManager.getValidToken(this.tokenType, this.itemId)
-      .then((token) => {
-        if (token) {
-          //console.log(`got token for ${this.tokenType} id ${this.itemId}`);
-          return Promise.resolve(token);
-        }
-        //console.log(`refreshing token for ${this.tokenType} id ${this.itemId}`);
-        return this.getRefreshedToken(this.itemId);
-      });
+  async getToken () {
+    // first get the token storage lock on this token type and item
+    return navigator.locks.request(`${this.tokenType}_${this.itemId}`, async () => {
+      return this.tokenStorageManager.getValidToken(this.tokenType, this.itemId)
+        .then((token) => {
+          if (token) {
+            //console.log(`got token for ${this.tokenType} id ${this.itemId}`);
+            return Promise.resolve(token);
+          }
+          //console.log(`refreshing token for ${this.tokenType} id ${this.itemId}`);
+          return this.getRefreshedToken(this.itemId)
+            .then((token) => {
+              this.tokenStorageManager.storeToken(this.tokenType, this.itemId, token);
+              return Promise.resolve(token);
+            });
+        })
+    });
   }
 
   /**

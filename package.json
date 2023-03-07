@@ -58,6 +58,7 @@
     "react-vis": "^1.11.7",
     "reconnecting-websocket": "^4.4.0",
     "reselect": "^4.0.0",
+    "tab-election": "^3.0.1",
     "uclusion_sdk": "file:../uclusion_sdk",
     "use-debounce": "^3.3.0",
     "use-fit-text": "^2.1.0",

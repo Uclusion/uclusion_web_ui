@@ -259,35 +259,29 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
   const serverFetchSignatures = getFetchSignaturesForMarket(componentSignatures);
   const fromStorage = checkInStorage(marketId, serverFetchSignatures, storageStates);
   const { markets, comments, marketPresences, marketStages, investibles, marketGroups, groupMembers } = fromStorage;
-  let chain = null;
+  const promises = [];
   if (!_.isEmpty(markets.unmatchedSignatures)) {
-    chain = fetchMarketVersion(marketId, markets.unmatchedSignatures[0], marketsStruct); // can only be one :)
+    promises.push(fetchMarketVersion(marketId, markets.unmatchedSignatures[0], marketsStruct)); // can only be one :)
   }
   if (!_.isEmpty(comments.unmatchedSignatures)) {
-    chain = chain ? chain.then(() => fetchMarketComments(marketId, comments, marketsStruct))
-      : fetchMarketComments(marketId, comments, marketsStruct);
+    promises.push(fetchMarketComments(marketId, comments, marketsStruct));
   }
   if (!_.isEmpty(investibles.unmatchedSignatures)) {
-    chain = chain ? chain.then(() => fetchMarketInvestibles(marketId, investibles, marketsStruct))
-      : fetchMarketInvestibles(marketId, investibles, marketsStruct);
+    promises.push(fetchMarketInvestibles(marketId, investibles, marketsStruct));
   }
   if (!_.isEmpty(marketPresences.unmatchedSignatures)) {
-    chain = chain ? chain.then(() => fetchMarketPresences(marketId, marketPresences, marketsStruct))
-      : fetchMarketPresences(marketId, marketPresences, marketsStruct);
+    promises.push(fetchMarketPresences(marketId, marketPresences, marketsStruct));
   }
   if (!_.isEmpty(marketStages.unmatchedSignatures)) {
-    chain = chain ? chain.then(() => fetchMarketStages(marketId, marketStages, marketsStruct))
-      : fetchMarketStages(marketId, marketStages, marketsStruct);
+    promises.push(fetchMarketStages(marketId, marketStages, marketsStruct));
   }
   if (!_.isEmpty(marketGroups.unmatchedSignatures)) {
-    chain = chain ? chain.then(() => fetchMarketGroups(marketId, marketGroups, marketsStruct))
-      : fetchMarketGroups(marketId, marketGroups, marketsStruct);
+    promises.push(fetchMarketGroups(marketId, marketGroups, marketsStruct));
   }
   if (!_.isEmpty(groupMembers.unmatchedSignatures)) {
-    chain = chain ? chain.then(() => fetchGroupMembers(marketId, groupMembers, marketsStruct))
-      : fetchGroupMembers(marketId, groupMembers, marketsStruct);
+    promises.push(fetchGroupMembers(marketId, groupMembers, marketsStruct));
   }
-  return chain;
+  return LimitedParallelMap(promises, (promise) => promise, MAX_CONCURRENT_API_CALLS);
 }
 
 function fetchMarketVersion (marketId, marketSignature, marketsStruct) {

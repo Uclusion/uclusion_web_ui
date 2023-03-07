@@ -67,6 +67,8 @@ export function refreshVersions (ignoreIfInProgress=false) {
   }else{
     if(runner == null){
       return startRefreshRunner();
+    }else{
+      return Promise.resolve(true); // do nothing
     }
   }
 }

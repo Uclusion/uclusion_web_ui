@@ -10,7 +10,7 @@ import { nameFromDescription } from './stringFunctions'
 import { commentsContextHack } from '../contexts/CommentsContext/CommentsContext'
 import { JOB_WIZARD_TYPE } from '../constants/markets';
 import { ticketContextHack } from '../contexts/TicketContext/TicketIndexContext';
-import { getTicket, isJobTicket, isTicketPath } from '../contexts/TicketContext/ticketIndexContextHelper';
+import { getTicket, isInvestibleTicket, isTicketPath } from '../contexts/TicketContext/ticketIndexContextHelper';
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -112,7 +112,7 @@ export function getNameForUrl(url) {
   if (isTicketPath(urlParts.pathname)) {
     const ticket = getTicket(ticketState, urlParts.pathname.substring(1));
     if (ticket) {
-      if (isJobTicket(urlParts.pathname)) {
+      if (isInvestibleTicket(urlParts.pathname)) {
         const { investibleId } = ticket;
         const name = getInvestibleName(investibleState, investibleId);
         if (!_.isEmpty(name)) {

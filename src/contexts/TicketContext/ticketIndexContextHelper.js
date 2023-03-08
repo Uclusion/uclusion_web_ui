@@ -12,6 +12,6 @@ export function isTicketPath(pathname) {
   return !_.isEmpty(pathname?.match('\\/[A-Z]-'));
 }
 
-export function isJobTicket(pathname) {
-  return pathname?.includes('/J-');
+export function isInvestibleTicket(pathname) {
+  return pathname?.includes('/J-') || pathname?.includes('/O-');
 }

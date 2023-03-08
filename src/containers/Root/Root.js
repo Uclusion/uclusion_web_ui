@@ -24,7 +24,7 @@ import Wizard from '../../pages/Home/Wizard'
 import InboxFull from '../../pages/Home/YourWork/InboxFull'
 import CommentReplyEdit from '../../pages/Comment/CommentReplyEdit'
 import PlanningMarketEdit from '../../pages/Dialog/Planning/PlanningMarketEdit'
-import { getTicket, isJobTicket, isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
+import { getTicket, isInvestibleTicket, isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
 import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import Onboarding from '../../pages/Onboarding/Onboarding';
@@ -143,7 +143,7 @@ function Root() {
     if (isTicketPath(pathname)) {
       const ticket = getTicket(ticketState, pathname.substring(1));
       if (ticket) {
-        if (isJobTicket(pathname)) {
+        if (isInvestibleTicket(pathname)) {
           const { marketId, investibleId } = ticket;
           navigate(history, formInvestibleLink(marketId, investibleId), true);
         } else {

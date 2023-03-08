@@ -4,7 +4,7 @@ import { useHistory, useLocation } from 'react-router';
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
 import {
-  decomposeMarketPath, formCommentLink, formInvestibleLink, formMarketLink, navigate,
+  decomposeMarketPath, formInvestibleLink, formMarketLink, navigate,
 } from '../../utils/marketIdPathFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'

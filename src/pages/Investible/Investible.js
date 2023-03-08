@@ -1,17 +1,17 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types'
-import { useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router';
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
 import {
-  decomposeMarketPath,
-} from '../../utils/marketIdPathFunctions'
+  decomposeMarketPath, formCommentLink, formInvestibleLink, formMarketLink, navigate,
+} from '../../utils/marketIdPathFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getMarket, getMyUserForMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
+import { getComment, getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import PlanningInvestible from './Planning/PlanningInvestible'
@@ -23,15 +23,19 @@ function createCommentsHash(commentsArray) {
 function Investible(props) {
   const { hidden } = props;
   const location = useLocation();
+  const history = useHistory();
   const { hash, pathname } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const [marketsState, ,tokensHash] = useContext(MarketsContext);
+  const [commentsState] = useContext(CommentsContext);
   const realMarket = getMarket(marketsState, marketId);
   const market = realMarket || {};
+  const { parent_comment_id: aParentCommentId, parent_comment_market_id: aParentMarketId } = market;
+  const parentComment = getComment(commentsState, aParentMarketId, aParentCommentId) || {};
+  const { investible_id: parentInvestibleId, market_id: parentMarketId, group_id: parentGroupId } = parentComment;
   const userId = getMyUserForMarket(marketsState, marketId) || '';
-  const [commentsState] = useContext(CommentsContext);
   const comments = getMarketComments(commentsState, marketId);
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
@@ -44,6 +48,14 @@ function Investible(props) {
   const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(investible) || _.isEmpty(myPresence) || !userId
     || _.isEmpty(realMarket) || !marketTokenLoaded(marketId, tokensHash);
   const isAdmin = myPresence && myPresence.is_admin;
+
+  useEffect(() => {
+    if (parentInvestibleId) {
+      navigate(history, `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${investibleId}`);
+    } else if (parentMarketId) {
+      navigate(history, `${formMarketLink(parentMarketId, parentGroupId)}#option${investibleId}`);
+    }
+  },  [parentMarketId, investibleId, parentInvestibleId, parentGroupId, history]);
 
   if (loading) {
     return (

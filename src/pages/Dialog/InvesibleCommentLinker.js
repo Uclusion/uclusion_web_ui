@@ -7,8 +7,6 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { getMarketInfo } from '../../utils/userFunctions'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import LinkIcon from '@material-ui/icons/Link'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { getComment } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 
@@ -48,23 +46,18 @@ function InvesibleCommentLinker(props) {
   const classes = useStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentState] = useContext(CommentsContext);
-  const [marketsState] = useContext(MarketsContext);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [inLinker, setInLinker] = useState(false);
   const inv = getInvestible(investiblesState, investibleId);
   const comment = getComment(commentState, marketId, commentId) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
   let ticketCode = marketInfo.ticket_code;
-  const market = getMarket(marketsState, marketId) || {};
-  let link = `${window.location.protocol}//${window.location.host}/${ticketCode}`;
+  let link = `${window.location.protocol}//${window.location.host}/${marketId}/${ticketCode}`;
   let useTextInsteadOfLink = false;
-  if (market.parent_comment_id) {
-    useTextInsteadOfLink = true;
-    link = `${window.location.href}#option${investibleId}`;
-  } else if (commentId) {
+  if (commentId) {
     if (comment.ticket_code) {
       ticketCode = comment.ticket_code;
-      link = `${window.location.protocol}//${window.location.host}/${market.id}/${comment.ticket_code}`;
+      link = `${window.location.protocol}//${window.location.host}/${marketId}/${comment.ticket_code}`;
     } else {
       useTextInsteadOfLink = true;
       link = `${window.location.href}#c${commentId}`;

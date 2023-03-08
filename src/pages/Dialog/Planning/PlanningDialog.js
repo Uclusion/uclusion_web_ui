@@ -161,21 +161,25 @@ function PlanningDialog(props) {
     if (hash && !hidden) {
       const element = document.getElementById(hash.substring(1, hash.length));
       if (!element) {
-        const found = comments.find((comment) => hash.includes(comment.id));
-        if (!_.isEmpty(found)) {
-          const rootComment = filterToRoot(comments, found.id);
-          if (_.isEmpty(rootComment.investible_id)) {
-            if (!rootComment.resolved) {
-              if (rootComment.comment_type === TODO_TYPE) {
-                updatePageState({ sectionOpen: 'marketTodos', tabIndex: 2 });
-              } else if (rootComment.comment_type === QUESTION_TYPE) {
-                updatePageState({ sectionOpen: 'questions', tabIndex: 3 });
+        if (hash.includes('option')) {
+          updatePageState({ sectionOpen: 'questions', tabIndex: 3 });
+        } else {
+          const found = comments.find((comment) => hash.includes(comment.id));
+          if (!_.isEmpty(found)) {
+            const rootComment = filterToRoot(comments, found.id);
+            if (_.isEmpty(rootComment.investible_id)) {
+              if (!rootComment.resolved) {
+                if (rootComment.comment_type === TODO_TYPE) {
+                  updatePageState({ sectionOpen: 'marketTodos', tabIndex: 2 });
+                } else if (rootComment.comment_type === QUESTION_TYPE) {
+                  updatePageState({ sectionOpen: 'questions', tabIndex: 3 });
+                } else {
+                  updatePageState({ sectionOpen: 'suggestions', tabIndex: 4 });
+                }
               } else {
-                updatePageState({ sectionOpen: 'suggestions', tabIndex: 4 });
+                // send over to the archives
+                navigate(history, formArchiveCommentLink(marketId, groupId, found.id), true);
               }
-            } else {
-              // send over to the archives
-              navigate(history, formArchiveCommentLink(marketId, groupId, found.id), true);
             }
           }
         }

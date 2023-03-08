@@ -29,9 +29,10 @@ function beginListening(dispatch, diffDispatch) {
     pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
     const ticketCodeItems = [];
     allComments.forEach((comment) => {
-      const { market_id: marketId, id: commentId, group_id: groupId, ticket_code: ticketCode } = comment;
+      const { market_id: marketId, id: commentId, group_id: groupId, ticket_code: ticketCode,
+        investible_id: investibleId } = comment;
       if (ticketCode) {
-        ticketCodeItems.push({ ticketCode, marketId, commentId, groupId });
+        ticketCodeItems.push({ ticketCode, marketId, commentId, groupId, investibleId });
       }
     });
     if (!_.isEmpty(ticketCodeItems)) {

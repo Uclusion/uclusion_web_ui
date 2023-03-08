@@ -133,12 +133,11 @@ function Root() {
     return action !== 'groupArchive';
   }
 
-  const isShortLink = pathname && (pathname.startsWith('/J-') || pathname.startsWith('/B-'));
-
   // Page Not Found
-  const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWorkspaceWizard() && hideInbox()
-    && hideSlackInvite() && hideChangePassword() && hideMarketEdit() && hideGroupSettings() && hideGroupArchive()
-    && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit() && !isShortLink);
+  const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWorkspaceWizard() &&
+    hideInbox() && hideSlackInvite() && hideChangePassword() && hideMarketEdit() && hideGroupSettings()
+    && hideGroupArchive() && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit()
+    && !isTicketPath(pathname));
 
   useEffect(() => {
     if (isTicketPath(pathname)) {
@@ -148,8 +147,8 @@ function Root() {
           const { marketId, investibleId } = ticket;
           navigate(history, formInvestibleLink(marketId, investibleId), true);
         } else {
-          const { marketId, commentId, groupId } = ticket;
-          navigate(history, formCommentLink(marketId, groupId, undefined, commentId), true);
+          const { marketId, commentId, groupId, investibleId } = ticket;
+          navigate(history, formCommentLink(marketId, groupId, investibleId, commentId), true);
         }
       }
     }

@@ -8,7 +8,7 @@ const TicketIndexContext = React.createContext(EMPTY_STATE);
 const reducer = (state, action) => {
   const { items } = action;
   if (items) {
-    const ticketHash = _.keyBy(items, (item) => decodeURI(item.ticketCode));
+    const ticketHash = _.keyBy(items, (item) => `${item.marketId}/${decodeURI(item.ticketCode)}`);
     return { ...state, ...ticketHash };
   }
   return state;

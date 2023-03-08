@@ -1,3 +1,4 @@
+import _ from 'lodash';
 
 export function getTicket(state, value) {
   const fromUndecoded = state[value];
@@ -8,9 +9,9 @@ export function getTicket(state, value) {
 }
 
 export function isTicketPath(pathname) {
-  return pathname && (pathname.startsWith('/J-') || pathname.startsWith('/B-'));
+  return !_.isEmpty(pathname?.match('\\/[A-Z]-'));
 }
 
 export function isJobTicket(pathname) {
-  return pathname.startsWith('/J-');
+  return pathname?.includes('/J-');
 }

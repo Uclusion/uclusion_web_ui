@@ -64,7 +64,7 @@ function InvesibleCommentLinker(props) {
   } else if (commentId) {
     if (comment.ticket_code) {
       ticketCode = comment.ticket_code;
-      link = `${window.location.protocol}//${window.location.host}/${comment.ticket_code}`;
+      link = `${window.location.protocol}//${window.location.host}/${market.id}/${comment.ticket_code}`;
     } else {
       useTextInsteadOfLink = true;
       link = `${window.location.href}#c${commentId}`;

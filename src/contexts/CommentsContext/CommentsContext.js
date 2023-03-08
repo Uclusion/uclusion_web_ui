@@ -28,9 +28,10 @@ function pushIndexItems(diskState) {
   pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
   const ticketCodeItems = [];
   (indexItems || []).forEach((comment) => {
-    const { market_id: marketId, id: commentId, group_id: groupId, ticket_code: ticketCode } = comment;
+    const { market_id: marketId, id: commentId, group_id: groupId, investible_id: investibleId,
+      ticket_code: ticketCode } = comment;
     if (ticketCode) {
-      ticketCodeItems.push({ ticketCode, marketId, commentId, groupId });
+      ticketCodeItems.push({ ticketCode, marketId, commentId, groupId, investibleId });
     }
   });
   if (!_.isEmpty(ticketCodeItems)) {

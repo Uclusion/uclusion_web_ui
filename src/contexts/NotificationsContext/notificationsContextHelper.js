@@ -17,7 +17,7 @@ function checkComment(commentId, commentVersion, marketId, commentsState) {
   return comment.version >= commentVersion;
 }
 
-function messageIsSynced(message, marketState, marketPresencesState, commentsState, investiblesState) {
+export function messageIsSynced(message, marketState, marketPresencesState, commentsState, investiblesState) {
   const { market_id: marketId, market_version: marketVersion, investible_id: investibleId,
     investible_version: investibleVersion, comment_id: commentId, comment_version: commentVersion,
     parent_comment_id: parentCommentId, parent_comment_version: parentCommentVersion,
@@ -70,12 +70,7 @@ function messageIsSynced(message, marketState, marketPresencesState, commentsSta
   return true;
 }
 
-export function isInInbox(message, marketState, marketPresencesState, commentsState, investiblesState) {
-  if (!messageIsSynced(message, marketState, marketPresencesState, commentsState, investiblesState)) {
-    console.warn('Skipping message because not synced');
-    console.warn(message);
-    return false;
-  }
+export function isInInbox(message) {
   return !(!message.type || message.type === 'UNREAD_REPORT' || message.deleted);
 }
 
@@ -90,7 +85,7 @@ export function getInboxCount(messagesState, marketState, marketPresencesState, 
     if (!_.isEmpty(messages)) {
       messages.forEach((message) => {
         const { is_highlighted: isHighlighted } = message;
-        if (isHighlighted && isInInbox(message, marketState, marketPresencesState, commentsState, investiblesState)) {
+        if (isHighlighted && isInInbox(message)) {
           calcPend += 1;
         }
       });

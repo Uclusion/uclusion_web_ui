@@ -39,7 +39,7 @@ const Div = styled("div")`
   align-items: center;
   box-shadow: inset 0 -1px 0 0 rgba(100, 121, 143, 0.122);
   &.MailListItem-read {
-    background-color: rgba(242,245,245,0.5);
+    background-color: rgba(60, 64, 67, 0.3);
   }
   &:hover {
     box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0,
@@ -176,7 +176,8 @@ function WorkListItem(props) {
     expansionPanel,
     expansionOpen,
     isDeletable = false,
-    useSelect
+    useSelect,
+    isNotSynced = false
   } = props;
   const history = useHistory();
   const classes = workListStyles();
@@ -191,13 +192,17 @@ function WorkListItem(props) {
     fullText += ' - ' + comment;
   }
   const isUsingExpansion = usesExpansion(props);
-  const showExpansion = isUsingExpansion && isHovered;
+  const showExpansion = isUsingExpansion && isHovered && !isNotSynced;
   const expansionPanelVisible = isUsingExpansion && expansionOpen;
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`} style={{minWidth: useSelect ? undefined : '80vw'}}>
       <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
-        <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`} onClick={
+        <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }} id={`link${id}`} key={`link${id}`}
+             onClick={
           (event) => {
+            if (isNotSynced) {
+              return;
+            }
             preventDefaultAndProp(event);
             if (!isUsingExpansion && !read) {
               let event = DEHIGHLIGHT_EVENT;
@@ -215,12 +220,11 @@ function WorkListItem(props) {
                 }
               }
             } else {
-              // Do not remember what row on if not using expansion
               return navigate(history, link);
             }
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-          <Div key={`actions${id}`}>
+          <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
             <Box flexShrink={0} className={gutterStyles.parent} key={`box${id}`}>
               {!mobileLayout && (
                 <StyledIconButton

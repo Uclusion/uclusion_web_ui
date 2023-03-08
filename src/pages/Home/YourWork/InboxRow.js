@@ -21,6 +21,8 @@ import {
   getFullStage,
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import { messageIsSynced } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted } = message;
@@ -51,6 +53,7 @@ function InboxRow(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
     comment_market_id: commentMarketId, is_highlighted: isHighlighted } = message;
@@ -67,7 +70,8 @@ function InboxRow(props) {
     date: intl.formatDate(updatedAt),
     isDeletable,
     isAssigned,
-    message
+    message,
+    isNotSynced: !messageIsSynced(message, marketsState, marketPresencesState, commentState, investiblesState)
   }
 
   item.icon = getPriorityIcon(message, isAssigned);

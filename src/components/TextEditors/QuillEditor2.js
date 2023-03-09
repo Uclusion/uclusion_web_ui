@@ -269,4 +269,4 @@ QuillEditor2.defaultProps = {
   mentionsAllowed: true,
 };
 
-export default QuillEditor2;
+export default React.memo(QuillEditor2);

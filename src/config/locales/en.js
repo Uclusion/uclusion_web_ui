@@ -476,8 +476,8 @@ const messages = defineMessages({
   // lock dialog
   lockDialogCancel: 'Cancel',
   pageLockEditPage: 'Edit Page',
-  lockDialogTitle: 'page locked',
-  lockDialogContent: 'A user is currently editing this page, would you like to take over editing capabilities?',
+  lockDialogTitle: 'Page locked',
+  lockDialogContent: 'A user is currently editing this page, will you to take over editing?',
 
   // CommentAdd
   commentAddIssueDefault: 'Your issue...',

@@ -10,7 +10,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { DiffContext } from '../../contexts/DiffContext/DiffContext'
 import { LockedDialog, useLockedDialogStyles } from '../Dialog/LockedDialog'
 import _ from 'lodash'
-import { CardActions, CircularProgress, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { CardActions, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { processTextAndFilesForSave } from '../../api/files'
 import { makeStyles } from '@material-ui/core/styles'
 import NameField, { clearNameStoredState, getNameStoredState } from '../../components/TextFields/NameField'
@@ -21,7 +21,6 @@ import { useEditor } from '../../components/TextEditors/quillHooks';
 import LockedDialogTitleIcon from '@material-ui/icons/Lock'
 import IssueDialog from '../../components/Warnings/IssueDialog'
 import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils';
-import { LOCK_INVESTIBLE } from '../../contexts/InvestibesContext/investiblesContextMessages'
 import { PLANNING_TYPE } from '../../constants/markets'
 
 export const useInvestibleEditStyles = makeStyles(
@@ -80,7 +79,7 @@ function InvestibleBodyEdit(props) {
   const { market_type: marketType } = market;
   const isPlanning = marketType === PLANNING_TYPE;
   const someoneElseEditing = !_.isEmpty(lockedBy) && (lockedBy !== userId);
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [openIssue, setOpenIssue] = useState(false);
   const { id, description: initialDescription, name: initialName } = myInvestible;
 
@@ -172,14 +171,6 @@ function InvestibleBodyEdit(props) {
         resetEditor();
       });
   }
-  if (beingEdited && lockedBy !== userId && operationRunning === LOCK_INVESTIBLE) {
-    return (
-      <div align='center'>
-        <Typography>{intl.formatMessage({ id: "gettingLockMessage" })}</Typography>
-        <CircularProgress type="indeterminate"/>
-      </div>
-    );
-  }
   if (!hidden && beingEdited && !loading) {
     return (
       <>
@@ -195,7 +186,10 @@ function InvestibleBodyEdit(props) {
         <LockedDialog
           classes={lockedDialogClasses}
           open={!hidden && (someoneElseEditing)}
-          onClose={onCancel}
+          onClose={() => {
+            pageStateReset();
+            resetEditor();
+          }}
           /* slots */
           actions={
             <SpinningIconLabelButton

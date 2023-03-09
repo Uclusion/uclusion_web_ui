@@ -31,6 +31,8 @@ const WebSocketContext = React.createContext([
 
 export const LAST_LOGIN_APP_VERSION = 'login_version';
 
+export const MAX_DRIFT_TIME = 300000;
+
 export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
   const { version } = config;
   let loginVersion = getLoginPersistentItem(LAST_LOGIN_APP_VERSION);
@@ -169,7 +171,7 @@ function WebSocketProvider(props) {
           notifyNewApplicationVersion(currentVersion, cacheClearVersion);
         });
       }
-    }, 300000, pongTracker, state, () => {
+    }, MAX_DRIFT_TIME, pongTracker, state, () => {
       leaderDispatch(refreshOrMessage(`visit${Date.now()}`, userId));
     }, () => createWebSocket(config, leaderDispatch, setState, userId));
     return () => clearInterval(interval);

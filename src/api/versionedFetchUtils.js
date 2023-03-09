@@ -17,6 +17,7 @@ import { getFailedSignatures } from '../contexts/MarketsContext/marketsContextHe
 import { MARKET_GROUPS_CONTEXT_NAMESPACE } from '../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GROUP_MEMBERS_CONTEXT_NAMESPACE } from '../contexts/GroupMembersContext/GroupMembersContext'
 import { RepeatingFunction } from '../utils/RepeatingFunction';
+import { MAX_DRIFT_TIME } from '../contexts/WebSocketContext';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -51,7 +52,7 @@ const matchErrorHandlingVersionRefresh = () => {
     });
 };
 export function startRefreshRunner() {
-  runner = new RepeatingFunction(matchErrorHandlingVersionRefresh, 30000, MAX_RETRIES);
+  runner = new RepeatingFunction(matchErrorHandlingVersionRefresh, MAX_DRIFT_TIME, MAX_RETRIES);
   return runner.start();
 }
 

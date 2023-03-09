@@ -51,7 +51,7 @@ const matchErrorHandlingVersionRefresh = () => {
     });
 };
 export function startRefreshRunner() {
-  runner = new RepeatingFunction(matchErrorHandlingVersionRefresh, 6000, MAX_RETRIES);
+  runner = new RepeatingFunction(matchErrorHandlingVersionRefresh, 30000, MAX_RETRIES);
   return runner.start();
 }
 

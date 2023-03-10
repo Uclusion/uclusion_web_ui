@@ -17,7 +17,7 @@ import { useHistory } from 'react-router';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
-import { ISSUE_TYPE, JUSTIFY_TYPE, REPORT_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, JUSTIFY_TYPE } from '../../../constants/comments';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import { setUclusionLocalStorageItem } from '../../localStorageUtils';
 import { getJobApproveEditorName } from './JobApproveStep';

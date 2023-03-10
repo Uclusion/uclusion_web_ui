@@ -3,13 +3,13 @@ import PropTypes from 'prop-types'
 import JobDescriptionApprovalStep from './JobDescriptionApprovalStep'
 import FormdataWizard from 'react-formdata-wizard';
 import { useHistory } from 'react-router'
-import ActionApprovalStep from './ActionApprovalStep'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { wizardFinish } from '../InboxWizardUtils'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
+import JobApproveStep from './JobApproveStep';
 
 function ApprovalWizard(props) {
   const { marketId, investibleId, message, inboxDispatch } = props;
@@ -32,7 +32,7 @@ function ApprovalWizard(props) {
                     defaultFormData={{parentElementId}}>
       <JobDescriptionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}
                                   message={message} yourVote={yourVote}/>
-      <ActionApprovalStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message} />
+      <JobApproveStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message} />
     </FormdataWizard>
   );
 }

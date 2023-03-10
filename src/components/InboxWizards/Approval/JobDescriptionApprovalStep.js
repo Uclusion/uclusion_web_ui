@@ -89,7 +89,6 @@ function JobDescriptionStep (props) {
             setUclusionLocalStorageItem(getJobApproveEditorName(investibleId), body);
           }
           updateFormData({
-            isApprove: true, investibleId,
             approveQuantity: yourVote ? yourVote.quantity : undefined
           });
         }}

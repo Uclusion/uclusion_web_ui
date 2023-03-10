@@ -27,7 +27,7 @@ export function getJobApproveEditorName(investibleId) {
 }
 function JobApproveStep(props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish, marketInfo,
-    message } = props;
+    message, investibleId } = props;
   const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -40,7 +40,6 @@ function JobApproveStep(props) {
   const isAssigned = (assigned || []).includes(userId);
   const validForm = formData.approveQuantity != null;
   const classes = wizardStyles();
-  const { investibleId } = formData;
   const editorName = getJobApproveEditorName(investibleId);
 
   function onNext(isGotoJob) {

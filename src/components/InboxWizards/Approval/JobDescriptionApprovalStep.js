@@ -11,18 +11,19 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { wizardFinish } from '../InboxWizardUtils';
-import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleAddCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
-import { JUSTIFY_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, JUSTIFY_TYPE, REPORT_TYPE } from '../../../constants/comments';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import { setUclusionLocalStorageItem } from '../../localStorageUtils';
 import { getJobApproveEditorName } from './JobApproveStep';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
+import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 
 
 function JobDescriptionStep (props) {
@@ -69,12 +70,19 @@ function JobDescriptionStep (props) {
           Keep in mind that you are assigned to this job.
         </Typography>
       )}
+      {!wasDeleted && !isAssigned && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Go to job to ask a question or make a suggestion.
+        </Typography>
+      )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
       <WizardStepButtons
         {...props}
         nextLabel="ApprovalWizardApprove"
         showOtherNext
         otherNextLabel="ApprovalWizardBlock"
+        onOtherNext={() => navigate(history,
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE))}
         onNext={() => {
           const { body } = yourReason || {};
           if (!editorEmpty(body)) {

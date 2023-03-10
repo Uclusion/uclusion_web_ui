@@ -55,7 +55,8 @@ function AddCommentStep (props) {
       </Typography>
       {isAssistance && !inAssistanceStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Opening this comment moves the job to Assistance stage.
+          Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
+          Assistance stage.
         </Typography>
       )}
       {useType === TODO_TYPE && (

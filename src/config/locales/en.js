@@ -1071,6 +1071,7 @@ const messages = defineMessages({
   createNewTODO: 'Add task',
   createNewSUGGEST: 'Add suggestion',
   createNewREPORT: 'Add report',
+  createNewApproval: 'Add approval',
   createBug: 'Add bug',
   createComment: 'Create comment',
   createQuestion: 'Add question',

@@ -4,7 +4,6 @@ import _ from 'lodash';
 import { Grid, IconButton, makeStyles, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
-import YourVoting from '../Voting/YourVoting';
 import Voting from '../Decision/Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
@@ -50,7 +49,7 @@ import {
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
-import { ACTIVE_STAGE, JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { ACTIVE_STAGE, JOB_APPROVAL_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import {
   OPERATION_HUB_CHANNEL,
   STOP_OPERATION
@@ -60,7 +59,7 @@ import { GmailTabItem, GmailTabs, tabTheme } from '../../../containers/Tab/Inbox
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import {
   baseNavListItem, formInvestibleAddCommentLink,
-  formInvestibleLink,
+  formInvestibleLink, formWizardLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
 import AssignmentIcon from '@material-ui/icons/Assignment';
@@ -204,7 +203,6 @@ export const usePlanningInvestibleStyles = makeStyles(
       }
     },
     fullWidthEditable: {
-      paddingTop: '1rem',
       paddingRight: '1rem',
       cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
         maxWidth: '100%',
@@ -214,7 +212,6 @@ export const usePlanningInvestibleStyles = makeStyles(
         marginLeft: 'unset'
       },
     fullWidth: {
-      paddingTop: '1rem',
       paddingRight: '1rem',
         maxWidth: '100%',
         flexBasis: '100%',
@@ -752,6 +749,15 @@ function PlanningInvestible(props) {
             </div>
             <div style={{paddingLeft: mobileLayout ? undefined : '1rem',
               paddingRight: mobileLayout ? undefined : '1rem', paddingTop: '2rem'}}>
+              {(displayVotingInput || hasUsableVotingInput) && investibleId && (
+                  <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
+                    marginBottom: '1.5rem'}}
+                                           onClick={() => navigate(history,
+                                             formWizardLink(JOB_APPROVAL_WIZARD_TYPE, marketId, investibleId,
+                                               groupId))}>
+                    <FormattedMessage id="createNewApproval" />
+                  </SpinningIconLabelButton>
+              )}
               {(_.isEmpty(search) || displayApprovalsBySearch > 0) && (
                 <>
                   <h2 id="approvals">
@@ -770,23 +776,6 @@ function PlanningInvestible(props) {
                     yourPresence={yourPresence}
                     market={market}
                     groupId={groupId}
-                    isAssigned={isAssigned}
-                  />
-                </>
-              )}
-              {(displayVotingInput || hasUsableVotingInput) && investibleId && (
-                <>
-                  <div style={{ paddingBottom: '1rem' }}/>
-                  <YourVoting
-                    investibleId={investibleId}
-                    marketPresences={marketPresences}
-                    comments={investmentReasonsSearched}
-                    userId={userId}
-                    market={market}
-                    groupId={groupId}
-                    votingPageState={votingPageState}
-                    updateVotingPageState={updateVotingPageState}
-                    votingPageStateReset={votingPageStateReset}
                     isAssigned={isAssigned}
                   />
                 </>

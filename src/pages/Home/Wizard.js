@@ -9,8 +9,14 @@ import {
   ADD_COLLABORATOR_WIZARD_TYPE,
   BUG_WIZARD_TYPE,
   DECISION_COMMENT_WIZARD_TYPE,
-  DISCUSSION_WIZARD_TYPE, JOB_APPROVERS_WIZARD_TYPE, JOB_ASSIGNEE_WIZARD_TYPE, JOB_COLLABORATOR_WIZARD_TYPE,
-  JOB_COMMENT_WIZARD_TYPE, JOB_REVIEWERS_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE,
+  DISCUSSION_WIZARD_TYPE,
+  JOB_APPROVAL_WIZARD_TYPE,
+  JOB_APPROVERS_WIZARD_TYPE,
+  JOB_ASSIGNEE_WIZARD_TYPE,
+  JOB_COLLABORATOR_WIZARD_TYPE,
+  JOB_COMMENT_WIZARD_TYPE,
+  JOB_REVIEWERS_WIZARD_TYPE,
+  JOB_STAGE_WIZARD_TYPE,
   JOB_WIZARD_TYPE,
   PLANNING_TYPE,
   WORKSPACE_WIZARD_TYPE
@@ -27,6 +33,7 @@ import JobCollaboratorWizard from '../../components/AddNewWizards/JobCollaborato
 import JobApproverWizard from '../../components/AddNewWizards/JobApprover/JobApproverWizard';
 import JobReviewerWizard from '../../components/AddNewWizards/JobReviewer/JobReviewerWizard';
 import JobStageWizard from '../../components/AddNewWizards/JobStage/JobStageWizard';
+import ApprovalWizard from '../../components/AddNewWizards/Approval/ApprovalWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -81,6 +88,9 @@ function Wizard(props) {
       )}
       {createType === DISCUSSION_WIZARD_TYPE.toLowerCase() && (
         <DiscussionWizard marketId={marketId} groupId={groupId} commentType={commentType} />
+      )}
+      {createType === JOB_APPROVAL_WIZARD_TYPE.toLowerCase() && (
+        <ApprovalWizard marketId={marketId} groupId={groupId} investibleId={investibleId} />
       )}
     </Screen>
   );

@@ -35,7 +35,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import Divider from '@material-ui/core/Divider';
-import { formWizardCollaboratorsLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import {
   JOB_APPROVERS_WIZARD_TYPE,
   JOB_ASSIGNEE_WIZARD_TYPE,
@@ -126,7 +126,7 @@ export default function PlanningInvestibleNav(props) {
               assigned={assigned}
               highlighted={isInVoting ? assignedNotAccepted : undefined}
               toggleIconButton={() => navigate(history,
-                formWizardCollaboratorsLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
+                formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
               assignmentColumnMessageId='planningInvestibleAssignments'
               toolTipId='storyAddParticipantsLabel'
             />
@@ -171,7 +171,7 @@ export default function PlanningInvestibleNav(props) {
               assigned={isInVoting ? requiredApprovers : requiredReviewers}
               toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
               toggleIconButton={() => navigate(history,
-                formWizardCollaboratorsLink(isInVoting ? JOB_APPROVERS_WIZARD_TYPE :
+                formWizardLink(isInVoting ? JOB_APPROVERS_WIZARD_TYPE :
                   JOB_REVIEWERS_WIZARD_TYPE, marketId, investibleId))}
               assignmentColumnMessageId={isInVoting ? 'requiredApprovers' : 'requiredReviewers'}
             />
@@ -187,7 +187,7 @@ export default function PlanningInvestibleNav(props) {
               assigned={addressedIds}
               toolTipId='storyAddressedLabel'
               toggleIconButton={() => navigate(history,
-                formWizardCollaboratorsLink(JOB_COLLABORATOR_WIZARD_TYPE, marketId, investibleId))}
+                formWizardLink(JOB_COLLABORATOR_WIZARD_TYPE, marketId, investibleId))}
               assignmentColumnMessageId='addressed'
             />
           </div>
@@ -415,7 +415,7 @@ function MarketMetaData(props) {
             <IconButton
               style={{paddingTop: 0, marginBottom: 0, paddingBottom: 0, marginTop: '-0.25rem'}}
               onClick={() => navigate(history,
-                formWizardCollaboratorsLink(JOB_STAGE_WIZARD_TYPE, market.id, investibleId))}
+                formWizardLink(JOB_STAGE_WIZARD_TYPE, market.id, investibleId))}
             >
               <SyncAlt htmlColor={ACTION_BUTTON_COLOR}/>
             </IconButton>

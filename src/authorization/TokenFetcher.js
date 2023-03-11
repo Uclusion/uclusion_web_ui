@@ -30,7 +30,6 @@ class TokenFetcher {
       return this.tokenStorageManager.getValidToken(this.tokenType, this.itemId)
         .then((token) => {
           if (token) {
-            //console.log(`got token for ${this.tokenType} id ${this.itemId}`);
             return Promise.resolve(token);
           }
           //console.log(`refreshing token for ${this.tokenType} id ${this.itemId}`);
@@ -45,8 +44,8 @@ class TokenFetcher {
    */
   refreshExpiringTokens(windowHours){
     return this.tokenStorageManager.getExpiringTokens(this.tokenType, windowHours)
-    .then((expiring) => {
-      //console.error(expiring);
+    .then((expiringRaw) => {
+      const expiring = (expiringRaw || []).filter((anItem) => anItem !== 'undefined');
       return AllSequentialMap(expiring, (itemId) => this.getRefreshedToken(itemId), false);
     });
   }

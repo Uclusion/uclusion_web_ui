@@ -46,17 +46,21 @@ function ManageExistingUsers(props) {
   const { is_admin: isAdmin } = yourPresence;
 
   function followUnfollow(userId, wasRemoved) {
-    setOperationRunning(true);
+    setOperationRunning({userId, isFollowing: wasRemoved});
     const addressed = [{user_id: userId, is_following: wasRemoved}];
     return changeGroupParticipation(marketId, id, addressed).then((modifed) => {
-      setOperationRunning(false);
       groupPresencesDispatch(modifyGroupMembers(id, modifed));
+      setTimeout(() => {
+        // Give the dispatch time to work
+        setOperationRunning(false);
+      }, 4000);
     });
   }
 
   function getUsers() {
     return groupPresences.map((presence) => {
       const { name, email, id, deleted } = presence;
+      const { id: runningId, isFollowing } = operationRunning || {};
       return (
         <ListItem
           key={id}
@@ -75,8 +79,8 @@ function ManageExistingUsers(props) {
             <Checkbox
               id="followingGroup"
               name="followingGroup"
-              checked={!deleted}
-              onClick={() => followUnfollow(id, deleted)}
+              checked={runningId === id ? isFollowing : !deleted}
+              onClick={() => followUnfollow(id, deleted === true)}
               disabled={operationRunning !== false}
             />
           </ListItemSecondaryAction>

@@ -6,12 +6,10 @@ import JobApproveStep from './JobApproveStep';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
-import { setUclusionLocalStorageItem } from '../../localStorageUtils';
-import { getJobApproveEditorName } from '../../InboxWizards/Approval/JobApproveStep';
 import { JUSTIFY_TYPE } from '../../../constants/comments';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import _ from 'lodash';
 
 function ApprovalWizard(props) {
   const { marketId, investibleId, groupId } = props;
@@ -19,23 +17,20 @@ function ApprovalWizard(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const [commentsState] = useContext(CommentsContext);
   const marketComments = getMarketComments(commentsState, marketId);
-  const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence?.investments?.find((investment) => investment.investible_id === investibleId);
-  const yourReason = comments.find((comment) => comment.created_by === yourPresence?.id &&
+  const yourReason = marketComments.find((comment) => comment.created_by === yourPresence?.id &&
     comment.investible_id === investibleId && comment.comment_type === JUSTIFY_TYPE);
   const wasDeleted = yourVote?.deleted;
   const { body } = yourReason || {};
-  if (!editorEmpty(body)) {
-    setUclusionLocalStorageItem(getJobApproveEditorName(investibleId), body);
-  }
   const approveQuantity = yourVote ? yourVote.quantity : undefined;
+  const showDelete = !_.isEmpty(yourVote);
   return (
     <WizardStylesProvider>
       <FormdataWizard name="approval_wizard" useLocalStorage={false}
-                      defaultFormData={{approveQuantity, originalQuantity: approveQuantity || 0, wasDeleted,
+                      defaultFormData={{approveQuantity, originalQuantity: approveQuantity || 0, wasDeleted, showDelete,
                         userId: yourPresence?.id, approveReason: !editorEmpty(body) ? body : undefined}}>
-        <JobApproveStep marketId={marketId} groupId={groupId} investibleId={investibleId}/>
+        <JobApproveStep marketId={marketId} groupId={groupId} investibleId={investibleId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

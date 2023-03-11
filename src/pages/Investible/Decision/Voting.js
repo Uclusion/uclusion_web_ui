@@ -17,6 +17,8 @@ import { useHistory } from 'react-router'
 import clsx from 'clsx'
 import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
+import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { JOB_APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -151,7 +153,7 @@ function Voting(props) {
 
           function setBeingEdited(value, event) {
             if (!invalidEditEvent(event, history)) {
-              updateVotingPageState({ votingBeingEdited: value });
+              navigate(history, formWizardLink(JOB_APPROVAL_WIZARD_TYPE, market.id, investibleId, groupId));
             }
           }
           const isEditable = isYourVote && votingAllowed;

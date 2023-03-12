@@ -10,7 +10,7 @@ import {
   BUG_WIZARD_TYPE,
   DECISION_COMMENT_WIZARD_TYPE,
   DISCUSSION_WIZARD_TYPE,
-  JOB_APPROVAL_WIZARD_TYPE,
+  APPROVAL_WIZARD_TYPE,
   JOB_APPROVERS_WIZARD_TYPE,
   JOB_ASSIGNEE_WIZARD_TYPE,
   JOB_COLLABORATOR_WIZARD_TYPE,
@@ -89,7 +89,7 @@ function Wizard(props) {
       {createType === DISCUSSION_WIZARD_TYPE.toLowerCase() && (
         <DiscussionWizard marketId={marketId} groupId={groupId} commentType={commentType} />
       )}
-      {createType === JOB_APPROVAL_WIZARD_TYPE.toLowerCase() && (
+      {createType === APPROVAL_WIZARD_TYPE.toLowerCase() && (
         <ApprovalWizard marketId={marketId} groupId={groupId} investibleId={investibleId} />
       )}
     </Screen>

@@ -200,6 +200,14 @@ export function formCommentEditReplyLink(marketId, commentId, isReply=false) {
   return `${base}#c${commentId}`;
 }
 
+export function navigateToOption(history, parentMarketId, parentInvestibleId, groupId, id) {
+  if (parentInvestibleId) {
+    navigate(history, `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${id}`);
+  } else if (parentMarketId) {
+    navigate(history, `${formMarketLink(parentMarketId, groupId)}#option${id}`);
+  }
+}
+
 /**
  * Forms a link to a given market id with the given subpath. Usually used when switching
  * to a different market

@@ -11,14 +11,13 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { getInvestibleVoters } from '../../../utils/votingUtils';
 import { Edit } from '@material-ui/icons'
-import YourVoting from '../Voting/YourVoting'
 import { invalidEditEvent } from '../../../utils/windowUtils'
 import { useHistory } from 'react-router'
 import clsx from 'clsx'
 import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { JOB_APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
+import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -94,18 +93,14 @@ const useVoteStyles = makeStyles(
  * @constructor
  */
 function Voting(props) {
-  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingPageState,
-    updateVotingPageState, votingPageStateReset, votingAllowed, yourPresence, market, isAssigned, isInbox,
-    groupId} = props;
+  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingAllowed,
+    yourPresence, market, isInbox, groupId} = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const [messagesState] = useContext(NotificationsContext);
   const classes = useVoteStyles();
   const intl = useIntl();
-  const {
-    votingBeingEdited
-  } = votingPageState;
 
   function getVoterReason(userId) {
     return investmentReasons.find(comment => comment.created_by === userId);
@@ -129,31 +124,10 @@ function Voting(props) {
           const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState, 'VOTE');
           const reason = getVoterReason(userId);
           const voteId = `cv${userId}`;
-          if (votingBeingEdited && isYourVote && investibleId) {
-            return (
-              <React.Fragment key={index}>
-                <div className={index % 2 === 1 ? classes.cardPadded : undefined}/>
-                <YourVoting
-                  investibleId={investibleId}
-                  marketPresences={marketPresences}
-                  comments={investmentReasons}
-                  userId={userId}
-                  market={market}
-                  groupId={groupId}
-                  showBudget
-                  votingPageState={votingPageState}
-                  updateVotingPageState={updateVotingPageState}
-                  votingPageStateReset={votingPageStateReset}
-                  isAssigned={isAssigned}
-                  isInbox={isInbox}
-                />
-              </React.Fragment>
-            )
-          }
 
           function setBeingEdited(value, event) {
             if (!invalidEditEvent(event, history)) {
-              navigate(history, formWizardLink(JOB_APPROVAL_WIZARD_TYPE, market.id, investibleId, groupId));
+              navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, market.id, investibleId, groupId));
             }
           }
           const isEditable = isYourVote && votingAllowed;
@@ -186,7 +160,8 @@ function Voting(props) {
                 {isEditable && mobileLayout && (
                   <div className={classes.editVoteDisplay}>
                     <TooltipIconButton
-                      onClick={() => updateVotingPageState({votingBeingEdited: true})}
+                      onClick={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, market.id, investibleId,
+                        groupId))}
                       icon={<Edit fontSize='small' />}
                       translationId="edit"
                     />

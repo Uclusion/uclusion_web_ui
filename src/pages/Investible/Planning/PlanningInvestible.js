@@ -49,7 +49,7 @@ import {
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
-import { ACTIVE_STAGE, JOB_APPROVAL_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { ACTIVE_STAGE, APPROVAL_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import {
   OPERATION_HUB_CHANNEL,
   STOP_OPERATION
@@ -359,10 +359,6 @@ function PlanningInvestible(props) {
     sectionOpen,
     isOpenMobile
   } = pageState;
-
-  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting')
-  const [votingPageState, updateVotingPageState, votingPageStateReset] =
-    getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId)
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
     marketId
@@ -753,7 +749,7 @@ function PlanningInvestible(props) {
                   <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
                     marginBottom: '1.5rem'}}
                                            onClick={() => navigate(history,
-                                             formWizardLink(JOB_APPROVAL_WIZARD_TYPE, marketId, investibleId,
+                                             formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId,
                                                groupId))}>
                     <FormattedMessage id="createNewApproval" />
                   </SpinningIconLabelButton>
@@ -769,9 +765,6 @@ function PlanningInvestible(props) {
                     investmentReasons={investmentReasonsSearched}
                     showExpiration={fullStage.has_expiration}
                     expirationMinutes={market.investment_expiration * 1440}
-                    votingPageState={votingPageState}
-                    updateVotingPageState={updateVotingPageState}
-                    votingPageStateReset={votingPageStateReset}
                     votingAllowed={canVote}
                     yourPresence={yourPresence}
                     market={market}

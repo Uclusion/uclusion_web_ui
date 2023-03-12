@@ -5,14 +5,13 @@ import { useHistory } from 'react-router'
 import { FormattedMessage, useIntl } from 'react-intl'
 import { Card, CardContent, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles'
-import YourVoting from '../Voting/YourVoting'
 import Voting from './Voting'
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments'
 import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { ACTIVE_STAGE, DECISION_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { ACTIVE_STAGE, DECISION_COMMENT_WIZARD_TYPE, APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton'
 import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType'
 import DismissableText from '../../../components/Notifications/DismissableText'
@@ -39,7 +38,7 @@ import { setUclusionLocalStorageItem } from '../../../components/localStorageUti
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker'
 import AddIcon from '@material-ui/icons/Add';
-import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles((theme) => ({
   mobileColumn: {
@@ -177,9 +176,6 @@ function DecisionInvestible(props) {
   const hasMarketIssue = !_.isEmpty(marketIssues);
   const hasIssue = !_.isEmpty(myIssues);
   const hasIssueOrMarketIssue = hasMarketIssue || hasIssue;
-  const votingBlockedMessage = hasMarketIssue
-    ? 'decisionInvestibleVotingBlockedMarket'
-    : 'decisionInvestibleVotingBlockedInvestible';
   const { investible, market_infos: marketInfos } = fullInvestible;
   const marketInfo = marketInfos.find((info) => info.market_id === marketId) || {};
   const { group_id: groupId, stage } = marketInfo;
@@ -352,26 +348,22 @@ function DecisionInvestible(props) {
           </Grid>
         </Grid>
       </Card>
-      {!votingAllowed && !inProposed && activeMarket && (
-        <Typography>
-          {intl.formatMessage({ id: votingBlockedMessage })}
-        </Typography>
-      )}
-      {displayVotingInput && investibleId && (
-        <>
-          <YourVoting
-            investibleId={investibleId}
-            marketPresences={marketPresences}
-            comments={investmentReasons}
-            userId={userId}
-            market={market}
-            groupId={marketId}
-            votingPageState={votingPageState}
-            updateVotingPageState={updateVotingPageState}
-            votingPageStateReset={votingPageStateReset}
-          />
-        </>
-      )}
+      <div style={{display: 'flex', marginTop: '1.5rem', marginBottom: '1.5rem'}}>
+        {displayVotingInput && investibleId && (
+          <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex"}}
+                                   onClick={() => navigate(history,
+                                     formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId))}>
+            <FormattedMessage id="createNewVote" />
+          </SpinningIconLabelButton>
+        )}
+        {!inArchives && marketId && !_.isEmpty(investible) && !hidden && (
+          <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+                                   onClick={() => navigate(history,
+                                     formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId))}>
+            <FormattedMessage id='createComment'/>
+          </SpinningIconLabelButton>
+        )}
+      </div>
       {!inProposed && (
         <>
           <h2 id="approvals">
@@ -393,13 +385,6 @@ function DecisionInvestible(props) {
       )}
       <Grid container spacing={2} style={{paddingBottom: '1rem'}}>
         <Grid item xs={12} style={{ marginTop: '2rem' }}>
-          {!inArchives && marketId && !_.isEmpty(investible) && !hidden && (
-            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
-                                     onClick={() => navigate(history,
-                                       formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId))}>
-              <FormattedMessage id='createComment'/>
-            </SpinningIconLabelButton>
-          )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
                       isInbox />
         </Grid>

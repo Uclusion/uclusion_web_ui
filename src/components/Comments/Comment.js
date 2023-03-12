@@ -442,7 +442,8 @@ function Comment(props) {
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];
   const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;
-
+  const loading = !hasUser || !myPresence || !marketType || !marketTokenLoaded(marketId, tokensHash)
+    || (inlineMarketId && _.isEmpty(inlineMarket));
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (inlineMarketId && !marketsState.initializing && hasUser && !operationRunning) {
@@ -830,12 +831,10 @@ function Comment(props) {
 
   const displayingDiff = myMessage && showDiff && diff;
   const displayEditing = enableEditing && isEditable;
-  const commentLoadingId = !marketTokenLoaded(marketId, tokensHash) ? 'commentLoadingMessage' :
-    'commentOptionsLoadingMessage';
-  if (!marketTokenLoaded(marketId, tokensHash) || (inlineMarketId && _.isEmpty(inlineMarket))) {
+  if (loading) {
     return (
       <div className={classes.container}>
-        <LoadingDisplay showMessage messageId={commentLoadingId} noMargin/>
+        <LoadingDisplay showMessage messageId="commentLoadingMessage" noMargin/>
       </div>
     )
   }
@@ -1197,11 +1196,6 @@ Comment.propTypes = {
   readOnly: PropTypes.bool,
   onDone: PropTypes.func,
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
-  depth: () => {
-    // TODO error
-    //return new Error('depth is deprecated')
-    return null;
-  },
   marketId: PropTypes.string.isRequired
 };
 

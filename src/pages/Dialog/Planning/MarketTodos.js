@@ -511,9 +511,9 @@ function MarketTodos(props) {
   const immediateTodosChip = <Chip color="primary" size='small' className={classes.chipStyleRed} />;
   const yellowChip = <Chip color="primary" size='small' className={classes.chipStyleYellow} />;
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
-  const editRedCard = comments.find((comment) => comment.id === editRedCardId);
-  const editYellowCard = comments.find((comment) => comment.id === editYellowCardId);
-  const editCard = comments.find((comment) => comment.id === editCardId);
+  const editRedCard = comments.find((comment) => comment.id && comment.id === editRedCardId);
+  const editYellowCard = comments.find((comment) => comment.id && comment.id === editYellowCardId);
+  const editCard = comments.find((comment) => comment.id && comment.id === editCardId);
   return (
     <div className={classes.outerBorder} id="marketTodos"
          style={{display: sectionOpen ? 'block' : 'none', marginTop: '2rem'}}>
@@ -579,7 +579,6 @@ function MarketTodos(props) {
           {editRedCard && (
             <div id={`c${editRedCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
               <Comment
-                depth={0}
                 marketId={marketId}
                 comment={editRedCard}
                 onDone={() => setEditRedCard(undefined)}
@@ -613,7 +612,6 @@ function MarketTodos(props) {
             <div id={`c${editYellowCardId}`} style={{marginBottom: '2rem', marginRight: '1rem',
               marginLeft: '1rem'}}>
               <Comment
-                depth={0}
                 marketId={marketId}
                 comment={editYellowCard}
                 onDone={() => setEditYellowCard(undefined)}
@@ -646,7 +644,6 @@ function MarketTodos(props) {
           {editCard && (
             <div id={`c${editCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
               <Comment
-                depth={0}
                 marketId={marketId}
                 comment={editCard}
                 onDone={() => setEditCard(undefined)}

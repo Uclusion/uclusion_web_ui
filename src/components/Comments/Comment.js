@@ -649,8 +649,7 @@ function Comment(props) {
       return React.Fragment;
     }
     if (marketType === INITIATIVE_TYPE) {
-      return <InlineInitiativeBox anInlineMarket={anInlineMarket} inlineUserId={inlineUserId}
-                                  isInbox={isInbox || isOutbox}
+      return <InlineInitiativeBox anInlineMarket={anInlineMarket}
                                   showAcceptReject={showAcceptReject || commentType !== SUGGEST_CHANGE_TYPE}
                                   inArchives={marketStage !== ACTIVE_STAGE || inArchives || resolved} />;
     }

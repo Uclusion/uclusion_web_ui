@@ -1,42 +1,34 @@
-import React, { useContext, useState } from 'react'
-import PropTypes from 'prop-types'
-import _ from 'lodash'
-import { FormattedMessage, useIntl } from 'react-intl'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import { FormattedMessage, useIntl } from 'react-intl';
 import {
   Card,
-  CardActions,
   CardContent,
   darken,
   FormControl,
   FormControlLabel,
-  makeStyles, MenuItem,
+  makeStyles,
+  MenuItem,
   Radio,
-  RadioGroup, Select,
-  TextField, useMediaQuery, useTheme
+  RadioGroup,
+  Select,
+  TextField,
+  useMediaQuery,
+  useTheme
 } from '@material-ui/core';
-import { removeInvestment, updateInvestment } from '../../../api/marketInvestibles'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import {
-  getMarketComments,
-  refreshMarketComments,
-  removeComments
-} from '../../../contexts/CommentsContext/commentsContextHelper'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { Dialog } from '../../../components/Dialogs'
-import WarningIcon from '@material-ui/icons/Warning'
-import { useLockedDialogStyles } from '../../Dialog/LockedDialog'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { Add, Clear, Delete, SettingsBackupRestore } from '@material-ui/icons'
+import { updateInvestment } from '../../../api/marketInvestibles';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { useEditor } from '../../../components/TextEditors/quillHooks';
-import InputAdornment from '@material-ui/core/InputAdornment'
-import IssueDialog from '../../../components/Warnings/IssueDialog'
-import { processTextAndFilesForSave } from '../../../api/files'
-import { removeWorkListItem, workListStyles } from '../../Home/YourWork/WorkListItem'
-import { focusEditor, getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
-import WizardStepButtons from '../../../components/InboxWizards/WizardStepButtons'
+import InputAdornment from '@material-ui/core/InputAdornment';
+import { processTextAndFilesForSave } from '../../../api/files';
+import { workListStyles } from '../../Home/YourWork/WorkListItem';
+import { focusEditor, getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
+import WizardStepButtons from '../../../components/InboxWizards/WizardStepButtons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { commonQuick } from '../../../components/AddNewWizards/Approval/ApprovalWizard';
 
 const useStyles = makeStyles(
   theme => {
@@ -119,20 +111,17 @@ function AddEditVote(props) {
     investibleId,
     groupId,
     investment,
-    onSave,
     showBudget,
     marketBudgetUnit,
-    hasVoted,
-    allowMultiVote,
     multiplier, wizardProps,
-    votingPageState, updateVotingPageState, votingPageStateReset, voteMessage, isInbox
+    formData, updateFormData, clearFormData, voteMessage, isInbox
   } = props;
   const {
     storedInvestment,
     storedMaxBudget,
     useInitial,
     uploadedFiles,
-  } = votingPageState;
+  } = formData;
   const intl = useIntl();
   const classes = useStyles();
   const workItemClasses = workListStyles();
@@ -150,33 +139,17 @@ function AddEditVote(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
-  const [open, setOpen] = useState(false);
-  const [openIssue, setOpenIssue] = useState(false);
-  const warnClearVotes = !allowMultiVote && hasVoted && _.isEmpty(investment);
-
-  function toggleOpen() {
-    setOpen(!open);
-  }
 
   const editorName = getEditVoteEditorName(investibleId, isInbox);
   const editorSpec = {
     marketId,
     placeholder: intl.formatMessage({ id: 'yourReason' }),
     value: getQuillStoredState(editorName) || useInitial === false ? undefined : body,
-    onUpload: (files) => updateVotingPageState({uploadedFiles: files})
+    onUpload: (files) => updateFormData({uploadedFiles: files})
   };
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
   function mySave() {
-    return mySaveWarnOptional(true);
-  }
-
-  function mySaveWarnOptional(doWarn) {
-    if (newQuantity === undefined || multiplier === undefined) {
-      setOperationRunning(false);
-      setOpenIssue(multiplier === undefined ? 'noMultiplier' : 'noVoteQuantity');
-      return;
-    }
     const currentUploadedFiles = uploadedFiles || [];
     const myBodyNow = getQuillStoredState(editorName);
     const {
@@ -187,12 +160,6 @@ function AddEditVote(props) {
     const oldQuantity = addMode ? 0 : quantity;
     // dont include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== body && !(_.isEmpty(reasonText) && _.isEmpty(body));
-    const hasQuestions = reasonText && (reasonText.indexOf('? ') > 0 || reasonText.indexOf('?<') > 0);
-    if (doWarn && reasonNeedsUpdate && hasQuestions) {
-      setOperationRunning(false);
-      setOpenIssue('noQuestions');
-      return;
-    }
     const updateInfo = {
       marketId,
       investibleId,
@@ -208,78 +175,28 @@ function AddEditVote(props) {
     };
 
     return updateInvestment(updateInfo).then(result => {
-      onSaveSpinStop(result);
-      setOperationRunning(false);
+      resetEditor('', {placeholder: intl.formatMessage({ id: 'yourReason' })});
+      commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, undefined,
+        workItemClasses, messagesDispatch, clearFormData, setOperationRunning, voteMessage);
     });
-  }
-
-  function zeroValues() {
-    setOpenIssue(false);
-    votingPageStateReset();
-    resetEditor('', {placeholder: intl.formatMessage({ id: 'yourReason' })});
-  }
-
-  function onSaveSpinStop(result) {
-    if (!result) {
-      if (open) {
-        toggleOpen();
-      }
-      return;
-    }
-    const { commentResult, investmentResult } = result;
-    const { commentAction, comment } = commentResult;
-    const { id: commentId } = comment;
-    if (commentAction === "DELETED") {
-      removeComments(commentsDispatch, marketId, [commentId]);
-    } else if (commentAction !== "NOOP") {
-      const comments = getMarketComments(commentsState, marketId);
-      refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
-    }
-    partialUpdateInvestment(marketPresencesDispatch, investmentResult, allowMultiVote);
-    if (voteMessage) {
-      removeWorkListItem(voteMessage, workItemClasses.removed, messagesDispatch);
-    }
-    if (open) {
-      toggleOpen();
-    }
-    zeroValues();
-    onSave();
-  }
-
-  function onRemove() {
-    return removeInvestment(marketId, investibleId).then(result => {
-      setOperationRunning(false);
-      onSaveSpinStop(result);
-    });
-  }
-
-  function onCancel() {
-    zeroValues();
-    if ((investment || {}).deleted) {
-      // User decided to discard what was there before deleted
-      updateVotingPageState({useInitial: false});
-    }
   }
 
   function onChange(event) {
     const { value } = event.target;
-    updateVotingPageState({storedInvestment: parseInt(value, 10)});
+    updateFormData({storedInvestment: parseInt(value, 10)});
     focusEditor(editorName);
   }
 
   function onBudgetChange(event) {
     const { value } = event.target;
     if (_.isEmpty(value)) {
-      updateVotingPageState({storedMaxBudget: ''});
+      updateFormData({storedMaxBudget: ''});
     } else {
-      updateVotingPageState({storedMaxBudget: parseInt(value, 10)});
+      updateFormData({storedMaxBudget: parseInt(value, 10)});
     }
   }
 
-  const lockedDialogClasses = useLockedDialogStyles();
   const voteId = multiplier < 0 ? "saveReject" : "saveVote";
-  const updateVoteId = multiplier < 0 ? "updateReject" : "updateVote";
-  const removeVoteId = multiplier < 0 ? "removeReject" : "removeVote";
   const certainties = [5, 25, 50, 75, 100];
   return (
     <React.Fragment>
@@ -360,126 +277,19 @@ function AddEditVote(props) {
           )}
           {Editor}
         </CardContent>
-        {_.isEmpty(wizardProps) && (
-          <CardActions className={classes.actions}>
-            <SpinningIconLabelButton onClick={onCancel} doSpin={false} icon={Clear}>
-              {intl.formatMessage({ id: (!_.isEmpty(investment) && !investment.deleted) ? 'cancel' : 'clear' })}
-            </SpinningIconLabelButton>
-            {multiplier && !addMode && (
-              <SpinningIconLabelButton
-                icon={Delete}
-                onClick={onRemove}
-                id="removeVoteButton"
-              >
-                {intl.formatMessage({ id: removeVoteId })}
-              </SpinningIconLabelButton>
-            )}
-            {!warnClearVotes && (
-              <SpinningIconLabelButton
-                icon={addMode ? Add : SettingsBackupRestore}
-                onClick={mySave}
-                id="addOrUpdateVoteButton"
-              >
-                {addMode
-                  ? intl.formatMessage({ id: voteId })
-                  : intl.formatMessage({ id: updateVoteId })}
-              </SpinningIconLabelButton>
-            )}
-            {warnClearVotes && (
-              <SpinningIconLabelButton icon={Add} onClick={toggleOpen} doSpin={false}>
-                {intl.formatMessage({ id: voteId })}
-              </SpinningIconLabelButton>
-            )}
-          </CardActions>
-        )}
       </Card>
-      {!_.isEmpty(wizardProps) && (
-        <>
-          <div style={{paddingBottom: '1rem'}}/>
-          <WizardStepButtons
-            {...wizardProps}
-            showNext={true}
-            showTerminate={true}
-            onNext={mySave}
-            terminateLabel="DecideWizardContinue"
-            nextLabel={voteId}
-          />
-        </>
-      )}
-      <ClearVotesDialog
-        classes={lockedDialogClasses}
-        open={open}
-        onClose={toggleOpen}
-        issueWarningId="clearVotes"
-        /* slots */
-        actions={
-          <SpinningIconLabelButton onClick={mySave} icon={Add} id="voteIssueProceedButton">
-            {intl.formatMessage({ id: 'issueProceed' })}
-          </SpinningIconLabelButton>
-        }
+      <div style={{paddingBottom: '1rem'}}/>
+      <WizardStepButtons
+        {...wizardProps}
+        showNext={true}
+        showTerminate={true}
+        onNext={mySave}
+        terminateLabel="DecideWizardContinue"
+        nextLabel={voteId}
       />
-      {openIssue !== false && (
-        <IssueDialog
-          classes={lockedDialogClasses}
-          open={openIssue !== false}
-          onClose={() => setOpenIssue(false)}
-          issueWarningId={openIssue}
-          showDismiss={false}
-          actions={
-            (openIssue === 'noQuestions') ?
-              <SpinningIconLabelButton onClick={() => mySaveWarnOptional(false)} icon={Add}
-                                       id="voteIssueProceedButton">
-                {intl.formatMessage({ id: 'issueProceed' })}
-              </SpinningIconLabelButton> : undefined
-          }
-        />
-      )}
     </React.Fragment>
   );
 }
-
-function ClearVotesDialog(props) {
-  const { actions, classes, open, onClose, issueWarningId } = props;
-
-  const autoFocusRef = React.useRef(null);
-
-  return (
-    <Dialog
-      autoFocusRef={autoFocusRef}
-      classes={{
-        root: classes.root,
-        actions: classes.actions,
-        content: classes.issueWarningContent,
-        title: classes.title
-      }}
-      open={open}
-      onClose={onClose}
-      /* slots */
-      actions={
-        <React.Fragment>
-          <SpinningIconLabelButton onClick={onClose} doSpin={false} icon={Clear}>
-            <FormattedMessage id="lockDialogCancel"/>
-          </SpinningIconLabelButton>
-          {actions}
-        </React.Fragment>
-      }
-      content={<FormattedMessage id={issueWarningId} />}
-      title={
-        <React.Fragment>
-          <WarningIcon className={classes.warningTitleIcon} />
-          <FormattedMessage id="warning" />
-        </React.Fragment>
-      }
-    />
-  );
-}
-
-ClearVotesDialog.propTypes = {
-  actions: PropTypes.node.isRequired,
-  onClose: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired,
-  issueWarningId: PropTypes.string.isRequired,
-};
 
 AddEditVote.propTypes = {
   reason: PropTypes.object,

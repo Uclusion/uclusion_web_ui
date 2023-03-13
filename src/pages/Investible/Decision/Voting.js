@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
 import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Box, Card, CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import { makeStyles } from '@material-ui/styles'
 import CardType from '../../../components/CardType'
@@ -10,7 +10,7 @@ import ProgressBar from '../../../components/Expiration/ProgressBarExpiration'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { getInvestibleVoters } from '../../../utils/votingUtils';
-import { Edit } from '@material-ui/icons'
+import { Delete, Edit } from '@material-ui/icons';
 import { invalidEditEvent } from '../../../utils/windowUtils'
 import { useHistory } from 'react-router'
 import clsx from 'clsx'
@@ -18,6 +18,12 @@ import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { removeInvestment } from '../../../api/marketInvestibles';
+import { commonQuick } from '../../../components/AddNewWizards/Approval/ApprovalWizard';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { workListStyles } from '../../Home/YourWork/WorkListItem';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -98,7 +104,11 @@ function Voting(props) {
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
-  const [messagesState] = useContext(NotificationsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const workItemClasses = workListStyles();
   const classes = useVoteStyles();
   const intl = useIntl();
 
@@ -114,6 +124,14 @@ function Voting(props) {
         <FormattedMessage id="noVoters" />
       </Typography>
     );
+  }
+
+  function remove() {
+    return removeInvestment(market.id, investibleId).then(result => {
+      commonQuick(result, commentsDispatch, market.id, commentsState, marketPresencesDispatch, messagesState,
+        workItemClasses, messagesDispatch, () => {}, setOperationRunning);
+      setOperationRunning(false);
+    });
   }
 
   return (
@@ -148,34 +166,47 @@ function Voting(props) {
                   }
                 }}
               >
-                <CardType
-                  className={classes.cardType}
-                  type={`certainty${Math.abs(quantity)}`}
-                  gravatar={<GravatarAndName email={email}
-                                     name={name} typographyVariant="caption"
-                                     typographyClassName={classes.createdBy}
-                                     avatarClassName={classes.smallGravatar}
-                            />}
-                />
-                {isEditable && mobileLayout && (
-                  <div className={classes.editVoteDisplay}>
-                    <TooltipIconButton
-                      onClick={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, market.id, investibleId,
-                        groupId))}
-                      icon={<Edit fontSize='small' />}
-                      translationId="edit"
-                    />
-                  </div>
-                )}
-                {showExpiration && !mobileLayout && (
-                  <div className={classes.expiresDisplay}>
-                    <ProgressBar
-                      createdAt={new Date(updatedAt)}
-                      expirationMinutes={expirationMinutes}
-                      smallForMobile={true}
-                    />
-                  </div>
-                )}
+                <Box display="flex">
+                  <CardType
+                    className={classes.cardType}
+                    type={`certainty${Math.abs(quantity)}`}
+                    gravatar={<GravatarAndName email={email}
+                                       name={name} typographyVariant="caption"
+                                       typographyClassName={classes.createdBy}
+                                       avatarClassName={classes.smallGravatar}
+                              />}
+                  />
+                  {isEditable && mobileLayout && (
+                    <div className={classes.editVoteDisplay}>
+                      <TooltipIconButton
+                        onClick={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, market.id, investibleId,
+                          groupId))}
+                        icon={<Edit fontSize='small' />}
+                        translationId="edit"
+                      />
+                    </div>
+                  )}
+                  {showExpiration && !mobileLayout && (
+                    <div className={classes.expiresDisplay}>
+                      <ProgressBar
+                        createdAt={new Date(updatedAt)}
+                        expirationMinutes={expirationMinutes}
+                        smallForMobile={true}
+                      />
+                    </div>
+                  )}
+                  {isYourVote && (
+                    <div style={{marginRight: '2rem'}}>
+                      <TooltipIconButton
+                        disabled={operationRunning !== false}
+                        onClick={remove}
+                        icon={<Delete fontSize={mobileLayout ? 'small' : undefined} />}
+                        size={mobileLayout ? 'small' : undefined}
+                        translationId="commentRemoveLabel"
+                      />
+                    </div>
+                  )}
+                </Box>
                 {hasContent && (
                   <CardContent className={classes.cardContent}>
                     {maxBudget > 0 && (

@@ -1,32 +1,23 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
-import WizardStepContainer from '../WizardStepContainer'
-import { WizardStylesContext } from '../WizardStylesContext'
-import WizardStepButtons from '../WizardStepButtons'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
+import WizardStepContainer from '../WizardStepContainer';
+import { WizardStylesContext } from '../WizardStylesContext';
+import WizardStepButtons from '../WizardStepButtons';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router';
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { removeInvestment, updateInvestment } from '../../../api/marketInvestibles';
+import { updateInvestment } from '../../../api/marketInvestibles';
 import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
-import {
-  getMarketComments,
-  refreshMarketComments,
-  removeComments
-} from '../../../contexts/CommentsContext/commentsContextHelper';
-import {
-  partialUpdateInvestment
-} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import _ from 'lodash'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import _ from 'lodash';
 import { getJobApproveEditorName } from '../../InboxWizards/Approval/JobApproveStep';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
-import { findMessageOfType } from '../../../utils/messageUtils';
-import { NOT_FULLY_VOTED_TYPE } from '../../../constants/notifications';
+import { workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { commonQuick } from './ApprovalWizard';
 
 function JobApproveStep(props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, investibleId } = props;
@@ -38,27 +29,12 @@ function JobApproveStep(props) {
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const editorName = getJobApproveEditorName(investibleId);
-  const {approveUploadedFiles, approveReason, approveQuantity, originalQuantity, wasDeleted, userId,
-    showDelete} = formData;
+  const {approveUploadedFiles, approveReason, approveQuantity, originalQuantity, wasDeleted, userId} = formData;
   const validForm = approveQuantity >= 0;
 
   function doQuick(result) {
-    const { commentResult, investmentResult } = result;
-    const { commentAction, comment } = commentResult;
-    if (commentAction === "DELETED") {
-      const { id: commentId } = comment;
-      removeComments(commentsDispatch, marketId, [commentId]);
-    } else if (commentAction !== 'NOOP') {
-      const comments = getMarketComments(commentsState, marketId);
-      refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
-    }
-    partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
-    const voteMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, investibleId, messagesState);
-    if (voteMessage) {
-      removeWorkListItem(voteMessage, workItemClasses.removed, messagesDispatch);
-    }
-    clearFormData();
-    setOperationRunning(false);
+    commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, messagesState,
+      workItemClasses, messagesDispatch, clearFormData, setOperationRunning);
   }
 
   function onNext() {
@@ -81,14 +57,6 @@ function JobApproveStep(props) {
       doQuick(result);
       navigate(history, `${formInvestibleLink(marketId, investibleId)}#cv${userId}`);
     })
-  }
-
-  function onRemove() {
-    return removeInvestment(marketId, investibleId).then(result => {
-      doQuick(result);
-      setOperationRunning(false);
-      navigate(history, formInvestibleLink(marketId, investibleId));
-    });
   }
 
   function onTerminate() {
@@ -144,9 +112,6 @@ function JobApproveStep(props) {
           {...props}
           validForm={validForm}
           showTerminate={true}
-          showOtherNext={showDelete}
-          onOtherNext={onRemove}
-          otherNextLabel="commentRemoveLabel"
           onNext={onNext}
           onTerminate={onTerminate}
           terminateLabel="JobWizardGotoJob"

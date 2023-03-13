@@ -1,24 +1,14 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer'
 import { wizardStyles } from '../WizardStylesContext'
 import AddEditVote from '../../../pages/Investible/Voting/AddEditVote'
-import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks'
-import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 function VoteCertaintyStep(props) {
-  const { marketId, formData, commentRoot, message } = props;
-  const [investiblesState] = useContext(InvestiblesContext);
+  const { marketId, formData, updateFormData, clearFormData, commentRoot, message } = props;
   const classes = wizardStyles();
-  const inlineInvestibles = getMarketInvestibles(investiblesState, commentRoot.inline_market_id) || [];
-  const [fullInlineInvestible] = inlineInvestibles;
-  const inlineInvestibleId = fullInlineInvestible ? fullInlineInvestible.investible.id : undefined;
   const { isFor } = formData;
-  const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
-  const [myVotingPageState, myUpdateVotingPageState, myVotingPageStateReset] =
-    getPageReducerPage(votingPageStateFull, votingPageDispatch, inlineInvestibleId);
 
   return (
     <WizardStepContainer
@@ -37,9 +27,9 @@ function VoteCertaintyStep(props) {
           allowMultiVote={false}
           showBudget={false}
           multiplier={isFor ? 1 : -1}
-          votingPageState={myVotingPageState}
-          updateVotingPageState={myUpdateVotingPageState}
-          votingPageStateReset={myVotingPageStateReset}
+          formData={formData}
+          updateFormData={updateFormData}
+          clearFormData={clearFormData}
           voteMessage={message}
           isInbox={true}
         />

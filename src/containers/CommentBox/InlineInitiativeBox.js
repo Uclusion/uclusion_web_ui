@@ -2,7 +2,6 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { FormattedMessage } from 'react-intl'
 import { JUSTIFY_TYPE } from '../../constants/comments'
-import YourVoting from '../../pages/Investible/Voting/YourVoting'
 import Voting from '../../pages/Investible/Decision/Voting'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
@@ -13,11 +12,17 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks'
 import GravatarGroup from '../../components/Avatars/GravatarGroup'
+import AddIcon from '@material-ui/icons/Add';
+import { formWizardLink, navigate } from '../../utils/marketIdPathFunctions';
+import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton';
+import { useHistory } from 'react-router';
+import { APPROVAL_WIZARD_TYPE } from '../../constants/markets';
 
 function InlineInitiativeBox(props) {
   const {
-    anInlineMarket, inlineUserId, inArchives, isInbox, showAcceptReject
+    anInlineMarket, inArchives, showAcceptReject
   } = props;
+  const history = useHistory();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
     getPageReducerPage(votingPageStateFull, votingPageDispatch, anInlineMarket.id);
@@ -54,22 +59,22 @@ function InlineInitiativeBox(props) {
   const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence && yourPresence.investments &&
     yourPresence.investments.find((investment) => investment.investible_id === inlineInvestibleId);
-
+  const showVoteButtons = !showAcceptReject && !isCreator && !yourVote && inlineInvestibleId;
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
-      {!showAcceptReject && !isCreator && !yourVote && inlineInvestibleId && (
-        <YourVoting
-          investibleId={inlineInvestibleId}
-          marketPresences={anInlineMarketPresences}
-          comments={investmentReasons}
-          userId={inlineUserId}
-          market={anInlineMarket}
-          groupId={anInlineMarket.id}
-          votingPageState={votingPageState}
-          updateVotingPageState={updateVotingPageState}
-          votingPageStateReset={votingPageStateReset}
-          isInbox={isInbox}
-        />
+      {showVoteButtons && (
+        <div style={{display: 'flex'}}>
+            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
+              marginTop: '2rem', marginBottom: '1.5rem'}} onClick={() => navigate(history,
+              `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, inlineInvestibleId)}&voteFor=true`)}>
+              <FormattedMessage id="voteFor" />
+            </SpinningIconLabelButton>
+            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
+              marginTop: '2rem', marginBottom: '1.5rem'}} onClick={() => navigate(history,
+              `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, inlineInvestibleId)}&voteFor=false`)}>
+              <FormattedMessage id="voteAgainst" />
+            </SpinningIconLabelButton>
+        </div>
       )}
       <h2>
         <FormattedMessage id="initiativeVotingFor"/>
@@ -115,7 +120,6 @@ function InlineInitiativeBox(props) {
 
 InlineInitiativeBox.propTypes = {
   anInlineMarket: PropTypes.object.isRequired,
-  inlineUserId: PropTypes.string.isRequired
 };
 
 export default InlineInitiativeBox;

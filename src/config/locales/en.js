@@ -873,8 +873,8 @@ const messages = defineMessages({
   stageAndGotoJob: 'Move and go to job',
   modifyTasks: 'Modify tasks',
   startReview: 'Start review',
-  voteFor: 'For',
-  voteAgainst: 'Against',
+  voteFor: 'Vote for',
+  voteAgainst: 'Vote against',
   clearVotes: 'Your other approval will be cleared',
   addAVote: 'Approve your preferred option',
   addMultiVote: 'Approve all options you consider desirable',
@@ -1183,6 +1183,7 @@ const messages = defineMessages({
 
   // Decision comment wizard
   DecisionCommmentWizardTerminate: 'Back to option',
+  InitiativeCommmentWizardTerminate: 'Back to suggestion',
 
   // Approve Wizard
   ApprovalWizardApprove: 'Approve job',

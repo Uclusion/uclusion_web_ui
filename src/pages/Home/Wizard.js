@@ -40,7 +40,7 @@ function Wizard(props) {
   const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
-  const { type: createType, marketId, groupId, assigneeId, investibleId, commentType } = values;
+  const { type: createType, marketId, groupId, assigneeId, investibleId, commentType, voteFor } = values;
   const intl = useIntl();
 
   return (
@@ -90,7 +90,7 @@ function Wizard(props) {
         <DiscussionWizard marketId={marketId} groupId={groupId} commentType={commentType} />
       )}
       {createType === APPROVAL_WIZARD_TYPE.toLowerCase() && (
-        <ApprovalWizard marketId={marketId} groupId={groupId} investibleId={investibleId} />
+        <ApprovalWizard marketId={marketId} groupId={groupId} investibleId={investibleId} voteFor={voteFor} />
       )}
     </Screen>
   );

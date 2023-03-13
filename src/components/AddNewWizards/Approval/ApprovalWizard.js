@@ -67,7 +67,9 @@ function ApprovalWizard(props) {
   const wasDeleted = yourVote?.deleted;
   const { body } = yourReason || {};
   const approveQuantity = yourVote ? yourVote.quantity : undefined;
-
+  if (!marketType) {
+    return React.Fragment;
+  }
   return (
     <WizardStylesProvider>
       <FormdataWizard name="approval_wizard" useLocalStorage={false}
@@ -80,7 +82,7 @@ function ApprovalWizard(props) {
           <DecisionApproveStep market={market} investibleId={investibleId} hasOtherVote={hasOtherVote} />
         )}
         {marketType === INITIATIVE_TYPE && (
-          <VoteCertaintyStep market={market} investibleId={investibleId} isFor={voteFor}  />
+          <VoteCertaintyStep market={market} investibleId={investibleId} isFor={voteFor==='true'}  />
         )}
       </FormdataWizard>
     </WizardStylesProvider>

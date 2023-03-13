@@ -6,7 +6,7 @@ import { Box, Card, CardContent, Typography, useMediaQuery, useTheme } from '@ma
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import { makeStyles } from '@material-ui/styles'
 import CardType from '../../../components/CardType'
-import ProgressBar from '../../../components/Expiration/ProgressBarExpiration'
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
 import { getInvestibleVoters } from '../../../utils/votingUtils';
@@ -16,7 +16,7 @@ import { useHistory } from 'react-router'
 import clsx from 'clsx'
 import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
-import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formWizardLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { removeInvestment } from '../../../api/marketInvestibles';
@@ -119,7 +119,9 @@ function Voting(props) {
     );
   }
 
-  function remove() {
+  function remove(event) {
+    preventDefaultAndProp(event);
+    setOperationRunning(true);
     return removeInvestment(market.id, investibleId).then(result => {
       commonQuick(result, commentsDispatch, market.id, commentsState, marketPresencesDispatch, messagesState,
         workItemClasses, messagesDispatch, () => {}, setOperationRunning);
@@ -181,10 +183,9 @@ function Voting(props) {
                   )}
                   {showExpiration && !mobileLayout && (
                     <div style={{marginRight: '2rem'}}>
-                      <ProgressBar
+                      <ExpiresDisplay
                         createdAt={new Date(updatedAt)}
                         expirationMinutes={expirationMinutes}
-                        smallForMobile={true}
                       />
                     </div>
                   )}

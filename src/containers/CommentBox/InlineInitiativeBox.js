@@ -57,8 +57,8 @@ function InlineInitiativeBox(props) {
   });
   const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
   const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user);
-  const yourVote = yourPresence && yourPresence.investments &&
-    yourPresence.investments.find((investment) => investment.investible_id === inlineInvestibleId);
+  const yourVote = yourPresence?.investments?.find((investment) => investment.investible_id === inlineInvestibleId &&
+      !investment.deleted);
   const showVoteButtons = !showAcceptReject && !isCreator && !yourVote && inlineInvestibleId;
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>

@@ -68,13 +68,6 @@ const useVoteStyles = makeStyles(
         right: '0rem',
         top: 0
       },
-      expiresDisplay: {
-        alignItems: "flex-end",
-        display: "flex",
-        flexDirection: "column",
-        position: "absolute",
-        right: 0,
-      },
       editable: {
         "& > *": {
           cursor: "url('/images/edit_cursor.svg') 0 24, pointer"
@@ -187,7 +180,7 @@ function Voting(props) {
                     </div>
                   )}
                   {showExpiration && !mobileLayout && (
-                    <div className={classes.expiresDisplay}>
+                    <div style={{marginRight: '2rem'}}>
                       <ProgressBar
                         createdAt={new Date(updatedAt)}
                         expirationMinutes={expirationMinutes}

@@ -999,6 +999,7 @@ const messages = defineMessages({
   homeStartTour: 'Start Tour',
   //summary
   summaryExpiredAt: 'Expired on {expireDate}',
+  expiring: 'Expiring',
 
   //assigneeFilterDropdown
   assigneeFilterDropdownAll: 'Everyone',

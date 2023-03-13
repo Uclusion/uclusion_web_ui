@@ -1,97 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
+import React from 'react';
 import PropTypes from 'prop-types';
 import * as moment from 'moment';
 import { useIntl } from 'react-intl';
-import { Tooltip, LinearProgress } from '@material-ui/core'
-
-const ONE_MINUTE = 60000;
-const THIRTY_MINUTES = 1800000;
-const ONE_HOUR = 36000000;
-
-
-const useStyles = makeStyles((theme) => ({
-   runningOut: {
-    borderRadius: '8px',
-    height: '8px',
-    transform: 'rotate(270deg)',
-    width: '4rem',
-    backgroundColor: 'rgb(232, 232, 232);',
-    '&>div': {
-      backgroundColor: 'red'
-    },
-    [theme.breakpoints.down('sm')]: {
-      width: '8rem',
-      position: 'relative',
-      left: '-55px'
-
-    },
-  },
-  stillTime: {
-    borderRadius: '8px',
-    height: '8px',
-    transform: 'rotate(270deg)',
-    width: '4rem',
-    backgroundColor: 'rgb(232, 232, 232);',
-    '&>div': {
-      backgroundColor: 'green'
-    },
-    [theme.breakpoints.down('sm')]: {
-      width: '8rem',
-      position: 'relative',
-      left: '-55px'
-
-    },
-  },
-  mobileSmall: {
-    [theme.breakpoints.down('sm')]: {
-      width: '4rem',
-      position: 'relative',
-      left: 0,
-      top: 20
-
-    },
-  }
-}));
 
 function ExpiresDisplayBar(props) {
-  const classes = useStyles();
   const intl = useIntl();
-  const { createdAt, expirationMinutes, smallForMobile = false} = props;
-  const [now, setNow] = useState(new Date());
+  const { createdAt, expirationMinutes } = props;
   const expiresDurationMillis = expirationMinutes * 60000;
   const createdAtMillis = createdAt.getTime();
   const expiresMillis = createdAtMillis + expiresDurationMillis;
-  const nowMillis = now.getTime();
+  const nowMillis = (new Date()).getTime();
   const remainingMillis = expiresMillis - nowMillis;
-  const consumedMillis = nowMillis - createdAtMillis;
   const remaining = moment.duration(remainingMillis);
 
   const daysRemaining = remaining.days();
   const hoursRemaining = remaining.hours();
   const minutesRemaining = remaining.minutes();
 
-  const updateInterval = (daysRemaining > 0) ? ONE_HOUR : (hoursRemaining > 1) ? THIRTY_MINUTES : ONE_MINUTE;
-
-  const consumedRatio = (consumedMillis / expiresDurationMillis);
-  
-  const barValue = 100 - (consumedRatio * 100);
-  
-  useEffect(() => {
-    const timeOut = setTimeout(() => {
-      setNow(new Date());
-    }, updateInterval);
-    return () => clearTimeout(timeOut);
-  }, [now, updateInterval]);
-
-
   function getDisplayText() {
     if (daysRemaining > 0) {
       return (
         <React.Fragment>
           {daysRemaining}{((hoursRemaining > 0) || (minutesRemaining > 0) ) && '+'}
-          <span className={classes.countdownItemSpan}> {intl.formatMessage({ id: 'daysLeft' })}</span>
+          <span> {intl.formatMessage({ id: 'daysLeft' })}</span>
         </React.Fragment>
       );
     }
@@ -99,7 +30,7 @@ function ExpiresDisplayBar(props) {
       return (
       <React.Fragment>
         {hoursRemaining}{minutesRemaining > 0 && '+'}
-        <span className={classes.countdownItemSpan}> {intl.formatMessage({ id: 'hoursLeft' })}</span>
+        <span> {intl.formatMessage({ id: 'hoursLeft' })}</span>
       </React.Fragment>
       );
     }
@@ -107,37 +38,24 @@ function ExpiresDisplayBar(props) {
       return (
         <React.Fragment>
           {minutesRemaining}
-          <span className={classes.countdownItemSpan}> {intl.formatMessage({ id: 'minutesLeft' })}</span>
+          <span> {intl.formatMessage({ id: 'minutesLeft' })}</span>
         </React.Fragment>
       );
     }
-
+    return <span> {intl.formatMessage({ id: 'expiring' })}</span>
   }
-  const shouldDisplay = daysRemaining > 0 || hoursRemaining > 0 || minutesRemaining > 0;
+
   return (
-    <div className={classes.countdownWrapper}>
-      {shouldDisplay &&
-        <Tooltip
-        title={getDisplayText()}
-        >
-          <LinearProgress variant="determinate" value={barValue}
-                          className={barValue > 50 ? clsx(classes.stillTime, smallForMobile ? classes.mobileSmall : '')
-                            : clsx(classes.runningOut, smallForMobile ? classes.mobileSmall : '')}/>
-        </Tooltip>
-      }
+    <div>
+      {getDisplayText()}
     </div>
   );
 }
 
 ExpiresDisplayBar.propTypes = {
-  onClick: PropTypes.func,
   expirationMinutes: PropTypes.number.isRequired,
   // eslint-disable-next-line react/forbid-prop-types
   createdAt: PropTypes.object.isRequired,
-};
-
-ExpiresDisplayBar.defaultProps = {
-  onClick: () => {},
 };
 
 export default ExpiresDisplayBar;

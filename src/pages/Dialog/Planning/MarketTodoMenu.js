@@ -19,6 +19,12 @@ import { RED_LEVEL } from '../../../constants/notifications'
 import { formCommentEditReplyLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { workListStyles } from '../../Home/YourWork/WorkListItem';
+import { pushMessage } from '../../../utils/MessageBusUtils';
+import {
+  DEHIGHLIGHT_EVENT,
+  MODIFY_NOTIFICATIONS_CHANNEL
+} from '../../../contexts/NotificationsContext/notificationsContextMessages';
+import _ from 'lodash';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -45,7 +51,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 function MarketTodoMenu(props) {
-  const { comment, editViewFunc, openIdFunc, anchorEl } = props;
+  const { comment, editViewFunc, openIdFunc, anchorEl, messages } = props;
   const history = useHistory();
   const intl = useIntl();
   const classes = useStyles();
@@ -60,6 +66,9 @@ function MarketTodoMenu(props) {
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
 
   function doView() {
+    if (!_.isEmpty(messages)) {
+      pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, messages });
+    }
     editViewFunc(comment);
     openIdFunc(undefined);
     doRemoveEdit(commentId);

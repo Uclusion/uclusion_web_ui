@@ -357,7 +357,7 @@ function MarketTodos(props) {
       return (
         <React.Fragment key={`${id}top`}>
           {openMenuTodoId === id && anchorEl && (
-            <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll}
+            <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll} messages={messages}
                             openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} />
           )}
           <Grid

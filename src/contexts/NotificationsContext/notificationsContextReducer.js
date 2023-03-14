@@ -227,8 +227,8 @@ function reducer (state, action) {
       }
     } else {
       const { messages: existingMessages } = state;
-      (messages || []).forEach((id) => {
-        const message = existingMessages.find((message) => message.type_object_id === id);
+      (messages || []).forEach((processingMessage) => {
+        const message = existingMessages.find((message) => message.type_object_id === processingMessage.type_object_id);
         if (message && message.market_id) {
           if (!allMessages[message.market_id]) {
             allMessages[message.market_id] = [];

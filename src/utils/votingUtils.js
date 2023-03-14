@@ -10,13 +10,14 @@ export function getInvestibleVoters(marketPresences, investibleId) {
       const {
         quantity,
         investible_id: invId,
+        comment_id: commentId,
         max_budget: maxBudget,
         max_budget_unit: maxBudgetUnit,
         updated_at: updatedAt,
         deleted
       } = investment;
       if (investibleId === invId && !deleted) {
-        acc.push({ name, id, email, quantity, maxBudget, maxBudgetUnit, updatedAt });
+        acc.push({ name, id, email, quantity, commentId, maxBudget, maxBudgetUnit, updatedAt });
       }
     });
   });

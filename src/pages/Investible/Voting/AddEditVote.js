@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
-  Card,
-  CardContent,
   darken,
   FormControl,
   FormControlLabel,
@@ -13,7 +11,6 @@ import {
   Radio,
   RadioGroup,
   Select,
-  TextField,
   useMediaQuery,
   useTheme
 } from '@material-ui/core';
@@ -22,7 +19,6 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { useEditor } from '../../../components/TextEditors/quillHooks';
-import InputAdornment from '@material-ui/core/InputAdornment';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { workListStyles } from '../../Home/YourWork/WorkListItem';
 import { focusEditor, getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
@@ -106,35 +102,23 @@ export function addEditVotingHasContents(investibleId, isInbox, operationRunning
 
 function AddEditVote(props) {
   const {
-    reason,
     marketId,
     investibleId,
     groupId,
-    investment,
-    showBudget,
-    marketBudgetUnit,
-    multiplier, wizardProps,
+    multiplier, wizardProps, hasVoted, currentReasonId,
     formData, updateFormData, clearFormData, voteMessage, isInbox
   } = props;
   const {
-    storedInvestment,
-    storedMaxBudget,
-    useInitial,
+    approveQuantity,
     uploadedFiles,
+    originalQuantity,
+    originalReason
   } = formData;
   const intl = useIntl();
   const classes = useStyles();
   const workItemClasses = workListStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const addMode = _.isEmpty(investment) || investment.deleted;
-  const { quantity, max_budget: initialMaxBudget, max_budget_unit: initialMaxBudgetUnit } = investment || {};
-  const initialInvestment = !quantity ? undefined : Math.abs(quantity);
-  const newQuantity = storedInvestment || (useInitial === false ? undefined : initialInvestment);
-  const maxBudget = storedMaxBudget !== undefined ? storedMaxBudget :
-    (useInitial === false ? '' : (initialMaxBudget || ''));
-  const maxBudgetUnit = initialMaxBudgetUnit || marketBudgetUnit;
-  const { body, id: reasonId } = reason || {};
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -144,33 +128,33 @@ function AddEditVote(props) {
   const editorSpec = {
     marketId,
     placeholder: intl.formatMessage({ id: 'yourReason' }),
-    value: getQuillStoredState(editorName) || useInitial === false ? undefined : body,
+    value: getQuillStoredState(editorName) || originalReason,
     onUpload: (files) => updateFormData({uploadedFiles: files})
   };
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
-  function mySave() {
+  function mySave(isSwitch) {
     const currentUploadedFiles = uploadedFiles || [];
     const myBodyNow = getQuillStoredState(editorName);
+    const userMultiplier = isSwitch ? multiplier*-1 : multiplier;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(currentUploadedFiles, myBodyNow);
-    const reasonText =  tokensRemoved !== null ? tokensRemoved : useInitial === false ? undefined : body;
-    const oldQuantity = addMode ? 0 : quantity;
-    // dont include reason text if it's not changing, otherwise we'll update the reason comment
-    const reasonNeedsUpdate = reasonText !== body && !(_.isEmpty(reasonText) && _.isEmpty(body));
+    const reasonText =  tokensRemoved !== null ? tokensRemoved : originalReason;
+    // don't include reason text if it's not changing, otherwise we'll update the reason comment
+    const reasonNeedsUpdate = reasonText !== originalReason && !(_.isEmpty(reasonText) && _.isEmpty(originalReason));
+    console.debug(`reason needs update is ${reasonNeedsUpdate}`)
+    console.debug(reasonText)
     const updateInfo = {
       marketId,
       investibleId,
       groupId,
-      newQuantity: newQuantity*multiplier,
-      currentQuantity: oldQuantity,
+      newQuantity: approveQuantity*userMultiplier,
+      currentQuantity: originalQuantity,
       newReasonText: reasonText,
-      currentReasonId: reasonId,
+      currentReasonId,
       reasonNeedsUpdate,
-      maxBudget,
-      maxBudgetUnit,
       uploadedFiles: filteredUploads
     };
 
@@ -183,32 +167,20 @@ function AddEditVote(props) {
 
   function onChange(event) {
     const { value } = event.target;
-    updateFormData({storedInvestment: parseInt(value, 10)});
+    updateFormData({approveQuantity: parseInt(value, 10)});
     focusEditor(editorName);
   }
 
-  function onBudgetChange(event) {
-    const { value } = event.target;
-    if (_.isEmpty(value)) {
-      updateFormData({storedMaxBudget: ''});
-    } else {
-      updateFormData({storedMaxBudget: parseInt(value, 10)});
-    }
-  }
-
-  const voteId = multiplier < 0 ? "saveReject" : "saveVote";
+  const voteId = hasVoted ? (multiplier < 0 ? 'keepReject' : 'keepFor') : (multiplier < 0 ? "saveReject" : "saveVote");
+  const otherVoteId = multiplier < 0 ? "switchToFor" : "switchToReject";
   const certainties = [5, 25, 50, 75, 100];
   return (
     <React.Fragment>
-      <Card className={classes.visible} id="approve">
-        <CardContent>
+      <div style={{paddingBottom: '1rem'}}>
           <FormControl className={classes.certainty}>
-            {_.isEmpty(wizardProps) && (
-              <FormattedMessage id="certaintyQuestion" />
-            )}
             {mobileLayout && (
               <Select
-                value={newQuantity || 0}
+                value={approveQuantity}
                 onChange={onChange}
                 style={{paddingBottom: '1rem'}}
               >
@@ -227,7 +199,7 @@ function AddEditVote(props) {
                 aria-labelledby="add-vote-certainty"
                 className={classes.certaintyGroup}
                 onChange={onChange}
-                value={newQuantity || 0}
+                value={approveQuantity}
               >
                 {certainties.map(certainty => {
                   return (
@@ -250,41 +222,17 @@ function AddEditVote(props) {
               </RadioGroup>
             )}
           </FormControl>
-          {showBudget && (
-            <>
-              <div className={classes.overTop}>
-                <FormattedMessage id="agilePlanFormMaxMaxBudgetInputLabel" />
-              </div>
-              <div className={classes.sideBySide}>
-                <TextField
-                  className={classes.maxBudget}
-                  id="vote-max-budget"
-                  label={intl.formatMessage({ id: 'maxBudgetInputLabel' })}
-                  type="number"
-                  variant="outlined"
-                  onChange={onBudgetChange}
-                  value={maxBudget}
-                  margin="dense"
-                  InputProps={{
-                    endAdornment:
-                      <InputAdornment position="end">
-                        {maxBudgetUnit}
-                      </InputAdornment>,
-                  }}
-                />
-              </div>
-            </>
-          )}
           {Editor}
-        </CardContent>
-      </Card>
-      <div style={{paddingBottom: '1rem'}}/>
+      </div>
       <WizardStepButtons
         {...wizardProps}
         showNext={true}
         showTerminate={true}
         onNext={mySave}
-        terminateLabel="DecideWizardContinue"
+        showOtherNext={hasVoted}
+        onOtherNext={() => mySave(true)}
+        otherNextLabel={otherVoteId}
+        terminateLabel={isInbox ? "DecideWizardContinue" : "InitiativeCommmentWizardTerminate"}
         nextLabel={voteId}
       />
     </React.Fragment>
@@ -309,7 +257,6 @@ AddEditVote.defaultProps = {
   allowMultiVote: true,
   investment: {},
   onSave: () => {},
-  reason: {},
   multipler: 1,
 };
 

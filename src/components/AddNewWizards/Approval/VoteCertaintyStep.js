@@ -10,7 +10,7 @@ import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 
 function VoteCertaintyStep(props) {
-  const { market, investibleId, formData, updateFormData, clearFormData, isFor } = props;
+  const { market, investibleId, formData, updateFormData, clearFormData, isFor, showSwitch, currentReasonId } = props;
   const [commentsState] = useContext(CommentsContext);
   const history = useHistory();
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
@@ -25,7 +25,12 @@ function VoteCertaintyStep(props) {
     >
       <div>
         <Typography className={classes.introText} variant="h6">
-          How certain are you of voting {isFor ? 'for' : 'against'} this suggestion?
+          {showSwitch && (
+            'How do you edit voting on this suggestion?'
+          )}
+          {!showSwitch && (
+            `How certain are you of voting ${isFor ? 'for' : 'against'} this suggestion?`
+          )}
         </Typography>
         <AddEditVote
           marketId={market.id}
@@ -34,8 +39,9 @@ function VoteCertaintyStep(props) {
             onFinish: () =>
               navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId, parentCommentId))}}
           investibleId={investibleId}
+          currentReasonId={currentReasonId}
           groupId={market.id}
-          hasVoted={false}
+          hasVoted={showSwitch}
           allowMultiVote={false}
           showBudget={false}
           multiplier={isFor ? 1 : -1}

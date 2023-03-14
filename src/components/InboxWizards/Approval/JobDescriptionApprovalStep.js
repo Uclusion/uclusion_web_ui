@@ -17,13 +17,14 @@ import { useHistory } from 'react-router';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
-import { ISSUE_TYPE, JUSTIFY_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE } from '../../../constants/comments';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import { setUclusionLocalStorageItem } from '../../localStorageUtils';
 import { getJobApproveEditorName } from './JobApproveStep';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { getReasonForVote } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 
 function JobDescriptionStep (props) {
@@ -44,8 +45,7 @@ function JobDescriptionStep (props) {
   const { assigned } = marketInfo || {};
   const isAssigned = (assigned || []).includes(userId);
   const wasDeleted = yourVote && yourVote.deleted;
-  const yourReason = comments.find((comment) => comment.created_by === userId && comment.investible_id === investibleId
-    && comment.comment_type === JUSTIFY_TYPE);
+  const yourReason = getReasonForVote(yourVote, marketComments);
 
   function myOnFinish() {
     wizardFinish({link: `${formInvestibleLink(marketId, investibleId)}#approve`},

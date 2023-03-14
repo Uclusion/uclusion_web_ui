@@ -12,35 +12,29 @@ import { updateInvestment } from '../../../api/marketInvestibles';
 import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
 import { getMarketComments, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
 import {
-  getMarketPresences,
+  getMarketPresences, getReasonForVote,
   partialUpdateInvestment
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import _ from 'lodash'
-import { JUSTIFY_TYPE } from '../../../constants/comments';
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function JobApproveStep(props) {
   const { marketId, investibleId, marketInfo, updateFormData, formData } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const [marketsState] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const comments = getMarketComments(commentsState, marketId);
   const { group_id: groupId } = marketInfo;
   const editorName = `newjobapproveeditor${investibleId}`;
-  const userId = getMyUserForMarket(marketsState, marketId)
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence?.investments?.find((investment) => investment.investible_id === investibleId);
   const { quantity } = yourVote || {};
-  const yourReason = comments.find((comment) => comment.comment_type === JUSTIFY_TYPE &&
-    comment.created_by === userId && comment.investible_id === investibleId) || {};
+  const yourReason = getReasonForVote(yourVote, comments);
   const validForm = (formData.approveQuantity != null) || (formData.approvalWasSet !== true && quantity !== undefined);
   function onTerminate() {
     resetEditor(editorName);
@@ -63,6 +57,7 @@ function JobApproveStep(props) {
       groupId,
       newQuantity: parseInt(approveQuantity),
       currentQuantity: 0,
+      currentReasonId: yourReason?.id,
       newReasonText: tokensRemoved,
       reasonNeedsUpdate: !_.isEmpty(tokensRemoved),
       uploadedFiles: filteredUploads

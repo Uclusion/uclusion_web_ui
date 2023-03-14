@@ -105,10 +105,6 @@ function Voting(props) {
   const classes = useVoteStyles();
   const intl = useIntl();
 
-  function getVoterReason(userId) {
-    return investmentReasons.find(comment => comment.created_by === userId);
-  }
-
   const voters = getInvestibleVoters(marketPresences, investibleId);
   const sortedVoters = _.sortBy(voters, "quantity");
   if (sortedVoters.length === 0 || !yourPresence) {
@@ -132,10 +128,10 @@ function Voting(props) {
   return (
     <ol className={classes.root}>
         {sortedVoters.map((voter, index) => {
-          const { name, email, id: userId, quantity, maxBudget, maxBudgetUnit, updatedAt } = voter;
+          const { name, email, id: userId, quantity, commentId, maxBudget, maxBudgetUnit, updatedAt } = voter;
           const isYourVote = userId === yourPresence.id;
           const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState, 'VOTE');
-          const reason = getVoterReason(userId);
+          const reason = investmentReasons.find((comment) => comment.id === commentId);
           const voteId = `cv${userId}`;
 
           function setBeingEdited(value, event) {

@@ -1,18 +1,9 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import { FormattedMessage, useIntl } from 'react-intl'
-import {
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  makeStyles,
-  Radio,
-  RadioGroup,
-  TextField
-} from '@material-ui/core'
+import React from 'react';
+import PropTypes from 'prop-types';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { FormControl, FormControlLabel, FormLabel, makeStyles, Radio, RadioGroup } from '@material-ui/core';
 import { useEditor } from '../../../components/TextEditors/quillHooks';
-import InputAdornment from '@material-ui/core/InputAdornment'
-import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils'
+import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
 
 const useStyles = makeStyles(
   theme => {
@@ -58,14 +49,10 @@ const useStyles = makeStyles(
 function AddInitialVote(props) {
   const {
     marketId,
-    onBudgetChange,
     onUpload,
     onChange,
-    showBudget,
     newQuantity,
     onEditorChange,
-    maxBudget,
-    maxBudgetUnit,
     editorName,
     defaultReason
   } = props;
@@ -93,7 +80,7 @@ function AddInitialVote(props) {
             aria-labelledby="add-vote-certainty"
             className={classes.certaintyGroup}
             onChange={onChange}
-            value={newQuantity || 0}
+            value={newQuantity}
           >
             {[5, 25, 50, 75, 100].map(certainty => {
               return (
@@ -115,31 +102,6 @@ function AddInitialVote(props) {
             })}
           </RadioGroup>
         </FormControl>
-        {showBudget && (
-          <>
-            <div className={classes.overTop}>
-              <FormattedMessage id="agilePlanFormMaxMaxBudgetInputLabel" />
-            </div>
-            <div className={classes.sideBySide}>
-              <TextField
-                className={classes.maxBudget}
-                id="vote-max-budget"
-                label={intl.formatMessage({ id: 'maxBudgetInputLabel' })}
-                type="number"
-                variant="outlined"
-                onChange={onBudgetChange}
-                value={maxBudget}
-                margin="dense"
-                InputProps={{
-                  endAdornment:
-                    <InputAdornment position="end">
-                      {maxBudgetUnit}
-                    </InputAdornment>,
-                }}
-              />
-            </div>
-          </>
-        )}
         {Editor}
     </div>
   );

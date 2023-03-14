@@ -21,7 +21,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { commonQuick } from './ApprovalWizard';
 
 function DecisionApproveStep(props) {
-  const { market, clearFormData, updateFormData, formData, investibleId, hasOtherVote } = props;
+  const { market, clearFormData, updateFormData, formData, investibleId, hasOtherVote, currentReasonId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -31,7 +31,7 @@ function DecisionApproveStep(props) {
   const classes = useContext(WizardStylesContext);
   const editorName = getJobApproveEditorName(investibleId);
   const marketId = market.id;
-  const {approveUploadedFiles, approveReason, approveQuantity, originalQuantity, wasDeleted} = formData;
+  const {approveUploadedFiles, approveReason, approveQuantity, originalQuantity, wasDeleted, originalReason} = formData;
   const validForm = approveQuantity >= 0;
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId,
     allow_multi_vote: allowsMultiple } = market;
@@ -48,7 +48,9 @@ function DecisionApproveStep(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(approveUploadedFiles, approveReason);
-
+    // don't include reason text if it's not changing, otherwise we'll update the reason comment
+    const reasonNeedsUpdate = tokensRemoved !== originalReason && !(_.isEmpty(originalReason)
+      && _.isEmpty(tokensRemoved));
     const updateInfo = {
       marketId,
       investibleId,
@@ -56,7 +58,8 @@ function DecisionApproveStep(props) {
       newQuantity: approveQuantity,
       currentQuantity: wasDeleted ? 0 : originalQuantity,
       newReasonText: tokensRemoved,
-      reasonNeedsUpdate: !_.isEmpty(tokensRemoved),
+      currentReasonId,
+      reasonNeedsUpdate,
       uploadedFiles: filteredUploads
     };
     return updateInvestment(updateInfo).then((result) => {

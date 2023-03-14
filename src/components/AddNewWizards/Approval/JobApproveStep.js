@@ -20,7 +20,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { commonQuick } from './ApprovalWizard';
 
 function JobApproveStep(props) {
-  const { marketId, groupId, clearFormData, updateFormData, formData, investibleId } = props;
+  const { marketId, groupId, clearFormData, updateFormData, formData, investibleId, currentReasonId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -29,7 +29,8 @@ function JobApproveStep(props) {
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const editorName = getJobApproveEditorName(investibleId);
-  const {approveUploadedFiles, approveReason, approveQuantity, originalQuantity, wasDeleted, userId} = formData;
+  const {approveUploadedFiles, approveReason, approveQuantity, originalQuantity, wasDeleted, userId,
+    originalReason} = formData;
   const validForm = approveQuantity >= 0;
 
   function doQuick(result) {
@@ -42,7 +43,9 @@ function JobApproveStep(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(approveUploadedFiles, approveReason);
-
+    // don't include reason text if it's not changing, otherwise we'll update the reason comment
+    const reasonNeedsUpdate = tokensRemoved !== originalReason && !(_.isEmpty(originalReason)
+      && _.isEmpty(tokensRemoved));
     const updateInfo = {
       marketId,
       investibleId,
@@ -50,7 +53,8 @@ function JobApproveStep(props) {
       newQuantity: approveQuantity,
       currentQuantity: wasDeleted ? 0 : originalQuantity,
       newReasonText: tokensRemoved,
-      reasonNeedsUpdate: !_.isEmpty(tokensRemoved),
+      currentReasonId,
+      reasonNeedsUpdate,
       uploadedFiles: filteredUploads
     };
     return updateInvestment(updateInfo).then((result) => {

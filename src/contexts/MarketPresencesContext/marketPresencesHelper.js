@@ -49,6 +49,10 @@ export function getMarketPresences(state, marketId, excludeExpired) {
   });
 }
 
+export function getReasonForVote(vote, marketComments) {
+  return marketComments.find((comment) => comment.id === vote?.comment_id) || {};
+}
+
 export function getGroupPresences(presences, groupMembersState, marketId, groupId, includeDeleted=false) {
   const presencesFiltered = presences.filter((presence) => !presence.market_banned);
   const groupCapabilities = groupMembersState[groupId] || [];

@@ -4,12 +4,11 @@ import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import JobApproveStep from './JobApproveStep';
 import {
-  getMarketPresences,
+  getMarketPresences, getReasonForVote,
   partialUpdateInvestment
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
-import { JUSTIFY_TYPE } from '../../../constants/comments';
 import {
   getMarketComments,
   refreshMarketComments,
@@ -24,6 +23,7 @@ import { findMessageOfType } from '../../../utils/messageUtils';
 import { NOT_FULLY_VOTED_TYPE } from '../../../constants/notifications';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import VoteCertaintyStep from './VoteCertaintyStep';
+import _ from 'lodash';
 
 export function commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, messagesState,
   workItemClasses, messagesDispatch, clearFormData, setOperationRunning, voteMessage) {
@@ -62,27 +62,32 @@ function ApprovalWizard(props) {
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence?.investments?.find((investment) => investment.investible_id === investibleId);
   const hasOtherVote = yourPresence?.investments?.find((investment) => investment.investible_id !== investibleId);
-  const yourReason = marketComments.find((comment) => comment.created_by === yourPresence?.id &&
-    comment.investible_id === investibleId && comment.comment_type === JUSTIFY_TYPE);
+  const yourReason = getReasonForVote(yourVote, marketComments);
   const wasDeleted = yourVote?.deleted;
   const { body } = yourReason || {};
-  const approveQuantity = yourVote ? yourVote.quantity : undefined;
+  const approveQuantity = yourVote ? yourVote.quantity : 0;
   if (!marketType) {
     return React.Fragment;
   }
+  const originalReason = !editorEmpty(body) ? body : undefined;
   return (
     <WizardStylesProvider>
       <FormdataWizard name="approval_wizard" useLocalStorage={false}
-                      defaultFormData={{approveQuantity, originalQuantity: approveQuantity || 0, wasDeleted,
-                        userId: yourPresence?.id, approveReason: !editorEmpty(body) ? body : undefined}}>
+                      defaultFormData={{approveQuantity: Math.abs(approveQuantity),
+                        originalQuantity: approveQuantity, wasDeleted,
+                        userId: yourPresence?.id, approveReason: originalReason, originalReason}}>
         {marketType === PLANNING_TYPE && (
-          <JobApproveStep marketId={marketId} groupId={groupId} investibleId={investibleId} />
+          <JobApproveStep marketId={marketId} groupId={groupId} investibleId={investibleId}
+                          currentReasonId={yourReason?.id} />
         )}
         {marketType === DECISION_TYPE && (
-          <DecisionApproveStep market={market} investibleId={investibleId} hasOtherVote={hasOtherVote} />
+          <DecisionApproveStep market={market} investibleId={investibleId} hasOtherVote={hasOtherVote}
+                               currentReasonId={yourReason?.id} />
         )}
         {marketType === INITIATIVE_TYPE && (
-          <VoteCertaintyStep market={market} investibleId={investibleId} isFor={voteFor==='true'}  />
+          <VoteCertaintyStep market={market} investibleId={investibleId} currentReasonId={yourReason?.id}
+                             showSwitch={!wasDeleted && !_.isEmpty(yourVote)}
+                             isFor={yourVote ? approveQuantity >= 0 : voteFor==='true'}  />
         )}
       </FormdataWizard>
     </WizardStylesProvider>

@@ -65,7 +65,7 @@ function StartReviewStep(props) {
         commentAddStateReset={commentAddStateReset}
         marketId={marketId}
         groupId={groupId}
-        investibleId={investibleId}
+        fromInvestibleId={investibleId}
         onSave={onSave}
         nameDifferentiator="startReview"
       />

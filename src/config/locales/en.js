@@ -293,8 +293,6 @@ const messages = defineMessages({
   assignTodoMobile: 'Unassigned',
   assignTask: 'Unassigned job',
   assignTaskMobile: 'Unassigned',
-  unreadLabel: 'Labels modified',
-  unreadLabelMobile: 'Modified',
   unreadAttachment: 'Attachments modified',
   unreadAttachmentMobile: 'Modified',
   unreadName: 'Name changed',

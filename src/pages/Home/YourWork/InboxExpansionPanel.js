@@ -42,6 +42,7 @@ import StageWizard from '../../../components/InboxWizards/Stage/StageWizard';
 import WaitingAssistanceWizard from '../../../components/InboxWizards/WaitingAssistance/WaitingAssistanceWizard';
 import AssignToOtherWizard from '../../../components/InboxWizards/AssignToOther/AssignToOtherWizard';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
+import EstimateChangeWizard from '../../../components/InboxWizards/Monitor/EstimateChangeWizard';
 
 export function usesExpansion(item) {
   const { message } = item;
@@ -55,7 +56,7 @@ export function usesExpansion(item) {
       // Skipping UNREAD_REPLY - everyone already knows how to reply and a wizard would just be confusing
       // Skipping UNREAD_VOTE - need to inform but not very actionable
       return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNREAD_RESOLVED', 'FULLY_VOTED', 'NOT_FULLY_VOTED', 'ISSUE',
-        'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE'].includes(message.type);
+        'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE', 'UNREAD_ESTIMATE'].includes(message.type);
     }
     if (message.isOutboxAccepted) {
       return true;
@@ -147,6 +148,11 @@ export function calculateTitleExpansionPanel(props) {
       setItem(item, openExpansion, <AssignWizard investibleId={investibleId} marketId={marketId} message={message}
                                                  inboxDispatch={inboxDispatch}/>, 'DecideAssignmentTitle', intl);
     }
+  } else if (messageType === 'UNREAD_ESTIMATE') {
+    setItem(item, openExpansion,
+      item.expansionPanel = <EstimateChangeWizard investibleId={investibleId} marketId={marketId}
+                                                  message={message} inboxDispatch={inboxDispatch}/>,
+      undefined, intl);
   }
 }
 

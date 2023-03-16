@@ -121,7 +121,7 @@ export function messageText(message, isMobile, intl) {
       }
       return getMessageTextForId('unreadApproval', isMobile, intl);
     default:
-      return message.text;
+      return message.name;
   }
 }
 

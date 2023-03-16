@@ -28,9 +28,9 @@ const messages = defineMessages({
   red: 'Red',
   sign_out: 'Sign out',
   day_mode: 'Day Mode',
-  daysLeft: 'days left',
-  hoursLeft: 'hours left',
-  minutesLeft: 'min left',
+  daysLeft: 'days',
+  hoursLeft: 'hours',
+  minutesLeft: 'minutes',
   night_mode: 'Night Mode',
   sign_in: 'Sign in',
   sign_up: 'Sign up',
@@ -1002,6 +1002,7 @@ const messages = defineMessages({
   //summary
   summaryExpiredAt: 'Expired on {expireDate}',
   expiring: 'Expiring',
+  expiresIn: 'Expires in ',
 
   //assigneeFilterDropdown
   assigneeFilterDropdownAll: 'Everyone',

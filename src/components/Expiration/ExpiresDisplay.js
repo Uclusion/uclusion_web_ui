@@ -17,38 +17,29 @@ function ExpiresDisplay(props) {
   const hoursRemaining = remaining.hours();
   const minutesRemaining = remaining.minutes();
 
-  function getDisplayText() {
-    if (daysRemaining > 0) {
-      return (
-        <React.Fragment>
-          {daysRemaining}{((hoursRemaining > 0) || (minutesRemaining > 0) ) && '+'}
-          <span> {intl.formatMessage({ id: 'daysLeft' })}</span>
-        </React.Fragment>
-      );
-    }
-    if (hoursRemaining > 0) {
-      return (
-      <React.Fragment>
-        {hoursRemaining}{minutesRemaining > 0 && '+'}
-        <span> {intl.formatMessage({ id: 'hoursLeft' })}</span>
-      </React.Fragment>
-      );
-    }
-    if (minutesRemaining > 0) {
-      return (
-        <React.Fragment>
-          {minutesRemaining}
-          <span> {intl.formatMessage({ id: 'minutesLeft' })}</span>
-        </React.Fragment>
-      );
-    }
-    return <span> {intl.formatMessage({ id: 'expiring' })}</span>
+  if (daysRemaining > 0) {
+    return (
+      <div style={{whiteSpace: 'nowrap'}}>
+        {intl.formatMessage({ id: 'expiresIn' })} {daysRemaining}{((hoursRemaining > 0) || (minutesRemaining > 0) ) && '+'} {intl.formatMessage({ id: 'daysLeft' })}
+      </div>
+    );
   }
-
+  if (hoursRemaining > 0) {
+    return (
+      <div style={{whiteSpace: 'nowrap'}}>
+        {intl.formatMessage({ id: 'expiresIn' })} {hoursRemaining}{minutesRemaining > 0 && '+'} {intl.formatMessage({ id: 'hoursLeft' })}
+      </div>
+    );
+  }
+  if (minutesRemaining > 0) {
+    return (
+      <div style={{whiteSpace: 'nowrap'}}>
+        {intl.formatMessage({ id: 'expiresIn' })} {minutesRemaining} {intl.formatMessage({ id: 'minutesLeft' })}
+      </div>
+    );
+  }
   return (
-    <div>
-      {getDisplayText()}
-    </div>
+    <div> {intl.formatMessage({ id: 'expiring' })}</div>
   );
 }
 

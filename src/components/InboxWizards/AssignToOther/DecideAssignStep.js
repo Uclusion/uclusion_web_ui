@@ -19,6 +19,7 @@ import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStage
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { useIntl } from 'react-intl';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 
 function DecideAssignStep(props) {
@@ -27,6 +28,7 @@ function DecideAssignStep(props) {
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const history = useHistory();
@@ -54,7 +56,8 @@ function DecideAssignStep(props) {
     return stageChangeInvestible(moveInfo).then((investible) => {
       const fullStage = getFullStage(marketStagesState, marketId, marketInfo.stage) || {};
       onInvestibleStageChange(targetStageId, investible, investibleId, marketId, commentsState, commentsDispatch,
-        investiblesDispatch, () => {}, marketStagesState, undefined, fullStage);
+        investiblesDispatch, () => {}, marketStagesState, undefined, fullStage,
+        marketPresencesDispatch);
       setOperationRunning(false);
     });
   }

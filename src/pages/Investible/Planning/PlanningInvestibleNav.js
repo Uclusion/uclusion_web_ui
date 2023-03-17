@@ -385,6 +385,7 @@ function MarketMetaData(props) {
   const [, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
   const classes = useMetaDataStyles();
@@ -394,7 +395,7 @@ function MarketMetaData(props) {
 
   function myRejectInvestible() {
     return rejectInvestible(market.id, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
-      diffDispatch, marketStagesState);
+      diffDispatch, marketStagesState, marketPresencesDispatch);
   }
 
   function toggleDiffShow() {

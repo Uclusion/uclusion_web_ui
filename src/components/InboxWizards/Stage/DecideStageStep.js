@@ -23,6 +23,7 @@ import { getMarketComments } from '../../../contexts/CommentsContext/commentsCon
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import _ from 'lodash'
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function DecideStageStep(props) {
   const { marketId, investibleId, currentStageId } = props;
@@ -31,6 +32,7 @@ function DecideStageStep(props) {
   const [, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
@@ -58,7 +60,7 @@ function DecideStageStep(props) {
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
         onInvestibleStageChange(aStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
-          invDispatch, () => {}, marketStagesState, undefined, aStage);
+          invDispatch, () => {}, marketStagesState, undefined, aStage, marketPresencesDispatch);
         setOperationRunning(false);
         if (isGotoJob) {
           navigate(history, formInvestibleLink(marketId, investibleId));

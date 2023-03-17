@@ -33,6 +33,7 @@ import { stageChangeInvestible } from '../../../api/investibles'
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function DecideUnblockStep(props) {
   const { marketId, commentId, clearFormData, message } = props;
@@ -42,6 +43,7 @@ function DecideUnblockStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const history = useHistory();
   const intl = useIntl();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
@@ -76,7 +78,8 @@ function DecideUnblockStep(props) {
     return stageChangeInvestible(moveInfo).then((investible) => {
       const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
       onInvestibleStageChange(targetStageId, investible, investibleId, marketId, commentState, commentDispatch,
-        investiblesDispatch, () => {}, marketStagesState, undefined, fullStage);
+        investiblesDispatch, () => {}, marketStagesState, undefined, fullStage,
+        marketPresencesDispatch);
       clearFormData();
       setOperationRunning(false);
       removeWorkListItem(message, workItemClasses.removed, messagesDispatch);

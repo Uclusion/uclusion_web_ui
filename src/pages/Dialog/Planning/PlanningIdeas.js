@@ -151,7 +151,7 @@ function PlanningIdeas(props) {
         .then((inv) => {
           const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
           onInvestibleStageChange(targetStageId, inv, investibleId, marketId, commentsState, commentsDispatch,
-            invDispatch, diffDispatch, marketStagesState, undefined, fullStage);
+            invDispatch, diffDispatch, marketStagesState, undefined, fullStage, marketPresencesDispatch);
         }).finally(() => {
           target.style.cursor = 'pointer';
           setOperationRunning(false);

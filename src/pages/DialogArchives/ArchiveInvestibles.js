@@ -204,7 +204,7 @@ function ArchiveInvestbiles(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [invState, invDispatch] = useContext(InvestiblesContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
 
@@ -234,7 +234,7 @@ function ArchiveInvestbiles(props) {
       const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
       onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, commentsState,
         commentsDispatch, invDispatch, () => {}, undefined, [UNASSIGNED_TYPE],
-        fullStage);
+        fullStage, marketPresencesDispatch);
       setOperationRunning(false);
     });
   }

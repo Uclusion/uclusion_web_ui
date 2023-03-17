@@ -830,7 +830,7 @@ PlanningInvestible.defaultProps = {
 };
 
 export function rejectInvestible(marketId, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
-  diffDispatch, marketStagesState) {
+  diffDispatch, marketStagesState, marketPresencesDispatch) {
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
   const marketInfo = getMarketInfo(marketInvestible, marketId);
   const moveInfo = {
@@ -845,7 +845,7 @@ export function rejectInvestible(marketId, investibleId, marketInvestible, comme
   return stageChangeInvestible(moveInfo)
     .then((newInv) => {
       onInvestibleStageChange(furtherWorkStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
-        invDispatch, diffDispatch, marketStagesState, undefined, furtherWorkStage);
+        invDispatch, diffDispatch, marketStagesState, undefined, furtherWorkStage, marketPresencesDispatch);
       pushMessage(OPERATION_HUB_CHANNEL, { event: STOP_OPERATION, id: 'reject' });
     });
 }

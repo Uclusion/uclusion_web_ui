@@ -26,6 +26,7 @@ import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { TODO_TYPE } from '../../../constants/comments';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function JobStageStep (props) {
   const { marketId, updateFormData, formData, investibleId, marketInfo } = props;
@@ -36,6 +37,7 @@ function JobStageStep (props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const classes = useContext(WizardStylesContext);
   const userId = getMyUserForMarket(marketsState, marketId)
   const { stage, assigned, group_id: groupId } = marketInfo;
@@ -112,7 +114,7 @@ function JobStageStep (props) {
       .then((newInv) => {
         onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
           commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
-          fullCurrentStage);
+          fullCurrentStage, marketPresencesDispatch);
         setOperationRunning(false);
         finish(fullMoveStage);
       });

@@ -14,6 +14,7 @@ const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';
 const ADD_MARKET_PRESENCES = 'ADD_MARKET_PRESENCES';
 const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
 const REMOVE_MARKETS_PRESENCE = 'REMOVE_MARKETS_PRESENCE';
+const REMOVE_INVESTIBLE_INVESTMENTS = 'REMOVE_INVESTIBLE_INVESTMENTS'
 const PATCH_INVESTMENT = 'PATCH_INVESTMENT';
 const BANNED_MARKETS = 'BANNED_MARKETS';
 
@@ -31,6 +32,14 @@ export function patchInvestment(investmentPatch, allowMultiVote) {
     type: PATCH_INVESTMENT,
     investmentPatch,
     allowMultiVote
+  };
+}
+
+export function removeInvestments(marketId, investibleId) {
+  return {
+    type: REMOVE_INVESTIBLE_INVESTMENTS,
+    marketId,
+    investibleId
   };
 }
 
@@ -133,6 +142,23 @@ function doUpdateMarketPresences(state, action) {
   return removeInitializing(newState);
 }
 
+function doRemoveInvestibleInvestments(state, action) {
+  const { marketId, investibleId } = action;
+  const oldUsers = state[marketId] || [];
+  const transformedUsers = oldUsers.map((user) => {
+    const newInvestments = user.investments?.filter((investment) => investment.investible_id !== investibleId);
+    return {
+      ...user,
+      investments: newInvestments,
+      fromQuickAdd: true
+    };
+  });
+  return {
+    ...state,
+    [marketId]: transformedUsers,
+  };
+}
+
 // This can only come from the network
 function doProcessBanned(state, action) {
   const { fullList } = action;
@@ -179,6 +205,8 @@ function computeNewState(state, action) {
       return doPatchInvestment(state, action);
     case BANNED_MARKETS:
       return doProcessBanned(state, action);
+    case REMOVE_INVESTIBLE_INVESTMENTS:
+      return doRemoveInvestibleInvestments(state, action);
     default:
       return state;
   }

@@ -50,7 +50,7 @@ function DecideResolveStep(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const isFullyVoted = message.type === 'FULLY_VOTED';
   const isSuggestion = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
-  const isReopen = message.messageType === 'UNREAD_RESOLVED';
+  const isReopen = message.type === 'UNREAD_RESOLVED';
 
   function myTerminate(isNavigate) {
     if (isNavigate) {

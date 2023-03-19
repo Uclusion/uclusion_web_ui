@@ -515,6 +515,7 @@ function CommentAdd(props) {
                   onNext={() => handleSave( true, undefined, true)}
                   onNextDoAdvance={false}
                   showOtherNext={true}
+                  onOtherNext={() => wizardProps.updateFormData({marketId, groupId})}
                   otherNextLabel="configureVoting"
                   onTerminate={() => navigate(history, formMarketLink(marketId, groupId))}
                   showTerminate={true}
@@ -531,7 +532,7 @@ function CommentAdd(props) {
                   otherNextLabel={createInlineInitiative ? 'noVoteSuggestion' : 'voteSuggestion'}
                   onOtherNext={() => handleSave( true, undefined, !createInlineInitiative)}
                   onTerminate={() => {
-                    wizardProps.updateFormData({groupId});
+                    wizardProps.updateFormData({marketId, groupId, investibleId});
                     updateCommentAddState({editorName});
                     wizardProps.nextStep();
                   }}

@@ -1145,7 +1145,7 @@ const messages = defineMessages({
   OnboardingWizardSkipOnboarding: 'I\'ve used Uclusion before and want to go right to the app',
   OnboardingWizardStartOver: 'Cancel',
   OnboardingWizardTrySomethingElse: 'I\'ve shared the link and want to try something else',
-  OnboardingWizardGoBack: 'Go Back',
+  OnboardingWizardGoBack: 'Go back',
   OnboardingWizardContinue: 'Next',
   OnboardingWizardFinish: 'Finish',
   WorkspaceWizardCopyLink: 'Copy Invite Link',

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -7,7 +7,6 @@ import {
   Card,
   CardActions,
   CardContent,
-  Checkbox,
   Grid,
   Typography,
   useMediaQuery,
@@ -35,12 +34,7 @@ import {
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import {
-  addMarketToStorage,
-  getMarket,
-  getMyUserForMarket,
-  marketTokenLoaded
-} from '../../contexts/MarketsContext/marketsContextHelper';
+import { getMarket, getMyUserForMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import CardType, { BUG, DECISION_TYPE } from '../CardType';
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../constants/global';
 import {
@@ -76,7 +70,7 @@ import {
   navigate
 } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { marketAbstain, updateMarket } from '../../api/markets';
+import { marketAbstain } from '../../api/markets';
 import { changeInvestibleStageOnCommentClose, onCommentOpen } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
@@ -114,6 +108,7 @@ import { removeMessages } from '../../contexts/NotificationsContext/notification
 import { ScrollContext } from '../../contexts/ScrollContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
+import SettingsIcon from '@material-ui/icons/Settings';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -374,11 +369,8 @@ function Comment(props) {
   const inlinePresences = usePresences(inlineMarketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
-  const [marketsState, marketsDispatch, tokensHash] = useContext(MarketsContext);
+  const [marketsState, , tokensHash] = useContext(MarketsContext);
   const inlineMarket = getMarket(marketsState, inlineMarketId) || {};
-  const inlineUserId = getMyUserForMarket(marketsState, inlineMarketId) || {};
-  const { allow_multi_vote: originalAllowMultiVote, created_by: inlineCreatedBy } = inlineMarket;
-  const [multiVote, setMultiVote] = useState(originalAllowMultiVote);
   const market = getMarket(marketsState, marketId) || {};
   const { market_stage: marketStage, market_type: marketType } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
@@ -436,17 +428,6 @@ function Comment(props) {
 
   function toggleInlineInvestibleAdd() {
     updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});
-  }
-
-  function toggleMultiVote() {
-    const myMultiVote = !multiVote;
-    setMultiVote(myMultiVote);
-    if (myMultiVote !== originalAllowMultiVote) {
-      return updateMarket(inlineMarketId, null, null, myMultiVote)
-        .then((market) => {
-          addMarketToStorage(marketsDispatch, market);
-        });
-    }
   }
 
   function toggleDiffShow() {
@@ -962,20 +943,12 @@ function Comment(props) {
               </div>
               <div className={mobileLayout ? classes.actions : classes.actionsEnd}>
                 {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && !removeActions && (
-                  <div style={{display: 'flex', marginRight: '1rem', paddingTop: '0.5rem'}}>
-                    <Typography style={{fontSize: 12}}>
-                      {intl.formatMessage({ id: mobileLayout ? 'allowMultiVoteQuestionMobile'
-                          : 'allowMultiVoteQuestion' })}
-                    </Typography>
-                    <Checkbox
-                      style={{maxHeight: '1rem', paddingTop: mobileLayout ? '1.5rem' : undefined}}
-                      id="multiVote"
-                      name="multiVote"
-                      checked={multiVote}
-                      onChange={toggleMultiVote}
-                      disabled={operationRunning !== false || inlineCreatedBy !== inlineUserId}
-                    />
-                  </div>
+                  <SpinningIconLabelButton
+                    onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
+                      undefined, undefined, id))}
+                    doSpin={false} icon={SettingsIcon}>
+                    {intl.formatMessage({ id: 'configureVoting' })}
+                  </SpinningIconLabelButton>
                 )}
                 {showMoveButton && !mobileLayout && (
                   <SpinningIconLabelButton

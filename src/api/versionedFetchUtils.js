@@ -105,6 +105,8 @@ export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, stor
 }
 
 export function sendMarketsStruct(marketsStruct) {
+  console.info("Updating with markets struct");
+  console.info(marketsStruct)
   if (marketsStruct['markets']) {
     pushMessage(PUSH_MARKETS_CHANNEL, { event: VERSIONS_EVENT, marketDetails: marketsStruct['markets'] });
   }
@@ -180,74 +182,72 @@ export function getStorageStates() {
 }
 
 /**
- * Function that will make exactly one attempt to sync by adding to the promise chain
+ * Function that will make exactly one attempt to sync
  * @returns {Promise<*>}
  */
-export function doVersionRefresh() {
+export async function doVersionRefresh() {
   console.info('Checking for sync');
-  return getStorageStates().then((storageStates) => {
-    return getChangedIds().then((audits) => {
-      const foregroundList = [];
-      const backgroundList = [];
-      const inlineList = [];
-      const fullList = [];
-      const { marketsState } = storageStates;
-      const failedSignatures = getFailedSignatures(marketsState) || [];
-      const failedList = [];
-      failedSignatures.forEach((fullSignature) => {
-        const { id, unmatched: signatures } = fullSignature;
-        const failedSignatures = [];
-        signatures.forEach((signature) => {
-          if (!checkSignatureInStorage(id, signature, storageStates)) {
-            failedSignatures.push(signature);
-            failedList.push(id);
-          }
-        });
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id,
-            unmatched: failedSignatures} });
-      });
-      (audits || []).forEach((audit) => {
-        const { signature, inline, active, id } = audit;
-        fullList.push(id);
-        if (!checkSignatureInStorage(id, signature, storageStates) || failedList.includes(id)) {
-          if (inline) {
-            inlineList.push(id);
-          } else if (active) {
-            foregroundList.push(id);
-          } else {
-            backgroundList.push(id);
-          }
-        }
-      });
-      // use the full list to calculate market's we're banned from
-      pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, fullList });
-      // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
-      console.info('Beginning inline versions update');
-      console.info(inlineList);
-      const inlineMarketsStruct = {};
-      return updateMarkets(inlineList, inlineMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, true)
-        .then(() => {
-          sendMarketsStruct(inlineMarketsStruct);
-          const foregroundMarketsStruct = {};
-          console.info('Beginning foreground versions update');
-          console.info(foregroundList);
-          return updateMarkets(foregroundList, foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates)
-              .then(() => {
-              sendMarketsStruct(foregroundMarketsStruct);
-              const backgroundMarketsStruct = {};
-              console.info('Finished foreground update');
-              refreshNotifications();
-              console.info('Beginning background versions update');
-              console.info(backgroundList);
-              return updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS,
-                storageStates).then(() => {
-                  sendMarketsStruct(backgroundMarketsStruct);
-                  console.info('Ending versions update');
-                });
-          });
-        });
+  const storageStates = await getStorageStates();
+  const audits = await getChangedIds();
+  const foregroundList = [];
+  const backgroundList = [];
+  const inlineList = [];
+  const fullList = [];
+  const { marketsState } = storageStates;
+  const failedSignatures = getFailedSignatures(marketsState) || [];
+  const failedList = [];
+  failedSignatures.forEach((fullSignature) => {
+    const { id, unmatched: signatures } = fullSignature;
+    const failedSignatures = [];
+    signatures.forEach((signature) => {
+      if (!checkSignatureInStorage(id, signature, storageStates)) {
+        failedSignatures.push(signature);
+        failedList.push(id);
+      }
+    });
+    pushMessage(PUSH_MARKETS_CHANNEL, {
+      event: SYNC_ERROR_EVENT, signature: {
+        id,
+        unmatched: failedSignatures
+      }
     });
   });
+  (audits || []).forEach((audit) => {
+    const { signature, inline, active, id } = audit;
+    fullList.push(id);
+    if (!checkSignatureInStorage(id, signature, storageStates) || failedList.includes(id)) {
+      if (inline) {
+        inlineList.push(id);
+      } else if (active) {
+        foregroundList.push(id);
+      } else {
+        backgroundList.push(id);
+      }
+    }
+  });
+  // use the full list to calculate market's we're banned from
+  pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, fullList });
+  // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
+  console.info('Beginning inline versions update');
+  console.info(inlineList);
+  // TODO: this is evil. We're using the inlineMarketsStruct as an _output_ parameter that gets mutated
+  const inlineMarketsStruct = {};
+  await updateMarkets(inlineList, inlineMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, true)
+  sendMarketsStruct(inlineMarketsStruct);
+  const foregroundMarketsStruct = {};
+  console.info('Beginning foreground versions update');
+  console.info(foregroundList);
+  // TODO: Again, this is evil. ForegroundMarketsStruct is an _output_ parameter that gets mutated
+  await updateMarkets(foregroundList, foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates);
+  sendMarketsStruct(foregroundMarketsStruct);
+  const backgroundMarketsStruct = {};
+  console.info('Finished foreground update');
+  refreshNotifications();
+  console.info('Beginning background versions update');
+  console.info(backgroundList);
+  await updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS, storageStates);
+  sendMarketsStruct(backgroundMarketsStruct);
+  console.info('Ending versions update');
 }
 
 /**

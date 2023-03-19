@@ -7,6 +7,7 @@ import { getComment } from '../../../contexts/CommentsContext/commentsContextHel
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { QUESTION_TYPE } from '../../../constants/comments';
 
 function JobCommentConfigureWizard(props) {
   const { marketId, commentId } = props;
@@ -14,7 +15,7 @@ function JobCommentConfigureWizard(props) {
   const [marketsState] = useContext(MarketsContext);
   const comment = getComment(commentsState, marketId, commentId);
   const inlineMarket = getMarket(marketsState, comment?.inline_market_id);
-  if (!comment || !inlineMarket) {
+  if (!comment || (comment.comment_type === QUESTION_TYPE && !inlineMarket)) {
     return React.Fragment;
   }
 

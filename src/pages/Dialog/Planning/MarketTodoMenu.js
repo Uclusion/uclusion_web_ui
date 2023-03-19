@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import { List, ListItem, ListItemText, Menu } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { resolveComment, updateComment } from '../../../api/comments';
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -14,8 +12,6 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import {
   removeMessagesForCommentId
 } from '../../../utils/messageUtils';
-import { notifyImmediate } from '../../../utils/commentFunctions'
-import { RED_LEVEL } from '../../../constants/notifications'
 import { formCommentEditReplyLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { workListStyles } from '../../Home/YourWork/WorkListItem';
@@ -57,13 +53,10 @@ function MarketTodoMenu(props) {
   const classes = useStyles();
   const workItemClasses = workListStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const { market_id: marketId, id: commentId, notification_type: myNotificationType, group_id: groupId } = comment;
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
 
   function doView() {
     if (!_.isEmpty(messages)) {
@@ -82,9 +75,6 @@ function MarketTodoMenu(props) {
       undefined, notificationType)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
-        if (notificationType === RED_LEVEL) {
-          notifyImmediate(myPresence.id, comment, messagesDispatch);
-        }
         setOperationRunning(false);
       }).finally(() => {
       setOperationRunning(false);

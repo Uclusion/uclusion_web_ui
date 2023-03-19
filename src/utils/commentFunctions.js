@@ -9,10 +9,7 @@ import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE 
 import { addCommentToMarket } from '../contexts/CommentsContext/commentsContextHelper'
 import { pushMessage } from './MessageBusUtils'
 import { LOAD_EVENT } from '../contexts/InvestibesContext/investiblesContextMessages'
-import { formCommentLink } from './marketIdPathFunctions'
-import { addMessage } from '../contexts/NotificationsContext/notificationsContextReducer'
-import { RED_LEVEL } from '../constants/notifications'
-import { INITIATIVE_TYPE, PLANNING_TYPE } from '../constants/markets'
+import { INITIATIVE_TYPE } from '../constants/markets'
 import { createInitiative } from '../api/markets'
 import { addMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../authorization/TokenStorageManager'
@@ -117,17 +114,6 @@ export function allowVotingForSuggestion(commentId, setOperationRunning, markets
       const tokenStorageManager = new TokenStorageManager();
       return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token);
     });
-}
-
-export function notifyImmediate(userId, comment, messagesDispatch) {
-  const marketId = comment.market_id;
-  const commentLink = formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id);
-  const notificationType = 'ISSUE';
-  messagesDispatch(addMessage({ market_id_user_id: `${marketId}_${userId}`,
-    type_object_id: `${notificationType}_${comment.id}`, type: notificationType, market_id: marketId,
-    comment_id: comment.id, user_id: userId, text: 'Please assign', level: RED_LEVEL,
-    is_highlighted: false, name: 'Immediate TODOs', link: commentLink, market_type: PLANNING_TYPE,
-    link_type: 'MARKET_TODO' }));
 }
 
 export function getCommentsSortedByType(marketComments, investibleId, includeStatusReports) {

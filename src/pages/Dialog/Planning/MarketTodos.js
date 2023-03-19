@@ -36,7 +36,7 @@ import { doRemoveEdit, doShowEdit } from './userUtils'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
-import { getThreadIds, notifyImmediate } from '../../../utils/commentFunctions'
+import { getThreadIds } from '../../../utils/commentFunctions'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import DismissableText from '../../../components/Notifications/DismissableText'
 import { deleteOrDehilightMessages } from '../../../api/users'
@@ -150,7 +150,7 @@ const myClasses = makeStyles(
 function MarketTodos(props) {
   const {
     comments,
-    marketId, userId,
+    marketId,
     groupId,
     isInArchives = false,
     sectionOpen, setSectionOpen,
@@ -492,11 +492,7 @@ function MarketTodos(props) {
   }
 
   function onDropImmediate(event) {
-    onDrop(event, 'RED').then((comment) => {
-      if (comment) {
-        notifyImmediate(userId, comment, messagesDispatch);
-      }
-    });
+    onDrop(event, 'RED');
   }
 
   function onDropConvenient(event) {

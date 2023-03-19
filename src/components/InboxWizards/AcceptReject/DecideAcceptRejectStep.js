@@ -92,7 +92,7 @@ function DecideAcceptRejectStep(props) {
         nextLabel="wizardAcceptLabel"
         onNext={accept}
         showOtherNext
-        otherNextLabel="saveReject"
+        otherNextLabel="issueResolveLabel"
         onOtherNext={resolve}
         showTerminate={true}
         terminateLabel="JobWizardGotoJob"

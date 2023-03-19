@@ -109,7 +109,6 @@ import { pushMessage } from '../../utils/MessageBusUtils'
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import GravatarGroup from '../Avatars/GravatarGroup'
-import SpinningButton from '../SpinBlocking/SpinningButton'
 import IssueDialog from '../Warnings/IssueDialog'
 import { useLockedDialogStyles } from '../../pages/Dialog/LockedDialog'
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
@@ -119,6 +118,7 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { nameFromDescription } from '../../utils/stringFunctions';
 import { removeMessages } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import { ScrollContext } from '../../contexts/ScrollContext';
+import ListAltIcon from '@material-ui/icons/ListAlt';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -843,7 +843,7 @@ function Comment(props) {
   const showMoveButton = isSent !== false && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType)
     && !inArchives
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
-  const showResolve = isSent !== false && enableActions && commentType !== REPORT_TYPE && !showAcceptReject &&
+  const showResolve = isSent !== false && enableActions && commentType !== REPORT_TYPE &&
     (myPresence === createdBy || myPresence === updatedBy || !resolved);
   const yourVote = myInlinePresence && myInlinePresence.investments &&
     myInlinePresence.investments.find((investment) => !investment.deleted);
@@ -1008,6 +1008,11 @@ function Comment(props) {
                     {!mobileLayout && intl.formatMessage({ id: 'done' })}
                   </SpinningIconLabelButton>
                 )}
+                {showAcceptReject && (
+                  <SpinningIconLabelButton onClick={myAccept} icon={ListAltIcon} id={`convertToTask${id}`}>
+                    {intl.formatMessage({ id: 'wizardAcceptLabel' })}
+                  </SpinningIconLabelButton>
+                )}
                 {showResolve && (
                   <SpinningIconLabelButton
                     onClick={resolved ? reopen : resolve}
@@ -1073,16 +1078,6 @@ function Comment(props) {
                       </>)
                     }
                   />
-                )}
-                {showAcceptReject && (
-                  <div style={{ display: 'flex' }}>
-                    <SpinningButton onClick={myAccept} className={classes.actionPrimary}>
-                      {intl.formatMessage({ id: 'planningAcceptLabel' })}
-                    </SpinningButton>
-                    <SpinningButton onClick={resolve} className={classes.actionSecondary}>
-                      {intl.formatMessage({ id: 'saveReject' })}
-                    </SpinningButton>
-                  </div>
                 )}
                 {showAbstain && (
                   <SpinningIconLabelButton

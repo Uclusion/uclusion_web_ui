@@ -59,7 +59,7 @@ import AddWizardStepButtons from '../AddNewWizards/WizardStepButtons'
 import { nameFromDescription } from '../../utils/stringFunctions';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import { Clear, Send } from '@material-ui/icons';
-import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 
 function getPlaceHolderLabelId(type, isInReview, isAssigned) {

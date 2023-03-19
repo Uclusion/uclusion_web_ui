@@ -6,7 +6,7 @@ import { WizardStylesContext } from './WizardStylesContext';
 import WizardStepButtons from './WizardStepButtons';
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import { FormattedMessage } from 'react-intl';
-import { sendComment, updateComment } from '../../api/comments';
+import { getMentionsFromText, saveComment, sendComment, updateComment } from '../../api/comments';
 import { changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions';
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
 import { quickNotificationChanges } from '../Comments/CommentAdd';
@@ -16,18 +16,20 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import {
-  getInReviewStage,
-  getRequiredInputStage
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInReviewStage, getRequiredInputStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { addMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
+import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils';
+import { processTextAndFilesForSave } from '../../api/files';
+import { INITIATIVE_TYPE } from '../../constants/markets';
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager';
+import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 
 function ConfigureCommentStep(props) {
   const { updateFormData, formData, useType } = props;
@@ -41,8 +43,23 @@ function ConfigureCommentStep(props) {
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
-  const { useAnswer, marketId, commentId, investibleId, currentStageId } = formData;
+  const { useAnswer, marketId, commentId, investibleId, groupId, currentStageId } = formData;
   const presences = usePresences(marketId);
+  const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
+  const [commentAddState, , commentAddStateReset] =
+    getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId || groupId);
+  const {
+    uploadedFiles,
+    editorName
+  } = commentAddState;
+
+  function onFinish() {
+    if (investibleId) {
+      navigate(history, formInvestibleLink(marketId, investibleId));
+    } else {
+      navigate(history, formMarketLink(marketId, groupId));
+    }
+  }
 
   function quickAddComment(comment) {
     addCommentToMarket(comment, commentState, commentDispatch);
@@ -69,6 +86,30 @@ function ConfigureCommentStep(props) {
     });
   }
 
+  function handleSaveSuggestion(isRestricted) {
+    const currentUploadedFiles = uploadedFiles || [];
+    const myBodyNow = getQuillStoredState(editorName);
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(currentUploadedFiles, myBodyNow)
+    const mentions = getMentionsFromText(tokensRemoved)
+    return saveComment(marketId, groupId, investibleId, undefined, tokensRemoved, useType, filteredUploads, 
+      mentions, undefined, INITIATIVE_TYPE, isRestricted, true)
+      .then((response) => {
+        commentAddStateReset();
+        addMarket(response, marketsDispatch, presenceDispatch);
+        const { market: { id: inlineMarketId }, token, investible } = response;
+        if (investible) {
+          addInvestible(investiblesDispatch, () => {}, investible);
+        }
+        const tokenStorageManager = new TokenStorageManager();
+        return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token).then(() => {
+          quickAddComment(response.parent);
+        });
+      });
+  }
+
   function configureComment() {
     const useAnswerBool = (useAnswer || defaultAnswer) === 'Yes';
     if (useType === QUESTION_TYPE) {
@@ -84,17 +125,7 @@ function ConfigureCommentStep(props) {
         myOnFinish();
       }
     } else {
-      if (useAnswerBool) {
-        myOnFinish();
-      } else {
-        updateComment(marketId, commentId, undefined, undefined, undefined,
-          undefined, undefined, true, undefined, undefined,
-          true).then((response) => {
-            const { comment } = response;
-            addMarket(response, marketsDispatch, presenceDispatch);
-            quickAddComment(comment);
-          });
-      }
+      handleSaveSuggestion(!useAnswerBool);
     }
   }
   const defaultAnswer = useType === QUESTION_TYPE ? 'No' : 'Yes';
@@ -142,10 +173,12 @@ function ConfigureCommentStep(props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
-        nextLabel="WizardContinue"
+        nextLabel="OnboardingWizardFinish"
         onNext={configureComment}
         spinOnClick={true}
-        showTerminate={false}
+        showTerminate={true}
+        onFinish={onFinish}
+        terminateLabel="OnboardingWizardGoBack"
       />
     </div>
     </WizardStepContainer>

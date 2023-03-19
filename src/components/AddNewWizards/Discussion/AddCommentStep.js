@@ -39,8 +39,7 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="DiscussionCommentAdd"
         type={useType}
-        wizardProps={{...props, isSent: false, isAddWizard: true, skipNextStep: useType === SUGGEST_CHANGE_TYPE,
-          showTerminate: false}}
+        wizardProps={{...props, isSent: false, isAddWizard: true, skipNextStep: useType === SUGGEST_CHANGE_TYPE}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}
@@ -48,7 +47,6 @@ function AddCommentStep (props) {
         groupId={groupId}
         onSave={onSave}
         nameDifferentiator="marketComment"
-        isStory={true}
       />
     </div>
     </WizardStepContainer>

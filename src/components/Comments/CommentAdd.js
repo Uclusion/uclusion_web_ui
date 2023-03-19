@@ -59,6 +59,8 @@ import AddWizardStepButtons from '../AddNewWizards/WizardStepButtons'
 import { nameFromDescription } from '../../utils/stringFunctions';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import { Clear, Send } from '@material-ui/icons';
+import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 function getPlaceHolderLabelId(type, isInReview, isAssigned) {
   switch (type) {
@@ -296,6 +298,7 @@ function CommentAdd(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
+  const history = useHistory();
   const workItemClasses = workListStyles();
   const [commentsState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
@@ -324,7 +327,7 @@ function CommentAdd(props) {
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const investibleRequiresInput = (type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE) && creatorIsAssigned
     && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id;
-  const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`
+  const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const ourMarket = getMarket(marketsState, marketId) || {};
 
@@ -379,9 +382,7 @@ function CommentAdd(props) {
     clearMe()
     onSave(comment)
   }
-  const isJobSuggestion = ourMarket.market_type === PLANNING_TYPE && type === SUGGEST_CHANGE_TYPE && investibleId;
   function handleSave(isSent, passedNotificationType, doCreateInitiative) {
-    const useIsSent = isJobSuggestion ? !doCreateInitiative : isSent;
     const currentUploadedFiles = uploadedFiles || [];
     const myBodyNow = getQuillStoredState(editorName);
     const apiType = (type === REPLY_TYPE) ? undefined : type;
@@ -395,15 +396,15 @@ function CommentAdd(props) {
     const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
     const createInlineDecision = ourMarket.market_type === PLANNING_TYPE && apiType === QUESTION_TYPE;
     // Inline question markets use draft but initiatives do not since nothing to edit
-    const marketType = (createInlineInitiative && useIsSent && doCreateInitiative === undefined)
-    || doCreateInitiative ? INITIATIVE_TYPE : (createInlineDecision ? DECISION_TYPE : undefined);
+    const marketType = ((createInlineInitiative && isSent && doCreateInitiative === undefined)
+    || doCreateInitiative) ? INITIATIVE_TYPE : (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     let label = undefined;
     if (creatorIsAssigned && type === REPORT_TYPE && isSent !== false) {
       label = nameFromDescription(tokensRemoved);
     }
     return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
-      passedNotificationType, marketType, undefined, useIsSent, label)
+      passedNotificationType, marketType, undefined, isSent, label)
       .then((response) => {
         let comment = marketType ? response.parent : response;
         let useRootInvestible = rootInvestible;
@@ -458,7 +459,6 @@ function CommentAdd(props) {
     buttons: type === REPLY_TYPE ? buttons : undefined
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
-  const isMarketCreate = type === QUESTION_TYPE || (type === SUGGEST_CHANGE_TYPE && createInlineInitiative);
   return (
     <>
       <Paper
@@ -492,28 +492,68 @@ function CommentAdd(props) {
                   showTerminate={true}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}
-              {wizardProps.isAddWizard && (
+              {wizardProps.isAddWizard &&
+                (![SUGGEST_CHANGE_TYPE, QUESTION_TYPE].includes(type) || ourMarket.market_type === DECISION_TYPE) && (
                 <AddWizardStepButtons
                   {...wizardProps}
                   validForm={hasValue}
-                  nextLabel={isJobSuggestion ? (createInlineInitiative ? 'voteSuggestion' : 'noVoteSuggestion')
-                    : `${nameKey}${type}`}
-                  onNext={() => handleSave( wizardProps.isSent === undefined ? !isMarketCreate
-                    : wizardProps.isSent, undefined,
-                    isJobSuggestion ? createInlineInitiative : undefined)}
-                  onNextDoAdvance={isMarketCreate}
-                  showOtherNext={isJobSuggestion ||(ourMarket.market_type === PLANNING_TYPE && type === QUESTION_TYPE)}
-                  otherNextLabel={type === SUGGEST_CHANGE_TYPE ?
-                    (createInlineInitiative ? 'noVoteSuggestion' : 'voteSuggestion') : 'createNewQUESTION'}
-                  onOtherNext={() => handleSave( type === QUESTION_TYPE, undefined,
-                    isJobSuggestion ? !createInlineInitiative : undefined)}
-                  onOtherDoAdvance={isJobSuggestion && createInlineInitiative ? false : undefined }
+                  nextLabel={`${nameKey}${type}`}
+                  onNext={() => handleSave(true, undefined, false )}
                   onTerminate={wizardProps.saveOnTerminate ? () => {
                     setOperationRunning(true);
                     handleSave();
                   } : wizardProps.onTerminate}
                   showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : true}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
+              )}
+              {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
+                !investibleId && (
+                <AddWizardStepButtons
+                  {...wizardProps}
+                  validForm={hasValue}
+                  nextLabel={`${nameKey}${type}`}
+                  onNext={() => handleSave( true, undefined, true)}
+                  onNextDoAdvance={false}
+                  showOtherNext={true}
+                  otherNextLabel="configureVoting"
+                  onTerminate={() => navigate(history, formMarketLink(marketId, groupId))}
+                  showTerminate={true}
+                  terminateLabel="OnboardingWizardGoBack"/>
+              )}
+              {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
+                investibleId && (
+                <AddWizardStepButtons
+                  {...wizardProps}
+                  validForm={hasValue}
+                  nextLabel={createInlineInitiative ? 'voteSuggestion' : 'noVoteSuggestion'}
+                  onNext={() => handleSave( true, undefined, createInlineInitiative)}
+                  showOtherNext={true}
+                  otherNextLabel={createInlineInitiative ? 'noVoteSuggestion' : 'voteSuggestion'}
+                  onOtherNext={() => handleSave( true, undefined, !createInlineInitiative)}
+                  onTerminate={() => {
+                    wizardProps.updateFormData({groupId});
+                    updateCommentAddState({editorName});
+                    wizardProps.nextStep();
+                  }}
+                  showTerminate={true}
+                  terminateLabel="configureVoting"/>
+              )}
+              {wizardProps.isAddWizard && type === QUESTION_TYPE && ourMarket.market_type === PLANNING_TYPE && (
+                <AddWizardStepButtons
+                  {...wizardProps}
+                  validForm={hasValue}
+                  nextLabel={`${nameKey}${type}`}
+                  onNext={() => handleSave( false, undefined,false)}
+                  showOtherNext={true}
+                  otherNextLabel="createNewQUESTION"
+                  onOtherNext={() => handleSave( true, undefined,false)}
+                  onTerminate={() => {
+                    wizardProps.updateFormData({groupId});
+                    updateCommentAddState({editorName});
+                    wizardProps.nextStep();
+                  }}
+                  showTerminate={true}
+                  terminateLabel="configureVoting"/>
               )}
             </div>
           )}

@@ -59,7 +59,6 @@ function AddCommentStep (props) {
         fromInvestibleId={investibleId}
         onSave={onFinish}
         nameDifferentiator="decisionComment"
-        isStory={false}
       />
     </div>
     </WizardStepContainer>

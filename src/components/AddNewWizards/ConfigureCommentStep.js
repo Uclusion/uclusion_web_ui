@@ -140,7 +140,11 @@ function ConfigureCommentStep(props) {
     } else {
       if (comment) {
         allowVotingForSuggestion(comment.id, setOperationRunning, marketsDispatch, presenceDispatch,
-          commentState, commentDispatch, investiblesDispatch, !useAnswerBool);
+          commentState, commentDispatch, investiblesDispatch, !useAnswerBool)
+          .then(() => {
+            setOperationRunning(false);
+            onFinish();
+          });
       } else {
         handleSaveSuggestion(!useAnswerBool);
       }
@@ -195,7 +199,7 @@ function ConfigureCommentStep(props) {
         onNext={configureComment}
         spinOnClick={true}
         showTerminate={true}
-        onFinish={onFinish}
+        onTerminate={onFinish}
         terminateLabel="OnboardingWizardGoBack"
       />
     </div>

@@ -101,9 +101,7 @@ export function changeInvestibleStageOnCommentOpen(investibleBlocks, investibleR
 export function allowVotingForSuggestion(commentId, setOperationRunning, marketsDispatch, presenceDispatch,
   commentState, commentDispatch, investiblesDispatch, isRestricted) {
   const addInfo = {
-    name: 'NA',
     market_type: INITIATIVE_TYPE,
-    description: 'NA',
     parent_comment_id: commentId,
   };
   if (isRestricted) {

@@ -79,7 +79,6 @@ function AddCommentStep (props) {
         fromInvestibleId={investibleId}
         onSave={onSave}
         nameDifferentiator="jobComment"
-        isStory={true}
       />
     </div>
     </WizardStepContainer>

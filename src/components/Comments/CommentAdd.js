@@ -547,13 +547,8 @@ function CommentAdd(props) {
                   showOtherNext={true}
                   otherNextLabel="createNewQUESTION"
                   onOtherNext={() => handleSave( true, undefined,false)}
-                  onTerminate={() => {
-                    wizardProps.updateFormData({groupId});
-                    updateCommentAddState({editorName});
-                    wizardProps.nextStep();
-                  }}
                   showTerminate={true}
-                  terminateLabel="configureVoting"/>
+                  terminateLabel="OnboardingWizardGoBack"/>
               )}
             </div>
           )}

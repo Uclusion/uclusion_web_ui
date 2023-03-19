@@ -7,7 +7,7 @@ import { useIntl } from 'react-intl';
 import CommentAdd from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { SUGGEST_CHANGE_TYPE } from '../../CardType';
-import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 
 function AddCommentStep (props) {
@@ -39,7 +39,9 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="DiscussionCommentAdd"
         type={useType}
-        wizardProps={{...props, isSent: false, isAddWizard: true, skipNextStep: useType === SUGGEST_CHANGE_TYPE}}
+        wizardProps={{...props, isSent: false, isAddWizard: true,
+          onTerminate: () => navigate(history, formMarketLink(marketId, groupId)),
+          skipNextStep: useType === SUGGEST_CHANGE_TYPE}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

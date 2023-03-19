@@ -246,10 +246,16 @@ export function formMarketAddCommentLink(wizardType, marketId, groupId, commentT
   return `/wizard#type=${wizardType}&marketId=${marketId}&groupId=${groupId}&commentType=${commentType}`
 }
 
-export function formWizardLink(wizardType, marketId, investibleId, groupId) {
-  let link = `/wizard#type=${wizardType.toLowerCase()}&marketId=${marketId}&investibleId=${investibleId}`;
+export function formWizardLink(wizardType, marketId, investibleId, groupId, commentId) {
+  let link = `/wizard#type=${wizardType.toLowerCase()}&marketId=${marketId}`;
+  if (investibleId) {
+    link += `&investibleId=${investibleId}`;
+  }
   if (groupId) {
     link += `&groupId=${groupId}`;
+  }
+  if (commentId) {
+    link += `&commentId=${commentId}`;
   }
   return link;
 

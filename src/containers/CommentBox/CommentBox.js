@@ -7,9 +7,6 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { getOlderReports } from '../../components/Comments/CommentAdd'
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { FormattedMessage } from 'react-intl'
 import { getFormerStageId, isSingleAssisted } from '../../utils/commentFunctions';
 
@@ -81,18 +78,12 @@ function CommentBox(props) {
     showVoting } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
   const sortedRoots = getSortedRoots(comments, searchResults);
   const useFullStage = _.isEmpty(fullStage) && stage ? getFullStage(marketStagesState, marketId, stage) : fullStage;
   const resolvedStageId = isSingleAssisted(comments, assigned) ?
     getFormerStageId(formerStageId, marketId, marketStagesState) : undefined;
 
   function getCommentCards() {
-    const presences = getMarketPresences(marketPresencesState, marketId) || [];
-    const myPresence = presences.find((presence) => presence.current_user) || {};
-    const olderReports = getOlderReports(undefined, comments, marketId, (marketInfo || {}).investible_id,
-      myPresence);
-    const numReports = _.size(olderReports);
     return sortedRoots.map(comment => {
       const { id, comment_type: commmentType } = comment;
       return (
@@ -116,7 +107,6 @@ function CommentBox(props) {
               allowedTypes={allowedTypes}
               isInbox={isInbox}
               replyEditId={replyEditId}
-              numReports={numReports}
               marketInfo={marketInfo}
               issueWarningId={issueWarningId} currentStageId={(marketInfo || {}).stage}
               investible={investible}

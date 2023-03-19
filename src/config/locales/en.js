@@ -1078,6 +1078,7 @@ const messages = defineMessages({
   createNewREPORT: 'Add report',
   createNewApproval: 'Add approval',
   createNewVote: 'Add vote',
+  addVoting: 'Add voting',
   createBug: 'Add bug',
   createComment: 'Add comment',
   createQuestion: 'Add question',

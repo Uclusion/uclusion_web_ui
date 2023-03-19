@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { FormattedDate, FormattedMessage, useIntl } from 'react-intl'
-import PropTypes from 'prop-types'
+import React, { useContext, useEffect, useState } from 'react';
+import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 import {
   Box,
   Button,
@@ -9,116 +9,111 @@ import {
   CardContent,
   Checkbox,
   Grid,
-  Typography, useMediaQuery, useTheme
-} from '@material-ui/core'
-import { makeStyles } from '@material-ui/styles'
-import _ from 'lodash'
-import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor'
-import CommentAdd, { getCommentCreationWarning, quickNotificationChanges } from './CommentAdd'
+  Typography,
+  useMediaQuery,
+  useTheme
+} from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
+import _ from 'lodash';
+import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
+import CommentAdd from './CommentAdd';
 import {
-  ISSUE_TYPE,
   JUSTIFY_TYPE,
   QUESTION_TYPE,
   REPLY_TYPE,
   REPORT_TYPE,
-  SUGGEST_CHANGE_TYPE, TODO_TYPE,
-} from '../../constants/comments'
-import { removeComment, reopenComment, resolveComment, sendComment, updateComment } from '../../api/comments'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE,
+} from '../../constants/comments';
+import { removeComment, reopenComment, resolveComment, updateComment } from '../../api/comments';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
   changeMyPresence,
   getMarketPresences,
   usePresences
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import CommentEdit from './CommentEdit'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import CommentEdit from './CommentEdit';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import {
   addMarketToStorage,
   getMarket,
-  getMyUserForMarket, marketTokenLoaded
-} from '../../contexts/MarketsContext/marketsContextHelper'
-import CardType, { BUG, DECISION_TYPE } from '../CardType'
-import { SECTION_TYPE_SECONDARY_WARNING } from '../../constants/global'
+  getMyUserForMarket,
+  marketTokenLoaded
+} from '../../contexts/MarketsContext/marketsContextHelper';
+import CardType, { BUG, DECISION_TYPE } from '../CardType';
+import { SECTION_TYPE_SECONDARY_WARNING } from '../../constants/global';
 import {
-  addCommentToMarket, getMarketComments, removeComments
-} from '../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { ACTIVE_STAGE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
-import { red } from '@material-ui/core/colors'
-import UsefulRelativeTime from '../TextFields/UseRelativeTime'
-import { addInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import SubSection from '../../containers/SubSection/SubSection'
-import CurrentVoting from '../../pages/Dialog/Decision/CurrentVoting'
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import ProposedIdeas from '../../pages/Dialog/Decision/ProposedIdeas'
+  addCommentToMarket,
+  getMarketComments,
+  removeComments
+} from '../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import {
-  getBlockedStage,
-  getInCurrentVotingStage, getInReviewStage,
-  getProposedOptionsStage, getRequiredInputStage, getStageNameForId
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+  ACTIVE_STAGE,
+  INITIATIVE_TYPE,
+  JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
+  PLANNING_TYPE
+} from '../../constants/markets';
+import { red } from '@material-ui/core/colors';
+import UsefulRelativeTime from '../TextFields/UseRelativeTime';
+import { addInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import SubSection from '../../containers/SubSection/SubSection';
+import CurrentVoting from '../../pages/Dialog/Decision/CurrentVoting';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import ProposedIdeas from '../../pages/Dialog/Decision/ProposedIdeas';
+import {
+  getInCurrentVotingStage,
+  getInReviewStage,
+  getProposedOptionsStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   formCommentEditReplyLink,
   formCommentLink,
   formMarketAddInvestibleLink,
+  formWizardLink,
   navigate
-} from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
-import { marketAbstain, updateMarket } from '../../api/markets'
+} from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { marketAbstain, updateMarket } from '../../api/markets';
+import { changeInvestibleStageOnCommentClose, onCommentOpen } from '../../utils/commentFunctions';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
-  allowVotingForSuggestion, changeInvestibleStageOnCommentClose,
-  changeInvestibleStageOnCommentOpen,
-  onCommentOpen
-} from '../../utils/commentFunctions';
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
-import {
-  findMessageForCommentId, findMessagesForCommentId,
+  findMessageForCommentId,
+  findMessagesForCommentId,
   findMessagesForInvestibleId,
   removeMessagesForCommentId
-} from '../../utils/messageUtils'
-import GravatarAndName from '../Avatars/GravatarAndName'
-import { invalidEditEvent } from '../../utils/windowUtils'
-import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibleAdd'
-import ExpandableAction from '../SidebarActions/Planning/ExpandableAction'
-import AddIcon from '@material-ui/icons/Add'
-import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import {
-  Add,
-  Clear,
-  Delete,
-  Done,
-  Edit,
-  Eject,
-  ExpandLess,
-  Lock, LockOpen,
-  NotInterested, Send,
-  SettingsBackupRestore
-} from '@material-ui/icons'
-import ReplyIcon from '@material-ui/icons/Reply'
-import TooltipIconButton from '../Buttons/TooltipIconButton'
-import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks'
-import InlineInitiativeBox from '../../containers/CommentBox/InlineInitiativeBox'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextHelper'
-import { DiffContext } from '../../contexts/DiffContext/DiffContext'
-import DiffDisplay from '../TextEditors/DiffDisplay'
-import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
-import LoadingDisplay from '../LoadingDisplay'
-import { pushMessage } from '../../utils/MessageBusUtils'
-import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages'
-import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
-import GravatarGroup from '../Avatars/GravatarGroup'
-import IssueDialog from '../Warnings/IssueDialog'
-import { useLockedDialogStyles } from '../../pages/Dialog/LockedDialog'
-import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
-import { getUiPreferences, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper'
-import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker'
-import { AccountContext } from '../../contexts/AccountContext/AccountContext'
-import { nameFromDescription } from '../../utils/stringFunctions';
+} from '../../utils/messageUtils';
+import GravatarAndName from '../Avatars/GravatarAndName';
+import { invalidEditEvent } from '../../utils/windowUtils';
+import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibleAdd';
+import ExpandableAction from '../SidebarActions/Planning/ExpandableAction';
+import AddIcon from '@material-ui/icons/Add';
+import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
+import { Clear, Delete, Done, Edit, Eject, ExpandLess, NotInterested, SettingsBackupRestore } from '@material-ui/icons';
+import ReplyIcon from '@material-ui/icons/Reply';
+import TooltipIconButton from '../Buttons/TooltipIconButton';
+import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
+import InlineInitiativeBox from '../../containers/CommentBox/InlineInitiativeBox';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextHelper';
+import { DiffContext } from '../../contexts/DiffContext/DiffContext';
+import DiffDisplay from '../TextEditors/DiffDisplay';
+import { workListStyles } from '../../pages/Home/YourWork/WorkListItem';
+import LoadingDisplay from '../LoadingDisplay';
+import { pushMessage } from '../../utils/MessageBusUtils';
+import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages';
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
+import GravatarGroup from '../Avatars/GravatarGroup';
+import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
+import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker';
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { removeMessages } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import { ScrollContext } from '../../contexts/ScrollContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -357,7 +352,7 @@ function navigateEditReplyBack(history, id, marketId, groupId, investibleId, rep
  */
 function Comment(props) {
   const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId,
-    stagePreventsActions, isInbox, replyEditId, issueWarningId, currentStageId, numReports, marketInfo, investible,
+    stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible,
     isOutbox, removeActions, showVoting } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
@@ -366,11 +361,9 @@ function Comment(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investibleDispatch] = useContext(InvestiblesContext);
-  const [doNotShowAgain, setDoNotShowAgain] = useState(undefined);
   const intl = useIntl();
   const classes = useCommentStyles();
   const workItemClasses = workListStyles();
-  const lockedDialogClasses = useLockedDialogStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
     mentions, body, creator_assigned: creatorAssigned, is_sent: isSent, group_id: groupId } = comment;
@@ -401,14 +394,12 @@ function Comment(props) {
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [userState] = useContext(AccountContext);
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const hasUser = userIsLoaded(userState);
-  const [openIssue, setOpenIssue] = useState(false);
   const enableActions = !inArchives && !stagePreventsActions;
   const enableEditing = enableActions && !resolved; //resolved comments or those in archive aren't editable
   const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('commentInvestibleAdd');
@@ -427,21 +418,9 @@ function Comment(props) {
   } = editState;
   const showDiff = storedShowDiff || (storedShowDiff === undefined && defaultShowDiff);
   const myMessage = findMessageForCommentId(id, messagesState);
-  const createInlineInitiative = inlineMarketId && commentType === SUGGEST_CHANGE_TYPE;
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inReviewStageId = inReviewStage.id;
-  const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
-  const blockingStageId = blockingStage.id;
-  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
-  const requiresInputStageId = requiresInputStage.id;
   const createdInReview = currentStageId === inReviewStageId;
-  const investibleRequiresInput = (commentType === QUESTION_TYPE || commentType === SUGGEST_CHANGE_TYPE)
-    && creatorAssigned && currentStageId !== blockingStageId && currentStageId !== requiresInputStageId;
-  const myWarningId = getCommentCreationWarning(commentType, issueWarningId, createInlineInitiative,
-    investibleRequiresInput, numReports, createdInReview);
-  const userPreferences = getUiPreferences(userState) || {};
-  const previouslyDismissed = userPreferences.dismissedText || [];
-  const showIssueWarning = myWarningId && !previouslyDismissed.includes(myWarningId) && !mobileLayout;
   const loading = !hasUser || !myPresence || !marketType || !marketTokenLoaded(marketId, tokensHash)
     || (inlineMarketId && _.isEmpty(inlineMarket));
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -454,10 +433,6 @@ function Comment(props) {
       }
     }
   }, [hasUser, marketsState, inlineMarketId, operationRunning]);
-
-  function toggleIssue() {
-    setOpenIssue(!openIssue);
-  }
 
   function toggleInlineInvestibleAdd() {
     updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});
@@ -479,16 +454,6 @@ function Comment(props) {
       markDiffViewed(diffDispatch, id);
     }
     updateEditState({showDiff: !showDiff});
-  }
-
-  function allowSuggestionVote(isRestricted) {
-    if (isRestricted === undefined) {
-      setOpenIssue('noInitiativeType');
-      return;
-    }
-    setOperationRunning(true);
-    return allowVotingForSuggestion(id, setOperationRunning, marketsDispatch, presenceDispatch,
-      commentState, commentDispatch, investiblesDispatch, isRestricted).then(() => setOpenIssue(false));
   }
 
   function toggleBase(isReply) {
@@ -706,11 +671,6 @@ function Comment(props) {
   }
 
   function resolve() {
-    if (resolvedStageId && !openIssue) {
-      setOperationRunning(false);
-      setOpenIssue(true);
-      return;
-    }
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
@@ -742,40 +702,9 @@ function Comment(props) {
           };
           addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
-        setOpenIssue(false);
         setOperationRunning(false);
         onDone();
       });
-  }
-
-  function handleSend() {
-    let label = undefined;
-    if (creatorAssigned && commentType === REPORT_TYPE) {
-      label = nameFromDescription(body);
-    }
-    return sendComment(marketId, id, label).then((response) => {
-      let comment = response;
-      if (!_.isEmpty(label)) {
-        const { comment: returnedComment, investible: returnedInvestible } = response;
-        comment = returnedComment;
-        addInvestible(investibleDispatch, () => {}, returnedInvestible);
-      }
-      const investibleBlocks = (investibleId && commentType === ISSUE_TYPE) && currentStageId !== blockingStageId
-      changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput,
-        blockingStage, requiresInputStage, [marketInfo], investible, investibleDispatch,
-        comment);
-      addCommentToMarket(comment, commentsState, commentDispatch);
-      quickNotificationChanges(commentType, inReviewStage, inReviewStageId === currentStageId, investibleId,
-        messagesState, workItemClasses, messagesDispatch, [], comment, undefined, commentsState,
-        commentDispatch, marketId, myPresence);
-      if (doNotShowAgain) {
-        return doNotShowAgain().then(() => {
-          setOperationRunning(false);
-        });
-      } else {
-        setOperationRunning(false);
-      }
-    });
   }
 
   function getHilightedIds(myReplies, highLightedIds, passedMessages) {
@@ -974,33 +903,11 @@ function Comment(props) {
               <div className={classes.actions}>
                 {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId
                   && marketType === PLANNING_TYPE && (
-                  <div style={{marginRight: '0.5rem', paddingTop: '0.25rem'}}>
-                    <Typography style={{ whiteSpace:'nowrap',}}>
-                      {intl.formatMessage({ id: mobileLayout ? 'allowVoteSuggestionMobile' : 'allowVoteSuggestion' })}
-                      <Checkbox
-                        style={{maxHeight: '1rem'}}
-                        id="suggestionVote"
-                        name="suggestionVote"
-                        checked={!_.isEmpty(inlineMarketId)}
-                        onChange={() => allowSuggestionVote()}
-                        disabled={operationRunning !== false || !isEditable}
-                      />
-                    </Typography>
-                  </div>
-                )}
-                {isSent === false && !showIssueWarning && (
                   <SpinningIconLabelButton
-                    icon={Send}
-                    onClick={handleSend}
-                    id="commentSendButton"
-                  >
-                    {intl.formatMessage({ id: 'commentAddSendLabel' })}
-                  </SpinningIconLabelButton>
-                )}
-                {isSent === false && showIssueWarning && (
-                  <SpinningIconLabelButton onClick={() => setOpenIssue(myWarningId)} icon={Send} doSpin={false}
-                                           id="commentSendButton">
-                    {intl.formatMessage({ id: 'commentAddSendLabel' })}
+                    onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
+                      undefined, undefined, id))}
+                                           doSpin={false} icon={ThumbsUpDownIcon}>
+                    {intl.formatMessage({ id: 'addVoting' })}
                   </SpinningIconLabelButton>
                 )}
                 {showDone && (
@@ -1023,61 +930,6 @@ function Comment(props) {
                       id: resolved ? 'commentReopenLabel' : 'commentResolveLabel'
                     })}
                   </SpinningIconLabelButton>
-                )}
-                {isSent !== false && openIssue !== false && openIssue !== 'noInitiativeType' && (
-                  <IssueDialog
-                    classes={lockedDialogClasses}
-                    open={openIssue !== false}
-                    onClose={toggleIssue}
-                    issueWarningText={intl.formatMessage({ id: 'commentCloseNewStage' },
-                      { x: getStageNameForId(marketStagesState, marketId, resolvedStageId, intl) })}
-                    /* slots */
-                    actions={
-                      <SpinningIconLabelButton onClick={resolve} icon={Add} id="issueProceedButton">
-                        {intl.formatMessage({ id: 'issueProceed' })}
-                      </SpinningIconLabelButton>
-                    }
-                  />
-                )}
-                {!isSent !== false && openIssue !== false && openIssue !== 'noInitiativeType' && (
-                  <IssueDialog
-                    classes={lockedDialogClasses}
-                    open={openIssue !== false}
-                    onClose={toggleIssue}
-                    issueWarningId={openIssue}
-                    showDismiss={true}
-                    checkBoxFunc={setDoNotShowAgain}
-                    /* slots */
-                    actions={
-                      <SpinningIconLabelButton onClick={() => handleSend()} icon={Add} id="issueProceedButton">
-                        {intl.formatMessage({ id: 'issueProceed' })}
-                      </SpinningIconLabelButton>
-                    }
-                  />
-                )}
-                {openIssue === 'noInitiativeType' && (
-                  <IssueDialog
-                    classes={lockedDialogClasses}
-                    open={openIssue !== false}
-                    onClose={toggleIssue}
-                    issueWarningId={openIssue}
-                    showDismiss={false}
-                    /* slots */
-                    actions={
-                      (<>
-                        <SpinningIconLabelButton onClick={() => {
-                          return allowSuggestionVote(false);
-                        }} icon={LockOpen} id="proceedNormalButton">
-                          {intl.formatMessage({ id: 'proceedNormal' })}
-                        </SpinningIconLabelButton>
-                        <SpinningIconLabelButton onClick={() => {
-                          return allowSuggestionVote(true);
-                        }} icon={Lock} id="proceedRestrictedButton">
-                          {intl.formatMessage({ id: 'proceedRestricted' })}
-                        </SpinningIconLabelButton>
-                      </>)
-                    }
-                  />
                 )}
                 {showAbstain && (
                   <SpinningIconLabelButton

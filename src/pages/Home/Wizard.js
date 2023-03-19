@@ -19,7 +19,7 @@ import {
   JOB_STAGE_WIZARD_TYPE,
   JOB_WIZARD_TYPE,
   PLANNING_TYPE,
-  WORKSPACE_WIZARD_TYPE
+  WORKSPACE_WIZARD_TYPE, JOB_COMMENT_CONFIGURE_WIZARD_TYPE
 } from '../../constants/markets';
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
@@ -34,13 +34,14 @@ import JobApproverWizard from '../../components/AddNewWizards/JobApprover/JobApp
 import JobReviewerWizard from '../../components/AddNewWizards/JobReviewer/JobReviewerWizard';
 import JobStageWizard from '../../components/AddNewWizards/JobStage/JobStageWizard';
 import ApprovalWizard from '../../components/AddNewWizards/Approval/ApprovalWizard';
+import JobCommentConfigureWizard from '../../components/AddNewWizards/CommentConfigure/JobCommentConfigureWizard';
 
 function Wizard(props) {
   const { hidden } = props;
   const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
-  const { type: createType, marketId, groupId, assigneeId, investibleId, commentType, voteFor } = values;
+  const { type: createType, marketId, groupId, assigneeId, investibleId, commentId, commentType, voteFor } = values;
   const intl = useIntl();
 
   return (
@@ -91,6 +92,9 @@ function Wizard(props) {
       )}
       {createType === APPROVAL_WIZARD_TYPE.toLowerCase() && (
         <ApprovalWizard marketId={marketId} groupId={groupId} investibleId={investibleId} voteFor={voteFor} />
+      )}
+      {createType === JOB_COMMENT_CONFIGURE_WIZARD_TYPE.toLowerCase() && (
+        <JobCommentConfigureWizard marketId={marketId} commentId={commentId} />
       )}
     </Screen>
   );

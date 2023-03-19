@@ -7,7 +7,7 @@ import WizardStepButtons from './WizardStepButtons';
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import { FormattedMessage } from 'react-intl';
 import { getMentionsFromText, saveComment, sendComment, updateComment } from '../../api/comments';
-import { changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions';
+import { allowVotingForSuggestion, changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions';
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
 import { quickNotificationChanges } from '../Comments/CommentAdd';
 import { workListStyles } from '../../pages/Home/YourWork/WorkListItem';
@@ -32,7 +32,7 @@ import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/Toke
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 
 function ConfigureCommentStep(props) {
-  const { updateFormData, formData, useType } = props;
+  const { updateFormData, formData, useType, comment, allowMulti } = props;
   const classes = useContext(WizardStylesContext);
   const workItemClasses = workListStyles();
   const history = useHistory();
@@ -43,7 +43,7 @@ function ConfigureCommentStep(props) {
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
-  const { useAnswer, marketId, commentId, investibleId, groupId, currentStageId } = formData;
+  const { useAnswer, marketId, commentId, investibleId, groupId } = formData;
   const presences = usePresences(marketId);
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
   const [commentAddState, , commentAddStateReset] =
@@ -54,7 +54,9 @@ function ConfigureCommentStep(props) {
   } = commentAddState;
 
   function onFinish() {
-    if (investibleId) {
+    if (comment) {
+      navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
+    } else if (investibleId) {
       navigate(history, formInvestibleLink(marketId, investibleId));
     } else {
       navigate(history, formMarketLink(marketId, groupId));
@@ -63,27 +65,21 @@ function ConfigureCommentStep(props) {
 
   function quickAddComment(comment) {
     addCommentToMarket(comment, commentState, commentDispatch);
-    if (investibleId) {
-      const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
-      const inv = getInvestible(investibleState, investibleId);
+    if (comment.investible_id) {
+      const requiresInputStage = getRequiredInputStage(marketStagesState, comment.market_id) || {};
+      const inv = getInvestible(investibleState, comment.investible_id);
       const { investible } = inv;
-      const marketInfo = getMarketInfo(inv, marketId) || {};
-      const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
+      const marketInfo = getMarketInfo(inv, comment.market_id) || {};
+      const inReviewStage = getInReviewStage(marketStagesState, comment.market_id) || {};
       const myPresence = presences.find((presence) => presence.current_user) || {};
       changeInvestibleStageOnCommentOpen(false, true, undefined,
         requiresInputStage, [marketInfo], investible, investiblesDispatch, comment);
-      quickNotificationChanges(useType, inReviewStage, inReviewStage.id === currentStageId,
-        investibleId, messagesState, workItemClasses, messagesDispatch, [], comment, undefined,
-        commentState, commentDispatch, marketId, myPresence);
+      quickNotificationChanges(comment.comment_type, inReviewStage, inReviewStage.id === marketInfo.stage,
+        comment.investible_id, messagesState, workItemClasses, messagesDispatch, [], comment,
+        undefined, commentState, commentDispatch, comment.market_id, myPresence);
     }
     setOperationRunning(false);
-    navigate(history, formCommentLink(marketId, comment.group_id, investibleId, commentId));
-  }
-
-  function myOnFinish() {
-    return sendComment(marketId, commentId).then((response) => {
-      quickAddComment(response);
-    });
+    navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
   }
 
   function handleSaveSuggestion(isRestricted) {
@@ -113,22 +109,44 @@ function ConfigureCommentStep(props) {
   function configureComment() {
     const useAnswerBool = (useAnswer || defaultAnswer) === 'Yes';
     if (useType === QUESTION_TYPE) {
-      if (useAnswerBool) {
-        updateComment(marketId, commentId, undefined, undefined, undefined,
-          undefined, undefined, true, undefined, true)
-          .then((response) => {
-            const { comment } = response;
-            addMarket(response, marketsDispatch, presenceDispatch);
-            quickAddComment(comment);
-          });
+      if (comment) {
+        if (allowMulti === useAnswerBool) {
+          // No op
+          navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
+        } else {
+          updateComment(comment.market_id, comment.id, undefined, undefined, undefined,
+            undefined, undefined, undefined, undefined, useAnswerBool)
+            .then((response) => {
+              const { comment } = response;
+              addMarket(response, marketsDispatch, presenceDispatch);
+              quickAddComment(comment);
+            });
+        }
       } else {
-        myOnFinish();
+        if (useAnswerBool) {
+          updateComment(marketId, commentId, undefined, undefined, undefined,
+            undefined, undefined, true, undefined, true)
+            .then((response) => {
+              const { comment } = response;
+              addMarket(response, marketsDispatch, presenceDispatch);
+              quickAddComment(comment);
+            });
+        } else {
+          sendComment(marketId, commentId).then((response) => {
+            quickAddComment(response);
+          });
+        }
       }
     } else {
-      handleSaveSuggestion(!useAnswerBool);
+      if (comment) {
+        allowVotingForSuggestion(comment.id, setOperationRunning, marketsDispatch, presenceDispatch,
+          commentState, commentDispatch, investiblesDispatch, !useAnswerBool);
+      } else {
+        handleSaveSuggestion(!useAnswerBool);
+      }
     }
   }
-  const defaultAnswer = useType === QUESTION_TYPE ? 'No' : 'Yes';
+  const defaultAnswer = useType === QUESTION_TYPE ? (allowMulti ? 'Yes': 'No') : 'Yes';
   return (
     <WizardStepContainer
       {...props}

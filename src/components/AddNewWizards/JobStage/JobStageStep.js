@@ -39,13 +39,13 @@ function JobStageStep (props) {
   const [marketsState] = useContext(MarketsContext);
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const classes = useContext(WizardStylesContext);
-  const userId = getMyUserForMarket(marketsState, marketId)
+  const userId = getMyUserForMarket(marketsState, marketId);
   const { stage, assigned } = marketInfo;
   const value = formData.stageWasSet ? formData.stage : stage;
   const validForm = !_.isEqual(value, stage);
   const isAssigned = (assigned || []).includes(userId);
   const fullStagesRaw = getStages(marketStagesState, marketId).filter((fullStage) => !fullStage.move_on_comment &&
-    (isAssigned || !isAcceptedStage(fullStage)));
+    (isAssigned || _.isEmpty(assigned) || !isAcceptedStage(fullStage)));
   const fullCurrentStage = getFullStage(marketStagesState, marketId, stage) || {};
   const fullMoveStage = getFullStage(marketStagesState, marketId, value) || {};
   const marketComments = getMarketComments(commentsState, marketId) || [];

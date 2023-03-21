@@ -6,14 +6,15 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { stageChangeInvestible } from '../../../api/investibles';
-import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import {
   getFullStage,
   getStageNameForId,
-  getStages, isAcceptedStage, isFurtherWorkStage, isInReviewStage,
+  getStages,
+  isAcceptedStage,
+  isFurtherWorkStage,
+  isInReviewStage,
   isNotDoingStage,
   isVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -29,8 +30,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function JobStageStep (props) {
-  const { marketId, updateFormData, formData, investibleId, marketInfo } = props;
-  const history = useHistory();
+  const { marketId, updateFormData, formData, investibleId, marketInfo, myFinish: finish } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -40,7 +40,7 @@ function JobStageStep (props) {
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const classes = useContext(WizardStylesContext);
   const userId = getMyUserForMarket(marketsState, marketId)
-  const { stage, assigned, group_id: groupId } = marketInfo;
+  const { stage, assigned } = marketInfo;
   const value = formData.stageWasSet ? formData.stage : stage;
   const validForm = !_.isEqual(value, stage);
   const isAssigned = (assigned || []).includes(userId);
@@ -48,10 +48,8 @@ function JobStageStep (props) {
     (isAssigned || !isAcceptedStage(fullStage)));
   const fullCurrentStage = getFullStage(marketStagesState, marketId, stage) || {};
   const fullMoveStage = getFullStage(marketStagesState, marketId, value) || {};
-  const needsAssigning = isFurtherWorkStage(fullCurrentStage) && !isNotDoingStage(fullMoveStage);
   const marketComments = getMarketComments(commentsState, marketId) || [];
   const comments = getCommentsSortedByType(marketComments, investibleId, false) || [];
-  const openTodos = comments.filter((comment) => comment.comment_type === TODO_TYPE);
   const fullStages = _.orderBy(fullStagesRaw, (aStage) => {
     if (isFurtherWorkStage(aStage)) {
       return 0;
@@ -78,29 +76,20 @@ function JobStageStep (props) {
     });
   }
 
-  function finish(fullMoveStage) {
-    if (fullMoveStage && (isNotDoingStage(fullMoveStage)||isVerifiedStage(fullMoveStage))) {
-      navigate(history, formMarketLink(marketId, groupId));
-    } else {
-      navigate(history, formInvestibleLink(marketId, investibleId));
-    }
-  }
-
   function move() {
-    if (fullCurrentStage.move_on_comment && !isVerifiedStage(fullMoveStage) && !isNotDoingStage(fullMoveStage)) {
-      // No op go to close comment step
-      setOperationRunning(false);
-      return Promise.resolve(true);
-    }
-    if (!_.isEmpty(openTodos) && isVerifiedStage(fullMoveStage)) {
-      updateFormData({ hasOpenTodos: true });
-      // No op go to assign step
-      setOperationRunning(false);
-      return Promise.resolve(true);
-    }
-    if (needsAssigning) {
-      setOperationRunning(false);
-      return Promise.resolve(true);
+    if (!isNotDoingStage(fullMoveStage)&&!isFurtherWorkStage(fullMoveStage)) {
+      const openTodos = comments.find((comment) => comment.comment_type === TODO_TYPE);
+      const hasOpenTodos = !_.isEmpty(openTodos) && isVerifiedStage(fullMoveStage)
+      if (hasOpenTodos || (fullCurrentStage.move_on_comment && !isVerifiedStage(fullMoveStage))) {
+        // No op go to CloseCommentsStep
+        setOperationRunning(false);
+        return Promise.resolve(true);
+      }
+      if (isFurtherWorkStage(fullCurrentStage)) {
+        //No op go to JobAssignStep
+        setOperationRunning(false);
+        return Promise.resolve(true);
+      }
     }
     const moveInfo = {
       marketId,
@@ -120,7 +109,7 @@ function JobStageStep (props) {
       });
   }
 
-  if (!value || _.isEmpty(assigned)) {
+  if (!value) {
     return React.Fragment;
   }
 
@@ -167,7 +156,6 @@ function JobStageStep (props) {
           validForm={validForm}
           showNext={true}
           showTerminate={true}
-          skipNextStep={needsAssigning}
           onNext={move}
           onTerminate={finish}
           terminateLabel="JobWizardGotoJob"

@@ -10,21 +10,18 @@ import {
   getMarketComments,
   refreshMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import _ from 'lodash';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
-import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage, isVerifiedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function CloseCommentsStep(props) {
-  const { marketId, investibleId, formData, marketInfo } = props;
-  const history = useHistory();
+  const { marketId, investibleId, formData, marketInfo, myFinish: finish } = props;
   const classes = useContext(WizardStylesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -33,17 +30,15 @@ function CloseCommentsStep(props) {
   const marketComments = getMarketComments(commentsState, marketId);
   const unresolvedComments = marketComments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);
-  const { hasOpenTodos, stage } = formData;
+  const { stage } = formData;
   const { assigned } = marketInfo;
-  const mustResolveComments = hasOpenTodos ?
-    unresolvedComments.filter((comment) => comment.comment_type === TODO_TYPE) :
-    unresolvedComments.filter((comment) => [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
-      (assigned || []).includes(comment.created_by));
+  const fullMoveStage = getFullStage(marketStagesState, marketId, stage);
+  const mustResolveComments = unresolvedComments.filter((comment) =>
+    (comment.comment_type === ISSUE_TYPE)||
+    (!isVerifiedStage(fullMoveStage) && comment.comment_type === TODO_TYPE)||
+      ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
+      (assigned || []).includes(comment.created_by)));
   const commentThreads = getCommentThreads(mustResolveComments, marketComments);
-
-  function finish() {
-    navigate(history, formInvestibleLink(marketId, investibleId));
-  }
 
   function move() {
     // Do not rely on async to close the comments cause want this user to be updated by and not auto opened if return
@@ -56,15 +51,18 @@ function CloseCommentsStep(props) {
         resolve_comment_ids: mustResolveComments.map((comment) => comment.id)
       },
     };
+    if (!_.isEmpty(formData.assigned)) {
+      moveInfo.assignments = formData.assigned;
+    }
     return stageChangeInvestible(moveInfo)
       .then((response) => {
         const { full_investible: newInv, comments } = response;
         refreshMarketComments(commentsDispatch, marketId, comments);
         onInvestibleStageChange(stage, newInv, investibleId, marketId, undefined,
           undefined, investiblesDispatch, () => {}, marketStagesState, undefined,
-          getFullStage(marketStagesState, marketId, stage));
+          getFullStage(marketStagesState, marketId, marketInfo.stage));
         setOperationRunning(false);
-        finish();
+        finish(fullMoveStage);
       });
   }
 
@@ -78,11 +76,10 @@ function CloseCommentsStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        {hasOpenTodos ? 'Will you resolve open tasks?' : 'Does the job still need assistance?'}
+        Will you resolve these comments?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        {hasOpenTodos ? 'Cannot move a job to Verified which has open tasks. '
-          : 'Jobs do not move while an assignee has a question or suggestion. '} Hit next to resolve and move.
+        Sometimes questions, suggestions, issues or tasks must be resolved to move to a stage.
       </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox

@@ -514,6 +514,7 @@ const messages = defineMessages({
   commentReplyCancelLabel: 'Cancel',
   commentReopenLabel: 'Reopen',
   commentResolveLabel: 'Resolve',
+  UnblockReplyLabel: 'Reply to issue',
   commentAbstainLabel: 'Mute',
   commentAbstainingLabel: 'Abstaining',
   commentRemoveLabel: 'Delete',
@@ -1033,7 +1034,7 @@ const messages = defineMessages({
   DecideVoteTitle: 'How do you vote?',
   JobStatusTitle: 'How will you report?',
   DecideAcceptRejectTitle: 'Follow this suggestion?',
-  DecideUnblockTitle: 'How will you help unblock?',
+  DecideUnblockTitle: 'Help unblock this job?',
   DecideResolveReopenTitle: 'Do you reopen?',
   DecideResolveTitle: 'Can you resolve this?',
   DecideStartTitle: 'Can you start this bug?',
@@ -1230,7 +1231,8 @@ const messages = defineMessages({
   AddOptionWizardCancelOption: 'Cancel New Option',
 
   //UnblockWizard
-  DecideMoveToBacklog: 'Move to backlog',
+  DecideMoveToBacklog: 'Move job to backlog',
+  UnblockWizardContinue: 'Defer and see issue in job',
 
   // StepHeaders
   StepHeadersStepCount: 'Step {currentStep} of {totalSteps}',

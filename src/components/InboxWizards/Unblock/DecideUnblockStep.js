@@ -1,39 +1,27 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
-import { wizardStyles } from '../WizardStylesContext'
+import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import CommentBox from '../../../containers/CommentBox/CommentBox'
-import {
-  addCommentToMarket,
-  getCommentRoot
-} from '../../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import {
-  addInvestible,
-  getInvestible
-} from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { getMarketInfo } from '../../../utils/userFunctions'
-import {
-  getFullStage,
-  getFurtherWorkStage,
-  isRequiredInputStage
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { useHistory } from 'react-router'
-import { wizardFinish } from '../InboxWizardUtils'
-import { formCommentLink } from '../../../utils/marketIdPathFunctions'
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
-import { resolveComment } from '../../../api/comments'
-import _ from 'lodash'
-import { stageChangeInvestible } from '../../../api/investibles'
-import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
+import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { useHistory } from 'react-router';
+import { wizardFinish } from '../InboxWizardUtils';
+import { formCommentEditReplyLink, formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { stageChangeInvestible } from '../../../api/investibles';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import JobDescription from '../JobDescription';
 
 function DecideUnblockStep(props) {
   const { marketId, commentId, clearFormData, message } = props;
@@ -53,8 +41,7 @@ function DecideUnblockStep(props) {
   const workItemClasses = workListStyles();
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage, former_stage_id: formerStageId } = marketInfo;
-  const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  const { stage } = marketInfo;
 
   function myTerminate() {
     wizardFinish({
@@ -86,29 +73,6 @@ function DecideUnblockStep(props) {
     });
   }
 
-  function resolve() {
-    return resolveComment(marketId, commentId)
-      .then((comment) => {
-        addCommentToMarket(comment, commentState, commentDispatch);
-        if (formerStageId && fullStage && isRequiredInputStage(fullStage)) {
-          const newInfo = {
-            ...marketInfo,
-            stage: formerStageId,
-            last_stage_change_date: comment.updated_at,
-          };
-          const newInfos = _.unionBy([newInfo], inv.market_infos, 'id');
-          const newInvestible = {
-            investible: inv.investible,
-            market_infos: newInfos
-          };
-          addInvestible(investiblesDispatch, () => {}, newInvestible);
-        }
-        clearFormData();
-        setOperationRunning(false);
-        removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
-      });
-  }
-
   return (
     <WizardStepContainer
       {...props}
@@ -117,29 +81,19 @@ function DecideUnblockStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideUnblockTitle'})}
       </Typography>
-      <div className={classes.wizardCommentBoxDiv}>
-        <CommentBox
-          comments={comments}
-          marketId={marketId}
-          allowedTypes={[]}
-          fullStage={fullStage}
-          investible={inv}
-          marketInfo={marketInfo}
-          isInbox
-          removeActions
-          showVoting
-        />
-      </div>
+      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} />
       <WizardStepButtons
         {...props}
-        nextLabel='commentResolveLabel'
-        onNext={resolve}
+        nextLabel='UnblockReplyLabel'
+        onNext={() => navigate(history, formCommentEditReplyLink(marketId, commentId, true), false,
+          true)}
+        spinOnClick={false}
         showOtherNext
         otherNextLabel='DecideMoveToBacklog'
         onOtherNext={moveToBacklog}
         showTerminate={true}
         onFinish={myTerminate}
-        terminateLabel='DecideWizardContinue'
+        terminateLabel='UnblockWizardContinue'
       />
     </div>
     </WizardStepContainer>

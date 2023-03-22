@@ -87,7 +87,7 @@ function DecideAnswerStep(props) {
       </div>
       <WizardStepButtons
         {...props}
-        nextLabel="DecideWizardContinue"
+        nextLabel="DecideAnswerTerminate"
         onNext={myOnFinish}
         spinOnClick={false}
         showOtherNext

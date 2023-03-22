@@ -57,7 +57,7 @@ function DecideVoteStep(props) {
         onOtherNext={() => updateFormData({ isFor: false })}
         otherSpinOnClick={false}
         showTerminate={true}
-        terminateLabel="DecideWizardContinue"
+        terminateLabel="VoteSuggestionTerminate"
       />
     </div>
     </WizardStepContainer>

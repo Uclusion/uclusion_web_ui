@@ -100,7 +100,7 @@ function AddOptionStep(props) {
         otherNextLabel="JobCommentCreateAnotherOption"
         onTerminate={myOnFinish}
         showTerminate={true}
-        terminateLabel="DecideWizardContinue"/>
+        terminateLabel="JobOptionTerminate"/>
     </div>
     </WizardStepContainer>
   );

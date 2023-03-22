@@ -90,11 +90,11 @@ function DecideStartStep(props) {
         nextLabel="DecideStartBug"
         onNext={myAccept}
         showOtherNext={message.is_highlighted}
-        otherNextLabel="DecideWizardContinue"
+        otherNextLabel="DecideStartNavigate"
         onOtherNext={goToComment}
         otherSpinOnClick={false}
         terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss'
-          : (message.is_highlighted ? 'markRead' : 'DecideWizardContinue' ) }
+          : (message.is_highlighted ? 'markRead' : 'DecideStartTerminate' ) }
         showTerminate={true}
         onFinish={myTerminate}
       />

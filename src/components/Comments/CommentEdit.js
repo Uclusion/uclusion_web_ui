@@ -210,7 +210,7 @@ function CommentEdit(props) {
   const editorSpec = {
     value: getQuillStoredState(editorName) || initialBody,
     onUpload: (files) => updateEditState({uploadedFiles: files}),
-    participants: presences,
+    participants: presences.filter((presence) => !presence.market_banned),
     marketId,
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);

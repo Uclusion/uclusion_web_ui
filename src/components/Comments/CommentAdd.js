@@ -450,7 +450,7 @@ function CommentAdd(props) {
   const useBody = getQuillStoredState(editorName);
   const editorSpec = {
     value: useBody,
-    participants: presences,
+    participants: presences.filter((presence) => !presence.market_banned),
     marketId,
     placeholder: placeHolder,
     onUpload: (files) => updateCommentAddState({uploadedFiles: files}),

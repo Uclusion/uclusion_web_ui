@@ -11,19 +11,17 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
+import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 
 function VoteWizard(props) {
   const { marketId, commentId, message, inboxDispatch } = props;
-  const history = useHistory();
   const [commentState] = useContext(CommentsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const workItemClasses = workListStyles();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const parentElementId =  message.type_object_id;
   function myOnFinish() {
-    wizardFinish({link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
-          commentRoot.id)},
-      setOperationRunning, message, history, marketId, commentRoot.investible_id, messagesDispatch);
+    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
   }
 
   return (

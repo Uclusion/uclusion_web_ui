@@ -131,7 +131,7 @@ function JobApproveStep(props) {
           validForm={validForm}
           showNext={validForm}
           showOtherNext={validForm}
-          showTerminate={!validForm}
+          showTerminate={message.is_highlighted}
           onNext={() => onNext(false)}
           onOtherNext={() => onNext(true)}
           terminateLabel="defer"

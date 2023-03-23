@@ -21,7 +21,8 @@ function StatusWizard(props) {
     <FormdataWizard name={`status_wizard${investibleId}`}
                     onStartOver={() => inboxDispatch(expandOrContract(parentElementId))}
                     defaultFormData={{parentElementId}}>
-      <JobDescriptionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}/>
+      <JobDescriptionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}
+                                message={message}/>
       <EstimateCompletionStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
     </FormdataWizard>
   );

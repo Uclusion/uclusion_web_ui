@@ -54,7 +54,7 @@ function DecideReviewStep(props) {
           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE))}
         otherNextLabel="DecideAddTask"
         terminateLabel={isUnread ? 'notificationDismiss' : 'defer'}
-        showTerminate={true}
+        showTerminate={isUnread || message.is_highlighted}
         onFinish={() => removeWorkListItem(message, workItemClasses.removed, messagesDispatch)}
       />
     </div>

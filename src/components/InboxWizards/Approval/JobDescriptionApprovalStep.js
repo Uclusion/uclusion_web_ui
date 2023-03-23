@@ -91,7 +91,7 @@ function JobDescriptionStep (props) {
         }}
         spinOnClick={false}
         otherSpinOnClick={false}
-        showTerminate={true}
+        showTerminate={message.is_highlighted}
         onFinish={myOnFinish}
         terminateLabel="defer"/>
     </div>

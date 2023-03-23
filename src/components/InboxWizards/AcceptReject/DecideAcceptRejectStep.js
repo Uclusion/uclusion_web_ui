@@ -63,7 +63,7 @@ function DecideAcceptRejectStep(props) {
         showOtherNext
         otherNextLabel="issueResolveLabel"
         onOtherNext={resolve}
-        showTerminate={true}
+        showTerminate={message.is_highlighted}
         terminateLabel="defer"
       />
     </div>

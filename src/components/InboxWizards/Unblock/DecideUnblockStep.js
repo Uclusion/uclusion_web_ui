@@ -86,7 +86,7 @@ function DecideUnblockStep(props) {
         showOtherNext
         otherNextLabel='DecideMoveToBacklog'
         onOtherNext={moveToBacklog}
-        showTerminate={true}
+        showTerminate={message.is_highlighted}
         onFinish={myTerminate}
         terminateLabel='defer'
       />

@@ -526,8 +526,6 @@ const messages = defineMessages({
   JobCommentCreateAnotherOption: 'Create and add another',
   JobOptionTerminate: 'Go to question',
   defer: 'Defer',
-  DecideAnswerTerminate: 'Defer and go to question',
-  VoteSuggestionTerminate: 'Defer and go to suggestion',
   DecideStartNavigate: 'Go to bug',
   DiscussionCommentAddQUESTION: 'Add options',
   DiscussionCommentAddSUGGEST: 'Configure',

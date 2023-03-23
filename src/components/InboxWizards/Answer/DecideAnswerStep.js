@@ -73,6 +73,7 @@ function DecideAnswerStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="defer"
+        showNext={message.is_highlighted}
         onNext={myOnFinish}
         spinOnClick={false}
         showOtherNext

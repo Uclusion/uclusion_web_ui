@@ -14,7 +14,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { useIntl } from 'react-intl';
 
 function DecideVoteStep(props) {
-  const { marketId, commentRoot, updateFormData } = props;
+  const { marketId, commentRoot, updateFormData, message } = props;
   const [commentState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -56,8 +56,8 @@ function DecideVoteStep(props) {
         otherNextLabel="voteAgainst"
         onOtherNext={() => updateFormData({ isFor: false })}
         otherSpinOnClick={false}
-        showTerminate={true}
-        terminateLabel="VoteSuggestionTerminate"
+        showTerminate={message.is_highlighted}
+        terminateLabel="defer"
       />
     </div>
     </WizardStepContainer>

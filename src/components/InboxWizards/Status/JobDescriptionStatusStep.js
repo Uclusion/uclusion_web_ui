@@ -16,7 +16,7 @@ import { useIntl } from 'react-intl';
 
 
 function JobDescriptionStatusStep(props) {
-  const {marketId, investibleId, startOver} = props;
+  const { marketId, investibleId, startOver, message } = props;
   const classes = wizardStyles();
   const [commentsState] = useContext(CommentsContext);
   const history = useHistory();
@@ -45,7 +45,7 @@ function JobDescriptionStatusStep(props) {
             formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE));
         }}
         otherSpinOnClick={false}
-        showTerminate={true}
+        showTerminate={message.is_highlighted}
         terminateLabel="defer"/>
     </div>
     </WizardStepContainer>

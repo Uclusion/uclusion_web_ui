@@ -1,30 +1,25 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
-import { wizardStyles } from '../WizardStylesContext'
+import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import CommentBox from '../../../containers/CommentBox/CommentBox'
+import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { getStages, isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { useHistory } from 'react-router'
-import { wizardFinish } from '../InboxWizardUtils'
-import {
-  formCommentLink,
-  formInvestibleLink,
-  navigate
-} from '../../../utils/marketIdPathFunctions'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { onDropTodo } from '../../../pages/Dialog/Planning/userUtils'
-import { useIntl } from 'react-intl'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { getStages, isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { useHistory } from 'react-router';
+import { wizardFinish } from '../InboxWizardUtils';
+import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { onDropTodo } from '../../../pages/Dialog/Planning/userUtils';
+import { useIntl } from 'react-intl';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-
 
 function DecideStartStep(props) {
   const { marketId, commentId, clearFormData, message } = props;

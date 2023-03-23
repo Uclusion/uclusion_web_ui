@@ -1,14 +1,10 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 import FormdataWizard from 'react-formdata-wizard';
-import DecideVoteStep from './DecideVoteStep'
-import VoteCertaintyStep from './VoteCertaintyStep'
-import { wizardFinish } from '../InboxWizardUtils'
-import { formCommentLink } from '../../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
-import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import DecideVoteStep from './DecideVoteStep';
+import VoteCertaintyStep from './VoteCertaintyStep';
+import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';

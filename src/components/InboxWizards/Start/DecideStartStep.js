@@ -46,16 +46,8 @@ function DecideStartStep(props) {
   const marketStages = getStages(marketStagesState, marketId) || [];
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
 
-  function goToComment() {
-    navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentId));
-  }
-
   function myTerminate() {
-    if (message.is_highlighted) {
-      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
-    } else {
-      goToComment();
-    }
+    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
   }
 
   function myAccept() {
@@ -89,13 +81,8 @@ function DecideStartStep(props) {
         {...props}
         nextLabel="DecideStartBug"
         onNext={myAccept}
-        showOtherNext={message.is_highlighted}
-        otherNextLabel="DecideStartNavigate"
-        onOtherNext={goToComment}
-        otherSpinOnClick={false}
-        terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss'
-          : (message.is_highlighted ? 'markRead' : 'DecideStartTerminate' ) }
-        showTerminate={true}
+        terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'defer' }
+        showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
         onFinish={myTerminate}
       />
     </div>

@@ -52,16 +52,8 @@ function DecideResolveStep(props) {
   const isSuggestion = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
   const isReopen = message.type === 'UNREAD_RESOLVED';
 
-  function myTerminate(isNavigate) {
-    if (isNavigate) {
-      wizardFinish({
-          link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
-            commentRoot.id)
-        },
-        setOperationRunning, message, history, marketId, commentRoot.investible_id, messagesDispatch);
-    } else {
-      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
-    }
+  function myTerminate() {
+    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
   }
 
   function reopen() {
@@ -147,17 +139,17 @@ function DecideResolveStep(props) {
         }}
         showOtherNext={!isReopen}
         otherNextLabel={isFullyVoted ? (inv ? 'DecideResolveAndGoJob' : 'DecideResolveAndMoveToJob')
-          : 'DecideWizardContinue'}
+          : 'notificationDelete'}
         onOtherNext={() => {
           if (isFullyVoted) {
             return resolve(true);
           }
-          return myTerminate(true);
+          return myTerminate();
         }}
         otherSpinOnClick={isFullyVoted}
         showTerminate={true}
-        onFinish={() => myTerminate(isFullyVoted)}
-        terminateLabel={isFullyVoted ? 'DecideWizardContinue': 'notificationDismiss'}
+        onFinish={() => myTerminate()}
+        terminateLabel={isFullyVoted ? 'notificationDelete': 'notificationDismiss'}
       />
     </div>
     </WizardStepContainer>

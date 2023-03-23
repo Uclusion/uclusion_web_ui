@@ -525,6 +525,7 @@ const messages = defineMessages({
   JobCommentConfigure: 'Create and configure',
   JobCommentCreateAnotherOption: 'Create and add another',
   JobOptionTerminate: 'Go to question',
+  defer: 'Defer',
   DecideAnswerTerminate: 'Defer and go to question',
   DecideStartTerminate: 'Defer and go to bug',
   VoteSuggestionTerminate: 'Defer and go to suggestion',
@@ -1237,7 +1238,6 @@ const messages = defineMessages({
 
   //UnblockWizard
   DecideMoveToBacklog: 'Move job to backlog',
-  UnblockWizardContinue: 'Defer and see issue in job',
 
   // StepHeaders
   StepHeadersStepCount: 'Step {currentStep} of {totalSteps}',

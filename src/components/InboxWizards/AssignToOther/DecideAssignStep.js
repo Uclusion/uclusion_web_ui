@@ -1,14 +1,14 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
-import { wizardStyles } from '../WizardStylesContext'
+import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { useHistory } from 'react-router'
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import JobDescription from '../JobDescription'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { useHistory } from 'react-router';
+import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import JobDescription from '../JobDescription';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -17,10 +17,9 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-
+import { JOB_ASSIGNEE_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideAssignStep(props) {
   const { marketId, investibleId } = props;
@@ -34,14 +33,6 @@ function DecideAssignStep(props) {
   const history = useHistory();
   const intl = useIntl();
   const classes = wizardStyles();
-  const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
-  const [, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
-    {sectionOpen: 'descriptionVotingSection'});
-
-  function goToJob() {
-    updatePageState({editCollaborators: 'assign'});
-    navigate(history, formInvestibleLink(marketId, investibleId));
-  }
 
   function moveToBacklog() {
     const targetStageId = getFurtherWorkStage(marketStagesState, marketId).id;
@@ -81,7 +72,7 @@ function DecideAssignStep(props) {
         onNext={moveToBacklog}
         showOtherNext
         otherSpinOnClick={false}
-        onOtherNext={goToJob}
+        onOtherNext={() => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
         otherNextLabel="DecideWizardReassign"
       />
     </div>

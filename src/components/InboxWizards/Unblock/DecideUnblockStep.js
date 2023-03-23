@@ -13,8 +13,7 @@ import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStage
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
-import { wizardFinish } from '../InboxWizardUtils';
-import { formCommentEditReplyLink, formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentEditReplyLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
@@ -44,11 +43,7 @@ function DecideUnblockStep(props) {
   const { stage } = marketInfo;
 
   function myTerminate() {
-    wizardFinish({
-        link: formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id,
-          commentRoot.id)
-      },
-      setOperationRunning, message, history, marketId, commentRoot.investible_id, messagesDispatch);
+    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
   }
 
   function moveToBacklog() {
@@ -93,7 +88,7 @@ function DecideUnblockStep(props) {
         onOtherNext={moveToBacklog}
         showTerminate={true}
         onFinish={myTerminate}
-        terminateLabel='UnblockWizardContinue'
+        terminateLabel='defer'
       />
     </div>
     </WizardStepContainer>

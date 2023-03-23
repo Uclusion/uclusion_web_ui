@@ -13,14 +13,11 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useIntl } from 'react-intl';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { useHistory } from 'react-router';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 
 function EstimateChangeViewStep(props) {
   const { marketId, investibleId, message } = props;
   const intl = useIntl();
-  const history = useHistory();
   const classes = wizardStyles();
   const workItemClasses = workListStyles();
   const [commentsState] = useContext(CommentsContext);
@@ -46,11 +43,9 @@ function EstimateChangeViewStep(props) {
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
       <WizardStepButtons
         {...props}
-        nextLabel="notificationDelete"
-        onNext={() => removeWorkListItem(message, workItemClasses.removed, messagesDispatch)}
-        spinOnClick={false}
-        onFinish={() => navigate(history, formInvestibleLink(marketId, investibleId))}
-        terminateLabel="JobWizardGotoJob"
+        showNext={false}
+        onFinish={() => removeWorkListItem(message, workItemClasses.removed, messagesDispatch)}
+        terminateLabel="notificationDelete"
         showTerminate={true}
       />
     </div>

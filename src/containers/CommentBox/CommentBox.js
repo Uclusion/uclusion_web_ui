@@ -1,13 +1,12 @@
-import React, { useContext } from 'react'
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Grid } from '@material-ui/core';
 import Comment from '../../components/Comments/Comment';
-import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { FormattedMessage } from 'react-intl'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getFormerStageId, isSingleAssisted } from '../../utils/commentFunctions';
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
@@ -74,7 +73,7 @@ export function getSortedRoots(allComments, searchResults) {
 
 function CommentBox(props) {
   const { comments, marketId, allowedTypes, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId,
-    fullStage, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, isDraft, removeActions,
+    fullStage, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions,
     showVoting } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
@@ -89,11 +88,6 @@ function CommentBox(props) {
       return (
         <Grid item key={id} xs={12}>
           <div id={`${isInbox ? 'inbox' : ''}c${id}`} style={{paddingBottom: '1.25rem'}}>
-            {isDraft && (
-              <h2 style={{marginBottom: 0, paddingBottom: 0}}>
-                <FormattedMessage id="draft"/>
-              </h2>
-            )}
             <Comment
               resolvedStageId={(isRequiresInput && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commmentType))
               || (isInBlocking && commmentType === ISSUE_TYPE) ? resolvedStageId : undefined}

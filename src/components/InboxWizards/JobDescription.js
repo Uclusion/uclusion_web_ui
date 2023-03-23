@@ -15,10 +15,13 @@ import { editorEmpty } from '../TextEditors/Utilities/CoreUtils'
 import CommentBox from '../../containers/CommentBox/CommentBox'
 import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 function JobDescription(props) {
   const { investibleId, marketId, comments } = props;
   const intl = useIntl();
+  const history = useHistory();
   const investibleEditClasses = useInvestibleEditStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const classes = wizardStyles();
@@ -43,7 +46,9 @@ function JobDescription(props) {
             <GravatarGroup users={assignedPresences} gravatarClassName={classes.smallGravatar} />
           </div>
         )}
-        <Typography className={investibleEditClasses.title} variant="h3" component="h1">
+        <Typography className={investibleEditClasses.title} variant="h3" component="h1"
+                    style={{cursor: 'pointer', color: 'blue', textDecoration: 'underline'}}
+                    onClick={() => navigate(history, formInvestibleLink(marketId, investibleId))}>
           {name}
         </Typography>
         {!editorIsEmpty && (

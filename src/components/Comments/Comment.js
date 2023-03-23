@@ -230,6 +230,12 @@ export const useCommentStyles = makeStyles(
         overflow: "visible",
         marginTop: "1.5rem"
       },
+      containerBlueLink: {
+        boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px blue",
+        overflow: "visible",
+        marginTop: "1.5rem",
+        cursor: 'pointer'
+      },
       container: {
         overflow: "visible",
         marginTop: "1.5rem"
@@ -726,6 +732,9 @@ function Comment(props) {
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;
   function getCommentHighlightStyle() {
+    if (isInbox) {
+      return classes.containerBlueLink;
+    }
     if (myHighlightedLevel) {
       if (myHighlightedLevel === "YELLOW" || myHighlightedLevel === "BLUE") {
         return classes.containerYellow;
@@ -761,7 +770,11 @@ function Comment(props) {
     !myInlinePresence.abstain && !yourVote;
   const isDeletable = !isInbox && !isOutbox && (commentType === REPORT_TYPE || isEditable || resolved);
   return (
-    <div>
+    <div onClick={() => {
+      if (isInbox) {
+        navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+      }
+    }}>
       <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false ? 0 : undefined}}
             className={getCommentHighlightStyle()}>
         <>

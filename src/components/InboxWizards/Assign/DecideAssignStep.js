@@ -42,12 +42,6 @@ function DecideAssignStep(props) {
     removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
   }
 
-  function goToJob() {
-    clearFormData();
-    wizardFinish( { link: formInvestibleLink(marketId, investibleId) }, setOperationRunning, message,
-      history, marketId, investibleId, messagesDispatch);
-  }
-
   function myAssign() {
     const updateInfo = {
       marketId,
@@ -56,7 +50,9 @@ function DecideAssignStep(props) {
     };
     return updateInvestible(updateInfo).then((fullInvestible) => {
       refreshInvestibles(invDispatch, () => {}, [fullInvestible]);
-      goToJob()
+      clearFormData();
+      wizardFinish( { link: formInvestibleLink(marketId, investibleId) }, setOperationRunning, message,
+        history, marketId, investibleId, messagesDispatch);
     });
   }
 
@@ -73,10 +69,6 @@ function DecideAssignStep(props) {
         {...props}
         nextLabel="DecideAssignMe"
         onNext={myAssign}
-        showOtherNext
-        onOtherNext={goToJob}
-        otherSpinOnClick={false}
-        otherNextLabel="JobWizardGotoJob"
         terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'markRead' }
         showTerminate={true}
         onFinish={myTerminate}

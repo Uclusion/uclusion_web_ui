@@ -46,7 +46,7 @@ function JobDescriptionStatusStep(props) {
         }}
         otherSpinOnClick={false}
         showTerminate={true}
-        terminateLabel="ApproveWizardGotoJob"/>
+        terminateLabel="defer"/>
     </div>
     </WizardStepContainer>
   );

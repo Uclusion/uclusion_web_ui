@@ -6,7 +6,7 @@ import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useHistory } from 'react-router'
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleAddCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import JobDescription from '../JobDescription'
 import { stageChangeInvestible } from '../../../api/investibles';
@@ -22,8 +22,9 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import _ from 'lodash'
-import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { QUESTION_TYPE, TODO_TYPE } from '../../../constants/comments';
 
 function DecideStageStep(props) {
   const { marketId, investibleId, currentStageId } = props;
@@ -41,9 +42,6 @@ function DecideStageStep(props) {
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inVotingStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
   const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
-  const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
-  const [, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
-    {sectionOpen: 'descriptionVotingSection'});
   let destinationStage;
   let destinationExplanation;
   let destinationLabel;
@@ -80,8 +78,8 @@ function DecideStageStep(props) {
     destinationLabel = 'startJobQ';
     otherNextLabelId = 'commentIconAskQuestionLabel';
     onOtherNextFunc = () => {
-      updatePageState({sectionOpen: 'questionsSection'});
-      navigate(history, formInvestibleLink(marketId, investibleId));
+      navigate(history,
+        formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE));
     };
     nextLabelId = 'startJob';
   } else if (currentStageId === acceptedStage.id) {
@@ -90,8 +88,8 @@ function DecideStageStep(props) {
     destinationExplanation = 'planningInvestibleInReviewExplanation';
     otherNextLabelId='modifyTasks';
     onOtherNextFunc = () => {
-      updatePageState({sectionOpen: 'tasksSection'});
-      navigate(history, formInvestibleLink(marketId, investibleId));
+      navigate(history,
+        formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE));
     };
     onNextFunc = undefined;
     nextLabelId='startReview';
@@ -132,9 +130,6 @@ function DecideStageStep(props) {
         showOtherNext
         onOtherNext={onOtherNextFunc}
         otherNextLabel={otherNextLabelId}
-        showTerminate
-        terminateLabel="JobWizardGotoJob"
-        onFinish={() => navigate(history, formInvestibleLink(marketId, investibleId))}
       />
     </div>
     </WizardStepContainer>

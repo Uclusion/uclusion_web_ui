@@ -80,7 +80,7 @@ function InvestibleStatus(props) {
         nextLabel="StatusWizardDate"
         onNext={submit}
         showTerminate={true}
-        terminateLabel="ApproveWizardGotoJob"/>
+        terminateLabel="defer"/>
     </div>
   );
 }

@@ -1,18 +1,16 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
-import { wizardStyles } from '../WizardStylesContext'
+import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import JobDescription from '../JobDescription'
+import JobDescription from '../JobDescription';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { wizardFinish } from '../InboxWizardUtils';
-import { formInvestibleAddCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
@@ -25,14 +23,14 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { useIntl } from 'react-intl';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { getReasonForVote } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-
+import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 
 function JobDescriptionStep (props) {
   const { marketId, investibleId, updateFormData, message, yourVote } = props;
   const classes = wizardStyles();
+  const workItemClasses = workListStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const marketComments = getMarketComments(commentsState, marketId);
@@ -48,8 +46,7 @@ function JobDescriptionStep (props) {
   const yourReason = getReasonForVote(yourVote, marketComments);
 
   function myOnFinish() {
-    wizardFinish({link: `${formInvestibleLink(marketId, investibleId)}#approve`},
-      setOperationRunning, message, history, marketId, investibleId, messagesDispatch);
+    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
   }
 
   return (
@@ -96,7 +93,7 @@ function JobDescriptionStep (props) {
         otherSpinOnClick={false}
         showTerminate={true}
         onFinish={myOnFinish}
-        terminateLabel="ApproveWizardGotoJob"/>
+        terminateLabel="defer"/>
     </div>
     </WizardStepContainer>
   );

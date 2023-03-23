@@ -1,34 +1,32 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
-import WizardStepContainer from '../WizardStepContainer'
-import { wizardStyles } from '../WizardStylesContext'
-import WizardStepButtons from '../WizardStepButtons'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
+import WizardStepContainer from '../WizardStepContainer';
+import { wizardStyles } from '../WizardStylesContext';
+import WizardStepButtons from '../WizardStepButtons';
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
 import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
-import { getMarketComments, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import _ from 'lodash'
-import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { wizardFinish } from '../InboxWizardUtils';
-import { useHistory } from 'react-router';
+import { getMarketComments, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import _ from 'lodash';
+import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import JobDescription from '../JobDescription';
 
 export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
 }
 function JobApproveStep(props) {
-  const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish, marketInfo,
-    message, investibleId } = props;
-  const history = useHistory();
+  const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish, message,
+    investibleId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
@@ -36,8 +34,6 @@ function JobApproveStep(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const workItemClasses = workListStyles();
   const userId = getMyUserForMarket(marketsState, marketId);
-  const { assigned } = marketInfo || {};
-  const isAssigned = (assigned || []).includes(userId);
   const validForm = formData.approveQuantity != null;
   const classes = wizardStyles();
   const editorName = getJobApproveEditorName(investibleId);
@@ -94,9 +90,8 @@ function JobApproveStep(props) {
 
   const {approveQuantity} = formData;
 
-  function onFinish(formData) {
-    wizardFinish({link: `${formInvestibleLink(marketId, investibleId)}#approve`},
-      setOperationRunning, message, history, marketId, investibleId, messagesDispatch);
+  function onFinish() {
+    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
   }
 
   function onCompleteFinish(formData) {
@@ -117,11 +112,7 @@ function JobApproveStep(props) {
         <Typography className={classes.introText} variant="h6">
           How certain are you this job should be done?
         </Typography>
-        {isAssigned && (
-          <Typography className={classes.introSubText} variant="subtitle1">
-            Keep in mind that you are assigned to this job.
-          </Typography>
-        )}
+        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} />
         <AddInitialVote
           marketId={marketId}
           onBudgetChange={() => {}}
@@ -143,7 +134,7 @@ function JobApproveStep(props) {
           showTerminate={!validForm}
           onNext={() => onNext(false)}
           onOtherNext={() => onNext(true)}
-          terminateLabel="JobWizardGotoJob"
+          terminateLabel="defer"
           otherNextLabel="approveAndGotoJob"
           nextLabel="yourVotingVoteForThisPlanning"
         />

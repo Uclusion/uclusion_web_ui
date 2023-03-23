@@ -19,7 +19,7 @@ import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 
 function JobDescription(props) {
-  const { investibleId, marketId, comments } = props;
+  const { investibleId, marketId, comments, showDescription=true } = props;
   const intl = useIntl();
   const history = useHistory();
   const investibleEditClasses = useInvestibleEditStyles();
@@ -51,7 +51,7 @@ function JobDescription(props) {
                     onClick={() => navigate(history, formInvestibleLink(marketId, investibleId))}>
           {name}
         </Typography>
-        {!editorIsEmpty && (
+        {!editorIsEmpty && showDescription && (
           <DescriptionOrDiff id={investibleId} description={description} showDiff={false} />
         )}
         {!_.isEmpty(comments) && (

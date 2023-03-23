@@ -91,7 +91,6 @@ function DecideAssistanceStep(props) {
       </div>
       <WizardStepButtons
         {...props}
-        onFinish={myOnFinish}
         finish={myOnFinish}
         nextLabel={isSuggest ? 'wizardAcceptLabel' : 'commentResolveLabel'}
         onNext={() => {
@@ -103,8 +102,6 @@ function DecideAssistanceStep(props) {
         showOtherNext={isSuggest}
         otherNextLabel="saveReject"
         onOtherNext={resolve}
-        showTerminate={true}
-        terminateLabel="DecideWizardContinue"
       />
     </div>
     </WizardStepContainer>

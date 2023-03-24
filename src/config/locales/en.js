@@ -403,7 +403,7 @@ const messages = defineMessages({
   inboxVotingLabel: 'In approval',
   planningInvestibleNextStageAcceptedLabel: 'Started',
   startJobQ: 'Start this job?',
-  reviewJobQ: 'Begin review of this job?',
+  reviewJobQ: 'Move this job to review?',
   restartJobQ: 'Move job back to started?',
   finishJobQ: 'Done with this job?',
   planningInvestibleNextStageAcceptedFullLabel: 'Started (full)',

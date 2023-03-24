@@ -51,8 +51,6 @@ export function messageText(message, isMobile, intl) {
         return getMessageTextForId('assignTodo', isMobile, intl);
       }
       return getMessageTextForId('assignTask', isMobile, intl);
-    case 'UNREAD_LABEL':
-      return getMessageTextForId('unreadLabel', isMobile, intl);
     case 'UNREAD_ATTACHMENT':
       return getMessageTextForId('unreadAttachment', isMobile, intl);
     case 'UNREAD_NAME':

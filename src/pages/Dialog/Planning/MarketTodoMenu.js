@@ -60,7 +60,8 @@ function MarketTodoMenu(props) {
 
   function doView() {
     if (!_.isEmpty(messages)) {
-      pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT, messages });
+      pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: DEHIGHLIGHT_EVENT,
+        messages: messages.map((message) => message.type_object_id) });
     }
     editViewFunc(comment);
     openIdFunc(undefined);

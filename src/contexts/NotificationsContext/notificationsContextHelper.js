@@ -14,7 +14,8 @@ function checkComment(commentId, commentVersion, marketId, commentsState) {
     return false;
   }
   const comment = getComment(commentsState, marketId, commentId);
-  return comment.version >= commentVersion;
+  // Enforce strict equality on comment version as if comment ahead it might be resolved already
+  return comment.version === commentVersion;
 }
 
 export function messageIsSynced(message, marketState, marketPresencesState, commentsState, investiblesState) {

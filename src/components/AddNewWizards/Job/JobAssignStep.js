@@ -48,16 +48,6 @@ function JobAssignStep (props) {
     return Promise.resolve(true);
   }
 
-  function onTerminate() {
-    return assignJob()
-      .then(() => {
-        const {link} = formData;
-        clearFormData();
-        navigate(history, link);
-      });
-  }
-
-
   return (
     <WizardStepContainer
       {...props}
@@ -74,16 +64,15 @@ function JobAssignStep (props) {
           previouslyAssigned={assigneeId ? [assigneeId] : undefined}
           onChange={onAssignmentChange}
         />
-
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
           finish={onFinish}
           validForm={validForm}
-          showNext={true}
-          showTerminate={true}
+          showNext
+          showTerminate
           onNext={assignJob}
-          onTerminate={onTerminate}
+          onTerminate={() => navigate(history, formData.link)}
           terminateLabel="JobWizardGotoJob"
           nextLabel="JobWizardApproveJob"
         />

@@ -51,15 +51,12 @@ function JobApproveStep(props) {
         refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
-      const { link } = formData;
-      clearFormData();
-      return { link };
+      return formData;
     })
   }
 
   function onTerminate() {
     const { link } = formData;
-    clearFormData();
     resetEditor(editorName);
     navigate(history, link);
   }

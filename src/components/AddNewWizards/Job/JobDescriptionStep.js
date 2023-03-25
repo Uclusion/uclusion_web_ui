@@ -1,24 +1,24 @@
 import React, { useContext, useState } from 'react';
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
-import _ from 'lodash'
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
+import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { editorEmpty, getQuillStoredState, resetEditor, storeState } from '../../TextEditors/Utilities/CoreUtils'
-import { useEditor } from '../../TextEditors/quillHooks'
-import { convertDescription } from '../../../utils/stringFunctions'
-import { addPlanningInvestible } from '../../../api/investibles'
+import { editorEmpty, getQuillStoredState, resetEditor, storeState } from '../../TextEditors/Utilities/CoreUtils';
+import { useEditor } from '../../TextEditors/quillHooks';
+import { convertDescription } from '../../../utils/stringFunctions';
+import { addPlanningInvestible } from '../../../api/investibles';
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
-import { processTextAndFilesForSave } from '../../../api/files'
-import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { processTextAndFilesForSave } from '../../../api/files';
+import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getCommentThreads, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { moveComments } from '../../../api/comments'
-import { removeMessagesForCommentId } from '../../../utils/messageUtils'
-import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { moveComments } from '../../../api/comments';
+import { removeMessagesForCommentId } from '../../../utils/messageUtils';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import FindJobStep from './FindJobStep';
 import { notify } from '../../../utils/investibleFunctions';
 import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications';
@@ -26,8 +26,6 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData,
@@ -50,7 +48,6 @@ function JobDescriptionStep (props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
   const market = getMarket(marketsState, marketId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -141,7 +138,6 @@ function JobDescriptionStep (props) {
   }
 
   function onTerminate(formData){
-    setOperationRunning(true);
      createJob()
       .then(({link}) => {
         onFinish({
@@ -189,7 +185,9 @@ function JobDescriptionStep (props) {
           });
         })}
         otherNextLabel="JobWizardReady"
-        terminateLabel="JobWizardNoAssign"/>
+        terminateLabel="JobWizardNoAssign"
+        terminateSpinOnClick
+      />
     </div>
     </WizardStepContainer>
   );

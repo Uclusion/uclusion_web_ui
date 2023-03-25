@@ -252,13 +252,21 @@ function quickResolveOlderReports(marketId, investibleId, myPresence, currentCom
 export function quickNotificationChanges(apiType, inReviewStage, isInReview, investibleId, messagesState,
   workItemClasses, messagesDispatch, threadMessages, comment, parentId, commentsState, commentDispatch, marketId,
   myPresence) {
-  if (apiType === REPORT_TYPE || (apiType === TODO_TYPE && isInReview)) {
+  if (apiType === REPORT_TYPE) {
     const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState)
     if (message) {
       removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
     }
-    if (apiType === REPORT_TYPE) {
-      quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);
+    quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);
+  }
+  if (isInReview) {
+    let message = findMessageOfType('UNREAD_REVIEWABLE', investibleId, messagesState)
+    if (message) {
+      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    }
+    message = findMessageOfType('REVIEW_REQUIRED', investibleId, messagesState)
+    if (message) {
+      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
     }
   }
   // The whole thread will be marked read so quick it

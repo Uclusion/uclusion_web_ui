@@ -71,4 +71,4 @@ ReadOnlyQuillEditor.defaultProps = {
   isEditable: false
 };
 
-export default ReadOnlyQuillEditor;
+export default React.memo(ReadOnlyQuillEditor);

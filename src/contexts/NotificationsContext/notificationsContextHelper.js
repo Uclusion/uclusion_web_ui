@@ -11,11 +11,15 @@ function checkComment(commentId, commentVersion, marketId, commentsState) {
   }
   const commentRoot = getCommentRoot(commentsState, marketId, commentId);
   if (!commentRoot) {
+    console.warn(`Comment root missing for ${commentId} and ${marketId}`);
     return false;
   }
   const comment = getComment(commentsState, marketId, commentId);
-  // Enforce strict equality on comment version as if comment ahead it might be resolved already
-  return comment.version === commentVersion;
+  if (comment.version !== commentVersion) {
+    console.warn(`Comment version mismatch ${comment.version} and ${commentVersion}`);
+  }
+  // Can't enforce strict equality cause some other operation can occur on the question than resolved
+  return comment.version >= commentVersion;
 }
 
 export function messageIsSynced(message, marketState, marketPresencesState, commentsState, investiblesState) {

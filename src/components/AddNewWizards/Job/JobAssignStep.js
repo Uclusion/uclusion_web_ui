@@ -15,7 +15,7 @@ import { refreshInvestibles } from '../../../contexts/InvestibesContext/investib
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 
 function JobAssignStep (props) {
-  const { marketId, clearFormData, updateFormData, formData, onFinish, assigneeId } = props;
+  const { marketId, updateFormData, formData, onFinish, assigneeId } = props;
   const history = useHistory();
   const value = formData.wasSet ? (formData.assigned || []) : (assigneeId ? [assigneeId] : []);
   const validForm = !_.isEmpty(value);

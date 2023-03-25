@@ -17,7 +17,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import _ from 'lodash'
 
 function JobApproveStep(props) {
-  const { marketId, groupId, clearFormData, updateFormData, formData, onFinish } = props;
+  const { marketId, groupId, updateFormData, formData, onFinish } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const history = useHistory();

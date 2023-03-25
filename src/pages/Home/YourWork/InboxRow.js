@@ -100,6 +100,11 @@ function InboxRow(props) {
     }
   }
 
+  if (rootComment?.resolved && !typeObjectId?.includes('UNREAD_RESOLVED')) {
+    // This is a notification out of date with a resolved comment
+    return React.Fragment;
+  }
+
   item.title =  titleText(message, mobileLayout, intl, rootComment, userId,
     fullStage.allows_investment, assigned);
   calculateTitleExpansionPanel({ item, inboxDispatch,

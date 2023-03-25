@@ -489,6 +489,7 @@ function CommentAdd(props) {
                   onOtherNext={() => handleSave( true, 'YELLOW')}
                   onTerminate={() => handleSave( true, 'BLUE')}
                   showTerminate={true}
+                  terminateSpinOnClick
                   terminateLabel="blueBugAdd"/>
               )}
               {!wizardProps.isBug && !wizardProps.isAddWizard && (

@@ -334,7 +334,7 @@ const messages = defineMessages({
   addCollaboratorsMobile: 'Collaborators',
   pleaseUpgrade: 'Please upgrade',
   pleaseUpgradeMobile: 'Upgrade',
-  unreadReply: 'Comment reply',
+  unreadReply: 'New reply',
   unreadReplyMobile: 'Reply',
   unreadResolved: 'Resolved comment',
   unreadResolvedMobile: 'Resolved',
@@ -1137,6 +1137,7 @@ const messages = defineMessages({
   // Notifications
   notificationMulitpleUpdates: '{n} Updates',
   notificationDismiss: 'Dismiss',
+  notificationDismissThread: 'Dismiss thread',
 
   // phone field
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',

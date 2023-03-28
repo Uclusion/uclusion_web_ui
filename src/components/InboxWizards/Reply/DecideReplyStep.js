@@ -7,25 +7,31 @@ import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { marketAbstain } from '../../../api/markets';
-import { changeMyPresence } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { removeMessagesForCommentId } from '../../../utils/messageUtils';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
+import { formCommentEditReplyLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { findMessageForCommentId } from '../../../utils/messageUtils';
+import _ from 'lodash';
 
-function DecideAnswerStep(props) {
-  const { marketId, commentId, clearFormData, message } = props;
+function DecideReplyStep(props) {
+  const { marketId, commentId, message } = props;
+  const history = useHistory();
   const [commentState] = useContext(CommentsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
+  const threadMessages = [];
+  comments.forEach((comment) => {
+    const myMessage = findMessageForCommentId(comment.id, messagesState);
+    if (myMessage && ['UNREAD_COMMENT', 'UNREAD_REPLY'].includes(myMessage.type)) {
+      threadMessages.push(myMessage);
+    }
+  });
+  const hasThreadMessages = _.size(threadMessages) > 1;
   const classes = wizardStyles();
   const intl = useIntl();
   const workItemClasses = workListStyles();
@@ -34,27 +40,17 @@ function DecideAnswerStep(props) {
     removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
   }
 
-  function abstain() {
-    setOperationRunning(true);
-    return marketAbstain(commentRoot.inline_market_id)
-      .then(() => {
-        const newValues = {
-          abstain: true,
-        }
-        changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues)
-        removeMessagesForCommentId(commentId, messagesState, workItemClasses.removed)
-        setOperationRunning(false)
-        clearFormData();
-      });
+  function dismissAll() {
+    threadMessages.forEach((aMessage) => removeWorkListItem(aMessage, workItemClasses.removed, messagesDispatch))
   }
-
+ // TODO PASS flag for correct highlighting
   return (
     <WizardStepContainer
       {...props}
     >
     <div>
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'DecideAnswerTitle'})}
+        {intl.formatMessage({id: 'unreadReply'})}
       </Typography>
       {commentRoot.investible_id && (
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} />
@@ -72,28 +68,31 @@ function DecideAnswerStep(props) {
       )}
       <WizardStepButtons
         {...props}
-        nextLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'defer'}
-        showNext={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
-        onNext={myOnFinish}
+        nextLabel="issueReplyLabel"
+        onNext={() => navigate(history, formCommentEditReplyLink(marketId, commentId, true), false,
+          true)}
         spinOnClick={false}
-        showOtherNext
-        otherNextLabel="DecideWizardMute"
-        onOtherNext={abstain}
-        showTerminate={false}
+        showOtherNext={hasThreadMessages}
+        otherNextLabel="notificationDelete"
+        onOtherNext={myOnFinish}
+        otherSpinOnClick={false}
+        showTerminate
+        terminateLabel={hasThreadMessages ? 'notificationDismissThread' : 'notificationDelete'}
+        onFinish={hasThreadMessages ? dismissAll : myOnFinish}
       />
     </div>
     </WizardStepContainer>
   );
 }
 
-DecideAnswerStep.propTypes = {
+DecideReplyStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
 };
 
-DecideAnswerStep.defaultProps = {
+DecideReplyStep.defaultProps = {
   updateFormData: () => {},
   formData: {}
 };
 
-export default DecideAnswerStep;
+export default DecideReplyStep;

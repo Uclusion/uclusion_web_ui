@@ -43,6 +43,7 @@ import WaitingAssistanceWizard from '../../../components/InboxWizards/WaitingAss
 import AssignToOtherWizard from '../../../components/InboxWizards/AssignToOther/AssignToOtherWizard';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import EstimateChangeWizard from '../../../components/InboxWizards/Monitor/EstimateChangeWizard';
+import ReplyWizard from '../../../components/InboxWizards/Reply/ReplyWizard';
 
 export function usesExpansion(item) {
   const { message } = item;
@@ -53,10 +54,10 @@ export function usesExpansion(item) {
         // No wizard for someone adds a comment to an investible assigned to you
         return linkType !== 'INVESTIBLE_COMMENT';
       }
-      // Skipping UNREAD_REPLY - everyone already knows how to reply and a wizard would just be confusing
       // Skipping UNREAD_VOTE - need to inform but not very actionable
       return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNREAD_RESOLVED', 'FULLY_VOTED', 'NOT_FULLY_VOTED', 'ISSUE',
-        'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE', 'UNREAD_ESTIMATE'].includes(message.type);
+        'UNREAD_COMMENT', 'UNREAD_REPLY', 'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE',
+        'UNREAD_ESTIMATE'].includes(message.type);
     }
     if (message.isOutboxAccepted) {
       return true;
@@ -118,7 +119,7 @@ export function calculateTitleExpansionPanel(props) {
   } else if (messageType === 'REPORT_REQUIRED') {
     setItem(item, openExpansion, <StatusWizard investibleId={investibleId} marketId={marketId} message={message}
                                                inboxDispatch={inboxDispatch} />, 'JobStatusTitle', intl);
-  } else if (messageType === 'ISSUE') {
+  } else if (['ISSUE', 'UNREAD_COMMENT'].includes(messageType)) {
     if (linkType === 'INVESTIBLE_SUGGESTION') {
       setItem(item, openExpansion, <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message}
                                                        inboxDispatch={inboxDispatch}/>,
@@ -132,7 +133,11 @@ export function calculateTitleExpansionPanel(props) {
                                                   message={message} inboxDispatch={inboxDispatch}/>,
         'DecideUnblockTitle', intl);
     }
-  } else if (['FULLY_VOTED', 'UNREAD_RESOLVED'].includes(messageType)) {
+  } else if (messageType === 'UNREAD_REPLY') {
+    setItem(item, openExpansion, <ReplyWizard commentId={commentId} marketId={commentMarketId || marketId}
+                                                message={message} inboxDispatch={inboxDispatch}/>,
+      'unreadReply', intl);
+  }else if (['FULLY_VOTED', 'UNREAD_RESOLVED'].includes(messageType)) {
     setItem(item, openExpansion, <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
                                                 message={message} inboxDispatch={inboxDispatch}/>,
       messageType === 'UNREAD_RESOLVED' ? 'DecideResolveReopenTitle' : 'DecideResolveTitle', intl);

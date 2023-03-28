@@ -86,9 +86,9 @@ function DecideUnblockStep(props) {
         showOtherNext
         otherNextLabel='DecideMoveToBacklog'
         onOtherNext={moveToBacklog}
-        showTerminate={message.is_highlighted}
         onFinish={myTerminate}
-        terminateLabel='defer'
+        showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
+        terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'defer'}
       />
     </div>
     </WizardStepContainer>

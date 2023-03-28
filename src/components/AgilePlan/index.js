@@ -2,7 +2,6 @@ import * as React from 'react'
 import { darken, makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { useIntl } from 'react-intl'
-import { DaysEstimate} from './DaysEstimate';
 import 'react-datepicker/dist/react-datepicker.css'
 import { Typography,} from '@material-ui/core'
 
@@ -64,7 +63,7 @@ export const usePlanFormStyles = makeStyles(
 
     daysEstimationContainer: {
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'start',
       marginLeft: '1rem',
       marginRight: '1rem',
     },
@@ -368,8 +367,6 @@ export function VoteExpiration(props) {
     </React.Fragment>
   );
 }
-
-export {DaysEstimate};
 
 export function Votes(props) {
   const { readOnly, value, onChange } = props;

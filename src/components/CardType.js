@@ -37,7 +37,7 @@ import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { BugReport } from '@material-ui/icons'
-import { DaysEstimate } from './AgilePlan';
+import { DaysEstimate } from './AgilePlan/DaysEstimate';
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
 export const VOTING_TYPE = 'VOTING'
@@ -125,7 +125,7 @@ const useCardTypeStyles = makeStyles(theme => ({
       flexBasis: 'unset'
     },
     lastEdited: {
-      paddingTop: '5px',
+      paddingTop: '2px',
       fontWeight: 900,
       [theme.breakpoints.down('sm')]: {
         fontSize: '.7rem',
@@ -134,7 +134,7 @@ const useCardTypeStyles = makeStyles(theme => ({
       },
     },
     timeElapsed: {
-      paddingTop: '5px',
+      paddingTop: '2px',
       whiteSpace: 'nowrap',
       [theme.breakpoints.down('sm')]: {
         fontSize: '.7rem',

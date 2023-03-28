@@ -19,7 +19,7 @@ import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 
 function JobDescription(props) {
-  const { investibleId, marketId, comments, showDescription=true } = props;
+  const { investibleId, marketId, comments, showDescription=true, inboxMessageId } = props;
   const intl = useIntl();
   const history = useHistory();
   const investibleEditClasses = useInvestibleEditStyles();
@@ -65,6 +65,7 @@ function JobDescription(props) {
               investible={inv}
               marketInfo={marketInfo}
               isInbox
+              inboxMessageId={inboxMessageId}
               removeActions
             />
           </div>

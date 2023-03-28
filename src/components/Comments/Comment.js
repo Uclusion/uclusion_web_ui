@@ -352,9 +352,9 @@ function navigateEditReplyBack(history, id, marketId, groupId, investibleId, rep
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone, resolvedStageId,
-    stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible,
-    isOutbox, removeActions, showVoting } = props;
+  const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone,
+    resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
+    inboxMessageId, showVoting } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
@@ -514,7 +514,7 @@ function Comment(props) {
             />
           )}
           <SubSection
-            id={`${isInbox ? 'inbox' : (isOutbox ? 'outbox' : '')}currentVoting`}
+            id={`${isInbox ? 'inbox' : ''}currentVoting`}
             type={SECTION_TYPE_SECONDARY_WARNING}
             bolder
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
@@ -732,7 +732,7 @@ function Comment(props) {
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;
   function getCommentHighlightStyle() {
-    if (isInbox) {
+    if (isInbox && (!inboxMessageId || inboxMessageId === id)) {
       return classes.containerBlueLink;
     }
     if (myHighlightedLevel) {
@@ -768,7 +768,7 @@ function Comment(props) {
     myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote;
-  const isDeletable = !isInbox && !isOutbox && (commentType === REPORT_TYPE || isEditable || resolved);
+  const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
   return (
     <div onClick={() => {
       if (isInbox) {
@@ -868,8 +868,8 @@ function Comment(props) {
             <Box marginTop={1}>
               {!beingEdited && !displayingDiff && !_.isEmpty(comment) && (
                 <ReadOnlyQuillEditor value={body} setBeingEdited={setBeingEdited}
-                                     noOverflow={isInbox || isOutbox}
-                                     id={isInbox ? `inboxComment${id}` : (isOutbox ? `outboxComment${id}` : id)}
+                                     noOverflow={isInbox}
+                                     id={isInbox ? `inboxComment${id}` : id}
                                      isEditable={!isReallyMobileLayout && displayEditing}/>
               )}
               {!beingEdited && displayingDiff && (
@@ -1011,6 +1011,8 @@ function Comment(props) {
                   enableEditing={enableEditing}
                   messages={messages}
                   replyEditId={replyEditId}
+                  inboxMessageId={inboxMessageId}
+                  isInbox={isInbox}
                 />
               );
             })}
@@ -1038,9 +1040,10 @@ Comment.defaultProps = {
 };
 
 function InitialReply(props) {
-  const { comment, enableEditing, messages, replyEditId } = props;
+  const { comment, enableEditing, messages, replyEditId, inboxMessageId, isInbox } = props;
 
-  return <Reply comment={comment} enableEditing={enableEditing} messages={messages} replyEditId={replyEditId}/>;
+  return <Reply comment={comment} enableEditing={enableEditing} messages={messages} replyEditId={replyEditId}
+                inboxMessageId={inboxMessageId} isInbox={isInbox}/>;
 }
 
 const useReplyStyles = makeStyles(
@@ -1114,9 +1117,17 @@ const useReplyStyles = makeStyles(
         marginRight: '0.25rem',
         overflow: 'unset'
       },
+      containerBlueLink: {
+        boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px blue",
+        overflow: 'unset',
+        marginTop: "1.5rem",
+        marginRight: '0.25rem',
+        paddingRight: '0.5rem',
+        cursor: 'pointer'
+      },
       containerYellow: {
         marginTop: '1.5rem',
-        boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px yellow",
+        boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px blue",
         marginRight: '0.25rem',
         paddingRight: '0.5rem',
         overflow: 'unset'
@@ -1153,7 +1164,7 @@ const unknownPresence = {
  * @param {{comment: Comment}} props
  */
 function Reply(props) {
-  const { comment, messages, enableEditing, replyEditId } = props
+  const { comment, messages, enableEditing, replyEditId, inboxMessageId, isInbox } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const replyBeingEdited = replyEditId === comment.id && myParams && !_.isEmpty(myParams.get('reply'));
@@ -1211,10 +1222,22 @@ function Reply(props) {
   const isLinkedTo = noHighlightId !== comment.id && hashFragment?.includes(comment.id);
   const isHighlighted = myHighlightedLevel || isLinkedTo;
   const intl = useIntl();
+  function getHighlightClass() {
+    if (isInbox) {
+      if (inboxMessageId) {
+        if (inboxMessageId === comment.id) {
+          return classes.containerBlueLink;
+        }
+      } else {
+        return classes.containerBlueLink;
+      }
+    }
+    return !isHighlighted ? classes.container : (isLinkedTo || (myMessage.level === 'RED')
+      ? classes.containerRed : classes.containerYellow);
+  }
   return (
     <div>
-      <Card className={!isHighlighted ? classes.container : (isLinkedTo || (myMessage.level === 'RED')
-        ? classes.containerRed : classes.containerYellow)} id={`c${comment.id}`}>
+      <Card className={getHighlightClass()} id={`c${comment.id}`}>
         <CardContent className={classes.cardContent}>
           <Typography className={classes.commenter} variant="body2">
             {commenter.name}

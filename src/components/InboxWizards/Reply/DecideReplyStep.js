@@ -43,7 +43,7 @@ function DecideReplyStep(props) {
   function dismissAll() {
     threadMessages.forEach((aMessage) => removeWorkListItem(aMessage, workItemClasses.removed, messagesDispatch))
   }
- // TODO PASS flag for correct highlighting
+
   return (
     <WizardStepContainer
       {...props}
@@ -53,7 +53,8 @@ function DecideReplyStep(props) {
         {intl.formatMessage({id: 'unreadReply'})}
       </Typography>
       {commentRoot.investible_id && (
-        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} />
+        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                        inboxMessageId={commentId} />
       )}
       {!commentRoot.investible_id && (
         <div className={classes.wizardCommentBoxDiv}>
@@ -62,6 +63,7 @@ function DecideReplyStep(props) {
             marketId={marketId}
             allowedTypes={[]}
             isInbox
+            inboxMessageId={commentId}
             removeActions
           />
         </div>

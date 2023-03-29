@@ -27,7 +27,7 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
     investible_version: investibleVersion, comment_id: commentId, comment_version: commentVersion,
     parent_comment_id: parentCommentId, parent_comment_version: parentCommentVersion,
     investment_user_id: investmentUserId, comment_market_id: commentMarketId, market_investible_id: marketInvestibleId,
-    market_investible_version: marketInvestibleVersion } = message;
+    market_investible_version: marketInvestibleVersion, decision_investible_id: decisionInvestibleId } = message;
   const useMarketId = commentMarketId || marketId;
   let checked = commentVersion || parentCommentVersion;
   if (!checkComment(commentId, commentVersion, useMarketId, commentsState)) {
@@ -55,10 +55,10 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
   }
   if (marketInvestibleId) {
     checked = true;
-    const inv = getInvestible(investiblesState, marketInvestibleId) || {};
+    const inv = getInvestible(investiblesState, decisionInvestibleId || investibleId) || {};
     const marketInfo = getMarketInfo(inv, marketId);
-    if (!marketInfo || marketInfo.version < marketInvestibleVersion) {
-      if (marketInfo) {
+    if (_.isEmpty(marketInfo) || marketInfo.version < marketInvestibleVersion) {
+      if (!_.isEmpty(marketInfo)) {
         console.warn(`Info ${marketInfo.version} less ${marketInvestibleVersion} for ${marketInvestibleId}`);
       } else {
         console.warn(`Missing market info for ${marketInvestibleId} in ${marketId}`);

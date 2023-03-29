@@ -82,7 +82,7 @@ export function calculateTitleExpansionPanel(props) {
   const { message } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted,
-    type_object_id: typeObjectId } = message;
+    type_object_id: typeObjectId, decision_investible_id: decisionInvestibleId } = message;
   if (isOutboxAccepted) {
     setItem(item, openExpansion, <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}
                                                rowId={message.id} inboxDispatch={inboxDispatch} />,
@@ -104,14 +104,14 @@ export function calculateTitleExpansionPanel(props) {
       }
     }
   } else if (messageType === 'NOT_FULLY_VOTED') {
-    if (marketType === PLANNING_TYPE) {
+    if (marketType === DECISION_TYPE || decisionInvestibleId) {
+      setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                                 message={message} inboxDispatch={inboxDispatch}/>,
+        'DecideAnswerTitle', intl);
+    } else if (marketType === PLANNING_TYPE) {
       setItem(item, openExpansion, <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}
                                                    inboxDispatch={inboxDispatch}/>, 'JobApprovalTitle', intl);
-    } else if (marketType === DECISION_TYPE) {
-      setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                          message={message} inboxDispatch={inboxDispatch}/>,
-        'DecideAnswerTitle', intl);
-    } else {
+    }  else {
       setItem(item, openExpansion, <VoteWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                message={message} inboxDispatch={inboxDispatch}/>,
         'DecideVoteTitle', intl);

@@ -129,7 +129,7 @@ export function messageText(message, isMobile, intl) {
 export function findMessagesForCommentId(commentId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
-  return safeMessages.filter((message) => message.comment_id === commentId);
+  return safeMessages.filter((message) => message.comment_id === commentId && !message.deleted);
 }
 
 export function removeMessagesForCommentId(commentId, state, removeClass) {
@@ -142,21 +142,21 @@ export function removeMessagesForCommentId(commentId, state, removeClass) {
 export function findMessagesForInvestibleId(investibleId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
-  return safeMessages.filter((message) => message.investible_id === investibleId ||
-    message.decision_investible_id === investibleId);
+  return safeMessages.filter((message) => (message.investible_id === investibleId ||
+    message.decision_investible_id === investibleId) && !message.deleted);
 }
 
 export function findMessageForCommentId(commentId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
-  return safeMessages.find((message) => message.comment_id === commentId);
+  return safeMessages.find((message) => message.comment_id === commentId && !message.deleted);
 }
 
 export function findMessageOfType(aType, notificationId, state, subtype) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
   const typeObjectId = subtype ? `${aType}_${subtype}_${notificationId}` : `${aType}_${notificationId}`;
-  return safeMessages.find((message) => message.type_object_id === typeObjectId);
+  return safeMessages.find((message) => message.type_object_id === typeObjectId && !message.deleted);
 }
 
 export function findMessageOfTypeAndId(notificationId, state, subtype) {

@@ -15,7 +15,7 @@ function checkComment(commentId, commentVersion, marketId, commentsState) {
     return false;
   }
   const comment = getComment(commentsState, marketId, commentId);
-  if (comment.version !== commentVersion) {
+  if (comment.version < commentVersion) {
     console.warn(`Comment version mismatch ${comment.version} and ${commentVersion}`);
   }
   // Can't enforce strict equality cause some other operation can occur on the question than resolved
@@ -40,6 +40,7 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
     checked = true;
     const market = getMarket(marketState, marketId) || {};
     if (market.version < marketVersion) {
+      console.warn(`Market version mismatch for ${marketVersion} and ${marketId}`);
       return false;
     }
   }
@@ -48,14 +49,20 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
     const inv = getInvestible(investiblesState, investibleId) || {};
     const { investible } = inv;
     if (!investible || investible.version < investibleVersion) {
+      console.warn(`Investible version mismatch for ${investibleVersion} and ${investibleId}`);
       return false;
     }
   }
   if (marketInvestibleId) {
     checked = true;
-    const inv = getInvestible(investiblesState, investibleId) || {};
+    const inv = getInvestible(investiblesState, marketInvestibleId) || {};
     const marketInfo = getMarketInfo(inv, marketId);
     if (!marketInfo || marketInfo.version < marketInvestibleVersion) {
+      if (marketInfo) {
+        console.warn(`Info ${marketInfo.version} less ${marketInvestibleVersion} for ${marketInvestibleId}`);
+      } else {
+        console.warn(`Missing market info for ${marketInvestibleId} in ${marketId}`);
+      }
       return false;
     }
   }
@@ -65,6 +72,7 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
     const investmentPresence = presences.find((presence) => presence.id === investmentUserId) || {};
     const { investments } = investmentPresence;
     if (_.isEmpty(investments)) {
+      console.warn(`Empty investments for ${investmentUserId} and ${marketId}`);
       return false;
     }
   }

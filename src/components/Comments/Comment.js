@@ -762,6 +762,8 @@ function Comment(props) {
   const showMoveButton = isSent !== false && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType)
     && !inArchives
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
+  const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved
+    && !removeActions && myPresence === createdBy;
   const showResolve = isSent !== false && enableActions && commentType !== REPORT_TYPE &&
     (myPresence === createdBy || myPresence === updatedBy || !resolved);
   const yourVote = myInlinePresence && myInlinePresence.investments &&
@@ -955,7 +957,7 @@ function Comment(props) {
                 )}
               </div>
               <div className={mobileLayout ? classes.actions : classes.actionsEnd}>
-                {commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved && !removeActions && (
+                {showConfigureVotingButton && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
                       undefined, undefined, id))}

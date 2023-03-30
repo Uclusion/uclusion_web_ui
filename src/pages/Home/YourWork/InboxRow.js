@@ -101,7 +101,8 @@ function InboxRow(props) {
   }
 
   if (rootComment?.resolved && !typeObjectId?.includes('UNREAD_RESOLVED')) {
-    // This is a notification out of date with a resolved comment
+    console.warn('Notification out of date with a resolved comment')
+    console.warn(message);
     return React.Fragment;
   }
 

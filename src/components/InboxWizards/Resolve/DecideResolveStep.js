@@ -112,9 +112,11 @@ function DecideResolveStep(props) {
         {isReopen ? 'Do you reopen your comment that someone resolved?'
           : `Can you resolve this ${isSuggestion ? 'suggestion' : 'question'}?`}
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        {isFullyVoted ? 'All votes collected.' : 'New vote.'}
-      </Typography>
+      {!isReopen && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          {isFullyVoted ? 'All votes collected.' : 'New vote.'}
+        </Typography>
+      )}
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}

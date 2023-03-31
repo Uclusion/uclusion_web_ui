@@ -71,7 +71,7 @@ const useCardTypeStyles = makeStyles(theme => ({
           [ISSUE_TYPE]: resolved ? grey : '#E85757',
           [QUESTION_TYPE]: resolved ? grey : '#2F80ED',
           [SUGGEST_CHANGE_TYPE]: resolved ? grey : '#e6e969',
-          [TODO_TYPE]: color ? useColor : (resolved ? grey : '#F29100'),
+          [TODO_TYPE]:  resolved ? grey : (color ? useColor :'#F29100'),
           [REPORT_TYPE]: resolved? grey : '#73B76C',
           [VOTING_TYPE]: '#9B51E0',
           [JUSTIFY_TYPE]: '#9B51E0',

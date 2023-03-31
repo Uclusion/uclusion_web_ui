@@ -288,17 +288,17 @@ function ArchiveInvestbiles(props) {
         });
     }
   }
-  const elementId = allowDragDrop && stage && !stage.move_on_comment ? (isReadyToStart ? 'furtherReadyToStart'
-    : 'furtherNotReadyToStart') : undefined;
+  const elementId = allowDragDrop && stage && !stage.move_on_comment ? (isReadyToStart ?
+    'furtherReadyToStart' : 'furtherNotReadyToStart') : undefined;
 
   function setElementGreen() {
     removeElementGreen();
-    document.getElementById(elementId).classList.add(classes.containerGreen);
+    document.getElementById(elementId)?.classList.add(classes.containerGreen);
   }
 
   function removeElementGreen() {
     ['furtherReadyToStart', 'furtherNotReadyToStart'].forEach((elementId) => {
-      document.getElementById(elementId).classList.remove(classes.containerGreen);
+      document.getElementById(elementId)?.classList.remove(classes.containerGreen);
     });
   }
   return (

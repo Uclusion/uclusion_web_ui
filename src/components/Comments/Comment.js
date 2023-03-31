@@ -352,7 +352,7 @@ function navigateEditReplyBack(history, id, marketId, groupId, investibleId, rep
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, allowedTypes, noAuthor, onDone, defaultShowDiff, showDone,
+  const { comment, marketId, comments, noAuthor, onDone, defaultShowDiff, showDone,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, showVoting } = props;
   const history = useHistory();
@@ -883,7 +883,6 @@ function Comment(props) {
                   comment={comment}
                   onSave={toggleEdit}
                   onCancel={toggleEdit}
-                  allowedTypes={allowedTypes}
                   editState={editState}
                   updateEditState={updateEditState}
                   editStateReset={editStateReset}
@@ -1026,7 +1025,6 @@ function Comment(props) {
 }
 
 Comment.propTypes = {
-  allowedTypes: PropTypes.arrayOf(PropTypes.string).isRequired,
   comment: PropTypes.object.isRequired,
   noAuthor: PropTypes.bool,
   readOnly: PropTypes.bool,

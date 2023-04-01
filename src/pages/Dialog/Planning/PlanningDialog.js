@@ -79,9 +79,9 @@ function getAnchorId(tabIndex) {
     case 2:
       return 'marketTodos'
     case 3:
-      return 'questions';
+      return 'discussionSection';
     default:
-      return 'suggestions';
+      return 'storiesSection';
   }
 }
 
@@ -171,10 +171,8 @@ function PlanningDialog(props) {
               if (!rootComment.resolved) {
                 if (rootComment.comment_type === TODO_TYPE) {
                   updatePageState({ sectionOpen: 'marketTodos', tabIndex: 2 });
-                } else if (rootComment.comment_type === QUESTION_TYPE) {
-                  updatePageState({ sectionOpen: 'questions', tabIndex: 3 });
                 } else {
-                  updatePageState({ sectionOpen: 'suggestions', tabIndex: 4 });
+                  updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
                 }
               } else {
                 // send over to the archives
@@ -192,8 +190,8 @@ function PlanningDialog(props) {
   }
 
   const sortedRoots = getSortedRoots(notTodoComments, searchResults);
-  const questions = sortedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
-  const suggestions = sortedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
+  const questionSuggestionComments = sortedRoots.filter((comment) =>
+    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
   const todoComments = unResolvedMarketComments.filter((comment) => {
     if (_.isEmpty(search)) {
       return comment.comment_type === TODO_TYPE;
@@ -239,8 +237,8 @@ function PlanningDialog(props) {
       createNavListItem(AssignmentInd, 'planningDialogNavStoriesLabel', 0, jobsSearchResults),
       createNavListItem(AssignmentIcon, 'planningDialogBacklog', 1, backlogSearchResults),
       createNavListItem(BugReport, 'todoSection', 2, _.size(todoComments)),
-      createNavListItem(QuestionIcon, 'questions', 3, _.size(questions)),
-      createNavListItem(ChangeSuggstionIcon, 'suggestions', 4, _.size(suggestions)),
+      createNavListItem(QuestionIcon, 'planningDialogDiscussionLabel', 3,
+        _.size(questionSuggestionComments)),
       {icon: SettingsIcon, text: intl.formatMessage({id: 'settings'}),
         target: formGroupEditLink(marketId, groupId), num: 0, isBold: false},
       {icon: MenuBookIcon, text: intl.formatMessage({id: 'planningDialogViewArchivesLabel'}),
@@ -283,72 +281,51 @@ function PlanningDialog(props) {
           <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
                         tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
         )}
-        {(!singleTabLayout || sectionOpen === 'questions') && (
+        {(!singleTabLayout || sectionOpen === 'discussionSection') && (
           <GmailTabItem icon={<QuestionIcon />}
-                        label={intl.formatMessage({id: 'questions'})}
-                        tag={_.isEmpty(search) || _.isEmpty(questions) ? undefined : `${_.size(questions)}`} />
-        )}
-        {(!singleTabLayout || sectionOpen === 'suggestions') && (
-          <GmailTabItem icon={<ChangeSuggstionIcon />}
-                        label={intl.formatMessage({id: 'suggestions'})}
-                        tag={_.isEmpty(search) || _.isEmpty(suggestions) ? undefined : `${_.size(suggestions)}`} />
+                        label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})}
+                        tag={_.isEmpty(search) || _.isEmpty(questionSuggestionComments) ? undefined :
+                          `${_.size(questionSuggestionComments)}`} />
         )}
       </GmailTabs>
       <div style={{display: 'flex'}}>
         <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}
                       archivedSize={archivedSize} />
       <div style={{paddingTop: '4rem', width: '100%'}}>
-        {isSectionOpen('questions') && (
-          <div id="questions">
-            <Grid item id="questionAddArea" xs={12}>
+        {isSectionOpen('discussionSection') && (
+          <div id="discussionSection">
+            <Grid item id="discussionAddArea" xs={12}>
               {_.isEmpty(search) && marketId && !hidden && (
                 <>
-                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questions)} text={
+                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionComments)} text={
                     <div>
-                      <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions</Link> can
+                      <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
                       be used at the workspace level and later moved to a job.
                     </div>
                   }/>
-                  <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id="newMarketQuestion"
-                                           style={{display: "flex", marginTop: '1rem'}}
-                                           onClick={() => navigate(history,
-                                             formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
-                                               QUESTION_TYPE))}>
-                    <FormattedMessage id='createQuestion'/>
-                  </SpinningIconLabelButton>
+                  <div style={{display: 'flex'}}>
+                    <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id="newMarketQuestion"
+                                             style={{display: "flex", marginTop: '1rem',
+                                               marginRight: mobileLayout ? undefined : '2rem'}}
+                                             onClick={() => navigate(history,
+                                               formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
+                                                 QUESTION_TYPE))}>
+                      <FormattedMessage id='createQuestion'/>
+                    </SpinningIconLabelButton>
+                    <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
+                      marginTop: '1rem'}}
+                                             onClick={() => navigate(history,
+                                               formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
+                                                 SUGGEST_CHANGE_TYPE))}>
+                      <FormattedMessage id='createSuggestion'/>
+                    </SpinningIconLabelButton>
+                  </div>
                 </>
               )}
               <CommentBox
                 comments={notTodoComments.filter((comment) =>
-                  [QUESTION_TYPE, REPLY_TYPE].includes(comment.comment_type))}
+                  [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPLY_TYPE].includes(comment.comment_type))}
                 marketId={marketId} allowedTypes={[QUESTION_TYPE]}/>
-            </Grid>
-          </div>
-        )}
-        {isSectionOpen('suggestions') && (
-          <div id="suggestions">
-            <Grid item id="suggestionAddArea" xs={12}>
-              {_.isEmpty(search) && marketId && !hidden && (
-                <>
-                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(suggestions)} text={
-                    <div>
-                      <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Suggestions</Link> can
-                      be used at the workspace level and later moved to a job.
-                    </div>
-                  }/>
-                  <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
-                    marginTop: '1rem'}}
-                                           onClick={() => navigate(history,
-                                             formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
-                                               SUGGEST_CHANGE_TYPE))}>
-                    <FormattedMessage id='createSuggestion'/>
-                  </SpinningIconLabelButton>
-                </>
-              )}
-              <CommentBox
-                comments={notTodoComments.filter((comment) =>
-                [SUGGEST_CHANGE_TYPE, REPLY_TYPE].includes(comment.comment_type))}
-                marketId={marketId} allowedTypes={[SUGGEST_CHANGE_TYPE]}/>
             </Grid>
           </div>
         )}

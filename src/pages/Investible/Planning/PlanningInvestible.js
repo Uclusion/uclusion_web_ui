@@ -55,7 +55,7 @@ import {
   STOP_OPERATION
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages';
 import { addEditVotingHasContents } from '../Voting/AddEditVote';
-import { GmailTabItem, GmailTabs, tabTheme } from '../../../containers/Tab/Inbox';
+import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import {
   baseNavListItem, formInvestibleAddCommentLink,
@@ -64,9 +64,7 @@ import {
 } from '../../../utils/marketIdPathFunctions';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import HelpIcon from '@material-ui/icons/Help';
-import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
 import DescriptionIcon from '@material-ui/icons/Description';
-import BlockIcon from '@material-ui/icons/Block';
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getStagesInfo } from '../../../utils/stageUtils';
 import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
@@ -325,7 +323,6 @@ function PlanningInvestible(props) {
   const theme = useTheme();
   const leftNavBreak = useMediaQuery(theme.breakpoints.down('md'));
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
-  const intermediateLayout = useMediaQuery(tabTheme.breakpoints.down('lg'));
   const singleTabLayout = leftNavBreak;
   const classes = usePlanningInvestibleStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -391,17 +388,13 @@ function PlanningInvestible(props) {
                 case TODO_TYPE:
                   updatePageState({ sectionOpen: 'tasksSection' });
                   break;
-                case QUESTION_TYPE:
-                  updatePageState({ sectionOpen: 'questionsSection' });
-                  break;
+                case ISSUE_TYPE:
                 case SUGGEST_CHANGE_TYPE:
-                  updatePageState({ sectionOpen: 'suggestionsSection' });
+                case QUESTION_TYPE:
+                  updatePageState({ sectionOpen: 'assistanceSection' });
                   break;
                 case REPORT_TYPE:
                   updatePageState({ sectionOpen: 'reportsSection' });
-                  break;
-                case ISSUE_TYPE:
-                  updatePageState({ sectionOpen: 'blockersSection' });
                   break;
                 default:
               }
@@ -472,30 +465,25 @@ function PlanningInvestible(props) {
   const blockingCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === ISSUE_TYPE
   );
+  const assistanceCommentsSearched = questionCommentsSearched.concat(suggestionCommentsSearched)
+    .concat(blockingCommentsSearched);
   const replies = investibleComments.filter((comment => comment.comment_type === REPLY_TYPE));
   let allowedCommentTypes = [];
   let sectionComments = [];
   if (sectionOpen === 'tasksSection') {
     allowedCommentTypes = [TODO_TYPE];
     sectionComments = todoCommentsSearched;
-  } else if (sectionOpen === 'questionsSection') {
+  } else if (sectionOpen === 'assistanceSection') {
     if (canGetInput()) {
-      allowedCommentTypes = [QUESTION_TYPE];
+      allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
     }
-    sectionComments = questionCommentsSearched;
-  } else if (sectionOpen === 'suggestionsSection') {
-    if (canGetInput()) {
-      allowedCommentTypes = [SUGGEST_CHANGE_TYPE];
+    if (canOpenBlocking()) {
+      allowedCommentTypes.push(ISSUE_TYPE);
     }
-    sectionComments = suggestionCommentsSearched;
+    sectionComments = assistanceCommentsSearched;
   } else if (sectionOpen === 'reportsSection') {
     allowedCommentTypes = [REPORT_TYPE];
     sectionComments = reportsCommentsSearched;
-  } else if (sectionOpen === 'blockersSection') {
-    if (canOpenBlocking()) {
-      allowedCommentTypes = [ISSUE_TYPE];
-    }
-    sectionComments = blockingCommentsSearched;
   }
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
@@ -563,14 +551,9 @@ function PlanningInvestible(props) {
     sections.push('reportsSection');
   }
   sections.push('tasksSection');
-  if (displayQuestionSection) {
-    sections.push('questionsSection');
-  }
-  if (displaySuggestionsSection) {
-    sections.push('suggestionsSection')
-  }
-  if (displayBockingSection) {
-    sections.push('blockersSection');
+  const displayAssistanceSection = displayQuestionSection || displaySuggestionsSection || displayBockingSection;
+  if (displayAssistanceSection) {
+    sections.push('assistanceSection');
   }
   let navListItemTextArray = undefined;
   if (singleTabLayout) {
@@ -592,23 +575,15 @@ function PlanningInvestible(props) {
       navListItemTextArray.unshift({icon: MenuIcon, text,
         onClickFunc: () => updatePageState({isOpenMobile: true})});
     }
-    if (displayBockingSection) {
-      navListItemTextArray.push(createNavListItem(DescriptionIcon, 'reportsSectionLabel',
-        'blockersSection', countUnresolved(reportsCommentsSearched, search)));
-    }
     navListItemTextArray.push(createNavListItem(AssignmentIcon, 'tasksSection', 'tasksSection',
       countUnresolved(todoCommentsSearched, search)));
-    if (displayQuestionSection) {
-      navListItemTextArray.push(createNavListItem(HelpIcon, 'questions', 'questionsSection',
-        countUnresolved(questionCommentsSearched, search)));
-    }
-    if (displaySuggestionsSection) {
-      navListItemTextArray.push(createNavListItem(EmojiObjectsIcon, 'suggestions', 'suggestionsSection',
-        countUnresolved(suggestionCommentsSearched, search)));
+    if (displayAssistanceSection) {
+      navListItemTextArray.push(createNavListItem(HelpIcon, 'requiresInputStageLabel', 'assistanceSection',
+        countUnresolved(assistanceCommentsSearched, search)));
     }
     if (displayReportsSection) {
-      navListItemTextArray.push(createNavListItem(BlockIcon, 'blocking', 'reportsSection',
-        countUnresolved(blockingCommentsSearched, search)));
+      navListItemTextArray.push(createNavListItem(DescriptionIcon, 'reportsSectionLabel', 'reportsSection',
+        countUnresolved(reportsCommentsSearched, search)));
     }
   }
   function getTagLabel(tagLabelId) {
@@ -619,7 +594,7 @@ function PlanningInvestible(props) {
   }
   const showCommentAdd = !inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId &&
     !_.isEmpty(investible) && !hidden && !_.isEmpty(allowedCommentTypes);
-  const intermediateNotSingle = intermediateLayout && !singleTabLayout;
+  const intermediateNotSingle = !singleTabLayout;
   return (
     <Screen
       title={title}
@@ -675,22 +650,11 @@ function PlanningInvestible(props) {
             <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
                           tag={countUnresolved(todoCommentsSearched, search)} tagLabel={getTagLabel('open')} />
           )}
-          {(!singleTabLayout || sectionOpen === 'questionsSection') && displayQuestionSection && (
-            <GmailTabItem icon={getIcon(QUESTION_TYPE)} label={intl.formatMessage({id: 'questions'})}
-                          tag={countUnresolved(questionCommentsSearched, search)}
+          {(!singleTabLayout || sectionOpen === 'assistanceSection') && displayAssistanceSection && (
+            <GmailTabItem icon={getIcon(QUESTION_TYPE)}
+                          label={intl.formatMessage({id: 'requiresInputStageLabel'})}
+                          tag={countUnresolved(assistanceCommentsSearched, search)}
                           tagLabel={getTagLabel('open')} />
-          )}
-          {(!singleTabLayout || sectionOpen === 'suggestionsSection') && displaySuggestionsSection && (
-            <GmailTabItem icon={getIcon(SUGGEST_CHANGE_TYPE)}
-                          label={intl.formatMessage({id: 'suggestions'})}
-                          tag={countUnresolved(suggestionCommentsSearched, search)}
-                          tagLabel={getTagLabel('open')} />
-          )}
-          {(!singleTabLayout || sectionOpen === 'blockersSection') && displayBockingSection && (
-            <GmailTabItem icon={getIcon(ISSUE_TYPE)} tagLabel={getTagLabel('open')}
-                          label={intl.formatMessage({id: 'blocking'})}
-                          tag={countUnresolved(blockingCommentsSearched, search)}
-            />
           )}
         </GmailTabs>
         <div style={{paddingTop: mobileLayout ? undefined : '4rem'}} />
@@ -780,19 +744,24 @@ function PlanningInvestible(props) {
           <Grid container spacing={2}>
             <Grid item xs={12} style={{ marginTop: mobileLayout ? undefined : '15px' }}>
               {showCommentAdd && (
-                <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
-                  marginTop: '0.75rem',
-                  marginBottom: '0.75rem'}}
-                                         onClick={() => navigate(history,
-                                           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                                             allowedCommentTypes[0]))}>
-                  <FormattedMessage id={`createNew${allowedCommentTypes[0]}`}/>
-                </SpinningIconLabelButton>
+                <div style={{display: 'flex'}}>
+                  {allowedCommentTypes.map((allowedCommentType) => {
+                    return (
+                      <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
+                        marginTop: '0.75rem', marginRight: mobileLayout ? undefined : '2rem',
+                        marginBottom: '0.75rem'}}
+                                               onClick={() => navigate(history,
+                                                 formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                                                   allowedCommentType))}>
+                        <FormattedMessage id={`createNew${allowedCommentType}`}/>
+                      </SpinningIconLabelButton>
+                    );
+                  })}
+                </div>
               )}
               <CommentBox
                 comments={sectionComments.concat(replies)}
                 marketId={marketId}
-                allowedTypes={allowedCommentTypes}
                 isRequiresInput={isRequiresInput}
                 isInBlocking={isInBlocked}
                 fullStage={fullStage}

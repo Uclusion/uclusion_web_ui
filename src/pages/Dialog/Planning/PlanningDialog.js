@@ -64,7 +64,6 @@ import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { DISCUSSION_WIZARD_TYPE } from '../../../constants/markets';
 import DialogOutset from './DialogOutset';
-import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory';
 import SettingsIcon from '@material-ui/icons/Settings';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 

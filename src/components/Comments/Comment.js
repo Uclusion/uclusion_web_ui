@@ -35,7 +35,7 @@ import {
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, getMyUserForMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
-import CardType, { BUG, DECISION_TYPE } from '../CardType';
+import CardType, { BUG, DECISION_TYPE, IN_REVIEW } from '../CardType';
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../constants/global';
 import {
   addCommentToMarket,
@@ -726,7 +726,7 @@ function Comment(props) {
     messages.push(myMessage);
   }
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE
-    && createdStageId === inReviewStageId && !creatorAssigned) ? <FormattedMessage id="reviewReportPresent" /> :
+    && !creatorAssigned) ? <FormattedMessage id="reviewReportPresent" /> :
     (isMarketTodo ? <FormattedMessage id={`notificationLabel${myNotificationType}`} /> : undefined);
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
@@ -783,7 +783,8 @@ function Comment(props) {
           <Box display="flex">
             {overrideLabel && (
               <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
-                        subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : undefined}
+                        subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG :
+                          (commentType === REPORT_TYPE && !creatorAssigned ? IN_REVIEW : undefined)}
                         label={overrideLabel} color={color}
                         gravatar={noAuthor || mobileLayout ? undefined :
                           <GravatarAndName key={myPresence.id} email={createdBy.email}

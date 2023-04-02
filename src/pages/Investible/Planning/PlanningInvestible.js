@@ -384,7 +384,7 @@ function PlanningInvestible(props) {
                   updatePageState({ sectionOpen: 'assistanceSection' });
                   break;
                 case REPORT_TYPE:
-                  updatePageState({ sectionOpen: 'reportsSection' });
+                  updatePageState({ sectionOpen: 'descriptionVotingSection' });
                   break;
                 default:
               }

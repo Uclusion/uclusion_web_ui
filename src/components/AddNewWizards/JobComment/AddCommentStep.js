@@ -11,12 +11,14 @@ import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageSta
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import {
   getBlockedStage,
   getRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function AddCommentStep (props) {
   const { investibleId, marketId, useType, updateFormData } = props;
@@ -24,9 +26,12 @@ function AddCommentStep (props) {
   const classes = useContext(WizardStylesContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [marketsState] = useContext(MarketsContext);
   const inv = getInvestible(investibleState, investibleId) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { group_id: groupId, stage: currentStageId } = marketInfo;
+  const { group_id: groupId, stage: currentStageId, assigned } = marketInfo;
+  const userId = getMyUserForMarket(marketsState, marketId);
+  const isAssigned = (assigned || []).includes(userId);
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
   const history = useHistory();
@@ -50,9 +55,16 @@ function AddCommentStep (props) {
       isLarge
     >
     <div>
-      <Typography className={classes.introText}>
-        What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?
-      </Typography>
+      {useType === REPORT_TYPE && (
+        <Typography className={classes.introText}>
+          What is your {intl.formatMessage({ id: `${isAssigned ? 'reportSimple' : 'review'}` })}?
+        </Typography>
+      )}
+      {useType !== REPORT_TYPE && (
+        <Typography className={classes.introText}>
+          What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?
+        </Typography>
+      )}
       {isAssistance && !inAssistanceStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to

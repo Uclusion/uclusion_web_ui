@@ -63,6 +63,7 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
       } else {
         console.warn(`Missing market info for ${marketInvestibleId} in ${marketId}`);
       }
+      console.warn(message);
       return false;
     }
   }

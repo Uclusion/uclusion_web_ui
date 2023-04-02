@@ -366,8 +366,8 @@ function Comment(props) {
   const classes = useCommentStyles();
   const workItemClasses = workListStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
-    resolved, notification_type: myNotificationType, creation_stage_id: createdStageId,
-    mentions, body, creator_assigned: creatorAssigned, is_sent: isSent, group_id: groupId } = comment;
+    resolved, notification_type: myNotificationType, mentions, body, creator_assigned: creatorAssigned, is_sent: isSent,
+    group_id: groupId } = comment;
   const replyBeingEdited = replyEditId === id && myParams && !_.isEmpty(myParams.get('reply'));
   const beingEdited = replyEditId === id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));

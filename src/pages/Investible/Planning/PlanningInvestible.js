@@ -481,9 +481,6 @@ function PlanningInvestible(props) {
       allowedCommentTypes.push(ISSUE_TYPE);
     }
     sectionComments = assistanceCommentsSearched;
-  } else if (sectionOpen === 'reportsSection') {
-    allowedCommentTypes = [REPORT_TYPE];
-    sectionComments = reportsCommentsSearched;
   }
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
@@ -539,17 +536,20 @@ function PlanningInvestible(props) {
     updatePageState({sectionOpen: subSection});
   }
 
+  let countReports = 0;
+  if (!_.isEmpty(search)) {
+    countReports =  _.size(reportsCommentsSearched);
+  } else {
+    countReports = _.size(reportsCommentsSearched.filter((comment) => !comment.resolved));
+  }
   const title = ticketCode ? `${ticketCode} ${name}` : name;
   const descriptionSectionResults = (_.isEmpty(search) ? 0 :
-      ((results || []).find((item) => item.id === investibleId) ? 1 : 0)) + _.size(investmentReasonsSearched);
-  const displayReportsSection =  (!isInVoting && !isFurtherWork) || _.size(reportsCommentsSearched) > 0;
+      ((results || []).find((item) => item.id === investibleId) ? 1 : 0)) + _.size(investmentReasonsSearched)
+    + countReports;
   const displayQuestionSection = canGetInput() || _.size(questionCommentsSearched) > 0;
   const displaySuggestionsSection = canGetInput() || _.size(suggestionCommentsSearched) > 0;
   const displayBockingSection = canOpenBlocking() || _.size(blockingCommentsSearched) > 0;
   const sections = ['descriptionVotingSection'];
-  if (displayReportsSection) {
-    sections.push('reportsSection');
-  }
   sections.push('tasksSection');
   const displayAssistanceSection = displayQuestionSection || displaySuggestionsSection || displayBockingSection;
   if (displayAssistanceSection) {
@@ -581,10 +581,6 @@ function PlanningInvestible(props) {
       navListItemTextArray.push(createNavListItem(HelpIcon, 'requiresInputStageLabel', 'assistanceSection',
         countUnresolved(assistanceCommentsSearched, search)));
     }
-    if (displayReportsSection) {
-      navListItemTextArray.push(createNavListItem(DescriptionIcon, 'reportsSectionLabel', 'reportsSection',
-        countUnresolved(reportsCommentsSearched, search)));
-    }
   }
   function getTagLabel(tagLabelId) {
     if (!_.isEmpty(search)) {
@@ -593,7 +589,7 @@ function PlanningInvestible(props) {
     return intl.formatMessage({ id: tagLabelId });
   }
   const showCommentAdd = !inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId &&
-    !_.isEmpty(investible) && !hidden && !_.isEmpty(allowedCommentTypes);
+    !_.isEmpty(investible) && !hidden;
   const intermediateNotSingle = !singleTabLayout;
   return (
     <Screen
@@ -636,15 +632,9 @@ function PlanningInvestible(props) {
             marginTop: singleTabLayout? '-29px': '-15px', paddingLeft: 0, marginLeft: '-0.5rem',
             paddingRight: mobileLayout ? undefined : '25rem' }}>
           {(!singleTabLayout || sectionOpen === 'descriptionVotingSection') && (
-            <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('votes')}
+            <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('total')}
                           label={intl.formatMessage({id: 'descriptionVotingLabel'})}
                           tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />
-          )}
-          {(!singleTabLayout || sectionOpen === 'reportsSection') && displayReportsSection && (
-            <GmailTabItem icon={getIcon(REPORT_TYPE)}
-                          label={intl.formatMessage({id: 'reportsSectionLabel'})}
-                          tag={countUnresolved(reportsCommentsSearched, search)}
-                          tagLabel={getTagLabel('total')} />
           )}
           {(!singleTabLayout || sectionOpen === 'tasksSection') && (
             <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
@@ -718,32 +708,53 @@ function PlanningInvestible(props) {
                     <FormattedMessage id="createNewApproval" />
                   </SpinningIconLabelButton>
               )}
+              <h2 id="approvals">
+                <FormattedMessage id="decisionInvestibleOthersVoting" />
+              </h2>
               {(_.isEmpty(search) || displayApprovalsBySearch > 0) && (
-                <>
-                  <h2 id="approvals">
-                    <FormattedMessage id="decisionInvestibleOthersVoting" />
-                  </h2>
-                  <Voting
-                    investibleId={investibleId}
-                    marketPresences={marketPresences}
-                    investmentReasons={investmentReasonsSearched}
-                    showExpiration={fullStage.has_expiration}
-                    expirationMinutes={market.investment_expiration * 1440}
-                    votingAllowed={canVote}
-                    yourPresence={yourPresence}
-                    market={market}
-                    groupId={groupId}
-                    isAssigned={isAssigned}
-                  />
-                </>
+                <Voting
+                  investibleId={investibleId}
+                  marketPresences={marketPresences}
+                  investmentReasons={investmentReasonsSearched}
+                  showExpiration={fullStage.has_expiration}
+                  expirationMinutes={market.investment_expiration * 1440}
+                  votingAllowed={canVote}
+                  yourPresence={yourPresence}
+                  market={market}
+                  groupId={groupId}
+                  isAssigned={isAssigned}
+                />
               )}
+              <h2 id="status">
+                <FormattedMessage id="reportsSectionLabel" />
+              </h2>
+              {showCommentAdd && (
+                <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
+                  marginTop: '0.75rem', marginBottom: '0.75rem'}}
+                                         onClick={() => navigate(history,
+                                           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                                             REPORT_TYPE))}>
+                  <FormattedMessage id={isAssigned ? 'createNewStatus' : 'createNewReview'}/>
+                </SpinningIconLabelButton>
+              )}
+              <CommentBox
+                comments={reportsCommentsSearched.concat(replies)}
+                marketId={marketId}
+                isRequiresInput={isRequiresInput}
+                isInBlocking={isInBlocked}
+                fullStage={fullStage}
+                assigned={assigned}
+                formerStageId={formerStageId}
+                marketInfo={marketInfo}
+                investible={marketInvestible}
+              />
             </div>
           </>
         )}
         {sectionOpen !== 'descriptionVotingSection' && (
           <Grid container spacing={2}>
             <Grid item xs={12} style={{ marginTop: mobileLayout ? undefined : '15px' }}>
-              {showCommentAdd && (
+              {showCommentAdd && !_.isEmpty(allowedCommentTypes) && (
                 <div style={{display: 'flex'}}>
                   {allowedCommentTypes.map((allowedCommentType) => {
                     return (

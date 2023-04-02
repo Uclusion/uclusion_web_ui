@@ -57,18 +57,11 @@ import {
 import { addEditVotingHasContents } from '../Voting/AddEditVote';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
-import {
-  baseNavListItem, formInvestibleAddCommentLink,
-  formInvestibleLink, formWizardLink,
-  navigate
-} from '../../../utils/marketIdPathFunctions';
-import AssignmentIcon from '@material-ui/icons/Assignment';
-import HelpIcon from '@material-ui/icons/Help';
+import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getStagesInfo } from '../../../utils/stageUtils';
 import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import PlanningInvestibleNav, { useMetaDataStyles } from './PlanningInvestibleNav';
-import MenuIcon from '@material-ui/icons/Menu';
 import { getIcon } from '../../../components/Comments/CommentEdit';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
@@ -320,9 +313,7 @@ function PlanningInvestible(props) {
     hidden
   } = props;
   const theme = useTheme();
-  const leftNavBreak = useMediaQuery(theme.breakpoints.down('md'));
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
-  const singleTabLayout = leftNavBreak;
   const classes = usePlanningInvestibleStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -535,7 +526,7 @@ function PlanningInvestible(props) {
     updatePageState({sectionOpen: subSection});
   }
 
-  let countReports = 0;
+  let countReports;
   if (!_.isEmpty(search)) {
     countReports =  _.size(reportsCommentsSearched);
   } else {
@@ -554,33 +545,6 @@ function PlanningInvestible(props) {
   if (displayAssistanceSection) {
     sections.push('assistanceSection');
   }
-  let navListItemTextArray = undefined;
-  if (singleTabLayout) {
-    function createNavListItem(icon, textId, anchorId, howManyNum) {
-      const nav = baseNavListItem(formInvestibleLink(marketId, investibleId), icon, textId, anchorId,
-        howManyNum > 0 ? howManyNum : undefined, true);
-      nav['onClickFunc'] = () => {
-        openSubSection(anchorId);
-      };
-      nav['isBold'] = sectionOpen === anchorId;
-      return nav;
-    }
-    navListItemTextArray = [
-      createNavListItem(ThumbsUpDownIcon, 'descriptionVotingLabel', 'descriptionVotingSection',
-        descriptionSectionResults),
-    ];
-    if (mobileLayout) {
-      const text = intl.formatMessage({id: 'planningInvestibleOpenLabel'});
-      navListItemTextArray.unshift({icon: MenuIcon, text,
-        onClickFunc: () => updatePageState({isOpenMobile: true})});
-    }
-    navListItemTextArray.push(createNavListItem(AssignmentIcon, 'tasksSection', 'tasksSection',
-      countUnresolved(todoCommentsSearched, search)));
-    if (displayAssistanceSection) {
-      navListItemTextArray.push(createNavListItem(HelpIcon, 'requiresInputStageLabel', 'assistanceSection',
-        countUnresolved(assistanceCommentsSearched, search)));
-    }
-  }
   function getTagLabel(tagLabelId) {
     if (!_.isEmpty(search)) {
       return intl.formatMessage({ id: 'match' });
@@ -589,13 +553,11 @@ function PlanningInvestible(props) {
   }
   const showCommentAdd = !inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId &&
     !_.isEmpty(investible) && !hidden;
-  const intermediateNotSingle = !singleTabLayout;
   return (
     <Screen
       title={title}
       tabTitle={name}
       hidden={hidden}
-      openMenuItems={navListItemTextArray}
     >
       {(!mobileLayout || isOpenMobile) && (
         <div className={classes.paper} onClick={() => {
@@ -603,10 +565,9 @@ function PlanningInvestible(props) {
             updatePageState({ isOpenMobile: false })
           }
         }} style={{ paddingTop: mobileLayout ? undefined : '2rem',
-          paddingBottom: intermediateNotSingle ? '1rem' : undefined,
-          transform: mobileLayout ? undefined :
-                 (leftNavBreak ? 'translateX(calc(100vw - 270px))' : 'translateX(calc(100vw - 490px))')}}>
-          <PlanningInvestibleNav investibles={investibles} name={name} intermediateNotSingle={intermediateNotSingle}
+          paddingBottom: '1rem',
+          transform: mobileLayout ? undefined : 'translateX(calc(100vw - 490px))'}}>
+          <PlanningInvestibleNav investibles={investibles} name={name}
                                  market={market} marketInvestible={marketInvestible} classes={classes}
                                  investibleId={investibleId}
                                  userId={userId} myPresence={myPresence} isAssigned={isAssigned}
@@ -617,7 +578,7 @@ function PlanningInvestible(props) {
       )}
       <div style={{paddingRight: mobileLayout ? undefined : '15rem'}}>
         <GmailTabs
-          value={singleTabLayout ? 0 : sections.findIndex((section) => section === sectionOpen)}
+          value={sections.findIndex((section) => section === sectionOpen)}
           onChange={(event, value) => {
             openSubSection(sections[value]);
             // Previous scroll position no longer relevant
@@ -626,20 +587,15 @@ function PlanningInvestible(props) {
           id='investible-header'
           indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
           style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
-            paddingTop: '0.5rem',
-            width: intermediateNotSingle ? 'unset': undefined,
-            marginTop: singleTabLayout? '-29px': '-15px', paddingLeft: 0, marginLeft: '-0.5rem',
+            paddingTop: '0.5rem', width: 'unset',
+            marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem',
             paddingRight: mobileLayout ? undefined : '25rem' }}>
-          {(!singleTabLayout || sectionOpen === 'descriptionVotingSection') && (
-            <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('total')}
-                          label={intl.formatMessage({id: 'descriptionVotingLabel'})}
-                          tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />
-          )}
-          {(!singleTabLayout || sectionOpen === 'tasksSection') && (
-            <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
-                          tag={countUnresolved(todoCommentsSearched, search)} tagLabel={getTagLabel('open')} />
-          )}
-          {(!singleTabLayout || sectionOpen === 'assistanceSection') && displayAssistanceSection && (
+          <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('total')}
+                        label={intl.formatMessage({id: 'descriptionVotingLabel'})}
+                        tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />
+          <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
+                        tag={countUnresolved(todoCommentsSearched, search)} tagLabel={getTagLabel('open')} />
+          {displayAssistanceSection && (
             <GmailTabItem icon={getIcon(QUESTION_TYPE)}
                           label={intl.formatMessage({id: 'requiresInputStageLabel'})}
                           tag={countUnresolved(assistanceCommentsSearched, search)}

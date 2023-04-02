@@ -46,7 +46,7 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
 
 export default function PlanningInvestibleNav(props) {
-  const { name, intermediateNotSingle, market, marketInvestible, classes, userId, myPresence, isAssigned,
+  const { name, market, marketInvestible, classes, userId, myPresence, isAssigned,
     pageState, marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId,
     updatePageState, investibleId } = props;
   const intl = useIntl();
@@ -113,7 +113,7 @@ export default function PlanningInvestibleNav(props) {
           <Divider />
         </List>
       )}
-      <div style={{maxWidth: '11rem', width: intermediateNotSingle ? '100%' : undefined}}>
+      <div style={{maxWidth: '11rem', width: '100%'}}>
         {name}
       </div>
       <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />

@@ -111,13 +111,13 @@ function Inbox(props) {
         style={{ paddingBottom: '0.5rem', paddingTop: '1rem', marginTop: '-1rem' }}>
         <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}
                       color='black' tagLabel={unreadCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                      tagColor={unreadCount > 0 ? '#E85757' : undefined} isInbox
+                      tagColor={unreadCount > 0 ? '#E85757' : undefined}
                       tag={unreadCount > 0 ? `${unreadCount}` :
                         (_.size(inboxMessagesOrdered) > 0 ? `${_.size(inboxMessagesOrdered)}` : undefined)} />
-        <GmailTabItem icon={<GroupIcon />} label={intl.formatMessage({id: 'teamUnresolved'})} isInbox
+        <GmailTabItem icon={<GroupIcon />} label={intl.formatMessage({id: 'teamUnresolved'})}
                       tag={_.size(teamMessagesOrdered) > 0 ?
                         `${_.size(teamMessagesOrdered)}` : undefined} />
-        <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})} isInbox
+        <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})}
                       tag={_.size(outBoxMessagesOrdered) > 0 ?
                         `${_.size(outBoxMessagesOrdered)}` : undefined} />
       </GmailTabs>

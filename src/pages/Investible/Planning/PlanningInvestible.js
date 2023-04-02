@@ -680,10 +680,10 @@ function PlanningInvestible(props) {
                   isAssigned={isAssigned}
                 />
               )}
-              <h2 id="status">
+              <h2 id="status" style={{paddingBottom: 0, marginBottom: 0}}>
                 <FormattedMessage id="reportsSectionLabel" />
               </h2>
-              {showCommentAdd && (
+              {showCommentAdd && (isAssigned || isInReview) && (
                 <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
                   marginTop: '0.75rem', marginBottom: '0.75rem'}}
                                          onClick={() => navigate(history,
@@ -702,6 +702,7 @@ function PlanningInvestible(props) {
                 formerStageId={formerStageId}
                 marketInfo={marketInfo}
                 investible={marketInvestible}
+                usePadding={false}
               />
             </div>
           </>

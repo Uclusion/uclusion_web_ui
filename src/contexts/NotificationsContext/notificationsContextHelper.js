@@ -49,7 +49,11 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
     const inv = getInvestible(investiblesState, investibleId) || {};
     const { investible } = inv;
     if (!investible || investible.version < investibleVersion) {
-      console.warn(`Investible version mismatch for ${investibleVersion} and ${investibleId}`);
+      if (!investible) {
+        console.warn(`Investible missing for version ${investibleVersion} and ${investibleId}`);
+      } else {
+        console.warn(`Mismatch for ${investibleVersion} on ${investibleId} with version ${investible.version}`);
+      }
       return false;
     }
   }

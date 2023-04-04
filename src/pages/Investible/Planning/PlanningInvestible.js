@@ -654,18 +654,18 @@ function PlanningInvestible(props) {
             </div>
             <div style={{paddingLeft: mobileLayout ? undefined : '1rem',
               paddingRight: mobileLayout ? undefined : '1rem', paddingTop: '2rem'}}>
-              {(displayVotingInput || hasUsableVotingInput) && investibleId && (
-                  <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
-                    marginBottom: '1.5rem'}}
-                                           onClick={() => navigate(history,
-                                             formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId,
-                                               groupId))}>
-                    <FormattedMessage id="createNewApproval" />
-                  </SpinningIconLabelButton>
-              )}
               <h2 id="approvals">
                 <FormattedMessage id="decisionInvestibleOthersVoting" />
               </h2>
+              {(displayVotingInput || hasUsableVotingInput) && investibleId && (
+                <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
+                  marginBottom: '1.5rem'}}
+                                         onClick={() => navigate(history,
+                                           formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId,
+                                             groupId))}>
+                  <FormattedMessage id="createNewApproval" />
+                </SpinningIconLabelButton>
+              )}
               {(_.isEmpty(search) || displayApprovalsBySearch > 0) && (
                 <Voting
                   investibleId={investibleId}

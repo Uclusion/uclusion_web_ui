@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { useIntl } from 'react-intl'
 import { Box, Card, CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
 import { makeStyles } from '@material-ui/styles'
@@ -107,12 +107,8 @@ function Voting(props) {
 
   const voters = getInvestibleVoters(marketPresences, investibleId);
   const sortedVoters = _.sortBy(voters, "quantity");
-  if (sortedVoters.length === 0 || !yourPresence) {
-    return (
-      <Typography>
-        <FormattedMessage id="noVoters" />
-      </Typography>
-    );
+  if (!yourPresence) {
+    return React.Fragment;
   }
 
   function remove(event) {

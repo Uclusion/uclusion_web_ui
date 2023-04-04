@@ -49,8 +49,9 @@ const useStyles = makeStyles((theme) => ({
 function ProposedIdeas(props) {
   const classes = useStyles();
   const outlineStyles = myArchiveClasses();
-  const { investibles, marketId, isAdmin, comments, inArchives, marketPresences, isSent } = props;
-  const [selectedInvestibleId, setSelectedInvestibleId] = useState(undefined);
+  const { investibles, marketId, isAdmin, comments, inArchives, marketPresences, isSent,
+    selectedInvestibleIdParent, setSelectedInvestibleIdParent, removeActions} = props;
+  const [selectedInvestibleIdLocal, setSelectedInvestibleIdLocal] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -59,6 +60,8 @@ function ProposedIdeas(props) {
   const [, invDispatch] = useContext(InvestiblesContext);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
+  const selectedInvestibleId = selectedInvestibleIdParent || selectedInvestibleIdLocal;
+  const setSelectedInvestibleId = setSelectedInvestibleIdParent || setSelectedInvestibleIdLocal;
 
   function onDragStart(event) {
     event.dataTransfer.setData('text', event.target.id);
@@ -152,6 +155,7 @@ function ProposedIdeas(props) {
           isAdmin={isAdmin}
           inArchives={inArchives}
           isSent={isSent}
+          removeActions={removeActions}
         />
       )}
     </>

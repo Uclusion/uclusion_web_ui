@@ -44,6 +44,7 @@ import AssignToOtherWizard from '../../../components/InboxWizards/AssignToOther/
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import EstimateChangeWizard from '../../../components/InboxWizards/Monitor/EstimateChangeWizard';
 import ReplyWizard from '../../../components/InboxWizards/Reply/ReplyWizard';
+import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/OptionSubmittedWizard';
 
 export function usesExpansion(item) {
   const { message } = item;
@@ -56,7 +57,7 @@ export function usesExpansion(item) {
       }
       // Skipping UNREAD_VOTE - need to inform but not very actionable
       return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNREAD_RESOLVED', 'FULLY_VOTED', 'NOT_FULLY_VOTED', 'ISSUE',
-        'UNREAD_COMMENT', 'UNREAD_REPLY', 'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE',
+        'UNREAD_COMMENT', 'UNREAD_REPLY', 'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE', 'INVESTIBLE_SUBMITTED',
         'UNREAD_ESTIMATE'].includes(message.type);
     }
     if (message.isOutboxAccepted) {
@@ -116,6 +117,11 @@ export function calculateTitleExpansionPanel(props) {
                                                message={message} inboxDispatch={inboxDispatch}/>,
         'DecideVoteTitle', intl);
     }
+  } else if (messageType === 'INVESTIBLE_SUBMITTED') {
+    setItem(item, openExpansion, <OptionSubmittedWizard marketId={marketId} investibleId={decisionInvestibleId}
+                                                        commentId={commentId} commentMarketId={commentMarketId}
+                                                        message={message} inboxDispatch={inboxDispatch}/>,
+      'DecidePromotionTitle', intl);
   } else if (messageType === 'REPORT_REQUIRED') {
     setItem(item, openExpansion, <StatusWizard investibleId={investibleId} marketId={marketId} message={message}
                                                inboxDispatch={inboxDispatch} />, 'JobStatusTitle', intl);

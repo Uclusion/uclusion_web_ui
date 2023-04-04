@@ -354,7 +354,7 @@ function navigateEditReplyBack(history, id, marketId, groupId, investibleId, rep
 function Comment(props) {
   const { comment, marketId, comments, noAuthor, onDone, defaultShowDiff, showDone,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
-    inboxMessageId, showVoting } = props;
+    inboxMessageId, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
@@ -519,7 +519,7 @@ function Comment(props) {
             bolder
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
             supportingInformation={abstained}
-            actionButton={!enableEditing || comment.created_by !== myPresence.id ? null :
+            actionButton={removeActions || !enableEditing || comment.created_by !== myPresence.id ? null :
               (<ExpandableAction
                 id={`approvableOption${id}`}
                 icon={<AddIcon htmlColor="black"/>}
@@ -566,7 +566,7 @@ function Comment(props) {
             type={SECTION_TYPE_SECONDARY_WARNING}
             bolder
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
-            actionButton={ inArchives || comment.created_by === myPresence.id ? null :
+            actionButton={ removeActions || inArchives || comment.created_by === myPresence.id ? null :
               (<ExpandableAction
                 id={`proposedOption${id}`}
                 icon={<AddIcon htmlColor="black"/>}
@@ -584,6 +584,9 @@ function Comment(props) {
               isAdmin={isEditable}
               inArchives={inArchives}
               isSent={isSent}
+              removeActions={removeActions}
+              selectedInvestibleIdParent={selectedInvestibleIdParent}
+              setSelectedInvestibleIdParent={setSelectedInvestibleIdParent}
             />
           </SubSection>
         </Grid>
@@ -772,14 +775,14 @@ function Comment(props) {
     !myInlinePresence.abstain && !yourVote;
   const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
   return (
-    <div onClick={() => {
-      if (isInbox) {
-        navigate(history, formCommentLink(marketId, groupId, investibleId, id));
-      }
-    }}>
+    <div>
       <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false ? 0 : undefined}}
             className={getCommentHighlightStyle()}>
-        <>
+        <div onClick={() => {
+          if (isInbox) {
+            navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+          }
+        }}>
           <Box display="flex">
             {overrideLabel && (
               <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
@@ -984,7 +987,7 @@ function Comment(props) {
               </div>
             </CardActions>
           )}
-        </>
+        </div>
       </Card>
       {replyBeingEdited && marketId && comment && (
         <CommentAdd

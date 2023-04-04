@@ -148,7 +148,8 @@ function DecisionInvestible(props) {
     isAdmin,
     inArchives,
     hidden,
-    isSent
+    isSent,
+    removeActions
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -196,7 +197,7 @@ function DecisionInvestible(props) {
     getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
 
   function isEditableByUser() {
-    return !inArchives && (isAdmin || (inProposed && createdBy === userId));
+    return !removeActions && !inArchives && (isAdmin || (inProposed && createdBy === userId));
   }
   let lockedByName
   if (lockedBy) {
@@ -274,12 +275,12 @@ function DecisionInvestible(props) {
   }
 
   const votingAllowed = !inProposed && !inArchives && !hasIssueOrMarketIssue && activeMarket;
-  const displayVotingInput = votingAllowed && !yourVote;
-
+  const displayVotingInput = !removeActions && votingAllowed && !yourVote;
+  const displayCommentInput = !removeActions && !inArchives && marketId && !_.isEmpty(investible) && !hidden;
   return (
     <div style={{marginLeft: mobileLayout ? undefined : '2rem', marginRight: mobileLayout ? undefined : '2rem',
       marginBottom: '1rem'}} id={`option${investibleId}`}>
-      {activeMarket && inProposed && isAdmin && (
+      {activeMarket && inProposed && isAdmin && !removeActions && (
         <DismissableText textId='decisionInvestibleProposedHelp' text={
           <div>
             You can move this option to be approved by using the up arrow.
@@ -315,7 +316,7 @@ function DecisionInvestible(props) {
           </Grid>
           <Grid className={classes.borderLeft} item md={3} xs={12}>
             <CardActions className={classes.actions}>
-              {activeMarket && (
+              {!removeActions && activeMarket && (
                 getActions()
               )}
               {isSent && (
@@ -333,18 +334,20 @@ function DecisionInvestible(props) {
                 </SpinningIconLabelButton>
               </>
             )}
-            <dl className={clsx(metaClasses.root, classes.flexCenter)}>
-              <Typography variant="body2" style={{paddingBottom: '1rem'}}>
-                {intl.formatMessage({ id: 'created_by' })} {optionCreatedBy.name}.
-              </Typography>
-              <AttachedFilesList
-                key="files"
-                marketId={marketId}
-                onDeleteClick={onDeleteFile}
-                isAdmin={isAdmin}
-                attachedFiles={attachedFiles}
-                onUpload={onAttachFiles} />
-            </dl>
+            {!removeActions && (
+              <dl className={clsx(metaClasses.root, classes.flexCenter)}>
+                <Typography variant="body2" style={{paddingBottom: '1rem'}}>
+                  {intl.formatMessage({ id: 'created_by' })} {optionCreatedBy.name}.
+                </Typography>
+                <AttachedFilesList
+                  key="files"
+                  marketId={marketId}
+                  onDeleteClick={onDeleteFile}
+                  isAdmin={isAdmin}
+                  attachedFiles={attachedFiles}
+                  onUpload={onAttachFiles} />
+              </dl>
+            )}
           </Grid>
         </Grid>
       </Card>
@@ -356,7 +359,7 @@ function DecisionInvestible(props) {
             <FormattedMessage id="createNewVote" />
           </SpinningIconLabelButton>
         )}
-        {!inArchives && marketId && !_.isEmpty(investible) && !hidden && (
+        {displayCommentInput && (
           <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
                                    onClick={() => navigate(history,
                                      formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId))}>

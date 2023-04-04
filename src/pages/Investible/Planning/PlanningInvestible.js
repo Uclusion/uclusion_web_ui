@@ -314,6 +314,7 @@ function PlanningInvestible(props) {
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
+  const leftNavBreak = useMediaQuery(theme.breakpoints.down('md'));
   const classes = usePlanningInvestibleStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -566,7 +567,8 @@ function PlanningInvestible(props) {
           }
         }} style={{ paddingTop: mobileLayout ? undefined : '2rem',
           paddingBottom: '1rem',
-          transform: mobileLayout ? undefined : 'translateX(calc(100vw - 490px))'}}>
+          transform: mobileLayout ? undefined :
+            (leftNavBreak ? 'translateX(calc(100vw - 270px))' : 'translateX(calc(100vw - 490px))')}}>
           <PlanningInvestibleNav investibles={investibles} name={name}
                                  market={market} marketInvestible={marketInvestible} classes={classes}
                                  investibleId={investibleId}
@@ -587,9 +589,7 @@ function PlanningInvestible(props) {
           id='investible-header'
           indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
           style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
-            paddingTop: '0.5rem', width: 'unset',
-            marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem',
-            paddingRight: mobileLayout ? undefined : '25rem' }}>
+            paddingTop: '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
           <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('total')}
                         label={intl.formatMessage({id: 'descriptionVotingLabel'})}
                         tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />

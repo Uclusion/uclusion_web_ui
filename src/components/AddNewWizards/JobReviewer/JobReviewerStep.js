@@ -15,6 +15,7 @@ import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesC
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import JobDescription from '../../InboxWizards/JobDescription';
 
 function JobReviewerStep (props) {
   const { marketId, updateFormData, formData, onFinish, investibleId } = props;
@@ -62,6 +63,7 @@ function JobReviewerStep (props) {
         <Typography className={classes.introText} variant="h6">
           Who should be required to review the job?
         </Typography>
+        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
         <AssignmentList
           fullMarketPresences={marketPresences}
           previouslyAssigned={reviewers}
@@ -74,10 +76,7 @@ function JobReviewerStep (props) {
           finish={onFinish}
           validForm={validForm}
           showNext={true}
-          showTerminate={true}
           onNext={reviewersJob}
-          onTerminate={finish}
-          terminateLabel="JobWizardGotoJob"
         />
       </div>
     </WizardStepContainer>

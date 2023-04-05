@@ -28,6 +28,7 @@ import { TODO_TYPE } from '../../../constants/comments';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import JobDescription from '../../InboxWizards/JobDescription';
 
 function JobStageStep (props) {
   const { marketId, updateFormData, formData, investibleId, marketInfo, myFinish: finish } = props;
@@ -124,6 +125,7 @@ function JobStageStep (props) {
         <Typography className={classes.introSubText} variant="subtitle1">
           Moving to backlog will remove assignment and approvals. {isAssigned ? '' : 'You must be assigned to move to started.'}
         </Typography>
+        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
         <FormControl component="fieldset">
           <RadioGroup
             aria-labelledby="stage-choice"
@@ -155,10 +157,7 @@ function JobStageStep (props) {
           {...props}
           validForm={validForm}
           showNext={true}
-          showTerminate={true}
           onNext={move}
-          onTerminate={finish}
-          terminateLabel="JobWizardGotoJob"
         />
       </div>
     </WizardStepContainer>

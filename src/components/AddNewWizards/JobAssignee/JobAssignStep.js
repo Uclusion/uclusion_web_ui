@@ -27,6 +27,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import JobDescription from '../../InboxWizards/JobDescription';
 
 function JobAssignStep (props) {
   const { marketId, updateFormData, formData, onFinish, investibleId, marketInfo } = props;
@@ -118,6 +119,7 @@ function JobAssignStep (props) {
         <Typography className={classes.introSubText} variant="subtitle1">
           {unassignedWarning} {reassigningWarning}
         </Typography>
+        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
         <AssignmentList
           fullMarketPresences={marketPresences}
           previouslyAssigned={assigned}
@@ -131,11 +133,8 @@ function JobAssignStep (props) {
           finish={onFinish}
           validForm={validForm}
           showNext={true}
-          showTerminate={true}
           onNext={assignJob}
           onNextDoAdvance={!_.isEmpty(value)}
-          onTerminate={finish}
-          terminateLabel="JobWizardBacktoJob"
         />
       </div>
     </WizardStepContainer>

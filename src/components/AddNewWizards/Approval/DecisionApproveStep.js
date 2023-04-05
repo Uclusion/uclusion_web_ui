@@ -9,7 +9,6 @@ import { useHistory } from 'react-router';
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
-import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -19,6 +18,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { commonQuick } from './ApprovalWizard';
+import JobDescription from '../../InboxWizards/JobDescription';
 
 function DecisionApproveStep(props) {
   const { market, clearFormData, updateFormData, formData, investibleId, hasOtherVote, currentReasonId } = props;
@@ -68,12 +68,6 @@ function DecisionApproveStep(props) {
     })
   }
 
-  function onTerminate() {
-    clearFormData();
-    resetEditor(editorName);
-    navigateToOption(history, parentMarketId, parentInvestibleId, parentGroupId, investibleId);
-  }
-
   function onApproveChange (key) {
     return (data) => {
       const update = {
@@ -115,6 +109,7 @@ function DecisionApproveStep(props) {
             Your vote was deleted.
           </Typography>
         )}
+        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
         <AddInitialVote
           marketId={marketId}
           onBudgetChange={() => {}}
@@ -130,10 +125,7 @@ function DecisionApproveStep(props) {
         <WizardStepButtons
           {...props}
           validForm={validForm}
-          showTerminate={true}
           onNext={onNext}
-          onTerminate={onTerminate}
-          terminateLabel="DecisionCommmentWizardTerminate"
           nextLabel="DecisionWizardApprove"
         />
       </div>

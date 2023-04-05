@@ -9,7 +9,6 @@ import { useHistory } from 'react-router';
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
-import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import _ from 'lodash';
@@ -18,6 +17,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { commonQuick } from './ApprovalWizard';
+import JobDescription from '../../InboxWizards/JobDescription';
 
 function JobApproveStep(props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, investibleId, currentReasonId } = props;
@@ -63,12 +63,6 @@ function JobApproveStep(props) {
     })
   }
 
-  function onTerminate() {
-    clearFormData();
-    resetEditor(editorName);
-    navigate(history, formInvestibleLink(marketId, investibleId));
-  }
-
   function onApproveChange (key) {
     return (data) => {
       const update = {
@@ -100,6 +94,7 @@ function JobApproveStep(props) {
             Your approval was deleted or expired.
           </Typography>
         )}
+        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
         <AddInitialVote
           marketId={marketId}
           onBudgetChange={() => {}}
@@ -115,10 +110,7 @@ function JobApproveStep(props) {
         <WizardStepButtons
           {...props}
           validForm={validForm}
-          showTerminate={true}
           onNext={onNext}
-          onTerminate={onTerminate}
-          terminateLabel="JobWizardGotoJob"
           nextLabel="JobWizardApproveJob"
         />
       </div>

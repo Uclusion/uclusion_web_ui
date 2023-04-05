@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { useIntl } from 'react-intl';
-import { formCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import CommentAdd from '../../Comments/CommentAdd';
 import { useHistory } from 'react-router';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
@@ -19,6 +19,7 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import JobDescription from '../../InboxWizards/JobDescription';
 
 function AddCommentStep (props) {
   const { investibleId, marketId, useType, updateFormData } = props;
@@ -76,13 +77,11 @@ function AddCommentStep (props) {
           Opening a task prevents moving this job to Verified stage until resolved.
         </Typography>
       )}
+      <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
       <CommentAdd
         nameKey="JobCommentAdd"
         type={useType}
-        wizardProps={{...props, isAddWizard: true,
-          terminateLabel: 'JobWizardBacktoJob',
-          onTerminate: () => navigate(history, formInvestibleLink(marketId, investibleId)),
-          showTerminate: true}}
+        wizardProps={{...props, isAddWizard: true}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

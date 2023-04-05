@@ -517,7 +517,7 @@ function CommentAdd(props) {
                   otherNextLabel='addAnother'
                   onOtherNext={() => handleSave(true, undefined, false,
                     true )}
-                  showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : true}
+                  showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : !investibleId}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}
               {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
@@ -562,7 +562,7 @@ function CommentAdd(props) {
                   showOtherNext={true}
                   otherNextLabel="createNewQUESTION"
                   onOtherNext={() => handleSave( true, undefined,false)}
-                  showTerminate={true}
+                  showTerminate={!investibleId}
                   terminateLabel="OnboardingWizardGoBack"/>
               )}
             </div>

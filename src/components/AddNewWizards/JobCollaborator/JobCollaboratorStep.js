@@ -16,6 +16,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import JobDescription from '../../InboxWizards/JobDescription';
 
 function JobCollaboratorStep (props) {
   const { marketId, updateFormData, formData, onFinish, investibleId } = props;
@@ -67,6 +68,7 @@ function JobCollaboratorStep (props) {
         <Typography className={classes.introText} variant="h6">
           Who outside the group should be collaborating on the job?
         </Typography>
+        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
         <AssignmentList
           fullMarketPresences={marketPresences}
           previouslyAssigned={addressedIds}
@@ -80,10 +82,7 @@ function JobCollaboratorStep (props) {
           finish={onFinish}
           validForm={validForm}
           showNext={true}
-          showTerminate={true}
           onNext={addressJob}
-          onTerminate={finish}
-          terminateLabel="JobWizardGotoJob"
         />
       </div>
     </WizardStepContainer>

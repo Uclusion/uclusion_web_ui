@@ -19,8 +19,8 @@ import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 
 function JobDescription(props) {
-  const { investibleId, marketId, comments, showDescription=true, inboxMessageId, removeActions, showVoting,
-    selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
+  const { investibleId, marketId, comments, showDescription=true, showAssigned=true, inboxMessageId,
+    removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
   const intl = useIntl();
   const history = useHistory();
   const investibleEditClasses = useInvestibleEditStyles();
@@ -39,8 +39,8 @@ function JobDescription(props) {
 
   return (
     <>
-      <div style={{paddingLeft: '4px', paddingRight: '4px', paddingTop: '1rem'}}>
-        {!_.isEmpty(assignedPresences) && (
+      <div style={{paddingLeft: '4px', paddingRight: '4px', paddingTop: showAssigned ? '1rem' : undefined}}>
+        {!_.isEmpty(assignedPresences) && showAssigned && (
           <div style={{alignItems: 'center', display: 'flex', paddingBottom: '1rem'}}>
             <Typography variant='body2' style={{ paddingRight: '0.5rem'}}>
               {intl.formatMessage({ id: 'planningInvestibleAssignments' })}</Typography>

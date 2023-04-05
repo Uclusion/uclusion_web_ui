@@ -1235,8 +1235,6 @@ function Reply(props) {
         if (inboxMessageId === comment.id) {
           return classes.containerBlueLink;
         }
-      } else {
-        return classes.containerBlueLink;
       }
     }
     return !isHighlighted ? classes.container : (isLinkedTo || (myMessage.level === 'RED')

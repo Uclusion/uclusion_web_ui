@@ -663,6 +663,7 @@ const messages = defineMessages({
   planningMarketActivate: 'Activate group',
   immediate: 'Critical',
   storyFromComment: 'Move',
+  storyFromCommentNav: 'Move and go to job',
   channelOptions: 'Group Options',
   marketOptions: 'Workspace Options',
   marketName: 'Choose a name for the new workspace.',
@@ -1111,6 +1112,7 @@ const messages = defineMessages({
   startJob: 'Start job',
   DecideMove: 'Reduce priority',
   DecideStartBug: 'Create job in Started',
+  DecideStartBugExisting: 'Find existing job',
   DecideAddReview: 'Add review',
   DecideAddTask: 'Add task',
 

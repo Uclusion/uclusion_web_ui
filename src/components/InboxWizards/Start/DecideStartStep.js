@@ -22,7 +22,7 @@ import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function DecideStartStep(props) {
-  const { marketId, commentId, clearFormData, message } = props;
+  const { marketId, commentId, message } = props;
   const [commentState, commentsDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -49,7 +49,6 @@ function DecideStartStep(props) {
     onDropTodo(commentId, commentState, marketId, undefined, intl, commentsDispatch, invDispatch,
       myPresence.id, acceptedStage.id)
       .then((investibleId) => {
-        clearFormData();
         wizardFinish( { link: formInvestibleLink(marketId, investibleId) }, setOperationRunning, message,
           history, marketId, investibleId, messagesDispatch);
       });
@@ -76,6 +75,9 @@ function DecideStartStep(props) {
         {...props}
         nextLabel="DecideStartBug"
         onNext={myAccept}
+        showOtherNext
+        otherSpinOnClick={false}
+        otherNextLabel="DecideStartBugExisting"
         terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'defer' }
         showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
         onFinish={myTerminate}

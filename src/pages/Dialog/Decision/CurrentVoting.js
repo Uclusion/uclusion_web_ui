@@ -69,10 +69,10 @@ function CurrentVoting(props) {
   const outlineStyles = myArchiveClasses();
   const location = useLocation();
   const { hash } = location;
-  const [selectedInvestibleId, setSelectedInvestibleId] = useState(undefined);
+  const [selectedInvestibleIdLocal, setSelectedInvestibleIdLocal] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
-  const { marketPresences, investibles, marketId, comments, isAdmin, inArchives, isSent,
-    parentInvestibleId, parentMarketId, groupId } = props;
+  const { marketPresences, investibles, marketId, comments, isAdmin, inArchives, isSent, removeActions,
+    parentInvestibleId, parentMarketId, groupId, selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
   const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -81,6 +81,8 @@ function CurrentVoting(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
+  const selectedInvestibleId = selectedInvestibleIdParent || selectedInvestibleIdLocal;
+  const setSelectedInvestibleId = setSelectedInvestibleIdParent || setSelectedInvestibleIdLocal;
 
   useEffect(() => {
     if (hash) {
@@ -89,7 +91,7 @@ function CurrentVoting(props) {
         setSelectedInvestibleId(foundInv.id);
       }
     }
-  }, [strippedInvestibles, hash]);
+  }, [strippedInvestibles, hash, setSelectedInvestibleId]);
 
   function getInvestibleVotes() {
     // first set every investibles support and investments to 0
@@ -144,10 +146,13 @@ function CurrentVoting(props) {
               setSelectedInvestibleId(undefined);
             } else {
               setSelectedInvestibleId(id);
-              if (parentInvestibleId) {
-                navigate(history, `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${id}`);
-              } else if (parentMarketId) {
-                navigate(history, `${formMarketLink(parentMarketId, groupId)}#option${id}`);
+              if (!removeActions) {
+                // TODO in new UI this will be WorkListItem like and it's use of scrollToElement
+                if (parentInvestibleId) {
+                  navigate(history, `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${id}`);
+                } else if (parentMarketId) {
+                  navigate(history, `${formMarketLink(parentMarketId, groupId)}#option${id}`);
+                }
               }
             }
           }}
@@ -228,6 +233,7 @@ function CurrentVoting(props) {
           isAdmin={isAdmin}
           inArchives={inArchives}
           isSent={isSent}
+          removeActions={removeActions}
         />
       )}
     </>

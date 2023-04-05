@@ -544,6 +544,9 @@ function Comment(props) {
               inArchives={inArchives}
               isAdmin={isEditable}
               isSent={isSent}
+              removeActions={removeActions}
+              selectedInvestibleIdParent={selectedInvestibleIdParent}
+              setSelectedInvestibleIdParent={setSelectedInvestibleIdParent}
             />
           </SubSection>
         </Grid>

@@ -10,7 +10,7 @@ import {
   navigate
 } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import _ from 'lodash';
 import { moveComments } from '../../../api/comments';
@@ -67,8 +67,7 @@ function FindJobStep(props) {
           });
           threads = threads.concat(fixedThread);
         });
-        refreshMarketComments(commentsDispatch, marketId,
-          [...movedComments, ...threads, ...marketComments]);
+        addMarketComments(commentsDispatch, marketId, [...movedComments, ...threads]);
         clearFormData();
         navigate(history, link);
       });
@@ -90,7 +89,6 @@ function FindJobStep(props) {
           marketStages={activeMarketStages}
           excluded={currentInvestibleId ? [currentInvestibleId] : undefined}
           onChange={(id) => {
-            console.debug(`updating to ${id}`)
             updateFormData({ investibleId: id })
           }}
         />

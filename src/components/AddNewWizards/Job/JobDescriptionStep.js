@@ -13,7 +13,10 @@ import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPath
 import { processTextAndFilesForSave } from '../../../api/files';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { getCommentThreads, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import {
+  addMarketComments,
+  getCommentThreads
+} from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { moveComments } from '../../../api/comments';
 import { removeMessagesForCommentId } from '../../../utils/messageUtils';
@@ -123,8 +126,7 @@ function JobDescriptionStep (props) {
                 });
                 threads = threads.concat(fixedThread);
               });
-              refreshMarketComments(commentsDispatch, marketId,
-                [...movedComments, ...threads, ...marketComments]);
+              addMarketComments(commentsDispatch, marketId, [...movedComments, ...threads]);
               link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
               updateFormData({
                 investibleId,

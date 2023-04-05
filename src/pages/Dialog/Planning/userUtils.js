@@ -1,6 +1,9 @@
 import { getMarketInfo } from '../../../utils/userFunctions';
 import _ from 'lodash'
-import { getMarketComments, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
+import {
+  addMarketComments,
+  getMarketComments
+} from '../../../contexts/CommentsContext/commentsContextHelper';
 import { nameFromDescription } from '../../../utils/stringFunctions'
 import { addPlanningInvestible } from '../../../api/investibles'
 import { moveComments } from '../../../api/comments'
@@ -174,9 +177,7 @@ export function onDropTodo(commentId, commentsState, marketId, setOperationRunni
       const { investible } = inv;
       return moveComments(marketId, investible.id, [commentId])
         .then((movedComments) => {
-          const comments = getMarketComments(commentsState, marketId);
-          const newComments = _.unionBy(movedComments, comments, 'id')
-          refreshMarketComments(commentsDispatch, marketId, newComments);
+          addMarketComments(commentsDispatch, marketId, movedComments);
           addInvestible(invDispatch, () => {}, inv);
           if (setOperationRunning) {
             setOperationRunning(false);

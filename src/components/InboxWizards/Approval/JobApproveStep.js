@@ -8,7 +8,7 @@ import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
 import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
-import { getMarketComments, refreshMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -27,7 +27,7 @@ export function getJobApproveEditorName(investibleId) {
 function JobApproveStep(props) {
   const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish, message,
     investibleId } = props;
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -59,8 +59,7 @@ function JobApproveStep(props) {
       const { commentResult, investmentResult } = result;
       const { commentAction, comment } = commentResult;
       if (commentAction !== "NOOP") {
-        const comments = getMarketComments(commentsState, marketId);
-        refreshMarketComments(commentsDispatch, marketId, [comment, ...comments]);
+        addMarketComments(commentsDispatch, marketId, [comment]);
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
       clearFormData();

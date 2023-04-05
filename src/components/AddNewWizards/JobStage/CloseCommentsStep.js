@@ -6,9 +6,9 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
+  addMarketComments,
   getCommentThreads,
-  getMarketComments,
-  refreshMarketComments
+  getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import _ from 'lodash';
@@ -57,7 +57,7 @@ function CloseCommentsStep(props) {
     return stageChangeInvestible(moveInfo)
       .then((response) => {
         const { full_investible: newInv, comments } = response;
-        refreshMarketComments(commentsDispatch, marketId, comments);
+        addMarketComments(commentsDispatch, marketId, comments);
         onInvestibleStageChange(stage, newInv, investibleId, marketId, undefined,
           undefined, investiblesDispatch, () => {}, marketStagesState, undefined,
           getFullStage(marketStagesState, marketId, marketInfo.stage));

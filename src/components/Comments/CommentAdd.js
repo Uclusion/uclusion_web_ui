@@ -20,10 +20,9 @@ import { processTextAndFilesForSave } from '../../api/files'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import {
-  addCommentToMarket, getComment,
-  getMarketComments,
-  refreshMarketComments
-} from '../../contexts/CommentsContext/commentsContextHelper'
+  addCommentToMarket, addMarketComments, getComment,
+  getMarketComments
+} from '../../contexts/CommentsContext/commentsContextHelper';
 import {
   getBlockedStage,
   getInReviewStage,
@@ -246,7 +245,7 @@ function quickResolveOlderReports(marketId, investibleId, myPresence, currentCom
       updated_by: currentComment.updated_by
     }
   })
-  refreshMarketComments(commentDispatch, marketId, updatedComments)
+  addMarketComments(commentDispatch, marketId, updatedComments)
 }
 
 export function quickNotificationChanges(apiType, inReviewStage, isInReview, investibleId, messagesState,

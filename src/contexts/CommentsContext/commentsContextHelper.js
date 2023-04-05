@@ -1,6 +1,6 @@
 import { fixupItemsForStorage, } from '../ContextUtils'
 import _ from 'lodash'
-import { overwriteMarketComments, removeCommentsFromMarket } from './commentsContextReducer'
+import { overwriteMarketComments, removeCommentsFromMarket, updateCommentsFromVersions } from './commentsContextReducer';
 import { pushMessage } from '../../utils/MessageBusUtils'
 import {
   INDEX_COMMENT_TYPE,
@@ -99,7 +99,7 @@ export function reopenAutoclosedInvestibleComments(investibleId, marketId, state
   const reopenedComments = commentsFiltered.map((comment) => {
     return { ...comment, resolved: false, auto_closed: false };
   });
-  refreshMarketComments(dispatch, marketId, reopenedComments);
+  addMarketComments(dispatch, marketId, reopenedComments);
 }
 
 export function resolveInvestibleComments(investibleId, marketId, state, dispatch) {
@@ -107,7 +107,7 @@ export function resolveInvestibleComments(investibleId, marketId, state, dispatc
   const resolvedComments = unresolvedComments.map((comment) => {
     return { ...comment, resolved: true };
   });
-  refreshMarketComments(dispatch, marketId, resolvedComments);
+  addMarketComments(dispatch, marketId, resolvedComments);
 }
 
 export function addCommentToMarket(comment, state, dispatch) {
@@ -131,8 +131,6 @@ export function addCommentToMarket(comment, state, dispatch) {
   dispatch(overwriteMarketComments(marketId, fixupItemsForStorage(updates)));
 }
 
-export function refreshMarketComments(dispatch, marketId, comments) {
-  const fixedUp = fixupItemsForStorage(comments);
-  // We are free to overwrite here because the required version is protecting quick add comments
-  dispatch(overwriteMarketComments(marketId, fixedUp));
+export function addMarketComments(dispatch, marketId, comments) {
+  dispatch(updateCommentsFromVersions({[marketId]: comments}));
 }

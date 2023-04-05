@@ -386,11 +386,13 @@ function CommentAdd(props) {
     commentAddStateReset();
   }
 
-  function handleSpinStop (comment) {
+  function handleSpinStop (comment, isJustClear) {
     clearMe()
-    onSave(comment)
+    if (!isJustClear) {
+      onSave(comment)
+    }
   }
-  function handleSave(isSent, passedNotificationType, doCreateInitiative) {
+  function handleSave(isSent, passedNotificationType, doCreateInitiative, isJustClear=false) {
     const currentUploadedFiles = uploadedFiles || [];
     const myBodyNow = getQuillStoredState(editorName);
     const apiType = (type === REPLY_TYPE) ? undefined : type;
@@ -444,11 +446,11 @@ function CommentAdd(props) {
           const tokenStorageManager = new TokenStorageManager();
           return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token).then(() => {
             setOperationRunning(false);
-            handleSpinStop(comment);
+            handleSpinStop(comment, isJustClear);
           });
         }
         setOperationRunning(false);
-        handleSpinStop(comment);
+        handleSpinStop(comment, isJustClear);
       });
   }
   const isWizard = !_.isEmpty(wizardProps);
@@ -512,6 +514,10 @@ function CommentAdd(props) {
                     setOperationRunning(true);
                     handleSave();
                   } : wizardProps.onTerminate}
+                  showOtherNext={type === TODO_TYPE}
+                  otherNextLabel='addAnother'
+                  onOtherNext={() => handleSave(true, undefined, false,
+                    true )}
                   showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : true}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}

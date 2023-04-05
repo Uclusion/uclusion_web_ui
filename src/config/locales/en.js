@@ -534,6 +534,7 @@ const messages = defineMessages({
   JobCommentAddISSUE: 'Add',
   JobCommentAddTODO: 'Add',
   JobCommentAddREPORT: 'Add',
+  addAnother: 'Save and add another',
   DecisionCommentAddQUESTION: 'Add',
   DecisionCommentAddSUGGEST: 'Add',
   DecisionCommentAddISSUE: 'Add',

@@ -1,12 +1,11 @@
-import { fixupItemsForStorage, } from '../ContextUtils'
-import _ from 'lodash'
-import { overwriteMarketComments, removeCommentsFromMarket, updateCommentsFromVersions } from './commentsContextReducer';
-import { pushMessage } from '../../utils/MessageBusUtils'
+import _ from 'lodash';
+import { removeCommentsFromMarket, updateCommentsFromVersions } from './commentsContextReducer';
+import { pushMessage } from '../../utils/MessageBusUtils';
 import {
   INDEX_COMMENT_TYPE,
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
-} from '../SearchIndexContext/searchIndexContextMessages'
+} from '../SearchIndexContext/searchIndexContextMessages';
 
 export function getComment(state, marketId, commentId) {
   const marketComments = state[marketId] || [];
@@ -128,7 +127,7 @@ export function addCommentToMarket(comment, state, dispatch) {
     }
   }
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: updates});
-  dispatch(overwriteMarketComments(marketId, fixupItemsForStorage(updates)));
+  addMarketComments(dispatch, marketId, updates);
 }
 
 export function addMarketComments(dispatch, marketId, comments) {

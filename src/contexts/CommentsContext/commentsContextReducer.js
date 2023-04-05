@@ -28,14 +28,6 @@ export function updateCommentsFromVersions(commentDetails) {
   };
 }
 
-export function overwriteMarketComments(marketId, comments) {
-  return {
-    type: OVERWRITE_MARKET_COMMENTS,
-    marketId,
-    comments,
-  };
-}
-
 export function removeCommentsFromMarket(marketId, comments) {
   return {
     type: REMOVE_COMMENTS_FROM_MARKET,

@@ -118,15 +118,17 @@ export function allowVotingForSuggestion(commentId, setOperationRunning, markets
 
 export function getCommentsSortedByType(marketComments, investibleId, includeStatusReports) {
   const commentsRaw = marketComments.filter((comment) => comment.investible_id === investibleId && !comment.resolved &&
-    (comment.comment_type === TODO_TYPE ||
+    ([TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type) ||
       (includeStatusReports && comment.comment_type === REPORT_TYPE && comment.creator_assigned)));
   return _.orderBy(commentsRaw, [(comment) => {
     const { comment_type: commentType } = comment;
     switch (commentType) {
-      case 'REPORT_TYPE':
+      case REPORT_TYPE:
         return 2;
-      default:
+      case TODO_TYPE:
         return 1;
+      default:
+        return 0;
     }
   }], ['desc'] );
 }

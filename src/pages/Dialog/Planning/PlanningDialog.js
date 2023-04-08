@@ -161,7 +161,7 @@ function PlanningDialog(props) {
       const element = document.getElementById(hash.substring(1, hash.length));
       if (!element) {
         if (hash.includes('option')) {
-          updatePageState({ sectionOpen: 'questions', tabIndex: 3 });
+          updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
         } else {
           const found = comments.find((comment) => hash.includes(comment.id));
           if (!_.isEmpty(found)) {

@@ -83,15 +83,16 @@ function CurrentVoting(props) {
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const selectedInvestibleId = selectedInvestibleIdParent || selectedInvestibleIdLocal;
   const setSelectedInvestibleId = setSelectedInvestibleIdParent || setSelectedInvestibleIdLocal;
-
+  console.debug(`now selected is ${selectedInvestibleId}`)
   useEffect(() => {
-    if (hash) {
+    console.debug(`selected is ${selectedInvestibleId}`)
+    if (hash && !hash.includes(selectedInvestibleId)) {
       const foundInv = (strippedInvestibles || []).find((investible) => hash.includes(investible.id));
       if (foundInv) {
         setSelectedInvestibleId(foundInv.id);
       }
     }
-  }, [strippedInvestibles, hash, setSelectedInvestibleId]);
+  }, [strippedInvestibles, hash, setSelectedInvestibleId, selectedInvestibleId]);
 
   function getInvestibleVotes() {
     // first set every investibles support and investments to 0
@@ -147,7 +148,7 @@ function CurrentVoting(props) {
             } else {
               setSelectedInvestibleId(id);
               if (!removeActions) {
-                // TODO in new UI this will be WorkListItem like and it's use of scrollToElement
+                //TODO in new UI this will be WorkListItem like and it's use of scrollToElement
                 if (parentInvestibleId) {
                   navigate(history, `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${id}`);
                 } else if (parentMarketId) {

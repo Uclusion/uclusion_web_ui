@@ -46,7 +46,7 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import {
   ACTIVE_STAGE,
   INITIATIVE_TYPE,
-  JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
+  JOB_COMMENT_CONFIGURE_WIZARD_TYPE, OPTION_WIZARD_TYPE,
   PLANNING_TYPE
 } from '../../constants/markets';
 import { red } from '@material-ui/core/colors';
@@ -81,8 +81,6 @@ import {
 } from '../../utils/messageUtils';
 import GravatarAndName from '../Avatars/GravatarAndName';
 import { invalidEditEvent } from '../../utils/windowUtils';
-import DecisionInvestibleAdd from '../../pages/Dialog/Decision/DecisionInvestibleAdd';
-import ExpandableAction from '../SidebarActions/Planning/ExpandableAction';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import { Clear, Delete, Done, Edit, Eject, ExpandLess, NotInterested, SettingsBackupRestore } from '@material-ui/icons';
@@ -400,12 +398,6 @@ function Comment(props) {
   const hasUser = userIsLoaded(userState);
   const enableActions = !inArchives && !stagePreventsActions;
   const enableEditing = enableActions && !resolved; //resolved comments or those in archive aren't editable
-  const [investibleAddStateFull, investibleAddDispatch] = usePageStateReducer('commentInvestibleAdd');
-  const [investibleAddState, updateInvestibleAddState, investibleAddStateReset] =
-    getPageReducerPage(investibleAddStateFull, investibleAddDispatch, id);
-  const {
-    investibleAddBeingEdited,
-  } = investibleAddState;
   const [replyAddStateFull, replyAddDispatch] = usePageStateReducer('replyAdd');
   const [replyAddState, updateReplyAddState, replyAddStateReset] =
     getPageReducerPage(replyAddStateFull, replyAddDispatch, id);
@@ -431,10 +423,6 @@ function Comment(props) {
       }
     }
   }, [hasUser, marketsState, inlineMarketId, operationRunning]);
-
-  function toggleInlineInvestibleAdd() {
-    updateInvestibleAddState({investibleAddBeingEdited: !investibleAddBeingEdited});
-  }
 
   function toggleDiffShow() {
     if (showDiff) {
@@ -481,7 +469,7 @@ function Comment(props) {
   const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId;
   const isTask = marketType === PLANNING_TYPE && commentType === TODO_TYPE && investibleId;
   const isEditable = comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned);
-
+//TODO first put the button to add option wizard on comment - that can be checked in independently
   function getDialog(anInlineMarket) {
     const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults) || [];
     const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
@@ -500,38 +488,12 @@ function Comment(props) {
     return (
       <>
         <Grid item xs={12} style={{marginTop: '1rem'}}>
-          {investibleAddBeingEdited && comment.created_by === myPresence.id && (
-            <DecisionInvestibleAdd
-              marketId={inlineMarketId}
-              onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
-              onCancel={toggleInlineInvestibleAdd}
-              onSpinComplete={toggleInlineInvestibleAdd}
-              isAdmin={isEditable}
-              pageState={investibleAddState}
-              pageStateUpdate={updateInvestibleAddState}
-              pageStateReset={investibleAddStateReset}
-              parentCommentId={inlineMarketId ? undefined: id}
-            />
-          )}
           <SubSection
             id={`${isInbox ? 'inbox' : ''}currentVoting`}
             type={SECTION_TYPE_SECONDARY_WARNING}
             bolder
             title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
             supportingInformation={abstained}
-            actionButton={removeActions || !enableEditing || comment.created_by !== myPresence.id ? null :
-              (<ExpandableAction
-                id={`approvableOption${id}`}
-                icon={<AddIcon htmlColor="black"/>}
-                label={intl.formatMessage({ id: 'createDialogApprovableExplanation' })}
-                openLabel={intl.formatMessage({
-                  id: mobileLayout ? 'inlineAddLabelMobile' :
-                    'decisionDialogAddInvestibleLabel'
-                })}
-                onClick={toggleInlineInvestibleAdd}
-                disabled={!isEditable}
-                tipPlacement="top-end"
-              />)}
           >
             <CurrentVoting
               marketPresences={anInlineMarketPresences}
@@ -551,33 +513,11 @@ function Comment(props) {
           </SubSection>
         </Grid>
         <Grid item xs={12} style={{marginTop: '1rem'}}>
-          {investibleAddBeingEdited && comment.created_by !== myPresence.id && (
-            <DecisionInvestibleAdd
-              marketId={inlineMarketId}
-              onSave={(investible) => addInvestible(investiblesDispatch, () => {}, investible)}
-              onCancel={toggleInlineInvestibleAdd}
-              onSpinComplete={toggleInlineInvestibleAdd}
-              isAdmin={isEditable}
-              pageState={investibleAddState}
-              pageStateUpdate={updateInvestibleAddState}
-              pageStateReset={investibleAddStateReset}
-              parentCommentId={inlineMarketId ? undefined: id}
-            />
-          )}
           <SubSection
             id="proposedVoting"
             type={SECTION_TYPE_SECONDARY_WARNING}
             bolder
             title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
-            actionButton={ removeActions || inArchives || comment.created_by === myPresence.id ? null :
-              (<ExpandableAction
-                id={`proposedOption${id}`}
-                icon={<AddIcon htmlColor="black"/>}
-                label={intl.formatMessage({ id: 'createDialogProposedExplanation' })}
-                openLabel={intl.formatMessage({ id: 'decisionDialogProposeInvestibleLabel'})}
-                onClick={toggleInlineInvestibleAdd}
-                tipPlacement="top-end"
-              />)}
           >
             <ProposedIdeas
               marketPresences={anInlineMarketPresences}
@@ -931,6 +871,16 @@ function Comment(props) {
                     {(!mobileLayout || resolved) && intl.formatMessage({
                       id: resolved ? 'commentReopenLabel' : 'commentResolveLabel'
                     })}
+                  </SpinningIconLabelButton>
+                )}
+                {inlineMarketId && (
+                  <SpinningIconLabelButton
+                    doSpin={false}
+                    onClick={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, inlineMarketId))}
+                    icon={AddIcon}
+                    id={`addOptionButton${id}`}
+                  >
+                    {intl.formatMessage({ id: 'inlineAddLabel' })}
                   </SpinningIconLabelButton>
                 )}
                 {showAbstain && (

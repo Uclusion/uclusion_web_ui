@@ -19,7 +19,7 @@ import {
   JOB_STAGE_WIZARD_TYPE,
   JOB_WIZARD_TYPE,
   PLANNING_TYPE,
-  WORKSPACE_WIZARD_TYPE, JOB_COMMENT_CONFIGURE_WIZARD_TYPE
+  WORKSPACE_WIZARD_TYPE, JOB_COMMENT_CONFIGURE_WIZARD_TYPE, OPTION_WIZARD_TYPE
 } from '../../constants/markets';
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
@@ -35,6 +35,7 @@ import JobReviewerWizard from '../../components/AddNewWizards/JobReviewer/JobRev
 import JobStageWizard from '../../components/AddNewWizards/JobStage/JobStageWizard';
 import ApprovalWizard from '../../components/AddNewWizards/Approval/ApprovalWizard';
 import JobCommentConfigureWizard from '../../components/AddNewWizards/CommentConfigure/JobCommentConfigureWizard';
+import OptionWizard from '../../components/AddNewWizards/Option/OptionWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -59,6 +60,9 @@ function Wizard(props) {
       )}
       {createType === JOB_WIZARD_TYPE.toLowerCase() && (
         <JobWizard marketId={marketId} groupId={groupId} assigneeId={assigneeId} />
+      )}
+      {createType === OPTION_WIZARD_TYPE.toLowerCase() && (
+        <OptionWizard marketId={marketId} />
       )}
       {createType === BUG_WIZARD_TYPE.toLowerCase() && (
         <BugWizard marketId={marketId} groupId={groupId} />

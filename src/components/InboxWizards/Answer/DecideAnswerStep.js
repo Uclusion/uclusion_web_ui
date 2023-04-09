@@ -17,7 +17,7 @@ import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
+import { APPROVAL_WIZARD_TYPE, OPTION_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 
 function DecideAnswerStep(props) {
@@ -40,7 +40,6 @@ function DecideAnswerStep(props) {
   }
 
   function abstain() {
-    setOperationRunning(true);
     return marketAbstain(commentRoot.inline_market_id)
       .then(() => {
         const newValues = {
@@ -52,7 +51,7 @@ function DecideAnswerStep(props) {
         clearFormData();
       });
   }
-
+  const isRegularFinish = message.type_object_id.startsWith('UNREAD') || message.is_highlighted;
   return (
     <WizardStepContainer
       {...props}
@@ -90,11 +89,13 @@ function DecideAnswerStep(props) {
         onNext={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, commentRoot.inline_market_id,
           selectedInvestibleId))}
         showOtherNext
-        otherNextLabel="DecideWizardMute"
-        onOtherNext={abstain}
-        onFinish={myOnFinish}
-        showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
-        terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'defer'}
+        otherNextLabel="inlineAddLabel"
+        onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id))}
+        onFinish={isRegularFinish ? myOnFinish : abstain}
+        showTerminate={true}
+        terminateSpinOnClick={!isRegularFinish}
+        terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' :
+          (message.is_highlighted ? 'defer' : 'DecideWizardMute')}
       />
     </div>
     </WizardStepContainer>

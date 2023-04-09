@@ -26,7 +26,8 @@ function WizardStepButtons(props) {
     terminateLabel,
     nextLabel,
     startOver,
-    nextDisabled
+    nextDisabled,
+    terminateSpinOnClick
   } = props;
   const intl = useIntl();
   const classes = wizardStyles();
@@ -91,7 +92,7 @@ function WizardStepButtons(props) {
       <div className={classes.actionContainer}>
         {showTerminate && (
           <SpinningButton id="OnboardingWizardSkip" className={classes.actionSkip} variant="text"
-                          doSpin={false} onClick={onTerminate}>
+                          doSpin={terminateSpinOnClick} onClick={onTerminate}>
             {intl.formatMessage({ id: terminateLabel })}
           </SpinningButton>
         )}
@@ -121,7 +122,8 @@ WizardStepButtons.propTypes = {
   spinOnClick: PropTypes.bool,
   otherSpinOnClick: PropTypes.bool,
   nextLabel: PropTypes.string,
-  nextDisabled: PropTypes.bool
+  nextDisabled: PropTypes.bool,
+  terminateSpinOnClick: PropTypes.bool
 };
 WizardStepButtons.defaultProps = {
   onNext: () => {},
@@ -142,6 +144,7 @@ WizardStepButtons.defaultProps = {
   showTerminate: false,
   spinOnClick: true,
   otherSpinOnClick: true,
+  terminateSpinOnClick: false,
   nextLabel: 'OnboardingWizardContinue',
 };
 

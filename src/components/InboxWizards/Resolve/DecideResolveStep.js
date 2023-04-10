@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types'
 import { Typography } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer';
@@ -38,6 +38,7 @@ function DecideResolveStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [selectedInvestibleId, setSelectedInvestibleId] = useState(message.investible_id);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
@@ -102,7 +103,7 @@ function DecideResolveStep(props) {
         }
       });
   }
-  // TODO rework this once have answer on https://production.uclusion.com/dialog/4e84f9b9-33ae-47e3-9f85-5048d36f5608/78179afa-b093-4df4-a0df-01c93a846bce#cf0175bcb-ca02-4442-9514-04927a4cb8ed
+
   return (
     <WizardStepContainer
       {...props}
@@ -128,6 +129,8 @@ function DecideResolveStep(props) {
           isInbox
           removeActions
           showVoting
+          selectedInvestibleIdParent={selectedInvestibleId}
+          setSelectedInvestibleIdParent={setSelectedInvestibleId}
         />
       </div>
       <WizardStepButtons

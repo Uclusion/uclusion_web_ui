@@ -1,91 +1,46 @@
-import React, { useContext, useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
-import _ from 'lodash'
-import { CardContent, Grid, IconButton } from '@material-ui/core'
-import { makeStyles } from '@material-ui/styles'
-import { red } from '@material-ui/core/colors'
-import RaisedCard from '../../../components/Cards/RaisedCard'
-import { getVoteTotalsForUser } from '../../../utils/userFunctions'
-import VoteCard from '../../../components/Cards/VoteCard'
-import { findMessagesForInvestibleId } from '../../../utils/messageUtils'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { moveInvestibleToCurrentVoting } from '../../../api/investibles'
-import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import React, { useContext, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { moveInvestibleToCurrentVoting } from '../../../api/investibles';
+import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import {
   getInCurrentVotingStage,
   getProposedOptionsStage
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
-import DecisionInvestible from '../../Investible/Decision/DecisionInvestible'
-import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { Clear } from '@material-ui/icons'
-import CardHeader from '@material-ui/core/CardHeader'
-import { useHistory, useLocation } from 'react-router'
-import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
-
-const useStyles = makeStyles(theme => ({
-  noPadding: {
-    padding: theme.spacing(0),
-    "&:last-child": {
-      padding: 0
-    }
-  },
-  warnNoOptions: {
-    backgroundColor: red["400"],
-    display: 'grid',
-    gridTemplateColumns: 'calc(100% - 130px) 130px',
-    width: '100%',
-    height: '97px',
-    padding: '10px 0',
-    background: 'white',
-  },
-  title: {
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    height: '77px',
-    margin: '3px',
-    padding: '0 20px',
-    fontWeight: 'bold',
-    color: '#3e3e3e',
-    overflow: 'hidden',
-  },
-  card: {
-    marginLeft: '0.5rem',
-    marginTop: '0.5rem',
-    marginRight: '0.5rem',
-    paddingBottom: '1rem'
-  }
-}));
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles';
+import DecisionInvestible from '../../Investible/Decision/DecisionInvestible';
+import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { useLocation } from 'react-router';
+import OptionListItem from '../../../components/Comments/OptionListItem';
+import { nameFromDescription } from '../../../utils/stringFunctions';
 
 function CurrentVoting(props) {
-  const history = useHistory();
-  const classes = useStyles();
   const outlineStyles = myArchiveClasses();
   const location = useLocation();
   const { hash } = location;
   const [selectedInvestibleIdLocal, setSelectedInvestibleIdLocal] = useState(undefined);
   const [marketsState] = useContext(MarketsContext);
   const { marketPresences, investibles, marketId, comments, isAdmin, inArchives, isSent, removeActions,
-    parentInvestibleId, parentMarketId, groupId, selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
+    selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
   const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, invDispatch] = useContext(InvestiblesContext);
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const selectedInvestibleId = selectedInvestibleIdParent || selectedInvestibleIdLocal;
   const setSelectedInvestibleId = setSelectedInvestibleIdParent || setSelectedInvestibleIdLocal;
-  console.debug(`now selected is ${selectedInvestibleId}`)
+
   useEffect(() => {
-    console.debug(`selected is ${selectedInvestibleId}`)
     if (hash && !hash.includes(selectedInvestibleId)) {
       const foundInv = (strippedInvestibles || []).find((investible) => hash.includes(investible.id));
       if (foundInv) {
@@ -94,86 +49,8 @@ function CurrentVoting(props) {
     }
   }, [strippedInvestibles, hash, setSelectedInvestibleId, selectedInvestibleId]);
 
-  function getInvestibleVotes() {
-    // first set every investibles support and investments to 0
-    const tallies = strippedInvestibles.reduce((acc, inv) => {
-      const { id } = inv;
-      acc[id] = {
-        ...inv,
-        investments: [],
-        numSupporters: 0
-      };
-      return acc;
-    }, {});
-    // now we fill in votes from market presences
-    marketPresences.forEach(presence => {
-      const userInvestments = getVoteTotalsForUser(presence);
-      Object.keys(userInvestments).forEach((investible_id) => {
-        const oldValue = tallies[investible_id];
-        if (oldValue) {
-          const newInvestments = [
-            ...oldValue.investments,
-            userInvestments[investible_id],
-          ];
-          tallies[investible_id] = {
-            ...oldValue,
-            investments: newInvestments,
-            numSupporters: newInvestments.length,
-          };
-        }
-      });
-    });
-    return tallies;
-  }
-
   function onDragStart(event) {
     event.dataTransfer.setData('text', event.target.id);
-  }
-
-  function getItemVote(item) {
-    const { id, investments, name } = item;
-    const investibleComments = comments.filter(
-      comment => comment.investible_id === id && !comment.parent_id
-    );
-    const myMessage = !_.isEmpty(findMessagesForInvestibleId(id, messagesState));
-    return (
-      <Grid item id={id} key={id} xs={12} sm={12} md={6} draggable={!operationRunning && isAdmin}
-            onDragStart={onDragStart}>
-        <RaisedCard
-          className={classes.card}
-          elevation={3}
-          onClick={() => {
-            if (selectedInvestibleId === id) {
-              setSelectedInvestibleId(undefined);
-            } else {
-              setSelectedInvestibleId(id);
-              if (!removeActions) {
-                //TODO in new UI this will be WorkListItem like and it's use of scrollToElement
-                if (parentInvestibleId) {
-                  navigate(history, `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${id}`);
-                } else if (parentMarketId) {
-                  navigate(history, `${formMarketLink(parentMarketId, groupId)}#option${id}`);
-                }
-              }
-            }
-          }}
-          isHighlighted={myMessage}
-        >
-          <CardHeader
-            style={{padding: 0, display: selectedInvestibleId === id ? 'flex' : 'none'}}
-            action={<IconButton id={`clearCurrentVoting${id}`} style={{padding: 0}}><Clear /></IconButton>}
-          />
-          <CardContent className={classes.noPadding}
-                       style={{marginTop: selectedInvestibleId === id ? '-1.2rem' : undefined}}>
-            <VoteCard
-              title={name}
-              comments={investibleComments}
-              votes={investments}
-            />
-          </CardContent>
-        </RaisedCard>
-      </Grid>
-    );
   }
 
   function onDropApprovable(event) {
@@ -194,15 +71,6 @@ function CurrentVoting(props) {
       });
   }
 
-  const tallies = getInvestibleVotes();
-  const talliesArray = Object.values(tallies);
-  // descending order of support
-  const sortedTalliesArray = _.sortBy(
-    talliesArray,
-    'numSupporters',
-    'name'
-  ).reverse();
-
   function setElementGreen() {
     removeElementGreen();
     document.getElementById(`current${marketId}`).classList.add(outlineStyles.containerGreen);
@@ -213,31 +81,56 @@ function CurrentVoting(props) {
       document.getElementById(elementId).classList.remove(outlineStyles.containerGreen);
     });
   }
+  function isRead(inv) {
+    const investibleId = inv.investible.id;
+    const myMessages = findMessagesForInvestibleId(investibleId, messagesState);
+    return _.isEmpty(myMessages.find((message) => !message.is_highlighted));
+  }
   const market = getMarket(marketsState, marketId);
-  const fullInvestible = investibles.find((inv) => inv.investible.id === selectedInvestibleId);
+  function getOptionListItem(inv) {
+    let expansionPanel = undefined;
+    const expansionOpen = inv.investible.id === selectedInvestibleId;
+    if (expansionOpen) {
+      expansionPanel = <DecisionInvestible
+        userId={getMyUserForMarket(marketsState, marketId) || ''}
+        investibleId={selectedInvestibleId}
+        market={market}
+        fullInvestible={inv}
+        comments={comments}
+        marketPresences={marketPresences}
+        investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
+        isAdmin={isAdmin}
+        inArchives={inArchives}
+        isSent={isSent}
+        removeActions={removeActions}
+      />
+    }
+    const investibleId = inv.investible.id;
+    const description = nameFromDescription(inv.investible.description);
+    const investors = marketPresences.filter((presence) =>
+      presence.investments?.find((investment) => !investment.deleted && investment.investible_id === investibleId));
+    return (
+      <OptionListItem id={investibleId} expansionPanel={expansionPanel} read={isRead(inv)} people={investors}
+                      description={description} title={inv.investible.name}
+                      expandOrContract={() => {
+                        if (expansionOpen) {
+                          setSelectedInvestibleId(undefined);
+                        } else {
+                          setSelectedInvestibleId(investibleId);
+                        }
+                      }} expansionOpen={expansionOpen} />
+    )
+  }
+
+  const orderedInvestiblesArray = _.orderBy(investibles, [(inv) => {
+    return isRead(inv) ? 1 : 0;
+  }, (inv) => inv.investible.name]);
   return (
-    <>
-      <Grid container spacing={1} id={`current${marketId}`} className={outlineStyles.white}
-            onDragEnd={removeElementGreen} onDragEnter={setElementGreen}
-            onDragOver={(event) => event.preventDefault()} onDrop={onDropApprovable}>
-        {(sortedTalliesArray || []).map((item) => getItemVote(item))}
-      </Grid>
-      {!_.isEmpty(fullInvestible) && !_.isEmpty(fullInvestible.investible) && !_.isEmpty(market) && (
-        <DecisionInvestible
-          userId={getMyUserForMarket(marketsState, marketId) || ''}
-          investibleId={selectedInvestibleId}
-          market={market}
-          fullInvestible={fullInvestible}
-          comments={comments}
-          marketPresences={marketPresences}
-          investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
-          isAdmin={isAdmin}
-          inArchives={inArchives}
-          isSent={isSent}
-          removeActions={removeActions}
-        />
-      )}
-    </>
+    <div id={`current${marketId}`}
+          onDragEnd={removeElementGreen} onDragEnter={setElementGreen}
+          onDragOver={(event) => event.preventDefault()} onDrop={onDropApprovable}>
+      {(orderedInvestiblesArray || []).map((fullInvestible) => getOptionListItem(fullInvestible))}
+    </div>
   );
 }
 

@@ -469,7 +469,7 @@ function Comment(props) {
   const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId;
   const isTask = marketType === PLANNING_TYPE && commentType === TODO_TYPE && investibleId;
   const isEditable = comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned);
-//TODO first put the button to add option wizard on comment - that can be checked in independently
+
   function getDialog(anInlineMarket) {
     const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults) || [];
     const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
@@ -873,7 +873,7 @@ function Comment(props) {
                     })}
                   </SpinningIconLabelButton>
                 )}
-                {inlineMarketId && (
+                {inlineMarket.market_type === DECISION_TYPE && (
                   <SpinningIconLabelButton
                     doSpin={false}
                     onClick={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, inlineMarketId))}

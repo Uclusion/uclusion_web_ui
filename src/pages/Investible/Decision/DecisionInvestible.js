@@ -235,21 +235,6 @@ function DecisionInvestible(props) {
             onClick={(event) => mySetBeingEdited(true, event)}
           />
       )}
-      {isAdmin && inProposed && (
-          <MoveToCurrentVotingActionButton
-            key="moveToCurrent"
-            investibleId={investibleId}
-            marketId={marketId}
-            hasIssue={hasIssue}
-          />
-      )}
-      {isAdmin && !inProposed && (
-        <MoveBackToPoolActionButton
-          key="moveBack"
-          investibleId={investibleId}
-          marketId={marketId}
-        />
-      )}
       {allowDelete && (
         <DeleteInvestibleActionButton
           key="delete"
@@ -287,7 +272,7 @@ function DecisionInvestible(props) {
           </div>
         } />
       )}
-      <Card className={classes.root} id="optionMain">
+      <div className={classes.root} id="optionMain">
         <CardType
           className={classes.cardType}
           type={VOTING_TYPE}
@@ -295,7 +280,7 @@ function DecisionInvestible(props) {
           myBeingEdited={beingEdited}
         />
         <Grid container className={classes.mobileColumn}>
-          <Grid item md={9} xs={12}>
+          <Grid item md={10} xs={12}>
             <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
               {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
                 <Typography>
@@ -314,43 +299,41 @@ function DecisionInvestible(props) {
               )}
             </CardContent>
           </Grid>
-          <Grid className={classes.borderLeft} item md={3} xs={12}>
+          <Grid className={classes.borderLeft} item md={2} xs={12}>
             <CardActions className={classes.actions}>
-              {!removeActions && activeMarket && (
-                getActions()
-              )}
-              {isSent && (
-                <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
-                  <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
+              {!removeActions && (
+                <div className={clsx(metaClasses.root, classes.flexCenter)}>
+                  {!removeActions && activeMarket && (
+                    getActions()
+                  )}
+                  {isSent && (
+                    <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
+                  )}
+                  {myMessageDescription && diff && (
+                    <>
+                      <div style={{paddingTop: '0.5rem'}} />
+                      <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                               onClick={toggleDiffShow} doSpin={false}>
+                        <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+                      </SpinningIconLabelButton>
+                    </>
+                  )}
+                  <Typography variant="body2" style={{paddingBottom: '1rem'}}>
+                    {intl.formatMessage({ id: 'created_by' })} {optionCreatedBy.name}.
+                  </Typography>
+                  <AttachedFilesList
+                    key="files"
+                    marketId={marketId}
+                    onDeleteClick={onDeleteFile}
+                    isAdmin={isAdmin}
+                    attachedFiles={attachedFiles}
+                    onUpload={onAttachFiles} />
                 </div>
               )}
             </CardActions>
-            {myMessageDescription && diff && (
-              <>
-                <div style={{paddingTop: '0.5rem'}} />
-                <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
-                                         onClick={toggleDiffShow} doSpin={false}>
-                  <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
-                </SpinningIconLabelButton>
-              </>
-            )}
-            {!removeActions && (
-              <dl className={clsx(metaClasses.root, classes.flexCenter)}>
-                <Typography variant="body2" style={{paddingBottom: '1rem'}}>
-                  {intl.formatMessage({ id: 'created_by' })} {optionCreatedBy.name}.
-                </Typography>
-                <AttachedFilesList
-                  key="files"
-                  marketId={marketId}
-                  onDeleteClick={onDeleteFile}
-                  isAdmin={isAdmin}
-                  attachedFiles={attachedFiles}
-                  onUpload={onAttachFiles} />
-              </dl>
-            )}
           </Grid>
         </Grid>
-      </Card>
+      </div>
       <div style={{display: 'flex', marginTop: '1.5rem', marginBottom: '1.5rem'}}>
         {displayVotingInput && investibleId && (
           <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex"}}

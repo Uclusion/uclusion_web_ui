@@ -47,15 +47,12 @@ const Title = styled(Text)`
   min-width: 13vw;
   flex-shrink: 0;
   flex-grow: 0;
+  margin-left: 0.75rem;
   & > *:not(:first-child) {
     font-size: 12px;
-    margin-left: 4px;
   };
   @media (max-width: 768px) {
     flex-basis: 100px;
-  }
-  @media (max-width: 1000px) {
-    margin-left: 8px;
   }
 `;
 

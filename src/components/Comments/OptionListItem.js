@@ -7,7 +7,6 @@ import GravatarGroup from '../../components/Avatars/GravatarGroup';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { scrollToElement } from '../../contexts/ScrollContext';
 
 const Item = styled("div")`
   margin-bottom: 10px;
@@ -111,12 +110,6 @@ function OptionListItem(props) {
             }
             preventDefaultAndProp(event);
             expandOrContract();
-            if (!expansionOpen) {
-              const item = document.getElementById(`optionListItem${id}`);
-              if (item) {
-                scrollToElement(item);
-              }
-            }
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
           <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>

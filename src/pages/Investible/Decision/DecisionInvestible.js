@@ -1,42 +1,40 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import _ from 'lodash'
-import { useHistory } from 'react-router'
-import { FormattedMessage, useIntl } from 'react-intl'
-import { Card, CardContent, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import { makeStyles } from '@material-ui/styles'
-import Voting from './Voting'
-import CommentBox from '../../../containers/CommentBox/CommentBox'
-import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments'
-import MoveToCurrentVotingActionButton from './MoveToCurrentVotingActionButton'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { ACTIVE_STAGE, DECISION_COMMENT_WIZARD_TYPE, APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
-import DeleteInvestibleActionButton from './DeleteInvestibleActionButton'
-import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType'
-import DismissableText from '../../../components/Notifications/DismissableText'
-import MoveBackToPoolActionButton from './MoveBackToPoolActionButton'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import CardActions from '@material-ui/core/CardActions'
-import clsx from 'clsx'
-import AttachedFilesList from '../../../components/Files/AttachedFilesList'
-import { useMetaDataStyles } from '../Planning/PlanningInvestibleNav'
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
-import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles'
-import { doSetEditWhenValid } from '../../../utils/windowUtils'
-import EditMarketButton from '../../Dialog/EditMarketButton'
-import { ExpandLess } from '@material-ui/icons'
-import InvestibleBodyEdit from '../InvestibleBodyEdit'
-import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper'
-import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import { useHistory } from 'react-router';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { CardContent, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
+import Voting from './Voting';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
+import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { ACTIVE_STAGE, APPROVAL_WIZARD_TYPE, DECISION_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
+import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType';
+import DismissableText from '../../../components/Notifications/DismissableText';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import CardActions from '@material-ui/core/CardActions';
+import clsx from 'clsx';
+import AttachedFilesList from '../../../components/Files/AttachedFilesList';
+import { useMetaDataStyles } from '../Planning/PlanningInvestibleNav';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles';
+import { doSetEditWhenValid } from '../../../utils/windowUtils';
+import EditMarketButton from '../../Dialog/EditMarketButton';
+import { ExpandLess } from '@material-ui/icons';
+import InvestibleBodyEdit from '../InvestibleBodyEdit';
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper';
+import { findMessageOfTypeAndId } from '../../../utils/messageUtils';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
 import AddIcon from '@material-ui/icons/Add';
 import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 

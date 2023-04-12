@@ -88,43 +88,23 @@ function Options(props) {
                         (_.size(underConsideration) > 0 ? `${_.size(underConsideration)}` : undefined)} />
         <GmailTabItem icon={<Block />}
                       label={intl.formatMessage({id: 'decisionDialogProposedOptionsLabel'})}
-                      tag={_.size(proposed) > 0 ?
-                        `${_.size(proposed)}` : undefined} />
+                      tag={_.size(proposed) > 0 ? `${_.size(proposed)}` : undefined} />
       </GmailTabs>
-      {tabIndex === 0 && (
-        <OptionVoting
-          marketPresences={anInlineMarketPresences}
-          investibles={underConsideration}
-          marketId={anInlineMarket.id}
-          parentMarketId={marketId}
-          parentInvestibleId={investibleId}
-          groupId={groupId}
-          comments={anInlineMarketInvestibleComments}
-          inArchives={inArchives}
-          isAdmin={isEditable}
-          isSent={isSent}
-          removeActions={removeActions}
-          selectedInvestibleIdParent={selectedInvestibleIdParent}
-          setSelectedInvestibleIdParent={setSelectedInvestibleIdParent}
-        />
-      )}
-      {tabIndex === 1 && (
-        <OptionVoting
-          marketPresences={anInlineMarketPresences}
-          investibles={proposed}
-          marketId={anInlineMarket.id}
-          parentMarketId={marketId}
-          parentInvestibleId={investibleId}
-          groupId={groupId}
-          comments={anInlineMarketInvestibleComments}
-          inArchives={inArchives}
-          isAdmin={isEditable}
-          isSent={isSent}
-          removeActions={removeActions}
-          selectedInvestibleIdParent={selectedInvestibleIdParent}
-          setSelectedInvestibleIdParent={setSelectedInvestibleIdParent}
-        />
-      )}
+      <OptionVoting
+        marketPresences={anInlineMarketPresences}
+        investibles={tabIndex === 0 ? underConsideration : proposed}
+        marketId={anInlineMarket.id}
+        parentMarketId={marketId}
+        parentInvestibleId={investibleId}
+        groupId={groupId}
+        comments={anInlineMarketInvestibleComments}
+        inArchives={inArchives}
+        isAdmin={isEditable}
+        isSent={isSent}
+        removeActions={removeActions}
+        selectedInvestibleIdParent={selectedInvestibleIdParent}
+        setSelectedInvestibleIdParent={setSelectedInvestibleIdParent}
+      />
     </>
   );
 }

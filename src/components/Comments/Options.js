@@ -9,7 +9,7 @@ import _ from 'lodash';
 import { Typography } from '@material-ui/core';
 import GravatarGroup from '../Avatars/GravatarGroup';
 import { GmailTabItem, GmailTabs } from '../../containers/Tab/Inbox';
-import { Block, Group as GroupIcon, Inbox as InboxIcon } from '@material-ui/icons';
+import { Block } from '@material-ui/icons';
 import OptionVoting from '../../pages/Dialog/Decision/OptionVoting';
 import React, { useContext, useState } from 'react';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
@@ -73,6 +73,7 @@ function Options(props) {
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   return (
     <>
+      {abstained}
       <GmailTabs
         value={tabIndex}
         onChange={(event, value) => {

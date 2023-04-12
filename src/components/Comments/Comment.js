@@ -1,17 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Grid,
-  Typography,
-  useMediaQuery,
-  useTheme
-} from '@material-ui/core';
+import { Box, Button, Card, CardActions, CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import _ from 'lodash';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
@@ -27,16 +17,11 @@ import {
 import { removeComment, reopenComment, resolveComment, updateComment } from '../../api/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import {
-  changeMyPresence,
-  getMarketPresences,
-  usePresences
-} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { changeMyPresence, usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, getMyUserForMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import CardType, { BUG, DECISION_TYPE, IN_REVIEW } from '../CardType';
-import { SECTION_TYPE_SECONDARY_WARNING } from '../../constants/global';
 import {
   addCommentToMarket,
   getMarketComments,
@@ -46,21 +31,15 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import {
   ACTIVE_STAGE,
   INITIATIVE_TYPE,
-  JOB_COMMENT_CONFIGURE_WIZARD_TYPE, OPTION_WIZARD_TYPE,
+  JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
+  OPTION_WIZARD_TYPE,
   PLANNING_TYPE
 } from '../../constants/markets';
 import { red } from '@material-ui/core/colors';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import { addInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import SubSection from '../../containers/SubSection/SubSection';
-import CurrentVoting from '../../pages/Dialog/Decision/CurrentVoting';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import ProposedIdeas from '../../pages/Dialog/Decision/ProposedIdeas';
-import {
-  getInCurrentVotingStage,
-  getInReviewStage,
-  getProposedOptionsStage
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   formCommentEditReplyLink,
@@ -97,7 +76,6 @@ import LoadingDisplay from '../LoadingDisplay';
 import { pushMessage } from '../../utils/MessageBusUtils';
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
-import GravatarGroup from '../Avatars/GravatarGroup';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker';
@@ -107,6 +85,7 @@ import { ScrollContext } from '../../contexts/ScrollContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import SettingsIcon from '@material-ui/icons/Settings';
+import Options from './Options';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -359,7 +338,6 @@ function Comment(props) {
   const isReallyMobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [, investibleDispatch] = useContext(InvestiblesContext);
   const intl = useIntl();
   const classes = useCommentStyles();
   const workItemClasses = workListStyles();
@@ -451,89 +429,16 @@ function Comment(props) {
     toggleEdit();
   }
 
-  function getInlineInvestiblesForStage(stage, inlineInvestibles) {
-    if (stage) {
-      return inlineInvestibles.reduce((acc, inv) => {
-        const { market_infos: marketInfos } = inv;
-        for (let x = 0; x < marketInfos.length; x += 1) {
-          if (marketInfos[x].stage === stage.id && !marketInfos[x].deleted) {
-            return [...acc, inv]
-          }
-        }
-        return acc;
-      }, []);
-    }
-    return [];
-  }
-
   const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId;
   const isTask = marketType === PLANNING_TYPE && commentType === TODO_TYPE && investibleId;
   const isEditable = comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned);
 
   function getDialog(anInlineMarket) {
-    const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults) || [];
-    const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
-    const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
-    const underConsiderationStage = getInCurrentVotingStage(marketStagesState, anInlineMarket.id);
-    const underConsideration = getInlineInvestiblesForStage(underConsiderationStage, inlineInvestibles);
-    const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
-    const proposed = getInlineInvestiblesForStage(proposedStage, inlineInvestibles);
-    const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
-    const abstained = _.isEmpty(abstaining) ? undefined :
-      <div style={{display: 'flex', paddingLeft: '2rem', alignItems: 'center'}}>
-      <Typography variant='body2' style={{paddingRight: '0.5rem'}}>
-        {intl.formatMessage({ id: 'commentAbstainingLabel' })}</Typography>
-      <GravatarGroup users={abstaining}/>
-    </div>;
     return (
-      <>
-        <Grid item xs={12} style={{marginTop: '1rem'}}>
-          <SubSection
-            id={`${isInbox ? 'inbox' : ''}currentVoting`}
-            type={SECTION_TYPE_SECONDARY_WARNING}
-            bolder
-            title={intl.formatMessage({ id: 'decisionDialogCurrentVotingLabel' })}
-            supportingInformation={abstained}
-          >
-            <CurrentVoting
-              marketPresences={anInlineMarketPresences}
-              investibles={underConsideration}
-              marketId={anInlineMarket.id}
-              parentMarketId={marketId}
-              parentInvestibleId={investibleId}
-              groupId={groupId}
-              comments={anInlineMarketInvestibleComments}
-              inArchives={inArchives}
-              isAdmin={isEditable}
-              isSent={isSent}
-              removeActions={removeActions}
-              selectedInvestibleIdParent={selectedInvestibleIdParent}
-              setSelectedInvestibleIdParent={setSelectedInvestibleIdParent}
-            />
-          </SubSection>
-        </Grid>
-        <Grid item xs={12} style={{marginTop: '1rem'}}>
-          <SubSection
-            id="proposedVoting"
-            type={SECTION_TYPE_SECONDARY_WARNING}
-            bolder
-            title={intl.formatMessage({ id: 'decisionDialogProposedOptionsLabel' })}
-          >
-            <ProposedIdeas
-              marketPresences={anInlineMarketPresences}
-              investibles={proposed}
-              marketId={anInlineMarket.id}
-              comments={anInlineMarketInvestibleComments}
-              isAdmin={isEditable}
-              inArchives={inArchives}
-              isSent={isSent}
-              removeActions={removeActions}
-              selectedInvestibleIdParent={selectedInvestibleIdParent}
-              setSelectedInvestibleIdParent={setSelectedInvestibleIdParent}
-            />
-          </SubSection>
-        </Grid>
-      </>
+      <Options anInlineMarket={anInlineMarket} marketId={marketId} investibleId={investibleId} inArchives={inArchives}
+               isEditable={isEditable} isSent={isSent} groupId={groupId} removeActions={removeActions}
+               selectedInvestibleIdParent={selectedInvestibleIdParent} searchResults={searchResults}
+               setSelectedInvestibleIdParent={setSelectedInvestibleIdParent} />
     );
   }
 
@@ -594,7 +499,7 @@ function Comment(props) {
     setOperationRunning(true)
     return updateComment(marketId, id, undefined, TODO_TYPE).then((comment) => {
       if (myPresence === createdBy) {
-        changeInvestibleStageOnCommentClose([marketInfo], investible, investibleDispatch,
+        changeInvestibleStageOnCommentClose([marketInfo], investible, investiblesDispatch,
           comment, marketStagesState);
       }
       addCommentToMarket(comment, commentsState, commentsDispatch);

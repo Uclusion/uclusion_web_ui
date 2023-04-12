@@ -20,8 +20,9 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { useLocation } from 'react-router';
 import OptionListItem from '../../../components/Comments/OptionListItem';
 import { nameFromDescription } from '../../../utils/stringFunctions';
+import { isRead } from '../../../components/Comments/Options';
 
-function CurrentVoting(props) {
+function OptionVoting(props) {
   const outlineStyles = myArchiveClasses();
   const location = useLocation();
   const { hash } = location;
@@ -81,11 +82,7 @@ function CurrentVoting(props) {
       document.getElementById(elementId).classList.remove(outlineStyles.containerGreen);
     });
   }
-  function isRead(inv) {
-    const investibleId = inv.investible.id;
-    const myMessages = findMessagesForInvestibleId(investibleId, messagesState);
-    return _.isEmpty(myMessages.find((message) => !message.is_highlighted));
-  }
+
   const market = getMarket(marketsState, marketId);
   function getOptionListItem(inv) {
     let expansionPanel = undefined;
@@ -110,8 +107,8 @@ function CurrentVoting(props) {
     const investors = marketPresences.filter((presence) =>
       presence.investments?.find((investment) => !investment.deleted && investment.investible_id === investibleId));
     return (
-      <OptionListItem id={investibleId} expansionPanel={expansionPanel} read={isRead(inv)} people={investors}
-                      description={description} title={inv.investible.name}
+      <OptionListItem id={investibleId} expansionPanel={expansionPanel} read={isRead(inv, messagesState)}
+                      people={investors} description={description} title={inv.investible.name}
                       expandOrContract={() => {
                         if (expansionOpen) {
                           setSelectedInvestibleId(undefined);
@@ -134,7 +131,7 @@ function CurrentVoting(props) {
   );
 }
 
-CurrentVoting.propTypes = {
+OptionVoting.propTypes = {
   isAdmin: PropTypes.bool,
   investibles: PropTypes.arrayOf(PropTypes.object),
   marketPresences: PropTypes.arrayOf(PropTypes.object),
@@ -143,11 +140,11 @@ CurrentVoting.propTypes = {
   inArchives: PropTypes.bool.isRequired,
 };
 
-CurrentVoting.defaultProps = {
+OptionVoting.defaultProps = {
   isAdmin: false,
   investibles: [],
   marketPresences: [],
   comments: []
 };
 
-export default CurrentVoting;
+export default OptionVoting;

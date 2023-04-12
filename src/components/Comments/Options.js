@@ -19,6 +19,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { useIntl } from 'react-intl';
 import { findMessagesForInvestibleId } from '../../utils/messageUtils';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
+import { getMarketInfo } from '../../utils/userFunctions';
 
 export function isRead(inv, messagesState) {
   const investibleId = inv.investible.id;
@@ -48,27 +49,19 @@ function Options(props) {
       <GravatarGroup users={abstaining}/>
     </div>;
 
-  function getInlineInvestiblesForStage(stage, inlineInvestibles) {
-    if (stage) {
-      return inlineInvestibles.reduce((acc, inv) => {
-        const { market_infos: marketInfos } = inv;
-        for (let x = 0; x < marketInfos.length; x += 1) {
-          if (marketInfos[x].stage === stage.id && !marketInfos[x].deleted) {
-            return [...acc, inv]
-          }
-        }
-        return acc;
-      }, []);
-    }
-    return [];
+  function getInlineInvestiblesForStage(stage) {
+    return inlineInvestibles.filter((investible) => {
+      const aMarketInfo = getMarketInfo(investible, anInlineMarket.id);
+      return aMarketInfo && aMarketInfo.stage === stage?.id && !aMarketInfo.deleted;
+    }) || [];
   }
 
   if (_.isEmpty(inlineInvestibles)) {
     return React.Fragment;
   }
 
-  const underConsideration = getInlineInvestiblesForStage(underConsiderationStage, inlineInvestibles);
-  const proposed = getInlineInvestiblesForStage(proposedStage, inlineInvestibles);
+  const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
+  const proposed = getInlineInvestiblesForStage(proposedStage);
   const unreadCount = _.size(underConsideration.filter((inv) => !isRead(inv)));
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   return (

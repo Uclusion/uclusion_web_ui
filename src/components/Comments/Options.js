@@ -1,4 +1,4 @@
-import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInvestibles, refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import {
@@ -20,6 +20,8 @@ import { useIntl } from 'react-intl';
 import { findMessagesForInvestibleId } from '../../utils/messageUtils';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import { getMarketInfo } from '../../utils/userFunctions';
+import { moveInvestibleToCurrentVoting } from '../../api/investibles';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 export function isRead(inv, messagesState) {
   const investibleId = inv.investible.id;
@@ -31,10 +33,11 @@ function Options(props) {
   const { anInlineMarket, marketId, investibleId, inArchives, isEditable, isSent, groupId, removeActions,
     selectedInvestibleIdParent, setSelectedInvestibleIdParent, searchResults } = props;
   const intl = useIntl();
-  const [investiblesState] = useContext(InvestiblesContext);
+  const [investiblesState, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [tabIndex, setTabIndex] = useState(0);
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults) || [];
   const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
@@ -56,6 +59,31 @@ function Options(props) {
     }) || [];
   }
 
+  function onDrop(event, fromStage, toStage) {
+    const moveInfo = {
+      marketId: anInlineMarket.id,
+      investibleId: event.dataTransfer.getData('text'),
+      stageInfo: {
+        current_stage_id: fromStage.id,
+        stage_id: toStage.id,
+      },
+    };
+    setOperationRunning(true);
+    return moveInvestibleToCurrentVoting(moveInfo)
+      .then((inv) => {
+        refreshInvestibles(invDispatch, () => {}, [inv]);
+        setOperationRunning(false);
+      });
+  }
+
+  function onDropApprovable(event) {
+    return onDrop(event, proposedStage, underConsiderationStage);
+  }
+
+  function onDropProposed(event) {
+    return onDrop(event, underConsiderationStage, proposedStage);
+  }
+
   if (_.isEmpty(inlineInvestibles)) {
     return React.Fragment;
   }
@@ -67,23 +95,26 @@ function Options(props) {
   return (
     <>
       {abstained}
-      <GmailTabs
-        value={tabIndex}
-        onChange={(event, value) => {
-          setTabIndex(value);
-        }}
-        indicatorColors={[htmlColor, '#00008B']}
-        style={{ paddingBottom: '1rem' }}>
-        <GmailTabItem icon={<ThumbsUpDownIcon htmlColor={htmlColor} />}
-                      label={intl.formatMessage({id: 'decisionDialogCurrentVotingLabel'})}
-                      color='black' tagLabel={unreadCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                      tagColor={unreadCount > 0 ? '#E85757' : undefined}
-                      tag={unreadCount > 0 ? `${unreadCount}` :
-                        (_.size(underConsideration) > 0 ? `${_.size(underConsideration)}` : undefined)} />
-        <GmailTabItem icon={<Block />}
-                      label={intl.formatMessage({id: 'decisionDialogProposedOptionsLabel'})}
-                      tag={_.size(proposed) > 0 ? `${_.size(proposed)}` : undefined} />
-      </GmailTabs>
+      <div onDrop={tabIndex === 0 ? onDropProposed : onDropApprovable}
+           onDragOver={(event)=>event.preventDefault()}>
+        <GmailTabs
+          value={tabIndex}
+          onChange={(event, value) => {
+            setTabIndex(value);
+          }}
+          indicatorColors={[htmlColor, '#00008B']}
+          style={{ paddingBottom: '1rem' }}>
+          <GmailTabItem icon={<ThumbsUpDownIcon htmlColor={htmlColor} />} onDrop={onDropApprovable}
+                        label={intl.formatMessage({id: 'decisionDialogCurrentVotingLabel'})}
+                        color='black' tagLabel={unreadCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                        tagColor={unreadCount > 0 ? '#E85757' : undefined}
+                        tag={unreadCount > 0 ? `${unreadCount}` :
+                          (_.size(underConsideration) > 0 ? `${_.size(underConsideration)}` : undefined)} />
+          <GmailTabItem icon={<Block />} onDrop={onDropProposed}
+                        label={intl.formatMessage({id: 'decisionDialogProposedOptionsLabel'})}
+                        tag={_.size(proposed) > 0 ? `${_.size(proposed)}` : undefined} />
+        </GmailTabs>
+      </div>
       <OptionVoting
         marketPresences={anInlineMarketPresences}
         investibles={tabIndex === 0 ? underConsideration : proposed}

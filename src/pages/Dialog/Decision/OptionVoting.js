@@ -1,19 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { moveInvestibleToCurrentVoting } from '../../../api/investibles';
-import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import {
-  getInCurrentVotingStage,
-  getProposedOptionsStage
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles';
 import DecisionInvestible from '../../Investible/Decision/DecisionInvestible';
 import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -23,7 +11,6 @@ import { nameFromDescription } from '../../../utils/stringFunctions';
 import { isRead } from '../../../components/Comments/Options';
 
 function OptionVoting(props) {
-  const outlineStyles = myArchiveClasses();
   const location = useLocation();
   const { hash } = location;
   const [selectedInvestibleIdLocal, setSelectedInvestibleIdLocal] = useState(undefined);
@@ -32,12 +19,6 @@ function OptionVoting(props) {
     selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
   const strippedInvestibles = investibles.map(inv => inv.investible);
   const [messagesState] = useContext(NotificationsContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const [, diffDispatch] = useContext(DiffContext);
-  const [, invDispatch] = useContext(InvestiblesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
-  const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const selectedInvestibleId = selectedInvestibleIdParent || selectedInvestibleIdLocal;
   const setSelectedInvestibleId = setSelectedInvestibleIdParent || setSelectedInvestibleIdLocal;
 
@@ -49,39 +30,6 @@ function OptionVoting(props) {
       }
     }
   }, [strippedInvestibles, hash, setSelectedInvestibleId, selectedInvestibleId]);
-
-  function onDragStart(event) {
-    event.dataTransfer.setData('text', event.target.id);
-  }
-
-  function onDropApprovable(event) {
-    const investibleId = event.dataTransfer.getData('text');
-    const moveInfo = {
-      marketId,
-      investibleId,
-      stageInfo: {
-        current_stage_id: proposedStage.id,
-        stage_id: inCurrentVotingStage.id,
-      },
-    };
-    setOperationRunning(true);
-    return moveInvestibleToCurrentVoting(moveInfo)
-      .then((inv) => {
-        refreshInvestibles(invDispatch, diffDispatch, [inv]);
-        setOperationRunning(false);
-      });
-  }
-
-  function setElementGreen() {
-    removeElementGreen();
-    document.getElementById(`current${marketId}`).classList.add(outlineStyles.containerGreen);
-  }
-
-  function removeElementGreen() {
-    [`proposed${marketId}`, `current${marketId}`].forEach((elementId) => {
-      document.getElementById(elementId).classList.remove(outlineStyles.containerGreen);
-    });
-  }
 
   const market = getMarket(marketsState, marketId);
   function getOptionListItem(inv) {
@@ -123,9 +71,7 @@ function OptionVoting(props) {
     return isRead(inv) ? 1 : 0;
   }, (inv) => inv.investible.name]);
   return (
-    <div id={`current${marketId}`}
-          onDragEnd={removeElementGreen} onDragEnter={setElementGreen}
-          onDragOver={(event) => event.preventDefault()} onDrop={onDropApprovable}>
+    <div>
       {(orderedInvestiblesArray || []).map((fullInvestible) => getOptionListItem(fullInvestible))}
     </div>
   );

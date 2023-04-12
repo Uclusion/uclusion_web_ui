@@ -99,8 +99,14 @@ function OptionListItem(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [isHovered, setIsHovered] = useState(false);
   const showExpansion = isHovered && !isNotSynced;
+
+  function onDragStart(event) {
+    event.dataTransfer.setData('text', event.target.id);
+  }
+
   return (
-    <Item key={`optionListItem${id}`} id={`optionListItem${id}`} style={{minWidth: useSelect ? undefined : '80vw'}}>
+    <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable
+          style={{minWidth: useSelect ? undefined : '80vw'}}>
       <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
         <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }} id={`link${id}`} key={`link${id}`}
              onClick={

@@ -7,6 +7,7 @@ import GravatarGroup from '../../components/Avatars/GravatarGroup';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import _ from 'lodash';
 
 const Item = styled("div")`
   margin-bottom: 10px;
@@ -42,7 +43,6 @@ const Text = styled("div")`
 `;
 
 const Title = styled(Text)`
-  min-width: 13vw;
   flex-shrink: 0;
   flex-grow: 0;
   margin-left: 0.75rem;
@@ -71,7 +71,7 @@ const DateLabel = styled(Text)`
 export const workListStyles = makeStyles(() => {
   return {
     gravatarStyle: {
-      paddingRight: '1rem',
+      marginLeft: '0.75rem'
     },
     removed: {
       transform: 'translateX(100vw)',
@@ -116,10 +116,11 @@ function OptionListItem(props) {
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
           <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
+            {mobileLayout || _.isEmpty(people) ? React.Fragment :
+              <GravatarGroup users={people} className={classes.gravatarStyle}/> }
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
-            {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
             {description && (
-              <Text style={{ maxWidth: '55vw' }}>{description}</Text>
+              <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{description}</Text>
             )}
             {showExpansion && (
               <DateLabel>

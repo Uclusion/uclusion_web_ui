@@ -103,11 +103,11 @@ const useStyles = makeStyles((theme) => ({
     margin: 0,
   },
   editCardContent: {
-    margin: theme.spacing(2, 1),
+    margin: theme.spacing(2, 1, 2, 0),
     padding: 0
   },
   votingCardContent: {
-    margin: theme.spacing(2, 6),
+    margin: theme.spacing(2, 2, 2, 0),
     padding: 0
   },
   flexCenter: {

@@ -42,7 +42,6 @@ const Text = styled("div")`
 `;
 
 const Title = styled(Text)`
-  flex-basis: 180px;
   min-width: 13vw;
   flex-shrink: 0;
   flex-grow: 0;
@@ -51,7 +50,7 @@ const Title = styled(Text)`
     font-size: 12px;
   };
   @media (max-width: 768px) {
-    flex-basis: 100px;
+    flex-basis: 200px;
   }
 `;
 
@@ -91,7 +90,6 @@ function OptionListItem(props) {
     id,
     expansionPanel,
     expansionOpen,
-    useSelect,
     isNotSynced = false
   } = props;
   const classes = workListStyles();
@@ -105,8 +103,7 @@ function OptionListItem(props) {
   }
 
   return (
-    <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable
-          style={{minWidth: useSelect ? undefined : '80vw'}}>
+    <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable>
       <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
         <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }} id={`link${id}`} key={`link${id}`}
              onClick={

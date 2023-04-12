@@ -13,7 +13,6 @@ import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/
 import { ACTIVE_STAGE, APPROVAL_WIZARD_TYPE, DECISION_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType';
-import DismissableText from '../../../components/Notifications/DismissableText';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import CardActions from '@material-ui/core/CardActions';
@@ -263,13 +262,6 @@ function DecisionInvestible(props) {
   return (
     <div style={{marginLeft: mobileLayout ? undefined : '2rem', marginRight: mobileLayout ? undefined : '2rem',
       marginBottom: '1rem'}} id={`option${investibleId}`}>
-      {activeMarket && inProposed && isAdmin && !removeActions && (
-        <DismissableText textId='decisionInvestibleProposedHelp' text={
-          <div>
-            You can move this option to be approved by using the up arrow.
-          </div>
-        } />
-      )}
       <div className={classes.root} id="optionMain">
         <CardType
           className={classes.cardType}

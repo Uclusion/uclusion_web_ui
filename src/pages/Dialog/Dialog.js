@@ -33,6 +33,7 @@ import {
 import UpgradeBanner from '../../components/Banners/UpgradeBanner'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
+import queryString from 'query-string';
 
 function Dialog(props) {
   const { hidden } = props;
@@ -40,7 +41,9 @@ function Dialog(props) {
   const history = useHistory();
   const intl = useIntl();
   const location = useLocation();
-  const { pathname, hash } = location
+  const { pathname, hash, search: querySearch } = location
+  const values = queryString.parse(querySearch);
+  const { groupId } = values || {};
   const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
   const { marketId: marketEntity, action } = decomposeMarketPath(pathname);
   const [marketIdFromToken, setMarketIdFromToken] = useState(undefined);
@@ -53,7 +56,7 @@ function Dialog(props) {
   const { results, parentResults, search } = searchResults;
   const marketId = action === 'invite' ? marketIdFromToken : marketEntity;
   const allInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
-  const comments = getMarketComments(commentsState, marketId) || [];
+  const comments = getMarketComments(commentsState, marketId, groupId) || [];
   const investibles = _.isEmpty(search) ? allInvestibles : allInvestibles.filter((inv) => {
     const { investible } = inv;
     return results.find((item) => item.id === investible.id)
@@ -152,6 +155,7 @@ function Dialog(props) {
       marketPresences={marketPresences}
       myPresence={myPresence}
       banner={banner}
+      groupId={groupId}
     />
   );
 }

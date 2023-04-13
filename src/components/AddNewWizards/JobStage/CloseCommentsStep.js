@@ -27,11 +27,11 @@ function CloseCommentsStep(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const marketComments = getMarketComments(commentsState, marketId);
+  const { assigned, group_id: groupId } = marketInfo;
+  const marketComments = getMarketComments(commentsState, marketId, groupId);
   const unresolvedComments = marketComments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);
   const { stage } = formData;
-  const { assigned } = marketInfo;
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage);
   const mustResolveComments = unresolvedComments.filter((comment) =>
     (comment.comment_type === ISSUE_TYPE)||

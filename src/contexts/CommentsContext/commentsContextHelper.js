@@ -58,9 +58,10 @@ export function getDraftComments(state, marketId, investibleId, allowedTypes) {
     allowedTypes.includes(comment.comment_type));
 }
 
-export function getMarketComments(state, marketId) {
+export function getMarketComments(state, marketId, groupId) {
   const marketComments = state[marketId] || [];
-  return marketComments.filter((comment) => !comment.deleted && comment.is_sent !== false);
+  return marketComments.filter((comment) => !comment.deleted && comment.is_sent !== false &&
+    (groupId === undefined || comment.group_id === groupId));
 }
 
 export function getCommentThreads(roots, marketComments) {

@@ -49,7 +49,7 @@ function DialogArchives() {
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId, searchResults) || [];
   const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, verifiedStage.id, marketId);
   const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id, marketId);
-  const comments = getMarketComments(commentsState, marketId) || [];
+  const comments = getMarketComments(commentsState, marketId, groupId) || [];
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved) || [];
   const notTodoComments = resolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
   const todoComments = comments.filter(comment => {

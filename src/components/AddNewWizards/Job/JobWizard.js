@@ -27,7 +27,7 @@ function JobWizard(props) {
   const fromCommentIds = _.isArray(fromCommentId) ? fromCommentId : (fromCommentId ? [fromCommentId] : undefined);
   const [commentsState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const comments = marketId ? getMarketComments(commentsState, marketId) : [];
+  const comments = marketId ? getMarketComments(commentsState, marketId, groupId) : [];
 
   function onFinish(formData) {
     const { link } = formData;

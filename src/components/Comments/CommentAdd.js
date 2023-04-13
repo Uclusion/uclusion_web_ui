@@ -223,15 +223,9 @@ export function getCommentCreationWarning(type, issueWarningId, createInlineInit
 }
 
 export function getOlderReports(currentId, allComments, marketId, investibleId, myPresence) {
-  let comments = allComments.filter(comment => comment.comment_type === REPORT_TYPE && !comment.resolved
-    && comment.id !== currentId) || [];
-  if (investibleId) {
-    comments = comments.filter(comment => comment.investible_id === investibleId
-      && comment.created_by === myPresence.id) || [];
-  } else {
-    comments = comments.filter(comment => !comment.investible_id) || [];
-  }
-  return comments;
+  return allComments.filter(comment => comment.comment_type === REPORT_TYPE && !comment.resolved
+    && comment.id !== currentId && comment.investible_id === investibleId && comment.created_by === myPresence.id)
+    || [];
 }
 
 function quickResolveOlderReports(marketId, investibleId, myPresence, currentComment, commentsState, commentDispatch) {

@@ -40,11 +40,11 @@ function JobAssignStep (props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
-  const { assigned } = marketInfo;
+  const { assigned, group_id: groupId } = marketInfo;
   const value = (formData.wasSet ? formData.assigned : assigned) || [];
   const validForm = !_.isEqual(value, assigned);
   const voters = useInvestibleVoters(marketPresences, investibleId, marketId);
-  const comments = getMarketComments(commentsState, marketId);
+  const comments = getMarketComments(commentsState, marketId, groupId);
   const unresolvedComments = comments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);
 

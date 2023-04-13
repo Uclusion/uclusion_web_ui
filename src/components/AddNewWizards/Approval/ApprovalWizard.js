@@ -56,7 +56,7 @@ function ApprovalWizard(props) {
   const [marketsState] = useContext(MarketsContext);
   const market = getMarket(marketsState, marketId) || {};
   const { market_type: marketType } = market;
-  const marketComments = getMarketComments(commentsState, marketId);
+  const marketComments = getMarketComments(commentsState, marketId, groupId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence?.investments?.find((investment) => investment.investible_id === investibleId);

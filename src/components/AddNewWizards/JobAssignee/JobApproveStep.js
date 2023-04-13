@@ -30,8 +30,8 @@ function JobApproveStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
-  const comments = getMarketComments(commentsState, marketId);
   const { group_id: groupId } = marketInfo;
+  const comments = getMarketComments(commentsState, marketId, groupId);
   const editorName = `newjobapproveeditor${investibleId}`;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const yourPresence = marketPresences.find((presence) => presence.current_user);

@@ -33,12 +33,12 @@ function JobDescriptionStep (props) {
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
-  const marketComments = getMarketComments(commentsState, marketId);
-  const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
   const intl = useIntl();
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
+  const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
+  const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const userId = getMyUserForMarket(marketsState, marketId);
   const { assigned } = marketInfo || {};
   const isAssigned = (assigned || []).includes(userId);

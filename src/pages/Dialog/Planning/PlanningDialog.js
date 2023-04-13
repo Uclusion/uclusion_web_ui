@@ -40,7 +40,6 @@ import QuestionIcon from '@material-ui/icons/ContactSupport'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
 import AssignmentIcon from '@material-ui/icons/Assignment'
-import queryString from 'query-string'
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
@@ -92,15 +91,14 @@ function PlanningDialog(props) {
     hidden,
     myPresence,
     banner,
-    marketId
+    marketId,
+    groupId
   } = props;
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
   const history = useHistory();
   const location = useLocation();
-  const { hash, search: querySearch } = location;
-  const values = queryString.parse(querySearch);
-  const { groupId } = values || {};
+  const { hash } = location;
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -296,12 +294,6 @@ function PlanningDialog(props) {
             <Grid item id="discussionAddArea" xs={12}>
               {_.isEmpty(search) && marketId && !hidden && (
                 <>
-                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionComments)} text={
-                    <div>
-                      <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
-                      be used at the workspace level and later moved to a job.
-                    </div>
-                  }/>
                   <div style={{display: 'flex'}}>
                     <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id="newMarketQuestion"
                                              style={{display: "flex", marginTop: '1rem',
@@ -319,6 +311,12 @@ function PlanningDialog(props) {
                       <FormattedMessage id='createSuggestion'/>
                     </SpinningIconLabelButton>
                   </div>
+                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionComments)} text={
+                    <div>
+                      <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
+                      be used at the workspace level and later moved to a job.
+                    </div>
+                  }/>
                 </>
               )}
               <CommentBox

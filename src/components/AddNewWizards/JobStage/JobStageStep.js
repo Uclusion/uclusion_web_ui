@@ -41,7 +41,7 @@ function JobStageStep (props) {
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const classes = useContext(WizardStylesContext);
   const userId = getMyUserForMarket(marketsState, marketId);
-  const { stage, assigned } = marketInfo;
+  const { stage, assigned, group_id: groupId } = marketInfo;
   const value = formData.stageWasSet ? formData.stage : stage;
   const validForm = !_.isEqual(value, stage);
   const isAssigned = (assigned || []).includes(userId);
@@ -49,7 +49,7 @@ function JobStageStep (props) {
     (isAssigned || _.isEmpty(assigned) || !isAcceptedStage(fullStage)));
   const fullCurrentStage = getFullStage(marketStagesState, marketId, stage) || {};
   const fullMoveStage = getFullStage(marketStagesState, marketId, value) || {};
-  const marketComments = getMarketComments(commentsState, marketId) || [];
+  const marketComments = getMarketComments(commentsState, marketId, groupId) || [];
   const comments = getCommentsSortedByType(marketComments, investibleId, false) || [];
   const fullStages = _.orderBy(fullStagesRaw, (aStage) => {
     if (isFurtherWorkStage(aStage)) {

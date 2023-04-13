@@ -23,10 +23,10 @@ function EstimateChangeViewStep(props) {
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
-  const marketComments = getMarketComments(commentsState, marketId);
-  const comments = getCommentsSortedByType(marketComments, investibleId, true);
   const marketInvestible = getInvestible(investiblesState, investibleId) || {};
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
+  const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
+  const comments = getCommentsSortedByType(marketComments, investibleId, true);
   const { completion_estimate: daysEstimate } = marketInfo;
 
   return (

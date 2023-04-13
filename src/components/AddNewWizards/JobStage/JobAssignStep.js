@@ -34,12 +34,12 @@ function JobAssignStep (props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
-  const { assigned, stage: currentStageId } = marketInfo;
+  const { assigned, stage: currentStageId, group_id: groupId } = marketInfo;
   const value = (formData.wasSet ? formData.assigned : assigned) || [];
   const userId = getMyUserForMarket(marketsState, marketId);
   const fullMoveStage = getFullStage(marketStagesState, marketId, formData.stage);
   const validForm = !_.isEqual(value, assigned)&&(!isAcceptedStage(fullMoveStage)|| value.includes(userId));
-  const comments = getMarketComments(commentsState, marketId);
+  const comments = getMarketComments(commentsState, marketId, groupId);
   const unresolvedComments = comments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);
 

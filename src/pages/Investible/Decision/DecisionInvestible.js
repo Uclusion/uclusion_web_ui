@@ -327,27 +327,18 @@ function DecisionInvestible(props) {
           </Grid>
         </Grid>
       </div>
-      <div style={{display: 'flex', marginTop: '1.5rem', marginBottom: '1.5rem'}}>
-        {displayVotingInput && investibleId && (
-          <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex"}}
-                                   onClick={() => navigate(history,
-                                     formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId))}>
-            <FormattedMessage id="createNewVote" />
-          </SpinningIconLabelButton>
-        )}
-        {displayCommentInput && (
-          <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
-                                   onClick={() => navigate(history,
-                                     formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId))}>
-            <FormattedMessage id='createComment'/>
-          </SpinningIconLabelButton>
-        )}
-      </div>
       {!inProposed && (
         <>
           <h2 id="approvals">
             <FormattedMessage id="decisionInvestibleOthersVoting" />
           </h2>
+          {displayVotingInput && investibleId && (
+            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex"}}
+                                     onClick={() => navigate(history,
+                                       formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId))}>
+              <FormattedMessage id="createNewVote" />
+            </SpinningIconLabelButton>
+          )}
           <Voting
             investibleId={investibleId}
             marketPresences={marketPresences}
@@ -364,6 +355,13 @@ function DecisionInvestible(props) {
       )}
       <Grid container spacing={2} style={{paddingBottom: '1rem'}}>
         <Grid item xs={12} style={{ marginTop: '2rem' }}>
+          {displayCommentInput && (
+            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+                                     onClick={() => navigate(history,
+                                       formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId))}>
+              <FormattedMessage id='createComment'/>
+            </SpinningIconLabelButton>
+          )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
                       isInbox />
         </Grid>

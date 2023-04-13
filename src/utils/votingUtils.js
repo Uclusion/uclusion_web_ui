@@ -32,7 +32,7 @@ export function useInvestibleVoters(marketPresences, investibleId, marketId) {
       } = investment;
       const updatedAtDate = new Date(updatedAt);
       const lastEventTime = Math.max(lastStageChangeDate.getTime(), updatedAtDate.getTime());
-      const isExpired = Date.now() - lastEventTime > investmentExpiration*86400;
+      const isExpired = Date.now() - lastEventTime > investmentExpiration*86400000;
       if (investibleId === invId && !deleted && !isExpired) {
         acc.push({ name, id, email, quantity, commentId, maxBudget, maxBudgetUnit, updatedAt });
       }

@@ -65,6 +65,7 @@ import PlanningInvestibleNav, { useMetaDataStyles } from './PlanningInvestibleNa
 import { getIcon } from '../../../components/Comments/CommentEdit';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
+import GravatarAndName from '../../../components/Avatars/GravatarAndName';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -334,7 +335,7 @@ function PlanningInvestible(props) {
   });
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, ticket_code: ticketCode,
-    former_stage_id: formerStageId, group_id: groupId } = marketInfo;
+    former_stage_id: formerStageId, group_id: groupId, created_by: createdById } = marketInfo;
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
   const { name, locked_by: lockedBy, created_at: createdAt } = investible;
@@ -355,6 +356,7 @@ function PlanningInvestible(props) {
   const isAssigned = assigned.includes(userId);
   const canVote = isInVoting && !inArchives;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
+  const createdBy = marketPresences.find((presence) => presence.id === createdById) || {};
   const displayVotingInput = canVote && _.isEmpty(search);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const hasUsableVotingInput = !inArchives && addEditVotingHasContents(investibleId, false, operationRunning);
@@ -611,6 +613,10 @@ function PlanningInvestible(props) {
                 createdAt={mobileLayout ? undefined : createdAt}
                 myBeingEdited={mobileLayout ? undefined : beingEdited}
                 stageChangedAt={mobileLayout ? undefined : new Date(marketInfo.last_stage_change_date)}
+                gravatar={<div style={{paddingLeft: '1rem'}}><GravatarAndName key={createdBy.id} email={createdBy.email}
+                                           name={createdBy.name} typographyVariant="caption"
+                                           avatarClassName={classes.smallGravatar}
+                /></div>}
               />
               <div className={classes.editRow}>
                 {mobileLayout && !inMarketArchives && isEditableByUser() && !beingEdited && (

@@ -214,12 +214,14 @@ export default function CardType(props) {
 
   return (
     <Grid container={!compact}>
-      {label && (
+      {(label || gravatar) && (
         <Grid item xs={4} className={classes.labelGrid}>
-          <div className={clsx(classes.root, className)} style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
-            <IconComponent className={classes.icon}/>
-            <span className={classes.label}>{label}</span>
-          </div>
+          {label && (
+            <div className={clsx(classes.root, className)} style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
+              <IconComponent className={classes.icon}/>
+              <span className={classes.label}>{label}</span>
+            </div>
+          )}
           {gravatar}
         </Grid>
       )}

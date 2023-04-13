@@ -24,7 +24,7 @@ import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import RateReviewIcon from '@material-ui/icons/RateReview'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
-import { getInvestibleVoters } from '../../../utils/votingUtils'
+import { useInvestibleVoters } from '../../../utils/votingUtils'
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { Typography } from '@material-ui/core'
 import { PENDING_INDEX, TEAM_INDEX } from './InboxContext'
@@ -395,7 +395,7 @@ export function getOutboxMessages(props) {
       const message = getMessageForInvestible(investible, market, label, messageIcon, intl,
         notAccepted ? 'UNASSIGNED' : 'UNREAD_VOTE')
       const { votes_required: votesRequired } = market
-      const votersForInvestible = getInvestibleVoters(marketPresences, investibleId)
+      const votersForInvestible = useInvestibleVoters(marketPresences, investibleId, market.id)
       const marketInfo = getMarketInfo(investible, market.id)
       const votersNotAssigned = votersForInvestible.filter((voter) => !_.includes(marketInfo.assigned, voter.id)) || []
       const votesRequiredDisplay = votesRequired > 0 ? votesRequired : 1

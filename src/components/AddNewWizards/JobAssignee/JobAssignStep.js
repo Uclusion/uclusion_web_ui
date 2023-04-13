@@ -16,7 +16,7 @@ import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctio
 import { useHistory } from 'react-router'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { getInvestibleVoters } from '../../../utils/votingUtils';
+import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
 import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
@@ -43,7 +43,7 @@ function JobAssignStep (props) {
   const { assigned } = marketInfo;
   const value = (formData.wasSet ? formData.assigned : assigned) || [];
   const validForm = !_.isEqual(value, assigned);
-  const voters = getInvestibleVoters(marketPresences, investibleId);
+  const voters = useInvestibleVoters(marketPresences, investibleId, marketId);
   const comments = getMarketComments(commentsState, marketId);
   const unresolvedComments = comments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);

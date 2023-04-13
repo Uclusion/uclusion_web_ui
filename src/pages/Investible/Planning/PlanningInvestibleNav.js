@@ -13,7 +13,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
 import React, { useContext } from 'react';
-import { Assignments, getCollaborators, rejectInvestible } from './PlanningInvestible';
+import { Assignments, useCollaborators, rejectInvestible } from './PlanningInvestible';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -81,8 +81,8 @@ export default function PlanningInvestibleNav(props) {
   } = stagesInfo;
   const addressedIds = (addressed || []).filter((address) => !address.deleted && !address.abstain)
     .map((address) => address.user_id);
-  const investibleCollaborators = getCollaborators(marketPresences, investibleComments, marketPresencesState,
-    investibleId);
+  const investibleCollaborators = useCollaborators(marketPresences, investibleComments, marketPresencesState,
+    investibleId, market.id);
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
 
   function setReadyToStart(isReadyToStart) {

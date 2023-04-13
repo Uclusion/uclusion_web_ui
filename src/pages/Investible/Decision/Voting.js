@@ -9,7 +9,7 @@ import CardType from '../../../components/CardType'
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
-import { getInvestibleVoters } from '../../../utils/votingUtils';
+import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { Delete, Edit } from '@material-ui/icons';
 import { invalidEditEvent } from '../../../utils/windowUtils'
 import { useHistory } from 'react-router'
@@ -105,7 +105,7 @@ function Voting(props) {
   const classes = useVoteStyles();
   const intl = useIntl();
 
-  const voters = getInvestibleVoters(marketPresences, investibleId);
+  const voters = useInvestibleVoters(marketPresences, investibleId, market.id);
   const sortedVoters = _.sortBy(voters, "quantity");
   if (!yourPresence) {
     return React.Fragment;

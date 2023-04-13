@@ -35,7 +35,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils';
 import Gravatar from '../../../components/Avatars/Gravatar';
-import { getInvestibleVoters } from '../../../utils/votingUtils';
+import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences } from '../../Dialog/Planning/userUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessageOfType } from '../../../utils/messageUtils';
@@ -273,9 +273,9 @@ export const usePlanningInvestibleStyles = makeStyles(
   { name: "PlanningInvestible" }
 );
 
-export function getCollaborators(marketPresences, investibleComments, marketPresencesState, investibleId) {
+export function useCollaborators(marketPresences, investibleComments, marketPresencesState, investibleId, marketId) {
   const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
-  const voters = getInvestibleVoters(marketPresences, investibleId);
+  const voters = useInvestibleVoters(marketPresences, investibleId, marketId);
   const concated = [...voters, ...investibleCommentorPresences];
   return _.uniq((concated || []).map((presence) => presence.id));
 }
@@ -355,10 +355,7 @@ function PlanningInvestible(props) {
   const isAssigned = assigned.includes(userId);
   const canVote = isInVoting && !inArchives;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
-  const yourVote = yourPresence && yourPresence.investments &&
-    yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted);
-  // If you have a vote already then do not display voting input
-  const displayVotingInput = canVote && !yourVote && _.isEmpty(search);
+  const displayVotingInput = canVote && _.isEmpty(search);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const hasUsableVotingInput = !inArchives && addEditVotingHasContents(investibleId, false, operationRunning);
 

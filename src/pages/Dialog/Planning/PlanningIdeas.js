@@ -42,7 +42,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { removeHeader, restoreHeader } from '../../../containers/Header'
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
-import { getInvestibleVoters } from '../../../utils/votingUtils';
+import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { doRemoveEdit, doShowEdit, getCommenterPresences, onDropTodo } from './userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
@@ -647,7 +647,7 @@ function StageInvestible(props) {
   const planClasses = usePlanFormStyles();
   const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
   const commenterPresences = getCommenterPresences(marketPresences, commentsForInvestible, marketPresencesState);
-  const votersForInvestible = getInvestibleVoters(marketPresences, id);
+  const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId);
   const concated = [...votersForInvestible, ...commenterPresences];
   const hasDaysEstimate = showCompletion && daysEstimate;
   const collaboratorsForInvestible = _.uniqBy(concated, 'id');

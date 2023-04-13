@@ -24,7 +24,7 @@ import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../.
 import { doSetEditWhenValid } from '../../../utils/windowUtils';
 import EditMarketButton from '../../Dialog/EditMarketButton';
 import { ExpandLess } from '@material-ui/icons';
-import InvestibleBodyEdit from '../InvestibleBodyEdit';
+import InvestibleBodyEdit, { useInvestibleEditStyles } from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -259,6 +259,7 @@ function DecisionInvestible(props) {
   const votingAllowed = !inProposed && !inArchives && !hasIssueOrMarketIssue && activeMarket;
   const displayVotingInput = !removeActions && votingAllowed && !yourVote;
   const displayCommentInput = !removeActions && !inArchives && marketId && !_.isEmpty(investible) && !hidden;
+  const editClasses = useInvestibleEditStyles();
   return (
     <div style={{marginLeft: mobileLayout ? undefined : '2rem', marginRight: mobileLayout ? undefined : '2rem',
       marginBottom: '1rem'}} id={`option${investibleId}`}>
@@ -270,7 +271,9 @@ function DecisionInvestible(props) {
           myBeingEdited={beingEdited}
         />
         <Grid container className={classes.mobileColumn}>
-          <Grid item md={10} xs={12}>
+          <Grid item md={10} xs={12}
+                className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}
+                onClick={(event) => !mobileLayout && mySetBeingEdited(true, event)}>
             <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
               {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
                 <Typography>
@@ -284,8 +287,8 @@ function DecisionInvestible(props) {
                                     pageStateUpdate={updatePageState}
                                     pageStateReset={pageStateReset}
                                     fullInvestible={fullInvestible}
-                          setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
-                          isEditableByUser={isEditableByUser}/>
+                                    beingEdited={beingEdited}
+                                    isEditableByUser={isEditableByUser}/>
               )}
             </CardContent>
           </Grid>

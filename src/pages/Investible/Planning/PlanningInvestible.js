@@ -633,7 +633,7 @@ function PlanningInvestible(props) {
             <div className={beingEdited ? classes.editCardContent : classes.votingCardContent}
                  style={{display: 'flex'}}>
               <div className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable :
-                classes.fullWidth}
+                classes.fullWidth} style={{paddingBottom: '2rem'}}
                    onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
                 {lockedBy && myPresence.id !== lockedBy && isEditableByUser() && (
                   <Typography>
@@ -656,7 +656,7 @@ function PlanningInvestible(props) {
               </div>
             </div>
             <div style={{paddingLeft: mobileLayout ? undefined : '1rem',
-              paddingRight: mobileLayout ? undefined : '1rem', paddingTop: '2rem'}}>
+              paddingRight: mobileLayout ? undefined : '1rem'}}>
               <h2 id="approvals">
                 <FormattedMessage id="decisionInvestibleOthersVoting" />
               </h2>

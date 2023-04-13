@@ -1,27 +1,28 @@
-import React, { useContext, useState } from 'react'
-import { FormattedMessage, useIntl } from 'react-intl'
-import PropTypes from 'prop-types'
-  import { lockInvestibleForEdit, realeaseInvestibleEditLock, updateInvestible, } from '../../api/investibles'
-import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { DiffContext } from '../../contexts/DiffContext/DiffContext'
-import { LockedDialog, useLockedDialogStyles } from '../Dialog/LockedDialog'
-import _ from 'lodash'
-import { CardActions, Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import { processTextAndFilesForSave } from '../../api/files'
-import { makeStyles } from '@material-ui/core/styles'
-import NameField, { clearNameStoredState, getNameStoredState } from '../../components/TextFields/NameField'
-import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff'
-import { Clear, SettingsBackupRestore } from '@material-ui/icons'
-import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton'
+import React, { useContext, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
+import { lockInvestibleForEdit, realeaseInvestibleEditLock, updateInvestible, } from '../../api/investibles';
+import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { DiffContext } from '../../contexts/DiffContext/DiffContext';
+import { LockedDialog, useLockedDialogStyles } from '../Dialog/LockedDialog';
+import _ from 'lodash';
+import { CardActions, Typography } from '@material-ui/core';
+import { processTextAndFilesForSave } from '../../api/files';
+import { makeStyles } from '@material-ui/core/styles';
+import NameField, { clearNameStoredState, getNameStoredState } from '../../components/TextFields/NameField';
+import DescriptionOrDiff from '../../components/Descriptions/DescriptionOrDiff';
+import { Clear, SettingsBackupRestore } from '@material-ui/icons';
+import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton';
 import { useEditor } from '../../components/TextEditors/quillHooks';
-import LockedDialogTitleIcon from '@material-ui/icons/Lock'
-import IssueDialog from '../../components/Warnings/IssueDialog'
+import LockedDialogTitleIcon from '@material-ui/icons/Lock';
+import IssueDialog from '../../components/Warnings/IssueDialog';
 import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils';
-import { PLANNING_TYPE } from '../../constants/markets'
+import { PLANNING_TYPE } from '../../constants/markets';
+import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 
 export const useInvestibleEditStyles = makeStyles(
   theme => ({
@@ -55,7 +56,7 @@ export const useInvestibleEditStyles = makeStyles(
 );
 
 function InvestibleBodyEdit(props) {
-  const { hidden, marketId, investibleId, isEditableByUser, userId, setBeingEdited,
+  const { hidden, marketId, investibleId, isEditableByUser, userId,
     fullInvestible, pageState, pageStateUpdate, pageStateReset } = props;
 
   const {
@@ -64,8 +65,6 @@ function InvestibleBodyEdit(props) {
     showDiff
   } = pageState;
   const intl = useIntl();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [marketsState] = useContext(MarketsContext);
@@ -92,7 +91,8 @@ function InvestibleBodyEdit(props) {
 
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
-  function handleSave() {
+  function handleSave(event) {
+    preventDefaultAndProp(event);
     const name = getNameStoredState(investibleId);
     if (_.isEmpty(name)) {
       setOperationRunning(false);
@@ -124,7 +124,8 @@ function InvestibleBodyEdit(props) {
       });
   }
 
-  function onCancel () {
+  function onCancel(event) {
+    preventDefaultAndProp(event);
     pageStateReset();
     resetEditor();
     return realeaseInvestibleEditLock(marketId, investibleId).then((newInv) => {
@@ -219,8 +220,7 @@ function InvestibleBodyEdit(props) {
     );
   }
   return (
-    <div onClick={(event) => !mobileLayout && setBeingEdited(true, event)}
-         className={isEditableByUser() ? classes.containerEditable : classes.container}>
+    <div className={isEditableByUser() ? classes.containerEditable : classes.container}>
       <Typography className={classes.title} variant="h3" component="h1">
         {initialName}
       </Typography>
@@ -234,7 +234,6 @@ InvestibleBodyEdit.propTypes = {
   marketId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
   investibleId: PropTypes.string.isRequired,
-  setBeingEdited: PropTypes.func.isRequired,
   fullInvestible: PropTypes.object.isRequired
 };
 

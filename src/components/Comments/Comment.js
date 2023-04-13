@@ -342,7 +342,7 @@ function Comment(props) {
   const classes = useCommentStyles();
   const workItemClasses = workListStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
-    resolved, notification_type: myNotificationType, mentions, body, creator_assigned: creatorAssigned, is_sent: isSent,
+    resolved, notification_type: myNotificationType, body, creator_assigned: creatorAssigned, is_sent: isSent,
     group_id: groupId } = comment;
   const replyBeingEdited = replyEditId === id && myParams && !_.isEmpty(myParams.get('reply'));
   const beingEdited = replyEditId === id && !replyBeingEdited;
@@ -797,8 +797,7 @@ function Comment(props) {
                     {!mobileLayout && intl.formatMessage({ id: 'commentAbstainLabel' })}
                   </SpinningIconLabelButton>
                 )}
-                {isSent !== false && enableEditing && ((commentType !== REPORT_TYPE || overrideLabel)
-                  || (mentions || []).includes(myPresence.id)) && (
+                {isSent !== false && enableEditing && (
                   <SpinningIconLabelButton
                     onClick={toggleReply}
                     icon={ReplyIcon}

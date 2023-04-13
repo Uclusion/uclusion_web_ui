@@ -311,7 +311,8 @@ function PlanningDialog(props) {
                       <FormattedMessage id='createSuggestion'/>
                     </SpinningIconLabelButton>
                   </div>
-                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionComments)} text={
+                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionComments)} noPad
+                                   text={
                     <div>
                       <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
                       be used at the workspace level and later moved to a job.

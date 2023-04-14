@@ -9,7 +9,7 @@ function BugWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="bug_wizard">
+      <FormdataWizard name="bug_wizard" useLocalStorage={false}>
         <BugDescriptionStep marketId={marketId} groupId={groupId} />
       </FormdataWizard>
     </WizardStylesProvider>

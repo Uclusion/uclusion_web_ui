@@ -160,7 +160,7 @@ export function onDropTodo(commentId, commentsState, marketId, setOperationRunni
     }
     let name = nameFromDescription(fromComment.body);
     if (!name) {
-      name = intl.formatMessage({ id: `notificationLabel${fromComment.notification_type}` });
+      name = intl.formatMessage({ id: 'notificationLabel' });
     }
     const addInfo = {
       marketId,

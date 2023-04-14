@@ -61,7 +61,7 @@ import { Clear, Send } from '@material-ui/icons';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 
-function getPlaceHolderLabelId(type, isInReview, isAssigned) {
+function getPlaceHolderLabelId(type, isInReview, isAssigned, investibleId) {
   switch (type) {
     case QUESTION_TYPE:
       return 'commentAddQuestionDefault';
@@ -77,7 +77,10 @@ function getPlaceHolderLabelId(type, isInReview, isAssigned) {
       }
       return 'commentAddReportDefault';
     case TODO_TYPE:
-      return 'commentAddTODODefault';
+      if (investibleId) {
+        return 'commentAddTODODefault';
+      }
+      return 'commentAddBugDefault';
     default:
       return 'commentAddSelectIssueLabel';
   }
@@ -321,8 +324,8 @@ function CommentAdd(props) {
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
   const placeHolderLabelId = getPlaceHolderLabelId(type, currentStageId === inReviewStage.id,
-    creatorIsAssigned);
-  const placeHolder = intl.formatMessage({ id: placeHolderLabelId });
+    creatorIsAssigned, investibleId);
+  const placeholder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
@@ -455,7 +458,7 @@ function CommentAdd(props) {
     value: useBody,
     participants: presences.filter((presence) => !presence.market_banned),
     marketId,
-    placeholder: placeHolder,
+    placeholder,
     onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
     mentionsAllowed,
     onChange: () => setHasValue(true),
@@ -477,15 +480,12 @@ function CommentAdd(props) {
               {wizardProps.isBug && (
                 <AddWizardStepButtons
                   {...wizardProps}
-                  nextLabel="redBugAdd"
-                  onNext={() => handleSave( true, 'RED')}
-                  showOtherNext={true}
-                  otherNextLabel="yellowBugAdd"
-                  onOtherNext={() => handleSave( true, 'YELLOW')}
-                  onTerminate={() => handleSave( true, 'BLUE')}
+                  validForm={hasValue && !_.isEmpty(wizardProps.bugType)}
+                  nextLabel="createBug"
+                  onNext={() => handleSave( true, wizardProps.bugType)}
+                  onTerminate={() => wizardProps.goBack()}
                   showTerminate={true}
-                  terminateSpinOnClick
-                  terminateLabel="blueBugAdd"/>
+                  terminateLabel="OnboardingWizardGoBack"/>
               )}
               {!wizardProps.isBug && !wizardProps.isAddWizard && (
                 <WizardStepButtons

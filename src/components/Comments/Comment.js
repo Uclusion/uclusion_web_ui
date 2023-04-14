@@ -578,7 +578,7 @@ function Comment(props) {
   }
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE
     && !creatorAssigned) ? <FormattedMessage id="reviewReportPresent" /> :
-    (isMarketTodo ? <FormattedMessage id={`notificationLabel${myNotificationType}`} /> : undefined);
+    (isMarketTodo ? <FormattedMessage id="notificationLabel" /> : undefined);
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;

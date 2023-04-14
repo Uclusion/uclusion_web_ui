@@ -24,7 +24,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { useIntl } from 'react-intl';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
-import { TODO_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -80,8 +80,10 @@ function JobStageStep (props) {
   function move() {
     if (!isNotDoingStage(fullMoveStage)&&!isFurtherWorkStage(fullMoveStage)) {
       const openTodos = comments.find((comment) => comment.comment_type === TODO_TYPE);
+      const openAssistance = comments.find((comment) =>
+        [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type));
       const hasOpenTodos = !_.isEmpty(openTodos) && isVerifiedStage(fullMoveStage)
-      if (hasOpenTodos || (fullCurrentStage.move_on_comment && !isVerifiedStage(fullMoveStage))) {
+      if (hasOpenTodos || (fullCurrentStage.move_on_comment && openAssistance && !isVerifiedStage(fullMoveStage))) {
         // No op go to CloseCommentsStep
         setOperationRunning(false);
         return Promise.resolve(true);

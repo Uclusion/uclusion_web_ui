@@ -150,7 +150,7 @@ function Screen(props) {
   const history = useHistory();
   const location = useLocation();
   const { pathname, search: querySearch } = location;
-  const { marketId, investibleId } = decomposeMarketPath(pathname);
+  const { action, marketId, investibleId } = decomposeMarketPath(pathname);
   const values = queryString.parse(querySearch);
   const { groupId } = values || {};
   const [messagesState] = useContext(NotificationsContext);
@@ -271,7 +271,7 @@ function Screen(props) {
     {
       headerItemTextArray: [
         {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(),
-          newPage: true, isBold: _.isEmpty(marketId),
+          newPage: true, isBold: action?.includes('inbox'),
           num: _.isEmpty(search) ?
             getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState)
             : undefined}

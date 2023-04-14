@@ -243,7 +243,11 @@ export function formInvestibleAddCommentLink(wizardType, investibleId, marketId,
 }
 
 export function formMarketAddCommentLink(wizardType, marketId, groupId, commentType) {
-  return `/wizard#type=${wizardType}&marketId=${marketId}&groupId=${groupId}&commentType=${commentType}`
+  let link = `/wizard#type=${wizardType}&marketId=${marketId}&groupId=${groupId}`;
+  if (commentType) {
+    link += `&commentType=${commentType}`;
+  }
+  return link;
 }
 
 export function formWizardLink(wizardType, marketId, investibleId, groupId, commentId) {

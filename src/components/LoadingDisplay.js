@@ -22,7 +22,7 @@ const useStyles = makeStyles(() => {
       overflow: 'hidden'
     },
     loadingColor: {
-      fill: '#3f6b72'
+      color: '#8cbcc4'
     }
   };
 });
@@ -41,7 +41,8 @@ function LoadingDisplay (props) {
       <Grid id="spinner" item className={noMargin ? classes.loadingContainerNoMargin : classes.loadingContainer}>
         <div align='center'>
           {showMessage && (<Typography>{message}</Typography>)}
-          <CircularProgress className={classes.loadingColor} size={size} type="indeterminate"/>
+          <CircularProgress
+            className={classes.loadingColor} size={size} type="indeterminate"/>
         </div>
       </Grid>
     </Grid>

@@ -170,6 +170,7 @@ const messages = defineMessages({
 
   archiveInlineTitle: 'Dialog',
   gettingLockMessage: 'Obtaining lock',
+  creatingDemoMessage: "Hang tight, we're creating a demo just for you",
   loadingMessage: 'Page loading',
   commentLoadingMessage: 'Comment loading',
   commentOptionsLoadingMessage: 'Comment options loading',

@@ -1,17 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import Screen from '../../containers/Screen/Screen';
+import LoadingDisplay from '../../components/LoadingDisplay';
 
 function Onboarding(props) {
-  const { setInOnboarding } = props;
-
   return (
     <Screen
       title="Welcome To Uclusion"
       tabTitle="Welcome to Uclusion"
     >
-      <WorkspaceWizard onboarding={true} setInOnboarding={setInOnboarding} />
+      <LoadingDisplay
+        showMessage={true}
+        messageId="creatingDemoMessage"
+      />
+
     </Screen>
   )
 }

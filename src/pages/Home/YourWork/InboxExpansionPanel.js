@@ -45,6 +45,7 @@ import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import EstimateChangeWizard from '../../../components/InboxWizards/Monitor/EstimateChangeWizard';
 import ReplyWizard from '../../../components/InboxWizards/Reply/ReplyWizard';
 import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/OptionSubmittedWizard';
+import FeedbackWizard from '../../../components/InboxWizards/Feedback/FeedbackWizard';
 
 export function usesExpansion(item) {
   const { message } = item;
@@ -133,6 +134,10 @@ export function calculateTitleExpansionPanel(props) {
       setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                  message={message} inboxDispatch={inboxDispatch}/>,
         'DecideAnswerTitle', intl);
+    } else if (linkType === 'INVESTIBLE_REVIEW') {
+      setItem(item, openExpansion, <FeedbackWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                                 message={message} inboxDispatch={inboxDispatch}/>,
+        'DecideFeedbackTitle', intl);
     } else {
       setItem(item, openExpansion, <BlockedWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                   message={message} inboxDispatch={inboxDispatch}/>,

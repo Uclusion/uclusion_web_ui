@@ -526,15 +526,10 @@ function PlanningInvestible(props) {
     updatePageState({sectionOpen: subSection});
   }
 
-  let countReports;
-  if (!_.isEmpty(search)) {
-    countReports =  _.size(reportsCommentsSearched);
-  } else {
-    countReports = _.size(reportsCommentsSearched.filter((comment) => !comment.resolved));
-  }
+  const countReports =  _.size(reportsCommentsSearched);
   const title = ticketCode ? `${ticketCode} ${name}` : name;
-  const descriptionSectionResults = (_.isEmpty(search) ? 0 :
-      ((results || []).find((item) => item.id === investibleId) ? 1 : 0)) + _.size(investmentReasonsSearched)
+  const descriptionSectionResults = _.isEmpty(search) ? 0 :
+      ((results || []).find((item) => item.id === investibleId) ? 1 : 0) + _.size(investmentReasonsSearched)
     + countReports;
   const displayQuestionSection = canGetInput() || _.size(questionCommentsSearched) > 0;
   const displaySuggestionsSection = canGetInput() || _.size(suggestionCommentsSearched) > 0;
@@ -586,7 +581,7 @@ function PlanningInvestible(props) {
             window.scrollTo(0, 0);
           }}
           id='investible-header'
-          indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
+          indicatorColors={['#00008B', '#00008B', '#00008B']}
           style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
             paddingTop: '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
           <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('total')}

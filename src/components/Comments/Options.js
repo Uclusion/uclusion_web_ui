@@ -22,6 +22,7 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { moveInvestibleToCurrentVoting } from '../../api/investibles';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { ACTIVE_STAGE } from '../../constants/markets';
 
 export function isRead(inv, messagesState) {
   const investibleId = inv.investible.id;
@@ -123,7 +124,7 @@ function Options(props) {
         parentInvestibleId={investibleId}
         groupId={groupId}
         comments={anInlineMarketInvestibleComments}
-        inArchives={inArchives}
+        inArchives={inArchives || anInlineMarket.market_stage !== ACTIVE_STAGE}
         isAdmin={isEditable}
         isSent={isSent}
         removeActions={removeActions}

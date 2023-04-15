@@ -643,7 +643,7 @@ const messages = defineMessages({
   noMultiplier: 'Choose for or against.',
   noQuestions: 'Questions should go in their own comment.',
   noQuestionUploads: 'Questions should go in their own comment.',
-  collaborators: 'Active',
+  collaborators: 'Collaborators',
   inlineAddLabel: 'Add Option',
   inlineAddLabelMobile: 'Option',
   promoteOption: 'Allow vote on option',

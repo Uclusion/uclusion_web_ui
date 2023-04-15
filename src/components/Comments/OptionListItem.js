@@ -116,12 +116,12 @@ function OptionListItem(props) {
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
           <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
-            {mobileLayout || _.isEmpty(people) ? React.Fragment :
-              <GravatarGroup users={people} className={classes.gravatarStyle}/> }
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {description && (
               <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{description}</Text>
             )}
+            {mobileLayout || _.isEmpty(people) || showExpansion ? React.Fragment :
+              <GravatarGroup users={people} className={classes.gravatarStyle}/> }
             {showExpansion && (
               <DateLabel>
                 {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />

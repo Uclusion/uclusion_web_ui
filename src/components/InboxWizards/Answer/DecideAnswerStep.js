@@ -16,7 +16,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
-import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentEditReplyLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { APPROVAL_WIZARD_TYPE, OPTION_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 
@@ -81,22 +81,41 @@ function DecideAnswerStep(props) {
           />
         </div>
       )}
-      <WizardStepButtons
-        {...props}
-        nextLabel="DecideWizardApprove"
-        spinOnClick={false}
-        nextDisabled={!selectedInvestibleId}
-        onNext={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, commentRoot.inline_market_id,
-          selectedInvestibleId))}
-        showOtherNext
-        otherNextLabel="inlineAddLabel"
-        onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id))}
-        onFinish={isRegularFinish ? myOnFinish : abstain}
-        showTerminate={true}
-        terminateSpinOnClick={!isRegularFinish}
-        terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' :
-          (message.is_highlighted ? 'defer' : 'DecideWizardMute')}
-      />
+      {message.type === 'UNREAD_COMMENT' && (
+        <WizardStepButtons
+          {...props}
+          nextLabel="issueReplyLabel"
+          spinOnClick={false}
+          onNext={() => navigate(history, formCommentEditReplyLink(marketId, commentId, true),
+            false, true)}
+          showOtherNext
+          otherNextLabel="inlineAddLabel"
+          otherSpinOnClick={false}
+          onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id))}
+          onFinish={myOnFinish}
+          showTerminate={true}
+          terminateLabel="notificationDelete"
+        />
+      )}
+      {message.type !== 'UNREAD_COMMENT' && (
+        <WizardStepButtons
+          {...props}
+          nextLabel="DecideWizardApprove"
+          spinOnClick={false}
+          nextDisabled={!selectedInvestibleId}
+          onNext={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, commentRoot.inline_market_id,
+            selectedInvestibleId))}
+          showOtherNext
+          otherNextLabel="inlineAddLabel"
+          otherSpinOnClick={false}
+          onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id))}
+          onFinish={isRegularFinish ? myOnFinish : abstain}
+          showTerminate={true}
+          terminateSpinOnClick={!isRegularFinish}
+          terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' :
+            (message.is_highlighted ? 'defer' : 'DecideWizardMute')}
+        />
+      )}
     </div>
     </WizardStepContainer>
   );

@@ -333,7 +333,8 @@ function DecisionInvestible(props) {
             <FormattedMessage id="decisionInvestibleOthersVoting" />
           </h2>
           {displayVotingInput && investibleId && (
-            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex"}}
+            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+                                     style={{display: "flex", marginBottom: '1rem'}}
                                      onClick={() => navigate(history,
                                        formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId))}>
               <FormattedMessage id="createNewVote" />

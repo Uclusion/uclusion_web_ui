@@ -159,6 +159,12 @@ export function findMessageOfType(aType, notificationId, state, subtype) {
   return safeMessages.find((message) => message.type_object_id === typeObjectId && !message.deleted);
 }
 
+export function findMessageByInvestmentUserId(investmentUserId, state) {
+  const { messages } = (state || {});
+  const safeMessages = messages || [];
+  return safeMessages.find((message) => message.investment_user_id === investmentUserId && !message.deleted);
+}
+
 export function findMessageOfTypeAndId(notificationId, state, subtype) {
   return findMessageOfType('UNREAD', notificationId, state, subtype);
 }

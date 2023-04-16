@@ -8,7 +8,7 @@ import { makeStyles } from '@material-ui/styles'
 import CardType from '../../../components/CardType'
 import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { findMessageOfTypeAndId } from '../../../utils/messageUtils'
+import { findMessageByInvestmentUserId, findMessageOfTypeAndId } from '../../../utils/messageUtils';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { Delete, Edit } from '@material-ui/icons';
 import { invalidEditEvent } from '../../../utils/windowUtils'
@@ -126,7 +126,8 @@ function Voting(props) {
         {sortedVoters.map((voter, index) => {
           const { name, email, id: userId, quantity, commentId, maxBudget, maxBudgetUnit, updatedAt } = voter;
           const isYourVote = userId === yourPresence.id;
-          const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState, 'VOTE');
+          const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState,
+            'VOTE') || findMessageByInvestmentUserId(userId, messagesState);
           const reason = investmentReasons.find((comment) => comment.id === commentId);
           const voteId = `cv${userId}`;
 

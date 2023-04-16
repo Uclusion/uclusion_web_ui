@@ -364,7 +364,7 @@ function DecisionInvestible(props) {
             </SpinningIconLabelButton>
           )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
-                      isInbox />
+                      isInbox removeActions={removeActions} />
         </Grid>
       </Grid>
     </div>

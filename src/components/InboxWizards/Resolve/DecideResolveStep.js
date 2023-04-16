@@ -38,7 +38,8 @@ function DecideResolveStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
-  const [selectedInvestibleId, setSelectedInvestibleId] = useState(message.investible_id);
+  const [selectedInvestibleId, setSelectedInvestibleId] = useState(message.decision_investible_id
+    || message.investible_id);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>

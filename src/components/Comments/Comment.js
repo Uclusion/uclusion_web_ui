@@ -778,7 +778,7 @@ function Comment(props) {
                     })}
                   </SpinningIconLabelButton>
                 )}
-                {inlineMarket.market_type === DECISION_TYPE && (
+                {inlineMarket.market_type === DECISION_TYPE && enableEditing && (
                   <SpinningIconLabelButton
                     doSpin={false}
                     onClick={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, inlineMarketId))}

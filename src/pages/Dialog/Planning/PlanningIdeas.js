@@ -573,9 +573,6 @@ const generalStageStyles = makeStyles(() => {
     chipClass: {
       fontSize: 10,
     },
-    chipsClass: {
-      display: 'flex',
-    },
     chipStyleRed: {
       backgroundColor: '#E85757',
       color: 'white'
@@ -692,14 +689,10 @@ function StageInvestible(props) {
           }}
         >
           <Typography color='initial' variant="subtitle2">{name}</Typography>
-          {!_.isEmpty(labelList) && !isVerifiedStage(stage) && (
-            <div className={classes.chipsClass} style={{paddingTop: '0.5rem'}}>
-              {labelList.map((label) =>
-                <div key={label}>
-                  <Chip size="small" label={label} className={classes.chipClass} color="primary"
-                        style={{maxWidth: '90%'}}/>
-                </div>
-              )}
+          {!_.isEmpty(labelList) && !isVerifiedStage(stage) && labelList.map((label) =>
+            <div key={label} style={{paddingTop: '0.5rem'}}>
+              <Chip size="small" label={label} className={classes.chipClass} color="primary"
+                    style={{maxWidth: '90%'}}/>
             </div>
           )}
         </StageLink>

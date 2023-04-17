@@ -110,7 +110,7 @@ function DecideAssistanceStep(props) {
           resolve();
         }}
         showOtherNext={isSuggest}
-        otherNextLabel="saveReject"
+        otherNextLabel="commentResolveLabel"
         onOtherNext={resolve}
       />
     </div>

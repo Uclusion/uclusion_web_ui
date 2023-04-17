@@ -19,6 +19,7 @@ import { resolveComment, updateComment } from '../../../api/comments'
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { getFormerStageId, isSingleAssisted } from '../../../utils/commentFunctions';
 import { useIntl } from 'react-intl';
+import JobDescription from '../JobDescription';
 
 
 function DecideAssistanceStep(props) {
@@ -77,18 +78,27 @@ function DecideAssistanceStep(props) {
           Resolving moves this job to {nextStageName}.
         </Typography>
       )}
-      <div className={classes.wizardCommentBoxDiv}>
-        <CommentBox
-          comments={comments}
-          marketId={marketId}
-          allowedTypes={[]}
-          fullStage={fullStage}
-          investible={inv}
-          marketInfo={marketInfo}
-          isInbox
-          removeActions
-        />
-      </div>
+      {commentRoot.investible_id && (
+        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                        removeActions
+                        showVoting
+                        showDescription={false}
+                        showAssigned={false} />
+      )}
+      {!commentRoot.investible_id && (
+        <div className={classes.wizardCommentBoxDiv}>
+          <CommentBox
+            comments={comments}
+            marketId={marketId}
+            allowedTypes={[]}
+            fullStage={fullStage}
+            investible={inv}
+            marketInfo={marketInfo}
+            isInbox
+            removeActions
+          />
+        </div>
+      )}
       <WizardStepButtons
         {...props}
         finish={myOnFinish}

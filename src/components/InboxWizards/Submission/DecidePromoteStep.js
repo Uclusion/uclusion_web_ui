@@ -22,6 +22,7 @@ import {
   getProposedOptionsStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import JobDescription from '../JobDescription';
 
 function DecidePromoteStep(props) {
   const { marketId, commentId, investibleId, commentMarketId, message } = props;
@@ -70,18 +71,29 @@ function DecidePromoteStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecidePromotionTitle'})}
       </Typography>
-      <div className={classes.wizardCommentBoxDiv}>
-        <CommentBox
-          comments={comments}
-          marketId={marketId}
-          allowedTypes={[]}
-          isInbox
-          removeActions
-          showVoting
-          selectedInvestibleIdParent={selectedInvestibleId}
-          setSelectedInvestibleIdParent={setSelectedInvestibleId}
-        />
-      </div>
+      {commentRoot.investible_id && (
+        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                        removeActions
+                        showVoting
+                        showDescription={false}
+                        showAssigned={false}
+                        selectedInvestibleIdParent={selectedInvestibleId}
+                        setSelectedInvestibleIdParent={setSelectedInvestibleId} />
+      )}
+      {!commentRoot.investible_id && (
+        <div className={classes.wizardCommentBoxDiv}>
+          <CommentBox
+            comments={comments}
+            marketId={marketId}
+            allowedTypes={[]}
+            isInbox
+            removeActions
+            showVoting
+            selectedInvestibleIdParent={selectedInvestibleId}
+            setSelectedInvestibleIdParent={setSelectedInvestibleId}
+          />
+        </div>
+      )}
       <WizardStepButtons
         {...props}
         nextLabel="promoteOption"

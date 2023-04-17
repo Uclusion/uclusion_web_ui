@@ -64,6 +64,8 @@ function DecideAnswerStep(props) {
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                         removeActions
                         showVoting
+                        showDescription={false}
+                        showAssigned={false}
                         selectedInvestibleIdParent={selectedInvestibleId}
                         setSelectedInvestibleIdParent={setSelectedInvestibleId} />
       )}

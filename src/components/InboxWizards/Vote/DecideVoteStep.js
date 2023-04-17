@@ -12,6 +12,7 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { useIntl } from 'react-intl';
+import JobDescription from '../JobDescription';
 
 function DecideVoteStep(props) {
   const { marketId, commentRoot, updateFormData, message } = props;
@@ -35,18 +36,27 @@ function DecideVoteStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideVoteTitle'})}
       </Typography>
-      <div className={classes.wizardCommentBoxDiv}>
-        <CommentBox
-          comments={comments}
-          marketId={marketId}
-          allowedTypes={[]}
-          fullStage={fullStage}
-          investible={inv}
-          marketInfo={marketInfo}
-          isInbox
-          removeActions
-        />
-      </div>
+      {commentRoot.investible_id && (
+        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                        removeActions
+                        showVoting
+                        showDescription={false}
+                        showAssigned={false} />
+      )}
+      {!commentRoot.investible_id && (
+        <div className={classes.wizardCommentBoxDiv}>
+          <CommentBox
+            comments={comments}
+            marketId={marketId}
+            allowedTypes={[]}
+            fullStage={fullStage}
+            investible={inv}
+            marketInfo={marketInfo}
+            isInbox
+            removeActions
+          />
+        </div>
+      )}
       <WizardStepButtons
         {...props}
         nextLabel="voteFor"

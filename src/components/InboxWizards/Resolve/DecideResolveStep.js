@@ -28,6 +28,7 @@ import _ from 'lodash'
 import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
 import { onCommentOpen } from '../../../utils/commentFunctions'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import JobDescription from '../JobDescription';
 
 
 function DecideResolveStep(props) {
@@ -119,21 +120,32 @@ function DecideResolveStep(props) {
           {isFullyVoted ? 'All votes collected.' : 'New vote.'}
         </Typography>
       )}
-      <div className={classes.wizardCommentBoxDiv}>
-        <CommentBox
-          comments={comments}
-          marketId={marketId}
-          allowedTypes={[]}
-          fullStage={fullStage}
-          investible={inv}
-          marketInfo={marketInfo}
-          isInbox
-          removeActions
-          showVoting
-          selectedInvestibleIdParent={selectedInvestibleId}
-          setSelectedInvestibleIdParent={setSelectedInvestibleId}
-        />
-      </div>
+      {commentRoot.investible_id && (
+        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                        removeActions
+                        showVoting
+                        showDescription={false}
+                        showAssigned={false}
+                        selectedInvestibleIdParent={selectedInvestibleId}
+                        setSelectedInvestibleIdParent={setSelectedInvestibleId} />
+      )}
+      {!commentRoot.investible_id && (
+        <div className={classes.wizardCommentBoxDiv}>
+          <CommentBox
+            comments={comments}
+            marketId={marketId}
+            allowedTypes={[]}
+            fullStage={fullStage}
+            investible={inv}
+            marketInfo={marketInfo}
+            isInbox
+            removeActions
+            showVoting
+            selectedInvestibleIdParent={selectedInvestibleId}
+            setSelectedInvestibleIdParent={setSelectedInvestibleId}
+          />
+        </div>
+      )}
       <WizardStepButtons
         {...props}
         nextLabel={isReopen ? 'commentReopenLabel' : 'commentResolveLabel'}

@@ -54,6 +54,8 @@ function DecideReplyStep(props) {
       </Typography>
       {commentRoot.investible_id && (
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                        showDescription={false}
+                        showAssigned={false}
                         inboxMessageId={commentId} />
       )}
       {!commentRoot.investible_id && (

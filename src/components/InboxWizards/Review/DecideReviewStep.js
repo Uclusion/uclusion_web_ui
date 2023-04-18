@@ -41,7 +41,7 @@ function DecideReviewStep(props) {
           You are a required reviewer.
         </Typography>
       )}
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
         nextLabel="DecideAddReview"

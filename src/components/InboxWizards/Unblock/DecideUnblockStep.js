@@ -76,7 +76,7 @@ function DecideUnblockStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideUnblockTitle'})}
       </Typography>
-      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} />
+      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
         nextLabel='UnblockReplyLabel'

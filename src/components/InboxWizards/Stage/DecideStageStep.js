@@ -122,7 +122,7 @@ function DecideStageStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         {intl.formatMessage({ id: destinationExplanation })}.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
         nextLabel={nextLabelId}

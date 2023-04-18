@@ -40,7 +40,7 @@ function EstimateChangeViewStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         Estimate changed from {message.text ? intl.formatDate(new Date(message.text)) : 'none'} to {intl.formatDate(daysEstimate)}.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
         showNext={false}

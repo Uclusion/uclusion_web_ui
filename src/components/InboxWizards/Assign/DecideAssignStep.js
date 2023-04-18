@@ -64,7 +64,7 @@ function DecideAssignStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideAssignmentTitle'})}
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
         nextLabel="DecideAssignMe"

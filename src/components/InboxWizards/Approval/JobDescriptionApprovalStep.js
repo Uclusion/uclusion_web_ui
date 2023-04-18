@@ -72,7 +72,7 @@ function JobDescriptionStep (props) {
           Go to job to ask a question or make a suggestion.
         </Typography>
       )}
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
         nextLabel="ApprovalWizardApprove"

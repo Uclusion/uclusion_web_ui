@@ -32,7 +32,7 @@ function JobDescriptionStatusStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'JobStatusTitle'})}
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
         nextLabel="StatusWizardEstimate"

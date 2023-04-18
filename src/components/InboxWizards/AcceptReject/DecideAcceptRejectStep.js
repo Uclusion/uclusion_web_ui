@@ -54,7 +54,7 @@ function DecideAcceptRejectStep(props) {
       <Typography className={classes.introText}>
         Do you accept this suggestion?
       </Typography>
-      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} />
+      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
         onFinish={myOnFinish}

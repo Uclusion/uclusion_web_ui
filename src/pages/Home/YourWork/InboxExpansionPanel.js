@@ -148,9 +148,15 @@ export function calculateTitleExpansionPanel(props) {
                                                 message={message} inboxDispatch={inboxDispatch}/>,
       'unreadReply', intl);
   }else if (['FULLY_VOTED', 'UNREAD_RESOLVED', 'UNREAD_VOTE'].includes(messageType)) {
-    setItem(item, openExpansion, <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
-                                                message={message} inboxDispatch={inboxDispatch}/>,
-      messageType === 'UNREAD_RESOLVED' ? 'DecideResolveReopenTitle' : 'DecideResolveTitle', intl);
+    if (linkType === 'INVESTIBLE_VOTE') {
+      setItem(item, openExpansion, <FeedbackWizard marketId={marketId} message={message}
+                                                   inboxDispatch={inboxDispatch}/>,
+        'unreadVote', intl);
+    } else {
+      setItem(item, openExpansion, <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
+                                                  message={message} inboxDispatch={inboxDispatch}/>,
+        messageType === 'UNREAD_RESOLVED' ? 'DecideResolveReopenTitle' : 'DecideResolveTitle', intl);
+    }
   } else if (['UNREAD_REVIEWABLE', 'UNASSIGNED', 'REVIEW_REQUIRED'].includes(messageType)) {
     if (linkType === 'MARKET_TODO') {
       setItem(item, openExpansion, item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId}

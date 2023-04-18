@@ -182,7 +182,7 @@ function Voting(props) {
                       />
                     </div>
                   )}
-                  {isYourVote && (
+                  {isEditable && (
                     <div style={{marginRight: '2rem'}}>
                       <TooltipIconButton
                         disabled={operationRunning !== false}

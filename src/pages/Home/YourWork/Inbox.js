@@ -20,7 +20,7 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
-import { calculateTitleExpansionPanel, createDefaultInboxRow, usesExpansion } from './InboxExpansionPanel';
+import { calculateTitleExpansionPanel, createDefaultInboxRow } from './InboxExpansionPanel';
 import {
   contractAll,
   expandAll,
@@ -217,7 +217,7 @@ function Inbox(props) {
           }
           const expansionOpen = !!expansionState[id];
           calculateTitleExpansionPanel({ item, inboxDispatch, intl,
-            openExpansion: expansionOpen && usesExpansion(item) });
+            openExpansion: expansionOpen });
           return <WorkListItem id={id} useSelect={false} {...item} inboxDispatch={inboxDispatch} key={id}
                                expansionOpen={expansionOpen} />;
         })

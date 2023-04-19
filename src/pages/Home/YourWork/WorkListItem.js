@@ -1,26 +1,25 @@
-import React, { useState } from 'react'
-import cx from "clsx";
-import styled from "styled-components";
-import { Box, IconButton, makeStyles, useMediaQuery, useTheme } from '@material-ui/core'
-import Checkbox from "@material-ui/icons/CheckBox";
-import CheckBoxOutlineBlank from "@material-ui/icons/CheckBoxOutlineBlank";
-import { useSizedIconButtonStyles } from "@mui-treasury/styles/iconButton/sized";
-import { useRowGutterStyles } from "@mui-treasury/styles/gutter/row";
-import PropTypes from 'prop-types'
-import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions'
-import GravatarGroup from '../../../components/Avatars/GravatarGroup'
-import { useHistory } from 'react-router'
-import RaisedCard from '../../../components/Cards/RaisedCard'
-import { pushMessage } from '../../../utils/MessageBusUtils'
+import React, { useState } from 'react';
+import cx from 'clsx';
+import styled from 'styled-components';
+import { Box, IconButton, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
+import Checkbox from '@material-ui/icons/CheckBox';
+import CheckBoxOutlineBlank from '@material-ui/icons/CheckBoxOutlineBlank';
+import { useSizedIconButtonStyles } from '@mui-treasury/styles/iconButton/sized';
+import { useRowGutterStyles } from '@mui-treasury/styles/gutter/row';
+import PropTypes from 'prop-types';
+import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
+import GravatarGroup from '../../../components/Avatars/GravatarGroup';
+import RaisedCard from '../../../components/Cards/RaisedCard';
+import { pushMessage } from '../../../utils/MessageBusUtils';
 import {
-  DEHIGHLIGHT_EVENT, DELETE_EVENT,
+  DEHIGHLIGHT_EVENT,
+  DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../../contexts/NotificationsContext/notificationsContextMessages';
-import { ExpandLess } from '@material-ui/icons'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { usesExpansion } from './InboxExpansionPanel'
-import NotificationDeletion from './NotificationDeletion'
-import { expandOrContract } from './InboxContext'
+import { ExpandLess } from '@material-ui/icons';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import NotificationDeletion from './NotificationDeletion';
+import { expandOrContract } from './InboxContext';
 import {
   dehighlightMessages,
   removeMessages
@@ -179,21 +178,17 @@ function WorkListItem(props) {
     useSelect,
     isNotSynced = false
   } = props;
-  const history = useHistory();
   const classes = workListStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [isHovered, setIsHovered] = useState(false);
-  const { link } = message;
   let fullText =  investible || comment || market;
   if (!moreDescription && investible && comment) {
     fullText += ' - ' + comment;
   }
-  const isUsingExpansion = usesExpansion(props);
-  const showExpansion = isUsingExpansion && isHovered && !isNotSynced;
-  const expansionPanelVisible = isUsingExpansion && expansionOpen;
+  const showExpansion = isHovered && !isNotSynced;
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`} style={{minWidth: useSelect ? undefined : '80vw'}}>
       <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
@@ -204,23 +199,12 @@ function WorkListItem(props) {
               return;
             }
             preventDefaultAndProp(event);
-            if (!isUsingExpansion && !read) {
-              let event = DEHIGHLIGHT_EVENT;
-              if (message.type_object_id.startsWith('UNREAD')) {
-                event = DELETE_EVENT;
+            inboxDispatch(expandOrContract(id));
+            if (!expansionOpen) {
+              const item = document.getElementById(`workListItem${id}`);
+              if (item) {
+                scrollToElement(item);
               }
-              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: id });
-            }
-            if (isUsingExpansion) {
-              inboxDispatch(expandOrContract(id));
-              if (!expansionPanelVisible) {
-                const item = document.getElementById(`workListItem${id}`);
-                if (item) {
-                  scrollToElement(item);
-                }
-              }
-            } else {
-              return navigate(history, link);
             }
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
@@ -270,8 +254,8 @@ function WorkListItem(props) {
             )}
           </Div>
         </div>
-        <div id={`workListItemExpansion${id}`} style={{visibility: expansionPanelVisible ? 'visible' : 'hidden',
-          height: expansionPanelVisible ? undefined : 0}}>
+        <div id={`workListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
+          height: expansionOpen ? undefined : 0}}>
           {expansionPanel || <React.Fragment />}
         </div>
       </RaisedCard>

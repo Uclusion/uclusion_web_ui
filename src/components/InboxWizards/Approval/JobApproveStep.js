@@ -25,8 +25,8 @@ export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
 }
 function JobApproveStep(props) {
-  const { marketId, groupId, clearFormData, updateFormData, formData, onFinish: parentOnFinish, message,
-    investibleId } = props;
+  const { marketId, groupId, updateFormData, formData, onFinish: parentOnFinish, message, investibleId,
+    yourVote } = props;
   const [, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
@@ -37,6 +37,7 @@ function JobApproveStep(props) {
   const validForm = formData.approveQuantity != null;
   const classes = wizardStyles();
   const editorName = getJobApproveEditorName(investibleId);
+  const wasDeleted = yourVote?.deleted;
 
   function onNext(isGotoJob) {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;
@@ -62,7 +63,6 @@ function JobApproveStep(props) {
         addMarketComments(commentsDispatch, marketId, [comment]);
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
-      clearFormData();
       if (isGotoJob) {
         return { link: `${formInvestibleLink(marketId, investibleId)}#cv${userId}` };
       }
@@ -111,6 +111,11 @@ function JobApproveStep(props) {
         <Typography className={classes.introText} variant="h6">
           How certain are you this job should be done?
         </Typography>
+        {wasDeleted && (
+          <Typography className={classes.introSubText} variant="subtitle1">
+            Your approval was deleted or expired.
+          </Typography>
+        )}
         <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} />
         <AddInitialVote
           marketId={marketId}

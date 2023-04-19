@@ -47,33 +47,11 @@ import ReplyWizard from '../../../components/InboxWizards/Reply/ReplyWizard';
 import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/OptionSubmittedWizard';
 import FeedbackWizard from '../../../components/InboxWizards/Feedback/FeedbackWizard';
 
-export function usesExpansion(item) {
-  const { message } = item;
-  if (message) {
-    if (message.type) {
-      if (message.type === 'UNREAD_REVIEWABLE') {
-        const { link_type: linkType } = message;
-        // No wizard for someone adds a comment to an investible assigned to you
-        return linkType !== 'INVESTIBLE_COMMENT';
-      }
-      return ['UNASSIGNED', 'REPORT_REQUIRED', 'UNREAD_RESOLVED', 'FULLY_VOTED', 'NOT_FULLY_VOTED', 'ISSUE',
-        'UNREAD_COMMENT', 'UNREAD_REPLY', 'REVIEW_REQUIRED', 'ASSIGNED_UNREVIEWABLE', 'INVESTIBLE_SUBMITTED',
-        'UNREAD_ESTIMATE', 'UNREAD_VOTE'].includes(message.type);
-    }
-    if (message.isOutboxAccepted) {
-      return true;
-    }
-    //Other pending just clicks through if not assigned or needs assistance
-    return message.isOutboxType && (message.isAssigned || (message.isCommentType && !_.isEmpty(message.investible)));
-  }
-  return false;
-}
-
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
     item.expansionPanel = panel;
   }
-  if (usesExpansion(item) && titleId) {
+  if (titleId) {
     item.title = intl.formatMessage({ id: titleId });
   }
 }

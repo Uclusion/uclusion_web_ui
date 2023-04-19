@@ -5,11 +5,9 @@ import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import JobDescription from '../JobDescription';
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -30,7 +28,6 @@ function JobDescriptionStep (props) {
   const classes = wizardStyles();
   const workItemClasses = workListStyles();
   const [investiblesState] = useContext(InvestiblesContext);
-  const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
@@ -39,10 +36,7 @@ function JobDescriptionStep (props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
   const comments = getCommentsSortedByType(marketComments, investibleId, false);
-  const userId = getMyUserForMarket(marketsState, marketId);
-  const { assigned } = marketInfo || {};
-  const isAssigned = (assigned || []).includes(userId);
-  const wasDeleted = yourVote && yourVote.deleted;
+  const wasDeleted = yourVote?.deleted;
   const yourReason = getReasonForVote(yourVote, marketComments);
 
   function myOnFinish() {
@@ -60,16 +54,6 @@ function JobDescriptionStep (props) {
       {wasDeleted && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Your approval was deleted or expired.
-        </Typography>
-      )}
-      {!wasDeleted && isAssigned && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Keep in mind that you are assigned to this job.
-        </Typography>
-      )}
-      {!wasDeleted && !isAssigned && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Go to job to ask a question or make a suggestion.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />

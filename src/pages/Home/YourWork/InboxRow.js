@@ -7,7 +7,7 @@ import {
   getCommentRoot
 } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { nameFromDescription } from '../../../utils/stringFunctions'
-import { calculateTitleExpansionPanel, usesExpansion } from './InboxExpansionPanel'
+import { calculateTitleExpansionPanel } from './InboxExpansionPanel'
 import WorkListItem from './WorkListItem'
 import React, { useContext } from 'react'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
@@ -109,7 +109,7 @@ function InboxRow(props) {
   item.title =  titleText(message, mobileLayout, intl, rootComment, userId,
     fullStage.allows_investment, assigned);
   calculateTitleExpansionPanel({ item, inboxDispatch,
-    openExpansion: expansionOpen && usesExpansion(item), intl });
+    openExpansion: expansionOpen, intl });
   return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}
                        determinateDispatch={determinateDispatch} useSelect={isHighlighted}
                        inboxDispatch={inboxDispatch} expansionOpen={expansionOpen} {...item} />;

@@ -22,7 +22,7 @@ function ApprovalWizard(props) {
                     defaultFormData={{parentElementId}}>
       <JobDescriptionApprovalStep marketId={marketId} investibleId={investibleId}
                                   message={message} yourVote={yourVote}/>
-      <JobApproveStep marketId={marketId} investibleId={investibleId} message={message} />
+      <JobApproveStep marketId={marketId} investibleId={investibleId} message={message} yourVote={yourVote} />
     </FormdataWizard>
   );
 }

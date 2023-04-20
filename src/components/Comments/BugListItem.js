@@ -114,15 +114,23 @@ function BugListItem(props) {
     id,
     expansionPanel,
     expansionOpen,
-    useSelect
+    useSelect,
+    notificationType
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [isHovered, setIsHovered] = useState(false);
+
+  function onDragStart(event) {
+    event.dataTransfer.setData('text', event.target.id);
+    event.dataTransfer.setData('notificationType', notificationType);
+  }
+
   return (
-    <Item key={`bugListItem${id}`} id={`bugListItem${id}`} style={{minWidth: useSelect ? undefined : '80vw'}}>
+    <Item key={`bugListItem${id}`} id={id} style={{minWidth: useSelect ? undefined : '80vw'}}
+          onDragStart={onDragStart} draggable>
       <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
         <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
              onClick={

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Checkbox, IconButton, Link, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash';
@@ -15,7 +15,6 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formMarketAddCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import Chip from '@material-ui/core/Chip';
-import { removeHeader, restoreHeader } from '../../../containers/Header';
 import {
   findMessageForCommentId,
   getPaginatedItems,
@@ -168,8 +167,7 @@ function MarketTodos(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const workItemClasses = workListStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [beingDraggedHack, setBeingDraggedHack] = useState({});
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [bugState, bugDispatch] = useReducer(getReducer(),
@@ -254,38 +252,6 @@ function MarketTodos(props) {
       });
   }
 
-  function onDragStart(event, notificationType) {
-    removeHeader();
-    const commentId = event.target.id.substring('card'.length);
-    event.dataTransfer.setData('text', commentId);
-    event.dataTransfer.setData('notificationType', notificationType);
-    const previousElement = document.getElementById(`drag${commentId}`);
-    const previousClass = previousElement ? document.getElementById(`drag${commentId}`).className : undefined;
-    setBeingDraggedHack({id:event.target.id, previousClass});
-    document.getElementById(`drag${commentId}`).className = classes.containerEmpty;
-  }
-
-  function onDragEnd() {
-    restoreHeader();
-    const { previousElementId, previousClass, id } = beingDraggedHack;
-    if (id) {
-      const commentId = id.substring(1);
-      if (previousClass) {
-        const drugElement = document.getElementById(`drag${commentId}`);
-        if (drugElement) {
-          drugElement.className = previousClass;
-        }
-      }
-    }
-    if (previousElementId) {
-      const previousElement = document.getElementById(previousElementId);
-      if (previousElement) {
-        previousElement.className = classes.containerEmpty;
-      }
-    }
-    setBeingDraggedHack({});
-  }
-
   function getRows() {
     if (_.isEmpty(data)) {
       return <div className={classes.grow} key={`${tabIndex}empty`}/>
@@ -293,7 +259,7 @@ function MarketTodos(props) {
     // TODO need ones with notifications first and then by updated
     const sortedData = _.sortBy(data, 'updated_at').reverse()
     return sortedData.map((comment) => {
-      const { id, body, updated_at: updatedAt } = comment;
+      const { id, body, updated_at: updatedAt, notification_type: notificationType } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
       const myMessage = findMessageForCommentId(id, messagesState);
       const { is_highlighted: isHighlighted } = myMessage || {};
@@ -312,19 +278,14 @@ function MarketTodos(props) {
                      read={!isHighlighted} date={intl.formatDate(updatedAt)} message={myMessage}
                      useSelect={!isInArchives} expansionPanel={expansionPanel} checked={determinate[id]}
                      expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}
-                     bugListDispatch={bugDispatch} />
+                     bugListDispatch={bugDispatch} notificationType={notificationType} />
       );
     });
   }
 
   function onDrop(event, notificationType) {
     const commentId = event.dataTransfer.getData('text');
-    const currentStageId = event.dataTransfer.getData("stageId");
     const currentNotificationType = event.dataTransfer.getData("notificationType");
-    if (currentStageId) {
-      // This is a story so ignore
-      return Promise.resolve(false);
-    }
     if (currentNotificationType === notificationType) {
       return Promise.resolve(false);
     }
@@ -411,17 +372,23 @@ function MarketTodos(props) {
                       color='black' tagLabel={unreadRedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                       tagColor={unreadRedCount > 0 ? '#E85757' : undefined}
                       tag={unreadRedCount > 0 ? `${unreadRedCount}` :
-                        (_.size(redComments) > 0 ? `${_.size(redComments)}` : undefined)} />
+                        (_.size(redComments) > 0 ? `${_.size(redComments)}` : undefined)}
+                      onDrop={onDropImmediate}
+                      onDragOver={(event)=>event.preventDefault()}/>
         <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'able'})}
                       color='black' tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
                       tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                       tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
-                        (_.size(yellowComments) > 0 ? `${_.size(yellowComments)}` : undefined)} />
+                        (_.size(yellowComments) > 0 ? `${_.size(yellowComments)}` : undefined)}
+                      onDrop={onDropAble}
+                      onDragOver={(event)=>event.preventDefault()} />
         <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'convenient'})}
                       color='black' tagColor={unreadBlueCount > 0 ? '#E85757' : undefined}
                       tagLabel={unreadBlueCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                       tag={unreadBlueCount > 0 ? `${unreadBlueCount}` :
-                        (_.size(blueComments) > 0 ? `${_.size(blueComments)}` : undefined)} />
+                        (_.size(blueComments) > 0 ? `${_.size(blueComments)}` : undefined)}
+                      onDrop={onDropConvenient}
+                      onDragOver={(event)=>event.preventDefault()} />
       </GmailTabs>
       {!_.isEmpty(tabComments) && (
         <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>

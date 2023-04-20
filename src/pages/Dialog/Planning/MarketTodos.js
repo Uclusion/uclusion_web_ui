@@ -273,10 +273,12 @@ function MarketTodos(props) {
           noAuthor
         />
       </div>
+      const determinateChecked = determinate[id];
+      const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
       return (
         <BugListItem id={id} replyNum={replies.length} title={nameFromDescription(body, 1000)}
                      read={!isHighlighted} date={intl.formatDate(updatedAt)} message={myMessage}
-                     useSelect={!isInArchives} expansionPanel={expansionPanel} checked={determinate[id]}
+                     useSelect={!isInArchives} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}
                      bugListDispatch={bugDispatch} notificationType={notificationType} />
       );
@@ -407,11 +409,11 @@ function MarketTodos(props) {
             )}
             <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                                onClick={() => {
-                                 bugDispatch(contractAll());
+                                 bugDispatch(contractAll(data));
                                }} translationId="inboxCollapseAll" />
             <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                                onClick={() => {
-                                 bugDispatch(expandAll());
+                                 bugDispatch(expandAll(data));
                                  processTabNotifications();
                                }} translationId="inboxExpandAll" />
             <div style={{flexGrow: 1}}/>

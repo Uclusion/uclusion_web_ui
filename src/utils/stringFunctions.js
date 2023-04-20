@@ -154,7 +154,7 @@ export function convertDescription(description, maxLength = 80) {
   return convertDescriptionForSeparator(description, " ", maxLength - 3);
 }
 
-export function nameFromDescription(description) {
-  const { name } = convertDescription(description, 80);
+export function nameFromDescription(description, maxLength = 80) {
+  const { name } = convertDescription(description, maxLength);
   return name;
 }

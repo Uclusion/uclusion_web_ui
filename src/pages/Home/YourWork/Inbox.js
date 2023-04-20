@@ -32,6 +32,7 @@ import {
 } from './InboxContext'
 import { nameFromDescription } from '../../../utils/stringFunctions';
 import { setOperationInProgress } from '../../../components/ContextHacks/OperationInProgressGlobalProvider';
+import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 
 function Inbox(props) {
   const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults } = props;
@@ -47,32 +48,8 @@ function Inbox(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { tabIndex, page, expansionState } = inboxState;
   const { search } = searchResults;
-  const [determinateState, determinateDispatch] = useReducer((state, action) => {
-    const { determinate, checkAll } = state;
-    const { type, id } = action;
-    let newDeterminate = determinate;
-    let newCheckAll = checkAll;
-    if (type === 'clear') {
-      newDeterminate = {};
-      newCheckAll = false;
-    } else if (type === 'toggle') {
-      newCheckAll = !checkAll;
-    } else if (id !== undefined) {
-      const newValue = determinate[id] === undefined ? !checkAll : !determinate[id];
-      if (newValue === checkAll) {
-        newDeterminate = _.omit(determinate, id);
-      } else {
-        newDeterminate = {...determinate, [id]: newValue};
-      }
-    }
-    let newIndeterminate = false;
-    Object.keys(newDeterminate).forEach((key) => {
-      if (newDeterminate[key] !== newCheckAll) {
-        newIndeterminate = true;
-      }
-    });
-    return { determinate: newDeterminate, indeterminate: newIndeterminate, checkAll: newCheckAll};
-  }, {determinate: {}, indeterminate: false, checkAll: false});
+  const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
+    {determinate: {}, indeterminate: false, checkAll: false});
   const { indeterminate, determinate, checkAll } = determinateState;
   const unreadCount = _.isEmpty(search) ?
     getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState) : 0;
@@ -152,7 +129,7 @@ function Inbox(props) {
                   }).finally(() => {
                     setOperationInProgress(false);
                   });
-              }} translationId={tabIndex === 0 ? 'inboxMarkRead' : 'inboxArchive'} />
+              }} translationId="inboxMarkRead" />
           )}
           <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                              onClick={() => {

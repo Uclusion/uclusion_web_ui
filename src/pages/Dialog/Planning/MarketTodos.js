@@ -1,50 +1,53 @@
-import React, { useContext, useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
-import { Checkbox, Grid, Typography, useMediaQuery, useTheme, Link } from '@material-ui/core'
-import _ from 'lodash'
-import RaisedCard from '../../../components/Cards/RaisedCard'
-import { FormattedMessage, useIntl } from 'react-intl'
-import { useHistory, useLocation } from 'react-router'
-import { darken, makeStyles } from '@material-ui/core/styles'
-import { yellow } from '@material-ui/core/colors'
+import React, { useContext, useEffect, useReducer, useState } from 'react';
+import PropTypes from 'prop-types';
+import { Box, Checkbox, IconButton, Link, useMediaQuery, useTheme } from '@material-ui/core';
+import _ from 'lodash';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useHistory, useLocation } from 'react-router';
+import { darken, makeStyles } from '@material-ui/core/styles';
+import { yellow } from '@material-ui/core/colors';
+import Comment from '../../../components/Comments/Comment';
+import { TODO_TYPE } from '../../../constants/comments';
+import AddIcon from '@material-ui/icons/Add';
+import { updateComment } from '../../../api/comments';
+import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { formMarketAddCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import Chip from '@material-ui/core/Chip';
+import { removeHeader, restoreHeader } from '../../../containers/Header';
 import {
-  SECTION_TYPE_SECONDARY_WARNING
-} from '../../../constants/global'
-import SubSection from '../../../containers/SubSection/SubSection'
-import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
-import Comment from '../../../components/Comments/Comment'
-import { TODO_TYPE } from '../../../constants/comments'
-import AddIcon from '@material-ui/icons/Add'
-import { updateComment } from '../../../api/comments'
-import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import {
-  formMarketAddCommentLink,
-  formMarketAddInvestibleLink,
-  formMarketLink,
-  navigate
-} from '../../../utils/marketIdPathFunctions';
-import Chip from '@material-ui/core/Chip'
-import { removeHeader, restoreHeader } from '../../../containers/Header'
-import { findMessageForCommentId, removeMessagesForCommentId } from '../../../utils/messageUtils'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { invalidEditEvent } from '../../../utils/windowUtils'
-import MarketTodoMenu from './MarketTodoMenu'
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
-import { doRemoveEdit, doShowEdit } from './userUtils'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
-import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
-import { getThreadIds } from '../../../utils/commentFunctions'
-import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
-import DismissableText from '../../../components/Notifications/DismissableText'
-import { deleteOrDehilightMessages } from '../../../api/users'
-import { Clear, SettingsBackupRestore } from '@material-ui/icons'
-import { workListStyles } from '../../Home/YourWork/WorkListItem'
-import { getTicketNumber } from '../../../utils/stringFunctions'
+  findMessageForCommentId,
+  getPaginatedItems,
+  getUnreadCount,
+  removeMessagesForCommentId
+} from '../../../utils/messageUtils';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
+import { getThreadIds } from '../../../utils/commentFunctions';
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
+import DismissableText from '../../../components/Notifications/DismissableText';
+import { deleteOrDehilightMessages } from '../../../api/users';
+import { workListStyles } from '../../Home/YourWork/WorkListItem';
+import { nameFromDescription } from '../../../utils/stringFunctions';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
 import { BUG_WIZARD_TYPE } from '../../../constants/markets';
+import BugListItem from '../../../components/Comments/BugListItem';
+import getReducer, {
+  contractAll,
+  expandAll,
+  PAGE_SIZE,
+  pin, setPage,
+  setTab
+} from '../../../components/Comments/BugListContext';
+import { getDeterminateReducer } from '../../../contexts/ContextUtils';
+import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
+import { ExpandLess, KeyboardArrowLeft } from '@material-ui/icons';
+import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
 const myClasses = makeStyles(
   theme => {
@@ -160,6 +163,8 @@ function MarketTodos(props) {
   const intl = useIntl();
   const history = useHistory();
   const theme = useTheme();
+  const location = useLocation();
+  const { hash } = location;
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const workItemClasses = workListStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
@@ -167,9 +172,13 @@ function MarketTodos(props) {
   const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
+  const [bugState, bugDispatch] = useReducer(getReducer(),
+    {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
+  const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
+    {determinate: {}, indeterminate: false, checkAll: false});
+  const { indeterminate, determinate, checkAll } = determinateState;
+  const { tabIndex, page, expansionState } = bugState;
   const { results, parentResults, search } = searchResults;
-  const [showSelectTodos, setShowSelectTodos] = useState(false);
-  const [checked, setChecked] = useState({});
   const todoComments = comments.filter(comment => {
     if (_.isEmpty(search)) {
       return comment.comment_type === TODO_TYPE;
@@ -180,64 +189,17 @@ function MarketTodos(props) {
   const blueComments = todoComments.filter((comment) => comment.notification_type === BLUE_LEVEL);
   const yellowComments = todoComments.filter((comment) => comment.notification_type === YELLOW_LEVEL);
   const redComments = todoComments.filter((comment) => comment.notification_type === RED_LEVEL);
-  const location = useLocation();
-  const { hash } = location;
-  const [openMenuTodoId, setOpenMenuTodoId] = useState(undefined);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const pageName = isInArchives ? 'archives' : '';
-  const [commentRedStateFull, commentRedDispatch] = usePageStateReducer(`commentRed${pageName}`);
-  const [commentRedState, updateCommentRedState, commentStateRedReset] =
-    getPageReducerPage(commentRedStateFull, commentRedDispatch, groupId);
-  const {
-    cardEditing: editRedCardId,
-  } = commentRedState;
-  const [commentYellowStateFull, commentYellowDispatch] =
-    usePageStateReducer(`commentYellow${pageName}`);
-  const [commentYellowState, updateCommentYellowState, commentStateYellowReset] =
-    getPageReducerPage(commentYellowStateFull, commentYellowDispatch, groupId);
-  const {
-    cardEditing: editYellowCardId,
-  } = commentYellowState;
-  const [commentBlueStateFull, commentBlueDispatch] =
-    usePageStateReducer(`commentBlue${pageName}`);
-  const [commentBlueState, updateCommentBlueState, commentStateBlueReset] =
-    getPageReducerPage(commentBlueStateFull, commentBlueDispatch, groupId);
-  const {
-    cardEditing: editCardId,
-  } = commentBlueState;
+  const tabComments = tabIndex === 0 ? redComments : (tabIndex === 1 ? yellowComments : blueComments);
+  const unreadRedCount = getUnreadCount(redComments, messagesState);
+  const unreadYellowCount = getUnreadCount(yellowComments, messagesState);
+  const unreadBlueCount = getUnreadCount(blueComments, messagesState);
+  // TODO honor pinned and use page it is on instead of page if there
+  const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabComments, page,
+    PAGE_SIZE);
 
-  function setOrRemoveCardOnReducer(aReducer, aReducerReset, comment) {
-    if (comment) {
-      aReducer({ cardEditing: comment.id });
-    } else {
-      aReducerReset();
-    }
-  }
 
-  function setEditRedCard(comment) {
-    setOrRemoveCardOnReducer(updateCommentRedState, commentStateRedReset, comment);
-  }
-
-  function setEditYellowCard(comment) {
-    setOrRemoveCardOnReducer(updateCommentYellowState, commentStateYellowReset, comment);
-  }
-
-  function setEditCard(comment) {
-    setOrRemoveCardOnReducer(updateCommentBlueState, commentStateBlueReset, comment);
-  }
 
   useEffect(() => {
-    function setEditRedCard(comment) {
-      setOrRemoveCardOnReducer(updateCommentRedState, commentStateRedReset, comment);
-    }
-
-    function setEditYellowCard(comment) {
-      setOrRemoveCardOnReducer(updateCommentYellowState, commentStateYellowReset, comment);
-    }
-
-    function setEditCard(comment) {
-      setOrRemoveCardOnReducer(updateCommentBlueState, commentStateBlueReset, comment);
-    }
     if (hash && !hidden) {
       const todoParents = comments.filter(comment => comment.comment_type === TODO_TYPE &&
         !comment.investible_id && !comment.resolved) || [];
@@ -249,12 +211,13 @@ function MarketTodos(props) {
         const rootComment = !rootId ? foundComment : comments.find((comment) => comment.id === rootId);
         const { notification_type: notificationType } = rootComment;
         if (notificationType === 'RED') {
-          setEditRedCard(rootComment);
+          bugDispatch(setTab(0));
         } else if (notificationType === 'YELLOW') {
-          setEditYellowCard(rootComment);
+          bugDispatch(setTab(1));
         } else {
-          setEditCard(rootComment);
+          bugDispatch(setTab(2));
         }
+        bugDispatch(pin(rootComment.id))
         history.replace(window.location.pathname + window.location.search);
       }
       if ((foundCommentId || hash.includes('Todos')) && !sectionOpen) {
@@ -262,8 +225,34 @@ function MarketTodos(props) {
       }
     }
     return () => {};
-  }, [commentStateBlueReset, commentStateRedReset, commentStateYellowReset, comments, hash, hidden, history,
-    sectionOpen, setSectionOpen, updateCommentBlueState, updateCommentRedState, updateCommentYellowState]);
+  }, [comments, hash, hidden, history, sectionOpen, setSectionOpen]);
+
+  function processTabNotifications() {
+    const allMessages = [];
+    data.forEach((comment) => {
+      const replies = comments.filter(comment => comment.root_comment_id === comment.id) || [];
+      const myMessage = findMessageForCommentId(comment.id, messagesState);
+      if (myMessage) {
+        allMessages.push(myMessage);
+      }
+      replies.forEach((reply) => {
+        const aMessage = findMessageForCommentId(reply.id, messagesState);
+        if (aMessage) {
+          allMessages.push(aMessage);
+        }
+      })
+    })
+    if (_.isEmpty(allMessages)) {
+      setOperationRunning(false);
+      return;
+    }
+    return deleteOrDehilightMessages(allMessages, messagesDispatch, workItemClasses.removed,
+      true)
+      .then(() => setOperationRunning(false))
+      .finally(() => {
+        setOperationRunning(false);
+      });
+  }
 
   function onDragStart(event, notificationType) {
     removeHeader();
@@ -281,15 +270,6 @@ function MarketTodos(props) {
     const { previousElementId, previousClass, id } = beingDraggedHack;
     if (id) {
       const commentId = id.substring(1);
-      if (editCardId === commentId) {
-        setEditCard(undefined);
-      }
-      if (editRedCardId === commentId) {
-        setEditRedCard(undefined);
-      }
-      if (editYellowCardId === commentId) {
-        setEditYellowCard(undefined);
-      }
       if (previousClass) {
         const drugElement = document.getElementById(`drag${commentId}`);
         if (drugElement) {
@@ -306,161 +286,34 @@ function MarketTodos(props) {
     setBeingDraggedHack({});
   }
 
-  function todoSelectedToggle(id) {
-    return () => {
-      const { isChecked } = checked[id] || { isChecked: false };
-      const newChecked = {
-        ...checked,
-        [id]: { isChecked: !isChecked },
-      };
-      setChecked(newChecked);
-    };
-  }
-
-  function setOpenMenuCard(id, event) {
-    if (openMenuTodoId === id) {
-      setOpenMenuTodoId(undefined);
-    } else {
-      setAnchorEl(event.currentTarget);
-      setOpenMenuTodoId(id);
+  function getRows() {
+    if (_.isEmpty(data)) {
+      return <div className={classes.grow} key={`${tabIndex}empty`}/>
     }
-  }
-
-  function getCards(commentsGetting, history, intl, setCard, sectionId) {
-    function setCardAndScroll(comment) {
-      setCard(comment);
-      navigate(history, `${formMarketLink(comment.market_id, comment.group_id)}#c${comment.id}`);
-    }
-
-    if (_.isEmpty(commentsGetting)) {
-      return <div className={classes.grow} key={`${sectionId}empty`}/>
-    }
-    const sortedData = _.sortBy(commentsGetting, 'updated_at').reverse()
+    // TODO need ones with notifications first and then by updated
+    const sortedData = _.sortBy(data, 'updated_at').reverse()
     return sortedData.map((comment) => {
-      const { id, body, updated_at, notification_type: notificationType, ticket_code: ticketCode } = comment;
+      const { id, body, updated_at: updatedAt } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
       const myMessage = findMessageForCommentId(id, messagesState);
       const { is_highlighted: isHighlighted } = myMessage || {};
-      const messages = isHighlighted ? [myMessage] : [];
-      let useHighlight = isHighlighted;
-      replies.forEach((reply) => {
-        const aMessage = findMessageForCommentId(reply.id, messagesState);
-        const { is_highlighted: isHighlighted } = aMessage || {};
-        if (isHighlighted) {
-          messages.push(aMessage);
-          useHighlight = true;
-        }
-      })
-      const { isChecked } = checked[id] || { isChecked: false };
-      const showChip = replies.length > 0;
-      const isSelected = [editYellowCardId, editRedCardId, editCardId].includes(id);
+      const expansionPanel = <div id={`c${id}`}
+                                  style={{marginBottom: '1rem', marginRight: '1rem', marginLeft: '1rem'}}>
+        <Comment
+          marketId={marketId}
+          comment={comment}
+          comments={comments}
+          allowedTypes={[TODO_TYPE]}
+          noAuthor
+        />
+      </div>
       return (
-        <React.Fragment key={`${id}top`}>
-          {openMenuTodoId === id && anchorEl && (
-            <MarketTodoMenu comment={comment} editViewFunc={setCardAndScroll} messages={messages}
-                            openIdFunc={setOpenMenuTodoId} anchorEl={anchorEl} />
-          )}
-          <Grid
-            id={`card${id}`}
-            key={`card${id}`}
-            item
-            md={3}
-            xs={12}
-            draggable={!operationRunning && !isInArchives}
-            onDragStart={(event) => onDragStart(event, notificationType)}
-            onDragEnd={onDragEnd}
-            className={isSelected ? classes.outlinedSelected : classes.outlined}
-            onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
-          >
-            {showSelectTodos && (
-              <Checkbox
-                value={id}
-                checked={isChecked}
-                onChange={todoSelectedToggle(id)}
-              />
-            )}
-            <RaisedCard className={isSelected ? classes.raisedCardSelected : undefined} elevation={0}
-                        cardClassName={isSelected ? classes.raisedCardSelected :
-                          (useHighlight ? classes.warnHighlightedCard : undefined)}
-                        onClick={(event) => {
-                            if (invalidEditEvent(event, history)) {
-                              return
-                            }
-                            if (isInArchives) {
-                              setCardAndScroll(comment)
-                            } else {
-                              setOpenMenuCard(id, event)
-                            }
-                        }}
-            >
-              <Grid container id={`drag${id}`} key={`drag${id}`}
-                    className={isSelected ? classes.cardSelected : (useHighlight ? classes.warnCard : classes.card)}>
-                <Grid item xs={11} style={{ pointerEvents: 'none' }} key={`wComment${id}`}>
-                  <div style={{ display: 'flex' }}>
-                    {ticketCode && (
-                      <Typography style={{ fontSize: '0.9rem', flex: 1, whiteSpace: 'nowrap' }} variant="body2">
-                        B-{getTicketNumber(decodeURI(ticketCode))}
-                      </Typography>
-                    )}
-                    <Typography style={{ fontSize: '.75rem', flex: 1 }}>
-                      Updated: {intl.formatDate(updated_at)}
-                    </Typography>
-                    {showChip && (
-                      <div style={{ display: 'flex', paddingBottom: '0.4rem' }}>
-                        <Typography style={{ fontSize: '.75rem' }}>Comments:</Typography>
-                        <Chip label={`${replies.length}`} className={classes.chipStyleWhite} size="small"
-                              style={{ marginLeft: '5px', marginRight: '15px' }}/>
-                      </div>
-                    )}
-                  </div>
-                </Grid>
-                {!mobileLayout && (
-                  <Grid id={`showEdit0${id}`} key={`showEdit0${id}`} item xs={1}
-                        style={{ pointerEvents: 'none', visibility: 'hidden' }}>
-                    <EditOutlinedIcon style={{ maxHeight: '1.25rem' }}/>
-                  </Grid>
-                )}
-                <Grid id={`showEdit1${showChip ? '' : id}`} key={`showEdit1${id}`} item xs={12}
-                      style={{ paddingTop: `${showChip ? 0 : 0.5}rem` }}>
-                  <ReadOnlyQuillEditor value={body} id={`todo${id}`}/>
-                </Grid>
-              </Grid>
-            </RaisedCard>
-          </Grid>
-        </React.Fragment>
+        <BugListItem id={id} replyNum={replies.length} title={nameFromDescription(body, 1000)}
+                     read={!isHighlighted} date={intl.formatDate(updatedAt)} message={myMessage}
+                     useSelect={!isInArchives} expansionPanel={expansionPanel} checked={determinate[id]}
+                     expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}
+                     bugListDispatch={bugDispatch} />
       );
-    });
-  }
-
-  function toggleShowSelectTodos() {
-    const currentShowSelect = showSelectTodos;
-    setShowSelectTodos(!showSelectTodos);
-    if (currentShowSelect && !_.isEmpty(checked)) {
-      let checkedString;
-      Object.keys(checked).forEach((anId) => {
-        if (checked[anId].isChecked) {
-          if (checkedString) {
-            checkedString += `&fromCommentId=${anId}`;
-          } else {
-            checkedString = `&fromCommentId=${anId}`;
-          }
-        }
-      });
-      setChecked({});
-      if (checkedString) {
-        navigate(history, `${formMarketAddInvestibleLink(marketId, groupId)}${checkedString}`);
-      }
-    }
-  }
-
-  function setElementGreen(elementId) {
-    removeElementGreen();
-    document.getElementById(elementId).classList.add(classes.containerGreen);
-  }
-
-  function removeElementGreen() {
-    ['immediateSection', 'convenientSection', 'ableSection'].forEach((elementId) => {
-      document.getElementById(elementId).classList.remove(classes.containerGreen);
     });
   }
 
@@ -503,16 +356,36 @@ function MarketTodos(props) {
     onDrop(event, 'BLUE');
   }
 
-  const todosButtonMsgId = showSelectTodos ? 'todosCreateStory' : 'todosSelectForStory';
+  function changePage(byNum) {
+    bugDispatch(setPage(page + byNum));
+  }
+
+  function moveSelected() {
+    const checked = Object.keys(determinate);
+    if (!_.isEmpty(checked)) {
+      let checkedString;
+      Object.keys(checked).forEach((anId) => {
+        if (checked[anId].isChecked) {
+          if (checkedString) {
+            checkedString += `&fromCommentId=${anId}`;
+          } else {
+            checkedString = `&fromCommentId=${anId}`;
+          }
+        }
+      });
+      determinateDispatch({type: 'clear'});
+      if (checkedString) {
+        navigate(history, `${formMarketAddInvestibleLink(marketId, groupId)}${checkedString}`);
+      }
+    }
+  }
+
   const immediateTodosChip = <Chip color="primary" size='small' className={classes.chipStyleRed} />;
   const yellowChip = <Chip color="primary" size='small' className={classes.chipStyleYellow} />;
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
-  const editRedCard = comments.find((comment) => comment.id && comment.id === editRedCardId);
-  const editYellowCard = comments.find((comment) => comment.id && comment.id === editYellowCardId);
-  const editCard = comments.find((comment) => comment.id && comment.id === editCardId);
   return (
-    <div className={classes.outerBorder} id="marketTodos"
-         style={{display: sectionOpen ? 'block' : 'none', marginTop: '2rem'}}>
+    <div className={classes.outerBorder} id="marketTodos" style={{display: sectionOpen ? 'block' : 'none',
+      marginTop: '2rem'}}>
       <DismissableText textId="todosHelp" display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
                        text={
         <div>
@@ -520,155 +393,74 @@ function MarketTodos(props) {
           sends notifications based on severity.
         </div>
       }/>
-      {!isInArchives && !mobileLayout && (
-        <SpinningIconLabelButton icon={ArrowUpwardIcon} onClick={toggleShowSelectTodos} doSpin={false}
-                                 whiteBackground>
-          <FormattedMessage id={todosButtonMsgId}/>
+      {!isInArchives && (
+        <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id="newMarketTodo"
+                                 onClick={() => navigate(history,
+                                   formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId))}>
+          <FormattedMessage id='createBug'/>
         </SpinningIconLabelButton>
       )}
-      {showSelectTodos ? <SpinningIconLabelButton icon={Clear}
-                                                  onClick={() => {
-                                                    setChecked({});
-                                                    setShowSelectTodos(false);
-                                                  }} doSpin={false}
-                                                  whiteBackground>
-        <FormattedMessage id="cancel"/>
-      </SpinningIconLabelButton> : (mobileLayout || isInArchives ? undefined :
-        (
-          <SpinningIconLabelButton icon={SettingsBackupRestore} onClick={() => {
-            const allMessages = [];
-            todoComments.forEach((comment) => {
-              const replies = comments.filter(comment => comment.root_comment_id === comment.id) || [];
-              const myMessage = findMessageForCommentId(comment.id, messagesState);
-              if (myMessage) {
-                allMessages.push(myMessage);
-              }
-              replies.forEach((reply) => {
-                const aMessage = findMessageForCommentId(reply.id, messagesState);
-                if (aMessage) {
-                  allMessages.push(aMessage);
-                }
-              })
-            })
-            if (_.isEmpty(allMessages)) {
-              setOperationRunning(false);
-              return;
-            }
-            return deleteOrDehilightMessages(allMessages, messagesDispatch, workItemClasses.removed,
-              true)
-              .then(() => setOperationRunning(false))
-              .finally(() => {
-                setOperationRunning(false);
-              });
-          }} whiteBackground id="removeTodosNotificationsButton">
-            <FormattedMessage id='removeNotifications'/>
-          </SpinningIconLabelButton>
-        ))}
-        {!isInArchives && (
-          <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id="newMarketTodo"
-                                   onClick={() => navigate(history,
-                                     formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId))}>
-            <FormattedMessage id='createBug'/>
-          </SpinningIconLabelButton>
-        )}
-        <div style={{paddingTop: '1rem'}}>
-          {editRedCard && (
-            <div id={`c${editRedCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
-              <Comment
-                marketId={marketId}
-                comment={editRedCard}
-                onDone={() => setEditRedCard(undefined)}
-                comments={comments}
-                allowedTypes={[TODO_TYPE]}
-                noAuthor
-                showDone
+      <GmailTabs
+        value={tabIndex}
+        onChange={(event, value) => {
+          bugDispatch(setTab(value));
+        }}
+        indicatorColors={['#E85757', '#e6e969', '#2F80ED']}
+        style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
+        <GmailTabItem icon={immediateTodosChip} label={intl.formatMessage({id: 'immediate'})}
+                      color='black' tagLabel={unreadRedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                      tagColor={unreadRedCount > 0 ? '#E85757' : undefined}
+                      tag={unreadRedCount > 0 ? `${unreadRedCount}` :
+                        (_.size(redComments) > 0 ? `${_.size(redComments)}` : undefined)} />
+        <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'able'})}
+                      color='black' tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
+                      tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                      tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
+                        (_.size(yellowComments) > 0 ? `${_.size(yellowComments)}` : undefined)} />
+        <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'convenient'})}
+                      color='black' tagColor={unreadBlueCount > 0 ? '#E85757' : undefined}
+                      tagLabel={unreadBlueCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                      tag={unreadBlueCount > 0 ? `${unreadBlueCount}` :
+                        (_.size(blueComments) > 0 ? `${_.size(blueComments)}` : undefined)} />
+      </GmailTabs>
+      {!_.isEmpty(tabComments) && (
+        <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
+          <div style={{display: 'flex', width: '80%'}}>
+            {!mobileLayout && (
+              <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
+                        checked={checkAll}
+                        indeterminate={indeterminate}
+                        onChange={() => determinateDispatch({type: 'toggle'})}
               />
-            </div>
-          )}
-          <SubSection
-            type={SECTION_TYPE_SECONDARY_WARNING}
-            id="immediateTodos"
-            bolder
-            title={intl.formatMessage({ id: 'immediate' })}
-            titleIcon={immediateTodosChip}
-          >
-            <Grid
-              container
-              className={classes.white}
-              id="immediateSection" key="immediateSection" onDrop={onDropImmediate}
-              onDragEnd={() => removeElementGreen()}
-              onDragEnter={() => setElementGreen('immediateSection')}
-              onDragOver={(event) => event.preventDefault()}
-            >
-              {getCards(redComments, history, intl, setEditRedCard, 'immediateSection')}
-            </Grid>
-          </SubSection>
-          <div style={{ paddingBottom: '15px' }}/>
-          {editYellowCard && (
-            <div id={`c${editYellowCardId}`} style={{marginBottom: '2rem', marginRight: '1rem',
-              marginLeft: '1rem'}}>
-              <Comment
-                marketId={marketId}
-                comment={editYellowCard}
-                onDone={() => setEditYellowCard(undefined)}
-                comments={comments}
-                allowedTypes={[TODO_TYPE]}
-                noAuthor
-                showDone
-              />
-            </div>
-          )}
-          <SubSection
-            type={SECTION_TYPE_SECONDARY_WARNING}
-            id="whenAbleTodos"
-            bolder
-            title={intl.formatMessage({ id: 'able' })}
-            titleIcon={yellowChip}
-          >
-            <Grid
-              container
-              className={classes.white}
-              id="convenientSection" key="convenientSection" onDrop={onDropConvenient}
-              onDragEnd={() => removeElementGreen()}
-              onDragEnter={() => setElementGreen('convenientSection')}
-              onDragOver={(event) => event.preventDefault()}
-            >
-              {getCards(yellowComments, history, intl, setEditYellowCard, 'convenientSection')}
-            </Grid>
-          </SubSection>
-          <div style={{ paddingBottom: '15px' }}/>
-          {editCard && (
-            <div id={`c${editCardId}`} style={{marginBottom: '2rem', marginRight: '1rem', marginLeft: '1rem'}}>
-              <Comment
-                marketId={marketId}
-                comment={editCard}
-                onDone={() => setEditCard(undefined)}
-                comments={comments}
-                allowedTypes={[TODO_TYPE]}
-                noAuthor
-                showDone
-              />
-            </div>
-          )}
-          <SubSection
-            type={SECTION_TYPE_SECONDARY_WARNING}
-            bolder
-            title={intl.formatMessage({ id: 'convenient' })}
-            titleIcon={blueChip}
-            id="whenConvenientTodos"
-          >
-            <Grid
-              container
-              className={classes.white}
-              id="ableSection" key="ableSection" onDrop={onDropAble}
-              onDragEnd={() => removeElementGreen()}
-              onDragEnter={() => setElementGreen('ableSection')}
-              onDragOver={(event) => event.preventDefault()}
-            >
-              {getCards(blueComments, history, intl, setEditCard, 'ableSection')}
-            </Grid>
-          </SubSection>
+            )}
+            {(checkAll || !_.isEmpty(determinate)) && (
+              <TooltipIconButton
+                icon={<ArrowUpwardIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                onClick={moveSelected} translationId="todosCreateStory" />
+            )}
+            <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+                               onClick={() => {
+                                 bugDispatch(contractAll());
+                               }} translationId="inboxCollapseAll" />
+            <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+                               onClick={() => {
+                                 bugDispatch(expandAll());
+                                 processTabNotifications();
+                               }} translationId="inboxExpandAll" />
+            <div style={{flexGrow: 1}}/>
+            <Box fontSize={14} color="text.secondary">
+              {first} - {last} of {_.size(tabComments)}
+              <IconButton disabled={!hasLess} onClick={() => changePage(-1)} >
+                <KeyboardArrowLeft />
+              </IconButton>
+              <IconButton disabled={!hasMore} onClick={() => changePage(1)}>
+                <KeyboardArrowRight />
+              </IconButton>
+            </Box>
+          </div>
         </div>
+      )}
+      {getRows()}
     </div>
   )
 }

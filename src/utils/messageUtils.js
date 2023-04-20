@@ -177,3 +177,14 @@ export function getPaginatedItems(items, page=1, pageSize) {
   const hasLess = page > 1;
   return { first: offset + 1, last, data, hasMore, hasLess };
 }
+
+export function getUnreadCount(comments, messagesState) {
+  let unreadCount = 0;
+  (comments || []).forEach((comment) => {
+    const myMessage = findMessageForCommentId(comment.id, messagesState);
+    if (myMessage?.is_highlighted){
+      unreadCount++;
+    }
+  });
+  return unreadCount;
+}

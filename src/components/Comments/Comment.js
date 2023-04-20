@@ -62,7 +62,7 @@ import GravatarAndName from '../Avatars/GravatarAndName';
 import { invalidEditEvent } from '../../utils/windowUtils';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
-import { Clear, Delete, Done, Edit, Eject, ExpandLess, NotInterested, SettingsBackupRestore } from '@material-ui/icons';
+import { Delete, Done, Edit, Eject, ExpandLess, NotInterested, SettingsBackupRestore } from '@material-ui/icons';
 import ReplyIcon from '@material-ui/icons/Reply';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
@@ -329,7 +329,7 @@ function navigateEditReplyBack(history, id, marketId, groupId, investibleId, rep
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, noAuthor, onDone, defaultShowDiff, showDone,
+  const { comment, marketId, comments, noAuthor, defaultShowDiff,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
   const history = useHistory();
@@ -467,7 +467,6 @@ function Comment(props) {
         // The only message that will be there is the one telling you the comment was resolved
         removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
         setOperationRunning(false);
-        onDone();
       });
   }
   function remove() {
@@ -477,7 +476,6 @@ function Comment(props) {
         removeComments(commentsDispatch, marketId, [id]);
         removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
         setOperationRunning(false);
-        onDone();
       });
   }
 
@@ -490,8 +488,7 @@ function Comment(props) {
         }
         changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues)
         removeMessagesForCommentId(id, messagesState, workItemClasses.removed)
-        setOperationRunning(false)
-        onDone()
+        setOperationRunning(false);
       });
   }
 
@@ -541,7 +538,6 @@ function Comment(props) {
           addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
         setOperationRunning(false);
-        onDone();
       });
   }
 
@@ -755,11 +751,6 @@ function Comment(props) {
                       undefined, undefined, id))}
                                            doSpin={false} icon={ThumbsUpDownIcon}>
                     {intl.formatMessage({ id: 'addVoting' })}
-                  </SpinningIconLabelButton>
-                )}
-                {showDone && (
-                  <SpinningIconLabelButton onClick={onDone} doSpin={false} icon={Clear}>
-                    {!mobileLayout && intl.formatMessage({ id: 'done' })}
                   </SpinningIconLabelButton>
                 )}
                 {showAcceptReject && (

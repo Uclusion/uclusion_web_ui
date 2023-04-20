@@ -309,11 +309,11 @@ function MarketTodos(props) {
     onDrop(event, 'RED');
   }
 
-  function onDropConvenient(event) {
+  function onDropAble(event) {
     onDrop(event, 'YELLOW');
   }
 
-  function onDropAble(event) {
+  function onDropConvenient(event) {
     onDrop(event, 'BLUE');
   }
 

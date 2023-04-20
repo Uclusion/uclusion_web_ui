@@ -45,6 +45,7 @@ const useStyles = makeStyles({
     position: 'relative',
     display: 'flex',
     width: '100%',
+    overflowX: 'hidden'
   },
   content: {
     width: '100%',

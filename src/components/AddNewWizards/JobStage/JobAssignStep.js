@@ -73,8 +73,8 @@ function JobAssignStep (props) {
     const moveInfo = {
       marketId,
       investibleId,
-      assignments: value,
       stageInfo: {
+        assignments: value,
         current_stage_id: marketInfo.stage,
         stage_id: fullMoveStage.id,
       },

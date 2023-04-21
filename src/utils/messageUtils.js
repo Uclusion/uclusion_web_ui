@@ -178,6 +178,17 @@ export function getPaginatedItems(items, page=1, pageSize) {
   return { first: offset + 1, last, data, hasMore, hasLess };
 }
 
+export function getRealPage(tabComments, pinned, originalPage, pageSize) {
+  if (!pinned) {
+    return originalPage;
+  }
+  const index = _.findIndex(tabComments, (item) => item.id === pinned);
+  if (index < 0) {
+    return originalPage;
+  }
+  return Math.floor(index / pageSize) + 1;
+}
+
 export function getUnreadCount(comments, messagesState) {
   let unreadCount = 0;
   (comments || []).forEach((comment) => {

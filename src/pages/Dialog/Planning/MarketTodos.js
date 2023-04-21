@@ -17,7 +17,7 @@ import { formMarketAddCommentLink, formMarketAddInvestibleLink, navigate } from 
 import Chip from '@material-ui/core/Chip';
 import {
   findMessageForCommentId,
-  getPaginatedItems,
+  getPaginatedItems, getRealPage,
   getUnreadCount,
   removeMessagesForCommentId
 } from '../../../utils/messageUtils';
@@ -175,7 +175,7 @@ function MarketTodos(props) {
   const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
     {determinate: {}, indeterminate: false, checkAll: false});
   const { indeterminate, determinate, checkAll } = determinateState;
-  const { tabIndex, page, expansionState } = bugState;
+  const { tabIndex, page: originalPage, expansionState, pinned } = bugState;
   const { results, parentResults, search } = searchResults;
   const todoComments = comments.filter(comment => {
     if (_.isEmpty(search)) {
@@ -191,7 +191,8 @@ function MarketTodos(props) {
   const unreadRedCount = getUnreadCount(redComments, messagesState);
   const unreadYellowCount = getUnreadCount(yellowComments, messagesState);
   const unreadBlueCount = getUnreadCount(blueComments, messagesState);
-  // TODO honor pinned and use page it is on instead of page if there
+  // TODO need ones with notifications first and then by updated
+  const page = getRealPage(tabComments, pinned, originalPage, PAGE_SIZE);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabComments, page,
     PAGE_SIZE);
 
@@ -256,7 +257,6 @@ function MarketTodos(props) {
     if (_.isEmpty(data)) {
       return <div className={classes.grow} key={`${tabIndex}empty`}/>
     }
-    // TODO need ones with notifications first and then by updated
     const sortedData = _.sortBy(data, 'updated_at').reverse()
     return sortedData.map((comment) => {
       const { id, body, updated_at: updatedAt, notification_type: notificationType } = comment;

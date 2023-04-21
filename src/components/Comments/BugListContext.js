@@ -65,7 +65,9 @@ function toggleExpandRow(state, action) {
 
 function pinId(state, action) {
   const { id } = action;
-  return { ...state, pinned: id }
+  const { expansionState } = state;
+  const newExpandedState = {...expansionState, [id]: true};
+  return { ...state, pinned: id, expansionState: newExpandedState }
 }
 
 function updateTab(state, action) {

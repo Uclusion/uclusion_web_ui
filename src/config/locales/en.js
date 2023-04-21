@@ -477,6 +477,7 @@ const messages = defineMessages({
   proceedRequiresInput: 'Assistance',
   resolveComment: 'Resolve Comments',
   commentCloseNewStage: 'Resolving moves job to {x}.',
+  numRepliesExplanation: 'Number of replies',
   // lock dialog
   lockDialogCancel: 'Cancel',
   pageLockEditPage: 'Edit Page',

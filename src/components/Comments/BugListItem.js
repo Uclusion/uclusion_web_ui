@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import cx from 'clsx';
 import styled from 'styled-components';
-import { Box, IconButton, useMediaQuery, useTheme } from '@material-ui/core';
+import { Box, IconButton, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import Checkbox from '@material-ui/icons/CheckBox';
 import CheckBoxOutlineBlank from '@material-ui/icons/CheckBoxOutlineBlank';
 import { useSizedIconButtonStyles } from '@mui-treasury/styles/iconButton/sized';
@@ -20,6 +20,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { scrollToElement } from '../../contexts/ScrollContext';
 import { expandOrContract } from './BugListContext';
 import Chip from '@material-ui/core/Chip';
+import { useIntl } from 'react-intl';
 
 const Item = styled("div")`
   margin-bottom: 10px;
@@ -118,6 +119,7 @@ function BugListItem(props) {
     notificationType
   } = props;
   const theme = useTheme();
+  const intl = useIntl();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
@@ -178,8 +180,11 @@ function BugListItem(props) {
                   </StyledIconButton>
                 )}
               </Box>
-              {replyNum > 0 ? <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px',
-                marginRight: '15px', backgroundColor: 'white', border: '0.5px solid grey' }}/> : React.Fragment}
+              {replyNum > 0 ? <Tooltip key={`tipreplies${id}`}
+                                       title={intl.formatMessage({ id: 'numRepliesExplanation' })}>
+                <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px',
+                marginRight: '15px', backgroundColor: 'white', border: '0.5px solid grey' }}/>
+              </Tooltip>: React.Fragment}
               {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
               {isHovered || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
                 (<DateLabelB>{date}</DateLabelB>))}

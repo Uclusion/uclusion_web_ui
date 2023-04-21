@@ -68,7 +68,7 @@ function OptionVoting(props) {
   }
 
   const orderedInvestiblesArray = _.orderBy(investibles, [(inv) => {
-    return isRead(inv) ? 1 : 0;
+    return isRead(inv, messagesState) ? 1 : 0;
   }, (inv) => inv.investible.name]);
   return (
     <div>

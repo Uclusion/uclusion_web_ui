@@ -46,6 +46,7 @@ import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import { isReadComment } from '../../../components/Comments/Options';
 
 const myClasses = makeStyles(
   theme => {
@@ -186,16 +187,16 @@ function MarketTodos(props) {
   const blueComments = todoComments.filter((comment) => comment.notification_type === BLUE_LEVEL);
   const yellowComments = todoComments.filter((comment) => comment.notification_type === YELLOW_LEVEL);
   const redComments = todoComments.filter((comment) => comment.notification_type === RED_LEVEL);
-  const tabComments = tabIndex === 0 ? redComments : (tabIndex === 1 ? yellowComments : blueComments);
+  const tabCommentsRaw = tabIndex === 0 ? redComments : (tabIndex === 1 ? yellowComments : blueComments);
   const unreadRedCount = getUnreadCount(redComments, messagesState);
   const unreadYellowCount = getUnreadCount(yellowComments, messagesState);
   const unreadBlueCount = getUnreadCount(blueComments, messagesState);
-  // TODO need ones with notifications first and then by updated
+  const tabComments = _.orderBy(tabCommentsRaw, [(comment) => {
+    return isReadComment(comment, messagesState) ? 0 : 1;}, 'updated_at'], ['desc', 'desc']);
+  console.debug(tabComments);
   const page = getRealPage(tabComments, pinned, originalPage, PAGE_SIZE);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabComments, page,
     PAGE_SIZE);
-
-
 
   useEffect(() => {
     if (hash && !hidden) {
@@ -256,12 +257,9 @@ function MarketTodos(props) {
     if (_.isEmpty(data)) {
       return <div className={classes.grow} key={`${tabIndex}empty`}/>
     }
-    const sortedData = _.sortBy(data, 'updated_at').reverse()
-    return sortedData.map((comment) => {
+    return data.map((comment) => {
       const { id, body, updated_at: updatedAt, notification_type: notificationType } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
-      const myMessage = findMessageForCommentId(id, messagesState);
-      const { is_highlighted: isHighlighted } = myMessage || {};
       const expansionPanel = <div id={`c${id}`}
                                   style={{marginBottom: '1rem', marginRight: '1rem', marginLeft: '1rem'}}>
         <Comment
@@ -276,7 +274,8 @@ function MarketTodos(props) {
       const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
       return (
         <BugListItem id={id} replyNum={replies.length} title={nameFromDescription(body, 1000)}
-                     read={!isHighlighted} date={intl.formatDate(updatedAt)} message={myMessage}
+                     read={isReadComment(comment, messagesState)} date={intl.formatDate(updatedAt)}
+                     message={findMessageForCommentId(id, messagesState)}
                      useSelect={!isInArchives} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}
                      bugListDispatch={bugDispatch} notificationType={notificationType} />

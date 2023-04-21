@@ -17,7 +17,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { useIntl } from 'react-intl';
-import { findMessagesForInvestibleId } from '../../utils/messageUtils';
+import { findMessageForCommentId, findMessagesForInvestibleId } from '../../utils/messageUtils';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { moveInvestibleToCurrentVoting } from '../../api/investibles';
@@ -28,6 +28,11 @@ export function isRead(inv, messagesState) {
   const investibleId = inv.investible.id;
   const myMessages = findMessagesForInvestibleId(investibleId, messagesState);
   return _.isEmpty(myMessages.find((message) => !message.is_highlighted));
+}
+
+export function isReadComment(comment, messagesState) {
+  const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
+  return !myMessage.is_highlighted;
 }
 
 function Options(props) {

@@ -150,7 +150,7 @@ function BugListItem(props) {
                 if (message.type_object_id.startsWith('UNREAD')) {
                   event = DELETE_EVENT;
                 }
-                pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: id });
+                pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: message.type_object_id });
               }
               bugListDispatch(expandOrContract(id));
               if (!expansionOpen) {

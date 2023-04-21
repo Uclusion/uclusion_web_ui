@@ -99,43 +99,57 @@ function OptionListItem(props) {
   const showExpansion = isHovered && !isNotSynced;
 
   function onDragStart(event) {
+    const dragImage = document.getElementById(`dragImage${event.target.id}`);
+    dragImage.style.display = 'block';
+    event.dataTransfer.setDragImage(dragImage, 100, 0);
     event.dataTransfer.setData('text', event.target.id);
   }
 
+  function onDragEnd(event) {
+    const dragImage = document.getElementById(`dragImage${event.target.id}`);
+    dragImage.style.display = 'none';
+  }
+
   return (
-    <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable>
-      <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
-        <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }} id={`link${id}`} key={`link${id}`}
-             onClick={
-          (event) => {
-            if (isNotSynced) {
-              return;
+    <>
+      <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} onDragEnd={onDragEnd} draggable>
+        <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
+          <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }} id={`link${id}`} key={`link${id}`}
+               onClick={
+            (event) => {
+              if (isNotSynced) {
+                return;
+              }
+              preventDefaultAndProp(event);
+              expandOrContract();
             }
-            preventDefaultAndProp(event);
-            expandOrContract();
-          }
-        } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
-          <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
-            {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
-            {description && (
-              <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{description}</Text>
-            )}
-            {mobileLayout || _.isEmpty(people) || showExpansion ? React.Fragment :
-              <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            {showExpansion && (
-              <DateLabel>
-                {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
-                  : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
-              </DateLabel>
-            )}
-          </Div>
-        </div>
-        <div id={`optionListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
-          height: expansionOpen ? undefined : 0}}>
-          {expansionPanel || <React.Fragment />}
-        </div>
-      </RaisedCard>
-    </Item>
+          } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+            <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
+              {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
+              {description && (
+                <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{description}</Text>
+              )}
+              {mobileLayout || _.isEmpty(people) || showExpansion ? React.Fragment :
+                <GravatarGroup users={people} className={classes.gravatarStyle}/> }
+              {showExpansion && (
+                <DateLabel>
+                  {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
+                    : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
+                </DateLabel>
+              )}
+            </Div>
+          </div>
+          <div id={`optionListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
+            height: expansionOpen ? undefined : 0}}>
+            {expansionPanel || <React.Fragment />}
+          </div>
+        </RaisedCard>
+      </Item>
+      <div id={`dragImage${id}`} style={{display: 'block', minWidth: '10rem', width: '10rem',
+        position: 'absolute', top: -10, right: -10, zIndex: 2}}>
+        <Title>{title}</Title>
+      </div>
+    </>
   );
 }
 

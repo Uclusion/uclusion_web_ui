@@ -323,7 +323,8 @@ function MarketTodos(props) {
 
   function moveSelected() {
     const selected = Object.keys(determinate).filter((key) => determinate[key]);
-    const checked = checkAll ? data.map((comment) => comment.id) : selected;
+    const checked = checkAll ? data.filter((comment) => determinate[comment.id] !== false)
+        .map((comment) => comment.id) : selected;
     let checkedString;
     if (!_.isEmpty(checked)) {
       checked.forEach((anId) => {

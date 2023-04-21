@@ -100,7 +100,6 @@ function OptionListItem(props) {
 
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
-    dragImage.style.display = 'block';
     event.dataTransfer.setDragImage(dragImage, 100, 0);
     event.dataTransfer.setData('text', event.target.id);
   }

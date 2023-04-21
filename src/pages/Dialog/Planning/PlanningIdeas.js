@@ -483,11 +483,18 @@ function Stage(props) {
   const history = useHistory();
 
   function investibleOnDragStart (event) {
+    const dragImage = document.getElementById(`dragImage${event.target.id}`);
+    event.dataTransfer.setDragImage(dragImage, 100, 0);
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text', event.target.id);
     event.dataTransfer.setData('stageId', id);
     const originalElementId = `${id}_${presenceId}`;
     dragHack({ id: event.target.id, stageId: id, originalElementId });
+  }
+
+  function onDragEnd(event) {
+    const dragImage = document.getElementById(`dragImage${event.target.id}`);
+    dragImage.style.display = 'none';
   }
 
   const singleInvestible = investibles.length === 1;
@@ -504,29 +511,37 @@ function Stage(props) {
           const numQuestionsSuggestions = countByType(investible, comments,
             [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
           return (
-            <Grid key={investible.id} item xs={12} onDragStart={investibleOnDragStart} id={investible.id} draggable
-                  className={!singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}
-                  onMouseOver={() => doShowEdit(investible.id)} onMouseOut={() => doRemoveEdit(investible.id)}
-                  onClick={event => {
-                    preventDefaultAndProp(event);
-                    navigate(history, formInvestibleLink(marketId, investible.id));
-                  }}
-            >
-                <StageInvestible
-                  marketPresences={marketPresences || []}
-                  comments={comments || []}
-                  investible={investible}
-                  marketId={marketId}
-                  marketInfo={marketInfo}
-                  isReview={isReview}
-                  isVoting={isVoting}
-                  votesRequired={votesRequired}
-                  numQuestionsSuggestions={numQuestionsSuggestions}
-                  unaccepted={unaccepted}
-                  showCompletion={showCompletion}
-                  mobileLayout={mobileLayout}
-                />
-            </Grid>
+            <>
+              <Grid key={investible.id} item xs={12} id={investible.id} onDragStart={investibleOnDragStart} draggable
+                    onDragEnd={onDragEnd}
+                    className={!singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}
+                    onMouseOver={() => doShowEdit(investible.id)}
+                    onMouseOut={() => doRemoveEdit(investible.id)}
+                    onClick={event => {
+                      preventDefaultAndProp(event);
+                      navigate(history, formInvestibleLink(marketId, investible.id));
+                    }}
+              >
+                  <StageInvestible
+                    marketPresences={marketPresences || []}
+                    comments={comments || []}
+                    investible={investible}
+                    marketId={marketId}
+                    marketInfo={marketInfo}
+                    isReview={isReview}
+                    isVoting={isVoting}
+                    votesRequired={votesRequired}
+                    numQuestionsSuggestions={numQuestionsSuggestions}
+                    unaccepted={unaccepted}
+                    showCompletion={showCompletion}
+                    mobileLayout={mobileLayout}
+                  />
+              </Grid>
+              <div id={`dragImage${investible.id}`} style={{display: 'block', minWidth: '10rem', width: '10rem',
+                position: 'absolute', top: -10, right: -10, zIndex: 2}}>
+                <Typography color='initial' variant="subtitle2">{investible.name}</Typography>
+              </div>
+            </>
           );
         })}
         </Grid>

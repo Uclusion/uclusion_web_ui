@@ -41,9 +41,8 @@ import getReducer, {
 } from '../../../components/Comments/BugListContext';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
-import { ExpandLess, KeyboardArrowLeft } from '@material-ui/icons';
+import { Eject, ExpandLess, KeyboardArrowLeft } from '@material-ui/icons';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
@@ -324,16 +323,15 @@ function MarketTodos(props) {
   }
 
   function moveSelected() {
-    const checked = Object.keys(determinate);
+    const selected = Object.keys(determinate).filter((key) => determinate[key]);
+    const checked = checkAll ? data.map((comment) => comment.id) : selected;
+    let checkedString;
     if (!_.isEmpty(checked)) {
-      let checkedString;
-      Object.keys(checked).forEach((anId) => {
-        if (checked[anId].isChecked) {
-          if (checkedString) {
-            checkedString += `&fromCommentId=${anId}`;
-          } else {
-            checkedString = `&fromCommentId=${anId}`;
-          }
+      checked.forEach((anId) => {
+        if (checkedString) {
+          checkedString += `&fromCommentId=${anId}`;
+        } else {
+          checkedString = `&fromCommentId=${anId}`;
         }
       });
       determinateDispatch({type: 'clear'});
@@ -404,7 +402,7 @@ function MarketTodos(props) {
             )}
             {(checkAll || !_.isEmpty(determinate)) && (
               <TooltipIconButton
-                icon={<ArrowUpwardIcon htmlColor={ACTION_BUTTON_COLOR} />}
+                icon={<Eject htmlColor={ACTION_BUTTON_COLOR} />}
                 onClick={moveSelected} translationId="todosCreateStory" />
             )}
             <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}

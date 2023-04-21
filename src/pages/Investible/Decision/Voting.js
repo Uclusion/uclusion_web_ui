@@ -155,7 +155,7 @@ function Voting(props) {
                 }}
               >
                 <Box display="flex">
-                  <CardType
+                  <CardType compact
                     className={classes.cardType}
                     type={`certainty${Math.abs(quantity)}`}
                     gravatar={<GravatarAndName email={email}

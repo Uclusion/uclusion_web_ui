@@ -35,7 +35,7 @@ import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import UpdateIcon from '@material-ui/icons/Update'
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
-import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { BugReport } from '@material-ui/icons'
 import { DaysEstimate } from './AgilePlan/DaysEstimate';
 
@@ -213,9 +213,10 @@ export default function CardType(props) {
   }[subtype || type];
 
   return (
-    <Grid container={!compact}>
+    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
+      width: compact ? '25rem' : '100%'}}>
       {(label || gravatar) && (
-        <Grid item xs={4} className={classes.labelGrid}>
+        <>
           {label && (
             <div className={clsx(classes.root, className)} style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
               <IconComponent className={classes.icon}/>
@@ -223,39 +224,27 @@ export default function CardType(props) {
             </div>
           )}
           {gravatar}
-        </Grid>
-      )}
-      {!label && !compact && (
-        <Grid item xs={3} />
+        </>
       )}
       {myBeingEdited && (
-        <Grid item xs={2}>
-          <Typography className={classes.lastEdited} variant="body2">
-            {intl.formatMessage({ id: 'edited' })}
-          </Typography>
-        </Grid>
+        <Typography className={classes.lastEdited} variant="body2">
+          {intl.formatMessage({ id: 'edited' })}
+        </Typography>
       )}
       {isInAccepted && (
         <DaysEstimate marketId={marketId} onChange={onEstimateChange} value={marketDaysEstimate} />
       )}
       {createdAt && (
-        <Grid item xs={2}>
-          <Typography className={classes.timeElapsed} variant="body2">
-            {intl.formatMessage({ id: 'created' })} <UsefulRelativeTime value={createdAt}/>
-          </Typography>
-        </Grid>
+        <Typography className={classes.timeElapsed} variant="body2">
+          {intl.formatMessage({ id: 'created' })} <UsefulRelativeTime value={createdAt}/>
+        </Typography>
       )}
       {stageChangedAt && (
-        <Grid item xs={2}>
-          <Typography className={classes.timeElapsed} variant="body2">
-            {intl.formatMessage({ id: 'stageUpdatedAt' })} <UsefulRelativeTime value={stageChangedAt}/>
-          </Typography>
-        </Grid>
+        <Typography className={classes.timeElapsed} variant="body2">
+          {intl.formatMessage({ id: 'stageUpdatedAt' })} <UsefulRelativeTime value={stageChangedAt}/>
+        </Typography>
       )}
-      {!compact && (
-        <Grid item xs={label ? 2 : 3} />
-      )}
-    </Grid>
+    </div>
   );
 }
 CardType.propTypes = {

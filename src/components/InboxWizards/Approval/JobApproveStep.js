@@ -20,24 +20,31 @@ import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 
 export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
 }
 function JobApproveStep(props) {
-  const { marketId, groupId, updateFormData, formData, onFinish: parentOnFinish, message, investibleId,
+  const { marketId, updateFormData, formData, onFinish: parentOnFinish, message, investibleId,
     yourVote } = props;
   const [, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const workItemClasses = workListStyles();
   const userId = getMyUserForMarket(marketsState, marketId);
   const validForm = formData.approveQuantity != null;
   const classes = wizardStyles();
   const editorName = getJobApproveEditorName(investibleId);
   const wasDeleted = yourVote?.deleted;
+  const inv = getInvestible(investiblesState, investibleId);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { group_id: groupId } = marketInfo;
 
   function onNext(isGotoJob) {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;

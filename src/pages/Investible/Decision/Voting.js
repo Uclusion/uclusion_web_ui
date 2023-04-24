@@ -116,7 +116,7 @@ function Voting(props) {
     setOperationRunning(true);
     return removeInvestment(market.id, investibleId).then(result => {
       commonQuick(result, commentsDispatch, market.id, commentsState, marketPresencesDispatch, messagesState,
-        workItemClasses, messagesDispatch, () => {}, setOperationRunning);
+        workItemClasses, messagesDispatch, setOperationRunning);
       setOperationRunning(false);
     });
   }

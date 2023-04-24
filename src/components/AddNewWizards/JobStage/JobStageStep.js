@@ -31,7 +31,8 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import JobDescription from '../../InboxWizards/JobDescription';
 
 function JobStageStep (props) {
-  const { marketId, updateFormData, formData, investibleId, marketInfo, myFinish: finish } = props;
+  const { marketId, updateFormData, formData, nextStep, investibleId, marketInfo, myFinish: finish,
+    requiresAction } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -76,19 +77,20 @@ function JobStageStep (props) {
       stageWasSet: true
     });
   }
-
+  const openTodos = comments.find((comment) => comment.comment_type === TODO_TYPE);
+  const openAssistance = comments.find((comment) =>
+    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type));
+  const hasOpenTodos = !_.isEmpty(openTodos) && isVerifiedStage(fullMoveStage);
+  const isCloseComments = hasOpenTodos ||
+    (fullCurrentStage.move_on_comment && openAssistance && !isVerifiedStage(fullMoveStage));
   function move() {
     if (!isNotDoingStage(fullMoveStage)&&!isFurtherWorkStage(fullMoveStage)) {
-      const openTodos = comments.find((comment) => comment.comment_type === TODO_TYPE);
-      const openAssistance = comments.find((comment) =>
-        [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type));
-      const hasOpenTodos = !_.isEmpty(openTodos) && isVerifiedStage(fullMoveStage)
-      if (hasOpenTodos || (fullCurrentStage.move_on_comment && openAssistance && !isVerifiedStage(fullMoveStage))) {
+      if (isCloseComments) {
         // No op go to CloseCommentsStep
         setOperationRunning(false);
         return Promise.resolve(true);
       }
-      if (isFurtherWorkStage(fullCurrentStage)) {
+      if (_.isEmpty(assigned)) {
         //No op go to JobAssignStep
         setOperationRunning(false);
         return Promise.resolve(true);
@@ -116,6 +118,16 @@ function JobStageStep (props) {
     return React.Fragment;
   }
 
+  function doIncrement() {
+    if (_.isEmpty(assigned)) {
+      // Go to next normal step
+      nextStep();
+    } else if (isCloseComments) {
+      nextStep(2);
+    } else if (requiresAction(fullMoveStage)) {
+      nextStep(3);
+    }
+  }
   return (
     <WizardStepContainer
       {...props}
@@ -158,7 +170,8 @@ function JobStageStep (props) {
         <WizardStepButtons
           {...props}
           validForm={validForm}
-          showNext={true}
+          showNext
+          onIncrement={doIncrement}
           onNext={move}
         />
       </div>

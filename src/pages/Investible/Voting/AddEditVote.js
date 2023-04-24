@@ -106,7 +106,7 @@ function AddEditVote(props) {
     investibleId,
     groupId,
     multiplier, wizardProps, hasVoted, currentReasonId,
-    formData, updateFormData, clearFormData, voteMessage, isInbox
+    formData, updateFormData, voteMessage, isInbox
   } = props;
   const {
     approveQuantity,
@@ -161,7 +161,7 @@ function AddEditVote(props) {
     return updateInvestment(updateInfo).then(result => {
       resetEditor('', {placeholder: intl.formatMessage({ id: 'yourReason' })});
       commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, undefined,
-        workItemClasses, messagesDispatch, clearFormData, setOperationRunning, voteMessage);
+        workItemClasses, messagesDispatch, setOperationRunning, voteMessage);
     });
   }
 

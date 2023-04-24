@@ -27,11 +27,12 @@ function CloseCommentsStep(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const { assigned, group_id: groupId } = marketInfo;
+  const { assigned: originalAssigned, group_id: groupId } = marketInfo;
   const marketComments = getMarketComments(commentsState, marketId, groupId);
   const unresolvedComments = marketComments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);
-  const { stage } = formData;
+  const { stage, assigned: newAssigned } = formData;
+  const assigned = newAssigned || originalAssigned;
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage);
   const mustResolveComments = unresolvedComments.filter((comment) =>
     (comment.comment_type === ISSUE_TYPE)||
@@ -52,7 +53,7 @@ function CloseCommentsStep(props) {
       },
     };
     if (!_.isEmpty(formData.assigned)) {
-      moveInfo.assignments = formData.assigned;
+      moveInfo.stageInfo.assignments = formData.assigned;
     }
     return stageChangeInvestible(moveInfo)
       .then((response) => {
@@ -93,10 +94,10 @@ function CloseCommentsStep(props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
-        showNext={true}
-        showTerminate={true}
+        showNext
+        showTerminate
         onNext={move}
-        onTerminate={finish}
+        onTerminate={() => finish(fullMoveStage, true)}
         terminateLabel="JobWizardGotoJob"
       />
     </div>

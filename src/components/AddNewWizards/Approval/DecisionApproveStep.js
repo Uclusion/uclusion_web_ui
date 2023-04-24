@@ -21,7 +21,7 @@ import { commonQuick } from './ApprovalWizard';
 import JobDescription from '../../InboxWizards/JobDescription';
 
 function DecisionApproveStep(props) {
-  const { market, clearFormData, updateFormData, formData, investibleId, hasOtherVote, currentReasonId } = props;
+  const { market, updateFormData, formData, investibleId, hasOtherVote, currentReasonId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -40,7 +40,7 @@ function DecisionApproveStep(props) {
 
   function doQuick(result) {
     commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, messagesState,
-      workItemClasses, messagesDispatch, clearFormData, setOperationRunning);
+      workItemClasses, messagesDispatch, setOperationRunning);
   }
 
   function onNext() {

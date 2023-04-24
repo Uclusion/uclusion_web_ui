@@ -16,22 +16,43 @@ import { getJobApproveEditorName } from '../../InboxWizards/Approval/JobApproveS
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { commonQuick } from './ApprovalWizard';
+import { commonQuick } from '../Approval/ApprovalWizard';
 import JobDescription from '../../InboxWizards/JobDescription';
+import { getFullStage, isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import StartReviewStep from '../../InboxWizards/Stage/StartReviewStep';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 
-function JobApproveStep(props) {
-  const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId } = props;
+function StageActionStep(props) {
+  const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId, wasDeleted,
+    originalReason, originalQuantity, userId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const workItemClasses = workListStyles();
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
+  const inv = getInvestible(investiblesState, investibleId);
   const editorName = getJobApproveEditorName(investibleId);
-  const {approveUploadedFiles, approveReason, approveQuantity, originalQuantity, wasDeleted, userId,
-    originalReason} = formData;
+  const {approveUploadedFiles, approveReason, approveQuantity, stage } = formData;
+  console.debug(`stage is ${stage}`)
+  const fullMoveStage = getFullStage(marketStagesState, marketId, stage) || {};
+  console.debug(fullMoveStage);
   const validForm = approveQuantity >= 0;
+
+  if (isInReviewStage(fullMoveStage)) {
+    console.debug('Got here stage action review')
+    return (
+      <StartReviewStep marketId={marketId} investibleId={investibleId} inv={inv} groupId={groupId}
+                            currentStageId={stage} />
+    );
+  }
+
+  console.debug('Got here stage action approval')
 
   function doQuick(result) {
     commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, messagesState,
@@ -118,14 +139,14 @@ function JobApproveStep(props) {
   )
 }
 
-JobApproveStep.propTypes = {
+StageActionStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
 }
 
-JobApproveStep.defaultProps = {
+StageActionStep.defaultProps = {
   updateFormData: () => {},
   formData: {},
 }
 
-export default JobApproveStep
+export default StageActionStep

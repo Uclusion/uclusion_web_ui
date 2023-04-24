@@ -393,7 +393,7 @@ export function getOutboxMessages(props) {
       }
       let debtors = [];
       if (notAccepted) {
-        debtors = marketPresences.filter((presence) => marketInfo.assigned.includes(presence.id));
+        debtors = marketPresences.filter((presence) => marketInfo.assigned?.includes(presence.id));
       } else if (!_.isEmpty(marketInfo.required_approvers)) {
         //add required approvers that have not voted or commented
         marketInfo.required_approvers.forEach((userId) => {

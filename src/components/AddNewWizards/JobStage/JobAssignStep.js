@@ -40,8 +40,7 @@ function JobAssignStep (props) {
   const fullMoveStage = getFullStage(marketStagesState, marketId, formData.stage);
   const validForm = !_.isEqual(value, assigned)&&(!isAcceptedStage(fullMoveStage)|| value.includes(userId));
   const comments = getMarketComments(commentsState, marketId, groupId);
-  const unresolvedComments = comments.filter(comment => comment.investible_id === investibleId &&
-    !comment.resolved);
+  const unresolvedComments = comments.filter(comment => comment.investible_id === investibleId && !comment.resolved);
 
   function onAssignmentChange(newAssignments){
     updateFormData({
@@ -63,8 +62,9 @@ function JobAssignStep (props) {
     }));
   }
 
+  const isCloseComments = (isRequiresInput() || isBlocked()) && !isVerifiedStage(fullMoveStage);
   function assignJob() {
-    if ((isRequiresInput() || isBlocked()) && !isVerifiedStage(fullMoveStage)) {
+    if (isCloseComments) {
       // No op go to CloseCommentsStep
       setOperationRunning(false);
       return Promise.resolve(true);
@@ -112,10 +112,11 @@ function JobAssignStep (props) {
         <WizardStepButtons
           {...props}
           validForm={validForm}
-          showNext={true}
-          showTerminate={true}
+          showNext
+          showTerminate
           onNext={assignJob}
-          onTerminate={finish}
+          skipNextStep={!isCloseComments}
+          onTerminate={() => finish(fullMoveStage, true)}
           terminateLabel="JobWizardGotoJob"
         />
       </div>

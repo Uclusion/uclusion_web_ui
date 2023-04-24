@@ -26,7 +26,7 @@ import VoteCertaintyStep from './VoteCertaintyStep';
 import _ from 'lodash';
 
 export function commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, messagesState,
-  workItemClasses, messagesDispatch, clearFormData, setOperationRunning, voteMessage) {
+  workItemClasses, messagesDispatch, setOperationRunning, voteMessage) {
   const { commentResult, investmentResult } = result;
   const { commentAction, comment } = commentResult;
   if (commentAction === 'DELETED') {
@@ -45,7 +45,6 @@ export function commonQuick(result, commentsDispatch, marketId, commentsState, m
   if (useVoteMessage) {
     removeWorkListItem(useVoteMessage, workItemClasses.removed, messagesDispatch);
   }
-  clearFormData();
   setOperationRunning(false);
 }
 

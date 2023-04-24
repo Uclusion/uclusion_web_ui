@@ -365,12 +365,14 @@ function PlanningInvestible(props) {
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden) {
       const element = document.getElementById(hash.substring(1, hash.length));
+      console.debug(element)
       // Check if already on the right tab and only change tab if not
       if (!element) {
         if (hash.startsWith('#cv') || hash.startsWith('#approve')) {
           updatePageState({ sectionOpen: 'descriptionVotingSection' })
         } else {
           const found = investibleComments.find((comment) => hash.includes(comment.id));
+          console.debug(found)
           if (!_.isEmpty(found)) {
             const rootComment = filterToRoot(investibleComments, found.id);
             if (!_.isEmpty(rootComment.investible_id)) {

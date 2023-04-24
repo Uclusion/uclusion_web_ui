@@ -1054,9 +1054,14 @@ function Reply(props) {
     return !isHighlighted ? classes.container : (isLinkedTo || (myMessage.level === 'RED')
       ? classes.containerRed : classes.containerYellow);
   }
+
   return (
-    <div>
-      <Card className={getHighlightClass()} id={`c${comment.id}`}>
+    <div onClick={() => {
+      if (isInbox) {
+        navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
+      }
+    }}>
+      <Card className={getHighlightClass()} id={`${isInbox ? 'inbox' : ''}c${comment.id}`}>
         <CardContent className={classes.cardContent}>
           <Typography className={classes.commenter} variant="body2">
             {commenter.name}

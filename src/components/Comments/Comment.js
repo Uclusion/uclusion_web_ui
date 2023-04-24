@@ -541,37 +541,9 @@ function Comment(props) {
       });
   }
 
-  function getHilightedIds(myReplies, highLightedIds, passedMessages) {
-    const highlighted = highLightedIds || [];
-    const messages = passedMessages || [];
-    if (_.isEmpty(myReplies)) {
-      return {highlighted, messages};
-    }
-    myReplies.forEach(reply => {
-      const replyMessage = findMessageForCommentId(reply.id, messagesState);
-      if (replyMessage) {
-        const { level } = replyMessage;
-        if (level) {
-          messages.push(replyMessage);
-          highlighted.push(reply.id);
-        }
-      }
-    });
-    myReplies.forEach((reply) => {
-      const replyReplies = comments.filter(
-        comment => comment.reply_id === reply.id
-      );
-      getHilightedIds(replyReplies, highlighted, messages);
-    });
-    return {highlighted, messages};
-  }
-  const {highlighted, messages} = getHilightedIds(replies);
   const diff = getDiff(diffState, id);
   const myHighlightedState = myMessage || {};
   const { level: myHighlightedLevel } = myHighlightedState;
-  if (myHighlightedLevel) {
-    messages.push(myMessage);
-  }
   const overrideLabel = (marketType === PLANNING_TYPE && commentType === REPORT_TYPE
     && !creatorAssigned) ? <FormattedMessage id="reviewReportPresent" /> :
     (isMarketTodo ? <FormattedMessage id="notificationLabel" /> : undefined);
@@ -588,7 +560,7 @@ function Comment(props) {
       }
       return classes.containerRed;
     }
-    if (!_.isEmpty(highlighted) || (noHighlightId !== id && hashFragment?.includes(id))) {
+    if (noHighlightId !== id && hashFragment?.includes(id)) {
       return classes.containerYellow;
     }
     return classes.container;
@@ -736,7 +708,7 @@ function Comment(props) {
                   editStateReset={editStateReset}
                   myNotificationType={myNotificationType}
                   isInReview={createdInReview}
-                  messages={messages}
+                  messages={myMessage ? [myMessage] : []}
                 />
               )}
             </Box>
@@ -848,7 +820,7 @@ function Comment(props) {
           commentAddState={replyAddState}
           updateCommentAddState={updateReplyAddState}
           commentAddStateReset={replyAddStateReset}
-          threadMessages={messages}
+          threadMessages={myMessage ? [myMessage] : []}
           nameDifferentiator="reply"
         />
       )}
@@ -862,7 +834,6 @@ function Comment(props) {
                   comment={child}
                   marketId={marketId}
                   enableEditing={enableEditing}
-                  messages={messages}
                   replyEditId={replyEditId}
                   inboxMessageId={inboxMessageId}
                   isInbox={isInbox}
@@ -880,21 +851,19 @@ Comment.propTypes = {
   comment: PropTypes.object.isRequired,
   noAuthor: PropTypes.bool,
   readOnly: PropTypes.bool,
-  onDone: PropTypes.func,
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired
 };
 
 Comment.defaultProps = {
   noAuthor: false,
-  readOnly: false,
-  onDone: () => {}
+  readOnly: false
 };
 
 function InitialReply(props) {
-  const { comment, enableEditing, messages, replyEditId, inboxMessageId, isInbox } = props;
+  const { comment, enableEditing, replyEditId, inboxMessageId, isInbox } = props;
 
-  return <Reply comment={comment} enableEditing={enableEditing} messages={messages} replyEditId={replyEditId}
+  return <Reply comment={comment} enableEditing={enableEditing} replyEditId={replyEditId}
                 inboxMessageId={inboxMessageId} isInbox={isInbox}/>;
 }
 
@@ -1016,7 +985,7 @@ const unknownPresence = {
  * @param {{comment: Comment}} props
  */
 function Reply(props) {
-  const { comment, messages, enableEditing, replyEditId, inboxMessageId, isInbox } = props;
+  const { comment, enableEditing, replyEditId, inboxMessageId, isInbox } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const replyBeingEdited = replyEditId === comment.id && myParams && !_.isEmpty(myParams.get('reply'));
@@ -1117,7 +1086,7 @@ function Reply(props) {
               updateEditState={updateEditState}
               editStateReset={editStateReset}
               comment={comment}
-              messages={messages}
+              messages={myMessage ? [myMessage] : []}
             />
           )}
           {!beingEdited && !_.isEmpty(comment) && (
@@ -1170,7 +1139,7 @@ function Reply(props) {
             commentAddState={replyAddState}
             updateCommentAddState={updateReplyAddState}
             commentAddStateReset={replyAddStateReset}
-            threadMessages={messages}
+            threadMessages={myMessage ? [myMessage] : []}
             nameDifferentiator="reply"
           />
         )}
@@ -1180,7 +1149,6 @@ function Reply(props) {
           <ThreadedReplies
             replies={comment.children}
             enableEditing={enableEditing}
-            messages={messages}
             replyEditId={replyEditId}
           />
         </div>
@@ -1212,7 +1180,7 @@ const useThreadedReplyStyles = makeStyles(
  * @param {{comments: Comment[], replies: string[]}} props
  */
 function ThreadedReplies(props) {
-  const { replies: replyIds, enableEditing, messages, replyEditId } = props;
+  const { replies: replyIds, enableEditing, replyEditId } = props;
   const comments = useComments();
 
   const classes = useThreadedReplyStyles();
@@ -1238,7 +1206,6 @@ function ThreadedReplies(props) {
               comment={reply}
               key={`threadc${reply.id}`}
               enableEditing={enableEditing}
-              messages={messages}
               replyEditId={replyEditId}
             />
           );

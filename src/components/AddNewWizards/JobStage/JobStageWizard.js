@@ -31,7 +31,7 @@ function JobStageWizard(props) {
   const [commentsState] = useContext(CommentsContext);
   const inv = getInvestible(investibleState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage, assigned, group_id: groupId } = marketInfo;
+  const { stage, group_id: groupId } = marketInfo;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence?.investments?.find((investment) =>

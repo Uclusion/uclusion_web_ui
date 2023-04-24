@@ -176,7 +176,7 @@ function Voting(props) {
                     </div>
                   )}
                   {showExpiration && !mobileLayout && (
-                    <div style={{marginRight: '2rem'}}>
+                    <div style={{marginRight: '2rem', paddingTop: '5px'}}>
                       <ExpiresDisplay
                         createdAt={new Date(updatedAt)}
                         expirationMinutes={expirationMinutes}

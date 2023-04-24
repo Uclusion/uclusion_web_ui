@@ -66,18 +66,20 @@ function JobStageWizard(props) {
       }
     }
   }
-
+  const approveQuantity = yourVote ? yourVote.quantity : 0;
+  const originalReason = !editorEmpty(yourReason?.body) ? yourReason?.body : undefined;
   return (
     <WizardStylesProvider>
-      <FormdataWizard name={`job_stage_wizard${investibleId}`} useLocalStorage={false}>
+      <FormdataWizard name={`job_stage_wizard${investibleId}`} useLocalStorage={false}
+                      defaultFormData={{approveQuantity: Math.abs(approveQuantity), originalQuantity: approveQuantity,
+                        wasDeleted: yourVote?.deleted, userId: yourPresence?.id, approveReason: originalReason,
+                        originalReason}}>
         <JobStageStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
                       requiresAction={requiresAction} />
         <JobAssignStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo} />
         <CloseCommentsStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo} />
         <StageActionStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                         currentReasonId={yourReason?.id} groupId={groupId} wasDeleted={yourVote?.deleted}
-                         originalReason={!editorEmpty(yourReason?.body) ? yourReason?.body : undefined}
-                         originalQuantity={yourVote ? yourVote.quantity : 0} userId={yourPresence?.id}/>
+                         currentReasonId={yourReason?.id} groupId={groupId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

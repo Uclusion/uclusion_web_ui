@@ -25,8 +25,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 
 function StageActionStep(props) {
-  const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId, wasDeleted,
-    originalReason, originalQuantity, userId } = props;
+  const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -38,21 +37,17 @@ function StageActionStep(props) {
   const classes = useContext(WizardStylesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const editorName = getJobApproveEditorName(investibleId);
-  const {approveUploadedFiles, approveReason, approveQuantity, stage } = formData;
-  console.debug(`stage is ${stage}`)
+  const {approveUploadedFiles, approveReason, approveQuantity, stage, wasDeleted,
+    originalReason, originalQuantity, userId } = formData;
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage) || {};
-  console.debug(fullMoveStage);
   const validForm = approveQuantity >= 0;
 
   if (isInReviewStage(fullMoveStage)) {
-    console.debug('Got here stage action review')
     return (
       <StartReviewStep marketId={marketId} investibleId={investibleId} inv={inv} groupId={groupId}
                             currentStageId={stage} />
     );
   }
-
-  console.debug('Got here stage action approval')
 
   function doQuick(result) {
     commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, messagesState,

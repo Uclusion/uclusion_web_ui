@@ -164,6 +164,7 @@ function Voting(props) {
                                        avatarClassName={classes.smallGravatar}
                               />}
                   />
+                  <div style={{flexGrow: 1}}/>
                   {isEditable && mobileLayout && (
                     <div className={classes.editVoteDisplay}>
                       <TooltipIconButton

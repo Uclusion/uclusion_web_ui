@@ -60,6 +60,7 @@ import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import { Clear, Send } from '@material-ui/icons';
 import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
+import { getMarketInfo } from '../../utils/userFunctions';
 
 function getPlaceHolderLabelId(type, isInReview, isAssigned, investibleId) {
   switch (type) {
@@ -72,8 +73,11 @@ function getPlaceHolderLabelId(type, isInReview, isAssigned, investibleId) {
     case REPLY_TYPE:
       return 'commentAddReplyDefault';
     case REPORT_TYPE:
-      if (isInReview && !isAssigned) {
-        return 'commentAddReviewReportDefault';
+      if (isInReview) {
+        if (!isAssigned) {
+          return 'commentAddReviewReportDefault';
+        }
+        return 'commentAddReportReview';
       }
       return 'commentAddReportDefault';
     case TODO_TYPE:
@@ -314,11 +318,9 @@ function CommentAdd(props) {
   const usedParent = parent || {};
   const { investible_id: parentInvestible, id: parentId } = usedParent;
   const investibleId = fromInvestibleId || parentInvestible;
-  // TODO: this breaks if investible exists in more than one market
   const inv = getInvestible(investibleState, investibleId) || {};
-  const { market_infos, investible: rootInvestible } = inv;
-  const [info] = (market_infos || []);
-  const { assigned, stage: currentStageId } = (info || {});
+  const info = getMarketInfo(inv, marketId);
+  const { assigned, stage: currentStageId } = info || {};
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {id: 'fake'};
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
@@ -413,7 +415,7 @@ function CommentAdd(props) {
       passedNotificationType, marketType, undefined, isSent, label)
       .then((response) => {
         let comment = marketType ? response.parent : response;
-        let useRootInvestible = rootInvestible;
+        let useRootInvestible = inv.investible;
         if (!_.isEmpty(label)) {
           const { comment: returnedComment, investible: returnedInvestible } = response;
           comment = returnedComment;
@@ -424,7 +426,7 @@ function CommentAdd(props) {
         resetEditor();
         if (isSent !== false) {
           changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput,
-            blockingStage, requiresInputStage, market_infos, useRootInvestible, investibleDispatch, comment);
+            blockingStage, requiresInputStage, inv.market_infos, useRootInvestible, investibleDispatch, comment);
         }
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (isSent !== false) {

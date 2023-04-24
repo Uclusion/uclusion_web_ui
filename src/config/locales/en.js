@@ -492,6 +492,7 @@ const messages = defineMessages({
   commentAddSuggestDefault: 'Your suggestion...',
   commentAddReplyDefault: 'Your reply...',
   commentAddReportDefault: "Report progress here, Ex: 'Made the button blue'",
+  commentAddReportReview: "Explain what should be reviewed, Ex: 'Button is blue now.'",
   commentAddReviewReportDefault: 'Write your feedback here',
   commentAddSaveLabel: 'Save',
   commentAddSendLabel: 'Send',

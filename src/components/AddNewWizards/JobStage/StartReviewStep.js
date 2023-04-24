@@ -5,47 +5,36 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { REPORT_TYPE } from '../../../constants/comments';
-import { stageChangeInvestible } from '../../../api/investibles';
-import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useHistory } from 'react-router';
-import { getInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import CommentAdd from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { getInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function StartReviewStep(props) {
-  const { marketId, investibleId, groupId, currentStageId } = props;
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [, invDispatch] = useContext(InvestiblesContext);
+  const { marketId, investibleId, groupId } = props;
+  const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('commentAddStartReview');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
     getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId || marketId);
   const classes = useContext(WizardStylesContext);
   const history = useHistory();
-  const destinationStage = getInReviewStage(marketStagesState, marketId) || {};
+  const inv = getInvestible(investibleState, investibleId) || {};
+  const info = getMarketInfo(inv, marketId);
+  const { stage: currentStageId } = info || {};
+  const inReviewStage = getInReviewStage(marketStagesState, marketId) || {id: 'fake'};
+
+  if (currentStageId !== inReviewStage.id) {
+    // Give quick add time to work
+    return React.Fragment;
+  }
 
   function onSave(comment) {
-    const link = formCommentLink(marketId, groupId, investibleId, comment.id);
-    const moveInfo = {
-      marketId,
-      investibleId,
-      stageInfo: {
-        current_stage_id: currentStageId,
-        stage_id: destinationStage.id,
-      },
-    };
-    setOperationRunning(true);
-    return stageChangeInvestible(moveInfo).then((newInv) => {
-      onInvestibleStageChange(destinationStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
-        invDispatch, () => {}, marketStagesState, undefined, destinationStage);
-      setOperationRunning(false);
-      navigate(history, link);
-    });
+    navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
   }
 
   return (

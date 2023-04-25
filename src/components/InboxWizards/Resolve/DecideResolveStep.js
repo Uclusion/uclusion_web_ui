@@ -16,7 +16,11 @@ import {
 } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInfo } from '../../../utils/userFunctions'
-import { getFullStage, isRequiredInputStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import {
+  getFullStage,
+  isRequiredInputStage,
+  isVerifiedStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useHistory } from 'react-router'
@@ -118,6 +122,11 @@ function DecideResolveStep(props) {
       {!isReopen && (
         <Typography className={classes.introSubText} variant="subtitle1">
           {isFullyVoted ? 'All votes collected.' : 'New vote.'}
+        </Typography>
+      )}
+      {isReopen && isVerifiedStage(fullStage) && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          This job has been verified.
         </Typography>
       )}
       {commentRoot.investible_id && (

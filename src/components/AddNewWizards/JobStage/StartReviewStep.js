@@ -40,6 +40,7 @@ function StartReviewStep(props) {
   return (
     <WizardStepContainer
       {...props}
+      isLarge
     >
     <div>
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>

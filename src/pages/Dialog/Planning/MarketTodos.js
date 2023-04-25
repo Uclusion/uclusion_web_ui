@@ -393,7 +393,7 @@ function MarketTodos(props) {
       {!_.isEmpty(tabComments) && (
         <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
           <div style={{display: 'flex', width: '80%'}}>
-            {!mobileLayout && (
+            {!mobileLayout && !isInArchives && (
               <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                         checked={checkAll}
                         indeterminate={indeterminate}

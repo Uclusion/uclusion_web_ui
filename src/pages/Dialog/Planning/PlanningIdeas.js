@@ -492,11 +492,6 @@ function Stage(props) {
     dragHack({ id: event.target.id, stageId: id, originalElementId });
   }
 
-  function onDragEnd(event) {
-    const dragImage = document.getElementById(`dragImage${event.target.id}`);
-    dragImage.style.display = 'none';
-  }
-
   const singleInvestible = investibles.length === 1;
   return (
     <dd className={singleInvestible ? classes.root : classes.regularAccepted}>
@@ -513,7 +508,6 @@ function Stage(props) {
           return (
             <>
               <Grid key={investible.id} item xs={12} id={investible.id} onDragStart={investibleOnDragStart} draggable
-                    onDragEnd={onDragEnd}
                     className={!singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}
                     onMouseOver={() => doShowEdit(investible.id)}
                     onMouseOut={() => doRemoveEdit(investible.id)}

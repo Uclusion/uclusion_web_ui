@@ -132,15 +132,10 @@ function BugListItem(props) {
     event.dataTransfer.setData('notificationType', notificationType);
   }
 
-  function onDragEnd(event) {
-    const dragImage = document.getElementById(`dragImage${event.target.id}`);
-    dragImage.style.display = 'none';
-  }
-
   return (
     <>
       <Item key={`bugListItem${id}`} id={id} style={{minWidth: useSelect ? undefined : '80vw'}}
-            onDragStart={onDragStart} onDragEnd={onDragEnd} draggable>
+            onDragStart={onDragStart} draggable>
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
                onClick={

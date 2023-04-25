@@ -104,14 +104,9 @@ function OptionListItem(props) {
     event.dataTransfer.setData('text', event.target.id);
   }
 
-  function onDragEnd(event) {
-    const dragImage = document.getElementById(`dragImage${event.target.id}`);
-    dragImage.style.display = 'none';
-  }
-
   return (
     <>
-      <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} onDragEnd={onDragEnd} draggable>
+      <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable>
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }} id={`link${id}`} key={`link${id}`}
                onClick={

@@ -214,7 +214,7 @@ export default function CardType(props) {
 
   return (
     <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
-      width: compact ? '25rem' : '100%'}}>
+      width: compact ? '40%' : '100%', maxWidth: compact ? '25rem' : undefined}}>
       {(label || gravatar) && (
         <>
           {label && (

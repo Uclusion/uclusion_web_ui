@@ -28,6 +28,12 @@ export function sendComment(marketId, commentId, label) {
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 
+export function alterComment(marketId, commentId, notificationType) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.alterComment(commentId, notificationType))
+    .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
+}
+
 export function updateComment(marketId, commentId, body, commentType, uploadedFiles, mentions, notificationType,
   isSent, investibleLabel, allowMulti, isRestricted) {
   return getMarketClient(marketId)

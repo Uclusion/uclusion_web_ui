@@ -29,7 +29,7 @@ import {
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import {
-  ACTIVE_STAGE,
+  ACTIVE_STAGE, BUG_WIZARD_TYPE,
   INITIATIVE_TYPE,
   JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
   OPTION_WIZARD_TYPE,
@@ -773,7 +773,9 @@ function Comment(props) {
                 {showMoveButton && mobileLayout && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history,
-                      `${formMarketAddInvestibleLink(marketId, groupId)}&fromCommentId=${id}`)}
+                      `${formMarketAddInvestibleLink(marketId, groupId, undefined, 
+                        investibleId && commentType === TODO_TYPE ? BUG_WIZARD_TYPE 
+                          : undefined)}&fromCommentId=${id}`)}
                     doSpin={false}
                     icon={Eject}
                   />
@@ -791,7 +793,9 @@ function Comment(props) {
                 {showMoveButton && !mobileLayout && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history,
-                      `${formMarketAddInvestibleLink(marketId, groupId)}&fromCommentId=${id}`)}
+                      `${formMarketAddInvestibleLink(marketId, groupId, undefined,
+                        investibleId && commentType === TODO_TYPE ? BUG_WIZARD_TYPE
+                          : undefined)}&fromCommentId=${id}`)}
                     doSpin={false}
                     icon={Eject}
                   >

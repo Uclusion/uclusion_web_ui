@@ -36,9 +36,8 @@ import JobDescription from '../JobDescription';
 
 
 function DecideResolveStep(props) {
-  const { marketId, commentId, clearFormData, message } = props;
+  const { marketId, commentId, message } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
-  const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -51,7 +50,8 @@ function DecideResolveStep(props) {
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const workItemClasses = workListStyles();
-  const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
+  const inv = commentRoot.investible_id ? getInvestible(investiblesState, commentRoot.investible_id)
+    : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
@@ -90,7 +90,6 @@ function DecideResolveStep(props) {
           };
           addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
-        clearFormData();
         if (isGotoJob) {
           if (inv) {
             wizardFinish({

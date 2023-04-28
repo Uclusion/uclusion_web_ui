@@ -174,10 +174,10 @@ function BugListItem(props) {
                   </StyledIconButton>
                 )}
               </Box>
-              {replyNum > 0 ? <Tooltip key={`tipreplies${id}`}
+              {replyNum > 1 ? <Tooltip key={`tipreplies${id}`}
                                        title={intl.formatMessage({ id: 'numRepliesExplanation' })}>
-                <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px',
-                marginRight: '15px', backgroundColor: 'white', border: '0.5px solid grey' }}/>
+                <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px', marginRight: '15px',
+                  backgroundColor: 'white' }}/>
               </Tooltip>: React.Fragment}
               {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
               {isHovered || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :

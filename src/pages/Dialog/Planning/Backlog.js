@@ -18,7 +18,7 @@ import getReducer, { PAGE_SIZE, setPage, setTab } from '../../../components/Comm
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import Chip from '@material-ui/core/Chip';
 import { todoClasses } from './MarketTodos';
-import { getPaginatedItems, getRealPage } from '../../../utils/messageUtils';
+import { getPaginatedItems } from '../../../utils/messageUtils';
 import { updateInvestible } from '../../../api/investibles';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -48,11 +48,10 @@ function Backlog(props) {
   const classes = todoClasses();
   const [backlogState, backlogDispatch] = useReducer(getReducer(),
     {page: 1, tabIndex: 0, pageState: {}, defaultPage: 1});
-  const { tabIndex, page: originalPage, pinned } = backlogState;
+  const { tabIndex, page } = backlogState;
   const tabInvestiblesRaw = tabIndex === 0 ? furtherWorkReadyToStart : furtherWorkInvestibles;
   const tabInvestibles = _.orderBy(tabInvestiblesRaw, [(inv) => inv.investible.created_at],
     ['desc']);
-  const page = getRealPage(furtherWorkReadyToStart, pinned, originalPage, PAGE_SIZE);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabInvestibles,
     page, PAGE_SIZE);
   const isEmptyBacklog = _.isEmpty(furtherWorkInvestibles) && _.isEmpty(furtherWorkReadyToStart);

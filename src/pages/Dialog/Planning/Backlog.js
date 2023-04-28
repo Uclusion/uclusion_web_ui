@@ -49,8 +49,9 @@ function Backlog(props) {
   const [backlogState, backlogDispatch] = useReducer(getReducer(),
     {page: 1, tabIndex: 0, pageState: {}, defaultPage: 1});
   const { tabIndex, page: originalPage, pinned } = backlogState;
-  // TODO SORT by date
-  const tabInvestibles = tabIndex === 0 ? furtherWorkReadyToStart : furtherWorkInvestibles;
+  const tabInvestiblesRaw = tabIndex === 0 ? furtherWorkReadyToStart : furtherWorkInvestibles;
+  const tabInvestibles = _.orderBy(tabInvestiblesRaw, [(inv) => inv.investible.created_at],
+    ['desc']);
   const page = getRealPage(furtherWorkReadyToStart, pinned, originalPage, PAGE_SIZE);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabInvestibles,
     page, PAGE_SIZE);

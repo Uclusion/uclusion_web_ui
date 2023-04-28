@@ -119,7 +119,6 @@ function PlanningDialog(props) {
     {sectionOpen: 'storiesSection', tabIndex: 0 });
   const {
     sectionOpen,
-    furtherWorkType,
     tabIndex
   } = pageState;
   const investibles = marketInvestibles.filter((investible) => {
@@ -392,11 +391,9 @@ function PlanningDialog(props) {
           )}
           {isSectionOpen('backlogSection') && (
             <div id="backlogSection">
-              <Backlog furtherWorkType={furtherWorkType} group={group} updatePageState={updatePageState}
-                       marketPresences={marketPresences}
+              <Backlog group={group} marketPresences={marketPresences}
                        furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
-                       isAdmin={isAdmin} comments={comments} presenceMap={presenceMap}
-                       furtherWorkStage={furtherWorkStage} myPresence={myPresence} />
+                       comments={comments} />
             </div>
           )}
           <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}

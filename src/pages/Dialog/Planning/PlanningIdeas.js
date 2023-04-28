@@ -43,9 +43,9 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { removeHeader, restoreHeader } from '../../../containers/Header'
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
-import { doRemoveEdit, doShowEdit, getCommenterPresences, onDropTodo } from './userUtils'
+import { doRemoveEdit, doShowEdit, onDropTodo } from './userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-import { onInvestibleStageChange } from '../../../utils/investibleFunctions'
+import { getCollaboratorsForInvestible, onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { getTicketNumber } from '../../../utils/stringFunctions'
@@ -651,14 +651,12 @@ function StageInvestible(props) {
   const stage = getFullStage(marketStagesState, marketId, stageId) || {};
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
-  const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
-  const commenterPresences = getCommenterPresences(marketPresences, commentsForInvestible, marketPresencesState);
   const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId);
-  const concated = [...votersForInvestible, ...commenterPresences];
+  const collaboratorsForInvestible = getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible,
+    marketPresences, marketPresencesState);
   const hasDaysEstimate = showCompletion && daysEstimate;
-  const collaboratorsForInvestible = _.uniqBy(concated, 'id');
-  let chip = mobileLayout ? undefined : getChip(numQuestionsSuggestions, numQuestionsSuggestions === 0,
-    'inputRequiredCountExplanation');
+  let chip = mobileLayout ? undefined : getChip(numQuestionsSuggestions,
+    numQuestionsSuggestions === 0, 'inputRequiredCountExplanation');
   if (!chip && requiresStatus(messagesState, id)) {
     chip = <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
       <Schedule style={{fontSize: 24, color: '#E85757'}}/>

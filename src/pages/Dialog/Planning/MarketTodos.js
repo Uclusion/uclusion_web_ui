@@ -48,7 +48,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { isReadComment } from '../../../components/Comments/Options';
 
-const myClasses = makeStyles(
+export const todoClasses = makeStyles(
   theme => {
     return {
       outlined: {
@@ -158,7 +158,7 @@ function MarketTodos(props) {
     sectionOpen, setSectionOpen,
     hidden
   } = props
-  const classes = myClasses();
+  const classes = todoClasses();
   const intl = useIntl();
   const history = useHistory();
   const theme = useTheme();
@@ -193,7 +193,6 @@ function MarketTodos(props) {
   const unreadBlueCount = getUnreadCount(blueComments, messagesState);
   const tabComments = _.orderBy(tabCommentsRaw, [(comment) => {
     return isReadComment(comment, messagesState) ? 0 : 1;}, 'updated_at'], ['desc', 'desc']);
-  console.debug(tabComments);
   const page = getRealPage(tabComments, pinned, originalPage, PAGE_SIZE);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabComments, page,
     PAGE_SIZE);

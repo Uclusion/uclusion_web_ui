@@ -12,6 +12,8 @@ import {
   MODIFY_NOTIFICATIONS_CHANNEL, STAGE_CHANGE_EVENT
 } from '../contexts/NotificationsContext/notificationsContextMessages'
 import { removeInvestments } from '../contexts/MarketPresencesContext/marketPresencesContextReducer';
+import { getCommenterPresences } from '../pages/Dialog/Planning/userUtils';
+import _ from 'lodash';
 
 export function onInvestibleStageChange(targetStageId, newInv, investibleId, marketId, commentsState, commentsDispatch,
   invDispatch, diffDispatch, marketStagesState, removeTypes, fullStage, marketPresencesDispatch) {
@@ -41,4 +43,12 @@ export function notify(userId, investibleId, notificationType, notificationLevel
     type_object_id: `${notificationType}_${investibleId}`, type: notificationType, market_id: market.id,
     investible_id: investibleId, user_id: userId, level: notificationLevel, link: investibleLink,
     market_type: market.market_type, link_type: 'INVESTIBLE', investible_link: investibleLink }));
+}
+
+export function getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible, marketPresences,
+  marketPresencesState) {
+  const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
+  const commenterPresences = getCommenterPresences(marketPresences, commentsForInvestible, marketPresencesState);
+  const concated = [...votersForInvestible, ...commenterPresences];
+  return _.uniqBy(concated, 'id');
 }

@@ -229,7 +229,6 @@ function InvestiblesByPerson(props) {
                   inBlockingStage && (
                     <PlanningIdeas
                       myInvestiblesStageHash={myInvestiblesStageHash}
-                      allInvestibles={investibles}
                       marketId={marketId}
                       groupId={groupId}
                       acceptedStage={acceptedStage}

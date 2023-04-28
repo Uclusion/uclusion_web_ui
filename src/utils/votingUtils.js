@@ -12,6 +12,12 @@ import { getMarket } from '../contexts/MarketsContext/marketsContextHelper';
 export function useInvestibleVoters(marketPresences, investibleId, marketId) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
+  return calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,
+    marketPresences);
+}
+
+export function calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,
+  marketPresences) {
   const market = getMarket(marketsState, marketId) || {};
   const { investment_expiration: investmentExpiration } = market;
   const inv = getInvestible(investiblesState, investibleId);

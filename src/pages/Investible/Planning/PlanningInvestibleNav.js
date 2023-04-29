@@ -1,14 +1,14 @@
 import clsx from 'clsx';
 import {
   Checkbox,
-  FormControlLabel, List,
+  FormControlLabel,
   makeStyles,
   Tooltip,
   useMediaQuery,
   useTheme
 } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { ExpandLess, SyncAlt } from '@material-ui/icons';
+import { ExpandLess, Group, SyncAlt } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
@@ -33,9 +33,7 @@ import { addInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import Divider from '@material-ui/core/Divider';
-import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formMarketLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import {
   JOB_APPROVERS_WIZARD_TYPE,
   JOB_ASSIGNEE_WIZARD_TYPE,
@@ -44,6 +42,9 @@ import {
 import { useHistory } from 'react-router';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { Menu, MenuItem, ProSidebar, SidebarContent } from 'react-pro-sidebar';
 
 export default function PlanningInvestibleNav(props) {
   const { name, market, marketInvestible, classes, userId, myPresence, isAssigned,
@@ -57,10 +58,12 @@ export default function PlanningInvestibleNav(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [groupState] = useContext(MarketGroupsContext);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const { stage, addressed, required_approvers:  requiredApprovers, required_reviews: requiredReviewers,
     open_for_investment: openForInvestment, accepted, group_id: groupId } = marketInfo;
+  const group = getGroup(groupState, marketId, groupId) || {};
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
   function onDeleteFile(path) {
@@ -106,12 +109,16 @@ export default function PlanningInvestibleNav(props) {
   return (
     <>
       {mobileLayout && (
-        <List style={{width: '100%', paddingBottom: '1rem'}}>
-          <IconButton edge="start" aria-label="close details" onClick={() => updatePageState({ isOpenMobile: false })}>
-            <CloseIcon />
-          </IconButton>
-          <Divider />
-        </List>
+        <ProSidebar width="16rem">
+          <SidebarContent>
+            <Menu iconShape="circle">
+              <MenuItem icon={<Group htmlColor="black" />} key="navBackGroup"
+                        onClick={() => navigate(history, formMarketLink(marketId, groupId))}>
+                <span style={{fontSize: '1.25rem'}}>{group.name}</span>
+              </MenuItem>
+            </Menu>
+          </SidebarContent>
+        </ProSidebar>
       )}
       <div style={{maxWidth: '11rem', width: '100%'}}>
         {name}

@@ -346,7 +346,6 @@ function PlanningInvestible(props) {
   const {
     beingEdited,
     sectionOpen,
-    isOpenMobile
   } = pageState;
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
@@ -360,7 +359,6 @@ function PlanningInvestible(props) {
   const displayVotingInput = canVote && _.isEmpty(search);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const hasUsableVotingInput = !inArchives && addEditVotingHasContents(investibleId, false, operationRunning);
-
 
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden) {
@@ -548,28 +546,28 @@ function PlanningInvestible(props) {
   }
   const showCommentAdd = !inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId &&
     !_.isEmpty(investible) && !hidden;
+  const investibleNav = <PlanningInvestibleNav investibles={investibles} name={name} market={market}
+                                               marketInvestible={marketInvestible} classes={classes}
+                                               investibleId={investibleId}
+                                               userId={userId} myPresence={myPresence} isAssigned={isAssigned}
+                                               pageState={pageState} marketPresences={marketPresences}
+                                               assigned={assigned} isInVoting={isInVoting}
+                                               investibleComments={investibleComments}
+                                               marketInfo={marketInfo} marketId={marketId}
+                                               updatePageState={updatePageState} />;
   return (
     <Screen
       title={title}
       tabTitle={name}
       hidden={hidden}
+      hideMenu
+      overrideMenu={investibleNav}
     >
-      {(!mobileLayout || isOpenMobile) && (
-        <div className={classes.paper} onClick={() => {
-          if (mobileLayout) {
-            updatePageState({ isOpenMobile: false })
-          }
-        }} style={{ paddingTop: mobileLayout ? undefined : '2rem',
-          paddingBottom: '1rem',
+      {!mobileLayout && (
+        <div className={classes.paper} style={{ paddingTop: mobileLayout ? undefined : '2rem', paddingBottom: '1rem',
           transform: mobileLayout ? undefined :
-            (leftNavBreak ? 'translateX(calc(100vw - 270px))' : 'translateX(calc(100vw - 490px))')}}>
-          <PlanningInvestibleNav investibles={investibles} name={name}
-                                 market={market} marketInvestible={marketInvestible} classes={classes}
-                                 investibleId={investibleId}
-                                 userId={userId} myPresence={myPresence} isAssigned={isAssigned}
-                                 pageState={pageState} marketPresences={marketPresences}
-                                 assigned={assigned} isInVoting={isInVoting} investibleComments={investibleComments}
-                                 marketInfo={marketInfo} marketId={marketId} updatePageState={updatePageState} />
+          (leftNavBreak ? 'translateX(calc(100vw - 270px))' : 'translateX(calc(100vw - 490px))')}}>
+          {investibleNav}
         </div>
       )}
       <div style={{paddingRight: mobileLayout ? undefined : '15rem'}}>

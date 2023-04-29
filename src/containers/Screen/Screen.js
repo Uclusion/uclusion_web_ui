@@ -176,7 +176,8 @@ function Screen(props) {
     isInbox,
     openMenuItems,
     navigationOptions,
-    hideMenu
+    hideMenu,
+    overrideMenu
   } = props;
 
   useEffect(() => {
@@ -290,7 +291,7 @@ function Screen(props) {
   }
   const myContainerClass = !hideMenu && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
   const contentClass = mobileLayout || hideMenu ? classes.contentNoStyle : classes.content;
-  const sideNavigationContents = hideMenu ? undefined :
+  const sideNavigationContents = hideMenu ? overrideMenu :
     <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">

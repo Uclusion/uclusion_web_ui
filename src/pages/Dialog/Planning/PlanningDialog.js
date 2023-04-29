@@ -1,63 +1,51 @@
 /**
  * A component that renders a single group's view of a planning market
  */
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
-import PropTypes from 'prop-types'
-import _ from 'lodash'
-import {
-  Grid,
-  useMediaQuery,
-  useTheme,
-  Link
-} from '@material-ui/core'
-import Screen from '../../../containers/Screen/Screen'
-import {
-  QUESTION_TYPE, REPLY_TYPE,
-  REPORT_TYPE,
-  SUGGEST_CHANGE_TYPE,
-  TODO_TYPE
-} from '../../../constants/comments'
-import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import {
-  getMarketPresences,
-  getPresenceMap
-} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import DismissableText from '../../../components/Notifications/DismissableText'
-import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles'
-import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { getMarketInfo } from '../../../utils/userFunctions'
-import MarketTodos from './MarketTodos'
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import { Grid, Link, useMediaQuery, useTheme } from '@material-ui/core';
+import Screen from '../../../containers/Screen/Screen';
+import { QUESTION_TYPE, REPLY_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import DismissableText from '../../../components/Notifications/DismissableText';
+import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles';
+import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import MarketTodos from './MarketTodos';
 import {
   isAcceptedStage,
   isBlockedStage,
   isFurtherWorkStage,
-  isInReviewStage, isRequiredInputStage
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import QuestionIcon from '@material-ui/icons/ContactSupport'
-import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
-import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks'
-import AssignmentIcon from '@material-ui/icons/Assignment'
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
-import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
-import { AssignmentInd, BugReport } from '@material-ui/icons'
-import Backlog from './Backlog'
-import InvestiblesByPerson from './InvestiblesByPerson'
-import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global'
-import SubSection from '../../../containers/SubSection/SubSection'
-import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
+  isInReviewStage,
+  isRequiredInputStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import QuestionIcon from '@material-ui/icons/ContactSupport';
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
+import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
+import AssignmentIcon from '@material-ui/icons/Assignment';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
+import { AssignmentInd, BugReport } from '@material-ui/icons';
+import Backlog from './Backlog';
+import InvestiblesByPerson from './InvestiblesByPerson';
+import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
+import SubSection from '../../../containers/SubSection/SubSection';
+import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import {
-  baseNavListItem,
-  formArchiveCommentLink, formGroupArchiveLink, formGroupEditLink,
+  formArchiveCommentLink,
+  formGroupArchiveLink,
+  formGroupEditLink,
   formMarketAddCommentLink,
-  formMarketLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
-import { isInStages } from './userUtils'
-import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { isInStages } from './userUtils';
+import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
@@ -102,7 +90,6 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const singleTabLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [groupState] = useContext(MarketGroupsContext);
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
@@ -216,25 +203,8 @@ function PlanningDialog(props) {
   const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
   let navListItemTextArray = undefined;
-  if (singleTabLayout) {
-    function createNavListItem(icon, textId, itemTabIndex, howManyNum) {
-      const isSearch = !_.isEmpty(search);
-      const anchorId = getAnchorId(itemTabIndex);
-      const nav = baseNavListItem(formMarketLink(marketId, groupId), icon, textId, anchorId,
-        isSearch ? howManyNum : undefined, true);
-      nav['onClickFunc'] = () => {
-        updatePageState({tabIndex: itemTabIndex});
-        openSubSection(anchorId);
-      };
-      nav['isBold'] = isSectionOpen(anchorId);
-      return nav;
-    }
+  if (mobileLayout) {
     navListItemTextArray = [
-      createNavListItem(AssignmentInd, 'planningDialogNavStoriesLabel', 0, jobsSearchResults),
-      createNavListItem(AssignmentIcon, 'planningDialogBacklog', 1, backlogSearchResults),
-      createNavListItem(BugReport, 'todoSection', 2, _.size(todoComments)),
-      createNavListItem(QuestionIcon, 'planningDialogDiscussionLabel', 3,
-        _.size(questionSuggestionComments)),
       {icon: SettingsIcon, text: intl.formatMessage({id: 'settings'}),
         target: formGroupEditLink(marketId, groupId), num: 0, isBold: false},
       {icon: MenuBookIcon, text: intl.formatMessage({id: 'planningDialogViewArchivesLabel'}),
@@ -252,7 +222,7 @@ function PlanningDialog(props) {
       navigationOptions={{useHoverFunctions: true}}
     >
       <GmailTabs
-        value={singleTabLayout ? 0 : tabIndex}
+        value={tabIndex}
         id='dialog-header'
         onChange={(event, value) => {
           updatePageState({tabIndex: value});
@@ -264,25 +234,17 @@ function PlanningDialog(props) {
         indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
         style={{ paddingBottom: '0.25rem', zIndex: 8, position: 'fixed', paddingTop: '0.5rem',
           marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
-        {(!singleTabLayout || sectionOpen === 'storiesSection') && (
-          <GmailTabItem icon={<AssignmentInd />}
-                        label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
-                        tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
-        )}
-        {(!singleTabLayout || sectionOpen === 'backlogSection') && (
-          <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'planningDialogBacklog'})}
-                        tag={_.isEmpty(search) || backlogSearchResults === 0 ? undefined : `${backlogSearchResults}`} />
-        )}
-        {(!singleTabLayout || sectionOpen === 'marketTodos') && (
-          <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
-                        tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
-        )}
-        {(!singleTabLayout || sectionOpen === 'discussionSection') && (
-          <GmailTabItem icon={<QuestionIcon />}
-                        label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})}
-                        tag={_.isEmpty(search) || _.isEmpty(questionSuggestionComments) ? undefined :
-                          `${_.size(questionSuggestionComments)}`} />
-        )}
+        <GmailTabItem icon={<AssignmentInd />}
+                      label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
+                      tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
+        <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'planningDialogBacklog'})}
+                      tag={_.isEmpty(search) || backlogSearchResults === 0 ? undefined : `${backlogSearchResults}`} />
+        <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
+                      tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
+        <GmailTabItem icon={<QuestionIcon />}
+                      label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})}
+                      tag={_.isEmpty(search) || _.isEmpty(questionSuggestionComments) ? undefined :
+                        `${_.size(questionSuggestionComments)}`} />
       </GmailTabs>
       <div style={{display: 'flex'}}>
         <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}

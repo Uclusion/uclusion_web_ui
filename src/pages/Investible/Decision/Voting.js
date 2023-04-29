@@ -97,6 +97,7 @@ function Voting(props) {
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
+  const midLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -155,7 +156,7 @@ function Voting(props) {
                 }}
               >
                 <Box display="flex">
-                  <CardType compact={!mobileLayout}
+                  <CardType compact={!midLayout}
                     className={classes.cardType}
                     type={`certainty${Math.abs(quantity)}`}
                     gravatar={<GravatarAndName email={email}

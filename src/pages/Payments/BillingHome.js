@@ -40,7 +40,6 @@ function BillingHome (props) {
       hidden={hidden}
       title={title}
       tabTitle={title}
-      hideMenu
     >
       <div className={classes.billingContainer}>
         <div className={classes.sectionContainer}>

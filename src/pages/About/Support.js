@@ -80,7 +80,6 @@ function Support(props) {
       tabTitle={intl.formatMessage({ id: 'support' })}
       hidden={hidden}
       loading={!externalId}
-      hideMenu
     >
       <div className={classes.container}>
         <Card>

@@ -136,7 +136,6 @@ function ChangeNotificationPreferences (props) {
       tabTitle={intl.formatMessage({ id: 'changePreferencesHeader' })}
       hidden={hidden}
       loading={!user}
-      hideMenu
     >
       <div className={classes.container}>
         <Card>

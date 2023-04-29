@@ -88,7 +88,6 @@ function ChangePassword(props) {
       title={intl.formatMessage({ id: 'changePasswordHeader' })}
       tabTitle={intl.formatMessage({ id: 'changePasswordHeader' })}
       hidden={hidden}
-      hideMenu
     >
       <Grid container spacing={3}>
         <Grid item md={4} xs={12}/>

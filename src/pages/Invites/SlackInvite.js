@@ -72,7 +72,6 @@ function SlackInvite(props) {
       tabTitle={intl.formatMessage({ id: 'loadingSlack' })}
       hidden={hidden}
       loading={!!hash && myLoading}
-      hideMenu
     >
       <div className={classes.root}>
         <Paper className={classes.section}>

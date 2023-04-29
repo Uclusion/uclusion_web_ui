@@ -28,7 +28,7 @@ function GravatarAndName(props) {
         </Typography>
       )}
       <Gravatar name={name} email={email} useBlank={useBlank} className={avatarClassName}/>
-      <Typography style={{marginLeft: 6}} variant={typographyVariant} className={typographyClassName}
+      <Typography style={{marginLeft: 6, marginRight: 6}} variant={typographyVariant} className={typographyClassName}
                   component={typographyComponent}>
         {name}
       </Typography>

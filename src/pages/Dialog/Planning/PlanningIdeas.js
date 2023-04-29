@@ -105,6 +105,8 @@ function PlanningIdeas(props) {
     comments
   } = props;
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const acceptedStageId = acceptedStage.id;
   const classes = usePlanningIdStyles();
   const archiveClasses = myArchiveClasses();
@@ -320,13 +322,17 @@ function PlanningIdeas(props) {
   }
 
   return (
-    <dl className={classes.stages}>
+    <div className={mobileLayout ? undefined : classes.stages}>
       <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inDialogStageId, presenceId)}
            onDragEnd={onDragEndStage}>
+        {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inDialogStageId]) && (
+          <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>
+            <b><FormattedMessage id="planningVotingStageLabel" /></b>
+          </div>
+        )}
         <VotingStage
-          className={classes.stage}
           id={inDialogStageId}
           investibles={myInvestiblesStageHash[inDialogStageId] || []}
           marketId={marketId}
@@ -342,8 +348,12 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, acceptedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
+        {mobileLayout && !_.isEmpty(myInvestiblesStageHash[acceptedStageId]) && (
+          <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>
+            <b><FormattedMessage id="planningAcceptedStageLabel" /></b>
+          </div>
+        )}
         <AcceptedStage
-          className={classes.stage}
           id={acceptedStageId}
           investibles={myInvestiblesStageHash[acceptedStageId] || []}
           marketId={marketId}
@@ -357,8 +367,12 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inReviewStageId, presenceId)}
            onDragEnd={onDragEndStage}>
+        {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inReviewStageId]) && (
+          <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>
+            <b><FormattedMessage id="planningReviewStageLabel" /></b>
+          </div>
+        )}
         <ReviewStage
-          className={classes.stage}
           id={inReviewStageId}
           investibles={myInvestiblesStageHash[inReviewStageId] || []}
           marketId={marketId}
@@ -372,8 +386,12 @@ function PlanningIdeas(props) {
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inVerifiedStageId, presenceId)}
            onDragEnd={onDragEndStage}>
+        {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inVerifiedStageId]) && (
+          <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>
+            <b><FormattedMessage id="verifiedBlockedStageLabel" /></b>
+          </div>
+        )}
         <VerifiedStage
-          className={classes.stage}
           id={inVerifiedStageId}
           investibles={myInvestiblesStageHash[inVerifiedStageId] || []}
           presenceId={presenceId}
@@ -382,7 +400,7 @@ function PlanningIdeas(props) {
           marketId={marketId}
         />
       </div>
-    </dl>
+    </div>
   );
 }
 
@@ -444,7 +462,7 @@ const useStageClasses = makeStyles(
         overflowX: 'hidden'
       },
       regularAccepted: {
-        marginLeft: 0,
+        marginLeft: theme.spacing(1),
         overflowWrap: 'break-word',
         overflowX: 'hidden'
       },

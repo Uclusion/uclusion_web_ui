@@ -20,7 +20,7 @@ import { APPROVAL_WIZARD_TYPE } from '../../constants/markets';
 
 function InlineInitiativeBox(props) {
   const {
-    anInlineMarket, inArchives, showAcceptReject
+    anInlineMarket, inArchives
   } = props;
   const history = useHistory();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');

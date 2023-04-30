@@ -1,35 +1,32 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types'
-import { makeStyles } from '@material-ui/core/styles'
-import { CssBaseline } from '@material-ui/core'
-import { useHistory, useLocation } from 'react-router'
-import Market from '../../pages/Dialog/Dialog'
-import Support from '../../pages/About/Support'
-import PageNotFound from '../../pages/PageNotFound/PageNotFound'
+import React, { useContext, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/core/styles';
+import { CssBaseline } from '@material-ui/core';
+import { useHistory, useLocation } from 'react-router';
+import Market from '../../pages/Dialog/Dialog';
+import Support from '../../pages/About/Support';
+import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {
   broadcastView,
-  decomposeMarketPath, formCommentLink,
+  decomposeMarketPath,
+  formCommentLink,
   formInvestibleLink,
   navigate,
-} from '../../utils/marketIdPathFunctions'
-import Home from '../../pages/Home/Home'
-import Investible from '../../pages/Investible/Investible'
-import { OnlineStateContext } from '../../contexts/OnlineStateContext'
-import SlackInvite from '../../pages/Invites/SlackInvite'
-import ChangePassword from '../../pages/Authentication/ChangePassword'
-import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences'
-import BillingHome from '../../pages/Payments/BillingHome'
+} from '../../utils/marketIdPathFunctions';
+import Home from '../../pages/Home/Home';
+import Investible from '../../pages/Investible/Investible';
+import { OnlineStateContext } from '../../contexts/OnlineStateContext';
+import SlackInvite from '../../pages/Invites/SlackInvite';
+import ChangePassword from '../../pages/Authentication/ChangePassword';
+import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences';
+import BillingHome from '../../pages/Payments/BillingHome';
 import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
-import Wizard from '../../pages/Home/Wizard'
-import InboxFull from '../../pages/Home/YourWork/InboxFull'
-import CommentReplyEdit from '../../pages/Comment/CommentReplyEdit'
-import PlanningMarketEdit from '../../pages/Dialog/Planning/PlanningMarketEdit'
+import Wizard from '../../pages/Home/Wizard';
+import InboxFull from '../../pages/Home/YourWork/InboxFull';
+import CommentReplyEdit from '../../pages/Comment/CommentReplyEdit';
+import PlanningMarketEdit from '../../pages/Dialog/Planning/PlanningMarketEdit';
 import { getTicket, isInvestibleTicket, isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
-import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext'
-import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import Onboarding from '../../pages/Onboarding/Onboarding';
-import { IS_INVITED } from '../../utils/redirectUtils'
-import { getUclusionLocalStorageItem } from '../../components/localStorageUtils'
+import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext';
 import { setOperationInProgress } from '../../components/ContextHacks/OperationInProgressGlobalProvider';
 import GroupEdit from '../../pages/DialogSettings/GroupEdit';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
@@ -61,12 +58,9 @@ function Root() {
   const location = useLocation();
   const classes = useStyles();
   const { pathname } = location;
-  const [accountState] = useContext(AccountContext);
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOnline] = useContext(OnlineStateContext);
   const [ticketState] = useContext(TicketIndexContext);
-
-  const [inOnboarding, setInOnboarding] = useState(undefined);
 
   function hideHome() {
     return !pathname || pathname !== '/';
@@ -199,24 +193,6 @@ function Root() {
       registerMarketTokenListeners();
     }
   },  [history, setOnline, location]);
-  // onboarding overrides _EVERYTHING_ except invited
-  const {user} = accountState;
-  const {needs_onboarding: needsOnboarding} = user;
-  const isInvited = getUclusionLocalStorageItem(IS_INVITED);
-  if (isInvited !== true && (needsOnboarding || inOnboarding === true)) {
-    return (
-      <div>
-        <CssBaseline/>
-        <div className={classes.body}>
-          <div className={classes.root}>
-            <div className={classes.content}>
-              <Onboarding setInOnboarding={setInOnboarding}/>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Home - no content to prepare and we don't want its useEffects even around when not hidden
   // PlanningMarketEdit - if preserve state then when come back can have stale data

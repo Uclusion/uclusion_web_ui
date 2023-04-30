@@ -6,23 +6,22 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { createPlanning } from '../../../api/markets';
 import WizardStepButtons from '../WizardStepButtons';
-import { setUclusionLocalStorageItem } from '../../localStorageUtils';
-import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper'
-import { addGroupsToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
-import { pushMessage } from '../../../utils/MessageBusUtils'
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../api/versionedFetchUtils'
-import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer'
-import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
-import { formMarketLink } from '../../../utils/marketIdPathFunctions'
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { addGroupsToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { pushMessage } from '../../../utils/MessageBusUtils';
+import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../api/versionedFetchUtils';
+import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer';
+import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
+import { formMarketLink } from '../../../utils/marketIdPathFunctions';
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 
 function WorkspaceNameStep (props) {
-  const { updateFormData, formData, onboarding, onStartOnboarding } = props;
+  const { updateFormData, formData } = props;
   //const intl = useIntl();
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
@@ -44,11 +43,6 @@ function WorkspaceNameStep (props) {
     const marketInfo = {
       name,
     };
-    // set the in onboarding flag, because we if we're onboarding creating the planning market will turn of
-    // needs onboarding
-    if(onboarding){
-      onStartOnboarding();
-    }
     return createPlanning(marketInfo)
       .then((marketDetails) => {
         const {
@@ -112,16 +106,12 @@ function WorkspaceNameStep (props) {
 
 WorkspaceNameStep.propTypes = {
   updateFormData: PropTypes.func,
-  formData: PropTypes.object,
-  onboarding: PropTypes.bool,
-  onStartOnboarding: PropTypes.func,
+  formData: PropTypes.object
 };
 
 WorkspaceNameStep.defaultProps = {
   updateFormData: () => {},
-  formData: {},
-  onboarding: false,
-  onStartOnboarding: () => {},
+  formData: {}
 };
 
 export default WorkspaceNameStep;

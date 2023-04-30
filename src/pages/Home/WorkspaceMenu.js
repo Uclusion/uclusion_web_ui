@@ -1,20 +1,15 @@
 import React, { useState } from 'react';
-import {
-  Button,
-  makeStyles,
-  Menu
-} from '@material-ui/core'
-import { MenuItem, ProSidebar, SidebarContent, Menu as ProMenu, SubMenu } from 'react-pro-sidebar'
-import { useHistory } from 'react-router'
-import _ from 'lodash'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import SettingsIcon from '@material-ui/icons/Settings'
-import { useIntl } from 'react-intl'
-import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
-import AddIcon from '@material-ui/icons/Add'
+import { Button, makeStyles, Menu } from '@material-ui/core';
+import { Menu as ProMenu, MenuItem, ProSidebar, SidebarContent, SubMenu } from 'react-pro-sidebar';
+import { useHistory } from 'react-router';
+import _ from 'lodash';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import SettingsIcon from '@material-ui/icons/Settings';
+import { useIntl } from 'react-intl';
+import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
+import AddIcon from '@material-ui/icons/Add';
 import { formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { setUclusionLocalStorageItem } from '../../components/localStorageUtils'
 import { GroupOutlined } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({

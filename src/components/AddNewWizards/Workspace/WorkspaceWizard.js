@@ -14,17 +14,9 @@ function WorkspaceWizard (props) {
   const history = useHistory();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
 
-
-  // figure out what step we're on
-  // if we've created the workspace already, then we're on step 2, otherwise 1
-  const workspaceCreated = getUclusionLocalStorageItem('workspace_created') === true
-  const startStep = workspaceCreated ? 1 : 0
-
   const myOnFinish = (formData) => {
     setInOnboarding(false);
-    setUclusionLocalStorageItem('workspace_created', false)
     const { link } = formData;
-    console.debug(`link is ${link}`)
     setOperationRunning(false);
     navigate(history, link);
   }
@@ -36,8 +28,8 @@ function WorkspaceWizard (props) {
   return (
     <WizardStylesProvider>
       <FormdataWizard
+        useLocalStorage={false}
         name="workpsace_wizard"
-        startStep={startStep}
         onFinish={myOnFinish}
       >
         <WorkspaceNameStep onboarding={onboarding} onStartOnboarding={onStartOnboarding}/>

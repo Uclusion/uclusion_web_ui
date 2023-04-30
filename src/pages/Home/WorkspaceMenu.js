@@ -171,8 +171,6 @@ function WorkspaceMenu(props) {
                           key="addWorkspace Key" id="addWorkspaceIconId"
                           onClick={()=> {
                             recordPositionToggle();
-                            // If you are going back in then must start from first step
-                            setUclusionLocalStorageItem("workspace_created", false);
                             navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
                           }}
                 >

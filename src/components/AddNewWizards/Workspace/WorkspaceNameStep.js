@@ -68,7 +68,6 @@ function WorkspaceNameStep (props) {
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
           .then(() => {
-            setUclusionLocalStorageItem("workspace_created", true);
             updateFormData({
               marketId: market.id,
               link: formMarketLink(market.id, market.id),

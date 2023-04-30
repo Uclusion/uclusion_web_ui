@@ -560,7 +560,7 @@ function PlanningInvestible(props) {
       title={title}
       tabTitle={name}
       hidden={hidden}
-      hideMenu
+      hideMenu={mobileLayout}
       overrideMenu={investibleNav}
     >
       {!mobileLayout && (

@@ -172,6 +172,7 @@ function WorkspaceMenu(props) {
                   {intl.formatMessage({ id: 'homeAddPlanning' })}
                 </MenuItem>
                 <SubMenu title={intl.formatMessage({ id: 'switchWorkspace' })}
+                         onClick={(event) => event.stopPropagation() }
                          key="switchWorkspace" style={{paddingLeft: '0.7rem'}}>
                   {markets.map((market) => {
                     const key = `market${market.id}`;
@@ -198,6 +199,7 @@ function WorkspaceMenu(props) {
                   {intl.formatMessage({ id: 'settings' })}
                 </MenuItem>
                 <SubMenu title={intl.formatMessage({ id: 'inactiveGroups' })}
+                  onClick={(event) => event.stopPropagation() }
                          key="inactiveGroups" style={{paddingLeft: '0.7rem'}}>
                   {inactiveGroups.map((group) => {
                     const key = `group${group.id}`;

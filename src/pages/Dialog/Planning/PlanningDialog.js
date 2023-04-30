@@ -219,7 +219,7 @@ function PlanningDialog(props) {
       tabTitle={groupName}
       banner={banner}
       openMenuItems={navListItemTextArray}
-      navigationOptions={{useHoverFunctions: true}}
+      navigationOptions={{useHoverFunctions: !mobileLayout}}
     >
       <GmailTabs
         value={tabIndex}

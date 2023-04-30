@@ -727,7 +727,7 @@ function Comment(props) {
                 )}
                 {showAcceptReject && (
                   <SpinningIconLabelButton onClick={myAccept} icon={ListAltIcon} id={`convertToTask${id}`}>
-                    {intl.formatMessage({ id: 'wizardAcceptLabel' })}
+                    {!mobileLayout && intl.formatMessage({ id: 'wizardAcceptLabel' })}
                   </SpinningIconLabelButton>
                 )}
                 {showResolve && (
@@ -748,7 +748,7 @@ function Comment(props) {
                     icon={AddIcon}
                     id={`addOptionButton${id}`}
                   >
-                    {intl.formatMessage({ id: 'inlineAddLabel' })}
+                    {!mobileLayout && intl.formatMessage({ id: 'inlineAddLabel' })}
                   </SpinningIconLabelButton>
                 )}
                 {showAbstain && (
@@ -787,7 +787,7 @@ function Comment(props) {
                     onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
                       undefined, undefined, id))}
                     doSpin={false} icon={SettingsIcon}>
-                    {intl.formatMessage({ id: 'configureVoting' })}
+                    {!mobileLayout && intl.formatMessage({ id: 'configureVoting' })}
                   </SpinningIconLabelButton>
                 )}
                 {showMoveButton && !mobileLayout && (

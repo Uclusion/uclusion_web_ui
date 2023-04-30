@@ -717,7 +717,7 @@ function PlanningInvestible(props) {
                                                onClick={() => navigate(history,
                                                  formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                                    allowedCommentType))}>
-                        <FormattedMessage id={`createNew${allowedCommentType}`}/>
+                        <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile': ''}`}/>
                       </SpinningIconLabelButton>
                     );
                   })}

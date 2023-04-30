@@ -59,7 +59,7 @@ function InlineInitiativeBox(props) {
   const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence?.investments?.find((investment) => investment.investible_id === inlineInvestibleId &&
       !investment.deleted);
-  const showVoteButtons = !showAcceptReject && !isCreator && !yourVote && inlineInvestibleId;
+  const showVoteButtons = !isCreator && !yourVote && inlineInvestibleId;
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
       {showVoteButtons && (

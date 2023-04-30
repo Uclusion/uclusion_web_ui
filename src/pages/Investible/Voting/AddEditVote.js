@@ -144,8 +144,6 @@ function AddEditVote(props) {
     const reasonText =  tokensRemoved !== null ? tokensRemoved : originalReason;
     // don't include reason text if it's not changing, otherwise we'll update the reason comment
     const reasonNeedsUpdate = reasonText !== originalReason && !(_.isEmpty(reasonText) && _.isEmpty(originalReason));
-    console.debug(`reason needs update is ${reasonNeedsUpdate}`)
-    console.debug(reasonText)
     const updateInfo = {
       marketId,
       investibleId,
@@ -182,7 +180,6 @@ function AddEditVote(props) {
               <Select
                 value={approveQuantity}
                 onChange={onChange}
-                style={{paddingBottom: '1rem'}}
               >
                 {certainties.map(certainty => {
                  return ( <MenuItem
@@ -193,6 +190,9 @@ function AddEditVote(props) {
                   </MenuItem> );
                 })}
               </Select>
+            )}
+            {mobileLayout && (
+              <div style={{marginBottom: '1rem'}}/>
             )}
             {!mobileLayout && (
               <RadioGroup

@@ -199,7 +199,8 @@ function PlanningDialog(props) {
     return !comment.investible_id && comment.resolved && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   });
-  const archivedSize = _.size(archiveInvestibles) + _.size(resolvedMarketComments);
+  const archivedSize = _.isEmpty(search) ? undefined :
+    _.size(archiveInvestibles) + _.size(resolvedMarketComments);
   const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
   let navListItemTextArray = undefined;

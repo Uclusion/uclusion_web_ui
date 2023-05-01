@@ -520,7 +520,8 @@ function Stage(props) {
         {sortedInvestibles.map(inv => {
           const { investible } = inv;
           const marketInfo = getMarketInfo(inv, marketId) || {};
-          const unaccepted = _.isEmpty(_.intersection(marketInfo.accepted, marketInfo.assigned));
+          const unaccepted = _.size(_.intersection(marketInfo.accepted, marketInfo.assigned)) <
+            _.size(marketInfo.assigned);
           const numQuestionsSuggestions = countByType(investible, comments,
             [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
           return (

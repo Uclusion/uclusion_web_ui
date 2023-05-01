@@ -50,9 +50,6 @@ const Title = styled(Text)`
     font-size: 12px;
     margin-left: 4px;
   };
-  @media (max-width: 768px) {
-    flex-basis: 300px;
-  }
   @media (max-width: 1000px) {
     margin-left: 8px;
   }
@@ -71,6 +68,9 @@ const DateLabel = styled(Text)`
   flex-shrink: 0;
   padding-right: 2rem;
   text-align: right;
+  @media (max-width: 768px) {
+    padding-right: 1rem;
+  }
 `;
 
 const DateLabelB = styled(DateLabel)`
@@ -114,8 +114,10 @@ function BacklogListItem(props) {
               {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
               {mobileLayout || _.isEmpty(people) ? React.Fragment :
                 <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-              <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{description}</Text>
-              {mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
+              {!mobileLayout && (
+                <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{description}</Text>
+              )}
+              {!date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
                 (<DateLabelB>{date}</DateLabelB>))}
             </Div>
           </div>

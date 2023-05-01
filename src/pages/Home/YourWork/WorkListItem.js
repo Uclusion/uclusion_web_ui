@@ -79,9 +79,6 @@ const Title = styled(Text)`
     font-size: 12px;
     margin-left: 4px;
   };
-  @media (max-width: 768px) {
-    flex-basis: 100px;
-  }
   @media (max-width: 1000px) {
     margin-left: 8px;
   }
@@ -235,17 +232,17 @@ function WorkListItem(props) {
             </Box>
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            {moreDescription && (
+            {moreDescription && !mobileLayout && (
               <Text style={{ maxWidth: '55vw' }}>{fullText} - {moreDescription}</Text>
             )}
-            {!moreDescription && (
+            {(!moreDescription || mobileLayout) && (
               <Text style={{ maxWidth: '55vw' }}>{fullText}</Text>
             )}
             {showExpansion || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
               (<DateLabelB>{date}</DateLabelB>))}
             {showExpansion && (
               <DateLabel>
-                {isDeletable && (
+                {isDeletable && !mobileLayout && (
                   <NotificationDeletion message={message} fromRow />
                 )}
                 {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />

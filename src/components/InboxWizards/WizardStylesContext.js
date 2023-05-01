@@ -31,15 +31,14 @@ export const wizardStyles = makeStyles(
       baseCard: {
         width: '100%',
         padding: '32px',
-        [theme.breakpoints.down('xs')]: {
-          marginTop: '15px',
+        [theme.breakpoints.down('sm')]: {
+          marginTop: '0px',
         }
       },
       introText: {
         fontSize: '45px',
         lineHeight: '56px',
         fontWeight: 700,
-        marginTop: '1rem',
         marginBottom: '1rem'
       },
       introSubText: {

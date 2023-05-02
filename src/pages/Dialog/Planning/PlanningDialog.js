@@ -233,8 +233,9 @@ function PlanningDialog(props) {
           window.scrollTo(0, 0);
         }}
         indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
-        style={{ paddingBottom: '0.25rem', zIndex: 8, position: 'fixed', paddingTop: '0.5rem',
-          marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
+        style={{ paddingBottom: '0.25rem', zIndex: 8, position: 'fixed',
+          paddingTop: mobileLayout ? '0.5rem' : '1.25rem',
+          marginTop: '-30px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
         <GmailTabItem icon={<AssignmentInd />}
                       label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
                       tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />

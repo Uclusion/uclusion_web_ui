@@ -124,10 +124,7 @@ function WorkspaceMenu(props) {
           <ProMenu iconShape="circle">
             <MenuItem icon={<AddIcon htmlColor="black" />}
                       key="addWorkspace Key" id="addWorkspaceIconId"
-                      onClick={()=> {
-                        recordPositionToggle();
-                        navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-                      }}
+                      onClick={()=> navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`)}
             >
               {intl.formatMessage({ id: 'homeAddPlanning' })}
             </MenuItem>

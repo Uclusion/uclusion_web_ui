@@ -49,9 +49,6 @@ const Title = styled(Text)`
   & > *:not(:first-child) {
     font-size: 12px;
   };
-  @media (max-width: 768px) {
-    flex-basis: 200px;
-  }
 `;
 
 const TitleB = styled(Title)`
@@ -120,14 +117,22 @@ function OptionListItem(props) {
           } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
               {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
-              <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{description}</Text>
-              {mobileLayout || _.isEmpty(people) || showExpansion ? React.Fragment :
-                <GravatarGroup users={people} className={classes.gravatarStyle}/> }
+              {!mobileLayout && (
+                <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{description}</Text>
+              )}
+              {mobileLayout && (
+                <Text />
+              )}
               {showExpansion && (
                 <DateLabel>
                   {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
                     : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
                 </DateLabel>
+              )}
+              {_.isEmpty(people) || showExpansion ? React.Fragment :
+                <GravatarGroup users={people} className={classes.gravatarStyle} /> }
+              {mobileLayout && (
+                <div style={{paddingRight: '1rem'}} />
               )}
             </Div>
           </div>

@@ -38,11 +38,6 @@ import AddIcon from '@material-ui/icons/Add';
 import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles((theme) => ({
-  mobileColumn: {
-    [theme.breakpoints.down("sm")]: {
-      flexDirection: 'column'
-    }
-  },
   root: {
     alignItems: "flex-start",
     display: "flex",
@@ -54,9 +49,6 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'flex-end',
     '& > button': {
       marginRight: '-8px'
-    },
-    [theme.breakpoints.down('sm')]: {
-      justifyContent: 'center',
     }
   },
   container: {
@@ -71,15 +63,6 @@ const useStyles = makeStyles((theme) => ({
     padding: '2rem',
     marginBottom: '-42px',
     marginTop: '-42px',
-    [theme.breakpoints.down("sm")]: {
-      padding: '1rem 0',
-      marginTop: '1rem',
-      borderLeft: 'none',
-      borderTop: '1px solid #e0e0e0',
-      flexGrow: 'unset',
-      maxWidth: 'unset',
-      flexBasis: 'auto'
-    }
   },
   content: {
     fontSize: "15 !important",
@@ -127,6 +110,23 @@ const useStyles = makeStyles((theme) => ({
     }
   },
 }));
+
+function GridMobileDiv(props) {
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  if (mobileLayout) {
+    return (
+      <div>
+        {props.children}
+      </div>
+    )
+  }
+  return (
+    <Grid container>
+      {props.children}
+    </Grid>
+  )
+}
 
 /**
  * A page that represents what the investible looks like for a DECISION Dialog
@@ -260,8 +260,56 @@ function DecisionInvestible(props) {
   const displayVotingInput = !removeActions && votingAllowed && !yourVote;
   const displayCommentInput = !removeActions && !inArchives && marketId && !_.isEmpty(investible) && !hidden;
   const editClasses = useInvestibleEditStyles();
+  const contents = <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
+    {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
+      <Typography>
+        {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
+      </Typography>
+    )}
+    {marketId && investibleId && userId && (
+      <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
+                          pageState={pageState}
+                          userId={userId}
+                          pageStateUpdate={updatePageState}
+                          pageStateReset={pageStateReset}
+                          fullInvestible={fullInvestible}
+                          beingEdited={beingEdited}
+                          isEditableByUser={isEditableByUser}/>
+    )}
+  </CardContent>;
+  const actions = <CardActions className={mobileLayout ? undefined : classes.actions}>
+    {!removeActions && (
+      <div className={mobileLayout ? undefined : clsx(metaClasses.root, classes.flexCenter)}>
+        {!removeActions && activeMarket && (
+          getActions()
+        )}
+        {isSent && (
+          <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
+        )}
+        {myMessageDescription && diff && (
+          <>
+            <div style={{paddingTop: '0.5rem'}} />
+            <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                     onClick={toggleDiffShow} doSpin={false}>
+              <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+            </SpinningIconLabelButton>
+          </>
+        )}
+        <Typography variant="body2" style={{paddingBottom: '1rem'}}>
+          {intl.formatMessage({ id: 'created_by' })} {optionCreatedBy.name}.
+        </Typography>
+        <AttachedFilesList
+          key="files"
+          marketId={marketId}
+          onDeleteClick={onDeleteFile}
+          isAdmin={isAdmin}
+          attachedFiles={attachedFiles}
+          onUpload={onAttachFiles} />
+      </div>
+    )}
+  </CardActions>;
   return (
-    <div style={{marginLeft: mobileLayout ? undefined : '2rem', marginRight: mobileLayout ? undefined : '2rem',
+    <div style={{marginLeft: mobileLayout ? '1rem' : '2rem', marginRight: mobileLayout ? '1rem' : '2rem',
       marginBottom: '1rem'}} id={`option${investibleId}`}>
       <div className={classes.root} id="optionMain">
         <CardType
@@ -270,62 +318,22 @@ function DecisionInvestible(props) {
           subtype={inProposed ? PROPOSED : OPTION}
           myBeingEdited={beingEdited}
         />
-        <Grid container className={classes.mobileColumn}>
-          <Grid item md={10} xs={12}
-                className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}
-                onClick={(event) => !mobileLayout && mySetBeingEdited(true, event)}>
-            <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
-              {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
-                <Typography>
-                  {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
-                </Typography>
-              )}
-              {marketId && investibleId && userId && (
-                <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                                    pageState={pageState}
-                                    userId={userId}
-                                    pageStateUpdate={updatePageState}
-                                    pageStateReset={pageStateReset}
-                                    fullInvestible={fullInvestible}
-                                    beingEdited={beingEdited}
-                                    isEditableByUser={isEditableByUser}/>
-              )}
-            </CardContent>
-          </Grid>
-          <Grid className={classes.borderLeft} item md={2} xs={12}>
-            <CardActions className={classes.actions}>
-              {!removeActions && (
-                <div className={clsx(metaClasses.root, classes.flexCenter)}>
-                  {!removeActions && activeMarket && (
-                    getActions()
-                  )}
-                  {isSent && (
-                    <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
-                  )}
-                  {myMessageDescription && diff && (
-                    <>
-                      <div style={{paddingTop: '0.5rem'}} />
-                      <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
-                                               onClick={toggleDiffShow} doSpin={false}>
-                        <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
-                      </SpinningIconLabelButton>
-                    </>
-                  )}
-                  <Typography variant="body2" style={{paddingBottom: '1rem'}}>
-                    {intl.formatMessage({ id: 'created_by' })} {optionCreatedBy.name}.
-                  </Typography>
-                  <AttachedFilesList
-                    key="files"
-                    marketId={marketId}
-                    onDeleteClick={onDeleteFile}
-                    isAdmin={isAdmin}
-                    attachedFiles={attachedFiles}
-                    onUpload={onAttachFiles} />
-                </div>
-              )}
-            </CardActions>
-          </Grid>
-        </Grid>
+        <GridMobileDiv>
+          {mobileLayout && actions}
+          {mobileLayout && contents}
+          {!mobileLayout && (
+            <Grid item md={10} xs={12}
+                  className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}
+                  onClick={(event) => mySetBeingEdited(true, event)}>
+              {contents}
+            </Grid>
+          )}
+          {!mobileLayout && (
+            <Grid className={classes.borderLeft} item md={2} xs={12}>
+              {actions}
+            </Grid>
+          )}
+        </GridMobileDiv>
       </div>
       {!inProposed && (
         <>

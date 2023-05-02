@@ -118,7 +118,23 @@ function WorkspaceMenu(props) {
   }
 
   if (_.isEmpty(markets)||_.isEmpty(defaultMarket)) {
-    return React.Fragment;
+    return (
+      <ProSidebar width="14rem">
+        <SidebarContent>
+          <ProMenu iconShape="circle">
+            <MenuItem icon={<AddIcon htmlColor="black" />}
+                      key="addWorkspace Key" id="addWorkspaceIconId"
+                      onClick={()=> {
+                        recordPositionToggle();
+                        navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+                      }}
+            >
+              {intl.formatMessage({ id: 'homeAddPlanning' })}
+            </MenuItem>
+          </ProMenu>
+        </SidebarContent>
+      </ProSidebar>
+    );
   }
 
   return (

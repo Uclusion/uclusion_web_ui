@@ -166,7 +166,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
     return (
       <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                   variant="body1">
-        Your From You tab is empty.<br/><br/> Your unanswered questions and suggestions will be shown here.
+        Your From You tab is empty.<br/><br/> Your unanswered questions and suggestions display here.
       </Typography>
     );
   }
@@ -175,7 +175,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
     return (
       <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                   variant="body1">
-        Your Deferred tab is empty.<br/><br/> Unfinished team collaboration will be shown here.
+        Your Deferred tab is empty.<br/><br/> Unfinished team collaboration display here.
       </Typography>
     );
   }
@@ -187,7 +187,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
   return (
     <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                 variant="body1">
-      Your Primary tab is empty.<br/><br/> New messages and assigned jobs will be shown here.
+      Your Primary tab is empty.<br/><br/> New messages and assigned jobs display here.
     </Typography>
   );
 }

@@ -304,7 +304,7 @@ function PlanningDialog(props) {
                         {blockedOrRequiresInputInvestibles.length} total
                       </span> : undefined}
                     title={intl.formatMessage({ id: 'blockedHeader' })}
-                    helpLink='https://documentation.uclusion.com/channels/jobs/stages/#blocked'
+                    helpLink='https://documentation.uclusion.com/groups/jobs/stages/#assistance'
                     id="blocked"
                   >
                     <ArchiveInvestbiles
@@ -342,7 +342,7 @@ function PlanningDialog(props) {
                                  isEveryoneGroup(groupId, marketId) ?
                                    <div>
                                      Use the "Add job" button above
-                                     and <Link href="https://documentation.uclusion.com/everyone" target="_blank">everyone</Link> will
+                                     and <Link href="https://documentation.uclusion.com/groups/#everyone" target="_blank">everyone</Link> will
                                      be notified.
                                    </div> :
                 <div>

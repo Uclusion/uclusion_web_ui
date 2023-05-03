@@ -349,7 +349,7 @@ function MarketTodos(props) {
       <DismissableText textId="todosHelp" display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
                        text={
         <div>
-          Use "Create New" below to create a <Link href="https://documentation.uclusion.com/channels/todos" target="_blank">bug</Link> that
+          Use "Create New" below to create a <Link href="https://documentation.uclusion.com/groups/bugs" target="_blank">bug</Link> that
           sends notifications based on severity.
         </div>
       }/>

@@ -153,26 +153,26 @@ function InvestiblesByPerson(props) {
         <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
           <div>
             <b><FormattedMessage id="planningVotingStageLabel" /></b>
-            <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-approval" target="_blank">
+            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#ready-for-approval" target="_blank">
               <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>
           </div>
           <div>
             <b><FormattedMessage id='planningAcceptedStageLabel' /></b>
-            <Link href="https://documentation.uclusion.com/channels/jobs/stages/#started"
+            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#started"
                   target="_blank">
               <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>
           </div>
           <div>
             <b><FormattedMessage id="planningReviewStageLabel"/></b>
-            <Link href="https://documentation.uclusion.com/channels/jobs/stages/#ready-for-feedback" target="_blank">
+            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#ready-for-feedback" target="_blank">
               <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>
           </div>
           <div>
             <b><FormattedMessage id="verifiedBlockedStageLabel"/></b>
-            <Link href="https://documentation.uclusion.com/channels/jobs/stages/#verified-and-not-doing"
+            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#verified-and-not-doing"
                   target="_blank">
               <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>

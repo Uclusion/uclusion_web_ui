@@ -8,7 +8,7 @@ import {
   useTheme
 } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { ExpandLess, Group, SyncAlt } from '@material-ui/icons';
+import { ExpandLess, Group, Inbox, SyncAlt } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
@@ -44,7 +44,8 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
-import { Menu, MenuItem, ProSidebar, SidebarContent } from 'react-pro-sidebar';
+import { Menu, MenuItem, ProSidebar, SidebarHeader } from 'react-pro-sidebar';
+import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 export default function PlanningInvestibleNav(props) {
   const { name, market, marketInvestible, classes, userId, myPresence, isAssigned,
@@ -110,17 +111,21 @@ export default function PlanningInvestibleNav(props) {
     <>
       {mobileLayout && (
         <ProSidebar width="16rem">
-          <SidebarContent>
+          <SidebarHeader>
             <Menu iconShape="circle">
+              <MenuItem icon={<Inbox htmlColor="black" />} key="navBackGroup"
+                        onClick={() => navigate(history, getInboxTarget())}>
+                <span style={{fontSize: '1rem'}}>{intl.formatMessage({ id: 'inbox' })}</span>
+              </MenuItem>
               <MenuItem icon={<Group htmlColor="black" />} key="navBackGroup"
                         onClick={() => navigate(history, formMarketLink(marketId, groupId))}>
-                <span style={{fontSize: '1.25rem'}}>{group.name}</span>
+                <span style={{fontSize: '1rem'}}>{group.name}</span>
               </MenuItem>
             </Menu>
-          </SidebarContent>
+          </SidebarHeader>
         </ProSidebar>
       )}
-      <div style={{maxWidth: '11rem', width: '100%'}}>
+      <div style={{maxWidth: '11rem', width: '100%', marginTop: mobileLayout ? '1.5rem': undefined}}>
         {name}
       </div>
       <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
@@ -211,13 +216,17 @@ export default function PlanningInvestibleNav(props) {
         accepted={accepted || []}
         myUserId={userId}
       />
-      <div style={{paddingBottom: headerPaddingBottom}} />
-      <AttachedFilesList
-        marketId={market.id}
-        onUpload={onAttachFiles}
-        onDeleteClick={onDeleteFile}
-        attachedFiles={attachedFiles}
-      />
+      {!mobileLayout && (
+        <>
+          <div style={{paddingBottom: headerPaddingBottom}} />
+          <AttachedFilesList
+            marketId={market.id}
+            onUpload={onAttachFiles}
+            onDeleteClick={onDeleteFile}
+            attachedFiles={attachedFiles}
+          />
+        </>
+      )}
     </>
   );
 }

@@ -9,7 +9,6 @@ import { Auth } from 'aws-amplify'
 import LogRocket from 'logrocket'
 import { defaultTheme } from '../../config/themes'
 import { ThemeProvider } from '@material-ui/core/styles'
-import { TourProvider } from '../../contexts/TourContext/TourContext'
 import { CognitoUserProvider } from '../../contexts/CognitoUserContext/CongitoUserContext'
 import AccountPoller from '../Root/AccountPoller'
 import { BroadcastChannel } from 'broadcast-channel'
@@ -87,13 +86,11 @@ function App(props) {
                       <WebSocketProvider config={config} userId={userId}>
                         <AppConfigProvider appConfig={configs}>
                           <ThemeProvider theme={defaultTheme}>
-                            <TourProvider>
-                              <AccountPoller>
-                                <LogoutContext.Provider value={logoutChannel}>
-                                  <Root appConfig={configs}/>
-                                </LogoutContext.Provider>
-                              </AccountPoller>
-                            </TourProvider>
+                            <AccountPoller>
+                              <LogoutContext.Provider value={logoutChannel}>
+                                <Root appConfig={configs}/>
+                              </LogoutContext.Provider>
+                            </AccountPoller>
                           </ThemeProvider>
                         </AppConfigProvider>
                       </WebSocketProvider>

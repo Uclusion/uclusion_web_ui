@@ -1027,7 +1027,7 @@ const messages = defineMessages({
 
   //show investibles dropdown
   showInvestiblesDropdownHelp: 'Number of jobs to allow in \'Verified\' swimlane per person',
-  showInvestiblesDropdownAgeHelp: 'Maximum age of jobs shown in \'Verified\' swimlanes',
+  showInvestiblesDropdownAgeHelp: 'Maximum age of jobs shown in \'Verified\' swimlanes.',
   showInvestiblesDropdownLabel: 'Maximum verified jobs shown in swim lane',
   showInvestiblesDropdownAgeLabel: 'Maximum age in days to show verified jobs',
   showInvestiblesUnlimitedValue: 'Unlimited',

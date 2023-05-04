@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import { Box, Checkbox, IconButton, Link, useMediaQuery, useTheme } from '@material-ui/core';
+import { Box, Checkbox, IconButton, Link, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory, useLocation } from 'react-router';
@@ -425,6 +425,27 @@ function MarketTodos(props) {
             </Box>
           </div>
         </div>
+      )}
+      {_.isEmpty(data) && tabIndex === 0 && (
+        <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                    variant="body1">
+          {intl.formatMessage({id: 'immediate'})} is empty.<br/><br/>
+          Bugs that urgently need assignment display here.
+        </Typography>
+      )}
+      {_.isEmpty(data) && tabIndex === 1 && (
+        <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                    variant="body1">
+          {intl.formatMessage({id: 'able'})} is empty.<br/><br/>
+          Bugs that need assignment display here.
+        </Typography>
+      )}
+      {_.isEmpty(data) && tabIndex === 2 && (
+        <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                    variant="body1">
+          {intl.formatMessage({id: 'convenient'})} is empty.<br/><br/>
+          Bugs that can wait till other work is done display here.
+        </Typography>
       )}
       {getRows()}
     </div>

@@ -24,7 +24,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { Box, IconButton } from '@material-ui/core';
+import { Box, IconButton, Typography } from '@material-ui/core';
 import { KeyboardArrowLeft } from '@material-ui/icons';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 
@@ -144,6 +144,20 @@ function Backlog(props) {
             </Box>
           </div>
         </div>
+      )}
+      {_.isEmpty(data) && tabIndex === 0 && (
+        <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                    variant="body1">
+          {intl.formatMessage({id: 'readyToStartHeader'})} is empty.<br/><br/>
+          Jobs that need assignment display here.
+        </Typography>
+      )}
+      {_.isEmpty(data) && tabIndex === 1 && (
+        <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                    variant="body1">
+          {intl.formatMessage({id: 'notReadyToStartHeader'})} is empty.<br/><br/>
+          Jobs that need discussion before assignment display here.
+        </Typography>
       )}
       {data.map((inv) => {
         const { investible } = inv;

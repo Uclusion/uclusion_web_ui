@@ -98,6 +98,7 @@ function Options(props) {
   const proposed = getInlineInvestiblesForStage(proposedStage);
   const unreadCount = _.size(underConsideration.filter((inv) => !isRead(inv)));
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
+  const tabInvestibles = tabIndex === 0 ? underConsideration : proposed;
   return (
     <>
       {abstained}
@@ -121,9 +122,23 @@ function Options(props) {
                         tag={_.size(proposed) > 0 ? `${_.size(proposed)}` : undefined} />
         </GmailTabs>
       </div>
+      {_.isEmpty(tabInvestibles) && tabIndex === 0 && (
+        <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                    variant="body1">
+          {intl.formatMessage({id: 'decisionDialogCurrentVotingLabel'})} is empty.<br/><br/>
+          Options to approve display here.
+        </Typography>
+      )}
+      {_.isEmpty(tabInvestibles) && tabIndex === 1 && (
+        <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                    variant="body1">
+          {intl.formatMessage({id: 'decisionDialogProposedOptionsLabel'})} is empty.<br/><br/>
+          Options that are rejected or need discussion display here.
+        </Typography>
+      )}
       <OptionVoting
         marketPresences={anInlineMarketPresences}
-        investibles={tabIndex === 0 ? underConsideration : proposed}
+        investibles={tabInvestibles}
         marketId={anInlineMarket.id}
         parentMarketId={marketId}
         parentInvestibleId={investibleId}

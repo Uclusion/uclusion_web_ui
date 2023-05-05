@@ -521,7 +521,7 @@ function Stage(props) {
           const { investible } = inv;
           const marketInfo = getMarketInfo(inv, marketId) || {};
           const unaccepted = _.size(_.intersection(marketInfo.accepted, marketInfo.assigned)) <
-            _.size(marketInfo.assigned);
+            _.size(marketInfo.assigned) && isVoting;
           const numQuestionsSuggestions = countByType(investible, comments,
             [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
           return (

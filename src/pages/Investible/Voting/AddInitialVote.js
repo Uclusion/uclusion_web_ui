@@ -23,9 +23,6 @@ const useStyles = makeStyles(
         display: 'flex',
         paddingBottom: '3px',
       },
-      maxBudgetUnit: {
-        width: 230
-      },
       certainty: {},
       certaintyGroup: {
         display: "flex",
@@ -45,9 +42,6 @@ const useStyles = makeStyles(
       },
       divider: {
         margin: theme.spacing(2, 0)
-      },
-      maxBudget: {
-        display: "block"
       },
     };
   },
@@ -132,14 +126,10 @@ function AddInitialVote(props) {
 }
 
 AddInitialVote.propTypes = {
-  showBudget: PropTypes.bool.isRequired,
   marketId: PropTypes.string.isRequired,
-  onBudgetChange: PropTypes.func.isRequired,
   onChange: PropTypes.func.isRequired,
   onEditorChange: PropTypes.func,
   newQuantity: PropTypes.number,
-  maxBudget: PropTypes.any,
-  maxBudgetUnit: PropTypes.any,
   body: PropTypes.string
 };
 

@@ -136,8 +136,6 @@ const messages = defineMessages({
   close: 'Close',
   typeOrChoose: 'Type and hit enter or choose from dropdown',
   addLabel: 'Add label',
-  addUnit: 'Budget Unit',
-  budgetUnitDropdownHelp: 'If budgets allowed, this field is their unit and must be filled.',
   created: 'Created ',
   edited: 'Storing locally',
   hours: 'hours',
@@ -184,7 +182,6 @@ const messages = defineMessages({
   marketAddCancelLabel: 'Cancel',
   marketAddSaveLabel: 'Save',
   investmentExpirationInputLabel: 'Number of days before an approval expires',
-  maxMaxBudgetInputLabel: 'maximum job budget',
   daysEstimateInputLabel: 'Very rough number of days to complete',
   votesRequiredInputLabelShort: 'Approvals Required',
   votesRequiredInputHelperText: 'Number of approvals required to start on a job',
@@ -202,7 +199,6 @@ const messages = defineMessages({
   agilePlanFormDaysEstimateLabel: 'Days estimate',
   agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
   agilePlanFormInvestmentExpirationLabel: 'Approval Expiration (in days)',
-  agilePlanFormMaxMaxBudgetInputLabel: 'Optionally enter a budget number for this job.',
   agilePlanFormSaveLabel: 'Save',
 
   // Market Nav
@@ -230,8 +226,6 @@ const messages = defineMessages({
   certainty50: 'Somewhat Certain',
   certainty25: 'Somewhat Uncertain',
   certainty5: 'Uncertain',
-  maxBudgetValue: 'Budget: {x}',
-  maxBudgetValueWithUnits: 'Budget: {x} {y}',
   certaintyQuestion: 'Rate Your Certainty',
   reasonQuestion: 'Why did you approve for this option?',
   saveVote: 'Approve',
@@ -246,7 +240,6 @@ const messages = defineMessages({
   cancelVote: 'Cancel',
   removeVote: 'Remove approval',
   removeReject: 'Remove rejection',
-  maxBudgetInputLabel: 'budget',
   draft: 'Draft',
   guest: 'Guest',
   inactive: 'Inactive',
@@ -453,7 +446,6 @@ const messages = defineMessages({
   votesRequiredHelp: "Number of approvals desired before starting a job",
   ticketSubCodeHelp: 'A short code for the group which will be used to form human readable job ids',
   ticketSubCodeHelp1: 'Your job ids will look like U-{code}-0, U-{code}-1, U-{code}-2, etc.',
-  maxBudgetHelp: 'Maximum budget allowed for a job. Used to prevent stories from being too large.',
   voteExpirationHelp: "How many days before approvals expire. Prevents very old approval from being used.",
   reassignToMove: 'Assigning moves to the swimlanes.',
   marketLinksSection: 'links',
@@ -1202,8 +1194,6 @@ const messages = defineMessages({
   GroupWizardConfigureApprovals: 'Configure job approvals',
   ApprovalRestrictNo: 'Assignees can approve their own jobs.',
   ApprovalRestrictYes: 'Assignees need approval from others.',
-  BudgetRestrictNo: 'Allow approvers to suggest a budget.',
-  BudgetRestrictYes: 'Do not allow approvers to suggest a budget.',
 
   // Decision comment wizard
   DecisionCommmentWizardTerminate: 'Back to option',

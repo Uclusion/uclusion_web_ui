@@ -176,9 +176,6 @@ export const wizardStyles = makeStyles(
       stepDefault: {
         maxWidth: '1200px'
       },
-      maxBudgetUnit: {
-        backgroundColor: '#ecf0f1'
-      },
       wizardCommentBoxDiv: {
         maxHeight: '300px',
         paddingBottom: '0.5rem',

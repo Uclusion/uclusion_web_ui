@@ -31,8 +31,6 @@ export function calculateInvestibleVoters(investibleId, marketId, marketsState, 
         quantity,
         investible_id: invId,
         comment_id: commentId,
-        max_budget: maxBudget,
-        max_budget_unit: maxBudgetUnit,
         updated_at: updatedAt,
         deleted
       } = investment;
@@ -40,7 +38,7 @@ export function calculateInvestibleVoters(investibleId, marketId, marketsState, 
       const lastEventTime = Math.max(lastStageChangeDate.getTime(), updatedAtDate.getTime());
       const isExpired = Date.now() - lastEventTime > investmentExpiration*86400000;
       if (investibleId === invId && !deleted && !isExpired) {
-        acc.push({ name, id, email, quantity, commentId, maxBudget, maxBudgetUnit, updatedAt });
+        acc.push({ name, id, email, quantity, commentId, updatedAt });
       }
     });
   });

@@ -112,8 +112,6 @@ function DecisionApproveStep(props) {
         <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
         <AddInitialVote
           marketId={marketId}
-          onBudgetChange={() => {}}
-          showBudget={false}
           onChange={onQuantityChange}
           newQuantity={approveQuantity}
           onEditorChange={onApproveChange('approveReason')}

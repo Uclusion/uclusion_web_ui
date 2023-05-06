@@ -25,7 +25,6 @@ function VoteCertaintyStep(props) {
           groupId={commentRoot.group_id}
           hasVoted={false}
           allowMultiVote={false}
-          showBudget={false}
           multiplier={isFor ? 1 : -1}
           formData={formData}
           updateFormData={updateFormData}

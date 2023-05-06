@@ -57,9 +57,6 @@ const useStyles = makeStyles(
       divider: {
         margin: theme.spacing(2, 0)
       },
-      maxBudget: {
-        display: "block",
-      },
       actions: {
         display: "flex",
         padding: theme.spacing(0, 0, 1, 2)
@@ -241,7 +238,6 @@ function AddEditVote(props) {
 
 AddEditVote.propTypes = {
   reason: PropTypes.object,
-  showBudget: PropTypes.bool,
   marketId: PropTypes.string.isRequired,
   investibleId: PropTypes.string.isRequired,
   investment: PropTypes.object,
@@ -252,7 +248,6 @@ AddEditVote.propTypes = {
 };
 
 AddEditVote.defaultProps = {
-  showBudget: false,
   hasVoted: false,
   allowMultiVote: true,
   investment: {},

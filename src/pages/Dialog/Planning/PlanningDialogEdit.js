@@ -1,35 +1,23 @@
-import React, { useContext, useState } from 'react'
-import PropTypes from 'prop-types'
-import { useIntl } from 'react-intl'
-import {
-  updateGroup
-} from '../../../api/markets'
-import CardContent from '@material-ui/core/CardContent'
-import Grid from '@material-ui/core/Grid'
-import clsx from 'clsx'
-import CardActions from '@material-ui/core/CardActions'
-import Card from '@material-ui/core/Card'
-import { usePlanFormStyles, Votes } from '../../../components/AgilePlan'
-import {
-  FormControlLabel,
-  InputAdornment,
-  makeStyles, OutlinedInput,
-  Radio,
-  RadioGroup,
-  TextField,
-  Typography, useTheme
-} from '@material-ui/core'
-import { getMarketUnits } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { Clear, SettingsBackupRestore } from '@material-ui/icons'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import ManageExistingUsers from '../UserManagement/ManageExistingUsers'
-import Autocomplete from '@material-ui/lab/Autocomplete'
-import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper'
-import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
-import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext'
-import DialogManage from '../DialogManage'
+import React, { useContext, useState } from 'react';
+import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
+import { updateGroup } from '../../../api/markets';
+import CardContent from '@material-ui/core/CardContent';
+import Grid from '@material-ui/core/Grid';
+import clsx from 'clsx';
+import CardActions from '@material-ui/core/CardActions';
+import Card from '@material-ui/core/Card';
+import { usePlanFormStyles, Votes } from '../../../components/AgilePlan';
+import { InputAdornment, makeStyles, OutlinedInput, TextField, Typography, useTheme } from '@material-ui/core';
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
+import { Clear, SettingsBackupRestore } from '@material-ui/icons';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import ManageExistingUsers from '../UserManagement/ManageExistingUsers';
+import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
+import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
+import DialogManage from '../DialogManage';
 import { NAME_MAX_LENGTH } from '../../../components/TextFields/NameField';
 
 const useStyles = makeStyles((theme) => {
@@ -38,9 +26,6 @@ const useStyles = makeStyles((theme) => {
       margin: theme.spacing(-3, 0, 0, 6),
       paddingBottom: '2rem'
     },
-    maxBudgetUnit: {
-      backgroundColor: '#ecf0f1',
-    }
   };
 });
 
@@ -56,8 +41,6 @@ function PlanningDialogEdit(props) {
   const myClasses = useStyles();
   const [mutableGroup, setMutableGroup] = useState(getInitialGroup());
   const {
-    use_budget,
-    budget_unit,
     votes_required,
     ticket_sub_code,
     name
@@ -70,16 +53,8 @@ function PlanningDialogEdit(props) {
   function handleChange(name) {
     return event => {
       const { value } = event.target;
-      let useValue = value;
-      if (name === 'use_budget') {
-        useValue = value === 'true';
-      }
-      setMutableGroup({ ...mutableGroup, [name]: useValue });
+      setMutableGroup({ ...mutableGroup, [name]: value });
     };
-  }
-
-  function onUnitChange(event, value) {
-    setMutableGroup({ ...mutableGroup, budget_unit: value });
   }
 
   function onSaveSettings(savedGroup) {
@@ -92,21 +67,14 @@ function PlanningDialogEdit(props) {
     return updateGroup({
       marketId,
       groupId: id, name,
-      useBudget: use_budget,
       votesRequired: votesRequiredInt,
       ticketSubCode: encodeURI(ticket_sub_code),
-      budgetUnit: budget_unit
   }).then(market => {
       onSaveSettings(market);
       setOperationRunning(false);
     });
   }
 
-  const defaultProps = {
-    options: getMarketUnits(intl),
-    getOptionLabel: (option) => option,
-  };
-  const validOptions = !use_budget || budget_unit;
   return (
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
@@ -150,32 +118,6 @@ function PlanningDialogEdit(props) {
             <Votes onChange={handleChange('votes_required')} value={votes_required}/>
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <RadioGroup value={use_budget === true ? 'true' : 'false'} onChange={handleChange('use_budget')}>
-              <FormControlLabel value={'false'} control={<Radio/>}
-                                label={intl.formatMessage({ id: 'BudgetRestrictYes' })}/>
-              <FormControlLabel value={'true'} control={<Radio/>}
-                                label={intl.formatMessage({ id: 'BudgetRestrictNo' })}/>
-            </RadioGroup>
-          </Grid>
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <Autocomplete
-              {...defaultProps}
-              id="addBudgetUnit"
-              key="budgetUnit"
-              freeSolo
-              renderInput={(params) => <TextField {...params}
-                                                  margin="dense"
-                                                  label={intl.formatMessage({ id: 'addUnit' })}/>}
-              value={budget_unit || ''}
-              disabled={!use_budget}
-              className={myClasses.maxBudgetUnit}
-              onInputChange={onUnitChange}
-            />
-            <Typography>
-              {intl.formatMessage({ id: 'budgetUnitDropdownHelp' })}
-            </Typography>
-          </Grid>
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <TextField
               id="name"
               className={classes.input}
@@ -192,8 +134,7 @@ function PlanningDialogEdit(props) {
         <SpinningIconLabelButton onClick={() => setMutableGroup(getInitialGroup())} doSpin={false} icon={Clear}>
           {intl.formatMessage({ id: 'marketEditCancelLabel' })}
         </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton"
-                                 disabled={!validOptions}>
+        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton">
           {intl.formatMessage({ id: 'marketEditSaveLabel' })}
         </SpinningIconLabelButton>
       </CardActions>

@@ -43,7 +43,6 @@ function VoteCertaintyStep(props) {
           groupId={market.id}
           hasVoted={showSwitch}
           allowMultiVote={false}
-          showBudget={false}
           multiplier={isFor ? 1 : -1}
           formData={formData}
           updateFormData={updateFormData}

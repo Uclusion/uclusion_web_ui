@@ -1,21 +1,20 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import _ from 'lodash'
-import { useIntl } from 'react-intl'
-import { Box, Card, CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core';
-import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor'
-import { makeStyles } from '@material-ui/styles'
-import CardType from '../../../components/CardType'
-import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import { Box, Card, CardContent, useMediaQuery, useTheme } from '@material-ui/core';
+import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
+import { makeStyles } from '@material-ui/styles';
+import CardType from '../../../components/CardType';
+import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessageByInvestmentUserId, findMessageOfTypeAndId } from '../../../utils/messageUtils';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { Delete, Edit } from '@material-ui/icons';
-import { invalidEditEvent } from '../../../utils/windowUtils'
-import { useHistory } from 'react-router'
-import clsx from 'clsx'
-import GravatarAndName from '../../../components/Avatars/GravatarAndName'
-import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
+import { invalidEditEvent } from '../../../utils/windowUtils';
+import { useHistory } from 'react-router';
+import clsx from 'clsx';
+import GravatarAndName from '../../../components/Avatars/GravatarAndName';
+import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { formWizardLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -104,7 +103,6 @@ function Voting(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const workItemClasses = workListStyles();
   const classes = useVoteStyles();
-  const intl = useIntl();
 
   const voters = useInvestibleVoters(marketPresences, investibleId, market.id);
   const sortedVoters = _.sortBy(voters, "quantity");
@@ -125,7 +123,7 @@ function Voting(props) {
   return (
     <ol className={classes.root}>
         {sortedVoters.map((voter, index) => {
-          const { name, email, id: userId, quantity, commentId, maxBudget, maxBudgetUnit, updatedAt } = voter;
+          const { name, email, id: userId, quantity, commentId, updatedAt } = voter;
           const isYourVote = userId === yourPresence.id;
           const myMessage = findMessageOfTypeAndId(`${investibleId}_${userId}`, messagesState,
             'VOTE') || findMessageByInvestmentUserId(userId, messagesState);
@@ -138,7 +136,7 @@ function Voting(props) {
             }
           }
           const isEditable = isYourVote && votingAllowed;
-          const hasContent = maxBudget > 0 || reason;
+          const hasContent = reason;
           return (
             <div className={myMessage && classes.highlighted} key={index}>
               <Card
@@ -198,16 +196,6 @@ function Voting(props) {
                 </Box>
                 {hasContent && (
                   <CardContent className={classes.cardContent}>
-                    {maxBudget > 0 && (
-                      <div style={{display: 'flex', alignItems: 'center', paddingBottom: '1rem'}}>
-                        <Typography className={classes.voter} component="strong">
-                          {!maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValue'},
-                            { x: maxBudget})}
-                          {maxBudgetUnit && intl.formatMessage({id: 'maxBudgetValueWithUnits'},
-                            { x: maxBudget, y: maxBudgetUnit})}
-                        </Typography>
-                      </div>
-                    )}
                     {!_.isEmpty(reason) &&
                       <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable}
                                            id={isInbox ? `inboxReason${reason.id}` : reason.id}

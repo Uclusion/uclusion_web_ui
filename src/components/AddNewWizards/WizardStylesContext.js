@@ -185,9 +185,6 @@ export const wizardStyles = makeStyles(
       marginBottom: {
         marginBottom: '20px'
       },
-      maxBudgetUnit: {
-        backgroundColor: '#ecf0f1'
-      },
       wizardCommentBoxDiv: {
         maxHeight: '300px',
         paddingBottom: '0.5rem',

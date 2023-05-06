@@ -35,9 +35,6 @@ const useStyles = makeStyles((theme) => {
       margin: theme.spacing(-3, 0, 0, 6),
       paddingBottom: '2rem'
     },
-    maxBudgetUnit: {
-      backgroundColor: '#ecf0f1',
-    }
   };
 });
 

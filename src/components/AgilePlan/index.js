@@ -309,34 +309,6 @@ const useSuffixedInput = makeStyles(
   { name: "SuffixedInput" }
 );
 
-export function MaxBudget(props) {
-  const { readOnly, ...other } = props;
-  const intl = useIntl();
-
-  const classes = useSuffixedInput();
-  const formClasses = usePlanFormStyles();
-
-  return (
-    <React.Fragment>
-      <TextField
-        id="agile-plan-max-budget"
-        className={formClasses.input}
-        inputProps={{
-          className: classes.input,
-          inputMode: "numeric",
-          pattern: "[0-9]*"
-        }}
-        label={intl.formatMessage({
-          id: "maxMaxBudgetInputLabel"
-        })}
-        {...other}
-      />
-      <Typography>
-        {intl.formatMessage({ id: "maxBudgetHelp" })}
-      </Typography>
-    </React.Fragment>
-  );
-}
 export function VoteExpiration(props) {
   const { value, onChange } = props;
   const intl = useIntl();

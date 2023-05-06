@@ -114,8 +114,6 @@ function JobApproveStep(props) {
         )}
         <AddInitialVote
           marketId={marketId}
-          onBudgetChange={() => {}}
-          showBudget={false}
           onChange={onQuantityChange}
           newQuantity={approveQuantity || quantity}
           defaultReason={yourReason.body}

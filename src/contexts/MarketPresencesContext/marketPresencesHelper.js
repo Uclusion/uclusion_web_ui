@@ -8,11 +8,6 @@ export function addPresenceToMarket(dispatch, marketId, presence) {
   dispatch(addMarketPresence(marketId, presence));
 }
 
-export function getMarketUnits (intl) {
-  return [intl.formatMessage({ id: 'hours' }), intl.formatMessage({ id: 'days' }),
-    intl.formatMessage({ id: 'points' }), intl.formatMessage({ id: 'currency' })]
-}
-
 export function removeInvestibleInvestments(state, dispatch, marketId, investibleId) {
   const presences = state[marketId] || [];
   presences.forEach((presence) => {

@@ -28,7 +28,7 @@ import { scrollToElement } from '../../../contexts/ScrollContext';
 import { CLOSE_PANEL_CHANNEL } from './InboxFull';
 
 const Item = styled("div")`
-  margin-bottom: 10px;
+  margin-bottom: 1px;
   min-width: 40vw;
 `
 

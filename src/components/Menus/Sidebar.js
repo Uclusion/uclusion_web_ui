@@ -4,11 +4,10 @@ import React from 'react'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader, SubMenu } from 'react-pro-sidebar'
-import { useMediaQuery, useTheme } from '@material-ui/core'
-import Chip from '@material-ui/core/Chip'
+import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
 
 function processRegularItem(properties) {
-  const {classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
+  const {classes, history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, newPage,
     index, search, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon} = properties;
   if (!text) {
     return React.Fragment
@@ -22,17 +21,16 @@ function processRegularItem(properties) {
     )
   }
   const key = `${index}${textNoSpaces}`;
+  const backgroundColor = isBold && !isSubMenu ? '#b4d0d8' : undefined;
   return (
     <div key={`sidebarMenuHolder${key}`}>
-      <MenuItem icon={<Icon htmlColor="black" />}
-                style={{backgroundColor: isBold && !isSubMenu ? '#b4d0d8' : undefined}}
+      <MenuItem icon={<Icon htmlColor={iconColor} />}
+                style={{backgroundColor, borderRadius: 22, width: '97%',
+                marginLeft: 'auto', marginRight: 'auto'}}
                 key={key} id={textNoSpaces}
                 suffix={num > 0 ?
-                  <Chip label={`${num}`} size='small' style={{
-                    backgroundColor: 'white',
-                    fontWeight: 'bold',
-                    border: '0.5px solid grey'
-                  }} /> : (EndIcon ? <EndIcon htmlColor="white" /> : undefined)}
+                  <Typography style={{ fontWeight: 'bold', paddingRight: '0.25rem' }} >{num}</Typography>
+                  : (EndIcon ? <EndIcon htmlColor="black" /> : undefined)}
                 onClick={
                   (event) => {
                     if (onClickFunc) {
@@ -57,7 +55,7 @@ function processRegularItem(properties) {
                   }
                 }
       >
-        {isBold ? (<span style={{fontWeight: 'bold', fontSize: isLarge ? '1.5rem' : undefined}}>{text}</span>)
+        {isBold ? (<span style={{fontWeight: 'bold', fontSize: isLarge ? '1.25rem' : undefined}}>{text}</span>)
           : <span style={{fontSize: isLarge ? '1.25rem' : undefined}}>{text}</span>}
       </MenuItem>
       {!_.isEmpty(openMenuItems) && (
@@ -85,7 +83,8 @@ export default function Sidebar(props) {
         {!_.isEmpty(headerItemTextArray) && (
           <Menu onClick={listOnClick} iconShape="circle">
             {headerItemTextArray.map((navItem, topIndex) => {
-              const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, openMenuItems } = navItem;
+              const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, openMenuItems,
+                iconColor } = navItem;
               if (subItems) {
                 return (
                   <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
@@ -99,8 +98,8 @@ export default function Sidebar(props) {
                   </SubMenu>
                 );
               }
-              return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-                index: topIndex, search, openMenuItems, isLarge: true})
+              return processRegularItem({classes, history, text, target, num, Icon, iconColor, onClickFunc,
+                isBold, newPage, index: topIndex, search, openMenuItems, isLarge: true})
             })}
           </Menu>
         )}

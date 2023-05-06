@@ -21,7 +21,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import Sidebar from '../../components/Menus/Sidebar'
 import AddIcon from '@material-ui/icons/Add'
-import { Group, GroupOutlined, Inbox } from '@material-ui/icons';
+import { Group, GroupOutlined, Inbox, MoreVert } from '@material-ui/icons';
 import {
   getFirstWorkspace,
   getGroupForInvestibleId,
@@ -35,7 +35,6 @@ import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/
 import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
@@ -231,7 +230,7 @@ function Screen(props) {
       if (!_.isEmpty(search)) {
         num = (results || []).filter((item) => item.groupId === group.id);
       }
-      return {icon: myIcon, endIcon: outsetAvailable ? ExpandMoreIcon : undefined, text: group.name, num,
+      return {icon: myIcon, endIcon: outsetAvailable ? MoreVert : undefined, text: group.name, num,
         isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
@@ -268,14 +267,13 @@ function Screen(props) {
     const items = itemsRaw.filter((item) => !_.isEmpty(item));
     navListItemTextArray.push(...items);
   }
+  const inboxCount = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
   const navigationMenu =
     {
       headerItemTextArray: [
         {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(),
-          newPage: true, isBold: action?.includes('inbox'),
-          num: _.isEmpty(search) ?
-            getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState)
-            : undefined}
+          newPage: true, isBold: action?.includes('inbox'), iconColor: inboxCount > 0 ? '#E85757' : undefined,
+          num: _.isEmpty(search) ? inboxCount : undefined}
       ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
                               inactiveGroups={inactiveGroups} chosenGroup={useGroupId}/>,

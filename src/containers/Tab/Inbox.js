@@ -21,7 +21,7 @@ export function GmailTabItem(props) {
       label={
         <div className={'MuiTabItem-label'}>
           {useLabel} {tag && <span className={'MuiTabItem-tag'} style={{backgroundColor: tagColor,
-          borderRadius: 12, padding: '2.79px'}}>
+          borderRadius: 22, paddingLeft: '5px', paddingRight: '5px'}}>
           {tag} {tagLabel}</span>}
         </div>
       }

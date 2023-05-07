@@ -30,7 +30,7 @@ function processRegularItem(properties) {
                 key={key} id={textNoSpaces}
                 suffix={num > 0 ?
                   <Typography style={{ fontWeight: 'bold', paddingRight: '0.25rem' }} >{num}</Typography>
-                  : (EndIcon ? <EndIcon htmlColor="black" /> : undefined)}
+                  : (EndIcon ? <EndIcon htmlColor="black" fontSize="small" /> : undefined)}
                 onClick={
                   (event) => {
                     if (onClickFunc) {
@@ -55,8 +55,8 @@ function processRegularItem(properties) {
                   }
                 }
       >
-        {isBold ? (<span style={{fontWeight: 'bold', fontSize: isLarge ? '1.25rem' : undefined}}>{text}</span>)
-          : <span style={{fontSize: isLarge ? '1.25rem' : undefined}}>{text}</span>}
+        {isBold ? (<span style={{fontWeight: 'bold', fontSize: isLarge ? '1.2rem' : undefined}}>{text}</span>)
+          : <span style={{fontSize: isLarge ? '1.2rem' : undefined}}>{text}</span>}
       </MenuItem>
       {!_.isEmpty(openMenuItems) && (
         <div style={{paddingLeft: '1rem'}} key="openMenuItems">

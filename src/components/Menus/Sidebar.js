@@ -4,7 +4,7 @@ import React from 'react'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader, SubMenu } from 'react-pro-sidebar'
-import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { IconButton, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 
 function processRegularItem(properties) {
   const {classes, history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, newPage,
@@ -30,13 +30,17 @@ function processRegularItem(properties) {
                 key={key} id={textNoSpaces}
                 suffix={num > 0 ?
                   <Typography style={{ fontWeight: 'bold', paddingRight: '0.25rem' }} >{num}</Typography>
-                  : (EndIcon ? <EndIcon htmlColor="black" fontSize="small" /> : undefined)}
+                  : (EndIcon ? <IconButton size="small" onClick={(event) => onClickFunc(event)}>
+                      <EndIcon htmlColor="black" fontSize="small" /></IconButton>
+                    : undefined)}
                 onClick={
                   (event) => {
-                    if (onClickFunc) {
-                      onClickFunc(event)
-                    } else {
-                      navigate(history, target, false, !newPage)
+                    if (!EndIcon) {
+                      if (onClickFunc) {
+                        onClickFunc(event)
+                      } else {
+                        navigate(history, target, false, !newPage)
+                      }
                     }
                   }
                 }

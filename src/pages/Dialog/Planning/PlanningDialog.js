@@ -278,7 +278,7 @@ function PlanningDialog(props) {
                                    text={
                     <div>
                       <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
-                      be used at the workspace level and later moved to a job.
+                      be used at the group level and later moved to a job.
                     </div>
                   }/>
                 </>

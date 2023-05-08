@@ -66,6 +66,7 @@ import { getIcon } from '../../../components/Comments/CommentEdit';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import GravatarAndName from '../../../components/Avatars/GravatarAndName';
+import { getMidnightToday } from '../../../utils/timerUtils';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -473,7 +474,8 @@ function PlanningInvestible(props) {
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
 
-  function handleDateChange(date) {
+  function handleDateChange(rawDate) {
+    const date = getMidnightToday(rawDate);
     const daysEstimate = marketDaysEstimate ? new Date(marketDaysEstimate) : undefined;
     if (!_.isEqual(date, daysEstimate)) {
       const updateInfo = {

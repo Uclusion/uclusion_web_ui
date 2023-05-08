@@ -12,6 +12,7 @@ import { removeWorkListItem, workListStyles } from './WorkListItem'
 import WizardStepButtons from '../../../components/InboxWizards/WizardStepButtons'
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { getMidnightToday } from '../../../utils/timerUtils';
 
 function InvestibleStatus(props) {
   const { marketId, investibleId, message, wizardProps } = props;
@@ -39,7 +40,8 @@ function InvestibleStatus(props) {
     }
     return undefined;
   }
-  function handleDateChange(date) {
+  function handleDateChange(rawDate) {
+    const date = getMidnightToday(rawDate);
     if (!_.isEqual(date, daysEstimate) && !_.isEqual(date, newEstimate)) {
       updateFormData({ newEstimate: date });
     }

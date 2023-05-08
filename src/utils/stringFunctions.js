@@ -94,7 +94,8 @@ function convertDescriptionForSeparator(description, separator, maxLength = 80) 
               separator, maxLength, part);
             const isSubIndex = subIndex > 0;
             if (isSubIndex) {
-              extracted = extracted.substring(0, subIndex + 1);
+              const totalSubIndex = Math.min(maxLength, subIndex + 1);
+              extracted = extracted.substring(0, totalSubIndex);
             }
             if (extracted.length > maxLength && isSentenceSearch) {
               // We've found a viable sentence so need to split it up instead of moving to next sentence
@@ -126,8 +127,9 @@ function convertDescriptionForSeparator(description, separator, maxLength = 80) 
                 const emptyAmpersand = `${entryBeginElement}${ampersand}${entryEndElement}`;
                 // replaceAll not supported when running jest so use this syntax
                 latestDescription = latestDescription.split(emptyAmpersand).join('');
-                if (latestExtract.endsWith(' ')) {
-                  latestExtract = `${latestExtract.substring(0, latestExtract.length - 1)}${ampersand}`;
+                if (!isSentenceSearch) {
+                  latestExtract = `${latestExtract.substring(0, latestExtract.endsWith(' ') ? latestExtract.length - 1 
+                    : latestExtract.length)}${ampersand}`;
                 }
                 found = index;
               }

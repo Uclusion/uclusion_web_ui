@@ -5,6 +5,8 @@
 import { convertDescription } from '../src/utils/stringFunctions'
 
 it.each([["<p>Try for name. And then some.</p>", "Try for name.", "<p>And then some.</p>"],
+  ["<p>Once your free trial expires you will lose access to creating new workspaces, groups, and inviting further collaborators. Your existing collaborations will continue to work.</p>",
+  "Once your free trial expires you will lose access to creating new workspaces,...", "<p>...groups, and inviting further collaborators. Your existing collaborations will continue to work.</p>"],
   ["<p>Try for name. <b>And</b> then some.</p>", "Try for name.", "<p>And then some.</p>"],
   ["<p>Try for name <b>and</b> then something really, really long to see how splits when beyond eighty characters and again something really, really long to see how splits when beyond eighty characters and even more something really, really long to see how splits when beyond eighty characters.</p>",
     "Try for name and then something really, really long to see how splits when...",

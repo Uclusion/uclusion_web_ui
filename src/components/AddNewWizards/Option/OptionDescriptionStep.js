@@ -15,8 +15,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import {
   formCommentLink,
-  navigate,
-  navigateToOption
+  navigate
 } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -49,7 +48,7 @@ function OptionDescriptionStep (props) {
 
   const [Editor] = useEditor(editorName, editorSpec);
 
-  function createOption(createAnother) {
+  function createOption() {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -69,10 +68,8 @@ function OptionDescriptionStep (props) {
         // reset the editor box
         resetEditor(editorName, '', {placeholder: 'Your option...'});
         setUploadedFiles([]);
+        setHasValue(false)
         setOperationRunning(false);
-        if (!createAnother) {
-          navigateToOption(history, parentMarketId, parentInvestibleId, parentGroupId, inv.investible.id);
-        }
       });
   }
 

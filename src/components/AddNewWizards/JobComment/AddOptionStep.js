@@ -86,6 +86,7 @@ function AddOptionStep(props) {
         // reset the editor box
         resetEditor(editorName, '', {placeholder: 'Your option...'});
         setUploadedFiles([]);
+        setHasValue(false);
       })
   }
 

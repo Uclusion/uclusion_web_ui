@@ -44,14 +44,15 @@ function WizardStepButtons (props) {
   async function nextState(nextFunction, isOther) {
     const nextReturn = nextFunction();
     const resolved = await Promise.resolve(nextReturn);
-    if (lastStep) {
+    const isAdvance = (isOther && onOtherDoAdvance)||(!isOther && onNextDoAdvance);
+    if (lastStep && isAdvance) {
       return finish(resolved);
     } else {
       setOperationRunning(false);
       if (onIncrement) {
         onIncrement();
       } else {
-        if ((isOther && onOtherDoAdvance)||(!isOther && onNextDoAdvance)) {
+        if (isAdvance) {
           if (skipNextStep) {
             nextStep(2);
           } else {

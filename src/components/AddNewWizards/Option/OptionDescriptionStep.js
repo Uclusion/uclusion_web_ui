@@ -72,7 +72,8 @@ function OptionDescriptionStep (props) {
         setOperationRunning(false);
       });
   }
-
+  const myFinish = () => navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId,
+    parentCommentId));
   return (
     <WizardStepContainer
       {...props}
@@ -93,8 +94,8 @@ function OptionDescriptionStep (props) {
         onOtherNext={createOption}
         onOtherDoAdvance={false}
         otherNextLabel="JobCommentCreateAnotherOption"
-        onTerminate={() => navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId,
-          parentCommentId))}
+        finish={myFinish}
+        onTerminate={myFinish}
         showTerminate={true}
         terminateLabel="JobOptionTerminate"/>
     </div>

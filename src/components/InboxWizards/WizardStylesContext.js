@@ -30,6 +30,8 @@ export const wizardStyles = makeStyles(
       },
       baseCard: {
         width: '100%',
+        marginLeft: 'auto',
+        marginRight: 'auto',
         padding: '32px',
         [theme.breakpoints.down('sm')]: {
           marginTop: '0px',

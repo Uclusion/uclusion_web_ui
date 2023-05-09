@@ -19,8 +19,8 @@ function stripDangerousImageTags(html){
     const image = imageTags[x];
     image.remove();
   }
-  const filtered = sandbox.innerHTML;
-  return filtered;
+
+  return sandbox.innerHTML;
 }
 
 // NOTE: We currently allow copying and pasting the image tag for our own images
@@ -42,12 +42,11 @@ class CustomQuillClipboard extends Clipboard {
     if(isUrl(text)){
       const name = getNameForUrl(text);
       if (_.isEmpty(filteredHtml) || !_.isEmpty(name)){
-        const encoded = encodeURI(text);
         if (name) {
-          filteredHtml = `<a target="_self" href="${encoded}">${name}</a>`;
+          filteredHtml = `<a target="_self" href="${text}">${name}</a>`;
         }
         else {
-          filteredHtml = `<a href="${encoded}">${text}</a>`;
+          filteredHtml = `<a href="${text}">${text}</a>`;
         }
         text = undefined;
       }

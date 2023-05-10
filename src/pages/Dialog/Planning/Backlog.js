@@ -27,6 +27,8 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { Box, IconButton, Typography } from '@material-ui/core';
 import { KeyboardArrowLeft } from '@material-ui/icons';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import { isRead } from '../../../components/Comments/Options';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function Backlog(props) {
   const {
@@ -44,6 +46,7 @@ function Backlog(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = todoClasses();
   const [backlogState, backlogDispatch] = useReducer(getReducer(),
@@ -168,6 +171,7 @@ function Backlog(props) {
         return (
           <BacklogListItem id={investible.id} title={investible.name} date={intl.formatDate(investible.created_at)}
                            description={nameFromDescription(investible.description, 1000)}
+                           read={isRead(inv, messagesState)}
                            marketId={marketId} people={collaboratorsForInvestible} />
         );
       })}

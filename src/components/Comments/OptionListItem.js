@@ -15,7 +15,7 @@ const Item = styled("div")`
 `
 
 const Div = styled("div")`
-  height: 40px;
+  height: 45px;
   display: flex;
   align-items: center;
   box-shadow: inset 0 -1px 0 0 rgba(100, 121, 143, 0.122);
@@ -131,10 +131,8 @@ function OptionListItem(props) {
                 </DateLabel>
               )}
               {_.isEmpty(people) || showExpansion ? React.Fragment :
-                <GravatarGroup users={people} className={classes.gravatarStyle} /> }
-              {mobileLayout && (
-                <div style={{paddingRight: '1rem'}} />
-              )}
+                <GravatarGroup users={people} className={classes.gravatarStyle}  /> }
+              <div style={{paddingRight: '1rem'}} />
             </Div>
           </div>
           <div id={`optionListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',

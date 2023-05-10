@@ -29,131 +29,120 @@ function stripHTML(foundSubstring) {
   return undefined;
 }
 
-function largestIndexOf(extracted, separator, maxLength) {
-  const largest = extracted.lastIndexOf(separator, maxLength);
-  if (largest < 0) {
-    // Could not find anything within maxLength so give up
-    return largest;
-  }
-  if (separator.includes('.')) {
-    // If it's a sentence then stop on first which is guaranteed less than maxLength by above
-    return extracted.indexOf(separator);
-  }
-  // Otherwise get as much as possible hoping for context
-  return largest;
+function processForName(htmlElementNames, description) {
+  const elements = [];
+  htmlElementNames.forEach((htmlComponent) => {
+    const entryBeginElement = `<${htmlComponent}>`;
+    const entryEndElement = `</${htmlComponent}>`;
+    if ((description || '').includes(entryEndElement)) {
+      const parts = description.split(entryEndElement) || [];
+      parts.forEach((aPart) => {
+        if (!_.isEmpty(aPart)) {
+          let fullElement = aPart.substring(aPart.indexOf(entryBeginElement));
+          if (!fullElement.endsWith(entryEndElement)) {
+            fullElement += entryEndElement;
+          }
+          const strippedElement = stripHTML(fullElement);
+          if (!_.isEmpty(strippedElement)) {
+            const hasInteriorHtml = strippedElement.length <
+              fullElement.length - entryBeginElement.length - entryEndElement.length;
+            elements.push({ strippedElement, fullElement, hasInteriorHtml });
+          }
+        }
+      });
+    }
+  });
+  return elements;
 }
 
-function matchingIndexOf(extracted, maxLength, description, index, separator, part ) {
-  const indexSubstring = description.substring(index);
-  const subIndexAfter = separator.includes('.') ? indexSubstring.indexOf(separator)
-    : indexSubstring.lastIndexOf(separator, maxLength + (part.length - extracted.length));
-  return index + subIndexAfter + separator.length;
+function removePrefix(fullElement, description) {
+  if (!description.startsWith(fullElement)) {
+    return description;
+  }
+  const candidate = description.substring(fullElement.length);
+  if (_.isEmpty(stripHTML(candidate))) {
+    return "";
+  }
+  return candidate;
 }
 
-function getBestSeparatorLocation(extracted, index, description, separator, maxLength, part) {
-  const indexMap = { subIndex: -1, descriptionSubIndex: -1 };
-
-  const subIndex = largestIndexOf(extracted, separator, maxLength);
-
-  if (subIndex < 0) {
-    return indexMap;
+function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, maxLength, fullElement,
+  isFallbackFullDescription) {
+  let extracted = strippedElement || '';
+  if (extracted.length <= maxLength) {
+    if (fullElement) {
+      return { name: extracted, description: removePrefix(fullElement, description) };
+    }
+    return { name: extracted, description };
   }
-
-  const descriptionSubIndex = matchingIndexOf(extracted, maxLength, description, index, separator, part);
-
-  if (descriptionSubIndex < 0) {
-    return indexMap;
+  const sentencePosition = strippedElement.indexOf('.');
+  if (sentencePosition > 0) {
+    extracted = strippedElement.substring(0, sentencePosition);
   }
-
-  return { subIndex, descriptionSubIndex };
+  if (extracted.length > maxLength - 3) {
+    let lastIndex = extracted.lastIndexOf(' ', maxLength - 3);
+    if (lastIndex < 0) {
+      lastIndex = maxLength - 3;
+    }
+    extracted = extracted.substring(0, lastIndex);
+  }
+  if (isFallbackFullDescription) {
+    return { name: `${extracted}...`, description };
+  }
+  let splitDescription = description.substring(3 + extracted.length);
+  if (splitDescription.startsWith(' ')) {
+    splitDescription = splitDescription.substring(1);
+  }
+  return { name: `${extracted}...`, description: `<p>...${splitDescription}` };
 }
 
-function convertDescriptionForSeparator(description, separator, maxLength = 80) {
+export function convertDescription(description, maxLength = 80) {
   const nameDescriptionMap = { name: undefined, description };
   if (_.isEmpty(description)) {
     return nameDescriptionMap;
   }
-  const isSentenceSearch = separator === ". ";
-  const ampersand = isSentenceSearch ? '' : '...';
-  const list = ["p", "li", "td", "h1", "h2"];
-  let found = -1;
-  let latestExtract = undefined;
-  let latestDescription = undefined;
-  list.forEach((htmlComponent) => {
-    const entryBeginElement = `<${htmlComponent}>`;
-    const entryEndElement = `</${htmlComponent}>`;
-    let parts = description.split(entryBeginElement) || [];
-    if (parts.length >= 2) {
-      for (const wholePart of parts) {
-        if (!_.isEmpty(wholePart) && wholePart.includes(entryEndElement)) {
-          const index = description.indexOf(wholePart);
-          const part = wholePart.substring(0, wholePart.indexOf(entryEndElement));
-          let extracted = stripHTML(part);
-          if (!_.isEmpty(extracted)) {
-            const { subIndex, descriptionSubIndex } = getBestSeparatorLocation(extracted, index, description,
-              separator, maxLength, part);
-            const isSubIndex = subIndex > 0;
-            if (isSubIndex) {
-              const totalSubIndex = Math.min(maxLength, subIndex + 1);
-              extracted = extracted.substring(0, totalSubIndex);
-            }
-            if (extracted.length > maxLength && isSentenceSearch) {
-              // We've found a viable sentence so need to split it up instead of moving to next sentence
-              return convertDescriptionForSeparator(description, " ", maxLength - 3);
-            }
-            if (extracted.length <= maxLength) {
-              if (found < 0 || index < found || (index === found &&
-                (!latestExtract || extracted.length < latestExtract.length))) {
-                latestExtract = extracted;
-                let indexAfter = index + description.substring(index).indexOf(entryEndElement);
-                if (isSubIndex) {
-                  indexAfter = descriptionSubIndex;
-                }
-                let beforePartIndex = description.substring(0, index).lastIndexOf(entryBeginElement);
-                if (beforePartIndex < 0) {
-                  beforePartIndex = 0;
-                }
-                latestDescription = `${description.substring(0, beforePartIndex + entryBeginElement.length)}${ampersand}${description.substring(indexAfter)}`;
-                //Remove html from the part between the components to avoid dangling or unclosed html
-                const endElementPosition = latestDescription.indexOf(entryEndElement);
-                const endElementPart = latestDescription.substring(entryBeginElement.length, endElementPosition);
-                if (endElementPart.indexOf('<img') < 0) {
-                  // Only strip out html if no img tags
-                  const latestDescriptionInnerStripped = stripHTML(endElementPart);
-                  if (!_.isEmpty(latestDescriptionInnerStripped)) {
-                    latestDescription = `${entryBeginElement}${latestDescriptionInnerStripped}${latestDescription.substring(endElementPosition)}`;
-                  }
-                }
-                const emptyAmpersand = `${entryBeginElement}${ampersand}${entryEndElement}`;
-                // replaceAll not supported when running jest so use this syntax
-                latestDescription = latestDescription.split(emptyAmpersand).join('');
-                if (!isSentenceSearch) {
-                  latestExtract = `${latestExtract.substring(0, latestExtract.endsWith(' ') ? latestExtract.length - 1 
-                    : latestExtract.length)}${ampersand}`;
-                }
-                found = index;
-              }
-            }
-          }
-        }
-      }
-    }
-  });
-  if (latestExtract) {
-    nameDescriptionMap.name = latestExtract;
-    nameDescriptionMap.description = latestDescription;
-  }
-  return nameDescriptionMap;
-}
 
-export function convertDescription(description, maxLength = 80) {
-  const nameDescriptionMap = convertDescriptionForSeparator(description, ". ", maxLength);
-  const { name } = nameDescriptionMap;
-  if (!_.isEmpty(name)) {
-    return nameDescriptionMap;
+  const hElements = processForName(["h1", "h2"], description);
+  const startsWithHElement = hElements.find((element) => element.isStartsWith);
+  if (startsWithHElement) {
+    return addSentenceAwareAmpersandRemoveDuplicate(startsWithHElement.strippedElement, description, maxLength,
+      startsWithHElement.fullElement, true);
   }
-  // Substract 3 to allow for ampersand
-  return convertDescriptionForSeparator(description, " ", maxLength - 3);
+  const notStartsWithHElement = hElements.find((element) => !element.isStartsWith);
+  if (notStartsWithHElement) {
+    return addSentenceAwareAmpersandRemoveDuplicate(notStartsWithHElement.strippedElement, description, maxLength,
+      undefined, true);
+  }
+
+  const pElements = processForName(["p"], description);
+  if (!_.isEmpty(pElements)) {
+    const firstPElement = pElements[0];
+    const { hasInteriorHtml } = firstPElement;
+    if (hasInteriorHtml) {
+      const interiorElments = processForName(["li", "td"], firstPElement.fullElement);
+      if (!_.isEmpty(interiorElments)) {
+        // collapsing a table into the name doesn't make sense but can take a row out of it
+        const firstInterior = interiorElments[0];
+        return addSentenceAwareAmpersandRemoveDuplicate(firstInterior.strippedElement, description, maxLength,
+          undefined, true);
+      }
+      // This includes b and i interior elements - duplicate them in the description so meaning not lost
+      return addSentenceAwareAmpersandRemoveDuplicate(firstPElement.strippedElement, description, maxLength,
+        undefined, true);
+    }
+    return addSentenceAwareAmpersandRemoveDuplicate(firstPElement.strippedElement, description, maxLength,
+      firstPElement.fullElement);
+  }
+
+  // Could be no p element and just a table
+  const outsideElements = processForName(["li", "td"], description);
+  if (_.isEmpty(outsideElements)) {
+    const firstOutside = outsideElements[0];
+    return addSentenceAwareAmpersandRemoveDuplicate(firstOutside.strippedElement, description, maxLength,
+      undefined, true);
+  }
+
+  return nameDescriptionMap;
 }
 
 export function nameFromDescription(description, maxLength = 80) {

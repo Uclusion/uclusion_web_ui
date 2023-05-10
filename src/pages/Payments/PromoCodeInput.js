@@ -7,6 +7,8 @@ import { updateAccount } from '../../contexts/AccountContext/accountContextHelpe
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { makeStyles, useTheme } from '@material-ui/styles';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import WizardStepButtons from '../../components/InboxWizards/WizardStepButtons';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -33,6 +35,8 @@ const useStyles = makeStyles((theme) => {
 
 
 function PromoCodeInput(props) {
+  const { wizardProps, onSubmit } = props;
+  const intl = useIntl();
   const [activePromo, setActivePromo] = useState({});
   const [promoBoxValue, setPromoBoxValue] = useState('');
   const [, accountDispatch] = useContext(AccountContext);
@@ -84,14 +88,16 @@ function PromoCodeInput(props) {
         value={promoBoxValue} onChange={promoBoxOnChange}
         placeholder="Your Code"
       />
-      <SpinningButton
-        className={classes.applyPromoButton}
-        disabled={_.isEmpty(promoBoxValue)}
-        id="applyPromoButton"
-        onClick={validatePromo}
-      >
-        Apply Promo Code
-      </SpinningButton>
+      {!wizardProps && (
+        <SpinningButton
+          className={classes.applyPromoButton}
+          disabled={_.isEmpty(promoBoxValue)}
+          id="applyPromoButton"
+          onClick={validatePromo}
+        >
+          {intl.formatMessage({id: 'ApplyPromoCode'})}
+        </SpinningButton>
+      )}
       { invalidPromoGiven && !reused && (
         <Typography>
           Promo Code {code} is not valid
@@ -107,6 +113,19 @@ function PromoCodeInput(props) {
         <Typography>
           Promo Code {code} applied.
         </Typography>
+      )}
+      {wizardProps && (
+        <div style={{marginTop: '3rem'}}>
+          <WizardStepButtons
+            {...wizardProps}
+            onFinish={onSubmit}
+            validForm={!_.isEmpty(promoBoxValue)}
+            nextLabel="ApplyPromoCode"
+            onNext={validatePromo}
+            showTerminate={wizardProps.message.is_highlighted}
+            terminateLabel='defer'
+          />
+        </div>
       )}
     </div>
 

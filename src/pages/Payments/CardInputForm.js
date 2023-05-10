@@ -18,6 +18,8 @@ import {
 } from '../../contexts/AccountContext/accountContextHelper';
 import clsx from 'clsx';
 import Button from '@material-ui/core/Button';
+import WizardStepButtons from '../../components/InboxWizards/WizardStepButtons';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 // this is used to style the Elements Card component
 const CARD_OPTIONS = {
   iconStyle: 'solid',
@@ -82,7 +84,7 @@ const EMPTY_DETAILS = { name: '', email: '', phone: '' };
 
 function CardInputForm (props) {
 
-  const { onUpdate, onSubmit, submitLabelId, onCancel } = props;
+  const { onUpdate, onSubmit, submitLabelId, onCancel, wizardProps } = props;
 
   const classes = useStyles();
   const stripe = useStripe();
@@ -91,8 +93,7 @@ function CardInputForm (props) {
 
   const [, accountDispatch] = useContext(AccountContext);
   const [cardComplete, setCardComplete] = useState(false);
-  // we have to manage our own processing state because it's a form submit
-  const [processing, setProcessing] = useState(false);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [error, setError] = useState(null);
   const [billingDetails, setBillingDetails] = useState(EMPTY_DETAILS);
   const billingDetailsValid = !_.isEmpty(billingDetails.name)
@@ -103,22 +104,14 @@ function CardInputForm (props) {
 
   function resetForm () {
     setError(null);
-    setProcessing(false);
     setBillingDetails(EMPTY_DETAILS);
   }
 
   function myOnSubmit (e) {
-    e.preventDefault();
-    if (!stripe || !elements) {
-      return; //abort
+    if (e) {
+      e.preventDefault();
     }
-    if (error) {
-      elements.getElement('card').focus();
-      return;
-    }
-    if (cardComplete) {
-      setProcessing(true);
-    }
+    setOperationRunning(true);
     const updateBillingSubmit = (paymentResult) => {
       return updatePaymentInfo(paymentResult.paymentMethod.id)
         .then((upgradedAccount) => {
@@ -127,6 +120,7 @@ function CardInputForm (props) {
         }).then((info) => {
           updateBilling(accountDispatch, info);
           resetForm();
+          setOperationRunning(false);
           onUpdate();
         });
     };
@@ -137,11 +131,11 @@ function CardInputForm (props) {
       billing_details: billingDetails
     })).then((paymentResult) => {
       // console.log('Payment method creation successful');
-      return updateBillingSubmit(paymentResult, resetForm)
+      return updateBillingSubmit(paymentResult)
         .then(() => onSubmit());
-    }).catch((e) => {
-      setError(e.error || e.error_message);
-      setProcessing(false);
+    }).catch((err) => {
+      setError(err.error || err.error_message);
+      setOperationRunning(false);
     });
 
   }
@@ -223,33 +217,45 @@ function CardInputForm (props) {
               onChange={onBillingDetailsChange('phone')}
             />
           </Grid>
-          <div className={classes.buttonBox}>
-            <div>
-              <Button
-                className={classes.cancelButton}
-                onClick={onCancel}
-              >
-                {intl.formatMessage({ id: 'cancel' })}
-              </Button>
-            </div>
+          {!wizardProps && (
+            <div className={classes.buttonBox}>
+              <div>
+                <Button
+                  className={classes.cancelButton}
+                  onClick={onCancel}
+                >
+                  {intl.formatMessage({ id: 'cancel' })}
+                </Button>
+              </div>
 
-            <div className={classes.buttonSpacer}>&nbsp;</div>
-            <div>
-              <SpinningButton
-                spinning={processing}
-                variant="contained"
-                className={clsx(
-                  classes.submit,
-                  classes.action,
-                  classes.actionPrimary
-                )}
-                type="submit"
-                disabled={!validForm}
-              >
-                {intl.formatMessage({ id: submitLabelId })}
-              </SpinningButton>
+              <div className={classes.buttonSpacer}>&nbsp;</div>
+              <div>
+                <SpinningButton
+                  variant="contained"
+                  className={clsx(
+                    classes.submit,
+                    classes.action,
+                    classes.actionPrimary
+                  )}
+                  type="submit"
+                  disabled={!validForm}
+                >
+                  {intl.formatMessage({ id: submitLabelId })}
+                </SpinningButton>
+              </div>
             </div>
-            </div>
+          )}
+          {wizardProps && (
+            <WizardStepButtons
+              {...wizardProps}
+              onFinish={onSubmit}
+              validForm={validForm}
+              nextLabel="WizardPaymentInfo"
+              onNext={() => myOnSubmit()}
+              showTerminate={wizardProps.message.is_highlighted}
+              terminateLabel='defer'
+            />
+          )}
         </Grid>
       </form>
       </div>

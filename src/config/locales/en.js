@@ -923,6 +923,10 @@ const messages = defineMessages({
   // payment info
   paymentInfoButtonAdd: 'Add a Card',
   paymentInfoButtonUpdate: 'Update your Card',
+  WizardPaymentInfo: 'Add or Update Card',
+  WizardPromoInfo: 'Apply Promotion Code',
+  DecidePayTitle: 'How will you pay?',
+  ApplyPromoCode: 'Apply Promo Code',
 
   // upgrade form
   upgradeFormCardName: 'Cardholder Name',

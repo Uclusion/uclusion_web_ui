@@ -46,6 +46,7 @@ import EstimateChangeWizard from '../../../components/InboxWizards/Monitor/Estim
 import ReplyWizard from '../../../components/InboxWizards/Reply/ReplyWizard';
 import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/OptionSubmittedWizard';
 import FeedbackWizard from '../../../components/InboxWizards/Feedback/FeedbackWizard';
+import UpgradeWizard from '../../../components/InboxWizards/Upgrade/UpgradeWizard';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -62,7 +63,10 @@ export function calculateTitleExpansionPanel(props) {
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted,
     type_object_id: typeObjectId, decision_investible_id: decisionInvestibleId } = message;
-  if (isOutboxAccepted) {
+  if (messageType === 'USER_POKED') {
+    setItem(item, openExpansion, <UpgradeWizard message={message} inboxDispatch={inboxDispatch} />,
+      'DecidePayTitle', intl);
+  } else if (isOutboxAccepted) {
     setItem(item, openExpansion, <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}
                                                rowId={message.id} inboxDispatch={inboxDispatch} />,
       'DecideAssignTitle', intl);

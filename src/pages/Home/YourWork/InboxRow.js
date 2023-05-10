@@ -56,7 +56,7 @@ function InboxRow(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
-    comment_market_id: commentMarketId, is_highlighted: isHighlighted } = message;
+    comment_market_id: commentMarketId, is_highlighted: isHighlighted, type: messageType } = message;
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned, stage } = marketInfo;
@@ -108,6 +108,9 @@ function InboxRow(props) {
 
   item.title =  titleText(message, mobileLayout, intl, rootComment, userId,
     fullStage.allows_investment, assigned);
+  if (messageType === 'USER_POKED') {
+    item.market = intl.formatMessage({id: 'pleaseUpgrade'});
+  }
   calculateTitleExpansionPanel({ item, inboxDispatch,
     openExpansion: expansionOpen, intl });
   return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}

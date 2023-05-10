@@ -60,9 +60,10 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   borderLeft: {
-    padding: '2rem',
+    paddingLeft: '2rem',
+    paddingTop: '2rem',
     marginBottom: '-42px',
-    marginTop: '-42px',
+    marginTop: '-23px',
   },
   content: {
     fontSize: "15 !important",
@@ -309,7 +310,7 @@ function DecisionInvestible(props) {
     )}
   </CardActions>;
   return (
-    <div style={{marginLeft: mobileLayout ? '1rem' : '2rem', marginRight: mobileLayout ? '1rem' : '2rem',
+    <div style={{marginLeft: mobileLayout ? '1rem' : '2rem', marginRight: mobileLayout ? '1rem' : undefined,
       marginBottom: '1rem'}} id={`option${investibleId}`}>
       <div className={classes.root} id="optionMain">
         <CardType

@@ -87,6 +87,7 @@ function OptionListItem(props) {
     id,
     expansionPanel,
     expansionOpen,
+    questionResolved,
     isNotSynced = false
   } = props;
   const classes = workListStyles();
@@ -103,7 +104,7 @@ function OptionListItem(props) {
 
   return (
     <>
-      <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable>
+      <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable={!questionResolved}>
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }} id={`link${id}`} key={`link${id}`}
                onClick={
@@ -137,7 +138,7 @@ function OptionListItem(props) {
             </Div>
           </div>
           <div id={`optionListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
-            height: expansionOpen ? undefined : 0}}>
+            height: expansionOpen ? undefined : 0}} draggable={false}>
             {expansionPanel || <React.Fragment />}
           </div>
         </RaisedCard>

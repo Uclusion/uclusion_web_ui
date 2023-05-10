@@ -57,6 +57,7 @@ function OptionVoting(props) {
     return (
       <OptionListItem id={investibleId} expansionPanel={expansionPanel} read={isRead(inv, messagesState)}
                       people={investors} description={description} title={inv.investible.name}
+                      questionResolved={inArchives}
                       expandOrContract={() => {
                         if (expansionOpen) {
                           setSelectedInvestibleId(undefined);

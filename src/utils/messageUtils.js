@@ -132,6 +132,12 @@ export function findMessagesForCommentId(commentId, state) {
   return safeMessages.filter((message) => message.comment_id === commentId && !message.deleted);
 }
 
+export function findMessagesForUserPoked(state) {
+  const { messages } = (state || {});
+  const safeMessages = messages || [];
+  return safeMessages.filter((message) => message.type === 'USER_POKED' && !message.deleted);
+}
+
 export function removeMessagesForCommentId(commentId, state, removeClass) {
   const messages = findMessagesForCommentId(commentId, state) || [];
   messages.forEach((message) => {

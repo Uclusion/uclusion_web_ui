@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react';
 import { useLocation } from 'react-router'
 import PropTypes from 'prop-types'
 import { useIntl } from 'react-intl'
@@ -36,6 +36,10 @@ import JobStageWizard from '../../components/AddNewWizards/JobStage/JobStageWiza
 import ApprovalWizard from '../../components/AddNewWizards/Approval/ApprovalWizard';
 import JobCommentConfigureWizard from '../../components/AddNewWizards/CommentConfigure/JobCommentConfigureWizard';
 import OptionWizard from '../../components/AddNewWizards/Option/OptionWizard';
+import { findMessagesForUserPoked } from '../../utils/messageUtils';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
+import _ from 'lodash';
+import DismissableText from '../../components/Notifications/DismissableText';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -44,6 +48,25 @@ function Wizard(props) {
   const values = queryString.parse(hash);
   const { type: createType, marketId, groupId, assigneeId, investibleId, commentId, commentType, voteFor } = values;
   const intl = useIntl();
+  const [messagesState] = useContext(NotificationsContext);
+  const upgradeMessages = findMessagesForUserPoked(messagesState);
+
+  if (!_.isEmpty(upgradeMessages)) {
+    return (
+      <Screen
+        title={intl.formatMessage({ 'id': 'wizardBreadCrumb' })}
+        tabTitle={intl.formatMessage({ id: 'wizardBreadCrumb' })}
+        hidden={hidden}
+      >
+        <DismissableText textId="updradeHelp" display noPad
+                         text={
+                           <div>
+                             Uclusion will be read only until an account payment method is resolved.
+                           </div>
+                         }/>
+      </Screen>
+    );
+  }
 
   return (
     <Screen

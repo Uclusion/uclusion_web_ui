@@ -822,7 +822,7 @@ const messages = defineMessages({
   signupPasswordRepeatLabel: 'Repeat Password',
   signupPasswordRepeatHelper: 'Must match Password',
   signupSignupLabel: 'Create Account',
-  signupTitle: 'Try for Free',
+  signupTitle: 'Try for free.',
   signupHaveAccount: 'Already have an account? Sign in',
   signupAccountExists: 'An account with that email already exists, please log in.',
   signupAccountExistsLoginLink: 'Log In',

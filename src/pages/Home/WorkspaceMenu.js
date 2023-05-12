@@ -44,13 +44,13 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'none',
     border: '1px solid',
     borderRadius: '8px',
-    fontSize: '1.25rem',
+    fontSize: '1rem',
     marginLeft: 'auto',
     marginRight: 'auto',
     display: 'flex',
     width: '90%',
     '& .MuiButton-label': {
-      lineHeight: '.7'
+      lineHeight: '1.2'
     },
     [theme.breakpoints.down('sm')]: {
       width: 'auto',

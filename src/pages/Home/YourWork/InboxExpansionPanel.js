@@ -6,7 +6,7 @@ import {
   hasNoChannels
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import LoadingDisplay from '../../../components/LoadingDisplay'
-import { PersonAddOutlined } from '@material-ui/icons'
+import { Assignment, PersonAddOutlined } from '@material-ui/icons';
 import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
@@ -23,7 +23,6 @@ import IssueIcon from '@material-ui/icons/ReportProblem'
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import RateReviewIcon from '@material-ui/icons/RateReview'
 import { getMarketInfo } from '../../../utils/userFunctions'
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { useInvestibleVoters } from '../../../utils/votingUtils'
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { Typography } from '@material-ui/core'
@@ -384,7 +383,7 @@ export function getOutboxMessages(props) {
       const notAccepted = investible.notAccepted;
       const label = notAccepted ? 'planningUnacceptedLabel' : 'startJobQ';
       const messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
-        <ThumbsUpDownIcon style={{ fontSize: 24, color: '#ffc61a', }}/>;
+        <Assignment style={{ fontSize: 24, color: '#ffc61a', }}/>;
       const message = getMessageForInvestible(investible, market, label, messageIcon, intl,
         notAccepted ? 'UNASSIGNED' : 'UNREAD_VOTE')
       const { votes_required: votesRequired } = market

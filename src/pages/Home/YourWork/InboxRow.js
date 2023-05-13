@@ -13,7 +13,7 @@ import React, { useContext } from 'react'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { Assignment, PersonAddOutlined } from '@material-ui/icons'
+import { Assignment, Block, PersonAddOutlined } from '@material-ui/icons';
 import Quiz from '../../../components/CustomChip/Quiz'
 import { useIntl } from 'react-intl'
 import { useMediaQuery, useTheme } from '@material-ui/core'
@@ -23,12 +23,34 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { messageIsSynced } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
+import QuestionIcon from '@material-ui/icons/ContactSupport';
+import RateReviewIcon from '@material-ui/icons/RateReview';
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted } = message;
-  const Icon = isAssigned ? Assignment :
-    (['UNASSIGNED', 'UNREAD_DRAFT', 'UNREAD_GROUP'].includes(message.type) || (message.type === 'UNREAD_REVIEWABLE'
-      && linkType === 'MARKET_TODO') ? PersonAddOutlined : Quiz);
+  let Icon = Quiz;
+  if (isAssigned) {
+    Icon = Assignment;
+  }
+  if (['UNASSIGNED', 'UNREAD_GROUP'].includes(message.type) || (message.type === 'UNREAD_REVIEWABLE'
+      && linkType === 'MARKET_TODO')) {
+    Icon = PersonAddOutlined;
+  }
+  if (message.type === 'NOT_FULLY_VOTED') {
+    Icon = ThumbsUpDownIcon;
+  }
+  if (message.type === 'ISSUE') {
+    if (linkType.includes('QUESTION')) {
+      Icon = QuestionIcon;
+    } else {
+      Icon = Block;
+    }
+  }
+  if (message.type?.includes('REVIEW')) {
+    Icon = RateReviewIcon;
+  }
+
   if (!isHighlighted) {
     return <Icon style={{fontSize: 24, color: '#706f6f'}}/>;
   }

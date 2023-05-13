@@ -47,7 +47,7 @@ function getPriorityIcon(message, isAssigned) {
       Icon = Block;
     }
   }
-  if (message.type?.includes('REVIEW')) {
+  if (message.type?.includes('REVIEW') && !isAssigned) {
     Icon = RateReviewIcon;
   }
 

@@ -21,7 +21,6 @@ import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE 
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import IssueIcon from '@material-ui/icons/ReportProblem'
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
-import RateReviewIcon from '@material-ui/icons/RateReview'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { useInvestibleVoters } from '../../../utils/votingUtils'
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
@@ -356,7 +355,7 @@ export function getOutboxMessages(props) {
       const investibleComments = getCommentsSortedByType(comments, investibleId, false);
       const outboxMessage = getMessageForInvestible(investible, market,
         _.isEmpty(investibleComments) ? 'finishJobQ' : 'restartJobQ',
-        <RateReviewIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, 'UNREAD_REVIEWABLE');
+        <Assignment style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, 'UNREAD_REVIEWABLE');
       const marketInfo = getMarketInfo(investible, market.id);
       if (!_.isEmpty(marketInfo.required_reviews)) {
         //add required reviewers with no comment

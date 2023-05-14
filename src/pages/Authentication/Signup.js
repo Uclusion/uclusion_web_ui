@@ -16,7 +16,6 @@ import { getMarketInfoForToken, resendVerification, signUp } from '../../api/sso
 import ApiBlockingButton from '../../components/SpinBlocking/ApiBlockingButton'
 import config from '../../config'
 import SpinningButton from '../../components/SpinBlocking/SpinningButton'
-import PhoneField, { phoneChecker } from '../../components/TextFields/PhoneField'
 import { Auth } from 'aws-amplify'
 import { redirectFromHistory, setEmail, setRedirect, setUtm } from '../../utils/redirectUtils'
 import { GithubLoginButton } from 'react-social-login-buttons'
@@ -168,7 +167,6 @@ function Signup(props) {
     name: '',
     email: qryEmail ? qryEmail : '',
     password: '',
-    phone: '',
     repeat: '',
     terms: false,
   };
@@ -265,13 +263,8 @@ function Signup(props) {
     form.preventDefault();
     setCallActive(true);
     // the backend will fail unless only the keys it's need are passed, so extract them
-    const { name, email, password, phone: rawPhoneNumber } = userState;
-    let phone = rawPhoneNumber && !rawPhoneNumber.startsWith('+') && rawPhoneNumber.toString().length === 10 ?
-      '+01' + rawPhoneNumber : rawPhoneNumber;
-    if (phone && !phone.startsWith('+')) {
-      phone = '+' + phone;
-    }
-    const signupData = { name, email, password, code, phone };
+    const { name, email, password } = userState;
+    const signupData = { name, email, password, code };
     let redirect = getRedirect();
     return signUp(signupData, redirect).then((result) => {
       const { response, user } = result;
@@ -302,7 +295,7 @@ function Signup(props) {
     );
   }
 
-  const { name, email, password, repeat, terms, phone } = userState;
+  const { name, email, password, repeat, terms } = userState;
 
   if (authState !== 'signUp' || !_.isEmpty(signUpWith)) {
     return <></>;
@@ -366,8 +359,7 @@ function Signup(props) {
   }
 
   const noEmailInput = _.isEmpty(qryEmail) && _.isEmpty(email) && _.isEmpty(name);
-  const phoneValid = _.isEmpty(phone) || phoneChecker.test(phone);
-  const formInvalid = !phoneValid || !terms || _.isEmpty(name) || (_.isEmpty(email) && _.isEmpty(code)) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
+  const formInvalid = !terms || _.isEmpty(name) || (_.isEmpty(email) && _.isEmpty(code)) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline/>
@@ -531,18 +523,6 @@ function Signup(props) {
                     />
                   </Grid>
                 )}
-                <Grid item xs={12}>
-                  <PhoneField
-                    variant="outlined"
-                    value={userState.phone}
-                    label={intl.formatMessage({ id: 'signupPhoneLabel' })}
-                    onChange={handleChange('phone')}
-                    name="phone"
-                    type="tel"
-                    id="phone"
-                    fullWidth
-                  />
-                </Grid>
                 <Grid item xs={12}>
                   <TextField
                     value={userState.password}

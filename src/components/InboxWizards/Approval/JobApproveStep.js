@@ -7,9 +7,12 @@ import WizardStepButtons from '../WizardStepButtons';
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
-import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
-import { addMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { editorEmpty, resetEditor } from '../../TextEditors/Utilities/CoreUtils';
+import { addMarketComments, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import {
+  getReasonForVote,
+  partialUpdateInvestment
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import _ from 'lodash';
@@ -30,7 +33,7 @@ export function getJobApproveEditorName(investibleId) {
 function JobApproveStep(props) {
   const { marketId, updateFormData, formData, onFinish: parentOnFinish, message, investibleId,
     yourVote } = props;
-  const [, commentsDispatch] = useContext(CommentsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -45,6 +48,8 @@ function JobApproveStep(props) {
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { group_id: groupId } = marketInfo;
+  const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
+  const yourReason = getReasonForVote(yourVote, marketComments);
 
   function onNext(isGotoJob) {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;
@@ -131,6 +136,7 @@ function JobApproveStep(props) {
           onEditorChange={onApproveChange('approveReason')}
           onUpload={onApproveChange('approveUploadedFiles')}
           editorName={editorName}
+          defaultReason={!editorEmpty(yourReason?.body) ? yourReason?.body : undefined}
         />
         <div className={classes.borderBottom}/>
         <WizardStepButtons

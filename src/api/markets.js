@@ -143,17 +143,6 @@ export function getGroupMembers(marketId, groupIds) {
     .then((client) => client.markets.listGroupMembers(groupIds));
 }
 
-export function lockGroupForEdit(marketId, groupId, breakLock) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.lock(groupId, breakLock))
-    .catch((error) => toastErrorAndThrow(error, 'errorEditLockFailed'));
-}
-
-export function unlockGroupForEdit(marketId, groupId) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.unlock(groupId))
-}
-
 export function getMarketUsers(marketId) {
   if (!marketId) {
     console.error('No marketId');

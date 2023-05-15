@@ -29,7 +29,7 @@ import { CLOSE_PANEL_CHANNEL } from './InboxFull';
 
 const Item = styled("div")`
   margin-bottom: 1px;
-  min-width: 40vw;
+  min-width: 80vw;
 `
 
 const Div = styled("div")`
@@ -187,7 +187,7 @@ function WorkListItem(props) {
   }
   const showExpansion = isHovered && !isNotSynced;
   return (
-    <Item key={`workListItem${id}`} id={`workListItem${id}`} style={{minWidth: useSelect ? undefined : '80vw'}}>
+    <Item key={`workListItem${id}`} id={`workListItem${id}`}>
       <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
         <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }} id={`link${id}`} key={`link${id}`}
              onClick={

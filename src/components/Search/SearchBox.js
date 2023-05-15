@@ -14,14 +14,37 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import CloseIcon from '@material-ui/icons/Close';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
+import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
+import { useLocation } from 'react-router';
+import queryString from 'query-string';
+import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { getInvestibleName } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 
 function SearchBox () {
+  const location = useLocation();
+  const { pathname, search: querySearch } = location;
+  const { marketId, investibleId } = decomposeMarketPath(pathname);
+  const values = queryString.parse(querySearch);
+  const { groupId } = values || {};
   const intl = useIntl();
   const [index] = useContext(SearchIndexContext);
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
+  const [groupState] = useContext(MarketGroupsContext);
+  const [investibleState] = useContext(InvestiblesContext);
   const inputRef = React.useRef(null);
+  let searchedName;
+  if (marketId && groupId) {
+    const group = getGroup(groupState, marketId, groupId) || {};
+    searchedName = group.name;
+  } else if (investibleId) {
+    searchedName = getInvestibleName(investibleState, investibleId);
+  } else {
+    searchedName = intl.formatMessage({id: 'inbox'});
+  }
 
   function getInvestibleParents(result) {
     const parentResults = [];
@@ -129,7 +152,7 @@ function SearchBox () {
           }
         }}
         inputRef={inputRef}
-        placeholder={intl.formatMessage({ id: 'searchBoxPlaceholder' })}
+        placeholder={`${intl.formatMessage({ id: 'searchBoxPlaceholder' })} ${searchedName}`}
         size="small"
         defaultValue={searchResults.search}
         InputProps={{

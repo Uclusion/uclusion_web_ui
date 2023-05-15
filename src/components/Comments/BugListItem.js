@@ -24,7 +24,7 @@ import { useIntl } from 'react-intl';
 
 const Item = styled("div")`
   margin-bottom: 10px;
-  min-width: 40vw;
+  min-width: 80vw;
 `
 
 const Div = styled("div")`
@@ -90,7 +90,6 @@ const TitleB
 
 const DateLabel = styled(Text)`
   font-size: 14px;
-  min-width: 10vw;
   flex-basis: 100px;
   flex-shrink: 0;
   padding-right: 2rem;

@@ -45,6 +45,7 @@ import ReplyWizard from '../../../components/InboxWizards/Reply/ReplyWizard';
 import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/OptionSubmittedWizard';
 import FeedbackWizard from '../../../components/InboxWizards/Feedback/FeedbackWizard';
 import UpgradeWizard from '../../../components/InboxWizards/Upgrade/UpgradeWizard';
+import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -412,7 +413,12 @@ export function getOutboxMessages(props) {
       if (!_.isEmpty(debtors)) {
         message.debtors = debtors;
       }
-      messages.push(message);
+      const myMessages = findMessagesForInvestibleId(investibleId, messagesState) || [];
+      // Don't display vote for investible and move stage in same tab
+      if (_.isEmpty(myMessages.find((myMessage) => myMessage.type === 'NOT_FULLY_VOTED' && myMessage.is_highlighted)))
+      {
+        messages.push(message);
+      }
     });
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, QUESTION_TYPE,

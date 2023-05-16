@@ -136,12 +136,12 @@ function OptionListItem(props) {
               <div style={{paddingRight: '1rem'}} />
             </Div>
           </div>
-          <div id={`optionListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
-            height: expansionOpen ? undefined : 0}} draggable={false}>
-            {expansionPanel || <React.Fragment />}
-          </div>
         </RaisedCard>
       </Item>
+      <div id={`optionListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
+        height: expansionOpen ? undefined : 0}} draggable={false}>
+        {expansionPanel || <React.Fragment />}
+      </div>
       <div id={`dragImage${id}`} style={{display: 'block', minWidth: '10rem', width: '10rem',
         position: 'absolute', top: -10, right: -10, zIndex: 2}}>
         <Title>{title}</Title>

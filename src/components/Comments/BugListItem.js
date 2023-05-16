@@ -189,12 +189,12 @@ function BugListItem(props) {
               )}
             </Div>
           </div>
-          <div id={`bugListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
-            height: expansionOpen ? undefined : 0}}>
-            {expansionPanel || <React.Fragment />}
-          </div>
         </RaisedCard>
       </Item>
+      <div id={`bugListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
+        height: expansionOpen ? undefined : 0}} draggable={false}>
+        {expansionPanel || <React.Fragment />}
+      </div>
       <div id={`dragImage${id}`} style={{display: 'block', minWidth: '10rem', width: '10rem',
         position: 'absolute', top: -10, right: -10, zIndex: 2}}>
         <Title>{title}</Title>

@@ -71,7 +71,6 @@ function DecideStageStep(props) {
   let onOtherNextFunc = () => moveToTarget(true);
   let otherNextLabelId = 'stageAndGotoJob';
   let nextLabelId = 'DecideStageMove';
-  let onNextFunc = () => moveToTarget(false);
   if (currentStageId === inVotingStage.id) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
@@ -91,7 +90,6 @@ function DecideStageStep(props) {
       navigate(history,
         formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE));
     };
-    onNextFunc = undefined;
     nextLabelId='startReview';
   } else if (currentStageId === inReviewStage.id) {
     if (!_.isEmpty(comments)) {
@@ -106,6 +104,10 @@ function DecideStageStep(props) {
       destinationExplanation = 'planningInvestibleVerifiedExplanation';
     }
   }
+
+  // If you start a job and don't go to it hard to find
+  const onNextFunc = destinationStage === inReviewStage ? undefined :
+    () => moveToTarget(destinationStage === acceptedStage);
 
   if (!destinationLabel) {
     return React.Fragment;

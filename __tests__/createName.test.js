@@ -21,6 +21,9 @@ it.each([["<p>Try for name. And then some.</p>", "Try for name. And then some.",
     "<p>Try for <i>name</i>. <b>And</b> then some.</p><h2>What else?</h2>"],
   ["<h1>Try for <i>name</i>. <b>And</b> then some.</h1><p>What else?</p>", "Try for name. And then some.",
     "<h1>Try for <i>name</i>. <b>And</b> then some.</h1><p>What else?</p>"],
+  ["<p>We should extend praise points to everything. The progress report will then be in Uclusion so it can get praise but more subtlety no one will answer your suggestion or question outside of Uclusion cause you can't earn praise points.</p>",
+    "We should extend praise points to everything.",
+    "<p>The progress report will then be in Uclusion so it can get praise but more subtlety no one will answer your suggestion or question outside of Uclusion cause you can't earn praise points.</p>"],
   ["<h1>Try for <i>name</i></h1><p>What else?</p>", "Try for name", "<h1>Try for <i>name</i></h1><p>What else?</p>"],
   ["<p><img src=\"https://dev.imagecdn.uclusion.com/5250067a-5553-4b52-8233-bb7b019b7a97/5e77cc70-fdc1-4c87-97a7-8d91a6f57a98.png\"></p><p>Start with an image.</p>", "Start with an image.", "<p><img src=\"https://dev.imagecdn.uclusion.com/5250067a-5553-4b52-8233-bb7b019b7a97/5e77cc70-fdc1-4c87-97a7-8d91a6f57a98.png\"></p><p>Start with an image.</p>"]])
 ('%p', (testDescription, expectedName, expectedDescription) => {

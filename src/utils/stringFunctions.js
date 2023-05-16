@@ -77,15 +77,20 @@ function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, 
   }
   const sentencePosition = strippedElement.indexOf('.');
   if (sentencePosition > 0) {
-    extracted = strippedElement.substring(0, sentencePosition);
+    extracted = strippedElement.substring(0, sentencePosition + 1);
   }
-  if (extracted.length > maxLength - 3) {
-    let lastIndex = extracted.lastIndexOf(' ', maxLength - 3);
-    if (lastIndex < 0) {
-      lastIndex = maxLength - 3;
+  if (extracted.length <= maxLength) {
+    let splitDescription = description.substring(3 + extracted.length);
+    if (splitDescription.startsWith(' ')) {
+      splitDescription = splitDescription.substring(1);
     }
-    extracted = extracted.substring(0, lastIndex);
+    return { name: extracted, description: `<p>${splitDescription}` };
   }
+  let lastIndex = extracted.lastIndexOf(' ', maxLength - 3);
+  if (lastIndex < 0) {
+    lastIndex = maxLength - 3;
+  }
+  extracted = extracted.substring(0, lastIndex);
   if (isFallbackFullDescription) {
     return { name: `${extracted}...`, description };
   }

@@ -6,6 +6,7 @@ import {
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages';
+import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages';
 
 export function getComment(state, marketId, commentId) {
   const marketComments = state[marketId] || [];
@@ -128,6 +129,14 @@ export function addCommentToMarket(comment, state, dispatch) {
     }
   }
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: updates});
+  const ticketCodeItems = [];
+  const { id: commentId, group_id: groupId, ticket_code: ticketCode, investible_id: investibleId } = comment;
+  if (ticketCode) {
+    ticketCodeItems.push({ ticketCode, marketId, commentId, groupId, investibleId });
+  }
+  if (!_.isEmpty(ticketCodeItems)) {
+    pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
+  }
   addMarketComments(dispatch, marketId, updates);
 }
 

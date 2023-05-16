@@ -11,7 +11,7 @@ import _ from 'lodash';
 
 const Item = styled("div")`
   margin-bottom: 10px;
-  min-width: 40vw;
+  min-width: 60vw;
 `
 
 const Div = styled("div")`
@@ -124,6 +124,7 @@ function OptionListItem(props) {
               {mobileLayout && (
                 <Text />
               )}
+              <div style={{flexGrow: 1}}/>
               {showExpansion && (
                 <DateLabel>
                   {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />

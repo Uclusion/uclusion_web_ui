@@ -45,6 +45,10 @@ function SearchBox () {
   } else {
     searchedName = intl.formatMessage({id: 'inbox'});
   }
+  if (searchedName.length > 40) {
+    const lastIndex = searchedName.lastIndexOf(' ', 40);
+    searchedName = `${searchedName.substring(0, lastIndex)}...`
+  }
 
   function getInvestibleParents(result) {
     const parentResults = [];

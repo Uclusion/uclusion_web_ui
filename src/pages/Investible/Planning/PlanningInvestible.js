@@ -63,10 +63,10 @@ import { getStagesInfo } from '../../../utils/stageUtils';
 import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import PlanningInvestibleNav, { useMetaDataStyles } from './PlanningInvestibleNav';
 import { getIcon } from '../../../components/Comments/CommentEdit';
-import AddIcon from '@material-ui/icons/Add';
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import GravatarAndName from '../../../components/Avatars/GravatarAndName';
 import { getMidnightToday } from '../../../utils/timerUtils';
+import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
+import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -318,6 +318,7 @@ function PlanningInvestible(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const leftNavBreak = useMediaQuery(theme.breakpoints.down('md'));
   const classes = usePlanningInvestibleStyles();
+  const wizardClasses = wizardStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -657,13 +658,13 @@ function PlanningInvestible(props) {
                 <FormattedMessage id="decisionInvestibleOthersVoting" />
               </h2>
               {(displayVotingInput || hasUsableVotingInput) && investibleId && (
-                <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
-                  marginBottom: '1.5rem'}}
-                                         onClick={() => navigate(history,
-                                           formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId,
-                                             groupId))}>
-                  <FormattedMessage id="createNewApproval" />
-                </SpinningIconLabelButton>
+                <SpinningButton id="newApproval" className={wizardClasses.actionPrimary}
+                                style={{display: "flex", marginBottom: '1.5rem'}}
+                                variant="text" doSpin={false}
+                                onClick={() => navigate(history,
+                                  formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}>
+                  <FormattedMessage id='createNewApproval'/>
+                </SpinningButton>
               )}
               {(_.isEmpty(search) || displayApprovalsBySearch > 0) && (
                 <Voting
@@ -683,13 +684,14 @@ function PlanningInvestible(props) {
                 <FormattedMessage id="reportsSectionLabel" />
               </h2>
               {showCommentAdd && (isAssigned || isInReview) && (
-                <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
-                  marginTop: '0.75rem', marginBottom: '0.75rem'}}
-                                         onClick={() => navigate(history,
-                                           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                                             REPORT_TYPE))}>
+                <SpinningButton id="newReport" className={wizardClasses.actionPrimary}
+                                variant="text" doSpin={false}
+                                style={{display: "flex", marginTop: '0.75rem', marginBottom: '0.75rem'}}
+                                onClick={() => navigate(history,
+                                  formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                                    REPORT_TYPE))}>
                   <FormattedMessage id={isAssigned ? 'createNewStatus' : 'createNewReview'}/>
-                </SpinningIconLabelButton>
+                </SpinningButton>
               )}
               <CommentBox
                 comments={reportsCommentsSearched.concat(replies)}
@@ -713,14 +715,15 @@ function PlanningInvestible(props) {
                 <div style={{display: 'flex'}}>
                   {allowedCommentTypes.map((allowedCommentType) => {
                     return (
-                      <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
-                        marginTop: '0.75rem', marginRight: mobileLayout ? undefined : '2rem',
-                        marginBottom: '0.75rem'}}
-                                               onClick={() => navigate(history,
-                                                 formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                                                   allowedCommentType))}>
+                      <SpinningButton id="newComment" className={wizardClasses.actionPrimary}
+                                      style={{display: "flex", marginTop: '0.75rem',
+                                        marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'}}
+                                      variant="text" doSpin={false}
+                                      onClick={() => navigate(history,
+                                        formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                                          allowedCommentType))}>
                         <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile': ''}`}/>
-                      </SpinningIconLabelButton>
+                      </SpinningButton>
                     );
                   })}
                 </div>

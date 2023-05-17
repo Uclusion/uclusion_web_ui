@@ -329,7 +329,7 @@ function navigateEditReplyBack(history, id, marketId, groupId, investibleId, rep
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, noAuthor, defaultShowDiff,
+  const { comment, marketId, comments, noAuthor, defaultShowDiff, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
   const history = useHistory();
@@ -344,7 +344,7 @@ function Comment(props) {
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, body, creator_assigned: creatorAssigned, is_sent: isSent,
     group_id: groupId } = comment;
-  const replyBeingEdited = replyEditId === id && myParams && !_.isEmpty(myParams.get('reply'));
+  const replyBeingEdited = replyEditId === id && (isReply || (myParams && !_.isEmpty(myParams.get('reply'))));
   const beingEdited = replyEditId === id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
   const presences = usePresences(marketId);
@@ -818,7 +818,7 @@ function Comment(props) {
           marketId={marketId}
           groupId={groupId}
           parent={comment}
-          onSave={toggleReply}
+          onSave={wizardProps ? wizardProps.onSave : toggleReply}
           onCancel={toggleReply}
           type={REPLY_TYPE}
           commentAddState={replyAddState}
@@ -826,6 +826,7 @@ function Comment(props) {
           commentAddStateReset={replyAddStateReset}
           threadMessages={myMessage ? [myMessage] : []}
           nameDifferentiator="reply"
+          wizardProps={wizardProps}
         />
       )}
       <Box marginTop={1} paddingX={1} className={classes.childWrapper}>

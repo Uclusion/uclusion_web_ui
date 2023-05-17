@@ -76,7 +76,7 @@ export function getSortedRoots(allComments, searchResults, preserveOrder) {
 }
 
 function CommentBox(props) {
-  const { comments, marketId, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId,
+  const { comments, marketId, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId, isReply, wizardProps,
     fullStage, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
     showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -91,7 +91,7 @@ function CommentBox(props) {
       const { id, comment_type: commmentType } = comment;
       return (
         <Grid item key={id} xs={12}>
-          <div id={`${isInbox ? 'inbox' : ''}c${id}`} style={{paddingBottom: '1.25rem'}}>
+          <div id={`${isInbox ? 'inbox' : ''}c${id}`} style={{paddingBottom: wizardProps ? undefined : '1.25rem'}}>
             <Comment
               resolvedStageId={(isRequiresInput && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commmentType))
               || (isInBlocking && commmentType === ISSUE_TYPE) ? resolvedStageId : undefined}
@@ -110,6 +110,8 @@ function CommentBox(props) {
               investible={investible}
               selectedInvestibleIdParent={selectedInvestibleIdParent}
               setSelectedInvestibleIdParent={setSelectedInvestibleIdParent}
+              isReply={isReply}
+              wizardProps={wizardProps}
             />
           </div>
         </Grid>

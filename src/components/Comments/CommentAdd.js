@@ -464,7 +464,7 @@ function CommentAdd(props) {
     onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
     mentionsAllowed,
     onChange: () => setHasValue(true),
-    buttons: type === REPLY_TYPE ? buttons : undefined
+    buttons: type === REPLY_TYPE && _.isEmpty(wizardProps) ? buttons : undefined
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
   return (
@@ -475,10 +475,18 @@ function CommentAdd(props) {
         style={{padding: wizardProps ? 0 : undefined}}
         elevation={0}
       >
-        <div className={classes.editor} style={{paddingBottom: '1rem'}}>
+        <div className={classes.editor} style={{paddingBottom: isWizard ? undefined : '1rem'}}>
           {Editor}
           {isWizard && (
             <div style={{marginTop: '2rem'}}>
+              {wizardProps.isReply && (
+                <WizardStepButtons
+                  {...wizardProps}
+                  validForm={hasValue}
+                  nextLabel="commentAddSendLabel"
+                  onNext={() => handleSave( true)}
+                />
+              )}
               {wizardProps.isBug && (
                 <AddWizardStepButtons
                   {...wizardProps}
@@ -489,7 +497,7 @@ function CommentAdd(props) {
                   showTerminate={true}
                   terminateLabel="OnboardingWizardGoBack"/>
               )}
-              {!wizardProps.isBug && !wizardProps.isAddWizard && (
+              {!wizardProps.isBug && !wizardProps.isAddWizard && !wizardProps.isReply && (
                 <WizardStepButtons
                   {...wizardProps}
                   validForm={hasValue}

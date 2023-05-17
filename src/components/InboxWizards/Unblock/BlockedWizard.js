@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import FormdataWizard from 'react-formdata-wizard';
 import DecideUnblockStep from './DecideUnblockStep'
 import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
+import ReplyStep from './ReplyStep';
 
 function BlockedWizard(props) {
   const { marketId, commentId, message, inboxDispatch } = props;
@@ -12,6 +13,7 @@ function BlockedWizard(props) {
                     onStartOver={() => inboxDispatch(expandOrContract(parentElementId))}
                     defaultFormData={{parentElementId}}>
       <DecideUnblockStep marketId={marketId} commentId={commentId} message={message}/>
+      <ReplyStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
   );
 }

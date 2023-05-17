@@ -12,8 +12,6 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { useHistory } from 'react-router';
-import { formCommentEditReplyLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
@@ -31,7 +29,6 @@ function DecideUnblockStep(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const history = useHistory();
   const intl = useIntl();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
@@ -80,8 +77,6 @@ function DecideUnblockStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel='UnblockReplyLabel'
-        onNext={() => navigate(history, formCommentEditReplyLink(marketId, commentId, true), false,
-          true)}
         spinOnClick={false}
         showOtherNext
         otherNextLabel='DecideMoveToBacklog'

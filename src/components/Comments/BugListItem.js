@@ -23,7 +23,7 @@ import Chip from '@material-ui/core/Chip';
 import { useIntl } from 'react-intl';
 
 const Item = styled("div")`
-  margin-bottom: 10px;
+  margin-bottom: 1px;
   min-width: 80vw;
 `
 
@@ -191,8 +191,8 @@ function BugListItem(props) {
           </div>
         </RaisedCard>
       </Item>
-      <div id={`bugListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
-        height: expansionOpen ? undefined : 0}} draggable={false}>
+      <div id={`bugListItemExpansion${id}`} style={{display: expansionOpen ? 'block' : 'none',
+        paddingBottom: '0.5rem'}} draggable={false}>
         {expansionPanel || <React.Fragment />}
       </div>
       <div id={`dragImage${id}`} style={{display: 'block', minWidth: '10rem', width: '10rem',

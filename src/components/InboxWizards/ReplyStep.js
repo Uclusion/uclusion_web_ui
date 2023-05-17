@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from './WizardStepContainer';
 import { wizardStyles } from './WizardStylesContext';
-import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
@@ -21,6 +21,7 @@ function ReplyStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
+  const comment = getComment(commentState, marketId, commentId) || {};
   const classes = wizardStyles();
   const workItemClasses = workListStyles();
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
@@ -41,7 +42,7 @@ function ReplyStep(props) {
         What is your reply?
       </Typography>
       <CommentBox
-        comments={[commentRoot]}
+        comments={[comment]}
         marketId={marketId}
         allowedTypes={[]}
         fullStage={fullStage}

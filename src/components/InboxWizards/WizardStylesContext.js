@@ -84,6 +84,7 @@ export const wizardStyles = makeStyles(
       buttonContainer: {
         textAlign: 'right',
         display: 'flex',
+        width: '80%',
         justifyContent: 'space-between',
         '& button': {
           fontWeight: 'bold'
@@ -175,9 +176,7 @@ export const wizardStyles = makeStyles(
       marginBottom: {
         marginBottom: '20px'
       },
-      stepDefault: {
-        maxWidth: '1200px'
-      },
+      stepDefault: {},
       wizardCommentBoxDiv: {
         maxHeight: '300px',
         paddingBottom: '0.5rem',

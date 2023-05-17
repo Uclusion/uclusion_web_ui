@@ -20,7 +20,7 @@ import { useHistory } from 'react-router';
 
 function JobDescription(props) {
   const { investibleId, marketId, comments, showDescription=true, showAssigned=true, inboxMessageId,
-    removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
+    removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder } = props;
   const intl = useIntl();
   const history = useHistory();
   const investibleEditClasses = useInvestibleEditStyles();
@@ -60,6 +60,7 @@ function JobDescription(props) {
             minHeight: '200px', overflowY: 'auto', overflowX: 'hidden', }}>
             <CommentBox
               comments={comments}
+              preserveOrder={preserveOrder}
               marketId={marketId}
               allowedTypes={[]}
               fullStage={getFullStage(marketStagesState, marketId, marketInfo.stage) || {}}

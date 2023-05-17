@@ -28,7 +28,7 @@ function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   return myRootUpdatedAt;
 }
 
-export function getSortedRoots(allComments, searchResults) {
+export function getSortedRoots(allComments, searchResults, preserveOrder) {
   const { results, parentResults, search } = searchResults;
   if (_.isEmpty(allComments)) {
     return [];
@@ -36,10 +36,14 @@ export function getSortedRoots(allComments, searchResults) {
   let comments = allComments;
   if (!_.isEmpty(search)) {
     comments = allComments.filter((comment) => {
-      return results.find((item) => item.id === comment.id) || parentResults.find((id) => id === comment.id);
+      return results.find((item) => item.id === comment.id) ||
+        parentResults.find((id) => id === comment.id);
     });
   }
   const threadRoots = comments.filter(comment => !comment.reply_id) || [];
+  if (preserveOrder) {
+    return threadRoots;
+  }
   const withRootUpdatedAt = threadRoots.map((root) => {
     return { ...root, rootUpdatedAt: findGreatestUpdatedAt([root], comments) };
   });
@@ -74,10 +78,10 @@ export function getSortedRoots(allComments, searchResults) {
 function CommentBox(props) {
   const { comments, marketId, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId,
     fullStage, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
-    showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
+    showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const sortedRoots = getSortedRoots(comments, searchResults);
+  const sortedRoots = getSortedRoots(comments, searchResults, preserveOrder);
   const useFullStage = _.isEmpty(fullStage) && stage ? getFullStage(marketStagesState, marketId, stage) : fullStage;
   const resolvedStageId = isSingleAssisted(comments, assigned) ?
     getFormerStageId(formerStageId, marketId, marketStagesState) : undefined;

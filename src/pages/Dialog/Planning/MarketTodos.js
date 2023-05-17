@@ -8,7 +8,6 @@ import { darken, makeStyles } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
 import Comment from '../../../components/Comments/Comment';
 import { TODO_TYPE } from '../../../constants/comments';
-import AddIcon from '@material-ui/icons/Add';
 import { updateComment } from '../../../api/comments';
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -17,12 +16,12 @@ import { formMarketAddCommentLink, formMarketAddInvestibleLink, navigate } from 
 import Chip from '@material-ui/core/Chip';
 import {
   findMessageForCommentId,
-  getPaginatedItems, getRealPage,
+  getPaginatedItems,
+  getRealPage,
   getUnreadCount,
   removeMessagesForCommentId
 } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { getThreadIds } from '../../../utils/commentFunctions';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import DismissableText from '../../../components/Notifications/DismissableText';
@@ -36,7 +35,8 @@ import getReducer, {
   contractAll,
   expandAll,
   PAGE_SIZE,
-  pin, setPage,
+  pin,
+  setPage,
   setTab
 } from '../../../components/Comments/BugListContext';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
@@ -47,6 +47,8 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { isReadComment } from '../../../components/Comments/Options';
+import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
+import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 
 export const todoClasses = makeStyles(
   theme => {
@@ -159,6 +161,7 @@ function MarketTodos(props) {
     hidden
   } = props
   const classes = todoClasses();
+  const wizardClasses = wizardStyles();
   const intl = useIntl();
   const history = useHistory();
   const theme = useTheme();
@@ -354,11 +357,13 @@ function MarketTodos(props) {
         </div>
       }/>
       {!isInArchives && (
-        <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id="newMarketTodo"
-                                 onClick={() => navigate(history,
-                                   formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId))}>
+        <SpinningButton id="newMarketTodo"
+                        className={wizardClasses.actionPrimary}
+                        variant="text" doSpin={false}
+                        onClick={() => navigate(history,
+                          formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId))}>
           <FormattedMessage id='createBug'/>
-        </SpinningIconLabelButton>
+        </SpinningButton>
       )}
       <GmailTabs
         value={tabIndex}

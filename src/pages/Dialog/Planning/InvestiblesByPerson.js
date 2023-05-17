@@ -1,26 +1,25 @@
-import { makeStyles } from '@material-ui/core/styles'
-import _ from 'lodash'
-import { FormattedMessage, useIntl } from 'react-intl'
-import { useHistory } from 'react-router'
-import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestibleNav'
-import React, { useContext } from 'react'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { PLACEHOLDER } from '../../../constants/global'
-import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils'
-import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions'
-import Card from '@material-ui/core/Card'
-import CardHeader from '@material-ui/core/CardHeader'
-import { Link, Typography, useTheme } from '@material-ui/core'
-import NotificationCountChips from '../NotificationCountChips'
-import AddIcon from '@material-ui/icons/Add'
-import Gravatar from '../../../components/Avatars/Gravatar'
-import CardContent from '@material-ui/core/CardContent'
-import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas'
-import { Info } from '@material-ui/icons'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
-import { storeState } from '../../../components/TextEditors/Utilities/CoreUtils';
+import { makeStyles } from '@material-ui/core/styles';
+import _ from 'lodash';
+import { FormattedMessage } from 'react-intl';
+import { useHistory } from 'react-router';
+import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestibleNav';
+import React, { useContext } from 'react';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { PLACEHOLDER } from '../../../constants/global';
+import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils';
+import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import { Link, Typography, useTheme } from '@material-ui/core';
+import NotificationCountChips from '../NotificationCountChips';
+import Gravatar from '../../../components/Avatars/Gravatar';
+import CardContent from '@material-ui/core/CardContent';
+import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas';
+import { Info } from '@material-ui/icons';
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
+import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
+import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -122,12 +121,12 @@ function InvestiblesByPerson(props) {
     group,
     mobileLayout
   } = props;
-  const intl = useIntl();
   const theme = useTheme();
   const history = useHistory();
   const metaClasses = useMetaDataStyles();
   const classes = useInvestiblesByPersonStyles();
   const swimClasses = usePlanningIdStyles();
+  const wizardClasses = wizardStyles();
   const { market_id: marketId, id: groupId } = group || {};
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -137,17 +136,18 @@ function InvestiblesByPerson(props) {
   });
 
   function onClick(id) {
-    storeState(`addJobWizard${groupId}`, null);
     navigate(history, formMarketAddInvestibleLink(marketId, groupId, id));
   }
 
   return (
     <>
-      <SpinningIconLabelButton
-        onClick={() => onClick()}
-        doSpin={false} icon={AddIcon} id='addJob' style={{marginTop: '1rem', marginBottom: '1rem'}}>
-        {intl.formatMessage({ id: 'addStoryLabel' })}
-      </SpinningIconLabelButton>
+      <SpinningButton id="addJob"
+                      className={wizardClasses.actionPrimary}
+                      variant="text" doSpin={false}
+                      style={{marginTop: '1rem', marginBottom: '1rem'}}
+                      onClick={() => onClick()}>
+        <FormattedMessage id='addStoryLabel'/>
+      </SpinningButton>
 
       {!mobileLayout && (
         <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>

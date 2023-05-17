@@ -1,12 +1,9 @@
 import React, { useContext, useReducer } from 'react';
-import { useIntl } from 'react-intl';
-import AddIcon from '@material-ui/icons/Add';
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
 import DismissableText from '../../../components/Notifications/DismissableText';
-import { storeState } from '../../../components/TextEditors/Utilities/CoreUtils';
 import BacklogListItem from '../../../components/Cards/BacklogListItem';
 import { nameFromDescription } from '../../../utils/stringFunctions';
 import { calculateInvestibleVoters } from '../../../utils/votingUtils';
@@ -29,6 +26,8 @@ import { KeyboardArrowLeft } from '@material-ui/icons';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { isRead } from '../../../components/Comments/Options';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
+import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 
 function Backlog(props) {
   const {
@@ -40,6 +39,7 @@ function Backlog(props) {
   } = props;
   const { market_id: marketId, id: groupId} = group || {};
   const intl = useIntl();
+  const wizardClasses = wizardStyles();
   const history = useHistory();
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
@@ -98,22 +98,23 @@ function Backlog(props) {
   return (
     <>
     <div style={{paddingTop: '1rem'}} />
-    <SpinningIconLabelButton
-      onClick={() => {
-        storeState(`addJobWizard${groupId}`, null);
-        navigate(history, formMarketAddInvestibleLink(marketId, groupId));
-      }}
-      doSpin={false} icon={AddIcon} id='addJob' style={{marginBottom: isEmptyBacklog ? undefined : '1rem'}}>
-      {intl.formatMessage({ id: 'addStoryLabel' })}
-    </SpinningIconLabelButton>
-    <DismissableText textId="backlogHelp" noPad={true}
-                     display={isEmptyBacklog}
-                     text={
-                         <div>
-                           Use the "Add job" button above to create backlog. Moving a job to "Ready to Start" sends
-                           notifications to this group.
-                         </div>
-                     }/>
+      <SpinningButton id="addBacklogJob"
+                      className={wizardClasses.actionPrimary}
+                      style={{marginBottom: isEmptyBacklog ? undefined : '1rem'}}
+                      variant="text" doSpin={false}
+                      onClick={() => {
+                        navigate(history, formMarketAddInvestibleLink(marketId, groupId));
+                      }}>
+        <FormattedMessage id='addStoryLabel'/>
+      </SpinningButton>
+      <DismissableText textId="backlogHelp" noPad={true}
+                       display={isEmptyBacklog}
+                       text={
+                           <div>
+                             Use the "Add job" button above to create backlog. Moving a job to "Ready to Start" sends
+                             notifications to this group.
+                           </div>
+                       }/>
       <GmailTabs
         value={tabIndex}
         onChange={(event, value) => {

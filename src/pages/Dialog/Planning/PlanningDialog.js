@@ -47,12 +47,12 @@ import {
 import { isInStages } from './userUtils';
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
-import AddIcon from '@material-ui/icons/Add';
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { DISCUSSION_WIZARD_TYPE } from '../../../constants/markets';
 import DialogOutset from './DialogOutset';
 import SettingsIcon from '@material-ui/icons/Settings';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
+import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
+import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -88,6 +88,7 @@ function PlanningDialog(props) {
   const location = useLocation();
   const { hash } = location;
   const intl = useIntl();
+  const wizardClasses = wizardStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [groupState] = useContext(MarketGroupsContext);
@@ -258,21 +259,25 @@ function PlanningDialog(props) {
               {_.isEmpty(search) && marketId && !hidden && (
                 <>
                   <div style={{display: 'flex'}}>
-                    <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id="newMarketQuestion"
-                                             style={{display: "flex", marginTop: '1rem',
-                                               marginRight: mobileLayout ? undefined : '2rem'}}
-                                             onClick={() => navigate(history,
-                                               formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
-                                                 QUESTION_TYPE))}>
+                    <SpinningButton id="newMarketQuestion"
+                                    className={wizardClasses.actionPrimary}
+                                    style={{display: "flex", marginTop: '1rem',
+                                      marginRight: mobileLayout ? undefined : '2rem'}}
+                                    variant="text" doSpin={false}
+                                    onClick={() => navigate(history,
+                                      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
+                                        QUESTION_TYPE))}>
                       <FormattedMessage id='createQuestion'/>
-                    </SpinningIconLabelButton>
-                    <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
-                      marginTop: '1rem'}}
-                                             onClick={() => navigate(history,
-                                               formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
-                                                 SUGGEST_CHANGE_TYPE))}>
+                    </SpinningButton>
+                    <SpinningButton id="createSuggestion"
+                                    className={wizardClasses.actionPrimary}
+                                    style={{display: "flex", marginTop: '1rem'}}
+                                    variant="text" doSpin={false}
+                                    onClick={() => navigate(history,
+                                      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
+                                        SUGGEST_CHANGE_TYPE))}>
                       <FormattedMessage id='createSuggestion'/>
-                    </SpinningIconLabelButton>
+                    </SpinningButton>
                   </div>
                   <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionComments)} noPad
                                    text={

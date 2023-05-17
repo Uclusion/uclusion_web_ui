@@ -10,7 +10,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import _ from 'lodash';
 
 const Item = styled("div")`
-  margin-bottom: 10px;
+  margin-bottom: 1px;
   min-width: 60vw;
 `
 

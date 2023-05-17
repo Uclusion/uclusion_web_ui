@@ -10,7 +10,7 @@ import GravatarGroup from '../Avatars/GravatarGroup';
 import { workListStyles } from '../Comments/OptionListItem';
 
 const Item = styled("div")`
-  margin-bottom: 10px;
+  margin-bottom: 1px;
   min-width: 40vw;
 `
 

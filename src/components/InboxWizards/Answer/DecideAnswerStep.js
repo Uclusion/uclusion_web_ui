@@ -16,7 +16,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
-import { formCommentEditReplyLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { APPROVAL_WIZARD_TYPE, OPTION_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 
@@ -88,8 +88,6 @@ function DecideAnswerStep(props) {
           {...props}
           nextLabel="issueReplyLabel"
           spinOnClick={false}
-          onNext={() => navigate(history, formCommentEditReplyLink(marketId, commentId, true),
-            false, true)}
           showOtherNext
           otherNextLabel="inlineAddLabel"
           otherSpinOnClick={false}

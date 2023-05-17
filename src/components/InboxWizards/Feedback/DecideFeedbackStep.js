@@ -10,7 +10,7 @@ import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
 import { useIntl } from 'react-intl';
-import { formCommentEditReplyLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 import Voting from '../../../pages/Investible/Decision/Voting';
@@ -79,8 +79,6 @@ function DecideFeedbackStep(props) {
         showOtherNext={!isNewVote}
         otherNextLabel="issueReplyLabel"
         otherSpinOnClick={false}
-        onOtherNext={() => navigate(history, formCommentEditReplyLink(marketId, commentId, true),
-          false, true)}
         showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
         terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'defer'}
       />

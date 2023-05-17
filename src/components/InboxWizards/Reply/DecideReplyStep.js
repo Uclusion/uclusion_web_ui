@@ -11,8 +11,6 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
-import { formCommentEditReplyLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
 import { findMessageForCommentId } from '../../../utils/messageUtils';
 import _ from 'lodash';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
@@ -27,7 +25,6 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 
 function DecideReplyStep(props) {
   const { marketId, commentId, message } = props;
-  const history = useHistory();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
@@ -116,8 +113,6 @@ function DecideReplyStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="issueReplyLabel"
-        onNext={() => navigate(history, formCommentEditReplyLink(marketId, commentId, true), false,
-          true)}
         spinOnClick={false}
         showOtherNext={isAuthor || hasThreadMessages}
         otherNextLabel={isAuthor ? 'issueResolveLabel' : 'notificationDelete'}

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import FormdataWizard from 'react-formdata-wizard';
 import DecideFeedbackStep from './DecideFeedbackStep'
 import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
+import ReplyStep from '../ReplyStep';
 
 function FeedbackWizard(props) {
   const { marketId, commentId, message, inboxDispatch } = props;
@@ -12,6 +13,7 @@ function FeedbackWizard(props) {
                     onStartOver={() => inboxDispatch(expandOrContract(parentElementId))}
                     defaultFormData={{parentElementId}}>
       <DecideFeedbackStep marketId={marketId} commentId={commentId} message={message}/>
+      <ReplyStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
   );
 }

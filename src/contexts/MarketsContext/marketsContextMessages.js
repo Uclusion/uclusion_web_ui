@@ -7,6 +7,7 @@ import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 import localforage from 'localforage'
 import TokenStorageManager, { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
 import {
+  DEMO_EVENT,
   getStorageStates,
   PUSH_INVESTIBLES_CHANNEL,
   PUSH_MARKETS_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
@@ -14,7 +15,7 @@ import {
   sendMarketsStruct, SYNC_ERROR_EVENT,
   updateMarkets,
   VERSIONS_EVENT
-} from '../../api/versionedFetchUtils'
+} from '../../api/versionedFetchUtils';
 import _ from 'lodash'
 
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
@@ -53,8 +54,9 @@ function beginListening(dispatch, setTokensHash) {
     }
   });
   registerListener(PUSH_MARKETS_CHANNEL, 'marketsPushStart', (data) => {
-    const { payload: { event, marketDetails, signature } } = data;
+    const { payload: { event, marketDetails, signature} } = data;
     switch (event) {
+      case DEMO_EVENT:
       case VERSIONS_EVENT:
         addMarketsToStorage(dispatch, marketDetails);
         break;

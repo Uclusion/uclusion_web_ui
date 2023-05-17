@@ -6,7 +6,12 @@ import {
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
-import { PUSH_COMMENTS_CHANNEL, REMOVED_MARKETS_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
+import {
+  DEMO_EVENT,
+  PUSH_COMMENTS_CHANNEL,
+  REMOVED_MARKETS_CHANNEL,
+  VERSIONS_EVENT
+} from '../../api/versionedFetchUtils';
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 import _ from 'lodash'
 
@@ -39,6 +44,7 @@ function beginListening(dispatch, diffDispatch) {
       pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
     }
     switch (event) {
+      case DEMO_EVENT:
       case VERSIONS_EVENT:
         const fixedUpForDiff = allComments.map((comment) => {
           const { id, body: description, updated_by,  updated_by_you } = comment;

@@ -49,6 +49,7 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { isReadComment } from '../../../components/Comments/Options';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
+import AddIcon from '@material-ui/icons/Add';
 
 export const todoClasses = makeStyles(
   theme => {
@@ -360,6 +361,7 @@ function MarketTodos(props) {
         <SpinningButton id="newMarketTodo"
                         className={wizardClasses.actionPrimary}
                         variant="text" doSpin={false}
+                        icon={AddIcon}
                         onClick={() => navigate(history,
                           formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId))}>
           <FormattedMessage id='createBug'/>

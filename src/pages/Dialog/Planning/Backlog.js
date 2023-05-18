@@ -28,6 +28,7 @@ import { isRead } from '../../../components/Comments/Options';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
+import AddIcon from '@material-ui/icons/Add';
 
 function Backlog(props) {
   const {
@@ -100,6 +101,7 @@ function Backlog(props) {
     <div style={{paddingTop: '1rem'}} />
       <SpinningButton id="addBacklogJob"
                       className={wizardClasses.actionPrimary}
+                      icon={AddIcon}
                       style={{marginBottom: isEmptyBacklog ? undefined : '1rem'}}
                       variant="text" doSpin={false}
                       onClick={() => {

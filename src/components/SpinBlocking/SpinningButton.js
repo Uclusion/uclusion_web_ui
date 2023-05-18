@@ -15,6 +15,8 @@ function SpinningButton(props) {
     doSpin,
     onClick,
     spinning,
+    icon: Icon,
+    iconColor='white',
     ...rest
   } = props;
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -35,6 +37,8 @@ function SpinningButton(props) {
       disabled={spinningDisabled || disabled}
       onClick={myOnClick}
       id={id}
+      startIcon={Icon ? (spinningDisabled || disabled ? <Icon color='disabled' /> : <Icon htmlColor={iconColor} />)
+        : undefined}
       {...rest}
     >
       {children}

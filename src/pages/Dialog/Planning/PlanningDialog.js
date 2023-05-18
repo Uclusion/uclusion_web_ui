@@ -53,6 +53,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
+import AddIcon from '@material-ui/icons/Add';
 
 export const LocalPlanningDragContext = React.createContext([]);
 
@@ -260,6 +261,7 @@ function PlanningDialog(props) {
                 <>
                   <div style={{display: 'flex'}}>
                     <SpinningButton id="newMarketQuestion"
+                                    icon={AddIcon}
                                     className={wizardClasses.actionPrimary}
                                     style={{display: "flex", marginTop: '1rem',
                                       marginRight: mobileLayout ? undefined : '2rem'}}
@@ -270,6 +272,7 @@ function PlanningDialog(props) {
                       <FormattedMessage id='createQuestion'/>
                     </SpinningButton>
                     <SpinningButton id="createSuggestion"
+                                    icon={AddIcon}
                                     className={wizardClasses.actionPrimary}
                                     style={{display: "flex", marginTop: '1rem'}}
                                     variant="text" doSpin={false}

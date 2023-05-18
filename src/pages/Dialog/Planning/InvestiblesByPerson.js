@@ -20,6 +20,7 @@ import { Info } from '@material-ui/icons';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
+import AddIcon from '@material-ui/icons/Add';
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -143,6 +144,7 @@ function InvestiblesByPerson(props) {
     <>
       <SpinningButton id="addJob"
                       className={wizardClasses.actionPrimary}
+                      icon={AddIcon}
                       variant="text" doSpin={false}
                       style={{marginTop: '1rem', marginBottom: '1rem'}}
                       onClick={() => onClick()}>

@@ -67,6 +67,7 @@ import GravatarAndName from '../../../components/Avatars/GravatarAndName';
 import { getMidnightToday } from '../../../utils/timerUtils';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
+import AddIcon from '@material-ui/icons/Add';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -659,6 +660,7 @@ function PlanningInvestible(props) {
               </h2>
               {(displayVotingInput || hasUsableVotingInput) && investibleId && (
                 <SpinningButton id="newApproval" className={wizardClasses.actionPrimary}
+                                icon={AddIcon}
                                 style={{display: "flex", marginBottom: '1.5rem'}}
                                 variant="text" doSpin={false}
                                 onClick={() => navigate(history,
@@ -685,6 +687,7 @@ function PlanningInvestible(props) {
               </h2>
               {showCommentAdd && (isAssigned || isInReview) && (
                 <SpinningButton id="newReport" className={wizardClasses.actionPrimary}
+                                icon={AddIcon}
                                 variant="text" doSpin={false}
                                 style={{display: "flex", marginTop: '0.75rem', marginBottom: '0.75rem'}}
                                 onClick={() => navigate(history,
@@ -716,6 +719,7 @@ function PlanningInvestible(props) {
                   {allowedCommentTypes.map((allowedCommentType) => {
                     return (
                       <SpinningButton id="newComment" className={wizardClasses.actionPrimary}
+                                      icon={AddIcon}
                                       style={{display: "flex", marginTop: '0.75rem',
                                         marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'}}
                                       variant="text" doSpin={false}

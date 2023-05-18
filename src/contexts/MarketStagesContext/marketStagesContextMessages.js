@@ -1,6 +1,10 @@
-import { removeMarketsStageDetails, updateMarketStagesFromNetwork } from './marketStagesContextReducer';
+import {
+  removeMarketsStageDetails,
+  updateMarketStages,
+  updateMarketStagesFromNetwork
+} from './marketStagesContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
-import { PUSH_STAGE_CHANNEL, REMOVED_MARKETS_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
+import { DEMO_EVENT, PUSH_STAGE_CHANNEL, REMOVED_MARKETS_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils';
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketStagesRemovedMarketStart', (data) => {
@@ -15,8 +19,11 @@ function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_STAGE_CHANNEL, 'marketStagesPushStart',  (data) => {
-    const { payload: { event, stageDetails } } = data;
+    const { payload: { event, stageDetails, marketId } } = data;
     switch (event) {
+      case DEMO_EVENT:
+        dispatch(updateMarketStages(marketId, stageDetails));
+        break;
       case VERSIONS_EVENT:
         dispatch(updateMarketStagesFromNetwork(stageDetails));
         break;

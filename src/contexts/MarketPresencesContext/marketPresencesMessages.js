@@ -6,11 +6,11 @@ import {
 import { registerListener } from '../../utils/MessageBusUtils'
 import { addPresenceToMarket } from './marketPresencesHelper'
 import {
-  BANNED_LIST,
+  BANNED_LIST, DEMO_EVENT,
   PUSH_PRESENCE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
-} from '../../api/versionedFetchUtils'
+} from '../../api/versionedFetchUtils';
 
 export const ADD_PRESENCE = 'AddPresence';
 
@@ -35,6 +35,7 @@ function beginListening(dispatch) {
       case VERSIONS_EVENT:
         dispatch(versionsUpdateMarketPresences(userDetails));
         break;
+      case DEMO_EVENT:
       case ADD_PRESENCE:
         addPresenceToMarket(dispatch, marketId, presence);
         break;

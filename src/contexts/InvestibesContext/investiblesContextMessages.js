@@ -6,7 +6,7 @@ import {
   STOP_OPERATION
 } from '../OperationInProgressContext/operationInProgressMessages'
 import { lockInvestibleForEdit } from '../../api/investibles'
-import { PUSH_INVESTIBLES_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
+import { DEMO_EVENT, PUSH_INVESTIBLES_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils';
 
 export const LOCK_INVESTIBLE_CHANNEL = 'LockInvestibleChannel';
 export const LOCK_INVESTIBLE = 'LockInvestible';
@@ -18,6 +18,7 @@ function beginListening(dispatch, diffDispatch) {
     switch (event) {
       case VERSIONS_EVENT:
         return refreshInvestibles(dispatch, diffDispatch, investibles, true);
+      case DEMO_EVENT:
       case LOAD_EVENT:
         return refreshInvestibles(dispatch, diffDispatch, investibles, false);
       default:

@@ -6,6 +6,7 @@ import { getAccount } from '../../api/sso'
 import { fixDates, updateBilling, updateInvoices } from './accountContextHelper'
 import _ from 'lodash'
 import { getInvoices, getPaymentInfo } from '../../api/users'
+import { quickAddDemo } from '../../utils/demoLoader';
 
 export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
 export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
@@ -13,13 +14,18 @@ export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
 function poll(dispatch, accountVersion, userVersion) {
   getAccount()
     .then((loginInfo) => {
-      const { account, user } = loginInfo;
+      const { account, user, demo } = loginInfo;
       const { version: founderUserVersion } = user;
       const { version: founderAccountVersion } = account;
       if ((accountVersion === undefined || accountVersion <= founderAccountVersion)
         &&(userVersion === undefined || userVersion <= founderUserVersion)) {
         dispatch(accountAndUserRefresh(fixDates(account), user));
         const { billing_customer_id: customerId } = account;
+        // load the demo into the contexts
+        if (!_.isEmpty(demo)) {
+          quickAddDemo(demo);
+        }
+        // handle billing
         if (!_.isEmpty(customerId)) {
           return getPaymentInfo()
             .then((paymentInfo) => {

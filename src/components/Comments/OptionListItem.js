@@ -81,7 +81,7 @@ function OptionListItem(props) {
   const {
     read,
     description = '',
-    title = (<div />),
+    title = '',
     people,
     expandOrContract,
     id,
@@ -96,6 +96,16 @@ function OptionListItem(props) {
   const [isHovered, setIsHovered] = useState(false);
   const showExpansion = isHovered && !isNotSynced;
 
+  const indexOfTitle = description.indexOf(title);
+  console.debug(`index is ${indexOfTitle} for ${title} and ${description}`)
+  let useDescription = description;
+  if (indexOfTitle >= 0) {
+    if (description.length > title.length) {
+      useDescription = description.substring(title.length);
+    } else {
+      useDescription = '';
+    }
+  }
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
     event.dataTransfer.setDragImage(dragImage, 100, 0);
@@ -119,7 +129,7 @@ function OptionListItem(props) {
             <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
               {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
               {!mobileLayout && (
-                <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{description}</Text>
+                <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{useDescription}</Text>
               )}
               {mobileLayout && (
                 <Text />

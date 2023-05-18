@@ -60,7 +60,7 @@ function OptionDescriptionStep (props) {
       groupId: marketId,
       marketId,
       uploadedFiles: filteredUploads,
-      stageId: isQuestionCreator ? investmentAllowedStage.id : proposedStage
+      stageId: isQuestionCreator ? investmentAllowedStage.id : proposedStage.id
     }
     return addDecisionInvestible(addInfo)
       .then((inv) => {

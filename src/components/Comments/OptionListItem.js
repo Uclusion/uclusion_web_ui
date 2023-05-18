@@ -97,7 +97,6 @@ function OptionListItem(props) {
   const showExpansion = isHovered && !isNotSynced;
 
   const indexOfTitle = description.indexOf(title);
-  console.debug(`index is ${indexOfTitle} for ${title} and ${description}`)
   let useDescription = description;
   if (indexOfTitle >= 0) {
     if (description.length > title.length) {

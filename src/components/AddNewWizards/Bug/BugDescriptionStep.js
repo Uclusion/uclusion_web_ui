@@ -47,7 +47,7 @@ function BugDescriptionStep (props) {
       newQuantity: event.target.value
     });
   }
-
+  const currentQuantity = newQuantity || defaultFromPage || '';
   return (
     <WizardStepContainer
       {...props}
@@ -67,7 +67,7 @@ function BugDescriptionStep (props) {
           aria-labelledby="add-vote-certainty"
           style={{display: 'flex', flexDirection: 'row'}}
           onChange={onChange}
-          value={newQuantity || defaultFromPage || ''}
+          value={currentQuantity}
         >
           {['RED', 'YELLOW', 'BLUE'].map(certainty => {
             return (
@@ -92,7 +92,7 @@ function BugDescriptionStep (props) {
       <CommentAdd
         nameKey="CommentAddBug"
         type={TODO_TYPE}
-        wizardProps={{...props, isBug: true, bugType: newQuantity,
+        wizardProps={{...props, isBug: true, bugType: currentQuantity,
           goBack: () => navigate(history, formMarketLink(marketId, groupId))}}
         commentAddState={commentAddBugState}
         updateCommentAddState={updateCommentAddBugState}

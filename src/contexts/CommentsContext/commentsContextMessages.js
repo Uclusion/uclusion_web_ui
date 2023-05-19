@@ -28,8 +28,8 @@ function beginListening(dispatch, diffDispatch) {
   });
   registerListener(PUSH_COMMENTS_CHANNEL, 'commentsPushStart', (data) => {
     const { payload: { event, commentDetails } } = data;
-    const allComments = [];
-    Object.values(commentDetails).forEach((comments) => allComments.concat(comments));
+    let allComments = [];
+    Object.values(commentDetails).forEach((comments) => allComments = allComments.concat(comments));
     const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: allComments };
     pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
     const ticketCodeItems = [];

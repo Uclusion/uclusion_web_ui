@@ -53,6 +53,7 @@ function handleMarketData (marketData, myUser, demoUser) {
   if (!_.isEmpty(childMarkets)) {
     childMarkets.forEach((market) => handleMarketData(market, myUser, demoUser));
   }
+  console.debug("Done quick adding demo");
 }
 
 export function quickAddDemo (demo) {

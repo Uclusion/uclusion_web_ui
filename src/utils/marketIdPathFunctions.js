@@ -244,7 +244,7 @@ export function formInvestibleAddCommentLink(wizardType, investibleId, marketId,
 
 export function formMarketAddCommentLink(wizardType, marketId, groupId, commentType) {
   let link = `/wizard#type=${wizardType}&marketId=${marketId}&groupId=${groupId}`;
-  if (commentType) {
+  if (commentType !== undefined) {
     link += `&commentType=${commentType}`;
   }
   return link;

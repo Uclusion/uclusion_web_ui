@@ -16,7 +16,7 @@ import _ from 'lodash';
 import TaskToBugStep from './TaskToBugStep';
 
 function BugWizard(props) {
-  const { marketId, groupId } = props;
+  const { marketId, groupId, commentType } = props;
   const [commentsState] = useContext(CommentsContext);
   const location = useLocation();
   const { hash } = location;
@@ -36,7 +36,7 @@ function BugWizard(props) {
           <TaskToBugStep marketId={marketId} comment={comment} comments={comments} />
         )}
         {!fromCommentId && (
-          <BugDescriptionStep marketId={marketId} groupId={groupId} />
+          <BugDescriptionStep marketId={marketId} groupId={groupId} commentType={commentType} />
         )}
       </FormdataWizard>
     </WizardStylesProvider>

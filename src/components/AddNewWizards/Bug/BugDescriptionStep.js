@@ -31,7 +31,7 @@ const useStyles = makeStyles(
 );
 
 function BugDescriptionStep (props) {
-  const { marketId, groupId, updateFormData, formData } = props;
+  const { marketId, groupId, updateFormData, formData, commentType } = props;
   const history = useHistory();
   const [commentAddBugStateFull, commentAddBugDispatch] = usePageStateReducer('addBugWizard');
   const [commentAddBugState, updateCommentAddBugState, commentAddStateBugReset] =
@@ -39,6 +39,8 @@ function BugDescriptionStep (props) {
   const classes = useContext(WizardStylesContext);
   const radioClasses = useStyles();
   const { newQuantity } = formData;
+  const defaultFromPage = commentType === undefined ? undefined :
+    (commentType === '0' ? 'RED' : (commentType === '1' ? 'YELLOW' : 'BLUE'));
 
   function onChange(event) {
     updateFormData({
@@ -65,7 +67,7 @@ function BugDescriptionStep (props) {
           aria-labelledby="add-vote-certainty"
           style={{display: 'flex', flexDirection: 'row'}}
           onChange={onChange}
-          value={newQuantity || ''}
+          value={newQuantity || defaultFromPage || ''}
         >
           {['RED', 'YELLOW', 'BLUE'].map(certainty => {
             return (

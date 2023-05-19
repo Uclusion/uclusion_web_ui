@@ -363,7 +363,7 @@ function MarketTodos(props) {
                         variant="text" doSpin={false}
                         icon={AddIcon}
                         onClick={() => navigate(history,
-                          formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId))}>
+                          formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, tabIndex))}>
           <FormattedMessage id='createBug'/>
         </SpinningButton>
       )}

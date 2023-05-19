@@ -88,7 +88,7 @@ function Wizard(props) {
         <OptionWizard marketId={marketId} />
       )}
       {createType === BUG_WIZARD_TYPE.toLowerCase() && (
-        <BugWizard marketId={marketId} groupId={groupId} />
+        <BugWizard marketId={marketId} groupId={groupId} commentType={commentType} />
       )}
       {createType === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase() && (
         <CollaboratorWizard marketId={marketId} />

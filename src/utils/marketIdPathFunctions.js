@@ -265,10 +265,10 @@ export function formWizardLink(wizardType, marketId, investibleId, groupId, comm
 
 }
 
-export function formMarketAddInvestibleLink(marketId, groupId, assigneeId, wizardType=JOB_WIZARD_TYPE) {
+export function formMarketAddInvestibleLink(marketId, groupId, jobType, wizardType=JOB_WIZARD_TYPE) {
   const baseLink = `/wizard#type=${wizardType}&marketId=${marketId}&groupId=${groupId}`
-  if (assigneeId) {
-    return `${baseLink}&assigneeId=${assigneeId}`;
+  if (jobType !== undefined) {
+    return `${baseLink}&jobType=${jobType}`;
   }
   return baseLink;
 }

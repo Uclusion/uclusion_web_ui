@@ -10,7 +10,7 @@ import { formCommentLink, formMarketLink, navigate } from '../../../utils/market
 import { useHistory } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 
-const useStyles = makeStyles(
+export const bugRadioStyles = makeStyles(
   theme => {
     return {
       certaintyLabel: {
@@ -37,7 +37,7 @@ function BugDescriptionStep (props) {
   const [commentAddBugState, updateCommentAddBugState, commentAddStateBugReset] =
     getPageReducerPage(commentAddBugStateFull, commentAddBugDispatch, groupId);
   const classes = useContext(WizardStylesContext);
-  const radioClasses = useStyles();
+  const radioClasses = bugRadioStyles();
   const { newQuantity } = formData;
   const defaultFromPage = commentType === undefined ? undefined :
     (commentType === '0' ? 'RED' : (commentType === '1' ? 'YELLOW' : 'BLUE'));

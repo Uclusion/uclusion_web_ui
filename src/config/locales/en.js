@@ -372,6 +372,10 @@ const messages = defineMessages({
   skipApprovalExplanation: 'Skip getting approvals',
   newStory: 'New Job',
   DecideAssignMe: 'Assign to me',
+  jobTypeLabelIMMEDIATE: 'Immediate - assign now',
+  jobTypeLabelREADY: 'Ready to start - notify in backlog',
+  jobTypeLabelNOT_READY: 'Not ready - backlog no notification',
+  jobCreate: 'Create job',
 
   // Investible
   investibleEditLabel: 'Edit',

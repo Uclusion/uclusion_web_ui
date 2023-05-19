@@ -105,7 +105,7 @@ function Backlog(props) {
                       style={{marginBottom: isEmptyBacklog ? undefined : '1rem'}}
                       variant="text" doSpin={false}
                       onClick={() => {
-                        navigate(history, formMarketAddInvestibleLink(marketId, groupId));
+                        navigate(history, formMarketAddInvestibleLink(marketId, groupId, tabIndex));
                       }}>
         <FormattedMessage id='addStoryLabel'/>
       </SpinningButton>

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Typography } from '@material-ui/core';
+import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
 import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
@@ -9,7 +9,7 @@ import { editorEmpty, getQuillStoredState, resetEditor, storeState } from '../..
 import { useEditor } from '../../TextEditors/quillHooks';
 import { convertDescription } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
-import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -29,10 +29,15 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { FormattedMessage } from 'react-intl';
+import { bugRadioStyles } from '../Bug/BugDescriptionStep';
+import { useHistory } from 'react-router';
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData,
-    startOver, clearFormData } = props;
+    startOver, clearFormData, jobType } = props;
+  const history = useHistory();
+  const radioClasses = bugRadioStyles();
   const isSingleComment = _.size(fromCommentIds) === 1;
   const editorName = isSingleComment ? `addJobWizard${fromCommentIds[0]}` : `addJobWizard${groupId}`;
   if (isSingleComment && _.isEmpty(getQuillStoredState(editorName))) {
@@ -73,7 +78,7 @@ function JobDescriptionStep (props) {
     return React.Fragment;
   }
 
-  const { isMoveExisting } = formData;
+  const { isMoveExisting, newQuantity } = formData;
 
   if (isMoveExisting && !_.isEmpty(comments)) {
     return <FindJobStep marketId={marketId} groupId={groupId} roots={roots} marketComments={marketComments}
@@ -139,7 +144,7 @@ function JobDescriptionStep (props) {
       })
   }
 
-  function onTerminate(formData){
+  function onNotReady(formData){
      createJob()
       .then(({link}) => {
         onFinish({
@@ -149,6 +154,21 @@ function JobDescriptionStep (props) {
       });
   }
 
+  function onChange(event) {
+    updateFormData({
+      newQuantity: event.target.value
+    });
+  }
+
+  const defaultFromPage = jobType === undefined ? 'IMMEDIATE' : (jobType === '0' ? 'READY' : 'NOT_READY');
+  const currentValue = newQuantity || defaultFromPage || '';
+  const onNext = currentValue === 'NOT_READY' ? onNotReady : (currentValue === 'READY' ?
+    () => createJob(true).then(({link}) => {
+    onFinish({
+      ...formData,
+      link
+    });
+  }) : createJob);
   return (
     <WizardStepContainer
       {...props}
@@ -156,8 +176,40 @@ function JobDescriptionStep (props) {
     >
     <div>
       <Typography className={classes.introText}>
-        What has to be done?
+        How would you describe this job?
       </Typography>
+      <FormControl>
+        <FormLabel
+          className={radioClasses.certaintyLabel}
+          id="add-vote-certainty"
+        >
+        </FormLabel>
+        <RadioGroup
+          aria-labelledby="add-vote-certainty"
+          style={{display: 'flex', flexDirection: 'row'}}
+          onChange={onChange}
+          value={currentValue}
+        >
+          {['IMMEDIATE', 'READY', 'NOT_READY'].map(certainty => {
+            return (
+              <FormControlLabel
+                key={certainty}
+                id={`${certainty}`}
+                className={radioClasses.certaintyValue}
+                classes={{
+                  label: radioClasses.certaintyValueLabel
+                }}
+                /* prevent clicking the label stealing focus */
+                onMouseDown={e => e.preventDefault()}
+                control={<Radio />}
+                label={<FormattedMessage id={`jobTypeLabel${certainty}`} />}
+                labelPlacement="start"
+                value={certainty}
+              />
+            );
+          })}
+        </RadioGroup>
+      </FormControl>
       <div style={{maxHeight: '300px', overflowY: 'auto', overflowX: 'hidden'}}>
         {Editor}
         <div className={classes.wizardCommentBoxDiv}>
@@ -174,21 +226,12 @@ function JobDescriptionStep (props) {
       <WizardStepButtons
         {...props}
         validForm={hasValue}
-        nextLabel="JobWizardAssignJob"
-        onNext={createJob}
-        onTerminate={onTerminate}
-        showTerminate={hasValue}
-        showOtherNext={true}
-        onOtherDoAdvance={false}
-        onOtherNext={() => createJob(true).then(({link}) => {
-          onFinish({
-            ...formData,
-            link
-          });
-        })}
-        otherNextLabel="JobWizardReady"
-        terminateLabel="JobWizardNoAssign"
-        terminateSpinOnClick
+        nextLabel="jobCreate"
+        onNext={onNext}
+        onNextDoAdvance={currentValue === 'IMMEDIATE'}
+        showTerminate
+        onTerminate={() => navigate(history, formMarketLink(marketId, groupId))}
+        terminateLabel="JobWizardGotoJob"
       />
     </div>
     </WizardStepContainer>

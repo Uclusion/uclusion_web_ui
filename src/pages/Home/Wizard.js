@@ -46,7 +46,7 @@ function Wizard(props) {
   const location = useLocation();
   const { hash } = location;
   const values = queryString.parse(hash);
-  const { type: createType, marketId, groupId, assigneeId, investibleId, commentId, commentType, voteFor } = values;
+  const { type: createType, marketId, groupId, jobType, investibleId, commentId, commentType, voteFor } = values;
   const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
   const upgradeMessages = findMessagesForUserPoked(messagesState);
@@ -82,7 +82,7 @@ function Wizard(props) {
         <WorkspaceWizard />
       )}
       {createType === JOB_WIZARD_TYPE.toLowerCase() && (
-        <JobWizard marketId={marketId} groupId={groupId} assigneeId={assigneeId} />
+        <JobWizard marketId={marketId} groupId={groupId} jobType={jobType} />
       )}
       {createType === OPTION_WIZARD_TYPE.toLowerCase() && (
         <OptionWizard marketId={marketId} />

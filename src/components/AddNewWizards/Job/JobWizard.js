@@ -17,7 +17,7 @@ import { navigate } from '../../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function JobWizard(props) {
-  const { marketId, groupId, assigneeId } = props;
+  const { marketId, groupId, jobType } = props;
   const [resolvedId, setResolvedId] = useState(undefined);
   const location = useLocation();
   const history = useHistory();
@@ -66,8 +66,8 @@ function JobWizard(props) {
                            marketComments={comments} />
         )}
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} fromCommentIds={fromCommentIds}
-                            marketComments={comments}/>
-        <JobAssignStep onFinish={onFinish} marketId={marketId} assigneeId={assigneeId} />
+                            marketComments={comments} jobType={jobType}/>
+        <JobAssignStep onFinish={onFinish} marketId={marketId} />
         <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
       </FormdataWizard>
     </WizardStylesProvider>

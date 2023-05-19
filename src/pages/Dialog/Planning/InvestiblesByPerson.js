@@ -136,10 +136,6 @@ function InvestiblesByPerson(props) {
     return !presence.current_user;
   });
 
-  function onClick(id) {
-    navigate(history, formMarketAddInvestibleLink(marketId, groupId, id));
-  }
-
   return (
     <>
       <SpinningButton id="addJob"
@@ -147,7 +143,7 @@ function InvestiblesByPerson(props) {
                       icon={AddIcon}
                       variant="text" doSpin={false}
                       style={{marginTop: '1rem', marginBottom: '1rem'}}
-                      onClick={() => onClick()}>
+                      onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
         <FormattedMessage id='addStoryLabel'/>
       </SpinningButton>
 

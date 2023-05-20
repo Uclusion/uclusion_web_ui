@@ -32,7 +32,7 @@ function DecisionApproveStep(props) {
   const editorName = getJobApproveEditorName(investibleId);
   const marketId = market.id;
   const {approveUploadedFiles, approveReason, approveQuantity, originalQuantity, wasDeleted, originalReason} = formData;
-  const validForm = approveQuantity >= 0;
+  const validForm = approveQuantity > 0;
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId,
     allow_multi_vote: allowsMultiple } = market;
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId) || {};

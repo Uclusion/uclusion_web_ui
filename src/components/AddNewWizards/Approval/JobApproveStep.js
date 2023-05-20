@@ -31,7 +31,7 @@ function JobApproveStep(props) {
   const editorName = getJobApproveEditorName(investibleId);
   const {approveUploadedFiles, approveReason, approveQuantity, originalQuantity, wasDeleted, userId,
     originalReason} = formData;
-  const validForm = approveQuantity >= 0;
+  const validForm = approveQuantity > 0;
 
   function doQuick(result) {
     commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, messagesState,

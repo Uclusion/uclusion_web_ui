@@ -40,7 +40,7 @@ function StageActionStep(props) {
   const {approveUploadedFiles, approveReason, approveQuantity, stage, wasDeleted,
     originalReason, originalQuantity, userId } = formData;
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage) || {};
-  const validForm = approveQuantity >= 0;
+  const validForm = approveQuantity > 0;
 
   if (isInReviewStage(fullMoveStage)) {
     return (

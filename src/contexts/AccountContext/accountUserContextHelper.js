@@ -1,8 +1,19 @@
 import _ from 'lodash'
 
+
+
+export const OnboardingState = {
+  NeedsOnboarding: 'NEEDS_ONBOARDING',
+  DemoCreated: 'DEMO_CREATED',
+  FirstMarketJoined: 'FIRST_MARKET_JOINED'
+};
+
 export function userIsLoaded(state) {
   const { user } = state || {};
-  return !_.isEmpty(user);
+  const hasUser =  !_.isEmpty(user);
+  console.dir(user);
+  const onboardingNeeded = user.onboarding_state == null || user.onboarding_state === OnboardingState.NeedsOnboarding;
+  return hasUser && !onboardingNeeded;
 }
 
 export function getUiPreferences(state) {

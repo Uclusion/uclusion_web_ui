@@ -178,7 +178,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
     return (
       <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                   variant="body1">
-        Your Deferred tab is empty.<br/><br/> Unfinished team collaboration display here.
+        Your Snoozed tab is empty.<br/><br/> Snoozed items return as unread after a day or when poked.
       </Typography>
     );
   }

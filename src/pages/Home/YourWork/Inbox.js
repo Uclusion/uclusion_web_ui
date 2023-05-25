@@ -2,12 +2,11 @@ import WorkListItem, { workListStyles } from './WorkListItem'
 import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useEffect, useReducer } from 'react'
 import { useIntl } from 'react-intl'
-import { Group as GroupIcon, ExpandLess, KeyboardArrowLeft, Inbox as InboxIcon } from '@material-ui/icons'
+import { Group as GroupIcon, ExpandLess, KeyboardArrowLeft, Inbox as InboxIcon, Delete } from '@material-ui/icons';
 import OutboxIcon from '../../../components/CustomChip/Outbox'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import _ from 'lodash'
 import { deleteOrDehilightMessages } from '../../../api/users'
-import ArchiveIcon from '@material-ui/icons/Archive'
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
@@ -26,7 +25,6 @@ import {
   expandAll,
   getUnpaginatedItems,
   PAGE_SIZE,
-  PENDING_INDEX,
   setPage,
   setTab
 } from './InboxContext'
@@ -100,17 +98,16 @@ function Inbox(props) {
       </GmailTabs>
       <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
         <div style={{display: 'flex', width: '80%'}}>
-          {!mobileLayout && (
+          {!mobileLayout && 0 === tabIndex && (
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                       checked={checkAll}
                       indeterminate={indeterminate}
-                      disabled={PENDING_INDEX === tabIndex}
                       onChange={() => determinateDispatch({type: 'toggle'})}
             />
           )}
-          {(checkAll || !_.isEmpty(determinate)) && (
+          {(checkAll || !_.isEmpty(determinate)) && 0 === tabIndex && (
             <TooltipIconButton
-              icon={<ArchiveIcon htmlColor={ACTION_BUTTON_COLOR} />}
+              icon={<Delete htmlColor={ACTION_BUTTON_COLOR} />}
               onClick={() => {
                 let toProcess = messagesFull.filter((message) => message.is_highlighted ||
                   message.type_object_id.startsWith('UNREAD'));

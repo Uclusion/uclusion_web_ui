@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
+import { Box, Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
@@ -20,6 +20,11 @@ import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constant
 import { getFormerStageId, isSingleAssisted } from '../../../utils/commentFunctions';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
+import { changePresence, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import GravatarGroup from '../../Avatars/GravatarGroup';
+import _ from 'lodash';
+import { pokeUsers } from '../../../api/users';
 
 
 function DecideAssistanceStep(props) {
@@ -30,6 +35,7 @@ function DecideAssistanceStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
@@ -43,7 +49,13 @@ function DecideAssistanceStep(props) {
   const nextStageName = getStageNameForId(marketStagesState, marketId, nextStageId, intl);
   const isSingle = isSingleAssisted(comments, assigned);
   const isSuggest = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
-
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  console.debug(marketPresences)
+  const snoozed = marketPresences.filter((presence) => {
+    const { deferred_notifications: deferred } = presence;
+    return (deferred || []).includes(commentId);
+  });
+  const deferredUserIds = (snoozed || []).map((presence) => presence.id);
 
   function myOnFinish() {
     navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentRoot.id));
@@ -77,6 +89,14 @@ function DecideAssistanceStep(props) {
         <Typography className={classes.introSubText} variant="subtitle1">
           Resolving moves this job to {nextStageName}.
         </Typography>
+      )}
+      {!_.isEmpty(snoozed) && (
+        <Box sx={{ p: 2, border: '1px solid grey' }} style={{marginBottom: '1rem', paddingTop: 0, width: '50rem'}}>
+          <Typography className={classes.introSubText} variant="subtitle1">
+            Poke to resend notifications to these snoozed collaborators.
+          </Typography>
+          <GravatarGroup users={snoozed}/>
+        </Box>
       )}
       {commentRoot.investible_id && (
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
@@ -112,6 +132,19 @@ function DecideAssistanceStep(props) {
         showOtherNext={isSuggest}
         otherNextLabel="commentResolveLabel"
         onOtherNext={resolve}
+        showTerminate={!_.isEmpty(snoozed)}
+        terminateLabel="pokeSnoozed"
+        terminateSpinOnClick
+        onFinish={() => pokeUsers(marketId, commentId, deferredUserIds).then(() => {
+          // quick remove the comment id on the deferred_notifications of the snoozed presences
+          snoozed.forEach((presence) => {
+            const { deferred_notifications: deferred } = presence;
+            const newDeferred = deferred.filter((id) => id !== commentId) || [];
+            changePresence(presence, marketPresencesDispatch, marketId,
+              { deferred_notifications: newDeferred });
+          });
+          setOperationRunning(false);
+        })}
       />
     </div>
     </WizardStepContainer>

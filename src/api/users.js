@@ -16,6 +16,12 @@ export function banUser(marketId, userId) {
     .catch((error) => toastErrorAndThrow(error, 'errorBanUserFailed'));
 }
 
+export function pokeUsers(marketId, commentId, userIds) {
+  return getMarketClient(marketId)
+    .then((client) => client.users.highlightNotifications(commentId, userIds))
+    .catch((error) => toastErrorAndThrow(error, 'errorPokeUsersFailed'));
+}
+
 export function deleteOrDehilightMessages(messages, messagesDispatch, removeClass, doRemove=true,
   highlightOnly=false) {
   const useMarketIds = {};

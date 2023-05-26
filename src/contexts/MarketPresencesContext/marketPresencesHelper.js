@@ -83,20 +83,24 @@ export function getPresenceMap(presences) {
   }, {});
 }
 
+export function changePresence(presence, dispatch, marketId, newValues) {
+  if (!presence) {
+    return;
+  }
+  const newPresence = {
+    ...presence,
+    ...newValues
+  };
+  dispatch(addMarketPresence(marketId, newPresence));
+}
+
 export function changeMyPresence(state, dispatch, marketId, newValues) {
   const marketPresences = getMarketPresences(state, marketId);
   if (!marketPresences) {
     return;
   }
   const myPresence = marketPresences.find((presence) => presence.current_user);
-  if (!myPresence) {
-    return;
-  }
-  const newPresence = {
-    ...myPresence,
-    ...newValues
-  };
-  dispatch(addMarketPresence(marketId, newPresence));
+  changePresence(myPresence, dispatch, marketId, newValues);
 }
 
 export function changeBanStatus(state, dispatch, marketId, userId, isBanned) {

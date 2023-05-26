@@ -75,9 +75,9 @@ function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, 
     }
     return { name: extracted, description };
   }
-  const sentencePosition = strippedElement.indexOf('.');
+  const sentencePosition = extracted.indexOf('.');
   if (sentencePosition > 0) {
-    extracted = strippedElement.substring(0, sentencePosition + 1);
+    extracted = extracted.substring(0, sentencePosition + 1);
   }
   if (extracted.length <= maxLength) {
     let splitDescription = description.substring(3 + extracted.length);

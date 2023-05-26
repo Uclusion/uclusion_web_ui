@@ -11,8 +11,8 @@ export const OnboardingState = {
 export function userIsLoaded(state) {
   const { user } = state || {};
   const hasUser =  !_.isEmpty(user);
-  console.dir(user);
-  const onboardingNeeded = user.onboarding_state == null || user.onboarding_state === OnboardingState.NeedsOnboarding;
+  // if you're flagg is needs onboarding, it means the backend isn't done working with you
+  const onboardingNeeded = user?.onboarding_state === OnboardingState.NeedsOnboarding;
   return hasUser && !onboardingNeeded;
 }
 

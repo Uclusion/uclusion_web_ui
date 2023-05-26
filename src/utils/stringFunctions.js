@@ -141,7 +141,7 @@ export function convertDescription(description, maxLength = 80) {
 
   // Could be no p element and just a table
   const outsideElements = processForName(["li", "td"], description);
-  if (_.isEmpty(outsideElements)) {
+  if (!_.isEmpty(outsideElements)) {
     const firstOutside = outsideElements[0];
     return addSentenceAwareAmpersandRemoveDuplicate(firstOutside.strippedElement, description, maxLength,
       undefined, true);

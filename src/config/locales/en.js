@@ -530,7 +530,7 @@ const messages = defineMessages({
   defer: 'Snooze',
   DecideStartNavigate: 'Go to bug',
   DiscussionCommentAddQUESTION: 'Add options',
-  DiscussionCommentAddSUGGEST: 'Configure',
+  DiscussionCommentAddSUGGEST: 'Add suggestion',
   JobCommentAddQUESTION: 'Add options',
   JobCommentAddSUGGEST: 'Add',
   JobCommentAddISSUE: 'Add',

@@ -349,7 +349,7 @@ function MarketTodos(props) {
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
   return (
     <div className={classes.outerBorder} id="marketTodos" style={{display: sectionOpen ? 'block' : 'none',
-      marginTop: '2rem'}}>
+      marginTop: '1rem', paddingLeft: '3%', paddingRight: '3%'}}>
       <DismissableText textId="todosHelp" display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
                        text={
         <div>
@@ -360,6 +360,7 @@ function MarketTodos(props) {
       {!isInArchives && (
         <SpinningButton id="newMarketTodo"
                         className={wizardClasses.actionPrimary}
+                        style={{marginBottom: '1rem'}}
                         variant="text" doSpin={false}
                         icon={AddIcon}
                         onClick={() => navigate(history,

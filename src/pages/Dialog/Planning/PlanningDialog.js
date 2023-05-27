@@ -255,11 +255,11 @@ function PlanningDialog(props) {
                       archivedSize={archivedSize} />
       <div style={{paddingTop: '4rem', width: '100%'}}>
         {isSectionOpen('discussionSection') && (
-          <div id="discussionSection">
+          <div id="discussionSection" style={{paddingLeft: '3%', paddingRight: '3%'}}>
             <Grid item id="discussionAddArea" xs={12}>
               {_.isEmpty(search) && marketId && !hidden && (
                 <>
-                  <div style={{display: 'flex'}}>
+                  <div style={{display: 'flex', marginBottom: '1.5rem'}}>
                     <SpinningButton id="newMarketQuestion"
                                     icon={AddIcon}
                                     className={wizardClasses.actionPrimary}
@@ -362,7 +362,7 @@ function PlanningDialog(props) {
             </div>
           )}
           {isSectionOpen('backlogSection') && (
-            <div id="backlogSection">
+            <div id="backlogSection" style={{paddingLeft: '3%', paddingRight: '3%'}}>
               <Backlog group={group} marketPresences={marketPresences}
                        furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
                        comments={comments} />

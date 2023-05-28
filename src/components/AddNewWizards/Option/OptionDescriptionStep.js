@@ -15,7 +15,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import {
   formCommentLink,
-  navigate
+  navigate, navigateToOption
 } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -70,10 +70,10 @@ function OptionDescriptionStep (props) {
         setUploadedFiles([]);
         setHasValue(false)
         setOperationRunning(false);
+        navigateToOption(history, parentMarketId, parentInvestibleId, parentGroupId, inv.investible.id);
       });
   }
-  const myFinish = () => navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId,
-    parentCommentId));
+
   return (
     <WizardStepContainer
       {...props}
@@ -94,8 +94,8 @@ function OptionDescriptionStep (props) {
         onOtherNext={createOption}
         onOtherDoAdvance={false}
         otherNextLabel="JobCommentCreateAnotherOption"
-        finish={myFinish}
-        onTerminate={myFinish}
+        onTerminate={() => navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId,
+          parentCommentId))}
         showTerminate={true}
         terminateLabel="JobOptionTerminate"/>
     </div>

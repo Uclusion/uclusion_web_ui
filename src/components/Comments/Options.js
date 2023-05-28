@@ -11,7 +11,7 @@ import GravatarGroup from '../Avatars/GravatarGroup';
 import { GmailTabItem, GmailTabs } from '../../containers/Tab/Inbox';
 import { Block } from '@material-ui/icons';
 import OptionVoting from '../../pages/Dialog/Decision/OptionVoting';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
@@ -23,6 +23,7 @@ import { getMarketInfo } from '../../utils/userFunctions';
 import { moveInvestibleToCurrentVoting } from '../../api/investibles';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { ACTIVE_STAGE } from '../../constants/markets';
+import { useLocation } from 'react-router';
 
 export function isRead(inv, messagesState) {
   const investibleId = inv.investible.id;
@@ -38,6 +39,8 @@ export function isReadComment(comment, messagesState) {
 function Options(props) {
   const { anInlineMarket, marketId, investibleId, inArchives, isEditable, isSent, groupId, removeActions,
     selectedInvestibleIdParent, setSelectedInvestibleIdParent, searchResults } = props;
+  const location = useLocation();
+  const { hash } = location;
   const intl = useIntl();
   const [investiblesState, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -45,12 +48,30 @@ function Options(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [tabIndex, setTabIndex] = useState(0);
+  const [selectedInvestibleIdLocal, setSelectedInvestibleIdLocal] = useState(undefined);
+  const selectedInvestibleId = selectedInvestibleIdParent || selectedInvestibleIdLocal;
+  const setSelectedInvestibleId = setSelectedInvestibleIdParent || setSelectedInvestibleIdLocal;
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults) || [];
   const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const underConsiderationStage = getInCurrentVotingStage(marketStagesState, anInlineMarket.id);
   const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
   const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
+  const strippedInvestibles = inlineInvestibles.map(inv => inv.investible);
+  const selectedInvestible = inlineInvestibles.find((inv) => inv.investible.id === selectedInvestibleId);
+  const selectedStageTab = selectedInvestible ?
+    (getMarketInfo(selectedInvestible, anInlineMarket.id).stage === proposedStage.id ? 1 : 0) : undefined;
+  const useTabIndex = selectedStageTab || tabIndex;
+
+  useEffect(() => {
+    if (hash && !hash.includes(selectedInvestibleId)) {
+      const foundInv = (strippedInvestibles || []).find((investible) => hash.includes(investible.id));
+      if (foundInv) {
+        setSelectedInvestibleId(foundInv.id);
+      }
+    }
+  }, [strippedInvestibles, hash, setSelectedInvestibleId, selectedInvestibleId]);
+
   const abstained = _.isEmpty(abstaining) ? undefined :
     <div style={{display: 'flex', paddingLeft: '2rem', alignItems: 'center'}}>
       <Typography variant='body2' style={{paddingRight: '0.5rem'}}>
@@ -98,15 +119,16 @@ function Options(props) {
   const proposed = getInlineInvestiblesForStage(proposedStage);
   const unreadCount = _.size(underConsideration.filter((inv) => !isRead(inv)));
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
-  const tabInvestibles = tabIndex === 0 ? underConsideration : proposed;
+  const tabInvestibles = useTabIndex === 0 ? underConsideration : proposed;
   return (
     <>
       {abstained}
-      <div onDrop={tabIndex === 0 ? onDropProposed : onDropApprovable}
+      <div onDrop={useTabIndex === 0 ? onDropProposed : onDropApprovable}
            onDragOver={(event)=>event.preventDefault()}>
         <GmailTabs
-          value={tabIndex}
+          value={useTabIndex}
           onChange={(event, value) => {
+            setSelectedInvestibleId(undefined);
             setTabIndex(value);
           }}
           indicatorColors={[htmlColor, '#00008B']}
@@ -122,14 +144,14 @@ function Options(props) {
                         tag={_.size(proposed) > 0 ? `${_.size(proposed)}` : undefined} />
         </GmailTabs>
       </div>
-      {_.isEmpty(tabInvestibles) && tabIndex === 0 && (
+      {_.isEmpty(tabInvestibles) && useTabIndex === 0 && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           {intl.formatMessage({id: 'decisionDialogCurrentVotingLabel'})} is empty.<br/><br/>
           Options to approve display here.
         </Typography>
       )}
-      {_.isEmpty(tabInvestibles) && tabIndex === 1 && (
+      {_.isEmpty(tabInvestibles) && useTabIndex === 1 && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           {intl.formatMessage({id: 'decisionDialogProposedOptionsLabel'})} is empty.<br/><br/>
@@ -148,8 +170,8 @@ function Options(props) {
         isAdmin={isEditable}
         isSent={isSent}
         removeActions={removeActions}
-        selectedInvestibleIdParent={selectedInvestibleIdParent}
-        setSelectedInvestibleIdParent={setSelectedInvestibleIdParent}
+        selectedInvestibleId={selectedInvestibleId}
+        setSelectedInvestibleId={setSelectedInvestibleId}
       />
     </>
   );

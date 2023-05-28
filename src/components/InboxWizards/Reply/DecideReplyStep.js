@@ -22,6 +22,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { REPORT_TYPE } from '../../../constants/comments';
 
 function DecideReplyStep(props) {
   const { marketId, commentId, message } = props;
@@ -33,7 +34,7 @@ function DecideReplyStep(props) {
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const userId = getMyUserForMarket(marketsState, marketId) || {};
-  const isAuthor = commentRoot.created_by === userId;
+  const canResolve = commentRoot.created_by === userId && commentRoot.comment_type !== REPORT_TYPE;
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const threadMessages = [];
@@ -114,10 +115,10 @@ function DecideReplyStep(props) {
         {...props}
         nextLabel="issueReplyLabel"
         spinOnClick={false}
-        showOtherNext={isAuthor || hasThreadMessages}
-        otherNextLabel={isAuthor ? 'issueResolveLabel' : 'notificationDelete'}
-        onOtherNext={isAuthor ? resolve : myOnFinish}
-        otherSpinOnClick={isAuthor}
+        showOtherNext={canResolve || hasThreadMessages}
+        otherNextLabel={canResolve ? 'issueResolveLabel' : 'notificationDelete'}
+        onOtherNext={canResolve ? resolve : myOnFinish}
+        otherSpinOnClick={canResolve}
         showTerminate
         terminateLabel={hasThreadMessages ? 'notificationDismissThread' : 'notificationDelete'}
         onFinish={hasThreadMessages ? dismissAll : myOnFinish}

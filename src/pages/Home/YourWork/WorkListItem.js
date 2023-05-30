@@ -170,7 +170,7 @@ function WorkListItem(props) {
   const showExpansion = isHovered && !isNotSynced;
   if (expansionOpen) {
     return (
-      <div id={`workListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
+      <div id={`workListItem${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
         height: expansionOpen ? undefined : 0}}>
         {expansionPanel || <React.Fragment />}
       </div>

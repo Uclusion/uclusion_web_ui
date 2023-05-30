@@ -76,7 +76,7 @@ function Inbox(props) {
   return (
     <>
     <div style={{zIndex: 8, position: 'fixed', width: '100%', marginLeft: '-0.5rem',
-      marginTop: mobileLayout ? '-13px' : '-8px'}} id="inbox-header">
+      marginTop: mobileLayout ? '-13px' : (workItemId ? '-15px' : '-8px')}} id="inbox-header">
       {!workItemId && (
         <GmailTabs
           value={tabIndex}

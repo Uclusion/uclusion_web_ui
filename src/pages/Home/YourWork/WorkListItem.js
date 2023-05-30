@@ -168,6 +168,14 @@ function WorkListItem(props) {
     fullText += ' - ' + comment;
   }
   const showExpansion = isHovered && !isNotSynced;
+  if (expansionOpen) {
+    return (
+      <div id={`workListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
+        height: expansionOpen ? undefined : 0}}>
+        {expansionPanel || <React.Fragment />}
+      </div>
+    );
+  }
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
       <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
@@ -228,10 +236,6 @@ function WorkListItem(props) {
           </Div>
         </div>
       </RaisedCard>
-      <div id={`workListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
-        height: expansionOpen ? undefined : 0}}>
-        {expansionPanel || <React.Fragment />}
-      </div>
     </Item>
   );
 }

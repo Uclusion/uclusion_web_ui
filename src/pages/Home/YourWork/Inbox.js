@@ -77,36 +77,38 @@ function Inbox(props) {
     <>
     <div style={{zIndex: 8, position: 'fixed', width: '100%', marginLeft: '-0.5rem',
       marginTop: mobileLayout ? '-13px' : '-8px'}} id="inbox-header">
-      <GmailTabs
-        value={tabIndex}
-        onChange={(event, value) => {
-          window.scrollTo(0, 0);
-          inboxDispatch(setTab(value));
-        }}
-        indicatorColors={[htmlColor, '#00008B', '#00008B']}
-        style={{ paddingBottom: '0.5rem', paddingTop: '1rem', marginTop: '-1rem' }}>
-        <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}
-                      color='black' tagLabel={unreadCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                      tagColor={unreadCount > 0 ? '#E85757' : undefined}
-                      tag={unreadCount > 0 ? `${unreadCount}` :
-                        (_.size(inboxMessagesOrdered) > 0 ? `${_.size(inboxMessagesOrdered)}` : undefined)} />
-        <GmailTabItem icon={<GroupIcon />} label={intl.formatMessage({id: 'teamUnresolved'})}
-                      tag={_.size(teamMessagesOrdered) > 0 ?
-                        `${_.size(teamMessagesOrdered)}` : undefined} />
-        <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})}
-                      tag={_.size(outBoxMessagesOrdered) > 0 ?
-                        `${_.size(outBoxMessagesOrdered)}` : undefined} />
-      </GmailTabs>
+      {!workItemId && (
+        <GmailTabs
+          value={tabIndex}
+          onChange={(event, value) => {
+            window.scrollTo(0, 0);
+            inboxDispatch(setTab(value));
+          }}
+          indicatorColors={[htmlColor, '#00008B', '#00008B']}
+          style={{ paddingBottom: '0.5rem', paddingTop: '1rem', marginTop: '-1rem' }}>
+          <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}
+                        color='black' tagLabel={unreadCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                        tagColor={unreadCount > 0 ? '#E85757' : undefined}
+                        tag={unreadCount > 0 ? `${unreadCount}` :
+                          (_.size(inboxMessagesOrdered) > 0 ? `${_.size(inboxMessagesOrdered)}` : undefined)} />
+          <GmailTabItem icon={<GroupIcon />} label={intl.formatMessage({id: 'teamUnresolved'})}
+                        tag={_.size(teamMessagesOrdered) > 0 ?
+                          `${_.size(teamMessagesOrdered)}` : undefined} />
+          <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})}
+                        tag={_.size(outBoxMessagesOrdered) > 0 ?
+                          `${_.size(outBoxMessagesOrdered)}` : undefined} />
+        </GmailTabs>
+      )}
       <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
         <div style={{display: 'flex', width: '80%'}}>
-          {!mobileLayout && 0 === tabIndex && (
+          {!mobileLayout && 0 === tabIndex && !workItemId && (
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                       checked={checkAll}
                       indeterminate={indeterminate}
                       onChange={() => determinateDispatch({type: 'toggle'})}
             />
           )}
-          {(checkAll || !_.isEmpty(determinate)) && 0 === tabIndex && (
+          {(checkAll || !_.isEmpty(determinate)) && 0 === tabIndex && !workItemId && (
             <TooltipIconButton
               icon={<Delete htmlColor={ACTION_BUTTON_COLOR} />}
               onClick={() => {

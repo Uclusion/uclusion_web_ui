@@ -178,9 +178,8 @@ export const wizardStyles = makeStyles(
       },
       stepDefault: {},
       wizardCommentBoxDiv: {
-        maxHeight: '300px',
         paddingBottom: '0.5rem',
-        overflowY: 'auto',
+        overflowY: 'hidden',
         overflowX: 'hidden',
         marginBottom: '0.5rem',
         paddingLeft: '4px',

@@ -279,26 +279,26 @@ function DecisionInvestible(props) {
     )}
   </CardContent>;
   const actions = <CardActions className={mobileLayout ? undefined : classes.actions}>
-    {!removeActions && (
-      <div className={mobileLayout ? undefined : clsx(metaClasses.root, classes.flexCenter)}>
-        {!removeActions && activeMarket && (
-          getActions()
-        )}
-        {isSent && (
-          <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
-        )}
-        {myMessageDescription && diff && (
-          <>
-            <div style={{paddingTop: '0.5rem'}} />
-            <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
-                                     onClick={toggleDiffShow} doSpin={false}>
-              <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
-            </SpinningIconLabelButton>
-          </>
-        )}
-        <Typography variant="body2" style={{paddingBottom: '1rem'}}>
-          {intl.formatMessage({ id: 'created_by' })} {optionCreatedBy.name}.
-        </Typography>
+    <div className={mobileLayout ? undefined : clsx(metaClasses.root, classes.flexCenter)}>
+      {!removeActions && activeMarket && (
+        getActions()
+      )}
+      {isSent && (
+        <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
+      )}
+      {myMessageDescription && diff && (
+        <>
+          <div style={{paddingTop: '0.5rem'}} />
+          <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                   onClick={toggleDiffShow} doSpin={false}>
+            <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+          </SpinningIconLabelButton>
+        </>
+      )}
+      <Typography variant="body2" style={{paddingBottom: '1rem'}}>
+        {intl.formatMessage({ id: 'created_by' })} {optionCreatedBy.name}.
+      </Typography>
+      {!removeActions && (
         <AttachedFilesList
           key="files"
           marketId={marketId}
@@ -306,8 +306,8 @@ function DecisionInvestible(props) {
           isAdmin={isAdmin}
           attachedFiles={attachedFiles}
           onUpload={onAttachFiles} />
-      </div>
-    )}
+      )}
+    </div>
   </CardActions>;
   return (
     <div style={{marginLeft: '1rem', marginRight: mobileLayout ? '1rem' : undefined, marginBottom: '1rem'}}

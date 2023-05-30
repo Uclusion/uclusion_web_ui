@@ -152,7 +152,7 @@ function Inbox(props) {
         </div>
       </div>
     </div>
-    <div id="inbox" style={{paddingBottom: '45vh', paddingTop: workItemId ? undefined : '7rem'}}>
+    <div id="inbox" style={{paddingTop: workItemId ? undefined : '7rem'}}>
       {defaultRow}
       { data.map((message) => {
           if (message.isOutboxType || !message.type_object_id) {

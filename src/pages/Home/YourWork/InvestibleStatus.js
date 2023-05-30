@@ -8,7 +8,7 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { removeWorkListItem, workListStyles } from './WorkListItem'
+import { removeWorkListItem } from './WorkListItem'
 import WizardStepButtons from '../../../components/InboxWizards/WizardStepButtons'
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -18,7 +18,6 @@ function InvestibleStatus(props) {
   const { marketId, investibleId, message, wizardProps } = props;
   const { updateFormData, formData, clearFormData } = wizardProps;
   const intl = useIntl();
-  const workItemClasses = workListStyles();
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -57,7 +56,7 @@ function InvestibleStatus(props) {
       return updateInvestible(updateInfo).then((fullInvestible) => {
         refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
         if (message) {
-          removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+          removeWorkListItem(message, messagesDispatch);
         }
         setOperationRunning(false);
         clearFormData();

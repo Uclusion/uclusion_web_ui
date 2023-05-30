@@ -18,7 +18,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { onDropTodo } from '../../../pages/Dialog/Planning/userUtils';
 import { useIntl } from 'react-intl';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function DecideStartStep(props) {
@@ -37,12 +37,11 @@ function DecideStartStep(props) {
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
-  const workItemClasses = workListStyles();
   const marketStages = getStages(marketStagesState, marketId) || [];
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
 
   function myTerminate() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   function myAccept() {

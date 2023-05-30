@@ -67,7 +67,7 @@ function getPriorityIcon(message, isAssigned) {
 }
 
 function InboxRow(props) {
-  const { message, checked, determinateDispatch, inboxDispatch, expansionOpen, isDeletable } = props;
+  const { message, checked, determinateDispatch, expansionOpen, isDeletable } = props;
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -133,11 +133,10 @@ function InboxRow(props) {
   if (messageType === 'USER_POKED') {
     item.market = intl.formatMessage({id: 'pleaseUpgrade'});
   }
-  calculateTitleExpansionPanel({ item, inboxDispatch,
-    openExpansion: expansionOpen, intl });
+  calculateTitleExpansionPanel({ item, openExpansion: expansionOpen, intl });
   return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}
                        determinateDispatch={determinateDispatch} useSelect={isDeletable}
-                       inboxDispatch={inboxDispatch} expansionOpen={expansionOpen} {...item} />;
+                       expansionOpen={expansionOpen} {...item} />;
 }
 
 export default React.memo(InboxRow);

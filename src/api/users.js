@@ -22,7 +22,7 @@ export function pokeUsers(marketId, commentId, userIds) {
     .catch((error) => toastErrorAndThrow(error, 'errorPokeUsersFailed'));
 }
 
-export function deleteOrDehilightMessages(messages, messagesDispatch, removeClass, doRemove=true,
+export function deleteOrDehilightMessages(messages, messagesDispatch, doRemove=true,
   highlightOnly=false) {
   const useMarketIds = {};
   messages.forEach((message) => {
@@ -36,7 +36,7 @@ export function deleteOrDehilightMessages(messages, messagesDispatch, removeClas
     }
     typeObjectIds.push(typeObjectId);
     if (!highlightOnly && typeObjectId.startsWith('UNREAD')) {
-      removeWorkListItem(message, removeClass, messagesDispatch);
+      removeWorkListItem(message, messagesDispatch);
     } else {
       messagesDispatch(dehighlightMessages([typeObjectId]));
     }

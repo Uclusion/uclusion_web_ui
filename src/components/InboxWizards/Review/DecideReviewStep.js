@@ -14,14 +14,13 @@ import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { useIntl } from 'react-intl';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 
 function DecideReviewStep(props) {
   const { marketId, investibleId, message } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
-  const workItemClasses = workListStyles();
   const [commentsState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const isUnread = message.type_object_id.startsWith('UNREAD');
@@ -56,7 +55,7 @@ function DecideReviewStep(props) {
         otherNextLabel="DecideAddTask"
         terminateLabel={isUnread ? 'notificationDismiss' : 'defer'}
         showTerminate={isUnread || message.is_highlighted}
-        onFinish={() => removeWorkListItem(message, workItemClasses.removed, messagesDispatch)}
+        onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
       />
     </div>
     </WizardStepContainer>

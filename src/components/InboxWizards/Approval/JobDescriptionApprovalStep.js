@@ -21,12 +21,11 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { useIntl } from 'react-intl';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { getReasonForVote } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 
 function JobDescriptionStep (props) {
   const { marketId, investibleId, updateFormData, message, yourVote } = props;
   const classes = wizardStyles();
-  const workItemClasses = workListStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
@@ -40,7 +39,7 @@ function JobDescriptionStep (props) {
   const yourReason = getReasonForVote(yourVote, marketComments);
 
   function myOnFinish() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   return (

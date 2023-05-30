@@ -1,8 +1,8 @@
-import WorkListItem, { workListStyles } from './WorkListItem'
+import WorkListItem from './WorkListItem'
 import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
 import React, { useContext, useEffect, useReducer } from 'react'
 import { useIntl } from 'react-intl'
-import { Group as GroupIcon, ExpandLess, KeyboardArrowLeft, Inbox as InboxIcon, Delete } from '@material-ui/icons';
+import { Group as GroupIcon, KeyboardArrowLeft, Inbox as InboxIcon, Delete, ArrowBack } from '@material-ui/icons';
 import OutboxIcon from '../../../components/CustomChip/Outbox'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
 import _ from 'lodash'
@@ -11,8 +11,7 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getInboxCount } from '../../../contexts/NotificationsContext/notificationsContextHelper'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { getInboxCount, getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import InboxRow from './InboxRow'
 import { getPaginatedItems } from '../../../utils/messageUtils'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
@@ -21,8 +20,6 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
 import { calculateTitleExpansionPanel, createDefaultInboxRow } from './InboxExpansionPanel';
 import {
-  contractAll,
-  expandAll,
   getUnpaginatedItems,
   PAGE_SIZE,
   setPage,
@@ -31,20 +28,23 @@ import {
 import { nameFromDescription } from '../../../utils/stringFunctions';
 import { setOperationInProgress } from '../../../components/ContextHacks/OperationInProgressGlobalProvider';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
+import { formInboxItemLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 function Inbox(props) {
-  const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults } = props;
+  const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults,
+    workItemId } = props;
   const intl = useIntl();
-  const workItemClasses = workListStyles();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [, , tokensHash] = useContext(MarketsContext);
+  const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const { tabIndex, page, expansionState } = inboxState;
+  const { tabIndex, page } = inboxState;
   const { search } = searchResults;
   const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
     {determinate: {}, indeterminate: false, checkAll: false});
@@ -67,10 +67,11 @@ function Inbox(props) {
     inboxDispatch(setPage(page + byNum));
   }
 
-  const { first, last, data, hasMore, hasLess } = getPaginatedItems(unpaginatedItems, page, PAGE_SIZE);
+  const { first, last, data, hasMore, hasLess, previousItemId, nextItemId } =
+    getPaginatedItems(unpaginatedItems, page, PAGE_SIZE, workItemId);
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
     determinate, determinateDispatch, checkAll, tabIndex);
-  const {outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered } = messagesHash;
+  const { outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered } = messagesHash;
   const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   return (
     <>
@@ -120,7 +121,7 @@ function Inbox(props) {
                   const keys = Object.keys(determinate);
                   toProcess = messagesFull.filter((message) => keys.includes(message.type_object_id));
                 }
-                return deleteOrDehilightMessages(toProcess, messagesDispatch, workItemClasses.removed)
+                return deleteOrDehilightMessages(toProcess, messagesDispatch)
                   .then(() => {
                     determinateDispatch({type: 'clear'});
                   }).finally(() => {
@@ -128,21 +129,21 @@ function Inbox(props) {
                   });
               }} translationId="inboxMarkRead" />
           )}
-          <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
-                             onClick={() => {
-                               inboxDispatch(contractAll());
-                             }} translationId="inboxCollapseAll" />
-          <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
-                             onClick={() => {
-                               inboxDispatch(expandAll());
-                             }} translationId="inboxExpandAll" />
+          {workItemId && (
+            <TooltipIconButton icon={<ArrowBack style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+                               onClick={() => {
+                                 navigate(history, getInboxTarget());
+                               }} translationId="backToInbox" />
+          )}
           <div style={{flexGrow: 1}}/>
           <Box fontSize={14} color="text.secondary">
             {first} - {last} of {_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}
-            <IconButton disabled={!hasLess} onClick={() => changePage(-1)} >
+            <IconButton disabled={!hasLess} onClick={() => workItemId ?
+              navigate(history, formInboxItemLink(previousItemId)) : changePage(-1)} >
               <KeyboardArrowLeft />
             </IconButton>
-            <IconButton disabled={!hasMore} onClick={() => changePage(1)}>
+            <IconButton disabled={!hasMore} onClick={() => workItemId ?
+              navigate(history, formInboxItemLink(nextItemId)) : changePage(1)}>
               <KeyboardArrowRight />
             </IconButton>
           </Box>
@@ -158,9 +159,9 @@ function Inbox(props) {
           const isDeletable =  message.type_object_id.startsWith('UNREAD');
           const determinateChecked = determinate[message.type_object_id];
           const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-          return <InboxRow message={message} inboxDispatch={inboxDispatch} key={message.type_object_id}
+          return <InboxRow message={message} key={message.type_object_id}
                            determinateDispatch={determinateDispatch}
-                           expansionOpen={!!expansionState[message.type_object_id]}
+                           expansionOpen={workItemId === message.type_object_id}
                            isDeletable={isDeletable} checked={checked} />;
       })}
       {
@@ -189,11 +190,9 @@ function Inbox(props) {
               item.comment = commentName;
             }
           }
-          const expansionOpen = !!expansionState[id];
-          calculateTitleExpansionPanel({ item, inboxDispatch, intl,
-            openExpansion: expansionOpen });
-          return <WorkListItem id={id} useSelect={false} {...item} inboxDispatch={inboxDispatch} key={id}
-                               expansionOpen={expansionOpen} />;
+          const expansionOpen = workItemId === id;
+          calculateTitleExpansionPanel({ item, intl, openExpansion: expansionOpen });
+          return <WorkListItem id={id} useSelect={false} {...item} key={id} expansionOpen={expansionOpen} />;
         })
       }
     </div>

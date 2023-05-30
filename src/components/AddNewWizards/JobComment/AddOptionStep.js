@@ -26,7 +26,6 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
@@ -39,7 +38,6 @@ function AddOptionStep(props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
-  const workItemClasses = workListStyles();
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
@@ -97,8 +95,8 @@ function AddOptionStep(props) {
         requiresInputStage, [marketInfo], investible, investiblesDispatch, comment);
       addCommentToMarket(comment, commentState, commentDispatch);
       quickNotificationChanges(QUESTION_TYPE, inReviewStage, inReviewStage.id === currentStageId, investibleId,
-        messagesState, workItemClasses, messagesDispatch, [], comment, undefined, commentState,
-        commentDispatch, marketId, myPresence);
+        messagesState, messagesDispatch, [], comment, undefined, commentState, commentDispatch,
+        marketId, myPresence);
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, groupId, investibleId, commentId));
     });

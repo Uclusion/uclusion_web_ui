@@ -1,4 +1,3 @@
-import { intl } from '../components/ContextHacks/IntlGlobalProvider'
 import { pushMessage } from './MessageBusUtils'
 import _ from 'lodash'
 import { getInvestibleName } from '../contexts/InvestibesContext/investiblesContextHelper'
@@ -11,6 +10,7 @@ import { commentsContextHack } from '../contexts/CommentsContext/CommentsContext
 import { JOB_WIZARD_TYPE } from '../constants/markets';
 import { ticketContextHack } from '../contexts/TicketContext/TicketIndexContext';
 import { getTicket, isInvestibleTicket, isTicketPath } from '../contexts/TicketContext/ticketIndexContextHelper';
+import { getInboxTarget } from '../contexts/NotificationsContext/notificationsContextHelper';
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -85,13 +85,8 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
   broadcastView(toMarketId, toInvestibleId, true, toAction, to);
 }
 
-export function baseNavListItem(linkRoot, icon, textId, anchorId, howManyNum, alwaysShow) {
-  const text = intl.formatMessage({ id: textId });
-  if (howManyNum === 0 && alwaysShow !== true) {
-    return {icon, text, num: howManyNum};
-  }
-  const useAnchor = anchorId ? anchorId : textId;
-  return {icon, text, target: `${linkRoot}#${useAnchor}`, num: howManyNum}
+export function formInboxItemLink(id) {
+  return `${getInboxTarget()}/${id}`;
 }
 
 export function formInviteLink(marketToken) {

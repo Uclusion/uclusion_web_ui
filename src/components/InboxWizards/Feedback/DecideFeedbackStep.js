@@ -6,7 +6,7 @@ import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
 import { useIntl } from 'react-intl';
@@ -38,11 +38,10 @@ function DecideFeedbackStep(props) {
   const comments = marketComments.filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
-  const workItemClasses = workListStyles();
   const isNewVote = message.type === 'UNREAD_VOTE';
 
   function myOnFinish() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   return (

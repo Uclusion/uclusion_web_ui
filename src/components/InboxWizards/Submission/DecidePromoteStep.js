@@ -9,7 +9,7 @@ import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContex
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { DECISION_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
@@ -40,10 +40,9 @@ function DecidePromoteStep(props) {
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const intl = useIntl();
-  const workItemClasses = workListStyles();
 
   function myOnFinish() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   function promote() {

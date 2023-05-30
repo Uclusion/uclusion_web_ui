@@ -19,13 +19,14 @@ import _ from 'lodash';
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { useHistory } from 'react-router';
 
 export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
@@ -39,7 +40,7 @@ function JobApproveStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [investiblesState] = useContext(InvestiblesContext);
-  const workItemClasses = workListStyles();
+  const history = useHistory();
   const userId = getMyUserForMarket(marketsState, marketId);
   const validForm = formData.approveQuantity != null;
   const classes = wizardStyles();
@@ -102,14 +103,14 @@ function JobApproveStep(props) {
   const {approveQuantity} = formData;
 
   function onFinish() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   function onCompleteFinish(formData) {
     if (_.isEmpty(formData) || _.isEmpty(formData.link)) {
       setOperationRunning(false);
       resetEditor(editorName);
-      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+      removeWorkListItem(message, messagesDispatch, history);
     } else {
       parentOnFinish(formData);
     }

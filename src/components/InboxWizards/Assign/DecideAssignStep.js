@@ -11,7 +11,7 @@ import { wizardFinish } from '../InboxWizardUtils'
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem'
 import JobDescription from '../JobDescription'
 import { updateInvestible } from '../../../api/investibles'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
@@ -36,10 +36,9 @@ function DecideAssignStep(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const classes = wizardStyles();
-  const workItemClasses = workListStyles();
 
   function myTerminate() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   function myAssign() {

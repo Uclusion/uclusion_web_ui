@@ -26,7 +26,6 @@ import { getThreadIds } from '../../../utils/commentFunctions';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import { deleteOrDehilightMessages } from '../../../api/users';
-import { workListStyles } from '../../Home/YourWork/WorkListItem';
 import { nameFromDescription } from '../../../utils/stringFunctions';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
 import { BUG_WIZARD_TYPE } from '../../../constants/markets';
@@ -169,7 +168,6 @@ function MarketTodos(props) {
   const location = useLocation();
   const { hash } = location;
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const workItemClasses = workListStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -248,8 +246,7 @@ function MarketTodos(props) {
       setOperationRunning(false);
       return;
     }
-    return deleteOrDehilightMessages(allMessages, messagesDispatch, workItemClasses.removed,
-      true)
+    return deleteOrDehilightMessages(allMessages, messagesDispatch,true)
       .then(() => setOperationRunning(false))
       .finally(() => {
         setOperationRunning(false);

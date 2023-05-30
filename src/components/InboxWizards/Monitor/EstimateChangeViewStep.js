@@ -13,13 +13,14 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useIntl } from 'react-intl';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { useHistory } from 'react-router';
 
 function EstimateChangeViewStep(props) {
   const { marketId, investibleId, message } = props;
   const intl = useIntl();
+  const history = useHistory();
   const classes = wizardStyles();
-  const workItemClasses = workListStyles();
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
@@ -44,7 +45,7 @@ function EstimateChangeViewStep(props) {
       <WizardStepButtons
         {...props}
         showNext={false}
-        onFinish={() => removeWorkListItem(message, workItemClasses.removed, messagesDispatch)}
+        onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
         terminateLabel="notificationDelete"
         showTerminate={true}
       />

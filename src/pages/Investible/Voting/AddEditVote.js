@@ -20,7 +20,6 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { useEditor } from '../../../components/TextEditors/quillHooks';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { workListStyles } from '../../Home/YourWork/WorkListItem';
 import { focusEditor, getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
 import WizardStepButtons from '../../../components/InboxWizards/WizardStepButtons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -113,7 +112,6 @@ function AddEditVote(props) {
   } = formData;
   const intl = useIntl();
   const classes = useStyles();
-  const workItemClasses = workListStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -156,7 +154,7 @@ function AddEditVote(props) {
     return updateInvestment(updateInfo).then(result => {
       resetEditor('', {placeholder: intl.formatMessage({ id: 'yourReason' })});
       commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, undefined,
-        workItemClasses, messagesDispatch, setOperationRunning, voteMessage);
+        messagesDispatch, setOperationRunning, voteMessage);
     });
   }
 

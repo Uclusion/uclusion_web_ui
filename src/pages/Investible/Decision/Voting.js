@@ -22,7 +22,6 @@ import { removeInvestment } from '../../../api/marketInvestibles';
 import { commonQuick } from '../../../components/AddNewWizards/Approval/ApprovalWizard';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { workListStyles } from '../../Home/YourWork/WorkListItem';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -101,7 +100,6 @@ function Voting(props) {
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const workItemClasses = workListStyles();
   const classes = useVoteStyles();
 
   const voters = useInvestibleVoters(marketPresences, investibleId, market.id);
@@ -115,7 +113,7 @@ function Voting(props) {
     setOperationRunning(true);
     return removeInvestment(market.id, investibleId).then(result => {
       commonQuick(result, commentsDispatch, market.id, commentsState, marketPresencesDispatch, messagesState,
-        workItemClasses, messagesDispatch, setOperationRunning);
+        messagesDispatch, setOperationRunning);
       setOperationRunning(false);
     });
   }

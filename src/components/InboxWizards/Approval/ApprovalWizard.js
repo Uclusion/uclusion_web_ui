@@ -4,11 +4,10 @@ import JobDescriptionApprovalStep from './JobDescriptionApprovalStep';
 import FormdataWizard from 'react-formdata-wizard';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
 import JobApproveStep from './JobApproveStep';
 
 function ApprovalWizard(props) {
-  const { marketId, investibleId, message, inboxDispatch } = props;
+  const { marketId, investibleId, message } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   let yourPresence = marketPresences.find((presence) => presence.current_user);
@@ -17,9 +16,7 @@ function ApprovalWizard(props) {
   const parentElementId =  message.type_object_id;
 
   return (
-    <FormdataWizard name={`approval_wizard${investibleId}`}
-                    onStartOver={() => inboxDispatch(expandOrContract(parentElementId))}
-                    defaultFormData={{parentElementId}}>
+    <FormdataWizard name={`approval_wizard${investibleId}`} defaultFormData={{parentElementId}}>
       <JobDescriptionApprovalStep marketId={marketId} investibleId={investibleId}
                                   message={message} yourVote={yourVote}/>
       <JobApproveStep marketId={marketId} investibleId={investibleId} message={message} yourVote={yourVote} />
@@ -28,13 +25,11 @@ function ApprovalWizard(props) {
 }
 
 ApprovalWizard.propTypes = {
-  onStartOver: PropTypes.func,
   onFinish: PropTypes.func,
   showCancel: PropTypes.bool
 };
 
 ApprovalWizard.defaultProps = {
-  onStartOver: () => {},
   onFinish: () => {},
   showCancel: true
 }

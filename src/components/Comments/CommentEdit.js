@@ -26,7 +26,6 @@ import { Clear, Feedback, Update } from '@material-ui/icons';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
 import {  useEditor } from '../TextEditors/quillHooks'
 import { deleteOrDehilightMessages } from '../../api/users'
-import { workListStyles } from '../../pages/Home/YourWork/WorkListItem'
 import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils'
 import { nameFromDescription } from '../../utils/stringFunctions';
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
@@ -194,7 +193,6 @@ function CommentEdit(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const workItemClasses = workListStyles();
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, investible_id: investibleId,
     body: initialBody, creator_assigned: creatorAssigned } = comment;
   const classes = useStyles();
@@ -243,8 +241,7 @@ function CommentEdit(props) {
         resetEditor();
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
           commentState, commentDispatch);
-        deleteOrDehilightMessages(messages || [], messagesDispatch, workItemClasses.removed, true,
-          true);
+        deleteOrDehilightMessages(messages || [], messagesDispatch, true, true);
         if (commentType === REPORT_TYPE) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
           if (message) {

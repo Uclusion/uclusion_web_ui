@@ -50,7 +50,6 @@ function DecideAssistanceStep(props) {
   const isSingle = isSingleAssisted(comments, assigned);
   const isSuggest = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  console.debug(marketPresences)
   const snoozed = marketPresences.filter((presence) => {
     const { deferred_notifications: deferred } = presence;
     return (deferred || []).includes(commentId);

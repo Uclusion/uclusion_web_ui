@@ -16,7 +16,7 @@ import { useIntl } from 'react-intl';
 
 
 function JobDescriptionStatusStep(props) {
-  const { marketId, investibleId, startOver, message } = props;
+  const { marketId, investibleId, message } = props;
   const classes = wizardStyles();
   const [commentsState] = useContext(CommentsContext);
   const history = useHistory();
@@ -40,7 +40,6 @@ function JobDescriptionStatusStep(props) {
         showOtherNext
         otherNextLabel="StatusWizardReport"
         onOtherNext={() => {
-          startOver();
           navigate(history,
             formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE));
         }}

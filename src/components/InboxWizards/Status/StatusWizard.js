@@ -4,23 +4,21 @@ import JobDescriptionStatusStep from './JobDescriptionStatusStep';
 import FormdataWizard from 'react-formdata-wizard';
 import EstimateCompletionStep from './EstimateCompletionStep';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { useHistory } from 'react-router';
 
 function StatusWizard(props) {
-  const { marketId, investibleId, message, inboxDispatch } = props;
+  const { marketId, investibleId, message } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
-  const workItemClasses = workListStyles();
+  const history = useHistory();
   const parentElementId = message.type_object_id;
 
   function myOnFinish() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   return (
-    <FormdataWizard name={`status_wizard${investibleId}`}
-                    onStartOver={() => inboxDispatch(expandOrContract(parentElementId))}
-                    defaultFormData={{parentElementId}}>
+    <FormdataWizard name={`status_wizard${investibleId}`} defaultFormData={{parentElementId}}>
       <JobDescriptionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}
                                 message={message}/>
       <EstimateCompletionStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
@@ -29,13 +27,11 @@ function StatusWizard(props) {
 }
 
 StatusWizard.propTypes = {
-  onStartOver: PropTypes.func,
   onFinish: PropTypes.func,
   showCancel: PropTypes.bool
 };
 
 StatusWizard.defaultProps = {
-  onStartOver: () => {},
   onFinish: () => {},
   showCancel: true
 }

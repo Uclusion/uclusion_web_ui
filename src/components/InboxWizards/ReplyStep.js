@@ -10,12 +10,14 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { getMarketInfo } from '../../utils/userFunctions';
 import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
-import { removeWorkListItem, workListStyles } from '../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import CommentBox from '../../containers/CommentBox/CommentBox';
+import { useHistory } from 'react-router';
 
 function ReplyStep(props) {
   const { marketId, commentId, message } = props;
+  const history = useHistory();
   const [commentState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -23,14 +25,13 @@ function ReplyStep(props) {
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comment = getComment(commentState, marketId, commentId) || {};
   const classes = wizardStyles();
-  const workItemClasses = workListStyles();
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
 
   function myTerminate() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   return (

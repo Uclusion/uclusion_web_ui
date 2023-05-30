@@ -71,7 +71,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextHelper';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import DiffDisplay from '../TextEditors/DiffDisplay';
-import { workListStyles } from '../../pages/Home/YourWork/WorkListItem';
 import LoadingDisplay from '../LoadingDisplay';
 import { pushMessage } from '../../utils/MessageBusUtils';
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages';
@@ -340,7 +339,6 @@ function Comment(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
-  const workItemClasses = workListStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, body, creator_assigned: creatorAssigned, is_sent: isSent,
     group_id: groupId } = comment;
@@ -465,7 +463,7 @@ function Comment(props) {
         onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
           commentsState, commentsDispatch);
         // The only message that will be there is the one telling you the comment was resolved
-        removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
+        removeMessagesForCommentId(id, messagesState);
         setOperationRunning(false);
       });
   }
@@ -474,7 +472,7 @@ function Comment(props) {
     return removeComment(marketId, id)
       .then(() => {
         removeComments(commentsDispatch, marketId, [id]);
-        removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
+        removeMessagesForCommentId(id, messagesState);
         setOperationRunning(false);
       });
   }
@@ -487,7 +485,7 @@ function Comment(props) {
           abstain: true,
         }
         changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues)
-        removeMessagesForCommentId(id, messagesState, workItemClasses.removed)
+        removeMessagesForCommentId(id, messagesState)
         setOperationRunning(false);
       });
   }
@@ -500,7 +498,7 @@ function Comment(props) {
           comment, marketStagesState);
       }
       addCommentToMarket(comment, commentsState, commentsDispatch);
-      removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
+      removeMessagesForCommentId(id, messagesState);
       setOperationRunning(false);
     })
   }
@@ -509,7 +507,7 @@ function Comment(props) {
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
-        removeMessagesForCommentId(id, messagesState, workItemClasses.removed);
+        removeMessagesForCommentId(id, messagesState);
         if (inlineMarketId) {
           const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || []
           const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || []
@@ -1005,7 +1003,6 @@ function Reply(props) {
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, commentsDispatch] = useContext(CommentsContext);
-  const workItemClasses = workListStyles();
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || {};
@@ -1028,7 +1025,7 @@ function Reply(props) {
     return removeComment(marketId, comment.id)
       .then(() => {
         removeComments(commentsDispatch, marketId, [comment.id]);
-        removeMessagesForCommentId(comment.id, messagesState, workItemClasses.removed);
+        removeMessagesForCommentId(comment.id, messagesState);
         setOperationRunning(false);
       });
   }

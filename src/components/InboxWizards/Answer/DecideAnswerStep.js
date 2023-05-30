@@ -13,7 +13,7 @@ import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -33,10 +33,9 @@ function DecideAnswerStep(props) {
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const intl = useIntl();
-  const workItemClasses = workListStyles();
 
   function myOnFinish() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   function abstain() {
@@ -46,7 +45,7 @@ function DecideAnswerStep(props) {
           abstain: true,
         }
         changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues)
-        removeMessagesForCommentId(commentId, messagesState, workItemClasses.removed)
+        removeMessagesForCommentId(commentId, messagesState)
         setOperationRunning(false)
         clearFormData();
       });

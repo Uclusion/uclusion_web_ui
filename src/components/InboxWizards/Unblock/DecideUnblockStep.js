@@ -12,13 +12,14 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import JobDescription from '../JobDescription';
+import { useHistory } from 'react-router';
 
 function DecideUnblockStep(props) {
   const { marketId, commentId, clearFormData, message } = props;
@@ -30,17 +31,17 @@ function DecideUnblockStep(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const intl = useIntl();
+  const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
-  const workItemClasses = workListStyles();
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage } = marketInfo;
 
   function myTerminate() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   function moveToBacklog() {
@@ -61,7 +62,7 @@ function DecideUnblockStep(props) {
         marketPresencesDispatch);
       clearFormData();
       setOperationRunning(false);
-      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+      removeWorkListItem(message, messagesDispatch, history);
     });
   }
 

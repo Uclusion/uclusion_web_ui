@@ -41,7 +41,7 @@ import {
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { useEditor } from '../TextEditors/quillHooks'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { removeWorkListItem, workListStyles } from '../../pages/Home/YourWork/WorkListItem'
+import { removeWorkListItem } from '../../pages/Home/YourWork/WorkListItem'
 import { deleteOrDehilightMessages } from '../../api/users'
 import {
   editorEmpty,
@@ -250,28 +250,26 @@ function quickResolveOlderReports(marketId, investibleId, myPresence, currentCom
 }
 
 export function quickNotificationChanges(apiType, inReviewStage, isInReview, investibleId, messagesState,
-  workItemClasses, messagesDispatch, threadMessages, comment, parentId, commentsState, commentDispatch, marketId,
-  myPresence) {
+  messagesDispatch, threadMessages, comment, parentId, commentsState, commentDispatch, marketId, myPresence) {
   if (apiType === REPORT_TYPE) {
     const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState)
     if (message) {
-      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+      removeWorkListItem(message, messagesDispatch);
     }
     quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);
   }
   if (isInReview) {
     let message = findMessageOfType('UNREAD_REVIEWABLE', investibleId, messagesState)
     if (message) {
-      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+      removeWorkListItem(message, messagesDispatch);
     }
     message = findMessageOfType('REVIEW_REQUIRED', investibleId, messagesState)
     if (message) {
-      removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+      removeWorkListItem(message, messagesDispatch);
     }
   }
   // The whole thread will be marked read so quick it
-  deleteOrDehilightMessages(threadMessages || [], messagesDispatch, workItemClasses.removed,
-    true, true);
+  deleteOrDehilightMessages(threadMessages || [], messagesDispatch, true, true);
   if (apiType === REPLY_TYPE) {
     const message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
     if (message) {
@@ -307,7 +305,6 @@ function CommentAdd(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const history = useHistory();
-  const workItemClasses = workListStyles();
   const [commentsState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -431,8 +428,8 @@ function CommentAdd(props) {
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (isSent !== false) {
           quickNotificationChanges(apiType, inReviewStage, inReviewStage.id === currentStageId, investibleId,
-            messagesState, workItemClasses, messagesDispatch, threadMessages, comment, parentId, commentsState,
-            commentDispatch, marketId, myPresence);
+            messagesState, messagesDispatch, threadMessages, comment, parentId, commentsState, commentDispatch,
+            marketId, myPresence);
         }
         if (marketType) {
           addMarket(response, marketsDispatch, presenceDispatch);

@@ -3,20 +3,21 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import CardInputForm from '../../../pages/Payments/CardInputForm';
 import PromoCodeInput from '../../../pages/Payments/PromoCodeInput';
+import { useHistory } from 'react-router';
 
 function UpgradeStep(props) {
   const { message, formData } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const history = useHistory();
   const classes = wizardStyles();
-  const workItemClasses = workListStyles();
   const { isCard } = formData;
 
   function myOnFinish() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   return (

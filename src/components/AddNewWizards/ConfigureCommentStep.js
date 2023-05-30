@@ -10,7 +10,6 @@ import { getMentionsFromText, saveComment, sendComment, updateComment } from '..
 import { allowVotingForSuggestion, changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions';
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
 import { quickNotificationChanges } from '../Comments/CommentAdd';
-import { workListStyles } from '../../pages/Home/YourWork/WorkListItem';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
@@ -34,7 +33,6 @@ import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateH
 function ConfigureCommentStep(props) {
   const { updateFormData, formData, useType, comment, allowMulti } = props;
   const classes = useContext(WizardStylesContext);
-  const workItemClasses = workListStyles();
   const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -75,8 +73,8 @@ function ConfigureCommentStep(props) {
       changeInvestibleStageOnCommentOpen(false, true, undefined,
         requiresInputStage, [marketInfo], investible, investiblesDispatch, comment);
       quickNotificationChanges(comment.comment_type, inReviewStage, inReviewStage.id === marketInfo.stage,
-        comment.investible_id, messagesState, workItemClasses, messagesDispatch, [], comment,
-        undefined, commentState, commentDispatch, comment.market_id, myPresence);
+        comment.investible_id, messagesState, messagesDispatch, [], comment, undefined,
+        commentState, commentDispatch, comment.market_id, myPresence);
     }
     setOperationRunning(false);
     navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));

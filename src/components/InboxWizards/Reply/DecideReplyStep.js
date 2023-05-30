@@ -8,7 +8,7 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { addCommentToMarket, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { findMessageForCommentId } from '../../../utils/messageUtils';
@@ -23,6 +23,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { REPORT_TYPE } from '../../../constants/comments';
+import { useHistory } from 'react-router';
 
 function DecideReplyStep(props) {
   const { marketId, commentId, message } = props;
@@ -47,7 +48,7 @@ function DecideReplyStep(props) {
   const hasThreadMessages = _.size(threadMessages) > 1;
   const classes = wizardStyles();
   const intl = useIntl();
-  const workItemClasses = workListStyles();
+  const history = useHistory();
   const inv = commentRoot.investible_id ? getInvestible(investiblesState, commentRoot.investible_id)
     : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -55,11 +56,11 @@ function DecideReplyStep(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
 
   function myOnFinish() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   function dismissAll() {
-    threadMessages.forEach((aMessage) => removeWorkListItem(aMessage, workItemClasses.removed, messagesDispatch))
+    threadMessages.forEach((aMessage) => removeWorkListItem(aMessage, messagesDispatch, history))
   }
 
   function resolve() {
@@ -80,7 +81,7 @@ function DecideReplyStep(props) {
           addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
         setOperationRunning(false);
-        removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+        removeWorkListItem(message, messagesDispatch, history);
       });
   }
 

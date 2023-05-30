@@ -1,39 +1,32 @@
 import React, { useContext, useState } from 'react';
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
-import { wizardStyles } from '../WizardStylesContext'
+import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import CommentBox from '../../../containers/CommentBox/CommentBox'
-import {
-  addCommentToMarket,
-  getCommentRoot
-} from '../../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import {
-  addInvestible,
-  getInvestible
-} from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { getMarketInfo } from '../../../utils/userFunctions'
+import CommentBox from '../../../containers/CommentBox/CommentBox';
+import { addCommentToMarket, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketInfo } from '../../../utils/userFunctions';
 import {
   getFullStage,
   isRequiredInputStage,
   isVerifiedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { useHistory } from 'react-router'
-import { wizardFinish } from '../InboxWizardUtils'
-import { formCommentLink, formMarketAddInvestibleLink } from '../../../utils/marketIdPathFunctions'
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem'
-import { reopenComment, resolveComment } from '../../../api/comments'
-import _ from 'lodash'
-import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
-import { onCommentOpen } from '../../../utils/commentFunctions'
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { useHistory } from 'react-router';
+import { wizardFinish } from '../InboxWizardUtils';
+import { formCommentLink, formMarketAddInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { reopenComment, resolveComment } from '../../../api/comments';
+import _ from 'lodash';
+import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { onCommentOpen } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
-
 
 function DecideResolveStep(props) {
   const { marketId, commentId, message } = props;
@@ -49,7 +42,6 @@ function DecideResolveStep(props) {
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
-  const workItemClasses = workListStyles();
   const inv = commentRoot.investible_id ? getInvestible(investiblesState, commentRoot.investible_id)
     : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -60,7 +52,7 @@ function DecideResolveStep(props) {
   const isReopen = message.type === 'UNREAD_RESOLVED';
 
   function myTerminate() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   function reopen() {
@@ -69,7 +61,7 @@ function DecideResolveStep(props) {
         onCommentOpen(investiblesState, commentRoot.investible_id, marketStagesState, marketId, comment,
           investiblesDispatch, commentState, commentDispatch);
         setOperationRunning(false);
-        removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+        removeWorkListItem(message, messagesDispatch, history);
       });
   }
 
@@ -104,7 +96,7 @@ function DecideResolveStep(props) {
           }
         } else {
           setOperationRunning(false);
-          removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+          removeWorkListItem(message, messagesDispatch, history);
         }
       });
   }

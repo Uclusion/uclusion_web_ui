@@ -5,10 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import WizardStepButtons from '../WizardStepButtons';
 import { formCommentLink } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import {
-  addMarketComments,
-  getComment
-} from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addMarketComments, getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import _ from 'lodash';
 import { moveComments } from '../../../api/comments';
@@ -24,7 +21,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { wizardStyles } from '../WizardStylesContext';
 import { wizardFinish } from '../InboxWizardUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 
 function FindJobStep(props) {
   const { marketId, commentId, updateFormData, formData, message } = props;
@@ -34,7 +31,6 @@ function FindJobStep(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const workItemClasses = workListStyles();
   const { investibleId } = formData;
   const commentRoot = getComment(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
@@ -46,7 +42,7 @@ function FindJobStep(props) {
   const groupId = commentRoot.group_id;
 
   function myTerminate() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   function onNext(doStayInInbox) {

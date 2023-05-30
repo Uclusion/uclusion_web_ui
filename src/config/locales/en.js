@@ -606,6 +606,7 @@ const messages = defineMessages({
   inboxArchive: 'Delete selected',
   inboxCollapseAll: 'Collapse All',
   inboxExpandAll: 'Expand All',
+  backToInbox: 'Back to inbox',
 
   // Decision Dialogs
   decisionDialogsStartedBy: 'Started By: {name}',

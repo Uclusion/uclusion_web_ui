@@ -1,17 +1,14 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React from 'react';
+import PropTypes from 'prop-types';
 import FormdataWizard from 'react-formdata-wizard';
-import DecideStartStep from './DecideStartStep'
-import { expandOrContract } from '../../../pages/Home/YourWork/InboxContext';
+import DecideStartStep from './DecideStartStep';
 import AddToJobStep from './AddToJobStep';
 
 function StartWizard(props) {
-  const { marketId, commentId, message, inboxDispatch } = props;
+  const { marketId, commentId, message } = props;
   const parentElementId =  message.type_object_id;
   return (
-    <FormdataWizard name={`start_wizard${commentId}`}
-                    onStartOver={() => inboxDispatch(expandOrContract(parentElementId))}
-                    defaultFormData={{parentElementId}}>
+    <FormdataWizard name={`start_wizard${commentId}`} defaultFormData={{parentElementId}}>
       <DecideStartStep marketId={marketId} commentId={commentId} message={message}/>
       <AddToJobStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
@@ -19,13 +16,11 @@ function StartWizard(props) {
 }
 
 StartWizard.propTypes = {
-  onStartOver: PropTypes.func,
   onFinish: PropTypes.func,
   showCancel: PropTypes.bool
 };
 
 StartWizard.defaultProps = {
-  onStartOver: () => {},
   onFinish: () => {},
   showCancel: true
 }

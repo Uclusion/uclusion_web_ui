@@ -14,7 +14,6 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import _ from 'lodash';
 import { getJobApproveEditorName } from '../../InboxWizards/Approval/JobApproveStep';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { commonQuick } from './ApprovalWizard';
 import JobDescription from '../../InboxWizards/JobDescription';
@@ -25,7 +24,6 @@ function JobApproveStep(props) {
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const workItemClasses = workListStyles();
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const editorName = getJobApproveEditorName(investibleId);
@@ -35,7 +33,7 @@ function JobApproveStep(props) {
 
   function doQuick(result) {
     commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, messagesState,
-      workItemClasses, messagesDispatch, setOperationRunning);
+      messagesDispatch, setOperationRunning);
   }
 
   function onNext() {

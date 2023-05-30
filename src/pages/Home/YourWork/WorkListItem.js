@@ -7,7 +7,7 @@ import CheckBoxOutlineBlank from '@material-ui/icons/CheckBoxOutlineBlank';
 import { useSizedIconButtonStyles } from '@mui-treasury/styles/iconButton/sized';
 import { useRowGutterStyles } from '@mui-treasury/styles/gutter/row';
 import PropTypes from 'prop-types';
-import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
+import { formInboxItemLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import RaisedCard from '../../../components/Cards/RaisedCard';
 import { pushMessage } from '../../../utils/MessageBusUtils';
@@ -19,13 +19,12 @@ import {
 import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import NotificationDeletion from './NotificationDeletion';
-import { expandOrContract } from './InboxContext';
 import {
   dehighlightMessages,
   removeMessages
 } from '../../../contexts/NotificationsContext/notificationsContextReducer';
-import { scrollToElement } from '../../../contexts/ScrollContext';
-import { CLOSE_PANEL_CHANNEL } from './InboxFull';
+import { useHistory } from 'react-router';
+import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 const Item = styled("div")`
   margin-bottom: 1px;
@@ -103,7 +102,7 @@ const DateLabelB = styled(DateLabel)`
   font-weight: bold;
 `;
 
-export const workListStyles = makeStyles(() => {
+const workListStyles = makeStyles(() => {
   return {
     gravatarStyle: {
       paddingRight: '1rem',
@@ -120,7 +119,6 @@ export function modifyNotifications (event, typeObjectId, messagesDispatch) {
     if (DELETE_EVENT === event) {
       messagesDispatch(removeMessages([typeObjectId]));
     } else {
-      pushMessage(CLOSE_PANEL_CHANNEL, { id: typeObjectId });
       messagesDispatch(dehighlightMessages([typeObjectId]));
     }
   } else {
@@ -128,29 +126,13 @@ export function modifyNotifications (event, typeObjectId, messagesDispatch) {
   }
 }
 
-export function removeWorkListItem(message, removeClass, messagesDispatch) {
+export function removeWorkListItem(message, messagesDispatch, history) {
   const { type_object_id: typeObjectId } = message;
   const event = typeObjectId.startsWith('UNREAD') ? DELETE_EVENT : DEHIGHLIGHT_EVENT;
-  const item = document.getElementById(`workListItem${typeObjectId}`);
-  if (item) {
-    const itemExpansion = document.getElementById(`workListItemExpansion${typeObjectId}`);
-    if (itemExpansion) {
-      // Close expansion first, or it takes up too much area to transition nicely
-      itemExpansion.style.display = "none";
-    }
-    item.addEventListener("transitionend",() => {
-      item.style.display = "none";
-      modifyNotifications(event, typeObjectId, messagesDispatch);
-    });
-    item.classList.add(removeClass);
+  modifyNotifications(event, typeObjectId, messagesDispatch);
+  if (history) {
+    navigate(history, getInboxTarget());
   }
-  // If event listener fails make sure to remove after 2s no matter what
-  setTimeout(function () {
-    modifyNotifications(event, typeObjectId, messagesDispatch);
-    if (item) {
-      item.style.display = "none";
-    }
-  }, 2000);
 }
 
 function WorkListItem(props) {
@@ -167,7 +149,6 @@ function WorkListItem(props) {
     date,
     checked = false,
     determinateDispatch,
-    inboxDispatch,
     id,
     expansionPanel,
     expansionOpen,
@@ -175,6 +156,7 @@ function WorkListItem(props) {
     useSelect,
     isNotSynced = false
   } = props;
+  const history = useHistory();
   const classes = workListStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -196,13 +178,7 @@ function WorkListItem(props) {
               return;
             }
             preventDefaultAndProp(event);
-            inboxDispatch(expandOrContract(id));
-            if (!expansionOpen) {
-              const item = document.getElementById(`workListItem${id}`);
-              if (item) {
-                scrollToElement(item);
-              }
-            }
+            navigate(history, formInboxItemLink(id));
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
           <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
@@ -251,11 +227,11 @@ function WorkListItem(props) {
             )}
           </Div>
         </div>
-        <div id={`workListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
-          height: expansionOpen ? undefined : 0}}>
-          {expansionPanel || <React.Fragment />}
-        </div>
       </RaisedCard>
+      <div id={`workListItemExpansion${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
+        height: expansionOpen ? undefined : 0}}>
+        {expansionPanel || <React.Fragment />}
+      </div>
     </Item>
   );
 }

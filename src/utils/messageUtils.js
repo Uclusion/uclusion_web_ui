@@ -138,10 +138,10 @@ export function findMessagesForUserPoked(state) {
   return safeMessages.filter((message) => message.type === 'USER_POKED' && !message.deleted);
 }
 
-export function removeMessagesForCommentId(commentId, state, removeClass) {
+export function removeMessagesForCommentId(commentId, state) {
   const messages = findMessagesForCommentId(commentId, state) || [];
   messages.forEach((message) => {
-    removeWorkListItem(message, removeClass);
+    removeWorkListItem(message);
   });
 }
 
@@ -175,13 +175,28 @@ export function findMessageOfTypeAndId(notificationId, state, subtype) {
   return findMessageOfType('UNREAD', notificationId, state, subtype);
 }
 
-export function getPaginatedItems(items, page=1, pageSize) {
+export function getPaginatedItems(items, page=1, pageSize, workItemId) {
   const offset = (page - 1) * pageSize;
-  const data = _.drop(items, offset).slice(0, pageSize);
+  const data = workItemId ? items.filter((item) => item.id === workItemId || item.type_object_id === workItemId)
+    : _.drop(items, offset).slice(0, pageSize);
   const last = _.size(data) > 0 ? offset + _.size(data) : 1;
-  const hasMore = last < _.size(items);
-  const hasLess = page > 1;
-  return { first: offset + 1, last, data, hasMore, hasLess };
+  const itemIndex = _.findIndex(items,
+    (item) => item.id === workItemId || item.type_object_id === workItemId);
+  let previousItemId = undefined;
+  let nextItemId = undefined;
+  if (itemIndex >= 0) {
+    if (itemIndex < items.length - 1) {
+      const nextItem = items[itemIndex + 1];
+      nextItemId = nextItem.id || nextItem.type_object_id;
+    }
+    if (itemIndex > 0) {
+      const previousItem = items[itemIndex - 1];
+      previousItemId = previousItem.id || previousItem.type_object_id;
+    }
+  }
+  const hasMore = workItemId ? !_.isEmpty(nextItemId) : last < _.size(items);
+  const hasLess = workItemId ? !_.isEmpty(previousItemId) : page > 1;
+  return { first: offset + 1, last, data, hasMore, hasLess, previousItemId, nextItemId };
 }
 
 export function getRealPage(tabComments, pinned, originalPage, pageSize) {

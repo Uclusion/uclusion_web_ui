@@ -4,19 +4,20 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { removeWorkListItem, workListStyles } from '../../../pages/Home/YourWork/WorkListItem';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
+import { useHistory } from 'react-router';
 
 function DecideUpgradeStep(props) {
   const { message, updateFormData } = props;
   const intl = useIntl();
   const [, messagesDispatch] = useContext(NotificationsContext);
   const classes = wizardStyles();
-  const workItemClasses = workListStyles();
+  const history = useHistory();
 
   function myOnFinish() {
-    removeWorkListItem(message, workItemClasses.removed, messagesDispatch);
+    removeWorkListItem(message, messagesDispatch, history);
   }
 
   return (

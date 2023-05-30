@@ -196,7 +196,7 @@ export function getPaginatedItems(items, page=1, pageSize, workItemId) {
   }
   const hasMore = workItemId ? !_.isEmpty(nextItemId) : last < _.size(items);
   const hasLess = workItemId ? !_.isEmpty(previousItemId) : page > 1;
-  return { first: offset + 1, last, data, hasMore, hasLess, previousItemId, nextItemId };
+  return { first: offset + 1, last, data, hasMore, hasLess, previousItemId, nextItemId, current: (itemIndex + 1) };
 }
 
 export function getRealPage(tabComments, pinned, originalPage, pageSize) {

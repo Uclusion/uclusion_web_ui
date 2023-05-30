@@ -67,7 +67,7 @@ function Inbox(props) {
     inboxDispatch(setPage(page + byNum));
   }
 
-  const { first, last, data, hasMore, hasLess, previousItemId, nextItemId } =
+  const { first, last, data, hasMore, hasLess, previousItemId, nextItemId, current } =
     getPaginatedItems(unpaginatedItems, page, PAGE_SIZE, workItemId);
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
     determinate, determinateDispatch, checkAll, tabIndex);
@@ -139,7 +139,12 @@ function Inbox(props) {
           )}
           <div style={{flexGrow: 1}}/>
           <Box fontSize={14} color="text.secondary">
-            {first} - {last} of {_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}
+            {workItemId && (
+              `${current} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
+            )}
+            {!workItemId && (
+              `${first} - ${last} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
+            )}
             <IconButton disabled={!hasLess} onClick={() => workItemId ?
               navigate(history, formInboxItemLink(previousItemId)) : changePage(-1)} >
               <KeyboardArrowLeft />

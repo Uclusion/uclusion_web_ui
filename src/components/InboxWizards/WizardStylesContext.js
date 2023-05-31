@@ -183,7 +183,10 @@ export const wizardStyles = makeStyles(
         overflowX: 'hidden',
         marginBottom: '0.5rem',
         paddingLeft: '4px',
-        paddingRight: '4px'
+        paddingRight: '10rem',
+        [theme.breakpoints.down('md')]: {
+          paddingRight: '4px'
+        }
       }
     };
   }

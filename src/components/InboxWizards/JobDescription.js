@@ -1,4 +1,4 @@
-import { Typography } from '@material-ui/core'
+import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import DescriptionOrDiff from '../Descriptions/DescriptionOrDiff'
 import React, { useContext } from 'react'
 import { useInvestibleEditStyles } from '../../pages/Investible/InvestibleBodyEdit'
@@ -23,6 +23,8 @@ function JobDescription(props) {
     removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder } = props;
   const intl = useIntl();
   const history = useHistory();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const investibleEditClasses = useInvestibleEditStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const classes = wizardStyles();
@@ -56,8 +58,8 @@ function JobDescription(props) {
           <DescriptionOrDiff id={investibleId} description={description} showDiff={false} />
         )}
         {!_.isEmpty(comments) && (
-          <div style={{paddingTop: '1rem', paddingLeft: '0.25rem', paddingRight: '0.5rem', minHeight: '200px',
-            overflowY: 'hidden', overflowX: 'hidden' }}>
+          <div style={{paddingTop: '1rem', paddingLeft: '0.25rem', paddingRight: mobileLayout ? '0.5rem' : '10rem',
+            minHeight: '200px', overflowY: 'hidden', overflowX: 'hidden' }}>
             <CommentBox
               comments={comments}
               preserveOrder={preserveOrder}

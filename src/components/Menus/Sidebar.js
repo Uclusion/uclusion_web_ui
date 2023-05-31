@@ -8,7 +8,8 @@ import { IconButton, Typography, useMediaQuery, useTheme } from '@material-ui/co
 
 function processRegularItem(properties) {
   const {classes, history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, newPage,
-    index, search, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon} = properties;
+    index, search, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon,
+    resetFunction} = properties;
   if (!text) {
     return React.Fragment
   }
@@ -35,7 +36,11 @@ function processRegularItem(properties) {
                     : undefined)}
                 onClick={
                   (event) => {
-                    if (!EndIcon) {
+                    if (EndIcon) {
+                      if (resetFunction) {
+                        resetFunction(event);
+                      }
+                    } else {
                       if (onClickFunc) {
                         onClickFunc(event)
                       } else {
@@ -114,7 +119,7 @@ export default function Sidebar(props) {
         <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {
             const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, openMenuItems,
-              onEnterFunc, onLeaveFunc, endIcon } = navItem;
+              onEnterFunc, onLeaveFunc, endIcon, resetFunction } = navItem;
             if (subItems) {
               return (
                 <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
@@ -129,7 +134,7 @@ export default function Sidebar(props) {
               );
             }
             return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
-              index: topIndex, search, openMenuItems, onEnterFunc, onLeaveFunc, endIcon})
+              index: topIndex, search, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction})
           })}
         </Menu>
       )}

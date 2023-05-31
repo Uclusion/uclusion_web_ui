@@ -215,6 +215,14 @@ function PlanningDialog(props) {
     ];
   }
 
+  function resetFunction(tabIndex) {
+    updatePageState({tabIndex});
+    const anchorId = getAnchorId(tabIndex);
+    openSubSection(anchorId);
+    // Previous scroll position no longer relevant
+    window.scrollTo(0, 0);
+  }
+
   return (
     <Screen
       title={groupName}
@@ -222,17 +230,13 @@ function PlanningDialog(props) {
       tabTitle={groupName}
       banner={banner}
       openMenuItems={navListItemTextArray}
-      navigationOptions={{useHoverFunctions: !mobileLayout}}
+      navigationOptions={{useHoverFunctions: !mobileLayout, resetFunction: () => resetFunction(0)}}
     >
       <GmailTabs
         value={tabIndex}
         id='dialog-header'
         onChange={(event, value) => {
-          updatePageState({tabIndex: value});
-          const anchorId = getAnchorId(value);
-          openSubSection(anchorId);
-          // Previous scroll position no longer relevant
-          window.scrollTo(0, 0);
+          resetFunction(value);
         }}
         indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
         style={{ paddingBottom: '0.25rem', zIndex: 8, position: 'fixed',

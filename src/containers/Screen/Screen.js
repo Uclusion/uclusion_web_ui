@@ -211,7 +211,7 @@ function Screen(props) {
   const navListItemTextArray = [];
   const inactiveGroups = [];
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
-    const { onGroupClick, useHoverFunctions } = navigationOptions || {};
+    const { onGroupClick, useHoverFunctions, resetFunction } = navigationOptions || {};
     const itemsSorted = _.sortBy(groupsState[defaultMarket.id], 'name');
     const marketPresences = getMarketPresences(marketPresencesState, defaultMarket.id) || [];
     const myPresence = marketPresences.find((presence) => presence.current_user) || {};
@@ -232,6 +232,7 @@ function Screen(props) {
       }
       return {icon: myIcon, endIcon: outsetAvailable ? MoreVert : undefined, text: group.name, num,
         isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
+        resetFunction: isChosen ? resetFunction : undefined,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
           if (onGroupClick) {

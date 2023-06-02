@@ -434,7 +434,6 @@ const messages = defineMessages({
   allowedStagesDropdownLabel: 'Stage',
   planningInvestibleAssignments: 'Assigned',
   requiredApprovers: 'Required Approvers',
-  requiredReviewers: 'Required Reviewers',
   addressed: 'Outside',
   planningInvestibleDecision: 'Add Dialog',
   planningEstimatedCompletion: 'Estimated completion',

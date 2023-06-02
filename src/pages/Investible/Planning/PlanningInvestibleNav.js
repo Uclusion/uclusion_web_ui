@@ -62,8 +62,8 @@ export default function PlanningInvestibleNav(props) {
   const [groupState] = useContext(MarketGroupsContext);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
-  const { stage, addressed, required_approvers:  requiredApprovers, required_reviews: requiredReviewers,
-    open_for_investment: openForInvestment, accepted, group_id: groupId } = marketInfo;
+  const { stage, addressed, required_approvers:  requiredApprovers, open_for_investment: openForInvestment,
+    accepted, group_id: groupId } = marketInfo;
   const group = getGroup(groupState, marketId, groupId) || {};
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
@@ -174,18 +174,17 @@ export default function PlanningInvestibleNav(props) {
           </div>
         </div>
       )}
-      {market.id && marketInvestible.investible && !isFurtherWork && (
+      {market.id && marketInvestible.investible && isInVoting && (
         <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
           <div className={classes.assignmentContainer}>
             <Assignments
               classes={classes}
               marketPresences={marketPresences}
-              assigned={isInVoting ? requiredApprovers : requiredReviewers}
-              toolTipId={isInVoting ? 'storyApproversLabel' : 'storyReviewersLabel'}
+              assigned={requiredApprovers}
+              toolTipId='storyApproversLabel'
               toggleIconButton={() => navigate(history,
-                formWizardLink(isInVoting ? JOB_APPROVERS_WIZARD_TYPE :
-                  JOB_REVIEWERS_WIZARD_TYPE, marketId, investibleId))}
-              assignmentColumnMessageId={isInVoting ? 'requiredApprovers' : 'requiredReviewers'}
+                formWizardLink(JOB_APPROVERS_WIZARD_TYPE, marketId, investibleId))}
+              assignmentColumnMessageId='requiredApprovers'
             />
           </div>
         </div>

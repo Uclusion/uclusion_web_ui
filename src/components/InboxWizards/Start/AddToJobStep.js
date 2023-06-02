@@ -13,9 +13,8 @@ import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import ChooseJob from '../../Search/ChooseJob';
 import {
-  getStages,
-  isNotDoingStage,
-  isVerifiedStage
+  getStages, isInReviewStage,
+  isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { wizardStyles } from '../WizardStylesContext';
@@ -37,7 +36,7 @@ function FindJobStep(props) {
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const marketStages = getStages(marketStagesState, marketId);
   const activeMarketStages = marketStages.filter((stage) => {
-    return !isVerifiedStage(stage) && !isNotDoingStage(stage);
+    return !isInReviewStage(stage) && !isNotDoingStage(stage);
   });
   const groupId = commentRoot.group_id;
 

@@ -36,20 +36,11 @@ export function getMessages(allOutBoxMessagesOrderedRaw, messagesFullRaw, search
   const messagesFull = searchFiltered(messagesFullRaw, searchResults);
   const allOutBoxMessagesOrdered = searchFiltered(allOutBoxMessagesOrderedRaw, searchResults);
   let inboxMessagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
-  const outBoxMessagesOrdered = allOutBoxMessagesOrdered.filter((message) => message.comment ||
-    message.isOutboxAccepted);
-  const outBoxAssigned = allOutBoxMessagesOrdered.filter((message) => !message.isOutboxAccepted && !message.comment);
-  const assignedNotifications = (messagesFull || []).filter((message) =>
-    message.type_object_id.includes('ASSIGNED_UNREVIEWABLE') && !message.is_highlighted);
-  const assignedMessagesRaw = _.union(assignedNotifications, outBoxAssigned) || [];
-  const assignedMessages = assignedMessagesRaw.map((message) =>  {
-    return {...message, isAssigned: true};
-  });
-  const assignedMessagesOrdered = _.orderBy(assignedMessages, ['updated_at'], ['desc']) || [];
-  const teamMessagesOrdered = inboxMessagesOrdered.filter((message) => !message.is_highlighted &&
-    !message.type_object_id.includes('ASSIGNED_UNREVIEWABLE'));
+  const outBoxMessagesOrdered = allOutBoxMessagesOrdered.filter((message) => !message.isWaitingStart);
+  const isWaitingStart = allOutBoxMessagesOrdered.filter((message) => message.isWaitingStart);
+  const teamMessagesOrdered = inboxMessagesOrdered.filter((message) => !message.is_highlighted);
   inboxMessagesOrdered = _.union(inboxMessagesOrdered.filter((message) => message.is_highlighted),
-    assignedMessagesOrdered);
+    isWaitingStart);
   return {outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered };
 }
 

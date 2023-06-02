@@ -18,9 +18,8 @@ import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import ChooseJob from '../../Search/ChooseJob';
 import {
-  getStages,
-  isNotDoingStage,
-  isVerifiedStage
+  getStages, isInReviewStage,
+  isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
@@ -35,7 +34,7 @@ function FindJobStep(props) {
   const currentInvestibleId = roots[0].investible_id;
   const marketStages = getStages(marketStagesState, marketId);
   const activeMarketStages = marketStages.filter((stage) => {
-    return !isVerifiedStage(stage) && !isNotDoingStage(stage);
+    return !isInReviewStage(stage) && !isNotDoingStage(stage);
   });
 
   function onTerminate() {

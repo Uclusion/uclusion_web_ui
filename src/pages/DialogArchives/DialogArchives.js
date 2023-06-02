@@ -4,7 +4,7 @@ import { useLocation } from 'react-router';
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { getNotDoingStage, getVerifiedStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+import { getInReviewStage, getNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getInvestiblesInStage, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import SubSection from '../../containers/SubSection/SubSection'
 import { useIntl } from 'react-intl'
@@ -44,10 +44,10 @@ function DialogArchives() {
   const group = getGroup(groupState, marketId, groupId) || {};
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const presenceMap = getPresenceMap(marketPresences);
-  const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
+  const completeStage = getInReviewStage(marketStagesState, marketId) || {};
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId, searchResults) || [];
-  const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, verifiedStage.id, marketId);
+  const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, completeStage.id, marketId);
   const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id, marketId);
   const comments = getMarketComments(commentsState, marketId, groupId) || [];
   const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved) || [];

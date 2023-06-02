@@ -10,8 +10,6 @@ function getMessageTextForId(rawId, isMobile, intl) {
 
 export function titleText(message, isMobile, intl, comment, userId, isInVotingStage, assigned) {
   switch(message.type) {
-    case 'ASSIGNED_UNREVIEWABLE':
-      return getMessageTextForId('unfinished', isMobile, intl);
     case 'REPORT_REQUIRED':
       return getMessageTextForId('reportRequired', isMobile, intl);
     case 'ISSUE':

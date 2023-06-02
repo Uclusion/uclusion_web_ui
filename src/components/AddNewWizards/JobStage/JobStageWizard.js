@@ -11,8 +11,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import _ from 'lodash';
 import {
   isInReviewStage,
-  isNotDoingStage,
-  isVerifiedStage
+  isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
@@ -59,7 +58,7 @@ function JobStageWizard(props) {
 
   function finish(fullMoveStage, isTerminate=false) {
     if (isTerminate || !requiresAction((fullMoveStage))) {
-      if (fullMoveStage && (isNotDoingStage(fullMoveStage) || isVerifiedStage(fullMoveStage))) {
+      if (fullMoveStage && (isNotDoingStage(fullMoveStage) || isInReviewStage(fullMoveStage))) {
         navigate(history, formMarketLink(marketId, groupId));
       } else {
         navigate(history, formInvestibleLink(marketId, investibleId));

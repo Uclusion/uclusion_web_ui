@@ -1,45 +1,44 @@
-import React from 'react'
-import _ from 'lodash'
+import React from 'react';
+import _ from 'lodash';
 import {
   getMarketDetailsForType,
   getNotHiddenMarketDetailsForUser,
   hasNoChannels
-} from '../../../contexts/MarketsContext/marketsContextHelper'
-import LoadingDisplay from '../../../components/LoadingDisplay'
+} from '../../../contexts/MarketsContext/marketsContextHelper';
+import LoadingDisplay from '../../../components/LoadingDisplay';
 import { Assignment, PersonAddOutlined } from '@material-ui/icons';
-import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import {
   getFurtherWorkStage,
   getInCurrentVotingStage,
-  getInReviewStage, getNotDoingStage
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { getUserInvestibles, getUserPendingAcceptanceInvestibles } from '../../Dialog/Planning/userUtils'
-import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
-import QuestionIcon from '@material-ui/icons/ContactSupport'
-import IssueIcon from '@material-ui/icons/ReportProblem'
-import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
-import { getMarketInfo } from '../../../utils/userFunctions'
-import { useInvestibleVoters } from '../../../utils/votingUtils'
-import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions'
-import { Typography } from '@material-ui/core'
-import { PENDING_INDEX, TEAM_INDEX } from './InboxContext'
-import ApprovalWizard from '../../../components/InboxWizards/Approval/ApprovalWizard'
-import StatusWizard from '../../../components/InboxWizards/Status/StatusWizard'
-import AnswerWizard from '../../../components/InboxWizards/Answer/AnswerWizard'
-import VoteWizard from '../../../components/InboxWizards/Vote/VoteWizard'
-import AcceptRejectWizard from '../../../components/InboxWizards/AcceptReject/AcceptRejectWizard'
-import StartWizard from '../../../components/InboxWizards/Start/StartWizard'
-import ResolveWizard from '../../../components/InboxWizards/Resolve/ResolveWizard'
-import AssignWizard from '../../../components/InboxWizards/Assign/AssignWizard'
-import ReviewWizard from '../../../components/InboxWizards/Review/ReviewWizard'
-import BlockedWizard from '../../../components/InboxWizards/Unblock/BlockedWizard'
+  getNotDoingStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getUserInvestibles, getUserPendingAcceptanceInvestibles } from '../../Dialog/Planning/userUtils';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import QuestionIcon from '@material-ui/icons/ContactSupport';
+import IssueIcon from '@material-ui/icons/ReportProblem';
+import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { useInvestibleVoters } from '../../../utils/votingUtils';
+import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { Typography } from '@material-ui/core';
+import { PENDING_INDEX, TEAM_INDEX } from './InboxContext';
+import ApprovalWizard from '../../../components/InboxWizards/Approval/ApprovalWizard';
+import StatusWizard from '../../../components/InboxWizards/Status/StatusWizard';
+import AnswerWizard from '../../../components/InboxWizards/Answer/AnswerWizard';
+import VoteWizard from '../../../components/InboxWizards/Vote/VoteWizard';
+import AcceptRejectWizard from '../../../components/InboxWizards/AcceptReject/AcceptRejectWizard';
+import StartWizard from '../../../components/InboxWizards/Start/StartWizard';
+import ResolveWizard from '../../../components/InboxWizards/Resolve/ResolveWizard';
+import AssignWizard from '../../../components/InboxWizards/Assign/AssignWizard';
+import ReviewWizard from '../../../components/InboxWizards/Review/ReviewWizard';
+import BlockedWizard from '../../../components/InboxWizards/Unblock/BlockedWizard';
 import StageWizard from '../../../components/InboxWizards/Stage/StageWizard';
 import WaitingAssistanceWizard from '../../../components/InboxWizards/WaitingAssistance/WaitingAssistanceWizard';
 import AssignToOtherWizard from '../../../components/InboxWizards/AssignToOther/AssignToOtherWizard';
-import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import EstimateChangeWizard from '../../../components/InboxWizards/Monitor/EstimateChangeWizard';
 import ReplyWizard from '../../../components/InboxWizards/Reply/ReplyWizard';
 import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/OptionSubmittedWizard';
@@ -266,29 +265,15 @@ function getMessageForComment(comment, market, type, Icon, intl, investibleState
 export function getOutboxMessages(props) {
   const { messagesState, marketsState, marketPresencesState, investiblesState, marketStagesState, commentsState,
     intl } = props;
-  const { messages: messagesUnsafe } = messagesState;
-  const inboxMessages = messagesUnsafe || [];
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
-  const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE, true);
+  const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE,
+    true);
 
   const workspacesData = planningDetails.map((market) => {
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     const myPresence = marketPresences.find((presence) => presence.current_user) || {};
     const investibles = getMarketInvestibles(investiblesState, market.id);
-    // Not filtering by whether in Inbox or not because users should deal with Inbox before worry about Outbox
-    const inReviewStage = getInReviewStage(marketStagesState, market.id) || {};
-    const inReviewInvestiblesFull = getUserInvestibles(myPresence.id, market.id, investibles,
-      [inReviewStage]) || [];
-    const inReviewInvestibles = inReviewInvestiblesFull.filter((investible) => {
-      const investibleId = investible.investible.id;
-      const mySubmitted = inboxMessages.find((message) => {
-        const { investible_id: msgInvestibleId, type: messageType } = message;
-        return msgInvestibleId === investibleId && messageType === 'NEW_TODO';
-      })
-      // If message to finish Todos then no one owes you anything
-      return _.isEmpty(mySubmitted);
-    })
     const inVotingStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
     const inVotingInvestibles = getUserInvestibles(myPresence.id, market.id, investibles,
       [inVotingStage]) || [];
@@ -303,8 +288,8 @@ export function getOutboxMessages(props) {
     const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE) || [];
     const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE) || [];
     const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
-    return { market, comments, inReviewInvestibles,
-      inVotingInvestibles: inVotingInvestibles.concat(inVotingNotAcceptedMarked), questions, issues, suggestions};
+    return { market, comments, inVotingInvestibles: inVotingInvestibles.concat(inVotingNotAcceptedMarked), questions,
+      issues, suggestions};
   });
 
   const messages = [];
@@ -345,36 +330,8 @@ export function getOutboxMessages(props) {
   });
 
   workspacesData.forEach((workspacesData) => {
-    const { market, comments, inReviewInvestibles, inVotingInvestibles, questions, issues,
-      suggestions } = workspacesData;
+    const { market, comments, inVotingInvestibles, questions, issues, suggestions } = workspacesData;
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
-    inReviewInvestibles.forEach((investible) => {
-      const investibleId = investible.investible.id;
-      const investibleComments = getCommentsSortedByType(comments, investibleId, false);
-      const outboxMessage = getMessageForInvestible(investible, market,
-        _.isEmpty(investibleComments) ? 'finishJobQ' : 'restartJobQ',
-        <Assignment style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, 'UNREAD_REVIEWABLE');
-      const marketInfo = getMarketInfo(investible, market.id);
-      if (!_.isEmpty(marketInfo.required_reviews)) {
-        //add required reviewers with no comment
-        const debtors = [];
-        marketInfo.required_reviews.forEach((userId) => {
-          const aComment = comments.find((comment) => !comment.resolved && comment.investible_id === investibleId &&
-            comment.created_by === userId &&
-            [TODO_TYPE, REPORT_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
-          if (!aComment) {
-            const user = marketPresences.find((presence) => presence.id === userId);
-            if (user) {
-              debtors.push(user);
-            }
-          }
-        });
-        if (!_.isEmpty(debtors)) {
-          outboxMessage.debtors = debtors;
-        }
-      }
-      messages.push(outboxMessage);
-    });
     inVotingInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;
       const notAccepted = investible.notAccepted;
@@ -388,8 +345,9 @@ export function getOutboxMessages(props) {
       const marketInfo = getMarketInfo(investible, market.id)
       const votersNotAssigned = votersForInvestible.filter((voter) => !_.includes(marketInfo.assigned, voter.id)) || []
       const votesRequiredDisplay = votesRequired > 0 ? votesRequired : 1
-      if (!notAccepted && votersNotAssigned.length >= votesRequiredDisplay) {
-        message.inActive = true
+      if (!notAccepted) {
+        message.isWaitingStart = true;
+        message.inActive = votersNotAssigned.length >= votesRequiredDisplay;
       }
       let debtors = [];
       if (notAccepted) {

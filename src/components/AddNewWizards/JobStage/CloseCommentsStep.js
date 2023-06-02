@@ -14,7 +14,10 @@ import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../..
 import _ from 'lodash';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { getFullStage, isVerifiedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getFullStage,
+  isInReviewStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -36,7 +39,7 @@ function CloseCommentsStep(props) {
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage);
   const mustResolveComments = unresolvedComments.filter((comment) =>
     (comment.comment_type === ISSUE_TYPE)||
-    (!isVerifiedStage(fullMoveStage) && comment.comment_type === TODO_TYPE)||
+    (isInReviewStage(fullMoveStage) && comment.comment_type === TODO_TYPE)||
       ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
       (assigned || []).includes(comment.created_by)));
   const commentThreads = getCommentThreads(mustResolveComments, marketComments);

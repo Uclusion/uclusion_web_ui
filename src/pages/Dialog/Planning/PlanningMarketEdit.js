@@ -50,7 +50,7 @@ function PlanningMarketEdit() {
   const { pathname } = location;
   const { marketId } = decomposeMarketPath(pathname);
   const marketStages = getStages(marketStagesState, marketId);
-  const verifiedStage = marketStages.find(stage => stage.appears_in_market_summary) || {};
+  const verifiedStage = marketStages.find(stage => !stage.allows_tasks) || {};
   const [showInvestiblesAge, setShowInvestiblesAge] = useState(undefined);
   const market = getMarket(marketsState, marketId) || {};
   const [investmentExpiration, setInvestmentExpiration] = useState(undefined);

@@ -35,8 +35,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import {
   getFullStage,
-  getStages,
-  isVerifiedStage
+  getStages
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -98,7 +97,6 @@ function PlanningIdeas(props) {
     inDialogStageId,
     inReviewStageId,
     inBlockingStageId,
-    inVerifiedStageId,
     inRequiresInputStageId,
     presenceId,
     groupId,
@@ -129,7 +127,7 @@ function PlanningIdeas(props) {
     const todoComments = investibleComments.filter(
       comment => comment.comment_type === TODO_TYPE && !comment.resolved
     );
-    return targetStageId === inVerifiedStageId && !_.isEmpty(todoComments);
+    return targetStageId === inReviewStageId && !_.isEmpty(todoComments);
   }
 
   function stageChange (event, targetStageId) {
@@ -234,13 +232,6 @@ function PlanningIdeas(props) {
     }
   }
 
-  function onDropVerified(event) {
-    const currentStageId = event.dataTransfer.getData('stageId');
-    if (checkStageMatching(currentStageId)) {
-      stageChange(event, inVerifiedStageId);
-    }
-  }
-
   function isEligableDrop(divId) {
     const { id, stageId } = beingDraggedHack;
     if (!stageId) {
@@ -259,7 +250,7 @@ function PlanningIdeas(props) {
     if (isBlocked) {
       return false;
     }
-    if (divId === inDialogStageId || divId === inVerifiedStageId) {
+    if (divId === inDialogStageId) {
       return true;
     }
     if (divId === acceptedStageId) {
@@ -363,7 +354,7 @@ function PlanningIdeas(props) {
           comments={comments}
         />
       </div>
-      <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview}
+      <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview} style={{flex: '2 1 50%'}}
            onDragOver={onDragOverProcess}
            onDragEnter={(event) => onDragEnterStage(event, inReviewStageId, presenceId)}
            onDragEnd={onDragEndStage}>
@@ -380,24 +371,6 @@ function PlanningIdeas(props) {
           presenceId={presenceId}
           comments={comments}
           marketPresences={marketPresences}
-        />
-      </div>
-      <div id={`${inVerifiedStageId}_${presenceId}`} onDrop={onDropVerified}
-           onDragOver={onDragOverProcess}
-           onDragEnter={(event) => onDragEnterStage(event, inVerifiedStageId, presenceId)}
-           onDragEnd={onDragEndStage}>
-        {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inVerifiedStageId]) && (
-          <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>
-            <b><FormattedMessage id="verifiedBlockedStageLabel" /></b>
-          </div>
-        )}
-        <VerifiedStage
-          id={inVerifiedStageId}
-          investibles={myInvestiblesStageHash[inVerifiedStageId] || []}
-          presenceId={presenceId}
-          comments={comments}
-          marketPresences={marketPresences}
-          marketId={marketId}
         />
       </div>
     </div>
@@ -509,57 +482,53 @@ function Stage(props) {
     const originalElementId = `${id}_${presenceId}`;
     dragHack({ id: event.target.id, stageId: id, originalElementId });
   }
-
-  const singleInvestible = investibles.length === 1;
+  const investiblesMap = sortedInvestibles.map(inv => {
+    const { investible } = inv;
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    const unaccepted = _.size(_.intersection(marketInfo.accepted, marketInfo.assigned)) <
+      _.size(marketInfo.assigned) && isVoting;
+    const numQuestionsSuggestions = countByType(investible, comments,
+      [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
+    return (
+      <>
+        <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
+             className={classes.outlinedAccepted}
+             style={{minWidth: isReview ? '45%' : undefined}}
+             onMouseOver={() => doShowEdit(investible.id)}
+             onMouseOut={() => doRemoveEdit(investible.id)}
+             onClick={event => {
+               preventDefaultAndProp(event);
+               navigate(history, formInvestibleLink(marketId, investible.id));
+             }}
+        >
+          <StageInvestible
+            marketPresences={marketPresences || []}
+            comments={comments || []}
+            investible={investible}
+            marketId={marketId}
+            marketInfo={marketInfo}
+            isReview={isReview}
+            isVoting={isVoting}
+            votesRequired={votesRequired}
+            numQuestionsSuggestions={numQuestionsSuggestions}
+            unaccepted={unaccepted}
+            showCompletion={showCompletion}
+            mobileLayout={mobileLayout}
+          />
+        </div>
+        <div id={`dragImage${investible.id}`} style={{display: 'block', minWidth: '10rem', width: '10rem',
+          position: 'absolute', top: -10, right: -10, zIndex: 2}}>
+          <Typography color='initial' variant="subtitle2">{investible.name}</Typography>
+        </div>
+      </>
+    )});
+  if (!isReview) {
+    return investiblesMap;
+  }
   return (
-    <dd className={singleInvestible ? classes.root : classes.regularAccepted}>
-      <ul className={classes.list}>
-        <Grid
-          className={classes.verifiedOverflow}
-          container>
-        {sortedInvestibles.map(inv => {
-          const { investible } = inv;
-          const marketInfo = getMarketInfo(inv, marketId) || {};
-          const unaccepted = _.size(_.intersection(marketInfo.accepted, marketInfo.assigned)) <
-            _.size(marketInfo.assigned) && isVoting;
-          const numQuestionsSuggestions = countByType(investible, comments,
-            [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
-          return (
-            <>
-              <Grid key={investible.id} item xs={12} id={investible.id} onDragStart={investibleOnDragStart} draggable
-                    className={!singleInvestible ? classes.outlinedAccepted : classes.regularAccepted}
-                    onMouseOver={() => doShowEdit(investible.id)}
-                    onMouseOut={() => doRemoveEdit(investible.id)}
-                    onClick={event => {
-                      preventDefaultAndProp(event);
-                      navigate(history, formInvestibleLink(marketId, investible.id));
-                    }}
-              >
-                  <StageInvestible
-                    marketPresences={marketPresences || []}
-                    comments={comments || []}
-                    investible={investible}
-                    marketId={marketId}
-                    marketInfo={marketInfo}
-                    isReview={isReview}
-                    isVoting={isVoting}
-                    votesRequired={votesRequired}
-                    numQuestionsSuggestions={numQuestionsSuggestions}
-                    unaccepted={unaccepted}
-                    showCompletion={showCompletion}
-                    mobileLayout={mobileLayout}
-                  />
-              </Grid>
-              <div id={`dragImage${investible.id}`} style={{display: 'block', minWidth: '10rem', width: '10rem',
-                position: 'absolute', top: -10, right: -10, zIndex: 2}}>
-                <Typography color='initial' variant="subtitle2">{investible.name}</Typography>
-              </div>
-            </>
-          );
-        })}
-        </Grid>
-      </ul>
-    </dd>
+    <div style={{display: 'flex', flexFlow: 'row wrap', gap: '13px'}}>
+      {investiblesMap}
+    </div>
   );
 }
 
@@ -616,14 +585,6 @@ const generalStageStyles = makeStyles(() => {
   };
 });
 
-function VerifiedStage(props) {
-  return (
-    <Stage
-      {...props}
-    />
-  );
-}
-
 
 function StageInvestible(props) {
   const {
@@ -660,14 +621,12 @@ function StageInvestible(props) {
     return !_.isEmpty(findMessageOfType('REPORT_REQUIRED', id, messagesState));
   }
 
-  const { completion_estimate: daysEstimate, ticket_code: ticketCode, stage: stageId } = marketInfo;
+  const { completion_estimate: daysEstimate, ticket_code: ticketCode } = marketInfo;
   const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
   const to = formInvestibleLink(marketId, id);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext)
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const stage = getFullStage(marketStagesState, marketId, stageId) || {};
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
   const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId);
@@ -715,7 +674,7 @@ function StageInvestible(props) {
           }}
         >
           <Typography color='initial' variant="subtitle2">{name}</Typography>
-          {!_.isEmpty(labelList) && !isVerifiedStage(stage) && labelList.map((label) =>
+          {!_.isEmpty(labelList) && labelList.map((label) =>
             <div key={label} style={{paddingTop: '0.5rem'}}>
               <Chip size="small" label={label} className={classes.chipClass} color="primary"
                     style={{maxWidth: '90%'}}/>

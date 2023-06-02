@@ -11,9 +11,8 @@ import { addInvestible, getInvestible } from '../../../contexts/InvestibesContex
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import {
-  getFullStage,
-  isRequiredInputStage,
-  isVerifiedStage
+  getFullStage, isInReviewStage,
+  isRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -115,9 +114,9 @@ function DecideResolveStep(props) {
           {isFullyVoted ? 'All votes collected.' : 'New vote.'}
         </Typography>
       )}
-      {isReopen && isVerifiedStage(fullStage) && (
+      {isReopen && isInReviewStage(fullStage) && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          This job has been verified.
+          This job is complete.
         </Typography>
       )}
       {commentRoot.investible_id && (

@@ -1,7 +1,7 @@
 import {
   getAcceptedStage,
   getBlockedStage, getFurtherWorkStage, getInCurrentVotingStage,
-  getInReviewStage, getNotDoingStage, getRequiredInputStage, getVerifiedStage
+  getInReviewStage, getNotDoingStage, getRequiredInputStage
 } from '../contexts/MarketStagesContext/marketStagesContextHelper';
 
 export function getStagesInfo(marketId, marketStagesState, currentStageId){
@@ -13,8 +13,6 @@ export function getStagesInfo(marketId, marketStagesState, currentStageId){
   const isInAccepted = inAcceptedStage && currentStageId === inAcceptedStage.id;
   const inBlockedStage = getBlockedStage(marketStagesState, marketId) || {};
   const isInBlocked = inBlockedStage && currentStageId === inBlockedStage.id;
-  const inVerifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
-  const isInVerified = inVerifiedStage && currentStageId === inVerifiedStage.id;
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId) || {};
   const isFurtherWork = furtherWorkStage && currentStageId === furtherWorkStage.id;
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
@@ -30,8 +28,6 @@ export function getStagesInfo(marketId, marketStagesState, currentStageId){
     isInAccepted,
     inBlockedStage,
     isInBlocked,
-    inVerifiedStage,
-    isInVerified,
     furtherWorkStage,
     isFurtherWork,
     requiresInputStage,

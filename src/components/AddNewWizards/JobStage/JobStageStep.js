@@ -15,8 +15,7 @@ import {
   isAcceptedStage,
   isFurtherWorkStage,
   isInReviewStage,
-  isNotDoingStage,
-  isVerifiedStage
+  isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -65,10 +64,7 @@ function JobStageStep (props) {
     if (isInReviewStage(aStage)) {
       return 3;
     }
-    if (isVerifiedStage(aStage)) {
-      return 4;
-    }
-    return 5;
+    return 4;
   });
 
   function onStageChange(newStage){
@@ -80,9 +76,9 @@ function JobStageStep (props) {
   const openTodos = comments.find((comment) => comment.comment_type === TODO_TYPE);
   const openAssistance = comments.find((comment) =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type));
-  const hasOpenTodos = !_.isEmpty(openTodos) && isVerifiedStage(fullMoveStage);
+  const hasOpenTodos = !_.isEmpty(openTodos) && isInReviewStage(fullMoveStage);
   const isCloseComments = hasOpenTodos ||
-    (fullCurrentStage.move_on_comment && openAssistance && !isVerifiedStage(fullMoveStage));
+    (fullCurrentStage.move_on_comment && openAssistance && !fullMoveStage.close_comments_on_entrance);
   function move() {
     if (!isNotDoingStage(fullMoveStage)&&!isFurtherWorkStage(fullMoveStage)) {
       if (isCloseComments) {

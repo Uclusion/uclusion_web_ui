@@ -32,8 +32,7 @@ export function getAcceptedStage(state, marketId) {
 }
 
 export function isInReviewStage(stage) {
-  return !stage.appears_in_market_summary && stage.appears_in_context && !stage.assignee_enter_only
-    && !stage.allows_investment;
+  return !stage.allows_tasks;
 }
 
 export function getInReviewStage(state, marketId) {
@@ -48,15 +47,6 @@ export function isBlockedStage(stage) {
 export function getBlockedStage(state, marketId) {
   const marketStages = getStages(state, marketId);
   return marketStages.find((stage) => isBlockedStage(stage));
-}
-
-export function isVerifiedStage(stage) {
-  return stage.appears_in_market_summary;
-}
-
-export function getVerifiedStage(state, marketId) {
-  const marketStages = getStages(state, marketId);
-  return marketStages.find((stage) => isVerifiedStage(stage));
 }
 
 export function isFurtherWorkStage(stage) {
@@ -101,9 +91,6 @@ export function getStageNameForId(state, marketId, stageId, intl) {
   }
   if (isNotDoingStage(fullStage)) {
     return intl.formatMessage({ id: 'planningInvestibleMoveToNotDoingLabel' });
-  }
-  if (isVerifiedStage(fullStage)) {
-    return intl.formatMessage({ id: 'planningInvestibleMoveToVerifiedLabel' });
   }
   if (isInReviewStage(fullStage)) {
     return intl.formatMessage({ id: 'planningInvestibleNextStageInReviewLabel' });

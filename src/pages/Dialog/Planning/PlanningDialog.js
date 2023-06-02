@@ -118,7 +118,6 @@ function PlanningDialog(props) {
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
   const inReviewStage = marketStages.find(stage => isInReviewStage(stage)) || {};
   const inBlockingStage = marketStages.find(stage => isBlockedStage(stage)) || {};
-  const inVerifiedStage = marketStages.find(stage => stage.appears_in_market_summary) || {};
   const visibleStages = marketStages.filter((stage) => stage.appears_in_context) || [];
   const furtherWorkStage = marketStages.find((stage) => isFurtherWorkStage(stage)) || {};
   const requiresInputStage = marketStages.find((stage) => isRequiredInputStage(stage)) || {};
@@ -134,7 +133,7 @@ function PlanningDialog(props) {
   const swimlaneInvestibles = investibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
-    return stage && stage.appears_in_context && !stage.appears_in_market_summary;
+    return stage && stage.appears_in_context && stage.allows_tasks;
   });
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const presenceMap = getPresenceMap(marketPresences);
@@ -340,7 +339,6 @@ function PlanningDialog(props) {
                 inDialogStage={inDialogStage}
                 inBlockingStage={inBlockingStage}
                 inReviewStage={inReviewStage}
-                inVerifiedStage={inVerifiedStage}
                 requiresInputStage={requiresInputStage}
                 group={group}
                 isAdmin={isAdmin}

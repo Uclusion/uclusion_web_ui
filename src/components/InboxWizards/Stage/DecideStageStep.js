@@ -14,17 +14,16 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import {
   getAcceptedStage,
   getInCurrentVotingStage,
-  getInReviewStage, getVerifiedStage
+  getInReviewStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { useIntl } from 'react-intl';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
-import _ from 'lodash'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
-import { QUESTION_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { QUESTION_TYPE } from '../../../constants/comments';
 
 function DecideStageStep(props) {
   const { marketId, investibleId, currentStageId } = props;
@@ -41,7 +40,6 @@ function DecideStageStep(props) {
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inVotingStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
-  const verifiedStage = getVerifiedStage(marketStagesState, marketId) || {};
   let destinationStage;
   let destinationExplanation;
   let destinationLabel;
@@ -81,28 +79,6 @@ function DecideStageStep(props) {
         formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE));
     };
     nextLabelId = 'startJob';
-  } else if (currentStageId === acceptedStage.id) {
-    destinationStage = inReviewStage;
-    destinationLabel = 'reviewJobQ';
-    destinationExplanation = 'planningInvestibleInReviewExplanation';
-    otherNextLabelId='modifyTasks';
-    onOtherNextFunc = () => {
-      navigate(history,
-        formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE));
-    };
-    nextLabelId='startReview';
-  } else if (currentStageId === inReviewStage.id) {
-    if (!_.isEmpty(comments)) {
-      destinationStage = acceptedStage;
-      destinationExplanation = 'planningInvestibleTasksInReviewExplanation';
-      destinationLabel = 'restartJobQ';
-    } else {
-      otherNextLabelId = 'planningInvestibleMoveToAcceptedLabel';
-      onOtherNextFunc = () => moveToStage(acceptedStage, true);
-      destinationStage = verifiedStage;
-      destinationLabel = 'finishJobQ';
-      destinationExplanation = 'planningInvestibleVerifiedExplanation';
-    }
   }
 
   // If you start a job and don't go to it hard to find

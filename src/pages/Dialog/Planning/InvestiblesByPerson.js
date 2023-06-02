@@ -118,7 +118,6 @@ function InvestiblesByPerson(props) {
     inBlockingStage,
     inReviewStage,
     requiresInputStage,
-    inVerifiedStage,
     group,
     mobileLayout
   } = props;
@@ -162,16 +161,9 @@ function InvestiblesByPerson(props) {
               <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>
           </div>
-          <div>
+          <div style={{flex: '2 1 50%'}}>
             <b><FormattedMessage id="planningReviewStageLabel"/></b>
-            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#ready-for-feedback" target="_blank">
-              <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
-            </Link>
-          </div>
-          <div>
-            <b><FormattedMessage id="verifiedBlockedStageLabel"/></b>
-            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#verified-and-not-doing"
-                  target="_blank">
+            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#complete" target="_blank">
               <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>
           </div>
@@ -217,7 +209,6 @@ function InvestiblesByPerson(props) {
                   acceptedStage &&
                   inDialogStage &&
                   inReviewStage &&
-                  inVerifiedStage &&
                   inBlockingStage && (
                     <PlanningIdeas
                       myInvestiblesStageHash={myInvestiblesStageHash}
@@ -228,7 +219,6 @@ function InvestiblesByPerson(props) {
                       inReviewStageId={inReviewStage.id}
                       inBlockingStageId={inBlockingStage.id}
                       inRequiresInputStageId={requiresInputStage.id}
-                      inVerifiedStageId={inVerifiedStage.id}
                       comments={comments}
                       presenceId={presence.id}
                     />

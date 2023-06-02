@@ -13,8 +13,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import {
   getFullStage,
-  isAcceptedStage,
-  isVerifiedStage
+  isAcceptedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -62,7 +61,7 @@ function JobAssignStep (props) {
     }));
   }
 
-  const isCloseComments = (isRequiresInput() || isBlocked()) && !isVerifiedStage(fullMoveStage);
+  const isCloseComments = (isRequiresInput() || isBlocked()) && !fullMoveStage.close_comments_on_entrance;
   function assignJob() {
     if (isCloseComments) {
       // No op go to CloseCommentsStep

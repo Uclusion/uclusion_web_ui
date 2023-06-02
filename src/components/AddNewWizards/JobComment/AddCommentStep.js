@@ -17,8 +17,6 @@ import {
   getRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import JobDescription from '../../InboxWizards/JobDescription';
 
 function AddCommentStep (props) {
@@ -27,12 +25,9 @@ function AddCommentStep (props) {
   const classes = useContext(WizardStylesContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [marketsState] = useContext(MarketsContext);
   const inv = getInvestible(investibleState, investibleId) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { group_id: groupId, stage: currentStageId, assigned } = marketInfo;
-  const userId = getMyUserForMarket(marketsState, marketId);
-  const isAssigned = (assigned || []).includes(userId);
+  const { group_id: groupId, stage: currentStageId } = marketInfo;
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
   const history = useHistory();
@@ -56,16 +51,9 @@ function AddCommentStep (props) {
       isLarge
     >
     <div>
-      {useType === REPORT_TYPE && (
-        <Typography className={classes.introText}>
-          What is your {intl.formatMessage({ id: `${isAssigned ? 'reportSimple' : 'review'}` })}?
-        </Typography>
-      )}
-      {useType !== REPORT_TYPE && (
-        <Typography className={classes.introText}>
-          What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?
-        </Typography>
-      )}
+      <Typography className={classes.introText}>
+        What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?
+      </Typography>
       {isAssistance && !inAssistanceStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
@@ -75,6 +63,11 @@ function AddCommentStep (props) {
       {useType === TODO_TYPE && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening a task prevents moving this job to Verified stage until resolved.
+        </Typography>
+      )}
+      {useType === REPORT_TYPE && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          For feedback explain what needs reviewing. Use @ mentions to require specific reviewers.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />

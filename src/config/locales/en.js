@@ -1092,7 +1092,6 @@ const messages = defineMessages({
   createNewTODOMobile: 'Task',
   createNewSUGGESTMobile: 'Suggestion',
   createNewStatus: 'Add progress report',
-  createNewReview: 'Add review',
   createNewApproval: 'Add approval',
   createNewVote: 'Add vote',
   addVoting: 'Add voting',

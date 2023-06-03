@@ -687,7 +687,7 @@ function PlanningInvestible(props) {
               <h2 id="status" style={{paddingBottom: 0, marginBottom: 0}}>
                 <FormattedMessage id="reportsSectionLabel" />
               </h2>
-              {showCommentAdd && (isAssigned || isInReview) && (
+              {showCommentAdd && isAssigned && (
                 <SpinningButton id="newReport" className={wizardClasses.actionPrimary}
                                 icon={AddIcon}
                                 variant="text" doSpin={false}
@@ -695,7 +695,7 @@ function PlanningInvestible(props) {
                                 onClick={() => navigate(history,
                                   formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                     REPORT_TYPE))}>
-                  <FormattedMessage id={isAssigned ? 'createNewStatus' : 'createNewReview'}/>
+                  <FormattedMessage id='createNewStatus'/>
                 </SpinningButton>
               )}
               <CommentBox

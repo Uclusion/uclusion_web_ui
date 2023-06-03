@@ -37,7 +37,7 @@ import { formMarketLink, formWizardLink, navigate } from '../../../utils/marketI
 import {
   JOB_APPROVERS_WIZARD_TYPE,
   JOB_ASSIGNEE_WIZARD_TYPE,
-  JOB_COLLABORATOR_WIZARD_TYPE, JOB_REVIEWERS_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE
+  JOB_COLLABORATOR_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE
 } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';

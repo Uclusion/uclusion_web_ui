@@ -8,13 +8,14 @@ import JobDescription from '../JobDescription';
 import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentEditReplyLink, formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { useIntl } from 'react-intl';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import _ from 'lodash';
 
 function DecideReviewStep(props) {
   const { marketId, investibleId, message } = props;
@@ -26,7 +27,13 @@ function DecideReviewStep(props) {
   const isUnread = message.type_object_id.startsWith('UNREAD');
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, true);
-
+  const report = comments.find((comment) => comment.comment_type === REPORT_TYPE);
+  const hasReport = !_.isEmpty(report);
+  const createTodo = () => navigate(history,
+    formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE));
+  const next = hasReport ?
+    navigate(history, formCommentEditReplyLink(marketId, report.id, true), false,
+      true) : createTodo;
   return (
     <WizardStepContainer
       {...props}
@@ -44,14 +51,12 @@ function DecideReviewStep(props) {
                       preserveOrder />
       <WizardStepButtons
         {...props}
-        nextLabel="DecideAddReview"
-        onNext={() => navigate(history,
-          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE))}
+        nextLabel={hasReport ? 'DecideAddReview' : 'DecideAddTask'}
+        onNext={next}
         spinOnClick={false}
-        showOtherNext
+        showOtherNext={hasReport}
         otherSpinOnClick={false}
-        onOtherNext={() => navigate(history,
-          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE))}
+        onOtherNext={createTodo}
         otherNextLabel="DecideAddTask"
         terminateLabel={isUnread ? 'notificationDismiss' : 'defer'}
         showTerminate={isUnread || message.is_highlighted}

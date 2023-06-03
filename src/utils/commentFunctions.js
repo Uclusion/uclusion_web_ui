@@ -119,7 +119,7 @@ export function allowVotingForSuggestion(commentId, setOperationRunning, markets
 export function getCommentsSortedByType(marketComments, investibleId, includeStatusReports) {
   const commentsRaw = marketComments.filter((comment) => comment.investible_id === investibleId && !comment.resolved &&
     ([TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type) ||
-      (includeStatusReports && comment.comment_type === REPORT_TYPE && comment.creator_assigned)));
+      (includeStatusReports && comment.comment_type === REPORT_TYPE)));
   return _.orderBy(commentsRaw, [(comment) => {
     const { comment_type: commentType } = comment;
     switch (commentType) {

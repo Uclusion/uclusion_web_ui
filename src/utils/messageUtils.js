@@ -18,8 +18,8 @@ export function titleText(message, isMobile, intl, comment, userId, isInVotingSt
       }
       return intl.formatMessage({ id: 'feedback' });
     case 'UNREAD_COMMENT':
-      const { comment_type: commentType, creator_assigned: creatorAssigned } = comment || {};
-      if (commentType !== REPORT_TYPE || creatorAssigned) {
+      const { comment_type: commentType } = comment || {};
+      if (commentType !== REPORT_TYPE) {
         return messageText(message, isMobile, intl);
       }
       return intl.formatMessage({ id: 'feedback' });

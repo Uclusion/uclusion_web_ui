@@ -62,7 +62,7 @@ function AddCommentStep (props) {
       )}
       {useType === TODO_TYPE && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Opening a task prevents moving this job to Verified stage until resolved.
+          Opening a task prevents moving this job to Complete stage until resolved.
         </Typography>
       )}
       {useType === REPORT_TYPE && (

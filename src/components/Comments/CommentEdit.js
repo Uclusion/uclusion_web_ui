@@ -194,7 +194,7 @@ function CommentEdit(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, investible_id: investibleId,
-    body: initialBody, creator_assigned: creatorAssigned } = comment;
+    body: initialBody } = comment;
   const classes = useStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
@@ -226,7 +226,7 @@ function CommentEdit(props) {
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType :
       (commentType === REPORT_TYPE ? notificationType : undefined);
     let label = undefined;
-    if (creatorAssigned && commentType === REPORT_TYPE) {
+    if (commentType === REPORT_TYPE) {
       label = nameFromDescription(tokensRemoved);
     }
     return updateComment(marketId, id, tokensRemoved, undefined, filteredUploads, mentions,

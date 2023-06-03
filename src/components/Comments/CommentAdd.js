@@ -62,7 +62,7 @@ import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { getMarketInfo } from '../../utils/userFunctions';
 
-function getPlaceHolderLabelId(type, isInReview, isAssigned, investibleId) {
+function getPlaceHolderLabelId(type, investibleId) {
   switch (type) {
     case QUESTION_TYPE:
       return 'commentAddQuestionDefault';
@@ -73,12 +73,6 @@ function getPlaceHolderLabelId(type, isInReview, isAssigned, investibleId) {
     case REPLY_TYPE:
       return 'commentAddReplyDefault';
     case REPORT_TYPE:
-      if (isInReview) {
-        if (!isAssigned) {
-          return 'commentAddReviewReportDefault';
-        }
-        return 'commentAddReportReview';
-      }
       return 'commentAddReportDefault';
     case TODO_TYPE:
       if (investibleId) {
@@ -318,12 +312,10 @@ function CommentAdd(props) {
   const inv = getInvestible(investibleState, investibleId) || {};
   const info = getMarketInfo(inv, marketId);
   const { assigned, stage: currentStageId } = info || {};
-  const inReviewStage = getInReviewStage(marketStagesState, marketId) || {id: 'fake'};
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
-  const placeHolderLabelId = getPlaceHolderLabelId(type, currentStageId === inReviewStage.id,
-    creatorIsAssigned, investibleId);
+  const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId);
   const placeholder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};

@@ -715,7 +715,8 @@ function PlanningInvestible(props) {
         )}
         {sectionOpen !== 'descriptionVotingSection' && (
           <Grid container spacing={2}>
-            <Grid item xs={12} style={{ marginTop: mobileLayout ? undefined : '15px' }}>
+            <Grid item xs={12} style={{ marginTop: mobileLayout ? undefined : '15px',
+              paddingLeft: mobileLayout ? undefined : '1rem' }}>
               {showCommentAdd && !_.isEmpty(allowedCommentTypes) && (
                 <div style={{display: 'flex'}}>
                   {allowedCommentTypes.map((allowedCommentType) => {

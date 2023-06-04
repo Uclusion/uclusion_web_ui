@@ -256,9 +256,9 @@ function PlanningDialog(props) {
       <div style={{display: 'flex'}}>
         <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}
                       archivedSize={archivedSize} />
-      <div style={{paddingTop: '4rem', width: '100%'}}>
+      <div style={{paddingTop: '4rem', width: '96%', marginLeft: 'auto', marginRight: 'auto'}}>
         {isSectionOpen('discussionSection') && (
-          <div id="discussionSection" style={{paddingLeft: '3%', paddingRight: '3%'}}>
+          <div id="discussionSection">
             <Grid item id="discussionAddArea" xs={12}>
               {_.isEmpty(search) && marketId && !hidden && (
                 <>
@@ -364,7 +364,7 @@ function PlanningDialog(props) {
             </div>
           )}
           {isSectionOpen('backlogSection') && (
-            <div id="backlogSection" style={{paddingLeft: '3%', paddingRight: '3%'}}>
+            <div id="backlogSection">
               <Backlog group={group} marketPresences={marketPresences}
                        furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
                        comments={comments} />

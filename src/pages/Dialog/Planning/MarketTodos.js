@@ -346,7 +346,7 @@ function MarketTodos(props) {
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
   return (
     <div className={classes.outerBorder} id="marketTodos" style={{display: sectionOpen ? 'block' : 'none',
-      marginTop: '1rem', paddingLeft: '3%', paddingRight: '3%'}}>
+      marginTop: '1rem'}}>
       <DismissableText textId="todosHelp" display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
                        text={
         <div>

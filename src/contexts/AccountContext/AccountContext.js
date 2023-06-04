@@ -18,9 +18,7 @@ function AccountProvider(props) {
   const [state, dispatch] = useReducer(reducer, defaultValue);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      beginListening(dispatch);
-    }
+    beginListening(dispatch);
   }, []);
 
   return (

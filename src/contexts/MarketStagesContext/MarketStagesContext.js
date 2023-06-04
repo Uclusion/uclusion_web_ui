@@ -4,8 +4,6 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import beginListening from './marketStagesContextMessages'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
-import { isSignedOut } from '../../utils/userFunctions'
-import { clearUclusionLocalStorage } from '../../components/localStorageUtils'
 
 const MARKET_STAGES_CONTEXT_NAMESPACE = 'market_stages';
 const STAGES_CHANNEL = 'stages';
@@ -18,44 +16,37 @@ function MarketStagesProvider (props) {
   const [, setChannel] = useState(undefined);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      const myChannel = new BroadcastChannel(STAGES_CHANNEL);
-      myChannel.onmessage = (msg) => {
-        if (msg !== broadcastId) {
-          const lfg = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
-          lfg.getState()
-            .then((diskState) => {
-              if (diskState) {
-                console.info(`Reloading on stages channel message ${msg} with ${broadcastId}`);
-                dispatch(initializeState(diskState));
-              }
-            });
-        }
+    const myChannel = new BroadcastChannel(STAGES_CHANNEL);
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        const lfg = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
+        lfg.getState()
+          .then((diskState) => {
+            if (diskState) {
+              console.info(`Reloading on stages channel message ${msg} with ${broadcastId}`);
+              dispatch(initializeState(diskState));
+            }
+          });
       }
-      setChannel(myChannel);
     }
+    setChannel(myChannel);
     return () => {};
   }, []);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      // set the new state cache to something we control, so that our
-      // provider descendants will pick up changes to it
-      // load state from storage
-      const lfg = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((state) => {
-          if (state) {
-            dispatch(initializeState(state));
-          } else {
-            dispatch(initializeState({}));
-          }
-        });
-      beginListening(dispatch);
-    } else {
-      console.info('Clearing storage from market stages context');
-      clearUclusionLocalStorage(false);
-    }
+    // set the new state cache to something we control, so that our
+    // provider descendants will pick up changes to it
+    // load state from storage
+    const lfg = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
+    lfg.getState()
+      .then((state) => {
+        if (state) {
+          dispatch(initializeState(state));
+        } else {
+          dispatch(initializeState({}));
+        }
+      });
+    beginListening(dispatch);
     return () => {};
   }, []);
 

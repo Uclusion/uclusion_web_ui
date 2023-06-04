@@ -4,8 +4,6 @@ import reducer, { initializeState } from './groupMembersContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
-import { isSignedOut } from '../../utils/userFunctions'
-import { clearUclusionLocalStorage } from '../../components/localStorageUtils'
 
 const MEMBERS_CHANNEL = 'members';
 const GROUP_MEMBERS_CONTEXT_NAMESPACE = 'group_members';
@@ -17,41 +15,34 @@ function GroupMembersProvider(props) {
   const [, setChannel] = useState(undefined);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      const myChannel = new BroadcastChannel(MEMBERS_CHANNEL);
-      myChannel.onmessage = (msg) => {
-        if (msg !== broadcastId) {
-          console.info(`Reloading on group members channel message ${msg} with ${broadcastId}`);
-          const lfg = new LocalForageHelper(GROUP_MEMBERS_CONTEXT_NAMESPACE);
-          lfg.getState()
-            .then((diskState) => {
-              if (diskState) {
-                dispatch(initializeState(diskState));
-              }
-            });
-        }
+    const myChannel = new BroadcastChannel(MEMBERS_CHANNEL);
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        console.info(`Reloading on group members channel message ${msg} with ${broadcastId}`);
+        const lfg = new LocalForageHelper(GROUP_MEMBERS_CONTEXT_NAMESPACE);
+        lfg.getState()
+          .then((diskState) => {
+            if (diskState) {
+              dispatch(initializeState(diskState));
+            }
+          });
       }
-      setChannel(myChannel);
     }
+    setChannel(myChannel);
     return () => {};
   }, []);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      const lfh = new LocalForageHelper(GROUP_MEMBERS_CONTEXT_NAMESPACE);
-      lfh.getState()
-        .then((diskState) => {
-          if (diskState) {
-            dispatch(initializeState(diskState));
-          } else {
-            dispatch(initializeState({}));
-          }
-        });
-      beginListening(dispatch);
-    } else {
-      console.info('Clearing storage from group members context');
-      clearUclusionLocalStorage(false);
-    }
+    const lfh = new LocalForageHelper(GROUP_MEMBERS_CONTEXT_NAMESPACE);
+    lfh.getState()
+      .then((diskState) => {
+        if (diskState) {
+          dispatch(initializeState(diskState));
+        } else {
+          dispatch(initializeState({}));
+        }
+      });
+    beginListening(dispatch);
     return () => {};
   }, []);
 

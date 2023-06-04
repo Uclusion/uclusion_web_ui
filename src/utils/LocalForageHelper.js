@@ -1,11 +1,11 @@
 import localforage from 'localforage';
+import { isSignedOut } from './userFunctions';
 
 class LocalForageHelper {
   namespace;
   keyspace;
 
   constructor (namespace, keyspace) {
-    // // console.debug(namespace);
     this.namespace = namespace;
     if (keyspace) {
       this.keyspace = keyspace;
@@ -15,16 +15,16 @@ class LocalForageHelper {
   }
 
   setState (state) {
-    // // console.debug(`Storing state to disk for namespace ${this.namespace}`);
-    // // console.debug(state);
+    if (isSignedOut()) {
+      // Do not store when signed out to avoid leaking data
+      return Promise.resolve(false);
+    }
     return localforage.createInstance({ storeName: this.keyspace }).setItem(this.namespace, state);
   }
 
   getState () {
-    // // console.debug(`Getting state from disk for namespace ${this.namespace}`);
     return localforage.createInstance({ storeName: this.keyspace }).getItem(this.namespace)
       .then((state) => {
-        // // console.debug(state);
         return state;
       });
   }

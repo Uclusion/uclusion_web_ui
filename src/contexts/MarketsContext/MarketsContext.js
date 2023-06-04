@@ -6,8 +6,6 @@ import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import localforage from 'localforage'
 import { TOKEN_STORAGE_KEYSPACE } from '../../authorization/TokenStorageManager'
-import { isSignedOut } from '../../utils/userFunctions'
-import { clearUclusionLocalStorage } from '../../components/localStorageUtils'
 
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
 const EMPTY_STATE = {
@@ -29,63 +27,54 @@ function MarketsProvider(props) {
   const [tokensHash, setTokensHash] = useState({});
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
-      myChannel.onmessage = (msg) => {
-        if (msg !== broadcastId) {
-          console.info(`Reloading on markets channel message ${msg} with ${broadcastId}`);
-          const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
-          const localTokenHash = {};
-          store.iterate((value, key) => {
-            localTokenHash[key] = value;
-          }).then(() => {
-            setTokensHash(localTokenHash);
-            const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
-            return lfg.getState().then((diskState) => {
-              if (diskState) {
-                dispatch(initializeState(diskState));
-              }
-            });
+    const myChannel = new BroadcastChannel(MARKETS_CHANNEL);
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        console.info(`Reloading on markets channel message ${msg} with ${broadcastId}`);
+        const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
+        const localTokenHash = {};
+        store.iterate((value, key) => {
+          localTokenHash[key] = value;
+        }).then(() => {
+          setTokensHash(localTokenHash);
+          const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
+          return lfg.getState().then((diskState) => {
+            if (diskState) {
+              dispatch(initializeState(diskState));
+            }
           });
-        }
-      }
-      setChannel(myChannel);
-    }
-    return () => {};
-  }, []);
-
-  useEffect(() => {
-    if (!isSignedOut()) {
-      beginListening(dispatch, setTokensHash);
-    }
-    return () => {};
-  }, []);
-
-  useEffect(() => {
-    if (!isSignedOut()) {
-      // load market tokens for use by Quill img url re-writing
-      const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
-      const localTokenHash = {};
-      store.iterate((value, key) => {
-        localTokenHash[key] = value;
-      }).then(() => {
-        setTokensHash(localTokenHash);
-        // load state from storage
-        const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
-        return lfg.getState().then((diskState) => {
-          if (diskState) {
-            dispatch(initializeState(diskState));
-          } else {
-            dispatch(initializeState({
-              marketDetails: [],
-            }));
-          }
         });
-      });
-    } else {
-      console.info('Clearing storage from markets context');
-      clearUclusionLocalStorage(false);
+      }
     }
+    setChannel(myChannel);
+    return () => {};
+  }, []);
+
+  useEffect(() => {
+    beginListening(dispatch, setTokensHash);
+    return () => {};
+  }, []);
+
+  useEffect(() => {
+    // load market tokens for use by Quill img url re-writing
+    const store = localforage.createInstance({ storeName: TOKEN_STORAGE_KEYSPACE });
+    const localTokenHash = {};
+    store.iterate((value, key) => {
+      localTokenHash[key] = value;
+    }).then(() => {
+      setTokensHash(localTokenHash);
+      // load state from storage
+      const lfg = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
+      return lfg.getState().then((diskState) => {
+        if (diskState) {
+          dispatch(initializeState(diskState));
+        } else {
+          dispatch(initializeState({
+            marketDetails: [],
+          }));
+        }
+      });
+    });
     return () => {};
   }, []);
   tokensHashHack = tokensHash;

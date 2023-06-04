@@ -5,8 +5,6 @@ import beginListening from './notificationsContextMessages'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
-import { isSignedOut } from '../../utils/userFunctions'
-import { clearUclusionLocalStorage } from '../../components/localStorageUtils'
 
 export const EMPTY_STATE = {
   initializing: true,
@@ -22,51 +20,42 @@ function NotificationsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      const myChannel = new BroadcastChannel(NOTIFICATIONS_CHANNEL);
-      myChannel.onmessage = (msg) => {
-        if (msg !== broadcastId) {
-          console.info(`Reloading on notifications channel message ${msg} with ${broadcastId}`);
-          const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
-          lfg.getState()
-            .then((diskState) => {
-              if (diskState) {
-                dispatch(initializeState(diskState));
-              }
-            });
-        }
+    const myChannel = new BroadcastChannel(NOTIFICATIONS_CHANNEL);
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        console.info(`Reloading on notifications channel message ${msg} with ${broadcastId}`);
+        const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
+        lfg.getState()
+          .then((diskState) => {
+            if (diskState) {
+              dispatch(initializeState(diskState));
+            }
+          });
       }
-      setChannel(myChannel);
     }
+    setChannel(myChannel);
     return () => {};
   }, []);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      console.info('Beginning listening in notifications provider');
-      beginListening(dispatch);
-    }
+    console.info('Beginning listening in notifications provider');
+    beginListening(dispatch);
     return () => {};
   }, []);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((state) => {
-          if (state) {
-            dispatch(initializeState(state));
-          } else {
-            dispatch(initializeState({
-              page: undefined,
-              messages: [],
-            }));
-          }
-        });
-    } else {
-      console.info('Clearing storage from notifications context');
-      clearUclusionLocalStorage(false);
-    }
+    const lfg = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
+    lfg.getState()
+      .then((state) => {
+        if (state) {
+          dispatch(initializeState(state));
+        } else {
+          dispatch(initializeState({
+            page: undefined,
+            messages: [],
+          }));
+        }
+      });
     return () => {};
   }, []);
 

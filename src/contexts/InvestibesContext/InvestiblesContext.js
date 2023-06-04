@@ -12,8 +12,6 @@ import {
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
-import { isSignedOut } from '../../utils/userFunctions'
-import { clearUclusionLocalStorage } from '../../components/localStorageUtils'
 
 const INVESTIBLES_CHANNEL = 'investibles';
 const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
@@ -49,50 +47,41 @@ function InvestiblesProvider(props) {
   const [, setChannel] = useState(undefined);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
-      myChannel.onmessage = (msg) => {
-        if (msg !== broadcastId) {
-          const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
-          lfg.getState()
-            .then((diskState) => {
-              if (diskState) {
-                pushIndexItems(diskState);
-                console.info(`Reloading on investibles channel message ${msg} with ${broadcastId}`);
-                dispatch(initializeState(diskState));
-              }
-            });
-        }
+    const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
+        lfg.getState()
+          .then((diskState) => {
+            if (diskState) {
+              pushIndexItems(diskState);
+              console.info(`Reloading on investibles channel message ${msg} with ${broadcastId}`);
+              dispatch(initializeState(diskState));
+            }
+          });
       }
-      setChannel(myChannel);
     }
+    setChannel(myChannel);
     return () => {};
   }, []);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      beginListening(dispatch, diffDispatch);
-    }
+    beginListening(dispatch, diffDispatch);
     return () => {};
   }, [diffDispatch]);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      // load state from storage
-      const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((state) => {
-          if (state) {
-            pushIndexItems(state);
-            dispatch(initializeState(state));
-          } else {
-            dispatch(initializeState({}));
-          }
-        });
-    } else {
-      console.info('Clearing storage from investibles context');
-      clearUclusionLocalStorage(false);
-    }
+    // load state from storage
+    const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
+    lfg.getState()
+      .then((state) => {
+        if (state) {
+          pushIndexItems(state);
+          dispatch(initializeState(state));
+        } else {
+          dispatch(initializeState({}));
+        }
+      });
     return () => {};
   }, []);
 

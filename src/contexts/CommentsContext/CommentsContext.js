@@ -12,8 +12,6 @@ import {
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { DiffContext } from '../DiffContext/DiffContext'
-import { isSignedOut } from '../../utils/userFunctions'
-import { clearUclusionLocalStorage } from '../../components/localStorageUtils'
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 
 const COMMENTS_CHANNEL = 'comments';
@@ -48,50 +46,41 @@ function CommentsProvider(props) {
   const [, setChannel] = useState(undefined);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
-      myChannel.onmessage = (msg) => {
-        if (msg !== broadcastId) {
-          console.info(`Reloading on comments channel message ${msg} with ${broadcastId}`);
-          const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
-          lfg.getState()
-            .then((diskState) => {
-              if (diskState) {
-                pushIndexItems(diskState);
-                dispatch(initializeState(diskState));
-              }
-            });
-        }
+    const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        console.info(`Reloading on comments channel message ${msg} with ${broadcastId}`);
+        const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
+        lfg.getState()
+          .then((diskState) => {
+            if (diskState) {
+              pushIndexItems(diskState);
+              dispatch(initializeState(diskState));
+            }
+          });
       }
-      setChannel(myChannel);
     }
+    setChannel(myChannel);
     return () => {};
   }, []);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      beginListening(dispatch, diffDispatch);
-    }
+    beginListening(dispatch, diffDispatch);
     return () => {};
   }, [diffDispatch]);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      // load state from storage
-      const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((state) => {
-          if (state) {
-            pushIndexItems(state);
-            dispatch(initializeState(state));
-          } else {
-            dispatch(initializeState({}));
-          }
-        });
-    } else {
-      console.info('Clearing storage from comments context');
-      clearUclusionLocalStorage(false);
-    }
+    // load state from storage
+    const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
+    lfg.getState()
+      .then((state) => {
+        if (state) {
+          pushIndexItems(state);
+          dispatch(initializeState(state));
+        } else {
+          dispatch(initializeState({}));
+        }
+      });
     return () => {};
   }, []);
 

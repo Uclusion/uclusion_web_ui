@@ -18,6 +18,7 @@ import { MARKET_GROUPS_CONTEXT_NAMESPACE } from '../contexts/MarketGroupsContext
 import { GROUP_MEMBERS_CONTEXT_NAMESPACE } from '../contexts/GroupMembersContext/GroupMembersContext'
 import { RepeatingFunction } from '../utils/RepeatingFunction';
 import { MAX_DRIFT_TIME } from '../contexts/WebSocketContext';
+import { isSignedOut } from '../utils/userFunctions';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -45,7 +46,7 @@ const matchErrorHandlingVersionRefresh = () => {
       console.error(error);
       // we'll log match problems, but raise the rest
       if (error instanceof MatchError) {
-        return;
+        console.info('Ignoring match error');
       } else {
         throw(error);
       }
@@ -58,25 +59,30 @@ export function startRefreshRunner() {
 
 /**
  * If ignoreIfInProgress is false, then will execute a single version refresh.
- * Otherwise will start up a refreshRunner or if it's already started do nothing
+ * Otherwise, will start up a refreshRunner or if it's already started do nothing
  * @param ignoreIfInProgress
  * @returns {Promise<*>}
  */
 export function refreshVersions (ignoreIfInProgress=false) {
-  if(!ignoreIfInProgress){
+  if (isSignedOut()) {
+    return Promise.resolve(true); // also do nothing when signed out
+  }
+  if (!ignoreIfInProgress) {
     return matchErrorHandlingVersionRefresh();
-  }else{
-    if(runner == null){
+  } else {
+    if (runner == null){
       return startRefreshRunner();
-    }else{
+    } else {
       return Promise.resolve(true); // do nothing
     }
   }
 }
 
 export function refreshNotifications () {
-  // check if new notifications
-  pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
+  if (isSignedOut()) {
+    // check if new notifications
+    pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
+  }
 }
 
 /**

@@ -2,7 +2,6 @@ import React, { useEffect, useReducer } from 'react'
 import { getUclusionLocalStorageItem } from '../../components/localStorageUtils'
 import { ACCOUNT_CONTEXT_KEY, reducer } from './accountContextReducer'
 import { beginListening } from './accountContextMessages'
-import { isSignedOut } from '../../utils/userFunctions'
 
 const EMPTY_STATE = { account: {}, billingInfo: {}, user: {}, initializing: true };
 const AccountContext = React.createContext(EMPTY_STATE);

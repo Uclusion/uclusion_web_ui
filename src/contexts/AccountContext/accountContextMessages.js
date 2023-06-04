@@ -7,6 +7,7 @@ import { fixDates, updateBilling, updateInvoices } from './accountContextHelper'
 import _ from 'lodash'
 import { getInvoices, getPaymentInfo } from '../../api/users'
 import { quickAddDemo } from '../../utils/demoLoader';
+import { isSignedOut } from '../../utils/userFunctions';
 
 export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
 export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
@@ -57,6 +58,9 @@ export function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_HOME_USER_CHANNEL, 'accountHomeUser', (data) => {
+    if (isSignedOut()) {
+      return; // do nothing when signed out
+    }
     const { payload: { event, version } } = data;
     switch (event) {
       case VERSIONS_EVENT:
@@ -67,6 +71,9 @@ export function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_ACCOUNT_CHANNEL, 'accountHomeUser', (data) => {
+    if (isSignedOut()) {
+      return; // do nothing when signed out
+    }
     const { payload: { event, version } } = data;
     switch (event) {
       case VERSIONS_EVENT:

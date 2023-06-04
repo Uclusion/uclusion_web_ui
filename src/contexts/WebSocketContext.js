@@ -178,13 +178,11 @@ function WebSocketProvider(props) {
   }, [config, leaderDispatch, state, userId]);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      createWebSocket(config, leaderDispatch, setState, userId);
-      getAppVersion().then((version) => {
-        const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
-        notifyNewApplicationVersion(currentVersion, cacheClearVersion);
-      });
-    }
+    createWebSocket(config, leaderDispatch, setState, userId);
+    getAppVersion().then((version) => {
+      const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
+      notifyNewApplicationVersion(currentVersion, cacheClearVersion);
+    });
     return () => {};
   }, [config, leaderDispatch, userId]);
 

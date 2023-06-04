@@ -4,8 +4,6 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import beginListening from './marketGroupsContextMessages'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
-import { isSignedOut } from '../../utils/userFunctions'
-import { clearUclusionLocalStorage } from '../../components/localStorageUtils'
 import { pushIndexItems } from './marketGroupsContextHelper'
 import { DiffContext } from '../DiffContext/DiffContext'
 
@@ -21,46 +19,39 @@ function MarketGroupsProvider (props) {
   const [, setChannel] = useState(undefined);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      const myChannel = new BroadcastChannel(GROUPS_CHANNEL);
-      myChannel.onmessage = (msg) => {
-        if (msg !== broadcastId) {
-          const lfg = new LocalForageHelper(MARKET_GROUPS_CONTEXT_NAMESPACE);
-          lfg.getState()
-            .then((diskState) => {
-              if (diskState) {
-                pushIndexItems(diskState);
-                console.info(`Reloading on groups channel message ${msg} with ${broadcastId}`);
-                dispatch(initializeState(diskState));
-              }
-            });
-        }
+    const myChannel = new BroadcastChannel(GROUPS_CHANNEL);
+    myChannel.onmessage = (msg) => {
+      if (msg !== broadcastId) {
+        const lfg = new LocalForageHelper(MARKET_GROUPS_CONTEXT_NAMESPACE);
+        lfg.getState()
+          .then((diskState) => {
+            if (diskState) {
+              pushIndexItems(diskState);
+              console.info(`Reloading on groups channel message ${msg} with ${broadcastId}`);
+              dispatch(initializeState(diskState));
+            }
+          });
       }
-      setChannel(myChannel);
     }
+    setChannel(myChannel);
     return () => {};
   }, []);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      // set the new state cache to something we control, so that our
-      // provider descendants will pick up changes to it
-      // load state from storage
-      const lfg = new LocalForageHelper(MARKET_GROUPS_CONTEXT_NAMESPACE);
-      lfg.getState()
-        .then((state) => {
-          if (state) {
-            pushIndexItems(state);
-            dispatch(initializeState(state));
-          } else {
-            dispatch(initializeState({}));
-          }
-        });
-      beginListening(dispatch, diffDispatch);
-    } else {
-      console.info('Clearing storage from market groups context');
-      clearUclusionLocalStorage(false);
-    }
+    // set the new state cache to something we control, so that our
+    // provider descendants will pick up changes to it
+    // load state from storage
+    const lfg = new LocalForageHelper(MARKET_GROUPS_CONTEXT_NAMESPACE);
+    lfg.getState()
+      .then((state) => {
+        if (state) {
+          pushIndexItems(state);
+          dispatch(initializeState(state));
+        } else {
+          dispatch(initializeState({}));
+        }
+      });
+    beginListening(dispatch, diffDispatch);
     return () => {};
   }, [diffDispatch]);
 

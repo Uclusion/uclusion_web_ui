@@ -72,7 +72,7 @@ export function calculateTitleExpansionPanel(props) {
     if (message.isWaitingStart) {
       setItem(item, openExpansion, <StageWizard investibleId={message.id} marketId={message.marketId}
                                                 rowId={message.id} />,
-        'reviewJobQ', intl);
+        'startJobQ', intl);
     } else if (message.isOutboxType) {
       if (message.isAssigned) {
         setItem(item, openExpansion, <StageWizard investibleId={message.id} marketId={message.marketId}

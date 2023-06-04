@@ -10,7 +10,6 @@ import _ from 'lodash';
 import { updateInvestible } from '../../../api/investibles';
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
-import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { useIntl } from 'react-intl';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';

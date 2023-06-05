@@ -31,7 +31,7 @@ function DecideReviewStep(props) {
   const hasReport = !_.isEmpty(report);
   const createTodo = () => navigate(history,
     formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE));
-  const next = hasReport ?
+  const next = hasReport ? () =>
     navigate(history, formCommentEditReplyLink(marketId, report.id, true), false,
       true) : createTodo;
   return (

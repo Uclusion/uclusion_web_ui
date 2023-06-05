@@ -24,7 +24,7 @@ import { getReasonForVote } from '../../../contexts/MarketPresencesContext/marke
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 
 function JobDescriptionStep (props) {
-  const { marketId, investibleId, updateFormData, message, yourVote } = props;
+  const { marketId, investibleId, updateFormData, message, yourVote, isAssigned } = props;
   const classes = wizardStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -37,6 +37,7 @@ function JobDescriptionStep (props) {
   const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const wasDeleted = yourVote?.deleted;
   const yourReason = getReasonForVote(yourVote, marketComments);
+  const { is_highlighted: isHighlighted } = message;
 
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -48,7 +49,7 @@ function JobDescriptionStep (props) {
     >
     <div>
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'JobApprovalTitle'})}
+        {intl.formatMessage({id: isAssigned ? 'AssignmentApprovalTitle' : 'JobApprovalTitle'})}
       </Typography>
       {wasDeleted && (
         <Typography className={classes.introSubText} variant="subtitle1">
@@ -58,7 +59,7 @@ function JobDescriptionStep (props) {
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
-        nextLabel="ApprovalWizardApprove"
+        nextLabel={isAssigned ? 'ApprovalWizardAccept' : 'ApprovalWizardApprove'}
         showOtherNext
         otherNextLabel="ApprovalWizardBlock"
         onOtherNext={() => navigate(history,
@@ -74,7 +75,7 @@ function JobDescriptionStep (props) {
         }}
         spinOnClick={false}
         otherSpinOnClick={false}
-        showTerminate={message.is_highlighted}
+        showTerminate={isHighlighted}
         onFinish={myOnFinish}
         terminateLabel="defer"/>
     </div>

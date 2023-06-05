@@ -25,6 +25,7 @@ import { messageIsSynced } from '../../../contexts/NotificationsContext/notifica
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
+import RateReviewIcon from '@material-ui/icons/RateReview';
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory';
 
 function getPriorityIcon(message, isAssigned) {
@@ -49,6 +50,10 @@ function getPriorityIcon(message, isAssigned) {
       Icon = Block;
     }
   }
+  if (message.type?.includes('REVIEW') && !isAssigned) {
+    Icon = RateReviewIcon;
+  }
+
   if (!isHighlighted) {
     return <Icon style={{fontSize: 24, color: '#706f6f'}}/>;
   }

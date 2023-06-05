@@ -1040,6 +1040,7 @@ const messages = defineMessages({
   DecideAssignTitle: 'Will you reassign?',
   DecideStageTitle: 'Move this job?',
   JobApprovalTitle: 'Do you approve this job?',
+  AssignmentApprovalTitle: 'Do you accept this job?',
   DecideAnswerTitle: 'Can you help answer?',
   DecideFeedbackTitle: 'Respond to this feedback?',
   DecideVoteTitle: 'How do you vote?',
@@ -1208,6 +1209,7 @@ const messages = defineMessages({
 
   // Approve Wizard
   ApprovalWizardApprove: 'Approve job',
+  ApprovalWizardAccept: 'Accept job',
   ApprovalWizardBlock: 'Block instead',
   ApproveWizardGotoJob: 'Go to job',
   ISSUEApproveWizard: 'Create issue',

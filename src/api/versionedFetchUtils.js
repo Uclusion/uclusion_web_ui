@@ -79,7 +79,7 @@ export function refreshVersions (ignoreIfInProgress=false) {
 }
 
 export function refreshNotifications () {
-  if (isSignedOut()) {
+  if (!isSignedOut()) {
     // check if new notifications
     pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: VERSIONS_EVENT });
   }

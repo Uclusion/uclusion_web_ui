@@ -6,17 +6,15 @@ import {
   PUSH_PRESENCE_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_COMMENTS_CHANNEL
 } from '../api/versionedFetchUtils';
 import _ from 'lodash';
-function quickAddComments (comments) {
-  comments.forEach((commentDetails) => {
-    pushMessage(PUSH_COMMENTS_CHANNEL, { event: DEMO_EVENT, commentDetails });
-  });
+function quickAddComments(marketId, comments) {
+  pushMessage(PUSH_COMMENTS_CHANNEL, { event: DEMO_EVENT, commentDetails: { [marketId]: comments} });
 }
 
-function quickAddInvestibles (investibles) {
+function quickAddInvestibles(investibles) {
   pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: DEMO_EVENT, investibles });
 }
 
-function quickAddPresences (market, myUser, demoUser, presences) {
+function quickAddPresences(market, myUser, demoUser, presences) {
   const { id: marketId } = market;
   if (myUser != null && demoUser != null) {
     // remove the demo user
@@ -48,7 +46,7 @@ function handleMarketData (marketData) {
   quickAddStages(market, stages);
   quickAddPresences(market, myUser, demoUser, presences);
   quickAddInvestibles(investibles);
-  quickAddComments(comments);
+  quickAddComments(market.id, comments);
   if (!_.isEmpty(childMarkets)) {
     childMarkets.forEach((childMarket) => handleMarketData(childMarket));
   }

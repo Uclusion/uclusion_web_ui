@@ -25,7 +25,7 @@ import { messageIsSynced } from '../../../contexts/NotificationsContext/notifica
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
-import RateReviewIcon from '@material-ui/icons/RateReview';
+import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory';
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted } = message;
@@ -40,17 +40,15 @@ function getPriorityIcon(message, isAssigned) {
   if (message.type === 'NOT_FULLY_VOTED') {
     Icon = ThumbsUpDownIcon;
   }
-  if (message.type === 'ISSUE') {
+  if (['ISSUE', 'UNREAD_COMMENT'].includes(message.type)) {
     if (linkType.includes('QUESTION')) {
       Icon = QuestionIcon;
+    } else if (linkType.includes('SUGGEST')) {
+      Icon = ChangeSuggstionIcon;
     } else {
       Icon = Block;
     }
   }
-  if (message.type?.includes('REVIEW') && !isAssigned) {
-    Icon = RateReviewIcon;
-  }
-
   if (!isHighlighted) {
     return <Icon style={{fontSize: 24, color: '#706f6f'}}/>;
   }

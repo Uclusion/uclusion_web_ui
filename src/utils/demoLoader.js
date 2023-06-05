@@ -30,13 +30,11 @@ function quickAddPresences (market, myUser, demoUser, presences) {
 
 function quickAddStages (market, stages) {
   const { id: marketId } = market;
-  stages.forEach((stageDetails) => {
-    pushMessage(PUSH_STAGE_CHANNEL, { event: DEMO_EVENT, marketId, stageDetails });
-  });
+  pushMessage(PUSH_STAGE_CHANNEL, { event: DEMO_EVENT, marketId, stageDetails: stages });
 }
 
 function quickAddMarket (market) {
-  pushMessage(PUSH_MARKETS_CHANNEL, { event: DEMO_EVENT, marketDetails: market });
+  pushMessage(PUSH_MARKETS_CHANNEL, { event: DEMO_EVENT, marketDetails: [market] });
 }
 
 function handleMarketData (marketData) {
@@ -52,7 +50,7 @@ function handleMarketData (marketData) {
   quickAddInvestibles(investibles);
   quickAddComments(comments);
   if (!_.isEmpty(childMarkets)) {
-    childMarkets.forEach((market) => handleMarketData(market));
+    childMarkets.forEach((childMarket) => handleMarketData(childMarket));
   }
 }
 

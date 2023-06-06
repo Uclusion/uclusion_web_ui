@@ -113,8 +113,8 @@ function Backlog(props) {
                        display={isEmptyBacklog}
                        text={
                            <div>
-                             Use the "Add job" button above to create backlog. Moving a job to "Ready to Start" sends
-                             notifications to this group.
+                             Use the "Add job" button above to create backlog. "Ready to Start" sends notifications to
+                             this group.
                            </div>
                        }/>
       <GmailTabs

@@ -1120,7 +1120,7 @@ const messages = defineMessages({
   DecideMove: 'Reduce priority',
   DecideStartBug: 'Create job in Started',
   DecideStartBugExisting: 'Find existing job',
-  DecideAddReview: 'Reply',
+  DecideAddReview: 'Reply to report',
   DecideAddTask: 'Add task',
 
   // Search

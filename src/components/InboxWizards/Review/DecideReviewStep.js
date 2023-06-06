@@ -42,11 +42,9 @@ function DecideReviewStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideReviewTitle'})}
       </Typography>
-      {!isUnread && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          You are a required reviewer.
-        </Typography>
-      )}
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Review here or click the job title to ask a question or make a suggestion.
+      </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions
                       preserveOrder />
       <WizardStepButtons

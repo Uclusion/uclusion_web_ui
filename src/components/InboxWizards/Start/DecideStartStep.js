@@ -61,6 +61,9 @@ function DecideStartStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideStartTitle'})}
       </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Take action here or click the bug for options like resolve and reply.
+      </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}

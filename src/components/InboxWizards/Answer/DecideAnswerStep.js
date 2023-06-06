@@ -59,6 +59,11 @@ function DecideAnswerStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideAnswerTitle'})}
       </Typography>
+      {message.type !== 'UNREAD_COMMENT' && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Answer here or click the question for a display with reply, mute and option comments actions.
+        </Typography>
+      )}
       {commentRoot.investible_id && (
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                         removeActions

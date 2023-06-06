@@ -310,8 +310,7 @@ function DecisionInvestible(props) {
     </div>
   </CardActions>;
   return (
-    <div style={{marginLeft: '1rem', marginRight: mobileLayout ? '1rem' : undefined, marginBottom: '1rem'}}
-         id={`option${investibleId}`}>
+    <div style={{marginLeft: '1rem', marginRight: mobileLayout ? '1rem' : undefined}} id={`option${investibleId}`}>
       <div className={classes.root} id="optionMain">
         <CardType
           className={classes.cardType}
@@ -363,19 +362,21 @@ function DecisionInvestible(props) {
           />
         </>
       )}
-      <Grid container spacing={2} style={{paddingBottom: '1rem'}}>
-        <Grid item xs={12} style={{ marginTop: '2rem' }}>
-          {displayCommentInput && (
-            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
-                                     onClick={() => navigate(history,
-                                       formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId))}>
-              <FormattedMessage id='createComment'/>
-            </SpinningIconLabelButton>
-          )}
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
-                      isInbox removeActions={removeActions} />
+      {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (
+        <Grid container spacing={2} style={{paddingBottom: '1rem'}}>
+          <Grid item xs={12} style={{ marginTop: '2rem' }}>
+            {displayCommentInput && (
+              <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+                                       onClick={() => navigate(history,
+                                         formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId))}>
+                <FormattedMessage id='createComment'/>
+              </SpinningIconLabelButton>
+            )}
+            <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
+                        isInbox removeActions={removeActions} />
+          </Grid>
         </Grid>
-      </Grid>
+      )}
     </div>
   );
 }

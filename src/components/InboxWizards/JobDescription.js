@@ -59,7 +59,7 @@ function JobDescription(props) {
         )}
         {!_.isEmpty(comments) && (
           <div style={{paddingTop: '1rem', paddingLeft: '0.25rem', paddingRight: mobileLayout ? '0.5rem' : '10rem',
-            minHeight: '200px', overflowY: 'hidden', overflowX: 'hidden' }}>
+            overflowY: 'hidden', overflowX: 'hidden' }}>
             <CommentBox
               comments={comments}
               preserveOrder={preserveOrder}

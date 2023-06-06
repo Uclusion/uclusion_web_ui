@@ -90,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
     padding: 0
   },
   votingCardContent: {
-    margin: theme.spacing(2, 1, 2, 0),
+    margin: theme.spacing(2, 1, 0, 0),
     padding: 0
   },
   flexCenter: {
@@ -184,8 +184,8 @@ function DecisionInvestible(props) {
   const inProposed = inProposedStage && stage === inProposedStage.id;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const yourVote = yourPresence.investments
-    && yourPresence.investments.find((investment) => investment.investible_id === investibleId && !investment.deleted);
+  const yourVote = yourPresence.investments?.find((investment) => investment.investible_id === investibleId
+    && !investment.deleted);
   const {
     name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
   } = investible;
@@ -364,7 +364,7 @@ function DecisionInvestible(props) {
       )}
       {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (
         <Grid container spacing={2} style={{paddingBottom: '1rem'}}>
-          <Grid item xs={12} style={{ marginTop: '2rem' }}>
+          <Grid item xs={12} style={{ marginBottom: '1rem' }}>
             {displayCommentInput && (
               <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
                                        onClick={() => navigate(history,

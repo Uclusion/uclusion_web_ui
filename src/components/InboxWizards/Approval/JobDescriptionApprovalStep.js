@@ -56,6 +56,11 @@ function JobDescriptionStep (props) {
           Your approval was deleted or expired.
         </Typography>
       )}
+      {!wasDeleted && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Take action here or click the job title to ask a question or make a suggestion.
+        </Typography>
+      )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}

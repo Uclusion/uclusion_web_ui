@@ -74,6 +74,9 @@ function DecideUnblockStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideUnblockTitle'})}
       </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Take action here or click the bug to resolve or move it.
+      </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} removeActions />
       <WizardStepButtons
         {...props}

@@ -62,7 +62,7 @@ function DecideStartStep(props) {
         {intl.formatMessage({id: 'DecideStartTitle'})}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Take action here or click the bug for options like resolve and reply.
+        Take action here or click the bug to resolve or reply.
       </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox

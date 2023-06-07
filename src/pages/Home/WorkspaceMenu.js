@@ -183,26 +183,28 @@ function WorkspaceMenu(props) {
                 >
                   {intl.formatMessage({ id: 'homeAddGroup' })}
                 </MenuItem>
-                <SubMenu title={intl.formatMessage({ id: 'inactiveGroups' })}
-                         onClick={(event) => event.stopPropagation() }
-                         key="inactiveGroups" style={{paddingLeft: '0.7rem'}}>
-                  {inactiveGroups.map((group) => {
-                    const key = `group${group.id}`;
+                {!_.isEmpty(inactiveGroups) && (
+                  <SubMenu title={intl.formatMessage({ id: 'inactiveGroups' })}
+                           onClick={(event) => event.stopPropagation() }
+                           key="inactiveGroups" style={{paddingLeft: '0.7rem'}}>
+                    {inactiveGroups.map((group) => {
+                      const key = `group${group.id}`;
 
-                    if (chosenGroup?.id === group.id) {
-                      return <React.Fragment key={key}/>;
-                    }
-                    return <MenuItem icon={<GroupOutlined htmlColor="black" />}
-                                     id={key}
-                                     key={key}
-                                     onClick={() => {
-                                       navigate(history, formMarketLink(defaultMarket.id, group.id))
-                                     }}
-                    >
-                      {group.name}
-                    </MenuItem>
-                  })}
-                </SubMenu>
+                      if (chosenGroup?.id === group.id) {
+                        return <React.Fragment key={key}/>;
+                      }
+                      return <MenuItem icon={<GroupOutlined htmlColor="black" />}
+                                       id={key}
+                                       key={key}
+                                       onClick={() => {
+                                         navigate(history, formMarketLink(defaultMarket.id, group.id))
+                                       }}
+                      >
+                        {group.name}
+                      </MenuItem>
+                    })}
+                  </SubMenu>
+                )}
                 <MenuItem icon={<AddIcon htmlColor="black" />}
                           key="addWorkspace Key" id="addWorkspaceIconId"
                           style={{marginTop: '1rem', marginBottom: '1rem'}}
@@ -213,28 +215,30 @@ function WorkspaceMenu(props) {
                 >
                   {intl.formatMessage({ id: 'homeAddPlanning' })}
                 </MenuItem>
-                <SubMenu title={intl.formatMessage({ id: 'switchWorkspace' })}
-                         onClick={(event) => event.stopPropagation() }
-                         key="switchWorkspace" style={{paddingLeft: '0.7rem'}}>
-                  {markets.map((market) => {
-                    const key = `market${market.id}`;
+                {_.size(markets) > 1 && (
+                  <SubMenu title={intl.formatMessage({ id: 'switchWorkspace' })}
+                           onClick={(event) => event.stopPropagation() }
+                           key="switchWorkspace" style={{paddingLeft: '0.7rem'}}>
+                    {markets.map((market) => {
+                      const key = `market${market.id}`;
 
-                    if (market.id === defaultMarket.id) {
-                      return <React.Fragment key={key}/>;
-                    }
-                    return <MenuItem icon={<AgilePlanIcon htmlColor="black" fontSize='small' />}
-                                     id={key}
-                                     key={key}
-                                     style={{paddingLeft: '-15px', marginLeft: '-15px'}}
-                                     onClick={() => {
-                                       recordPositionToggle();
-                                       setChosenMarketId(market.id);
-                                     }}
-                    >
-                      {market.name}
-                    </MenuItem>
-                  })}
-                </SubMenu>
+                      if (market.id === defaultMarket.id) {
+                        return <React.Fragment key={key}/>;
+                      }
+                      return <MenuItem icon={<AgilePlanIcon htmlColor="black" fontSize='small' />}
+                                       id={key}
+                                       key={key}
+                                       style={{paddingLeft: '-15px', marginLeft: '-15px'}}
+                                       onClick={() => {
+                                         recordPositionToggle();
+                                         setChosenMarketId(market.id);
+                                       }}
+                      >
+                        {market.name}
+                      </MenuItem>
+                    })}
+                  </SubMenu>
+                )}
               </ProMenu>
             </SidebarContent>
           </ProSidebar>

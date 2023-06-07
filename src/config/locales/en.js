@@ -447,7 +447,7 @@ const messages = defineMessages({
   votesRequiredHelp: "Number of approvals desired before starting a job",
   ticketSubCodeHelp: 'A short code for the group which will be used to form human readable job ids',
   ticketSubCodeHelp1: 'Your job ids will look like U-{code}-0, U-{code}-1, U-{code}-2, etc.',
-  voteExpirationHelp: "How many days before approvals expire. Prevents very old approval from being used.",
+  voteExpirationHelp: "How many days before approvals expire. Prevents approvals becoming too old.",
   reassignToMove: 'Assigning moves to the swimlanes.',
   marketLinksSection: 'links',
   attachedFilesSection: 'attach files',
@@ -1026,10 +1026,10 @@ const messages = defineMessages({
   allowedInvestiblesUnlimitedValue: 'Unlimited',
 
   //show investibles dropdown
-  showInvestiblesDropdownHelp: 'Number of jobs to allow in \'Verified\' swimlane per person',
-  showInvestiblesDropdownAgeHelp: 'Maximum age of jobs shown in \'Verified\' swimlanes.',
-  showInvestiblesDropdownLabel: 'Maximum verified jobs shown in swim lane',
-  showInvestiblesDropdownAgeLabel: 'Maximum age in days to show verified jobs',
+  showInvestiblesDropdownHelp: 'Number of jobs to allow in \'Complete\' swimlane per person',
+  showInvestiblesDropdownAgeHelp: 'Maximum age of jobs shown in \'Complete\' swimlanes.',
+  showInvestiblesDropdownLabel: 'Maximum verified jobs shown in swimlane',
+  showInvestiblesDropdownAgeLabel: 'Maximum age in days to show Complete jobs',
   showInvestiblesUnlimitedValue: 'Unlimited',
 
   // warnings

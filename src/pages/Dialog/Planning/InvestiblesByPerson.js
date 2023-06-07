@@ -163,7 +163,7 @@ function InvestiblesByPerson(props) {
           </div>
           <div style={{flex: '2 1 50%'}}>
             <b><FormattedMessage id="planningReviewStageLabel"/></b>
-            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#complete" target="_blank">
+            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#complete-and-not-doing" target="_blank">
               <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>
           </div>

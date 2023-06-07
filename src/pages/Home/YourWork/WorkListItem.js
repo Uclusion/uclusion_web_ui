@@ -186,6 +186,7 @@ function WorkListItem(props) {
               return;
             }
             preventDefaultAndProp(event);
+            setIsHovered(false);
             navigate(history, formInboxItemLink(id));
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>

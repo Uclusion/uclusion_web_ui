@@ -34,13 +34,10 @@ function searchFiltered(raw, searchResults) {
 
 export function getMessages(allOutBoxMessagesOrderedRaw, messagesFullRaw, searchResults) {
   const messagesFull = searchFiltered(messagesFullRaw, searchResults);
-  const allOutBoxMessagesOrdered = searchFiltered(allOutBoxMessagesOrderedRaw, searchResults);
+  const outBoxMessagesOrdered = searchFiltered(allOutBoxMessagesOrderedRaw, searchResults);
   let inboxMessagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
-  const outBoxMessagesOrdered = allOutBoxMessagesOrdered.filter((message) => !message.isWaitingStart);
-  const isWaitingStart = allOutBoxMessagesOrdered.filter((message) => message.isWaitingStart);
   const teamMessagesOrdered = inboxMessagesOrdered.filter((message) => !message.is_highlighted);
-  inboxMessagesOrdered = _.union(inboxMessagesOrdered.filter((message) => message.is_highlighted),
-    isWaitingStart);
+  inboxMessagesOrdered = inboxMessagesOrdered.filter((message) => message.is_highlighted);
   return {outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered };
 }
 

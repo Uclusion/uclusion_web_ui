@@ -72,7 +72,7 @@ export function calculateTitleExpansionPanel(props) {
     if (message.isWaitingStart) {
       setItem(item, openExpansion, <StageWizard investibleId={message.id} marketId={message.marketId}
                                                 rowId={message.id} />,
-        'startJobQ', intl);
+        'finishApprovalQ', intl);
     } else if (message.isOutboxType) {
       if (message.isAssigned) {
         setItem(item, openExpansion, <StageWizard investibleId={message.id} marketId={message.marketId}
@@ -130,7 +130,7 @@ export function calculateTitleExpansionPanel(props) {
   }else if (['FULLY_VOTED', 'UNREAD_RESOLVED', 'UNREAD_VOTE'].includes(messageType)) {
     if (linkType === 'INVESTIBLE_VOTE') {
       setItem(item, openExpansion, <FeedbackWizard marketId={marketId} message={message} />,
-        'unreadVote', intl);
+        'startJobQ', intl);
     } else {
       setItem(item, openExpansion, <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
                                                   message={message} />,

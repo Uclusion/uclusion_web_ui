@@ -54,7 +54,7 @@ function StartReviewStep(props) {
     >
     <div>
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
-        What do you want reviewed?
+        What did you complete?
       </Typography>
       <CommentAdd
         nameKey="CommentAddStartReview"

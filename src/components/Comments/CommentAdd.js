@@ -58,7 +58,7 @@ import AddWizardStepButtons from '../AddNewWizards/WizardStepButtons'
 import { nameFromDescription } from '../../utils/stringFunctions';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import { Clear, Send } from '@material-ui/icons';
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { getMarketInfo } from '../../utils/userFunctions';
 
@@ -493,6 +493,7 @@ function CommentAdd(props) {
                   nextLabel={`${type}ApproveWizard`}
                   onNext={() => handleSave( wizardProps.isSent !== false)}
                   showTerminate={true}
+                  onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}
               {wizardProps.isAddWizard &&

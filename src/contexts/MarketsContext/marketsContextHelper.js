@@ -36,10 +36,14 @@ export function getMyUserForMarket(state, marketId) {
   return undefined;
 }
 
-export function getMarketDetailsForType(state, marketPresencesState, marketType = 'DECISION', allowInline=false) {
+export function getMarketDetailsForType(state, marketPresencesState, marketType = 'DECISION',
+  allowInline=false) {
   if (state.marketDetails) {
     return state.marketDetails.filter((market) => {
-      const { id } = market;
+      const { market_stage: marketStage, id } = market;
+      if (marketStage !== ACTIVE_STAGE) {
+        return false;
+      }
       const marketPresences = getMarketPresences(marketPresencesState, id) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
       if (myPresence.market_banned) {

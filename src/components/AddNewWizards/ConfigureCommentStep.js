@@ -15,7 +15,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { getInReviewStage, getRequiredInputStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
@@ -64,14 +64,13 @@ function ConfigureCommentStep(props) {
   function quickAddComment(comment) {
     addCommentToMarket(comment, commentState, commentDispatch);
     if (comment.investible_id) {
-      const requiresInputStage = getRequiredInputStage(marketStagesState, comment.market_id) || {};
       const inv = getInvestible(investibleState, comment.investible_id);
       const { investible } = inv;
       const marketInfo = getMarketInfo(inv, comment.market_id) || {};
       const inReviewStage = getInReviewStage(marketStagesState, comment.market_id) || {};
       const myPresence = presences.find((presence) => presence.current_user) || {};
-      changeInvestibleStageOnCommentOpen(false, true, undefined,
-        requiresInputStage, [marketInfo], investible, investiblesDispatch, comment);
+      changeInvestibleStageOnCommentOpen(false, true, marketStagesState,
+        [marketInfo], investible, investiblesDispatch, comment, myPresence);
       quickNotificationChanges(comment.comment_type, inReviewStage, inReviewStage.id === marketInfo.stage,
         comment.investible_id, messagesState, messagesDispatch, [], comment, undefined,
         commentState, commentDispatch, comment.market_id, myPresence);

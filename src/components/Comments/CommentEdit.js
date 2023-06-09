@@ -202,6 +202,7 @@ function CommentEdit(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(marketPresencesState, marketId);
+  const myPresence = presences?.find((presence) => presence.current_user) || {};
   const [marketStagesState] = useContext(MarketStagesContext);
 
   const editorName = `comment-edit-editor${id}`;
@@ -240,7 +241,7 @@ function CommentEdit(props) {
         }
         resetEditor();
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
-          commentState, commentDispatch);
+          commentState, commentDispatch, myPresence);
         deleteOrDehilightMessages(messages || [], messagesDispatch, true, true);
         if (commentType === REPORT_TYPE) {
           const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);

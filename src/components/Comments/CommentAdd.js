@@ -209,20 +209,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }), { name: 'CommentAdd' });
 
-function getReportWarningId(isReadyForApproval) {
-  if (isReadyForApproval) {
-    return 'addReportInReadyForApprovalWarning'
-  }
-  return undefined;
-}
-
-export function getCommentCreationWarning(type, issueWarningId, createInlineInitiative, investibleRequiresInput,
-  numReports, isReadyForApproval) {
-  return type === ISSUE_TYPE ? issueWarningId : (type === REPORT_TYPE ? getReportWarningId(isReadyForApproval) :
-    (createInlineInitiative ? 'noInitiativeType' :
-      (investibleRequiresInput ? 'requiresInputWarningPlanning' : undefined)));
-}
-
 export function getOlderReports(currentId, allComments, marketId, investibleId, myPresence) {
   return allComments.filter(comment => comment.comment_type === REPORT_TYPE && !comment.resolved
     && comment.id !== currentId && comment.investible_id === investibleId && comment.created_by === myPresence.id)
@@ -414,8 +400,8 @@ function CommentAdd(props) {
         commentAddStateReset();
         resetEditor();
         if (isSent !== false) {
-          changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput,
-            blockingStage, requiresInputStage, inv.market_infos, useRootInvestible, investibleDispatch, comment);
+          changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState,
+            inv.market_infos, useRootInvestible, investibleDispatch, comment, myPresence);
         }
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (isSent !== false) {

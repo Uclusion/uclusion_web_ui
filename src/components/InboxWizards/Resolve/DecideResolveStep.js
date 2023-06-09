@@ -26,6 +26,8 @@ import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import { onCommentOpen } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function DecideResolveStep(props) {
   const { marketId, commentId, message } = props;
@@ -34,9 +36,12 @@ function DecideResolveStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [selectedInvestibleId, setSelectedInvestibleId] = useState(message.decision_investible_id
     || message.investible_id);
   const history = useHistory();
+  const presences = getMarketPresences(marketPresencesState, marketId);
+  const myPresence = presences?.find((presence) => presence.current_user) || {};
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
@@ -58,7 +63,7 @@ function DecideResolveStep(props) {
     return reopenComment(marketId, commentId)
       .then((comment) => {
         onCommentOpen(investiblesState, commentRoot.investible_id, marketStagesState, marketId, comment,
-          investiblesDispatch, commentState, commentDispatch);
+          investiblesDispatch, commentState, commentDispatch, myPresence);
         setOperationRunning(false);
         removeWorkListItem(message, messagesDispatch, history);
       });

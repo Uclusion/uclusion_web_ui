@@ -461,7 +461,7 @@ function Comment(props) {
     return reopenComment(marketId, id)
       .then((comment) => {
         onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
-          commentsState, commentsDispatch);
+          commentsState, commentsDispatch, myPresence);
         // The only message that will be there is the one telling you the comment was resolved
         removeMessagesForCommentId(id, messagesState);
         setOperationRunning(false);

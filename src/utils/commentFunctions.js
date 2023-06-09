@@ -1,9 +1,10 @@
 import _ from 'lodash'
 import { addInvestible, getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper'
 import {
+  getAcceptedStage,
   getBlockedStage,
   getFullStage, getInCurrentVotingStage,
-  getRequiredInputStage, isFurtherWorkStage
+  getRequiredInputStage, isFurtherWorkStage, isInReviewStage
 } from '../contexts/MarketStagesContext/marketStagesContextHelper';
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../constants/comments';
 import { addCommentToMarket } from '../contexts/CommentsContext/commentsContextHelper'
@@ -16,7 +17,7 @@ import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../authorization/TokenSt
 import { PUSH_INVESTIBLES_CHANNEL } from '../api/versionedFetchUtils'
 
 export function onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
-  commentsState, commentsDispatch) {
+  commentsState, commentsDispatch, myPresence) {
   const inv = getInvestible(investibleState, investibleId) || {}
   const { market_infos, investible: rootInvestible } = inv;
   const [info] = (market_infos || []);
@@ -29,8 +30,8 @@ export function onCommentOpen(investibleState, investibleId, marketStagesState, 
     && currentStageId !== requiresInputStage.id;
   const investibleBlocks = (investibleId && comment.comment_type === ISSUE_TYPE)
     && currentStageId !== blockingStage.id;
-  changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput,
-    blockingStage, requiresInputStage, market_infos, rootInvestible, investibleDispatch, comment);
+  changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState, market_infos,
+    rootInvestible, investibleDispatch, comment, myPresence);
   addCommentToMarket(comment, commentsState, commentsDispatch);
 }
 
@@ -84,12 +85,26 @@ export function changeInvestibleStageOnCommentClose(market_infos, rootInvestible
     investibleDispatch);
 }
 
-export function changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput,
-  blockingStage, requiresInputStage, market_infos, rootInvestible, investibleDispatch, comment) {
+export function changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState,
+  market_infos, rootInvestible, investibleDispatch, comment, myPresence) {
+  const [info] = (market_infos || []);
+  const { stage, assigned } = (info || {});
+  let newStage;
   if (investibleBlocks || investibleRequiresInput) {
-    const [info] = (market_infos || []);
-    const { assigned } = (info || {});
-    const newStage = investibleBlocks ? blockingStage : requiresInputStage;
+    const requiresInputStage = getRequiredInputStage(marketStagesState, comment.market_id) || {};
+    const blockingStage = getBlockedStage(marketStagesState, comment.market_id) || {};
+    newStage = investibleBlocks ? blockingStage : requiresInputStage;
+  } else if (comment.comment_type === TODO_TYPE) {
+    const fullStage = getFullStage(marketStagesState, comment.market_id, stage);
+    if (isInReviewStage(fullStage)) {
+      if (assigned?.includes(myPresence?.id)) {
+        newStage = getAcceptedStage(marketStagesState, comment.market_id) || {};
+      } else {
+        newStage = getInCurrentVotingStage(marketStagesState, comment.market_id) || {};
+      }
+    }
+  }
+  if (newStage) {
     changeInvestibleStage(newStage, assigned, comment.updated_at, info, market_infos, rootInvestible,
       investibleDispatch);
   }

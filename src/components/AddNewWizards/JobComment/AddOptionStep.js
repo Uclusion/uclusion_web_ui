@@ -13,7 +13,6 @@ import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesC
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import {
   getInReviewStage,
-  getRequiredInputStage,
   getStages
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -46,7 +45,6 @@ function AddOptionStep(props) {
   const presences = usePresences(marketId);
   const marketStages = getStages(marketStagesState, inlineMarketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
-  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const inv = getInvestible(investibleState, investibleId);
   const { investible } = inv;
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -91,8 +89,8 @@ function AddOptionStep(props) {
   function myOnFinish() {
     return sendComment(marketId, commentId).then((response) => {
       let comment = response;
-      changeInvestibleStageOnCommentOpen(false, true, undefined,
-        requiresInputStage, [marketInfo], investible, investiblesDispatch, comment);
+      changeInvestibleStageOnCommentOpen(false, true, marketStagesState,
+        [marketInfo], investible, investiblesDispatch, comment, myPresence);
       addCommentToMarket(comment, commentState, commentDispatch);
       quickNotificationChanges(QUESTION_TYPE, inReviewStage, inReviewStage.id === currentStageId, investibleId,
         messagesState, messagesDispatch, [], comment, undefined, commentState, commentDispatch,

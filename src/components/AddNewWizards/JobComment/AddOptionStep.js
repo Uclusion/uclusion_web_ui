@@ -11,10 +11,7 @@ import { addPlanningInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import {
-  getInReviewStage,
-  getStages
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { sendComment } from '../../../api/comments';
 import { changeInvestibleStageOnCommentOpen } from '../../../utils/commentFunctions';
@@ -48,8 +45,6 @@ function AddOptionStep(props) {
   const inv = getInvestible(investibleState, investibleId);
   const { investible } = inv;
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage: currentStageId } = marketInfo;
-  const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const myPresence = presences.find((presence) => presence.current_user) || {};
 
   const editorSpec = {
@@ -92,9 +87,8 @@ function AddOptionStep(props) {
       changeInvestibleStageOnCommentOpen(false, true, marketStagesState,
         [marketInfo], investible, investiblesDispatch, comment, myPresence);
       addCommentToMarket(comment, commentState, commentDispatch);
-      quickNotificationChanges(QUESTION_TYPE, inReviewStage, inReviewStage.id === currentStageId, investibleId,
-        messagesState, messagesDispatch, [], comment, undefined, commentState, commentDispatch,
-        marketId, myPresence);
+      quickNotificationChanges(QUESTION_TYPE, investibleId, messagesState, messagesDispatch, [], comment,
+        undefined, commentState, commentDispatch, marketId, myPresence);
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, groupId, investibleId, commentId));
     });

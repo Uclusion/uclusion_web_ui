@@ -15,7 +15,6 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
@@ -67,13 +66,11 @@ function ConfigureCommentStep(props) {
       const inv = getInvestible(investibleState, comment.investible_id);
       const { investible } = inv;
       const marketInfo = getMarketInfo(inv, comment.market_id) || {};
-      const inReviewStage = getInReviewStage(marketStagesState, comment.market_id) || {};
       const myPresence = presences.find((presence) => presence.current_user) || {};
       changeInvestibleStageOnCommentOpen(false, true, marketStagesState,
         [marketInfo], investible, investiblesDispatch, comment, myPresence);
-      quickNotificationChanges(comment.comment_type, inReviewStage, inReviewStage.id === marketInfo.stage,
-        comment.investible_id, messagesState, messagesDispatch, [], comment, undefined,
-        commentState, commentDispatch, comment.market_id, myPresence);
+      quickNotificationChanges(comment.comment_type, comment.investible_id, messagesState, messagesDispatch,
+        [], comment, undefined, commentState, commentDispatch, comment.market_id, myPresence);
     }
     setOperationRunning(false);
     navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));

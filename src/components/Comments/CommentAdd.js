@@ -25,7 +25,6 @@ import {
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import {
   getBlockedStage,
-  getInReviewStage,
   getRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
@@ -229,8 +228,8 @@ function quickResolveOlderReports(marketId, investibleId, myPresence, currentCom
   addMarketComments(commentDispatch, marketId, updatedComments)
 }
 
-export function quickNotificationChanges(apiType, inReviewStage, isInReview, investibleId, messagesState,
-  messagesDispatch, threadMessages, comment, parentId, commentsState, commentDispatch, marketId, myPresence) {
+export function quickNotificationChanges(apiType, investibleId, messagesState, messagesDispatch, threadMessages,
+  comment, parentId, commentsState, commentDispatch, marketId, myPresence) {
   if (apiType === REPORT_TYPE) {
     const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState)
     if (message) {
@@ -238,15 +237,13 @@ export function quickNotificationChanges(apiType, inReviewStage, isInReview, inv
     }
     quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);
   }
-  if (isInReview) {
-    let message = findMessageOfType('UNREAD_REVIEWABLE', investibleId, messagesState)
-    if (message) {
-      removeWorkListItem(message, messagesDispatch);
-    }
-    message = findMessageOfType('REVIEW_REQUIRED', investibleId, messagesState)
-    if (message) {
-      removeWorkListItem(message, messagesDispatch);
-    }
+  let message = findMessageOfType('UNREAD_REVIEWABLE', investibleId, messagesState)
+  if (message) {
+    removeWorkListItem(message, messagesDispatch);
+  }
+  message = findMessageOfType('REVIEW_REQUIRED', investibleId, messagesState)
+  if (message) {
+    removeWorkListItem(message, messagesDispatch);
   }
   // The whole thread will be marked read so quick it
   deleteOrDehilightMessages(threadMessages || [], messagesDispatch, true, true);
@@ -376,7 +373,6 @@ function CommentAdd(props) {
     const mentions = getMentionsFromText(tokensRemoved)
     // the API does _not_ want you to send reply type, so suppress if our type is reply
     // what about not doing state?
-    const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
     const createInlineDecision = ourMarket.market_type === PLANNING_TYPE && apiType === QUESTION_TYPE;
     // Inline question markets use draft but initiatives do not since nothing to edit
     const marketType = ((createInlineInitiative && isSent && doCreateInitiative === undefined)
@@ -405,9 +401,8 @@ function CommentAdd(props) {
         }
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (isSent !== false) {
-          quickNotificationChanges(apiType, inReviewStage, inReviewStage.id === currentStageId, investibleId,
-            messagesState, messagesDispatch, threadMessages, comment, parentId, commentsState, commentDispatch,
-            marketId, myPresence);
+          quickNotificationChanges(apiType, investibleId, messagesState, messagesDispatch, threadMessages, comment,
+            parentId, commentsState, commentDispatch, marketId, myPresence);
         }
         if (marketType) {
           addMarket(response, marketsDispatch, presenceDispatch);

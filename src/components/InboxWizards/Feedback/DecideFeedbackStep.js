@@ -50,7 +50,7 @@ function DecideFeedbackStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: isNewVote ? 'unreadVote' : 'DecideFeedbackTitle'})}
+        {intl.formatMessage({id: isNewVote ? 'startJobQ' : 'DecideFeedbackTitle'})}
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id || message.investible_id}
                       comments={comments} removeActions />

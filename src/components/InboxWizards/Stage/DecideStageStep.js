@@ -72,7 +72,7 @@ function DecideStageStep(props) {
   if (currentStageId === inVotingStage.id) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
-    destinationLabel = 'startJobQ';
+    destinationLabel = 'finishApprovalQ';
     otherNextLabelId = 'commentIconAskQuestionLabel';
     onOtherNextFunc = () => {
       navigate(history,

@@ -642,27 +642,29 @@ function StageInvestible(props) {
   }
   const ticketNumber = getTicketNumber(ticketCode);
   return (
-    <Grid container>
-      <Grid item xs={8}>
-        <div>
-          <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
-        </div>
-        {unaccepted && (
-          <div className={planClasses.daysEstimation}>
-            <FormattedMessage id='planningUnacceptedLabel' />
+    <>
+      <Grid container>
+        <Grid item xs={8}>
+          <div>
+            <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
           </div>
-        )}
-      </Grid>
-      {ticketNumber && !mobileLayout && (
-        <Grid item xs={1} style={{ paddingBottom: '0.2rem' }}>
-          <Typography variant="subtitle2" style={{whiteSpace: 'nowrap'}}>J-{ticketNumber}</Typography>
+          {unaccepted && (
+            <div className={planClasses.daysEstimation}>
+              <FormattedMessage id='planningUnacceptedLabel' />
+            </div>
+          )}
         </Grid>
-      )}
-      <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
-        <EditOutlinedIcon style={{maxHeight: '1.25rem', marginLeft: '2rem'}} />
+        {ticketNumber && !mobileLayout && (
+          <Grid item xs={1} style={{ paddingBottom: '0.2rem' }}>
+            <Typography variant="subtitle2" style={{whiteSpace: 'nowrap'}}>J-{ticketNumber}</Typography>
+          </Grid>
+        )}
+        <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
+          <EditOutlinedIcon style={{maxHeight: '1.25rem', marginLeft: '2rem'}} />
+        </Grid>
+        {chip}
       </Grid>
-      {chip}
-      <Grid id={`showEdit1${hasDaysEstimate ? '' : id}`} item xs={12} style={{paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
+      <div id={`showEdit1${hasDaysEstimate ? '' : id}`} style={{paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
         <StageLink
           href={to}
           id={id}
@@ -681,8 +683,8 @@ function StageInvestible(props) {
             </div>
           )}
         </StageLink>
-      </Grid>
-    </Grid>
+      </div>
+    </>
   );
 }
 

@@ -487,7 +487,8 @@ function CommentAdd(props) {
                   onTerminate={wizardProps.saveOnTerminate ? () => {
                     setOperationRunning(true);
                     handleSave();
-                  } : wizardProps.onTerminate}
+                  } : (wizardProps.onTerminate ? wizardProps.onTerminate :
+                    () => navigate(history, formInvestibleLink(marketId, investibleId)))}
                   showOtherNext={type === TODO_TYPE}
                   otherNextLabel='addAnother'
                   onOtherNext={() => handleSave(true, undefined, false,

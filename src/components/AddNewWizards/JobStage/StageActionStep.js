@@ -19,9 +19,9 @@ import { commonQuick } from '../Approval/ApprovalWizard';
 import JobDescription from '../../InboxWizards/JobDescription';
 import { getFullStage, isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import StartReviewStep from '../../InboxWizards/Stage/StartReviewStep';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import StartReviewStep from './StartReviewStep';
 
 function StageActionStep(props) {
   const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId } = props;
@@ -42,8 +42,7 @@ function StageActionStep(props) {
 
   if (isInReviewStage(fullMoveStage)) {
     return (
-      <StartReviewStep marketId={marketId} investibleId={investibleId} inv={inv} groupId={groupId}
-                            currentStageId={stage} />
+      <StartReviewStep inv={inv} currentStageId={stage} {...props} />
     );
   }
 

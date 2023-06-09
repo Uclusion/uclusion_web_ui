@@ -49,7 +49,7 @@ function StartReviewStep(props) {
       <CommentAdd
         nameKey="CommentAddStartReview"
         type={REPORT_TYPE}
-        wizardProps={props}
+        wizardProps={{...props, showTerminate: true, isAddWizard: true}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

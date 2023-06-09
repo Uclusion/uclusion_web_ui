@@ -19,9 +19,14 @@ export function getTicketNumber(ticketCode) {
   return ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
 }
 
+function decode(str) {
+  const txt = new DOMParser().parseFromString(str, "text/html");
+  return txt.documentElement.textContent;
+}
+
 function stripHTML(foundSubstring) {
   if (foundSubstring) {
-    const htmlRemoved = foundSubstring.replace(/(<([^>]+)>)/ig,'');
+    const htmlRemoved = decode(foundSubstring);
     if (htmlRemoved) {
       return htmlRemoved.trim();
     }

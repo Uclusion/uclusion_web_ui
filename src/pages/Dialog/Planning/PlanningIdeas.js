@@ -526,7 +526,7 @@ function Stage(props) {
     return investiblesMap;
   }
   return (
-    <div style={{display: 'flex', flexFlow: 'row wrap', gap: '13px'}}>
+    <div style={{display: 'flex', flexFlow: 'row wrap', gap: '0px 5px'}}>
       {investiblesMap}
     </div>
   );

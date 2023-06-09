@@ -188,7 +188,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
   return (
     <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                 variant="body1">
-      Your Primary tab is empty.<br/><br/> New messages and assigned jobs display here.
+      Your Primary tab is empty.<br/><br/> New or done snoozing messages display here.
     </Typography>
   );
 }

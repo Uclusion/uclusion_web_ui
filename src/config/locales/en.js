@@ -403,9 +403,9 @@ const messages = defineMessages({
   startJobQ: 'Start this job?',
   finishApprovalQ: 'Done with approval?',
   planningInvestibleNextStageAcceptedFullLabel: 'Started (full)',
-  planningInvestibleNextStageInReviewLabel: 'Complete',
+  planningInvestibleNextStageInReviewLabel: 'Tasks Complete',
   planningInvestibleMobileInReviewLabel: 'Feedback',
-  planningInvestibleMoveToVerifiedLabel: 'Complete',
+  planningInvestibleMoveToVerifiedLabel: 'Tasks Complete',
   planningInvestibleMoveToAcceptedLabel: 'Move to Started',
   planningInvestibleMoveToFurtherWorkLabel: 'Backlog',
   unresolvedReadyToStartWarning: 'There are unresolved comments. Do you want to make Ready to Start anyway?',
@@ -421,10 +421,10 @@ const messages = defineMessages({
   planningAcceptedStageLabel: 'Started',
   planningAcceptedStageFullLabel: 'Warning - Stage Full',
   verifiedBlockedStageLabel: 'Verified',
-  planningReviewStageLabel: 'Complete',
+  planningReviewStageLabel: 'Tasks Complete',
   approvalsCountExplanation: 'Not enough approvals',
   inputRequiredCountExplanation: 'Open questions or suggestions for assignee',
-  planningVerifiedStageLabel: 'Complete',
+  planningVerifiedStageLabel: 'Tasks Complete',
   planningFurtherWorkStageLabel: 'Backlog',
   requiresInputStageLabel: 'Assistance',
   planningNotDoingStageLabel: 'Not Doing',
@@ -797,7 +797,7 @@ const messages = defineMessages({
 
   // Dialog Archives
   dialogArchivesNotDoingHeader: 'Not Doing',
-  dialogArchivesVerifiedHeader: 'Complete',
+  dialogArchivesVerifiedHeader: 'Tasks Complete',
   dialogArchivesLabel: 'Group Archive',
   readyFurtherWorkHeader: 'Backlog',
   readyToStartHeader: 'Ready to Start',
@@ -1025,10 +1025,10 @@ const messages = defineMessages({
   allowedInvestiblesUnlimitedValue: 'Unlimited',
 
   //show investibles dropdown
-  showInvestiblesDropdownHelp: 'Number of jobs to allow in \'Complete\' swimlane per person',
-  showInvestiblesDropdownAgeHelp: 'Maximum age of jobs shown in \'Complete\' swimlanes.',
+  showInvestiblesDropdownHelp: 'Number of jobs to allow in Tasks Complete swimlane per person',
+  showInvestiblesDropdownAgeHelp: 'Maximum age of jobs shown in Tasks Complete swimlanes.',
   showInvestiblesDropdownLabel: 'Maximum verified jobs shown in swimlane',
-  showInvestiblesDropdownAgeLabel: 'Maximum age in days to show Complete jobs',
+  showInvestiblesDropdownAgeLabel: 'Maximum age in days to show Tasks Complete jobs',
   showInvestiblesUnlimitedValue: 'Unlimited',
 
   // warnings

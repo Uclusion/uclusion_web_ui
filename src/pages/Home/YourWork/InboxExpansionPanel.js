@@ -267,7 +267,7 @@ function getMessageForComment(comment, market, type, Icon, intl, investibleState
 export function getOutboxMessages(props) {
   const { messagesState, marketsState, marketPresencesState, investiblesState, marketStagesState, commentsState,
     intl } = props;
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE,
     true);

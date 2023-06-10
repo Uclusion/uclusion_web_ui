@@ -113,9 +113,14 @@ export function addMarketsToStorage(dispatch, marketDetails) {
   dispatch(versionsUpdateDetails(marketDetails));
 }
 
-export function getNotHiddenMarketDetailsForUser(state) {
+export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
   if (state.marketDetails) {
     const newMarketDetails = state.marketDetails.filter((market) => {
+      const marketPresences = getMarketPresences(marketPresencesState, market.id);
+      const myPresence = marketPresences?.find((presence) => presence.current_user);
+      if (myPresence?.market_banned) {
+        return false;
+      }
       const { market_sub_type } = market;
       return 'SUPPORT' !== market_sub_type;
     });

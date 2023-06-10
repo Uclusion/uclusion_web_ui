@@ -56,7 +56,7 @@ function InboxFull(props) {
   const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesFull, searchResults);
   const [inboxState, inboxDispatch] = useReducer(getReducer(messagesHash),
     {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   if (fromInvite && fromInvite !== 'loaded') {
     pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: fromInvite });
   }

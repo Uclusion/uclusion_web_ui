@@ -190,7 +190,7 @@ function Screen(props) {
     }
   }, [commentsState, hidden, investiblesState, marketPresencesState, marketState, messagesState, tabTitle]);
 
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
   if (myNotHiddenMarketsState.marketDetails) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) => market.market_type === PLANNING_TYPE);

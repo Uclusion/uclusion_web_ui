@@ -59,8 +59,8 @@ export function updateInvestment(updateInfo) {
         if (currentReasonId) {
           if (_.isEmpty(newReasonText)) {
             return client.investibles.deleteComment(currentReasonId)
-              .then(() => {
-                return { commentAction: 'DELETED', comment: { id: undefined } }
+              .then((comment) => {
+                return { commentAction: 'DELETED', comment }
               });
           }
           return client.investibles.updateComment(currentReasonId, newReasonText, false, uploadedFiles)

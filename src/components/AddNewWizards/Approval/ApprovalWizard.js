@@ -29,10 +29,7 @@ export function commonQuick(result, commentsDispatch, marketId, commentsState, m
   messagesDispatch, setOperationRunning, voteMessage) {
   const { commentResult, investmentResult } = result;
   const { commentAction, comment } = commentResult;
-  if (commentAction === 'DELETED') {
-    const { id: commentId } = comment;
-    removeComments(commentsDispatch, marketId, [commentId]);
-  } else if (commentAction !== 'NOOP') {
+  if (commentAction !== 'NOOP') {
     addMarketComments(commentsDispatch, marketId, [comment]);
   }
   partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);

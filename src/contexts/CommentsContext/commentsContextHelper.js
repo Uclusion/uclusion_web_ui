@@ -74,16 +74,6 @@ export function getCommentThreads(roots, marketComments) {
   return allThreads;
 }
 
-/**
- * Comment removal is top level. The replies won't show once orphaned and will be cleaned up by async.
- * @param dispatch
- * @param marketId
- * @param comments
- */
-export function removeComments(dispatch, marketId, comments) {
-  dispatch(removeCommentsFromMarket(marketId, comments));
-}
-
 export function getInvestibleComments(investibleId, marketId, state) {
   const comments = getMarketComments(state, marketId);
   return comments.filter(comment => comment.investible_id === investibleId) || [];

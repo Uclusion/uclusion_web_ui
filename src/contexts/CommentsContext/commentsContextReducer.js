@@ -8,7 +8,6 @@ import { addByIdAndVersion, fixupItemsForStorage } from '../ContextUtils'
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
-const REMOVE_COMMENTS_FROM_MARKET = 'REMOVE_COMMENTS_FROM_MARKET';
 const OVERWRITE_MARKET_COMMENTS = 'OVERWRITE_MARKET_COMMENTS';
 const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
 
@@ -25,14 +24,6 @@ export function updateCommentsFromVersions(commentDetails) {
   return {
     type: UPDATE_FROM_VERSIONS,
     commentDetails
-  };
-}
-
-export function removeCommentsFromMarket(marketId, comments) {
-  return {
-    type: REMOVE_COMMENTS_FROM_MARKET,
-    marketId,
-    comments,
   };
 }
 
@@ -69,23 +60,6 @@ function doAddMarketsComments(state, action) {
   return removeInitializing(newState);
 }
 
-function doRemoveCommentsFromMarket(state, action) {
-  const { marketId, comments } = action;
-  const oldMarketComments = state[marketId] || [];
-  const newMarketComments = oldMarketComments.map((comment) => {
-    const newComment = {...comment}
-    if (comments.includes(comment.id)) {
-      newComment.deleted = true;
-      newComment.fromQuickAdd = true;
-    }
-    return newComment;
-  });
-  return {
-    ...state,
-    [marketId]: newMarketComments,
-  };
-}
-
 function doRemoveMarketsComments(state, action) {
   const { marketIds } = action;
   return _.omit(state, marketIds);
@@ -95,8 +69,6 @@ function computeNewState(state, action) {
   switch (action.type) {
     case REMOVE_MARKETS_COMMENT:
       return doRemoveMarketsComments(state, action);
-    case REMOVE_COMMENTS_FROM_MARKET:
-      return doRemoveCommentsFromMarket(state, action);
     case OVERWRITE_MARKET_COMMENTS:
       return doAddMarketComments(state, action);
     case UPDATE_FROM_VERSIONS:

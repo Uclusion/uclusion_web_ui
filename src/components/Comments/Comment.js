@@ -23,7 +23,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, getMyUserForMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import CardType, { BUG, DECISION_TYPE, IN_REVIEW } from '../CardType';
 import {
-  addCommentToMarket,
+  addCommentToMarket, addMarketComments,
   getMarketComments,
   removeComments
 } from '../../contexts/CommentsContext/commentsContextHelper';
@@ -470,8 +470,8 @@ function Comment(props) {
   function remove() {
     setOperationRunning(true);
     return removeComment(marketId, id)
-      .then(() => {
-        removeComments(commentsDispatch, marketId, [id]);
+      .then((comment) => {
+        addMarketComments(commentsDispatch, marketId, [comment]);
         removeMessagesForCommentId(id, messagesState);
         setOperationRunning(false);
       });
@@ -1021,8 +1021,8 @@ function Reply(props) {
   function remove() {
     setOperationRunning(true);
     return removeComment(marketId, comment.id)
-      .then(() => {
-        removeComments(commentsDispatch, marketId, [comment.id]);
+      .then((comment) => {
+        addMarketComments(commentsDispatch, marketId, [comment]);
         removeMessagesForCommentId(comment.id, messagesState);
         setOperationRunning(false);
       });

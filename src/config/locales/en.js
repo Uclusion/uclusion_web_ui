@@ -1182,7 +1182,7 @@ const messages = defineMessages({
   WorkspaceWizardTitle: 'Your workspace',
 
   // Job Wizard
-  JobWizardGotoJob: 'Go to job',
+  JobWizardGotoJob: 'Skip',
   JobWizardBacktoJob: 'Back to job',
   JobWizardAssignJob: 'Assign job to someone',
   JobWizardApproveJob: 'Approve job',
@@ -1210,7 +1210,6 @@ const messages = defineMessages({
   ApprovalWizardApprove: 'Approve job',
   ApprovalWizardAccept: 'Accept job',
   ApprovalWizardBlock: 'Block instead',
-  ApproveWizardGotoJob: 'Go to job',
   ISSUEApproveWizard: 'Create issue',
   QUESTIONApproveWizard: 'Create question',
   SUGGESTApproveWizard: 'Create suggestion',

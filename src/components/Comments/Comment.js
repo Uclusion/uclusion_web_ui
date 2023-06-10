@@ -24,8 +24,7 @@ import { getMarket, getMyUserForMarket, marketTokenLoaded } from '../../contexts
 import CardType, { BUG, DECISION_TYPE, IN_REVIEW } from '../CardType';
 import {
   addCommentToMarket, addMarketComments,
-  getMarketComments,
-  removeComments
+  getMarketComments
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import {

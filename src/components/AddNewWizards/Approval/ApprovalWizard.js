@@ -11,8 +11,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import {
   addMarketComments,
-  getMarketComments,
-  removeComments
+  getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';

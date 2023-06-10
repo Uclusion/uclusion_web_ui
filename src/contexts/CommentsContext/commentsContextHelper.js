@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { removeCommentsFromMarket, updateCommentsFromVersions } from './commentsContextReducer';
+import { updateCommentsFromVersions } from './commentsContextReducer';
 import { pushMessage } from '../../utils/MessageBusUtils';
 import {
   INDEX_COMMENT_TYPE,

@@ -47,8 +47,6 @@ function ChooseJob(props) {
   });
   const { investibleId } = formData;
 
-  console.debug(`investible id is ${investibleId}`)
-
   function onSearchChange(event) {
     const { value } = event.target
     setSearchQuery(value);

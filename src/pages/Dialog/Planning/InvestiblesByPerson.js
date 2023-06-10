@@ -181,7 +181,8 @@ function InvestiblesByPerson(props) {
           visibleStages
         );
 
-        const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId);
+        const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId,
+          comments);
         const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
         const { mentioned_notifications: mentions, approve_notifications: approvals, review_notifications: reviews }
           = presence || {};

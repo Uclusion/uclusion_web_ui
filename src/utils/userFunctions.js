@@ -44,20 +44,6 @@ export function extractUsersList(marketPresencesState, marketState, addToMarketP
   }, {});
 }
 
-export function assignedInStage(investibles, userId, stageId, marketId) {
-  return investibles.filter(investible => {
-    const { market_infos: marketInfos } = investible;
-    // // console.log(`Investible id is ${id}`);
-    const marketInfo = marketInfos.find(info => info.market_id === marketId);
-    // eslint-disable-next-line max-len
-    return (
-      marketInfo.stage === stageId &&
-      marketInfo.assigned &&
-      marketInfo.assigned.includes(userId)
-    );
-  });
-}
-
 export function getRandomSupportUser() {
   const supportUsers = config.support_users;
   return _.sample(supportUsers);
@@ -122,44 +108,6 @@ export function getVotesForInvestible(marketPresences, investibleId) {
     });
     return found;
   });
-}
-
-export function getMarketUpdatedAt(updatedAt, marketPresences, investibles, comments, marketId) {
-  let mostRecentUpdate = updatedAt;
-  marketPresences.forEach((presence) => {
-    const { investments } = presence;
-    if (investments) {
-      investments.forEach((investment) => {
-        const { updated_at: investmentUpdatedAt } = investment;
-        const fixed = new Date(investmentUpdatedAt);
-        if (fixed > mostRecentUpdate) {
-          mostRecentUpdate = fixed;
-        }
-      });
-    }
-  });
-  investibles.forEach((fullInvestible) => {
-    const { investible } = fullInvestible;
-    const { updated_at: investibleUpdatedAt } = investible;
-    let fixed = new Date(investibleUpdatedAt);
-    if (fixed > mostRecentUpdate) {
-      mostRecentUpdate = fixed;
-    }
-    const marketInfo = getMarketInfo(fullInvestible, marketId);
-    const { updated_at: infoUpdatedAt } = marketInfo;
-    fixed = new Date(infoUpdatedAt);
-    if (fixed > mostRecentUpdate) {
-      mostRecentUpdate = fixed;
-    }
-  });
-  comments.forEach((comment) => {
-    const { updated_at: commentUpdatedAt } = comment;
-    const fixed = new Date(commentUpdatedAt);
-    if (fixed > mostRecentUpdate) {
-      mostRecentUpdate = fixed;
-    }
-  });
-  return mostRecentUpdate;
 }
 
 export function getVotedInvestible(presence, marketInvestibles) {

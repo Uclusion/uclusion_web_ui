@@ -44,7 +44,19 @@ export function getUserPendingAcceptanceInvestibles(userId, marketId, investible
   });
 }
 
-function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId) {
+function getUpdatedAt(updatedAt, comments) {
+  let mostRecentUpdate = updatedAt;
+  comments.forEach((comment) => {
+    const { updated_at: commentUpdatedAt } = comment;
+    const fixed = new Date(commentUpdatedAt);
+    if (fixed > mostRecentUpdate) {
+      mostRecentUpdate = fixed;
+    }
+  });
+  return mostRecentUpdate;
+}
+
+function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments) {
   const stageId = stage.id;
   const limitInvestibles = !isAcceptedStage(stage) ? (stage || {}).allowed_investibles : undefined;
   const limitInvestiblesAge = (stage || {}).days_visible;
@@ -63,41 +75,27 @@ function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId) {
   if (limitInvestiblesAge > 0 && stageInvestibles) {
     stageInvestibles = stageInvestibles.filter((investible) => {
       const aMarketInfo = getMarketInfo(investible, marketId);
-      return Date.now() - new Date(aMarketInfo.updated_at).getTime() < limitInvestiblesAge*24*60*60*1000;
+      const investibleId = investible.investible.id;
+      const investibleOpenComments = marketComments.filter(comment => comment.investible_id === investibleId &&
+        !comment.resolved && !comment.deleted) || [];
+      const investibleOverallUpdatedAt = getUpdatedAt(new Date(aMarketInfo.updated_at), investibleOpenComments);
+      return Date.now() - investibleOverallUpdatedAt.getTime() < limitInvestiblesAge*24*60*60*1000;
     });
   }
   return stageInvestibles;
 }
 
-export function getUserSwimlaneInvestiblesHash(userInvestibles, stages, marketId) {
+export function getUserSwimlaneInvestiblesHash(userInvestibles, stages, marketId, marketComments) {
   const stageInvestiblesHash = {};
   (stages || []).forEach((stage) =>{
     const stageId = stage.id;
-    const stageInvestibles = getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId);
+    const stageInvestibles = getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments);
     if (!_.isEmpty(stageInvestibles)) {
       stageInvestiblesHash[stageId] = stageInvestibles;
     }
   })
 
   return stageInvestiblesHash;
-}
-
-export function inVerifedSwimLane(inv, investibles, verifiedStage, marketId) {
-  const verifiedStageSafe = verifiedStage || {};
-  const verifiedStageId = verifiedStageSafe.id;
-  const aMarketInfo = getMarketInfo(inv, marketId);
-  const { assigned, stage: currentStageId } = (aMarketInfo || {});
-  if (currentStageId !== verifiedStageId) {
-    return false;
-  }
-  if (_.isEmpty(assigned)) {
-    return false;
-  }
-  return assigned.some((userId) => {
-    const userInvestibles = getUserInvestibles(userId, marketId, investibles, [verifiedStageId]);
-    const inVerified = getSwimlaneInvestiblesForStage(userInvestibles, verifiedStageSafe, marketId);
-    return (inVerified || []).some((investible) => investible.investible.id === inv.investible.id);
-  });
 }
 
 /**

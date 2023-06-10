@@ -21,7 +21,7 @@ function CommentReplyEdit(props) {
   const [commentsState] = useContext(CommentsContext);
   const commentRoot = getCommentRoot(commentsState, marketId, commentId) || {};
   const comments = (commentsState[marketId] || []).filter((comment) =>
-    comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
+    (comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id) && !comment.deleted);
   const loading = marketsState.initializing || !marketTokenLoaded(marketId, tokensHash);
   if (loading) {
     // Cannot allow Quill to try to display a picture without a market token

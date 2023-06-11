@@ -6,7 +6,7 @@ import {
   hasNoChannels
 } from '../../../contexts/MarketsContext/marketsContextHelper';
 import LoadingDisplay from '../../../components/LoadingDisplay';
-import { Assignment, PersonAddOutlined } from '@material-ui/icons';
+import { Assignment, Block, PersonAddOutlined } from '@material-ui/icons';
 import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -19,7 +19,6 @@ import { getUserInvestibles, getUserPendingAcceptanceInvestibles } from '../../D
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
-import IssueIcon from '@material-ui/icons/ReportProblem';
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
@@ -315,7 +314,7 @@ export function getOutboxMessages(props) {
     });
     issues.forEach((comment) => {
       const message = getMessageForComment(comment, market, ISSUE_TYPE,
-        <IssueIcon style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
+        <Block style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences)
       if (message) {
         messages.push(message);
@@ -387,7 +386,7 @@ export function getOutboxMessages(props) {
     });
     issues.forEach((comment) => {
       const message = getMessageForComment(comment, market, ISSUE_TYPE,
-        <IssueIcon style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
+        <Block style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences)
       if (message) {
         messages.push(message);

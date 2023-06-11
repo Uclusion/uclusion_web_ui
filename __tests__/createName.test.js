@@ -5,6 +5,9 @@
 import { convertDescription } from '../src/utils/stringFunctions'
 
 it.each([["<p>Try for name. And then some.</p>", "Try for name. And then some.", ""],
+  ["<p>Try for name and then some to see what happens. Maybe so but then try something else.</p>", "Try for name and then some to see what happens.", "<p>Maybe so but then try something else.</p>"],
+  ["<p>Try for name and then some to see what happens! Maybe so but then try something else.</p>", "Try for name and then some to see what happens!", "<p>Maybe so but then try something else.</p>"],
+  ["<p>Try for name and then some to see what happens? Maybe so but then try something else.</p>", "Try for name and then some to see what happens?", "<p>Maybe so but then try something else.</p>"],
   ["<p>Once your free trial expires you will lose access to creating new workspaces, groups, and inviting further collaborators. Your existing collaborations will continue to work.</p>",
   "Once your free trial expires you will lose access to creating new workspaces,...", "<p>...groups, and inviting further collaborators. Your existing collaborations will continue to work.</p>"],
   ["<p>Free trial ends and we disable creating new workspaces, groups, and <b>viewing your inbox</b>. After all everything still works without an inbox.</p>",

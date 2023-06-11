@@ -71,6 +71,10 @@ function removePrefix(fullElement, description) {
   return candidate;
 }
 
+function indexOfOrOutofBounds(extracted, aChar) {
+  return extracted.indexOf(aChar) > 0 ? extracted.indexOf(aChar) : extracted.length;
+}
+
 function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, maxLength, fullElement,
   isFallbackFullDescription) {
   let extracted = strippedElement || '';
@@ -80,8 +84,11 @@ function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, 
     }
     return { name: extracted, description };
   }
-  const sentencePosition = extracted.indexOf('.');
-  if (sentencePosition > 0) {
+  const periodPosition = indexOfOrOutofBounds(extracted, '.');
+  const exclamationPosition = indexOfOrOutofBounds(extracted, '!');
+  const questionPosition = indexOfOrOutofBounds(extracted, '?');
+  const sentencePosition = Math.min(periodPosition, exclamationPosition, questionPosition);
+  if (sentencePosition < extracted.length) {
     extracted = extracted.substring(0, sentencePosition + 1);
   }
   if (extracted.length <= maxLength) {

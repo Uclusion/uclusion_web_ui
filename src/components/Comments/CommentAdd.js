@@ -395,7 +395,7 @@ function CommentAdd(props) {
         }
         commentAddStateReset();
         resetEditor();
-        if (isSent !== false) {
+        if (isSent !== false && investibleId) {
           changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState,
             inv.market_infos, useRootInvestible, investibleDispatch, comment, myPresence);
         }

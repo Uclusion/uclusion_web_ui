@@ -111,16 +111,13 @@ export const todoClasses = makeStyles(
       },
       chipStyleRed: {
         padding: '4px',
-        marginRight: '5px',
         backgroundColor: '#E85757'
       },
       chipStyleYellow: {
-        marginRight: '5px',
         padding: '4px',
         backgroundColor: '#e6e969'
       },
       chipStyleBlue: {
-        marginRight: '5px',
         padding: '4px',
         backgroundColor: '#2F80ED'
       },

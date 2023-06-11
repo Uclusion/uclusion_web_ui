@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { SearchIndexContext } from '../../contexts/SearchIndexContext/SearchIndexContext'
-import { InputAdornment, TextField } from '@material-ui/core'
+import { InputAdornment, TextField, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash'
 import SearchIcon from '@material-ui/icons/Search'
 import { useIntl } from 'react-intl'
@@ -21,11 +21,14 @@ import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContext
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { getInvestibleName } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 
 function SearchBox () {
   const location = useLocation();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { pathname, search: querySearch } = location;
-  const { marketId, investibleId } = decomposeMarketPath(pathname);
+  const { action, marketId, investibleId } = decomposeMarketPath(pathname);
   const values = queryString.parse(querySearch);
   const { groupId } = values || {};
   const intl = useIntl();
@@ -36,16 +39,16 @@ function SearchBox () {
   const [groupState] = useContext(MarketGroupsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const inputRef = React.useRef(null);
-  let searchedName;
-  if (marketId && groupId) {
+  let searchedName = undefined;
+  if (action !== 'groupEdit' && marketId && groupId) {
     const group = getGroup(groupState, marketId, groupId) || {};
     searchedName = group.name;
   } else if (investibleId) {
     searchedName = getInvestibleName(investibleState, investibleId);
-  } else {
+  } else if (getInboxTarget().includes(action)) {
     searchedName = intl.formatMessage({id: 'inbox'});
   }
-  if (searchedName.length > 40) {
+  if (searchedName && searchedName.length > 40) {
     const lastIndex = searchedName.lastIndexOf(' ', 40);
     searchedName = `${searchedName.substring(0, lastIndex)}...`
   }
@@ -142,6 +145,10 @@ function SearchBox () {
     });
   }
 
+  if (!searchedName) {
+    return React.Fragment;
+  }
+
   return (
     <div id='search-box' onClick={(event) => event.stopPropagation()}
          style={{flex: 1, maxWidth: '800px'}}>
@@ -156,7 +163,7 @@ function SearchBox () {
           }
         }}
         inputRef={inputRef}
-        placeholder={`${intl.formatMessage({ id: 'searchBoxPlaceholder' })} ${searchedName}`}
+        placeholder={`${intl.formatMessage({ id: 'searchBoxPlaceholder' })} ${mobileLayout ? '' : searchedName}`}
         size="small"
         defaultValue={searchResults.search}
         InputProps={{

@@ -42,7 +42,7 @@ export function getInvestible(state, investibleId) {
 export function getInvestibleName(investibleState, investibleId) {
   const inv = getInvestible(investibleState, investibleId);
   if (!inv) {
-    return '';
+    return undefined;
   }
   const { investible } = inv;
   const { name } = investible;

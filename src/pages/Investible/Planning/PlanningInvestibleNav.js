@@ -261,6 +261,7 @@ export const useMetaDataStyles = makeStyles(
       },
       normal: {
         fontSize: 14,
+        wordBreak: 'break-word',
       },
       group: {
         backgroundColor: '#ecf0f1',

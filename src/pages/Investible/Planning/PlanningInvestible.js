@@ -230,6 +230,7 @@ export const usePlanningInvestibleStyles = makeStyles(
     },
     assignmentContainer: {
       width: '100%',
+      maxWidth: '11rem'
     },
     assignIconContainer: {
       display: 'flex',

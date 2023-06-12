@@ -44,7 +44,7 @@ function DialogOutset(props) {
          }}
          onMouseLeave={() => {
            const dialogOutset = document.getElementById(`dialogOutset`);
-           if (dialogOutset) {
+           if (dialogOutset && !isArchivedSearch) {
              DIALOG_OUTSET_STATE_HACK.open = 0;
              dialogOutset.style.display = 'none';
            }

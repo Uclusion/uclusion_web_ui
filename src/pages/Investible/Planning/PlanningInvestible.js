@@ -725,6 +725,7 @@ function PlanningInvestible(props) {
                       <SpinningButton id="newComment" className={wizardClasses.actionPrimary}
                                       icon={AddIcon}
                                       style={{display: "flex", marginTop: '0.75rem',
+                                        fontSize: mobileLayout ? '0.77rem' : undefined,
                                         marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'}}
                                       variant="text" doSpin={false}
                                       onClick={() => navigate(history,

@@ -30,8 +30,10 @@ export function onCommentOpen(investibleState, investibleId, marketStagesState, 
     && currentStageId !== requiresInputStage.id;
   const investibleBlocks = (investibleId && comment.comment_type === ISSUE_TYPE)
     && currentStageId !== blockingStage.id;
-  changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState, market_infos,
-    rootInvestible, investibleDispatch, comment, myPresence);
+  if (investibleId) {
+    changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState, market_infos,
+      rootInvestible, investibleDispatch, comment, myPresence);
+  }
   addCommentToMarket(comment, commentsState, commentsDispatch);
 }
 

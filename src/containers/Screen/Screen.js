@@ -273,7 +273,7 @@ function Screen(props) {
     {
       headerItemTextArray: [
         {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(),
-          newPage: true, isBold: action?.includes('inbox'), iconColor: inboxCount > 0 ? '#E85757' : undefined,
+          isBold: action?.includes('inbox'), iconColor: inboxCount > 0 ? '#E85757' : undefined,
           num: _.isEmpty(search) ? inboxCount : undefined}
       ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}

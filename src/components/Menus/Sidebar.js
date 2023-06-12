@@ -7,7 +7,7 @@ import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader, SubMenu } fr
 import { IconButton, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 
 function processRegularItem(properties) {
-  const {classes, history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, newPage,
+  const {classes, history, text, target, num, Icon, iconColor='black', onClickFunc, isBold,
     index, search, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon,
     resetFunction} = properties;
   if (!text) {
@@ -44,7 +44,7 @@ function processRegularItem(properties) {
                       if (onClickFunc) {
                         onClickFunc(event)
                       } else {
-                        navigate(history, target, false, !newPage)
+                        navigate(history, target, false)
                       }
                     }
                   }
@@ -70,9 +70,9 @@ function processRegularItem(properties) {
       {!_.isEmpty(openMenuItems) && (
         <div style={{paddingLeft: '1rem'}} key="openMenuItems">
           {openMenuItems.map((subItem, index) => {
-            const { text, target, num, icon: Icon, onClickFunc, newPage, isBold } = subItem
+            const { text, target, num, icon: Icon, onClickFunc, isBold } = subItem
             return processRegularItem({classes, history, text, target, num, Icon, onClickFunc,
-              isBold, newPage, index, search, isSubMenu: true})
+              isBold, index, search, isSubMenu: true})
           })}
         </div>
       )}
@@ -92,7 +92,7 @@ export default function Sidebar(props) {
         {!_.isEmpty(headerItemTextArray) && (
           <Menu onClick={listOnClick} iconShape="circle">
             {headerItemTextArray.map((navItem, topIndex) => {
-              const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, openMenuItems,
+              const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, openMenuItems,
                 iconColor } = navItem;
               if (subItems) {
                 return (
@@ -100,15 +100,15 @@ export default function Sidebar(props) {
                            icon={<Icon htmlColor="black" />}
                            open={mobileLayout || (!_.isEmpty(search) && num > 0) ? true : undefined}>
                     {subItems.map((subItem, index) => {
-                      const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
+                      const { text, target, num, icon: Icon, onClickFunc } = subItem
                       return processRegularItem({classes, history, text, target, num, Icon, onClickFunc,
-                        newPage, index, search, isSubMenu: true})
+                        index, search, isSubMenu: true})
                     })}
                   </SubMenu>
                 );
               }
               return processRegularItem({classes, history, text, target, num, Icon, iconColor, onClickFunc,
-                isBold, newPage, index: topIndex, search, openMenuItems, isLarge: true})
+                isBold, index: topIndex, search, openMenuItems, isLarge: true})
             })}
           </Menu>
         )}
@@ -118,7 +118,7 @@ export default function Sidebar(props) {
       {!_.isEmpty(navListItemTextArray) && (
         <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {
-            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, newPage, openMenuItems,
+            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, openMenuItems,
               onEnterFunc, onLeaveFunc, endIcon, resetFunction } = navItem;
             if (subItems) {
               return (
@@ -126,14 +126,14 @@ export default function Sidebar(props) {
                          icon={<Icon htmlColor="black" />}
                          open={mobileLayout || (!_.isEmpty(search) && num > 0) ? true : undefined}>
                   {subItems.map((subItem, index) => {
-                    const { text, target, num, icon: Icon, onClickFunc, newPage } = subItem
+                    const { text, target, num, icon: Icon, onClickFunc } = subItem
                     return processRegularItem({classes, history, text, target, num, Icon, onClickFunc,
-                      newPage, index, search, isSubMenu: true})
+                      index, search, isSubMenu: true})
                   })}
                 </SubMenu>
               );
             }
-            return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold, newPage,
+            return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold,
               index: topIndex, search, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction})
           })}
         </Menu>

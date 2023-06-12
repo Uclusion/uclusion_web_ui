@@ -28,10 +28,11 @@ function DialogOutset(props) {
   const isArchivedSearch = !hidden && !_.isEmpty(search) && archivedSize > 0;
   return (
     <div id="dialogOutset" style={{
-      paddingTop: '10rem',
+      paddingTop: '5rem',
       height: '100vh',
       marginRight: '1rem',
       overflowY: 'none',
+      zIndex: 3,
       boxShadow: "2px 2px 2px lightgrey",
       display: isArchivedSearch ? 'block' : 'none'
     }}

@@ -8,10 +8,16 @@ import { useHistory } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import WizardStepButtons from '../WizardStepButtons';
-import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
+import {
+  addCommentToMarket,
+  addMarketComments,
+  getMarketComments
+} from '../../../contexts/CommentsContext/commentsContextHelper';
 import { alterComment } from '../../../api/comments';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { removeMessagesForCommentId } from '../../../utils/messageUtils';
+import _ from 'lodash';
 
 const useStyles = makeStyles(
   theme => {
@@ -52,6 +58,14 @@ function TaskToBugStep (props) {
     return alterComment(marketId, comment.id, newQuantity)
       .then((response) => {
         addCommentToMarket(response, commentsState, commentDispatch);
+        const marketComments = getMarketComments(commentsState, marketId, comment.group_id);
+        const thread = marketComments.filter((aComment) => {
+          return aComment.root_comment_id === comment.id;
+        });
+        const fixedThread = thread.map((aComment) => {
+          return _.omit(aComment, 'investible_id');
+        });
+        addMarketComments(commentDispatch, marketId, [...fixedThread]);
         setOperationRunning(false);
         navigate(history, formCommentLink(marketId, comment.group_id, undefined, comment.id));
       });

@@ -23,6 +23,12 @@ import Link from '@material-ui/core/Link'
 import Gravatar from '../../components/Avatars/Gravatar'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer'
+import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
+import { PLANNING_TYPE } from '../../constants/markets';
+import _ from 'lodash';
+import { getFirstWorkspace } from '../../utils/redirectUtils';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 const useStyles = makeStyles((theme) => ({
   disabled: {
@@ -69,6 +75,8 @@ function ChangeNotificationPreferences (props) {
   const { hidden } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [userState, userDispatch] = useContext(AccountContext) || {};
+  const [marketsState] = useContext(MarketsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const { user } = userState;
   const safeUser = user || {};
   const [emailEnabled, setEmailEnabled] = useState(undefined);
@@ -77,25 +85,37 @@ function ChangeNotificationPreferences (props) {
   const [emailDelay, setEmailDelay] = useState(undefined);
   const intl = useIntl();
   const classes = useStyles();
-
-  const emailEnabledValue = emailEnabled === undefined ? safeUser.email_enabled : emailEnabled;
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
+  let markets = [];
+  if (myNotHiddenMarketsState.marketDetails) {
+    const filtered = myNotHiddenMarketsState.marketDetails.filter((market) =>
+      market.market_type === PLANNING_TYPE);
+    markets = _.sortBy(filtered, 'name');
+  }
+  const defaultMarket = getFirstWorkspace(markets, undefined) || {};
+  const marketId = defaultMarket?.id;
+  const notificationConfig = safeUser.notification_configs?.find((config) => config.market_id === marketId);
+  const originalEmailEnabled = notificationConfig?.email_enabled === undefined ? true :
+    notificationConfig?.email_enabled;
+  const emailEnabledValue = emailEnabled === undefined ? originalEmailEnabled : emailEnabled;
 
   function onSetEmailPreferences() {
-    return updateUser({ emailEnabled: emailEnabledValue,
-      emailDelay: emailDelay ? emailDelay*60 : emailDelay }).then((ret) =>{
+    return updateUser({ marketId, emailEnabled: emailEnabledValue,
+      emailDelay: emailDelay ? emailDelay*60 : emailDelay }).then((user) =>{
       setOperationRunning(false);
-      userDispatch(accountUserRefresh(ret.user));
+      userDispatch(accountUserRefresh(user));
       setEmailEnabled(undefined);
       setEmailDelay(undefined);
     });
   }
-
-  const slackEnabledValue = slackEnabled === undefined ? safeUser.slack_enabled : slackEnabled;
+  const originalSlackEnabled = notificationConfig?.slack_enabled === undefined ? true :
+    notificationConfig?.slack_enabled;
+  const slackEnabledValue = slackEnabled === undefined ? originalSlackEnabled : slackEnabled;
 
   function onSetSlackPreferences() {
-    return updateUser({ slackEnabled: slackEnabledValue, slackDelay }).then((ret) =>{
+    return updateUser({ marketId, slackEnabled: slackEnabledValue, slackDelay }).then((user) =>{
       setOperationRunning(false);
-      userDispatch(accountUserRefresh(ret.user));
+      userDispatch(accountUserRefresh(user));
       setSlackEnabled(undefined);
       setSlackDelay(undefined);
     });
@@ -128,8 +148,13 @@ function ChangeNotificationPreferences (props) {
       setEmailDelay(undefined);
     }
   }
-
-  const slackDelayDisabled = !safeUser.is_slack_addressable || !slackEnabledValue;
+  const originalSlackAddressable = notificationConfig?.is_slack_addressable === undefined ? false :
+    notificationConfig?.is_slack_addressable;
+  const slackDelayDisabled = !originalSlackAddressable || !slackEnabledValue;
+  const originalEmailDelay = notificationConfig?.email_delay === undefined ? 60 :
+    notificationConfig?.email_delay;
+  const originalSlackDelay = notificationConfig?.slack_delay === undefined ? 0 :
+    notificationConfig?.slack_delay;
   return (
     <Screen
       title={intl.formatMessage({ id: 'changePreferencesHeader' })}
@@ -177,67 +202,69 @@ function ChangeNotificationPreferences (props) {
           </SubSection>
         </Card>
       </div>
-      <div className={classes.container} style={{marginTop: '3rem'}}>
+      {marketId && (
+        <>
+        <div className={classes.container} style={{marginTop: '3rem'}}>
         <Card>
           <SubSection
             title={intl.formatMessage({ id: 'changeEmailPreferences' })}
             padChildren
           >
-              <Grid
-                container
-                direction="row"
-                justify="center"
-                alignItems="baseline"
-                style={{ paddingBottom: '0' }}
+            <Grid
+              container
+              direction="row"
+              justify="center"
+              alignItems="baseline"
+              style={{ paddingBottom: '0' }}
+            >
+              <ListItem
+                key="email"
               >
-                <ListItem
-                  key="email"
-                >
-                  <ListItemIcon>
-                    <Checkbox
-                      checked={emailEnabledValue}
-                      onClick={handleToggleEmail}
-                    />
-                  </ListItemIcon>
-                  <ListItemText>
-                    {intl.formatMessage({ id: 'emailEnabledLabel' })}
-                  </ListItemText>
-                </ListItem>
-                <ListItem style={{paddingTop: 0, marginTop: 0}}>
-                  <FormControl fullWidth={true} margin="normal">
-                    <TextField
-                      id="emailDelay"
-                      variant="outlined"
-                      label={intl.formatMessage({ id: 'emailDelayInputLabel' })}
-                      inputProps={{
-                        className: classes.input,
-                        inputMode: "numeric",
-                        pattern: "[0-9]*"
-                      }}
-                      disabled={!emailEnabledValue}
-                      onChange={handleChangeEmailDelay}
-                      value={!emailEnabledValue ? '' : (emailDelay || Math.round(safeUser.email_delay / 60) || 1)}
-                    />
-                  </FormControl>
-                </ListItem>
-                <ListItem>
-                  <SpinBlockingButton
+                <ListItemIcon>
+                  <Checkbox
+                    checked={emailEnabledValue}
+                    onClick={handleToggleEmail}
+                  />
+                </ListItemIcon>
+                <ListItemText>
+                  {intl.formatMessage({ id: 'emailEnabledLabel' })}
+                </ListItemText>
+              </ListItem>
+              <ListItem style={{paddingTop: 0, marginTop: 0}}>
+                <FormControl fullWidth={true} margin="normal">
+                  <TextField
+                    id="emailDelay"
                     variant="outlined"
-                    fullWidth={true}
-                    id="changeEmailPreferences"
-                    color="primary"
-                    disabled={emailDelay === undefined && emailEnabled === undefined}
-                    className={classes.actionPrimary}
-                    onClick={onSetEmailPreferences}
-                  >
-                    {intl.formatMessage({ id: 'changePreferencesButton' })}
-                  </SpinBlockingButton>
-                </ListItem>
-              </Grid>
+                    label={intl.formatMessage({ id: 'emailDelayInputLabel' })}
+                    inputProps={{
+                      className: classes.input,
+                      inputMode: "numeric",
+                      pattern: "[0-9]*"
+                    }}
+                    disabled={!emailEnabledValue}
+                    onChange={handleChangeEmailDelay}
+                    value={!emailEnabledValue ? '' : (emailDelay || Math.round(originalEmailDelay / 60) || 1)}
+                  />
+                </FormControl>
+              </ListItem>
+              <ListItem>
+                <SpinBlockingButton
+                  variant="outlined"
+                  fullWidth={true}
+                  id="changeEmailPreferences"
+                  color="primary"
+                  disabled={emailDelay === undefined && emailEnabled === undefined}
+                  className={classes.actionPrimary}
+                  onClick={onSetEmailPreferences}
+                >
+                  {intl.formatMessage({ id: 'changePreferencesButton' })}
+                </SpinBlockingButton>
+              </ListItem>
+            </Grid>
           </SubSection>
         </Card>
-      </div>
-      <div className={classes.container} style={{marginTop: '3rem'}}>
+        </div>
+        <div className={classes.container} style={{marginTop: '3rem'}}>
         <Card>
           <SubSection
             title={intl.formatMessage({ id: 'changeSlackPreferences' })}
@@ -250,73 +277,73 @@ function ChangeNotificationPreferences (props) {
               alignItems="baseline"
               style={{ paddingBottom: '0' }}
             >
-            {!safeUser.is_slack_addressable && (
-              <ListItem>
-              <a
-                href={config.add_to_slack_url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img
-                  alt="Add to Slack"
-                  height="40"
-                  width="139"
-                  src="https://platform.slack-edge.com/img/add_to_slack.png"
-                  srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
-                />
-              </a>
-              </ListItem>
-            )}
-                <ListItem
-                  key="slack"
-                >
-                  <ListItemIcon>
-                    <Checkbox
-                      checked={slackEnabledValue}
-                      disabled={!safeUser.is_slack_addressable}
-                      onClick={handleToggleSlack}
-                    />
-                  </ListItemIcon>
-                  <ListItemText
-                    className={safeUser.is_slack_addressable ? undefined : classes.disabled}
-                  >
-                    {intl.formatMessage({ id: 'slackEnabledLabel' })}
-                  </ListItemText>
-                </ListItem>
-                <ListItem style={{paddingTop: 0, marginTop: 0}}>
-                  <FormControl fullWidth={true} margin="normal">
-                    <TextField
-                      id="slackDelay"
-                      disabled={slackDelayDisabled}
-                      variant="outlined"
-                      label={intl.formatMessage({ id: 'slackDelayInputLabel' })}
-                      inputProps={{
-                        className: classes.input,
-                        inputMode: "numeric",
-                        pattern: "[0-9]*"
-                      }}
-                      onChange={handleChangeSlackDelay}
-                      value={slackDelayDisabled ? '' : (slackDelay || safeUser.slack_delay || 30)}
-                    />
-                  </FormControl>
-                </ListItem>
+              {!originalSlackAddressable && (
                 <ListItem>
-                  <SpinBlockingButton
-                    variant="outlined"
-                    fullWidth={true}
-                    id="changeSlackPreferences"
-                    color="primary"
-                    disabled={slackEnabled === undefined && slackDelay === undefined}
-                    className={classes.actionPrimary}
-                    onClick={onSetSlackPreferences}
+                  <a
+                    href={`${config.add_to_slack_url}&state=${safeUser.id}_${marketId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    {intl.formatMessage({ id: 'changePreferencesButton' })}
-                  </SpinBlockingButton>
+                    <img
+                      alt="Add to Slack"
+                      height="40"
+                      width="139"
+                      src="https://platform.slack-edge.com/img/add_to_slack.png"
+                      srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
+                    />
+                  </a>
                 </ListItem>
-              </Grid>
+              )}
+              <ListItem
+                key="slack"
+              >
+                <ListItemIcon>
+                  <Checkbox
+                    checked={slackEnabledValue}
+                    disabled={!originalSlackAddressable}
+                    onClick={handleToggleSlack}
+                  />
+                </ListItemIcon>
+                <ListItemText className={originalSlackAddressable ? undefined : classes.disabled}>
+                  {intl.formatMessage({ id: 'slackEnabledLabel' })}
+                </ListItemText>
+              </ListItem>
+              <ListItem style={{paddingTop: 0, marginTop: 0}}>
+                <FormControl fullWidth={true} margin="normal">
+                  <TextField
+                    id="slackDelay"
+                    disabled={slackDelayDisabled}
+                    variant="outlined"
+                    label={intl.formatMessage({ id: 'slackDelayInputLabel' })}
+                    inputProps={{
+                      className: classes.input,
+                      inputMode: "numeric",
+                      pattern: "[0-9]*"
+                    }}
+                    onChange={handleChangeSlackDelay}
+                    value={slackDelayDisabled ? '' : (slackDelay || originalSlackDelay || 30)}
+                  />
+                </FormControl>
+              </ListItem>
+              <ListItem>
+                <SpinBlockingButton
+                  variant="outlined"
+                  fullWidth={true}
+                  id="changeSlackPreferences"
+                  color="primary"
+                  disabled={slackEnabled === undefined && slackDelay === undefined}
+                  className={classes.actionPrimary}
+                  onClick={onSetSlackPreferences}
+                >
+                  {intl.formatMessage({ id: 'changePreferencesButton' })}
+                </SpinBlockingButton>
+              </ListItem>
+            </Grid>
           </SubSection>
         </Card>
       </div>
+      </>
+      )}
     </Screen>
   );
 }

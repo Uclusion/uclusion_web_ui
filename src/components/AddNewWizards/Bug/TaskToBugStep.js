@@ -16,7 +16,6 @@ import {
 import { alterComment } from '../../../api/comments';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import _ from 'lodash';
 
 const useStyles = makeStyles(

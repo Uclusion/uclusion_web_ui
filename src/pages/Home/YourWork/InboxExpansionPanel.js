@@ -107,7 +107,7 @@ export function calculateTitleExpansionPanel(props) {
     setItem(item, openExpansion, <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />,
       'JobStatusTitle', intl);
   } else if (['ISSUE', 'UNREAD_COMMENT'].includes(messageType)) {
-    if (linkType === 'INVESTIBLE_SUGGESTION') {
+    if (['INVESTIBLE_SUGGESTION', 'MARKET_SUGGESTION'].includes(linkType)) {
       if (isAssigned) {
         setItem(item, openExpansion, <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message}/>,
           'DecideAcceptRejectTitle', intl);
@@ -115,7 +115,7 @@ export function calculateTitleExpansionPanel(props) {
         setItem(item, openExpansion, <ReplyResolveWizard commentId={commentId} marketId={marketId} message={message}/>,
           'DecideResponseTitle', intl);
       }
-    } else if (linkType === 'INVESTIBLE_QUESTION') {
+    } else if (['INVESTIBLE_QUESTION', 'MARKET_QUESTION'].includes(linkType)) {
       setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                  message={message} />,
         'DecideAnswerTitle', intl);

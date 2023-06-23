@@ -7,7 +7,7 @@ import {
 } from '../../../contexts/MarketsContext/marketsContextHelper';
 import LoadingDisplay from '../../../components/LoadingDisplay';
 import { Assignment, Block, PersonAddOutlined } from '@material-ui/icons';
-import { DECISION_TYPE, PLANNING_TYPE } from '../../../constants/markets';
+import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import {
@@ -84,7 +84,11 @@ export function calculateTitleExpansionPanel(props) {
       }
     }
   } else if (messageType === 'NOT_FULLY_VOTED') {
-    if (marketType === DECISION_TYPE || decisionInvestibleId) {
+    if (marketType === INITIATIVE_TYPE) {
+      setItem(item, openExpansion, <VoteWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                               message={message} />,
+        'DecideVoteTitle', intl);
+    } else if (marketType === DECISION_TYPE || decisionInvestibleId) {
       setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                  message={message} />,
         'DecideAnswerTitle', intl);
@@ -92,10 +96,6 @@ export function calculateTitleExpansionPanel(props) {
       setItem(item, openExpansion, <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}
                                                    isAssigned={isAssigned}/>,
         isAssigned ? 'AssignmentApprovalTitle' : 'JobApprovalTitle', intl);
-    }  else {
-      setItem(item, openExpansion, <VoteWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                               message={message} />,
-        'DecideVoteTitle', intl);
     }
   } else if (messageType === 'INVESTIBLE_SUBMITTED') {
     setItem(item, openExpansion, <OptionSubmittedWizard marketId={marketId} investibleId={decisionInvestibleId}

@@ -20,7 +20,7 @@ import { APPROVAL_WIZARD_TYPE } from '../../constants/markets';
 
 function InlineInitiativeBox(props) {
   const {
-    anInlineMarket, inArchives
+    anInlineMarket, inArchives, removeActions
   } = props;
   const history = useHistory();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
@@ -59,7 +59,7 @@ function InlineInitiativeBox(props) {
   const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence?.investments?.find((investment) => investment.investible_id === inlineInvestibleId &&
       !investment.deleted);
-  const showVoteButtons = !isCreator && !yourVote && inlineInvestibleId;
+  const showVoteButtons = !isCreator && !yourVote && inlineInvestibleId && !removeActions;
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
       {showVoteButtons && (
@@ -120,6 +120,11 @@ function InlineInitiativeBox(props) {
 
 InlineInitiativeBox.propTypes = {
   anInlineMarket: PropTypes.object.isRequired,
+  removeActions: PropTypes.bool
 };
+
+InlineInitiativeBox.defaultProps = {
+  removeActions: false
+}
 
 export default InlineInitiativeBox;

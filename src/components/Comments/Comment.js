@@ -45,7 +45,7 @@ import {
   formCommentLink,
   formMarketAddInvestibleLink,
   formWizardLink,
-  navigate
+  navigate, preventDefaultAndProp
 } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { marketAbstain } from '../../api/markets';
@@ -399,7 +399,8 @@ function Comment(props) {
     }
   }, [hasUser, marketsState, inlineMarketId, operationRunning]);
 
-  function toggleDiffShow() {
+  function toggleDiffShow(event) {
+    preventDefaultAndProp(event)
     if (showDiff) {
       markDiffViewed(diffDispatch, id);
     }
@@ -544,7 +545,7 @@ function Comment(props) {
   const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> : undefined;
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
-  const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;
+  const showActions = !replyBeingEdited || replies.length > 0;
   function getCommentHighlightStyle() {
     if (isInbox && (!inboxMessageId || inboxMessageId === id)) {
       return classes.containerBlueLink;
@@ -572,18 +573,20 @@ function Comment(props) {
   }
 
   const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && investibleId && !resolved &&
-    (myPresenceIsAssigned || myPresence === createdBy) && marketType === PLANNING_TYPE;
+    (myPresenceIsAssigned || myPresence === createdBy) && marketType === PLANNING_TYPE && !removeActions;
   const showMoveButton = isSent !== false && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType)
-    && !inArchives
+    && !inArchives && !removeActions
     && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved
     && !removeActions && myPresence === createdBy;
   const showResolve = isSent !== false && enableActions && commentType !== REPORT_TYPE &&
-    (myPresence === createdBy || myPresence === updatedBy || !resolved);
+    (myPresence === createdBy || myPresence === updatedBy || !resolved) && !removeActions;
+  const showAddVoting = commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId
+    && marketType === PLANNING_TYPE && !removeActions;
   const yourVote = myInlinePresence && myInlinePresence.investments &&
     myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
-    !myInlinePresence.abstain && !yourVote;
+    !myInlinePresence.abstain && !yourVote && !removeActions;
   const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
   return (
     <div>
@@ -711,8 +714,7 @@ function Comment(props) {
           {showActions && !beingEdited && (
             <CardActions>
               <div className={classes.actions}>
-                {commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId
-                  && marketType === PLANNING_TYPE && (
+                {showAddVoting && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
                       undefined, undefined, id))}
@@ -736,7 +738,7 @@ function Comment(props) {
                     })}
                   </SpinningIconLabelButton>
                 )}
-                {inlineMarket.market_type === DECISION_TYPE && enableEditing && (
+                {inlineMarket.market_type === DECISION_TYPE && enableEditing && !removeActions && (
                   <SpinningIconLabelButton
                     doSpin={false}
                     onClick={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, inlineMarketId))}
@@ -755,7 +757,7 @@ function Comment(props) {
                     {!mobileLayout && intl.formatMessage({ id: 'commentAbstainLabel' })}
                   </SpinningIconLabelButton>
                 )}
-                {isSent !== false && enableEditing && (
+                {isSent !== false && enableEditing && !removeActions && (
                   <SpinningIconLabelButton
                     onClick={toggleReply}
                     icon={ReplyIcon}
@@ -797,8 +799,9 @@ function Comment(props) {
                     {intl.formatMessage({ id: "storyFromComment" })}
                   </SpinningIconLabelButton>
                 )}
-                {myMessage && diff && !mobileLayout && !removeActions && (
-                  <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} onClick={toggleDiffShow}
+                {myMessage && diff && !mobileLayout && (
+                  <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                           onClick={(event) => toggleDiffShow(event)}
                                            doSpin={false}>
                     <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
                   </SpinningIconLabelButton>

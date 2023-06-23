@@ -77,6 +77,7 @@ function DecideStartStep(props) {
         {...props}
         nextLabel="DecideStartBug"
         onNext={myAccept}
+        onNextDoAdvance={false}
         showOtherNext
         otherSpinOnClick={false}
         otherNextLabel="DecideStartBugExisting"

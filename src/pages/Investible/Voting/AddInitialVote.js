@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import { useEditor } from '../../../components/TextEditors/quillHooks';
 import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
+import InputLabel from '@material-ui/core/InputLabel';
 
 const useStyles = makeStyles(
   theme => {
@@ -23,7 +24,11 @@ const useStyles = makeStyles(
         display: 'flex',
         paddingBottom: '3px',
       },
-      certainty: {},
+      certainty: {
+        [theme.breakpoints.down('sm')]: {
+          width: '15rem'
+        }
+      },
       certaintyGroup: {
         display: "flex",
         flexDirection: "row"
@@ -75,19 +80,23 @@ function AddInitialVote(props) {
     <div style={{paddingBottom: '0.5rem'}}>
         <FormControl className={classes.certainty}>
           {mobileLayout && (
-            <Select
-              value={newQuantity || 0}
-              onChange={onChange}
-            >
-              {certainties.map(certainty => {
-                return ( <MenuItem
-                  key={certainty}
-                  value={certainty}
-                >
-                  {<FormattedMessage id={`certainty${certainty}`} />}
-                </MenuItem> );
-              })}
-            </Select>
+            <>
+              <InputLabel id="select-label"><FormattedMessage id='noQuantity' /></InputLabel>
+              <Select
+                value={newQuantity || 0}
+                onChange={onChange}
+                label={<FormattedMessage id='noQuantity' />}
+              >
+                {certainties.map(certainty => {
+                  return ( <MenuItem
+                    key={certainty}
+                    value={certainty}
+                  >
+                    {<FormattedMessage id={`certainty${certainty}`} />}
+                  </MenuItem> );
+                })}
+              </Select>
+            </>
           )}
           {mobileLayout && (
             <div style={{marginBottom: '1rem'}}/>

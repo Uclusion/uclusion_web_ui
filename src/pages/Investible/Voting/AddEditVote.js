@@ -24,6 +24,7 @@ import { focusEditor, getQuillStoredState } from '../../../components/TextEditor
 import WizardStepButtons from '../../../components/InboxWizards/WizardStepButtons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { commonQuick } from '../../../components/AddNewWizards/Approval/ApprovalWizard';
+import InputLabel from '@material-ui/core/InputLabel';
 
 const useStyles = makeStyles(
   theme => {
@@ -39,7 +40,11 @@ const useStyles = makeStyles(
         display: 'flex',
         paddingBottom: '0.5rem',
       },
-      certainty: {},
+      certainty: {
+        [theme.breakpoints.down('sm')]: {
+          width: '15rem'
+        }
+      },
       certaintyGroup: {
         marginTop: theme.spacing(1),
         display: "flex",
@@ -172,9 +177,12 @@ function AddEditVote(props) {
       <div style={{paddingBottom: '1rem'}}>
           <FormControl className={classes.certainty}>
             {mobileLayout && (
+              <>
+              <InputLabel id="select-label"><FormattedMessage id='noQuantity' /></InputLabel>
               <Select
-                value={approveQuantity}
+                value={approveQuantity || 0}
                 onChange={onChange}
+                label={<FormattedMessage id='noQuantity' />}
               >
                 {certainties.map(certainty => {
                  return ( <MenuItem
@@ -185,6 +193,7 @@ function AddEditVote(props) {
                   </MenuItem> );
                 })}
               </Select>
+              </>
             )}
             {mobileLayout && (
               <div style={{marginBottom: '1rem'}}/>
@@ -194,7 +203,7 @@ function AddEditVote(props) {
                 aria-labelledby="add-vote-certainty"
                 className={classes.certaintyGroup}
                 onChange={onChange}
-                value={approveQuantity}
+                value={approveQuantity || 0}
               >
                 {certainties.map(certainty => {
                   return (
@@ -221,7 +230,7 @@ function AddEditVote(props) {
       </div>
       <WizardStepButtons
         {...wizardProps}
-        showNext={true}
+        showNext={approveQuantity !== undefined && approveQuantity !== 0}
         showTerminate={!isInbox || voteMessage.is_highlighted}
         onNext={mySave}
         showOtherNext={hasVoted}

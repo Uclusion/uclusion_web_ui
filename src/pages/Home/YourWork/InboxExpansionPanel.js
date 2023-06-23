@@ -44,6 +44,7 @@ import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/O
 import FeedbackWizard from '../../../components/InboxWizards/Feedback/FeedbackWizard';
 import UpgradeWizard from '../../../components/InboxWizards/Upgrade/UpgradeWizard';
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
+import ReplyResolveWizard from '../../../components/InboxWizards/ReplyResolve/ReplyResolveWizard';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -107,8 +108,13 @@ export function calculateTitleExpansionPanel(props) {
       'JobStatusTitle', intl);
   } else if (['ISSUE', 'UNREAD_COMMENT'].includes(messageType)) {
     if (linkType === 'INVESTIBLE_SUGGESTION') {
-      setItem(item, openExpansion, <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message} />,
-        'DecideAcceptRejectTitle', intl);
+      if (isAssigned) {
+        setItem(item, openExpansion, <AcceptRejectWizard commentId={commentId} marketId={marketId} message={message}/>,
+          'DecideAcceptRejectTitle', intl);
+      } else {
+        setItem(item, openExpansion, <ReplyResolveWizard commentId={commentId} marketId={marketId} message={message}/>,
+          'DecideResponseTitle', intl);
+      }
     } else if (linkType === 'INVESTIBLE_QUESTION') {
       setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                  message={message} />,

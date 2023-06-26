@@ -67,9 +67,15 @@ function AddCommentStep (props) {
       )}
       {useType === REPORT_TYPE && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          For feedback explain what needs reviewing. Use @ mentions to require specific reviewers.
+          For feedback explain what needs reviewing. Use @ mentions to require and only notify specific reviewers.
         </Typography>
       )}
+      {useType !== REPORT_TYPE && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Use @ mentions to avoid this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifying
+          the group.
+        </Typography>
+        )}
       <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
       <CommentAdd
         nameKey="JobCommentAdd"

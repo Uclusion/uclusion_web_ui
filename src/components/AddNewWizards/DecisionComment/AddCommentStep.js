@@ -46,6 +46,10 @@ function AddCommentStep (props) {
       <Typography className={classes.introText}>
         What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Tip` }).toLowerCase()}?
       </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Use @ mentions to restrict to whom
+        this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} goes.
+      </Typography>
       <CommentAdd
         nameKey="DecisionCommentAdd"
         type={useType}

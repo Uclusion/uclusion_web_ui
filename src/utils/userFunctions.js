@@ -8,7 +8,6 @@ import {
 import TokenStorageManager from '../authorization/TokenStorageManager'
 import { Auth } from 'aws-amplify'
 import _ from 'lodash'
-import config from '../config'
 import { clearRedirect } from './redirectUtils'
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import { PLACEHOLDER } from '../constants/global';
@@ -42,11 +41,6 @@ export function extractUsersList(marketPresencesState, marketState, addToMarketP
     });
     return { ...acc, ...macc };
   }, {});
-}
-
-export function getRandomSupportUser() {
-  const supportUsers = config.support_users;
-  return _.sample(supportUsers);
 }
 
 export function getMarketInfo(investible, marketId) {

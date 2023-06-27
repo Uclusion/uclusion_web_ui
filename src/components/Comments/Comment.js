@@ -451,6 +451,7 @@ function Comment(props) {
     }
     if (marketType === INITIATIVE_TYPE) {
       return <InlineInitiativeBox anInlineMarket={anInlineMarket} removeActions={removeActions}
+                                  isTaskDisplay={commentType === TODO_TYPE}
                                   showAcceptReject={showAcceptReject || commentType !== SUGGEST_CHANGE_TYPE}
                                   inArchives={marketStage !== ACTIVE_STAGE || inArchives || resolved} />;
     }

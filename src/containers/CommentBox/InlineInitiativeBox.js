@@ -20,7 +20,7 @@ import { APPROVAL_WIZARD_TYPE } from '../../constants/markets';
 
 function InlineInitiativeBox(props) {
   const {
-    anInlineMarket, inArchives, removeActions
+    anInlineMarket, inArchives, removeActions, isTaskDisplay
   } = props;
   const history = useHistory();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
@@ -60,6 +60,9 @@ function InlineInitiativeBox(props) {
   const yourVote = yourPresence?.investments?.find((investment) => investment.investible_id === inlineInvestibleId &&
       !investment.deleted);
   const showVoteButtons = !isCreator && !yourVote && inlineInvestibleId && !removeActions;
+  if (isTaskDisplay && _.isEmpty(positiveVoters) && _.isEmpty(negativeVoters)) {
+    return React.Fragment;
+  }
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
       {showVoteButtons && (

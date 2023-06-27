@@ -769,7 +769,7 @@ const messages = defineMessages({
   inviteLinkerDirectionsInitiative: 'Share this link',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
   slackIntegrationSuccessful: 'Slack was successfully integrated.',
-  slackIntegrationPartial: 'Almost there! Now type /uclusion in any Slack channel and follow the link that is returned to complete installation.',
+  slackIntegrationPartial: 'Now type /uclusion in any Slack channel to receive messages from groups in this workspace.',
 
   // Assignment List
   assignmentListHeader: 'Assigned to (X to remove)',

@@ -147,6 +147,7 @@ function QuillEditor2 (props) {
     fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSize,
     overflowX: 'hidden',
+    minHeight: noToolbar ? undefined : '8rem'
   };
 
   const containerStyle = {

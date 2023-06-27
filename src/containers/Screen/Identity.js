@@ -7,7 +7,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme
-} from '@material-ui/core'
+} from '@material-ui/core';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { useHistory } from 'react-router';
 import Divider from '@material-ui/core/Divider';
@@ -22,7 +22,8 @@ import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
 import Gravatar from '../../components/Avatars/Gravatar';
 import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
-import { ContactSupport, Payment, PermIdentity, VpnKey } from '@material-ui/icons'
+import { ContactSupport, Face, Payment, PermIdentity, VpnKey } from '@material-ui/icons';
+import md5 from 'md5';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -71,13 +72,12 @@ const useStyles = makeStyles((theme) => ({
     border: '0.5px solid grey',
   },
   listAction: {
-    paddingTop: '1rem',
-    paddingBottom: 0,
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     marginLeft: 'auto',
-    marginRight: 'auto'
+    marginRight: 'auto',
   },
   signOut: {
     textAlign: 'center',
@@ -111,6 +111,15 @@ function Identity () {
   const intl = useIntl();
   const email = !user ? '' : user.email;
   const chipLabel = !user ? '' : (user.name || '');
+
+  function GravatarExists() {
+    const url = `https://www.gravatar.com/avatar/${md5(email, { encoding: 'binary' })}?d=404`;
+    var http = new XMLHttpRequest();
+    http.open('HEAD', url, false);
+    http.send();
+    return http.status !== 404;
+  }
+
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
       setAnchorEl(event.currentTarget);
@@ -166,7 +175,7 @@ function Identity () {
             <Typography>{chipLabel}</Typography>
             <Typography variant="caption" style={{color: 'grey'}}>{email}</Typography>
           </div>
-          <Grid container alignItems="center" style={{paddingBottom: '1rem'}}>
+          <Grid container alignItems="center">
             <Grid item xs={4} />
             <Grid item xs={1} style={{marginRight: '10px'}}>
               <Tooltip title={intl.formatMessage({ id: 'changePreferencesHeader' })}>
@@ -190,14 +199,25 @@ function Identity () {
                 </IconButton>
               </Tooltip>
             </Grid>
-            <Grid item xs={4} />
-            <Grid item xs={4} onClick={goTo('/support')} className={classes.listAction}>
-              <Button style={{textTransform: 'none'}}>
-                <ContactSupport style={{fontSize: 'medium', marginRight: 6}} />
-                {intl.formatMessage({ id: 'support' })}
-              </Button>
-            </Grid>
           </Grid>
+          {!GravatarExists() && (
+            <Link href="https://www.gravatar.com"
+                  target="_blank"
+                  underline="none"
+                  style={{alignItems: 'center'}}
+            >
+              <div className={classes.listAction} style={{marginTop: '2rem'}}>
+                <Face style={{fontSize: 'medium', marginRight: 6}} />
+                {intl.formatMessage({ id: 'IdentityChangeAvatar' })}
+              </div>
+            </Link>
+          )}
+          <div onClick={goTo('/support')} className={classes.listAction} style={{marginTop: '1rem'}}>
+            <Button style={{textTransform: 'none'}}>
+              <ContactSupport style={{fontSize: 'medium', marginRight: 6}} />
+              {intl.formatMessage({ id: 'support' })}
+            </Button>
+          </div>
           <Divider />
           <div className={classes.signOut}>
             <SignOut />

@@ -6,6 +6,7 @@ import WorkspaceMembersStep from './WorkspaceMemberStep';
 import { navigate } from '../../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
+import WorkspaceIntegrationsStep from './WorkspaceIntegrationsStep';
 
 function WorkspaceWizard() {
   const history = useHistory();
@@ -26,6 +27,7 @@ function WorkspaceWizard() {
       >
         <WorkspaceNameStep />
         <WorkspaceMembersStep />
+        <WorkspaceIntegrationsStep />
       </FormdataWizard>
     </WizardStylesProvider>
   )

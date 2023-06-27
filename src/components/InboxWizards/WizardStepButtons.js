@@ -27,7 +27,8 @@ function WizardStepButtons(props) {
     nextLabel,
     startOver,
     nextDisabled,
-    terminateSpinOnClick
+    terminateSpinOnClick,
+    onNextDoAdvance
   } = props;
   const intl = useIntl();
   const classes = wizardStyles();
@@ -45,12 +46,14 @@ function WizardStepButtons(props) {
     if (lastStep) {
       const resolved = await Promise.resolve(nextReturn);
       return finish(resolved);
-    }else{
-      setOperationRunning(false);
-      nextStep();
+    } else {
+      if (onNextDoAdvance) {
+        nextStep();
+      }
     }
     if (nextReturn) {
       return nextReturn.then(() => {
+        setOperationRunning(false);
         const item = document.getElementById(`workListItem${parentElementId}`);
         if (item) {
           scrollToElement(item);
@@ -123,7 +126,8 @@ WizardStepButtons.propTypes = {
   otherSpinOnClick: PropTypes.bool,
   nextLabel: PropTypes.string,
   nextDisabled: PropTypes.bool,
-  terminateSpinOnClick: PropTypes.bool
+  terminateSpinOnClick: PropTypes.bool,
+  onNextDoAdvance: PropTypes.bool
 };
 WizardStepButtons.defaultProps = {
   onNext: () => {},
@@ -146,6 +150,7 @@ WizardStepButtons.defaultProps = {
   otherSpinOnClick: true,
   terminateSpinOnClick: false,
   nextLabel: 'OnboardingWizardContinue',
+  onNextDoAdvance: true
 };
 
 export default WizardStepButtons;

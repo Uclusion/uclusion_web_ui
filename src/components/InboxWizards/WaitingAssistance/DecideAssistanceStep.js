@@ -23,8 +23,9 @@ import JobDescription from '../JobDescription';
 import { changePresence, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import GravatarGroup from '../../Avatars/GravatarGroup';
-import _ from 'lodash';
 import { pokeUsers } from '../../../api/users';
+import Link from '@material-ui/core/Link';
+import _ from 'lodash';
 
 
 function DecideAssistanceStep(props) {
@@ -89,10 +90,13 @@ function DecideAssistanceStep(props) {
           Resolving moves this job to {nextStageName}.
         </Typography>
       )}
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Poke to resend notifications and instant message <Link href="https://documentation.uclusion.com/notifications/slack|documentation" target="_blank">configured channels</Link>.
+      </Typography>
       {!_.isEmpty(snoozed) && (
         <Box sx={{ p: 2, border: '1px solid grey' }} style={{marginBottom: '1rem', paddingTop: 0, width: '50rem'}}>
           <Typography className={classes.introSubText} variant="subtitle1">
-            Poke to resend notifications to these snoozed collaborators.
+            Snoozed.
           </Typography>
           <GravatarGroup users={snoozed}/>
         </Box>
@@ -131,12 +135,12 @@ function DecideAssistanceStep(props) {
         showOtherNext={isSuggest}
         otherNextLabel="commentResolveLabel"
         onOtherNext={resolve}
-        showTerminate={!_.isEmpty(snoozed)}
-        terminateLabel="pokeSnoozed"
+        showTerminate
+        terminateLabel="poke"
         terminateSpinOnClick
         onFinish={() => pokeUsers(marketId, commentId, deferredUserIds).then(() => {
           // quick remove the comment id on the deferred_notifications of the snoozed presences
-          snoozed.forEach((presence) => {
+          (snoozed || []).forEach((presence) => {
             const { deferred_notifications: deferred } = presence;
             const newDeferred = deferred.filter((id) => id !== commentId) || [];
             changePresence(presence, marketPresencesDispatch, marketId,

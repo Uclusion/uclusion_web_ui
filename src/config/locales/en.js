@@ -514,7 +514,7 @@ const messages = defineMessages({
   commentAbstainLabel: 'Mute',
   commentAbstainingLabel: 'Abstaining',
   snoozedLabel: 'Snoozed',
-  pokeSnoozed: 'Poke snoozed',
+  poke: 'Poke',
   commentRemoveLabel: 'Delete',
   commentViewThreadLabel: 'View Thread',
   commentCloseThreadLabel: 'Hide Thread',

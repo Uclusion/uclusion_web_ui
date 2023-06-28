@@ -43,7 +43,7 @@ const config = {
     email: process.env.REACT_APP_UCLUSION_SUPPORT_EMAIL
   },
   logRocketInstance: process.env.REACT_APP_LOGROCKET_INSTANCE,
-  termsOfUseLink: 'https://app.termly.io/document/terms-of-use-for-saas/02fc002b-2cab-4027-8c49-ed2589077551',
+  termsOfUseLink: 'https://documentation.uclusion.com/terms-of-use',
   helpLink: 'https://documentation.uclusion.com',
 };
 

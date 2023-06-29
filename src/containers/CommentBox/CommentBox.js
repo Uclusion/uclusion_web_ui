@@ -6,7 +6,7 @@ import Comment from '../../components/Comments/Comment';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
-import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage, isNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getFormerStageId, isSingleAssisted } from '../../utils/commentFunctions';
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
@@ -96,7 +96,7 @@ function CommentBox(props) {
             <Comment
               resolvedStageId={(isRequiresInput && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commmentType))
               || (isInBlocking && commmentType === ISSUE_TYPE) ? resolvedStageId : undefined}
-              stagePreventsActions={useFullStage.close_comments_on_entrance || removeActions}
+              stagePreventsActions={isNotDoingStage(useFullStage) || removeActions}
               removeActions={removeActions}
               showVoting={showVoting}
               depth={0}

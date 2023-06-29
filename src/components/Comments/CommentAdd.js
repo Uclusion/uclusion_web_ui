@@ -362,6 +362,21 @@ function CommentAdd(props) {
       onSave(comment)
     }
   }
+  const isWizard = !_.isEmpty(wizardProps);
+  const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
+    && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE;
+  const useBody = getQuillStoredState(editorName);
+  const editorSpec = {
+    value: useBody,
+    participants: presences.filter((presence) => !presence.market_banned),
+    marketId,
+    placeholder,
+    onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
+    mentionsAllowed,
+    onChange: () => setHasValue(true),
+    buttons: type === REPLY_TYPE && !isWizard ? buttons : undefined
+  }
+  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
   function handleSave(isSent, passedNotificationType, doCreateInitiative, isJustClear=false) {
     const currentUploadedFiles = uploadedFiles || [];
     const myBodyNow = getQuillStoredState(editorName);
@@ -421,28 +436,12 @@ function CommentAdd(props) {
         handleSpinStop(comment, isJustClear);
       });
   }
-  const isWizard = !_.isEmpty(wizardProps);
-  const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
-    && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE;
-
-  const useBody = getQuillStoredState(editorName);
-  const editorSpec = {
-    value: useBody,
-    participants: presences.filter((presence) => !presence.market_banned),
-    marketId,
-    placeholder,
-    onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
-    mentionsAllowed,
-    onChange: () => setHasValue(true),
-    buttons: type === REPLY_TYPE && _.isEmpty(wizardProps) ? buttons : undefined
-  }
-  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
   return (
     <>
       <Paper
         id={`${nameKey ? nameKey : ''}cabox`}
         className={classes.add}
-        style={{padding: wizardProps ? 0 : undefined}}
+        style={{padding: isWizard ? 0 : undefined}}
         elevation={0}
       >
         <div className={classes.editor} style={{paddingBottom: isWizard ? undefined : '1rem'}}>

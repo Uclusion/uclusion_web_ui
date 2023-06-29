@@ -119,6 +119,7 @@ function DecideReplyStep(props) {
         showOtherNext={canResolve || hasThreadMessages}
         otherNextLabel={canResolve ? 'issueResolveLabel' : 'notificationDelete'}
         onOtherNext={canResolve ? resolve : myOnFinish}
+        onOtherNextDoAdvance={false}
         otherSpinOnClick={canResolve}
         showTerminate
         terminateLabel={hasThreadMessages ? 'notificationDismissThread' : 'notificationDelete'}

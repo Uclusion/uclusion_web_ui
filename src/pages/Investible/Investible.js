@@ -50,12 +50,12 @@ function Investible(props) {
   const isAdmin = myPresence && myPresence.is_admin;
 
   useEffect(() => {
-    if (parentInvestibleId) {
+    if (parentInvestibleId && !hidden) {
       navigate(history, `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${investibleId}`);
-    } else if (parentMarketId) {
+    } else if (parentMarketId && !hidden) {
       navigate(history, `${formMarketLink(parentMarketId, parentGroupId)}#option${investibleId}`);
     }
-  },  [parentMarketId, investibleId, parentInvestibleId, parentGroupId, history]);
+  },  [parentMarketId, investibleId, parentInvestibleId, parentGroupId, history, hidden]);
 
   if (loading) {
     return (

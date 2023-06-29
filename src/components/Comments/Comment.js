@@ -841,6 +841,7 @@ function Comment(props) {
                   replyEditId={replyEditId}
                   inboxMessageId={inboxMessageId}
                   isInbox={isInbox}
+                  wizardProps={wizardProps}
                 />
               );
             })}
@@ -865,10 +866,10 @@ Comment.defaultProps = {
 };
 
 function InitialReply(props) {
-  const { comment, enableEditing, replyEditId, inboxMessageId, isInbox } = props;
+  const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps } = props;
 
   return <Reply comment={comment} enableEditing={enableEditing} replyEditId={replyEditId}
-                inboxMessageId={inboxMessageId} isInbox={isInbox}/>;
+                inboxMessageId={inboxMessageId} isInbox={isInbox} wizardProps={wizardProps}/>;
 }
 
 const useReplyStyles = makeStyles(
@@ -989,10 +990,11 @@ const unknownPresence = {
  * @param {{comment: Comment}} props
  */
 function Reply(props) {
-  const { comment, enableEditing, replyEditId, inboxMessageId, isInbox } = props;
+  const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
-  const replyBeingEdited = replyEditId === comment.id && myParams && !_.isEmpty(myParams.get('reply'));
+  const replyBeingEdited = replyEditId === comment.id &&
+    ((myParams && !_.isEmpty(myParams.get('reply'))) || isInbox);
   const beingEdited = replyEditId === comment.id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
   const theme = useTheme();
@@ -1060,7 +1062,7 @@ function Reply(props) {
 
   return (
     <div onClick={() => {
-      if (isInbox) {
+      if (isInbox && (!replyBeingEdited || beingEdited)) {
         navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
       }
     }}>
@@ -1149,6 +1151,7 @@ function Reply(props) {
             commentAddStateReset={replyAddStateReset}
             threadMessages={myMessage ? [myMessage] : []}
             nameDifferentiator="reply"
+            wizardProps={wizardProps}
           />
         )}
       </div>
@@ -1158,6 +1161,8 @@ function Reply(props) {
             replies={comment.children}
             enableEditing={enableEditing}
             replyEditId={replyEditId}
+            isInbox={isInbox}
+            wizardProps={wizardProps}
           />
         </div>
       )}
@@ -1188,7 +1193,7 @@ const useThreadedReplyStyles = makeStyles(
  * @param {{comments: Comment[], replies: string[]}} props
  */
 function ThreadedReplies(props) {
-  const { replies: replyIds, enableEditing, replyEditId } = props;
+  const { replies: replyIds, enableEditing, replyEditId, isInbox, wizardProps } = props;
   const comments = useComments();
 
   const classes = useThreadedReplyStyles();
@@ -1215,6 +1220,8 @@ function ThreadedReplies(props) {
               key={`threadc${reply.id}`}
               enableEditing={enableEditing}
               replyEditId={replyEditId}
+              isInbox={isInbox}
+              wizardProps={wizardProps}
             />
           );
         }
@@ -1225,9 +1232,10 @@ function ThreadedReplies(props) {
 }
 
 function ThreadedReply(props) {
-  const { comment, enableEditing, messages, replyEditId } = props;
+  const { comment, enableEditing, messages, replyEditId, isInbox, wizardProps } = props;
   return <Reply key={`c${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment}
-                enableEditing={enableEditing} messages={messages} replyEditId={replyEditId} />;
+                enableEditing={enableEditing} messages={messages} replyEditId={replyEditId}
+                isInbox={isInbox} wizardProps={wizardProps} />;
 }
 
 /**

@@ -58,8 +58,8 @@ function JobDescription(props) {
           <DescriptionOrDiff id={investibleId} description={description} showDiff={false} />
         )}
         {!_.isEmpty(comments) && (
-          <div style={{paddingTop: '1rem', paddingLeft: '0.25rem', paddingRight: mobileLayout ? '0.5rem' : '10rem',
-            overflowY: 'hidden', overflowX: 'hidden' }}>
+          <div style={{paddingTop: '1rem', paddingBottom: '0.5rem', paddingLeft: '0.25rem',
+            paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden', overflowX: 'hidden' }}>
             <CommentBox
               comments={comments}
               preserveOrder={preserveOrder}

@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from './WizardStepContainer';
 import { wizardStyles } from './WizardStylesContext';
-import { getComment, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
+import {
+  getCommentRoot,
+  getInvestibleComments
+} from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
@@ -23,9 +26,11 @@ function ReplyStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const comment = getComment(commentState, marketId, commentId) || {};
   const classes = wizardStyles();
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
+  const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
+  const comments = investibleComments.filter((comment) => comment.root_comment_id === commentRoot?.id
+    || comment.id === commentRoot?.id);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
@@ -43,7 +48,7 @@ function ReplyStep(props) {
         What is your reply?
       </Typography>
       <CommentBox
-        comments={[comment]}
+        comments={comments}
         marketId={marketId}
         allowedTypes={[]}
         fullStage={fullStage}

@@ -28,7 +28,8 @@ function WizardStepButtons(props) {
     startOver,
     nextDisabled,
     terminateSpinOnClick,
-    onNextDoAdvance
+    onNextDoAdvance,
+    onOtherNextDoAdvance
   } = props;
   const intl = useIntl();
   const classes = wizardStyles();
@@ -41,13 +42,13 @@ function WizardStepButtons(props) {
     onFinish();
   }
 
-  async function nextState(nextFunction) {
+  async function nextState(nextFunction, isOtherNext=false) {
     const nextReturn = nextFunction();
     if (lastStep) {
       const resolved = await Promise.resolve(nextReturn);
       return finish(resolved);
     } else {
-      if (onNextDoAdvance) {
+      if ((!isOtherNext && onNextDoAdvance)||(isOtherNext && onOtherNextDoAdvance)) {
         nextStep();
       }
     }
@@ -71,7 +72,7 @@ function WizardStepButtons(props) {
   }
 
   async function myOtherNext () {
-    return nextState(onOtherNext);
+    return nextState(onOtherNext, true);
   }
 
   return (
@@ -127,7 +128,8 @@ WizardStepButtons.propTypes = {
   nextLabel: PropTypes.string,
   nextDisabled: PropTypes.bool,
   terminateSpinOnClick: PropTypes.bool,
-  onNextDoAdvance: PropTypes.bool
+  onNextDoAdvance: PropTypes.bool,
+  onOtherNextDoAdvance: PropTypes.bool
 };
 WizardStepButtons.defaultProps = {
   onNext: () => {},
@@ -150,7 +152,8 @@ WizardStepButtons.defaultProps = {
   otherSpinOnClick: true,
   terminateSpinOnClick: false,
   nextLabel: 'OnboardingWizardContinue',
-  onNextDoAdvance: true
+  onNextDoAdvance: true,
+  onOtherNextDoAdvance: true
 };
 
 export default WizardStepButtons;

@@ -678,8 +678,8 @@ function StageInvestible(props) {
           <Typography color='initial' variant="subtitle2">{name}</Typography>
           {!_.isEmpty(labelList) && labelList.map((label) =>
             <div key={label} style={{paddingTop: '0.5rem'}}>
-              <Chip size="small" label={label} className={classes.chipClass} color="primary"
-                    style={{maxWidth: '90%'}}/>
+              <Chip size="small" label={label} className={classes.chipClass}
+                    style={{maxWidth: '90%', backgroundColor: '#73B76C', color: 'white'}}/>
             </div>
           )}
         </StageLink>

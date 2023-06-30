@@ -133,8 +133,9 @@ export function allowVotingForSuggestion(commentId, setOperationRunning, markets
     });
 }
 
-export function getCommentsSortedByType(marketComments, investibleId, includeStatusReports) {
-  const commentsRaw = marketComments.filter((comment) => comment.investible_id === investibleId && !comment.resolved &&
+export function getCommentsSortedByType(marketComments, investibleId, includeStatusReports, includeResolved) {
+  const commentsRaw = marketComments.filter((comment) => comment.investible_id === investibleId &&
+    (!comment.resolved || includeResolved) &&
     ([TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type) ||
       (includeStatusReports && comment.comment_type === REPORT_TYPE)));
   return _.orderBy(commentsRaw, [(comment) => {

@@ -26,8 +26,9 @@ function DecideReviewStep(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const isUnread = message.type_object_id.startsWith('UNREAD');
   const marketComments = getMarketComments(commentsState, marketId);
-  const comments = getCommentsSortedByType(marketComments, investibleId, true);
+  const comments = getCommentsSortedByType(marketComments, investibleId, true, true);
   const report = comments.find((comment) => comment.comment_type === REPORT_TYPE);
+  // has report should always be true - remove once finalized
   const hasReport = !_.isEmpty(report);
   const createTodo = () => navigate(history,
     formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE));

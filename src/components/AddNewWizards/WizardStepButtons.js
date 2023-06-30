@@ -125,6 +125,7 @@ WizardStepButtons.propTypes = {
   onNext: PropTypes.func,
   previousStep: PropTypes.func,
   nextStep: PropTypes.func,
+  onOtherNext: PropTypes.func,
   onSkip: PropTypes.func,
   totalSteps: PropTypes.number,
   currentStep: PropTypes.number,
@@ -150,6 +151,7 @@ WizardStepButtons.propTypes = {
 };
 WizardStepButtons.defaultProps = {
   onNext: () => {},
+  onOtherNext: () => {},
   onSkip: () => {},
   onLink: () => {},
   nextStep: () => {},

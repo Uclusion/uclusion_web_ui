@@ -3,7 +3,7 @@ import _ from 'lodash'
 const UPDATE_PAGE = 'UPDATE_PAGE';
 const UPDATE_TAB = 'SET_TAB';
 
-export const PAGE_SIZE = 15;
+export const PAGE_SIZE = 50;
 export const TEAM_INDEX = 1;
 export const PENDING_INDEX = 2;
 

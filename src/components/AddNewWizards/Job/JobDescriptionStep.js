@@ -9,33 +9,16 @@ import { editorEmpty, getQuillStoredState, resetEditor, storeState } from '../..
 import { useEditor } from '../../TextEditors/quillHooks';
 import { convertDescription } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
-import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import {
-  addMarketComments,
-  getCommentThreads
-} from '../../../contexts/CommentsContext/commentsContextHelper';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { moveComments } from '../../../api/comments';
-import { removeMessagesForCommentId } from '../../../utils/messageUtils';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import FindJobStep from './FindJobStep';
-import { notify } from '../../../utils/investibleFunctions';
-import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications';
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { FormattedMessage } from 'react-intl';
 import { bugRadioStyles } from '../Bug/BugDescriptionStep';
 import { useHistory } from 'react-router';
 
 function JobDescriptionStep (props) {
-  const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData,
-    startOver, clearFormData, jobType } = props;
+  const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData, jobType } = props;
   const history = useHistory();
   const radioClasses = bugRadioStyles();
   const isSingleComment = _.size(fromCommentIds) === 1;
@@ -52,17 +35,7 @@ function JobDescriptionStep (props) {
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, commentsDispatch] = useContext(CommentsContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [marketsState] = useContext(MarketsContext);
   const classes = useContext(WizardStylesContext);
-  const market = getMarket(marketsState, marketId);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const roots = (fromCommentIds || []).map((fromCommentId) =>
-    marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
-  const comments = getCommentThreads(roots, marketComments);
 
   const editorSpec = {
     placeholder: "Ex: make magic happen via A, B, C",
@@ -74,16 +47,7 @@ function JobDescriptionStep (props) {
 
   const [Editor] = useEditor(editorName, editorSpec);
 
-  if (comments.find((comment) => comment.id === 'notFound')) {
-    return React.Fragment;
-  }
-
-  const { isMoveExisting, newQuantity } = formData;
-
-  if (isMoveExisting && !_.isEmpty(comments)) {
-    return <FindJobStep marketId={marketId} groupId={groupId} roots={roots} marketComments={marketComments}
-      updateFormData={updateFormData} formData={formData} startOver={startOver} clearFormData={clearFormData}/>;
-  }
+  const { newQuantity } = formData;
 
   function createJob(readyToStart) {
     const {
@@ -108,38 +72,11 @@ function JobDescriptionStep (props) {
         let link = formInvestibleLink(marketId, investibleId);
         // reset the editor box
         resetEditor(editorName);
-        if (readyToStart) {
-          notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, market, messagesDispatch);
-        }
         // update the form data with the saved investible
         updateFormData({
           investibleId,
           link,
         });
-        if (fromCommentIds) {
-          const { investible } = inv;
-          return moveComments(marketId, investible.id, fromCommentIds)
-            .then((movedComments) => {
-              let threads = []
-              fromCommentIds.forEach((commentId) => {
-                removeMessagesForCommentId(commentId, messagesState);
-                const thread = comments.filter((aComment) => {
-                  return aComment.root_comment_id === commentId;
-                });
-                const fixedThread = thread.map((aComment) => {
-                  return {investible_id: investible.id, ...aComment};
-                });
-                threads = threads.concat(fixedThread);
-              });
-              addMarketComments(commentsDispatch, marketId, [...movedComments, ...threads]);
-              link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
-              updateFormData({
-                investibleId,
-                link,
-              });
-              return {link};
-            });
-        }
         return {link};
       })
   }
@@ -212,15 +149,6 @@ function JobDescriptionStep (props) {
       </FormControl>
       <div style={{maxHeight: '300px', overflowY: 'auto', overflowX: 'hidden'}}>
         {Editor}
-        <div className={classes.wizardCommentBoxDiv}>
-          <CommentBox
-            comments={comments}
-            marketId={marketId}
-            allowedTypes={[]}
-            isInbox
-            removeActions
-          />
-        </div>
       </div>
       <div className={classes.borderBottom} />
       <WizardStepButtons

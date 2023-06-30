@@ -1104,6 +1104,7 @@ const messages = defineMessages({
   taskSection: 'Tasks',
   tasksSection: 'Tasks',
   todoSection: 'Bugs',
+  jobFromBugs: 'Bugs',
   readyToStartCheckboxExplanation: 'Ready to start',
   viewTodo: 'View',
   editTodo: 'Edit',

@@ -46,7 +46,7 @@ function DecideStartStep(props) {
 
   function myAccept() {
     onDropTodo(commentId, commentState, marketId, undefined, intl, commentsDispatch, invDispatch,
-      myPresence.id, acceptedStage.id)
+      myPresence.id, acceptedStage.id, 'jobFromBugs')
       .then((investibleId) => {
         wizardFinish( { link: formInvestibleLink(marketId, investibleId) }, setOperationRunning, message,
           history, marketId, investibleId, messagesDispatch);

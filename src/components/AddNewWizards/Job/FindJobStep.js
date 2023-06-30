@@ -10,7 +10,7 @@ import {
   navigate
 } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { addMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addMarketComments, getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import _ from 'lodash';
 import { moveComments } from '../../../api/comments';
@@ -24,18 +24,22 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function FindJobStep(props) {
-  const { marketId, groupId, updateFormData, formData, marketComments, startOver, clearFormData, roots } = props;
+  const { marketId, groupId, updateFormData, formData, marketComments, startOver, clearFormData,
+    fromCommentIds } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
   const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const { investibleId } = formData;
-  const currentInvestibleId = roots[0].investible_id;
   const marketStages = getStages(marketStagesState, marketId);
   const activeMarketStages = marketStages.filter((stage) => {
     return !isInReviewStage(stage) && !isNotDoingStage(stage);
   });
+  const roots = (fromCommentIds || []).map((fromCommentId) =>
+    marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
+  const comments = getCommentThreads(roots, marketComments);
+  const currentInvestibleId = roots[0].investible_id;
 
   function onTerminate() {
     let checkedString;
@@ -70,6 +74,10 @@ function FindJobStep(props) {
         clearFormData();
         navigate(history, link);
       });
+  }
+
+  if (comments.find((comment) => comment.id === 'notFound')) {
+    return React.Fragment;
   }
 
   return (

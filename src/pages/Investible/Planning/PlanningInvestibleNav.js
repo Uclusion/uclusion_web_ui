@@ -26,8 +26,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import PropTypes from 'prop-types';
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible, updateInvestible } from '../../../api/investibles';
-import { notify, onInvestibleStageChange } from '../../../utils/investibleFunctions';
-import { UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { UNASSIGNED_TYPE } from '../../../constants/notifications';
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -48,7 +48,7 @@ import { Menu, MenuItem, ProSidebar, SidebarHeader } from 'react-pro-sidebar';
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 export default function PlanningInvestibleNav(props) {
-  const { name, market, marketInvestible, classes, userId, myPresence, isAssigned,
+  const { name, market, marketInvestible, classes, userId, isAssigned,
     pageState, marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId,
     updatePageState, investibleId } = props;
   const intl = useIntl();
@@ -58,7 +58,6 @@ export default function PlanningInvestibleNav(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
   const [groupState] = useContext(MarketGroupsContext);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -100,9 +99,6 @@ export default function PlanningInvestibleNav(props) {
       onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
         undefined, investiblesDispatch, diffDispatch, marketStagesState, [UNASSIGNED_TYPE],
         fullStage);
-      if (isReadyToStart) {
-        notify(myPresence.id, investibleId, UNASSIGNED_TYPE, YELLOW_LEVEL, market, messagesDispatch);
-      }
       setOperationRunning(false);
     });
   }

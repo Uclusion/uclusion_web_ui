@@ -15,6 +15,7 @@ import ResolveCommentsStep from './ResolveCommentsStep'
 import DecideWhereStep from './DecideWhereStep';
 import { navigate } from '../../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import FindJobStep from './FindJobStep';
 
 function JobWizard(props) {
   const { marketId, groupId, jobType } = props;
@@ -65,8 +66,13 @@ function JobWizard(props) {
           <DecideWhereStep fromCommentIds={fromCommentIds} marketId={marketId} groupId={groupId}
                            marketComments={comments} />
         )}
-        <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} fromCommentIds={fromCommentIds}
-                            marketComments={comments} jobType={jobType}/>
+        {fromCommentId && (
+          <FindJobStep marketId={marketId} groupId={groupId} marketComments={comments} fromCommentIds={fromCommentIds}/>
+        )}
+        {!fromCommentId && (
+          <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} marketComments={comments}
+                              jobType={jobType}/>
+        )}
         <JobAssignStep onFinish={onFinish} marketId={marketId} />
         <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
       </FormdataWizard>

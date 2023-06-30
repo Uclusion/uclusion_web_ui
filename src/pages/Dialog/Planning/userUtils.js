@@ -149,14 +149,14 @@ export function doRemoveEdit(id) {
 }
 
 export function onDropTodo(commentId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch,
-  presenceId, stageId) {
+  presenceId, stageId, nameId) {
   const comments = getMarketComments(commentsState, marketId) || [];
   const fromComment = comments.find((comment) => comment.id === commentId);
   if (fromComment) {
     if (setOperationRunning) {
       setOperationRunning(true);
     }
-    let name = nameFromDescription(fromComment.body);
+    let name = nameId ? intl.formatMessage({ id: nameId }) : nameFromDescription(fromComment.body);
     if (!name) {
       name = intl.formatMessage({ id: 'notificationLabel' });
     }

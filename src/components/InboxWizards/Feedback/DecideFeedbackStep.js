@@ -38,7 +38,6 @@ function DecideFeedbackStep(props) {
   const comments = marketComments.filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
-  const isNewVote = message.type === 'UNREAD_VOTE';
 
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -50,24 +49,22 @@ function DecideFeedbackStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: isNewVote ? 'startJobQ' : 'DecideFeedbackTitle'})}
+        {intl.formatMessage({id: 'startJobQ'})}
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id || message.investible_id}
                       comments={comments} removeActions />
-      {isNewVote && (
-        <Voting
-          investibleId={message.investible_id}
-          marketPresences={marketPresences}
-          investmentReasons={investmentReasons}
-          showExpiration={true}
-          expirationMinutes={market.investment_expiration * 1440}
-          votingAllowed={false}
-          yourPresence={marketPresences.find((presence) => presence.current_user)}
-          market={market}
-          isInbox
-          isAssigned={true}
-        />
-      )}
+      <Voting
+        investibleId={message.investible_id}
+        marketPresences={marketPresences}
+        investmentReasons={investmentReasons}
+        showExpiration={true}
+        expirationMinutes={market.investment_expiration * 1440}
+        votingAllowed={false}
+        yourPresence={marketPresences.find((presence) => presence.current_user)}
+        market={market}
+        isInbox
+        isAssigned={true}
+      />
       <WizardStepButtons
         {...props}
         onFinish={myOnFinish}
@@ -75,9 +72,6 @@ function DecideFeedbackStep(props) {
         spinOnClick={false}
         onNext={() => navigate(history, formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
           commentRoot.investible_id))}
-        showOtherNext={!isNewVote}
-        otherNextLabel="issueReplyLabel"
-        otherSpinOnClick={false}
         showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
         terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'defer'}
       />

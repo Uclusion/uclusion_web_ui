@@ -119,10 +119,6 @@ export function calculateTitleExpansionPanel(props) {
       setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                  message={message} />,
         'DecideAnswerTitle', intl);
-    } else if (linkType === 'INVESTIBLE_REVIEW') {
-      setItem(item, openExpansion, <FeedbackWizard marketId={commentMarketId || marketId} commentId={commentId}
-                                                 message={message} />,
-        'DecideFeedbackTitle', intl);
     } else {
       setItem(item, openExpansion, <BlockedWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                   message={message} />,

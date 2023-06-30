@@ -310,8 +310,9 @@ function PlanningDialog(props) {
                     type={SECTION_TYPE_SECONDARY_WARNING}
                     bolder
                     titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
-                      <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, maxHeight: '20px',
-                        borderRadius: 12, paddingRight: '2.79px', paddingLeft: '2.79px', marginRight: '1rem'}}>
+                      <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR,
+                        borderRadius: 22, paddingLeft: '5px', paddingRight: '6px', paddingTop: '1px', fontSize: 12,
+                        marginRight: '1rem', maxHeight: '20px'}}>
                         {blockedOrRequiresInputInvestibles.length} total
                       </span> : undefined}
                     title={intl.formatMessage({ id: 'blockedHeader' })}

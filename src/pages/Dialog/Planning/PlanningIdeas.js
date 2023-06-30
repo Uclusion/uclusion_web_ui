@@ -607,7 +607,7 @@ function StageInvestible(props) {
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
         <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR,
-          borderRadius: 10, paddingLeft: '5px', paddingRight: '1px', paddingTop: '1px', maxHeight: '20px'}}>
+          borderRadius: 22, paddingLeft: '6px', paddingRight: '5px', paddingTop: '2px', maxHeight: '20px'}}>
           {labelNum} {intl.formatMessage({ id: 'open' })}
         </span>
       </Tooltip>

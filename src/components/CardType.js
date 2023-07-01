@@ -175,7 +175,8 @@ export default function CardType(props) {
     onEstimateChange,
     isInAccepted,
     color,
-    compact = false
+    compact = false,
+    isAssigned
   } = props;
   const classes = useCardTypeStyles({ type, resolved, color });
   const intl = useIntl();
@@ -232,7 +233,8 @@ export default function CardType(props) {
         </Typography>
       )}
       {isInAccepted && (
-        <DaysEstimate marketId={marketId} onChange={onEstimateChange} value={marketDaysEstimate} />
+        <DaysEstimate marketId={marketId} onChange={onEstimateChange} value={marketDaysEstimate}
+                      isAssigned={isAssigned} />
       )}
       {createdAt && (
         <Typography className={classes.timeElapsed} variant="body2">

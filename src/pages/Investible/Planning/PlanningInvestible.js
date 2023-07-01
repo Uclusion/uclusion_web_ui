@@ -609,6 +609,7 @@ function PlanningInvestible(props) {
                 marketDaysEstimate={marketDaysEstimate}
                 onEstimateChange={handleDateChange}
                 isInAccepted={isInAccepted}
+                isAssigned={isAssigned}
                 className={classes.cardType}
                 createdAt={mobileLayout ? undefined : createdAt}
                 myBeingEdited={mobileLayout ? undefined : beingEdited}

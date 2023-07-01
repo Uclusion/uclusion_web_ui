@@ -12,7 +12,7 @@ import EditMarketButton from '../../pages/Dialog/EditMarketButton';
 import { ACTION_BUTTON_COLOR } from '../Buttons/ButtonConstants';
 
 export function DaysEstimate(props) {
-  const { marketId, value, onChange } = props;
+  const { marketId, value, onChange, isAssigned } = props;
   const classes = usePlanFormStyles();
   const intl = useIntl();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -60,6 +60,7 @@ export function DaysEstimate(props) {
         labelId="changeCompletionDate"
         marketId={marketId}
         onClick={openPopover}
+        isDisabled={!isAssigned}
         icon={<EventIcon htmlColor={ACTION_BUTTON_COLOR} />}
       />
       {getDueText()}

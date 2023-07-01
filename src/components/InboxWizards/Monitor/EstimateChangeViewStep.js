@@ -15,6 +15,9 @@ import { useIntl } from 'react-intl';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useHistory } from 'react-router';
+import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { ISSUE_TYPE } from '../../../constants/comments';
 
 function EstimateChangeViewStep(props) {
   const { marketId, investibleId, message } = props;
@@ -36,7 +39,7 @@ function EstimateChangeViewStep(props) {
     >
     <div>
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
-        {message.title}
+        Estimate changed
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         Estimate changed from {message.text ? intl.formatDate(new Date(message.text)) : 'none'} to {intl.formatDate(daysEstimate)}.
@@ -44,7 +47,10 @@ function EstimateChangeViewStep(props) {
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
-        showNext={false}
+        nextLabel="createNewISSUE"
+        onNext={() => navigate(history,
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE))}
+        spinOnClick={false}
         onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
         terminateLabel="notificationDelete"
         showTerminate={true}

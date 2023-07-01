@@ -66,7 +66,7 @@ function ApprovalWizard(props) {
   const originalReason = !editorEmpty(body) ? body : undefined;
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="approval_wizard" useLocalStorage={false}
+      <FormdataWizard name={`approval_wizard${investibleId}`} useLocalStorage={false}
                       defaultFormData={{approveQuantity: Math.abs(approveQuantity),
                         originalQuantity: approveQuantity, wasDeleted,
                         userId: yourPresence?.id, approveReason: originalReason, originalReason}}>

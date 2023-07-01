@@ -11,8 +11,6 @@ import {
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
 } from '../constants/comments'
-// TODO create centralized icons repository
-import IssueIcon from '@material-ui/icons/ReportProblem'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
 import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import ListAltIcon from '@material-ui/icons/ListAlt'

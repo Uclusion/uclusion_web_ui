@@ -13,7 +13,7 @@ import React, { useContext } from 'react'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { Assignment, Block, PersonAddOutlined } from '@material-ui/icons';
+import { Assignment, Block, CalendarToday, PersonAddOutlined } from '@material-ui/icons';
 import Quiz from '../../../components/CustomChip/Quiz'
 import { useIntl } from 'react-intl'
 import { useMediaQuery, useTheme } from '@material-ui/core'
@@ -52,6 +52,10 @@ function getPriorityIcon(message, isAssigned) {
   }
   if (message.type?.includes('REVIEW') && !isAssigned) {
     Icon = RateReviewIcon;
+  }
+
+  if (message.type === 'UNREAD_ESTIMATE') {
+    Icon = CalendarToday;
   }
 
   if (!isHighlighted) {

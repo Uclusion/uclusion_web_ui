@@ -21,7 +21,6 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import GavelIcon from '@material-ui/icons/Gavel'
 import PlayForWorkIcon from '@material-ui/icons/PlayForWork'
 import RateReviewIcon from '@material-ui/icons/RateReview'
-import BlockIcon from '@material-ui/icons/Block'
 import VerifiedUserIcon from '@material-ui/icons/VerifiedUser'
 import WorkIcon from '@material-ui/icons/Work'
 import NotInterestedIcon from '@material-ui/icons/NotInterested'
@@ -36,7 +35,7 @@ import UpdateIcon from '@material-ui/icons/Update'
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import { BugReport } from '@material-ui/icons'
+import { Block, BugReport } from '@material-ui/icons';
 import { DaysEstimate } from './AgilePlan/DaysEstimate';
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
@@ -183,7 +182,7 @@ export default function CardType(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const IconComponent = {
-    [ISSUE_TYPE]: IssueIcon,
+    [ISSUE_TYPE]: Block,
     [QUESTION_TYPE]: QuestionIcon,
     [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon,
     [TODO_TYPE]: ListAltIcon,
@@ -195,7 +194,7 @@ export default function CardType(props) {
     [IN_VOTING]: ThumbsUpDownIcon,
     [IN_PROGRESS]: PlayForWorkIcon,
     [IN_REVIEW]: RateReviewIcon,
-    [IN_BLOCKED]: BlockIcon,
+    [IN_BLOCKED]: Block,
     [NOT_DOING]: NotInterestedIcon,
     [IN_VERIFIED]: VerifiedUserIcon,
     [FURTHER_WORK]: WorkIcon,

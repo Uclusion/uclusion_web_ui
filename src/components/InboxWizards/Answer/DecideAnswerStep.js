@@ -51,6 +51,7 @@ function DecideAnswerStep(props) {
       });
   }
   const isRegularFinish = message.type_object_id.startsWith('UNREAD') || message.is_highlighted;
+  const noOptions = ['UNREAD_COMMENT', 'ISSUE'].includes(message.type);
   return (
     <WizardStepContainer
       {...props}
@@ -87,7 +88,7 @@ function DecideAnswerStep(props) {
           />
         </div>
       )}
-      {message.type === 'UNREAD_COMMENT' && (
+      {noOptions && (
         <WizardStepButtons
           {...props}
           nextLabel="issueReplyLabel"
@@ -96,12 +97,13 @@ function DecideAnswerStep(props) {
           otherNextLabel="inlineAddLabel"
           otherSpinOnClick={false}
           onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id))}
+          onOtherNextDoAdvance={false}
           onFinish={myOnFinish}
           showTerminate={true}
           terminateLabel="notificationDelete"
         />
       )}
-      {message.type !== 'UNREAD_COMMENT' && (
+      {!noOptions && (
         <WizardStepButtons
           {...props}
           nextLabel="DecideWizardApprove"
@@ -109,10 +111,12 @@ function DecideAnswerStep(props) {
           nextDisabled={!selectedInvestibleId}
           onNext={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, commentRoot.inline_market_id,
             selectedInvestibleId))}
+          onNextDoAdvance={false}
           showOtherNext
           otherNextLabel="inlineAddLabel"
           otherSpinOnClick={false}
           onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id))}
+          onOtherNextDoAdvance={false}
           onFinish={isRegularFinish ? myOnFinish : abstain}
           showTerminate={true}
           terminateSpinOnClick={!isRegularFinish}

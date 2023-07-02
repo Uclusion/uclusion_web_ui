@@ -7,11 +7,16 @@ import AddEditVote from '../../../pages/Investible/Voting/AddEditVote'
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import _ from 'lodash';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { useHistory } from 'react-router';
 
 function VoteCertaintyStep(props) {
-  const { formData, updateFormData, clearFormData, commentRoot, message } = props;
+  const { formData, updateFormData, commentRoot, message } = props;
+  const history = useHistory();
   const classes = wizardStyles();
   const [investiblesState] = useContext(InvestiblesContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const { isFor } = formData;
   const { inline_market_id: inlineMarketId } = commentRoot;
   const investibles = getMarketInvestibles(investiblesState, inlineMarketId);
@@ -27,7 +32,7 @@ function VoteCertaintyStep(props) {
         {!_.isEmpty(investibles) && (
           <AddEditVote
             marketId={inlineMarketId}
-            wizardProps={props}
+            wizardProps={{...props, finish: () => removeWorkListItem(message, messagesDispatch, history)}}
             investibleId={investibles[0].investible.id}
             groupId={inlineMarketId}
             hasVoted={false}
@@ -35,7 +40,6 @@ function VoteCertaintyStep(props) {
             multiplier={isFor ? 1 : -1}
             formData={formData}
             updateFormData={updateFormData}
-            clearFormData={clearFormData}
             voteMessage={message}
             isInbox={true}
           />

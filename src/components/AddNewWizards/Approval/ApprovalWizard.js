@@ -59,7 +59,7 @@ function ApprovalWizard(props) {
   const yourReason = getReasonForVote(yourVote, marketComments);
   const wasDeleted = yourVote?.deleted;
   const { body } = yourReason || {};
-  const approveQuantity = yourVote ? yourVote.quantity : 0;
+  const approveQuantity = yourVote?.quantity || 0;
   if (!marketType) {
     return React.Fragment;
   }

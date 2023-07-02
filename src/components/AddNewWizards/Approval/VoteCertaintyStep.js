@@ -10,7 +10,7 @@ import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 
 function VoteCertaintyStep(props) {
-  const { market, investibleId, formData, updateFormData, clearFormData, isFor, showSwitch, currentReasonId } = props;
+  const { market, investibleId, formData, updateFormData, isFor, showSwitch, currentReasonId } = props;
   const [commentsState] = useContext(CommentsContext);
   const history = useHistory();
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
@@ -46,7 +46,6 @@ function VoteCertaintyStep(props) {
           multiplier={isFor ? 1 : -1}
           formData={formData}
           updateFormData={updateFormData}
-          clearFormData={clearFormData}
           isInbox={false}
         />
       </div>

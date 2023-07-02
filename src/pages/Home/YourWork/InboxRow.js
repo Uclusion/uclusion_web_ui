@@ -94,7 +94,7 @@ function InboxRow(props) {
   const market = getMarket(marketsState, marketId) || {};
   const item = {
     market: market.name || marketName,
-    investible: inv ? inv.investible.name : investibleName,
+    investible: messageType === 'UNREAD_REPLY' ? undefined : (inv ? inv.investible.name : investibleName),
     read: !isHighlighted,
     date: intl.formatDate(updatedAt),
     isDeletable,
@@ -121,7 +121,7 @@ function InboxRow(props) {
       const comment = nameFromDescription(rootComment.body);
       if (comment) {
         item.comment = comment;
-        if (rootComment.id !== commentId && !investibleId) {
+        if (rootComment.id !== commentId) {
           const originalComment = getComment(commentState, commentMarketId || marketId, commentId) || {};
           item.moreDescription = nameFromDescription(originalComment.body);
         }

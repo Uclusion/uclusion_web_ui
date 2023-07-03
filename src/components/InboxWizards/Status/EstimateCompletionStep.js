@@ -9,7 +9,7 @@ import { getMidnightToday } from '../../../utils/timerUtils';
 import _ from 'lodash';
 import { updateInvestible } from '../../../api/investibles';
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
@@ -61,7 +61,7 @@ function EstimateCompletionStep(props) {
       return updateInvestible(updateInfo).then((fullInvestible) => {
         refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
         setOperationRunning(false);
-        removeWorkListItem(message, messagesDispatch, history);
+        dismissWorkListItem(message, messagesDispatch, history);
       });
     }
   }

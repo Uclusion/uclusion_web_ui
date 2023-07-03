@@ -13,7 +13,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { getMarketInfo } from '../../utils/userFunctions';
 import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
-import { removeWorkListItem } from '../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem } from '../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import CommentBox from '../../containers/CommentBox/CommentBox';
 import { useHistory } from 'react-router';
@@ -36,7 +36,7 @@ function ReplyStep(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
 
   function myTerminate() {
-    removeWorkListItem(message, messagesDispatch, history);
+    dismissWorkListItem(message, messagesDispatch, history);
   }
 
   return (

@@ -10,6 +10,7 @@ export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGES = 'REMOVE_MESSAGES';
+const QUICK_REMOVE_MESSAGES = 'QUICK_REMOVE_MESSAGES';
 const LEVEL_MESSAGE = 'LEVEL_MESSAGE';
 const ADD_MESSAGE = 'ADD_MESSAGE';
 const REMOVE_FOR_INVESTIBLE = 'REMOVE_FOR_INVESTIBLE';
@@ -42,6 +43,13 @@ export function addMessage(message) {
   return {
     type: ADD_MESSAGE,
     message
+  }
+}
+
+export function quickRemoveMessages(messages) {
+  return {
+    type: QUICK_REMOVE_MESSAGES,
+    messages
   }
 }
 
@@ -189,6 +197,7 @@ function computeNewState (state, action) {
     case INITIALIZE_STATE:
       return action.newState;
     case REMOVE_MESSAGES:
+    case QUICK_REMOVE_MESSAGES:
       return doRemoveMessages(state, action);
     case DEHIGHLIGHT_MESSAGES:
       return doDehighlightMessages(state, action);

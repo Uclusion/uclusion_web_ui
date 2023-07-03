@@ -20,7 +20,7 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constant
 import DecisionApproveStep from './DecisionApproveStep';
 import { findMessageOfType } from '../../../utils/messageUtils';
 import { NOT_FULLY_VOTED_TYPE } from '../../../constants/notifications';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import VoteCertaintyStep from './VoteCertaintyStep';
 import _ from 'lodash';
 
@@ -39,7 +39,7 @@ export function commonQuick(result, commentsDispatch, marketId, commentsState, m
     useVoteMessage = voteMessage;
   }
   if (useVoteMessage) {
-    removeWorkListItem(useVoteMessage, messagesDispatch);
+    dismissWorkListItem(useVoteMessage, messagesDispatch);
   }
   setOperationRunning(false);
 }

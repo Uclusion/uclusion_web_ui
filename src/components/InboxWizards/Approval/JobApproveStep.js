@@ -19,7 +19,7 @@ import _ from 'lodash';
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
@@ -110,7 +110,7 @@ function JobApproveStep(props) {
     if (_.isEmpty(formData) || _.isEmpty(formData.link)) {
       setOperationRunning(false);
       resetEditor(editorName);
-      removeWorkListItem(message, messagesDispatch, history);
+      dismissWorkListItem(message, messagesDispatch, history);
     } else {
       parentOnFinish(formData);
     }

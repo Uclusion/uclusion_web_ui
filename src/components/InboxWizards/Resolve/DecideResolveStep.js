@@ -19,7 +19,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { useHistory } from 'react-router';
 import { wizardFinish } from '../InboxWizardUtils';
 import { formCommentLink, formMarketAddInvestibleLink } from '../../../utils/marketIdPathFunctions';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { reopenComment, resolveComment } from '../../../api/comments';
 import _ from 'lodash';
 import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
@@ -65,7 +65,7 @@ function DecideResolveStep(props) {
         onCommentOpen(investiblesState, commentRoot.investible_id, marketStagesState, marketId, comment,
           investiblesDispatch, commentState, commentDispatch, myPresence);
         setOperationRunning(false);
-        removeWorkListItem(message, messagesDispatch, history);
+        dismissWorkListItem(message, messagesDispatch, history);
       });
   }
 
@@ -100,7 +100,7 @@ function DecideResolveStep(props) {
           }
         } else {
           setOperationRunning(false);
-          removeWorkListItem(message, messagesDispatch, history);
+          dismissWorkListItem(message, messagesDispatch, history);
         }
       });
   }

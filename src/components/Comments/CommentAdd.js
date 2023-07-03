@@ -34,14 +34,10 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions'
 import { findMessageOfType, findMessageOfTypeAndId } from '../../utils/messageUtils'
-import {
-  changeLevelMessage, dehighlightMessages
-} from '../../contexts/NotificationsContext/notificationsContextReducer';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { useEditor } from '../TextEditors/quillHooks'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { removeWorkListItem } from '../../pages/Home/YourWork/WorkListItem'
-import { deleteOrDehilightMessages } from '../../api/users'
+import { dismissWorkListItem } from '../../pages/Home/YourWork/WorkListItem';
 import {
   editorEmpty,
   focusEditor,
@@ -233,37 +229,29 @@ export function quickNotificationChanges(apiType, investibleId, messagesState, m
   if (apiType === REPORT_TYPE) {
     const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState)
     if (message) {
-      removeWorkListItem(message, messagesDispatch);
+      dismissWorkListItem(message, messagesDispatch);
     }
     quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);
   }
-  let message = findMessageOfType('UNREAD_REVIEWABLE', investibleId, messagesState)
+  let message = findMessageOfType('UNREAD_REVIEWABLE', comment.id, messagesState)
   if (message) {
-    removeWorkListItem(message, messagesDispatch);
+    dismissWorkListItem(message, messagesDispatch);
   }
-  message = findMessageOfType('REVIEW_REQUIRED', investibleId, messagesState)
-  if (message) {
-    removeWorkListItem(message, messagesDispatch);
-  }
-  // The whole thread will be marked read so quick it
-  deleteOrDehilightMessages(threadMessages || [], messagesDispatch, true, true);
   if (apiType === REPLY_TYPE) {
     const message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
     if (message) {
-      messagesDispatch(dehighlightMessages([message.type_object_id]));
+      dismissWorkListItem(message, messagesDispatch);
     }
     const issueMessage = findMessageOfType('ISSUE', parentId, messagesState);
     if (issueMessage) {
-      messagesDispatch(changeLevelMessage(issueMessage, 'BLUE'));
-      messagesDispatch(dehighlightMessages([issueMessage.type_object_id]));
+      dismissWorkListItem(message, messagesDispatch);
     }
     const parentComment = getComment(commentsState, marketId, comment.id);
     if (parentComment && parentComment.inline_market_id) {
       const notFullyVotedMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, parentComment.inline_market_id,
         messagesState);
       if (notFullyVotedMessage) {
-        messagesDispatch(changeLevelMessage(notFullyVotedMessage, 'BLUE'));
-        messagesDispatch(dehighlightMessages([notFullyVotedMessage.type_object_id]));
+        dismissWorkListItem(message, messagesDispatch);
       }
     }
   }

@@ -7,7 +7,7 @@ import WizardStepButtons from '../WizardStepButtons';
 import { addCommentToMarket, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { resolveComment, updateComment } from '../../../api/comments';
 import { TODO_TYPE } from '../../../constants/comments';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -33,7 +33,7 @@ function DecideAcceptRejectStep(props) {
   function accept() {
     return updateComment(marketId, commentId, undefined, TODO_TYPE).then((comment) => {
       addCommentToMarket(comment, commentsState, commentsDispatch);
-      removeWorkListItem(message, messagesDispatch, history);
+      dismissWorkListItem(message, messagesDispatch, history);
       setOperationRunning(false);
     })
   }
@@ -42,7 +42,7 @@ function DecideAcceptRejectStep(props) {
     return resolveComment(marketId, commentId)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
-        removeWorkListItem(message, messagesDispatch, history);
+        dismissWorkListItem(message, messagesDispatch, history);
         setOperationRunning(false);
       });
   }

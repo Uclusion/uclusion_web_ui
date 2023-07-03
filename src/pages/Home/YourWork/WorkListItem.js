@@ -20,7 +20,7 @@ import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import NotificationDeletion from './NotificationDeletion';
 import {
-  dehighlightMessages,
+  dehighlightMessages, quickRemoveMessages,
   removeMessages
 } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { useHistory } from 'react-router';
@@ -130,6 +130,14 @@ export function removeWorkListItem(message, messagesDispatch, history) {
   const { type_object_id: typeObjectId } = message;
   const event = typeObjectId.startsWith('UNREAD') ? DELETE_EVENT : DEHIGHLIGHT_EVENT;
   modifyNotifications(event, typeObjectId, messagesDispatch);
+  if (history) {
+    navigate(history, getInboxTarget());
+  }
+}
+
+export function dismissWorkListItem(message, messagesDispatch, history) {
+  const { type_object_id: typeObjectId } = message;
+  messagesDispatch(quickRemoveMessages([typeObjectId]))
   if (history) {
     navigate(history, getInboxTarget());
   }

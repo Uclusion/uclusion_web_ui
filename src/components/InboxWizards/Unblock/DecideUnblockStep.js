@@ -12,7 +12,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -62,7 +62,7 @@ function DecideUnblockStep(props) {
         marketPresencesDispatch);
       clearFormData();
       setOperationRunning(false);
-      removeWorkListItem(message, messagesDispatch, history);
+      dismissWorkListItem(message, messagesDispatch, history);
     });
   }
 

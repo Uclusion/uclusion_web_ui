@@ -7,7 +7,7 @@ import AddEditVote from '../../../pages/Investible/Voting/AddEditVote'
 import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import _ from 'lodash';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useHistory } from 'react-router';
 
@@ -32,7 +32,7 @@ function VoteCertaintyStep(props) {
         {!_.isEmpty(investibles) && (
           <AddEditVote
             marketId={inlineMarketId}
-            wizardProps={{...props, finish: () => removeWorkListItem(message, messagesDispatch, history)}}
+            wizardProps={{...props, finish: () => dismissWorkListItem(message, messagesDispatch, history)}}
             investibleId={investibles[0].investible.id}
             groupId={inlineMarketId}
             hasVoted={false}

@@ -8,7 +8,7 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { addCommentToMarket, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { findMessageForCommentId } from '../../../utils/messageUtils';
@@ -81,7 +81,7 @@ function DecideReplyStep(props) {
           addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
         setOperationRunning(false);
-        removeWorkListItem(message, messagesDispatch, history);
+        dismissWorkListItem(message, messagesDispatch, history);
       });
   }
 

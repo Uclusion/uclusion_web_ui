@@ -30,7 +30,7 @@ function DecideWhereStep (props) {
   const comments = getCommentThreads(roots, marketComments);
 
   function createJob() {
-    const firstComment = comments[0];
+    const firstComment = roots[0];
     const commentType = firstComment.comment_type;
     let name;
     let description = undefined;

@@ -1038,8 +1038,8 @@ const messages = defineMessages({
   // Inbox row titles
   DecideAssignTitle: 'Will you reassign?',
   DecideStageTitle: 'Move this job?',
-  JobApprovalTitle: 'Do you approve this job?',
-  AssignmentApprovalTitle: 'Do you accept this job?',
+  AssignmentApprovalRowTitle: 'Will you approve?',
+  AssignmentApprovalTitle: 'How certain are you of this job?',
   DecideAnswerTitle: 'Can you help answer?',
   DecideVoteTitle: 'How do you vote?',
   DecideResponseTitle: 'How do you respond?',

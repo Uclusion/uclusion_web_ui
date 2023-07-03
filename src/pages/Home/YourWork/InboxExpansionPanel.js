@@ -96,7 +96,7 @@ export function calculateTitleExpansionPanel(props) {
     } else if (marketType === PLANNING_TYPE) {
       setItem(item, openExpansion, <ApprovalWizard investibleId={investibleId} marketId={marketId} message={message}
                                                    isAssigned={isAssigned}/>,
-        isAssigned ? 'AssignmentApprovalTitle' : 'JobApprovalTitle', intl);
+        'AssignmentApprovalRowTitle', intl);
     }
   } else if (messageType === 'INVESTIBLE_SUBMITTED') {
     setItem(item, openExpansion, <OptionSubmittedWizard marketId={marketId} investibleId={decisionInvestibleId}

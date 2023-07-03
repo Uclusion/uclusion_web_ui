@@ -16,7 +16,7 @@ import {
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import _ from 'lodash';
-import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleAddCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
@@ -27,13 +27,17 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useHistory } from 'react-router';
+import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { ISSUE_TYPE } from '../../../constants/comments';
+import { useIntl } from 'react-intl';
 
 export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
 }
 function JobApproveStep(props) {
   const { marketId, updateFormData, formData, onFinish: parentOnFinish, message, investibleId,
-    yourVote } = props;
+    yourVote, isAssigned } = props;
+  const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
@@ -122,11 +126,16 @@ function JobApproveStep(props) {
     >
       <div>
         <Typography className={classes.introText} variant="h6">
-          How certain are you this job should be done?
+          {intl.formatMessage({id: 'AssignmentApprovalTitle'})}
         </Typography>
         {wasDeleted && (
           <Typography className={classes.introSubText} variant="subtitle1">
             Your approval was deleted or expired.
+          </Typography>
+        )}
+        {!wasDeleted && (
+          <Typography className={classes.introSubText} variant="subtitle1">
+            Take action here or click the job title to ask a question or make a suggestion.
           </Typography>
         )}
         <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} />
@@ -145,14 +154,15 @@ function JobApproveStep(props) {
           finish={onCompleteFinish}
           onFinish={onFinish}
           validForm={validForm}
-          showNext={validForm}
-          showOtherNext={validForm}
           showTerminate={message.is_highlighted}
+          nextLabel={isAssigned ? 'ApprovalWizardAccept' : 'yourVotingVoteForThisPlanning'}
           onNext={() => onNext(false)}
-          onOtherNext={() => onNext(true)}
+          showOtherNext
+          otherNextValid
+          otherNextLabel="ApprovalWizardBlock"
+          onOtherNext={() => navigate(history,
+            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE))}
           terminateLabel="defer"
-          otherNextLabel="approveAndGotoJob"
-          nextLabel="yourVotingVoteForThisPlanning"
         />
       </div>
     </WizardStepContainer>

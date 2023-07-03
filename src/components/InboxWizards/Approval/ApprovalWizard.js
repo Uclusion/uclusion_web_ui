@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import JobDescriptionApprovalStep from './JobDescriptionApprovalStep';
 import FormdataWizard from 'react-formdata-wizard';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -15,10 +14,10 @@ function ApprovalWizard(props) {
   const parentElementId =  message.type_object_id;
 
   return (
-    <FormdataWizard name={`approval_wizard${investibleId}`} defaultFormData={{parentElementId}}>
-      <JobDescriptionApprovalStep marketId={marketId} investibleId={investibleId} isAssigned={isAssigned}
-                                  message={message} yourVote={yourVote}/>
-      <JobApproveStep marketId={marketId} investibleId={investibleId} message={message} yourVote={yourVote} />
+    <FormdataWizard name={`approval_wizard${investibleId}`}
+                    defaultFormData={{parentElementId, approveQuantity: yourVote?.quantity}}>
+      <JobApproveStep marketId={marketId} investibleId={investibleId} message={message} yourVote={yourVote}
+                      isAssigned={isAssigned}/>
     </FormdataWizard>
   );
 }

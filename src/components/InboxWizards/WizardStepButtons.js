@@ -29,7 +29,8 @@ function WizardStepButtons(props) {
     nextDisabled,
     terminateSpinOnClick,
     onNextDoAdvance,
-    onOtherNextDoAdvance
+    onOtherNextDoAdvance,
+    otherNextValid
   } = props;
   const intl = useIntl();
   const classes = wizardStyles();
@@ -87,7 +88,8 @@ function WizardStepButtons(props) {
 
       <div className={classes.actionContainer}>
         {showOtherNext && (
-          <SpinningButton id="OnboardingWizardOtherNext" className={classes.actionPrimary} disabled={!validForm}
+          <SpinningButton id="OnboardingWizardOtherNext" className={classes.actionPrimary}
+                          disabled={!validForm && !otherNextValid}
                           doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
           </SpinningButton>
@@ -129,7 +131,8 @@ WizardStepButtons.propTypes = {
   nextDisabled: PropTypes.bool,
   terminateSpinOnClick: PropTypes.bool,
   onNextDoAdvance: PropTypes.bool,
-  onOtherNextDoAdvance: PropTypes.bool
+  onOtherNextDoAdvance: PropTypes.bool,
+  otherNextValid: PropTypes.bool
 };
 WizardStepButtons.defaultProps = {
   onNext: () => {},
@@ -144,6 +147,7 @@ WizardStepButtons.defaultProps = {
   totalSteps: 0,
   currentStep: 0,
   validForm: true,
+  otherNextValid: false,
   nextDisabled: false,
   showSkip: false,
   showNext: true,

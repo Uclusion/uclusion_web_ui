@@ -230,7 +230,7 @@ function AddEditVote(props) {
       </div>
       <WizardStepButtons
         {...wizardProps}
-        showNext={approveQuantity !== undefined && approveQuantity !== 0}
+        validForm={approveQuantity !== undefined && approveQuantity !== 0}
         showTerminate={!isInbox || voteMessage.is_highlighted}
         onNext={mySave}
         showOtherNext={hasVoted}

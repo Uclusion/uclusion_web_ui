@@ -102,7 +102,6 @@ function JobApproveStep(props) {
           {...props}
           finish={onFinish}
           validForm={validForm}
-          showNext={validForm}
           showTerminate={true}
           onNext={onNext}
           onTerminate={onTerminate}

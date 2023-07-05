@@ -233,7 +233,10 @@ export function quickNotificationChanges(apiType, investibleId, messagesState, m
     }
     quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);
   }
-  let message = findMessageOfType('UNREAD_REVIEWABLE', comment.id, messagesState)
+  let message = findMessageOfType('UNREAD_REVIEWABLE', comment.id, messagesState);
+  if (!message) {
+    message = findMessageOfType('UNREAD_REVIEWABLE', parentId, messagesState);
+  }
   if (message) {
     dismissWorkListItem(message, messagesDispatch);
   }

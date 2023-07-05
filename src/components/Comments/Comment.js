@@ -501,6 +501,7 @@ function Comment(props) {
       addCommentToMarket(comment, commentsState, commentsDispatch);
       removeMessagesForCommentId(id, messagesState);
       setOperationRunning(false);
+      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, id));
     })
   }
 

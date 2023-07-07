@@ -18,11 +18,11 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
 import { wizardFinish } from '../InboxWizardUtils';
-import { formCommentLink, formMarketAddInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
-import { reopenComment, resolveComment } from '../../../api/comments';
+import { reopenComment, resolveComment, updateComment } from '../../../api/comments';
 import _ from 'lodash';
-import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { onCommentOpen } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
@@ -69,6 +69,15 @@ function DecideResolveStep(props) {
       });
   }
 
+  function acceptAndMove() {
+    return updateComment(marketId, commentId, undefined, TODO_TYPE).then((comment) => {
+      addCommentToMarket(comment, commentState, commentDispatch);
+      setOperationRunning(false);
+      navigate(history,
+        `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}`)
+    })
+  }
+
   function resolve(isGotoJob) {
     return resolveComment(marketId, commentId)
       .then((comment) => {
@@ -104,7 +113,8 @@ function DecideResolveStep(props) {
         }
       });
   }
-
+  const isOpenSuggestion = isSuggestion && !isReopen;
+  const isMarketQuestion = !isSuggestion && !inv && !isReopen;
   return (
     <WizardStepContainer
       {...props}
@@ -150,29 +160,58 @@ function DecideResolveStep(props) {
           />
         </div>
       )}
-      <WizardStepButtons
-        {...props}
-        nextLabel={isReopen ? 'commentReopenLabel' : 'commentResolveLabel'}
-        onNext={() => {
-          if (isReopen) {
-            return reopen();
-          }
-          return resolve(false);
-        }}
-        showOtherNext={!isReopen}
-        otherNextLabel={isFullyVoted ? (inv ? 'DecideResolveAndGoJob' : 'DecideResolveAndMoveToJob')
-          : 'notificationDelete'}
-        onOtherNext={() => {
-          if (isFullyVoted) {
-            return resolve(true);
-          }
-          return myTerminate();
-        }}
-        otherSpinOnClick={isFullyVoted}
-        showTerminate={true}
-        onFinish={() => myTerminate()}
-        terminateLabel={isFullyVoted ? 'notificationDelete': 'notificationDismiss'}
-      />
+      {isOpenSuggestion && (
+        <WizardStepButtons
+          {...props}
+          nextLabel="moveToTaskLabel"
+          onNext={() => acceptAndMove()}
+          showOtherNext
+          otherNextLabel="commentResolveLabel"
+          onOtherNext={() => resolve(false)}
+          showTerminate={true}
+          onFinish={() => myTerminate()}
+          terminateLabel={isFullyVoted ? 'defer': 'notificationDismiss'}
+        />
+      )}
+      {isReopen && (
+        <WizardStepButtons
+          {...props}
+          nextLabel="commentReopenLabel"
+          onNext={() => reopen()}
+          showTerminate={true}
+          onFinish={() => myTerminate()}
+          terminateLabel="notificationDismiss"
+        />
+      )}
+      {isMarketQuestion && (
+        <WizardStepButtons
+          {...props}
+          nextLabel="BugWizardMoveToJob"
+          onNext={() => navigate(history,
+            `${formMarketAddInvestibleLink(marketId, commentRoot.group_id)}&fromCommentId=${commentId}`)}
+          showOtherNext
+          otherNextLabel="commentResolveLabel"
+          onOtherNext={() => resolve(false)}
+          otherSpinOnClick
+          showTerminate={true}
+          onFinish={() => myTerminate()}
+          terminateLabel={isFullyVoted ? 'defer': 'notificationDismiss'}
+        />
+      )}
+      {!isOpenSuggestion && !isMarketQuestion && !isReopen && (
+        <WizardStepButtons
+          {...props}
+          nextLabel="commentResolveLabel"
+          onNext={() => resolve(false)}
+          showOtherNext
+          otherNextLabel="DecideResolveAndGoJob"
+          onOtherNext={() => resolve(true)}
+          otherSpinOnClick
+          showTerminate={true}
+          onFinish={() => myTerminate()}
+          terminateLabel={isFullyVoted ? 'defer': 'notificationDismiss'}
+        />
+      )}
     </div>
     </WizardStepContainer>
   );

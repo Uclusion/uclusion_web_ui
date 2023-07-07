@@ -33,7 +33,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions'
-import { findMessageOfType, findMessageOfTypeAndId } from '../../utils/messageUtils'
+import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../utils/messageUtils';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { useEditor } from '../TextEditors/quillHooks'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
@@ -233,15 +233,16 @@ export function quickNotificationChanges(apiType, investibleId, messagesState, m
     }
     quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);
   }
-  let message = findMessageOfType('UNREAD_REVIEWABLE', comment.id, messagesState);
-  if (!message) {
-    message = findMessageOfType('UNREAD_REVIEWABLE', parentId, messagesState);
-  }
-  if (message) {
-    dismissWorkListItem(message, messagesDispatch);
-  }
   if (apiType === REPLY_TYPE) {
-    const message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
+    let message = findMessageOfType('UNREAD_REVIEWABLE', comment.root_comment_id, messagesState);
+    if (!message) {
+      message = findMessageOfType('REVIEW_REQUIRED', comment.root_comment_id, messagesState);
+    }
+    if (message) {
+      // Replying in a report thread completes review
+      dismissWorkListItem(message, messagesDispatch);
+    }
+    message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
     if (message) {
       dismissWorkListItem(message, messagesDispatch);
     }
@@ -256,6 +257,13 @@ export function quickNotificationChanges(apiType, investibleId, messagesState, m
       if (notFullyVotedMessage) {
         dismissWorkListItem(message, messagesDispatch);
       }
+    }
+  } else {
+    const messages = findMessagesForInvestibleId(investibleId, messagesState) || [];
+    const message = messages.find((aMessage) => ['UNREAD_REVIEWABLE','REVIEW_REQUIRED'].includes(aMessage.type));
+    if (message) {
+      // Opening a top level message completes review
+      dismissWorkListItem(message, messagesDispatch);
     }
   }
 }

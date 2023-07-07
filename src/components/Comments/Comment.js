@@ -1062,81 +1062,83 @@ function Reply(props) {
   }
 
   return (
-    <div onClick={() => {
-      if (isInbox && (!replyBeingEdited || beingEdited)) {
-        navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
-      }
-    }}>
+    <>
       <Card className={getHighlightClass()} id={`${isInbox ? 'inbox' : ''}c${comment.id}`}>
-        <CardContent className={classes.cardContent}>
-          <Typography className={classes.commenter} variant="body2">
-            {commenter.name}
-          </Typography>
-          <Typography className={classes.timeElapsed} variant="body2">
-            <UsefulRelativeTime
-              value={comment.created_at}
-            />
-          </Typography>
-          {(myPresence.is_admin || isEditable) && enableEditing && !isFromInbox && (
-            <TooltipIconButton
-              disabled={operationRunning !== false}
-              onClick={remove}
-              icon={<Delete fontSize={mobileLayout ? 'small' : undefined} />}
-              size={mobileLayout ? 'small' : undefined}
-              translationId="commentRemoveLabel"
-              doFloatRight
-            />
-          )}
-          {beingEdited && (
-            <CommentEdit
-              intl={intl}
-              onCancel={handleEditClick}
-              onSave={handleEditClick}
-              marketId={marketId}
-              editState={editState}
-              updateEditState={updateEditState}
-              editStateReset={editStateReset}
-              comment={comment}
-              messages={myMessage ? [myMessage] : []}
-            />
-          )}
-          {!beingEdited && !_.isEmpty(comment) && (
-            <ReadOnlyQuillEditor
-              className={classes.editor}
-              value={comment.body}
-              id={comment.id}
-              noOverflow={isFromInbox}
-              setBeingEdited={setBeingEdited}
-              isEditable={!mobileLayout && enableEditing && isEditable}
-            />
-          )}
-        </CardContent>
-        {!beingEdited && (
-          <CardActions className={classes.cardActions}>
-            <Typography className={classes.timePosted} variant="body2">
-              <FormattedDate value={comment.created_at} />
+        <div onClick={() => {
+          if (isInbox && (!replyBeingEdited || beingEdited)) {
+            navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
+          }
+        }}>
+          <CardContent className={classes.cardContent}>
+            <Typography className={classes.commenter} variant="body2">
+              {commenter.name}
             </Typography>
-            {enableEditing && (
-              <Button
-                className={classes.action}
-                id={`commentReplyButton${comment.id}`}
-                onClick={() => setReplyOpen()}
-                variant="text"
-              >
-                {intl.formatMessage({ id: "issueReplyLabel" })}
-              </Button>
+            <Typography className={classes.timeElapsed} variant="body2">
+              <UsefulRelativeTime
+                value={comment.created_at}
+              />
+            </Typography>
+            {(myPresence.is_admin || isEditable) && enableEditing && !isFromInbox && (
+              <TooltipIconButton
+                disabled={operationRunning !== false}
+                onClick={remove}
+                icon={<Delete fontSize={mobileLayout ? 'small' : undefined} />}
+                size={mobileLayout ? 'small' : undefined}
+                translationId="commentRemoveLabel"
+                doFloatRight
+              />
             )}
-            {enableEditing && isEditable && mobileLayout && (
-              <Button
-                className={classes.action}
-                onClick={handleEditClick}
-                variant="text"
-              >
-                <FormattedMessage id="commentEditLabel" />
-              </Button>
+            {beingEdited && (
+              <CommentEdit
+                intl={intl}
+                onCancel={handleEditClick}
+                onSave={handleEditClick}
+                marketId={marketId}
+                editState={editState}
+                updateEditState={updateEditState}
+                editStateReset={editStateReset}
+                comment={comment}
+                messages={myMessage ? [myMessage] : []}
+              />
             )}
-          </CardActions>
-        )}
+            {!beingEdited && !_.isEmpty(comment) && (
+              <ReadOnlyQuillEditor
+                className={classes.editor}
+                value={comment.body}
+                id={comment.id}
+                noOverflow={isFromInbox}
+                setBeingEdited={setBeingEdited}
+                isEditable={!mobileLayout && enableEditing && isEditable}
+              />
+            )}
+          </CardContent>
+          {!beingEdited && (
+            <CardActions className={classes.cardActions}>
+              <Typography className={classes.timePosted} variant="body2">
+                <FormattedDate value={comment.created_at} />
+              </Typography>
+              {enableEditing && (
+                <Button
+                  className={classes.action}
+                  id={`commentReplyButton${comment.id}`}
+                  onClick={() => setReplyOpen()}
+                  variant="text"
+                >
+                  {intl.formatMessage({ id: "issueReplyLabel" })}
+                </Button>
+              )}
+              {enableEditing && isEditable && mobileLayout && (
+                <Button
+                  className={classes.action}
+                  onClick={handleEditClick}
+                  variant="text"
+                >
+                  <FormattedMessage id="commentEditLabel" />
+                </Button>
+              )}
+            </CardActions>
+          )}
+        </div>
       </Card>
       <div className={classes.replyContainer}>
         {replyBeingEdited && marketId && comment && (
@@ -1155,19 +1157,19 @@ function Reply(props) {
             wizardProps={wizardProps}
           />
         )}
+        {comment.children !== undefined && (
+          <div className={classes.cardContent}>
+            <ThreadedReplies
+              replies={comment.children}
+              enableEditing={enableEditing}
+              replyEditId={replyEditId}
+              isInbox={isInbox}
+              wizardProps={wizardProps}
+            />
+          </div>
+        )}
       </div>
-      {comment.children !== undefined && (
-        <div className={classes.cardContent}>
-          <ThreadedReplies
-            replies={comment.children}
-            enableEditing={enableEditing}
-            replyEditId={replyEditId}
-            isInbox={isInbox}
-            wizardProps={wizardProps}
-          />
-        </div>
-      )}
-    </div>
+    </>
   );
 }
 Reply.propTypes = {

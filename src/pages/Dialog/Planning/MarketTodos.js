@@ -49,6 +49,12 @@ import { isReadComment } from '../../../components/Comments/Options';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
+import {
+  DEHIGHLIGHT_EVENT,
+  DELETE_EVENT,
+  MODIFY_NOTIFICATIONS_CHANNEL
+} from '../../../contexts/NotificationsContext/notificationsContextMessages';
+import { pushMessage } from '../../../utils/MessageBusUtils';
 
 export const todoClasses = makeStyles(
   theme => {
@@ -213,7 +219,15 @@ function MarketTodos(props) {
         } else {
           bugDispatch(setTab(2));
         }
-        bugDispatch(pin(rootComment.id))
+        bugDispatch(pin(rootComment.id));
+        const message = findMessageForCommentId(rootComment.id, messagesState);
+        if (message && message.is_highlighted) {
+          let event = DEHIGHLIGHT_EVENT;
+          if (message.type_object_id.startsWith('UNREAD')) {
+            event = DELETE_EVENT;
+          }
+          pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: message.type_object_id });
+        }
         history.replace(window.location.pathname + window.location.search);
       }
       if ((foundCommentId || hash.includes('Todos')) && !sectionOpen) {
@@ -221,7 +235,7 @@ function MarketTodos(props) {
       }
     }
     return () => {};
-  }, [comments, hash, hidden, history, sectionOpen, setSectionOpen]);
+  }, [comments, hash, hidden, history, messagesState, sectionOpen, setSectionOpen]);
 
   function processTabNotifications() {
     const allMessages = [];

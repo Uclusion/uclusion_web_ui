@@ -242,12 +242,14 @@ export function quickNotificationChanges(apiType, investibleId, messagesState, m
       // Replying in a report thread completes review
       dismissWorkListItem(message, messagesDispatch);
     }
-    message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
-    if (message) {
-      dismissWorkListItem(message, messagesDispatch);
+    message = findMessageOfTypeAndId(parentId, messagesState, 'REPLY');
+    if (!message) {
+      message = findMessageOfTypeAndId(parentId, messagesState, 'COMMENT');
     }
-    const issueMessage = findMessageOfType('ISSUE', parentId, messagesState);
-    if (issueMessage) {
+    if (!message) {
+      message = findMessageOfType('ISSUE', parentId, messagesState);
+    }
+    if (message) {
       dismissWorkListItem(message, messagesDispatch);
     }
     const parentComment = getComment(commentsState, marketId, comment.id);
@@ -260,7 +262,8 @@ export function quickNotificationChanges(apiType, investibleId, messagesState, m
     }
   } else {
     const messages = findMessagesForInvestibleId(investibleId, messagesState) || [];
-    const message = messages.find((aMessage) => ['UNREAD_REVIEWABLE','REVIEW_REQUIRED'].includes(aMessage.type));
+    const message = messages.find((aMessage) =>
+      ['UNREAD_REVIEWABLE','REVIEW_REQUIRED'].includes(aMessage.type));
     if (message) {
       // Opening a top level message completes review
       dismissWorkListItem(message, messagesDispatch);

@@ -18,6 +18,33 @@ import { TODO_TYPE } from '../../../constants/comments';
 import { useIntl } from 'react-intl';
 import { nameFromDescription } from '../../../utils/stringFunctions';
 
+export function moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
+  commentsDispatch) {
+  const { investible } = inv;
+  const investibleId = investible.id;
+  return moveComments(marketId, investibleId, fromCommentIds)
+    .then((movedComments) => {
+      let threads = []
+      fromCommentIds.forEach((commentId) => {
+        removeMessagesForCommentId(commentId, messagesState);
+        const thread = comments.filter((aComment) => {
+          return aComment.root_comment_id === commentId;
+        });
+        const fixedThread = thread.map((aComment) => {
+          return {investible_id: investible.id, ...aComment};
+        });
+        threads = threads.concat(fixedThread);
+      });
+      addMarketComments(commentsDispatch, marketId, [...movedComments, ...threads]);
+      const link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
+      updateFormData({
+        investibleId,
+        link,
+      });
+      return {link};
+    });
+}
+
 function DecideWhereStep (props) {
   const { marketId, updateFormData, fromCommentIds, marketComments, groupId } = props;
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -62,28 +89,8 @@ function DecideWhereStep (props) {
           investibleId,
           link,
         });
-        const { investible } = inv;
-        return moveComments(marketId, investible.id, fromCommentIds)
-          .then((movedComments) => {
-            let threads = []
-            fromCommentIds.forEach((commentId) => {
-              removeMessagesForCommentId(commentId, messagesState);
-              const thread = comments.filter((aComment) => {
-                return aComment.root_comment_id === commentId;
-              });
-              const fixedThread = thread.map((aComment) => {
-                return {investible_id: investible.id, ...aComment};
-              });
-              threads = threads.concat(fixedThread);
-            });
-            addMarketComments(commentsDispatch, marketId, [...movedComments, ...threads]);
-            link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
-            updateFormData({
-              investibleId,
-              link,
-            });
-            return {link};
-          });
+        return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
+          commentsDispatch);
       })
   }
 
@@ -105,6 +112,7 @@ function DecideWhereStep (props) {
           marketId={marketId}
           allowedTypes={[]}
           isInbox
+          isMove
           removeActions
         />
       </div>

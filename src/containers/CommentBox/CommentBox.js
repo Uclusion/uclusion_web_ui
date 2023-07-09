@@ -78,7 +78,7 @@ export function getSortedRoots(allComments, searchResults, preserveOrder) {
 function CommentBox(props) {
   const { comments, marketId, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId, isReply, wizardProps,
     fullStage, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
-    showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder } = props;
+    showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder, isMove } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const sortedRoots = getSortedRoots(comments, searchResults, preserveOrder);
@@ -113,6 +113,7 @@ function CommentBox(props) {
               setSelectedInvestibleIdParent={setSelectedInvestibleIdParent}
               isReply={isReply}
               wizardProps={wizardProps}
+              isMove={isMove}
             />
           </div>
         </Grid>

@@ -329,7 +329,7 @@ function navigateEditReplyBack(history, id, marketId, groupId, investibleId, rep
 function Comment(props) {
   const { comment, marketId, comments, noAuthor, defaultShowDiff, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
-    inboxMessageId, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent } = props;
+    inboxMessageId, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, isMove } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
@@ -427,7 +427,7 @@ function Comment(props) {
     toggleEdit();
   }
 
-  const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId;
+  const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId && !isMove;
   const isTask = marketType === PLANNING_TYPE && commentType === TODO_TYPE && investibleId;
   const isEditable = comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned);
 

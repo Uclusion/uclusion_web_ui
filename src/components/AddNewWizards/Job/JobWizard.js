@@ -10,7 +10,7 @@ import queryString from 'query-string'
 import _ from 'lodash'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import ResolveCommentsStep from './ResolveCommentsStep'
 import DecideWhereStep from './DecideWhereStep';
 import { navigate } from '../../../utils/marketIdPathFunctions';
@@ -49,7 +49,17 @@ function JobWizard(props) {
     return aRequireInputId;
   }
 
+  function hasTask() {
+    const taskId = (fromCommentIds || []).find((fromCommentId) => {
+      const fromComment = comments.find((comment) => comment.id === fromCommentId);
+      return fromComment && fromComment.comment_type === TODO_TYPE &&
+        (fromComment.investible_id || !fromComment.ticket_code.startsWith('B'));
+    });
+    return !_.isEmpty(taskId);
+  }
+
   const requiresInputId = getOpenQuestionSuggestionId();
+  const isTaskMove = hasTask();
 
   if (!_.isEmpty(fromCommentIds) && _.isEmpty(comments)) {
     return React.Fragment;
@@ -69,9 +79,9 @@ function JobWizard(props) {
         {fromCommentId && (
           <FindJobStep marketId={marketId} groupId={groupId} marketComments={comments} fromCommentIds={fromCommentIds}/>
         )}
-        {!fromCommentId && (
+        {(!fromCommentId || isTaskMove) && (
           <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} marketComments={comments}
-                              jobType={jobType}/>
+                              jobType={jobType} fromCommentIds={fromCommentIds} />
         )}
         <JobAssignStep onFinish={onFinish} marketId={marketId} />
         <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>

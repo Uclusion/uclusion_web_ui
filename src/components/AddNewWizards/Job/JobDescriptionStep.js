@@ -16,11 +16,20 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { FormattedMessage } from 'react-intl';
 import { bugRadioStyles } from '../Bug/BugDescriptionStep';
 import { useHistory } from 'react-router';
+import { moveCommentsFromIds } from './DecideWhereStep';
+import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData, jobType } = props;
   const history = useHistory();
+  const [, commentsDispatch] = useContext(CommentsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const radioClasses = bugRadioStyles();
+  const roots = (fromCommentIds || []).map((fromCommentId) =>
+    marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
+  const comments = getCommentThreads(roots, marketComments);
   const isSingleComment = _.size(fromCommentIds) === 1;
   const editorName = isSingleComment ? `addJobWizard${fromCommentIds[0]}` : `addJobWizard${groupId}`;
   if (isSingleComment && _.isEmpty(getQuillStoredState(editorName))) {
@@ -77,6 +86,10 @@ function JobDescriptionStep (props) {
           investibleId,
           link,
         });
+        if (fromCommentIds) {
+          return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
+            commentsDispatch)
+        }
         return {link};
       })
   }

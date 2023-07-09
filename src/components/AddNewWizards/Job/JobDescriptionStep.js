@@ -7,7 +7,7 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { editorEmpty, getQuillStoredState, resetEditor, storeState } from '../../TextEditors/Utilities/CoreUtils';
 import { useEditor } from '../../TextEditors/quillHooks';
-import { convertDescription } from '../../../utils/stringFunctions';
+import { convertDescription, nameFromDescription } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
 import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../../api/files';
@@ -31,14 +31,15 @@ function JobDescriptionStep (props) {
     marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
   const comments = getCommentThreads(roots, marketComments);
   const isSingleComment = _.size(fromCommentIds) === 1;
-  const editorName = isSingleComment ? `addJobWizard${fromCommentIds[0]}` : `addJobWizard${groupId}`;
+  const editorName = isSingleComment ? `addJobWizardF${fromCommentIds[0]}` : `addJobWizard${groupId}`;
   if (isSingleComment && _.isEmpty(getQuillStoredState(editorName))) {
     const fromComment = marketComments.find((comment) => comment.id === fromCommentIds[0]);
-    const { body } = fromComment || {};
+    const { body, ticket_code: ticketCode } = fromComment || {};
     // No need to clip to 80 here as that will happen when save
     const { name } = convertDescription(body, 200);
     if (!_.isEmpty(name)) {
-      storeState(editorName,`<p>${name}</p>`);
+      storeState(editorName,
+        `<p>${name} From <a href="${window.location.protocol}//${window.location.host}/${marketId}/${ticketCode}">${ticketCode}</a>.</p>`);
     }
   }
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));

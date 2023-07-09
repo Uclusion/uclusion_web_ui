@@ -46,7 +46,7 @@ export function moveCommentsFromIds(inv, comments, fromCommentIds, marketId, gro
 }
 
 function DecideWhereStep (props) {
-  const { marketId, updateFormData, fromCommentIds, marketComments, groupId } = props;
+  const { marketId, updateFormData, fromCommentIds, marketComments, groupId, isNonBugMove } = props;
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
   const [messagesState] = useContext(NotificationsContext);
@@ -57,27 +57,13 @@ function DecideWhereStep (props) {
   const comments = getCommentThreads(roots, marketComments);
 
   function createJob() {
-    const firstComment = roots[0];
-    const commentType = firstComment.comment_type;
-    let name;
-    let description = undefined;
-    if (commentType === TODO_TYPE) {
-      name = intl.formatMessage({ id: 'jobFromBugs' });
-    } else {
-      // Can only move one question or suggestion at a time for now
-      name = nameFromDescription(firstComment.body);
-      const ticketCode = firstComment.ticket_code;
-      description = `<p>From <a href="${window.location.protocol}//${window.location.host}/${marketId}/${ticketCode}">${ticketCode}</a>.</p>`;
-    }
+    const name = intl.formatMessage({ id: 'jobFromBugs' });
     // Coming from existing comments usually ready to start - bugs are and voted questions or suggestion should be
     const addInfo = {
       name,
       groupId,
       marketId,
       openForInvestment: true
-    }
-    if (description) {
-      addInfo.description = description;
     }
     return addPlanningInvestible(addInfo)
       .then((inv) => {
@@ -120,7 +106,7 @@ function DecideWhereStep (props) {
       <WizardStepButtons
         {...props}
         nextLabel="JobWizardNewJob"
-        onNext={createJob}
+        onNext={isNonBugMove ? undefined : createJob}
         onNextSkipStep
         showOtherNext
         otherNextLabel="JobWizardExistingJob"

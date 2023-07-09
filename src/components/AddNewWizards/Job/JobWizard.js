@@ -49,17 +49,19 @@ function JobWizard(props) {
     return aRequireInputId;
   }
 
-  function hasTask() {
-    const taskId = (fromCommentIds || []).find((fromCommentId) => {
+  function hasNonBug() {
+    // Avoid automatically fully creating the job when move a single non bug task
+    // because otherwise 50-50 name or description will have to be changed
+    const nonBugId = (fromCommentIds || []).find((fromCommentId) => {
       const fromComment = comments.find((comment) => comment.id === fromCommentId);
-      return fromComment && fromComment.comment_type === TODO_TYPE &&
-        (fromComment.investible_id || !fromComment.ticket_code.startsWith('B'));
+      return !fromComment || fromComment.comment_type !== TODO_TYPE || fromComment.investible_id
+        || !fromComment.ticket_code.startsWith('B');
     });
-    return !_.isEmpty(taskId);
+    return !_.isEmpty(nonBugId);
   }
 
   const requiresInputId = getOpenQuestionSuggestionId();
-  const isTaskMove = hasTask();
+  const isNonBugMove = hasNonBug();
 
   if (!_.isEmpty(fromCommentIds) && _.isEmpty(comments)) {
     return React.Fragment;
@@ -74,12 +76,12 @@ function JobWizard(props) {
         )}
         {fromCommentId && (
           <DecideWhereStep fromCommentIds={fromCommentIds} marketId={marketId} groupId={groupId}
-                           marketComments={comments} />
+                           marketComments={comments} isNonBugMove={isNonBugMove} />
         )}
         {fromCommentId && (
           <FindJobStep marketId={marketId} groupId={groupId} marketComments={comments} fromCommentIds={fromCommentIds}/>
         )}
-        {(!fromCommentId || isTaskMove) && (
+        {(!fromCommentId || isNonBugMove) && (
           <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} marketComments={comments}
                               jobType={jobType} fromCommentIds={fromCommentIds} />
         )}

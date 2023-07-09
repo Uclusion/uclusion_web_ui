@@ -660,7 +660,7 @@ function StageInvestible(props) {
           </Grid>
         )}
         <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
-          <EditOutlinedIcon style={{maxHeight: '1.25rem', marginLeft: '2rem'}} />
+          <EditOutlinedIcon style={{maxHeight: '1.25rem', marginLeft: '4.5rem'}} />
         </Grid>
         {chip}
       </Grid>

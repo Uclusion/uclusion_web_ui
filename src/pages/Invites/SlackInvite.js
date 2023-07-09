@@ -65,7 +65,7 @@ function SlackInvite(props) {
       }
     }
   }, [hidden, hash, history, userDispatch]);
-  const messageId = hash ? 'slackIntegrationSuccessful' : 'slackIntegrationPartial';
+
   return (
     <Screen
       title={intl.formatMessage({ id: 'loadingSlack' })}
@@ -76,7 +76,11 @@ function SlackInvite(props) {
       <div className={classes.root}>
         <Paper className={classes.section}>
           <Typography className={classes.row}>
-            {intl.formatMessage({ id: messageId })}
+            {intl.formatMessage({ id: 'slackIntegrationSuccessful' })}
+          </Typography>
+
+          <Typography className={classes.row}>
+            {intl.formatMessage({ id: 'slackIntegrationPartial' })}
           </Typography>
         </Paper>
       </div>

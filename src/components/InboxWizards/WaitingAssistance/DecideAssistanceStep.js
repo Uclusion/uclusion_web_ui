@@ -91,7 +91,7 @@ function DecideAssistanceStep(props) {
         </Typography>
       )}
       <Typography className={classes.introSubText} variant="subtitle1">
-        Poke to resend notifications and instant message <Link href="https://documentation.uclusion.com/notifications/slack|documentation" target="_blank">configured channels</Link>.
+        Poke to resend notifications and instant message <Link href="https://documentation.uclusion.com/notifications/slack/#adding-uclusion-to-a-slack-channel" target="_blank">configured channels</Link>.
       </Typography>
       {!_.isEmpty(snoozed) && (
         <Box sx={{ p: 2, border: '1px solid grey' }} style={{marginBottom: '1rem', paddingTop: 0, width: '50rem'}}>

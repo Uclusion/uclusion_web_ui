@@ -14,9 +14,7 @@ import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { TODO_TYPE } from '../../../constants/comments';
 import { useIntl } from 'react-intl';
-import { nameFromDescription } from '../../../utils/stringFunctions';
 
 export function moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
   commentsDispatch) {

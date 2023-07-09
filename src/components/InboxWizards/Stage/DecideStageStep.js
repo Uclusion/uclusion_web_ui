@@ -69,7 +69,8 @@ function DecideStageStep(props) {
   let onOtherNextFunc = () => moveToTarget(true);
   let otherNextLabelId = 'stageAndGotoJob';
   let nextLabelId = 'DecideStageMove';
-  if (currentStageId === inVotingStage.id) {
+  const isVotingStage = currentStageId === inVotingStage.id;
+  if (isVotingStage) {
     destinationStage = acceptedStage;
     destinationExplanation = 'planningInvestibleAcceptedExplanation';
     destinationLabel = 'finishApprovalQ';
@@ -100,7 +101,8 @@ function DecideStageStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         {intl.formatMessage({ id: destinationExplanation })}.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions
+                      showVoting={isVotingStage} />
       <WizardStepButtons
         {...props}
         nextLabel={nextLabelId}

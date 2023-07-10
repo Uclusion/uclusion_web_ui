@@ -70,7 +70,7 @@ function DecideResolveStep(props) {
   }
 
   function acceptAndMove() {
-    return updateComment(marketId, commentId, undefined, TODO_TYPE).then((comment) => {
+    return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
       addCommentToMarket(comment, commentState, commentDispatch);
       setOperationRunning(false);
       navigate(history,

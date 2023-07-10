@@ -493,7 +493,7 @@ function Comment(props) {
 
   function myAccept () {
     setOperationRunning(true)
-    return updateComment(marketId, id, undefined, TODO_TYPE).then((comment) => {
+    return updateComment({marketId, commentId: id, commentType: TODO_TYPE}).then((comment) => {
       if (myPresence === createdBy) {
         changeInvestibleStageOnCommentClose([marketInfo], investible, investiblesDispatch,
           comment, marketStagesState);

@@ -108,8 +108,7 @@ function ConfigureCommentStep(props) {
           // No op
           navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
         } else {
-          updateComment(comment.market_id, comment.id, undefined, undefined, undefined,
-            undefined, undefined, undefined, undefined, useAnswerBool)
+          updateComment({marketId: comment.market_id, commentId: comment.id, allowMulti: useAnswerBool})
             .then((response) => {
               const { comment } = response;
               addMarket(response, marketsDispatch, presenceDispatch);
@@ -118,8 +117,7 @@ function ConfigureCommentStep(props) {
         }
       } else {
         if (useAnswerBool) {
-          updateComment(marketId, commentId, undefined, undefined, undefined,
-            undefined, undefined, true, undefined, true)
+          updateComment({marketId, commentId, isSent: true, allowMulti: true})
             .then((response) => {
               const { comment } = response;
               addMarket(response, marketsDispatch, presenceDispatch);

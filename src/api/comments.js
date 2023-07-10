@@ -34,11 +34,12 @@ export function alterComment(marketId, commentId, notificationType) {
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 
-export function updateComment(marketId, commentId, body, commentType, uploadedFiles, mentions, notificationType,
-  isSent, investibleLabel, allowMulti, isRestricted) {
+export function updateComment(values) {
+  const { marketId, commentId, body, commentType, uploadedFiles, mentions, notificationType,
+    isSent, investibleLabel, allowMulti, isRestricted, inProgress } = values;
   return getMarketClient(marketId)
     .then((client) => client.investibles.updateComment(commentId, body, undefined, uploadedFiles, mentions,
-      commentType, notificationType, isSent, investibleLabel, allowMulti, isRestricted))
+      commentType, notificationType, isSent, investibleLabel, allowMulti, isRestricted, inProgress))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 

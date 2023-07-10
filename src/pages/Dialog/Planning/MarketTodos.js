@@ -303,8 +303,7 @@ function MarketTodos(props) {
     removeMessagesForCommentId(commentId, messagesState);
     const target = event.target;
     target.style.cursor = 'wait';
-    return updateComment(marketId, commentId, undefined, undefined, undefined, undefined,
-      notificationType)
+    return updateComment({marketId, commentId, notificationType})
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         setOperationRunning(false);

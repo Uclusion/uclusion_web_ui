@@ -230,8 +230,8 @@ function CommentEdit(props) {
     if (commentType === REPORT_TYPE) {
       label = nameFromDescription(tokensRemoved);
     }
-    return updateComment(marketId, id, tokensRemoved, undefined, filteredUploads, mentions,
-      myActualNotificationType, undefined, label)
+    return updateComment({marketId, commentId: id, body: tokensRemoved, uploadedFiles: filteredUploads, mentions,
+      notificationType: myActualNotificationType, investibleLabel: label})
       .then((response) => {
         let comment = response;
         if (!_.isEmpty(label)) {

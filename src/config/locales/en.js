@@ -1064,6 +1064,7 @@ const messages = defineMessages({
   questionSimple: 'question',
   suggestSimple: 'suggestion',
   reportSimple: 'progress report',
+  inProgress: 'In Progress',
   todoSimple: 'task',
   reportsSectionLabel: 'Status',
   todoPresent: 'Task',

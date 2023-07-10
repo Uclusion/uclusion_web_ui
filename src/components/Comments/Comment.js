@@ -1,7 +1,17 @@
 import React, { useContext, useEffect } from 'react';
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { Box, Button, Card, CardActions, CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import {
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Checkbox, FormControlLabel,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import _ from 'lodash';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
@@ -340,7 +350,7 @@ function Comment(props) {
   const classes = useCommentStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, body, creator_assigned: creatorAssigned, is_sent: isSent,
-    group_id: groupId } = comment;
+    group_id: groupId, in_progress: inProgress } = comment;
   const replyBeingEdited = replyEditId === id && (isReply || (myParams && !_.isEmpty(myParams.get('reply'))));
   const beingEdited = replyEditId === id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
@@ -539,6 +549,14 @@ function Comment(props) {
         }
         setOperationRunning(false);
       });
+  }
+
+  function handleToggleInProgress() {
+    setOperationRunning(true);
+    return updateComment({marketId, commentId: id, inProgress: !inProgress}).then((comment) => {
+      setOperationRunning(false);
+      addCommentToMarket(comment, commentsState, commentsDispatch);
+    });
   }
 
   const diff = getDiff(diffState, id);
@@ -768,6 +786,20 @@ function Comment(props) {
                   >
                     {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })}
                   </SpinningIconLabelButton>
+                )}
+                {commentType === TODO_TYPE && investibleId && !removeActions && (
+                  <FormControlLabel
+                    id='inProgressCheckbox'
+                    style={{maxHeight: '1rem', marginTop: '0.7rem'}}
+                    control={
+                      <Checkbox
+                        checked={inProgress}
+                        onClick={handleToggleInProgress}
+                        disabled={!myPresenceIsAssigned || removeActions}
+                      />
+                    }
+                    label={intl.formatMessage({ id: 'inProgress' })}
+                  />
                 )}
                 {showMoveButton && mobileLayout && (
                   <SpinningIconLabelButton

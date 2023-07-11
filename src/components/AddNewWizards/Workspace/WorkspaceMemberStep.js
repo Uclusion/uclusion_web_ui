@@ -12,7 +12,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 function WorkspaceMembersStep(props) {
-  const { formData, finish } = props;
+  const { formData } = props;
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -25,11 +25,9 @@ function WorkspaceMembersStep(props) {
         setEmailList([], addToMarketId);
         setOperationRunning(false);
         marketPresencesDispatch(addMarketPresences(addToMarketId, result));
-        finish();
       });
     }
     setOperationRunning(false);
-    finish();
   }
 
   return (
@@ -42,7 +40,7 @@ function WorkspaceMembersStep(props) {
       </Typography>
       <EmailEntryBox marketId={formData.marketId} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
       <div className={classes.borderBottom} />
-      <WizardStepButtons {...props} showSkip={false} showLink={true} finish={myOnFinish} />
+      <WizardStepButtons {...props} showSkip={false} showLink={true} onNext={myOnFinish} />
     </div>
     </WizardStepContainer>
   );

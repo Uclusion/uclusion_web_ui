@@ -10,7 +10,7 @@ import queryString from 'query-string'
 import _ from 'lodash'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper'
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import ResolveCommentsStep from './ResolveCommentsStep'
 import DecideWhereStep from './DecideWhereStep';
 import { navigate } from '../../../utils/marketIdPathFunctions';

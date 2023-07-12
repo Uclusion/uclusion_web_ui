@@ -928,6 +928,7 @@ const messages = defineMessages({
   WizardPaymentInfo: 'Add or Update Card',
   WizardPromoInfo: 'Apply Promotion Code',
   DecidePayTitle: 'How will you pay?',
+  GroupWelcome: 'Welcome to a new group',
   ApplyPromoCode: 'Apply Promo Code',
 
   // upgrade form

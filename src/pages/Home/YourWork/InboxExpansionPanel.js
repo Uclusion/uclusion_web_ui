@@ -45,6 +45,8 @@ import FeedbackWizard from '../../../components/InboxWizards/Feedback/FeedbackWi
 import UpgradeWizard from '../../../components/InboxWizards/Upgrade/UpgradeWizard';
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
 import ReplyResolveWizard from '../../../components/InboxWizards/ReplyResolve/ReplyResolveWizard';
+import NewGroupWizard from '../../../components/InboxWizards/NewGroup/NewGroupWizard';
+import RespondInOptionWizard from '../../../components/InboxWizards/OptionResponse/RespondInOptionWizard';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -64,7 +66,11 @@ export function calculateTitleExpansionPanel(props) {
   if (messageType === 'USER_POKED') {
     setItem(item, openExpansion, <UpgradeWizard message={message} />,
       'DecidePayTitle', intl);
-  } else if (isOutboxAccepted) {
+  } else if (messageType === 'UNREAD_GROUP') {
+    setItem(item, openExpansion, <NewGroupWizard message={message} />,
+      'GroupWelcome', intl);
+  }
+  else if (isOutboxAccepted) {
     setItem(item, openExpansion, <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}
                                                rowId={message.id} />,
       'DecideAssignTitle', intl);
@@ -115,6 +121,10 @@ export function calculateTitleExpansionPanel(props) {
         setItem(item, openExpansion, <ReplyResolveWizard commentId={commentId} marketId={marketId} message={message}/>,
           'DecideResponseTitle', intl);
       }
+    } else if ('INLINE_STORY_COMMENT' === linkType) {
+      setItem(item, openExpansion, <RespondInOptionWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                                 message={message} />,
+        'DecideResponseTitle', intl);
     } else if (['INVESTIBLE_QUESTION', 'MARKET_QUESTION'].includes(linkType)) {
       setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                  message={message} />,

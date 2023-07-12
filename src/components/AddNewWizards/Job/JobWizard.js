@@ -54,8 +54,7 @@ function JobWizard(props) {
     // because otherwise 50-50 name or description will have to be changed
     const nonBugId = (fromCommentIds || []).find((fromCommentId) => {
       const fromComment = comments.find((comment) => comment.id === fromCommentId);
-      return !fromComment || fromComment.comment_type !== TODO_TYPE || fromComment.investible_id
-        || !fromComment.ticket_code.startsWith('B');
+      return !fromComment?.ticket_code?.startsWith('B');
     });
     return !_.isEmpty(nonBugId);
   }

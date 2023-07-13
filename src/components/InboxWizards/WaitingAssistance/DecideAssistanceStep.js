@@ -17,7 +17,7 @@ import { useHistory } from 'react-router'
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { resolveComment, updateComment } from '../../../api/comments'
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
-import { getFormerStageId, isSingleAssisted } from '../../../utils/commentFunctions';
+import { getFormerStageId, handleAcceptSuggestion, isSingleAssisted } from '../../../utils/commentFunctions';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { changePresence, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -26,13 +26,15 @@ import GravatarGroup from '../../Avatars/GravatarGroup';
 import { pokeUsers } from '../../../api/users';
 import Link from '@material-ui/core/Link';
 import _ from 'lodash';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 
 function DecideAssistanceStep(props) {
   const { marketId, commentId } = props;
   const intl = useIntl();
   const [commentState] = useContext(CommentsContext);
-  const [investibleState] = useContext(InvestiblesContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -63,7 +65,8 @@ function DecideAssistanceStep(props) {
 
   function accept() {
     return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
-      addCommentToMarket(comment, commentsState, commentsDispatch);
+      handleAcceptSuggestion({ isOwner: true, comment, investible: inv, investiblesDispatch, marketStagesState,
+        commentsState, commentsDispatch, messagesState, messagesDispatch })
       setOperationRunning(false);
     })
   }

@@ -2,6 +2,7 @@ import { DECISION_TYPE, INITIATIVE_TYPE } from '../constants/markets'
 import { removeWorkListItem } from '../pages/Home/YourWork/WorkListItem'
 import _ from 'lodash'
 import { REPORT_TYPE } from '../constants/comments'
+import { quickRemoveMessages } from '../contexts/NotificationsContext/notificationsContextReducer';
 
 function getMessageTextForId(rawId, isMobile, intl) {
   const id = isMobile ? `${rawId}Mobile` : rawId;
@@ -136,10 +137,15 @@ export function findMessagesForUserPoked(state) {
   return safeMessages.filter((message) => message.type === 'USER_POKED' && !message.deleted);
 }
 
-export function removeMessagesForCommentId(commentId, state) {
+export function removeMessagesForCommentId(commentId, state, messagesDispatch) {
   const messages = findMessagesForCommentId(commentId, state) || [];
   messages.forEach((message) => {
-    removeWorkListItem(message);
+    if (messagesDispatch) {
+      const { type_object_id: typeObjectId } = message;
+      messagesDispatch(quickRemoveMessages([typeObjectId]));
+    } else {
+      removeWorkListItem(message);
+    }
   });
 }
 

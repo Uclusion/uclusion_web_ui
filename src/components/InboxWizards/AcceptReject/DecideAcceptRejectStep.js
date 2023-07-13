@@ -13,13 +13,21 @@ import { TODO_TYPE } from '../../../constants/comments';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
 import { useHistory } from 'react-router';
+import { handleAcceptSuggestion } from '../../../utils/commentFunctions';
+import { navigate } from '../../../utils/marketIdPathFunctions';
+import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 
 function DecideAcceptRejectStep(props) {
   const { marketId, commentId, message } = props;
   const [commentState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
@@ -32,9 +40,11 @@ function DecideAcceptRejectStep(props) {
 
   function accept() {
     return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
-      addCommentToMarket(comment, commentsState, commentsDispatch);
-      dismissWorkListItem(message, messagesDispatch, history);
+      const investible = getInvestible(investiblesState, comment.investible_id);
+      handleAcceptSuggestion({ isOwner: true, comment, investible, investiblesDispatch, marketStagesState,
+        commentsState, commentsDispatch, messagesState, messagesDispatch })
       setOperationRunning(false);
+      navigate(history, getInboxTarget());
     })
   }
 

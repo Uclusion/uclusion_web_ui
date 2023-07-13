@@ -15,6 +15,8 @@ import { createInitiative } from '../api/markets'
 import { addMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../authorization/TokenStorageManager'
 import { PUSH_INVESTIBLES_CHANNEL } from '../api/versionedFetchUtils'
+import { removeMessagesForCommentId } from './messageUtils';
+import { getMarketInfo } from './userFunctions';
 
 export function onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
   commentsState, commentsDispatch, myPresence) {
@@ -75,6 +77,18 @@ function changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos
       pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [newInvestible] });
     }
   }
+}
+
+export function handleAcceptSuggestion(info) {
+  const { isOwner, comment, investible, investiblesDispatch, marketStagesState, commentsState,
+    commentsDispatch, messagesState, messagesDispatch } = info;
+  if (isOwner) {
+    const marketInfo = getMarketInfo(investible, comment.market_id);
+    changeInvestibleStageOnCommentClose([marketInfo], investible.investible, investiblesDispatch,
+      comment, marketStagesState);
+  }
+  addCommentToMarket(comment, commentsState, commentsDispatch);
+  removeMessagesForCommentId(comment.id, messagesState, messagesDispatch);
 }
 
 export function changeInvestibleStageOnCommentClose(market_infos, rootInvestible, investibleDispatch, comment,

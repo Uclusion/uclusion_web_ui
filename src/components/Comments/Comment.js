@@ -59,7 +59,10 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { marketAbstain } from '../../api/markets';
-import { changeInvestibleStageOnCommentClose, onCommentOpen } from '../../utils/commentFunctions';
+import {
+  handleAcceptSuggestion,
+  onCommentOpen
+} from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
   findMessageForCommentId,
@@ -502,14 +505,10 @@ function Comment(props) {
   }
 
   function myAccept () {
-    setOperationRunning(true)
+    setOperationRunning(true);
     return updateComment({marketId, commentId: id, commentType: TODO_TYPE}).then((comment) => {
-      if (myPresence === createdBy) {
-        changeInvestibleStageOnCommentClose([marketInfo], investible, investiblesDispatch,
-          comment, marketStagesState);
-      }
-      addCommentToMarket(comment, commentsState, commentsDispatch);
-      removeMessagesForCommentId(id, messagesState);
+      handleAcceptSuggestion({ isOwner: myPresence === createdBy, comment, investible,
+        investiblesDispatch, marketStagesState, commentsState, commentsDispatch, messagesState })
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, id));
     })

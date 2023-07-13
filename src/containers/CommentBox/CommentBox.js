@@ -75,13 +75,31 @@ export function getSortedRoots(allComments, searchResults, preserveOrder) {
   return fullOrdered;
 }
 
+function sortInProgress(roots) {
+  const sorted = [];
+  const inProgressSorted = [];
+  roots.forEach((comment) => {
+    const { in_progress: inProgress } = comment;
+    if (!inProgress) {
+      sorted.push(comment);
+    } else {
+      inProgressSorted.push(comment)
+    }
+  });
+  return inProgressSorted.concat(sorted);
+}
+
 function CommentBox(props) {
   const { comments, marketId, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId, isReply, wizardProps,
     fullStage, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
-    showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder, isMove } = props;
+    showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder, isMove,
+    useInProgressSorting } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const sortedRoots = getSortedRoots(comments, searchResults, preserveOrder);
+  let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder);
+  if (useInProgressSorting) {
+    sortedRoots = sortInProgress(sortedRoots);
+  }
   const useFullStage = _.isEmpty(fullStage) && stage ? getFullStage(marketStagesState, marketId, stage) : fullStage;
   const resolvedStageId = isSingleAssisted(comments, assigned) ?
     getFormerStageId(formerStageId, marketId, marketStagesState) : undefined;

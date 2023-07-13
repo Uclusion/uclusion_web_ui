@@ -748,6 +748,7 @@ function PlanningInvestible(props) {
                 formerStageId={formerStageId}
                 marketInfo={marketInfo}
                 investible={marketInvestible}
+                useInProgressSorting={sectionOpen === 'tasksSection'}
               />
             </Grid>
           </Grid>

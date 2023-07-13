@@ -56,12 +56,21 @@ function getUpdatedAt(updatedAt, comments) {
   return mostRecentUpdate;
 }
 
+function hasInProgress(investibleId, marketComments) {
+  return !_.isEmpty(marketComments.find((comment) => !comment.resolved && comment.investible_id === investibleId &&
+    comment.in_progress));
+}
+
 function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments) {
   const stageId = stage.id;
-  const limitInvestibles = !isAcceptedStage(stage) ? (stage || {}).allowed_investibles : undefined;
+  const isStartedStage = isAcceptedStage(stage);
+  const limitInvestibles = !isStartedStage ? (stage || {}).allowed_investibles : undefined;
   const limitInvestiblesAge = (stage || {}).days_visible;
   let stageInvestibles = userInvestibles.filter((investible) => {
     const marketInfo = getMarketInfo(investible, marketId) || {};
+    if (isStartedStage && hasInProgress(investible.investible.id, marketComments)) {
+      return true;
+    }
     return marketInfo.stage === stageId;
   });
   if (limitInvestibles && stageInvestibles) {

@@ -382,24 +382,21 @@ function CommentAdd(props) {
   function handleSave(isSent, passedNotificationType, doCreateInitiative, isJustClear=false) {
     const currentUploadedFiles = uploadedFiles || [];
     const myBodyNow = getQuillStoredState(editorName);
-    const apiType = (type === REPLY_TYPE) ? undefined : type;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(currentUploadedFiles, myBodyNow)
     const mentions = getMentionsFromText(tokensRemoved)
-    // the API does _not_ want you to send reply type, so suppress if our type is reply
-    // what about not doing state?
-    const createInlineDecision = ourMarket.market_type === PLANNING_TYPE && apiType === QUESTION_TYPE;
+    const createInlineDecision = ourMarket.market_type === PLANNING_TYPE && type === QUESTION_TYPE;
     // Inline question markets use draft but initiatives do not since nothing to edit
     const marketType = ((createInlineInitiative && isSent && doCreateInitiative === undefined)
     || doCreateInitiative) ? INITIATIVE_TYPE : (createInlineDecision ? DECISION_TYPE : undefined);
-    const investibleBlocks = (investibleId && apiType === ISSUE_TYPE) && currentStageId !== blockingStage.id;
+    const investibleBlocks = (investibleId && type === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     let label = undefined;
     if (creatorIsAssigned && type === REPORT_TYPE && isSent !== false) {
       label = nameFromDescription(tokensRemoved);
     }
-    return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, apiType, filteredUploads, mentions,
+    return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, type, filteredUploads, mentions,
       passedNotificationType, marketType, undefined, isSent, label)
       .then((response) => {
         let comment = marketType ? response.parent : response;
@@ -418,7 +415,7 @@ function CommentAdd(props) {
         }
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (isSent !== false) {
-          quickNotificationChanges(apiType, investibleId, messagesState, messagesDispatch, threadMessages, comment,
+          quickNotificationChanges(type, investibleId, messagesState, messagesDispatch, threadMessages, comment,
             parentId, commentsState, commentDispatch, marketId, myPresence);
         }
         if (marketType) {

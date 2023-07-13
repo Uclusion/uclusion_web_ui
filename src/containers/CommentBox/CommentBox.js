@@ -79,8 +79,8 @@ function sortInProgress(roots) {
   const sorted = [];
   const inProgressSorted = [];
   roots.forEach((comment) => {
-    const { in_progress: inProgress } = comment;
-    if (!inProgress) {
+    const { in_progress: inProgress, resolved } = comment;
+    if (!inProgress || resolved) {
       sorted.push(comment);
     } else {
       inProgressSorted.push(comment)

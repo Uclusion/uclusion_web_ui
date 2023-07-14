@@ -10,7 +10,7 @@ const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
 const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
-export const IS_INVITED = 'is_invited';
+const IS_INVITED = 'is_invited';
 
 export function redirectFromHistory(history) {
   const { location } = history;

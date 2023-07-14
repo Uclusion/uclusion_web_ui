@@ -9,6 +9,7 @@ import TokenStorageManager, {
   TOKEN_TYPE_MARKET_INVITE
 } from './TokenStorageManager'
 import { AllSequentialMap } from '../utils/PromiseUtils';
+import { getIsInvited } from '../utils/redirectUtils';
 
 class TokenFetcher {
 
@@ -117,7 +118,7 @@ class TokenFetcher {
   }
 
   getAccountToken (identity, accountId) {
-    return this.ssoClient.accountCognitoLogin(identity, accountId)
+    return this.ssoClient.accountCognitoLogin(identity, getIsInvited())
       .then((loginData) => {
         const { uclusion_token } = loginData;
         return this.tokenStorageManager.storeToken(TOKEN_TYPE_ACCOUNT, accountId, uclusion_token)

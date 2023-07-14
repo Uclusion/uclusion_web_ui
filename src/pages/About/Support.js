@@ -65,7 +65,7 @@ function Support(props) {
     if (!externalId && !hidden) {
       getSSOInfo().then((ssoInfo) => {
           const { idToken, ssoClient } = ssoInfo;
-          return ssoClient.accountCognitoLogin(idToken).then((loginInfo) => {
+          return ssoClient.accountCognitoLogin(idToken, true).then((loginInfo) => {
             const { user: myUser } = loginInfo;
             const { external_id: myExternalId } = myUser;
             setExternalId(myExternalId);

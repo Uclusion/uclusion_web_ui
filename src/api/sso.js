@@ -3,6 +3,7 @@ import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher
 import config from '../config'
 import { toastErrorAndThrow } from '../utils/userMessage'
 import { getAccountSSOClient } from './uclusionClient';
+import { getIsInvited } from '../utils/redirectUtils';
 
 export function getSSOInfo() {
   return new AmpifyIdentitySource().getIdentity()
@@ -26,23 +27,11 @@ export function getAppVersion() {
     });
 }
 
-/** Gets the home account user for the current logged in user
- */
-export function getHomeAccountUser () {
-  // Note, because it's at the SSO level, we don't use the uclusionClientWrappers
-  return getAccount().then((loginInfo) => {
-    const { user } = loginInfo;
-    return user;
-  }).catch((error) => {
-    toastErrorAndThrow(error, 'errorHomeUserFetchFailed');
-  });
-}
-
 export const getAccount = () => {
   return getSSOInfo()
     .then((ssoInfo) => {
       const { idToken, ssoClient } = ssoInfo;
-      return ssoClient.accountCognitoLogin(idToken)
+      return ssoClient.accountCognitoLogin(idToken, getIsInvited())
     })
 };
 

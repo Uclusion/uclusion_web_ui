@@ -1,7 +1,6 @@
 import {
   getLoginPersistentItem,
-  setLoginPersistentItem,
-  setUclusionLocalStorageItem
+  setLoginPersistentItem
 } from '../components/localStorageUtils'
 import _ from 'lodash'
 import { getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper';
@@ -45,7 +44,7 @@ export function getGroupForInvestibleId(investibleId, marketId, investiblesState
 export function setRedirect(location) {
   setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, location);
   // The only way you have a redirect is if you are part of some workspace already
-  setUclusionLocalStorageItem(IS_INVITED, true);
+  setLoginPersistentItem(IS_INVITED, true);
 }
 
 export function clearRedirect() {
@@ -66,6 +65,10 @@ export function setEmail(email) {
 
 export function getRedirect() {
   return getLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY);
+}
+
+export function getIsInvited() {
+  return getLoginPersistentItem(IS_INVITED);
 }
 
 export function getCurrentWorkspace() {

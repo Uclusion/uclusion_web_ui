@@ -786,7 +786,7 @@ function Comment(props) {
                     {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })}
                   </SpinningIconLabelButton>
                 )}
-                {commentType === TODO_TYPE && investibleId && !removeActions && (
+                {commentType === TODO_TYPE && investibleId && !removeActions && enableEditing && (
                   <FormControlLabel
                     id='inProgressCheckbox'
                     style={{maxHeight: '1rem', marginTop: '0.7rem'}}

@@ -401,7 +401,7 @@ function PlanningInvestible(props) {
         }
       }
     }
-  }, [investibleComments, hash, sectionOpen, updatePageState, hidden]);
+  }, [investibleComments, hash, sectionOpen, updatePageState, hidden, history]);
 
   let lockedByName
   if (lockedBy) {

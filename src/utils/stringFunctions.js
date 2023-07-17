@@ -78,7 +78,8 @@ function indexOfOrOutofBounds(extracted, aChar) {
 function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, maxLength, fullElement,
   isFallbackFullDescription) {
   let extracted = strippedElement || '';
-  if (extracted.length <= maxLength) {
+  const endsInSentence = extracted.endsWith('.') || extracted.endsWith('!') || extracted.endsWith('?');
+  if (extracted.length <= maxLength && (endsInSentence || isFallbackFullDescription)) {
     if (fullElement) {
       return { name: extracted, description: removePrefix(fullElement, description) };
     }

@@ -16,6 +16,11 @@ import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { useIntl } from 'react-intl';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import _ from 'lodash';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { getFullStage, isNotDoingStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function DecideReviewStep(props) {
   const { marketId, investibleId, message } = props;
@@ -24,6 +29,12 @@ function DecideReviewStep(props) {
   const intl = useIntl();
   const [commentsState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [investibleState] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const inv = getInvestible(investibleState, investibleId) || {};
+  const info = getMarketInfo(inv, marketId);
+  const { stage: currentStageId } = info || {};
+  const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
   const isUnread = message.type_object_id.startsWith('UNREAD');
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, true, true);
@@ -35,6 +46,7 @@ function DecideReviewStep(props) {
   const next = hasReport ? () =>
     navigate(history, formCommentEditReplyLink(marketId, report.id, true), false,
       true) : createTodo;
+  const isNotDoing = isNotDoingStage(fullStage);
   return (
     <WizardStepContainer
       {...props}
@@ -43,9 +55,16 @@ function DecideReviewStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideReviewTitle'})}
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Review here or click the job title to ask a question or make a suggestion.
-      </Typography>
+      {isNotDoing && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          This job has been moved to Not Doing.
+        </Typography>
+      )}
+      {!isNotDoing && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Review here or click the job title to ask a question or make a suggestion.
+        </Typography>
+      )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions
                       preserveOrder />
       <WizardStepButtons
@@ -53,7 +72,7 @@ function DecideReviewStep(props) {
         nextLabel={hasReport ? 'DecideAddReview' : 'DecideAddTask'}
         onNext={next}
         spinOnClick={false}
-        showOtherNext={hasReport}
+        showOtherNext={hasReport && !isNotDoing}
         otherSpinOnClick={false}
         onOtherNext={createTodo}
         otherNextLabel="DecideAddTask"

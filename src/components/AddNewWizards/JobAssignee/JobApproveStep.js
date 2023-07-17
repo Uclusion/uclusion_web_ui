@@ -125,7 +125,6 @@ function JobApproveStep(props) {
         <WizardStepButtons
           {...props}
           validForm={validForm}
-          showNext={validForm}
           showTerminate={true}
           onNext={onNext}
           onTerminate={onTerminate}

@@ -772,7 +772,7 @@ const messages = defineMessages({
   slackIntegrationPartial: 'Now type /uclusion in any Slack channel to receive messages from groups in this workspace.',
 
   // Assignment List
-  assignmentListHeader: 'Assigned to (X to remove)',
+  assignmentListHeader: 'Assigned to',
   emptyAssignmentHeader: 'Unassigned goes to Backlog',
   requiresInputListHeader: 'Warning: unless you resolve some comments the current assignment will move the job to Assistance.',
   reviewListHeader: 'Required reviewers (X to remove)',

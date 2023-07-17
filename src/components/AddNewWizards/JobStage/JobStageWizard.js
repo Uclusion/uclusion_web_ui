@@ -10,6 +10,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import _ from 'lodash';
 import {
+  isAcceptedStage,
   isInReviewStage,
   isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -61,7 +62,11 @@ function JobStageWizard(props) {
       if (fullMoveStage && (isNotDoingStage(fullMoveStage) || isInReviewStage(fullMoveStage))) {
         navigate(history, formMarketLink(marketId, groupId));
       } else {
-        navigate(history, formInvestibleLink(marketId, investibleId));
+        if (fullMoveStage && isAcceptedStage(fullMoveStage)) {
+          navigate(history, `${formInvestibleLink(marketId, investibleId)}#start`);
+        } else {
+          navigate(history, formInvestibleLink(marketId, investibleId));
+        }
       }
     }
   }

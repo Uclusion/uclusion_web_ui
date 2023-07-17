@@ -14,7 +14,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import {
   getAcceptedStage,
   getInCurrentVotingStage,
-  getInReviewStage
+  getInReviewStage, isAcceptedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { useIntl } from 'react-intl';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
@@ -59,7 +59,11 @@ function DecideStageStep(props) {
           invDispatch, () => {}, marketStagesState, undefined, aStage, marketPresencesDispatch);
         setOperationRunning(false);
         if (isGotoJob) {
-          navigate(history, formInvestibleLink(marketId, investibleId));
+          if (isAcceptedStage(aStage)) {
+            navigate(history, `${formInvestibleLink(marketId, investibleId)}#start`);
+          } else {
+            navigate(history, formInvestibleLink(marketId, investibleId));
+          }
         }
       });
   }

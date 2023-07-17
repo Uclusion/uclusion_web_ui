@@ -372,7 +372,11 @@ function PlanningInvestible(props) {
       // Check if already on the right tab and only change tab if not
       if (!element) {
         if (hash.startsWith('#cv') || hash.startsWith('#approve')) {
-          updatePageState({ sectionOpen: 'descriptionVotingSection' })
+          updatePageState({ sectionOpen: 'descriptionVotingSection' });
+          history.replace(window.location.pathname + window.location.search);
+        } else if (hash.startsWith('#start')) {
+          updatePageState({ sectionOpen: 'tasksSection' });
+          history.replace(window.location.pathname + window.location.search);
         } else {
           const found = investibleComments.find((comment) => hash.includes(comment.id));
           if (!_.isEmpty(found)) {

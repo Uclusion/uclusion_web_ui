@@ -11,7 +11,10 @@ import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageSta
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
-import { getInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getFullStage,
+  isInReviewStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function StartReviewStep(props) {
@@ -26,9 +29,9 @@ function StartReviewStep(props) {
   const inv = getInvestible(investibleState, investibleId) || {};
   const info = getMarketInfo(inv, marketId);
   const { stage: currentStageId } = info || {};
-  const inReviewStage = getInReviewStage(marketStagesState, marketId) || {id: 'fake'};
+  const fullMoveStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
 
-  if (currentStageId !== inReviewStage.id) {
+  if (!fullMoveStage?.close_comments_on_entrance) {
     // Give quick add time to work
     return React.Fragment;
   }
@@ -44,7 +47,7 @@ function StartReviewStep(props) {
     >
     <div>
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
-        What was finished?
+        {isInReviewStage(fullMoveStage) ? 'What was finished?' : 'Why are you not doing?'}
       </Typography>
       <CommentAdd
         nameKey="CommentAddStartReview"

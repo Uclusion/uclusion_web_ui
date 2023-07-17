@@ -44,7 +44,7 @@ function JobStageWizard(props) {
 
   function requiresAction(fullMoveStage) {
     if (!_.isEmpty(fullMoveStage)) {
-      if (isInReviewStage(fullMoveStage)) {
+      if (fullMoveStage.close_comments_on_entrance) {
         return true;
       }
       if (fullMoveStage.allows_investment) {

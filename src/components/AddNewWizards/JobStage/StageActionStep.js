@@ -17,7 +17,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { commonQuick } from '../Approval/ApprovalWizard';
 import JobDescription from '../../InboxWizards/JobDescription';
-import { getFullStage, isInReviewStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -40,7 +40,7 @@ function StageActionStep(props) {
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage) || {};
   const validForm = approveQuantity > 0;
 
-  if (isInReviewStage(fullMoveStage)) {
+  if (fullMoveStage.close_comments_on_entrance) {
     return (
       <StartReviewStep inv={inv} currentStageId={stage} {...props} />
     );

@@ -8,7 +8,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  TextField
+  TextField, useMediaQuery, useTheme
 } from '@material-ui/core';
 import _ from 'lodash';
 import SearchIcon from '@material-ui/icons/Search';
@@ -18,6 +18,9 @@ import { getMarketInvestibles } from '../../contexts/InvestibesContext/investibl
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import clsx from 'clsx';
 import { getTicketNumber } from '../../utils/stringFunctions';
+import { getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { useIntl } from 'react-intl';
 
 function ChooseJob(props) {
   const {
@@ -30,15 +33,21 @@ function ChooseJob(props) {
   } = props;
   const [index] = useContext(SearchIndexContext);
   const [investiblesState] = useContext(InvestiblesContext);
+  const [marketsState] = useContext(MarketsContext)
+  const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [searchQuery, setSearchQuery] = useState(undefined);
+  const [isAssignedToMe, setIsAssignedToMe] = useState(false);
+  const userId = getMyUserForMarket(marketsState, marketId);
   const classes = usePlanFormStyles();
   const marketStageIds = marketStages.map((stage) => stage.id);
   const activeGroupInvestibles = (getMarketInvestibles(investiblesState, marketId) || []).filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId);
     const { investible } = inv;
-    const { group_id: investibleGroupId, stage: investibleStageId } = marketInfo || {};
+    const { group_id: investibleGroupId, stage: investibleStageId, assigned } = marketInfo || {};
     return investibleGroupId === groupId && !excluded.includes(investible.id) &&
-      marketStageIds.includes(investibleStageId);
+      marketStageIds.includes(investibleStageId) && (!isAssignedToMe || assigned?.includes(userId));
   });
   const results = _.isEmpty(searchQuery) ? undefined : (index.search(searchQuery) || []);
   const investibles = _.isEmpty(searchQuery) ? activeGroupInvestibles : activeGroupInvestibles.filter((inv) => {
@@ -50,6 +59,10 @@ function ChooseJob(props) {
   function onSearchChange(event) {
     const { value } = event.target
     setSearchQuery(value);
+  }
+
+  function toggleAssignedToMe() {
+    setIsAssignedToMe(!isAssignedToMe);
   }
 
   function renderInvestibleItem(inv) {
@@ -84,7 +97,7 @@ function ChooseJob(props) {
       className={classes.scrollableList}
     >
       <ListItem className={classes.searchContainer} key="search">
-          <ListItemText>
+          <ListItemText style={{width: '80%'}}>
             <TextField
               className={classes.search}
               placeholder="Search in this group"
@@ -100,6 +113,13 @@ function ChooseJob(props) {
               }}
             />
           </ListItemText>
+        <ListItemText>
+          {intl.formatMessage({ id: mobileLayout ? 'searchAssignedMobile' : 'searchAssigned' })}
+          <Checkbox
+            checked={isAssignedToMe}
+            onClick={toggleAssignedToMe}
+          />
+        </ListItemText>
       </ListItem>
       <List
         dense

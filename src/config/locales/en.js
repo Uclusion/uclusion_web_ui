@@ -788,6 +788,8 @@ const messages = defineMessages({
   everyoneGroupExplanation: 'This group automatically contains everyone in the workspace.',
   everyoneGroupAddExplanation: 'This group automatically contains everyone in the workspace and you can add to the workspace below.',
   everyoneInGroupAddExplanation: 'This group already contains everyone in the workspace.',
+  searchAssigned: 'Assigned to me',
+  searchAssignedMobile: 'Assigned',
 
   // Address List
   addressListHeader: 'Addressed to',

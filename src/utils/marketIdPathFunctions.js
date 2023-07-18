@@ -5,7 +5,6 @@ import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import { marketsContextHack } from '../contexts/MarketsContext/MarketsContext';
 import { investibleContextHack } from '../contexts/InvestibesContext/InvestiblesContext';
 import { getCommentRoot } from '../contexts/CommentsContext/commentsContextHelper'
-import { nameFromDescription } from './stringFunctions'
 import { commentsContextHack } from '../contexts/CommentsContext/CommentsContext'
 import { JOB_WIZARD_TYPE } from '../constants/markets';
 import { ticketContextHack } from '../contexts/TicketContext/TicketIndexContext';
@@ -98,6 +97,16 @@ export function formInviteLink(marketToken) {
   return url.toString();
 }
 
+function getNameForComment(comment, investibleState) {
+  const readableTicketCode = decodeURI(comment.ticket_code);
+  if (comment.investible_id) {
+    const investibleName = getInvestibleName(investibleState, comment.investible_id);
+    return `${investibleName} - ${readableTicketCode}`;
+  }
+  // Don't use name from description as that's not a real name
+  return readableTicketCode;
+}
+
 export function getNameForUrl(url) {
   const marketState = marketsContextHack;
   const investibleState = investibleContextHack;
@@ -117,10 +126,7 @@ export function getNameForUrl(url) {
         const { marketId, commentId } = ticket;
         const rootComment = getCommentRoot(commentsState, marketId, commentId);
         if (rootComment) {
-          const name = nameFromDescription(rootComment.body);
-          if (!_.isEmpty(name)) {
-            return name;
-          }
+          return getNameForComment(rootComment, investibleState);
         }
       }
     }
@@ -133,10 +139,7 @@ export function getNameForUrl(url) {
           const commentId = urlParts.hash.substring(2, urlParts.hash.length);
           const rootComment = getCommentRoot(commentsState, marketId, commentId);
           if (rootComment) {
-            const name = nameFromDescription(rootComment.body);
-            if (!_.isEmpty(name)) {
-              return name;
-            }
+            return getNameForComment(rootComment, investibleState);
           }
         }
         if (investibleId) {

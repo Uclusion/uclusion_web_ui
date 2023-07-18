@@ -789,7 +789,7 @@ function Comment(props) {
                 {commentType === TODO_TYPE && investibleId && !removeActions && enableEditing && (
                   <FormControlLabel
                     id='inProgressCheckbox'
-                    style={{maxHeight: '1rem', marginTop: '0.7rem'}}
+                    style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem'}}
                     control={
                       <Checkbox
                         checked={inProgress}
@@ -797,7 +797,7 @@ function Comment(props) {
                         disabled={!myPresenceIsAssigned || removeActions}
                       />
                     }
-                    label={intl.formatMessage({ id: 'inProgress' })}
+                    label={mobileLayout ? undefined : intl.formatMessage({ id: 'inProgress' })}
                   />
                 )}
                 {showMoveButton && mobileLayout && (

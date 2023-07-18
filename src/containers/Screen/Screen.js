@@ -24,7 +24,7 @@ import AddIcon from '@material-ui/icons/Add'
 import { Group, GroupOutlined, Inbox, MoreVert } from '@material-ui/icons';
 import {
   getFirstWorkspace,
-  getGroupForInvestibleId,
+  getGroupForInvestibleId, getPlanningMarketId,
   setCurrentWorkspace
 } from '../../utils/redirectUtils';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
@@ -148,10 +148,12 @@ function Screen(props) {
   const user = unsafeUser || {};
   const history = useHistory();
   const location = useLocation();
-  const { pathname, search: querySearch } = location;
-  const { action, marketId, investibleId } = decomposeMarketPath(pathname);
+  const { pathname, search: querySearch, hash } = location;
+  const { action, marketId: pathMarketId, investibleId: pathInvestibleId } = decomposeMarketPath(pathname);
   const values = queryString.parse(querySearch);
-  const { groupId } = values || {};
+  const { groupId, marketId: searchMarketId, investibleId: searchInvestibleId } = values || {};
+  const hashValues = queryString.parse(hash);
+  const { marketId: hashMarketId, investibleId: hashInvestibleId } = hashValues || {};
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [marketState] = useContext(MarketsContext);
@@ -178,7 +180,9 @@ function Screen(props) {
     hideMenu,
     overrideMenu
   } = props;
-
+  const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
+  const marketId = pathMarketId || searchMarketId || hashMarketId ||
+    getPlanningMarketId(investibleId, marketsState, investiblesState);
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
       const calcPend = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);

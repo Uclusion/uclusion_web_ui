@@ -20,6 +20,7 @@ import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import JobDescription from '../JobDescription';
 import { useHistory } from 'react-router';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function DecideUnblockStep(props) {
   const { marketId, commentId, clearFormData, message } = props;
@@ -63,6 +64,7 @@ function DecideUnblockStep(props) {
       clearFormData();
       setOperationRunning(false);
       dismissWorkListItem(message, messagesDispatch, history);
+      navigate(history, formInvestibleLink(marketId, investibleId));
     });
   }
 

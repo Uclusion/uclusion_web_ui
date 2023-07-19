@@ -7,7 +7,7 @@ import WizardStepButtons from '../WizardStepButtons';
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
-import { editorEmpty, resetEditor } from '../../TextEditors/Utilities/CoreUtils';
+import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import { addMarketComments, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import {
   getReasonForVote,
@@ -16,9 +16,7 @@ import {
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import _ from 'lodash';
-import { formInvestibleAddCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -35,17 +33,14 @@ export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
 }
 function JobApproveStep(props) {
-  const { marketId, updateFormData, formData, onFinish: parentOnFinish, message, investibleId,
-    yourVote, isAssigned } = props;
+  const { marketId, updateFormData, formData, message, investibleId, yourVote, isAssigned } = props;
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const [marketsState] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const history = useHistory();
-  const userId = getMyUserForMarket(marketsState, marketId);
   const validForm = formData.approveQuantity != null;
   const classes = wizardStyles();
   const editorName = getJobApproveEditorName(investibleId);
@@ -56,7 +51,7 @@ function JobApproveStep(props) {
   const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
   const yourReason = getReasonForVote(yourVote, marketComments);
 
-  function onNext(isGotoJob) {
+  function onNext() {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;
     const {
       uploadedFiles: filteredUploads,
@@ -80,10 +75,8 @@ function JobApproveStep(props) {
         addMarketComments(commentsDispatch, marketId, [comment]);
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
-      if (isGotoJob) {
-        return { link: `${formInvestibleLink(marketId, investibleId)}#cv${userId}` };
-      }
-      return {};
+      setOperationRunning(false);
+      dismissWorkListItem(message, messagesDispatch, history);
     })
   }
 
@@ -108,16 +101,6 @@ function JobApproveStep(props) {
 
   function onFinish() {
     removeWorkListItem(message, messagesDispatch, history);
-  }
-
-  function onCompleteFinish(formData) {
-    if (_.isEmpty(formData) || _.isEmpty(formData.link)) {
-      setOperationRunning(false);
-      resetEditor(editorName);
-      dismissWorkListItem(message, messagesDispatch, history);
-    } else {
-      parentOnFinish(formData);
-    }
   }
 
   return (
@@ -151,12 +134,11 @@ function JobApproveStep(props) {
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
-          finish={onCompleteFinish}
           onFinish={onFinish}
           validForm={validForm}
           showTerminate={message.is_highlighted}
           nextLabel={isAssigned ? 'ApprovalWizardAccept' : 'yourVotingVoteForThisPlanning'}
-          onNext={() => onNext(false)}
+          onNext={onNext}
           showOtherNext
           otherNextValid
           otherNextLabel="ApprovalWizardBlock"

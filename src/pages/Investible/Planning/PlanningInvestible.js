@@ -377,6 +377,11 @@ function PlanningInvestible(props) {
         } else if (hash.startsWith('#start')) {
           updatePageState({ sectionOpen: 'tasksSection' });
           history.replace(window.location.pathname + window.location.search);
+        } else if (hash.startsWith('#option')) {
+          if (sectionOpen !== 'assistanceSection') {
+            updatePageState({ sectionOpen: 'assistanceSection' });
+            // Scroll context should send to the option now
+          }
         } else {
           const found = investibleComments.find((comment) => hash.includes(comment.id));
           if (!_.isEmpty(found)) {

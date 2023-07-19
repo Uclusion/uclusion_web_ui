@@ -748,9 +748,6 @@ const messages = defineMessages({
   // Quill Editor
   quillEditorUploadInProgress: 'Uploading image(s)',
 
-  // decision sidebar
-  addOptionLabel: 'Add Option',
-
   // diff displaydeci
   diffDisplayDismissLabel: 'Hide Changes',
   diffDisplayShowLabel: 'Show Recent Changes',

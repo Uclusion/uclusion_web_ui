@@ -1042,7 +1042,7 @@ const messages = defineMessages({
   DecideAssignTitle: 'Will you reassign?',
   DecideStageTitle: 'Move this job?',
   AssignmentApprovalRowTitle: 'Will you approve?',
-  AssignmentApprovalTitle: 'How certain are you of this job?',
+  AssignmentApprovalTitle: 'How certain are you of approving this job?',
   DecideAnswerTitle: 'Can you help answer?',
   DecideVoteTitle: 'How do you vote?',
   DecideResponseTitle: 'How do you respond?',

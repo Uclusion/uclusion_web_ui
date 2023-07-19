@@ -141,6 +141,7 @@ function JobApproveStep(props) {
           onNext={onNext}
           showOtherNext
           otherNextValid
+          otherSpinOnClick={false}
           otherNextLabel="ApprovalWizardBlock"
           onOtherNext={() => navigate(history,
             formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE))}

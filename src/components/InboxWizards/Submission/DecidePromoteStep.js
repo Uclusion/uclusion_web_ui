@@ -23,6 +23,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import JobDescription from '../JobDescription';
+import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecidePromoteStep(props) {
   const { marketId, commentId, investibleId, commentMarketId, message } = props;
@@ -102,8 +103,8 @@ function DecidePromoteStep(props) {
         otherSpinOnClick={false}
         onOtherNext={() => navigate(history,
           formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId))}
-        showTerminate
-        terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'defer'}
+        showTerminate={getShowTerminate(message)}
+        terminateLabel={getLabelForTerminate(message)}
         onTerminate={myOnFinish}
       />
     </div>

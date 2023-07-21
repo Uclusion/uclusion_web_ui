@@ -13,6 +13,7 @@ import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { useHistory } from 'react-router';
 import { resolveComment } from '../../../api/comments';
+import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecideResponseStep(props) {
   const { marketId, commentId, message } = props;
@@ -55,8 +56,8 @@ function DecideResponseStep(props) {
         otherNextLabel='issueResolveLabel'
         onOtherNext={resolve}
         onFinish={myTerminate}
-        showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
-        terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'defer'}
+        showTerminate={getShowTerminate(message)}
+        terminateLabel={getLabelForTerminate(message)}
       />
     </div>
     </WizardStepContainer>

@@ -19,6 +19,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { JUSTIFY_TYPE } from '../../../constants/comments';
+import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecideFeedbackStep(props) {
   const { marketId, investibleId, message } = props;
@@ -67,8 +68,8 @@ function DecideFeedbackStep(props) {
         nextLabel="startJob"
         spinOnClick={false}
         onNext={() => navigate(history, formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId))}
-        showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
-        terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'defer'}
+        showTerminate={getShowTerminate(message)}
+        terminateLabel={getLabelForTerminate(message)}
       />
     </div>
     </WizardStepContainer>

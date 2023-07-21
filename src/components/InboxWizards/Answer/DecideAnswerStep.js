@@ -9,7 +9,7 @@ import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContex
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { marketAbstain } from '../../../api/markets';
 import { changeMyPresence } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { removeMessagesForCommentId } from '../../../utils/messageUtils';
+import { getLabelForTerminate, getShowTerminate, removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -99,8 +99,8 @@ function DecideAnswerStep(props) {
           onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id))}
           onOtherNextDoAdvance={false}
           onFinish={myOnFinish}
-          showTerminate={true}
-          terminateLabel="notificationDelete"
+          showTerminate={getShowTerminate(message)}
+          terminateLabel={getLabelForTerminate(message)}
         />
       )}
       {!noOptions && (
@@ -120,8 +120,7 @@ function DecideAnswerStep(props) {
           onFinish={isRegularFinish ? myOnFinish : abstain}
           showTerminate={true}
           terminateSpinOnClick={!isRegularFinish}
-          terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' :
-            (message.is_highlighted ? 'defer' : 'DecideWizardMute')}
+          terminateLabel={getLabelForTerminate(message)}
         />
       )}
     </div>

@@ -9,6 +9,15 @@ function getMessageTextForId(rawId, isMobile, intl) {
   return intl.formatMessage({ id });
 }
 
+export function getShowTerminate(message) {
+  return message.type_object_id.startsWith('UNREAD') || message.is_highlighted;
+}
+
+export function getLabelForTerminate(message) {
+  return message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' :
+    (message.is_highlighted ? 'defer' : 'DecideWizardMute');
+}
+
 export function titleText(message, isMobile, intl, comment, userId, isInVotingStage, assigned) {
   switch(message.type) {
     case 'REPORT_REQUIRED':

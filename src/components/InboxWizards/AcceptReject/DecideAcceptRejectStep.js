@@ -19,6 +19,7 @@ import { getInboxTarget } from '../../../contexts/NotificationsContext/notificat
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecideAcceptRejectStep(props) {
   const { marketId, commentId, message } = props;
@@ -74,8 +75,8 @@ function DecideAcceptRejectStep(props) {
         showOtherNext
         otherNextLabel="issueResolveLabel"
         onOtherNext={resolve}
-        showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
-        terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'defer'}
+        showTerminate={getShowTerminate(message)}
+        terminateLabel={getLabelForTerminate(message)}
       />
     </div>
     </WizardStepContainer>

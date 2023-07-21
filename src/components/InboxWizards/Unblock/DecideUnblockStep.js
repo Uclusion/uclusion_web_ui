@@ -21,6 +21,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import JobDescription from '../JobDescription';
 import { useHistory } from 'react-router';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecideUnblockStep(props) {
   const { marketId, commentId, clearFormData, message } = props;
@@ -88,8 +89,8 @@ function DecideUnblockStep(props) {
         otherNextLabel='DecideMoveToBacklog'
         onOtherNext={moveToBacklog}
         onFinish={myTerminate}
-        showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
-        terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'defer'}
+        showTerminate={getShowTerminate(message)}
+        terminateLabel={getLabelForTerminate(message)}
       />
     </div>
     </WizardStepContainer>

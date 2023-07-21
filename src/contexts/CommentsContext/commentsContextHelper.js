@@ -49,16 +49,6 @@ export function filterToRoot(comments, commentId) {
   return filterToRoot(comments, comment.reply_id);
 }
 
-export function getDraftComments(state, marketId, investibleId, allowedTypes) {
-  const marketComments = state[marketId] || [];
-  if (investibleId) {
-    return marketComments.filter((comment) => !comment.deleted && comment.investible_id === investibleId &&
-      comment.is_sent === false && allowedTypes.includes(comment.comment_type));
-  }
-  return marketComments.filter((comment) => !comment.deleted && comment.is_sent === false &&
-    allowedTypes.includes(comment.comment_type));
-}
-
 export function getMarketComments(state, marketId, groupId) {
   const marketComments = state[marketId] || [];
   return marketComments.filter((comment) => !comment.deleted && comment.is_sent !== false &&

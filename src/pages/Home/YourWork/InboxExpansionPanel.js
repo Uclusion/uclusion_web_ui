@@ -140,7 +140,7 @@ export function calculateTitleExpansionPanel(props) {
       'unreadReply', intl);
   }else if (['FULLY_VOTED', 'UNREAD_RESOLVED', 'UNREAD_VOTE'].includes(messageType)) {
     if (linkType === 'INVESTIBLE_VOTE') {
-      setItem(item, openExpansion, <FeedbackWizard marketId={marketId} message={message} />,
+      setItem(item, openExpansion, <FeedbackWizard marketId={marketId} investibleId={investibleId} message={message} />,
         'startJobQ', intl);
     } else {
       setItem(item, openExpansion, <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}

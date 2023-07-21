@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -21,7 +21,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { JUSTIFY_TYPE } from '../../../constants/comments';
 
 function DecideFeedbackStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, investibleId, message } = props;
   const intl = useIntl();
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
@@ -30,13 +30,10 @@ function DecideFeedbackStep(props) {
   const [marketsState] = useContext(MarketsContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const market = getMarket(marketsState, marketId) || {};
-  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const marketComments = getMarketComments(commentState, marketId);
-  const investmentReasons = marketComments.filter((comment) => {
+  const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
+  const investmentReasons = investibleComments.filter((comment) => {
     return comment.comment_type === JUSTIFY_TYPE && comment.investible_id === message.investible_id;
   });
-  const comments = marketComments.filter((comment) =>
-    comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
 
   function myOnFinish() {
@@ -51,8 +48,7 @@ function DecideFeedbackStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'startJobQ'})}
       </Typography>
-      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id || message.investible_id}
-                      comments={comments} removeActions />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={investibleComments} removeActions />
       <Voting
         investibleId={message.investible_id}
         marketPresences={marketPresences}
@@ -68,10 +64,9 @@ function DecideFeedbackStep(props) {
       <WizardStepButtons
         {...props}
         onFinish={myOnFinish}
-        nextLabel="changeStage"
+        nextLabel="startJob"
         spinOnClick={false}
-        onNext={() => navigate(history, formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
-          commentRoot.investible_id))}
+        onNext={() => navigate(history, formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId))}
         showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
         terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'defer'}
       />

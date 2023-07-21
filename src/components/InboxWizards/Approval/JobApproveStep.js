@@ -121,7 +121,7 @@ function JobApproveStep(props) {
             Take action here or click the job title to ask a question or make a suggestion.
           </Typography>
         )}
-        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} />
+        <JobDescription marketId={marketId} investibleId={investibleId} showVoting />
         <AddInitialVote
           marketId={marketId}
           onChange={onQuantityChange}

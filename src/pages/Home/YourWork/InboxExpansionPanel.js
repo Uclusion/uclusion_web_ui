@@ -232,7 +232,7 @@ function getMessageForComment(comment, market, type, Icon, intl, investibleState
     icon: Icon,
     comment: comment.body,
     title: `Done with this
-        ${type === QUESTION_TYPE ? ' question' : (type === SUGGEST_CHANGE_TYPE ? ' suggestion' : ' blocking issue')}?`,
+        ${type === QUESTION_TYPE ? ' question' : (type === SUGGEST_CHANGE_TYPE ? ' suggestion' : ' issue')}?`,
     updatedAt: comment.updated_at,
     link: formCommentLink(market.id, comment.group_id, comment.investible_id, commentId),
     inFurtherWork: false,

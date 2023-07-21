@@ -113,6 +113,7 @@ function DecideStageStep(props) {
         onNext={onNextFunc}
         showOtherNext
         onOtherNext={onOtherNextFunc}
+        otherSpinOnClick={!isVotingStage}
         otherNextLabel={otherNextLabelId}
       />
     </div>

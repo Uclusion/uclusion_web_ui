@@ -22,6 +22,8 @@ import {
   isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 
 function FindJobStep(props) {
   const { marketId, groupId, updateFormData, formData, marketComments, startOver, clearFormData,
@@ -31,7 +33,9 @@ function FindJobStep(props) {
   const [, commentsDispatch] = useContext(CommentsContext);
   const [messagesState] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [groupState] = useContext(MarketGroupsContext);
   const { investibleId } = formData;
+  const group = getGroup(groupState, marketId, groupId) || {};
   const marketStages = getStages(marketStagesState, marketId);
   const activeMarketStages = marketStages.filter((stage) => {
     return !isInReviewStage(stage) && !isNotDoingStage(stage);
@@ -87,7 +91,7 @@ function FindJobStep(props) {
     >
       <div>
         <Typography className={classes.introText} variant="h6">
-          Which active job in this group?
+          Which active job in group {group.name}?
         </Typography>
         <ChooseJob
           marketId={marketId}

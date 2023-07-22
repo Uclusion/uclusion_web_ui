@@ -27,9 +27,12 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
 import RateReviewIcon from '@material-ui/icons/RateReview';
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
+import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets';
+import ReplyIcon from '@material-ui/icons/Reply';
 
 function getPriorityIcon(message, isAssigned) {
-  const { level, link_type: linkType, is_highlighted: isHighlighted } = message;
+  const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
+    market_type: marketType } = message;
   let Icon = Quiz;
   if (isAssigned) {
     Icon = Assignment;
@@ -39,7 +42,13 @@ function getPriorityIcon(message, isAssigned) {
     Icon = PersonAddOutlined;
   }
   if (message.type === 'NOT_FULLY_VOTED') {
-    Icon = ThumbsUpDownIcon;
+    if (marketType === INITIATIVE_TYPE) {
+      Icon = LightbulbOutlined;
+    } else if (marketType === DECISION_TYPE || decisionInvestibleId) {
+      Icon = QuestionIcon;
+    } else {
+      Icon = ThumbsUpDownIcon;
+    }
   }
   if (['ISSUE', 'UNREAD_COMMENT'].includes(message.type)) {
     if (linkType.includes('QUESTION')) {
@@ -49,6 +58,9 @@ function getPriorityIcon(message, isAssigned) {
     } else {
       Icon = Block;
     }
+  }
+  if (message.type === 'UNREAD_REPLY') {
+    Icon = ReplyIcon;
   }
   if (message.type?.includes('REVIEW') && !isAssigned) {
     Icon = RateReviewIcon;

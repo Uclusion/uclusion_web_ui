@@ -453,6 +453,8 @@ function CommentAdd(props) {
                   validForm={hasValue}
                   nextLabel="commentAddSendLabel"
                   onNext={() => handleSave( true)}
+                  showTerminate
+                  terminateLabel={wizardProps.terminateLabel || 'JobWizardStartOver'}
                 />
               )}
               {wizardProps.isBug && (
@@ -471,7 +473,7 @@ function CommentAdd(props) {
                   validForm={hasValue}
                   nextLabel={`${type}ApproveWizard`}
                   onNext={() => handleSave( wizardProps.isSent !== false)}
-                  showTerminate={true}
+                  showTerminate
                   onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}

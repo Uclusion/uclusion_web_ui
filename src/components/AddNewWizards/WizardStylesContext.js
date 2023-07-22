@@ -89,6 +89,7 @@ export const wizardStyles = makeStyles(
         }
       },
       buttonContainer: {
+        marginTop: '1rem',
         textAlign: 'right',
         display: 'flex',
         justifyContent: 'space-between',

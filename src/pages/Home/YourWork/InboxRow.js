@@ -37,6 +37,9 @@ function getPriorityIcon(message, isAssigned) {
   if (isAssigned) {
     Icon = Assignment;
   }
+  if (message.type?.includes('REVIEW') && !isAssigned) {
+    Icon = RateReviewIcon;
+  }
   if (['UNASSIGNED', 'UNREAD_GROUP'].includes(message.type) || (message.type === 'UNREAD_REVIEWABLE'
       && linkType === 'MARKET_TODO')) {
     Icon = PersonAddOutlined;
@@ -61,9 +64,6 @@ function getPriorityIcon(message, isAssigned) {
   }
   if (message.type === 'UNREAD_REPLY') {
     Icon = ReplyIcon;
-  }
-  if (message.type?.includes('REVIEW') && !isAssigned) {
-    Icon = RateReviewIcon;
   }
 
   if (message.type === 'UNREAD_ESTIMATE') {

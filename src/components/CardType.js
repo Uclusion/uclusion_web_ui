@@ -12,7 +12,6 @@ import {
   TODO_TYPE
 } from '../constants/comments'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
-import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory'
 import ListAltIcon from '@material-ui/icons/ListAlt'
 import VotingIcon from '@material-ui/icons/Assessment'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
@@ -35,6 +34,7 @@ import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { Block, BugReport } from '@material-ui/icons';
 import { DaysEstimate } from './AgilePlan/DaysEstimate';
+import LightbulbOutlined from './CustomChip/LightbulbOutlined';
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
 export const VOTING_TYPE = 'VOTING'
@@ -182,7 +182,7 @@ export default function CardType(props) {
   const IconComponent = {
     [ISSUE_TYPE]: Block,
     [QUESTION_TYPE]: QuestionIcon,
-    [SUGGEST_CHANGE_TYPE]: ChangeSuggstionIcon,
+    [SUGGEST_CHANGE_TYPE]: LightbulbOutlined,
     [TODO_TYPE]: ListAltIcon,
     [BUG]: BugReport,
     [REPORT_TYPE]: UpdateIcon,

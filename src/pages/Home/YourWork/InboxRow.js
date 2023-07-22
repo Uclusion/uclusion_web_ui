@@ -26,7 +26,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
 import RateReviewIcon from '@material-ui/icons/RateReview';
-import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory';
+import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted } = message;
@@ -45,7 +45,7 @@ function getPriorityIcon(message, isAssigned) {
     if (linkType.includes('QUESTION')) {
       Icon = QuestionIcon;
     } else if (linkType.includes('SUGGEST')) {
-      Icon = ChangeSuggstionIcon;
+      Icon = LightbulbOutlined;
     } else {
       Icon = Block;
     }

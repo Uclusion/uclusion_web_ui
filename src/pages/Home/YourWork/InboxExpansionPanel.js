@@ -19,7 +19,6 @@ import { getUserInvestibles, getUserPendingAcceptanceInvestibles } from '../../D
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
-import ChangeSuggstionIcon from '@material-ui/icons/ChangeHistory';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
@@ -47,6 +46,7 @@ import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
 import ReplyResolveWizard from '../../../components/InboxWizards/ReplyResolve/ReplyResolveWizard';
 import NewGroupWizard from '../../../components/InboxWizards/NewGroup/NewGroupWizard';
 import RespondInOptionWizard from '../../../components/InboxWizards/OptionResponse/RespondInOptionWizard';
+import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -331,7 +331,7 @@ export function getOutboxMessages(props) {
     });
     suggestions.forEach((comment) => {
       const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
-        <ChangeSuggstionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
+        <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences)
       if (message) {
         messages.push(message);
@@ -403,7 +403,7 @@ export function getOutboxMessages(props) {
     });
     suggestions.forEach((comment) => {
       const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
-        <ChangeSuggstionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
+        <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences)
       if (message) {
         messages.push(message);

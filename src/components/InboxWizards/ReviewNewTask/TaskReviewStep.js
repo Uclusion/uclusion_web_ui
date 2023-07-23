@@ -18,7 +18,6 @@ import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/You
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { resolveComment } from '../../../api/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { TODO_TYPE } from '../../../constants/comments';
 
 function TaskReviewStep(props) {
   const { marketId, commentId, message } = props;
@@ -30,8 +29,8 @@ function TaskReviewStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const comment = getComment(commentsState, marketId, commentId);
   const investibleComments = getInvestibleComments(comment.investible_id, marketId, commentsState);
-  const orderedTasks = investibleComments.filter((comment) => {
-    return comment.comment_type === TODO_TYPE && comment.id !== commentId;
+  const orderedTasks = investibleComments.filter((aComment) => {
+    return aComment.id !== commentId && aComment.root_comment_id === commentId;
   }) || [];
   orderedTasks.unshift(comment);
 
@@ -50,7 +49,7 @@ function TaskReviewStep(props) {
     >
     <div>
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'DecideReviewTitle'})}
+        {intl.formatMessage({id: 'NewTaskTitle'})}
       </Typography>
       <JobDescription marketId={marketId} investibleId={comment.investible_id} comments={orderedTasks}
                       removeActions preserveOrder />

@@ -52,8 +52,6 @@ export function titleText(message, isMobile, intl, comment, userId, isInVotingSt
 export function messageText(message, isMobile, intl) {
   const { link_type: linkType, market_type: marketType } = message;
   switch(message.type) {
-    case 'ASSIGNED_UNREVIEWABLE':
-      return getMessageTextForId('unfinished', isMobile, intl);
     case 'UNASSIGNED':
       if (linkType === 'MARKET_TODO') {
         return getMessageTextForId('assignTodo', isMobile, intl);

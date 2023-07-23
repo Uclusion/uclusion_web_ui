@@ -1,30 +1,22 @@
-import WorkListItem from './WorkListItem'
-import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core'
-import React, { useContext, useEffect, useReducer } from 'react'
-import { useIntl } from 'react-intl'
-import { Group as GroupIcon, KeyboardArrowLeft, Inbox as InboxIcon, Delete, ArrowBack } from '@material-ui/icons';
-import OutboxIcon from '../../../components/CustomChip/Outbox'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import _ from 'lodash'
-import { deleteOrDehilightMessages } from '../../../api/users'
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants'
-import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import WorkListItem from './WorkListItem';
+import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core';
+import React, { useContext, useEffect, useReducer } from 'react';
+import { useIntl } from 'react-intl';
+import { ArrowBack, Delete, Group as GroupIcon, Inbox as InboxIcon, KeyboardArrowLeft } from '@material-ui/icons';
+import OutboxIcon from '../../../components/CustomChip/Outbox';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import _ from 'lodash';
+import { deleteOrDehilightMessages } from '../../../api/users';
+import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
+import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getInboxCount, getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
-import InboxRow from './InboxRow'
-import { getPaginatedItems } from '../../../utils/messageUtils'
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox'
+import InboxRow from './InboxRow';
+import { getPaginatedItems } from '../../../utils/messageUtils';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { calculateTitleExpansionPanel, createDefaultInboxRow } from './InboxExpansionPanel';
-import {
-  getUnpaginatedItems,
-  PAGE_SIZE,
-  setPage,
-  setTab
-} from './InboxContext'
+import { getUnpaginatedItems, PAGE_SIZE, setPage, setTab } from './InboxContext';
 import { nameFromDescription } from '../../../utils/stringFunctions';
 import { setOperationInProgress } from '../../../components/ContextHacks/OperationInProgressGlobalProvider';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
@@ -36,10 +28,6 @@ function Inbox(props) {
     workItemId } = props;
   const intl = useIntl();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [marketState] = useContext(MarketsContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [commentsState] = useContext(CommentsContext);
-  const [investiblesState] = useContext(InvestiblesContext);
   const [, , tokensHash] = useContext(MarketsContext);
   const history = useHistory();
   const theme = useTheme();
@@ -49,8 +37,7 @@ function Inbox(props) {
   const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
     {determinate: {}, indeterminate: false, checkAll: false});
   const { indeterminate, determinate, checkAll } = determinateState;
-  const unreadCount = _.isEmpty(search) ?
-    getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState) : 0;
+  const unreadCount = _.isEmpty(search) ? getInboxCount(messagesState) : 0;
   const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex);
 
   useEffect(() => {

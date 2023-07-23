@@ -21,6 +21,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { getFullStage, isNotDoingStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecideReviewStep(props) {
   const { marketId, investibleId, message } = props;
@@ -35,7 +36,6 @@ function DecideReviewStep(props) {
   const info = getMarketInfo(inv, marketId);
   const { stage: currentStageId } = info || {};
   const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
-  const isUnread = message.type_object_id.startsWith('UNREAD');
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, true, true);
   const report = comments.find((comment) => comment.comment_type === REPORT_TYPE);
@@ -76,8 +76,8 @@ function DecideReviewStep(props) {
         otherSpinOnClick={false}
         onOtherNext={createTodo}
         otherNextLabel="DecideAddTask"
-        terminateLabel={isUnread ? 'notificationDismiss' : 'defer'}
-        showTerminate={isUnread || message.is_highlighted}
+        terminateLabel={getLabelForTerminate(message)}
+        showTerminate={getShowTerminate(message)}
         onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
       />
     </div>

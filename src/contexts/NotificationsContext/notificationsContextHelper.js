@@ -96,7 +96,7 @@ export function getInboxTarget() {
   return '/inbox';
 }
 
-export function getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState) {
+export function getInboxCount(messagesState) {
   let calcPend = 0;
   if (!_.isEmpty(messagesState)) {
     const { messages } = messagesState;

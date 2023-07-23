@@ -30,10 +30,10 @@ function TaskReviewStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const comment = getComment(commentsState, marketId, commentId);
   const investibleComments = getInvestibleComments(comment.investible_id, marketId, commentsState);
-  const otherTasksOnly = investibleComments.filter((comment) => {
-    return comment.comment_type === TODO_TYPE && comment.id === commentId;
+  const orderedTasks = investibleComments.filter((comment) => {
+    return comment.comment_type === TODO_TYPE && comment.id !== commentId;
   }) || [];
-  const orderedTasks = otherTasksOnly.unshift(comment);
+  orderedTasks.unshift(comment);
 
   function resolve() {
     return resolveComment(marketId, commentId)

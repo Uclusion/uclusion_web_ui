@@ -18,7 +18,7 @@ import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/You
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { resolveComment } from '../../../api/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { JUSTIFY_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { TODO_TYPE } from '../../../constants/comments';
 
 function TaskReviewStep(props) {
   const { marketId, commentId, message } = props;

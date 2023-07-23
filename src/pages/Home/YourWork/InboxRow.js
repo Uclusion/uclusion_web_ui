@@ -29,6 +29,7 @@ import RateReviewIcon from '@material-ui/icons/RateReview';
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets';
 import ReplyIcon from '@material-ui/icons/Reply';
+import ListAltIcon from '@material-ui/icons/ListAlt';
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
@@ -58,6 +59,8 @@ function getPriorityIcon(message, isAssigned) {
       Icon = QuestionIcon;
     } else if (linkType.includes('SUGGEST')) {
       Icon = LightbulbOutlined;
+    } else if ('INVESTIBLE_REVIEW' === linkType) {
+      Icon = ListAltIcon;
     } else {
       Icon = Block;
     }

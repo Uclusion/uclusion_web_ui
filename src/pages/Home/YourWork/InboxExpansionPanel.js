@@ -47,6 +47,7 @@ import ReplyResolveWizard from '../../../components/InboxWizards/ReplyResolve/Re
 import NewGroupWizard from '../../../components/InboxWizards/NewGroup/NewGroupWizard';
 import RespondInOptionWizard from '../../../components/InboxWizards/OptionResponse/RespondInOptionWizard';
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
+import TaskedWizard from '../../../components/InboxWizards/ReviewNewTask/TaskedWizard';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -129,6 +130,9 @@ export function calculateTitleExpansionPanel(props) {
       setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                  message={message} />,
         'DecideAnswerTitle', intl);
+    } else if ('INVESTIBLE_REVIEW' === linkType) {
+      setItem(item, openExpansion, <TaskedWizard marketId={marketId} commentId={commentId} message={message} />,
+        'NewTaskTitle', intl);
     } else {
       setItem(item, openExpansion, <BlockedWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                   message={message} />,

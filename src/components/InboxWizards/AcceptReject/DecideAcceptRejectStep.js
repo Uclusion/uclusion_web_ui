@@ -53,8 +53,8 @@ function DecideAcceptRejectStep(props) {
     return resolveComment(marketId, commentId)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
-        dismissWorkListItem(message, messagesDispatch, history);
         setOperationRunning(false);
+        dismissWorkListItem(message, messagesDispatch, history);
       });
   }
 

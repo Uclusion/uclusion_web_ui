@@ -121,6 +121,7 @@ function DecideAssistanceStep(props) {
             investible={inv}
             marketInfo={marketInfo}
             isInbox
+            showVoting
             removeActions
           />
         </div>

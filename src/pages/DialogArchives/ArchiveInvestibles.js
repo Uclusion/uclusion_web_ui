@@ -1,39 +1,39 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import { Grid, Typography } from '@material-ui/core'
-import _ from 'lodash'
-import RaisedCard from '../../components/Cards/RaisedCard'
-import { useIntl } from 'react-intl'
-import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
-import { useHistory } from 'react-router'
-import { makeStyles } from '@material-ui/core/styles'
-import { yellow } from '@material-ui/core/colors'
-import { removeHeader, restoreHeader } from '../../containers/Header'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments'
-import { stageChangeInvestible, updateInvestible } from '../../api/investibles'
-import { getInvestible, refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { LocalPlanningDragContext } from '../Dialog/Planning/PlanningDialog'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Grid, Typography } from '@material-ui/core';
+import _ from 'lodash';
+import RaisedCard from '../../components/Cards/RaisedCard';
+import { useIntl } from 'react-intl';
+import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { makeStyles } from '@material-ui/core/styles';
+import { yellow } from '@material-ui/core/colors';
+import { removeHeader, restoreHeader } from '../../containers/Header';
+import { QUESTION_TYPE } from '../../constants/comments';
+import { stageChangeInvestible, updateInvestible } from '../../api/investibles';
+import { getInvestible, refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { LocalPlanningDragContext } from '../Dialog/Planning/PlanningDialog';
 import {
   getFullStage,
-  isBlockedStage, isFurtherWorkStage,
+  isBlockedStage,
+  isFurtherWorkStage,
   isRequiredInputStage
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import Link from '@material-ui/core/Link'
-import { getMarketInfo } from '../../utils/userFunctions'
-import { doRemoveEdit, doShowEdit, onDropTodo } from '../Dialog/Planning/userUtils'
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import Link from '@material-ui/core/Link';
+import { getMarketInfo } from '../../utils/userFunctions';
+import { doRemoveEdit, doShowEdit, onDropTodo } from '../Dialog/Planning/userUtils';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import {
-  getMarketPresences,
-} from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import EditOutlinedIcon from '@material-ui/icons/EditOutlined'
-import { onInvestibleStageChange } from '../../utils/investibleFunctions'
-import { UNASSIGNED_TYPE } from '../../constants/notifications'
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { Block } from '@material-ui/icons'
-import QuestionIcon from '@material-ui/icons/ContactSupport'
+import { getMarketPresences, } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import { onInvestibleStageChange } from '../../utils/investibleFunctions';
+import { UNASSIGNED_TYPE } from '../../constants/notifications';
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { Block } from '@material-ui/icons';
+import QuestionIcon from '@material-ui/icons/ContactSupport';
+import LightbulbOutlined from '../../components/CustomChip/LightbulbOutlined';
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -79,12 +79,9 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
   setBeingDraggedHack, classes) {
   const investibleData = investibles.map((inv) => {
     const aMarketInfo = getMarketInfo(inv, marketId);
-    const { updated_at: invUpdatedAt } = inv.investible;
-    const { updated_at: infoUpdatedAt } = aMarketInfo;
-    const updatedAt = new Date(invUpdatedAt) > new Date(infoUpdatedAt) ? invUpdatedAt : infoUpdatedAt;
-    return { ...inv.investible, updatedAt, enteredStageAt: new Date(aMarketInfo.last_stage_change_date) };
+    return { ...inv.investible, enteredStageAt: new Date(aMarketInfo.last_stage_change_date) };
   });
-  const sortedData = _.sortBy(investibleData, 'updatedAt', 'name').reverse();
+  const sortedData = _.sortBy(investibleData, 'enteredStageAt', 'name').reverse();
   const infoMap = investibles.reduce((acc, inv) => {
     const { investible } = inv;
     const myInfo = getMarketInfo(inv, marketId) || {};
@@ -100,14 +97,11 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
     const info = infoMap[id] || {};
     const { assigned, stage: stageId, ticket_code: ticketCode } = info;
     const stage = getFullStage(marketStagesState, marketId, stageId);
-    const requiresInputComments = (unResolvedMarketComments || []).filter((comment) => {
-      return ((comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE))
-        && (assigned || []).includes(comment.created_by) && (comment.investible_id === id);
-    });
-    const blockedComments = (unResolvedMarketComments || []).filter((comment) => {
-      return (comment.comment_type === ISSUE_TYPE) && (comment.investible_id === id);
-    });
     const usedAssignees = assigned || [];
+    const questionComments = (unResolvedMarketComments || []).filter((comment) => {
+      return (comment.comment_type === QUESTION_TYPE) && (comment.investible_id === id) &&
+        usedAssignees.includes(comment.created_by);
+    });
     const assignedNames = usedAssignees.map((element) => {
       const presence = presenceMap[element];
       return presence ? presence.name : '';
@@ -120,10 +114,10 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
       const originalElementId = `${stageId}_${presenceId}`;
       setBeingDraggedHack({id, stageId, originalElementId});
     }
-    const isDraggable = allowDragDrop && stage && ((_.isEmpty(requiresInputComments) && isRequiredInputStage(stage) )
-      || (_.isEmpty(blockedComments) && isBlockedStage(stage)) || isFurtherWorkStage(stage));
+    const isDraggable = allowDragDrop && stage && isFurtherWorkStage(stage);
     const TypeIcon = isBlockedStage(stage) ? <Block htmlColor='#E85757' />
-      : (isRequiredInputStage(stage) ? <QuestionIcon htmlColor='#E85757' /> : undefined);
+      : (isRequiredInputStage(stage) ? (_.isEmpty(questionComments) ? <LightbulbOutlined htmlColor='#E85757' /> :
+        <QuestionIcon htmlColor='#E85757' />) : undefined);
     const ticketNumber = ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
     return (
       <Grid

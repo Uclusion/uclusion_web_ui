@@ -39,6 +39,20 @@ export function onCommentOpen(investibleState, investibleId, marketStagesState, 
   addCommentToMarket(comment, commentsState, commentsDispatch);
 }
 
+export function getThreads(parents, comments) {
+  const thread = [];
+  parents?.forEach((comment) => {
+    thread.push(comment);
+    comments.forEach((treeCandidate) => {
+      const { root_comment_id: rootId } = treeCandidate;
+      if (comment.id === rootId) {
+        thread.push(treeCandidate);
+      }
+    })
+  });
+  return thread;
+}
+
 export function getThreadIds(parents, comments) {
   const commentIds = [];
   parents.forEach((comment) => {
@@ -152,7 +166,9 @@ export function getCommentsSortedByType(marketComments, investibleId, includeSta
     (!comment.resolved || (includeResolvedTodos && comment.comment_type === TODO_TYPE)) &&
     ([TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type) ||
       (includeStatusReports && comment.comment_type === REPORT_TYPE)));
-  return _.orderBy(commentsRaw, [(comment) => {
+  // include children of all raw
+  const comments = getThreads(commentsRaw, marketComments);
+  return _.orderBy(comments, [(comment) => {
     const { comment_type: commentType } = comment;
     switch (commentType) {
       case REPORT_TYPE:

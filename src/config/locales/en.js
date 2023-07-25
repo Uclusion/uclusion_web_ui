@@ -328,7 +328,7 @@ const messages = defineMessages({
   addCollaboratorsMobile: 'Collaborators',
   pleaseUpgrade: 'Please upgrade',
   pleaseUpgradeMobile: 'Upgrade',
-  unreadReply: 'New reply',
+  unreadReply: 'Will you reply?',
   unreadReplyMobile: 'Reply',
   unreadResolved: 'Resolved comment',
   unreadResolvedMobile: 'Resolved',

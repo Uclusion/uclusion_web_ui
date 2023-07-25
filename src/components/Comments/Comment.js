@@ -600,6 +600,7 @@ function Comment(props) {
     && !removeActions && myPresence === createdBy;
   const showResolve = isSent !== false && enableActions && (myPresence === createdBy ||
     myPresence === updatedBy || !resolved) && !removeActions;
+  const showReopen = showResolve && commentType !== REPORT_TYPE;
   const showAddVoting = commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId
     && marketType === PLANNING_TYPE && !removeActions;
   const yourVote = myInlinePresence && myInlinePresence.investments &&
@@ -746,7 +747,7 @@ function Comment(props) {
                     {!mobileLayout && intl.formatMessage({ id: 'wizardAcceptLabel' })}
                   </SpinningIconLabelButton>
                 )}
-                {showResolve && (
+                {((resolved && showReopen) || (!resolved && showResolve)) && (
                   <SpinningIconLabelButton
                     onClick={resolved ? reopen : resolve}
                     icon={resolved ? SettingsBackupRestore : Done}

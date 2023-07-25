@@ -107,7 +107,7 @@ function DecisionApproveStep(props) {
             Your vote was deleted.
           </Typography>
         )}
-        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
+        <JobDescription marketId={marketId} investibleId={investibleId} showDescription showAssigned={false} />
         <AddInitialVote
           marketId={marketId}
           onChange={onQuantityChange}

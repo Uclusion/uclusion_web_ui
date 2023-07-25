@@ -19,7 +19,7 @@ function quickAddPresences(market, myUser, demoUser, presences) {
   if (myUser != null && demoUser != null) {
     // remove the demo user
     presences.filter((user) => user.id !== demoUser.id);
-    presences.append(myUser);
+    presences.push(myUser);
     presences.forEach((presence) => {
       pushMessage(PUSH_PRESENCE_CHANNEL, { event: DEMO_EVENT, marketId, presence });
     });

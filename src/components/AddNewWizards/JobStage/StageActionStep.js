@@ -123,6 +123,9 @@ function StageActionStep(props) {
           validForm={validForm}
           onNext={onNext}
           nextLabel="JobWizardApproveJob"
+          showTerminate
+          onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
+          terminateLabel="JobWizardGotoJob"
         />
       </div>
     </WizardStepContainer>

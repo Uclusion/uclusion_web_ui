@@ -49,7 +49,7 @@ function DecideFeedbackStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'startJobQ'})}
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={investibleComments} removeActions />
+      <JobDescription marketId={marketId} investibleId={investibleId} removeActions />
       <Voting
         investibleId={message.investible_id}
         marketPresences={marketPresences}
@@ -60,7 +60,6 @@ function DecideFeedbackStep(props) {
         yourPresence={marketPresences.find((presence) => presence.current_user)}
         market={market}
         isInbox
-        isAssigned={true}
       />
       <WizardStepButtons
         {...props}

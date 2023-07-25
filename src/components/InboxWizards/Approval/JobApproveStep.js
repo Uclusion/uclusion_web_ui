@@ -10,6 +10,7 @@ import { updateInvestment } from '../../../api/marketInvestibles';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import { addMarketComments, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import {
+  getMarketPresences,
   getReasonForVote,
   partialUpdateInvestment
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -26,8 +27,11 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useHistory } from 'react-router';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
-import { ISSUE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, JUSTIFY_TYPE } from '../../../constants/comments';
 import { useIntl } from 'react-intl';
+import Voting from '../../../pages/Investible/Decision/Voting';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
@@ -36,10 +40,11 @@ function JobApproveStep(props) {
   const { marketId, updateFormData, formData, message, investibleId, yourVote, isAssigned } = props;
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [investiblesState] = useContext(InvestiblesContext);
+  const [marketsState] = useContext(MarketsContext);
   const history = useHistory();
   const validForm = formData.approveQuantity != null;
   const classes = wizardStyles();
@@ -50,6 +55,11 @@ function JobApproveStep(props) {
   const { group_id: groupId } = marketInfo;
   const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
   const yourReason = getReasonForVote(yourVote, marketComments);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const market = getMarket(marketsState, marketId) || {};
+  const investmentReasons = marketComments.filter((comment) => {
+    return comment.comment_type === JUSTIFY_TYPE && comment.investible_id === investibleId;
+  });
 
   function onNext() {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;
@@ -122,6 +132,17 @@ function JobApproveStep(props) {
           </Typography>
         )}
         <JobDescription marketId={marketId} investibleId={investibleId} showVoting />
+        <Voting
+          investibleId={investibleId}
+          marketPresences={marketPresences}
+          investmentReasons={investmentReasons}
+          showExpiration={true}
+          expirationMinutes={market.investment_expiration * 1440}
+          votingAllowed={false}
+          yourPresence={marketPresences.find((presence) => presence.current_user)}
+          market={market}
+          isInbox
+        />
         <AddInitialVote
           marketId={marketId}
           onChange={onQuantityChange}

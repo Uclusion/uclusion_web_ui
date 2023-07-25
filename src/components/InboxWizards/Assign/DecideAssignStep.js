@@ -5,13 +5,10 @@ import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useHistory } from 'react-router'
-import { wizardFinish } from '../InboxWizardUtils'
-import { formInvestibleLink } from '../../../utils/marketIdPathFunctions'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem'
+import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import JobDescription from '../JobDescription'
 import { updateInvestible } from '../../../api/investibles'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
@@ -20,15 +17,19 @@ import { getMarketComments } from '../../../contexts/CommentsContext/commentsCon
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
+import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { getMarketInfo } from '../../../utils/userFunctions';
 
 
 function DecideAssignStep(props) {
-  const { marketId, investibleId, clearFormData, message } = props;
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const { marketId, investibleId, message } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
@@ -49,9 +50,10 @@ function DecideAssignStep(props) {
     };
     return updateInvestible(updateInfo).then((fullInvestible) => {
       refreshInvestibles(invDispatch, () => {}, [fullInvestible]);
-      clearFormData();
-      wizardFinish( { link: formInvestibleLink(marketId, investibleId) }, setOperationRunning, message,
-        history, marketId, investibleId, messagesDispatch);
+      setOperationRunning(false);
+      dismissWorkListItem(message, messagesDispatch);
+      const marketInfo = getMarketInfo(fullInvestible, marketId);
+      navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, marketInfo.group_id))
     });
   }
 

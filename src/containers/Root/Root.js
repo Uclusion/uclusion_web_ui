@@ -30,6 +30,7 @@ import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexCont
 import { setOperationInProgress } from '../../components/ContextHacks/OperationInProgressGlobalProvider';
 import GroupEdit from '../../pages/DialogSettings/GroupEdit';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
+import { refreshVersions } from '../../api/versionedFetchUtils';
 
 const useStyles = makeStyles({
   body: {
@@ -150,10 +151,14 @@ function Root() {
   },  [pathname, history, ticketState]);
 
   useEffect(() => {
-    function pegView(isEntry) {
+    function handleViewChange(isEntry) {
       const currentPath = window.location.pathname;
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);
       broadcastView(marketId, investibleId, isEntry, action);
+      if(isEntry){
+        // refresh our versions if we're entering
+        refreshVersions();
+      }
     }
 
     if (!window.myListenerMarker) {
@@ -161,15 +166,15 @@ function Root() {
       // console.debug('Adding listeners');
       window.addEventListener('load', () => {
         // console.debug('Load listener');
-        pegView(true)
+        handleViewChange(true)
       }, { passive: true })
       window.addEventListener('focus', () => {
         // console.debug('Focus listener');
-        pegView(true)
+        handleViewChange(true)
       }, { passive: true })
       // window.addEventListener('blur', () => {
       //   console.debug('Blur listener');
-      //   pegView(false);
+      //   handleViewChange(false);
       // });
       window.addEventListener('online', () => {
         // console.debug('Back Online listener');
@@ -182,12 +187,12 @@ function Root() {
       }, { passive: true })
       // window.addEventListener('popstate', () => {
       //   console.debug('Popstate');
-      //   pegView(true);
+      //   handleViewChange(true);
       // });
       document.addEventListener('visibilitychange', () => {
         // console.debug('Visibility change listener');
         const isEntry = document.visibilityState === 'visible'
-        pegView(isEntry)
+        handleViewChange(isEntry)
       }, { passive: true })
     //  window.onanimationiteration = console.debug;
       registerMarketTokenListeners();

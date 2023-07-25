@@ -45,6 +45,9 @@ function getPriorityIcon(message, isAssigned) {
       && linkType === 'MARKET_TODO')) {
     Icon = PersonAddOutlined;
   }
+  if (message.type === 'INVESTIBLE_SUBMITTED') {
+    Icon = ThumbsUpDownIcon;
+  }
   if (message.type === 'NOT_FULLY_VOTED') {
     if (marketType === INITIATIVE_TYPE) {
       Icon = LightbulbOutlined;

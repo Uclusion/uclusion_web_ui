@@ -60,7 +60,7 @@ import {
 import { useHistory } from 'react-router';
 import { marketAbstain } from '../../api/markets';
 import {
-  handleAcceptSuggestion,
+  handleAcceptSuggestion, isSingleAssisted,
   onCommentOpen
 } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
@@ -507,8 +507,9 @@ function Comment(props) {
   function myAccept () {
     setOperationRunning(true);
     return updateComment({marketId, commentId: id, commentType: TODO_TYPE}).then((comment) => {
-      handleAcceptSuggestion({ isOwner: myPresence === createdBy, comment, investible,
-        investiblesDispatch, marketStagesState, commentsState, commentsDispatch, messagesState })
+      handleAcceptSuggestion({ isMove: myPresenceIsAssigned && myPresence === createdBy &&
+          isSingleAssisted(comments, assigned), comment, investible, investiblesDispatch, marketStagesState,
+        commentsState, commentsDispatch, messagesState })
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, id));
     })
@@ -1061,7 +1062,7 @@ function Reply(props) {
   function myAccept () {
     setOperationRunning(true);
     return updateComment({marketId, commentId: comment.id, commentType: TODO_TYPE}).then((comment) => {
-      handleAcceptSuggestion({ isOwner: false, comment, commentsState, commentsDispatch, messagesState })
+      handleAcceptSuggestion({ isMove: false, comment, commentsState, commentsDispatch, messagesState });
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
     })

@@ -65,8 +65,8 @@ function DecideAssistanceStep(props) {
 
   function accept() {
     return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
-      handleAcceptSuggestion({ isOwner: true, comment, investible: inv, investiblesDispatch, marketStagesState,
-        commentsState, commentsDispatch, messagesState, messagesDispatch })
+      handleAcceptSuggestion({ isMove: isSingle, comment, investible: inv, investiblesDispatch,
+        marketStagesState, commentsState, commentsDispatch, messagesState, messagesDispatch })
       setOperationRunning(false);
     })
   }

@@ -94,9 +94,9 @@ function changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos
 }
 
 export function handleAcceptSuggestion(info) {
-  const { isOwner, comment, investible, investiblesDispatch, marketStagesState, commentsState,
+  const { isMove, comment, investible, investiblesDispatch, marketStagesState, commentsState,
     commentsDispatch, messagesState, messagesDispatch } = info;
-  if (isOwner) {
+  if (isMove) {
     const marketInfo = getMarketInfo(investible, comment.market_id);
     changeInvestibleStageOnCommentClose([marketInfo], investible.investible, investiblesDispatch,
       comment, marketStagesState);

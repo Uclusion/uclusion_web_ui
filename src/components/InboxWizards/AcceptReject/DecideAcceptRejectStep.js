@@ -42,7 +42,7 @@ function DecideAcceptRejectStep(props) {
   function accept() {
     return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
       const investible = getInvestible(investiblesState, comment.investible_id);
-      handleAcceptSuggestion({ isOwner: true, comment, investible, investiblesDispatch, marketStagesState,
+      handleAcceptSuggestion({ isMove: false, comment, investible, investiblesDispatch, marketStagesState,
         commentsState, commentsDispatch, messagesState, messagesDispatch })
       setOperationRunning(false);
       navigate(history, getInboxTarget());

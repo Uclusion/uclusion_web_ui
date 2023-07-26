@@ -33,7 +33,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, getMyUserForMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import CardType, { BUG, DECISION_TYPE, IN_REVIEW } from '../CardType';
 import {
-  addCommentToMarket, addMarketComments,
+  addCommentToMarket, addMarketComments, getCommentRoot,
   getMarketComments
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
@@ -1038,7 +1038,7 @@ function Reply(props) {
   const [marketsState] = useContext(MarketsContext);
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const [messagesState] = useContext(NotificationsContext);
-  const [, commentsDispatch] = useContext(CommentsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
   const userId = getMyUserForMarket(marketsState, marketId) || {};
@@ -1050,10 +1050,21 @@ function Reply(props) {
     getPageReducerPage(replyAddStateFull, replyAddDispatch, comment.id);
   const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, comment.id);
+  const rootComment = getCommentRoot(commentsState, marketId, comment.id);
+  const showConvert = rootComment?.comment_type === REPORT_TYPE && !isInbox;
 
   function handleEditClick() {
     navigateEditReplyBack(history, comment.id, marketId, comment.group_id, comment.investible_id, replyEditId,
       false, isFromInbox, setNoHighlightId);
+  }
+
+  function myAccept () {
+    setOperationRunning(true);
+    return updateComment({marketId, commentId: comment.id, commentType: TODO_TYPE}).then((comment) => {
+      handleAcceptSuggestion({ isOwner: false, comment, commentsState, commentsDispatch, messagesState })
+      setOperationRunning(false);
+      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
+    })
   }
 
   function remove() {
@@ -1119,6 +1130,12 @@ function Reply(props) {
                 translationId="commentRemoveLabel"
                 doFloatRight
               />
+            )}
+            {showConvert && (
+              <SpinningIconLabelButton onClick={myAccept} icon={ListAltIcon} id={`convertToTask${comment.id}`}
+                                       style={{float: 'right'}}>
+                {!mobileLayout && intl.formatMessage({ id: 'wizardAcceptLabel' })}
+              </SpinningIconLabelButton>
             )}
             {beingEdited && (
               <CommentEdit

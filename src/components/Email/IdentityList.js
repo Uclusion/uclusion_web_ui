@@ -87,7 +87,7 @@ function IdentityList (props) {
     <List
       dense
       className={clsx(classes.scrollableList, classes.sharedForm)}
-      style={{paddingTop: 0, paddingBottom: 0}}
+      style={{paddingTop: 0, paddingBottom: 0, overflowX: 'hidden'}}
     >
       <ListItem className={classes.searchContainer} key="search">
         {_.size(participants) > 10 && (

@@ -44,7 +44,7 @@ function JobStageWizard(props) {
   }
 
   function requiresAction(fullMoveStage) {
-    if (!_.isEmpty(fullMoveStage)) {
+    if (!_.isEmpty(fullMoveStage)&&!isNotDoingStage(fullMoveStage)) {
       if (fullMoveStage.close_comments_on_entrance) {
         return true;
       }

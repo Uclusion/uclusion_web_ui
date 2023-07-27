@@ -115,13 +115,15 @@ function JobStageStep (props) {
   }
 
   function doIncrement() {
-    if (_.isEmpty(assigned)) {
-      // Go to next normal step
-      nextStep();
-    } else if (isCloseComments) {
-      nextStep(2);
-    } else if (requiresAction(fullMoveStage)) {
-      nextStep(3);
+    if (!isNotDoingStage(fullMoveStage)) {
+      if (_.isEmpty(assigned)) {
+        // Go to next normal step
+        nextStep();
+      } else if (isCloseComments) {
+        nextStep(2);
+      } else if (requiresAction(fullMoveStage)) {
+        nextStep(3);
+      }
     }
   }
   return (

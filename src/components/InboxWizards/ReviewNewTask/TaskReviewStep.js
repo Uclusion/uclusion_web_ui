@@ -16,7 +16,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { useIntl } from 'react-intl';
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
-import { resolveComment } from '../../../api/comments';
+import { updateComment } from '../../../api/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function TaskReviewStep(props) {
@@ -34,13 +34,12 @@ function TaskReviewStep(props) {
   }) || [];
   orderedTasks.unshift(comment);
 
-  function resolve() {
-    return resolveComment(marketId, commentId)
-      .then((comment) => {
-        addCommentToMarket(comment, commentsState, commentsDispatch);
-        setOperationRunning(false);
-        dismissWorkListItem(message, messagesDispatch, history);
-      });
+  function markInProgress() {
+    return updateComment({marketId, commentId, inProgress: true}).then((comment) => {
+      setOperationRunning(false);
+      addCommentToMarket(comment, commentsState, commentsDispatch);
+      dismissWorkListItem(message, messagesDispatch, history);
+    });
   }
 
   return (
@@ -58,8 +57,8 @@ function TaskReviewStep(props) {
         nextLabel="issueReplyLabel"
         spinOnClick={false}
         showOtherNext
-        onOtherNext={resolve}
-        otherNextLabel="issueResolveLabel"
+        onOtherNext={markInProgress}
+        otherNextLabel="markInProgress"
         onOtherNextDoAdvance={false}
         terminateLabel={getLabelForTerminate(message)}
         showTerminate={getShowTerminate(message)}

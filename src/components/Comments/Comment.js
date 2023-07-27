@@ -516,13 +516,16 @@ function Comment(props) {
 
   function resolve() {
     return resolveComment(marketId, id)
-      .then((comment) => {
+      .then((response) => {
+        const comment = commentType === REPORT_TYPE ? response['comment'] : response;
         addCommentToMarket(comment, commentsState, commentsDispatch);
         removeMessagesForCommentId(id, messagesState);
         if (inlineMarketId) {
           removeInlineMarketMessages(inlineMarketId, investiblesState, commentsState, messagesState, messagesDispatch);
         }
-        if (resolvedStageId) {
+        if (commentType === REPORT_TYPE) {
+          addInvestible(investiblesDispatch, () => {}, response['investible']);
+        } else if (resolvedStageId) {
           const newInfo = {
             ...marketInfo,
             stage: resolvedStageId,

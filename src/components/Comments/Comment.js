@@ -7,7 +7,8 @@ import {
   Card,
   CardActions,
   CardContent,
-  Checkbox, FormControlLabel,
+  Checkbox,
+  FormControlLabel,
   Typography,
   useMediaQuery,
   useTheme
@@ -33,12 +34,14 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, getMyUserForMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import CardType, { BUG, DECISION_TYPE, IN_REVIEW } from '../CardType';
 import {
-  addCommentToMarket, addMarketComments, getCommentRoot,
-  getMarketComments
+  addCommentToMarket,
+  addMarketComments,
+  getCommentRoot
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import {
-  ACTIVE_STAGE, BUG_WIZARD_TYPE,
+  ACTIVE_STAGE,
+  BUG_WIZARD_TYPE,
   INITIATIVE_TYPE,
   JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
   OPTION_WIZARD_TYPE,
@@ -46,7 +49,7 @@ import {
 } from '../../constants/markets';
 import { red } from '@material-ui/core/colors';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
-import { addInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
@@ -55,19 +58,16 @@ import {
   formCommentLink,
   formMarketAddInvestibleLink,
   formWizardLink,
-  navigate, preventDefaultAndProp
+  navigate,
+  preventDefaultAndProp
 } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { marketAbstain } from '../../api/markets';
-import {
-  handleAcceptSuggestion, isSingleAssisted,
-  onCommentOpen
-} from '../../utils/commentFunctions';
+import { handleAcceptSuggestion, isSingleAssisted, onCommentOpen } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
   findMessageForCommentId,
-  findMessagesForCommentId,
-  findMessagesForInvestibleId,
+  removeInlineMarketMessages,
   removeMessagesForCommentId
 } from '../../utils/messageUtils';
 import GravatarAndName from '../Avatars/GravatarAndName';
@@ -91,7 +91,6 @@ import { getInboxTarget } from '../../contexts/NotificationsContext/notification
 import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { removeMessages } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import { ScrollContext } from '../../contexts/ScrollContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
@@ -521,18 +520,7 @@ function Comment(props) {
         addCommentToMarket(comment, commentsState, commentsDispatch);
         removeMessagesForCommentId(id, messagesState);
         if (inlineMarketId) {
-          const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || []
-          const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || []
-          inlineInvestibles.forEach((inv) => {
-            const messages = findMessagesForInvestibleId(inv.investible.id, messagesState) || [];
-            const messageIds = messages.map((message) => message.type_object_id);
-            messagesDispatch(removeMessages(messageIds));
-          })
-          anInlineMarketInvestibleComments.forEach((comment) => {
-            const messages = findMessagesForCommentId(comment.id, messagesState) || [];
-            const messageIds = messages.map((message) => message.type_object_id);
-            messagesDispatch(removeMessages(messageIds));
-          })
+          removeInlineMarketMessages(inlineMarketId, investiblesState, commentsState, messagesState, messagesDispatch);
         }
         if (resolvedStageId) {
           const newInfo = {

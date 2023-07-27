@@ -5,13 +5,16 @@ import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { addCommentToMarket, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import {
+  addCommentToMarket,
+  getCommentRoot, getInvestibleComments,
+} from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
-import { findMessageForCommentId } from '../../../utils/messageUtils';
+import { findMessageForCommentId, removeInlineMarketMessages } from '../../../utils/messageUtils';
 import _ from 'lodash';
 import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -24,6 +27,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { REPORT_TYPE } from '../../../constants/comments';
 import { useHistory } from 'react-router';
+import { isSingleAssisted } from '../../../utils/commentFunctions';
 
 function DecideReplyStep(props) {
   const { marketId, commentId, message } = props;
@@ -36,7 +40,8 @@ function DecideReplyStep(props) {
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const userId = getMyUserForMarket(marketsState, marketId) || {};
   const canResolve = commentRoot.created_by === userId && commentRoot.comment_type !== REPORT_TYPE;
-  const comments = (commentState[marketId] || []).filter((comment) =>
+  const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState)
+  const comments = investibleComments.filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const threadMessages = [];
   comments.forEach((comment) => {
@@ -52,7 +57,7 @@ function DecideReplyStep(props) {
   const inv = commentRoot.investible_id ? getInvestible(investiblesState, commentRoot.investible_id)
     : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage, former_stage_id: formerStageId } = marketInfo;
+  const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
 
   function myOnFinish() {
@@ -67,7 +72,12 @@ function DecideReplyStep(props) {
     return resolveComment(marketId, commentRoot.id)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
-        if (formerStageId && fullStage && isRequiredInputStage(fullStage)) {
+        const inlineMarketId = comment.inline_market_id;
+        if (inlineMarketId) {
+          removeInlineMarketMessages(inlineMarketId, investiblesState, commentState, messagesState, messagesDispatch);
+        }
+        if (formerStageId && fullStage && isRequiredInputStage(fullStage) &&
+          isSingleAssisted(investibleComments, assigned)) {
           const newInfo = {
             ...marketInfo,
             stage: formerStageId,

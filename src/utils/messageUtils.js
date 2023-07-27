@@ -2,7 +2,9 @@ import { DECISION_TYPE, INITIATIVE_TYPE } from '../constants/markets'
 import { removeWorkListItem } from '../pages/Home/YourWork/WorkListItem'
 import _ from 'lodash'
 import { REPORT_TYPE } from '../constants/comments'
-import { quickRemoveMessages } from '../contexts/NotificationsContext/notificationsContextReducer';
+import { quickRemoveMessages, removeMessages } from '../contexts/NotificationsContext/notificationsContextReducer';
+import { getMarketInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketComments } from '../contexts/CommentsContext/commentsContextHelper';
 
 function getMessageTextForId(rawId, isMobile, intl) {
   const id = isMobile ? `${rawId}Mobile` : rawId;
@@ -16,6 +18,22 @@ export function getShowTerminate(message) {
 export function getLabelForTerminate(message) {
   return message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' :
     (message.is_highlighted ? 'defer' : 'DecideWizardMute');
+}
+
+export function removeInlineMarketMessages(inlineMarketId, investiblesState, commentsState, messagesState,
+  messagesDispatch) {
+  const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || [];
+  const anInlineMarketInvestibleComments = getMarketComments(commentsState, inlineMarketId) || [];
+  inlineInvestibles.forEach((inv) => {
+    const messages = findMessagesForInvestibleId(inv.investible.id, messagesState) || [];
+    const messageIds = messages.map((message) => message.type_object_id);
+    messagesDispatch(removeMessages(messageIds));
+  });
+  anInlineMarketInvestibleComments.forEach((comment) => {
+    const messages = findMessagesForCommentId(comment.id, messagesState) || [];
+    const messageIds = messages.map((message) => message.type_object_id);
+    messagesDispatch(removeMessages(messageIds));
+  });
 }
 
 export function titleText(message, isMobile, intl, comment, userId, isInVotingStage, assigned) {

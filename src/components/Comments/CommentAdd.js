@@ -379,7 +379,8 @@ function CommentAdd(props) {
     buttons: type === REPLY_TYPE && !isWizard ? buttons : undefined
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
-  function handleSave(isSent, passedNotificationType, doCreateInitiative, isJustClear=false) {
+  function handleSave(isSent, passedNotificationType, doCreateInitiative, isJustClear=false,
+    stopOperationRunning=true) {
     const currentUploadedFiles = uploadedFiles || [];
     const myBodyNow = getQuillStoredState(editorName);
     const {
@@ -431,7 +432,9 @@ function CommentAdd(props) {
             handleSpinStop(comment, isJustClear);
           });
         }
-        setOperationRunning(false);
+        if (stopOperationRunning) {
+          setOperationRunning(false);
+        }
         handleSpinStop(comment, isJustClear);
       });
   }
@@ -453,6 +456,12 @@ function CommentAdd(props) {
                   validForm={hasValue}
                   nextLabel="commentAddSendLabel"
                   onNext={() => handleSave( true)}
+                  showOtherNext
+                  otherNextLabel="commentAddSendResolve"
+                  onOtherNext={() => handleSave( true, undefined, undefined,
+                    true, false).then(() => {
+                    wizardProps.onResolve();
+                  })}
                   showTerminate
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardStartOver'}
                 />

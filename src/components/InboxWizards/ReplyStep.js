@@ -4,27 +4,34 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from './WizardStepContainer';
 import { wizardStyles } from './WizardStylesContext';
 import {
+  addCommentToMarket,
   getCommentRoot,
   getInvestibleComments
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../utils/userFunctions';
-import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage, isRequiredInputStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { dismissWorkListItem } from '../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import CommentBox from '../../containers/CommentBox/CommentBox';
 import { useHistory } from 'react-router';
+import { resolveComment } from '../../api/comments';
+import { removeInlineMarketMessages } from '../../utils/messageUtils';
+import { isSingleAssisted } from '../../utils/commentFunctions';
+import _ from 'lodash';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function ReplyStep(props) {
   const { marketId, commentId, message } = props;
   const history = useHistory();
-  const [commentState] = useContext(CommentsContext);
-  const [investibleState] = useContext(InvestiblesContext);
+  const [commentState, commentDispatch] = useContext(CommentsContext);
+  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const classes = wizardStyles();
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
@@ -32,11 +39,38 @@ function ReplyStep(props) {
   const comments = investibleComments.filter((comment) => comment.root_comment_id === commentRoot?.id
     || comment.id === commentRoot?.id);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage } = marketInfo;
+  const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
 
   function myTerminate() {
     dismissWorkListItem(message, messagesDispatch, history);
+  }
+
+  function resolve() {
+    return resolveComment(marketId, commentRoot.id)
+      .then((comment) => {
+        addCommentToMarket(comment, commentState, commentDispatch);
+        const inlineMarketId = comment.inline_market_id;
+        if (inlineMarketId) {
+          removeInlineMarketMessages(inlineMarketId, investibleState, commentState, messagesState, messagesDispatch);
+        }
+        if (formerStageId && fullStage && isRequiredInputStage(fullStage) &&
+          isSingleAssisted(investibleComments, assigned)) {
+          const newInfo = {
+            ...marketInfo,
+            stage: formerStageId,
+            last_stage_change_date: comment.updated_at,
+          };
+          const newInfos = _.unionBy([newInfo], inv.market_infos, 'id');
+          const newInvestible = {
+            investible: inv.investible,
+            market_infos: newInfos
+          };
+          addInvestible(investiblesDispatch, () => {}, newInvestible);
+        }
+        setOperationRunning(false);
+        dismissWorkListItem(message, messagesDispatch, history);
+      });
   }
 
   return (
@@ -58,7 +92,7 @@ function ReplyStep(props) {
         removeActions
         replyEditId={commentId}
         isReply
-        wizardProps={{...props, isReply: true, onSave: myTerminate}}
+        wizardProps={{...props, isReply: true, onSave: myTerminate, onResolve: resolve}}
       />
     </div>
     </WizardStepContainer>

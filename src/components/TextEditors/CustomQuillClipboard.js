@@ -1,7 +1,9 @@
 import Quill from 'quill'
 import isUrl from 'is-url'
 import _ from 'lodash'
-import { getNameForUrl } from '../../utils/marketIdPathFunctions';
+import { getNameForUrl, getUrlForTicketPath } from '../../utils/marketIdPathFunctions';
+import { isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
+import { ticketContextHack } from '../../contexts/TicketContext/TicketIndexContext';
 
 const Clipboard = Quill.import('modules/clipboard');
 /**
@@ -41,12 +43,20 @@ class CustomQuillClipboard extends Clipboard {
     let text = e.clipboardData.getData('text/plain');
     if(isUrl(text)){
       const name = getNameForUrl(text);
+      let url = text;
+      const urlParts = new URL(url);
+      if (isTicketPath(urlParts.pathname)) {
+        const urlFromTicket = getUrlForTicketPath(urlParts.pathname, ticketContextHack);
+        if (urlFromTicket) {
+          url = urlFromTicket;
+        }
+      }
       if (_.isEmpty(filteredHtml) || !_.isEmpty(name)){
         if (name) {
-          filteredHtml = `<a target="_self" href="${text}">${name}</a>`;
+          filteredHtml = `<a target="_self" href="${url}">${name}</a>`;
         }
         else {
-          filteredHtml = `<a href="${text}">${text}</a>`;
+          filteredHtml = `<a href="${url}">${text}</a>`;
         }
         text = undefined;
       }

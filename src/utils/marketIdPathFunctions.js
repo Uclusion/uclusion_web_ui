@@ -107,6 +107,19 @@ function getNameForComment(comment, investibleState) {
   return readableTicketCode;
 }
 
+export function getUrlForTicketPath(pathname, ticketState) {
+  const ticket = getTicket(ticketState, pathname.substring(1));
+  if (ticket) {
+    if (isInvestibleTicket(pathname)) {
+      const { marketId, investibleId } = ticket;
+      return formInvestibleLink(marketId, investibleId);
+    }
+    const { marketId, commentId, groupId, investibleId } = ticket;
+    return formCommentLink(marketId, groupId, investibleId, commentId);
+  }
+  return undefined;
+}
+
 export function getNameForUrl(url) {
   const marketState = marketsContextHack;
   const investibleState = investibleContextHack;

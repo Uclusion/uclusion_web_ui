@@ -9,8 +9,7 @@ import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {
   broadcastView,
   decomposeMarketPath,
-  formCommentLink,
-  formInvestibleLink,
+  getUrlForTicketPath,
   navigate,
 } from '../../utils/marketIdPathFunctions';
 import Home from '../../pages/Home/Home';
@@ -25,7 +24,7 @@ import Wizard from '../../pages/Home/Wizard';
 import InboxFull from '../../pages/Home/YourWork/InboxFull';
 import CommentReplyEdit from '../../pages/Comment/CommentReplyEdit';
 import PlanningMarketEdit from '../../pages/Dialog/Planning/PlanningMarketEdit';
-import { getTicket, isInvestibleTicket, isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
+import { isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
 import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext';
 import { setOperationInProgress } from '../../components/ContextHacks/OperationInProgressGlobalProvider';
 import GroupEdit from '../../pages/DialogSettings/GroupEdit';
@@ -137,15 +136,9 @@ function Root() {
 
   useEffect(() => {
     if (isTicketPath(pathname)) {
-      const ticket = getTicket(ticketState, pathname.substring(1));
-      if (ticket) {
-        if (isInvestibleTicket(pathname)) {
-          const { marketId, investibleId } = ticket;
-          navigate(history, formInvestibleLink(marketId, investibleId), true);
-        } else {
-          const { marketId, commentId, groupId, investibleId } = ticket;
-          navigate(history, formCommentLink(marketId, groupId, investibleId, commentId), true);
-        }
+      const url = getUrlForTicketPath(pathname, ticketState);
+      if (url) {
+        navigate(history, url, true);
       }
     }
   },  [pathname, history, ticketState]);

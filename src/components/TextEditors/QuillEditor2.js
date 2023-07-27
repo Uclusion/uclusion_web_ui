@@ -20,13 +20,15 @@ import ImageResize from 'quill-image-resize-module-withfix';
 import QuillMention from 'quill-mention-uclusion';
 import CustomCodeBlock from './CustomCodeBlock';
 import PropTypes from 'prop-types';
-import { getNameForUrl } from '../../utils/marketIdPathFunctions';
+import { getNameForUrl, getUrlForTicketPath } from '../../utils/marketIdPathFunctions';
 import ImageBlot from './ImageBlot';
 import QuillEditorRegistry from './QuillEditorRegistry';
 import {
   createEditor,
   getBoundsId
 } from './Utilities/CoreUtils';
+import { isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
+import { ticketContextHack } from '../../contexts/TicketContext/TicketIndexContext';
 
 // https://github.com/derrickpelletier/react-loading-overlay/pull/57
 LoadingOverlay.propTypes = undefined;
@@ -121,15 +123,23 @@ function QuillEditor2 (props) {
           // position and insert the url as the text,
           // otherwise just format the current selection as a link
           const selected = editor.getSelection(true);
+          let url = link;
+          const urlParts = new URL(url);
+          if (isTicketPath(urlParts.pathname)) {
+            const urlFromTicket = getUrlForTicketPath(urlParts.pathname, ticketContextHack);
+            if (urlFromTicket) {
+              url = urlFromTicket;
+            }
+          }
           //do we have nothing selected i.e. a zero length selection?
           if (selected.length === 0) {
             const index = selected ? selected.index : 0; // no position? do it at the front
             // if so, the selection is just the cursor position, so insert our new text there
             const name = getNameForUrl(link);
-            editor.insertText(index, _.isEmpty(name) ? link : name, 'link', link, 'user');
+            editor.insertText(index, _.isEmpty(name) ? url : name, 'link', url, 'user');
             //refocus the editor because for some reason it moves to the top during insert
           } else {
-            editor.format('link', link);
+            editor.format('link', url);
           }
         }}
       />

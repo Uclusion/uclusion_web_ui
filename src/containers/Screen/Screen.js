@@ -45,6 +45,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
+    overflowX: 'hidden'
   },
   container: {
     padding: '46px 20px 156px',

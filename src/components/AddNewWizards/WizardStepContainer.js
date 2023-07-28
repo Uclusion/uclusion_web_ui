@@ -8,7 +8,8 @@ function WizardStepContainer (props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const classes = wizardStyles();
   return (
-    <div className={classes.baseCard} style={{maxWidth: mobileLayout ? undefined : (isLarge ? '990px' : '725px')}}>
+    <div className={classes.baseCard} style={{overflowX: 'hidden',
+      maxWidth: mobileLayout ? undefined : (isLarge ? '990px' : '725px')}}>
       <div>
         {children}
       </div>

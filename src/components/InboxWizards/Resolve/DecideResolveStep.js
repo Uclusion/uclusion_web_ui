@@ -73,11 +73,8 @@ function DecideResolveStep(props) {
     return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
       addCommentToMarket(comment, commentState, commentDispatch);
       setOperationRunning(false);
-      if (!commentRoot.investible_id) {
-        // Only need to move if market suggestion
-        navigate(history,
-          `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}`);
-      }
+      navigate(history,
+        `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}`)
     })
   }
 

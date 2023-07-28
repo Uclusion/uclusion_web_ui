@@ -34,7 +34,8 @@ export const wizardStyles = makeStyles(
         marginRight: 'auto',
         padding: '32px',
         [theme.breakpoints.down('sm')]: {
-          marginTop: '0px',
+          paddingLeft: 0,
+          paddingRight: 0
         }
       },
       introText: {
@@ -92,6 +93,9 @@ export const wizardStyles = makeStyles(
         },
         [theme.breakpoints.down('xs')]: {
           flexDirection: 'column',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          paddingRight: '3rem',
           '& button': {
             width: '100%',
             marginBottom: '20px'

@@ -98,6 +98,9 @@ export const wizardStyles = makeStyles(
         },
         [theme.breakpoints.down('xs')]: {
           flexDirection: 'column',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          paddingRight: '3rem',
           '& button': {
             width: '100%',
             marginBottom: '20px'

@@ -9,7 +9,7 @@ import { editorEmpty, getQuillStoredState, resetEditor, storeState } from '../..
 import { useEditor } from '../../TextEditors/quillHooks';
 import { convertDescription } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
-import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -34,12 +34,12 @@ function JobDescriptionStep (props) {
   const editorName = isSingleComment ? `addJobWizardF${fromCommentIds[0]}` : `addJobWizard${groupId}`;
   if (isSingleComment && _.isEmpty(getQuillStoredState(editorName))) {
     const fromComment = marketComments.find((comment) => comment.id === fromCommentIds[0]);
-    const { body, ticket_code: ticketCode } = fromComment || {};
+    const { body, ticket_code: ticketCode, id, investible_id: investibleId } = fromComment || {};
     // No need to clip to 80 here as that will happen when save
     const { name } = convertDescription(body, 200);
     if (!_.isEmpty(name)) {
       storeState(editorName,
-        `<p>${name} From <a href="${window.location.protocol}//${window.location.host}/${marketId}/${ticketCode}">${ticketCode}</a>.</p>`);
+        `<p>${name} From <a href="${window.location.protocol}//${window.location.host}${formCommentLink(marketId, groupId, investibleId, id)}">${ticketCode}</a>.</p>`);
     }
   }
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));

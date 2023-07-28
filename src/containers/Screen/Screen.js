@@ -49,9 +49,11 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     padding: '46px 20px 156px',
+    overflowX: 'hidden'
   },
   containerAll: {
     padding: '24px 20px 156px',
+    overflowX: 'hidden',
     marginTop: '65px',
     width: '100%',
     [theme.breakpoints.down('md')]: {
@@ -60,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
   },
   containerAllLeftPad: {
     padding: '10px 20px 156px 24px',
+    overflowX: 'hidden',
     marginTop: '65px',
     width: '100%',
     [theme.breakpoints.down('md')]: {

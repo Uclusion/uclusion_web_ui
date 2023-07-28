@@ -29,6 +29,7 @@ import { getInboxTarget } from '../../../contexts/NotificationsContext/notificat
 const Item = styled("div")`
   margin-bottom: 1px;
   min-width: 80vw;
+  overflow-x: hidden;
 `
 
 const Div = styled("div")`

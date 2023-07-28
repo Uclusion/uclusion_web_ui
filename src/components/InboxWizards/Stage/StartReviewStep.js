@@ -52,7 +52,6 @@ function StartReviewStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
         What did you complete?
       </Typography>
@@ -69,7 +68,6 @@ function StartReviewStep(props) {
         onSave={onSave}
         nameDifferentiator="startReview"
       />
-    </div>
     </WizardStepContainer>
   );
 }

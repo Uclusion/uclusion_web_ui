@@ -39,7 +39,6 @@ function InviteByEmailStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText} variant="h6">
         Who should be added by email?
       </Typography>
@@ -47,7 +46,6 @@ function InviteByEmailStep(props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons {...props} showSkip={false} showLink={true} finish={myOnFinish} formData={formData}
                          marketToken={market.invite_capability}/>
-    </div>
     </WizardStepContainer>
   );
 }

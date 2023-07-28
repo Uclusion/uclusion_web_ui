@@ -56,7 +56,6 @@ function DecideAnswerStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideAnswerTitle'})}
       </Typography>
@@ -123,7 +122,6 @@ function DecideAnswerStep(props) {
           terminateLabel={getLabelForTerminate(message)}
         />
       )}
-    </div>
     </WizardStepContainer>
   );
 }

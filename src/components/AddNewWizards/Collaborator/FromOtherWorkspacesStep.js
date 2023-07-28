@@ -36,14 +36,12 @@ function FromOtherWorkspacesStep (props) {
     <WizardStepContainer
       {...props}
     >
-      <div>
         <Typography className={wizardClasses.introText}>
           Who should be added from other workspaces?
         </Typography>
         <IdentityList participants={participants} setChecked={setChecked} checked={checked} />
         <div className={wizardClasses.borderBottom}/>
         <WizardStepButtons {...props} showSkip={true} onNext={onNext} validForm={!_.isEmpty(checked)}/>
-      </div>
     </WizardStepContainer>
   );
 }

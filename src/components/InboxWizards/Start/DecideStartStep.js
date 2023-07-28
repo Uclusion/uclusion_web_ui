@@ -57,7 +57,6 @@ function DecideStartStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideStartTitle'})}
       </Typography>
@@ -85,7 +84,6 @@ function DecideStartStep(props) {
         showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
         onFinish={myTerminate}
       />
-    </div>
     </WizardStepContainer>
   );
 }

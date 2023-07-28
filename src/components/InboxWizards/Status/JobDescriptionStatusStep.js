@@ -28,7 +28,6 @@ function JobDescriptionStatusStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'JobStatusTitle'})}
       </Typography>
@@ -46,7 +45,6 @@ function JobDescriptionStatusStep(props) {
         otherSpinOnClick={false}
         showTerminate={message.is_highlighted}
         terminateLabel="defer"/>
-    </div>
     </WizardStepContainer>
   );
 }

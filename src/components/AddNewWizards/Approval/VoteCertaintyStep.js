@@ -23,7 +23,6 @@ function VoteCertaintyStep(props) {
       {...props}
       isLarge
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           {showSwitch && (
             'How do you edit voting on this suggestion?'
@@ -48,7 +47,6 @@ function VoteCertaintyStep(props) {
           updateFormData={updateFormData}
           isInbox={false}
         />
-      </div>
     </WizardStepContainer>
   )
 }

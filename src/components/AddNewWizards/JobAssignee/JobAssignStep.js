@@ -113,7 +113,6 @@ function JobAssignStep (props) {
       {...props}
       isLarge
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           Who should be working on the job?
         </Typography>
@@ -137,7 +136,6 @@ function JobAssignStep (props) {
           onNext={assignJob}
           onNextDoAdvance={!_.isEmpty(value)}
         />
-      </div>
     </WizardStepContainer>
   )
 }

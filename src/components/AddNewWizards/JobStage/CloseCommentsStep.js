@@ -78,7 +78,6 @@ function CloseCommentsStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         Will you resolve these comments?
       </Typography>
@@ -103,7 +102,6 @@ function CloseCommentsStep(props) {
         onTerminate={() => finish(fullMoveStage, true)}
         terminateLabel="JobWizardGotoJob"
       />
-    </div>
     </WizardStepContainer>
   );
 }

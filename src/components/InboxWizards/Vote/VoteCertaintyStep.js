@@ -25,7 +25,6 @@ function VoteCertaintyStep(props) {
     <WizardStepContainer
       {...props}
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           How certain are you of voting {isFor ? 'for' : 'against'} this suggestion?
         </Typography>
@@ -44,7 +43,6 @@ function VoteCertaintyStep(props) {
             isInbox={true}
           />
         )}
-      </div>
     </WizardStepContainer>
   )
 }

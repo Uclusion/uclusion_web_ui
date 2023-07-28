@@ -53,7 +53,6 @@ function BugDescriptionStep (props) {
       {...props}
       isLarge
     >
-    <div>
       <Typography className={classes.introText}>
         How would you describe this bug?
       </Typography>
@@ -103,7 +102,6 @@ function BugDescriptionStep (props) {
         nameDifferentiator="addBug"
         isStory={false}
       />
-    </div>
     </WizardStepContainer>
   );
 }

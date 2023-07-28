@@ -75,7 +75,6 @@ function TaskToBugStep (props) {
       {...props}
       isLarge
     >
-    <div>
       <Typography className={classes.introText}>
         What level is this bug?
       </Typography>
@@ -130,7 +129,6 @@ function TaskToBugStep (props) {
         onTerminate={() => navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id,
           comment.id))}
       />
-    </div>
     </WizardStepContainer>
   );
 }

@@ -45,7 +45,6 @@ function GroupMembersStep (props) {
     <WizardStepContainer
       {...props}
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           Who should be in {groupText}?
         </Typography>
@@ -59,7 +58,6 @@ function GroupMembersStep (props) {
           onTerminate={onTerminate}
           showTerminate={true}
           terminateLabel="GroupWizardGotoGroup"/>
-      </div>
     </WizardStepContainer>
   )
 }

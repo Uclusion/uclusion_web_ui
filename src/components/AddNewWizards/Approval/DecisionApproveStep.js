@@ -88,7 +88,6 @@ function DecisionApproveStep(props) {
       {...props}
       isLarge
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           How certain are you of this option?
         </Typography>
@@ -124,7 +123,6 @@ function DecisionApproveStep(props) {
           onNext={onNext}
           nextLabel="DecisionWizardApprove"
         />
-      </div>
     </WizardStepContainer>
   )
 }

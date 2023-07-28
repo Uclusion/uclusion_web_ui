@@ -117,7 +117,6 @@ function JobApproveStep(props) {
     <WizardStepContainer
       {...props}
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           {intl.formatMessage({id: 'AssignmentApprovalTitle'})}
         </Typography>
@@ -168,7 +167,6 @@ function JobApproveStep(props) {
             formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE))}
           terminateLabel="defer"
         />
-      </div>
     </WizardStepContainer>
   )
 }

@@ -130,7 +130,7 @@ function JobStageStep (props) {
     <WizardStepContainer
       {...props}
     >
-      <div>
+      <div style={{overflowX: 'hidden'}}>
         <Typography className={classes.introText} variant="h6">
           To where will you move this job?
         </Typography>

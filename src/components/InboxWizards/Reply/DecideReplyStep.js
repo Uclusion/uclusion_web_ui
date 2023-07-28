@@ -99,7 +99,6 @@ function DecideReplyStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'unreadReply'})}
       </Typography>
@@ -135,7 +134,6 @@ function DecideReplyStep(props) {
         terminateLabel={hasThreadMessages ? 'notificationDismissThread' : 'notificationDelete'}
         onFinish={hasThreadMessages ? dismissAll : myOnFinish}
       />
-    </div>
     </WizardStepContainer>
   );
 }

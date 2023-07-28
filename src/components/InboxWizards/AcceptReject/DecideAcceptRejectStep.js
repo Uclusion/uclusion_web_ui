@@ -62,7 +62,6 @@ function DecideAcceptRejectStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         Do you accept this suggestion?
       </Typography>
@@ -78,7 +77,6 @@ function DecideAcceptRejectStep(props) {
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}
       />
-    </div>
     </WizardStepContainer>
   );
 }

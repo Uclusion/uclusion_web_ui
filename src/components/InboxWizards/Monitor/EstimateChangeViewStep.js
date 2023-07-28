@@ -37,7 +37,6 @@ function EstimateChangeViewStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
         {intl.formatMessage({id: 'unreadEstimate'})}
       </Typography>
@@ -55,7 +54,6 @@ function EstimateChangeViewStep(props) {
         terminateLabel="notificationDelete"
         showTerminate={true}
       />
-    </div>
     </WizardStepContainer>
   );
 }

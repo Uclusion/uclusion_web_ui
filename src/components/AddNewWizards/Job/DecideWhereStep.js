@@ -86,7 +86,6 @@ function DecideWhereStep (props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         Where do you want to move?
       </Typography>
@@ -111,7 +110,6 @@ function DecideWhereStep (props) {
         otherSpinOnClick={false}
         showTerminate={false}
       />
-    </div>
     </WizardStepContainer>
   );
 }

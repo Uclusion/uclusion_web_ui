@@ -24,7 +24,6 @@ function UpgradeStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {isCard ? 'What is your credit card information?' : 'What is your promotion code?'}
       </Typography>
@@ -34,7 +33,6 @@ function UpgradeStep(props) {
       {!isCard && (
         <PromoCodeInput wizardProps={props} onSubmit={myOnFinish} />
       )}
-    </div>
     </WizardStepContainer>
   );
 }

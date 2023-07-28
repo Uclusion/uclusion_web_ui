@@ -61,7 +61,6 @@ function DecideAssignStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideAssignmentTitle'})}
       </Typography>
@@ -74,7 +73,6 @@ function DecideAssignStep(props) {
         showTerminate={true}
         onFinish={myTerminate}
       />
-    </div>
     </WizardStepContainer>
   );
 }

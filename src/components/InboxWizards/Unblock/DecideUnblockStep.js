@@ -73,7 +73,6 @@ function DecideUnblockStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideUnblockTitle'})}
       </Typography>
@@ -92,7 +91,6 @@ function DecideUnblockStep(props) {
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}
       />
-    </div>
     </WizardStepContainer>
   );
 }

@@ -59,7 +59,6 @@ function JobApproverStep (props) {
     <WizardStepContainer
       {...props}
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           Who should be required to approve the job?
         </Typography>
@@ -78,7 +77,6 @@ function JobApproverStep (props) {
           showNext={true}
           onNext={approversJob}
         />
-      </div>
     </WizardStepContainer>
   )
 }

@@ -45,7 +45,6 @@ function DecideFeedbackStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'startJobQ'})}
       </Typography>
@@ -70,7 +69,6 @@ function DecideFeedbackStep(props) {
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}
       />
-    </div>
     </WizardStepContainer>
   );
 }

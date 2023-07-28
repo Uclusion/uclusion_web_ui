@@ -69,7 +69,6 @@ function GroupNameStep (props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         What do you want to call your group?
       </Typography>
@@ -96,7 +95,6 @@ function GroupNameStep (props) {
         showTerminate={validForm}
         onTerminate={onTerminate}
         terminateLabel="GroupWizardGotoGroup"/>
-    </div>
     </WizardStepContainer>
   );
 }

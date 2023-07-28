@@ -32,7 +32,6 @@ function AddCommentStep (props) {
       {...props}
       isLarge
     >
-    <div>
       <Typography className={classes.introText}>
         What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Tip` }).toLowerCase()}?
       </Typography>
@@ -50,7 +49,6 @@ function AddCommentStep (props) {
         onSave={onSave}
         nameDifferentiator="marketComment"
       />
-    </div>
     </WizardStepContainer>
   );
 }

@@ -67,7 +67,6 @@ function DecidePromoteStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecidePromotionTitle'})}
       </Typography>
@@ -107,7 +106,6 @@ function DecidePromoteStep(props) {
         terminateLabel={getLabelForTerminate(message)}
         onTerminate={myOnFinish}
       />
-    </div>
     </WizardStepContainer>
   );
 }

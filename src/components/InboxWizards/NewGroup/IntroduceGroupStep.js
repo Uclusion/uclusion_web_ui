@@ -43,7 +43,6 @@ function IntroduceGroupStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         Welcome to <Link href={link} onClick={
         (event) => {
@@ -65,7 +64,6 @@ function IntroduceGroupStep(props) {
         onFinish={myOnFinish}
         terminateLabel="notificationDelete"
       />
-    </div>
     </WizardStepContainer>
   );
 }

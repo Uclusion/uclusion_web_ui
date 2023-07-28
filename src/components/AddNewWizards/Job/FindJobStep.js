@@ -89,7 +89,6 @@ function FindJobStep(props) {
       {...props}
       isLarge
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           Which active job in group {group.name}?
         </Typography>
@@ -113,7 +112,6 @@ function FindJobStep(props) {
           terminateLabel="JobWizardStartOver"
           nextLabel="storyFromComment"
         />
-      </div>
     </WizardStepContainer>
   )
 }

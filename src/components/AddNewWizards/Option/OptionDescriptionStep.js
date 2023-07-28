@@ -79,7 +79,6 @@ function OptionDescriptionStep (props) {
       {...props}
       isLarge
     >
-    <div>
       <Typography className={classes.introText}>
         What is the new option?
       </Typography>
@@ -98,7 +97,6 @@ function OptionDescriptionStep (props) {
           parentCommentId))}
         showTerminate={true}
         terminateLabel="JobOptionTerminate"/>
-    </div>
     </WizardStepContainer>
   );
 }

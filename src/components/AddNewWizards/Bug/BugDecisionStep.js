@@ -17,7 +17,6 @@ function BugDecisionStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         Do you want to move to a bug or job?
       </Typography>
@@ -44,7 +43,6 @@ function BugDecisionStep(props) {
         onTerminate={() => navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id,
           comment.id))}
       />
-    </div>
     </WizardStepContainer>
   );
 }

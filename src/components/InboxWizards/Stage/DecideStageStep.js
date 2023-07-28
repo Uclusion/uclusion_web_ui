@@ -98,7 +98,6 @@ function DecideStageStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({ id: destinationLabel })}
       </Typography>
@@ -116,7 +115,6 @@ function DecideStageStep(props) {
         otherSpinOnClick={!isVotingStage}
         otherNextLabel={otherNextLabelId}
       />
-    </div>
     </WizardStepContainer>
   );
 }

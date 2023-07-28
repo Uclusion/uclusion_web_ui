@@ -77,7 +77,6 @@ function ReplyStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         What is your reply?
       </Typography>
@@ -94,7 +93,6 @@ function ReplyStep(props) {
         isReply
         wizardProps={{...props, isReply: true, onSave: myTerminate, onResolve: resolve}}
       />
-    </div>
     </WizardStepContainer>
   );
 }

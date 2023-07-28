@@ -53,7 +53,6 @@ function DecideResolveStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         First, will you resolve this {isSuggestion ? 'suggestion' : 'question'}?
       </Typography>
@@ -76,7 +75,6 @@ function DecideResolveStep(props) {
         onNext={resolve}
         showSkip
       />
-    </div>
     </WizardStepContainer>
   );
 }

@@ -32,7 +32,6 @@ function DecideVoteStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideVoteTitle'})}
       </Typography>
@@ -69,7 +68,6 @@ function DecideVoteStep(props) {
         showTerminate={message.is_highlighted}
         terminateLabel="defer"
       />
-    </div>
     </WizardStepContainer>
   );
 }

@@ -70,7 +70,6 @@ function EstimateCompletionStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
         When is your estimated completion?
       </Typography>
@@ -92,7 +91,6 @@ function EstimateCompletionStep(props) {
           showTerminate={true}
           terminateLabel="defer"/>
       </div>
-    </div>
     </WizardStepContainer>
   );
 }

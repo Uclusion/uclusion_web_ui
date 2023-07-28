@@ -147,7 +147,7 @@ function ConfigureCommentStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
+    <div style={{overflowX: 'hidden'}}>
       {useType === QUESTION_TYPE && (
         <Typography className={classes.introText}>
           Can a user approve more than one option?

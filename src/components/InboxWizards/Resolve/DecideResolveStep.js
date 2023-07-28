@@ -119,7 +119,6 @@ function DecideResolveStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {isReopen ? 'Do you reopen your comment that someone resolved?'
           : `Can you resolve this ${isSuggestion ? 'suggestion' : 'question'}?`}
@@ -212,7 +211,6 @@ function DecideResolveStep(props) {
           terminateLabel={isFullyVoted ? 'defer': 'notificationDismiss'}
         />
       )}
-    </div>
     </WizardStepContainer>
   );
 }

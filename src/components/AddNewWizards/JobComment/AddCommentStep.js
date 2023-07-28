@@ -50,7 +50,6 @@ function AddCommentStep (props) {
       {...props}
       isLarge
     >
-    <div>
       <Typography className={classes.introText}>
         What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?
       </Typography>
@@ -90,7 +89,6 @@ function AddCommentStep (props) {
         onSave={onSave}
         nameDifferentiator="jobComment"
       />
-    </div>
     </WizardStepContainer>
   );
 }

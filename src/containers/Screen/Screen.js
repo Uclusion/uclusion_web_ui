@@ -114,14 +114,17 @@ const useStyles = makeStyles((theme) => ({
     marginTop: '5rem',
     marginBottom: '-6rem'
   },
-  contentNoStyle: {},
+  contentNoStyle: {
+    overflowX: 'hidden'
+  },
   pending: {
     maxWidth: '85%',
     marginLeft: 'auto',
     marginRight: 'auto'
   },
   content: {
-    marginLeft: '15rem'
+    marginLeft: '15rem',
+    overflowX: 'hidden'
   },
   contentSearch: {
     paddingLeft: '33rem'

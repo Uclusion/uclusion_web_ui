@@ -253,10 +253,10 @@ function PlanningDialog(props) {
                       tag={_.isEmpty(search) || _.isEmpty(questionSuggestionComments) ? undefined :
                         `${_.size(questionSuggestionComments)}`} />
       </GmailTabs>
-      <div style={{display: 'flex'}}>
+      <div style={{display: 'flex', overflowX: 'hidden'}}>
         <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}
                       archivedSize={archivedSize} />
-      <div style={{paddingTop: '4rem', width: '96%', marginLeft: 'auto', marginRight: 'auto'}}>
+      <div style={{paddingTop: '4rem', width: '96%', marginLeft: 'auto', marginRight: 'auto', overflowX: 'hidden'}}>
         {isSectionOpen('discussionSection') && (
           <div id="discussionSection">
             <Grid item id="discussionAddArea" xs={12}>
@@ -303,7 +303,7 @@ function PlanningDialog(props) {
         )}
         <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
           {isSectionOpen('storiesSection') && (
-            <div id="storiesSection">
+            <div id="storiesSection" style={{overflowX: 'hidden'}}>
               {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
                 <>
                   <SubSection
@@ -365,7 +365,7 @@ function PlanningDialog(props) {
             </div>
           )}
           {isSectionOpen('backlogSection') && (
-            <div id="backlogSection">
+            <div id="backlogSection" style={{overflowX: 'hidden'}}>
               <Backlog group={group} marketPresences={marketPresences}
                        furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
                        comments={comments} />

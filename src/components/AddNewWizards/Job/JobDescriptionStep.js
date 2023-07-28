@@ -125,7 +125,6 @@ function JobDescriptionStep (props) {
       {...props}
       isLarge
     >
-    <div>
       <Typography className={classes.introText}>
         How would you describe this job?
       </Typography>
@@ -175,7 +174,6 @@ function JobDescriptionStep (props) {
         onTerminate={() => navigate(history, formMarketLink(marketId, groupId))}
         terminateLabel="JobWizardGotoJob"
       />
-    </div>
     </WizardStepContainer>
   );
 }

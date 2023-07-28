@@ -57,7 +57,6 @@ function DecideAssignStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideAssignTitle'})}
       </Typography>
@@ -75,7 +74,6 @@ function DecideAssignStep(props) {
         onOtherNext={() => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
         otherNextLabel="DecideWizardReassign"
       />
-    </div>
     </WizardStepContainer>
   );
 }

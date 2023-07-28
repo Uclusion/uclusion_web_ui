@@ -64,7 +64,6 @@ function JobCollaboratorStep (props) {
     <WizardStepContainer
       {...props}
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           Who outside the group should be collaborating on the job?
         </Typography>
@@ -84,7 +83,6 @@ function JobCollaboratorStep (props) {
           showNext={true}
           onNext={addressJob}
         />
-      </div>
     </WizardStepContainer>
   )
 }

@@ -45,7 +45,6 @@ function StartReviewStep(props) {
       {...props}
       isLarge
     >
-    <div>
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
         {isInReviewStage(fullMoveStage) ? 'What was finished?' : 'Why are you not doing?'}
       </Typography>
@@ -62,7 +61,6 @@ function StartReviewStep(props) {
         onSave={onSave}
         nameDifferentiator="startReview"
       />
-    </div>
     </WizardStepContainer>
   );
 }

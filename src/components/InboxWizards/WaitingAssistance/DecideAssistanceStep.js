@@ -83,7 +83,6 @@ function DecideAssistanceStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         Done with this
         {commentRoot.comment_type === QUESTION_TYPE ? ' question' : (isSuggest ? ' suggestion' : ' blocking issue')}?
@@ -153,7 +152,6 @@ function DecideAssistanceStep(props) {
           setOperationRunning(false);
         })}
       />
-    </div>
     </WizardStepContainer>
   );
 }

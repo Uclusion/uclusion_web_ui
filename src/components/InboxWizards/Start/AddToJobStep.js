@@ -72,7 +72,6 @@ function FindJobStep(props) {
       {...props}
       isLarge
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           Which active job in group {group.name}?
         </Typography>
@@ -98,7 +97,6 @@ function FindJobStep(props) {
           showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
           onFinish={myTerminate}
         />
-      </div>
     </WizardStepContainer>
   )
 }

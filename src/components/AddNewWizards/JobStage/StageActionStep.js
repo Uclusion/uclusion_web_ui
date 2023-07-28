@@ -98,7 +98,6 @@ function StageActionStep(props) {
       {...props}
       isLarge
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           How certain are you this job should be done?
         </Typography>
@@ -127,7 +126,6 @@ function StageActionStep(props) {
           onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
           terminateLabel="JobWizardGotoJob"
         />
-      </div>
     </WizardStepContainer>
   )
 }

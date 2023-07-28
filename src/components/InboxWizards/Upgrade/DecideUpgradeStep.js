@@ -24,7 +24,6 @@ function DecideUpgradeStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecidePayTitle'})}
       </Typography>
@@ -42,7 +41,6 @@ function DecideUpgradeStep(props) {
         showTerminate={message.is_highlighted}
         terminateLabel='defer'
       />
-    </div>
     </WizardStepContainer>
   );
 }

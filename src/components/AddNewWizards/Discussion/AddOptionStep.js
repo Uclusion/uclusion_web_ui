@@ -81,7 +81,6 @@ function AddOptionStep(props) {
       {...props}
       isLarge
     >
-    <div>
       <Typography className={classes.introText}>
         What are the options?
       </Typography>
@@ -101,7 +100,6 @@ function AddOptionStep(props) {
         onTerminate={myOnFinish}
         showTerminate={true}
         terminateLabel="JobOptionTerminate"/>
-    </div>
     </WizardStepContainer>
   );
 }

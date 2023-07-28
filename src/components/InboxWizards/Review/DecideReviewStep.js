@@ -51,7 +51,6 @@ function DecideReviewStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideReviewTitle'})}
       </Typography>
@@ -80,7 +79,6 @@ function DecideReviewStep(props) {
         showTerminate={getShowTerminate(message)}
         onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
       />
-    </div>
     </WizardStepContainer>
   );
 }

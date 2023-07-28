@@ -46,7 +46,6 @@ function TaskReviewStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'NewTaskTitle'})}
       </Typography>
@@ -64,7 +63,6 @@ function TaskReviewStep(props) {
         showTerminate={getShowTerminate(message)}
         onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
       />
-    </div>
     </WizardStepContainer>
   );
 }

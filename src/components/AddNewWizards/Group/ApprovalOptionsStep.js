@@ -38,7 +38,6 @@ function ApprovalOptionsStep (props) {
     <WizardStepContainer
       {...props}
     >
-      <div>
         <Typography className={classes.introText}>How should job approvals work?</Typography>
         <div className={classes.inlineInputContainer}>
           <Typography>A job can start once</Typography>
@@ -61,7 +60,6 @@ function ApprovalOptionsStep (props) {
           onNext={onNext}
           nextLabel="GroupWizardGotoGroup"
         />
-      </div>
     </WizardStepContainer>
   )
 }

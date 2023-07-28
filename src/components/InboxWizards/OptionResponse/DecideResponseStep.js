@@ -39,7 +39,6 @@ function DecideResponseStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideResponseTitle'})}
       </Typography>
@@ -70,7 +69,6 @@ function DecideResponseStep(props) {
         showTerminate={true}
         terminateLabel="notificationDelete"
       />
-    </div>
     </WizardStepContainer>
   );
 }

@@ -29,7 +29,6 @@ function ChooseCommentTypeStep (props) {
     <WizardStepContainer
       {...props}
     >
-    <div>
       <Typography className={classes.introText}>
         What type of comment do you need?
       </Typography>
@@ -74,7 +73,6 @@ function ChooseCommentTypeStep (props) {
         spinOnClick={false}
         showTerminate={false}
       />
-    </div>
     </WizardStepContainer>
   );
 }

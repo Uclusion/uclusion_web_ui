@@ -53,7 +53,6 @@ function JobAssignStep (props) {
       {...props}
       isLarge
     >
-      <div>
         <Typography className={classes.introText} variant="h6">
           Who should be working on the job?
         </Typography>
@@ -77,7 +76,6 @@ function JobAssignStep (props) {
           terminateLabel="JobWizardGotoJob"
           nextLabel="JobWizardApproveJob"
         />
-      </div>
     </WizardStepContainer>
   )
 }

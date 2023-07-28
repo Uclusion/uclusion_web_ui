@@ -75,8 +75,7 @@ function DecideResolveStep(props) {
       setOperationRunning(false);
       if (!commentRoot.investible_id) {
         // Only need to move if market suggestion
-      navigate(history,
-          `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}`);
+        navigate(history, `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}`);
       }
     })
   }

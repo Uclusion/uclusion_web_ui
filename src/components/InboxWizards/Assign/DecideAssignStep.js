@@ -12,9 +12,6 @@ import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/You
 import JobDescription from '../JobDescription'
 import { updateInvestible } from '../../../api/investibles'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -27,11 +24,8 @@ function DecideAssignStep(props) {
   const { marketId, investibleId, message } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, invDispatch] = useContext(InvestiblesContext);
-  const [commentsState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const marketComments = getMarketComments(commentsState, marketId);
-  const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
   const intl = useIntl();
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -64,7 +58,7 @@ function DecideAssignStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideAssignmentTitle'})}
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
+      <JobDescription marketId={marketId} investibleId={investibleId} removeActions />
       <WizardStepButtons
         {...props}
         nextLabel="DecideAssignMe"

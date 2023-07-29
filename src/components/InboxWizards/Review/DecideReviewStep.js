@@ -5,17 +5,15 @@ import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import JobDescription from '../JobDescription';
-import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments';
-import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { TODO_TYPE } from '../../../constants/comments';
+import { getComment, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { formCommentEditReplyLink, formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { useIntl } from 'react-intl';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
-import _ from 'lodash';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getFullStage, isNotDoingStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -24,7 +22,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecideReviewStep(props) {
-  const { marketId, investibleId, message } = props;
+  const { marketId, commentId, message } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
@@ -32,21 +30,17 @@ function DecideReviewStep(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const report = getComment(commentsState, marketId, commentId) || {};
+  const investibleId = report.investible_id;
   const inv = getInvestible(investibleState, investibleId) || {};
   const info = getMarketInfo(inv, marketId);
   const { stage: currentStageId } = info || {};
   const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
-  const marketComments = getMarketComments(commentsState, marketId);
-  const comments = getCommentsSortedByType(marketComments, investibleId, true, true);
-  const report = comments.find((comment) => comment.comment_type === REPORT_TYPE);
-  // has report should always be true - remove once finalized
-  const hasReport = !_.isEmpty(report);
-  const createTodo = () => navigate(history,
-    formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE));
-  const next = hasReport ? () =>
-    navigate(history, formCommentEditReplyLink(marketId, report.id, true), false,
-      true) : createTodo;
   const isNotDoing = isNotDoingStage(fullStage);
+  const investibleComments = getInvestibleComments(investibleId, marketId, commentsState);
+  const comments = investibleComments.filter((comment) =>
+    comment.root_comment_id === report.id || comment.id === report.id);
+
   return (
     <WizardStepContainer
       {...props}
@@ -68,12 +62,14 @@ function DecideReviewStep(props) {
                       preserveOrder />
       <WizardStepButtons
         {...props}
-        nextLabel={hasReport ? 'DecideAddReview' : 'DecideAddTask'}
-        onNext={next}
+        nextLabel="DecideAddReview"
+        onNext={() => navigate(history, formCommentEditReplyLink(marketId, report.id, true),
+          false, true)}
         spinOnClick={false}
-        showOtherNext={hasReport && !isNotDoing}
+        showOtherNext={!isNotDoing}
         otherSpinOnClick={false}
-        onOtherNext={createTodo}
+        onOtherNext={() => navigate(history,
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE))}
         otherNextLabel="DecideAddTask"
         terminateLabel={getLabelForTerminate(message)}
         showTerminate={getShowTerminate(message)}

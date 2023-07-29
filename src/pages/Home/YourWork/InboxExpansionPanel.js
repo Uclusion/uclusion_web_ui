@@ -157,7 +157,7 @@ export function calculateTitleExpansionPanel(props) {
                                                                       message={message} />,
       'DecideStartTitle', intl);
     } else if (linkType === 'INVESTIBLE_REVIEW') {
-      setItem(item, openExpansion, <ReviewWizard investibleId={investibleId} marketId={marketId} message={message} />,
+      setItem(item, openExpansion, <ReviewWizard commentId={commentId} marketId={marketId} message={message} />,
         'DecideReviewTitle', intl);
     } else {
       setItem(item, openExpansion, <AssignWizard investibleId={investibleId} marketId={marketId} message={message} />,

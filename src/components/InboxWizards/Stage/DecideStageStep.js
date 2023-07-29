@@ -1,26 +1,25 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
-import { wizardStyles } from '../WizardStylesContext'
+import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { useHistory } from 'react-router'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { useHistory } from 'react-router';
 import { formInvestibleAddCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import JobDescription from '../JobDescription'
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import JobDescription from '../JobDescription';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getAcceptedStage,
   getInCurrentVotingStage,
-  getInReviewStage, isAcceptedStage
+  getInReviewStage,
+  isAcceptedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { useIntl } from 'react-intl';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { QUESTION_TYPE } from '../../../constants/comments';
@@ -33,8 +32,6 @@ function DecideStageStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const marketComments = getMarketComments(commentsState, marketId);
-  const comments = getCommentsSortedByType(marketComments, investibleId, false);
   const history = useHistory();
   const classes = wizardStyles();
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
@@ -104,8 +101,7 @@ function DecideStageStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         {intl.formatMessage({ id: destinationExplanation })}.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions
-                      showVoting={isVotingStage} />
+      <JobDescription marketId={marketId} investibleId={investibleId} removeActions showVoting={isVotingStage} />
       <WizardStepButtons
         {...props}
         nextLabel={nextLabelId}

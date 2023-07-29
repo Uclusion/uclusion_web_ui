@@ -52,9 +52,10 @@ function DecideResolveStep(props) {
   return (
     <WizardStepContainer
       {...props}
+      isLarge
     >
       <Typography className={classes.introText}>
-        First, will you resolve this {isSuggestion ? 'suggestion' : 'question'}?
+        Will you resolve this {isSuggestion ? 'suggestion' : 'question'}?
       </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox

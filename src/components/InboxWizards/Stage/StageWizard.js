@@ -11,11 +11,12 @@ function StageWizard(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage: currentStageId } = marketInfo || {};
+  const { stage: currentStageId, group_id: groupId } = marketInfo || {};
 
   return (
     <FormdataWizard name={`stage_wizard${investibleId}`} defaultFormData={{parentElementId: rowId}}>
-      <DecideStageStep marketId={marketId} investibleId={investibleId} currentStageId={currentStageId} />
+      <DecideStageStep marketId={marketId} investibleId={investibleId} currentStageId={currentStageId}
+                       groupId={groupId} />
     </FormdataWizard>
   );
 }

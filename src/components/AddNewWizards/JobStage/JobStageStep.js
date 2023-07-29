@@ -132,7 +132,7 @@ function JobStageStep (props) {
     >
       <div style={{overflowX: 'hidden'}}>
         <Typography className={classes.introText} variant="h6">
-          To where will you move this job?
+          Where will you move this job?
         </Typography>
         <Typography className={classes.introSubText} variant="subtitle1">
           Moving to backlog will remove assignment and approvals. {isAssigned ? '' : 'You must be assigned to move to started.'}

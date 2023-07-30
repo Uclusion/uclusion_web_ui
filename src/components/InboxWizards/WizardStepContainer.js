@@ -6,9 +6,7 @@ function WizardStepContainer (props) {
   const classes = wizardStyles();
   return (
     <div className={classes.baseCard} style={{overflowX: 'hidden'}}>
-      <div style={{overflowX: 'hidden'}}>
-        {children}
-      </div>
+      {children}
     </div>);
 }
 export default WizardStepContainer;

@@ -10,9 +10,7 @@ function WizardStepContainer (props) {
   return (
     <div className={classes.baseCard} style={{overflowX: 'hidden',
       maxWidth: mobileLayout ? undefined : (isLarge ? '990px' : '725px')}}>
-      <div style={{overflowX: 'hidden'}}>
-        {children}
-      </div>
+      {children}
     </div>);
 }
 export default WizardStepContainer;

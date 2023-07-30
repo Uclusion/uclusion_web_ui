@@ -353,7 +353,7 @@ function Comment(props) {
   const classes = useCommentStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, body, creator_assigned: creatorAssigned, is_sent: isSent,
-    group_id: groupId, in_progress: inProgress } = comment;
+    group_id: groupId, in_progress: inProgress, uploaded_files: imageFiles } = comment;
   const replyBeingEdited = replyEditId === id && (isReply || (myParams && !_.isEmpty(myParams.get('reply'))));
   const beingEdited = replyEditId === id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
@@ -442,7 +442,8 @@ function Comment(props) {
 
   const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId && !isMove;
   const isTask = marketType === PLANNING_TYPE && commentType === TODO_TYPE && investibleId;
-  const isEditable = allImagesLoaded(editBox?.current) && (comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned));
+  const isEditable = allImagesLoaded(editBox?.current, imageFiles) &&
+    (comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned));
 
   function getDialog(anInlineMarket) {
     return (

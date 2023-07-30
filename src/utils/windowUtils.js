@@ -1,21 +1,27 @@
 import { navigate, preventDefaultAndProp } from './marketIdPathFunctions'
+import _ from 'lodash';
 
 //Only use if media query not available
 export function isTinyWindow(){
   return window.outerWidth < 600;
 }
-// allImagesLoaded can probably be somewhere else, but this is the best place I Could find to put it
-export function allImagesLoaded(node){
-  if(!node){
+
+export function allImagesLoaded(node, imageFiles){
+  if (!node || !imageFiles) {
     return true;
   }
   const images = node.querySelectorAll("img");
-  for(let x=0; x < images.length; x++) {
-    if(!images.item(x).complete){
-      return false;
+  const missingImages = imageFiles.filter((fileUpload) => {
+    const { path } = fileUpload;
+    for (let x=0; x < images.length; x++) {
+      const item = images.item(x);
+      if (item.complete && item.src?.includes(path)) {
+        return false;
+      }
     }
-  }
-  return true;
+    return true;
+  })
+  return _.isEmpty(missingImages);
 }
 
 export function invalidEditEvent(event, history) {

@@ -68,11 +68,12 @@ function DialogOutset(props) {
                           false, true)
                       }
                       suffix={isArchivedSearch ?
-                        <Chip label={`${archivedSize}`} size='small' style={{
-                          backgroundColor: 'white',
-                          fontWeight: 'bold',
-                          border: '0.5px solid grey'
-                        }} /> : undefined}
+                        <span style={{backgroundColor: '#055099', borderRadius: 22, paddingLeft: '5px',
+                                paddingRight: '5px', color: 'white',
+                                padding: '1px 4px', fontSize: '0.75rem', lineHeight: '16px',
+                                marginLeft: '8px', whiteSpace: 'nowrap'}}>
+                          {archivedSize} {intl.formatMessage({ id: 'total' })}
+                        </span> : undefined}
             >
               {intl.formatMessage({id: 'planningDialogViewArchivesLabel'})}
             </MenuItem>

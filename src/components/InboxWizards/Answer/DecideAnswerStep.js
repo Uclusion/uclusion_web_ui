@@ -115,7 +115,7 @@ function DecideAnswerStep(props) {
             selectedInvestibleId))}
           onNextDoAdvance={false}
           showOtherNext
-          otherNextLabel="inlineAddLabel"
+          otherNextLabel={isQuestionCreator ? 'inlineAddLabel' : 'inlineProposeLabel'}
           otherSpinOnClick={false}
           onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id))}
           onOtherNextDoAdvance={false}

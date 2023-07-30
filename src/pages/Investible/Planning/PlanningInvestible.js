@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Grid, IconButton, makeStyles, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
@@ -33,7 +33,7 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils';
+import { allImagesLoaded, doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences } from '../../Dialog/Planning/userUtils';
@@ -317,6 +317,7 @@ function PlanningInvestible(props) {
     hidden
   } = props;
   const theme = useTheme();
+  const editorBox = useRef(null);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const leftNavBreak = useMediaQuery(theme.breakpoints.down('md'));
   const classes = usePlanningInvestibleStyles();
@@ -509,7 +510,8 @@ function PlanningInvestible(props) {
   }
 
   function isEditableByUser() {
-    return displayEdit;
+    const imagesLoaded = allImagesLoaded(editorBox?.current)
+    return imagesLoaded && displayEdit;
   }
 
   function mySetBeingEdited(isEdit, event) {
@@ -653,6 +655,7 @@ function PlanningInvestible(props) {
                 )}
                 {marketId && investibleId && (
                   <InvestibleBodyEdit
+                    ref={editorBox}
                     hidden={hidden}
                     marketId={marketId}
                     userId={userId}

@@ -4,6 +4,19 @@ import { navigate, preventDefaultAndProp } from './marketIdPathFunctions'
 export function isTinyWindow(){
   return window.outerWidth < 600;
 }
+// allImagesLoaded can probably be somewhere else, but this is the best place I Could find to put it
+export function allImagesLoaded(node){
+  if(!node){
+    return true;
+  }
+  const images = node.querySelectorAll("img");
+  for(let x=0; x < images.length; x++) {
+    if(!images.item(x).complete){
+      return false;
+    }
+  }
+  return true;
+}
 
 export function invalidEditEvent(event, history) {
   const selection = window.getSelection();

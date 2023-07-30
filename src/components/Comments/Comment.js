@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
@@ -71,7 +71,7 @@ import {
   removeMessagesForCommentId
 } from '../../utils/messageUtils';
 import GravatarAndName from '../Avatars/GravatarAndName';
-import { invalidEditEvent } from '../../utils/windowUtils';
+import { allImagesLoaded, invalidEditEvent } from '../../utils/windowUtils';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import { Delete, Done, Edit, Eject, ExpandLess, NotInterested, SettingsBackupRestore } from '@material-ui/icons';
@@ -343,6 +343,7 @@ function Comment(props) {
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, isMove } = props;
   const history = useHistory();
+  const editBox = useRef(null);
   const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
   const isReallyMobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -441,7 +442,7 @@ function Comment(props) {
 
   const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId && !isMove;
   const isTask = marketType === PLANNING_TYPE && commentType === TODO_TYPE && investibleId;
-  const isEditable = comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned);
+  const isEditable = allImagesLoaded(editBox?.current) && (comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned));
 
   function getDialog(anInlineMarket) {
     return (
@@ -603,7 +604,9 @@ function Comment(props) {
   return (
     <div style={{paddingLeft: '0.5rem', width: '98%'}}>
       <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false ? 0 : undefined}}
-            className={getCommentHighlightStyle()}>
+            className={getCommentHighlightStyle()}
+            ref={editBox}
+      >
         <div onClick={() => {
           if (isInbox) {
             navigate(history, formCommentLink(marketId, groupId, investibleId, id));

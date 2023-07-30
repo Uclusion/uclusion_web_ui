@@ -147,7 +147,6 @@ function ConfigureCommentStep(props) {
     <WizardStepContainer
       {...props}
     >
-    <div style={{overflowX: 'hidden'}}>
       {useType === QUESTION_TYPE && (
         <Typography className={classes.introText}>
           Can a user approve more than one option?
@@ -194,7 +193,6 @@ function ConfigureCommentStep(props) {
         onTerminate={onFinish}
         terminateLabel="OnboardingWizardGoBack"
       />
-    </div>
     </WizardStepContainer>
   );
 }

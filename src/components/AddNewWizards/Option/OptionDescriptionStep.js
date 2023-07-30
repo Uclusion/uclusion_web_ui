@@ -87,7 +87,7 @@ function OptionDescriptionStep (props) {
       <WizardStepButtons
         {...props}
         validForm={hasValue}
-        nextLabel="inlineAddLabel"
+        nextLabel={isQuestionCreator ? 'inlineAddLabel' : 'inlineProposeLabel'}
         onNext={createOption}
         showOtherNext
         onOtherNext={createOption}

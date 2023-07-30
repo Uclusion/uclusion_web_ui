@@ -253,10 +253,10 @@ function PlanningDialog(props) {
                       tag={_.isEmpty(search) || _.isEmpty(questionSuggestionComments) ? undefined :
                         `${_.size(questionSuggestionComments)}`} />
       </GmailTabs>
-      <div style={{display: 'flex', overflowX: 'hidden'}}>
+      <div style={{display: 'flex', overflow: 'hidden'}}>
         <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}
                       archivedSize={archivedSize} />
-      <div style={{paddingTop: '4rem', width: '96%', marginLeft: 'auto', marginRight: 'auto', overflowX: 'hidden'}}>
+      <div style={{paddingTop: '4rem', width: '96%', marginLeft: 'auto', marginRight: 'auto', overflow: 'hidden'}}>
         {isSectionOpen('discussionSection') && (
           <div id="discussionSection">
             <Grid item id="discussionAddArea" xs={12}>

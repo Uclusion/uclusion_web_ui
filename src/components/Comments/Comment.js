@@ -601,7 +601,7 @@ function Comment(props) {
     !myInlinePresence.abstain && !yourVote && !removeActions;
   const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
   return (
-    <div>
+    <div style={{paddingLeft: '0.5rem', width: '98%'}}>
       <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false ? 0 : undefined}}
             className={getCommentHighlightStyle()}>
         <div onClick={() => {

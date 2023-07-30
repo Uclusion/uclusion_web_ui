@@ -8,7 +8,7 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { marketAbstain } from '../../../api/markets';
-import { changeMyPresence } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { changeMyPresence, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getLabelForTerminate, getShowTerminate, removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -33,6 +33,9 @@ function DecideAnswerStep(props) {
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const intl = useIntl();
+  const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = presences.find((presence) => presence.current_user) || {};
+  const isQuestionCreator = commentRoot.created_by === myPresence.id;
 
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -93,7 +96,7 @@ function DecideAnswerStep(props) {
           nextLabel="issueReplyLabel"
           spinOnClick={false}
           showOtherNext
-          otherNextLabel="inlineAddLabel"
+          otherNextLabel={isQuestionCreator ? 'inlineAddLabel' : 'inlineProposeLabel'}
           otherSpinOnClick={false}
           onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id))}
           onOtherNextDoAdvance={false}

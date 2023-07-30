@@ -400,7 +400,7 @@ const messages = defineMessages({
   planningMobileToVotingLabel: 'Approval',
   inboxVotingLabel: 'In approval',
   planningInvestibleNextStageAcceptedLabel: 'Started',
-  startJobQ: 'Start this job?',
+  startJobQ: 'Can you start this job?',
   finishApprovalQ: 'Done with approval?',
   planningInvestibleNextStageAcceptedFullLabel: 'Started (full)',
   planningInvestibleNextStageInReviewLabel: 'Tasks Complete',

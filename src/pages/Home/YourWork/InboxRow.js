@@ -42,7 +42,7 @@ function getPriorityIcon(message, isAssigned) {
     Icon = RateReviewIcon;
   }
   if (['UNASSIGNED', 'UNREAD_GROUP'].includes(message.type) || (message.type === 'UNREAD_REVIEWABLE'
-      && linkType === 'MARKET_TODO')) {
+      && ['INVESTIBLE', 'MARKET_TODO'].includes(linkType))) {
     Icon = PersonAddOutlined;
   }
   if (message.type === 'INVESTIBLE_SUBMITTED') {

@@ -11,7 +11,6 @@ import { useHistory } from 'react-router';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import _ from 'lodash';
-import Chip from '@material-ui/core/Chip';
 
 export const DIALOG_OUTSET_STATE_HACK = {};
 

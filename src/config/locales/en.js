@@ -1194,6 +1194,7 @@ const messages = defineMessages({
   JobWizardExistingJob: 'Existing job',
   JobWizardStartOver: 'Start over',
   JobAssignNotDoing: 'Move to Not Doing',
+  JobAssignBacklog: 'Move to not ready',
   JobWizardReady: 'Backlog ready to start',
   JobWizardNoAssign: 'Backlog not ready',
 

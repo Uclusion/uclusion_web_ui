@@ -45,7 +45,7 @@ export function deleteAttachedFilesFromMarket(marketId, files) {
 }
 
 export function updateGroup(props) {
-  const { marketId, groupId, name, description, uploadedFiles, votesRequired, ticketSubCode } = props;
+  const { marketId, groupId, name, description, uploadedFiles, ticketSubCode } = props;
   const updateOptions = {}
   if (name) {
     updateOptions.name = name
@@ -55,9 +55,6 @@ export function updateGroup(props) {
   }
   if (uploadedFiles) {
     updateOptions.uploaded_files = uploadedFiles
-  }
-  if (votesRequired != null) {
-    updateOptions.votes_required = votesRequired
   }
   if (ticketSubCode) {
     updateOptions.ticket_sub_code = ticketSubCode.toString(10);

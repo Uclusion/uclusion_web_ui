@@ -13,15 +13,16 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
 import { useHistory } from 'react-router'
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function GroupNameStep (props) {
-  const { updateFormData, clearFormData, formData, marketId } = props;
+  const { updateFormData, formData, marketId } = props;
   const history = useHistory();
   const intl = useIntl();
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
-
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, groupMembersDispatch] = useContext(GroupMembersContext);
@@ -39,20 +40,20 @@ function GroupNameStep (props) {
         diffDispatch,
         groupMembersDispatch
       };
-      // default things not filled in
+
       const groupData = {
         ...formData,
         marketId,
-        votesRequired: formData.votesRequired ?? 0,
       };
       return doCreateGroup(dispatchers, groupData)
         .then((group) => {
+          setOperationRunning(false);
           const {id: groupId} = group;
           const link = formMarketLink(marketId, groupId);
           updateFormData({
             link,
             groupId,
-          })
+          });
           return link;
         });
   }
@@ -60,7 +61,7 @@ function GroupNameStep (props) {
   function onTerminate(){
     return onNext()
       .then((link) => {
-        clearFormData();
+        setOperationRunning(false);
         navigate(history, link);
       })
   }

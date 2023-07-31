@@ -41,7 +41,6 @@ function PlanningDialogEdit(props) {
   const myClasses = useStyles();
   const [mutableGroup, setMutableGroup] = useState(getInitialGroup());
   const {
-    votes_required,
     ticket_sub_code,
     name
   } = mutableGroup;
@@ -57,20 +56,13 @@ function PlanningDialogEdit(props) {
     };
   }
 
-  function onSaveSettings(savedGroup) {
-    addGroupToStorage(groupsDispatch, marketId, savedGroup);
-  }
-
   function handleSave() {
-    const votesRequiredInt =
-      votes_required != null ? parseInt(votes_required, 10) : 0;
     return updateGroup({
       marketId,
       groupId: id, name,
-      votesRequired: votesRequiredInt,
       ticketSubCode: encodeURI(ticket_sub_code),
-  }).then(market => {
-      onSaveSettings(market);
+  }).then(savedGroup => {
+      addGroupToStorage(groupsDispatch, marketId, savedGroup);
       setOperationRunning(false);
     });
   }
@@ -114,9 +106,6 @@ function PlanningDialogEdit(props) {
               </InputAdornment>
             }
           />
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <Votes onChange={handleChange('votes_required')} value={votes_required}/>
-          </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <TextField
               id="name"

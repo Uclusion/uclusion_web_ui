@@ -340,35 +340,6 @@ export function VoteExpiration(props) {
   );
 }
 
-export function Votes(props) {
-  const { readOnly, value, onChange } = props;
-  const intl = useIntl();
-  const classes = usePlanFormStyles();
-  const inputClasses = useInputSuffixStyles();
-
-  return (
-    <React.Fragment>
-      <TextField
-        className={classes.input}
-        id="agile-plan-votes-required"
-        InputProps={{ readOnly }}
-        onChange={onChange}
-        inputProps={{
-          className: inputClasses.input,
-          inputMode: "numeric",
-          pattern: "[0-9]*",
-          style: {textAlign: 'center'}
-        }}
-        value={value}
-        label={intl.formatMessage({ id: "votesRequiredInputLabelShort" })}
-      />
-      <Typography>
-        {intl.formatMessage({ id: "votesRequiredHelp" })}
-      </Typography>
-    </React.Fragment>
-  );
-}
-
 const useInputSuffixStyles = makeStyles(
   theme => {
     return {

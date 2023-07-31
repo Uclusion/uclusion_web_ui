@@ -31,8 +31,6 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import {
   getFullStage,
   getStages
@@ -109,12 +107,8 @@ function PlanningIdeas(props) {
   const classes = usePlanningIdStyles();
   const archiveClasses = myArchiveClasses();
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
-  const market = getMarket(marketsState, marketId);
-  // investibles for type initiative, are really markets, so treat it as such
-  const { votes_required: votesRequired } = (market || {});
   const [invState, invDispatch] = useContext(InvestiblesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -331,7 +325,6 @@ function PlanningIdeas(props) {
           presenceId={presenceId}
           marketPresences={marketPresences}
           comments={comments}
-          votesRequired={votesRequired}
           myPresence={myPresence}
         />
       </div>
@@ -459,8 +452,7 @@ function Stage(props) {
     isVoting,
     showCompletion,
     marketPresences,
-    presenceId,
-    votesRequired
+    presenceId
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -509,7 +501,6 @@ function Stage(props) {
             marketInfo={marketInfo}
             isReview={isReview}
             isVoting={isVoting}
-            votesRequired={votesRequired}
             numQuestionsSuggestions={numQuestionsSuggestions}
             unaccepted={unaccepted}
             showCompletion={showCompletion}

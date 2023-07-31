@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import GroupNameStep from './GroupNameStep'
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
-import ApprovalOptionsStep from './ApprovalOptionsStep'
 import GroupMembersStep from './GroupMemberStep'
 import { useHistory } from 'react-router';
 import { navigate } from '../../../utils/marketIdPathFunctions';
@@ -19,10 +18,9 @@ function GroupWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="group_wizard" onFinish={onFinish}>
+      <FormdataWizard name="group_wizard" onFinish={onFinish} useLocalStorage={false}>
         <GroupNameStep marketId={marketId}/>
         <GroupMembersStep marketId={marketId}/>
-        <ApprovalOptionsStep marketId={marketId}/>
       </FormdataWizard>
     </WizardStylesProvider>
   );

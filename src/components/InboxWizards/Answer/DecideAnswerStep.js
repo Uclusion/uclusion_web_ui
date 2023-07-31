@@ -90,6 +90,7 @@ function DecideAnswerStep(props) {
           />
         </div>
       )}
+      <div style={{marginBottom: '2rem'}}/>
       {noOptions && (
         <WizardStepButtons
           {...props}

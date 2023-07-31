@@ -18,6 +18,7 @@ import _ from 'lodash';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import CommentAdd from './CommentAdd';
 import {
+  ISSUE_TYPE,
   JUSTIFY_TYPE,
   QUESTION_TYPE,
   REPLY_TYPE,
@@ -586,10 +587,10 @@ function Comment(props) {
   }
 
   const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && investibleId && !resolved &&
-    (myPresenceIsAssigned || myPresence === createdBy) && marketType === PLANNING_TYPE && !removeActions;
-  const showMoveButton = isSent !== false && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType)
-    && !inArchives && !removeActions
-    && enableActions && (!resolved || commentType !== TODO_TYPE) && marketType === PLANNING_TYPE;
+    marketType === PLANNING_TYPE && !removeActions;
+  const showMoveButton = isSent !== false
+    && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(commentType)
+    && !inArchives && !removeActions && enableActions && marketType === PLANNING_TYPE;
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved
     && !removeActions && myPresence === createdBy;
   const showResolve = isSent !== false && enableActions && (myPresence === createdBy ||

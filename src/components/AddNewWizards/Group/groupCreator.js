@@ -1,9 +1,6 @@
-import { createGroup } from '../../../api/markets'
-import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper'
-import {
-  modifyGroupMembers,
-  versionsUpdateGroupMembers
-} from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
+import { createGroup } from '../../../api/markets';
+import { addGroupToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { modifyGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
 
 /**
  * Creates the group from the formdata and does all the magic to make the wizard up date appropriately.

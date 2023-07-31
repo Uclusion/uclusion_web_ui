@@ -67,12 +67,12 @@ function DecideAssignStep(props) {
       <JobDescription marketId={marketId} investibleId={investibleId} />
       <WizardStepButtons
         {...props}
-        nextLabel="DecideMoveBacklog"
-        onNext={moveToBacklog}
+        nextLabel="DecideWizardReassign"
+        spinOnClick={false}
+        onNext={() => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
         showOtherNext
-        otherSpinOnClick={false}
-        onOtherNext={() => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
-        otherNextLabel="DecideWizardReassign"
+        onOtherNext={moveToBacklog}
+        otherNextLabel="DecideMoveBacklog"
       />
     </WizardStepContainer>
   );

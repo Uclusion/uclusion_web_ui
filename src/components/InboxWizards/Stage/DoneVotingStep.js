@@ -13,8 +13,7 @@ import { stageChangeInvestible } from '../../../api/investibles';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getAcceptedStage,
-  getInCurrentVotingStage,
-  getInReviewStage,
+  getFurtherWorkStage,
   isAcceptedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { useIntl } from 'react-intl';
@@ -28,9 +27,10 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
-function DecideStageStep(props) {
-  const { marketId, investibleId, currentStageId, groupId } = props;
+function DoneVotingStep(props) {
+  const { marketId, investibleId, groupId, currentStageId } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, invDispatch] = useContext(InvestiblesContext);
@@ -41,17 +41,13 @@ function DecideStageStep(props) {
   const history = useHistory();
   const classes = wizardStyles();
   const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
-  const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
-  const inVotingStage = getInCurrentVotingStage(marketStagesState, marketId) || {};
+  const backlogStage = getFurtherWorkStage(marketStagesState, marketId)
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const marketComments = getMarketComments(commentsState, marketId, groupId);
   const market = getMarket(marketsState, marketId) || {};
   const investmentReasons = marketComments.filter((comment) => {
     return comment.comment_type === JUSTIFY_TYPE && comment.investible_id === investibleId;
   });
-  let destinationStage;
-  let destinationExplanation;
-  let destinationLabel;
 
   function moveToStage(aStage, isGotoJob) {
     const moveInfo = {
@@ -73,34 +69,10 @@ function DecideStageStep(props) {
           } else {
             navigate(history, formInvestibleLink(marketId, investibleId));
           }
+        } else {
+          navigate(history, getInboxTarget());
         }
       });
-  }
-  function moveToTarget(isGotoJob) {
-    return moveToStage(destinationStage, isGotoJob);
-  }
-  let onOtherNextFunc = () => moveToTarget(true);
-  let otherNextLabelId = 'stageAndGotoJob';
-  let nextLabelId = 'DecideStageMove';
-  const isVotingStage = currentStageId === inVotingStage.id;
-  if (isVotingStage) {
-    destinationStage = acceptedStage;
-    destinationExplanation = 'planningInvestibleAcceptedExplanation';
-    destinationLabel = 'finishApprovalQ';
-    otherNextLabelId = 'commentIconAskQuestionLabel';
-    onOtherNextFunc = () => {
-      navigate(history,
-        formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE));
-    };
-    nextLabelId = 'startJob';
-  }
-
-  // If you start a job and don't go to it hard to find
-  const onNextFunc = destinationStage === inReviewStage ? undefined :
-    () => moveToTarget(destinationStage === acceptedStage);
-
-  if (!destinationLabel) {
-    return React.Fragment;
   }
 
   return (
@@ -108,10 +80,10 @@ function DecideStageStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({ id: destinationLabel })}
+        {intl.formatMessage({ id: 'finishApprovalQ' })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        {intl.formatMessage({ id: destinationExplanation })}.
+        {intl.formatMessage({ id: 'planningInvestibleAcceptedExplanation' })}.
       </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} removeActions />
       <Voting
@@ -127,25 +99,31 @@ function DecideStageStep(props) {
       />
       <WizardStepButtons
         {...props}
-        nextLabel={nextLabelId}
-        onNext={onNextFunc}
+        nextLabel="startJob"
+        onNext={() => moveToStage(acceptedStage, true)}
         showOtherNext
-        onOtherNext={onOtherNextFunc}
-        otherSpinOnClick={!isVotingStage}
-        otherNextLabel={otherNextLabelId}
+        onOtherNext={() => navigate(history,
+            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE))
+        }
+        otherSpinOnClick={false}
+        otherNextLabel="commentIconAskQuestionLabel"
+        showTerminate
+        terminateLabel="DecideMoveBacklog"
+        terminateSpinOnClick
+        onFinish={() => moveToStage(backlogStage, false)}
       />
     </WizardStepContainer>
   );
 }
 
-DecideStageStep.propTypes = {
+DoneVotingStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
 };
 
-DecideStageStep.defaultProps = {
+DoneVotingStep.defaultProps = {
   updateFormData: () => {},
   formData: {}
 };
 
-export default DecideStageStep;
+export default DoneVotingStep;

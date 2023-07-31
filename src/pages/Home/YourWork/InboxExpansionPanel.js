@@ -42,7 +42,6 @@ import ReplyWizard from '../../../components/InboxWizards/Reply/ReplyWizard';
 import OptionSubmittedWizard from '../../../components/InboxWizards/Submission/OptionSubmittedWizard';
 import FeedbackWizard from '../../../components/InboxWizards/Feedback/FeedbackWizard';
 import UpgradeWizard from '../../../components/InboxWizards/Upgrade/UpgradeWizard';
-import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
 import ReplyResolveWizard from '../../../components/InboxWizards/ReplyResolve/ReplyResolveWizard';
 import NewGroupWizard from '../../../components/InboxWizards/NewGroup/NewGroupWizard';
 import RespondInOptionWizard from '../../../components/InboxWizards/OptionResponse/RespondInOptionWizard';
@@ -81,15 +80,9 @@ export function calculateTitleExpansionPanel(props) {
                                                 rowId={message.id} />,
         'finishApprovalQ', intl);
     } else if (message.isOutboxType) {
-      if (message.isAssigned) {
-        setItem(item, openExpansion, <StageWizard investibleId={message.id} marketId={message.marketId}
-                                                  rowId={message.id} />,
-          undefined, intl);
-      } else {
-        setItem(item, openExpansion, <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId}
-                                                              rowId={message.id} />,
-        undefined, intl);
-      }
+      setItem(item, openExpansion, <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId}
+                                                            rowId={message.id} />,
+      undefined, intl);
     }
   } else if (messageType === 'NOT_FULLY_VOTED') {
     if (marketType === INITIATIVE_TYPE) {
@@ -208,7 +201,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
   );
 }
 
-function getMessageForInvestible(investible, market, labelId, Icon, intl, messageType) {
+function getMessageForInvestible(investible, market, labelId, Icon, intl) {
   const investibleId = investible.investible.id
   return {
     id: investibleId,
@@ -221,8 +214,7 @@ function getMessageForInvestible(investible, market, labelId, Icon, intl, messag
     link: formInvestibleLink(market.id, investibleId),
     isOutboxAccepted: investible.notAccepted,
     isOutboxType: true,
-    isInvestibleType: true,
-    messageType
+    isInvestibleType: true
   };
 }
 
@@ -277,8 +269,7 @@ function getMessageForComment(comment, market, type, Icon, intl, investibleState
 }
 
 export function getOutboxMessages(props) {
-  const { messagesState, marketsState, marketPresencesState, investiblesState, marketStagesState, commentsState,
-    intl } = props;
+  const { marketsState, marketPresencesState, investiblesState, marketStagesState, commentsState, intl } = props;
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE,
@@ -352,16 +343,11 @@ export function getOutboxMessages(props) {
       const label = notAccepted ? 'planningUnacceptedLabel' : 'startJobQ';
       const messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
         <Assignment style={{ fontSize: 24, color: '#ffc61a', }}/>;
-      const message = getMessageForInvestible(investible, market, label, messageIcon, intl,
-        notAccepted ? 'UNASSIGNED' : 'UNREAD_VOTE')
-      const { votes_required: votesRequired } = market
+      const message = getMessageForInvestible(investible, market, label, messageIcon, intl)
       const votersForInvestible = useInvestibleVoters(marketPresences, investibleId, market.id)
       const marketInfo = getMarketInfo(investible, market.id)
-      const votersNotAssigned = votersForInvestible.filter((voter) => !_.includes(marketInfo.assigned, voter.id)) || []
-      const votesRequiredDisplay = votesRequired > 0 ? votesRequired : 1
       if (!notAccepted) {
         message.isWaitingStart = true;
-        message.inActive = votersNotAssigned.length >= votesRequiredDisplay;
       }
       let debtors = [];
       if (notAccepted) {
@@ -382,12 +368,7 @@ export function getOutboxMessages(props) {
       if (!_.isEmpty(debtors)) {
         message.debtors = debtors;
       }
-      const myMessages = findMessagesForInvestibleId(investibleId, messagesState) || [];
-      // Don't display vote for investible and move stage in same tab
-      if (_.isEmpty(myMessages.find((myMessage) => myMessage.type === 'NOT_FULLY_VOTED' && myMessage.is_highlighted)))
-      {
-        messages.push(message);
-      }
+      messages.push(message);
     });
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, QUESTION_TYPE,

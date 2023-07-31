@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import FormdataWizard from 'react-formdata-wizard';
-import DecideStageStep from './DecideStageStep';
+import DoneVotingStep from './DoneVotingStep';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -15,8 +15,8 @@ function StageWizard(props) {
 
   return (
     <FormdataWizard name={`stage_wizard${investibleId}`} defaultFormData={{parentElementId: rowId}}>
-      <DecideStageStep marketId={marketId} investibleId={investibleId} currentStageId={currentStageId}
-                       groupId={groupId} />
+      <DoneVotingStep marketId={marketId} investibleId={investibleId} groupId={groupId}
+                      currentStageId={currentStageId} />
     </FormdataWizard>
   );
 }

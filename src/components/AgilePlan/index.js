@@ -339,15 +339,3 @@ export function VoteExpiration(props) {
     </React.Fragment>
   );
 }
-
-const useInputSuffixStyles = makeStyles(
-  theme => {
-    return {
-      root: {
-        fontSize: "inherit",
-        paddingTop: theme.spacing(2) + 2
-      }
-    };
-  },
-  { name: "InputSuffix" }
-);

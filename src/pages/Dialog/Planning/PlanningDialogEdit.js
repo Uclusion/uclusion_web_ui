@@ -7,7 +7,7 @@ import Grid from '@material-ui/core/Grid';
 import clsx from 'clsx';
 import CardActions from '@material-ui/core/CardActions';
 import Card from '@material-ui/core/Card';
-import { usePlanFormStyles, Votes } from '../../../components/AgilePlan';
+import { usePlanFormStyles } from '../../../components/AgilePlan';
 import { InputAdornment, makeStyles, OutlinedInput, TextField, Typography, useTheme } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { Clear, SettingsBackupRestore } from '@material-ui/icons';

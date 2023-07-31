@@ -142,6 +142,7 @@ function JobApproveStep(props) {
           market={market}
           isInbox
         />
+        <div style={{marginBottom: '1rem'}}/>
         <AddInitialVote
           marketId={marketId}
           onChange={onQuantityChange}

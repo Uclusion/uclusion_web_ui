@@ -40,7 +40,9 @@ function WizardStepButtons(props) {
 
   function onTerminate() {
     startOver();
-    onFinish();
+    if (onFinish) {
+      onFinish();
+    }
   }
 
   async function nextState(nextFunction, isOtherNext=false) {

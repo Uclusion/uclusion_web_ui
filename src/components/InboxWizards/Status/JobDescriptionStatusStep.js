@@ -31,6 +31,10 @@ function JobDescriptionStatusStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'JobStatusTitle'})}
       </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Adding an estimated date turns off status reminders until that date. Reporting progress turns off reminders for
+        a day and can be used to get feedback.
+      </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}

@@ -93,7 +93,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function WorkspaceMenu(props) {
-  const { markets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup } = props;
+  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup } = props;
+  const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const classes = useStyles();
   const intl = useIntl();
   const [anchorEl, setAnchorEl] = useState(null);

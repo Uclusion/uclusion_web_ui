@@ -103,7 +103,7 @@ function Voting(props) {
   const classes = useVoteStyles();
 
   const voters = useInvestibleVoters(marketPresences, investibleId, market.id);
-  const sortedVoters = _.sortBy(voters, "quantity");
+  const sortedVoters = _.sortBy(voters, 'quantity', 'updatedAt');
   if (!yourPresence) {
     return React.Fragment;
   }

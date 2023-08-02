@@ -9,7 +9,7 @@ import {
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { getMarket, getMyUserForMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { getComment, getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -35,7 +35,6 @@ function Investible(props) {
   const { parent_comment_id: aParentCommentId, parent_comment_market_id: aParentMarketId } = market;
   const parentComment = getComment(commentsState, aParentMarketId, aParentCommentId) || {};
   const { investible_id: parentInvestibleId, market_id: parentMarketId, group_id: parentGroupId } = parentComment;
-  const userId = getMyUserForMarket(marketsState, marketId) || '';
   const comments = getMarketComments(commentsState, marketId);
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
@@ -45,6 +44,7 @@ function Investible(props) {
   const { investible } = inv || {};
   const { name } = investible || {};
   const myPresence = marketPresences.find((presence) => presence.current_user);
+  const userId = myPresence?.id;
   const loading = !investibleId || _.isEmpty(inv) || _.isEmpty(investible) || _.isEmpty(myPresence) || !userId
     || _.isEmpty(realMarket) || !marketTokenLoaded(marketId, tokensHash);
   const isAdmin = myPresence && myPresence.is_admin;

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import DecisionInvestible from '../../Investible/Decision/DecisionInvestible';
-import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import OptionListItem from '../../../components/Comments/OptionListItem';
 import { nameFromDescription } from '../../../utils/stringFunctions';
@@ -14,6 +14,8 @@ function OptionVoting(props) {
   const { marketPresences, investibles, marketId, comments, isAdmin, inArchives, isSent, removeActions,
     selectedInvestibleId, setSelectedInvestibleId } = props;
   const [messagesState] = useContext(NotificationsContext);
+  const myPresence = marketPresences.find((presence) => presence.current_user);
+  const userId = myPresence?.id;
 
   const market = getMarket(marketsState, marketId);
   function getOptionListItem(inv) {
@@ -21,7 +23,7 @@ function OptionVoting(props) {
     const expansionOpen = inv.investible.id === selectedInvestibleId;
     if (expansionOpen) {
       expansionPanel = <DecisionInvestible
-        userId={getMyUserForMarket(marketsState, marketId) || ''}
+        userId={userId || ''}
         investibleId={selectedInvestibleId}
         market={market}
         fullInvestible={inv}

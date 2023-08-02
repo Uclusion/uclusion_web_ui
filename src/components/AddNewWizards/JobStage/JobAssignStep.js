@@ -11,17 +11,12 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { stageChangeInvestible } from '../../../api/investibles';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import {
-  getFullStage,
-  isAcceptedStage
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage, isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function JobAssignStep (props) {
   const { marketId, updateFormData, formData, investibleId, marketInfo, myFinish: finish } = props;
@@ -29,13 +24,13 @@ function JobAssignStep (props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [marketsState] = useContext(MarketsContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
   const { assigned, stage: currentStageId, group_id: groupId } = marketInfo;
   const value = (formData.wasSet ? formData.assigned : assigned) || [];
-  const userId = getMyUserForMarket(marketsState, marketId);
+  const myPresence = marketPresences.find((presence) => presence.current_user);
+  const userId = myPresence?.id;
   const fullMoveStage = getFullStage(marketStagesState, marketId, formData.stage);
   const validForm = !_.isEqual(value, assigned)&&(!isAcceptedStage(fullMoveStage)|| value.includes(userId));
   const comments = getMarketComments(commentsState, marketId, groupId);

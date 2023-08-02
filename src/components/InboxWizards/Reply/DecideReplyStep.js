@@ -7,7 +7,8 @@ import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
   addCommentToMarket,
-  getCommentRoot, getInvestibleComments,
+  getCommentRoot,
+  getInvestibleComments,
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -16,8 +17,6 @@ import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { findMessageForCommentId, removeInlineMarketMessages } from '../../../utils/messageUtils';
 import _ from 'lodash';
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { resolveComment } from '../../../api/comments';
 import { getFullStage, isRequiredInputStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -28,17 +27,21 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { REPORT_TYPE } from '../../../constants/comments';
 import { useHistory } from 'react-router';
 import { isSingleAssisted } from '../../../utils/commentFunctions';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function DecideReplyStep(props) {
   const { marketId, commentId, message } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [marketsState] = useContext(MarketsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const userId = getMyUserForMarket(marketsState, marketId) || {};
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user);
+  const userId = myPresence?.id;
   const canResolve = commentRoot.created_by === userId && commentRoot.comment_type !== REPORT_TYPE;
   const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState)
   const comments = investibleComments.filter((comment) =>

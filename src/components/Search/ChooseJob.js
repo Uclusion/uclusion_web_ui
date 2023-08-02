@@ -8,7 +8,9 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  TextField, useMediaQuery, useTheme
+  TextField,
+  useMediaQuery,
+  useTheme
 } from '@material-ui/core';
 import _ from 'lodash';
 import SearchIcon from '@material-ui/icons/Search';
@@ -18,9 +20,9 @@ import { getMarketInvestibles } from '../../contexts/InvestibesContext/investibl
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import clsx from 'clsx';
 import { getTicketNumber } from '../../utils/stringFunctions';
-import { getMyUserForMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { useIntl } from 'react-intl';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function ChooseJob(props) {
   const {
@@ -33,13 +35,15 @@ function ChooseJob(props) {
   } = props;
   const [index] = useContext(SearchIndexContext);
   const [investiblesState] = useContext(InvestiblesContext);
-  const [marketsState] = useContext(MarketsContext)
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [searchQuery, setSearchQuery] = useState(undefined);
   const [isAssignedToMe, setIsAssignedToMe] = useState(false);
-  const userId = getMyUserForMarket(marketsState, marketId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user);
+  const userId = myPresence?.id;
   const classes = usePlanFormStyles();
   const marketStageIds = marketStages.map((stage) => stage.id);
   const activeGroupInvestibles = (getMarketInvestibles(investiblesState, marketId) || []).filter((inv) => {

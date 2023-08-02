@@ -27,15 +27,6 @@ export function hasNoChannels(tokensHash) {
   return _.size(tokensHash) < 3;
 }
 
-export function getMyUserForMarket(state, marketId) {
-  const market = getMarket(state, marketId);
-  if (market) {
-    const { currentUserId } = market;
-    return currentUserId;
-  }
-  return undefined;
-}
-
 export function getMarketDetailsForType(state, marketPresencesState, marketType = 'DECISION',
   allowInline=false) {
   if (state.marketDetails) {

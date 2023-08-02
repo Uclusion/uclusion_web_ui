@@ -32,7 +32,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { changeMyPresence, usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getMarket, getMyUserForMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import CardType, { BUG, DECISION_TYPE, IN_REVIEW } from '../CardType';
 import {
   addCommentToMarket,
@@ -1032,14 +1032,13 @@ function Reply(props) {
   const marketId = useMarketId()
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || unknownPresence;
-  const [marketsState] = useContext(MarketsContext);
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const [messagesState] = useContext(NotificationsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
-  const userId = getMyUserForMarket(marketsState, marketId) || {};
   const myPresence = presences.find(presence => presence.id === userId) || {};
+  const userId = myPresence?.id;
   const isEditable = comment.created_by === userId;
   const classes = useReplyStyles();
   const [replyAddStateFull, replyAddDispatch] = usePageStateReducer('replyAdd');

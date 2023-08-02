@@ -1,26 +1,21 @@
-import { titleText } from '../../../utils/messageUtils'
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { getMarketInfo } from '../../../utils/userFunctions'
-import { getMarket, getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
-import {
-  getComment,
-  getCommentRoot
-} from '../../../contexts/CommentsContext/commentsContextHelper'
-import { nameFromDescription } from '../../../utils/stringFunctions'
-import { calculateTitleExpansionPanel } from './InboxExpansionPanel'
-import WorkListItem from './WorkListItem'
-import React, { useContext } from 'react'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
+import { titleText } from '../../../utils/messageUtils';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { nameFromDescription } from '../../../utils/stringFunctions';
+import { calculateTitleExpansionPanel } from './InboxExpansionPanel';
+import WorkListItem from './WorkListItem';
+import React, { useContext } from 'react';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { Assignment, Block, CalendarToday, PersonAddOutlined } from '@material-ui/icons';
-import Quiz from '../../../components/CustomChip/Quiz'
-import { useIntl } from 'react-intl'
-import { useMediaQuery, useTheme } from '@material-ui/core'
-import {
-  getFullStage,
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
+import Quiz from '../../../components/CustomChip/Quiz';
+import { useIntl } from 'react-intl';
+import { useMediaQuery, useTheme } from '@material-ui/core';
+import { getFullStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { messageIsSynced } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
@@ -30,6 +25,7 @@ import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined'
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets';
 import ReplyIcon from '@material-ui/icons/Reply';
 import ListAltIcon from '@material-ui/icons/ListAlt';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
@@ -107,7 +103,9 @@ function InboxRow(props) {
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { assigned, stage } = marketInfo;
-  const userId = getMyUserForMarket(marketsState, marketId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user);
+  const userId = myPresence?.id;
   const isAssigned = (assigned || []).includes(userId);
   const market = getMarket(marketsState, marketId) || {};
   const item = {

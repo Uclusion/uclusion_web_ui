@@ -24,10 +24,9 @@ import { useIntl } from 'react-intl';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
-import { getMyUserForMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import JobDescription from '../../InboxWizards/JobDescription';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function JobStageStep (props) {
   const { marketId, updateFormData, formData, nextStep, investibleId, marketInfo, myFinish: finish,
@@ -37,10 +36,11 @@ function JobStageStep (props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [marketsState] = useContext(MarketsContext);
-  const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [marketPresencesState,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const classes = useContext(WizardStylesContext);
-  const userId = getMyUserForMarket(marketsState, marketId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user);
+  const userId = myPresence?.id;
   const { stage, assigned, group_id: groupId } = marketInfo;
   const value = formData.stageWasSet ? formData.stage : stage;
   const validForm = !_.isEqual(value, stage);

@@ -172,7 +172,7 @@ function JobDescriptionStep (props) {
         onNextDoAdvance={currentValue === 'IMMEDIATE'}
         showTerminate
         onTerminate={() => navigate(history, formMarketLink(marketId, groupId))}
-        terminateLabel="JobWizardGotoJob"
+        terminateLabel="JobWizardBack"
       />
     </WizardStepContainer>
   );

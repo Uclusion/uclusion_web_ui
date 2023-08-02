@@ -52,10 +52,13 @@ function IntroduceGroupStep(props) {
       }>{group.name}</Link> of {market.name}
       </Typography>
       <div style={{paddingBottom: '1rem', paddingTop: '1rem'}}>
-        <Typography variant='body2'>
-          Now you can collaborate with the members of this group.
+        <Typography variant='body2' style={{paddingBottom: '1.5rem'}}>
+          Now these group members
         </Typography>
         <GravatarGroup users={groupPresences} gravatarClassName={classes.smallGravatar} />
+        <Typography variant='body2' style={{paddingTop: '1.5rem'}}>
+          will be automatically notified when you create jobs, comments or bugs in this group.
+        </Typography>
       </div>
       <WizardStepButtons
         {...props}

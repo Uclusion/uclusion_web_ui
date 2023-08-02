@@ -183,10 +183,10 @@ export const wizardStyles = makeStyles(
       },
       stepDefault: {},
       wizardCommentBoxDiv: {
-        paddingBottom: '0.5rem',
+        paddingBottom: '1rem',
         overflowY: 'hidden',
         overflowX: 'hidden',
-        marginBottom: '0.5rem',
+        marginBottom: '1rem',
         paddingLeft: '4px',
         paddingRight: '10rem',
         [theme.breakpoints.down('md')]: {

@@ -69,7 +69,7 @@ function PlanningDialogEdit(props) {
 
   return (
     <Card className={classes.overflowVisible}>
-      <CardContent className={classes.cardContent}>
+      <CardContent>
         {!isEveryoneGroup(id, marketId) && (
           <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
             <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
@@ -85,13 +85,12 @@ function PlanningDialogEdit(props) {
               </Grid>
           </Grid>
         )}
-        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
-              style={{paddingTop: '2rem'}}>
-          <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
-              <Typography variant="h6">
-                {intl.formatMessage({ id: 'channelOptions' })}
-              </Typography>
-          </Grid>
+          <Typography variant="h6">
+            {intl.formatMessage({ id: 'channelOptions' })}
+          </Typography>
+          <Typography style={{marginTop: '1rem'}}>
+            {intl.formatMessage({ id: 'groupNameHelp' })}
+          </Typography>
           <OutlinedInput
             id="workspaceName"
             className={wizardClasses.input}
@@ -106,20 +105,17 @@ function PlanningDialogEdit(props) {
               </InputAdornment>
             }
           />
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <TextField
-              id="name"
-              className={classes.input}
-              value={ticket_sub_code}
-              onChange={handleChange('ticket_sub_code')}
-            />
-            <Typography>
-              {intl.formatMessage({ id: 'ticketSubCodeHelp' })}
-            </Typography>
-          </Grid>
-        </Grid>
+        <Typography>
+          {intl.formatMessage({ id: 'ticketSubCodeHelp' })}
+        </Typography>
+          <TextField
+            id="name"
+            className={classes.input}
+            value={ticket_sub_code}
+            onChange={handleChange('ticket_sub_code')}
+          />
       </CardContent>
-      <CardActions className={myClasses.actions}>
+      <CardActions className={myClasses.actions} style={{marginTop: '1rem'}}>
         <SpinningIconLabelButton onClick={() => setMutableGroup(getInitialGroup())} doSpin={false} icon={Clear}>
           {intl.formatMessage({ id: 'marketEditCancelLabel' })}
         </SpinningIconLabelButton>

@@ -1037,7 +1037,7 @@ function Reply(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
-  const myPresence = presences.find(presence => presence.id === userId) || {};
+  const myPresence = presences.find(presence => presence.current_user) || {};
   const userId = myPresence?.id;
   const isEditable = comment.created_by === userId;
   const classes = useReplyStyles();

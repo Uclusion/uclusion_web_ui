@@ -104,9 +104,6 @@ function Voting(props) {
 
   const voters = useInvestibleVoters(marketPresences, investibleId, market.id);
   const sortedVoters = _.sortBy(voters, 'quantity', 'updatedAt');
-  if (!yourPresence) {
-    return React.Fragment;
-  }
 
   function remove(event) {
     preventDefaultAndProp(event);
@@ -116,6 +113,10 @@ function Voting(props) {
         messagesDispatch, setOperationRunning);
       setOperationRunning(false);
     });
+  }
+
+  if (!yourPresence || _.isEmpty(sortedVoters)) {
+    return React.Fragment;
   }
 
   return (

@@ -269,6 +269,10 @@ export const usePlanningInvestibleStyles = makeStyles(
         marginLeft: 0
       },
     },
+    largeGravatar: {
+      width: '45px',
+      height: '45px',
+    },
     smallGravatar: {
       width: '30px',
       height: '30px',
@@ -813,7 +817,7 @@ export function rejectInvestible(marketId, investibleId, marketInvestible, comme
 
 export function Assignments(props) {
   const { marketPresences, classes, assigned, toolTipId, toggleIconButton, assignmentColumnMessageId,
-    highlighted } = props;
+    highlighted, isLarge } = props;
   const intl = useIntl();
   const metaClasses = useMetaDataStyles();
   const safeAssigned = assigned || [];
@@ -830,7 +834,14 @@ export function Assignments(props) {
     <>
       {assignmentColumnMessageId && (
         <div style={{display: 'flex', flexDirection: 'row'}}>
-          <b><FormattedMessage id={assignmentColumnMessageId} /></b>
+          {isLarge && (
+            <Typography>
+              {intl.formatMessage({ id: assignmentColumnMessageId })}
+            </Typography>
+          )}
+          {!isLarge && (
+            <b><FormattedMessage id={assignmentColumnMessageId} /></b>
+          )}
           {toggleIconButton && (
             <Tooltip
               title={intl.formatMessage({ id: toolTipId })}
@@ -861,7 +872,8 @@ export function Assignments(props) {
               key={`${presence.id}${toolTipId}`}
             >
               {!showAsPlaceholder && (
-                <Gravatar email={presence.email} name={presence.name} className={classes.smallGravatar}/>
+                <Gravatar email={presence.email} name={presence.name}
+                          className={isLarge ? classes.largeGravatar : classes.smallGravatar}/>
               )}
               {isHighlighted && (
                 <Tooltip

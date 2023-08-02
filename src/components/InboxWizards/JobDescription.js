@@ -1,31 +1,30 @@
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
-import DescriptionOrDiff from '../Descriptions/DescriptionOrDiff'
-import React, { useContext } from 'react'
-import { useInvestibleEditStyles } from '../../pages/Investible/InvestibleBodyEdit'
-import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { wizardStyles } from './WizardStylesContext'
-import GravatarGroup from '../Avatars/GravatarGroup'
-import { getMarketInfo } from '../../utils/userFunctions'
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { useIntl } from 'react-intl'
-import _ from 'lodash'
-import { editorEmpty } from '../TextEditors/Utilities/CoreUtils'
-import CommentBox from '../../containers/CommentBox/CommentBox'
-import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
+import DescriptionOrDiff from '../Descriptions/DescriptionOrDiff';
+import React, { useContext } from 'react';
+import { useInvestibleEditStyles } from '../../pages/Investible/InvestibleBodyEdit';
+import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { wizardStyles } from './WizardStylesContext';
+import { getMarketInfo } from '../../utils/userFunctions';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import _ from 'lodash';
+import { editorEmpty } from '../TextEditors/Utilities/CoreUtils';
+import CommentBox from '../../containers/CommentBox/CommentBox';
+import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
+import { Assignments, usePlanningInvestibleStyles } from '../../pages/Investible/Planning/PlanningInvestible';
 
 function JobDescription(props) {
   const { investibleId, marketId, comments, showDescription=true, showAssigned=true, inboxMessageId,
     removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder } = props;
-  const intl = useIntl();
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const investibleEditClasses = useInvestibleEditStyles();
+  const planningClasses = usePlanningInvestibleStyles();
   const [investiblesState] = useContext(InvestiblesContext);
   const classes = wizardStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -41,12 +40,19 @@ function JobDescription(props) {
 
   return (
     <>
-      <div style={{paddingLeft: '4px', paddingRight: '4px', paddingTop: showAssigned ? '1rem' : undefined}}>
+      <div style={{paddingLeft: '4px', paddingRight: '4px'}}>
         {!_.isEmpty(assignedPresences) && showAssigned && (
-          <div style={{alignItems: 'center', display: 'flex', paddingBottom: '1rem'}}>
-            <Typography variant='body2' style={{ paddingRight: '0.5rem'}}>
-              {intl.formatMessage({ id: 'planningInvestibleAssignments' })}</Typography>
-            <GravatarGroup users={assignedPresences} gravatarClassName={classes.smallGravatar} />
+          <div className={planningClasses.assignments} style={{paddingBottom: '1.5rem'}}>
+            <div className={planningClasses.assignmentContainer}>
+              <Assignments
+                classes={planningClasses}
+                marketPresences={marketPresences}
+                assigned={assigned}
+                assignmentColumnMessageId='planningInvestibleAssignments'
+                toolTipId='storyAddParticipantsLabel'
+                isLarge
+              />
+            </div>
           </div>
         )}
         <Typography className={investibleEditClasses.title} variant="h3" component="h1"

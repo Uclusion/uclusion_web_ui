@@ -1,9 +1,10 @@
 import React from 'react';
-import { Box, Card, Typography } from '@material-ui/core';
-import { useIntl } from 'react-intl';
+import { Button, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import PropTypes from 'prop-types'
-
+import { wizardStyles } from '../InboxWizards/WizardStylesContext';
+import { navigate } from '../../utils/marketIdPathFunctions';
+import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
+import { useHistory } from 'react-router';
 const useStyles = makeStyles(() => {
   return {
     bannerBox: {
@@ -13,33 +14,30 @@ const useStyles = makeStyles(() => {
       borderRadius: 6,
       marginBottom: '2rem',
     },
-    bannerCard: {
-      padding: '10px',
-      backgroundColor: '#efefef'
-    },
+
   };
 });
 
 function OnboardingBanner(props) {
-  const { messageId } = props;
-  const intl = useIntl();
   const classes = useStyles();
-
+  const history = useHistory();
+  const wizardClasses = wizardStyles();
   return (
     <div className={classes.bannerBox}>
-      <Card className={classes.bannerCard}>
+      <div>
         <Typography>
-          <Box fontWeight="bold">
-            {intl.formatMessage({ id: messageId })}
-          </Box>
+            You are currently viewing the Script Developers demo.
         </Typography>
-      </Card>
+        <Typography>Ready to get to work?</Typography>
+        <Button
+          onClick={() => {
+            navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+          }}
+          className={wizardClasses.actionPrimary}>Create Your Workspace</Button>
+      </div>
     </div>
   );
 }
 
-OnboardingBanner.propTypes = {
-  messageId: PropTypes.string.isRequired,
-};
 
 export default OnboardingBanner;

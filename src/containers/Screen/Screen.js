@@ -70,8 +70,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   bannerContainer: {
-    marginTop: '5rem',
-    marginBottom: '-4rem',
   },
   listContainer: {
     flex: '0 0 auto',
@@ -320,14 +318,15 @@ function Screen(props) {
           <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />
         </div>
       )}
-      {banner && !hidden && (
-        <div className={classes.bannerContainer}>
-          {banner}
-        </div>
-      )}
+
       <div className={contentClass}>
         {!reallyAmLoading && (
           <div className={myContainerClass}>
+            {banner && !hidden && (
+              <div className={classes.bannerContainer}>
+                {banner}
+              </div>
+            )}
             {children}
           </div>
         )}

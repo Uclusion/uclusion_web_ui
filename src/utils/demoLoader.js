@@ -6,8 +6,12 @@ import {
   PUSH_PRESENCE_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_COMMENTS_CHANNEL
 } from '../api/versionedFetchUtils';
 import _ from 'lodash';
-function quickAddComments(marketId, comments) {
-  pushMessage(PUSH_COMMENTS_CHANNEL, { event: DEMO_EVENT, commentDetails: { [marketId]: comments} });
+function quickAddComments (market, comments) {
+  // make it look like a normal comment push
+  const commentDetails = {
+    [market.id]: comments
+  };
+  pushMessage(PUSH_COMMENTS_CHANNEL, { event: DEMO_EVENT, commentDetails });
 }
 
 function quickAddInvestibles(investibles) {
@@ -26,32 +30,36 @@ function quickAddPresences(market, myUser, demoUser, presences) {
   }
 }
 
-function quickAddStages (market, stages) {
+function quickAddStages (market, stageDetails) {
   const { id: marketId } = market;
-  pushMessage(PUSH_STAGE_CHANNEL, { event: DEMO_EVENT, marketId, stageDetails: stages });
+  pushMessage(PUSH_STAGE_CHANNEL, { event: DEMO_EVENT, marketId, stageDetails });
 }
 
 function quickAddMarket (market) {
   pushMessage(PUSH_MARKETS_CHANNEL, { event: DEMO_EVENT, marketDetails: [market] });
 }
 
-function handleMarketData (marketData) {
+function handleMarketData (marketData, myUser, demoUser) {
   const {
-    market, comments, investibles,
-    stages, presences,
-    my_user: myUser, demo_user: demoUser,
-    child_markets: childMarkets
+    market, child_markets: childMarkets,
+    comments, investibles,
+    stages, presences
   } = marketData;
   quickAddMarket(market);
   quickAddStages(market, stages);
   quickAddPresences(market, myUser, demoUser, presences);
   quickAddInvestibles(investibles);
-  quickAddComments(market.id, comments);
+  quickAddComments(market, comments);
   if (!_.isEmpty(childMarkets)) {
-    childMarkets.forEach((childMarket) => handleMarketData(childMarket));
+    childMarkets.forEach((market) => handleMarketData(market, myUser, demoUser));
   }
+  console.debug("Done quick adding demo");
 }
 
 export function quickAddDemo (demo) {
-  handleMarketData(demo);
+  const {
+    market, my_user: myUser, demo_user: demoUser
+  } = demo;
+
+  handleMarketData(market, myUser, demoUser);
 }

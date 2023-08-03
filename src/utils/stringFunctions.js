@@ -98,9 +98,9 @@ function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, 
     }
     return { name: extracted, description };
   }
-  const periodPosition = indexOfOrOutofBounds(extracted, '.');
-  const exclamationPosition = indexOfOrOutofBounds(extracted, '!');
-  const questionPosition = indexOfOrOutofBounds(extracted, '?');
+  const periodPosition = indexOfOrOutofBounds(extracted, '. ');
+  const exclamationPosition = indexOfOrOutofBounds(extracted, '! ');
+  const questionPosition = indexOfOrOutofBounds(extracted, '? ');
   const sentencePosition = Math.min(periodPosition, exclamationPosition, questionPosition);
   if (sentencePosition < extracted.length) {
     extracted = extracted.substring(0, sentencePosition + 1);

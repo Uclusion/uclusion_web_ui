@@ -3,18 +3,26 @@ import _ from 'lodash';
 export function addByIdAndVersion (addList, oldList, iteratee = (item) => item.id,
   comparator = (item1, item2) => item1.version >= item2.version) {
   // Cannot allow quick add to clobber something of greater version
-  if (_.isEmpty(oldList)) {
-    return addList
-  }
   if (_.isEmpty(addList)) {
     return oldList
+  }
+  if (_.isEmpty(oldList)) {
+    // Prevent undefined items from being added
+    const addListFiltered = addList.filter((item) => !_.isEmpty(item));
+    if (_.isEmpty(addListFiltered)) {
+      console.warn('Adding list with empty items');
+      return oldList;
+    }
+    return addListFiltered;
   }
   const newAddList = []
   const oldListMap = _.keyBy(oldList, iteratee)
   addList.forEach((item) => {
-    const oldItem = oldListMap[iteratee(item)]
-    if (!oldItem || comparator(item, oldItem)) {
-      newAddList.push(item)
+    if (item) {
+      const oldItem = oldListMap[iteratee(item)]
+      if (!oldItem || comparator(item, oldItem)) {
+        newAddList.push(item)
+      }
     }
   })
   return _.unionBy(newAddList, oldList, iteratee)

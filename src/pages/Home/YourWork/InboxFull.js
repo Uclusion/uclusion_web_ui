@@ -25,7 +25,6 @@ import { getOutboxMessages } from './InboxExpansionPanel'
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions';
-import { BannerContext } from '../../../contexts/BannerContext/BannerContext';
 
 export const CLOSE_PANEL_CHANNEL = 'closePanel';
 
@@ -47,7 +46,6 @@ function InboxFull(props) {
   const [userState] = useContext(AccountContext);
   const [searchResults] = useContext(SearchResultsContext);
   const hasUser = userIsLoaded(userState);
-  const [bannerState] = useContext(BannerContext);
   const { messages: messagesUnsafe } = messagesState;
   const messagesMapped = (messagesUnsafe || []).map((message) => {
     return {...message, id: message.type_object_id};
@@ -91,7 +89,6 @@ function InboxFull(props) {
       tabTitle={intl.formatMessage({id: 'inbox'})}
       hidden={hidden}
       isInbox
-      banner={bannerState}
     >
       <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} loadingFromInvite={fromInvite}
              workItemId={workItemId} messagesHash={messagesHash} messagesFull={messagesFull}

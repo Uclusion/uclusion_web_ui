@@ -10,7 +10,7 @@ import { PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../..
 export function getMarket(state, marketId) {
   const { marketDetails } = state;
   const usedDetails = marketDetails || [];
-  return usedDetails.find((market) => market.id === marketId);
+  return usedDetails.find((market) => market?.id === marketId);
 }
 
 export function getFailedSignatures(state) {
@@ -46,11 +46,14 @@ export function getMarketDetailsForType(state, marketPresencesState, marketType 
   return null;
 }
 
-export function getHiddenMarketDetailsForUser(state, marketPresenceState, searchResults = {}) {
+export function x(state, marketPresenceState, searchResults = {}) {
   const { marketDetails } = state;
   const { results, parentResults, search } = searchResults;
   if (marketDetails) {
     return marketDetails.filter((market) => {
+      if(!market){
+        return false;
+      }
       const { id, market_stage: marketStage, market_sub_type: marketSubType } = market;
       const marketPresences = getMarketPresences(marketPresenceState, id) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
@@ -107,7 +110,10 @@ export function addMarketsToStorage(dispatch, marketDetails) {
 export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
   if (state.marketDetails) {
     const newMarketDetails = state.marketDetails.filter((market) => {
-      const marketPresences = getMarketPresences(marketPresencesState, market.id);
+      if(!market){
+        return false;
+      }
+      const marketPresences = getMarketPresences(marketPresencesState, market?.id);
       const myPresence = marketPresences?.find((presence) => presence.current_user);
       if (myPresence?.market_banned) {
         return false;

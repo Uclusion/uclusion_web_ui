@@ -23,7 +23,6 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import jwt_decode from 'jwt-decode'
 import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper'
-import OnboardingBanner from '../../components/Banners/OnboardingBanner'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import {
@@ -75,8 +74,7 @@ function Dialog(props) {
   const loading = !hasUser || isInitialization || !myPresence || !marketType ||
     !marketTokenLoaded(marketId, tokensHash);
   const createEnabled = canCreate(userState);
-  const banner = !loading && _.isEmpty(marketStages) ? <OnboardingBanner messageId='OnboardingInviteDialog' /> :
-    (loading || createEnabled ? undefined : <UpgradeBanner/>);
+  const banner = (loading || createEnabled ? undefined : <UpgradeBanner/>);
 
   useEffect(() => {
     if (!hidden && !isInitialization && hasUser && marketEntity) {

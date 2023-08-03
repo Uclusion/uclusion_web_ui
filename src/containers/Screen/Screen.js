@@ -37,6 +37,7 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { BannerContext } from '../../contexts/BannerContext/BannerContext';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -169,6 +170,7 @@ function Screen(props) {
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [marketsState] = useContext(MarketsContext);
   const { results, search } = searchResults;
+  const [bannerState] = useContext(BannerContext);
   const {
     hidden,
     loading,
@@ -185,6 +187,7 @@ function Screen(props) {
     hideMenu,
     overrideMenu
   } = props;
+  const usedBanner = banner ?? bannerState;
   const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
   const marketId = pathMarketId || searchMarketId || hashMarketId ||
     getPlanningMarketId(investibleId, marketsState, investiblesState);
@@ -322,9 +325,9 @@ function Screen(props) {
       <div className={contentClass}>
         {!reallyAmLoading && (
           <div className={myContainerClass}>
-            {banner && !hidden && (
+            {usedBanner && !hidden && (
               <div className={classes.bannerContainer}>
-                {banner}
+                {usedBanner}
               </div>
             )}
             {children}

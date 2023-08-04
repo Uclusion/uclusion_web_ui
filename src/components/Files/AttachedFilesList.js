@@ -1,30 +1,23 @@
-import React, { useState } from 'react'
-import PropTypes from 'prop-types'
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Link, List, ListItem, ListItemText, ListItemSecondaryAction } from '@material-ui/core';
+import { Link } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { FormattedMessage, useIntl } from 'react-intl'
-import clsx from 'clsx'
-import config from '../../config'
-import LoadingOverlay from 'react-loading-overlay'
-
-import { makeStyles } from '@material-ui/styles'
-import FileUploader from './FileUploader'
-import { useMetaDataStyles } from '../../pages/Investible/Planning/PlanningInvestibleNav'
-import { getMarketLogin } from '../../api/uclusionClient'
+import { FormattedMessage, useIntl } from 'react-intl';
+import config from '../../config';
+import LoadingOverlay from 'react-loading-overlay';
+import { makeStyles } from '@material-ui/styles';
+import FileUploader from './FileUploader';
+import { getMarketLogin } from '../../api/uclusionClient';
 import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton';
 
 const useStyles = makeStyles((theme) => ({
-  container: {
-    padding: 0,
-    width: '80%',
-  },
   sectionTitle: {
     fontWeight: 700,
     marginBottom: '0.5rem',
   },
   file: {
-    wordBreak: 'break-all',
+    wordBreak: 'break-all'
   },
   sidebarContent: {
     display: 'flex',
@@ -46,10 +39,8 @@ function AttachedFilesList(props) {
 
   const { marketId, attachedFiles, onUpload, onDeleteClick } = props;
   const [uploadInProgress, setUploadInProgress] = useState(false);
-  const metaClasses = useMetaDataStyles();
   const classes = useStyles();
   const intl = useIntl();
-
   const fileBaseUrl = config.file_download_configuration.baseURL;
 
   /** Since the service worker doesn't want to fire for external links,
@@ -76,30 +67,21 @@ function AttachedFilesList(props) {
       const {original_name, path} = file;
       const linkToFile = `${fileBaseUrl}/${path}`;
       return (
-        <ListItem
-          alignItems="flex-start"
-          key={path}
-          dense
-        >
-          <ListItemText
-            disableTypography
-          >
-              <Link
-                href={linkToFile}
-                variant="inherit"
-                underline="always"
-                color="primary"
-                download={original_name}
-                onClick={(e) => {
-                  e.preventDefault();
-                  downloadFile(linkToFile, original_name);
-                }}
-                className={classes.file}
-              >
-                {original_name}
-              </Link>
-          </ListItemText>
-          <ListItemSecondaryAction>
+      <div style={{width: '40%'}}>
+            <Link
+              href={linkToFile}
+              variant="inherit"
+              underline="always"
+              color="primary"
+              download={original_name}
+              onClick={(e) => {
+                e.preventDefault();
+                downloadFile(linkToFile, original_name);
+              }}
+              className={classes.file}
+            >
+              {original_name}
+            </Link>
             <SpinningTooltipIconButton
               id='deleteFiles'
               translationId="delete"
@@ -108,8 +90,7 @@ function AttachedFilesList(props) {
               icon={<DeleteIcon htmlColor="black" />}
               aria-label="delete"
             />
-          </ListItemSecondaryAction>
-        </ListItem>
+        </div>
       )
     })
   }
@@ -120,26 +101,21 @@ function AttachedFilesList(props) {
     <LoadingOverlay
       active={uploadInProgress}
       spinner
-      className={classes.container}
       text={intl.formatMessage({ id: 'uploadInProgress' })}
     >
-      <div className={classes.capitalize}>
-        <div className={classes.sectionTitle}>
-          <FormattedMessage id="attachedFilesSection"/>
-        </div>
-        <div className={clsx(metaClasses.assignments, metaClasses.linkContainer, metaClasses.scrollContainer)}>
-            {!hasFiles && (
-              <FileUploader marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress} />
-            )}
-            {hasFiles && (
-            <List className={classes.sidebarContent}>
-              <FileUploader key="uploader" marketId={marketId} onUpload={onUpload}
-                            setUploadInProgress={setUploadInProgress}/>
-              {displayLinksList(attachedFiles)}
-            </List>)}
-
-        </div>
+      <div className={classes.sectionTitle}>
+        <FormattedMessage id="attachedFilesSection"/>
       </div>
+      {!hasFiles && (
+        <FileUploader marketId={marketId} onUpload={onUpload} setUploadInProgress={setUploadInProgress} />
+      )}
+      {hasFiles && (
+      <div>
+        <FileUploader key="uploader" marketId={marketId} onUpload={onUpload}
+                      setUploadInProgress={setUploadInProgress}/>
+        {displayLinksList(attachedFiles)}
+      </div>
+      )}
     </LoadingOverlay>
   );
 }

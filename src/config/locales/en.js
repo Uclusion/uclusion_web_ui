@@ -447,7 +447,7 @@ const messages = defineMessages({
   voteExpirationHelp: "How many days before approvals expire. Prevents approvals becoming too old.",
   reassignToMove: 'Assigning moves to the swimlanes.',
   marketLinksSection: 'links',
-  attachedFilesSection: 'attach files',
+  attachedFilesSection: 'Attach Files',
   parentLinkSection: 'Parent',
   dialogNotParticipating: 'Click to become a collaborator',
   lockedBy: 'Locked by {x}',

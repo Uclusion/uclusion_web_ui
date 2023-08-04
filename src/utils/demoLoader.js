@@ -51,15 +51,17 @@ function handleMarketData (marketData, myUser, demoUser) {
   quickAddInvestibles(investibles);
   quickAddComments(market, comments);
   if (!_.isEmpty(childMarkets)) {
-    childMarkets.forEach((market) => handleMarketData(market, myUser, demoUser));
+    childMarkets.forEach((child) => handleMarketData(child, myUser, demoUser));
   }
   console.debug("Done quick adding demo");
 }
 
 export function quickAddDemo (demo) {
   const {
-    market, my_user: myUser, demo_user: demoUser
+     my_user: myUser, demo_user: demoUser
   } = demo;
-
-  handleMarketData(market, myUser, demoUser);
+  // we call a second function here, because I want to recurse on the structure
+  // of the market part of the demo, but hold myUser and demoUser constant
+  // in that recursion
+  handleMarketData(demo, myUser, demoUser);
 }

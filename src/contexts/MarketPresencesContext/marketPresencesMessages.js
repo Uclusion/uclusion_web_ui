@@ -36,6 +36,8 @@ function beginListening(dispatch) {
         dispatch(versionsUpdateMarketPresences(userDetails));
         break;
       case DEMO_EVENT:
+        console.info('Responding to demo presences event');
+      // eslint-disable-next-line no-fallthrough
       case ADD_PRESENCE:
         addPresenceToMarket(dispatch, marketId, presence);
         break;

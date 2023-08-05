@@ -57,6 +57,8 @@ function beginListening(dispatch, setTokensHash) {
     const { payload: { event, marketDetails, signature} } = data;
     switch (event) {
       case DEMO_EVENT:
+        console.info('Responding to demo market event');
+      // eslint-disable-next-line no-fallthrough
       case VERSIONS_EVENT:
         addMarketsToStorage(dispatch, marketDetails);
         break;

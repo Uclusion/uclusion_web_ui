@@ -45,6 +45,8 @@ function beginListening(dispatch, diffDispatch) {
     }
     switch (event) {
       case DEMO_EVENT:
+        console.info('Responding to demo comment event');
+      // eslint-disable-next-line no-fallthrough
       case VERSIONS_EVENT:
         const fixedUpForDiff = allComments.map((comment) => {
           const { id, body: description, updated_by,  updated_by_you } = comment;

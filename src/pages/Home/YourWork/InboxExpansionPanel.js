@@ -47,6 +47,7 @@ import NewGroupWizard from '../../../components/InboxWizards/NewGroup/NewGroupWi
 import RespondInOptionWizard from '../../../components/InboxWizards/OptionResponse/RespondInOptionWizard';
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
 import TaskedWizard from '../../../components/InboxWizards/ReviewNewTask/TaskedWizard';
+import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -84,7 +85,7 @@ export function calculateTitleExpansionPanel(props) {
                                                             rowId={message.id} />,
       undefined, intl);
     }
-  } else if (messageType === 'NOT_FULLY_VOTED') {
+  } else if ([NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST].includes(messageType)) {
     if (marketType === INITIATIVE_TYPE) {
       setItem(item, openExpansion, <VoteWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                message={message} />,

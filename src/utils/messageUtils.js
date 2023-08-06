@@ -5,6 +5,7 @@ import { REPORT_TYPE } from '../constants/comments'
 import { quickRemoveMessages, removeMessages } from '../contexts/NotificationsContext/notificationsContextReducer';
 import { getMarketInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketComments } from '../contexts/CommentsContext/commentsContextHelper';
+import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../constants/notifications';
 
 function getMessageTextForId(rawId, isMobile, intl) {
   const id = isMobile ? `${rawId}Mobile` : rawId;
@@ -101,7 +102,8 @@ export function messageText(message, isMobile, intl) {
       return getMessageTextForId('workspaceClosed', isMobile, intl);
     case 'FULLY_VOTED':
       return getMessageTextForId('fullyVoted', isMobile, intl);
-    case 'NOT_FULLY_VOTED':
+    case UNREAD_JOB_APPROVAL_REQUEST:
+    case NOT_FULLY_VOTED_TYPE:
       if (marketType === DECISION_TYPE) {
         return getMessageTextForId('pleaseChoose', isMobile, intl);
       }

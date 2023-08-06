@@ -4,7 +4,7 @@ import {
   reopenAutoclosedInvestibleComments,
   resolveInvestibleComments
 } from '../contexts/CommentsContext/commentsContextHelper';
-import { NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED } from '../constants/notifications';
+import { NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED, UNREAD_JOB_APPROVAL_REQUEST } from '../constants/notifications';
 import { pushMessage } from './MessageBusUtils';
 import {
   MODIFY_NOTIFICATIONS_CHANNEL,
@@ -31,7 +31,7 @@ export function onInvestibleStageChange(targetStageId, newInv, investibleId, mar
   }
   let useRemoveTypes = removeTypes;
   if (!useRemoveTypes && targetStage.move_on_comment) {
-    useRemoveTypes = [NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED];
+    useRemoveTypes = [NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED, UNREAD_JOB_APPROVAL_REQUEST];
   }
   pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: STAGE_CHANGE_EVENT, investibleId, useRemoveTypes });
 }

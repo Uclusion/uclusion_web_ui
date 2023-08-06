@@ -32,6 +32,7 @@ import { useIntl } from 'react-intl';
 import Voting from '../../../pages/Investible/Decision/Voting';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
@@ -157,7 +158,6 @@ function JobApproveStep(props) {
           {...props}
           onFinish={onFinish}
           validForm={validForm}
-          showTerminate={message.is_highlighted}
           nextLabel={isAssigned ? 'ApprovalWizardAccept' : 'yourVotingVoteForThisPlanning'}
           onNext={onNext}
           showOtherNext
@@ -166,7 +166,8 @@ function JobApproveStep(props) {
           otherNextLabel="ApprovalWizardBlock"
           onOtherNext={() => navigate(history,
             formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE))}
-          terminateLabel="defer"
+          showTerminate={getShowTerminate(message)}
+          terminateLabel={getLabelForTerminate(message)}
         />
     </WizardStepContainer>
   )

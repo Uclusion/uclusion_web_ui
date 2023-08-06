@@ -19,7 +19,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import DecisionApproveStep from './DecisionApproveStep';
 import { findMessageOfType } from '../../../utils/messageUtils';
-import { NOT_FULLY_VOTED_TYPE } from '../../../constants/notifications';
+import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
 import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import VoteCertaintyStep from './VoteCertaintyStep';
 import _ from 'lodash';
@@ -35,6 +35,9 @@ export function commonQuick(result, commentsDispatch, marketId, commentsState, m
   let useVoteMessage;
   if (messagesState) {
     useVoteMessage = findMessageOfType(NOT_FULLY_VOTED_TYPE, marketId, messagesState);
+    if (!useVoteMessage) {
+      useVoteMessage = findMessageOfType(UNREAD_JOB_APPROVAL_REQUEST, marketId, messagesState);
+    }
   } else {
     useVoteMessage = voteMessage;
   }

@@ -26,6 +26,7 @@ import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets';
 import ReplyIcon from '@material-ui/icons/Reply';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
@@ -44,7 +45,7 @@ function getPriorityIcon(message, isAssigned) {
   if (message.type === 'INVESTIBLE_SUBMITTED') {
     Icon = ThumbsUpDownIcon;
   }
-  if (message.type === 'NOT_FULLY_VOTED') {
+  if ([NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST].includes(message.type)) {
     if (marketType === INITIATIVE_TYPE) {
       Icon = LightbulbOutlined;
     } else if (marketType === DECISION_TYPE || decisionInvestibleId) {

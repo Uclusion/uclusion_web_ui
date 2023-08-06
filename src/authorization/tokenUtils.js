@@ -1,6 +1,5 @@
 import jwt_decode from 'jwt-decode';
-import { getTokenFetcher } from '../api/uclusionClient';
-import { TOKEN_TYPE_MARKET } from './TokenStorageManager';
+import { MARKET_TOKEN_FETCHER } from '../api/uclusionClient';
 import { registerListener } from '../utils/MessageBusUtils';
 import { VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions'
 
@@ -37,11 +36,7 @@ export function registerMarketTokenListeners () {
         const { isEntry } = message;
         if (isEntry && shouldRun) {
           lastMarketTokenCheck.time = Date.now();
-          return getTokenFetcher(TOKEN_TYPE_MARKET)
-            .then((fetcher) => {
-              // refresh any token expiring within 72 hours.
-              return fetcher.refreshExpiringTokens(72);
-            });
+          return MARKET_TOKEN_FETCHER.refreshExpiringTokens(72);
         }
         break;
       }

@@ -27,15 +27,18 @@ class TokenFetcher {
    */
   async getToken () {
     // first get the token storage lock on this token type and item
-    return navigator.locks.request(`${this.tokenType}_${this.itemId}`, async () => {
-      return this.tokenStorageManager.getValidToken(this.tokenType, this.itemId)
-        .then((token) => {
-          if (token) {
-            return Promise.resolve(token);
-          }
-          //console.log(`refreshing token for ${this.tokenType} id ${this.itemId}`);
-          return this.getRefreshedToken(this.itemId); // this will automatically store
-        })
+    const tokenLockId = `${this.tokenType}_${this.itemId}`;
+    console.dir(`Using token lock id ${tokenLockId}`);
+    return navigator.locks.request(tokenLockId, async () => {
+      const token = await this.tokenStorageManager.getValidToken(this.tokenType, this.itemId);
+      if (token) {
+        console.dir(`Didn't find a token for ${tokenLockId}, requesting from network`);
+        return token;
+      }
+      // we're either expired, or never had a token
+      //console.log(`refreshing token for ${this.tokenType} id ${this.itemId}`);
+      const refreshedToken = await this.getAndStoreRefreshedToken(this.itemId); // this will automatically store
+      return refreshedToken;
     });
   }
 
@@ -51,7 +54,7 @@ class TokenFetcher {
     });
   }
 
-  getRefreshedToken (itemId) {
+  getAndStoreRefreshedToken (itemId) {
     if (this.tokenType === TOKEN_TYPE_MARKET || this.tokenType === TOKEN_TYPE_ACCOUNT) {
       return this.getIdentityBasedToken(itemId);
     }
@@ -117,13 +120,12 @@ class TokenFetcher {
 
   }
 
-  getAccountToken (identity, accountId) {
-    return this.ssoClient.accountCognitoLogin(identity, getIsInvited())
-      .then((loginData) => {
-        const { uclusion_token } = loginData;
-        return this.tokenStorageManager.storeToken(TOKEN_TYPE_ACCOUNT, accountId, uclusion_token)
-          .then(() => uclusion_token);
-      });
+  async getAccountToken (identity, accountId) {
+      // we want this to finish before we let the lock go, instead of just returning a promise
+      const loginData = await this.ssoClient.accountCognitoLogin(identity, getIsInvited())
+      const { uclusion_token } = loginData;
+      await this.tokenStorageManager.storeToken(TOKEN_TYPE_ACCOUNT, accountId, uclusion_token)
+      return loginData;
   }
 }
 

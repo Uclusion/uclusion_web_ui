@@ -5,9 +5,10 @@ import { TOKEN_TYPE_ACCOUNT, TOKEN_TYPE_MARKET, TOKEN_TYPE_MARKET_INVITE } from 
 import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityTokenRefresher'
 
 
+export const ACCOUNT_ITEM_ID = 'home_account';
 const SSO_CLIENT = client.getResolvedSSOClient(config.api_configuration);
 const AMPLIFY_IDENTITY_SOURCE = new AmplifyIdentityTokenRefresher();
-const ACCOUNT_TOKEN_FETCHER = new TokenFetcher(AMPLIFY_IDENTITY_SOURCE, SSO_CLIENT, TOKEN_TYPE_ACCOUNT, 'home_account');
+const ACCOUNT_TOKEN_FETCHER = new TokenFetcher(AMPLIFY_IDENTITY_SOURCE, SSO_CLIENT, TOKEN_TYPE_ACCOUNT, ACCOUNT_ITEM_ID);
 export const MARKET_TOKEN_FETCHER = new TokenFetcher(AMPLIFY_IDENTITY_SOURCE, SSO_CLIENT, TOKEN_TYPE_MARKET);
 
 export const getMarketClient = (marketId) => {
@@ -49,7 +50,7 @@ export const getMarketFromUrl = (marketId) => {
 };
 
 export const getAccountSSOClient = () => {
-    return ACCOUNT_TOKEN_FETCHER.getToken() // force login and prime the pump
+    return ACCOUNT_TOKEN_FETCHER.getToken()
       .then((accountToken) => {
         return { ssoClient: SSO_CLIENT, accountToken };
       });

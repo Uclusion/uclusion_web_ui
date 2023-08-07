@@ -2,8 +2,10 @@ import uclusion from 'uclusion_sdk'
 import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher'
 import config from '../config'
 import { toastErrorAndThrow } from '../utils/userMessage'
-import { getAccountSSOClient } from './uclusionClient';
+import { ACCOUNT_ITEM_ID, getAccountSSOClient } from './uclusionClient';
 import { getIsInvited } from '../utils/redirectUtils';
+import { getTokenStorageManager } from './singletons';
+import { TOKEN_TYPE_ACCOUNT } from '../authorization/TokenStorageManager';
 
 export function getSSOInfo() {
   return new AmpifyIdentitySource().getIdentity()
@@ -27,12 +29,15 @@ export function getAppVersion() {
     });
 }
 
-export const getAccount = () => {
-  return getSSOInfo()
-    .then((ssoInfo) => {
-      const { idToken, ssoClient } = ssoInfo;
-      return ssoClient.accountCognitoLogin(idToken, getIsInvited())
-    })
+export const login = async () => {
+  const ssoInfo = await getSSOInfo()
+  const { idToken, ssoClient } = ssoInfo;
+  const accountData = ssoClient.accountCognitoLogin(idToken, getIsInvited());
+  const { uclusion_token } = accountData;
+  // now load the token into storage so we don't have to keep doing it
+  const tsm = getTokenStorageManager();
+  await tsm.storeToken(TOKEN_TYPE_ACCOUNT, ACCOUNT_ITEM_ID, uclusion_token);
+  return accountData;
 };
 
 export function getMarketInfoForToken(marketToken) {

@@ -1,22 +1,23 @@
 /*
-Class that manages the tokens for a particular type and market.
+Class that fetches and refreshes the tokens for a particular type and market.
 It _does not_ manage identity's, but does
 ask the identity source for new identities when needed
  */
-import TokenStorageManager, {
+import {
   TOKEN_TYPE_ACCOUNT,
   TOKEN_TYPE_MARKET,
   TOKEN_TYPE_MARKET_INVITE
 } from './TokenStorageManager'
 import { AllSequentialMap } from '../utils/PromiseUtils';
 import { getIsInvited } from '../utils/redirectUtils';
+import { getTokenStorageManager } from '../api/singletons';
 
 class TokenFetcher {
 
   constructor (tokenRefresher, ssoClient, tokenType, itemId) {
     this.ssoClient = ssoClient;
     this.tokenRefresher = tokenRefresher;
-    this.tokenStorageManager = new TokenStorageManager();
+    this.tokenStorageManager = getTokenStorageManager();
     this.tokenType = tokenType;
     this.itemId = itemId;
   }
@@ -28,11 +29,9 @@ class TokenFetcher {
   async getToken () {
     // first get the token storage lock on this token type and item
     const tokenLockId = `${this.tokenType}_${this.itemId}`;
-    console.dir(`Using token lock id ${tokenLockId}`);
     return navigator.locks.request(tokenLockId, async () => {
       const token = await this.tokenStorageManager.getValidToken(this.tokenType, this.itemId);
       if (token) {
-        console.dir(`Didn't find a token for ${tokenLockId}, requesting from network`);
         return token;
       }
       // we're either expired, or never had a token

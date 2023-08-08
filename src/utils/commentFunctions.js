@@ -13,10 +13,11 @@ import { LOAD_EVENT } from '../contexts/InvestibesContext/investiblesContextMess
 import { INITIATIVE_TYPE } from '../constants/markets'
 import { createInitiative } from '../api/markets'
 import { addMarket } from '../contexts/MarketsContext/marketsContextHelper'
-import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../authorization/TokenStorageManager'
+import TokenStorageManager from '../authorization/TokenStorageManager'
 import { PUSH_INVESTIBLES_CHANNEL } from '../api/versionedFetchUtils'
 import { removeMessagesForCommentId } from './messageUtils';
 import { getMarketInfo } from './userFunctions';
+import { TOKEN_TYPE_MARKET } from '../api/tokenConstants';
 
 export function onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
   commentsState, commentsDispatch, myPresence) {

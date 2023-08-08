@@ -6,7 +6,7 @@ import LiveHelpTwoToneIcon from '@material-ui/icons/LiveHelpTwoTone';
 import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
 import { makeStyles } from '@material-ui/styles';
 import { getUiPreferences, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper'
-import { updateUiPreferences } from '../../api/account'
+import { updateUiPreferences } from '../../api/homeAccount';
 import { Checkbox, Typography } from '@material-ui/core'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer'

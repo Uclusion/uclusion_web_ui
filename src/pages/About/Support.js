@@ -5,9 +5,9 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import Screen from '../../containers/Screen/Screen'
 import config from '../../config'
 import { toastErrorAndThrow } from '../../utils/userMessage'
-import { getSSOInfo } from '../../api/sso'
 import OnboardingWorkspace from './OnboardingWorkspace'
 import SubSection from '../../containers/SubSection/SubSection'
+import { getLogin } from '../../api/homeAccount';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -63,14 +63,12 @@ function Support(props) {
 
   useEffect(() => {
     if (!externalId && !hidden) {
-      getSSOInfo().then((ssoInfo) => {
-          const { idToken, ssoClient } = ssoInfo;
-          return ssoClient.accountCognitoLogin(idToken, true).then((loginInfo) => {
-            const { user: myUser } = loginInfo;
-            const { external_id: myExternalId } = myUser;
-            setExternalId(myExternalId);
-            setUser(myUser);
-          });
+      getLogin()
+        .then((loginInfo) => {
+          const { user: myUser } = loginInfo;
+          const { external_id: myExternalId } = myUser;
+          setExternalId(myExternalId);
+          setUser(myUser);
         }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
     }
   }, [externalId, hidden]);

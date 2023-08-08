@@ -8,10 +8,10 @@ import {
   navigate,
 } from '../../utils/marketIdPathFunctions';
 import Screen from '../../containers/Screen/Screen';
-import { getAccountClient } from '../../api/uclusionClient';
 import { toastError } from '../../utils/userMessage';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer'
+import { getAccountClient } from '../../api/homeAccount';
 
 const useStyles = makeStyles((theme) => ({
   root: {

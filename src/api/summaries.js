@@ -2,15 +2,13 @@ import uclusion from 'uclusion_sdk'
 import config from '../config'
 import _ from 'lodash'
 import { AllSequentialMap } from '../utils/PromiseUtils'
-import { getAccountSSOClient } from './uclusionClient';
+import { getLogin } from './homeAccount';
 
-function getSummaryInfo () {
-  return getAccountSSOClient()
-    .then((ssoInfo) => {
-      const { accountToken } = ssoInfo;
-      return uclusion.constructSummariesClient(config.api_configuration)
-        .then((summaryClient) => ({ summaryClient, accountToken }))
-    })
+async function getSummaryInfo () {
+  const accountData = await getLogin()
+  const {uclusion_token: accountToken} = accountData;
+  return uclusion.constructSummariesClient(config.api_configuration)
+        .then((summaryClient) => ({ summaryClient, accountToken }));
 }
 
 export function getChangedIds() {

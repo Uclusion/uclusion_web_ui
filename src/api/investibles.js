@@ -1,4 +1,4 @@
-import { getMarketClient } from './uclusionClient'
+import { getMarketClient } from './marketLogin'
 import { toastErrorAndThrow } from '../utils/userMessage'
 
 export function updateInvestible(updateInfo) {

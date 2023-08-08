@@ -4,7 +4,7 @@ import { NOTIFICATIONS_CHANNEL } from './NotificationsContext'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { findMessagesForInvestibleId } from '../../utils/messageUtils'
-import { getMarketClient } from '../../api/uclusionClient'
+import { getMarketClient } from '../../api/marketLogin'
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';

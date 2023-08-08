@@ -46,7 +46,7 @@ import {
 } from '../TextEditors/Utilities/CoreUtils';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
-import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
+import TokenStorageManager from '../../authorization/TokenStorageManager'
 import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
 import WizardStepButtons from '../InboxWizards/WizardStepButtons'
 import AddWizardStepButtons from '../AddNewWizards/WizardStepButtons'
@@ -56,6 +56,7 @@ import { Clear, Send } from '@material-ui/icons';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { getMarketInfo } from '../../utils/userFunctions';
+import { TOKEN_TYPE_MARKET } from '../../api/tokenConstants';
 
 function getPlaceHolderLabelId(type, investibleId) {
   switch (type) {

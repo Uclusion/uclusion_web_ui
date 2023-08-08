@@ -8,7 +8,7 @@ import config from '../../config';
 import LoadingOverlay from 'react-loading-overlay';
 import { makeStyles } from '@material-ui/styles';
 import FileUploader from './FileUploader';
-import { getMarketLogin } from '../../api/uclusionClient';
+import { getMarketLogin } from '../../api/marketLogin';
 import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton';
 
 const useStyles = makeStyles((theme) => ({

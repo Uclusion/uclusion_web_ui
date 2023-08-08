@@ -26,8 +26,9 @@ import { useHistory } from 'react-router';
 import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils';
 import { processTextAndFilesForSave } from '../../api/files';
 import { INITIATIVE_TYPE } from '../../constants/markets';
-import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager';
+import TokenStorageManager from '../../authorization/TokenStorageManager';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
+import { TOKEN_TYPE_MARKET } from '../../api/tokenConstants';
 
 function ConfigureCommentStep(props) {
   const { updateFormData, formData, useType, comment, allowMulti } = props;

@@ -11,7 +11,7 @@ import { addGroupsToStorage } from '../../../contexts/MarketGroupsContext/market
 import { pushMessage } from '../../../utils/MessageBusUtils';
 import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../api/versionedFetchUtils';
 import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import TokenStorageManager, { TOKEN_TYPE_MARKET } from '../../../authorization/TokenStorageManager';
+import TokenStorageManager from '../../../authorization/TokenStorageManager';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
@@ -19,6 +19,7 @@ import { accountUserRefresh } from '../../../contexts/AccountContext/accountCont
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { formMarketLink } from '../../../utils/marketIdPathFunctions';
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
+import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData } = props;

@@ -5,7 +5,7 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import localforage from 'localforage'
-import { TOKEN_STORAGE_KEYSPACE } from '../../authorization/TokenStorageManager'
+import { TOKEN_STORAGE_KEYSPACE } from '../../api/tokenConstants';
 
 const MARKET_CONTEXT_NAMESPACE = 'market_context';
 const EMPTY_STATE = {

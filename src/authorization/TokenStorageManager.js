@@ -5,13 +5,9 @@ import localforage from 'localforage';
 import { AllSequentialMap } from '../utils/PromiseUtils';
 import { pushMessage } from '../utils/MessageBusUtils'
 import { LOAD_EVENT, LOAD_TOKENS_CHANNEL } from '../contexts/MarketsContext/marketsContextMessages'
+import { TOKEN_STORAGE_KEYSPACE } from '../api/tokenConstants';
 
-export const TOKEN_STORAGE_KEYSPACE = 'TOKEN_STORAGE_MANAGER';
-export const TOKEN_TYPE_MARKET = 'MARKET';
-export const TOKEN_TYPE_ACCOUNT = 'ACCOUNT';
-export const TOKEN_TYPE_MARKET_INVITE = 'MARKET_INVITE';
-
-class TokenStorageManager {
+export default class TokenStorageManager {
 
   getKeyNamespace (tokenType, tokenId) {
     return `${tokenType}_${tokenId}`;
@@ -120,4 +116,3 @@ class TokenStorageManager {
   }
 }
 
-export default TokenStorageManager;

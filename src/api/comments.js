@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import { getMarketClient } from './uclusionClient'
+import { getMarketClient } from './marketLogin'
 import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
 import { AllSequentialMap } from '../utils/PromiseUtils'
 

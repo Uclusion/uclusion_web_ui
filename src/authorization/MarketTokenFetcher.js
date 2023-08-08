@@ -3,16 +3,12 @@ Class that fetches and refreshes the tokens for a particular type and market.
 It _does not_ manage identity's, but does
 ask the identity source for new identities when needed
  */
-import {
-  TOKEN_TYPE_ACCOUNT,
-  TOKEN_TYPE_MARKET,
-  TOKEN_TYPE_MARKET_INVITE
-} from './TokenStorageManager'
-import { AllSequentialMap } from '../utils/PromiseUtils';
-import { getIsInvited } from '../utils/redirectUtils';
-import { getTokenStorageManager } from '../api/singletons';
 
-class TokenFetcher {
+import { AllSequentialMap } from '../utils/PromiseUtils';
+import { getTokenStorageManager } from '../api/singletons';
+import { TOKEN_TYPE_MARKET, TOKEN_TYPE_MARKET_INVITE } from '../api/tokenConstants';
+
+class MarketTokenFetcher {
 
   constructor (tokenRefresher, ssoClient, tokenType, itemId) {
     this.ssoClient = ssoClient;
@@ -54,7 +50,7 @@ class TokenFetcher {
   }
 
   getAndStoreRefreshedToken (itemId) {
-    if (this.tokenType === TOKEN_TYPE_MARKET || this.tokenType === TOKEN_TYPE_ACCOUNT) {
+    if (this.tokenType === TOKEN_TYPE_MARKET) {
       return this.getIdentityBasedToken(itemId);
     }
     throw new Error('Can\'t refresh your token because I don\'t know how');
@@ -66,8 +62,6 @@ class TokenFetcher {
         switch (this.tokenType) {
           case TOKEN_TYPE_MARKET:
             return this.getMarketToken(identity, itemId);
-          case TOKEN_TYPE_ACCOUNT:
-            return this.getAccountToken(identity, itemId);
           default:
             throw new Error('Unknown token type');
         }
@@ -82,8 +76,6 @@ class TokenFetcher {
             return this.getMarketTokenAndLoginData(identity, this.itemId);
           case TOKEN_TYPE_MARKET_INVITE:
             return this.getMarketTokenOnInvite(identity, this.itemId);
-          case TOKEN_TYPE_ACCOUNT:
-            return this.getAccountToken(identity, this.itemId);
           default:
             throw new Error('Unknown token type');
         }
@@ -118,14 +110,6 @@ class TokenFetcher {
       });
 
   }
-
-  async getAccountToken (identity, accountId) {
-      // we want this to finish before we let the lock go, instead of just returning a promise
-      const loginData = await this.ssoClient.accountCognitoLogin(identity, getIsInvited())
-      const { uclusion_token } = loginData;
-      await this.tokenStorageManager.storeToken(TOKEN_TYPE_ACCOUNT, accountId, uclusion_token)
-      return loginData;
-  }
 }
 
-export default TokenFetcher;
+export default MarketTokenFetcher;

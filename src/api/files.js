@@ -1,7 +1,8 @@
-import { getAccountClient, getMarketClient } from './uclusionClient';
+import { getMarketClient } from './marketLogin';
 import _ from 'lodash';
 import config from '../config';
 import { toastErrorAndThrow } from '../utils/userMessage';
+import { getAccountClient } from './homeAccount';
 
 /**
  * Upload file to S3

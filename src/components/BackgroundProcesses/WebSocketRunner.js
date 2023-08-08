@@ -1,7 +1,7 @@
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import { SOCKET_OPEN_EVENT, VERSIONS_HUB_CHANNEL } from '../../contexts/WebSocketContext';
 import { pushMessage } from '../../utils/MessageBusUtils';
-import { getAccountSSOClient } from '../../api/uclusionClient';
+import { getLogin } from '../../api/homeAccount';
 
 /**
  * Class which fires and manages a websocket connection to the server.
@@ -36,8 +36,8 @@ class WebSocketRunner {
   }
 
   subscribe() {
-    return getAccountSSOClient().then((ssoInfo) => {
-      const { accountToken } = ssoInfo;
+    return getLogin().then((accountData) => {
+      const { uclusion_token: accountToken } = accountData;
       const action = { action: 'subscribe', identity: accountToken };
       if (this.socket.readyState === WebSocket.OPEN) {
         const actionString = JSON.stringify(action);

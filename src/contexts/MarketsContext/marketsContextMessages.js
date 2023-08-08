@@ -1,11 +1,12 @@
 import { addSyncError, removeMarketDetails } from './marketsContextReducer'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import { addMarketsToStorage, addMarketToStorage } from './marketsContextHelper'
-import { getMarketFromInvite, getMarketFromUrl } from '../../api/uclusionClient'
+import { getMarketFromInvite, getMarketFromUrl } from '../../api/marketLogin'
 import { toastError } from '../../utils/userMessage'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 import localforage from 'localforage'
-import TokenStorageManager, { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET } from '../../authorization/TokenStorageManager'
+import TokenStorageManager from '../../authorization/TokenStorageManager'
+import { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET }  from '../../api/tokenConstants';
 import {
   DEMO_EVENT,
   getStorageStates,

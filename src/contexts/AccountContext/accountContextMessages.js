@@ -2,18 +2,18 @@ import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { accountAndUserRefresh, clearAccount } from './accountContextReducer'
 import { VERSIONS_EVENT } from '../../api/versionedFetchUtils'
-import { login } from '../../api/sso'
 import { fixDates, updateBilling, updateInvoices } from './accountContextHelper'
 import _ from 'lodash'
 import { getInvoices, getPaymentInfo } from '../../api/users'
 import { quickAddDemo } from '../../utils/demoLoader';
 import { isSignedOut } from '../../utils/userFunctions';
+import { getLogin } from '../../api/homeAccount';
 
 export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
 export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
 
 function poll(dispatch, accountVersion, userVersion) {
-  login()
+  getLogin()
     .then((loginInfo) => {
       const { account, user, demo } = loginInfo;
       const { version: founderUserVersion } = user;

@@ -1,7 +1,7 @@
 import jwt_decode from 'jwt-decode';
-import { MARKET_TOKEN_FETCHER } from '../api/uclusionClient';
 import { registerListener } from '../utils/MessageBusUtils';
 import { VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions'
+import { getAllMarketTokenFetcher } from '../api/singletons';
 
 
 
@@ -36,7 +36,7 @@ export function registerMarketTokenListeners () {
         const { isEntry } = message;
         if (isEntry && shouldRun) {
           lastMarketTokenCheck.time = Date.now();
-          return MARKET_TOKEN_FETCHER.refreshExpiringTokens(72);
+          return getAllMarketTokenFetcher().refreshExpiringTokens(72);
         }
         break;
       }

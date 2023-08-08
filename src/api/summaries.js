@@ -7,8 +7,8 @@ import { getLogin } from './homeAccount';
 async function getSummaryInfo () {
   const accountData = await getLogin()
   const {uclusion_token: accountToken} = accountData;
-  return uclusion.constructSummariesClient(config.api_configuration)
-        .then((summaryClient) => ({ summaryClient, accountToken }));
+  const summaryClient = await uclusion.constructSummariesClient(config.api_configuration);
+  return { summaryClient, accountToken };
 }
 
 export function getChangedIds() {

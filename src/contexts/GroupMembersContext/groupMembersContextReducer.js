@@ -58,9 +58,9 @@ export function versionsUpdateGroupMembers(memberDetails) {
 /** Functions that update the state **/
 
 function doAddGroupMember(state, action) {
-  const { groupId, userId } = action;
+  const { groupId, user } = action;
   const oldUsers = state[groupId] || [];
-  const member = { id: userId, deleted: false, group_id: groupId, version: 1 };
+  const member = { id: user.id, deleted: false, group_id: groupId, version: 1 };
   const newUsers = _.unionBy([{ ...member, fromQuickAdd: true }], oldUsers, 'id');
   return {
     ...state,

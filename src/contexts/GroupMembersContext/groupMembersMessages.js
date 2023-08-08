@@ -4,9 +4,10 @@ import {
 } from './groupMembersContextReducer'
 import { registerListener } from '../../utils/MessageBusUtils'
 import {
+  DEMO_EVENT,
   PUSH_MEMBER_CHANNEL,
   VERSIONS_EVENT
-} from '../../api/versionedFetchUtils'
+} from '../../api/versionedFetchUtils';
 
 export const ADD_MEMBER = 'AddMember';
 
@@ -18,6 +19,9 @@ function beginListening(dispatch) {
       case VERSIONS_EVENT:
         dispatch(versionsUpdateGroupMembers(memberDetails));
         break;
+      case DEMO_EVENT:
+        console.info('Responding to demo group member event');
+      // eslint-disable-next-line no-fallthrough
       case ADD_MEMBER:
         dispatch(addGroupMember(groupId, user));
         break;

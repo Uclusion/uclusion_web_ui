@@ -3,9 +3,12 @@ import {
   DEMO_EVENT,
   PUSH_STAGE_CHANNEL,
   PUSH_MARKETS_CHANNEL,
-  PUSH_PRESENCE_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_COMMENTS_CHANNEL
+  PUSH_PRESENCE_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_COMMENTS_CHANNEL, PUSH_MEMBER_CHANNEL
 } from '../api/versionedFetchUtils';
 import _ from 'lodash';
+import { TOKEN_TYPE_MARKET } from '../api/tokenConstants';
+import TokenStorageManager from '../authorization/TokenStorageManager';
+
 function quickAddComments (market, comments) {
   // make it look like a normal comment push
   const commentDetails = {
@@ -26,6 +29,7 @@ function quickAddPresences(market, myUser, demoUser, presences) {
     presences.push(myUser);
     presences.forEach((presence) => {
       pushMessage(PUSH_PRESENCE_CHANNEL, { event: DEMO_EVENT, marketId, presence });
+      pushMessage(PUSH_MEMBER_CHANNEL, { event: DEMO_EVENT, groupId: marketId, user: {id: presence.id } });
     });
   }
 }
@@ -39,11 +43,11 @@ function quickAddMarket (market) {
   pushMessage(PUSH_MARKETS_CHANNEL, { event: DEMO_EVENT, marketDetails: [market] });
 }
 
-function handleMarketData (marketData, myUser, demoUser) {
+function handleMarketData(marketData, myUser, demoUser) {
   const {
     market, child_markets: childMarkets,
     comments, investibles,
-    stages, presences
+    stages, presences, token
   } = marketData;
   quickAddMarket(market);
   quickAddStages(market, stages);
@@ -53,7 +57,10 @@ function handleMarketData (marketData, myUser, demoUser) {
   if (!_.isEmpty(childMarkets)) {
     childMarkets.forEach((child) => handleMarketData(child, myUser, demoUser));
   }
-  console.debug("Done quick adding demo");
+  const tokenStorageManager = new TokenStorageManager();
+  tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token).then(() => {
+    console.info(`Done demo quick adding for ${market.id}`);
+  });
 }
 
 export function quickAddDemo (demo) {

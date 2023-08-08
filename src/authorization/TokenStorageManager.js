@@ -7,8 +7,8 @@ import { pushMessage } from '../utils/MessageBusUtils'
 import { LOAD_EVENT, LOAD_TOKENS_CHANNEL } from '../contexts/MarketsContext/marketsContextMessages'
 import { TOKEN_STORAGE_KEYSPACE } from '../api/tokenConstants';
 
-class TokenStorageManager {
-  
+export default class TokenStorageManager {
+
   getKeyNamespace (tokenType, tokenId) {
     return `${tokenType}_${tokenId}`;
   }
@@ -116,4 +116,3 @@ class TokenStorageManager {
   }
 }
 
-export default TokenStorageManager;

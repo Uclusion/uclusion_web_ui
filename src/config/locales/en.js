@@ -458,7 +458,7 @@ const messages = defineMessages({
   planningUnacceptedLabel: 'Unaccepted',
   planningAcceptLabel: 'Accept',
   wizardAcceptLabel: 'Move to task',
-  planningAcceptExplanation: 'Has not accepted',
+  planningAcceptExplanation: 'Has not accepted this job.',
   // Issues
   issueResolveLabel: 'Resolve',
   issueReplyLabel: 'Reply',

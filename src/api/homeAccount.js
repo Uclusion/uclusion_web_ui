@@ -5,7 +5,6 @@ import uclusion from 'uclusion_sdk';
 import config from '../config';
 import { toastErrorAndThrow } from '../utils/userMessage';
 import { TOKEN_TYPE_ACCOUNT } from './tokenConstants';
-import _ from 'lodash';
 
 export const HOME_ACCOUNT_ITEM_ID = 'home_account';
 export const HOME_ACCOUNT_LOCK_NAME = 'home_account_login_lock';
@@ -35,16 +34,13 @@ export async function getLogin () {
     //we've expired, time to refresh
     const ssoInfo = await getSSOInfo();
     const { idToken, ssoClient } = ssoInfo;
-    let fullAccountData = null;
     // update our cache
-    await ssoClient.accountCognitoLogin(idToken, getIsInvited()).then((responseAccountData) => {
-      const { uclusion_token } = responseAccountData;
-      fullAccountData = responseAccountData;
-      // now load the token into storage so we don't have to keep doing it
-      return tsm.storeToken(TOKEN_TYPE_ACCOUNT, HOME_ACCOUNT_ITEM_ID, uclusion_token);
-    });
-    accountData = _.omit(fullAccountData, 'demo');
-    return fullAccountData;
+    const responseAccountData = await ssoClient.accountCognitoLogin(idToken, getIsInvited());
+    const { uclusion_token } = responseAccountData;
+    accountData = responseAccountData;
+    // now load the token into storage so we don't have to keep doing it
+    await tsm.storeToken(TOKEN_TYPE_ACCOUNT, HOME_ACCOUNT_ITEM_ID, uclusion_token);
+    return accountData;
   });
 }
 

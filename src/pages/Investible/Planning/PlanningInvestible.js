@@ -817,7 +817,7 @@ export function rejectInvestible(marketId, investibleId, marketInvestible, comme
 
 export function Assignments(props) {
   const { marketPresences, classes, assigned, toolTipId, toggleIconButton, assignmentColumnMessageId,
-    highlighted, isLarge } = props;
+    unaccceptedList, isLarge } = props;
   const intl = useIntl();
   const metaClasses = useMetaDataStyles();
   const safeAssigned = assigned || [];
@@ -859,9 +859,8 @@ export function Assignments(props) {
       <div className={classes.assignmentFlexRow}>
         {sortedAssigned.map((presence, index) => {
           const showAsPlaceholder = presence.placeholder_type === PLACEHOLDER;
-          const isHighlighted = (highlighted || []).includes(presence.id);
-          const myClassName = isHighlighted ? metaClasses.highlighted :
-            (showAsPlaceholder ? metaClasses.archived : metaClasses.normal);
+          const unacccepted = unaccceptedList?.includes(presence.id);
+          const myClassName = showAsPlaceholder ? metaClasses.archived : metaClasses.normal;
           const name = (presence.name || '').replace('@', ' ');
           return (
             <div
@@ -875,20 +874,20 @@ export function Assignments(props) {
                 <Gravatar email={presence.email} name={presence.name}
                           className={isLarge ? classes.largeGravatar : classes.smallGravatar}/>
               )}
-              {isHighlighted && (
-                <Tooltip
-                  title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
-                >
-                  <Typography component="li" className={myClassName}>
-                    {name}
-                  </Typography>
-                </Tooltip>
-              )}
-              {!isHighlighted && (
+              <div>
                 <Typography component="li" className={myClassName}>
                   {name}
                 </Typography>
-              )}
+                {unacccepted && (
+                  <Tooltip
+                    title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
+                  >
+                    <Typography component="li" className={metaClasses.highlighted}>
+                      {intl.formatMessage({ id: 'planningUnacceptedLabel' })}
+                    </Typography>
+                  </Tooltip>
+                )}
+              </div>
             </div>
           );
         })}

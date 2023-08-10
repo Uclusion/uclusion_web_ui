@@ -132,7 +132,7 @@ export default function PlanningInvestibleNav(props) {
               classes={classes}
               marketPresences={marketPresences}
               assigned={assigned}
-              highlighted={isInVoting ? assignedNotAccepted : undefined}
+              unaccceptedList={isInVoting ? assignedNotAccepted : undefined}
               toggleIconButton={() => navigate(history,
                 formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
               assignmentColumnMessageId='planningInvestibleAssignments'

@@ -2,7 +2,7 @@ import WorkListItem from './WorkListItem';
 import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core';
 import React, { useContext, useEffect, useReducer, useRef } from 'react';
 import { useIntl } from 'react-intl';
-import { ArrowBack, Delete, Group as GroupIcon, Inbox as InboxIcon, KeyboardArrowLeft } from '@material-ui/icons';
+import { ArrowBack, Delete, Inbox as InboxIcon, KeyboardArrowLeft } from '@material-ui/icons';
 import OutboxIcon from '../../../components/CustomChip/Outbox';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import _ from 'lodash';

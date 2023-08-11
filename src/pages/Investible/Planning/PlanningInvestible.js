@@ -429,7 +429,6 @@ function PlanningInvestible(props) {
     isInAccepted,
     isInBlocked,
     isInVerified,
-    isFurtherWork,
     isRequiresInput,
     isInNotDoing,
   } = stagesInfo;

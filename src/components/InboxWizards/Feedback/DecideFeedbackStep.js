@@ -10,8 +10,6 @@ import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import JobDescription from '../JobDescription';
 import { useIntl } from 'react-intl';
-import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 import Voting from '../../../pages/Investible/Decision/Voting';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -20,6 +18,15 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { JUSTIFY_TYPE } from '../../../constants/comments';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
+import { stageChangeInvestible } from '../../../api/investibles';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
 
 function DecideFeedbackStep(props) {
   const { marketId, investibleId, message } = props;
@@ -29,8 +36,13 @@ function DecideFeedbackStep(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const market = getMarket(marketsState, marketId) || {};
+  const inv = getInvestible(investibleState, investibleId);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
   const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
   const investmentReasons = investibleComments.filter((comment) => {
     return comment.comment_type === JUSTIFY_TYPE && comment.investible_id === message.investible_id;
@@ -40,6 +52,27 @@ function DecideFeedbackStep(props) {
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
   }
+
+  function next() {
+    const startedStage = getAcceptedStage(marketStagesState, marketId);
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: marketInfo.stage,
+        stage_id: startedStage.id,
+      },
+    };
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(startedStage.id, newInv, investibleId, marketId, undefined,
+          undefined, investiblesDispatch, () => {}, marketStagesState, undefined,
+          startedStage, undefined);
+        setOperationRunning(false);
+        navigate(history, formInvestibleLink(marketId, investibleId));
+      });
+  }
+
 
   return (
     <WizardStepContainer
@@ -64,8 +97,7 @@ function DecideFeedbackStep(props) {
         {...props}
         onFinish={myOnFinish}
         nextLabel="startJob"
-        spinOnClick={false}
-        onNext={() => navigate(history, formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId))}
+        onNext={next}
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}
       />

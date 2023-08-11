@@ -30,7 +30,7 @@ export function onInvestibleStageChange(targetStageId, newInv, investibleId, mar
     reopenAutoclosedInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
   }
   let useRemoveTypes = removeTypes;
-  if (!useRemoveTypes && targetStage.move_on_comment) {
+  if (!useRemoveTypes) {
     useRemoveTypes = [NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED, UNREAD_JOB_APPROVAL_REQUEST];
   }
   pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: STAGE_CHANGE_EVENT, investibleId, useRemoveTypes });

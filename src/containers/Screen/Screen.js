@@ -125,7 +125,7 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     marginLeft: '15rem',
-    overflow: 'hidden',
+    overflowX: 'hidden',
     height: 'calc(100vh - 1px)'
   },
   contentSearch: {

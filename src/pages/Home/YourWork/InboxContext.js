@@ -35,10 +35,8 @@ function searchFiltered(raw, searchResults) {
 export function getMessages(allOutBoxMessagesOrderedRaw, messagesFullRaw, searchResults) {
   const messagesFull = searchFiltered(messagesFullRaw, searchResults);
   const outBoxMessagesOrdered = searchFiltered(allOutBoxMessagesOrderedRaw, searchResults);
-  let inboxMessagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
-  const teamMessagesOrdered = inboxMessagesOrdered.filter((message) => !message.is_highlighted);
-  inboxMessagesOrdered = inboxMessagesOrdered.filter((message) => message.is_highlighted);
-  return {outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered };
+  const inboxMessagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
+  return {outBoxMessagesOrdered, inboxMessagesOrdered };
 }
 
 export function getUnpaginatedItems(messagesHash, tabIndex) {

@@ -58,7 +58,7 @@ function Inbox(props) {
     getPaginatedItems(unpaginatedItems, page, PAGE_SIZE, workItemId);
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
     determinate, determinateDispatch, checkAll, tabIndex);
-  const { outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered } = messagesHash;
+  const { outBoxMessagesOrdered, inboxMessagesOrdered } = messagesHash;
   const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   return (
     <>
@@ -78,9 +78,6 @@ function Inbox(props) {
                         tagColor={unreadCount > 0 ? '#E85757' : undefined}
                         tag={unreadCount > 0 ? `${unreadCount}` :
                           (_.size(inboxMessagesOrdered) > 0 ? `${_.size(inboxMessagesOrdered)}` : undefined)} />
-          <GmailTabItem icon={<GroupIcon />} label={intl.formatMessage({id: 'teamUnresolved'})}
-                        tag={_.size(teamMessagesOrdered) > 0 ?
-                          `${_.size(teamMessagesOrdered)}` : undefined} />
           <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})}
                         tag={_.size(outBoxMessagesOrdered) > 0 ?
                           `${_.size(outBoxMessagesOrdered)}` : undefined} />

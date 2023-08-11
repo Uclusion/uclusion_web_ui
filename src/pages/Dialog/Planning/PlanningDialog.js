@@ -228,6 +228,7 @@ function PlanningDialog(props) {
       hidden={hidden}
       tabTitle={groupName}
       banner={banner}
+      showBanner={banner != null}
       openMenuItems={navListItemTextArray}
       navigationOptions={{useHoverFunctions: !mobileLayout, resetFunction: () => resetFunction(0)}}
     >

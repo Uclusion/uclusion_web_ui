@@ -1,6 +1,6 @@
 import WorkListItem from './WorkListItem';
 import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core';
-import React, { useContext, useEffect, useReducer } from 'react';
+import React, { useContext, useEffect, useReducer, useRef } from 'react';
 import { useIntl } from 'react-intl';
 import { ArrowBack, Delete, Group as GroupIcon, Inbox as InboxIcon, KeyboardArrowLeft } from '@material-ui/icons';
 import OutboxIcon from '../../../components/CustomChip/Outbox';
@@ -27,6 +27,8 @@ function Inbox(props) {
   const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults,
     workItemId } = props;
   const intl = useIntl();
+  const belowHeader = useRef(null);
+  const contentHeight = useRef(0);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, , tokensHash] = useContext(MarketsContext);
   const history = useHistory();
@@ -39,8 +41,11 @@ function Inbox(props) {
   const { indeterminate, determinate, checkAll } = determinateState;
   const unreadCount = _.isEmpty(search) ? getInboxCount(messagesState) : 0;
   const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex);
-
   useEffect(() => {
+    if(belowHeader.current){
+      const headerSpace = Math.floor(window.scrollY + belowHeader.current.getBoundingClientRect().top);
+      contentHeight.current = `calc(100vh - ${headerSpace}px)`;
+    }
     // If the last item on a page is deleted then must go down
     if ((page - 1)*PAGE_SIZE + 1 > _.size(unpaginatedItems)) {
       if (page > 1) {
@@ -48,7 +53,7 @@ function Inbox(props) {
         inboxDispatch(setPage(lastAvailablePage > 0 ? lastAvailablePage : 1));
       }
     }
-  }, [unpaginatedItems, page, inboxDispatch]);
+  }, [unpaginatedItems, page, inboxDispatch, belowHeader]);
 
   function changePage(byNum) {
     inboxDispatch(setPage(page + byNum));
@@ -62,8 +67,8 @@ function Inbox(props) {
   const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   return (
     <>
-    <div style={{zIndex: 8, position: 'fixed', width: '100%', marginLeft: '-0.5rem',
-      marginTop: mobileLayout ? '-30px' : (workItemId ? '-15px' : '-8px')}} id="inbox-header">
+    <div style={{zIndex: 8, position: 'sticky', top:0, width: '100%', marginLeft: '-0.5rem'}}
+      id="inbox-header">
       {!workItemId && (
         <GmailTabs
           value={tabIndex}
@@ -83,7 +88,7 @@ function Inbox(props) {
                           `${_.size(outBoxMessagesOrdered)}` : undefined} />
         </GmailTabs>
       )}
-      <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
+      <div ref={belowHeader} style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
         <div style={{display: 'flex', width: '80%'}}>
           {!mobileLayout && 0 === tabIndex && !workItemId && (
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
@@ -141,7 +146,7 @@ function Inbox(props) {
         </div>
       </div>
     </div>
-    <div id="inbox" style={{paddingTop: workItemId ? undefined : '7rem'}}>
+    <div id="inbox" style={{height: contentHeight.current, overflowY: 'auto'}}>
       {defaultRow}
       { data.map((message) => {
           if (message.isOutboxType || !message.type_object_id) {

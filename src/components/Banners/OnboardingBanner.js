@@ -8,16 +8,21 @@ import { useHistory } from 'react-router';
 const useStyles = makeStyles(() => {
   return {
     bannerBox: {
-      marginBottom: '2rem',
+      height: '70px',
       '& button': {
         fontWeight: 'bold'
       },
       display: 'flex',
-      alignItems: 'center'
+      justifyContent: 'space-around'
+    },
+    ctaContainer: {
+      marginLeft: '3rem',
     },
     cta: {
       fontWeight: 'bold',
-      marginRight: '1rem',
+    },
+    ctaSub: {
+      fontWeight: 'normal',
     }
   };
 });
@@ -28,7 +33,10 @@ function OnboardingBanner(props) {
   const wizardClasses = wizardStyles();
   return (
     <div className={classes.bannerBox}>
-        <Typography className={classes.cta}>Done with the demo?</Typography>
+        <div>
+        <Typography className={classes.cta}>Enjoying the demo?</Typography>
+        <Typography className={classes.ctaSub}>You can invite others, or create your own workspace</Typography>
+        </div>
         <div>
           <Button
           onClick={() => {

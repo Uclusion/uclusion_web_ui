@@ -52,6 +52,7 @@ function Wizard(props) {
   if (!_.isEmpty(upgradeMessages)) {
     return (
       <Screen
+        suppressBanner
         title={intl.formatMessage({ 'id': 'wizardBreadCrumb' })}
         tabTitle={intl.formatMessage({ id: 'wizardBreadCrumb' })}
         hidden={hidden}

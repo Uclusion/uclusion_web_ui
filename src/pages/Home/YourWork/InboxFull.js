@@ -89,6 +89,7 @@ function InboxFull(props) {
       tabTitle={intl.formatMessage({id: 'inbox'})}
       hidden={hidden}
       isInbox
+      showBanner
     >
       <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} loadingFromInvite={fromInvite}
              workItemId={workItemId} messagesHash={messagesHash} messagesFull={messagesFull}

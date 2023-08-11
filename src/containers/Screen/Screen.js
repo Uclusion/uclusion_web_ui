@@ -49,20 +49,20 @@ const useStyles = makeStyles((theme) => ({
     overflowX: 'hidden'
   },
   container: {
-    padding: '46px 20px 156px',
+    padding: '46px 20px',
     overflowX: 'hidden'
   },
   containerAll: {
-    padding: '24px 20px 156px',
+    padding: '24px 20px',
     overflowX: 'hidden',
     marginTop: '65px',
     width: '100%',
     [theme.breakpoints.down('md')]: {
-      padding: '24px 12px 156px',
+      padding: '24px 12px',
     },
   },
   containerAllLeftPad: {
-    padding: '10px 20px 156px 24px',
+    padding: '10px 20px 0px 24px',
     overflowX: 'hidden',
     marginTop: '65px',
     width: '100%',
@@ -71,6 +71,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   bannerContainer: {
+    position: 'sticky',
+    top: 0,
   },
   listContainer: {
     flex: '0 0 auto',
@@ -123,7 +125,8 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     marginLeft: '15rem',
-    overflowX: 'hidden'
+    overflow: 'hidden',
+    height: 'calc(100vh - 1px)'
   },
   contentSearch: {
     paddingLeft: '33rem'
@@ -185,7 +188,8 @@ function Screen(props) {
     openMenuItems,
     navigationOptions,
     hideMenu,
-    overrideMenu
+    overrideMenu,
+    showBanner
   } = props;
   const usedBanner = banner ?? bannerState;
   const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
@@ -304,6 +308,7 @@ function Screen(props) {
   const contentClass = mobileLayout || hideMenu ? classes.contentNoStyle : classes.content;
   const sideNavigationContents = hideMenu ? overrideMenu :
     <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />;
+  const renderBanner = showBanner && usedBanner && !hidden;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">
       {!hidden && (
@@ -325,12 +330,14 @@ function Screen(props) {
       <div className={contentClass}>
         {!reallyAmLoading && (
           <div className={myContainerClass}>
-            {usedBanner && !hidden && (
+            {renderBanner && (
               <div className={classes.bannerContainer}>
                 {usedBanner}
               </div>
             )}
+            <div style={{height: '100%'}}>
             {children}
+            </div>
           </div>
         )}
         {reallyAmLoading && (

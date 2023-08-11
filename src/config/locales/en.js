@@ -444,6 +444,8 @@ const messages = defineMessages({
   ticketSubCodeHelp: 'A short code for the group which will be used to form human readable job ids.',
   ticketSubCodeHelp1: 'Your job ids will look like U-{code}-0, U-{code}-1, U-{code}-2, etc.',
   groupNameHelp: 'A name for this group used in navigation and notification.',
+  groupExplanationTooltip: 'A group is a subset of workspace members.',
+  workspaceExplanationTooltip: 'Members of a workspace see everything in all groups.',
   voteExpirationHelp: "How many days before approvals expire. Prevents approvals becoming too old.",
   reassignToMove: 'Assigning moves to the swimlanes.',
   marketLinksSection: 'links',

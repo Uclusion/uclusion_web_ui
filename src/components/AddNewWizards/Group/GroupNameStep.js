@@ -14,6 +14,7 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { useHistory } from 'react-router'
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import Link from '@material-ui/core/Link';
 
 function GroupNameStep (props) {
   const { updateFormData, formData, marketId } = props;
@@ -72,6 +73,10 @@ function GroupNameStep (props) {
     >
       <Typography className={classes.introText}>
         What do you want to call your group?
+      </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
+        A <Link href="https://documentation.uclusion.com/groups" target="_blank">group</Link> receives
+        notifications on anything created inside it.
       </Typography>
       <OutlinedInput
         id="groupName"

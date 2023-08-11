@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, makeStyles, Menu } from '@material-ui/core';
+import { Button, makeStyles, Menu, Tooltip } from '@material-ui/core';
 import { Menu as ProMenu, MenuItem, ProSidebar, SidebarContent, SubMenu } from 'react-pro-sidebar';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
@@ -182,7 +182,11 @@ function WorkspaceMenu(props) {
                               `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`);
                           }}
                 >
-                  {intl.formatMessage({ id: 'homeAddGroup' })}
+                  <Tooltip title={intl.formatMessage({ id: 'groupExplanationTooltip' })}>
+                    <div>
+                      {intl.formatMessage({ id: 'homeAddGroup' })}
+                    </div>
+                  </Tooltip>
                 </MenuItem>
                 {!_.isEmpty(inactiveGroups) && (
                   <SubMenu title={intl.formatMessage({ id: 'inactiveGroups' })}
@@ -214,7 +218,11 @@ function WorkspaceMenu(props) {
                             navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
                           }}
                 >
-                  {intl.formatMessage({ id: 'homeAddPlanning' })}
+                  <Tooltip title={intl.formatMessage({ id: 'workspaceExplanationTooltip' })}>
+                    <div>
+                      {intl.formatMessage({ id: 'homeAddPlanning' })}
+                    </div>
+                  </Tooltip>
                 </MenuItem>
                 {_.size(markets) > 1 && (
                   <SubMenu title={intl.formatMessage({ id: 'switchWorkspace' })}

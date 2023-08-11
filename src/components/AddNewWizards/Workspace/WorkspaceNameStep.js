@@ -20,6 +20,7 @@ import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 import { formMarketLink } from '../../../utils/marketIdPathFunctions';
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
+import Link from '@material-ui/core/Link';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData } = props;
@@ -81,8 +82,9 @@ function WorkspaceNameStep (props) {
         <Typography className={classes.introText}>
           What do you want to call your workspace?
         </Typography>
-        <Typography className={classes.introSubText} variant="subtitle1">
-          It's best to pick something everyone will recognize.
+        <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
+          Everyone in a <Link href="https://documentation.uclusion.com/getting-started/#setting-up-a-workspace" target="_blank">workspace</Link> can
+          see everything inside of it.
         </Typography>
         <OutlinedInput
           id="workspaceName"

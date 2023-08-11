@@ -35,7 +35,7 @@ function OnboardingBanner(props) {
     <div className={classes.bannerBox}>
         <div>
         <Typography className={classes.cta}>Enjoying the demo?</Typography>
-        <Typography className={classes.ctaSub}>You can invite others, or create your own workspace</Typography>
+        <Typography className={classes.ctaSub}>You can invite others, or create your own workspace.</Typography>
         </div>
         <div>
           <Button

@@ -4,8 +4,7 @@ const UPDATE_PAGE = 'UPDATE_PAGE';
 const UPDATE_TAB = 'SET_TAB';
 
 export const PAGE_SIZE = 50;
-export const TEAM_INDEX = 1;
-export const PENDING_INDEX = 2;
+export const PENDING_INDEX = 1;
 
 export function setPage(pageNum) {
   return {

@@ -23,7 +23,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { Typography } from '@material-ui/core';
-import { PENDING_INDEX, TEAM_INDEX } from './InboxContext';
+import { PENDING_INDEX } from './InboxContext';
 import ApprovalWizard from '../../../components/InboxWizards/Approval/ApprovalWizard';
 import StatusWizard from '../../../components/InboxWizards/Status/StatusWizard';
 import AnswerWizard from '../../../components/InboxWizards/Answer/AnswerWizard';
@@ -181,15 +181,6 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
     );
   }
 
-  if (tabIndex === TEAM_INDEX) {
-    return (
-      <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
-                  variant="body1">
-        Your Snoozed tab is empty.<br/><br/> Snoozed items return as unread after a day or when poked.
-      </Typography>
-    );
-  }
-
   if (loadingFromInvite && hasNoChannels(tokensHash)) {
     return <LoadingDisplay showMessage messageId="loadingMessage" noMargin />;
   }
@@ -197,7 +188,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
   return (
     <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                 variant="body1">
-      Your Primary tab is empty.<br/><br/> New or done snoozing messages display here.
+      Your For You tab is empty.<br/><br/> New and snoozed notifications display here.
     </Typography>
   );
 }

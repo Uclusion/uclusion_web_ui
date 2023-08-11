@@ -434,7 +434,6 @@ function PlanningInvestible(props) {
     isInNotDoing,
   } = stagesInfo;
 
-  const displayEdit = !inArchives && (isAssigned || isInNotDoing || isInVoting || isFurtherWork || isRequiresInput);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
@@ -515,7 +514,7 @@ function PlanningInvestible(props) {
 
   function isEditableByUser() {
     const imagesLoaded = allImagesLoaded(editorBox?.current)
-    return imagesLoaded && displayEdit;
+    return imagesLoaded && !inArchives;
   }
 
   function mySetBeingEdited(isEdit, event) {

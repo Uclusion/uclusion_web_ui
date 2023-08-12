@@ -1,6 +1,6 @@
 import WorkListItem from './WorkListItem';
 import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core';
-import React, { useContext, useEffect, useReducer, useRef } from 'react';
+import React, { useContext, useEffect, useReducer } from 'react';
 import { useIntl } from 'react-intl';
 import { ArrowBack, Delete, Inbox as InboxIcon, KeyboardArrowLeft } from '@material-ui/icons';
 import OutboxIcon from '../../../components/CustomChip/Outbox';
@@ -27,8 +27,6 @@ function Inbox(props) {
   const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults,
     workItemId } = props;
   const intl = useIntl();
-  const belowHeader = useRef(null);
-  const contentHeight = useRef(0);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, , tokensHash] = useContext(MarketsContext);
   const history = useHistory();
@@ -42,10 +40,6 @@ function Inbox(props) {
   const unreadCount = _.isEmpty(search) ? getInboxCount(messagesState) : 0;
   const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex);
   useEffect(() => {
-    if(belowHeader.current){
-      const headerSpace = Math.floor(window.scrollY + belowHeader.current.getBoundingClientRect().top);
-      contentHeight.current = `calc(100vh - ${headerSpace}px)`;
-    }
     // If the last item on a page is deleted then must go down
     if ((page - 1)*PAGE_SIZE + 1 > _.size(unpaginatedItems)) {
       if (page > 1) {
@@ -53,7 +47,7 @@ function Inbox(props) {
         inboxDispatch(setPage(lastAvailablePage > 0 ? lastAvailablePage : 1));
       }
     }
-  }, [unpaginatedItems, page, inboxDispatch, belowHeader]);
+  }, [unpaginatedItems, page, inboxDispatch]);
 
   function changePage(byNum) {
     inboxDispatch(setPage(page + byNum));
@@ -88,7 +82,7 @@ function Inbox(props) {
                           `${_.size(outBoxMessagesOrdered)}` : undefined} />
         </GmailTabs>
       )}
-      <div ref={belowHeader} style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
+      <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
         <div style={{display: 'flex', width: '80%'}}>
           {!mobileLayout && 0 === tabIndex && !workItemId && (
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
@@ -146,7 +140,7 @@ function Inbox(props) {
         </div>
       </div>
     </div>
-    <div id="inbox" style={{height: contentHeight.current, overflowY: 'auto'}}>
+    <div id="inbox">
       {defaultRow}
       { data.map((message) => {
           if (message.isOutboxType || !message.type_object_id) {

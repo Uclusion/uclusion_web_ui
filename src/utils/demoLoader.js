@@ -3,7 +3,7 @@ import {
   DEMO_EVENT,
   PUSH_STAGE_CHANNEL,
   PUSH_MARKETS_CHANNEL,
-  PUSH_PRESENCE_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_COMMENTS_CHANNEL, PUSH_MEMBER_CHANNEL
+  PUSH_PRESENCE_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_COMMENTS_CHANNEL, PUSH_MEMBER_CHANNEL, PUSH_GROUPS_CHANNEL
 } from '../api/versionedFetchUtils';
 import _ from 'lodash';
 import { TOKEN_TYPE_MARKET } from '../api/tokenConstants';
@@ -38,6 +38,10 @@ function addStages (market, stageDetails) {
   pushMessage(PUSH_STAGE_CHANNEL, { event: DEMO_EVENT, marketId, stageDetails });
 }
 
+function addGroup(groupDetails) {
+  pushMessage(PUSH_GROUPS_CHANNEL, { event: DEMO_EVENT, groupDetails});
+}
+
 function addMarket (market) {
   pushMessage(PUSH_MARKETS_CHANNEL, { event: DEMO_EVENT, marketDetails: [market] });
 }
@@ -45,11 +49,12 @@ function addMarket (market) {
 function handleMarketData(marketData, myUser, demoUser) {
   const {
     market, child_markets: childMarkets,
-    comments, investibles,
+    comments, investibles, group,
     stages, presences, token
   } = marketData;
   addMarket(market);
   addStages(market, stages);
+  addGroup(group);
   addPresences(market, myUser, demoUser, presences);
   addInvestibles(investibles);
   addComments(market, comments);

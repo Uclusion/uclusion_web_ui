@@ -32,8 +32,7 @@ class MarketTokenFetcher {
       }
       // we're either expired, or never had a token
       //console.log(`refreshing token for ${this.tokenType} id ${this.itemId}`);
-      const refreshedToken = await this.getAndStoreRefreshedToken(this.itemId); // this will automatically store
-      return refreshedToken;
+      return await this.getAndStoreRefreshedToken(this.itemId); // this will automatically store
     });
   }
 
@@ -45,18 +44,19 @@ class MarketTokenFetcher {
     return this.tokenStorageManager.getExpiringTokens(this.tokenType, windowHours)
     .then((expiringRaw) => {
       const expiring = (expiringRaw || []).filter((anItem) => anItem !== 'undefined');
-      return AllSequentialMap(expiring, (itemId) => this.getRefreshedToken(itemId), false);
+      return AllSequentialMap(expiring, (itemId) => this.getAndStoreRefreshedToken(itemId),
+        false);
     });
   }
 
-  getAndStoreRefreshedToken (itemId) {
+  getAndStoreRefreshedToken(itemId) {
     if (this.tokenType === TOKEN_TYPE_MARKET) {
       return this.getIdentityBasedToken(itemId);
     }
     throw new Error('Can\'t refresh your token because I don\'t know how');
   }
 
-  getIdentityBasedToken (itemId) {
+  getIdentityBasedToken(itemId) {
     return this.tokenRefresher.getIdentity()
       .then((identity) => {
         switch (this.tokenType) {

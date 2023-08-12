@@ -44,17 +44,16 @@ export async function getLogin () {
   });
 }
 
-
-function homeAccountFetcher(){
-  this.getToken = async () => {
-    const login = await getLogin();
-    return login?.uclusion_token;
-  }
-}
 let accountClient = null;
 export async function getAccountClient() {
   if(accountClient == null) {
-    accountClient = await uclusion.constructClient({...config.api_configuration, tokenManager: homeAccountFetcher});
+    const accountFetcher = {};
+    accountFetcher.getToken = async () => {
+      const login = await getLogin();
+      return login?.uclusion_token;
+    };
+    accountClient = await uclusion.constructClient({...config.api_configuration,
+      tokenManager: accountFetcher});
   }
   return accountClient;
 }

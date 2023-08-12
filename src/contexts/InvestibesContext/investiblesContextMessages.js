@@ -20,7 +20,7 @@ function beginListening(dispatch, diffDispatch) {
         return refreshInvestibles(dispatch, diffDispatch, investibles, true);
       case DEMO_EVENT:
         console.info('Responding to demo investibles event');
-      // eslint-disable-next-line no-fallthrough
+        return refreshInvestibles(dispatch, diffDispatch, investibles, true);
       case LOAD_EVENT:
         return refreshInvestibles(dispatch, diffDispatch, investibles, false);
       default:

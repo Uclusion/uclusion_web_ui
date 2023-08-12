@@ -58,11 +58,12 @@ export function addMarketPresence(marketId, user) {
   };
 }
 
-export function addMarketPresences(marketId, users) {
+export function addMarketPresences(marketId, users, fromDemo) {
   return {
     type: ADD_MARKET_PRESENCES,
     marketId,
     users,
+    fromDemo
   };
 }
 
@@ -118,10 +119,10 @@ function doAddMarketPresence(state, action) {
 }
 
 function doAddMarketPresences(state, action) {
-  const { marketId, users } = action;
+  const { marketId, users, fromDemo } = action;
   const oldUsers = state[marketId] || [];
   const transformedUsers = users.map((user) => {
-    return { ...user, fromQuickAdd: true };
+    return { ...user, fromQuickAdd: !fromDemo };
   });
   const newUsers = _.unionBy(transformedUsers, oldUsers, 'id');
   return {

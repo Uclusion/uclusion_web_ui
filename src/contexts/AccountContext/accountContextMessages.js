@@ -5,7 +5,7 @@ import { VERSIONS_EVENT } from '../../api/versionedFetchUtils'
 import { fixDates, updateBilling, updateInvoices } from './accountContextHelper'
 import _ from 'lodash'
 import { getInvoices, getPaymentInfo } from '../../api/users'
-import { quickAddDemo } from '../../utils/demoLoader';
+import { addDemo } from '../../utils/demoLoader';
 import { isSignedOut } from '../../utils/userFunctions';
 import { getLogin } from '../../api/homeAccount';
 
@@ -24,7 +24,7 @@ function poll(dispatch, accountVersion, userVersion) {
         const { billing_customer_id: customerId } = account;
         // load the demo into the contexts
         if (!_.isEmpty(demo)) {
-          quickAddDemo(demo);
+          addDemo(demo);
         }
         // handle billing
         if (!_.isEmpty(customerId)) {

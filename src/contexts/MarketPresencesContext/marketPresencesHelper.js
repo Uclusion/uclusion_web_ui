@@ -1,9 +1,13 @@
-import { addMarketPresence, patchInvestment } from './marketPresencesContextReducer'
+import { addMarketPresence, addMarketPresences, patchInvestment } from './marketPresencesContextReducer';
 import _ from 'lodash'
 import { isEveryoneGroup } from '../GroupMembersContext/groupMembersHelper'
 import { useContext } from 'react';
 import { MarketPresencesContext } from './MarketPresencesContext';
 
+
+export function addDemoPresencesToMarket(dispatch, marketId, presences) {
+  dispatch(addMarketPresences(marketId, presences, true));
+}
 export function addPresenceToMarket(dispatch, marketId, presence) {
   dispatch(addMarketPresence(marketId, presence));
 }

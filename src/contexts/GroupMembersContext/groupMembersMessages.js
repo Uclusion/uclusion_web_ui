@@ -1,7 +1,7 @@
 import {
-  addGroupMember,
+  addGroupMember, addGroupMembers,
   versionsUpdateGroupMembers
-} from './groupMembersContextReducer'
+} from './groupMembersContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils'
 import {
   DEMO_EVENT,
@@ -13,15 +13,16 @@ export const ADD_MEMBER = 'AddMember';
 
 function beginListening(dispatch) {
   registerListener(PUSH_MEMBER_CHANNEL, 'groupMemberPushStart', (data) => {
-    const { payload: { event, groupId, memberDetails, user } } = data;
+    const { payload: { event, groupId, memberDetails, user, users } } = data;
 
     switch (event) {
       case VERSIONS_EVENT:
         dispatch(versionsUpdateGroupMembers(memberDetails));
         break;
       case DEMO_EVENT:
+        dispatch(addGroupMembers(groupId, users, true));
         console.info('Responding to demo group member event');
-      // eslint-disable-next-line no-fallthrough
+        break;
       case ADD_MEMBER:
         dispatch(addGroupMember(groupId, user));
         break;

@@ -13,7 +13,7 @@ export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
 export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
 
 function poll(dispatch, accountVersion, userVersion) {
-  getLogin()
+  getLogin(true)
     .then((loginInfo) => {
       const { account, user, demo } = loginInfo;
       const { version: founderUserVersion } = user;

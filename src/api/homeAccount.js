@@ -5,6 +5,8 @@ import uclusion from 'uclusion_sdk';
 import config from '../config';
 import { toastErrorAndThrow } from '../utils/userMessage';
 import { TOKEN_TYPE_ACCOUNT } from './tokenConstants';
+import { pushMessage } from '../utils/MessageBusUtils';
+import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL } from './versionedFetchUtils';
 
 export const HOME_ACCOUNT_ITEM_ID = 'home_account';
 export const HOME_ACCOUNT_LOCK_NAME = 'home_account_login_lock';
@@ -37,6 +39,9 @@ export async function getLogin () {
     // update our cache
     const responseAccountData = await ssoClient.accountCognitoLogin(idToken, getIsInvited());
     const { uclusion_token } = responseAccountData;
+    // do post login handling - TODO:_ move this to a post login handler if there's ever more
+    const notifications = await ssoClient.getMessages(uclusion_token);
+    pushMessage(NOTIFICATIONS_HUB_CHANNEL, {event: LOGIN_EVENT, messages: notifications});
     accountData = responseAccountData;
     // now load the token into storage so we don't have to keep doing it
     await tsm.storeToken(TOKEN_TYPE_ACCOUNT, HOME_ACCOUNT_ITEM_ID, uclusion_token);

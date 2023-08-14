@@ -5,7 +5,7 @@ import {
   updateMessages
 } from './notificationsContextReducer'
 import { registerListener } from '../../utils/MessageBusUtils'
-import { NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
+import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils';
 import { getMessages } from '../../api/sso'
 
 export const ADD_EVENT = 'add_event';
@@ -16,10 +16,13 @@ export const STAGE_CHANGE_EVENT = 'stage_change_event';
 
 function beginListening(dispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
-    const { payload: { event, message } } = data;
+    const { payload: { event, message, messages } } = data;
     // // console.debug(`Notifications context responding to push event ${event}`);
 
     switch (event) {
+      case LOGIN_EVENT:
+        dispatch(updateMessages(messages));
+        break;
       case VERSIONS_EVENT:
         getMessages().then((messages) => {
           dispatch(updateMessages(messages));

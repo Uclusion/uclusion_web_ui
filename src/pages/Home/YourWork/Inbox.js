@@ -61,8 +61,8 @@ function Inbox(props) {
   const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   return (
     <>
-    <div style={{zIndex: 8, position: 'sticky', marginTop: mobileLayout ? '-30px' : (workItemId ? '-15px' : '-8px'),
-      width: '100%', marginLeft: '-0.5rem'}}
+    <div style={{zIndex: 8, position: 'sticky', marginTop: mobileLayout ? '-30px' : (workItemId ? '-12px' : '-8px'),
+      width: '100%', marginLeft: workItemId ? undefined : '-0.5rem'}}
       id="inbox-header">
       {!workItemId && (
         <GmailTabs
@@ -116,7 +116,7 @@ function Inbox(props) {
               }} translationId="inboxMarkRead" />
           )}
           {workItemId && (
-            <TooltipIconButton icon={<ArrowBack style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+            <TooltipIconButton icon={<ArrowBack style={{marginLeft: '0.5rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                                onClick={() => {
                                  navigate(history, getInboxTarget());
                                }} translationId="backToInbox" />

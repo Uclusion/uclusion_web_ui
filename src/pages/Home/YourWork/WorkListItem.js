@@ -172,7 +172,11 @@ function WorkListItem(props) {
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [isHovered, setIsHovered] = useState(false);
+  const { link_type: linkType } = message || {};
   let fullText =  comment || investible || market;
+  if (linkType === 'INVESTIBLE_REVIEW') {
+    fullText = investible;
+  }
   const showExpansion = isHovered && !isNotSynced;
   if (expansionOpen) {
     return (

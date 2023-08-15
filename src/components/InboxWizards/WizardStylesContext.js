@@ -32,7 +32,8 @@ export const wizardStyles = makeStyles(
         width: '100%',
         marginLeft: 'auto',
         marginRight: 'auto',
-        padding: '32px',
+        paddingLeft: '32px',
+        paddingRight: '32px',
         [theme.breakpoints.down('sm')]: {
           paddingLeft: 0,
           paddingRight: 0

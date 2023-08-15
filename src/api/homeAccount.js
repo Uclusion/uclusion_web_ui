@@ -5,8 +5,9 @@ import uclusion from 'uclusion_sdk';
 import config from '../config';
 import { toastErrorAndThrow } from '../utils/userMessage';
 import { TOKEN_TYPE_ACCOUNT } from './tokenConstants';
-import { pushMessage } from '../utils/MessageBusUtils';
-import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL } from './versionedFetchUtils';
+import { pushMessage, registerListener } from '../utils/MessageBusUtils';
+import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL, NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL } from './versionedFetchUtils';
+import { LOGIN_LOADED_EVENT } from '../contexts/NotificationsContext/notificationsContextMessages';
 
 export const HOME_ACCOUNT_ITEM_ID = 'home_account';
 export const HOME_ACCOUNT_LOCK_NAME = 'home_account_login_lock';
@@ -33,6 +34,7 @@ export async function getLogin (forceRefresh) {
       // our account is still valid, so just return the stored account data
       return accountData;
     }
+
     //we've expired, time to refresh
     const ssoInfo = await getSSOInfo();
     const { idToken, ssoClient } = ssoInfo;
@@ -41,7 +43,24 @@ export async function getLogin (forceRefresh) {
     const { uclusion_token } = responseAccountData;
     // do post login handling - TODO:_ move this to a post login handler if there's ever more
     const notifications = await ssoClient.getMessages(uclusion_token);
-    pushMessage(NOTIFICATIONS_HUB_CHANNEL, {event: LOGIN_EVENT, messages: notifications});
+    //block and ensure the context has the messages before we move forward
+    await new Promise((resolve) => {
+      // first register the listener
+      registerListener(NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL, 'loginLocker', (message) => {
+        const { payload: { event } } = message;
+        switch (event) {
+          case(LOGIN_LOADED_EVENT): {
+            resolve(true);
+            break;
+          }
+          default: {
+            console.error(`Got unknown event ${event} during login`);
+          }
+        }
+      });
+      // the push the notifications
+      pushMessage(NOTIFICATIONS_HUB_CHANNEL, {event: LOGIN_EVENT, messages: notifications});
+    });
     accountData = responseAccountData;
     // now load the token into storage so we don't have to keep doing it
     await tsm.storeToken(TOKEN_TYPE_ACCOUNT, HOME_ACCOUNT_ITEM_ID, uclusion_token);

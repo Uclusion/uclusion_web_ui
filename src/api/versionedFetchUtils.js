@@ -24,6 +24,7 @@ const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
 const MAX_CONCURRENT_ARCHIVE_API_CALLS = 1;
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
+export const NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL = 'NotificationsChannelControlPlane';
 export const PUSH_MARKETS_CHANNEL = 'MarketsChannel';
 export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
 export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';

@@ -4,8 +4,13 @@ import {
   removeMessagesForInvestible,
   updateMessages
 } from './notificationsContextReducer'
-import { registerListener } from '../../utils/MessageBusUtils'
-import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils';
+import { pushMessage, registerListener } from '../../utils/MessageBusUtils';
+import {
+  LOGIN_EVENT,
+  NOTIFICATIONS_HUB_CHANNEL,
+  NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL,
+  VERSIONS_EVENT
+} from '../../api/versionedFetchUtils';
 import { getMessages } from '../../api/sso'
 
 export const ADD_EVENT = 'add_event';
@@ -13,6 +18,9 @@ export const DELETE_EVENT = 'delete_event';
 export const DEHIGHLIGHT_EVENT = 'dehighlight_event';
 export const MODIFY_NOTIFICATIONS_CHANNEL = 'delete_notifications';
 export const STAGE_CHANGE_EVENT = 'stage_change_event';
+
+export const LOGIN_LOADED_EVENT = 'login_loaded_event';
+
 
 function beginListening(dispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
@@ -22,6 +30,7 @@ function beginListening(dispatch) {
     switch (event) {
       case LOGIN_EVENT:
         dispatch(updateMessages(messages));
+        pushMessage(NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL, {event: LOGIN_LOADED_EVENT});
         break;
       case VERSIONS_EVENT:
         getMessages().then((messages) => {

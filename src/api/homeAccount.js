@@ -29,7 +29,8 @@ function getSSOInfo() {
 
 export async function getLogin (forceRefresh) {
   return navigator.locks.request(HOME_ACCOUNT_LOCK_NAME, async () => {
-    const token = await getTokenStorageManager().getValidToken(TOKEN_TYPE_ACCOUNT, HOME_ACCOUNT_ITEM_ID);
+    const tsm = getTokenStorageManager();
+    const token = await tsm.getValidToken(TOKEN_TYPE_ACCOUNT, HOME_ACCOUNT_ITEM_ID);
     if (!forceRefresh && accountData && token) {
       // our account is still valid, so just return the stored account data
       return accountData;

@@ -38,11 +38,12 @@ const useStyles = makeStyles({
   root: {
     flexGrow: 1,
     zIndex: 1,
-    overflow: 'auto',
+    overflowY: 'auto',
     position: 'relative',
     display: 'flex',
     width: '100%',
-    overflowX: 'hidden'
+    overflowX: 'hidden',
+    scrollBehavior: 'smooth'
   },
   content: {
     width: '100%',

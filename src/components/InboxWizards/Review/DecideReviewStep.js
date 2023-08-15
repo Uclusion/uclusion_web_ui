@@ -59,7 +59,7 @@ function DecideReviewStep(props) {
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions
-                      preserveOrder />
+                      preserveOrder showStage />
       <WizardStepButtons
         {...props}
         nextLabel="DecideAddReview"

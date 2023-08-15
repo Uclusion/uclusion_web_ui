@@ -16,10 +16,13 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { Assignments, usePlanningInvestibleStyles } from '../../pages/Investible/Planning/PlanningInvestible';
+import { FormattedMessage } from 'react-intl';
+import { getCurrentStageLabelId, getStagesInfo } from '../../utils/stageUtils';
 
 function JobDescription(props) {
   const { investibleId, marketId, comments, showDescription=true, showAssigned=true, inboxMessageId,
-    removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder } = props;
+    removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder,
+    showStage } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -31,18 +34,20 @@ function JobDescription(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { assigned } = marketInfo || {};
+  const { assigned, stage } = marketInfo || {};
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const assignedPresences = marketPresences.filter((presence) => (assigned || []).includes(presence.id))
   const { investible: myInvestible } = inv || {};
   const { name, description } = myInvestible || {};
   const editorIsEmpty = editorEmpty(description);
+  const stagesInfo = getStagesInfo(marketId, marketStagesState, stage);
+  const stageLabelId = getCurrentStageLabelId(stagesInfo);
 
   return (
     <>
-      <div style={{paddingLeft: '4px', paddingRight: '4px'}}>
+      <div style={{paddingLeft: '4px', paddingRight: '4px' }}>
         {!_.isEmpty(assignedPresences) && showAssigned && (
-          <div className={planningClasses.assignments} style={{paddingBottom: '1.5rem'}}>
+          <div className={planningClasses.assignments} style={{paddingBottom: '1.5rem', display: 'flex'}}>
             <div className={planningClasses.assignmentContainer}>
               <Assignments
                 classes={planningClasses}
@@ -53,6 +58,14 @@ function JobDescription(props) {
                 isLarge
               />
             </div>
+            {showStage && (
+              <div style={{marginLeft: '2rem'}}>
+                <FormattedMessage id='allowedStagesDropdownLabel' />
+                <div style={{marginTop: '0.5rem'}}>
+                  <b><FormattedMessage id={stageLabelId} /></b>
+                </div>
+              </div>
+            )}
           </div>
         )}
         <Typography className={investibleEditClasses.title} variant="h3" component="h1"

@@ -1046,11 +1046,12 @@ function Reply(props) {
   const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, comment.id);
   const rootComment = getCommentRoot(commentsState, marketId, comment.id);
-  const showConvert = rootComment?.comment_type === REPORT_TYPE && !isInbox;
+  const { investible_id: investibleId, group_id: groupId } = comment || {};
+  const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE].includes(rootComment?.comment_type) && !isInbox;
 
   function handleEditClick() {
-    navigateEditReplyBack(history, comment.id, marketId, comment.group_id, comment.investible_id, replyEditId,
-      false, isFromInbox, setNoHighlightId);
+    navigateEditReplyBack(history, comment.id, marketId, groupId, investibleId, replyEditId, false, isFromInbox,
+      setNoHighlightId);
   }
 
   function myAccept () {
@@ -1058,7 +1059,7 @@ function Reply(props) {
     return updateComment({marketId, commentId: comment.id, commentType: TODO_TYPE}).then((comment) => {
       handleAcceptSuggestion({ isMove: false, comment, commentsState, commentsDispatch, messagesState });
       setOperationRunning(false);
-      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
+      navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
     })
   }
 
@@ -1080,8 +1081,8 @@ function Reply(props) {
   }
 
   function setReplyOpen() {
-    navigateEditReplyBack(history, comment.id, marketId, comment.group_id, comment.investible_id, replyEditId,
-      true, isFromInbox, setNoHighlightId);
+    navigateEditReplyBack(history, comment.id, marketId, groupId, investibleId, replyEditId, true, isFromInbox,
+      setNoHighlightId);
   }
   const { level: myHighlightedLevel } = myMessage;
   const isLinkedTo = noHighlightId !== comment.id && hashFragment?.includes(comment.id);
@@ -1104,7 +1105,7 @@ function Reply(props) {
       <Card className={getHighlightClass()} id={`${isInbox ? 'inbox' : ''}c${comment.id}`}>
         <div onClick={() => {
           if (isInbox && (!replyBeingEdited || beingEdited)) {
-            navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
+            navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
           }
         }}>
           <CardContent className={classes.cardContent}>
@@ -1188,7 +1189,7 @@ function Reply(props) {
         {replyBeingEdited && marketId && comment && (
           <CommentAdd
             marketId={marketId}
-            groupId={comment.group_id}
+            groupId={groupId}
             parent={comment}
             onSave={() => setReplyOpen()}
             onCancel={() => setReplyOpen()}

@@ -1128,10 +1128,14 @@ function Reply(props) {
               />
             )}
             {showConvert && (
-              <SpinningIconLabelButton onClick={myAccept} icon={ListAltIcon} id={`convertToTask${comment.id}`}
-                                       style={{float: 'right'}}>
-                {!mobileLayout && intl.formatMessage({ id: 'wizardAcceptLabel' })}
-              </SpinningIconLabelButton>
+              <TooltipIconButton
+                disabled={operationRunning !== false}
+                onClick={myAccept}
+                icon={<ListAltIcon fontSize={mobileLayout ? 'small' : undefined} />}
+                size={mobileLayout ? 'small' : undefined}
+                translationId="wizardAcceptLabel"
+                doFloatRight
+              />
             )}
             {beingEdited && (
               <CommentEdit

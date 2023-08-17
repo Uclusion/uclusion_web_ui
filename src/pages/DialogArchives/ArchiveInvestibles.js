@@ -8,28 +8,19 @@ import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 import { makeStyles } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
-import { removeHeader, restoreHeader } from '../../containers/Header';
 import { QUESTION_TYPE } from '../../constants/comments';
-import { stageChangeInvestible, updateInvestible } from '../../api/investibles';
-import { getInvestible, refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { LocalPlanningDragContext } from '../Dialog/Planning/PlanningDialog';
 import {
   getFullStage,
   isBlockedStage,
-  isFurtherWorkStage,
   isRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import Link from '@material-ui/core/Link';
 import { getMarketInfo } from '../../utils/userFunctions';
-import { doRemoveEdit, doShowEdit, onDropTodo } from '../Dialog/Planning/userUtils';
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { doRemoveEdit, doShowEdit } from '../Dialog/Planning/userUtils';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences, } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-import { onInvestibleStageChange } from '../../utils/investibleFunctions';
-import { UNASSIGNED_TYPE } from '../../constants/notifications';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { Block } from '@material-ui/icons';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
@@ -75,7 +66,7 @@ export const myArchiveClasses = makeStyles(
 );
 
 function getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history,
-  intl, elevation, allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, marketStagesState,
+  intl, elevation, allowDragDrop, unResolvedMarketComments, presenceId, marketStagesState,
   setBeingDraggedHack, classes) {
   const investibleData = investibles.map((inv) => {
     const aMarketInfo = getMarketInfo(inv, marketId);
@@ -107,14 +98,12 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
       return presence ? presence.name : '';
     });
     function onDragStart(event) {
-      removeHeader();
       const stageId = stage ? stage.id : undefined;
       event.dataTransfer.setData("text", id);
       event.dataTransfer.setData("stageId", stageId);
-      const originalElementId = `${stageId}_${presenceId}`;
-      setBeingDraggedHack({id, stageId, originalElementId});
+      setBeingDraggedHack({id, stageId});
     }
-    const isDraggable = allowDragDrop && stage && isFurtherWorkStage(stage);
+    const isDraggable = allowDragDrop && stage;
     const TypeIcon = isBlockedStage(stage) ? <Block htmlColor='#E85757' />
       : (isRequiredInputStage(stage) ? (_.isEmpty(questionComments) ? <LightbulbOutlined htmlColor='#E85757' /> :
         <QuestionIcon htmlColor='#E85757' />) : undefined);
@@ -128,7 +117,6 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
         xs={12}
         draggable={isDraggable}
         onDragStart={onDragStart}
-        onDragEnd={onDragEnd}
         style={{overflowWrap: "break-word"}}
         onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
         onClick={(event) => {
@@ -185,132 +173,25 @@ function ArchiveInvestbiles(props) {
     presenceMap,
     elevation,
     allowDragDrop,
-    isReadyToStart,
-    stage,
     presenceId
   } = props;
   const classes = myArchiveClasses();
   const intl = useIntl();
   const history = useHistory();
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const stageId = stage ? stage.id : undefined;
   const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const [invState, invDispatch] = useContext(InvestiblesContext);
-  const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
-  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
 
-  function onDragEnd() {
-    restoreHeader();
-    const { previousElementId } = beingDraggedHack;
-    if (previousElementId) {
-      document.getElementById(previousElementId).className = classes.containerEmpty;
-      setBeingDraggedHack({});
-    }
-  }
-
-  function onDropFurtherWorkSection(investibleId, isReadyToStart) {
-    const investible = getInvestible(invState, investibleId);
-    const marketInfo = getMarketInfo(investible, marketId);
-    const { open_for_investment: openForInvestment, stage: currentStageId } = marketInfo;
-    if (isReadyToStart === openForInvestment) {
-      return;
-    }
-    const updateInfo = {
-      marketId,
-      investibleId,
-      openForInvestment: isReadyToStart,
-    };
-    setOperationRunning(true);
-    return updateInvestible(updateInfo).then((fullInvestible) => {
-      const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
-      onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, commentsState,
-        commentsDispatch, invDispatch, () => {}, undefined, [UNASSIGNED_TYPE],
-        fullStage, marketPresencesDispatch);
-      setOperationRunning(false);
-    });
-  }
-
-  function onDrop(event) {
-    if (stage.move_on_comment) {
-      return;
-    }
-    event.preventDefault();
-    const anId = event.dataTransfer.getData("text");
-    const currentStageId = event.dataTransfer.getData("stageId");
-    if (!currentStageId) {
-      return onDropTodo(anId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch);
-    }
-    const isFurtherWork = isFurtherWorkStage(stage);
-    if (currentStageId === stageId) {
-      if (isFurtherWork && !operationRunning) {
-        return onDropFurtherWorkSection(anId, !!isReadyToStart);
-      }
-      return;
-    }
-    if (!operationRunning) {
-      const target = event.target;
-      target.style.cursor = 'wait';
-      const moveInfo = {
-        marketId,
-        investibleId: anId,
-        stageInfo: {
-          current_stage_id: currentStageId,
-          stage_id: stageId,
-        },
-      };
-      setOperationRunning(true);
-      return stageChangeInvestible(moveInfo)
-        .then((inv) => {
-          if (isFurtherWork && isReadyToStart) {
-            const updateInfo = {
-              marketId,
-              investibleId: anId,
-              openForInvestment: true,
-            };
-            return updateInvestible(updateInfo);
-          }
-          return inv;
-        })
-        .then((inv) => {
-          refreshInvestibles(invDispatch, () => {}, [inv]);
-        }).finally(() => {
-          target.style.cursor = 'pointer';
-          setOperationRunning(false);
-        });
-    }
-  }
-  const elementId = allowDragDrop && stage && !stage.move_on_comment ? (isReadyToStart ?
-    'furtherReadyToStart' : 'furtherNotReadyToStart') : undefined;
-
-  function setElementGreen() {
-    removeElementGreen();
-    document.getElementById(elementId)?.classList.add(classes.containerGreen);
-  }
-
-  function removeElementGreen() {
-    ['furtherReadyToStart', 'furtherNotReadyToStart'].forEach((elementId) => {
-      document.getElementById(elementId)?.classList.remove(classes.containerGreen);
-    });
-  }
   return (
-    <Grid
-      container
-      className={classes.white}
-      onDrop={onDrop}
-      id={elementId}
-      onDragEnd={removeElementGreen}
-      onDragEnter={setElementGreen}
-      onDragOver={(event) => (stage && !stage.move_on_comment) && event.preventDefault()}
-    >
+    <Grid container className={classes.white}>
       {_.isEmpty(investibles) && (
         <div className={classes.grow} />
       )}
       {getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history,
-        intl, elevation, allowDragDrop, onDragEnd, unResolvedMarketComments, presenceId, marketStagesState,
-        setBeingDraggedHack, classes)}
+        intl, elevation, allowDragDrop, unResolvedMarketComments, presenceId, marketStagesState, setBeingDraggedHack,
+        classes)}
     </Grid>
   );
 }

@@ -24,7 +24,7 @@ import StageActionStep from './StageActionStep';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 
 function JobStageWizard(props) {
-  const { marketId, investibleId } = props;
+  const { marketId, investibleId, stageId, isAssign } = props;
   const history = useHistory();
   const [investibleState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -77,10 +77,14 @@ function JobStageWizard(props) {
       <FormdataWizard name={`job_stage_wizard${investibleId}`} useLocalStorage={false}
                       defaultFormData={{approveQuantity: Math.abs(approveQuantity), originalQuantity: approveQuantity,
                         wasDeleted: yourVote?.deleted, userId: yourPresence?.id, approveReason: originalReason,
-                        originalReason}}>
-        <JobStageStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                      requiresAction={requiresAction} />
-        <JobAssignStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo} />
+                        originalReason, stage: stageId ? stageId : undefined, stageWasSet: !!stageId}}>
+        {!stageId && (
+          <JobStageStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
+                        requiresAction={requiresAction} />
+        )}
+        {(!stageId || isAssign) && (
+          <JobAssignStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo} />
+        )}
         <CloseCommentsStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo} />
         <StageActionStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
                          currentReasonId={yourReason?.id} groupId={groupId} />

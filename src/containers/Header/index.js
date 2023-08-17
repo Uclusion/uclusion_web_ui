@@ -142,20 +142,6 @@ export const headerStyles = makeStyles((theme) => {
   };
 });
 
-export function removeHeader() {
-  const headerEl = document.getElementById('app-header-control');
-  if (headerEl) {
-    headerEl.style.display = 'none';
-  }
-}
-
-export function restoreHeader () {
-  const headerEl = document.getElementById('app-header-control');
-  if (headerEl) {
-    headerEl.style.display = 'block';
-  }
-}
-
 const NORMAL_LOGO = '#3F6B72';
 const ALT_LOGO = '#F29100';
 

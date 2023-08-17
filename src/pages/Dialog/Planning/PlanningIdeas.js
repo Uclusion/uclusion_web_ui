@@ -7,10 +7,10 @@ import { makeStyles } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
-  formInvestibleLink,
+  formInvestibleLink, formWizardLink,
   navigate,
   preventDefaultAndProp
-} from '../../../utils/marketIdPathFunctions'
+} from '../../../utils/marketIdPathFunctions';
 import clsx from 'clsx';
 import { LocalPlanningDragContext, } from './PlanningDialog'
 import { countByType } from './InvestiblesByPerson'
@@ -33,22 +33,22 @@ import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../..
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import {
   getFullStage,
-  getStages
+  isBlockedStage,
+  isRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { removeHeader, restoreHeader } from '../../../containers/Header'
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { doRemoveEdit, doShowEdit, onDropTodo } from './userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { getCollaboratorsForInvestible, onInvestibleStageChange } from '../../../utils/investibleFunctions';
-import { myArchiveClasses } from '../../DialogArchives/ArchiveInvestibles'
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { getTicketNumber } from '../../../utils/stringFunctions'
 import { Schedule } from '@material-ui/icons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils';
+import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -70,18 +70,6 @@ export const usePlanningIdStyles = makeStyles(
       },
       stageLabel: {},
       containerEmpty: {},
-      containerRed: {
-        borderColor: 'red',
-        borderStyle: 'dashed',
-        borderWidth: '3px',
-        borderRadius: 6
-      },
-      containerGreen: {
-        borderColor: 'green',
-        borderStyle: 'dashed',
-        borderWidth: '3px',
-        borderRadius: 6
-      }
     };
   },
   { name: 'PlanningIdea' }
@@ -101,14 +89,14 @@ function PlanningIdeas(props) {
     comments
   } = props;
   const intl = useIntl();
+  const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const acceptedStageId = acceptedStage.id;
   const classes = usePlanningIdStyles();
-  const archiveClasses = myArchiveClasses();
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [beingDraggedHack, setBeingDraggedHack] = useContext(LocalPlanningDragContext);
+  const [beingDraggedHack] = useContext(LocalPlanningDragContext);
   const [invState, invDispatch] = useContext(InvestiblesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -129,7 +117,7 @@ function PlanningIdeas(props) {
     const investibleId = event.dataTransfer.getData('text');
     const currentStageId = event.dataTransfer.getData('stageId');
     if (!operationRunning && !isBlockedByTodo(investibleId, currentStageId, targetStageId) &&
-      currentStageId !== targetStageId && checkStageMatching(currentStageId)) {
+      currentStageId !== targetStageId) {
       const target = event.target;
       target.style.cursor = 'wait';
       const moveInfo = {
@@ -153,18 +141,12 @@ function PlanningIdeas(props) {
     }
   }
 
-  function isAssignedInvestible (event, assignedToId) {
+  function isAssignedInvestible(event, assignedToId) {
     const investibleId = event.dataTransfer.getData('text');
     const investible = getInvestible(invState, investibleId);
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned } = marketInfo;
     return (assigned || []).includes(assignedToId);
-  }
-
-  function checkStageMatching (stageId) {
-    const marketStages = getStages(marketStagesState, marketId);
-    const stage = getFullStage(marketStagesState, marketId, stageId);
-    return (marketStages || []).includes(stage);
   }
 
   function onDropVoting (event) {
@@ -174,7 +156,7 @@ function PlanningIdeas(props) {
       const commentId = event.dataTransfer.getData('text');
       onDropTodo(commentId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch,
         presenceId);
-    } else if (checkStageMatching(currentStageId)) {
+    } else {
       const investibleId = event.dataTransfer.getData('text');
       if (isAssignedInvestible(event, presenceId)) {
         stageChange(event, inDialogStageId);
@@ -208,97 +190,42 @@ function PlanningIdeas(props) {
     }
   }
 
-  function onDropAccepted (event) {
-    const currentStageId = event.dataTransfer.getData('stageId');
-    if (checkStageMatching(currentStageId)) {
-      if (isAssignedInvestible(event, myPresence.id)) {
-        stageChange(event, acceptedStageId);
-      }
+  function onDropAccepted(event) {
+    const { id, stageId } = beingDraggedHack;
+    const link = getDropDestination(acceptedStageId, id, stageId);
+    if (link) {
+      navigate(history, link);
+    } else {
+      stageChange(event, acceptedStageId);
     }
   }
 
   function onDropReview (event) {
-    const currentStageId = event.dataTransfer.getData('stageId');
-    if (checkStageMatching(currentStageId)) {
-      if (isAssignedInvestible(event, presenceId)) {
-        stageChange(event, inReviewStageId);
-      }
+    const { id, stageId } = beingDraggedHack;
+    const link = getDropDestination(inReviewStageId, id, stageId);
+    if (link) {
+      navigate(history, link);
+    } else {
+      stageChange(event, inReviewStageId);
     }
   }
 
-  function isEligableDrop(divId) {
-    const { id, stageId } = beingDraggedHack;
-    if (!stageId) {
-      // This is a TO-DO being dragged
-      return divId === inDialogStageId;
-    }
-    if (!checkStageMatching(stageId)) {
-      return false;
-    }
+  function getDropDestination(divId, id, stageId) {
     const investible = getInvestible(invState, id);
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned } = marketInfo;
     const draggerIsAssigned = (assigned || []).includes(myPresence.id);
-    const swimLaneIsAssigned = (assigned || []).includes(presenceId);
     const isBlocked = isBlockedByTodo(id, stageId, divId);
-    if (isBlocked) {
-      return false;
+    const fullCurrentStage = getFullStage(marketStagesState, marketId, stageId);
+    if (divId === acceptedStageId && !draggerIsAssigned) {
+      // Go to change stage assign step with acceptedStageId destination
+      return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=true`;
     }
-    if (divId === inDialogStageId) {
-      return true;
+    if (isBlocked || isBlockedStage(fullCurrentStage) || isRequiredInputStage(fullCurrentStage)) {
+      // Go to change stage close comment step with divId destination
+      return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}`;
     }
-    if (divId === acceptedStageId) {
-      return draggerIsAssigned;
-    }
-    if (divId === inReviewStageId) {
-      return swimLaneIsAssigned;
-    }
-    return false;
-  }
-
-  function onDragEnterStage (event, divId, divPresenceId) {
-    removeHeader();
-    const { id, stageId, previousElementId, originalElementId } = beingDraggedHack;
-    const elementId = `${divId}_${divPresenceId}`;
-    if (elementId !== originalElementId && elementId !== previousElementId) {
-      if (previousElementId) {
-        document.getElementById(previousElementId).className = classes.containerEmpty;
-      }
-      if (isEligableDrop(divId)) {
-        if (!operationRunning) {
-          document.getElementById(elementId).className = classes.containerGreen;
-          if (!_.isEmpty(beingDraggedHack)) {
-            setBeingDraggedHack({ id, stageId, previousElementId: elementId, originalElementId });
-          }
-        }
-      } else {
-        event.dataTransfer.dropEffect = 'none';
-        document.getElementById(elementId).className = classes.containerRed;
-        if (!_.isEmpty(beingDraggedHack)) {
-          setBeingDraggedHack({ id, stageId, previousElementId: elementId, originalElementId });
-        }
-      }
-    }
-  }
-
-  function onDragEndStage () {
-    restoreHeader();
-    const { previousElementId } = beingDraggedHack;
-    if (previousElementId) {
-      const previousElement = document.getElementById(previousElementId);
-      if (previousElement) {
-        previousElement.className = classes.containerEmpty;
-      }
-    }
-    if (!_.isEmpty(beingDraggedHack)) {
-      setBeingDraggedHack({});
-    }
-    ['furtherReadyToStart', 'furtherNotReadyToStart'].forEach((elementId) => {
-      const element = document.getElementById(elementId);
-      if (element) {
-        element.classList.remove(archiveClasses.containerGreen);
-      }
-    });
+    return undefined;
   }
 
   function onDragOverProcess(event) {
@@ -310,8 +237,7 @@ function PlanningIdeas(props) {
     <div className={mobileLayout ? undefined : classes.stages}>
       <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
            onDragOver={onDragOverProcess}
-           onDragEnter={(event) => onDragEnterStage(event, inDialogStageId, presenceId)}
-           onDragEnd={onDragEndStage}>
+      >
         {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inDialogStageId]) && (
           <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>
             <b><FormattedMessage id="planningVotingStageLabel" /></b>
@@ -330,8 +256,7 @@ function PlanningIdeas(props) {
       </div>
       <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted}
            onDragOver={onDragOverProcess}
-           onDragEnter={(event) => onDragEnterStage(event, acceptedStageId, presenceId)}
-           onDragEnd={onDragEndStage}>
+      >
         {mobileLayout && !_.isEmpty(myInvestiblesStageHash[acceptedStageId]) && (
           <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>
             <b><FormattedMessage id="planningAcceptedStageLabel" /></b>
@@ -349,8 +274,7 @@ function PlanningIdeas(props) {
       </div>
       <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview} style={{flex: '2 1 50%'}}
            onDragOver={onDragOverProcess}
-           onDragEnter={(event) => onDragEnterStage(event, inReviewStageId, presenceId)}
-           onDragEnd={onDragEndStage}>
+      >
         {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inReviewStageId]) && (
           <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>
             <b><FormattedMessage id="planningReviewStageLabel" /></b>
@@ -451,8 +375,7 @@ function Stage(props) {
     isReview,
     isVoting,
     showCompletion,
-    marketPresences,
-    presenceId
+    marketPresences
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -471,8 +394,7 @@ function Stage(props) {
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text', event.target.id);
     event.dataTransfer.setData('stageId', id);
-    const originalElementId = `${id}_${presenceId}`;
-    dragHack({ id: event.target.id, stageId: id, originalElementId });
+    dragHack({ id: event.target.id, stageId: id });
   }
   const investiblesMap = sortedInvestibles.map(inv => {
     const { investible } = inv;

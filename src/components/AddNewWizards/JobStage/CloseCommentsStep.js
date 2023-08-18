@@ -30,19 +30,22 @@ function CloseCommentsStep(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const { assigned: originalAssigned, group_id: groupId } = marketInfo;
+  const { assigned: originalAssigned, group_id: groupId, stage: currentStageId } = marketInfo;
   const marketComments = getMarketComments(commentsState, marketId, groupId);
   const unresolvedComments = marketComments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);
   const { stage, assigned: newAssigned } = formData;
   const assigned = newAssigned || originalAssigned;
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage);
+  const fullCurrentStage = getFullStage(marketStagesState, marketId, currentStageId);
   const mustResolveComments = unresolvedComments.filter((comment) =>
     (comment.comment_type === ISSUE_TYPE)||
     (isInReviewStage(fullMoveStage) && comment.comment_type === TODO_TYPE)||
       ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
       (assigned || []).includes(comment.created_by)));
   const commentThreads = getCommentThreads(mustResolveComments, marketComments);
+  const isMustResolve = fullCurrentStage.move_on_comment ||
+    !_.isEmpty(unresolvedComments.filter((comment) => comment.comment_type === TODO_TYPE));
 
   function move() {
     // Do not rely on async to close the comments cause want this user to be updated by and not auto opened if return
@@ -50,7 +53,7 @@ function CloseCommentsStep(props) {
       marketId,
       investibleId,
       stageInfo: {
-        current_stage_id: marketInfo.stage,
+        current_stage_id: currentStageId,
         stage_id: stage,
         resolve_comment_ids: mustResolveComments.map((comment) => comment.id)
       },
@@ -77,13 +80,21 @@ function CloseCommentsStep(props) {
   return (
     <WizardStepContainer
       {...props}
+      isLarge
     >
       <Typography className={classes.introText}>
         Will you resolve these comments?
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Sometimes questions, suggestions, issues or tasks must be resolved to move to a stage.
-      </Typography>
+      {isMustResolve && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          The below comments must be resolved to change this job's stage.
+        </Typography>
+      )}
+      {!isMustResolve && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          The below comments will move this job to assistance.
+        </Typography>
+      )}
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={commentThreads}
@@ -100,7 +111,7 @@ function CloseCommentsStep(props) {
         showTerminate
         onNext={move}
         onTerminate={() => finish(fullMoveStage, true)}
-        terminateLabel="JobWizardGotoJob"
+        terminateLabel={isMustResolve ? 'JobWizardBacktoJob' : 'JobWizardGotoJob'}
       />
     </WizardStepContainer>
   );

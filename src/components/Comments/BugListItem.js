@@ -21,6 +21,7 @@ import { scrollToElement } from '../../contexts/ScrollContext';
 import { expandOrContract } from './BugListContext';
 import Chip from '@material-ui/core/Chip';
 import { useIntl } from 'react-intl';
+import DragImage from '../Dialogs/DragImage';
 
 const Item = styled("div")`
   margin-bottom: 1px;
@@ -195,10 +196,7 @@ function BugListItem(props) {
         paddingBottom: '0.5rem'}} draggable={false}>
         {expansionPanel || <React.Fragment />}
       </div>
-      <div id={`dragImage${id}`} style={{display: 'block', minWidth: '10rem', width: '10rem',
-        position: 'absolute', top: -10, right: -10, zIndex: 2}}>
-        <Title>{title}</Title>
-      </div>
+      <DragImage id={id} name={title} />
     </>
   );
 }

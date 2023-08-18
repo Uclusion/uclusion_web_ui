@@ -8,6 +8,7 @@ import { useHistory } from 'react-router';
 import _ from 'lodash';
 import GravatarGroup from '../Avatars/GravatarGroup';
 import { workListStyles } from '../Comments/OptionListItem';
+import DragImage from '../Dialogs/DragImage';
 
 const Item = styled("div")`
   margin-bottom: 1px;
@@ -123,10 +124,7 @@ function BacklogListItem(props) {
           </div>
         </RaisedCard>
       </Item>
-      <div id={`dragImage${id}`} style={{display: 'block', minWidth: '10rem', width: '10rem',
-        position: 'absolute', top: -10, right: -10, zIndex: 2}}>
-        <Title>{title}</Title>
-      </div>
+      <DragImage id={id} name={title} />
     </>
   );
 }

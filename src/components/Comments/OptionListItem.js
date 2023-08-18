@@ -8,6 +8,7 @@ import RaisedCard from '../../components/Cards/RaisedCard';
 import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import _ from 'lodash';
+import DragImage from '../Dialogs/DragImage';
 
 const Item = styled("div")`
   margin-bottom: 1px;
@@ -151,10 +152,7 @@ function OptionListItem(props) {
         height: expansionOpen ? undefined : 0}} draggable={false}>
         {expansionPanel || <React.Fragment />}
       </div>
-      <div id={`dragImage${id}`} style={{display: 'block', minWidth: '10rem', width: '10rem',
-        position: 'absolute', top: -10, right: -10, zIndex: 2}}>
-        <Title>{title}</Title>
-      </div>
+      <DragImage id={id} name={title} />
     </>
   );
 }

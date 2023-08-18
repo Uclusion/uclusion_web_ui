@@ -1,7 +1,7 @@
 /**
  * A component that renders a single group's view of a planning market
  */
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -101,8 +101,6 @@ function PlanningDialog(props) {
   const notTodoComments = unResolvedMarketComments.filter(comment =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  // For security reasons you can't access source data while being dragged in case you are not the target website
-  const [beingDraggedHack, setBeingDraggedHack] = useState({});
   const [pageStateFull, pageDispatch] = usePageStateReducer('group');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, groupId,
     {sectionOpen: 'storiesSection', tabIndex: 0 });
@@ -302,83 +300,81 @@ function PlanningDialog(props) {
             </Grid>
           </div>
         )}
-        <LocalPlanningDragContext.Provider value={[beingDraggedHack, setBeingDraggedHack]}>
-          {isSectionOpen('storiesSection') && (
-            <div id="storiesSection" style={{overflowX: 'hidden'}}>
-              {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
-                <>
-                  <SubSection
-                    type={SECTION_TYPE_SECONDARY_WARNING}
-                    bolder
-                    titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
-                      <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR,
-                        borderRadius: 22, paddingLeft: '5px', paddingRight: '6px', paddingTop: '1px', fontSize: 12,
-                        marginRight: '1rem', maxHeight: '20px'}}>
-                        {blockedOrRequiresInputInvestibles.length} total
-                      </span> : undefined}
-                    title={intl.formatMessage({ id: 'blockedHeader' })}
-                    helpLink='https://documentation.uclusion.com/groups/jobs/stages/#assistance'
-                    id="blocked"
-                  >
-                    <ArchiveInvestbiles
-                      comments={comments}
-                      elevation={0}
-                      marketId={marketId}
-                      presenceMap={presenceMap}
-                      investibles={blockedOrRequiresInputInvestibles}
-                      presenceId={myPresence.id}
-                      allowDragDrop
-                    />
-                  </SubSection>
-                  <div style={{ paddingBottom: '2rem' }}/>
-                </>
-              )}
-              <InvestiblesByPerson
-                comments={comments}
-                investibles={investibles}
-                visibleStages={visibleStages}
-                acceptedStage={acceptedStage}
-                inDialogStage={inDialogStage}
-                inBlockingStage={inBlockingStage}
-                inReviewStage={inReviewStage}
-                requiresInputStage={requiresInputStage}
-                group={group}
-                isAdmin={isAdmin}
-                mobileLayout={mobileLayout}
-                pageState={pageState} updatePageState={updatePageState}
-              />
-              <DismissableText textId="notificationHelp"
-                               display={_.isEmpty(investibles.find((investible) =>
-                                 isInStages(investible, visibleStages, marketId)))}
-                               text={
-                                 isEveryoneGroup(groupId, marketId) ?
-                                   <div>
-                                     Use the "Add job" button above
-                                     and <Link href="https://documentation.uclusion.com/groups/#everyone" target="_blank">everyone</Link> will
-                                     be notified.
-                                   </div> :
-                <div>
-                  Use the "Add job" button above
-                  and <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> are
-                  sent to this group backed by instructional wizards.
-                </div>
-              }/>
-            </div>
-          )}
-          {isSectionOpen('backlogSection') && (
-            <div id="backlogSection" style={{overflowX: 'hidden'}}>
-              <Backlog group={group} marketPresences={marketPresences}
-                       furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
-                       comments={comments} />
-            </div>
-          )}
-          <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}
-                       sectionOpen={isSectionOpen('marketTodos')}
-                       hidden={hidden}
-                       setSectionOpen={() => {
-                         updatePageState({sectionOpen: 'marketTodos', tabIndex: 1});
-                       }} group={group} userId={myPresence.id}/>
-        </LocalPlanningDragContext.Provider>
+        {isSectionOpen('storiesSection') && (
+          <div id="storiesSection" style={{overflowX: 'hidden'}}>
+            {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
+              <>
+                <SubSection
+                  type={SECTION_TYPE_SECONDARY_WARNING}
+                  bolder
+                  titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
+                    <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR,
+                      borderRadius: 22, paddingLeft: '5px', paddingRight: '6px', paddingTop: '1px', fontSize: 12,
+                      marginRight: '1rem', maxHeight: '20px'}}>
+                      {blockedOrRequiresInputInvestibles.length} total
+                    </span> : undefined}
+                  title={intl.formatMessage({ id: 'blockedHeader' })}
+                  helpLink='https://documentation.uclusion.com/groups/jobs/stages/#assistance'
+                  id="blocked"
+                >
+                  <ArchiveInvestbiles
+                    comments={comments}
+                    elevation={0}
+                    marketId={marketId}
+                    presenceMap={presenceMap}
+                    investibles={blockedOrRequiresInputInvestibles}
+                    presenceId={myPresence.id}
+                    allowDragDrop
+                  />
+                </SubSection>
+                <div style={{ paddingBottom: '2rem' }}/>
+              </>
+            )}
+            <InvestiblesByPerson
+              comments={comments}
+              investibles={investibles}
+              visibleStages={visibleStages}
+              acceptedStage={acceptedStage}
+              inDialogStage={inDialogStage}
+              inBlockingStage={inBlockingStage}
+              inReviewStage={inReviewStage}
+              requiresInputStage={requiresInputStage}
+              group={group}
+              isAdmin={isAdmin}
+              mobileLayout={mobileLayout}
+              pageState={pageState} updatePageState={updatePageState}
+            />
+            <DismissableText textId="notificationHelp"
+                             display={_.isEmpty(investibles.find((investible) =>
+                               isInStages(investible, visibleStages, marketId)))}
+                             text={
+                               isEveryoneGroup(groupId, marketId) ?
+                                 <div>
+                                   Use the "Add job" button above
+                                   and <Link href="https://documentation.uclusion.com/groups/#everyone" target="_blank">everyone</Link> will
+                                   be notified.
+                                 </div> :
+              <div>
+                Use the "Add job" button above
+                and <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> are
+                sent to this group backed by instructional wizards.
+              </div>
+            }/>
+          </div>
+        )}
+        {isSectionOpen('backlogSection') && (
+          <div id="backlogSection" style={{overflowX: 'hidden'}}>
+            <Backlog group={group} marketPresences={marketPresences}
+                     furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
+                     comments={comments} />
+          </div>
+        )}
+        <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}
+                     sectionOpen={isSectionOpen('marketTodos')}
+                     hidden={hidden}
+                     setSectionOpen={() => {
+                       updatePageState({sectionOpen: 'marketTodos', tabIndex: 1});
+                     }} group={group} userId={myPresence.id}/>
       </div>
       </div>
     </Screen>

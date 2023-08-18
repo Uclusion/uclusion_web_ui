@@ -40,7 +40,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
-import { doRemoveEdit, doShowEdit, onDropTodo } from './userUtils'
+import { doRemoveEdit, doShowEdit } from './userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { getCollaboratorsForInvestible, onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
@@ -49,6 +49,7 @@ import { Schedule } from '@material-ui/icons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils';
 import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
+import DragImage from '../../../components/Dialogs/DragImage';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -88,7 +89,6 @@ function PlanningIdeas(props) {
     groupId,
     comments
   } = props;
-  const intl = useIntl();
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -151,13 +151,13 @@ function PlanningIdeas(props) {
 
   function onDropVoting (event) {
     const currentStageId = event.dataTransfer.getData('stageId');
-    if (!currentStageId) {
-      // This is a dragged TODO
-      const commentId = event.dataTransfer.getData('text');
-      onDropTodo(commentId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch,
-        presenceId);
+    const investibleId = event.dataTransfer.getData('text');
+    const fullStage = getFullStage(marketStagesState, marketId, currentStageId);
+    if (isBlockedStage(fullStage) || isRequiredInputStage(fullStage)) {
+      // Need to close comment(s) to move here
+      navigate(history,
+        `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${inDialogStageId}`);
     } else {
-      const investibleId = event.dataTransfer.getData('text');
       if (isAssignedInvestible(event, presenceId)) {
         stageChange(event, inDialogStageId);
       } else if (!operationRunning && !isAssignedInvestible(event, presenceId)) {
@@ -379,7 +379,6 @@ function Stage(props) {
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const [, dragHack] = useContext(LocalPlanningDragContext);
   const sortedInvestibles = investibles.sort(function(a, b) {
     const aMarketInfo = getMarketInfo(a, marketId);
     const bMarketInfo = getMarketInfo(b, marketId);
@@ -394,7 +393,6 @@ function Stage(props) {
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text', event.target.id);
     event.dataTransfer.setData('stageId', id);
-    dragHack({ id: event.target.id, stageId: id });
   }
   const investiblesMap = sortedInvestibles.map(inv => {
     const { investible } = inv;
@@ -429,10 +427,7 @@ function Stage(props) {
             mobileLayout={mobileLayout}
           />
         </div>
-        <div id={`dragImage${investible.id}`} style={{display: 'block', minWidth: '10rem', width: '10rem',
-          position: 'absolute', top: -10, right: -10, zIndex: 2}}>
-          <Typography color='initial' variant="subtitle2">{investible.name}</Typography>
-        </div>
+        <DragImage id={investible.id} name={investible.name} />
       </>
     )});
   if (!isReview) {

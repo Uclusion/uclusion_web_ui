@@ -111,7 +111,7 @@ function JobAssignStep (props) {
           onNext={assignJob}
           skipNextStep={!isCloseComments}
           onTerminate={() => finish(fullMoveStage, true)}
-          terminateLabel="JobWizardGotoJob"
+          terminateLabel="JobWizardBacktoJob"
         />
     </WizardStepContainer>
   )

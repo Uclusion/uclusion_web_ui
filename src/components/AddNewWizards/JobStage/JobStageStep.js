@@ -81,13 +81,8 @@ function JobStageStep (props) {
     (fullCurrentStage.move_on_comment && openAssistance && !fullMoveStage.close_comments_on_entrance);
   function move() {
     if (!isNotDoingStage(fullMoveStage)&&!isFurtherWorkStage(fullMoveStage)) {
-      if (isCloseComments) {
-        // No op go to CloseCommentsStep
-        setOperationRunning(false);
-        return Promise.resolve(true);
-      }
-      if (_.isEmpty(assigned)) {
-        //No op go to JobAssignStep
+      if (_.isEmpty(assigned)||isCloseComments) {
+        //No op go to next step
         setOperationRunning(false);
         return Promise.resolve(true);
       }

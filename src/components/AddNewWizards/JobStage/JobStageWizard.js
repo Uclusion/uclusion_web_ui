@@ -85,7 +85,8 @@ function JobStageWizard(props) {
         {(!stageId || isAssign) && (
           <JobAssignStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo} />
         )}
-        <CloseCommentsStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo} />
+        <CloseCommentsStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
+                           isAssign={isAssign} />
         <StageActionStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
                          currentReasonId={yourReason?.id} groupId={groupId} />
       </FormdataWizard>

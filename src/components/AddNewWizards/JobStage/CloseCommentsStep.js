@@ -24,7 +24,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function CloseCommentsStep(props) {
-  const { marketId, investibleId, formData, marketInfo, myFinish: finish } = props;
+  const { marketId, investibleId, formData, marketInfo, myFinish: finish, isAssign } = props;
   const classes = useContext(WizardStylesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -111,7 +111,7 @@ function CloseCommentsStep(props) {
         showTerminate
         onNext={move}
         onTerminate={() => finish(fullMoveStage, true)}
-        terminateLabel={isMustResolve ? 'JobWizardBacktoJob' : 'JobWizardGotoJob'}
+        terminateLabel={isMustResolve && !isAssign ? 'JobWizardBacktoJob' : 'JobWizardGotoJob'}
       />
     </WizardStepContainer>
   );

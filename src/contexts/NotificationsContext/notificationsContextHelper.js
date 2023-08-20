@@ -60,7 +60,10 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
   if (marketInvestibleId) {
     checked = true;
     const inv = getInvestible(investiblesState, decisionInvestibleId || investibleId) || {};
-    const marketInfo = getMarketInfo(inv, marketId);
+    let marketInfo = getMarketInfo(inv, marketId);
+    if (_.isEmpty(marketInfo)) {
+      marketInfo = getMarketInfo(inv, commentMarketId);
+    }
     if (_.isEmpty(marketInfo) || marketInfo.version < marketInvestibleVersion) {
       if (!_.isEmpty(marketInfo)) {
         console.warn(`Info ${marketInfo.version} less ${marketInvestibleVersion} for ${marketInvestibleId}`);

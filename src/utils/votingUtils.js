@@ -17,7 +17,7 @@ export function useInvestibleVoters(marketPresences, investibleId, marketId) {
 }
 
 export function calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,
-  marketPresences) {
+  marketPresences, includeExpired) {
   const market = getMarket(marketsState, marketId) || {};
   const { investment_expiration: investmentExpiration } = market;
   const inv = getInvestible(investiblesState, investibleId);
@@ -37,8 +37,8 @@ export function calculateInvestibleVoters(investibleId, marketId, marketsState, 
       const updatedAtDate = new Date(updatedAt);
       const lastEventTime = Math.max(lastStageChangeDate.getTime(), updatedAtDate.getTime());
       const isExpired = Date.now() - lastEventTime > investmentExpiration*86400000;
-      if (investibleId === invId && !deleted && !isExpired) {
-        acc.push({ name, id, email, quantity, commentId, updatedAt });
+      if (investibleId === invId && (includeExpired || (!deleted && !isExpired))) {
+        acc.push({ name, id, email, quantity, commentId, updatedAt, deleted, isExpired });
       }
     });
   });

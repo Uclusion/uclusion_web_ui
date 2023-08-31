@@ -409,7 +409,7 @@ const messages = defineMessages({
   unresolvedReadyToStartWarning: 'There are unresolved comments. Do you want to make Ready to Start anyway?',
   planningInvestibleMoveToNotDoingLabel: 'Not Doing',
   DecideStageMove: 'Move',
-  planningInvestibleAcceptedExplanation: 'Move to Started when you have approval and are beginning',
+  planningInvestibleAcceptedExplanation: 'Some approvals are expiring. Move this job to started or backlog.',
   planningInvestibleTasksInReviewExplanation: 'This job has open tasks and so cannot be moved to Verified',
   planningInvestibleNotDoingExplanation: 'Move to Not Doing will unassign and archive the job',
   planningInvestibleVerifiedExplanation: 'Move to Verified when you no longer anticipate further work on the job',

@@ -20,7 +20,7 @@ import { getMarketComments } from '../../../contexts/CommentsContext/commentsCon
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
 import { getMarketInfo } from '../../../utils/userFunctions';
-import { useInvestibleVoters } from '../../../utils/votingUtils';
+import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { Typography } from '@material-ui/core';
 import { PENDING_INDEX } from './InboxContext';
@@ -336,7 +336,9 @@ export function getOutboxMessages(props) {
       const messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
         <Assignment style={{ fontSize: 24, color: '#ffc61a', }}/>;
       const message = getMessageForInvestible(investible, market, label, messageIcon, intl)
-      const votersForInvestible = useInvestibleVoters(marketPresences, investibleId, market.id)
+      const votersForInvestibleRaw = calculateInvestibleVoters(investibleId, market.id, marketsState,
+        investiblesState, marketPresences, true);
+      const votersForInvestible = votersForInvestibleRaw.filter((voter) => !voter.isExpired && !voter.deleted);
       const marketInfo = getMarketInfo(investible, market.id)
       if (!notAccepted) {
         message.isWaitingStart = true;
@@ -360,7 +362,10 @@ export function getOutboxMessages(props) {
       if (!_.isEmpty(debtors)) {
         message.debtors = debtors;
       }
-      messages.push(message);
+      // don't push if isWaitingStart true and nothing is deleted or expiring
+      if (!message.isWaitingStart || _.size(votersForInvestibleRaw) > _.size(votersForInvestible)) {
+        messages.push(message);
+      }
     });
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, QUESTION_TYPE,

@@ -546,7 +546,7 @@ function Comment(props) {
   }
 
   function handleToggleInProgress() {
-    setOperationRunning(true);
+    setOperationRunning(`inProgressCheckbox${id}`);
     return updateComment({marketId, commentId: id, inProgress: !inProgress}).then((comment) => {
       setOperationRunning(false);
       addCommentToMarket(comment, commentsState, commentsDispatch);
@@ -789,9 +789,10 @@ function Comment(props) {
                     style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem'}}
                     control={
                       <Checkbox
-                        checked={inProgress}
+                        id={`inProgressCheckbox${id}`}
+                        checked={operationRunning === `inProgressCheckbox${id}` ? !inProgress : inProgress}
                         onClick={handleToggleInProgress}
-                        disabled={!myPresenceIsAssigned || removeActions}
+                        disabled={!myPresenceIsAssigned || removeActions || operationRunning !== false}
                       />
                     }
                     label={mobileLayout ? undefined : intl.formatMessage({ id: 'inProgress' })}

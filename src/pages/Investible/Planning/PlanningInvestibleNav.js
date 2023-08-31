@@ -94,7 +94,7 @@ export default function PlanningInvestibleNav(props) {
       investibleId,
       openForInvestment: isReadyToStart,
     };
-    setOperationRunning('readyToStart');
+    setOperationRunning(`readyToStartCheckbox${investibleId}`);
     return updateInvestible(updateInfo).then((fullInvestible) => {
       onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
         undefined, investiblesDispatch, diffDispatch, marketStagesState, [UNASSIGNED_TYPE],
@@ -147,9 +147,11 @@ export default function PlanningInvestibleNav(props) {
             id='readyToStartCheckbox'
             control={
               <Checkbox
+                id={`readyToStartCheckbox${investibleId}`}
                 value={openForInvestment}
                 disabled={operationRunning !== false}
-                checked={openForInvestment}
+                checked={operationRunning === `readyToStartCheckbox${investibleId}` ? !openForInvestment :
+                  openForInvestment}
                 onClick={() => setReadyToStart(!openForInvestment)}
               />
             }

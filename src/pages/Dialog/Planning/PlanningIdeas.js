@@ -12,7 +12,6 @@ import {
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions';
 import clsx from 'clsx';
-import { LocalPlanningDragContext, } from './PlanningDialog'
 import { countByType } from './InvestiblesByPerson'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import {
@@ -50,6 +49,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils';
 import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import DragImage from '../../../components/Dialogs/DragImage';
+import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -96,7 +96,6 @@ function PlanningIdeas(props) {
   const classes = usePlanningIdStyles();
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [beingDraggedHack] = useContext(LocalPlanningDragContext);
   const [invState, invDispatch] = useContext(InvestiblesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -191,7 +190,8 @@ function PlanningIdeas(props) {
   }
 
   function onDropAccepted(event) {
-    const { id, stageId } = beingDraggedHack;
+    const id = event.dataTransfer.getData('text');
+    const stageId = event.dataTransfer.getData('stageId');
     const link = getDropDestination(acceptedStageId, id, stageId);
     if (link) {
       navigate(history, link);
@@ -201,7 +201,8 @@ function PlanningIdeas(props) {
   }
 
   function onDropReview (event) {
-    const { id, stageId } = beingDraggedHack;
+    const id = event.dataTransfer.getData('text');
+    const stageId = event.dataTransfer.getData('stageId');
     const link = getDropDestination(inReviewStageId, id, stageId);
     if (link) {
       navigate(history, link);
@@ -552,10 +553,12 @@ function StageInvestible(props) {
   return (
     <>
       <Grid container>
-        <Grid item xs={8}>
-          <div>
-            <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
-          </div>
+        <Grid item xs={3}>
+          {!unaccepted && (
+            <div>
+              <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
+            </div>
+          )}
           {unaccepted && (
             <div className={planClasses.daysEstimation}>
               <FormattedMessage id='planningUnacceptedLabel' />
@@ -567,12 +570,17 @@ function StageInvestible(props) {
             <Typography variant="subtitle2" style={{whiteSpace: 'nowrap'}}>J-{ticketNumber}</Typography>
           </Grid>
         )}
+        {hasDaysEstimate && (
+          <Grid item xs={2} style={{ marginLeft: '0.5rem', whiteSpace: 'nowrap' }}>
+            <FormattedMessage id='estimatedCompletionToday' /> <UsefulRelativeTime value={new Date(daysEstimate)}/>
+          </Grid>
+        )}
         <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
           <EditOutlinedIcon style={{maxHeight: '1.25rem', marginLeft: '4.5rem'}} />
         </Grid>
         {chip}
       </Grid>
-      <div id={`showEdit1${hasDaysEstimate ? '' : id}`} style={{paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
+      <div id={`planningIdea${id}`} style={{paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
         <StageLink
           href={to}
           id={id}

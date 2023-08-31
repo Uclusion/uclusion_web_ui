@@ -2,7 +2,6 @@ import { useIntl } from 'react-intl';
 import EventIcon from '@material-ui/icons/Event';
 import { Typography, Popover} from '@material-ui/core';
 import { useState } from 'react';
-import { isInPast } from '../../utils/timerUtils';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import _ from 'lodash';
 import * as React from 'react';
@@ -32,13 +31,6 @@ export function DaysEstimate(props) {
   const dueDate = value ? new Date(value) : undefined;
 
   function getDueText () {
-    if (isInPast(dueDate)) {
-      return (
-        <Typography className={myClassName}>
-          {intl.formatMessage({ id: 'estimatedCompletionToday' })} <UsefulRelativeTime value={dueDate}/>
-        </Typography>
-      );
-    }
     if (_.isEmpty(value)) {
       return (
         <Typography className={myClassName}>
@@ -48,7 +40,7 @@ export function DaysEstimate(props) {
     }
     return (
       <Typography className={myClassName}>
-        {intl.formatMessage({ id: 'planningEstimatedCompletion' })} {intl.formatDate(value)}
+        {intl.formatMessage({ id: 'estimatedCompletionToday' })} <UsefulRelativeTime value={dueDate}/>
       </Typography>
     );
   }

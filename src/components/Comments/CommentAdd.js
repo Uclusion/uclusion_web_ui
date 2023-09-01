@@ -53,7 +53,7 @@ import AddWizardStepButtons from '../AddNewWizards/WizardStepButtons'
 import { nameFromDescription } from '../../utils/stringFunctions';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import { Clear, Send } from '@material-ui/icons';
-import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { TOKEN_TYPE_MARKET } from '../../api/tokenConstants';
@@ -511,15 +511,18 @@ function CommentAdd(props) {
                 <AddWizardStepButtons
                   {...wizardProps}
                   validForm={hasValue}
-                  nextLabel={`${nameKey}${type}`}
+                  nextLabel="voteSuggestion"
                   onNext={() => handleSave( true, undefined, true)}
                   onNextDoAdvance={false}
                   showOtherNext={true}
-                  onOtherNext={() => wizardProps.updateFormData({marketId, groupId})}
-                  otherNextLabel="configureVoting"
-                  onTerminate={() => navigate(history, formMarketLink(marketId, groupId))}
-                  showTerminate={true}
-                  terminateLabel="OnboardingWizardGoBack"/>
+                  onOtherNext={() => handleSave( true, undefined, false)}
+                  otherNextLabel="noVoteSuggestion"
+                  onTerminate={() => {
+                    wizardProps.updateFormData({marketId, groupId});
+                    wizardProps.nextStep();
+                  }}
+                  showTerminate={hasValue}
+                  terminateLabel="configureVoting"/>
               )}
               {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
                 investibleId && (
@@ -528,6 +531,7 @@ function CommentAdd(props) {
                   validForm={hasValue}
                   nextLabel={createInlineInitiative ? 'voteSuggestion' : 'noVoteSuggestion'}
                   onNext={() => handleSave( true, undefined, createInlineInitiative)}
+                  onNextDoAdvance={false}
                   showOtherNext={true}
                   otherNextLabel={createInlineInitiative ? 'noVoteSuggestion' : 'voteSuggestion'}
                   onOtherNext={() => handleSave( true, undefined, !createInlineInitiative)}
@@ -536,7 +540,7 @@ function CommentAdd(props) {
                     updateCommentAddState({editorName});
                     wizardProps.nextStep();
                   }}
-                  showTerminate={true}
+                  showTerminate={hasValue}
                   terminateLabel="configureVoting"/>
               )}
               {wizardProps.isAddWizard && type === QUESTION_TYPE && ourMarket.market_type === PLANNING_TYPE && (
@@ -548,8 +552,8 @@ function CommentAdd(props) {
                   showOtherNext={true}
                   otherNextLabel="createNewQUESTION"
                   onOtherNext={() => handleSave( true, undefined,false)}
-                  showTerminate={!investibleId}
-                  terminateLabel="OnboardingWizardGoBack"/>
+                  showTerminate={false}
+                />
               )}
             </div>
           )}

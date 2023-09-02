@@ -1029,7 +1029,7 @@ function Reply(props) {
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const marketId = useMarketId()
+  const marketId = useMarketId();
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || unknownPresence;
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
@@ -1099,6 +1099,10 @@ function Reply(props) {
     }
     return !isHighlighted ? classes.container : (isLinkedTo || (myMessage.level === 'RED')
       ? classes.containerRed : classes.containerYellow);
+  }
+
+  if (!marketId) {
+    return React.Fragment;
   }
 
   return (

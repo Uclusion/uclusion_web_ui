@@ -4,12 +4,14 @@ import MarketTokenFetcher from '../authorization/MarketTokenFetcher'
 import AmplifyIdentityTokenRefresher from '../authorization/AmplifyIdentityTokenRefresher'
 import { AMPLIFY_IDENTITY_SOURCE, SSO_CLIENT } from './singletons';
 import { TOKEN_TYPE_MARKET, TOKEN_TYPE_MARKET_INVITE } from './tokenConstants';
+import { toastErrorAndThrow } from '../utils/userMessage';
 
 
 export const getMarketClient = (marketId) => {
     const tokenManager = new MarketTokenFetcher(AMPLIFY_IDENTITY_SOURCE, SSO_CLIENT, TOKEN_TYPE_MARKET, marketId);
     return tokenManager.getToken() // force login
-      .then(() => client.constructClient({ ...config.api_configuration, tokenManager }));
+      .then(() => client.constructClient({ ...config.api_configuration, tokenManager }))
+      .catch((error) => toastErrorAndThrow(error, 'errorMarketLoginFailed'));
 };
 
 export const getMarketLogin = (marketId) => {

@@ -1007,6 +1007,7 @@ const messages = defineMessages({
   errorUnbanUserFailed: 'There was a problem readmitting the collaborator. Please try again.',
   errorUpdatePaymentFailed: 'There was a problem updating your payment card. Please try again.',
   errorHomeUserFetchFailed: 'There was a problem fetching your user. Please try again.',
+  errorMarketLoginFailed: 'There was a problem authenticating the operation. Please try again.',
   errorPreferenceUpdateFailed: 'There was a problem updating your preferences. Please try again.',
   errorUserLoadFailed: 'We could not load your user. Please login again.',
   warningAlreadyInMarket: 'You are already a part of this market.',

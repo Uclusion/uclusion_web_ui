@@ -571,7 +571,7 @@ function StageInvestible(props) {
           </Grid>
         )}
         {hasDaysEstimate && (
-          <Grid item xs={2} style={{ marginLeft: '1rem', whiteSpace: 'nowrap' }}>
+          <Grid item xs={2} style={{ marginLeft: '1rem', marginRight: '1rem', whiteSpace: 'nowrap' }}>
             <FormattedMessage id='estimatedCompletionToday' /> <UsefulRelativeTime value={new Date(daysEstimate)}/>
           </Grid>
         )}

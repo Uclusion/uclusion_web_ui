@@ -1152,7 +1152,7 @@ function Reply(props) {
                 updateEditState={updateEditState}
                 editStateReset={editStateReset}
                 comment={comment}
-                messages={myMessage ? [myMessage] : []}
+                messages={!_.isEmpty(myMessage) ? [myMessage] : []}
               />
             )}
             {!beingEdited && !_.isEmpty(comment) && (

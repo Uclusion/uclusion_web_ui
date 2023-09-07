@@ -252,7 +252,7 @@ export const usePlanningInvestibleStyles = makeStyles(
         marginBottom: '1rem'
       },
       flex: '1 0 auto',
-      backgroundColor: '#4ce6a5',
+      backgroundColor: '#8ae6bf',
       height: '100%',
       zIndex: 9,
       position: 'fixed',

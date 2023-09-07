@@ -80,7 +80,7 @@ function JobWizard(props) {
         {fromCommentId && isAssigned === undefined && (
           <FindJobStep marketId={marketId} groupId={groupId} marketComments={comments} fromCommentIds={fromCommentIds}/>
         )}
-        {(!fromCommentId || isNonBugMove || isAssigned === false) && (
+        {(!fromCommentId || isNonBugMove || isAssigned === 'false') && (
           <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} marketComments={comments}
                               jobType={jobType} fromCommentIds={fromCommentIds} />
         )}

@@ -10,7 +10,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import _ from 'lodash';
 import {
-  isAcceptedStage,
+  isAcceptedStage, isFurtherWorkStage,
   isInReviewStage,
   isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -52,6 +52,9 @@ function JobStageWizard(props) {
         if (!yourVote || yourVote.deleted) {
           return true;
         }
+      }
+      if (isFurtherWorkStage(fullMoveStage)) {
+        return true;
       }
     }
     return false

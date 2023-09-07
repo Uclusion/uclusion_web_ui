@@ -1172,6 +1172,8 @@ const messages = defineMessages({
   OnboardingWizardContinue: 'Next',
   OnboardingWizardFinish: 'Finish',
   WorkspaceWizardCopyLink: 'Copy invite link',
+  YesReady: 'Yes ready to start',
+  NoReady: 'No not ready',
   OnboardingWizardSkip: 'Skip this step',
   OnboardingWizardAdvancedOptionsStepLabel: 'Job short code',
   OnboardingWizardCurrentStoryNamePlaceHolder: 'Your current job\'s name',

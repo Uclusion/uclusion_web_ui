@@ -17,11 +17,12 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { commonQuick } from '../Approval/ApprovalWizard';
 import JobDescription from '../../InboxWizards/JobDescription';
-import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage, isFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import StartReviewStep from './StartReviewStep';
+import JobReadyStep from './JobReadyStep';
 
 function StageActionStep(props) {
   const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId } = props;
@@ -43,6 +44,12 @@ function StageActionStep(props) {
   if (fullMoveStage.close_comments_on_entrance) {
     return (
       <StartReviewStep inv={inv} currentStageId={stage} {...props} />
+    );
+  }
+
+  if (isFurtherWorkStage(fullMoveStage)) {
+    return (
+      <JobReadyStep inv={inv} {...props} />
     );
   }
 

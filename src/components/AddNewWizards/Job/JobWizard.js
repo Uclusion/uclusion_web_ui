@@ -18,7 +18,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import FindJobStep from './FindJobStep';
 
 function JobWizard(props) {
-  const { marketId, groupId, jobType } = props;
+  const { marketId, groupId, jobType, isAssigned } = props;
   const [resolvedId, setResolvedId] = useState(undefined);
   const location = useLocation();
   const history = useHistory();
@@ -73,19 +73,20 @@ function JobWizard(props) {
           <ResolveCommentsStep marketId={marketId} commentId={requiresInputId} marketComments={comments}
                                setResolvedId={setResolvedId} />
         )}
-        {fromCommentId && (
+        {fromCommentId && isAssigned === undefined && (
           <DecideWhereStep fromCommentIds={fromCommentIds} marketId={marketId} groupId={groupId}
                            marketComments={comments} isNonBugMove={isNonBugMove} />
         )}
-        {fromCommentId && (
+        {fromCommentId && isAssigned === undefined && (
           <FindJobStep marketId={marketId} groupId={groupId} marketComments={comments} fromCommentIds={fromCommentIds}/>
         )}
-        {(!fromCommentId || isNonBugMove) && (
+        {(!fromCommentId || isNonBugMove || isAssigned === false) && (
           <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} marketComments={comments}
                               jobType={jobType} fromCommentIds={fromCommentIds} />
         )}
-        <JobAssignStep onFinish={onFinish} marketId={marketId} />
-        <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId}/>
+        <JobAssignStep onFinish={onFinish} marketId={marketId} groupId={groupId} marketComments={comments}
+                       fromCommentIds={fromCommentIds} />
+        <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

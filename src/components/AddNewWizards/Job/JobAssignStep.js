@@ -8,21 +8,32 @@ import WizardStepButtons from '../WizardStepButtons'
 import AssignmentList from '../../../pages/Dialog/Planning/AssignmentList'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { updateInvestible } from '../../../api/investibles'
-import { navigate } from '../../../utils/marketIdPathFunctions'
+import { addPlanningInvestible, updateInvestible } from '../../../api/investibles';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
+import { moveCommentsFromIds } from './DecideWhereStep';
+import { useIntl } from 'react-intl';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function JobAssignStep (props) {
-  const { marketId, updateFormData, formData, onFinish, assigneeId } = props;
+  const { marketId, updateFormData, formData, onFinish, assigneeId, groupId, marketComments, fromCommentIds } = props;
   const history = useHistory();
   const value = formData.wasSet ? (formData.assigned || []) : (assigneeId ? [assigneeId] : []);
   const validForm = !_.isEmpty(value);
+  const intl = useIntl();
   const [presencesState] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const classes = useContext(WizardStylesContext)
+  const [, commentsDispatch] = useContext(CommentsContext);
+  const [messagesState] = useContext(NotificationsContext);
+  const classes = useContext(WizardStylesContext);
+  const roots = (fromCommentIds || []).map((fromCommentId) =>
+    marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
+  const comments = getCommentThreads(roots, marketComments);
 
   const { investibleId } = formData;
 
@@ -31,6 +42,30 @@ function JobAssignStep (props) {
       assigned: newAssignments,
       wasSet: true
     });
+  }
+
+  function createJob() {
+    const name = intl.formatMessage({ id: 'jobFromBugs' });
+    // Coming from existing comments usually ready to start - bugs are and voted questions or suggestion should be
+    const addInfo = {
+      name,
+      groupId,
+      marketId,
+      assignments: value
+    }
+    return addPlanningInvestible(addInfo)
+      .then((inv) => {
+        refreshInvestibles(investiblesDispatch, () => {}, [inv]);
+        const { id: investibleId } = inv.investible;
+        let link = formInvestibleLink(marketId, investibleId);
+        // update the form data with the saved investible
+        updateFormData({
+          investibleId,
+          link,
+        });
+        return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
+          commentsDispatch);
+      })
   }
 
   function assignJob() {
@@ -71,7 +106,7 @@ function JobAssignStep (props) {
           validForm={validForm}
           showNext
           showTerminate
-          onNext={assignJob}
+          onNext={investibleId ? assignJob : createJob}
           onTerminate={() => navigate(history, formData.link)}
           terminateLabel="JobWizardGotoJob"
           nextLabel="JobWizardApproveJob"

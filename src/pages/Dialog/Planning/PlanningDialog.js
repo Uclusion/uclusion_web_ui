@@ -41,7 +41,7 @@ import {
   formArchiveCommentLink,
   formGroupArchiveLink,
   formGroupEditLink,
-  formMarketAddCommentLink,
+  formMarketAddCommentLink, formMarketAddInvestibleLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
 import { isInStages } from './userUtils';
@@ -220,6 +220,22 @@ function PlanningDialog(props) {
     window.scrollTo(0, 0);
   }
 
+  function onDropBug(id, isAssigned) {
+    let bugBaseUrl = `${formMarketAddInvestibleLink(marketId, groupId)}&fromCommentId=${id}&isAssigned=${isAssigned}`;
+    if (!isAssigned) {
+      bugBaseUrl += "&jobType=0";
+    }
+    navigate(history, bugBaseUrl);
+  }
+
+  function onDropAssigned(event) {
+    const id = event.dataTransfer.getData('text');
+    const notificationType = event.dataTransfer.getData('notificationType');
+    if (notificationType) {
+      onDropBug(id, true);
+    }
+  }
+
   return (
     <Screen
       title={groupName}
@@ -240,7 +256,8 @@ function PlanningDialog(props) {
         style={{ paddingBottom: '0.25rem', zIndex: 8, position: 'fixed',
           paddingTop: mobileLayout ? '0.5rem' : '1.25rem',
           marginTop: '-30px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
-        <GmailTabItem icon={<AssignmentInd />}
+        <GmailTabItem icon={<AssignmentInd />} onDrop={onDropAssigned}
+                      onDragOver={(event)=>event.preventDefault()}
                       label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
                       tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
         <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'planningDialogBacklog'})}

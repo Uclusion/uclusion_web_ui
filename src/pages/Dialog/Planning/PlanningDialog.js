@@ -236,6 +236,14 @@ function PlanningDialog(props) {
     }
   }
 
+  function onDropBacklog(event) {
+    const id = event.dataTransfer.getData('text');
+    const notificationType = event.dataTransfer.getData('notificationType');
+    if (notificationType) {
+      onDropBug(id, false);
+    }
+  }
+
   return (
     <Screen
       title={groupName}
@@ -260,7 +268,9 @@ function PlanningDialog(props) {
                       onDragOver={(event)=>event.preventDefault()}
                       label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
                       tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
-        <GmailTabItem icon={<AssignmentIcon />} label={intl.formatMessage({id: 'planningDialogBacklog'})}
+        <GmailTabItem icon={<AssignmentIcon />} onDrop={onDropBacklog}
+                      onDragOver={(event)=>event.preventDefault()}
+                      label={intl.formatMessage({id: 'planningDialogBacklog'})}
                       tag={_.isEmpty(search) || backlogSearchResults === 0 ? undefined : `${backlogSearchResults}`} />
         <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
                       tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />

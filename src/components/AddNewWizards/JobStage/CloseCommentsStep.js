@@ -111,7 +111,7 @@ function CloseCommentsStep(props) {
         showTerminate
         onNext={move}
         onTerminate={() => finish(fullMoveStage, true)}
-        terminateLabel={isMustResolve && !isAssign ? 'JobWizardBacktoJob' : 'JobWizardGotoJob'}
+        terminateLabel={isMustResolve && _.isEmpty(isAssign) ? 'JobWizardBacktoJob' : 'JobWizardGotoJob'}
       />
     </WizardStepContainer>
   );

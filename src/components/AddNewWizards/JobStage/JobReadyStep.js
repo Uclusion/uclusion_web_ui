@@ -12,6 +12,7 @@ import { useHistory } from 'react-router';
 import { updateInvestible } from '../../../api/investibles';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import JobDescription from '../../InboxWizards/JobDescription';
 
 function JobReadyStep(props) {
   const { updateFormData, formData, inv, marketId } = props;
@@ -52,6 +53,7 @@ function JobReadyStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         Choosing ready will send a one time notification to the group.
       </Typography>
+      <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
       <FormControl component="fieldset">
         <RadioGroup
           aria-labelledby="comment-type-choice"

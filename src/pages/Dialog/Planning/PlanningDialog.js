@@ -14,10 +14,11 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles';
-import { getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible, getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import MarketTodos from './MarketTodos';
 import {
+  getFullStage,
   isAcceptedStage,
   isBlockedStage,
   isFurtherWorkStage,
@@ -41,21 +42,25 @@ import {
   formArchiveCommentLink,
   formGroupArchiveLink,
   formGroupEditLink,
-  formMarketAddCommentLink, formMarketAddInvestibleLink,
+  formMarketAddCommentLink, formMarketAddInvestibleLink, formWizardLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
 import { isInStages } from './userUtils';
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
-import { DISCUSSION_WIZARD_TYPE } from '../../../constants/markets';
+import { DISCUSSION_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import DialogOutset from './DialogOutset';
 import SettingsIcon from '@material-ui/icons/Settings';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
-
-export const LocalPlanningDragContext = React.createContext([]);
+import { stageChangeInvestible } from '../../../api/investibles';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -92,6 +97,11 @@ function PlanningDialog(props) {
   const wizardClasses = wizardStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
+  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [groupState] = useContext(MarketGroupsContext);
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
@@ -228,11 +238,39 @@ function PlanningDialog(props) {
     navigate(history, bugBaseUrl);
   }
 
+  function onDropJob(id, isAssigned) {
+    if (isAssigned) {
+      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&isAssign=${isAssigned}`)
+    } else {
+      const inv = getInvestible(investibleState, id);
+      const marketInfo = getMarketInfo(inv, marketId) || {};
+      const moveInfo = {
+        marketId,
+        investibleId: id,
+        stageInfo: {
+          current_stage_id: marketInfo.stage,
+          stage_id: furtherWorkStage.id,
+        },
+      };
+      setOperationRunning(true);
+      return stageChangeInvestible(moveInfo)
+        .then((newInv) => {
+          onInvestibleStageChange(furtherWorkStage.id, newInv, id, marketId, commentsState,
+            commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+            getFullStage(marketStagesState, marketId, marketInfo.stage), marketPresencesDispatch);
+          setOperationRunning(false);
+          navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}&isAssign=${isAssigned}`);
+        });
+    }
+  }
+
   function onDropAssigned(event) {
     const id = event.dataTransfer.getData('text');
     const notificationType = event.dataTransfer.getData('notificationType');
     if (notificationType) {
       onDropBug(id, true);
+    } else {
+      onDropJob(id, true);
     }
   }
 
@@ -241,6 +279,8 @@ function PlanningDialog(props) {
     const notificationType = event.dataTransfer.getData('notificationType');
     if (notificationType) {
       onDropBug(id, false);
+    } else {
+      onDropJob(id, false);
     }
   }
 

@@ -34,6 +34,7 @@ function BugDecisionStep(props) {
         {...props}
         nextLabel="BugWizardMoveToBug"
         showOtherNext
+        isFinal={false}
         otherNextLabel="BugWizardMoveToJob"
         onOtherNext={() => navigate(history,
           `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}`)}

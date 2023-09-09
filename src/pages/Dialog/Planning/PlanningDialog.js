@@ -244,23 +244,25 @@ function PlanningDialog(props) {
     } else {
       const inv = getInvestible(investibleState, id);
       const marketInfo = getMarketInfo(inv, marketId) || {};
-      const moveInfo = {
-        marketId,
-        investibleId: id,
-        stageInfo: {
-          current_stage_id: marketInfo.stage,
-          stage_id: furtherWorkStage.id,
-        },
-      };
-      setOperationRunning(true);
-      return stageChangeInvestible(moveInfo)
-        .then((newInv) => {
-          onInvestibleStageChange(furtherWorkStage.id, newInv, id, marketId, commentsState,
-            commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
-            getFullStage(marketStagesState, marketId, marketInfo.stage), marketPresencesDispatch);
-          setOperationRunning(false);
-          navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}&isAssign=${isAssigned}`);
-        });
+      if (marketInfo.stage !== furtherWorkStage.id) {
+        const moveInfo = {
+          marketId,
+          investibleId: id,
+          stageInfo: {
+            current_stage_id: marketInfo.stage,
+            stage_id: furtherWorkStage.id,
+          },
+        };
+        setOperationRunning(true);
+        return stageChangeInvestible(moveInfo)
+          .then((newInv) => {
+            onInvestibleStageChange(furtherWorkStage.id, newInv, id, marketId, commentsState,
+              commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+              getFullStage(marketStagesState, marketId, marketInfo.stage), marketPresencesDispatch);
+            setOperationRunning(false);
+            navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}&isAssign=${isAssigned}`);
+          });
+      }
     }
   }
 

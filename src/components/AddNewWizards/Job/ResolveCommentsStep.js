@@ -74,6 +74,7 @@ function DecideResolveStep(props) {
         {...props}
         nextLabel="commentResolveLabel"
         onNext={resolve}
+        isFinal={false}
         showSkip
       />
     </WizardStepContainer>

@@ -104,6 +104,7 @@ function DecideWhereStep (props) {
         {...props}
         nextLabel="JobWizardNewJob"
         onNext={isNonBugMove ? undefined : createJob}
+        isFinal={false}
         onNextSkipStep
         showOtherNext
         otherNextLabel="JobWizardExistingJob"

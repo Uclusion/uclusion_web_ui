@@ -70,6 +70,7 @@ function ChooseCommentTypeStep (props) {
         {...props}
         validForm={!_.isEmpty(useType)}
         nextLabel="WizardContinue"
+        isFinal={false}
         spinOnClick={false}
         showTerminate={false}
       />

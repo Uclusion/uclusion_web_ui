@@ -41,7 +41,7 @@ function FromOtherWorkspacesStep (props) {
         </Typography>
         <IdentityList participants={participants} setChecked={setChecked} checked={checked} />
         <div className={wizardClasses.borderBottom}/>
-        <WizardStepButtons {...props} showSkip={true} onNext={onNext} validForm={!_.isEmpty(checked)}/>
+        <WizardStepButtons {...props} showSkip={true} onNext={onNext} isFinal={false} validForm={!_.isEmpty(checked)}/>
     </WizardStepContainer>
   );
 }

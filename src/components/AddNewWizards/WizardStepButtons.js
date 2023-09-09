@@ -34,7 +34,8 @@ function WizardStepButtons (props) {
     onIncrement,
     onNextDoAdvance,
     terminateSpinOnClick,
-    onNextSkipStep
+    onNextSkipStep,
+    isFinal
   } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -77,11 +78,11 @@ function WizardStepButtons (props) {
     return nextState(onSkip);
   }
 
-
+  const nextClass = isFinal || !validForm ? classes.actionPrimary : classes.actionNext;
   return (
     <div className={classes.buttonContainer}>
       {showNext && (
-        <SpinningButton id="OnboardingWizardNext" className={classes.actionPrimary} disabled={!validForm}
+        <SpinningButton id="OnboardingWizardNext" className={nextClass} disabled={!validForm}
                         onClick={myNext} doSpin={spinOnClick}>
           {intl.formatMessage({ id: nextLabel })}
         </SpinningButton>
@@ -93,7 +94,7 @@ function WizardStepButtons (props) {
 
       <div className={classes.actionContainer}>
         {showOtherNext && (
-          <SpinningButton id="OnboardingWizardOtherNext" className={classes.actionPrimary} disabled={!validForm}
+          <SpinningButton id="OnboardingWizardOtherNext" className={nextClass} disabled={!validForm}
                           doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
           </SpinningButton>
@@ -147,7 +148,8 @@ WizardStepButtons.propTypes = {
   nextLabel: PropTypes.string,
   onNextDoAdvance: PropTypes.bool,
   terminateSpinOnClick: PropTypes.bool,
-  onNextSkipStep: PropTypes.bool
+  onNextSkipStep: PropTypes.bool,
+  isFinal: PropTypes.bool
 };
 WizardStepButtons.defaultProps = {
   onNext: () => {},
@@ -171,7 +173,8 @@ WizardStepButtons.defaultProps = {
   onNextDoAdvance: true,
   nextLabel: 'OnboardingWizardContinue',
   terminateSpinOnClick: false,
-  onNextSkipStep: false
+  onNextSkipStep: false,
+  isFinal: true
 };
 
 export default WizardStepButtons;

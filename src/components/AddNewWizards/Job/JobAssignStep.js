@@ -107,9 +107,10 @@ function JobAssignStep (props) {
           showNext
           showTerminate
           onNext={investibleId ? assignJob : createJob}
+          isFinal={false}
           onTerminate={() => navigate(history, formData.link)}
           terminateLabel="JobWizardGotoJob"
-          nextLabel="JobWizardApproveJob"
+          nextLabel="JobWizardAssignJob"
         />
     </WizardStepContainer>
   )

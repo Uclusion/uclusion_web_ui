@@ -1190,7 +1190,7 @@ const messages = defineMessages({
   JobWizardGotoJob: 'Skip',
   JobWizardBacktoJob: 'Back to job',
   JobWizardBack: 'Back',
-  JobWizardAssignJob: 'Assign job to someone',
+  JobWizardAssignJob: 'Assign job',
   JobWizardApproveJob: 'Approve job',
   DecisionWizardApprove: 'Approve option',
   JobWizardNewJob: 'New job',

@@ -97,6 +97,7 @@ function GroupNameStep (props) {
         {...props}
         validForm={validForm}
         onNext={onNext}
+        isFinal={false}
         nextLabel="GroupWizardAddMembers"
         showTerminate={validForm}
         onTerminate={onTerminate}

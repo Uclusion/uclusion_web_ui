@@ -550,8 +550,10 @@ function CommentAdd(props) {
                   nextLabel={`${nameKey}${type}`}
                   onNext={() => handleSave( false, undefined,false)}
                   showOtherNext={true}
+                  isFinal={false}
                   otherNextLabel="createNewQUESTION"
                   onOtherNext={() => handleSave( true, undefined,false)}
+                  isOtherFinal
                   showTerminate={false}
                 />
               )}

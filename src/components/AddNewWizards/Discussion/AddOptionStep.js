@@ -90,6 +90,7 @@ function AddOptionStep(props) {
         {...props}
         validForm={hasValue}
         nextLabel="JobCommentConfigure"
+        isFinal={false}
         onNext={createOption}
         spinOnClick={true}
         otherSpinOnClick={true}

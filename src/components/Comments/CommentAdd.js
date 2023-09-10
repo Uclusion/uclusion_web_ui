@@ -532,6 +532,7 @@ function CommentAdd(props) {
                   nextLabel={createInlineInitiative ? 'voteSuggestion' : 'noVoteSuggestion'}
                   onNext={() => handleSave( true, undefined, createInlineInitiative)}
                   onNextDoAdvance={false}
+                  isFinal={false}
                   showOtherNext={true}
                   otherNextLabel={createInlineInitiative ? 'noVoteSuggestion' : 'voteSuggestion'}
                   onOtherNext={() => handleSave( true, undefined, !createInlineInitiative)}

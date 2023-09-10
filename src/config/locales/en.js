@@ -520,7 +520,7 @@ const messages = defineMessages({
   commentCloseThreadLabel: 'Hide Thread',
   lastUpdatedBy: ' by',
   comments: 'Comments',
-  JobCommentConfigure: 'Create and configure',
+  JobCommentConfigure: 'Create option',
   JobCommentCreateAnotherOption: 'Create and add another',
   JobOptionTerminate: 'Go to question',
   defer: 'Snooze',

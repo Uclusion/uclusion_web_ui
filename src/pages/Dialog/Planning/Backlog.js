@@ -100,8 +100,8 @@ function Backlog(props) {
     <>
     <div style={{paddingTop: '1rem'}} />
       <SpinningButton id="addBacklogJob"
-                      className={wizardClasses.actionPrimary}
-                      icon={AddIcon}
+                      className={wizardClasses.actionNext}
+                      icon={AddIcon} iconColor="black"
                       style={{marginBottom: isEmptyBacklog ? undefined : '1rem'}}
                       variant="text" doSpin={false}
                       onClick={() => {

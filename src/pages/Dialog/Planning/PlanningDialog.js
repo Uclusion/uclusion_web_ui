@@ -332,8 +332,8 @@ function PlanningDialog(props) {
                 <>
                   <div style={{display: 'flex', marginBottom: '1.5rem'}}>
                     <SpinningButton id="newMarketQuestion"
-                                    icon={AddIcon}
-                                    className={wizardClasses.actionPrimary}
+                                    icon={AddIcon} iconColor="black"
+                                    className={wizardClasses.actionNext}
                                     style={{display: "flex", marginTop: '1rem',
                                       marginRight: mobileLayout ? undefined : '2rem'}}
                                     variant="text" doSpin={false}
@@ -343,8 +343,8 @@ function PlanningDialog(props) {
                       <FormattedMessage id='createQuestion'/>
                     </SpinningButton>
                     <SpinningButton id="createSuggestion"
-                                    icon={AddIcon}
-                                    className={wizardClasses.actionPrimary}
+                                    icon={AddIcon} iconColor="black"
+                                    className={wizardClasses.actionNext}
                                     style={{display: "flex", marginTop: '1rem'}}
                                     variant="text" doSpin={false}
                                     onClick={() => navigate(history,

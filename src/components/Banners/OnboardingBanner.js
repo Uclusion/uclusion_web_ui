@@ -42,7 +42,7 @@ function OnboardingBanner(props) {
           onClick={() => {
             navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
           }}
-          className={wizardClasses.actionPrimary}>Create your workspace</Button>
+          className={wizardClasses.actionNext}>Create your workspace</Button>
         </div>
     </div>
   );

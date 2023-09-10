@@ -677,8 +677,8 @@ function PlanningInvestible(props) {
                 <FormattedMessage id="decisionInvestibleOthersVoting" />
               </h2>
               {(displayVotingInput || hasUsableVotingInput) && investibleId && (
-                <SpinningButton id="newApproval" className={wizardClasses.actionPrimary}
-                                icon={AddIcon}
+                <SpinningButton id="newApproval" className={wizardClasses.actionNext}
+                                icon={AddIcon} iconColor="black"
                                 style={{display: "flex", marginBottom: '1.5rem'}}
                                 variant="text" doSpin={false}
                                 onClick={() => navigate(history,
@@ -704,8 +704,8 @@ function PlanningInvestible(props) {
                 <FormattedMessage id="reportsSectionLabel" />
               </h2>
               {showCommentAdd && isAssigned && (
-                <SpinningButton id="newReport" className={wizardClasses.actionPrimary}
-                                icon={AddIcon}
+                <SpinningButton id="newReport" className={wizardClasses.actionNext}
+                                icon={AddIcon} iconColor="black"
                                 variant="text" doSpin={false}
                                 style={{display: "flex", marginTop: '0.75rem', marginBottom: '0.75rem'}}
                                 onClick={() => navigate(history,
@@ -737,8 +737,8 @@ function PlanningInvestible(props) {
                 <div style={{display: 'flex'}}>
                   {allowedCommentTypes.map((allowedCommentType) => {
                     return (
-                      <SpinningButton id="newComment" className={wizardClasses.actionPrimary}
-                                      icon={AddIcon}
+                      <SpinningButton id="newComment" className={wizardClasses.actionNext}
+                                      icon={AddIcon} iconColor="black"
                                       style={{display: "flex", marginTop: '0.75rem',
                                         fontSize: mobileLayout ? '0.77rem' : undefined,
                                         marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'}}

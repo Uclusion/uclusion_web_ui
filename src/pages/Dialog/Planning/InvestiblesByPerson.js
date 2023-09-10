@@ -138,8 +138,8 @@ function InvestiblesByPerson(props) {
   return (
     <>
       <SpinningButton id="addJob"
-                      className={wizardClasses.actionPrimary}
-                      icon={AddIcon}
+                      className={wizardClasses.actionNext}
+                      icon={AddIcon} iconColor="black"
                       variant="text" doSpin={false}
                       style={{marginTop: '1rem', marginBottom: '1rem'}}
                       onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>

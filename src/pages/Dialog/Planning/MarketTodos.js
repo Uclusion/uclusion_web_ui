@@ -359,16 +359,16 @@ function MarketTodos(props) {
       <DismissableText textId="todosHelp" display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
                        text={
         <div>
-          Use "Create New" below to create a <Link href="https://documentation.uclusion.com/groups/bugs" target="_blank">bug</Link> that
+          Use "Add bug" below to create a <Link href="https://documentation.uclusion.com/groups/bugs" target="_blank">bug</Link> that
           sends notifications based on severity.
         </div>
       }/>
       {!isInArchives && (
         <SpinningButton id="newMarketTodo"
-                        className={wizardClasses.actionPrimary}
+                        className={wizardClasses.actionNext}
                         style={{marginBottom: '1rem'}}
                         variant="text" doSpin={false}
-                        icon={AddIcon}
+                        icon={AddIcon} iconColor="black"
                         onClick={() => navigate(history,
                           formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, tabIndex))}>
           <FormattedMessage id='createBug'/>

@@ -98,13 +98,15 @@ function OptionListItem(props) {
   const showExpansion = isHovered && !isNotSynced;
 
   const indexOfTitle = description.indexOf(title);
-  let useDescription = description;
+  let useDescription;
   if (indexOfTitle >= 0) {
     if (description.length > title.length) {
       useDescription = description.substring(title.length);
     } else {
       useDescription = '';
     }
+  } else {
+    useDescription = description?.startsWith('...') ? description.substring(3) : description;
   }
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);

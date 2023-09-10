@@ -100,6 +100,8 @@ function BacklogListItem(props) {
     event.dataTransfer.setData('text', event.target.id);
   }
 
+  const useDescription = description?.startsWith('...') ? description.substring(3) : description;
+
   return (
     <>
       <Item key={`backlogListItem${id}`} id={id} style={{minWidth: '80vw'}} onDragStart={onDragStart} draggable>
@@ -116,7 +118,7 @@ function BacklogListItem(props) {
               {mobileLayout || _.isEmpty(people) ? React.Fragment :
                 <GravatarGroup users={people} className={classes.gravatarStyle}/> }
               {!mobileLayout && (
-                <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{description}</Text>
+                <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{useDescription}</Text>
               )}
               {!date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
                 (<DateLabelB>{date}</DateLabelB>))}

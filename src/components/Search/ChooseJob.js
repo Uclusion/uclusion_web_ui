@@ -8,7 +8,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  TextField,
+  TextField, Typography,
   useMediaQuery,
   useTheme
 } from '@material-ui/core';
@@ -23,6 +23,7 @@ import { getTicketNumber } from '../../utils/stringFunctions';
 import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import GravatarGroup from '../Avatars/GravatarGroup';
 
 function ChooseJob(props) {
   const {
@@ -74,9 +75,10 @@ function ChooseJob(props) {
     const myInvestibleId = investible.id;
     const isChecked = investibleId === myInvestibleId;
     const marketInfo = getMarketInfo(inv, marketId);
-    const { ticket_code: ticketCode } = marketInfo;
+    const { ticket_code: ticketCode, assigned } = marketInfo;
     const ticketNumber = getTicketNumber(ticketCode);
     const displayName = ticketNumber ? `J-${ticketNumber} ${investible.name}` : investible.name;
+    const assignedPeople = marketPresences.filter((presence) => (assigned || []).includes(presence.id));
     return (
       <ListItem
         key={myInvestibleId}
@@ -88,9 +90,12 @@ function ChooseJob(props) {
             checked={isChecked}
           />
         </ListItemIcon>
-        <ListItemText>
-          {displayName}
-        </ListItemText>
+        <div style={{display: 'flex', alignItems: 'center'}}>
+          <GravatarGroup users={assignedPeople} className={classes.gravatarStyle}/>
+          <Typography style={{marginLeft: _.isEmpty(assigned) ? undefined : '1rem'}}>
+            {displayName}
+          </Typography>
+        </div>
       </ListItem>
     );
   }

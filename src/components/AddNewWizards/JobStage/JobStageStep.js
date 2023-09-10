@@ -163,6 +163,7 @@ function JobStageStep (props) {
           {...props}
           validForm={validForm}
           showNext
+          isFinal={isNotDoingStage(fullMoveStage)}
           onIncrement={doIncrement}
           onNext={move}
         />

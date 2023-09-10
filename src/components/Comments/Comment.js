@@ -955,7 +955,7 @@ const useReplyStyles = makeStyles(
         marginRight: "8px"
       },
       replyContainer: {
-        marginLeft: theme.spacing(3)
+        marginLeft: "6px"
       },
       timeElapsed: {
         color: "#A7A7A7",

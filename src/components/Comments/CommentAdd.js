@@ -501,6 +501,7 @@ function CommentAdd(props) {
                     () => navigate(history, formInvestibleLink(marketId, investibleId)))}
                   showOtherNext={type === TODO_TYPE}
                   otherNextLabel='addAnother'
+                  isOtherFinal={false}
                   onOtherNext={() => handleSave(true, undefined, false,
                     true )}
                   showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : !investibleId}

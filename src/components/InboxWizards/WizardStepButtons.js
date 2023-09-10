@@ -80,24 +80,24 @@ function WizardStepButtons(props) {
     return nextState(onOtherNext, true);
   }
 
-  const nextClass = isFinal || !validForm ? classes.actionPrimary : classes.actionNext;
+  const nextIsDisabled = !validForm || nextDisabled;
+  const otherDisabled = !validForm && !otherNextValid;
+  const nextClass = isFinal || nextIsDisabled ? classes.actionPrimary : classes.actionNext;
   const nextOtherClass = isOtherFinal === undefined ? nextClass :
-    ((isOtherFinal || !otherNextValid) ? classes.actionPrimary : classes.actionNext);
+    ((isOtherFinal || otherDisabled) ? classes.actionPrimary : classes.actionNext);
 
   return (
     <div className={classes.buttonContainer}>
       {showNext && (
-        <SpinningButton id="OnboardingWizardNext" className={nextClass}
-                        disabled={!validForm || nextDisabled}
-                        onClick={myNext} doSpin={spinOnClick}>
+        <SpinningButton id="OnboardingWizardNext" className={nextClass} disabled={nextIsDisabled} onClick={myNext}
+                        doSpin={spinOnClick}>
           {intl.formatMessage({ id: nextLabel })}
         </SpinningButton>
       )}
 
       <div className={classes.actionContainer}>
         {showOtherNext && (
-          <SpinningButton id="OnboardingWizardOtherNext" className={nextOtherClass}
-                          disabled={!validForm && !otherNextValid}
+          <SpinningButton id="OnboardingWizardOtherNext" className={nextOtherClass} disabled={otherDisabled}
                           doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
           </SpinningButton>

@@ -40,7 +40,7 @@ function WorkspaceMembersStep(props) {
       </Typography>
       <EmailEntryBox marketId={formData.marketId} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
       <div className={classes.borderBottom} />
-      <WizardStepButtons {...props} showSkip={false} showLink={true} onNext={myOnFinish} />
+      <WizardStepButtons {...props} showSkip={false} showLink={true} onNext={myOnFinish} isFinal={false} />
     </div>
     </WizardStepContainer>
   );

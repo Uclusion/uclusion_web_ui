@@ -39,6 +39,7 @@ function JobDescriptionStatusStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="StatusWizardEstimate"
+        isFinal={false}
         spinOnClick={false}
         showOtherNext
         otherNextLabel="StatusWizardReport"

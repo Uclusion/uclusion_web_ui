@@ -64,6 +64,7 @@ function DecideResponseStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="issueReplyLabel"
+        isFinal={false}
         spinOnClick={false}
         onFinish={myOnFinish}
         showTerminate={true}

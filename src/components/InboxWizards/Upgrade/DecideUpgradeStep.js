@@ -34,6 +34,7 @@ function DecideUpgradeStep(props) {
         {...props}
         onFinish={myOnFinish}
         nextLabel="WizardPaymentInfo"
+        isFinal={false}
         onNext={() => updateFormData({ isCard: true })}
         showOtherNext
         otherNextLabel="WizardPromoInfo"

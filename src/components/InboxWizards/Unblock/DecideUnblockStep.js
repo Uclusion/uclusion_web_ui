@@ -83,10 +83,12 @@ function DecideUnblockStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel='UnblockReplyLabel'
+        isFinal={false}
         spinOnClick={false}
         showOtherNext
         otherNextLabel='DecideMoveToBacklog'
         onOtherNext={moveToBacklog}
+        isOtherFinal
         onFinish={myTerminate}
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}

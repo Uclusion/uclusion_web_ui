@@ -114,6 +114,7 @@ function DecideAnswerStep(props) {
           nextDisabled={!selectedInvestibleId}
           onNext={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, commentRoot.inline_market_id,
             selectedInvestibleId))}
+          isFinal={false}
           onNextDoAdvance={false}
           showOtherNext
           otherNextLabel={isQuestionCreator ? 'inlineAddLabel' : 'inlineProposeLabel'}

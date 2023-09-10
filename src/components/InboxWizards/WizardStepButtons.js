@@ -30,7 +30,9 @@ function WizardStepButtons(props) {
     terminateSpinOnClick,
     onNextDoAdvance,
     onOtherNextDoAdvance,
-    otherNextValid
+    otherNextValid,
+    isFinal,
+    isOtherFinal
   } = props;
   const intl = useIntl();
   const classes = wizardStyles();
@@ -78,10 +80,14 @@ function WizardStepButtons(props) {
     return nextState(onOtherNext, true);
   }
 
+  const nextClass = isFinal || !validForm ? classes.actionPrimary : classes.actionNext;
+  const nextOtherClass = isOtherFinal === undefined ? nextClass :
+    ((isOtherFinal || !otherNextValid) ? classes.actionPrimary : classes.actionNext);
+
   return (
     <div className={classes.buttonContainer}>
       {showNext && (
-        <SpinningButton id="OnboardingWizardNext" className={classes.actionPrimary}
+        <SpinningButton id="OnboardingWizardNext" className={nextClass}
                         disabled={!validForm || nextDisabled}
                         onClick={myNext} doSpin={spinOnClick}>
           {intl.formatMessage({ id: nextLabel })}
@@ -90,7 +96,7 @@ function WizardStepButtons(props) {
 
       <div className={classes.actionContainer}>
         {showOtherNext && (
-          <SpinningButton id="OnboardingWizardOtherNext" className={classes.actionPrimary}
+          <SpinningButton id="OnboardingWizardOtherNext" className={nextOtherClass}
                           disabled={!validForm && !otherNextValid}
                           doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
@@ -134,7 +140,9 @@ WizardStepButtons.propTypes = {
   terminateSpinOnClick: PropTypes.bool,
   onNextDoAdvance: PropTypes.bool,
   onOtherNextDoAdvance: PropTypes.bool,
-  otherNextValid: PropTypes.bool
+  otherNextValid: PropTypes.bool,
+  isFinal: PropTypes.bool,
+  isOtherFinal: PropTypes.bool
 };
 WizardStepButtons.defaultProps = {
   onNext: () => {},
@@ -159,7 +167,8 @@ WizardStepButtons.defaultProps = {
   terminateSpinOnClick: false,
   nextLabel: 'OnboardingWizardContinue',
   onNextDoAdvance: true,
-  onOtherNextDoAdvance: true
+  onOtherNextDoAdvance: true,
+  isFinal: true
 };
 
 export default WizardStepButtons;

@@ -78,9 +78,11 @@ function DecideAssignStep(props) {
         {...props}
         nextLabel="DecideAssignMe"
         onNext={myAssign}
+        isFinal={false}
         showOtherNext
         otherNextLabel="JobAssignBacklog"
         onOtherNext={move}
+        isOtherFinal
         terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'markRead' }
         showTerminate={true}
         onFinish={myTerminate}

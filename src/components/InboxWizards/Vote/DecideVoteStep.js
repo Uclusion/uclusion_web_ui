@@ -59,6 +59,7 @@ function DecideVoteStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="voteFor"
+        isFinal={false}
         onNext={() => updateFormData({ isFor: true })}
         spinOnClick={false}
         showOtherNext

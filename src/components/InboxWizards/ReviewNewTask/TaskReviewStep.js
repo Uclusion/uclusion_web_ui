@@ -54,10 +54,12 @@ function TaskReviewStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="issueReplyLabel"
+        isFinal={false}
         spinOnClick={false}
         showOtherNext
         onOtherNext={markInProgress}
         otherNextLabel="markInProgress"
+        isOtherFinal
         onOtherNextDoAdvance={false}
         terminateLabel={getLabelForTerminate(message)}
         showTerminate={getShowTerminate(message)}

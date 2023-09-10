@@ -54,10 +54,12 @@ function DecideResponseStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel='UnblockReplyLabel'
+        isFinal={false}
         spinOnClick={false}
         showOtherNext
         otherNextLabel='wizardAcceptLabel'
         onOtherNext={moveToTask}
+        isOtherFinal
         onFinish={myTerminate}
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}

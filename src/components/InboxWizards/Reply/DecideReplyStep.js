@@ -127,9 +127,11 @@ function DecideReplyStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="issueReplyLabel"
+        isFinal={false}
         spinOnClick={false}
         showOtherNext={canResolve || hasThreadMessages}
         otherNextLabel={canResolve ? 'issueResolveLabel' : 'notificationDelete'}
+        isOtherFinal
         onOtherNext={canResolve ? resolve : myOnFinish}
         onOtherNextDoAdvance={false}
         otherSpinOnClick={canResolve}

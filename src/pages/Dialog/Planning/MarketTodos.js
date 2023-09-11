@@ -45,7 +45,7 @@ import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import { isReadComment } from '../../../components/Comments/Options';
+import { isNewComment } from '../../../components/Comments/Options';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
@@ -284,7 +284,7 @@ function MarketTodos(props) {
       const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
       return (
         <BugListItem id={id} replyNum={replies.length + 1} title={nameFromDescription(body, 1000)}
-                     read={isReadComment(comment, messagesState)} date={intl.formatDate(updatedAt)}
+                     isNew={isNewComment(comment, messagesState)} date={intl.formatDate(updatedAt)}
                      message={findMessageForCommentId(id, messagesState)}
                      useSelect={!isInArchives} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}

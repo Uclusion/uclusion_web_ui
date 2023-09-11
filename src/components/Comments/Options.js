@@ -31,9 +31,9 @@ export function isNew(inv, messagesState) {
   return !_.isEmpty(myMessages.find((message) => message.is_highlighted));
 }
 
-export function isReadComment(comment, messagesState) {
+export function isNewComment(comment, messagesState) {
   const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
-  return !myMessage.is_highlighted;
+  return myMessage.is_highlighted;
 }
 
 function Options(props) {

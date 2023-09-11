@@ -104,7 +104,7 @@ const DateLabelB = styled(DateLabel)`
 
 function BugListItem(props) {
   const {
-    read,
+    isNew,
     replyNum,
     title = '',
     message,
@@ -141,7 +141,7 @@ function BugListItem(props) {
                onClick={
             (event) => {
               preventDefaultAndProp(event);
-              if (!read) {
+              if (isNew) {
                 let event = DEHIGHLIGHT_EVENT;
                 if (message.type_object_id.startsWith('UNREAD')) {
                   event = DELETE_EVENT;
@@ -179,9 +179,9 @@ function BugListItem(props) {
                 <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px', marginRight: '15px',
                   backgroundColor: 'white' }}/>
               </Tooltip>: React.Fragment}
-              {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
-              {isHovered || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
-                (<DateLabelB>{date}</DateLabelB>))}
+              {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
+              {isHovered || mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelB>{date}</DateLabelB>) :
+                (<DateLabel>{date}</DateLabel>))}
               {isHovered && (
                 <DateLabel>
                   {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />

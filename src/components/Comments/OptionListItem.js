@@ -80,7 +80,7 @@ export const workListStyles = makeStyles(() => {
 
 function OptionListItem(props) {
   const {
-    read,
+    isNew,
     description = '',
     title = '',
     people,
@@ -129,7 +129,7 @@ function OptionListItem(props) {
             }
           } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
-              {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
+              {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
               {!mobileLayout && (
                 <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{useDescription}</Text>
               )}

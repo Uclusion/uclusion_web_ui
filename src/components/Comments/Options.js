@@ -25,10 +25,10 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { ACTIVE_STAGE } from '../../constants/markets';
 import { useLocation } from 'react-router';
 
-export function isRead(inv, messagesState) {
+export function isNew(inv, messagesState) {
   const investibleId = inv.investible.id;
   const myMessages = findMessagesForInvestibleId(investibleId, messagesState);
-  return _.isEmpty(myMessages.find((message) => !message.is_highlighted));
+  return !_.isEmpty(myMessages.find((message) => message.is_highlighted));
 }
 
 export function isReadComment(comment, messagesState) {
@@ -117,7 +117,7 @@ function Options(props) {
 
   const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
   const proposed = getInlineInvestiblesForStage(proposedStage);
-  const unreadCount = _.size(underConsideration.filter((inv) => !isRead(inv)));
+  const unreadCount = _.size(underConsideration.filter((inv) => isNew(inv)));
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   const tabInvestibles = useTabIndex === 0 ? underConsideration : proposed;
   return (

@@ -81,7 +81,7 @@ const DateLabelB = styled(DateLabel)`
 
 function BacklogListItem(props) {
   const {
-    read=true,
+    isNew=false,
     title = '',
     description = '',
     date,
@@ -114,14 +114,14 @@ function BacklogListItem(props) {
             }
           }>
             <Div key={`actions${id}`}>
-              {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
+              {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
               {mobileLayout || _.isEmpty(people) ? React.Fragment :
                 <GravatarGroup users={people} className={classes.gravatarStyle}/> }
               {!mobileLayout && (
                 <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{useDescription}</Text>
               )}
-              {!date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
-                (<DateLabelB>{date}</DateLabelB>))}
+              {!date ? React.Fragment : (isNew ? (<DateLabelB>{date}</DateLabelB>) :
+                (<DateLabel>{date}</DateLabel>))}
             </Div>
           </div>
         </RaisedCard>

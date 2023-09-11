@@ -24,7 +24,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { Box, IconButton, Typography } from '@material-ui/core';
 import { KeyboardArrowLeft } from '@material-ui/icons';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import { isRead } from '../../../components/Comments/Options';
+import { isNew } from '../../../components/Comments/Options';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
@@ -174,7 +174,7 @@ function Backlog(props) {
         return (
           <BacklogListItem id={investible.id} title={investible.name} date={intl.formatDate(investible.created_at)}
                            description={nameFromDescription(investible.description, 1000)}
-                           read={isRead(inv, messagesState)}
+                           isNew={isNew(inv, messagesState)}
                            marketId={marketId} people={collaboratorsForInvestible} />
         );
       })}

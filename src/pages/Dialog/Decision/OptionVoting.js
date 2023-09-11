@@ -7,7 +7,7 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import OptionListItem from '../../../components/Comments/OptionListItem';
 import { nameFromDescription } from '../../../utils/stringFunctions';
-import { isRead } from '../../../components/Comments/Options';
+import { isNew } from '../../../components/Comments/Options';
 
 function OptionVoting(props) {
   const [marketsState] = useContext(MarketsContext);
@@ -41,7 +41,7 @@ function OptionVoting(props) {
     const investors = marketPresences.filter((presence) =>
       presence.investments?.find((investment) => !investment.deleted && investment.investible_id === investibleId));
     return (
-      <OptionListItem id={investibleId} expansionPanel={expansionPanel} read={isRead(inv, messagesState)}
+      <OptionListItem id={investibleId} expansionPanel={expansionPanel} isNew={isNew(inv, messagesState)}
                       people={investors} description={description} title={inv.investible.name}
                       questionResolved={inArchives}
                       expandOrContract={() => {
@@ -55,7 +55,7 @@ function OptionVoting(props) {
   }
 
   const orderedInvestiblesArray = _.orderBy(investibles, [(inv) => {
-    return isRead(inv, messagesState) ? 1 : 0;
+    return isNew(inv, messagesState) ? 0 : 1;
   }, (inv) => inv.investible.name]);
   return (
     <div>

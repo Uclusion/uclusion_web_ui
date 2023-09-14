@@ -32,16 +32,19 @@ function JobDescriptionStep (props) {
   const comments = getCommentThreads(roots, marketComments);
   const isSingleComment = _.size(fromCommentIds) === 1;
   const editorName = isSingleComment ? `addJobWizardF${fromCommentIds[0]}` : `addJobWizard${groupId}`;
+  let initializeOriginalValue = undefined;
   if (isSingleComment && _.isEmpty(getQuillStoredState(editorName))) {
     const fromComment = marketComments.find((comment) => comment.id === fromCommentIds[0]);
     const { body, ticket_code: ticketCode, id, investible_id: investibleId } = fromComment || {};
     // No need to clip to 80 here as that will happen when save
     const { name } = convertDescription(body, 200);
     if (!_.isEmpty(name)) {
+      initializeOriginalValue = `<p>${name}</p>`;
       storeState(editorName,
         `<p>${name} From <a href="${window.location.protocol}//${window.location.host}${formCommentLink(marketId, groupId, investibleId, id)}">${ticketCode}</a>.</p>`);
     }
   }
+  const [originalValueToUse, setOriginalValueToUse] = useState(initializeOriginalValue);
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -52,7 +55,7 @@ function JobDescriptionStep (props) {
     value: getQuillStoredState(editorName),
     marketId,
     onUpload: setUploadedFiles,
-    onChange: () => setHasValue(true),
+    onChange: () => { setHasValue(true); setOriginalValueToUse(undefined) },
   };
 
   const [Editor] = useEditor(editorName, editorSpec);
@@ -63,7 +66,7 @@ function JobDescriptionStep (props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
+    } = processTextAndFilesForSave(uploadedFiles, originalValueToUse || getQuillStoredState(editorName));
     const { name, description} = convertDescription(tokensRemoved);
     const addInfo = {
       name,

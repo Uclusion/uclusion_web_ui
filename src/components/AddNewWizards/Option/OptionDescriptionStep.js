@@ -43,7 +43,7 @@ function OptionDescriptionStep (props) {
     value: getQuillStoredState(editorName),
     marketId,
     onUpload: setUploadedFiles,
-    onChange: () => setHasValue(true),
+    onChange: () => setHasValue(!editorEmpty(getQuillStoredState(editorName))),
   };
 
   const [Editor] = useEditor(editorName, editorSpec);

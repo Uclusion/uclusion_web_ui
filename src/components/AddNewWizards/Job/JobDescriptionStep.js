@@ -55,7 +55,8 @@ function JobDescriptionStep (props) {
     value: getQuillStoredState(editorName),
     marketId,
     onUpload: setUploadedFiles,
-    onChange: () => { setHasValue(true); setOriginalValueToUse(undefined) },
+    onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName)));
+      setOriginalValueToUse(undefined) },
   };
 
   const [Editor] = useEditor(editorName, editorSpec);

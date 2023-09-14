@@ -376,7 +376,7 @@ function CommentAdd(props) {
     placeholder,
     onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
     mentionsAllowed,
-    onChange: () => setHasValue(true),
+    onChange: () => setHasValue(!editorEmpty(getQuillStoredState(editorName))),
     buttons: type === REPLY_TYPE && !isWizard ? buttons : undefined
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);

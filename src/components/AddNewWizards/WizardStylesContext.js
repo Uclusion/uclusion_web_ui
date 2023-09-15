@@ -157,7 +157,8 @@ export const wizardStyles = makeStyles(
         whiteSpace: 'nowrap',
         marginRight: '20px',
         '&:hover': {
-          backgroundColor: '#2D9CDB !important'
+          backgroundColor: '#2D9CDB !important',
+          color: 'white !important'
         },
         '&:disabled': {
           color: 'black',

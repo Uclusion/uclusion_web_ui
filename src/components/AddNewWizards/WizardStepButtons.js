@@ -5,6 +5,7 @@ import SpinningButton from '../SpinBlocking/SpinningButton';
 import { WizardStylesContext } from './WizardStylesContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import WorkspaceInviteLinker from '../../pages/Home/WorkspaceInviteLinker'
+import { ChevronRight } from '@material-ui/icons';
 
 function WizardStepButtons (props) {
   const {
@@ -82,11 +83,14 @@ function WizardStepButtons (props) {
   const nextClass = isFinal || !validForm ? classes.actionPrimary : classes.actionNext;
   const nextOtherClass = isOtherFinal === undefined ? nextClass :
     (isOtherFinal || !validForm ? classes.actionPrimary : classes.actionNext);
+  const isNextNext = nextClass === classes.actionNext;
+  const isOtherNextNext = nextOtherClass === classes.actionNext;
   return (
     <div className={classes.buttonContainer}>
       {showNext && (
         <SpinningButton id="OnboardingWizardNext" className={nextClass} disabled={!validForm}
-                        onClick={myNext} doSpin={spinOnClick}>
+                        endIcon={isNextNext ? ChevronRight : undefined} iconColor="black" onClick={myNext}
+                        doSpin={spinOnClick}>
           {intl.formatMessage({ id: nextLabel })}
         </SpinningButton>
       )}
@@ -98,6 +102,7 @@ function WizardStepButtons (props) {
       <div className={classes.actionContainer}>
         {showOtherNext && (
           <SpinningButton id="OnboardingWizardOtherNext" className={nextOtherClass} disabled={!validForm}
+                          endIcon={isOtherNextNext ? ChevronRight : undefined} iconColor="black"
                           doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
           </SpinningButton>

@@ -16,6 +16,7 @@ function SpinningButton(props) {
     onClick,
     spinning,
     icon: Icon,
+    endIcon: EndIcon,
     iconColor='white',
     ...rest
   } = props;
@@ -37,6 +38,8 @@ function SpinningButton(props) {
       disabled={spinningDisabled || disabled}
       onClick={myOnClick}
       id={id}
+      endIcon={EndIcon ? (spinningDisabled || disabled ? <EndIcon color='disabled' /> : <EndIcon htmlColor={iconColor} />)
+        : undefined}
       startIcon={Icon ? (spinningDisabled || disabled ? <Icon color='disabled' /> : <Icon htmlColor={iconColor} />)
         : undefined}
       {...rest}

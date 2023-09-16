@@ -1048,7 +1048,8 @@ function Reply(props) {
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, comment.id);
   const rootComment = getCommentRoot(commentsState, marketId, comment.id);
   const { investible_id: investibleId, group_id: groupId } = comment || {};
-  const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE].includes(rootComment?.comment_type) && !isInbox;
+  const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(rootComment?.comment_type)
+    && !isInbox;
 
   function handleEditClick() {
     navigateEditReplyBack(history, comment.id, marketId, groupId, investibleId, replyEditId, false, isFromInbox,

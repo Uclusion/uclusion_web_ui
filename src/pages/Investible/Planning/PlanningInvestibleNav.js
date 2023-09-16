@@ -159,19 +159,17 @@ export default function PlanningInvestibleNav(props) {
           />
         </div>
       )}
-      {!isFurtherWork && (
-        <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
-          <div className={classes.assignmentContainer}>
-            <b><FormattedMessage id="collaborators"/></b>
-            <Assignments
-              classes={classes}
-              marketPresences={marketPresences}
-              assigned={investibleCollaborators}
-              toolTipId="collaborators"
-            />
-          </div>
+      <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
+        <div className={classes.assignmentContainer}>
+          <b><FormattedMessage id="collaborators"/></b>
+          <Assignments
+            classes={classes}
+            marketPresences={marketPresences}
+            assigned={investibleCollaborators}
+            toolTipId="collaborators"
+          />
         </div>
-      )}
+      </div>
       {market.id && marketInvestible.investible && isInVoting && (
         <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
           <div className={classes.assignmentContainer}>

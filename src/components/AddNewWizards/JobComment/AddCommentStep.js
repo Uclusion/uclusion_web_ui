@@ -69,10 +69,9 @@ function AddCommentStep (props) {
           For feedback explain what needs reviewing. Use @ mentions to require and only notify specific reviewers.
         </Typography>
       )}
-      {useType !== REPORT_TYPE && (
+      {![REPORT_TYPE, TODO_TYPE].includes(useType) && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Use @ mentions to avoid this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifying
-          the group.
+          Use @ mentions to limit who this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies.
         </Typography>
         )}
       <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />

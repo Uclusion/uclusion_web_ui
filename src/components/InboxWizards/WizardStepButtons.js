@@ -100,6 +100,7 @@ function WizardStepButtons(props) {
       <div className={classes.actionContainer}>
         {showOtherNext && (
           <SpinningButton id="OnboardingWizardOtherNext" className={nextOtherClass} disabled={otherDisabled}
+                          endIcon={isOtherNextNext ? ChevronRight : undefined} iconColor="black"
                           doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
           </SpinningButton>
@@ -108,7 +109,6 @@ function WizardStepButtons(props) {
       <div className={classes.actionContainer}>
         {showTerminate && (
           <SpinningButton id="OnboardingWizardSkip" className={classes.actionSkip} variant="text"
-                          endIcon={isOtherNextNext ? ChevronRight : undefined} iconColor="black"
                           doSpin={terminateSpinOnClick} onClick={onTerminate}>
             {intl.formatMessage({ id: terminateLabel })}
           </SpinningButton>

@@ -553,14 +553,14 @@ function StageInvestible(props) {
   return (
     <>
       <Grid container>
-        <Grid item xs={3}>
+        <Grid item xs={4}>
           {!unaccepted && (
             <div>
               <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
             </div>
           )}
           {unaccepted && (
-            <div className={planClasses.daysEstimation}>
+            <div className={planClasses.daysEstimation} style={{wordWrap: 'normal'}}>
               <FormattedMessage id='planningUnacceptedLabel' />
             </div>
           )}

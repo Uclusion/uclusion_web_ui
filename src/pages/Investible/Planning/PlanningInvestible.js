@@ -324,6 +324,7 @@ function PlanningInvestible(props) {
   const editorBox = useRef(null);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const leftNavBreak = useMediaQuery(theme.breakpoints.down('md'));
+  const refToTop = useRef();
   const classes = usePlanningInvestibleStyles();
   const wizardClasses = wizardStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -596,7 +597,7 @@ function PlanningInvestible(props) {
           onChange={(event, value) => {
             openSubSection(sections[value]);
             // Previous scroll position no longer relevant
-            window.scrollTo(0, 0);
+            refToTop.current?.scrollIntoView({ block: "end" });
           }}
           id='investible-header'
           indicatorColors={['#00008B', '#00008B', '#00008B']}
@@ -614,6 +615,7 @@ function PlanningInvestible(props) {
                           tagLabel={getTagLabel('open')} />
           )}
         </GmailTabs>
+        <div ref={refToTop}></div>
         <div style={{paddingTop: mobileLayout ? undefined : '4rem'}} />
         {sectionOpen === 'descriptionVotingSection' && (
           <>

@@ -1,7 +1,7 @@
 /**
  * A component that renders a single group's view of a planning market
  */
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -96,6 +96,7 @@ function PlanningDialog(props) {
   const intl = useIntl();
   const wizardClasses = wizardStyles();
   const theme = useTheme();
+  const refToTop = useRef();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -226,8 +227,7 @@ function PlanningDialog(props) {
     updatePageState({tabIndex});
     const anchorId = getAnchorId(tabIndex);
     openSubSection(anchorId);
-    // Previous scroll position no longer relevant
-    window.scrollTo(0, 0);
+    refToTop.current?.scrollIntoView({ block: "end" });
   }
 
   function onDropBug(id, isAssigned) {
@@ -325,6 +325,7 @@ function PlanningDialog(props) {
         <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}
                       archivedSize={archivedSize} />
       <div style={{paddingTop: '4rem', width: '96%', marginLeft: 'auto', marginRight: 'auto', overflow: 'hidden'}}>
+        <div ref={refToTop}></div>
         {isSectionOpen('discussionSection') && (
           <div id="discussionSection">
             <Grid item id="discussionAddArea" xs={12}>

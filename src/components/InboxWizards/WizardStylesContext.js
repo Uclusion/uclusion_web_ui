@@ -85,6 +85,7 @@ export const wizardStyles = makeStyles(
       },
       buttonContainer: {
         marginTop: '1rem',
+        marginBottom: '1rem',
         textAlign: 'right',
         display: 'flex',
         width: '80%',

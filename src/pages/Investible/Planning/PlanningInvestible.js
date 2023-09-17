@@ -702,7 +702,7 @@ function PlanningInvestible(props) {
                   isAssigned={isAssigned}
                 />
               )}
-              <h2 id="status" style={{paddingBottom: 0, marginBottom: 0}}>
+              <h2 id="status" style={{paddingTop: '1rem', paddingBottom: 0, marginBottom: 0}}>
                 <FormattedMessage id="reportsSectionLabel" />
               </h2>
               {showCommentAdd && isAssigned && (

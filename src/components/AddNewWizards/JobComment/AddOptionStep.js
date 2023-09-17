@@ -11,7 +11,7 @@ import { addPlanningInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getRequiredInputStage, getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { sendComment } from '../../../api/comments';
 import { changeInvestibleStageOnCommentOpen } from '../../../utils/commentFunctions';
@@ -45,7 +45,10 @@ function AddOptionStep(props) {
   const inv = getInvestible(investibleState, investibleId);
   const { investible } = inv;
   const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { assigned, stage: currentStageId } = marketInfo || {};
   const myPresence = presences.find((presence) => presence.current_user) || {};
+  const creatorIsAssigned = (assigned || []).includes(myPresence.id);
+  const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
 
   const editorSpec = {
     placeholder: "Your option...",
@@ -84,7 +87,8 @@ function AddOptionStep(props) {
   function myOnFinish() {
     return sendComment(marketId, commentId).then((response) => {
       let comment = response;
-      changeInvestibleStageOnCommentOpen(false, true, marketStagesState,
+      changeInvestibleStageOnCommentOpen(false,
+        creatorIsAssigned && currentStageId !== requiresInputStage.id, marketStagesState,
         [marketInfo], investible, investiblesDispatch, comment, myPresence);
       addCommentToMarket(comment, commentState, commentDispatch);
       quickNotificationChanges(QUESTION_TYPE, investibleId, messagesState, messagesDispatch, [], comment,

@@ -27,6 +27,7 @@ import ReplyIcon from '@material-ui/icons/Reply';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
@@ -98,6 +99,7 @@ function InboxRow(props) {
   const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [groupState] = useContext(MarketGroupsContext);
   const { investible_id: investibleId, investible_name: investibleName, updated_at: updatedAt,
     market_name: marketName, type_object_id: typeObjectId, market_id: marketId, comment_id: commentId,
     comment_market_id: commentMarketId, is_highlighted: isHighlighted, type: messageType } = message;
@@ -117,7 +119,8 @@ function InboxRow(props) {
     isDeletable,
     isAssigned,
     message,
-    isNotSynced: !messageIsSynced(message, marketsState, marketPresencesState, commentState, investiblesState)
+    isNotSynced: !messageIsSynced(message, marketsState, marketPresencesState, commentState, investiblesState,
+      groupState)
   }
 
   item.icon = getPriorityIcon(message, isAssigned);

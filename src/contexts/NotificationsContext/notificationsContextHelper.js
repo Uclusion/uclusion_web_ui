@@ -4,6 +4,7 @@ import { getMarketPresences } from '../MarketPresencesContext/marketPresencesHel
 import { getInvestible } from '../InvestibesContext/investiblesContextHelper'
 import { getMarketInfo } from '../../utils/userFunctions'
 import { getComment, getCommentRoot } from '../CommentsContext/commentsContextHelper';
+import { getGroup } from '../MarketGroupsContext/marketGroupsContextHelper';
 
 function checkComment(commentId, commentVersion, marketId, commentsState) {
   if (!commentVersion) {
@@ -22,10 +23,12 @@ function checkComment(commentId, commentVersion, marketId, commentsState) {
   return comment.version >= commentVersion;
 }
 
-export function messageIsSynced(message, marketState, marketPresencesState, commentsState, investiblesState) {
+export function messageIsSynced(message, marketState, marketPresencesState, commentsState, investiblesState,
+  groupState) {
   const { market_id: marketId, market_version: marketVersion, investible_id: investibleId,
     investible_version: investibleVersion, comment_id: commentId, comment_version: commentVersion,
     parent_comment_id: parentCommentId, parent_comment_version: parentCommentVersion,
+    type: messageType, type_object_id: typeObjectId,
     investment_user_id: investmentUserId, comment_market_id: commentMarketId, market_investible_id: marketInvestibleId,
     market_investible_version: marketInvestibleVersion, decision_investible_id: decisionInvestibleId } = message;
   const useMarketId = commentMarketId || marketId;
@@ -83,6 +86,11 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
       console.warn(`Empty investments for ${investmentUserId} and ${marketId}`);
       return false;
     }
+  }
+  if (messageType === 'UNREAD_GROUP') {
+    const [, ,groupId] = typeObjectId.split('_');
+    const group = getGroup(groupState, marketId, groupId) || {};
+    checked = !_.isEmpty(group);
   }
   if (!checked) {
     console.warn('Message is not checked for sync');

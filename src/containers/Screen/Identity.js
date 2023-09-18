@@ -142,17 +142,24 @@ function Identity () {
       id="profileLink"
       style={{ paddingLeft: !mobileLayout ? '2rem' : '0.5rem' }}
     >
-      <Button
-        onClick={recordPositionToggle}
-        endIcon={<SettingsIcon htmlColor="#bdbdbd"/>}
-        className={classes.buttonClass}
-        id="identityButton"
-      >
-        <Gravatar
-          key={chipLabel}
-          email={email}
-        />
-      </Button>
+      {mobileLayout && (
+        <IconButton onClick={recordPositionToggle} id="identityButton">
+          <SettingsIcon htmlColor="white"/>
+        </IconButton>
+      )}
+      {!mobileLayout && (
+        <Button
+          onClick={recordPositionToggle}
+          endIcon={<SettingsIcon htmlColor="#bdbdbd"/>}
+          className={classes.buttonClass}
+          id="identityButton"
+        >
+          <Gravatar
+            key={chipLabel}
+            email={email}
+          />
+        </Button>
+      )}
       {anchorEl && (
         <Menu
           id="profile-menu"

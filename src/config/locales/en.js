@@ -1130,6 +1130,7 @@ const messages = defineMessages({
 
   // Search
   searchBoxPlaceholder: 'Search',
+  searchBoxPlaceholderMobile: ' Search',
   SearchResultsOverflow: 'Page {page} of {pages}',
   SearchResultsPrevious: 'Previous',
   SearchResultsNext: 'Next',

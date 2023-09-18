@@ -153,7 +153,7 @@ function SearchBox () {
     <div id='search-box' onClick={(event) => event.stopPropagation()}
          style={{flex: 1, maxWidth: '800px'}}>
       <TextField
-        style={{backgroundColor: '#e5edee', width: '100%', minWidth: '10rem'}}
+        style={{backgroundColor: '#e5edee', width: '100%', minWidth: '15rem'}}
         onChange={onSearchChange}
         onKeyPress={(ev) => {
           if (ev.key === 'Enter') {
@@ -163,11 +163,13 @@ function SearchBox () {
           }
         }}
         inputRef={inputRef}
-        placeholder={`${intl.formatMessage({ id: 'searchBoxPlaceholder' })} ${mobileLayout ? '' : searchedName}`}
+        placeholder={`${intl.formatMessage({ id: mobileLayout ? 'searchBoxPlaceholderMobile' 
+            : 'searchBoxPlaceholder' })} ${mobileLayout ? '' : searchedName}`}
         size="small"
         defaultValue={searchResults.search}
         InputProps={{
           startAdornment: (
+            mobileLayout ? undefined :
             <InputAdornment position="start">
               <SearchIcon />
             </InputAdornment>

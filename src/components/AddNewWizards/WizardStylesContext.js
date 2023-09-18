@@ -40,7 +40,7 @@ export const wizardStyles = makeStyles(
         width: '100%',
         padding: '32px',
         [theme.breakpoints.down('xs')]: {
-          marginTop: '15px',
+          paddingTop: 'unset',
         }
       },
       introText: {

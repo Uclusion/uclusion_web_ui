@@ -28,7 +28,7 @@ function DecideStartStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, invDispatch] = useContext(InvestiblesContext)
-  const [, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const intl = useIntl();
   const history = useHistory();
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -46,7 +46,7 @@ function DecideStartStep(props) {
 
   function myAccept() {
     onDropTodo(commentId, commentState, marketId, undefined, intl, commentsDispatch, invDispatch,
-      myPresence.id, acceptedStage.id, 'jobFromBugs')
+      myPresence.id, acceptedStage.id, 'jobFromBugs', messagesState)
       .then((investibleId) => {
         wizardFinish( { link: `${formInvestibleLink(marketId, investibleId)}#start` }, setOperationRunning,
           message, history, marketId, investibleId, messagesDispatch);

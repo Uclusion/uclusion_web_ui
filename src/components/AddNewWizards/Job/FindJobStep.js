@@ -4,26 +4,23 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import {
-  formCommentLink,
-  formMarketAddInvestibleLink,
-  navigate
-} from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { addMarketComments, getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import _ from 'lodash';
 import { moveComments } from '../../../api/comments';
-import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import ChooseJob from '../../Search/ChooseJob';
 import {
-  getStages, isInReviewStage,
+  getStages,
+  isInReviewStage,
   isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { onCommentsMove } from '../../../utils/commentFunctions';
 
 function FindJobStep(props) {
   const { marketId, groupId, updateFormData, formData, marketComments, startOver, clearFormData,
@@ -63,18 +60,8 @@ function FindJobStep(props) {
     const link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
     return moveComments(marketId, investibleId, fromCommentIds)
       .then((movedComments) => {
-        let threads = []
-        fromCommentIds.forEach((commentId) => {
-          removeMessagesForCommentId(commentId, messagesState);
-          const thread = marketComments.filter((aComment) => {
-            return aComment.root_comment_id === commentId;
-          });
-          const fixedThread = thread.map((aComment) => {
-            return {investible_id: investibleId, ...aComment};
-          });
-          threads = threads.concat(fixedThread);
-        });
-        addMarketComments(commentsDispatch, marketId, [...movedComments, ...threads]);
+        onCommentsMove(fromCommentIds, messagesState, marketComments, investibleId, commentsDispatch, marketId,
+          movedComments);
         clearFormData();
         navigate(history, link);
       });

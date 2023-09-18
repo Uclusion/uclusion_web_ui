@@ -5,16 +5,16 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { addMarketComments, getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { addPlanningInvestible } from '../../../api/investibles';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { formCommentLink, formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { moveComments } from '../../../api/comments';
-import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
+import { onCommentsMove } from '../../../utils/commentFunctions';
 
 export function moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
   commentsDispatch) {
@@ -22,18 +22,8 @@ export function moveCommentsFromIds(inv, comments, fromCommentIds, marketId, gro
   const investibleId = investible.id;
   return moveComments(marketId, investibleId, fromCommentIds)
     .then((movedComments) => {
-      let threads = []
-      fromCommentIds.forEach((commentId) => {
-        removeMessagesForCommentId(commentId, messagesState);
-        const thread = comments.filter((aComment) => {
-          return aComment.root_comment_id === commentId;
-        });
-        const fixedThread = thread.map((aComment) => {
-          return {investible_id: investible.id, ...aComment};
-        });
-        threads = threads.concat(fixedThread);
-      });
-      addMarketComments(commentsDispatch, marketId, [...movedComments, ...threads]);
+      onCommentsMove(fromCommentIds, messagesState, comments, investibleId, commentsDispatch, marketId,
+        movedComments);
       const link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
       updateFormData({
         investibleId,

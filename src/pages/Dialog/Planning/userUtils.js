@@ -1,15 +1,13 @@
 import { getMarketInfo } from '../../../utils/userFunctions';
-import _ from 'lodash'
-import {
-  addMarketComments,
-  getMarketComments
-} from '../../../contexts/CommentsContext/commentsContextHelper';
-import { nameFromDescription } from '../../../utils/stringFunctions'
-import { addPlanningInvestible } from '../../../api/investibles'
-import { moveComments } from '../../../api/comments'
-import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
+import _ from 'lodash';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { nameFromDescription } from '../../../utils/stringFunctions';
+import { addPlanningInvestible } from '../../../api/investibles';
+import { moveComments } from '../../../api/comments';
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { onCommentsMove } from '../../../utils/commentFunctions';
 
 export function isInStages(investible, stages, marketId) {
   const marketInfo = getMarketInfo(investible, marketId);
@@ -158,7 +156,7 @@ export function doRemoveEdit(id) {
 }
 
 export function onDropTodo(commentId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch,
-  presenceId, stageId, nameId) {
+  presenceId, stageId, nameId, messagesState) {
   const comments = getMarketComments(commentsState, marketId) || [];
   const fromComment = comments.find((comment) => comment.id === commentId);
   if (fromComment) {
@@ -184,7 +182,8 @@ export function onDropTodo(commentId, commentsState, marketId, setOperationRunni
       const { investible } = inv;
       return moveComments(marketId, investible.id, [commentId])
         .then((movedComments) => {
-          addMarketComments(commentsDispatch, marketId, movedComments);
+          onCommentsMove([commentId], messagesState, comments, investible.id, commentsDispatch, marketId,
+            movedComments);
           addInvestible(invDispatch, () => {}, inv);
           if (setOperationRunning) {
             setOperationRunning(false);

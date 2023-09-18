@@ -7,7 +7,7 @@ import {
   getRequiredInputStage, isFurtherWorkStage, isInReviewStage
 } from '../contexts/MarketStagesContext/marketStagesContextHelper';
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../constants/comments';
-import { addCommentToMarket } from '../contexts/CommentsContext/commentsContextHelper'
+import { addCommentToMarket, addMarketComments } from '../contexts/CommentsContext/commentsContextHelper';
 import { pushMessage } from './MessageBusUtils'
 import { LOAD_EVENT } from '../contexts/InvestibesContext/investiblesContextMessages'
 import { INITIATIVE_TYPE } from '../constants/markets'
@@ -114,6 +114,22 @@ export function changeInvestibleStageOnCommentClose(market_infos, rootInvestible
   const newStage = getFullStage(marketStagesState, marketId, nextStageId);
   changeInvestibleStage(newStage, assigned, comment.updated_at, info, market_infos, rootInvestible,
     investibleDispatch);
+}
+
+export function onCommentsMove(fromCommentIds, messagesState, marketComments, investibleId, commentsDispatch, marketId,
+  movedComments) {
+  let threads = []
+  fromCommentIds.forEach((commentId) => {
+    removeMessagesForCommentId(commentId, messagesState);
+    const thread = marketComments.filter((aComment) => {
+      return aComment.root_comment_id === commentId;
+    });
+    const fixedThread = thread.map((aComment) => {
+      return {...aComment, investible_id: investibleId};
+    });
+    threads = threads.concat(fixedThread);
+  });
+  addMarketComments(commentsDispatch, marketId, [...movedComments, ...threads]);
 }
 
 export function changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState,

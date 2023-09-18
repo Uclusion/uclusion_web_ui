@@ -5,15 +5,15 @@ import WizardStepContainer from '../WizardStepContainer';
 import WizardStepButtons from '../WizardStepButtons';
 import { formCommentLink } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { addMarketComments, getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import _ from 'lodash';
 import { moveComments } from '../../../api/comments';
-import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import ChooseJob from '../../Search/ChooseJob';
 import {
-  getStages, isInReviewStage,
+  getStages,
+  isInReviewStage,
   isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -23,6 +23,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { onCommentsMove } from '../../../utils/commentFunctions';
 
 function FindJobStep(props) {
   const { marketId, commentId, updateFormData, formData, message } = props;
@@ -51,11 +52,8 @@ function FindJobStep(props) {
   function onNext(doStayInInbox) {
     return moveComments(marketId, investibleId, [commentId])
       .then((movedComments) => {
-        removeMessagesForCommentId(commentId, messagesState);
-        const fixedThread = comments.map((aComment) => {
-          return {investible_id: investibleId, ...aComment};
-        });
-        addMarketComments(commentsDispatch, marketId, [...movedComments, ...fixedThread]);
+        onCommentsMove([commentId], messagesState, comments, investibleId, commentsDispatch,
+          marketId, movedComments);
         if (doStayInInbox) {
           setOperationRunning(false);
           myTerminate();

@@ -961,7 +961,10 @@ const useReplyStyles = makeStyles(
         marginRight: "8px"
       },
       replyContainer: {
-        marginLeft: "6px"
+        marginLeft: "6px",
+        [theme.breakpoints.down('sm')]: {
+          marginLeft: '3px',
+        }
       },
       timeElapsed: {
         color: "#A7A7A7",

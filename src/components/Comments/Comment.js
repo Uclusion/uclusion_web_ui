@@ -733,9 +733,9 @@ function Comment(props) {
                 {showAddVoting && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
-                      undefined, undefined, id))}
+                      undefined, undefined, id))} iconOnly={mobileLayout}
                                            doSpin={false} icon={ThumbsUpDownIcon}>
-                    {intl.formatMessage({ id: 'addVoting' })}
+                    {!mobileLayout && intl.formatMessage({ id: 'addVoting' })}
                   </SpinningIconLabelButton>
                 )}
                 {showAcceptReject && (

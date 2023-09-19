@@ -390,7 +390,9 @@ function Stage(props) {
 
   function investibleOnDragStart (event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
-    event.dataTransfer.setDragImage(dragImage, 100, 0);
+    if (dragImage) {
+      event.dataTransfer.setDragImage(dragImage, 100, 0);
+    }
     event.dataTransfer.effectAllowed = 'move';
     event.dataTransfer.setData('text', event.target.id);
     event.dataTransfer.setData('stageId', id);
@@ -428,7 +430,9 @@ function Stage(props) {
             mobileLayout={mobileLayout}
           />
         </div>
-        <DragImage id={investible.id} name={investible.name} />
+        {!mobileLayout && (
+          <DragImage id={investible.id} name={investible.name} />
+        )}
       </>
     )});
   if (!isReview) {

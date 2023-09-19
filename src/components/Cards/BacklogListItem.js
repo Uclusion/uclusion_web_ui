@@ -96,7 +96,9 @@ function BacklogListItem(props) {
 
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
-    event.dataTransfer.setDragImage(dragImage, 100, 0);
+    if (dragImage) {
+      event.dataTransfer.setDragImage(dragImage, 100, 0);
+    }
     event.dataTransfer.setData('text', event.target.id);
   }
 
@@ -126,7 +128,9 @@ function BacklogListItem(props) {
           </div>
         </RaisedCard>
       </Item>
-      <DragImage id={id} name={title} />
+      {!mobileLayout && (
+        <DragImage id={id} name={title} />
+      )}
     </>
   );
 }

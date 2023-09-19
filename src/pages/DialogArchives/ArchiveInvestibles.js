@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { useIntl } from 'react-intl';
@@ -66,7 +66,7 @@ export const myArchiveClasses = makeStyles(
 );
 
 function getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history,
-  intl, elevation, allowDragDrop, unResolvedMarketComments, presenceId, marketStagesState, classes) {
+  intl, elevation, allowDragDrop, unResolvedMarketComments, presenceId, marketStagesState, classes, mobileLayout) {
   const investibleData = investibles.map((inv) => {
     const aMarketInfo = getMarketInfo(inv, marketId);
     return { ...inv, enteredStageAt: new Date(aMarketInfo.last_stage_change_date) };
@@ -154,7 +154,9 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
             </Link>
           </RaisedCard>
         </Grid>
-        <DragImage id={id} name={name} />
+        {!mobileLayout && (
+          <DragImage id={id} name={name} />
+        )}
       </>
     );
   });
@@ -173,6 +175,8 @@ function ArchiveInvestbiles(props) {
   const classes = myArchiveClasses();
   const intl = useIntl();
   const history = useHistory();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -184,7 +188,7 @@ function ArchiveInvestbiles(props) {
         <div className={classes.grow} />
       )}
       {getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history,
-        intl, elevation, allowDragDrop, unResolvedMarketComments, presenceId, marketStagesState, classes)}
+        intl, elevation, allowDragDrop, unResolvedMarketComments, presenceId, marketStagesState, classes, mobileLayout)}
     </Grid>
   );
 }

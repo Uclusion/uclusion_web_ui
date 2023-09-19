@@ -127,7 +127,9 @@ function BugListItem(props) {
 
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
-    event.dataTransfer.setDragImage(dragImage, 100, 0);
+    if (dragImage) {
+      event.dataTransfer.setDragImage(dragImage, 100, 0);
+    }
     event.dataTransfer.setData('text', event.target.id);
     event.dataTransfer.setData('notificationType', notificationType);
   }
@@ -196,7 +198,9 @@ function BugListItem(props) {
         paddingBottom: '0.5rem'}} draggable={false}>
         {expansionPanel || <React.Fragment />}
       </div>
-      <DragImage id={id} name={title} />
+      {!mobileLayout && (
+        <DragImage id={id} name={title} />
+      )}
     </>
   );
 }

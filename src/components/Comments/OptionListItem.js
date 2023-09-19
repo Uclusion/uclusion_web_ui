@@ -110,7 +110,9 @@ function OptionListItem(props) {
   }
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
-    event.dataTransfer.setDragImage(dragImage, 100, 0);
+    if (dragImage) {
+      event.dataTransfer.setDragImage(dragImage, 100, 0);
+    }
     event.dataTransfer.setData('text', event.target.id);
   }
 
@@ -154,7 +156,9 @@ function OptionListItem(props) {
         height: expansionOpen ? undefined : 0}} draggable={false}>
         {expansionPanel || <React.Fragment />}
       </div>
-      <DragImage id={id} name={title} />
+      {!mobileLayout && (
+        <DragImage id={id} name={title} />
+      )}
     </>
   );
 }

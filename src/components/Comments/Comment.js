@@ -739,7 +739,8 @@ function Comment(props) {
                   </SpinningIconLabelButton>
                 )}
                 {showAcceptReject && (
-                  <SpinningIconLabelButton onClick={myAccept} icon={ListAltIcon} id={`convertToTask${id}`}>
+                  <SpinningIconLabelButton onClick={myAccept} icon={ListAltIcon} iconOnly={mobileLayout}
+                                           id={`convertToTask${id}`}>
                     {!mobileLayout && intl.formatMessage({ id: 'wizardAcceptLabel' })}
                   </SpinningIconLabelButton>
                 )}
@@ -748,6 +749,7 @@ function Comment(props) {
                     onClick={resolved ? reopen : resolve}
                     icon={resolved ? SettingsBackupRestore : Done}
                     id={`commentResolveReopenButton${id}`}
+                    iconOnly={mobileLayout && !resolved}
                   >
                     {(!mobileLayout || resolved) && intl.formatMessage({
                       id: resolved ? 'commentReopenLabel' : 'commentResolveLabel'
@@ -759,6 +761,7 @@ function Comment(props) {
                     doSpin={false}
                     onClick={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, inlineMarketId))}
                     icon={AddIcon}
+                    iconOnly={mobileLayout}
                     id={`addOptionButton${id}`}
                   >
                     {!mobileLayout && intl.formatMessage({ id: 'inlineAddLabel' })}
@@ -768,6 +771,7 @@ function Comment(props) {
                   <SpinningIconLabelButton
                     onClick={abstain}
                     icon={NotInterested}
+                    iconOnly={mobileLayout}
                     id={`commentAbstainButton${id}`}
                   >
                     {!mobileLayout && intl.formatMessage({ id: 'commentAbstainLabel' })}
@@ -777,6 +781,7 @@ function Comment(props) {
                   <SpinningIconLabelButton
                     onClick={toggleReply}
                     icon={ReplyIcon}
+                    iconOnly={mobileLayout}
                     id={`commentReplyButton${id}`}
                     doSpin={false}
                   >
@@ -805,6 +810,7 @@ function Comment(props) {
                         investibleId && commentType === TODO_TYPE ? BUG_WIZARD_TYPE 
                           : undefined)}&fromCommentId=${id}`)}
                     doSpin={false}
+                    iconOnly={true}
                     icon={Eject}
                   />
                 )}
@@ -814,7 +820,7 @@ function Comment(props) {
                   <SpinningIconLabelButton
                     onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
                       undefined, undefined, id))}
-                    doSpin={false} icon={SettingsIcon}>
+                    doSpin={false} icon={SettingsIcon} iconOnly={mobileLayout}>
                     {!mobileLayout && intl.formatMessage({ id: 'configureVoting' })}
                   </SpinningIconLabelButton>
                 )}

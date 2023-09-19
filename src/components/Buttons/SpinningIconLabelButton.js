@@ -59,6 +59,7 @@ function SpinningIconLabelButton(props) {
     allowOtherOperations,
     whiteBackground,
     iconColor='black',
+    iconOnly = false,
     id,
     ...rest
   } = props;
@@ -76,6 +77,7 @@ function SpinningIconLabelButton(props) {
       onClick(event);
     }
   }
+  const myIcon = spinningDisabled || disabled ? <Icon color='disabled' /> : <Icon htmlColor={iconColor} />;
   return (
     <Button
       disabled={spinningDisabled || disabled}
@@ -84,10 +86,11 @@ function SpinningIconLabelButton(props) {
       id={id}
       onClick={myOnClick}
       style={{whiteSpace: 'nowrap', width: 'fit-content', minWidth: 0}}
-      startIcon={spinningDisabled || disabled ? <Icon color='disabled' /> : <Icon htmlColor={iconColor} />}
+      startIcon={iconOnly ? undefined : myIcon}
       className={noMargin ? classes.buttonNoMargin: whiteBackground ? classes.buttonWhiteBackground : classes.button}
       {...rest}
     >
+      {iconOnly && myIcon}
       {children}
       {spinning && (
         <CircularProgress

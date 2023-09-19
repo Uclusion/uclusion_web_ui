@@ -208,8 +208,10 @@ export function findMessageOfTypeAndId(notificationId, state, subtype) {
 
 export function getPaginatedItems(items, page=1, pageSize, workItemId) {
   const offset = (page - 1) * pageSize;
-  const data = workItemId ? items.filter((item) => item.id === workItemId || item.type_object_id === workItemId)
-    : _.drop(items, offset).slice(0, pageSize);
+  const workItem = workItemId ? items.filter((item) => item.id === workItemId
+    || item.type_object_id === workItemId) : undefined;
+  const hasWorkItem = !_.isEmpty(workItem);
+  const data = hasWorkItem ? workItem : _.drop(items, offset).slice(0, pageSize);
   const last = _.size(data) > 0 ? offset + _.size(data) : 1;
   const itemIndex = _.findIndex(items,
     (item) => item.id === workItemId || item.type_object_id === workItemId);
@@ -225,8 +227,8 @@ export function getPaginatedItems(items, page=1, pageSize, workItemId) {
       previousItemId = previousItem.id || previousItem.type_object_id;
     }
   }
-  const hasMore = workItemId ? !_.isEmpty(nextItemId) : last < _.size(items);
-  const hasLess = workItemId ? !_.isEmpty(previousItemId) : page > 1;
+  const hasMore = hasWorkItem ? !_.isEmpty(nextItemId) : last < _.size(items);
+  const hasLess = hasWorkItem ? !_.isEmpty(previousItemId) : page > 1;
   return { first: offset + 1, last, data, hasMore, hasLess, previousItemId, nextItemId, current: (itemIndex + 1) };
 }
 

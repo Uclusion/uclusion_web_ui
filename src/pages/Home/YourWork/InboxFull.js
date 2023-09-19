@@ -26,8 +26,6 @@ import { isInInbox } from '../../../contexts/NotificationsContext/notificationsC
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions';
 
-export const CLOSE_PANEL_CHANNEL = 'closePanel';
-
 function InboxFull(props) {
   const { hidden } = props;
   const intl = useIntl();

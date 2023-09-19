@@ -55,16 +55,17 @@ function Inbox(props) {
 
   const { first, last, data, hasMore, hasLess, previousItemId, nextItemId, current } =
     getPaginatedItems(unpaginatedItems, page, PAGE_SIZE, workItemId);
+  const isOnWorkItem = workItemId && current > 0;
   const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
     determinate, determinateDispatch, checkAll, tabIndex);
   const { outBoxMessagesOrdered, inboxMessagesOrdered } = messagesHash;
   const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   return (
     <>
-    <div style={{zIndex: 8, position: 'sticky', marginTop: mobileLayout ? '-30px' : (workItemId ? '-12px' : '-8px'),
-      width: '100%', marginLeft: workItemId ? undefined : '-0.5rem'}}
+    <div style={{zIndex: 8, position: 'sticky', marginTop: mobileLayout ? '-30px' : (isOnWorkItem ? '-12px' : '-8px'),
+      width: '100%', marginLeft: isOnWorkItem ? undefined : '-0.5rem'}}
       id="inbox-header">
-      {!workItemId && (
+      {!isOnWorkItem && (
         <GmailTabs
           value={tabIndex}
           onChange={(event, value) => {
@@ -85,14 +86,14 @@ function Inbox(props) {
       )}
       <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
         <div style={{display: 'flex', width: '80%'}}>
-          {!mobileLayout && 0 === tabIndex && !workItemId && (
+          {!mobileLayout && 0 === tabIndex && !isOnWorkItem && (
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                       checked={checkAll}
                       indeterminate={indeterminate}
                       onChange={() => determinateDispatch({type: 'toggle'})}
             />
           )}
-          {(checkAll || !_.isEmpty(determinate)) && 0 === tabIndex && !workItemId && (
+          {(checkAll || !_.isEmpty(determinate)) && 0 === tabIndex && !isOnWorkItem && (
             <TooltipIconButton
               icon={<Delete htmlColor={ACTION_BUTTON_COLOR} />}
               onClick={() => {
@@ -115,7 +116,7 @@ function Inbox(props) {
                   });
               }} translationId="inboxMarkRead" />
           )}
-          {workItemId && (
+          {isOnWorkItem && (
             <TooltipIconButton icon={<ArrowBack style={{marginLeft: '0.5rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                                onClick={() => {
                                  navigate(history, getInboxTarget());
@@ -123,17 +124,17 @@ function Inbox(props) {
           )}
           <div style={{flexGrow: 1}}/>
           <Box fontSize={14} color="text.secondary">
-            {workItemId && (
+            {isOnWorkItem && (
               `${current} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
             )}
-            {!workItemId && (
+            {!isOnWorkItem && (
               `${first} - ${last} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
             )}
-            <IconButton disabled={!hasLess} onClick={() => workItemId ?
+            <IconButton disabled={!hasLess} onClick={() => isOnWorkItem ?
               navigate(history, formInboxItemLink(previousItemId)) : changePage(-1)} >
               <KeyboardArrowLeft />
             </IconButton>
-            <IconButton disabled={!hasMore} onClick={() => workItemId ?
+            <IconButton disabled={!hasMore} onClick={() => isOnWorkItem ?
               navigate(history, formInboxItemLink(nextItemId)) : changePage(1)}>
               <KeyboardArrowRight />
             </IconButton>
@@ -152,7 +153,7 @@ function Inbox(props) {
           const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
           return <InboxRow message={message} key={message.type_object_id}
                            determinateDispatch={determinateDispatch}
-                           expansionOpen={workItemId === message.type_object_id}
+                           expansionOpen={isOnWorkItem && workItemId === message.type_object_id}
                            isDeletable={isDeletable} checked={checked} />;
       })}
       {
@@ -181,7 +182,7 @@ function Inbox(props) {
               item.comment = commentName;
             }
           }
-          const expansionOpen = workItemId === id;
+          const expansionOpen = isOnWorkItem && workItemId === id;
           calculateTitleExpansionPanel({ item, intl, openExpansion: expansionOpen });
           return <WorkListItem id={id} useSelect={false} {...item} key={id} expansionOpen={expansionOpen} />;
         })

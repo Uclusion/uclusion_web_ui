@@ -37,9 +37,9 @@ export function onInvestibleStageChange(targetStageId, newInv, investibleId, mar
 }
 
 export function getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible, marketPresences,
-  marketPresencesState) {
+  marketPresencesState, isVoting) {
   const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
   const commenterPresences = getCommenterPresences(marketPresences, commentsForInvestible, marketPresencesState);
-  const concated = [...votersForInvestible, ...commenterPresences];
+  const concated = isVoting ? votersForInvestible : commenterPresences;
   return _.uniqBy(concated, 'id');
 }

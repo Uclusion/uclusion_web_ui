@@ -509,7 +509,9 @@ function StageInvestible(props) {
     marketPresences,
     numQuestionsSuggestions,
     mobileLayout,
-    unaccepted
+    unaccepted,
+    isReview,
+    isVoting
   } = props;
   const intl = useIntl();
 
@@ -544,7 +546,7 @@ function StageInvestible(props) {
   const planClasses = usePlanFormStyles();
   const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId);
   const collaboratorsForInvestible = getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible,
-    marketPresences, marketPresencesState);
+    marketPresences, marketPresencesState, isVoting);
   const hasDaysEstimate = showCompletion && daysEstimate;
   let chip = mobileLayout ? undefined : getChip(numQuestionsSuggestions,
     numQuestionsSuggestions === 0, 'inputRequiredCountExplanation');
@@ -558,7 +560,7 @@ function StageInvestible(props) {
     <>
       <Grid container>
         <Grid item xs={4}>
-          {!unaccepted && (
+          {!unaccepted && (isVoting || isReview) && (
             <div>
               <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
             </div>
@@ -568,15 +570,15 @@ function StageInvestible(props) {
               <FormattedMessage id='planningUnacceptedLabel' />
             </div>
           )}
+          {hasDaysEstimate && (
+            <div style={{ whiteSpace: 'nowrap' }}>
+              <FormattedMessage id='estimatedCompletionToday' /> <UsefulRelativeTime value={new Date(daysEstimate)}/>
+            </div>
+          )}
         </Grid>
         {ticketNumber && !mobileLayout && (
           <Grid item xs={1} style={{ paddingBottom: '0.2rem' }}>
             <Typography variant="subtitle2" style={{whiteSpace: 'nowrap'}}>J-{ticketNumber}</Typography>
-          </Grid>
-        )}
-        {hasDaysEstimate && (
-          <Grid item xs={2} style={{ marginLeft: '1rem', marginRight: '1rem', whiteSpace: 'nowrap' }}>
-            <FormattedMessage id='estimatedCompletionToday' /> <UsefulRelativeTime value={new Date(daysEstimate)}/>
           </Grid>
         )}
         <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>

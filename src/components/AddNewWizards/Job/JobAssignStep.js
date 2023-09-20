@@ -8,16 +8,24 @@ import WizardStepButtons from '../WizardStepButtons'
 import AssignmentList from '../../../pages/Dialog/Planning/AssignmentList'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { addPlanningInvestible, updateInvestible } from '../../../api/investibles';
+import { addPlanningInvestible, stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router'
-import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { moveCommentsFromIds } from './DecideWhereStep';
 import { useIntl } from 'react-intl';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import {
+  getFullStage, getFurtherWorkStage,
+  getInCurrentVotingStage,
+  isFurtherWorkStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 
 function JobAssignStep (props) {
   const { marketId, updateFormData, formData, onFinish, assigneeId, groupId, marketComments, fromCommentIds } = props;
@@ -25,17 +33,21 @@ function JobAssignStep (props) {
   const value = formData.wasSet ? (formData.assigned || []) : (assigneeId ? [assigneeId] : []);
   const validForm = !_.isEmpty(value);
   const intl = useIntl();
-  const [presencesState] = useContext(MarketPresencesContext);
+  const [presencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const presences = getMarketPresences(presencesState, marketId);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, commentsDispatch] = useContext(CommentsContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const classes = useContext(WizardStylesContext);
+  const { investibleId } = formData;
+  const inv = getInvestible(investiblesState, investibleId);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { stage: stageId } = marketInfo;
+  const fullCurrentStage = getFullStage(marketStagesState, marketId, stageId) || {};
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
   const comments = getCommentThreads(roots, marketComments);
-
-  const { investibleId } = formData;
 
   function onAssignmentChange(newAssignments){
     updateFormData({
@@ -69,16 +81,39 @@ function JobAssignStep (props) {
   }
 
   function assignJob() {
-    const updateInfo = {
-      marketId,
-      investibleId,
-      assignments: value,
-    };
     if (validForm) {
-      return updateInvestible(updateInfo).then((fullInvestible) => {
-        refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
-        return formData;
-      });
+      const isBacklogAlready = isFurtherWorkStage(fullCurrentStage);
+      if ((_.isEmpty(value) && !isBacklogAlready) || (!_.isEmpty(value) && isBacklogAlready)) {
+        // if assignments changing from none to some or vice versa need to use stageChangeInvestible instead
+        const fullMoveStage = isBacklogAlready ? getInCurrentVotingStage(marketStagesState, marketId) :
+          getFurtherWorkStage(marketStagesState, marketId);
+        const moveInfo = {
+          marketId,
+          investibleId,
+          stageInfo: {
+            assignments: value,
+            current_stage_id: stageId,
+            stage_id: fullMoveStage.id,
+          },
+        };
+        return stageChangeInvestible(moveInfo)
+          .then((newInv) => {
+            onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
+              commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+              fullCurrentStage, marketPresencesDispatch);
+            return formData;
+          });
+      } else {
+        const updateInfo = {
+          marketId,
+          investibleId,
+          assignments: value,
+        };
+        return updateInvestible(updateInfo).then((fullInvestible) => {
+          refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
+          return formData;
+        });
+      }
     }
     return Promise.resolve(true);
   }

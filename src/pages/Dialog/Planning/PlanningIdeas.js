@@ -576,7 +576,7 @@ function StageInvestible(props) {
             </div>
           )}
         </Grid>
-        {ticketNumber && !mobileLayout && (
+        {ticketNumber && (
           <Grid item xs={1} style={{ paddingBottom: '0.2rem' }}>
             <Typography variant="subtitle2" style={{whiteSpace: 'nowrap'}}>J-{ticketNumber}</Typography>
           </Grid>

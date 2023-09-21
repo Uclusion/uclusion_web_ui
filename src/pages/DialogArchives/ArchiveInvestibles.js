@@ -25,6 +25,7 @@ import { Block } from '@material-ui/icons';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
 import LightbulbOutlined from '../../components/CustomChip/LightbulbOutlined';
 import DragImage from '../../components/Dialogs/DragImage';
+import UsefulRelativeTime from '../../components/TextFields/UseRelativeTime';
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -124,7 +125,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
                 <Grid container>
                   <Grid item xs={8}>
                     <Typography style={{fontSize: '.75rem', flex: 1}}>
-                      Entered stage {intl.formatDate(enteredStageAt)}
+                      Entered stage <UsefulRelativeTime value={enteredStageAt}/>
                     </Typography>
                   </Grid>
                   {ticketNumber && (

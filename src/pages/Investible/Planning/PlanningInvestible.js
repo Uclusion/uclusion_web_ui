@@ -882,7 +882,8 @@ export function Assignments(props) {
                   <Tooltip
                     title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
                   >
-                    <Typography component="li" className={metaClasses.highlighted}>
+                    <Typography component="li" style={{fontSize: 12, background: '#ffdcdf',
+                      paddingRight: '5px', paddingLeft: '5px'}}>
                       {intl.formatMessage({ id: 'planningUnacceptedLabel' })}
                     </Typography>
                   </Tooltip>

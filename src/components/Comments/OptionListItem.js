@@ -50,6 +50,9 @@ const Title = styled(Text)`
   & > *:not(:first-child) {
     font-size: 12px;
   };
+  @media (max-width: 768px) {
+    max-width: 325px;
+  }
 `;
 
 const TitleB = styled(Title)`
@@ -137,10 +140,9 @@ function OptionListItem(props) {
               {!mobileLayout && (
                 <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{useDescription}</Text>
               )}
-              {mobileLayout && (
-                <Text />
+              {!mobileLayout && (
+                <div style={{flexGrow: 1}}/>
               )}
-              <div style={{flexGrow: 1}}/>
               {showExpansion && (
                 <DateLabel>
                   {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />

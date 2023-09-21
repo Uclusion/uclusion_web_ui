@@ -310,7 +310,8 @@ function DecisionInvestible(props) {
     </div>
   </CardActions>;
   return (
-    <div style={{marginLeft: '1rem', marginRight: mobileLayout ? '1rem' : undefined}} id={`option${investibleId}`}>
+    <div style={{marginLeft: !mobileLayout ? '2rem' : undefined, marginRight: !mobileLayout ? '2rem' : undefined}}
+         id={`option${investibleId}`}>
       <div className={classes.root} id="optionMain">
         <CardType
           className={classes.cardType}
@@ -320,6 +321,17 @@ function DecisionInvestible(props) {
         />
         <GridMobileDiv>
           {mobileLayout && actions}
+          <div className={classes.editRow}>
+            {mobileLayout && isEditableByUser() && !beingEdited && (
+              <div>
+                <EditMarketButton
+                  labelId="edit"
+                  marketId={marketId}
+                  onClick={(event) => mySetBeingEdited(true, event)}
+                />
+              </div>
+            )}
+          </div>
           {mobileLayout && contents}
           {!mobileLayout && (
             <Grid item md={10} xs={12}
@@ -364,7 +376,7 @@ function DecisionInvestible(props) {
       )}
       {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (
         <Grid container spacing={2} style={{paddingBottom: '1rem'}}>
-          <Grid item xs={12} style={{ marginBottom: '1rem' }}>
+          <Grid item xs={12} style={{ marginBottom: '1rem', marginTop: '1rem'  }}>
             {displayCommentInput && (
               <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
                                        onClick={() => navigate(history,

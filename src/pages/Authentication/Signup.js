@@ -24,6 +24,9 @@ import queryString from 'query-string'
 import Gravatar from '../../components/Avatars/Gravatar'
 import CardContent from '@material-ui/core/CardContent'
 import { clearSignedOut, isSignedOut } from '../../utils/userFunctions'
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
+import { Visibility, VisibilityOff } from '@material-ui/icons';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -175,6 +178,8 @@ function Signup(props) {
   const [postSignUp, setPostSignUp] = useState(undefined);
   const [callActive, setCallActive] = useState(false);
   const [wasBlurred, setWasBlurred] = useState(false);
+  const [showPassWord1, setShowPassWord1] = useState(false);
+  const [showPassWord2, setShowPassWord2] = useState(false);
   const intl = useIntl();
   const [myMarket, setMyMarket] = useState(undefined);
   const SIGNUP_LOGO = 'Uclusion_Logo_White_Micro.png';
@@ -530,17 +535,27 @@ function Signup(props) {
                     required
                     fullWidth
                     name="password"
-                    type="password"
+                    type={showPassWord1 ? 'text' : 'password'}
                     id="password"
                     helperText={password.length < 6 ? intl.formatMessage({ id: 'signupPasswordHelper' }) : ''}
-                    InputProps={{
-                      minLength: 6,
-                    }}
                     onBlur={onPasswordBlurred}
                     error={wasBlurred && password.length < 6}
                     autoComplete="new-password"
                     label={intl.formatMessage({ id: 'signupPasswordLabel' })}
                     onChange={handleChange('password')}
+                    InputProps={{
+                      minLength: 6,
+                      endAdornment:
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={() => setShowPassWord1(!showPassWord1)}
+                            onMouseDown={(event) => event.preventDefault()}
+                          >
+                            {showPassWord1 ? <Visibility /> : <VisibilityOff />}
+                          </IconButton>
+                        </InputAdornment>,
+                    }}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -548,13 +563,23 @@ function Signup(props) {
                     value={userState.repeat}
                     id="repeat"
                     name="repeat"
-                    type="password"
+                    type={showPassWord2 ? 'text' : 'password'}
                     variant="outlined"
                     autoComplete="new-password"
                     error={!!repeat && password !== repeat}
                     helperText={repeat !== password ? intl.formatMessage({ id: 'signupPasswordRepeatHelper' }) : ''}
                     InputProps={{
                       minLength: 6,
+                      endAdornment:
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label="toggle password visibility"
+                            onClick={() => setShowPassWord2(!showPassWord2)}
+                            onMouseDown={(event) => event.preventDefault()}
+                          >
+                            {showPassWord2 ? <Visibility /> : <VisibilityOff />}
+                          </IconButton>
+                        </InputAdornment>,
                     }}
                     label={intl.formatMessage({
                       id: 'signupPasswordRepeatLabel',

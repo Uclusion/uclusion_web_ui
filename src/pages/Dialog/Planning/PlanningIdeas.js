@@ -521,7 +521,7 @@ function StageInvestible(props) {
     }
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
-        <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR,
+        <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, marginLeft: '1rem',
           borderRadius: 22, paddingLeft: '6px', paddingRight: '5px', paddingTop: '2px', maxHeight: '20px'}}>
           {labelNum} {intl.formatMessage({ id: 'open' })}
         </span>
@@ -550,11 +550,6 @@ function StageInvestible(props) {
   const hasDaysEstimate = showCompletion && daysEstimate;
   let chip = mobileLayout ? undefined : getChip(numQuestionsSuggestions,
     numQuestionsSuggestions === 0, 'inputRequiredCountExplanation');
-  if (!chip && requiresStatus(messagesState, id)) {
-    chip = <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
-      <Schedule style={{fontSize: 24, color: '#E85757'}}/>
-    </Tooltip>;
-  }
   const ticketNumber = getTicketNumber(ticketCode);
   return (
     <>
@@ -581,10 +576,17 @@ function StageInvestible(props) {
             <Typography variant="subtitle2" style={{whiteSpace: 'nowrap'}}>J-{ticketNumber}</Typography>
           </Grid>
         )}
-        <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
-          <EditOutlinedIcon style={{maxHeight: '1.25rem', marginLeft: '4.5rem'}} />
-        </Grid>
         {chip}
+        {requiresStatus(messagesState, id) && (
+          <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
+            <span className={'MuiTabItem-tag'} style={{ marginLeft: '1rem', marginTop: '-0.1rem' }}>
+              <Schedule style={{fontSize: 24, color: '#E85757'}}/>
+            </span>
+          </Tooltip>
+        )}
+        <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
+          <EditOutlinedIcon style={{maxHeight: '1.25rem', marginLeft: '4rem'}} />
+        </Grid>
       </Grid>
       <div id={`planningIdea${id}`} style={{paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
         <StageLink

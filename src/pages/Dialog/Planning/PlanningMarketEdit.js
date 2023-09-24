@@ -28,6 +28,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { useHistory } from 'react-router'
 import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions'
 import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
+import { StartedExpiration } from '../../../components/AgilePlan/StartedExpiration';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -53,7 +54,8 @@ function PlanningMarketEdit() {
   const verifiedStage = marketStages.find(stage => !stage.allows_tasks) || {};
   const [showInvestiblesAge, setShowInvestiblesAge] = useState(undefined);
   const market = getMarket(marketsState, marketId) || {};
-  const [investmentExpiration, setInvestmentExpiration] = useState(undefined);
+  const [investmentExpiration, setInvestmentExpiration] = useState(market.investment_expiration || 14);
+  const [startedExpiration, setStartedExpiration] = useState(market.started_expiration || 3);
   const nameId = `marketEdit${marketId}`;
 
   function clear() {
@@ -64,6 +66,7 @@ function PlanningMarketEdit() {
     }
     setShowInvestiblesAge(undefined);
     setInvestmentExpiration(undefined);
+    setStartedExpiration(undefined);
   }
 
   function onShowInvestiblesAgeChange(event) {
@@ -126,8 +129,13 @@ function PlanningMarketEdit() {
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <VoteExpiration
               onChange={(event) => setInvestmentExpiration(event.target.value)}
-              defaultValue={market.investment_expiration}
-              value={investmentExpiration || market.investment_expiration}
+              value={investmentExpiration}
+            />
+          </Grid>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <StartedExpiration
+              onChange={(event) => setStartedExpiration(event.target.value)}
+              value={startedExpiration}
             />
           </Grid>
         </Grid>

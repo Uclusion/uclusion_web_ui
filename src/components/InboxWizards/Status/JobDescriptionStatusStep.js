@@ -13,16 +13,49 @@ import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdP
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import UsefulRelativeTime from '../../TextFields/UseRelativeTime';
 
 
 function JobDescriptionStatusStep(props) {
   const { marketId, investibleId, message } = props;
   const classes = wizardStyles();
-  const [commentsState] = useContext(CommentsContext);
   const history = useHistory();
   const intl = useIntl();
+  const [commentsState] = useContext(CommentsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [marketsState] = useContext(MarketsContext);
+  const { is_highlighted: isHighlighted, link_type: linkType } = message;
+  const market = getMarket(marketsState, marketId) || {};
+  const { started_expiration: startedExpiration } = market;
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, true);
+  const inv = getInvestible(investiblesState, investibleId);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { completion_estimate: daysEstimate, last_stage_change_date: lastStageChangeDate } = marketInfo;
+  let millisSinceDue = null;
+  if (daysEstimate) {
+    const daysEstimateDate = new Date(daysEstimate);
+    millisSinceDue = Date.now() - daysEstimateDate.getTime();
+  }
+  let millisStalled = Date.now() - (new Date(lastStageChangeDate)).getTime();
+  if (millisSinceDue < millisStalled) {
+    millisStalled = millisSinceDue;
+  }
+  comments.forEach((comment) => {
+    if (comment.comment_type === REPORT_TYPE) {
+      const millisSinceReporting = Date.now() - (new Date(comment.updated_at)).getTime();
+      if (millisSinceReporting < millisStalled) {
+        millisStalled = millisSinceReporting;
+      }
+    }
+  })
+  const millisBeforeMove = millisStalled - startedExpiration*86400000;
+  const alreadyMoved = linkType === 'INVESTIBLE_STAGE';
 
   return (
     <WizardStepContainer
@@ -31,24 +64,38 @@ function JobDescriptionStatusStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'JobStatusTitle'})}
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Adding an estimated date turns off status reminders until that date. Reporting progress turns off reminders for
-        a day and can be used to get feedback.
-      </Typography>
+      {alreadyMoved && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          This job was moved back to Ready for Approval after {startedExpiration} days with no estimate or progress
+          report.
+        </Typography>
+      )}
+      {!alreadyMoved && millisBeforeMove > 0 && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Without an estimated date or progress report this job moves to Ready for Approval in <UsefulRelativeTime milliSecondsGiven={millisBeforeMove}/>.
+          Reporting progress also gets feedback.
+        </Typography>
+      )}
+      {!alreadyMoved && millisBeforeMove <= 0 && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Without an estimated date or progress report this job will move to Ready for Approval. Reporting progress also
+          gets feedback.
+        </Typography>
+      )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
-        nextLabel="StatusWizardEstimate"
+        nextLabel={alreadyMoved ? 'StatusWizardEstimateStart' : 'StatusWizardEstimate'}
         isFinal={false}
         spinOnClick={false}
-        showOtherNext
+        showOtherNext={!alreadyMoved}
         otherNextLabel="StatusWizardReport"
         onOtherNext={() => {
           navigate(history,
             formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE));
         }}
         otherSpinOnClick={false}
-        showTerminate={message.is_highlighted}
+        showTerminate={isHighlighted}
         terminateLabel="defer"/>
     </WizardStepContainer>
   );

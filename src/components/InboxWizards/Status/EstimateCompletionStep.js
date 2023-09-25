@@ -7,7 +7,7 @@ import DatePicker from 'react-datepicker';
 import WizardStepButtons from '../WizardStepButtons';
 import { getMidnightToday } from '../../../utils/timerUtils';
 import _ from 'lodash';
-import { updateInvestible } from '../../../api/investibles';
+import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
@@ -17,6 +17,11 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { useHistory } from 'react-router';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { getAcceptedStage, getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function EstimateCompletionStep(props) {
   const { marketId, investibleId, message, updateFormData, formData } = props;
@@ -27,10 +32,15 @@ function EstimateCompletionStep(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const { link_type: linkType } = message;
   const marketInvestible = getInvestible(investiblesState, investibleId) || {};
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-  const { completion_estimate: daysEstimate } = marketInfo;
+  const { completion_estimate: daysEstimate, stage: currentStageId } = marketInfo;
   const { newEstimate } = formData;
+  const alreadyMoved = linkType === 'INVESTIBLE_STAGE';
 
   function getDate() {
     if (newEstimate) {
@@ -52,6 +62,27 @@ function EstimateCompletionStep(props) {
   }
   function submit() {
     if (!_.isEqual(newEstimate, daysEstimate)) {
+      if (alreadyMoved) {
+        const startedStage = getAcceptedStage(marketStagesState, marketId);
+        const moveInfo = {
+          marketId,
+          investibleId,
+          stageInfo: {
+            completion_estimate: newEstimate,
+            current_stage_id: currentStageId,
+            stage_id: startedStage.id,
+          },
+        };
+        const fullCurrentStage = getFullStage(marketStagesState, marketId, currentStageId);
+        return stageChangeInvestible(moveInfo)
+          .then((newInv) => {
+            onInvestibleStageChange(startedStage.id, newInv, investibleId, marketId, commentsState,
+              commentsDispatch, investiblesDispatch, diffDispatch, marketStagesState, undefined,
+              fullCurrentStage, marketPresencesDispatch);
+            setOperationRunning(false);
+            dismissWorkListItem(message, messagesDispatch, history);
+          });
+      }
       const updateInfo = {
         marketId,
         investibleId,
@@ -86,7 +117,7 @@ function EstimateCompletionStep(props) {
         <div style={{paddingBottom: '1rem'}} />
         <WizardStepButtons
           {...props}
-          nextLabel="StatusWizardDate"
+          nextLabel={alreadyMoved ? 'StatusWizardDateStart' : 'StatusWizardDate'}
           onNext={submit}
           showTerminate={true}
           terminateLabel="defer"/>

@@ -7,10 +7,10 @@ import { useMediaQuery, useTheme } from '@material-ui/core'
  * Convenience wrapper around FormattedRelativeTime for displaying how long ago something was created
  */
 function UsefulRelativeTime (props) {
-  const { value: timeGiven, ...other } = props;
+  const { value: timeGiven, milliSecondsGiven, ...other } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const milliseconds = timeGiven - Date.now();
+  const milliseconds = milliSecondsGiven || timeGiven - Date.now();
   const seconds = Math.trunc(milliseconds / 1000)
   const useSeconds = seconds >= 0 ? -1 : seconds;
   const minutes = Math.trunc(seconds / 60)
@@ -33,7 +33,8 @@ function UsefulRelativeTime (props) {
 }
 
 UsefulRelativeTime.propTypes = {
-  value: PropTypes.instanceOf(Date).isRequired,
+  value: PropTypes.instanceOf(Date),
+  milliSecondsGiven: PropTypes.number
 }
 
 export default UsefulRelativeTime

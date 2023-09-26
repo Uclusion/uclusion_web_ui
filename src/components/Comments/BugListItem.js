@@ -69,8 +69,10 @@ const Text = styled("div")`
 const Title = styled(Text)`
   flex-basis: 1000px;
   min-width: 13vw;
-  flex-shrink: 0;
-  flex-grow: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-grow: 1;
   & > *:not(:first-child) {
     font-size: 12px;
     margin-left: 4px;

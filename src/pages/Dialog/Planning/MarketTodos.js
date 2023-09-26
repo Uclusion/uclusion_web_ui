@@ -26,7 +26,7 @@ import { getThreadIds } from '../../../utils/commentFunctions';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import { deleteOrDehilightMessages } from '../../../api/users';
-import { nameFromDescription } from '../../../utils/stringFunctions';
+import { stripHTML } from '../../../utils/stringFunctions';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
 import { BUG_WIZARD_TYPE } from '../../../constants/markets';
 import BugListItem from '../../../components/Comments/BugListItem';
@@ -283,7 +283,7 @@ function MarketTodos(props) {
       const determinateChecked = determinate[id];
       const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
       return (
-        <BugListItem id={id} replyNum={replies.length + 1} title={nameFromDescription(body, 1000)}
+        <BugListItem id={id} replyNum={replies.length + 1} title={stripHTML(body)}
                      isNew={isNewComment(comment, messagesState)} date={intl.formatDate(updatedAt)}
                      message={findMessageForCommentId(id, messagesState)}
                      useSelect={!isInArchives} expansionPanel={expansionPanel} checked={checked}

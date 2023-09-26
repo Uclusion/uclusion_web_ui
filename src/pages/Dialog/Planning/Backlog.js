@@ -5,7 +5,7 @@ import { useHistory } from 'react-router';
 import _ from 'lodash';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import BacklogListItem from '../../../components/Cards/BacklogListItem';
-import { nameFromDescription } from '../../../utils/stringFunctions';
+import { stripHTML } from '../../../utils/stringFunctions';
 import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { getCollaboratorsForInvestible, onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -173,7 +173,7 @@ function Backlog(props) {
           votersForInvestible, marketPresences, marketPresencesState);
         return (
           <BacklogListItem id={investible.id} title={investible.name} date={intl.formatDate(investible.created_at)}
-                           description={nameFromDescription(investible.description, 1000)}
+                           description={stripHTML(investible.description)}
                            isNew={isNew(inv, messagesState)}
                            marketId={marketId} people={collaboratorsForInvestible} />
         );

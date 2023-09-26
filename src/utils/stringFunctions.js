@@ -24,7 +24,7 @@ function decode(str) {
   return txt.documentElement.textContent;
 }
 
-function stripHTML(foundSubstring) {
+export function stripHTML(foundSubstring) {
   if (foundSubstring) {
     const htmlRemoved = decode(foundSubstring);
     if (htmlRemoved) {

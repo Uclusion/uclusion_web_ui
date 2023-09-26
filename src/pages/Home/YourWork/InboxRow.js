@@ -3,7 +3,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { nameFromDescription } from '../../../utils/stringFunctions';
+import { stripHTML } from '../../../utils/stringFunctions';
 import { calculateTitleExpansionPanel } from './InboxExpansionPanel';
 import WorkListItem from './WorkListItem';
 import React, { useContext } from 'react';
@@ -140,13 +140,13 @@ function InboxRow(props) {
     if (rootComment) {
       if (rootComment.id !== commentId) {
         const originalComment = getComment(commentState, commentMarketId || marketId, commentId) || {};
-        const comment = nameFromDescription(originalComment.body);
+        const comment = stripHTML(originalComment.body);
         if (comment) {
           item.comment = comment;
         }
       }
       if (!item.comment) {
-        const comment = nameFromDescription(rootComment.body);
+        const comment = stripHTML(rootComment.body);
         if (comment) {
           item.comment = comment;
         }

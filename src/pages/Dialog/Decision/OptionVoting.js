@@ -6,7 +6,7 @@ import DecisionInvestible from '../../Investible/Decision/DecisionInvestible';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import OptionListItem from '../../../components/Comments/OptionListItem';
-import { nameFromDescription } from '../../../utils/stringFunctions';
+import { stripHTML } from '../../../utils/stringFunctions';
 import { isNew } from '../../../components/Comments/Options';
 
 function OptionVoting(props) {
@@ -37,7 +37,7 @@ function OptionVoting(props) {
       />
     }
     const investibleId = inv.investible.id;
-    const description = nameFromDescription(inv.investible.description);
+    const description = stripHTML(inv.investible.description);
     const investors = marketPresences.filter((presence) =>
       presence.investments?.find((investment) => !investment.deleted && investment.investible_id === investibleId));
     return (

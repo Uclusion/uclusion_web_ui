@@ -17,7 +17,7 @@ import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { calculateTitleExpansionPanel, createDefaultInboxRow } from './InboxExpansionPanel';
 import { getUnpaginatedItems, PAGE_SIZE, setPage, setTab } from './InboxContext';
-import { nameFromDescription } from '../../../utils/stringFunctions';
+import { stripHTML } from '../../../utils/stringFunctions';
 import { setOperationInProgress } from '../../../components/ContextHacks/OperationInProgressGlobalProvider';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { formInboxItemLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -177,7 +177,7 @@ function Inbox(props) {
             item.investible = investible;
           }
           if (comment) {
-            const commentName = nameFromDescription(comment);
+            const commentName = stripHTML(comment);
             if (commentName) {
               item.comment = commentName;
             }

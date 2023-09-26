@@ -43,7 +43,7 @@ function JobDescriptionStatusStep(props) {
     millisSinceDue = Date.now() - daysEstimateDate.getTime();
   }
   let millisStalled = Date.now() - (new Date(lastStageChangeDate)).getTime();
-  if (millisSinceDue < millisStalled) {
+  if (millisSinceDue !== null && millisSinceDue < millisStalled) {
     millisStalled = millisSinceDue;
   }
   comments.forEach((comment) => {
@@ -54,7 +54,7 @@ function JobDescriptionStatusStep(props) {
       }
     }
   })
-  const millisBeforeMove = millisStalled - startedExpiration*86400000;
+  const millisBeforeMove = startedExpiration*86400000 - millisStalled;
   const alreadyMoved = linkType === 'INVESTIBLE_STAGE';
 
   return (
@@ -72,7 +72,7 @@ function JobDescriptionStatusStep(props) {
       )}
       {!alreadyMoved && millisBeforeMove > 0 && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Without an estimated date or progress report this job moves to Ready for Approval in <UsefulRelativeTime milliSecondsGiven={millisBeforeMove}/>.
+          Without an estimated date or progress report this job moves to Ready for Approval <UsefulRelativeTime milliSecondsGiven={millisBeforeMove}/>.
           Reporting progress also gets feedback.
         </Typography>
       )}

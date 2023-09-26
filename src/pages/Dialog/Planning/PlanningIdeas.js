@@ -50,6 +50,7 @@ import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messag
 import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import DragImage from '../../../components/Dialogs/DragImage';
 import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime';
+import { isInPast } from '../../../utils/timerUtils';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -547,7 +548,7 @@ function StageInvestible(props) {
   const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId);
   const collaboratorsForInvestible = getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible,
     marketPresences, marketPresencesState, isVoting);
-  const hasDaysEstimate = showCompletion && daysEstimate;
+  const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
   let chip = mobileLayout ? undefined : getChip(numQuestionsSuggestions,
     numQuestionsSuggestions === 0, 'inputRequiredCountExplanation');
   const ticketNumber = getTicketNumber(ticketCode);

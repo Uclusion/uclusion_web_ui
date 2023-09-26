@@ -151,7 +151,6 @@ function WorkListItem(props) {
     investible = '',
     market= '',
     comment = '',
-    moreDescription = '',
     title = (<div />),
     people,
     message,
@@ -227,12 +226,7 @@ function WorkListItem(props) {
             </Box>
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            {moreDescription && !mobileLayout && (
-              <Text style={{ maxWidth: '55vw' }}>{fullText} - {moreDescription}</Text>
-            )}
-            {(!moreDescription || mobileLayout) && (
-              <Text style={{ maxWidth: '55vw' }}>{fullText}</Text>
-            )}
+            <Text style={{ maxWidth: '55vw' }}>{fullText}</Text>
             {showExpansion || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
               (<DateLabelB>{date}</DateLabelB>))}
             {showExpansion && (

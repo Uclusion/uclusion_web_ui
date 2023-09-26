@@ -138,12 +138,17 @@ function InboxRow(props) {
     }
     rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
     if (rootComment) {
-      const comment = nameFromDescription(rootComment.body);
-      if (comment) {
-        item.comment = comment;
-        if (rootComment.id !== commentId) {
-          const originalComment = getComment(commentState, commentMarketId || marketId, commentId) || {};
-          item.moreDescription = nameFromDescription(originalComment.body);
+      if (rootComment.id !== commentId) {
+        const originalComment = getComment(commentState, commentMarketId || marketId, commentId) || {};
+        const comment = nameFromDescription(originalComment.body);
+        if (comment) {
+          item.comment = comment;
+        }
+      }
+      if (!item.comment) {
+        const comment = nameFromDescription(rootComment.body);
+        if (comment) {
+          item.comment = comment;
         }
       }
     }

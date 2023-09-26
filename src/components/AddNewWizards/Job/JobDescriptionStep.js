@@ -25,7 +25,7 @@ function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData, jobType } = props;
   const history = useHistory();
   const [, commentsDispatch] = useContext(CommentsContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const radioClasses = bugRadioStyles();
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
@@ -93,7 +93,7 @@ function JobDescriptionStep (props) {
         });
         if (fromCommentIds) {
           return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
-            commentsDispatch)
+            commentsDispatch, messagesDispatch)
         }
         return {link};
       })

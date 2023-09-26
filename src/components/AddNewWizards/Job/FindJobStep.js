@@ -28,7 +28,7 @@ function FindJobStep(props) {
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [groupState] = useContext(MarketGroupsContext);
   const { investibleId } = formData;
@@ -61,7 +61,7 @@ function FindJobStep(props) {
     return moveComments(marketId, investibleId, fromCommentIds)
       .then((movedComments) => {
         onCommentsMove(fromCommentIds, messagesState, marketComments, investibleId, commentsDispatch, marketId,
-          movedComments);
+          movedComments, messagesDispatch);
         clearFormData();
         navigate(history, link);
       });

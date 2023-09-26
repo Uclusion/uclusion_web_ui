@@ -37,7 +37,7 @@ function JobAssignStep (props) {
   const presences = getMarketPresences(presencesState, marketId);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const classes = useContext(WizardStylesContext);
   const { investibleId } = formData;
@@ -76,7 +76,7 @@ function JobAssignStep (props) {
           link,
         });
         return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
-          commentsDispatch);
+          commentsDispatch, messagesDispatch);
       })
   }
 

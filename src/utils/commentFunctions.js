@@ -117,10 +117,10 @@ export function changeInvestibleStageOnCommentClose(market_infos, rootInvestible
 }
 
 export function onCommentsMove(fromCommentIds, messagesState, marketComments, investibleId, commentsDispatch, marketId,
-  movedComments) {
+  movedComments, messagesDispatch) {
   let threads = []
   fromCommentIds.forEach((commentId) => {
-    removeMessagesForCommentId(commentId, messagesState);
+    removeMessagesForCommentId(commentId, messagesState, messagesDispatch);
     const thread = marketComments.filter((aComment) => {
       return aComment.root_comment_id === commentId;
     });

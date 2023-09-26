@@ -53,7 +53,7 @@ function FindJobStep(props) {
     return moveComments(marketId, investibleId, [commentId])
       .then((movedComments) => {
         onCommentsMove([commentId], messagesState, comments, investibleId, commentsDispatch,
-          marketId, movedComments);
+          marketId, movedComments, messagesDispatch);
         if (doStayInInbox) {
           setOperationRunning(false);
           myTerminate();

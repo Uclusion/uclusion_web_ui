@@ -17,13 +17,13 @@ import { useIntl } from 'react-intl';
 import { onCommentsMove } from '../../../utils/commentFunctions';
 
 export function moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
-  commentsDispatch) {
+  commentsDispatch, messagesDispatch) {
   const { investible } = inv;
   const investibleId = investible.id;
   return moveComments(marketId, investibleId, fromCommentIds)
     .then((movedComments) => {
       onCommentsMove(fromCommentIds, messagesState, comments, investibleId, commentsDispatch, marketId,
-        movedComments);
+        movedComments, messagesDispatch);
       const link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
       updateFormData({
         investibleId,
@@ -37,7 +37,7 @@ function DecideWhereStep (props) {
   const { marketId, updateFormData, fromCommentIds, marketComments, groupId, isNonBugMove } = props;
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, commentsDispatch] = useContext(CommentsContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const classes = useContext(WizardStylesContext);
   const intl = useIntl();
   const roots = (fromCommentIds || []).map((fromCommentId) =>
@@ -64,7 +64,7 @@ function DecideWhereStep (props) {
           link,
         });
         return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
-          commentsDispatch);
+          commentsDispatch, messagesDispatch);
       })
   }
 

@@ -156,7 +156,7 @@ export function doRemoveEdit(id) {
 }
 
 export function onDropTodo(commentId, commentsState, marketId, setOperationRunning, intl, commentsDispatch, invDispatch,
-  presenceId, stageId, nameId, messagesState) {
+  presenceId, stageId, nameId, messagesState, messagesDispatch) {
   const comments = getMarketComments(commentsState, marketId) || [];
   const fromComment = comments.find((comment) => comment.id === commentId);
   if (fromComment) {
@@ -183,7 +183,7 @@ export function onDropTodo(commentId, commentsState, marketId, setOperationRunni
       return moveComments(marketId, investible.id, [commentId])
         .then((movedComments) => {
           onCommentsMove([commentId], messagesState, comments, investible.id, commentsDispatch, marketId,
-            movedComments);
+            movedComments, messagesDispatch);
           addInvestible(invDispatch, () => {}, inv);
           if (setOperationRunning) {
             setOperationRunning(false);

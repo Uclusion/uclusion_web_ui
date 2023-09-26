@@ -44,7 +44,7 @@ export const useInvestibleEditStyles = makeStyles(
       }
     },
     title: {
-      fontSize: 32,
+      fontSize: 28,
       lineHeight: '42px',
       paddingBottom: '9px',
       [theme.breakpoints.down('sm')]: {

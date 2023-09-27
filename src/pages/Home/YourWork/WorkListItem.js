@@ -75,6 +75,7 @@ const Title = styled(Text)`
   min-width: 13vw;
   flex-shrink: 0;
   flex-grow: 0;
+  color: black;
   & > *:not(:first-child) {
     font-size: 12px;
     margin-left: 4px;

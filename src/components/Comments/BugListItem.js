@@ -69,6 +69,7 @@ const Text = styled("div")`
 const Title = styled(Text)`
   flex-basis: 1000px;
   min-width: 13vw;
+  color: black;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

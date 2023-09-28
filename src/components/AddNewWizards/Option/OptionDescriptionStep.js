@@ -92,6 +92,7 @@ function OptionDescriptionStep (props) {
         showOtherNext
         onOtherNext={createOption}
         onOtherDoAdvance={false}
+        isOtherFinal={false}
         otherNextLabel="JobCommentCreateAnotherOption"
         onTerminate={() => navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId,
           parentCommentId))}

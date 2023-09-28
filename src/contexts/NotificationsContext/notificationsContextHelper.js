@@ -62,7 +62,16 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
   }
   if (marketInvestibleId) {
     checked = true;
-    const inv = getInvestible(investiblesState, decisionInvestibleId || investibleId) || {};
+    let inv;
+    if (decisionInvestibleId || investibleId) {
+      inv = getInvestible(investiblesState, decisionInvestibleId || investibleId) || {};
+    } else {
+      const values = Object.values(investiblesState);
+      inv = values.find((inv) => {
+        const marketInfo = getMarketInfo(inv, marketId);
+        return marketInfo?.id === marketInvestibleId;
+      });
+    }
     let marketInfo = getMarketInfo(inv, marketId);
     if (_.isEmpty(marketInfo)) {
       marketInfo = getMarketInfo(inv, commentMarketId);

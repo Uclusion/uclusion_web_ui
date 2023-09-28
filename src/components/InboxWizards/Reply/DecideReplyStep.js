@@ -17,14 +17,14 @@ import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { findMessageForCommentId, removeInlineMarketMessages } from '../../../utils/messageUtils';
 import _ from 'lodash';
-import { resolveComment } from '../../../api/comments';
+import { resolveComment, updateComment } from '../../../api/comments';
 import { getFullStage, isRequiredInputStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { REPORT_TYPE } from '../../../constants/comments';
+import { REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { useHistory } from 'react-router';
 import { isSingleAssisted } from '../../../utils/commentFunctions';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -42,7 +42,8 @@ function DecideReplyStep(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
-  const canResolve = commentRoot.created_by === userId && commentRoot.comment_type !== REPORT_TYPE;
+  const { comment_type: commentType } = commentRoot;
+  const canResolve = commentRoot.created_by === userId && commentType !== REPORT_TYPE;
   const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState)
   const comments = investibleComments.filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
@@ -62,6 +63,13 @@ function DecideReplyStep(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  let isAssigned = false;
+  if (inv) {
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    const { assigned } = marketInfo;
+    isAssigned = (assigned || []).includes(userId);
+  }
+  const showMoveToTask = commentType === SUGGEST_CHANGE_TYPE && isAssigned;
 
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -69,6 +77,14 @@ function DecideReplyStep(props) {
 
   function dismissAll() {
     threadMessages.forEach((aMessage) => removeWorkListItem(aMessage, messagesDispatch, history))
+  }
+
+  function moveToTask() {
+    return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
+      addCommentToMarket(comment, commentState, commentDispatch);
+      setOperationRunning(false);
+      dismissWorkListItem(message, messagesDispatch, history);
+    })
   }
 
   function resolve() {
@@ -105,6 +121,11 @@ function DecideReplyStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'unreadReply'})}
       </Typography>
+      {showMoveToTask && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Click the suggestion for other operations like resolve or add voting.
+        </Typography>
+      )}
       {commentRoot.investible_id && (
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                         showDescription={false}
@@ -130,9 +151,9 @@ function DecideReplyStep(props) {
         isFinal={false}
         spinOnClick={false}
         showOtherNext={canResolve || hasThreadMessages}
-        otherNextLabel={canResolve ? 'issueResolveLabel' : 'notificationDelete'}
+        otherNextLabel={showMoveToTask ? 'moveToTaskLabel' : (canResolve ? 'issueResolveLabel' : 'notificationDelete')}
         isOtherFinal
-        onOtherNext={canResolve ? resolve : myOnFinish}
+        onOtherNext={showMoveToTask ? moveToTask : (canResolve ? resolve : myOnFinish)}
         onOtherNextDoAdvance={false}
         otherSpinOnClick={canResolve}
         showTerminate

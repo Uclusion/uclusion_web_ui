@@ -31,7 +31,7 @@ import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateH
 import { TOKEN_TYPE_MARKET } from '../../api/tokenConstants';
 
 function ConfigureCommentStep(props) {
-  const { updateFormData, formData, useType, comment, allowMulti } = props;
+  const { updateFormData, formData, useType, comment, allowMulti, previousStep, navigateOnFinish } = props;
   const classes = useContext(WizardStylesContext);
   const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -191,7 +191,7 @@ function ConfigureCommentStep(props) {
         onNext={configureComment}
         spinOnClick={true}
         showTerminate={true}
-        onTerminate={onFinish}
+        onTerminate={navigateOnFinish ? onFinish : previousStep}
         terminateLabel="OnboardingWizardGoBack"
       />
     </WizardStepContainer>
@@ -200,12 +200,14 @@ function ConfigureCommentStep(props) {
 
 ConfigureCommentStep.propTypes = {
   updateFormData: PropTypes.func,
-  formData: PropTypes.object
+  formData: PropTypes.object,
+  navigateOnFinish: PropTypes.bool
 };
 
 ConfigureCommentStep.defaultProps = {
   updateFormData: () => {},
-  formData: {}
+  formData: {},
+  navigateOnFinish: false
 };
 
 export default ConfigureCommentStep;

@@ -123,7 +123,7 @@ function DecideReplyStep(props) {
       </Typography>
       {showMoveToTask && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Click the suggestion for other operations like resolve or add voting.
+          Click the suggestion to leave this wizard and resolve or add voting.
         </Typography>
       )}
       {commentRoot.investible_id && (

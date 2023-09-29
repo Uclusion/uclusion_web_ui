@@ -64,7 +64,8 @@ function DecideAnswerStep(props) {
       </Typography>
       {message.type !== 'UNREAD_COMMENT' && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Answer here by clicking an option and approving or click the question to reply, mute, or add an option comment.
+          Click an option and approve it or propose a new option. Click the question to leave this wizard and reply,
+          mute, or resolve.
         </Typography>
       )}
       {commentRoot.investible_id && (

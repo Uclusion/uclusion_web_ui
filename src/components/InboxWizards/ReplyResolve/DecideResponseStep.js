@@ -45,10 +45,11 @@ function DecideResponseStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'DecideResponseTitle'})}
+        {intl.formatMessage({id: 'DecideIdeaTitle'})}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        The creator of this suggestion wants feedback on this idea for this job.
+        If you are very certain then move this suggestion to a task and otherwise reply. Click the suggestion to
+        leave this wizard and add voting, resolve, or move."
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} removeActions />
       <WizardStepButtons

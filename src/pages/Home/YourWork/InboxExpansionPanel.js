@@ -114,7 +114,7 @@ export function calculateTitleExpansionPanel(props) {
           'DecideAcceptRejectTitle', intl);
       } else {
         setItem(item, openExpansion, <ReplyResolveWizard commentId={commentId} marketId={marketId} message={message}/>,
-          'DecideResponseTitle', intl);
+          'DecideIdeaTitle', intl);
       }
     } else if ('INLINE_STORY_COMMENT' === linkType) {
       setItem(item, openExpansion, <RespondInOptionWizard marketId={commentMarketId || marketId} commentId={commentId}

@@ -22,8 +22,10 @@ import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGr
 import { getInvestibleName } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import PropTypes from 'prop-types';
 
-function SearchBox () {
+function SearchBox(props) {
+  const { disableSearch } = props;
   const location = useLocation();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -162,6 +164,7 @@ function SearchBox () {
             ev.preventDefault();
           }
         }}
+        disabled={disableSearch}
         inputRef={inputRef}
         placeholder={`${intl.formatMessage({ id: mobileLayout ? 'searchBoxPlaceholderMobile' 
             : 'searchBoxPlaceholder' })} ${mobileLayout ? '' : searchedName}`}
@@ -185,6 +188,14 @@ function SearchBox () {
       />
     </div>
   );
+}
+
+SearchBox.prototypes = {
+  disableSearch: PropTypes.bool
+}
+
+SearchBox.defaultProps = {
+  disableSearch: false
 }
 
 export default SearchBox;

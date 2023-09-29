@@ -20,9 +20,9 @@ export function setTab(tabNum) {
   };
 }
 
-function searchFiltered(raw, searchResults) {
+function searchFiltered(raw, searchResults, workItemId) {
   const { results, parentResults, search } = searchResults;
-  return _.isEmpty(search) ? raw : raw.filter((message) => {
+  return _.isEmpty(search) || workItemId ? raw : raw.filter((message) => {
       const { type_object_id: typeObjectId,  investible_id: investibleId, comment_id: commentId, id } = message;
       const allIds = [investibleId, commentId, id];
       const typeObjectIdSafe = typeObjectId || '';
@@ -31,9 +31,9 @@ function searchFiltered(raw, searchResults) {
     });
 }
 
-export function getMessages(allOutBoxMessagesOrderedRaw, messagesFullRaw, searchResults) {
-  const messagesFull = searchFiltered(messagesFullRaw, searchResults);
-  const outBoxMessagesOrdered = searchFiltered(allOutBoxMessagesOrderedRaw, searchResults);
+export function getMessages(allOutBoxMessagesOrderedRaw, messagesFullRaw, searchResults, workItemId) {
+  const messagesFull = searchFiltered(messagesFullRaw, searchResults, workItemId);
+  const outBoxMessagesOrdered = searchFiltered(allOutBoxMessagesOrderedRaw, searchResults, workItemId);
   const inboxMessagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
   return {outBoxMessagesOrdered, inboxMessagesOrdered };
 }

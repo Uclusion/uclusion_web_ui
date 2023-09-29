@@ -25,6 +25,7 @@ import { getOutboxMessages } from './InboxExpansionPanel'
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper'
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions';
+import _ from 'lodash';
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -53,7 +54,8 @@ function InboxFull(props) {
   });
   const allOutBoxMessagesOrdered = getOutboxMessages({messagesState, marketsState, marketPresencesState,
     investiblesState, marketStagesState, commentsState, intl});
-  const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesFull, searchResults);
+  const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesFull,
+    searchResults, workItemId);
   const [inboxState, inboxDispatch] = useReducer(getReducer(messagesHash),
     {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
@@ -87,6 +89,7 @@ function InboxFull(props) {
       tabTitle={intl.formatMessage({id: 'inbox'})}
       hidden={hidden}
       isInbox
+      disableSearch={!_.isEmpty(workItemId)}
       showBanner
     >
       <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} loadingFromInvite={fromInvite}

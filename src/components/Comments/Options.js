@@ -38,7 +38,7 @@ export function isNewComment(comment, messagesState) {
 
 function Options(props) {
   const { anInlineMarket, marketId, investibleId, inArchives, isEditable, isSent, groupId, removeActions,
-    selectedInvestibleIdParent, setSelectedInvestibleIdParent, searchResults } = props;
+    selectedInvestibleIdParent, setSelectedInvestibleIdParent, searchResults, isInbox } = props;
   const location = useLocation();
   const { hash } = location;
   const intl = useIntl();
@@ -51,7 +51,8 @@ function Options(props) {
   const [selectedInvestibleIdLocal, setSelectedInvestibleIdLocal] = useState(undefined);
   const selectedInvestibleId = selectedInvestibleIdParent || selectedInvestibleIdLocal;
   const setSelectedInvestibleId = setSelectedInvestibleIdParent || setSelectedInvestibleIdLocal;
-  const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults) || [];
+  const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults, isInbox)
+    || [];
   const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const underConsiderationStage = getInCurrentVotingStage(marketStagesState, anInlineMarket.id);

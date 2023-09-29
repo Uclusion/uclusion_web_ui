@@ -189,7 +189,8 @@ function Screen(props) {
     navigationOptions,
     hideMenu,
     overrideMenu,
-    showBanner
+    showBanner,
+    disableSearch
   } = props;
   const usedBanner = banner ?? bannerState;
   const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
@@ -319,6 +320,7 @@ function Screen(props) {
           hidden={reallyAmLoading}
           appEnabled={appEnabled}
           navMenu={sideNavigationContents}
+          disableSearch={disableSearch}
         />
       )}
       {!hideMenu && !mobileLayout && !hidden && (
@@ -360,7 +362,8 @@ Screen.propTypes = {
   children: PropTypes.any,
   tabTitle: PropTypes.string,
   appEnabled: PropTypes.bool,
-  banner: PropTypes.node
+  banner: PropTypes.node,
+  disableSearch: PropTypes.bool
 };
 
 Screen.defaultProps = {
@@ -372,7 +375,8 @@ Screen.defaultProps = {
   toolbarButtons: [],
   sidebarActions: [],
   appEnabled: true,
-  banner: undefined
+  banner: undefined,
+  disableSearch: false
 };
 
 export default Screen;

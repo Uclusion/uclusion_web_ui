@@ -28,13 +28,13 @@ function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   return myRootUpdatedAt;
 }
 
-export function getSortedRoots(allComments, searchResults, preserveOrder) {
+export function getSortedRoots(allComments, searchResults, preserveOrder, isInboxExpansion) {
   const { results, parentResults, search } = searchResults;
   if (_.isEmpty(allComments)) {
     return [];
   }
   let comments = allComments;
-  if (!_.isEmpty(search)) {
+  if (!_.isEmpty(search) && !isInboxExpansion) {
     comments = allComments.filter((comment) => {
       return results.find((item) => item.id === comment.id) ||
         parentResults.find((id) => id === comment.id);
@@ -96,7 +96,7 @@ function CommentBox(props) {
     useInProgressSorting } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
-  let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder);
+  let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox);
   if (useInProgressSorting) {
     sortedRoots = sortInProgress(sortedRoots);
   }

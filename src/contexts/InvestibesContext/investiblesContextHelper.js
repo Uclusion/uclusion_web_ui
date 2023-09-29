@@ -11,13 +11,13 @@ import {
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 import { getMarketInfo } from '../../utils/userFunctions'
 
-export function getMarketInvestibles(state, marketId, searchResults={}) {
+export function getMarketInvestibles(state, marketId, searchResults={}, isInbox=false) {
   const { results, parentResults, search } = searchResults;
   const values = Object.values(state);
   return values.filter((inv) => {
     const { investible } = inv;
     const marketInfo = getMarketInfo(inv, marketId);
-    if (!_.isEmpty(search) && !(results.find((item) => item.id === investible.id) ||
+    if ((!_.isEmpty(search) && !isInbox) && !(results.find((item) => item.id === investible.id) ||
       parentResults.find((id) => id === investible.id))) {
       return false;
     }

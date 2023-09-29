@@ -152,7 +152,7 @@ function Header (props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
-  const { toolbarButtons, appEnabled, hideTools, navMenu } = props;
+  const { toolbarButtons, appEnabled, hideTools, navMenu, disableSearch } = props;
   const [operationRunning] = useContext(OperationInProgressContext);
   const [logoTimer, setLogoTimer] = useState(undefined);
   const [logoImage, setLogoImage] = useState(NORMAL_LOGO);
@@ -241,7 +241,7 @@ function Header (props) {
               </Paper>
             </div>
           )}
-          <SearchBox/>
+          <SearchBox disableSearch={disableSearch}/>
           {!hideTools && (
             <React.Fragment>
               <div className={classes.grow}/>

@@ -131,6 +131,7 @@ function DecideReplyStep(props) {
                         showDescription={false}
                         showAssigned={false}
                         removeActions
+                        showVoting
                         inboxMessageId={commentId} />
       )}
       {!commentRoot.investible_id && (
@@ -140,6 +141,7 @@ function DecideReplyStep(props) {
             marketId={marketId}
             allowedTypes={[]}
             isInbox
+            showVoting
             inboxMessageId={commentId}
             removeActions
           />

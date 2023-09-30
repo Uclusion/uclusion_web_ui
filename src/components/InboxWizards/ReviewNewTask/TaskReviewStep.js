@@ -18,6 +18,7 @@ import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/You
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { updateComment } from '../../../api/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function TaskReviewStep(props) {
   const { marketId, commentId, message } = props;
@@ -38,7 +39,8 @@ function TaskReviewStep(props) {
     return updateComment({marketId, commentId, inProgress: true}).then((comment) => {
       setOperationRunning(false);
       addCommentToMarket(comment, commentsState, commentsDispatch);
-      dismissWorkListItem(message, messagesDispatch, history);
+      dismissWorkListItem(message, messagesDispatch);
+      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
     });
   }
 

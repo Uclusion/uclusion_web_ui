@@ -1229,7 +1229,7 @@ const messages = defineMessages({
 
   //Status Wizard
   StatusWizardEstimate: 'Estimate date',
-  StatusWizardEstimateStart: 'Estimate date and start',
+  StatusWizardEstimateStart: 'Estimate and start',
   StatusWizardReport: 'Report progress',
   StatusWizardDate: 'Set date',
   StatusWizardDateStart: 'Set date and start',

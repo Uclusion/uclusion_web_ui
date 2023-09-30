@@ -61,40 +61,38 @@ function EstimateCompletionStep(props) {
     }
   }
   function submit() {
-    if (!_.isEqual(newEstimate, daysEstimate)) {
-      if (alreadyMoved) {
-        const startedStage = getAcceptedStage(marketStagesState, marketId);
-        const moveInfo = {
-          marketId,
-          investibleId,
-          stageInfo: {
-            completion_estimate: newEstimate,
-            current_stage_id: currentStageId,
-            stage_id: startedStage.id,
-          },
-        };
-        const fullCurrentStage = getFullStage(marketStagesState, marketId, currentStageId);
-        return stageChangeInvestible(moveInfo)
-          .then((newInv) => {
-            onInvestibleStageChange(startedStage.id, newInv, investibleId, marketId, commentsState,
-              commentsDispatch, investiblesDispatch, diffDispatch, marketStagesState, undefined,
-              fullCurrentStage, marketPresencesDispatch);
-            setOperationRunning(false);
-            dismissWorkListItem(message, messagesDispatch, history);
-          });
-      }
-      const updateInfo = {
+    if (alreadyMoved) {
+      const startedStage = getAcceptedStage(marketStagesState, marketId);
+      const moveInfo = {
         marketId,
         investibleId,
-        daysEstimate: newEstimate,
+        stageInfo: {
+          completion_estimate: newEstimate,
+          current_stage_id: currentStageId,
+          stage_id: startedStage.id,
+        },
       };
-      setOperationRunning(true);
-      return updateInvestible(updateInfo).then((fullInvestible) => {
-        refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
-        setOperationRunning(false);
-        dismissWorkListItem(message, messagesDispatch, history);
-      });
+      const fullCurrentStage = getFullStage(marketStagesState, marketId, currentStageId);
+      return stageChangeInvestible(moveInfo)
+        .then((newInv) => {
+          onInvestibleStageChange(startedStage.id, newInv, investibleId, marketId, commentsState,
+            commentsDispatch, investiblesDispatch, diffDispatch, marketStagesState, undefined,
+            fullCurrentStage, marketPresencesDispatch);
+          setOperationRunning(false);
+          dismissWorkListItem(message, messagesDispatch, history);
+        });
     }
+    const updateInfo = {
+      marketId,
+      investibleId,
+      daysEstimate: newEstimate,
+    };
+    setOperationRunning(true);
+    return updateInvestible(updateInfo).then((fullInvestible) => {
+      refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
+      setOperationRunning(false);
+      dismissWorkListItem(message, messagesDispatch, history);
+    });
   }
 
   return (
@@ -117,6 +115,7 @@ function EstimateCompletionStep(props) {
         <div style={{paddingBottom: '1rem'}} />
         <WizardStepButtons
           {...props}
+          validForm={!_.isEqual(newEstimate, daysEstimate)}
           nextLabel={alreadyMoved ? 'StatusWizardDateStart' : 'StatusWizardDate'}
           onNext={submit}
           showTerminate={true}

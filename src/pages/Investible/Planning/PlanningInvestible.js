@@ -674,7 +674,8 @@ function PlanningInvestible(props) {
                 )}
               </div>
             </div>
-            <CondensedTodos comments={todoCommentsSearched} marketId={marketId} />
+            <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
+                            marketId={marketId} marketInfo={marketInfo} />
             <div style={{paddingLeft: mobileLayout ? undefined : '1rem',
               paddingRight: mobileLayout ? undefined : '1rem'}}>
               <h2 id="approvals">

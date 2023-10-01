@@ -27,6 +27,8 @@ import { todoClasses } from '../../Dialog/Planning/MarketTodos';
 function CondensedTodos(props) {
   const {
     comments,
+    investibleComments,
+    marketInfo,
     marketId,
     groupId,
     isInbox = false
@@ -62,8 +64,9 @@ function CondensedTodos(props) {
         <Comment
           marketId={marketId}
           comment={comment}
-          comments={comments}
+          comments={investibleComments}
           allowedTypes={[TODO_TYPE]}
+          marketInfo={marketInfo}
           noAuthor
         />
       </div>

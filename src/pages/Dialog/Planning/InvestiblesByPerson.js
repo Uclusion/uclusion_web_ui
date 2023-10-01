@@ -174,13 +174,7 @@ function InvestiblesByPerson(props) {
         const { id, email, placeholder_type: placeholderType } = presence;
         const name = (presence.name || '').replace('@', ' ');
         const showAsPlaceholder = placeholderType === PLACEHOLDER;
-        const myInvestibles = getUserInvestibles(
-          id,
-          marketId,
-          investibles,
-          visibleStages
-        );
-
+        const myInvestibles = getUserInvestibles(id, marketId, investibles);
         const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId,
           comments);
         const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;

@@ -23,11 +23,14 @@ export function isInStages(investible, stages, marketId) {
  * @param visibleStages stages to filter investibles to
  * @returns {*}
  */
-export function getUserInvestibles(userId, marketId, investibles, visibleStages=[]) {
+export function getUserInvestibles(userId, marketId, investibles, visibleStages) {
   return investibles.filter((investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned, stage } = marketInfo;
     const assignedFull = Array.isArray(assigned) ? assigned : [];
+    if (visibleStages === undefined) {
+      return assignedFull.includes(userId);
+    }
     const fullStage = visibleStages.find((visibleStage) => visibleStage.id === stage);
     return assignedFull.includes(userId) && fullStage;
   });

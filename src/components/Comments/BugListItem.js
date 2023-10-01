@@ -25,7 +25,6 @@ import DragImage from '../Dialogs/DragImage';
 
 const Item = styled("div")`
   margin-bottom: 1px;
-  min-width: 80vw;
 `
 
 const Div = styled("div")`
@@ -119,7 +118,8 @@ function BugListItem(props) {
     expansionPanel,
     expansionOpen,
     useSelect,
-    notificationType
+    notificationType,
+    useMinWidth = true
   } = props;
   const theme = useTheme();
   const intl = useIntl();
@@ -139,7 +139,7 @@ function BugListItem(props) {
 
   return (
     <>
-      <Item key={`bugListItem${id}`} id={id} style={{minWidth: useSelect ? undefined : '80vw'}}
+      <Item key={`bugListItem${id}`} id={id} style={{minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
             onDragStart={onDragStart} draggable>
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}

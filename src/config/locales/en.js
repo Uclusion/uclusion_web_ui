@@ -596,6 +596,7 @@ const messages = defineMessages({
   review: 'review',
   open: 'open',
   total: 'total',
+  openHeader: 'Open',
   information: 'Information',
   message: 'Message',
   // Archives
@@ -628,6 +629,7 @@ const messages = defineMessages({
   planningDialogDiscussionLabel: 'Discussion',
   todosSelectForStory: 'Select bugs for job',
   todosCreateStory: 'Create job from bugs',
+  todosMove: 'Move tasks',
   planningDialogAddInvestibleExplanation: 'Create a job and collaborate on what to do',
   planningDialogViewArchivesExplanation: 'See archived comments and jobs in Complete and Not Doing',
   planningDialogViewArchivesLabel: 'Archive',

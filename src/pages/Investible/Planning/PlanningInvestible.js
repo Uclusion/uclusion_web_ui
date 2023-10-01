@@ -68,6 +68,7 @@ import { getMidnightToday } from '../../../utils/timerUtils';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
+import CondensedTodos from './CondensedTodos';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -650,8 +651,8 @@ function PlanningInvestible(props) {
             <div className={beingEdited ? classes.editCardContent : classes.votingCardContent}
                  style={{display: 'flex'}}>
               <div className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable :
-                classes.fullWidth} style={{paddingBottom: '2rem'}}
-                   onClick={(event) => !beingEdited && mySetBeingEdited(true, event)}>
+                classes.fullWidth} onClick={(event) => !beingEdited &&
+                mySetBeingEdited(true, event)}>
                 {lockedBy && myPresence.id !== lockedBy && isEditableByUser() && (
                   <Typography>
                     {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
@@ -673,6 +674,7 @@ function PlanningInvestible(props) {
                 )}
               </div>
             </div>
+            <CondensedTodos comments={todoCommentsSearched} marketId={marketId} />
             <div style={{paddingLeft: mobileLayout ? undefined : '1rem',
               paddingRight: mobileLayout ? undefined : '1rem'}}>
               <h2 id="approvals">

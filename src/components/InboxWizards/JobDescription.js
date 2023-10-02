@@ -18,6 +18,8 @@ import { useHistory } from 'react-router';
 import { Assignments, usePlanningInvestibleStyles } from '../../pages/Investible/Planning/PlanningInvestible';
 import { FormattedMessage } from 'react-intl';
 import { getCurrentStageLabelId, getStagesInfo } from '../../utils/stageUtils';
+import CondensedTodos from '../../pages/Investible/Planning/CondensedTodos';
+import { TODO_TYPE } from '../../constants/comments';
 
 function JobDescription(props) {
   const { investibleId, marketId, comments, showDescription=true, showAssigned=true, inboxMessageId,
@@ -42,6 +44,8 @@ function JobDescription(props) {
   const editorIsEmpty = editorEmpty(description);
   const stagesInfo = getStagesInfo(marketId, marketStagesState, stage);
   const stageLabelId = getCurrentStageLabelId(stagesInfo);
+  const todoComments = comments?.filter((comment) => comment.comment_type === TODO_TYPE);
+  const nonTodoComments = comments?.filter((comment) => comment.comment_type !== TODO_TYPE);
 
   return (
     <>
@@ -76,11 +80,15 @@ function JobDescription(props) {
         {!editorIsEmpty && showDescription && (
           <DescriptionOrDiff id={investibleId} description={description} showDiff={false} />
         )}
-        {!_.isEmpty(comments) && (
+        {!_.isEmpty(todoComments) && (
+          <CondensedTodos comments={todoComments} investibleComments={comments} isInbox marketId={marketId}
+                          marketInfo={marketInfo} />
+        )}
+        {!_.isEmpty(nonTodoComments) && (
           <div style={{paddingTop: '1rem', paddingBottom: '0.5rem', paddingLeft: '0.25rem',
             paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden', overflowX: 'hidden' }}>
             <CommentBox
-              comments={comments}
+              comments={nonTodoComments}
               preserveOrder={preserveOrder}
               marketId={marketId}
               allowedTypes={[]}

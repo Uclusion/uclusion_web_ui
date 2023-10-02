@@ -68,6 +68,9 @@ function CondensedTodos(props) {
           allowedTypes={[TODO_TYPE]}
           marketInfo={marketInfo}
           noAuthor
+          isInbox={isInbox}
+          removeActions={isInbox}
+          stagePreventsActions={isInbox}
         />
       </div>
       const determinateChecked = determinate[id];

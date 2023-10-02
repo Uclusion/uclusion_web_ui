@@ -139,7 +139,7 @@ function BugListItem(props) {
 
   return (
     <>
-      <Item key={`bugListItem${id}`} id={id} style={{minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
+      <Item key={`listItem${id}`} id={`listItem${id}`} style={{minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
             onDragStart={onDragStart} draggable>
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
@@ -154,12 +154,6 @@ function BugListItem(props) {
                 pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: message.type_object_id });
               }
               bugListDispatch(expandOrContract(id));
-              if (!expansionOpen) {
-                const item = document.getElementById(`bugListItem${id}`);
-                if (item) {
-                  scrollToElement(item);
-                }
-              }
             }
           } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
             <Div key={`actions${id}`}>

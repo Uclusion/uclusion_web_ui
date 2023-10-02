@@ -59,7 +59,7 @@ function CondensedTodos(props) {
     return tabComments.map((comment) => {
       const { id, body, updated_at: updatedAt } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
-      const expansionPanel = <div id={`c${id}`}
+      const expansionPanel = <div id={`condensed${id}`}
                                   style={{marginBottom: '1rem', marginRight: '1rem', marginLeft: '1rem'}}>
         <Comment
           marketId={marketId}

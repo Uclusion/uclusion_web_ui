@@ -30,7 +30,7 @@ function EstimateChangeViewStep(props) {
   const marketInvestible = getInvestible(investiblesState, investibleId) || {};
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
-  const comments = getCommentsSortedByType(marketComments, investibleId);
+  const comments = getCommentsSortedByType(marketComments, investibleId, true, true);
   const { completion_estimate: daysEstimate } = marketInfo;
 
   return (

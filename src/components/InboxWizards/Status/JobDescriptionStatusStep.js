@@ -33,7 +33,7 @@ function JobDescriptionStatusStep(props) {
   const market = getMarket(marketsState, marketId) || {};
   const { started_expiration: startedExpiration } = market;
   const marketComments = getMarketComments(commentsState, marketId);
-  const comments = getCommentsSortedByType(marketComments, investibleId, true);
+  const comments = getCommentsSortedByType(marketComments, investibleId, true, true);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { completion_estimate: daysEstimate, last_stage_change_date: lastStageChangeDate } = marketInfo;

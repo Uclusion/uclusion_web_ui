@@ -17,7 +17,6 @@ import {
 } from '../../contexts/NotificationsContext/notificationsContextMessages';
 import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { scrollToElement } from '../../contexts/ScrollContext';
 import { expandOrContract } from './BugListContext';
 import Chip from '@material-ui/core/Chip';
 import { useIntl } from 'react-intl';

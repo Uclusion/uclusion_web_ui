@@ -7,26 +7,23 @@ import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { marketAbstain } from '../../../api/markets';
-import { changeMyPresence, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { getLabelForTerminate, getShowTerminate, removeMessagesForCommentId } from '../../../utils/messageUtils';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { APPROVAL_WIZARD_TYPE, OPTION_WIZARD_TYPE } from '../../../constants/markets';
+import { OPTION_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 
 function DecideAnswerStep(props) {
-  const { marketId, commentId, clearFormData, message } = props;
+  const { marketId, commentId, message } = props;
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const [selectedInvestibleId, setSelectedInvestibleId] = useState(undefined);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
@@ -40,20 +37,6 @@ function DecideAnswerStep(props) {
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
   }
-
-  function abstain() {
-    return marketAbstain(commentRoot.inline_market_id)
-      .then(() => {
-        const newValues = {
-          abstain: true,
-        }
-        changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues)
-        removeMessagesForCommentId(commentId, messagesState)
-        setOperationRunning(false)
-        clearFormData();
-      });
-  }
-  const isRegularFinish = message.type_object_id.startsWith('UNREAD') || message.is_highlighted;
   const noOptions = ['UNREAD_COMMENT', 'ISSUE'].includes(message.type);
   return (
     <WizardStepContainer
@@ -62,15 +45,9 @@ function DecideAnswerStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideAnswerTitle'})}
       </Typography>
-      {message.type !== 'UNREAD_COMMENT' && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Click an option and approve it or propose a new option. Click the question to leave this wizard and reply,
-          mute, or resolve.
-        </Typography>
-      )}
       {commentRoot.investible_id && (
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                        removeActions
+                        removeActions={noOptions}
                         showVoting
                         showDescription={false}
                         showAssigned={false}
@@ -83,8 +60,8 @@ function DecideAnswerStep(props) {
             comments={comments}
             marketId={marketId}
             allowedTypes={[]}
-            isInbox
-            removeActions
+            isInbox={noOptions}
+            removeActions={noOptions}
             showVoting
             selectedInvestibleIdParent={selectedInvestibleId}
             setSelectedInvestibleIdParent={setSelectedInvestibleId}
@@ -104,27 +81,6 @@ function DecideAnswerStep(props) {
           onOtherNextDoAdvance={false}
           onFinish={myOnFinish}
           showTerminate={getShowTerminate(message)}
-          terminateLabel={getLabelForTerminate(message)}
-        />
-      )}
-      {!noOptions && (
-        <WizardStepButtons
-          {...props}
-          nextLabel="DecideWizardApprove"
-          spinOnClick={false}
-          nextDisabled={!selectedInvestibleId}
-          onNext={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, commentRoot.inline_market_id,
-            selectedInvestibleId))}
-          isFinal={false}
-          onNextDoAdvance={false}
-          showOtherNext
-          otherNextLabel={isQuestionCreator ? 'inlineAddLabel' : 'inlineProposeLabel'}
-          otherSpinOnClick={false}
-          onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id))}
-          onOtherNextDoAdvance={false}
-          onFinish={isRegularFinish ? myOnFinish : abstain}
-          showTerminate={true}
-          terminateSpinOnClick={!isRegularFinish}
           terminateLabel={getLabelForTerminate(message)}
         />
       )}

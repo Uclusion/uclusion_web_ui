@@ -2,7 +2,7 @@ import React, { useContext, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 import Comment from '../../../components/Comments/Comment';
 import { TODO_TYPE } from '../../../constants/comments';
@@ -132,15 +132,18 @@ function CondensedTodos(props) {
   }
 
   return (
-    <div className={classes.outerBorder} id="invesibleCondensedTodos"
+    <div className={classes.outerBorder} id="investibleCondensedTodos"
          style={{marginLeft: '1rem', marginBottom: '3rem'}}>
+      <h2 id="tasksOverview" style={{paddingBottom: 0, marginBottom: 0}}>
+        <FormattedMessage id="taskSection" />
+      </h2>
       <GmailTabs
         value={showOpen ? 0 : 1}
         onChange={(event, value) => {
           setShowOpen(value !== 0);
         }}
         indicatorColors={['black', 'black']}
-        style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
+        style={{ paddingBottom: '1rem' }}>
         <GmailTabItem label={intl.formatMessage({id: 'openHeader'})}
                       color='black' tagLabel={intl.formatMessage({id: 'total'})}
                       tag={`${_.size(openComments)}`}

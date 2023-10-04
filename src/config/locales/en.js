@@ -1130,6 +1130,7 @@ const messages = defineMessages({
   moveTodoBlue: 'Move to Blue',
   startTodo: 'Start bug',
   startJob: 'Start job',
+  assignStartJob: 'Assign to me and Start',
   DecideMove: 'Reduce priority',
   DecideStartBug: 'Create job in Started',
   DecideStartBugExisting: 'Find existing job',

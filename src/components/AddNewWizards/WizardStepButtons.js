@@ -37,7 +37,8 @@ function WizardStepButtons (props) {
     terminateSpinOnClick,
     onNextSkipStep,
     isFinal,
-    isOtherFinal
+    isOtherFinal,
+    otherNextValid
   } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -85,6 +86,7 @@ function WizardStepButtons (props) {
     (isOtherFinal || !validForm ? classes.actionPrimary : classes.actionNext);
   const isNextNext = nextClass === classes.actionNext;
   const isOtherNextNext = nextOtherClass === classes.actionNext;
+  const otherDisabled = !validForm && !otherNextValid;
   return (
     <div className={classes.buttonContainer}>
       {showNext && (
@@ -101,7 +103,7 @@ function WizardStepButtons (props) {
 
       <div className={classes.actionContainer}>
         {showOtherNext && (
-          <SpinningButton id="OnboardingWizardOtherNext" className={nextOtherClass} disabled={!validForm}
+          <SpinningButton id="OnboardingWizardOtherNext" className={nextOtherClass} disabled={otherDisabled}
                           endIcon={isOtherNextNext ? ChevronRight : undefined} iconColor="black"
                           doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}

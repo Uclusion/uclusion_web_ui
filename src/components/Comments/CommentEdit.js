@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useRef } from 'react';
 import { useIntl } from 'react-intl'
 import {
   Card,
@@ -34,6 +34,7 @@ import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
 import BlockIcon from '@material-ui/icons/Block';
 import HelpIcon from '@material-ui/icons/Help';
 import AssignmentIcon from '@material-ui/icons/Assignment';
+import { allImagesLoaded } from '../../utils/windowUtils';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -192,6 +193,7 @@ function CommentEdit(props) {
   } = editState;
   const intl = useIntl();
   const theme = useTheme();
+  const editBox = useRef(null);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, investible_id: investibleId,
     body: initialBody } = comment;
@@ -204,6 +206,7 @@ function CommentEdit(props) {
   const presences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = presences?.find((presence) => presence.current_user) || {};
   const [marketStagesState] = useContext(MarketStagesContext);
+  const imagesLoaded = allImagesLoaded(editBox?.current, initialUploadedFiles);
 
   const editorName = `comment-edit-editor${id}`;
   const editorSpec = {
@@ -266,7 +269,7 @@ function CommentEdit(props) {
   }
 
   return (
-    <Card elevation={0} className={classes.visible} >
+    <Card elevation={0} className={classes.visible} ref={editBox}>
       <CardContent className={classes.cardContent}>
         {Editor}
       </CardContent>
@@ -277,6 +280,7 @@ function CommentEdit(props) {
         <SpinningIconLabelButton
           icon={Update}
           onClick={handleSave}
+          disabled={!imagesLoaded}
           id="updateCommentButton"
         >
           {intl.formatMessage({ id: 'update' })}

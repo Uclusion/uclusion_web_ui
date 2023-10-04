@@ -398,8 +398,8 @@ function Comment(props) {
   const inReviewStageId = inReviewStage.id;
   const createdInReview = currentStageId === inReviewStageId;
   const imagesLoaded = allImagesLoaded(editBox?.current, imageFiles);
-  const loading = !imagesLoaded || !hasUser || !myPresence || !marketType ||
-    !marketTokenLoaded(marketId, tokensHash) || (inlineMarketId && _.isEmpty(inlineMarket));
+  const loading = !hasUser || !myPresence || !marketType || !marketTokenLoaded(marketId, tokensHash)
+    || (inlineMarketId && _.isEmpty(inlineMarket));
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (inlineMarketId && !marketsState.initializing && hasUser && !operationRunning) {
@@ -441,7 +441,8 @@ function Comment(props) {
 
   const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId && !isMove;
   const isTask = marketType === PLANNING_TYPE && commentType === TODO_TYPE && investibleId;
-  const isEditable = comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned);
+  const isEditable = imagesLoaded &&
+    (comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned));
 
   function getDialog(anInlineMarket) {
     return (
@@ -556,7 +557,7 @@ function Comment(props) {
   const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> : undefined;
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
-  const showActions = !replyBeingEdited || replies.length > 0;
+  const showActions = imagesLoaded && (!replyBeingEdited || replies.length > 0);
   function getCommentHighlightStyle() {
     if (isInbox && (!inboxMessageId || inboxMessageId === id)) {
       return classes.containerBlueLink;

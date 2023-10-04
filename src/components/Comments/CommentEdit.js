@@ -35,6 +35,7 @@ import BlockIcon from '@material-ui/icons/Block';
 import HelpIcon from '@material-ui/icons/Help';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import { allImagesLoaded } from '../../utils/windowUtils';
+import { sendInfoPersistent } from '../../utils/userMessage';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -206,7 +207,6 @@ function CommentEdit(props) {
   const presences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = presences?.find((presence) => presence.current_user) || {};
   const [marketStagesState] = useContext(MarketStagesContext);
-  const imagesLoaded = allImagesLoaded(editBox?.current, initialUploadedFiles);
 
   const editorName = `comment-edit-editor${id}`;
   const editorSpec = {
@@ -218,6 +218,12 @@ function CommentEdit(props) {
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
   function handleSave() {
+    const imagesLoaded = allImagesLoaded(editBox?.current, initialUploadedFiles);
+    if (!imagesLoaded) {
+      sendInfoPersistent({ id: 'loadImageError' }, {},
+        () =>  window.location.reload(true));
+      return Promise.resolve(false);
+    }
     const currentUploadedFiles = uploadedFiles || [];
     const existingUploadedFiles = initialUploadedFiles || [];
     const newUploadedFiles = _.uniqBy([...existingUploadedFiles, ...currentUploadedFiles], 'path');
@@ -280,7 +286,6 @@ function CommentEdit(props) {
         <SpinningIconLabelButton
           icon={Update}
           onClick={handleSave}
-          disabled={!imagesLoaded}
           id="updateCommentButton"
         >
           {intl.formatMessage({ id: 'update' })}

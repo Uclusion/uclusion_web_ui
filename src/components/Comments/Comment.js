@@ -67,7 +67,7 @@ import {
   removeMessagesForCommentId
 } from '../../utils/messageUtils';
 import GravatarAndName from '../Avatars/GravatarAndName';
-import { allImagesLoaded, invalidEditEvent } from '../../utils/windowUtils';
+import { invalidEditEvent } from '../../utils/windowUtils';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import { Delete, Done, Edit, Eject, ExpandLess, NotInterested, SettingsBackupRestore } from '@material-ui/icons';
@@ -351,7 +351,7 @@ function Comment(props) {
   const classes = useCommentStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, body, creator_assigned: creatorAssigned, is_sent: isSent,
-    group_id: groupId, in_progress: inProgress, uploaded_files: imageFiles } = comment;
+    group_id: groupId, in_progress: inProgress } = comment;
   const replyBeingEdited = replyEditId === id && (isReply || (myParams && !_.isEmpty(myParams.get('reply'))));
   const beingEdited = replyEditId === id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
@@ -397,7 +397,6 @@ function Comment(props) {
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inReviewStageId = inReviewStage.id;
   const createdInReview = currentStageId === inReviewStageId;
-  const imagesLoaded = allImagesLoaded(editBox?.current, imageFiles);
   const loading = !hasUser || !myPresence || !marketType || !marketTokenLoaded(marketId, tokensHash)
     || (inlineMarketId && _.isEmpty(inlineMarket));
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -441,8 +440,7 @@ function Comment(props) {
 
   const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId && !isMove;
   const isTask = marketType === PLANNING_TYPE && commentType === TODO_TYPE && investibleId;
-  const isEditable = imagesLoaded &&
-    (comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned));
+  const isEditable = comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned);
 
   function getDialog(anInlineMarket) {
     return (
@@ -557,7 +555,7 @@ function Comment(props) {
   const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> : undefined;
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
-  const showActions = imagesLoaded && (!replyBeingEdited || replies.length > 0);
+  const showActions = !replyBeingEdited || replies.length > 0;
   function getCommentHighlightStyle() {
     if (isInbox && (!inboxMessageId || inboxMessageId === id)) {
       return classes.containerBlueLink;

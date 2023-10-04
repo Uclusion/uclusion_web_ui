@@ -904,6 +904,7 @@ const messages = defineMessages({
 
   // Spinning
   spinVersionCheckError: 'There was an error. Please retry your operation.',
+  loadImageError: 'Issue saving image. After you click this message, page reloads so you can retry.',
 
   // subscription page
   BillingHomeTitle: 'Billing Plan',

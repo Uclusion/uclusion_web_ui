@@ -133,7 +133,7 @@ function CondensedTodos(props) {
 
   return (
     <div className={classes.outerBorder} id="investibleCondensedTodos"
-         style={{marginLeft: '1rem', marginBottom: '3rem'}}>
+         style={{marginLeft: '1rem', marginBottom: isInbox ? undefined : '2.5rem'}}>
       <h2 id="tasksOverview" style={{paddingBottom: 0, marginBottom: 0}}>
         <FormattedMessage id="taskSection" />
       </h2>

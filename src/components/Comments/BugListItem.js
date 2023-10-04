@@ -138,7 +138,7 @@ function BugListItem(props) {
 
   return (
     <>
-      <Item key={`listItem${id}`} id={`listItem${id}`} style={{minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
+      <Item key={`listItem${id}`} id={id} style={{minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
             onDragStart={onDragStart} draggable>
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}

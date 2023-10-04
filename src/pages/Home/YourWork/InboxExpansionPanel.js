@@ -48,6 +48,7 @@ import RespondInOptionWizard from '../../../components/InboxWizards/OptionRespon
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
 import TaskedWizard from '../../../components/InboxWizards/ReviewNewTask/TaskedWizard';
 import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
+import TriageWizard from '../../../components/InboxWizards/Triage/TriageWizard';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -147,9 +148,15 @@ export function calculateTitleExpansionPanel(props) {
     }
   } else if (['UNREAD_REVIEWABLE', 'UNASSIGNED', 'REVIEW_REQUIRED'].includes(messageType)) {
     if (linkType === 'MARKET_TODO') {
-      setItem(item, openExpansion, item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId}
-                                                                      message={message} />,
-      'DecideStartTitle', intl);
+      if (messageType === 'UNASSIGNED') {
+        setItem(item, openExpansion, item.expansionPanel = <TriageWizard commentId={commentId}
+                                                                         marketId={marketId} message={message}/>,
+          'CriticalBugTitle', intl);
+      } else {
+        setItem(item, openExpansion, item.expansionPanel = <StartWizard commentId={commentId} marketId={marketId}
+                                                                        message={message}/>,
+          'DecideStartTitle', intl);
+      }
     } else if (linkType === 'INVESTIBLE_REVIEW') {
       setItem(item, openExpansion, <ReviewWizard commentId={commentId} marketId={marketId} message={message} />,
         'DecideReviewTitle', intl);

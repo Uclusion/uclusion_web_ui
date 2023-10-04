@@ -1058,6 +1058,7 @@ const messages = defineMessages({
   DecideResolveReopenTitle: 'Do you reopen?',
   DecideResolveTitle: 'Can you resolve this?',
   DecideStartTitle: 'Can you start this bug?',
+  CriticalBugTitle: 'Can you triage?',
   DecideReviewTitle: 'How will you review?',
   DecideAssignmentTitle: 'Can you take this job?',
 
@@ -1113,6 +1114,7 @@ const messages = defineMessages({
   createBlueExplanation: 'Create a new bug without notification',
   taskSection: 'Tasks',
   tasksSection: 'Tasks',
+  criticalBugs: 'Critical bugs',
   todoSection: 'Bugs',
   jobFromBugs: 'Bugs',
   readyToStartCheckboxExplanation: 'Ready to start',
@@ -1130,6 +1132,7 @@ const messages = defineMessages({
   DecideMove: 'Reduce priority',
   DecideStartBug: 'Create job in Started',
   DecideStartBugExisting: 'Find existing job',
+  GotoBugs: 'Go to bugs',
   DecideAddReview: 'Reply to report',
   DecideAddTask: 'Add task',
 

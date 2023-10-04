@@ -212,16 +212,16 @@ function MarketTodos(props) {
         const { root_comment_id: rootId } = foundComment;
         const rootComment = !rootId ? foundComment : comments.find((comment) => comment.id === rootId);
         const { notification_type: notificationType } = rootComment;
-        if (notificationType === 'RED') {
+        if (notificationType === RED_LEVEL) {
           bugDispatch(setTab(0));
-        } else if (notificationType === 'YELLOW') {
+        } else if (notificationType === YELLOW_LEVEL) {
           bugDispatch(setTab(1));
         } else {
           bugDispatch(setTab(2));
         }
         bugDispatch(pin(rootComment.id));
         const message = findMessageForCommentId(rootComment.id, messagesState);
-        if (message && message.is_highlighted) {
+        if (message && message.is_highlighted && notificationType !== RED_LEVEL) {
           let event = DEHIGHLIGHT_EVENT;
           if (message.type_object_id.startsWith('UNREAD')) {
             event = DELETE_EVENT;
@@ -284,7 +284,8 @@ function MarketTodos(props) {
       const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
       return (
         <BugListItem id={id} replyNum={replies.length + 1} title={stripHTML(body)}
-                     isNew={isNewComment(comment, messagesState)} date={intl.formatDate(updatedAt)}
+                     isNew={notificationType !== RED_LEVEL && isNewComment(comment, messagesState)}
+                     date={intl.formatDate(updatedAt)}
                      message={findMessageForCommentId(id, messagesState)}
                      useSelect={!isInArchives} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}

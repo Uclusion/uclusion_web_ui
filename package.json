@@ -70,7 +70,7 @@
   "scripts": {
     "check": "npm-check -s -u",
     "analyze": "source-map-explorer build/static/js/main.*",
-    "start": "REACT_APP_VERSION=`git rev-parse HEAD | head -c 16` react-scripts start",
+    "start": "REACT_APP_VERSION=`git rev-parse HEAD | head -c 16` react-scripts --openssl-legacy-provider start",
     "standard": "standard src/**/*.js",
     "build": "REACT_APP_VERSION=`git rev-parse HEAD | head -c 16` react-scripts --optimize-for-size --max-old-space-size=14000 build",
     "deploy-stage": "aws s3 sync --delete --cache-control 'max-age=31536000' build/static s3://uclusion-web-ui/static && aws s3 sync --delete --cache-control 'no-cache' --exclude static build/ s3://uclusion-web-ui",

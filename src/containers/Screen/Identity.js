@@ -157,6 +157,7 @@ function Identity () {
           <Gravatar
             key={chipLabel}
             email={email}
+            name={chipLabel}
           />
         </Button>
       )}

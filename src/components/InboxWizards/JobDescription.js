@@ -24,7 +24,7 @@ import { TODO_TYPE } from '../../constants/comments';
 function JobDescription(props) {
   const { investibleId, marketId, comments, showDescription=true, showAssigned=true, inboxMessageId,
     removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder,
-    showStage } = props;
+    showStage, removeCompression, useCompression, isSingleTaskDisplay = false } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -80,15 +80,15 @@ function JobDescription(props) {
         {!editorIsEmpty && showDescription && (
           <DescriptionOrDiff id={investibleId} description={description} showDiff={false} />
         )}
-        {!_.isEmpty(todoComments) && (
+        {!_.isEmpty(todoComments) && !isSingleTaskDisplay && (
           <CondensedTodos comments={todoComments} investibleComments={comments} isInbox marketId={marketId}
                           marketInfo={marketInfo} />
         )}
-        {!_.isEmpty(nonTodoComments) && (
+        {(!_.isEmpty(nonTodoComments) || isSingleTaskDisplay) && (
           <div style={{paddingTop: '1rem', paddingBottom: '0.5rem', paddingLeft: '0.25rem',
             paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden', overflowX: 'hidden' }}>
             <CommentBox
-              comments={nonTodoComments}
+              comments={isSingleTaskDisplay ? todoComments : nonTodoComments}
               preserveOrder={preserveOrder}
               marketId={marketId}
               allowedTypes={[]}
@@ -96,6 +96,8 @@ function JobDescription(props) {
               investible={inv}
               marketInfo={marketInfo}
               isInbox
+              removeCompression={removeCompression}
+              useCompression={useCompression}
               inboxMessageId={inboxMessageId}
               removeActions={removeActions}
               showVoting={showVoting}

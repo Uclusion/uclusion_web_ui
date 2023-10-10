@@ -88,7 +88,7 @@ function JobDescription(props) {
           <div style={{paddingTop: '1rem', paddingBottom: '0.5rem', paddingLeft: '0.25rem',
             paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden', overflowX: 'hidden' }}>
             <CommentBox
-              comments={isSingleTaskDisplay ? todoComments : nonTodoComments}
+              comments={comments}
               preserveOrder={preserveOrder}
               marketId={marketId}
               allowedTypes={[]}

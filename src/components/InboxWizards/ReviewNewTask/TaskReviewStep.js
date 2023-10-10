@@ -31,9 +31,8 @@ function TaskReviewStep(props) {
   const comment = getComment(commentsState, marketId, commentId);
   const investibleComments = getInvestibleComments(comment.investible_id, marketId, commentsState);
   const orderedTasks = investibleComments.filter((aComment) => {
-    return aComment.id !== commentId && aComment.root_comment_id === commentId;
+    return aComment.id === commentId || aComment.root_comment_id === commentId;
   }) || [];
-  orderedTasks.unshift(comment);
 
   function markInProgress() {
     return updateComment({marketId, commentId, inProgress: true}).then((comment) => {

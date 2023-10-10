@@ -79,7 +79,8 @@ function DecideUnblockStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         Take action here or click the issue.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} removeActions />
+      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                      removeActions showDescription={false} />
       <WizardStepButtons
         {...props}
         nextLabel='UnblockReplyLabel'

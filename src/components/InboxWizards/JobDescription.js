@@ -18,7 +18,7 @@ import { useHistory } from 'react-router';
 import { usePlanningInvestibleStyles } from '../../pages/Investible/Planning/PlanningInvestible';
 import { FormattedMessage } from 'react-intl';
 import CondensedTodos from '../../pages/Investible/Planning/CondensedTodos';
-import { TODO_TYPE } from '../../constants/comments';
+import { REPLY_TYPE, TODO_TYPE } from '../../constants/comments';
 import GravatarGroup from '../Avatars/GravatarGroup';
 
 function JobDescription(props) {
@@ -44,6 +44,7 @@ function JobDescription(props) {
   const editorIsEmpty = editorEmpty(description);
   const todoComments = comments?.filter((comment) => comment.comment_type === TODO_TYPE);
   const nonTodoComments = comments?.filter((comment) => comment.comment_type !== TODO_TYPE);
+  const nonTodoCommentsRoots = nonTodoComments?.filter((comment) => comment.comment_type !== REPLY_TYPE);
 
   return (
     <>
@@ -67,11 +68,11 @@ function JobDescription(props) {
           <CondensedTodos comments={todoComments} investibleComments={comments} isInbox marketId={marketId}
                           marketInfo={marketInfo} />
         )}
-        {(!_.isEmpty(nonTodoComments) || isSingleTaskDisplay) && (
+        {(!_.isEmpty(nonTodoCommentsRoots) || isSingleTaskDisplay) && (
           <div style={{paddingTop: '1rem', paddingBottom: '0.5rem', paddingLeft: '0.25rem',
             paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden', overflowX: 'hidden' }}>
             <CommentBox
-              comments={comments}
+              comments={isSingleTaskDisplay ? comments : nonTodoComments}
               preserveOrder={preserveOrder}
               marketId={marketId}
               allowedTypes={[]}

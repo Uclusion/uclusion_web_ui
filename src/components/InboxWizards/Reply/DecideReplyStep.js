@@ -31,7 +31,7 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function DecideReplyStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId, message, formData, updateFormData } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -70,6 +70,7 @@ function DecideReplyStep(props) {
     isAssigned = (assigned || []).includes(userId);
   }
   const showMoveToTask = commentType === SUGGEST_CHANGE_TYPE && isAssigned;
+  const { useCompression } = formData;
 
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -132,6 +133,9 @@ function DecideReplyStep(props) {
                         showAssigned={false}
                         removeActions
                         showVoting
+                        isSingleTaskDisplay
+                        useCompression={useCompression}
+                        removeCompression={() => updateFormData({useCompression: false})}
                         inboxMessageId={commentId} />
       )}
       {!commentRoot.investible_id && (
@@ -144,6 +148,8 @@ function DecideReplyStep(props) {
             showVoting
             inboxMessageId={commentId}
             removeActions
+            removeCompression={() => updateFormData({useCompression: false})}
+            useCompression={useCompression}
           />
         </div>
       )}

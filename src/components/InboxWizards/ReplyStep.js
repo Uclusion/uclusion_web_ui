@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from './WizardStepContainer';
 import { wizardStyles } from './WizardStylesContext';
 import {
-  addCommentToMarket,
+  addCommentToMarket, getComment,
   getCommentRoot,
   getInvestibleComments
 } from '../../contexts/CommentsContext/commentsContextHelper';
@@ -32,12 +32,11 @@ function ReplyStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const classes = wizardStyles();
-  const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
+  const comment = getComment(commentState, marketId, commentId);
+  const inv = comment.investible_id ? getInvestible(investibleState, comment.investible_id) : undefined;
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
-  const comments = investibleComments.filter((comment) => comment.root_comment_id === commentRoot?.id
-    || comment.id === commentRoot?.id);
+  const comments = [comment];
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
@@ -47,6 +46,7 @@ function ReplyStep(props) {
   }
 
   function resolve() {
+    const commentRoot = getCommentRoot(commentState, marketId, commentId);
     return resolveComment(marketId, commentRoot.id)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);

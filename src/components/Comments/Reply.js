@@ -25,7 +25,9 @@ import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 import { ScrollContext } from '../../contexts/ScrollContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
-import { LocalCommentsContext, navigateEditReplyBack } from './Comment';
+import { LocalCommentsContext, navigateEditReplyBack, useCommentStyles } from './Comment';
+import { stripHTML } from '../../utils/stringFunctions';
+import Gravatar from '../Avatars/Gravatar';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -109,6 +111,13 @@ const useReplyStyles = makeStyles(
         paddingRight: '0.5rem',
         cursor: 'pointer'
       },
+      containerBlueLinkCompressed: {
+        boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px blue",
+        overflow: 'unset',
+        marginRight: '0.25rem',
+        paddingRight: '0.5rem',
+        cursor: 'pointer'
+      },
       containerYellow: {
         marginTop: '1.5rem',
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px blue",
@@ -136,7 +145,8 @@ const useReplyStyles = makeStyles(
 );
 
 function Reply(props) {
-  const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps } = props;
+  const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps, useCompression,
+    removeCompression } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const replyBeingEdited = replyEditId === comment.id &&
@@ -157,6 +167,7 @@ function Reply(props) {
   const userId = myPresence?.id;
   const isEditable = comment.created_by === userId;
   const classes = useReplyStyles();
+  const commentClasses = useCommentStyles();
   const [replyAddStateFull, replyAddDispatch] = usePageStateReducer('replyAdd');
   const [replyAddState, updateReplyAddState, replyAddStateReset] =
     getPageReducerPage(replyAddStateFull, replyAddDispatch, comment.id);
@@ -214,6 +225,9 @@ function Reply(props) {
     if (isInbox) {
       if (inboxMessageId) {
         if (inboxMessageId === comment.id) {
+          if (useCompression) {
+            return classes.containerBlueLinkCompressed;
+          }
           return classes.containerBlueLink;
         }
       }
@@ -224,6 +238,29 @@ function Reply(props) {
 
   if (!marketId) {
     return React.Fragment;
+  }
+
+  if (useCompression && comment.id !== inboxMessageId) {
+    return (
+      <>
+        <Card elevation={3} style={{display: 'flex', paddingBottom: '0.25rem', paddingLeft: '0.5rem',
+        paddingRight: '0.5rem'}} onClick={{removeCompression}}>
+          <Gravatar name={commenter.name} email={commenter.email} className={commentClasses.smallGravatar} />
+          <div className={commentClasses.compressedComment}>{stripHTML(comment.body)}</div>
+        </Card>
+        <div className={classes.cardContent}>
+          <ThreadedReplies
+            replies={comment.children}
+            enableEditing={enableEditing}
+            replyEditId={replyEditId}
+            isInbox={isInbox}
+            useCompression={useCompression}
+            inboxMessageId={inboxMessageId}
+            wizardProps={wizardProps}
+          />
+        </div>
+      </>
+    );
   }
 
   return (
@@ -371,7 +408,8 @@ const useThreadedReplyStyles = makeStyles(
  * @param {{comments: Comment[], replies: string[]}} props
  */
 function ThreadedReplies(props) {
-  const { replies: replyIds, enableEditing, replyEditId, isInbox, wizardProps } = props;
+  const { replies: replyIds, enableEditing, replyEditId, isInbox, wizardProps, useCompression,
+    inboxMessageId} = props;
 
   const comments = React.useContext(LocalCommentsContext).comments;
   const classes = useThreadedReplyStyles();
@@ -386,6 +424,31 @@ function ThreadedReplies(props) {
   });
 
   const sortedReplies = _.sortBy(replies, "created_at");
+  if (useCompression) {
+    const notifiedComment = comments.find((aComment) => aComment.id === inboxMessageId);
+    return (
+      <ol className={classes.container}>
+        {sortedReplies.map((reply) => {
+          if (reply) {
+            if (reply.reply_id !== notifiedComment.reply_id || reply.id === inboxMessageId) {
+              return (
+                <ThreadedReply
+                  className={classes.visible}
+                  comment={reply}
+                  key={`threadc${reply.id}`}
+                  enableEditing={enableEditing}
+                  replyEditId={replyEditId}
+                  isInbox={isInbox}
+                  wizardProps={wizardProps}
+                />
+              );
+            }
+          }
+          return React.Fragment;
+        })}
+      </ol>
+    );
+  }
 
   return (
     <ol className={classes.container}>

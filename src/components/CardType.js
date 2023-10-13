@@ -173,6 +173,7 @@ export default function CardType(props) {
     isInAccepted,
     color,
     compact = false,
+    compressed = false,
     isAssigned
   } = props;
   const classes = useCardTypeStyles({ type, resolved, color });
@@ -211,12 +212,14 @@ export default function CardType(props) {
   }[subtype || type];
 
   return (
-    <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
-      width: compact ? '40%' : '100%', maxWidth: compact ? '25rem' : undefined}}>
+    <div style={{display: 'flex', flexDirection: 'row', justifyContent: compressed ? undefined : 'space-between',
+      width: compressed ? undefined : (compact ? '40%' : '100%'),
+      maxWidth: compact && !compressed ? '25rem' : undefined}}>
       {(label || gravatar) && (
         <>
           {label && (
-            <div className={clsx(classes.root, className)} style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
+            <div className={clsx(classes.root, className)}
+                 style={{marginRight: (compressed || mobileLayout) ? '0.25rem' : '1rem'}}>
               <IconComponent className={classes.icon}/>
               <span className={classes.label}>{label}</span>
             </div>

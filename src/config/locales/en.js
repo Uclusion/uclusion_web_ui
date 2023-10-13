@@ -499,6 +499,7 @@ const messages = defineMessages({
   noType: 'Choose a comment type.',
   proceedNormal: 'Everyone',
   proceedRestricted: 'Just me',
+  removeCompressionExplanation: 'Show all comments.',
 
   // CommentBox
   commentIconRaiseIssueLabel: 'Raise issue',

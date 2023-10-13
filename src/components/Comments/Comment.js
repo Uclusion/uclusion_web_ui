@@ -2,12 +2,13 @@ import React, { useContext, useEffect, useRef } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
+  Badge,
   Box,
   Card,
   CardActions,
   CardContent,
   Checkbox,
-  FormControlLabel,
+  FormControlLabel, IconButton, Tooltip,
   Typography,
   useMediaQuery,
   useTheme
@@ -32,7 +33,7 @@ import { changeMyPresence, usePresences } from '../../contexts/MarketPresencesCo
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
-import CardType, { BUG, DECISION_TYPE, IN_REVIEW } from '../CardType';
+import CardType, { BUG, DECISION_TYPE } from '../CardType';
 import { addCommentToMarket, addMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import {
@@ -70,7 +71,16 @@ import GravatarAndName from '../Avatars/GravatarAndName';
 import { invalidEditEvent } from '../../utils/windowUtils';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
-import { Delete, Done, Edit, Eject, ExpandLess, NotInterested, SettingsBackupRestore } from '@material-ui/icons';
+import {
+  Delete,
+  Done,
+  Edit,
+  Eject,
+  ExpandLess,
+  NotInterested,
+  SettingsBackupRestore,
+  UnfoldMore
+} from '@material-ui/icons';
 import ReplyIcon from '@material-ui/icons/Reply';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
@@ -93,6 +103,9 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Options from './Options';
 import Reply from './Reply';
+import { stripHTML } from '../../utils/stringFunctions';
+import Gravatar from '../Avatars/Gravatar';
+import styled from 'styled-components';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -305,6 +318,16 @@ export const useCommentStyles = makeStyles(
         fontWeight: 'bold',
         margin: 8
       },
+      compressedComment: {
+        paddingLeft: '1rem',
+        paddingTop: '0.25rem',
+        color: 'black',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        paddingRight: '0.5rem',
+        marginTop: '0.25rem'
+      }
   }
 },
 { name: "Comment" }
@@ -324,12 +347,81 @@ export function navigateEditReplyBack(history, id, marketId, groupId, investible
   }
 }
 
+const StyledBadge = styled(Badge)(() => ({
+  '& .MuiBadge-badge': {
+    right: -3,
+    top: 13,
+    border: '1px solid grey',
+    marginRight: 4,
+    marginLeft: 8
+  },
+  '& .MuiBadge-anchorOriginTopRightRectangle': {
+    paddingTop: '3px'
+  }
+}));
 
 function InitialReply(props) {
-  const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps } = props;
-
+  const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps,
+    numberHidden = 0, useCompression, removeCompression } = props;
+  const intl = useIntl();
+  if (numberHidden > 0) {
+    return (
+      <>
+        <IconButton id={`removeCompressed${inboxMessageId}`} onClick={removeCompression}
+                    style={{border: '1px solid grey', marginTop: -1, marginBottom: -1}}>
+          <Tooltip key={`tipCompressed${inboxMessageId}`}
+                   title={intl.formatMessage({ id: 'removeCompressionExplanation' })}>
+            <StyledBadge badgeContent={numberHidden} style={{paddingRight: '7px'}} >
+              <UnfoldMore />
+            </StyledBadge>
+          </Tooltip>
+        </IconButton>
+        <Reply comment={comment} enableEditing={enableEditing} replyEditId={replyEditId}
+               useCompression={useCompression} removeCompression={removeCompression}
+               inboxMessageId={inboxMessageId} isInbox={isInbox} wizardProps={wizardProps}/>
+      </>
+    );
+  }
   return <Reply comment={comment} enableEditing={enableEditing} replyEditId={replyEditId}
                 inboxMessageId={inboxMessageId} isInbox={isInbox} wizardProps={wizardProps}/>;
+}
+
+function calculateNumberHidden(comment, inboxMessageId, comments, parent) {
+  const wholeThreadBelow = comments.filter((aComment) => aComment.root_comment_id === comment.id);
+  const sizeWholeThreadBelow = _.size(wholeThreadBelow);
+  let notifiedDescendants = [];
+  let immediateDescendants = comments.filter((aComment) => aComment.reply_id === inboxMessageId);
+  while(_.size(immediateDescendants) > 0) {
+    notifiedDescendants = notifiedDescendants.concat(immediateDescendants);
+    const immediateDescendantIds = immediateDescendants.map((aComment) => aComment.id);
+    immediateDescendants = comments.filter((aComment) => immediateDescendantIds.includes(aComment.reply_id));
+  }
+  const sizeThreadNotBelowNotified = sizeWholeThreadBelow - _.size(notifiedDescendants);
+  return parent.id === inboxMessageId ? sizeThreadNotBelowNotified - 1 : sizeThreadNotBelowNotified - 2;
+}
+
+function findParentInDescendants(useComment, inboxMessageId, comments) {
+  const notifiedComment = comments.find((comment) => comment.id === inboxMessageId);
+  const notifiedParentId = notifiedComment.reply_id;
+  if (notifiedParentId === notifiedComment.root_comment_id) {
+    if (useComment.id === inboxMessageId) {
+      // If this is a reply to the root then return it
+      return notifiedComment;
+    }
+    return undefined;
+  }
+  const notifiedParent = comments.find((comment) => comment.id === notifiedParentId);
+  let found = false;
+  let commentPointer = notifiedParent;
+  while(commentPointer.reply_id) {
+    if (useComment.id === commentPointer.id) {
+      found = true;
+      break;
+    }
+    // eslint-disable-next-line no-loop-func
+    commentPointer = comments.find((comment) => comment.id === commentPointer.reply_id);
+  }
+  return found ? notifiedParent : undefined;
 }
 
 /**
@@ -339,7 +431,8 @@ function InitialReply(props) {
 function Comment(props) {
   const { comment, marketId, comments, noAuthor, defaultShowDiff, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
-    inboxMessageId, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, isMove } = props;
+    inboxMessageId, removeCompression, useCompression, showVoting, selectedInvestibleIdParent,
+    setSelectedInvestibleIdParent, isMove } = props;
   const history = useHistory();
   const editBox = useRef(null);
   const myParams = new URL(document.location).searchParams;
@@ -350,8 +443,8 @@ function Comment(props) {
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
-    resolved, notification_type: myNotificationType, body, creator_assigned: creatorAssigned, is_sent: isSent,
-    group_id: groupId, in_progress: inProgress } = comment;
+    resolved, notification_type: myNotificationType, body, is_sent: isSent, group_id: groupId,
+    in_progress: inProgress } = comment;
   const replyBeingEdited = replyEditId === id && (isReply || (myParams && !_.isEmpty(myParams.get('reply'))));
   const beingEdited = replyEditId === id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
@@ -598,6 +691,58 @@ function Comment(props) {
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote && !removeActions;
   const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
+  const gravatarWithName = useCompression ?
+    <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>
+    : <GravatarAndName key={myPresence.id} email={createdBy.email}
+                                            name={createdBy.name} typographyVariant="caption"
+                                            typographyClassName={classes.createdBy}
+                                            avatarClassName={classes.smallGravatar}
+  />;
+  const cardTypeDisplay = overrideLabel ? (
+    <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
+              subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : undefined}
+              label={overrideLabel} color={color} compressed={useCompression}
+              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
+    />
+  ): (
+    <CardType className={classes.commentType} type={commentType} resolved={resolved} compact compressed={useCompression}
+              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
+    />
+  );
+  if (useCompression) {
+    return (
+    <>
+      <Card elevation={3} style={{display: 'flex', paddingBottom: '0.25rem'}} onClick={{removeCompression}}>
+        {cardTypeDisplay}
+        <div className={classes.compressedComment}>
+          {stripHTML(body)}</div>
+      </Card>
+      <LocalCommentsContext.Provider value={{ comments, marketId }}>
+        {sortedReplies.map(child => {
+          const parent = findParentInDescendants(child, inboxMessageId, comments);
+          if (parent) {
+            return (
+              <InitialReply
+                key={parent.id}
+                comment={parent}
+                marketId={marketId}
+                enableEditing={enableEditing}
+                replyEditId={replyEditId}
+                inboxMessageId={inboxMessageId}
+                useCompression
+                removeCompression={removeCompression}
+                numberHidden={calculateNumberHidden(comment, inboxMessageId, comments, parent)}
+                isInbox={isInbox}
+                wizardProps={wizardProps}
+              />
+            );
+          }
+          return React.Fragment;
+        })}
+      </LocalCommentsContext.Provider>
+    </>
+    );
+  }
   return (
     <div style={{paddingLeft: '0.5rem', width: '98%'}}>
       <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false ? 0 : undefined}}
@@ -610,29 +755,7 @@ function Comment(props) {
           }
         }}>
           <Box display="flex">
-            {overrideLabel && (
-              <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
-                        subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG :
-                          (commentType === REPORT_TYPE && !creatorAssigned ? IN_REVIEW : undefined)}
-                        label={overrideLabel} color={color}
-                        gravatar={noAuthor || mobileLayout ? undefined :
-                          <GravatarAndName key={myPresence.id} email={createdBy.email}
-                                           name={createdBy.name} typographyVariant="caption"
-                                           typographyClassName={classes.createdBy}
-                                           avatarClassName={classes.smallGravatar}
-                          />}
-              />
-            )}
-            {!overrideLabel && (
-              <CardType className={classes.commentType} type={commentType} resolved={resolved || isSent === false}
-                        compact gravatar={noAuthor || mobileLayout ? undefined :
-                          <GravatarAndName key={myPresence.id} email={createdBy.email}
-                                           name={createdBy.name} typographyVariant="caption"
-                                           typographyClassName={classes.createdBy}
-                                           avatarClassName={classes.smallGravatar}
-                          />}
-              />
-            )}
+            {cardTypeDisplay}
             <div style={{flexGrow: 1}}/>
             {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
               <>

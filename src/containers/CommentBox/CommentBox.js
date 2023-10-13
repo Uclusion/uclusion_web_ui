@@ -92,13 +92,18 @@ function sortInProgress(roots) {
 function CommentBox(props) {
   const { comments, marketId, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId, isReply, wizardProps,
     fullStage, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
-    showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder, isMove,
-    useInProgressSorting } = props;
+    showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder, isMove, removeCompression,
+    useCompression, useInProgressSorting } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox);
-  if (useInProgressSorting) {
-    sortedRoots = sortInProgress(sortedRoots);
+  if (!_.isEmpty(sortedRoots)) {
+    if (useInProgressSorting) {
+      sortedRoots = sortInProgress(sortedRoots);
+    }
+  } else {
+    // Must be displaying some part of a thread lower than root
+    sortedRoots = comments;
   }
   const useFullStage = _.isEmpty(fullStage) && stage ? getFullStage(marketStagesState, marketId, stage) : fullStage;
   const resolvedStageId = isSingleAssisted(comments, assigned) ?
@@ -124,6 +129,8 @@ function CommentBox(props) {
               isInbox={isInbox}
               replyEditId={replyEditId}
               marketInfo={marketInfo}
+              removeCompression={removeCompression}
+              useCompression={useCompression}
               inboxMessageId={inboxMessageId}
               issueWarningId={issueWarningId} currentStageId={(marketInfo || {}).stage}
               investible={investible}

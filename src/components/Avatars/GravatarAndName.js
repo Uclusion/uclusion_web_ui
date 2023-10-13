@@ -20,7 +20,7 @@ function GravatarAndName(props) {
   const intl = useIntl();
 
   return (
-    <div style={{display: 'flex', alignItems: 'center'}}>
+    <div style={{display: 'flex', alignItems: 'center', paddingLeft: !labelId ? '0.5rem' : undefined}}>
       {labelId && (
         <Typography style={{marginRight: 6}} variant={typographyVariant} className={typographyClassName}
                     component={typographyComponent}>

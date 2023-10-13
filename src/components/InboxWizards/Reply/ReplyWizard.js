@@ -8,7 +8,7 @@ function ReplyWizard(props) {
   const { marketId, commentId, message } = props;
   const  parentElementId = message.type_object_id;
   return (
-    <FormdataWizard name={`reply_wizard${commentId}`} defaultFormData={{parentElementId}}>
+    <FormdataWizard name={`reply_wizard${commentId}`} defaultFormData={{parentElementId, useCompression: true}}>
       <DecideReplyStep marketId={marketId} commentId={commentId} message={message}/>
       <ReplyStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>

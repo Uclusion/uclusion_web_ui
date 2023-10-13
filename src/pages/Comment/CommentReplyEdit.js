@@ -43,7 +43,7 @@ function CommentReplyEdit(props) {
     >
       {!hidden && (
         <div style={{paddingLeft: '3%', paddingRight: '3%', marginTop: '2rem'}}>
-          <CommentBox comments={comments} marketId={marketId} replyEditId={commentId}
+          <CommentBox comments={comments} marketId={marketId} replyEditId={commentId} displayRepliesAsTop
                       allowedTypes={[QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, ISSUE_TYPE]}/>
         </div>
       )}

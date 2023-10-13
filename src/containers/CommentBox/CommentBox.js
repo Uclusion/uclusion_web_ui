@@ -93,15 +93,14 @@ function CommentBox(props) {
   const { comments, marketId, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId, isReply, wizardProps,
     fullStage, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
     showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder, isMove, removeCompression,
-    useCompression, useInProgressSorting } = props;
+    useCompression, useInProgressSorting, displayRepliesAsTop=false } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
   let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox);
-  if (!_.isEmpty(sortedRoots)) {
-    if (useInProgressSorting) {
-      sortedRoots = sortInProgress(sortedRoots);
-    }
-  } else {
+  if (useInProgressSorting) {
+    sortedRoots = sortInProgress(sortedRoots);
+  }
+  if (_.isEmpty(sortedRoots) && displayRepliesAsTop) {
     // Must be displaying some part of a thread lower than root
     sortedRoots = comments;
   }

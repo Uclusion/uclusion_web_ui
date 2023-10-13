@@ -150,6 +150,7 @@ function DecideReplyStep(props) {
             removeActions
             removeCompression={() => updateFormData({useCompression: false})}
             useCompression={useCompression}
+            displayRepliesAsTop
           />
         </div>
       )}

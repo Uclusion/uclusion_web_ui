@@ -75,6 +75,7 @@ function DecideWhereStep (props) {
   return (
     <WizardStepContainer
       {...props}
+      isLarge
     >
       <Typography className={classes.introText}>
         Where do you want to move?

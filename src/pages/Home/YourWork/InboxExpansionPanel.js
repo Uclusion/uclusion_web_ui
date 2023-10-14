@@ -101,7 +101,8 @@ export function calculateTitleExpansionPanel(props) {
         'AssignmentApprovalRowTitle', intl);
     }
   } else if (messageType === 'INVESTIBLE_SUBMITTED') {
-    setItem(item, openExpansion, <OptionSubmittedWizard marketId={marketId} investibleId={decisionInvestibleId}
+    setItem(item, openExpansion, <OptionSubmittedWizard marketId={marketId}
+                                                        investibleId={decisionInvestibleId || investibleId}
                                                         commentId={commentId} commentMarketId={commentMarketId}
                                                         message={message} />,
       'DecidePromotionTitle', intl);

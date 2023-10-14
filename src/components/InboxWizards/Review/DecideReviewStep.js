@@ -22,7 +22,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecideReviewStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId, message, formData, updateFormData } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
@@ -40,6 +40,7 @@ function DecideReviewStep(props) {
   const investibleComments = getInvestibleComments(investibleId, marketId, commentsState);
   const comments = investibleComments.filter((comment) =>
     comment.root_comment_id === report.id || comment.id === report.id);
+  const { useCompression } = formData;
 
   return (
     <WizardStepContainer
@@ -59,6 +60,8 @@ function DecideReviewStep(props) {
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
                       preserveOrder showAssigned={false} showDescription={false} />
       <WizardStepButtons
         {...props}

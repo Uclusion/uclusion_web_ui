@@ -17,7 +17,7 @@ import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUt
 import { TODO_TYPE } from '../../../constants/comments';
 
 function DecideResponseStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId, message, formData, updateFormData } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
@@ -27,6 +27,7 @@ function DecideResponseStep(props) {
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
+  const { useCompression } = formData;
 
   function myTerminate() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -51,7 +52,10 @@ function DecideResponseStep(props) {
         If you are very certain then move this suggestion to a task and otherwise reply. Click the suggestion to
         leave this wizard and add voting, resolve, or move."
       </Typography>
-      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} removeActions />
+      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id}
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
+                      comments={comments} removeActions />
       <WizardStepButtons
         {...props}
         nextLabel='UnblockReplyLabel'

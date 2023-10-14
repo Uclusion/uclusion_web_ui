@@ -7,7 +7,8 @@ function WaitingAssistanceWizard(props) {
   const { marketId, commentId, rowId } = props;
 
   return (
-    <FormdataWizard name={`waiting_wizard${commentId}`} defaultFormData={{parentElementId: rowId}}>
+    <FormdataWizard name={`waiting_wizard${commentId}`}
+                    defaultFormData={{parentElementId: rowId, useCompression: true}}>
       <DecideAssistanceStep marketId={marketId} commentId={commentId} />
     </FormdataWizard>
   );

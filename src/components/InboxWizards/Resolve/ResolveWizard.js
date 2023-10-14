@@ -7,7 +7,7 @@ function ResolveWizard(props) {
   const { marketId, commentId, message } = props;
   const parentElementId =  message.type_object_id;
   return (
-    <FormdataWizard name={`resolve_wizard${commentId}`} defaultFormData={{parentElementId}}>
+    <FormdataWizard name={`resolve_wizard${commentId}`} defaultFormData={{parentElementId, useCompression: true}}>
       <DecideResolveStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
   );

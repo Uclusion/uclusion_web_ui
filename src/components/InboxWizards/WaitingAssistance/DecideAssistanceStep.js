@@ -30,7 +30,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 
 
 function DecideAssistanceStep(props) {
-  const { marketId, commentId } = props;
+  const { marketId, commentId, formData, updateFormData } = props;
   const intl = useIntl();
   const [commentState] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -58,6 +58,7 @@ function DecideAssistanceStep(props) {
     return (deferred || []).includes(commentId);
   });
   const deferredUserIds = (snoozed || []).map((presence) => presence.id);
+  const { useCompression } = formData;
 
   function myOnFinish() {
     navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentRoot.id));
@@ -107,6 +108,8 @@ function DecideAssistanceStep(props) {
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                         removeActions
                         showVoting
+                        useCompression={useCompression}
+                        toggleCompression={() => updateFormData({useCompression: !useCompression})}
                         showDescription={false}
                         showAssigned={false} />
       )}

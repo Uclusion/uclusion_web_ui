@@ -19,7 +19,7 @@ import { OPTION_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 
 function DecideAnswerStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId, message, formData, updateFormData } = props;
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -33,6 +33,7 @@ function DecideAnswerStep(props) {
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const isQuestionCreator = commentRoot.created_by === myPresence.id;
+  const { useCompression } = formData;
 
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -51,6 +52,8 @@ function DecideAnswerStep(props) {
                         showVoting
                         showDescription={false}
                         showAssigned={false}
+                        useCompression={useCompression}
+                        toggleCompression={() => updateFormData({useCompression: !useCompression})}
                         selectedInvestibleIdParent={selectedInvestibleId}
                         setSelectedInvestibleIdParent={setSelectedInvestibleId} />
       )}
@@ -63,6 +66,8 @@ function DecideAnswerStep(props) {
             isInbox={noOptions}
             removeActions={noOptions}
             showVoting
+            useCompression={useCompression}
+            toggleCompression={() => updateFormData({useCompression: !useCompression})}
             selectedInvestibleIdParent={selectedInvestibleId}
             setSelectedInvestibleIdParent={setSelectedInvestibleId}
           />

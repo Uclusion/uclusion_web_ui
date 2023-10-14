@@ -8,7 +8,7 @@ function BlockedWizard(props) {
   const { marketId, commentId, message } = props;
   const parentElementId =  message.type_object_id;
   return (
-    <FormdataWizard name={`unblock_wizard${commentId}`} defaultFormData={{parentElementId}}>
+    <FormdataWizard name={`unblock_wizard${commentId}`} defaultFormData={{parentElementId, useCompression: true}}>
       <DecideUnblockStep marketId={marketId} commentId={commentId} message={message}/>
       <ReplyStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>

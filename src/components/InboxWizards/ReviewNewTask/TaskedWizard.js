@@ -8,7 +8,7 @@ function TaskedWizard(props) {
   const { marketId, commentId, message } = props;
   const parentElementId = message.type_object_id;
   return (
-    <FormdataWizard name={`tasked_wizard${commentId}`} defaultFormData={{parentElementId}}>
+    <FormdataWizard name={`tasked_wizard${commentId}`} defaultFormData={{parentElementId, useCompression: true}}>
       <TaskReviewStep marketId={marketId} commentId={commentId} message={message} />
       <ReplyStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>

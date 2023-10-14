@@ -389,6 +389,9 @@ function InitialReply(props) {
 function calculateNumberHidden(comment, inboxMessageId, comments, parent) {
   const wholeThreadBelow = comments.filter((aComment) => aComment.root_comment_id === comment.id);
   const sizeWholeThreadBelow = _.size(wholeThreadBelow);
+  if (!inboxMessageId) {
+    return sizeWholeThreadBelow;
+  }
   let notifiedDescendants = [];
   let immediateDescendants = comments.filter((aComment) => aComment.reply_id === inboxMessageId);
   while(_.size(immediateDescendants) > 0) {
@@ -691,7 +694,7 @@ function Comment(props) {
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote && !removeActions;
   const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
-  const gravatarWithName = useCompression ?
+  const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>
     : <GravatarAndName key={myPresence.id} email={createdBy.email}
                                             name={createdBy.name} typographyVariant="caption"
@@ -709,7 +712,7 @@ function Comment(props) {
               gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
     />
   );
-  if (useCompression) {
+  if (useCompression && inboxMessageId) {
     return (
     <>
       <Card elevation={3} style={{display: 'flex', paddingBottom: '0.25rem'}} onClick={{toggleCompression}}>
@@ -743,6 +746,7 @@ function Comment(props) {
     </>
     );
   }
+
   return (
     <div style={{paddingLeft: '0.5rem', width: '98%'}}>
       <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false ? 0 : undefined}}
@@ -849,6 +853,20 @@ function Comment(props) {
           {showActions && !beingEdited && (
             <CardActions>
               <div className={classes.actions}>
+                {useCompression === false && (
+                  <SpinningIconLabelButton
+                    icon={ExpandLess}
+                    doSpin={false}
+                    onClick={(event) => {
+                      preventDefaultAndProp(event);
+                      toggleCompression();
+                    }}
+                  >
+                    <FormattedMessage
+                      id="commentCloseThreadLabel"
+                    />
+                  </SpinningIconLabelButton>
+                )}
                 {showAddVoting && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
@@ -983,9 +1001,23 @@ function Comment(props) {
           wizardProps={wizardProps}
         />
       )}
-      <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
-        <LocalCommentsContext.Provider value={{ comments, marketId }}>
-          {sortedReplies.map(child => {
+      {useCompression && (
+        <IconButton id={`removeCompressed${id}`} onClick={toggleCompression}
+                    style={{border: '1px solid grey'}}>
+          <Tooltip key={`tipCompressed${id}`}
+                   title={intl.formatMessage({ id: 'removeCompressionExplanation' })}>
+            <StyledBadge
+              badgeContent={calculateNumberHidden(comment, undefined, comments, undefined)}
+              style={{paddingRight: '7px'}} >
+              <UnfoldMore />
+            </StyledBadge>
+          </Tooltip>
+        </IconButton>
+      )}
+      {!useCompression && (
+        <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
+          <LocalCommentsContext.Provider value={{ comments, marketId }}>
+            {sortedReplies.map(child => {
               const { id: childId } = child;
               return (
                 <InitialReply
@@ -1000,8 +1032,9 @@ function Comment(props) {
                 />
               );
             })}
-        </LocalCommentsContext.Provider>
-      </Box>
+          </LocalCommentsContext.Provider>
+        </Box>
+      )}
       {getDecision(inlineMarketId)}
     </div>
   );

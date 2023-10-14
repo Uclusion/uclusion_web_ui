@@ -30,7 +30,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function DecideResolveStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId, message, formData, updateFormData } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -54,6 +54,7 @@ function DecideResolveStep(props) {
   const isFullyVoted = message.type === 'FULLY_VOTED';
   const isSuggestion = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
   const isReopen = message.type === 'UNREAD_RESOLVED';
+  const { useCompression } = formData;
 
   function myTerminate() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -141,6 +142,8 @@ function DecideResolveStep(props) {
                         showVoting
                         showDescription={false}
                         showAssigned={false}
+                        useCompression={useCompression}
+                        toggleCompression={() => updateFormData({useCompression: !useCompression})}
                         selectedInvestibleIdParent={selectedInvestibleId}
                         setSelectedInvestibleIdParent={setSelectedInvestibleId} />
       )}

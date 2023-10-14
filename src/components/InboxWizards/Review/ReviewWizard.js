@@ -7,7 +7,7 @@ function ReviewWizard(props) {
   const { marketId, commentId, message } = props;
   const parentElementId = message.type_object_id;
   return (
-    <FormdataWizard name={`review_wizard${commentId}`} defaultFormData={{parentElementId}}>
+    <FormdataWizard name={`review_wizard${commentId}`} defaultFormData={{parentElementId, useCompression: true}}>
       <DecideReviewStep marketId={marketId} commentId={commentId} message={message} />
     </FormdataWizard>
   );

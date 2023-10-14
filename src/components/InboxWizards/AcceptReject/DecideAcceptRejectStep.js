@@ -22,7 +22,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecideAcceptRejectStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId, message, formData, updateFormData } = props;
   const [commentState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -34,6 +34,7 @@ function DecideAcceptRejectStep(props) {
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
+  const { useCompression } = formData;
 
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -65,7 +66,11 @@ function DecideAcceptRejectStep(props) {
       <Typography className={classes.introText}>
         Do you accept this suggestion?
       </Typography>
-      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments} removeActions />
+      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id}
+                      comments={comments}
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
+                      removeActions />
       <WizardStepButtons
         {...props}
         onFinish={myOnFinish}

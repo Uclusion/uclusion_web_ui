@@ -24,7 +24,7 @@ import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctio
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecideUnblockStep(props) {
-  const { marketId, commentId, clearFormData, message } = props;
+  const { marketId, commentId, message, formData, updateFormData } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -41,6 +41,7 @@ function DecideUnblockStep(props) {
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage } = marketInfo;
+  const { useCompression } = formData;
 
   function myTerminate() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -62,7 +63,6 @@ function DecideUnblockStep(props) {
       onInvestibleStageChange(targetStageId, investible, investibleId, marketId, commentState, commentDispatch,
         investiblesDispatch, () => {}, marketStagesState, undefined, fullStage,
         marketPresencesDispatch);
-      clearFormData();
       setOperationRunning(false);
       dismissWorkListItem(message, messagesDispatch, history);
       navigate(history, formInvestibleLink(marketId, investibleId));
@@ -80,6 +80,8 @@ function DecideUnblockStep(props) {
         Take action here or click the issue.
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
                       removeActions showDescription={false} />
       <WizardStepButtons
         {...props}

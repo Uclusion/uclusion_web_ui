@@ -21,7 +21,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function TaskReviewStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId, message, formData, updateFormData } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
@@ -33,6 +33,7 @@ function TaskReviewStep(props) {
   const orderedTasks = investibleComments.filter((aComment) => {
     return aComment.id === commentId || aComment.root_comment_id === commentId;
   }) || [];
+  const { useCompression } = formData;
 
   function markInProgress() {
     return updateComment({marketId, commentId, inProgress: true}).then((comment) => {
@@ -51,6 +52,8 @@ function TaskReviewStep(props) {
         {intl.formatMessage({id: 'NewTaskTitle'})}
       </Typography>
       <JobDescription marketId={marketId} investibleId={comment.investible_id} comments={orderedTasks}
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
                       removeActions preserveOrder isSingleTaskDisplay showDescription={false} />
       <WizardStepButtons
         {...props}

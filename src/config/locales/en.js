@@ -293,7 +293,7 @@ const messages = defineMessages({
   unreadNameMobile: 'Modified',
   unreadDescription: 'Description changed',
   unreadDescriptionMobile: 'Modified',
-  unreadEstimate: 'Are you okay with this estimate?',
+  unreadEstimate: 'Okay with this estimate?',
   unreadEstimateMobile: 'Estimate change',
   unreadAssignment: 'Assigned to You',
   unreadAssignmentMobile: 'Assigned',

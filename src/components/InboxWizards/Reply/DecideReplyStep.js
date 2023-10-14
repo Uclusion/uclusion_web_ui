@@ -135,7 +135,7 @@ function DecideReplyStep(props) {
                         showVoting
                         isSingleTaskDisplay
                         useCompression={useCompression}
-                        removeCompression={() => updateFormData({useCompression: false})}
+                        toggleCompression={() => updateFormData({useCompression: !useCompression})}
                         inboxMessageId={commentId} />
       )}
       {!commentRoot.investible_id && (
@@ -148,7 +148,7 @@ function DecideReplyStep(props) {
             showVoting
             inboxMessageId={commentId}
             removeActions
-            removeCompression={() => updateFormData({useCompression: false})}
+            toggleCompression={() => updateFormData({useCompression: !useCompression})}
             useCompression={useCompression}
             displayRepliesAsTop
           />

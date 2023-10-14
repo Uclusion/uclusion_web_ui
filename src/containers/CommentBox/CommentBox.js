@@ -92,7 +92,7 @@ function sortInProgress(roots) {
 function CommentBox(props) {
   const { comments, marketId, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId, isReply, wizardProps,
     fullStage, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
-    showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder, isMove, removeCompression,
+    showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder, isMove, toggleCompression,
     useCompression, useInProgressSorting, displayRepliesAsTop=false } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
@@ -128,7 +128,7 @@ function CommentBox(props) {
               isInbox={isInbox}
               replyEditId={replyEditId}
               marketInfo={marketInfo}
-              removeCompression={removeCompression}
+              toggleCompression={toggleCompression}
               useCompression={useCompression}
               inboxMessageId={inboxMessageId}
               issueWarningId={issueWarningId} currentStageId={(marketInfo || {}).stage}

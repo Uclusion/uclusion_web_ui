@@ -24,7 +24,7 @@ import GravatarGroup from '../Avatars/GravatarGroup';
 function JobDescription(props) {
   const { investibleId, marketId, comments, showDescription=true, showAssigned=true, inboxMessageId,
     removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder,
-    removeCompression, useCompression, isSingleTaskDisplay = false } = props;
+    toggleCompression, useCompression, isSingleTaskDisplay = false } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -80,7 +80,7 @@ function JobDescription(props) {
               investible={inv}
               marketInfo={marketInfo}
               isInbox
-              removeCompression={removeCompression}
+              toggleCompression={toggleCompression}
               useCompression={useCompression}
               inboxMessageId={inboxMessageId}
               removeActions={removeActions}

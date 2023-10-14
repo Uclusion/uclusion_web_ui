@@ -146,7 +146,7 @@ const useReplyStyles = makeStyles(
 
 function Reply(props) {
   const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps, useCompression,
-    removeCompression } = props;
+    toggleCompression } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
   const replyBeingEdited = replyEditId === comment.id &&
@@ -244,7 +244,7 @@ function Reply(props) {
     return (
       <>
         <Card elevation={3} style={{display: 'flex', paddingBottom: '0.25rem', paddingLeft: '0.5rem',
-        paddingRight: '0.5rem'}} onClick={{removeCompression}}>
+        paddingRight: '0.5rem'}} onClick={{toggleCompression}}>
           <Gravatar name={commenter.name} email={commenter.email} className={commentClasses.smallGravatar} />
           <div className={commentClasses.compressedComment}>{stripHTML(comment.body)}</div>
         </Card>

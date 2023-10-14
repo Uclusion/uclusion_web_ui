@@ -362,12 +362,12 @@ const StyledBadge = styled(Badge)(() => ({
 
 function InitialReply(props) {
   const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps,
-    numberHidden = 0, useCompression, removeCompression } = props;
+    numberHidden = 0, useCompression, toggleCompression } = props;
   const intl = useIntl();
   if (numberHidden > 0) {
     return (
       <>
-        <IconButton id={`removeCompressed${inboxMessageId}`} onClick={removeCompression}
+        <IconButton id={`removeCompressed${inboxMessageId}`} onClick={toggleCompression}
                     style={{border: '1px solid grey', marginTop: -1, marginBottom: -1}}>
           <Tooltip key={`tipCompressed${inboxMessageId}`}
                    title={intl.formatMessage({ id: 'removeCompressionExplanation' })}>
@@ -377,7 +377,7 @@ function InitialReply(props) {
           </Tooltip>
         </IconButton>
         <Reply comment={comment} enableEditing={enableEditing} replyEditId={replyEditId}
-               useCompression={useCompression} removeCompression={removeCompression}
+               useCompression={useCompression} toggleCompression={toggleCompression}
                inboxMessageId={inboxMessageId} isInbox={isInbox} wizardProps={wizardProps}/>
       </>
     );
@@ -431,7 +431,7 @@ function findParentInDescendants(useComment, inboxMessageId, comments) {
 function Comment(props) {
   const { comment, marketId, comments, noAuthor, defaultShowDiff, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
-    inboxMessageId, removeCompression, useCompression, showVoting, selectedInvestibleIdParent,
+    inboxMessageId, toggleCompression, useCompression, showVoting, selectedInvestibleIdParent,
     setSelectedInvestibleIdParent, isMove } = props;
   const history = useHistory();
   const editBox = useRef(null);
@@ -712,7 +712,7 @@ function Comment(props) {
   if (useCompression) {
     return (
     <>
-      <Card elevation={3} style={{display: 'flex', paddingBottom: '0.25rem'}} onClick={{removeCompression}}>
+      <Card elevation={3} style={{display: 'flex', paddingBottom: '0.25rem'}} onClick={{toggleCompression}}>
         {cardTypeDisplay}
         <div className={classes.compressedComment}>
           {stripHTML(body)}</div>
@@ -730,7 +730,7 @@ function Comment(props) {
                 replyEditId={replyEditId}
                 inboxMessageId={inboxMessageId}
                 useCompression
-                removeCompression={removeCompression}
+                toggleCompression={toggleCompression}
                 numberHidden={calculateNumberHidden(comment, inboxMessageId, comments, parent)}
                 isInbox={isInbox}
                 wizardProps={wizardProps}

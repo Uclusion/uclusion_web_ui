@@ -15,7 +15,7 @@ import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 
 function DecideVoteStep(props) {
-  const { marketId, commentRoot, updateFormData, message } = props;
+  const { marketId, commentRoot, formData, updateFormData, message } = props;
   const [commentState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -27,6 +27,7 @@ function DecideVoteStep(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  const { useCompression } = formData;
 
   return (
     <WizardStepContainer
@@ -39,6 +40,8 @@ function DecideVoteStep(props) {
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                         removeActions
                         showVoting
+                        useCompression={useCompression}
+                        toggleCompression={() => updateFormData({useCompression: !useCompression})}
                         showDescription={false}
                         showAssigned={false} />
       )}
@@ -53,6 +56,8 @@ function DecideVoteStep(props) {
             marketInfo={marketInfo}
             isInbox
             removeActions
+            useCompression={useCompression}
+            toggleCompression={() => updateFormData({useCompression: !useCompression})}
           />
         </div>
       )}

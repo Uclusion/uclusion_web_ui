@@ -746,7 +746,7 @@ function Comment(props) {
     </>
     );
   }
-
+  const threadSize = calculateNumberHidden(comment, undefined, comments, undefined);
   return (
     <div style={{paddingLeft: '0.5rem', width: '98%'}}>
       <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false ? 0 : undefined}}
@@ -1001,13 +1001,13 @@ function Comment(props) {
           wizardProps={wizardProps}
         />
       )}
-      {useCompression && (
+      {useCompression && threadSize > 0 && (
         <IconButton id={`removeCompressed${id}`} onClick={toggleCompression}
                     style={{border: '1px solid grey'}}>
           <Tooltip key={`tipCompressed${id}`}
                    title={intl.formatMessage({ id: 'removeCompressionExplanation' })}>
             <StyledBadge
-              badgeContent={calculateNumberHidden(comment, undefined, comments, undefined)}
+              badgeContent={threadSize}
               style={{paddingRight: '7px'}} >
               <UnfoldMore />
             </StyledBadge>

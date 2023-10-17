@@ -1,10 +1,9 @@
 import { getIsInvited } from '../utils/redirectUtils';
-import { getAccountStorageManager, getTokenStorageManager } from './singletons';
+import { getAccountStorageManager } from './singletons';
 import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher';
 import uclusion from 'uclusion_sdk';
 import config from '../config';
 import { toastErrorAndThrow } from '../utils/userMessage';
-import { TOKEN_TYPE_ACCOUNT } from './tokenConstants';
 import { pushMessage, registerListener } from '../utils/MessageBusUtils';
 import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL, NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL } from './versionedFetchUtils';
 import { LOGIN_LOADED_EVENT } from '../contexts/NotificationsContext/notificationsContextMessages';

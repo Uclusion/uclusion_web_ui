@@ -11,6 +11,7 @@ import _ from 'lodash'
 import { clearRedirect } from './redirectUtils'
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import { PLACEHOLDER } from '../constants/global';
+import AccountStorageManager from '../authorization/AccountStorageManager';
 
 const LOGOUT_MARKER_KEY = 'logout_marker';
 
@@ -68,6 +69,7 @@ export function onSignOut() {
   // See https://aws-amplify.github.io/docs/js/authentication
   return clearUclusionLocalStorage(false)
     .then(() => new TokenStorageManager().clearTokenStorage())
+    .then(() => new AccountStorageManager().clearAccountStorage())
     .then(() => Auth.signOut())
     .then(() => window.location.reload(true));
 }

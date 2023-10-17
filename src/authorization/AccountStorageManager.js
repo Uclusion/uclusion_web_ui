@@ -8,8 +8,6 @@ import LocalForageHelper from '../utils/LocalForageHelper';
 import _ from 'lodash';
 import { getTokenSecondsRemaining } from './tokenUtils';
 import localforage from 'localforage';
-import { AllSequentialMap } from '../utils/PromiseUtils';
-import { pushMessage } from '../utils/MessageBusUtils'
 
 export const STORAGE_KEYSPACE = 'ACCOUNT_STORAGE_MANAGER';
 export const ACCOUNT_NAMESPACE = 'ACCOUNT';
@@ -17,7 +15,7 @@ export const ACCOUNT_NAMESPACE = 'ACCOUNT';
 class AccountStorageManager {
 
   getKeyNamespace (accountId) {
-    return `ACCOUNT_${accounId}`;
+    return `ACCOUNT_${accountId}`;
   }
 
   getItemIdFromKey (key) {
@@ -28,7 +26,7 @@ class AccountStorageManager {
   /**
    * Clears the entirety of token storage
    */
-  clearTokenStorage () {
+  clearAccountStorage () {
     return localforage.createInstance({ storeName: STORAGE_KEYSPACE }).clear();
   }
 

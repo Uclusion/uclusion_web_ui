@@ -1,5 +1,5 @@
 import { getIsInvited } from '../utils/redirectUtils';
-import { getTokenStorageManager } from './singletons';
+import { getAccountStorageManager, getTokenStorageManager } from './singletons';
 import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher';
 import uclusion from 'uclusion_sdk';
 import config from '../config';
@@ -19,8 +19,6 @@ export const HOME_ACCOUNT_LOCK_NAME = 'home_account_login_lock';
  * the system that can log you into your home account.
  */
 
-let accountData = null;
-
 function getSSOInfo() {
   return new AmpifyIdentitySource().getIdentity()
     .then((idToken) => uclusion.constructSSOClient(config.api_configuration)
@@ -29,9 +27,9 @@ function getSSOInfo() {
 
 export async function getLogin (forceRefresh) {
   return navigator.locks.request(HOME_ACCOUNT_LOCK_NAME, async () => {
-    const tsm = getTokenStorageManager();
-    const token = await tsm.getValidToken(TOKEN_TYPE_ACCOUNT, HOME_ACCOUNT_ITEM_ID);
-    if (!forceRefresh && accountData && token) {
+    const asm = getAccountStorageManager();
+    const accountData = await asm.getValidAccount(HOME_ACCOUNT_ITEM_ID);
+    if (!forceRefresh && accountData) {
       // our account is still valid, so just return the stored account data
       return accountData;
     }
@@ -62,10 +60,10 @@ export async function getLogin (forceRefresh) {
       // the push the notifications
       pushMessage(NOTIFICATIONS_HUB_CHANNEL, {event: LOGIN_EVENT, messages: notifications});
     });
-    accountData = responseAccountData;
-    // now load the token into storage so we don't have to keep doing it
-    await tsm.storeToken(TOKEN_TYPE_ACCOUNT, HOME_ACCOUNT_ITEM_ID, uclusion_token);
-    return accountData;
+
+    // now load the account into storage so we don't have to keep fetching it
+    await asm.storeAccount(HOME_ACCOUNT_ITEM_ID, responseAccountData);
+    return responseAccountData;
   });
 }
 

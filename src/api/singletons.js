@@ -8,6 +8,7 @@ import config from '../config';
 import MarketTokenFetcher from '../authorization/MarketTokenFetcher';
 import { TOKEN_TYPE_MARKET } from './tokenConstants';
 import TokenStorageManager from '../authorization/TokenStorageManager';
+import AccountStorageManager from '../authorization/AccountStorageManager';
 
 
 
@@ -29,4 +30,13 @@ export function getAllMarketTokenFetcher(){
     amtf = new MarketTokenFetcher(AMPLIFY_IDENTITY_SOURCE, SSO_CLIENT, TOKEN_TYPE_MARKET);
   }
   return amtf;
+}
+
+let asm = null;
+
+export function getAccountStorageManager(){
+  if (asm == null){
+    asm = new AccountStorageManager();
+  }
+  return asm;
 }

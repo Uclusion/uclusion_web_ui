@@ -140,7 +140,7 @@ function CondensedTodos(props) {
       <GmailTabs
         value={showOpen ? 0 : 1}
         onChange={(event, value) => {
-          setShowOpen(value !== 0);
+          setShowOpen(value === 0);
         }}
         indicatorColors={['black', 'black']}
         style={{ paddingBottom: '1rem' }}>

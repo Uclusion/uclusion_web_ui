@@ -51,7 +51,6 @@ function DecideResolveStep(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
-  const isFullyVoted = message.type === 'FULLY_VOTED';
   const isSuggestion = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
   const isReopen = message.type === 'UNREAD_RESOLVED';
   const { useCompression } = formData;
@@ -128,7 +127,7 @@ function DecideResolveStep(props) {
       </Typography>
       {!isReopen && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          {isFullyVoted ? 'All votes collected.' : 'New vote.'}
+          New vote(s).
         </Typography>
       )}
       {isReopen && isInReviewStage(fullStage) && (
@@ -174,7 +173,7 @@ function DecideResolveStep(props) {
           onOtherNext={() => resolve(false)}
           showTerminate={true}
           onFinish={() => myTerminate()}
-          terminateLabel={isFullyVoted ? 'defer': 'notificationDismiss'}
+          terminateLabel="notificationDismiss"
         />
       )}
       {isReopen && (
@@ -202,7 +201,7 @@ function DecideResolveStep(props) {
           otherSpinOnClick
           showTerminate={true}
           onFinish={() => myTerminate()}
-          terminateLabel={isFullyVoted ? 'defer': 'notificationDismiss'}
+          terminateLabel="notificationDismiss"
         />
       )}
       {!isOpenSuggestion && !isMarketQuestion && !isReopen && (
@@ -216,7 +215,7 @@ function DecideResolveStep(props) {
           otherSpinOnClick
           showTerminate={true}
           onFinish={() => myTerminate()}
-          terminateLabel={isFullyVoted ? 'defer': 'notificationDismiss'}
+          terminateLabel="notificationDismiss"
         />
       )}
     </WizardStepContainer>

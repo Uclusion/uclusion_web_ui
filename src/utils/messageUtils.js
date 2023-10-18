@@ -196,10 +196,11 @@ export function findMessageOfType(aType, notificationId, state, subtype) {
   return safeMessages.find((message) => message.type_object_id === typeObjectId && !message.deleted);
 }
 
-export function findMessageByInvestmentUserId(investmentUserId, state) {
+export function findMessageByInvestmentUserId(investmentUserId, investibleId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
-  return safeMessages.find((message) => message.investment_user_id === investmentUserId && !message.deleted);
+  return safeMessages.find((message) => message.voted_list?.includes(investmentUserId) && !message.deleted &&
+    message.investible_id === investibleId);
 }
 
 export function findMessageOfTypeAndId(notificationId, state, subtype) {

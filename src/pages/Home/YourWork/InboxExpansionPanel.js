@@ -138,15 +138,13 @@ export function calculateTitleExpansionPanel(props) {
     setItem(item, openExpansion, <ReplyWizard commentId={commentId} marketId={commentMarketId || marketId}
                                                 message={message} />,
       'unreadReply', intl);
-  }else if (['FULLY_VOTED', 'UNREAD_RESOLVED', 'UNREAD_VOTE'].includes(messageType)) {
-    if (linkType === 'INVESTIBLE_VOTE') {
+  }else if (messageType === 'UNREAD_VOTE' && linkType === 'INVESTIBLE_VOTE') {
       setItem(item, openExpansion, <FeedbackWizard marketId={marketId} investibleId={investibleId} message={message} />,
         'startJobQ', intl);
-    } else {
-      setItem(item, openExpansion, <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
-                                                  message={message} />,
-        messageType === 'UNREAD_RESOLVED' ? 'DecideResolveReopenTitle' : 'DecideResolveTitle', intl);
-    }
+  } else if (['UNREAD_RESOLVED', 'UNREAD_VOTE'].includes(messageType)) {
+    setItem(item, openExpansion, <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
+                                                message={message} />,
+      'DecideResolveReopenTitle', intl);
   } else if (['UNREAD_REVIEWABLE', 'UNASSIGNED', 'REVIEW_REQUIRED'].includes(messageType)) {
     if (linkType === 'MARKET_TODO') {
       if (messageType === 'UNASSIGNED') {

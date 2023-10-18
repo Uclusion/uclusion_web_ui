@@ -1058,7 +1058,7 @@ const messages = defineMessages({
   DecideUnblockTitle: 'Help unblock this job?',
   NewTaskTitle: 'Questions on this task?',
   DecideResolveReopenTitle: 'Do you reopen?',
-  DecideResolveTitle: 'Can you resolve this?',
+  DecideResolveTitle: 'Can you resolve?',
   DecideStartTitle: 'Can you start this bug?',
   CriticalBugTitle: 'Can you triage?',
   DecideReviewTitle: 'How will you review?',

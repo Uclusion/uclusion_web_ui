@@ -144,7 +144,7 @@ export function calculateTitleExpansionPanel(props) {
   } else if (['UNREAD_RESOLVED', 'UNREAD_VOTE'].includes(messageType)) {
     setItem(item, openExpansion, <ResolveWizard commentId={commentId} marketId={commentMarketId || marketId}
                                                 message={message} />,
-      'DecideResolveReopenTitle', intl);
+      messageType === 'UNREAD_RESOLVED' ? 'DecideResolveReopenTitle' : 'DecideResolveTitle', intl);
   } else if (['UNREAD_REVIEWABLE', 'UNASSIGNED', 'REVIEW_REQUIRED'].includes(messageType)) {
     if (linkType === 'MARKET_TODO') {
       if (messageType === 'UNASSIGNED') {

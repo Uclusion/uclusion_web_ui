@@ -91,6 +91,7 @@ function ReplyStep(props) {
         removeActions
         replyEditId={commentId}
         isReply
+        displayRepliesAsTop
         wizardProps={{...props, isReply: true, onSave: myTerminate, onResolve: resolve}}
       />
     </WizardStepContainer>

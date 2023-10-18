@@ -26,6 +26,7 @@ import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 import queryString from 'query-string'
 import { getAndClearEmail } from '../../utils/redirectUtils'
+import AccountStorageManager from '../../authorization/AccountStorageManager';
 
 Amplify.configure(awsconfig);
 
@@ -73,7 +74,9 @@ function AppWithAuth() {
         if (oldUserName && oldUserName !== username) {
           console.info(`Clearing storage for ${username} and ${oldUserName}`);
           // Only clear if there was a userName there otherwise window refresh during signup
-          new TokenStorageManager().clearTokenStorage().then(() => clearUclusionLocalStorage(true));
+          new TokenStorageManager().clearTokenStorage()
+            .then(() => clearUclusionLocalStorage(true))
+            .then(() => new AccountStorageManager().clearAccountStorage());
         }
         setUclusionLocalStorageItem('userName', username);
         break;

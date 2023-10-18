@@ -58,8 +58,7 @@ export default class TokenStorageManager {
   }
 
   /**
-   * Stores a token into the token storage, unless a token for that
-   * type and item exists, and the existing token has a later expiry
+   * Stores a token into the token storage
    * @param tokenType the type of token we're storing
    * @param itemId the item id we're storing a token for
    * @param token the token we want to store.

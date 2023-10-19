@@ -63,7 +63,7 @@ function DecideAnswerStep(props) {
             comments={comments}
             marketId={marketId}
             allowedTypes={[]}
-            isInbox={noOptions}
+            isInbox
             removeActions={noOptions}
             showVoting
             useCompression={useCompression}

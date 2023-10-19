@@ -122,7 +122,7 @@ function Options(props) {
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   const tabInvestibles = useTabIndex === 0 ? underConsideration : proposed;
   return (
-    <>
+    <div style={{marginTop: '0.25rem'}}>
       {abstained}
       <div onDrop={useTabIndex === 0 ? onDropProposed : onDropApprovable}
            onDragOver={(event)=>event.preventDefault()}>
@@ -174,7 +174,7 @@ function Options(props) {
         selectedInvestibleId={selectedInvestibleId}
         setSelectedInvestibleId={setSelectedInvestibleId}
       />
-    </>
+    </div>
   );
 }
 

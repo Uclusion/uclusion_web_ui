@@ -14,7 +14,7 @@ import CommentEdit from './CommentEdit';
 import { addMarketComments, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
-import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formCommentLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { handleAcceptSuggestion } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
@@ -333,7 +333,10 @@ function Reply(props) {
                 <Button
                   className={classes.action}
                   id={`commentReplyButton${comment.id}`}
-                  onClick={() => setReplyOpen()}
+                  onClick={(event) => {
+                    preventDefaultAndProp(event);
+                    setReplyOpen();
+                  }}
                   variant="text"
                 >
                   {intl.formatMessage({ id: "issueReplyLabel" })}

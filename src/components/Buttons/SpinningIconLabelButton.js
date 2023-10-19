@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { CircularProgress, Button, useTheme } from '@material-ui/core';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { makeStyles } from '@material-ui/styles'
+import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles(
   () => {
@@ -71,6 +72,7 @@ function SpinningIconLabelButton(props) {
     ((allowOtherOperations && spinning)||(!allowOtherOperations && operationRunning !== false));
   function myOnClick(event) {
     if (onClick) {
+      preventDefaultAndProp(event);
       if (doSpin) {
         setOperationRunning(id);
       }

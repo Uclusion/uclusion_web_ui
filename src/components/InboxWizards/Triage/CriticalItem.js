@@ -86,7 +86,8 @@ function CriticalItem(props) {
     date,
     id,
     link,
-    people
+    people,
+    isRead
   } = props;
   const history = useHistory();
   const classes = workListStyles();
@@ -104,8 +105,18 @@ function CriticalItem(props) {
           }>
             <Div key={`actions${id}`}>
               <GravatarGroup users={people} className={classes.gravatarStyle}/>
-              <TitleB>{title}</TitleB>
-              <DateLabelB>Updated <UsefulRelativeTime value={date}/></DateLabelB>
+              {!isRead && (
+                <TitleB>{title}</TitleB>
+              )}
+              {isRead && (
+                <Title>{title}</Title>
+              )}
+              {!isRead && (
+                <DateLabelB>Updated <UsefulRelativeTime value={date}/></DateLabelB>
+              )}
+              {isRead && (
+                <DateLabel>Updated <UsefulRelativeTime value={date}/></DateLabel>
+              )}
             </Div>
           </div>
         </RaisedCard>

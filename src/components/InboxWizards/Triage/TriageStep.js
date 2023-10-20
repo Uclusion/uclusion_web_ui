@@ -15,11 +15,17 @@ import { useHistory } from 'react-router';
 import CriticalItem from './CriticalItem';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { deleteOrDehilightMessages } from '../../../api/users';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function TriageStep(props) {
-  const { marketId, commentId } = props;
+  const { marketId, commentId, message } = props;
   const [commentState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const intl = useIntl();
   const history = useHistory();
   const commentRoot = getComment(commentState, marketId, commentId) || {};
@@ -43,9 +49,17 @@ function TriageStep(props) {
       const creator = marketPresences.find((presence) => presence.id === createdBy) || {};
       return (
         <CriticalItem id={id} title={stripHTML(body)} link={formCommentLink(marketId, groupId, undefined, id)}
-                     date={new Date(updatedAt)} people={[creator]}/>
+                     date={new Date(updatedAt)} people={[creator]} isRead={!message.is_highlighted}/>
       );
     });
+  }
+
+  function markRead() {
+    return deleteOrDehilightMessages([message], messagesDispatch, false, true)
+      .then(() => {
+        setOperationRunning(false);
+        navigate(history, getInboxTarget());
+      })
   }
 
   return (
@@ -68,6 +82,10 @@ function TriageStep(props) {
         {...props}
         nextLabel="GotoBugs"
         spinOnClick={false}
+        showOtherNext={message.is_highlighted}
+        onOtherNext={markRead}
+        otherSpinOnClick={true}
+        otherNextLabel="markRead"
         onNext={myTerminate}
       />
     </WizardStepContainer>

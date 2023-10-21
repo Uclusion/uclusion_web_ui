@@ -85,7 +85,7 @@ function TriageStep(props) {
         showOtherNext={message.is_highlighted}
         onOtherNext={markRead}
         otherSpinOnClick={true}
-        otherNextLabel="markRead"
+        otherNextLabel="defer"
         onNext={myTerminate}
       />
     </WizardStepContainer>

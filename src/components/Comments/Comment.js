@@ -715,7 +715,8 @@ function Comment(props) {
   if (useCompression && inboxMessageId) {
     return (
     <>
-      <Card elevation={3} style={{display: 'flex', paddingBottom: '1rem'}} onClick={{toggleCompression}}>
+      <Card elevation={3} style={{display: 'flex', paddingBottom: '1rem', cursor: 'pointer'}}
+            onClick={toggleCompression}>
         {cardTypeDisplay}
         <div className={classes.compressedComment}>
           {stripHTML(body)}</div>

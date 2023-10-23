@@ -245,7 +245,7 @@ function Reply(props) {
     return (
       <>
         <Card elevation={3} style={{display: 'flex', paddingBottom: '0.25rem', paddingLeft: '0.5rem',
-        paddingTop: '1rem', paddingRight: '0.5rem'}} onClick={{toggleCompression}}>
+        paddingTop: '1rem', paddingRight: '0.5rem'}} onClick={toggleCompression}>
           <Gravatar name={commenter.name} email={commenter.email} className={commentClasses.smallGravatar} />
           <div className={commentClasses.compressedComment}>{stripHTML(comment.body)}</div>
         </Card>

@@ -368,7 +368,7 @@ function InitialReply(props) {
     return (
       <>
         <IconButton id={`removeCompressed${inboxMessageId}`} onClick={toggleCompression}
-                    style={{border: '1px solid grey', marginTop: -1, marginBottom: -1}}>
+                    style={{border: '1px solid grey', marginTop: -11, marginBottom: -11}}>
           <Tooltip key={`tipCompressed${inboxMessageId}`}
                    title={intl.formatMessage({ id: 'removeCompressionExplanation' })}>
             <StyledBadge badgeContent={numberHidden} style={{paddingRight: '7px'}} >
@@ -715,7 +715,7 @@ function Comment(props) {
   if (useCompression && inboxMessageId) {
     return (
     <>
-      <Card elevation={3} style={{display: 'flex', paddingBottom: '0.25rem'}} onClick={{toggleCompression}}>
+      <Card elevation={3} style={{display: 'flex', paddingBottom: '1rem'}} onClick={{toggleCompression}}>
         {cardTypeDisplay}
         <div className={classes.compressedComment}>
           {stripHTML(body)}</div>
@@ -1003,7 +1003,7 @@ function Comment(props) {
       )}
       {useCompression && threadSize > 0 && (
         <IconButton id={`removeCompressed${id}`} onClick={toggleCompression}
-                    style={{border: '1px solid grey'}}>
+                    style={{border: '1px solid grey', marginTop: -7}}>
           <Tooltip key={`tipCompressed${id}`}
                    title={intl.formatMessage({ id: 'removeCompressionExplanation' })}>
             <StyledBadge

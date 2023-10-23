@@ -22,7 +22,7 @@ import UsefulRelativeTime from '../../TextFields/UseRelativeTime';
 
 
 function JobDescriptionStatusStep(props) {
-  const { marketId, investibleId, message } = props;
+  const { marketId, investibleId, message, formData, updateFormData } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
@@ -56,6 +56,7 @@ function JobDescriptionStatusStep(props) {
   })
   const millisBeforeMove = startedExpiration*86400000 - millisStalled;
   const alreadyMoved = linkType === 'INVESTIBLE_STAGE';
+  const { useCompression } = formData;
 
   return (
     <WizardStepContainer
@@ -82,7 +83,10 @@ function JobDescriptionStatusStep(props) {
           gets feedback.
         </Typography>
       )}
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
+                      removeActions />
       <WizardStepButtons
         {...props}
         nextLabel={alreadyMoved ? 'StatusWizardEstimateStart' : 'StatusWizardEstimate'}

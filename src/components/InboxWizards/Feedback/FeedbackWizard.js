@@ -7,7 +7,7 @@ function FeedbackWizard(props) {
   const { marketId, investibleId, message } = props;
   const parentElementId =  message.type_object_id;
   return (
-    <FormdataWizard name={`feedback_wizard${investibleId}`} defaultFormData={{parentElementId}}>
+    <FormdataWizard name={`feedback_wizard${investibleId}`} defaultFormData={{parentElementId, useCompression: true}}>
       <DecideFeedbackStep marketId={marketId} investibleId={investibleId} message={message}/>
     </FormdataWizard>
   );

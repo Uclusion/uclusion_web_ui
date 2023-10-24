@@ -29,7 +29,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 
 function DecideFeedbackStep(props) {
-  const { marketId, investibleId, message } = props;
+  const { marketId, investibleId, message, updateFormData, formData } = props;
   const intl = useIntl();
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
@@ -48,6 +48,7 @@ function DecideFeedbackStep(props) {
     return comment.comment_type === JUSTIFY_TYPE && comment.investible_id === message.investible_id;
   });
   const classes = wizardStyles();
+  const { useCompression } = formData;
 
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -92,7 +93,10 @@ function DecideFeedbackStep(props) {
         yourPresence={marketPresences.find((presence) => presence.current_user)}
         market={market}
         isInbox
+        toggleCompression={() => updateFormData({useCompression: !useCompression})}
+        useCompression={useCompression}
       />
+      <div className={classes.marginBottom}/>
       <WizardStepButtons
         {...props}
         onFinish={myOnFinish}

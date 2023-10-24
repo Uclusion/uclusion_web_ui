@@ -198,7 +198,7 @@ export const wizardStyles = makeStyles(
         backgroundColor: '#ecf0f1'
       },
       marginBottom: {
-        marginBottom: '20px'
+        marginBottom: '40px'
       },
       stepDefault: {},
       wizardCommentBoxDiv: {

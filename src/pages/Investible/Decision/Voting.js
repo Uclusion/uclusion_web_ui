@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Box, Card, CardContent, useMediaQuery, useTheme } from '@material-ui/core';
+import { Card, CardContent, useMediaQuery, useTheme } from '@material-ui/core';
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import { makeStyles } from '@material-ui/styles';
 import CardType from '../../../components/CardType';
@@ -22,6 +22,9 @@ import { removeInvestment } from '../../../api/marketInvestibles';
 import { commonQuick } from '../../../components/AddNewWizards/Approval/ApprovalWizard';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { useCommentStyles } from '../../../components/Comments/Comment';
+import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils';
+import { stripHTML } from '../../../utils/stringFunctions';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -91,7 +94,7 @@ const useVoteStyles = makeStyles(
  */
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingAllowed,
-    yourPresence, market, isInbox, groupId} = props;
+    yourPresence, market, isInbox, groupId, useCompression=false, toggleCompression=() => {}} = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -101,7 +104,7 @@ function Voting(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useVoteStyles();
-
+  const commentClasses = useCommentStyles();
   const voters = useInvestibleVoters(marketPresences, investibleId, market.id);
   const sortedVoters = _.sortBy(voters, 'quantity', 'updatedAt');
 
@@ -120,7 +123,7 @@ function Voting(props) {
   }
 
   return (
-    <ol className={classes.root}>
+    <div>
         {sortedVoters.map((voter, index) => {
           const { name, email, id: userId, quantity, commentId, updatedAt } = voter;
           const isYourVote = userId === yourPresence.id;
@@ -134,14 +137,14 @@ function Voting(props) {
             }
           }
           const isEditable = isYourVote && votingAllowed;
-          const hasContent = reason;
+          const hasContent = !editorEmpty(reason?.body);
           return (
-            <div className={myMessage && classes.highlighted} key={index}>
+            <div className={myMessage && classes.highlighted}
+                 style={{width: hasContent || midLayout ? undefined : '50%'}} key={index}>
               <Card
                 key={userId}
                 className={clsx(index % 2 === 1 ? classes.cardPadded : classes.card,
                   isEditable ? classes.editable : classes.notEditable)}
-                component="li"
                 id={voteId}
                 elevation={3}
                 style={{paddingBottom: hasContent ? undefined : '1rem'}}
@@ -151,7 +154,7 @@ function Voting(props) {
                   }
                 }}
               >
-                <Box display="flex">
+                <div style={{display: 'flex'}}>
                   <CardType compact={!midLayout}
                     className={classes.cardType}
                     type={`certainty${Math.abs(quantity)}`}
@@ -191,21 +194,25 @@ function Voting(props) {
                       />
                     </div>
                   )}
-                </Box>
+                </div>
                 {hasContent && (
-                  <CardContent className={classes.cardContent}>
-                    {!_.isEmpty(reason) &&
+                  <CardContent className={classes.cardContent} onClick={toggleCompression}>
+                    {!useCompression &&
                       <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable}
                                            id={isInbox ? `inboxReason${reason.id}` : reason.id}
                                            setBeingEdited={(event) => setBeingEdited(true, event)}
                       />}
+                    {useCompression && (
+                      <div className={commentClasses.compressedComment}>
+                        {stripHTML(reason.body)}</div>
+                    )}
                   </CardContent>
                 )}
               </Card>
             </div>
           );
         })}
-      </ol>
+      </div>
   );
 }
 

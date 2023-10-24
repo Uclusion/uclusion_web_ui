@@ -18,7 +18,7 @@ function StatusWizard(props) {
   }
 
   return (
-    <FormdataWizard name={`status_wizard1${investibleId}`} defaultFormData={{parentElementId, useCompression: true}}>
+    <FormdataWizard name={`status_wizard${investibleId}`} defaultFormData={{parentElementId, useCompression: true}}>
       <JobDescriptionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}
                                 message={message}/>
       <EstimateCompletionStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>

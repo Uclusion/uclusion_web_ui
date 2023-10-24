@@ -36,7 +36,7 @@ function TriageStep(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const classes = wizardStyles();
 
-  function myTerminate() {
+  function goToComment() {
     navigate(history, formCommentLink(marketId, groupId, undefined, commentId));
   }
 
@@ -81,12 +81,12 @@ function TriageStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="GotoBugs"
+        onNext={goToComment}
         spinOnClick={false}
-        showOtherNext={message.is_highlighted}
-        onOtherNext={markRead}
-        otherSpinOnClick={true}
-        otherNextLabel="defer"
-        onNext={myTerminate}
+        showTerminate={message.is_highlighted}
+        onFinish={markRead}
+        terminateLabel="defer"
+        terminateSpinOnClick
       />
     </WizardStepContainer>
   );

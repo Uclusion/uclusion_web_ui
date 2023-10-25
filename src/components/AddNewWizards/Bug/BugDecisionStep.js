@@ -16,6 +16,7 @@ function BugDecisionStep(props) {
   return (
     <WizardStepContainer
       {...props}
+      isLarge
     >
       <Typography className={classes.introText}>
         Do you want to move to a bug or job?

@@ -33,7 +33,8 @@ function JobDescriptionStep (props) {
   const isSingleComment = _.size(fromCommentIds) === 1;
   const editorName = isSingleComment ? `addJobWizardF${fromCommentIds[0]}` : `addJobWizard${groupId}`;
   let initializeOriginalValue = undefined;
-  if (isSingleComment && _.isEmpty(getQuillStoredState(editorName))) {
+  const { newQuantity, investibleId } = formData;
+  if (isSingleComment && !investibleId && _.isEmpty(getQuillStoredState(editorName))) {
     const fromComment = marketComments.find((comment) => comment.id === fromCommentIds[0]);
     const { body, ticket_code: ticketCode, id, investible_id: investibleId } = fromComment || {};
     // No need to clip to 80 here as that will happen when save
@@ -60,8 +61,6 @@ function JobDescriptionStep (props) {
   };
 
   const [Editor] = useEditor(editorName, editorSpec);
-
-  const { newQuantity } = formData;
 
   function createJob(readyToStart) {
     const {

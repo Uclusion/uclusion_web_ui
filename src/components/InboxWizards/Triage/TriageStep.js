@@ -34,6 +34,8 @@ function TriageStep(props) {
     comment.group_id === groupId && !comment.resolved && !comment.deleted && !comment.investible_id &&
     comment.notification_type === RED_LEVEL);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+  const { deferred_notifications: deferred } = myPresence;
   const classes = wizardStyles();
 
   function goToComment() {
@@ -49,7 +51,7 @@ function TriageStep(props) {
       const creator = marketPresences.find((presence) => presence.id === createdBy) || {};
       return (
         <CriticalItem id={id} title={stripHTML(body)} link={formCommentLink(marketId, groupId, undefined, id)}
-                     date={new Date(updatedAt)} people={[creator]} isRead={!message.is_highlighted}/>
+                     date={new Date(updatedAt)} people={[creator]} isRead={deferred?.includes(id)}/>
       );
     });
   }

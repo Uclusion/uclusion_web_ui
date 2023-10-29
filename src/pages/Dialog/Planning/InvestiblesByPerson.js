@@ -150,7 +150,7 @@ function InvestiblesByPerson(props) {
         <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
           <div>
             <b><FormattedMessage id="planningVotingStageLabel" /></b>
-            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#ready-for-approval" target="_blank">
+            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#assigned" target="_blank">
               <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>
           </div>

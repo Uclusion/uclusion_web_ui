@@ -105,7 +105,7 @@ function JobAssignStep (props) {
     return isInputRequired;
   }
   const reassigningWarning = _.isEmpty(voters) ? '' :
-    'Reassigning removes all approvals and moves the job to Ready for Approval.';
+    'Reassigning removes all approvals.';
   const unassignedWarning = _.isEmpty(assigned) ? '' : 'An unassigned job will be sent to the job backlog.';
 
   return (

@@ -156,7 +156,7 @@ function InvestiblesByPerson(props) {
           </div>
           <div>
             <b><FormattedMessage id='planningAcceptedStageLabel' /></b>
-            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#started"
+            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#accepted"
                   target="_blank">
               <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
             </Link>

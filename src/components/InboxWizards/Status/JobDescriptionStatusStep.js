@@ -67,19 +67,19 @@ function JobDescriptionStatusStep(props) {
       </Typography>
       {alreadyMoved && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          This job was moved back to Ready for Approval after {startedExpiration} days with no estimate or progress
+          This job was moved back to Assigned after {startedExpiration} days with no estimate or progress
           report.
         </Typography>
       )}
       {!alreadyMoved && millisBeforeMove > 0 && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Without an estimated date or progress report this job moves to Ready for Approval <UsefulRelativeTime milliSecondsGiven={millisBeforeMove}/>.
+          Without an estimated date or progress report this job moves to Assigned <UsefulRelativeTime milliSecondsGiven={millisBeforeMove}/>.
           Reporting progress also gets feedback.
         </Typography>
       )}
       {!alreadyMoved && millisBeforeMove <= 0 && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Without an estimated date or progress report this job will move to Ready for Approval. Reporting progress also
+          Without an estimated date or progress report this job will move to Assigned. Reporting progress also
           gets feedback.
         </Typography>
       )}

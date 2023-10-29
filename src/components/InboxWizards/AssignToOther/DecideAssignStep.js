@@ -62,7 +62,7 @@ function DecideAssignStep(props) {
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         You assigned this job <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/> and
-        the assignee has not approved or started.
+        the assignee has not accepted.
       </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} />
       <WizardStepButtons

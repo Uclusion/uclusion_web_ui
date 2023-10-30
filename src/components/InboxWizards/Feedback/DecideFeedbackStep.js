@@ -21,7 +21,7 @@ import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUt
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getAcceptedStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -49,26 +49,27 @@ function DecideFeedbackStep(props) {
   });
   const classes = wizardStyles();
   const { useCompression } = formData;
+  const acceptedStage = getAcceptedStage(marketStagesState, marketId);
+  const backlogStage = getFurtherWorkStage(marketStagesState, marketId);
 
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
   }
 
-  function next() {
-    const startedStage = getAcceptedStage(marketStagesState, marketId);
+  function next(targetStage) {
     const moveInfo = {
       marketId,
       investibleId,
       stageInfo: {
         current_stage_id: marketInfo.stage,
-        stage_id: startedStage.id,
+        stage_id: targetStage.id,
       },
     };
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
-        onInvestibleStageChange(startedStage.id, newInv, investibleId, marketId, undefined,
+        onInvestibleStageChange(targetStage.id, newInv, investibleId, marketId, undefined,
           undefined, investiblesDispatch, () => {}, marketStagesState, undefined,
-          startedStage, undefined);
+          targetStage, undefined);
         setOperationRunning(false);
         navigate(history, formInvestibleLink(marketId, investibleId));
       });
@@ -101,7 +102,10 @@ function DecideFeedbackStep(props) {
         {...props}
         onFinish={myOnFinish}
         nextLabel="startJob"
-        onNext={next}
+        onNext={() => next(acceptedStage)}
+        otherNextLabel="DecideMoveBacklog"
+        onOtherNext={() => next(backlogStage)}
+        showOtherNext
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}
       />

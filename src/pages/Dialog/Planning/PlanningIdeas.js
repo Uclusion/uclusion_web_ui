@@ -377,7 +377,8 @@ function Stage(props) {
     isReview,
     isVoting,
     showCompletion,
-    marketPresences
+    marketPresences,
+    presenceId
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -401,8 +402,8 @@ function Stage(props) {
   const investiblesMap = sortedInvestibles.map(inv => {
     const { investible } = inv;
     const marketInfo = getMarketInfo(inv, marketId) || {};
-    const unaccepted = _.size(_.intersection(marketInfo.accepted, marketInfo.assigned)) <
-      _.size(marketInfo.assigned) && isVoting;
+    const unaccepted = isVoting && marketInfo.assigned?.includes(presenceId) &&
+      !marketInfo.accepted?.includes(presenceId);
     const numQuestionsSuggestions = countByType(investible, comments,
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
     return (

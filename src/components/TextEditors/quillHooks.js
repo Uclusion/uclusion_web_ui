@@ -18,6 +18,7 @@ export function useEditor (name, spec) {
     mentionsAllowed,
     className,
     onChange,
+    onImageDeletion,
     buttons
   } = spec;
 
@@ -32,6 +33,11 @@ export function useEditor (name, spec) {
       case 'change':
         if (onChange) {
           return onChange(contents);
+        }
+        break;
+      case 'image-deletion':
+        if (onImageDeletion) {
+          return onImageDeletion(contents)
         }
         break;
       default:

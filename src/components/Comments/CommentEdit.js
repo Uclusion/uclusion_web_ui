@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { useIntl } from 'react-intl'
 import {
   Card,
@@ -207,9 +207,13 @@ function CommentEdit(props) {
   const presences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = presences?.find((presence) => presence.current_user) || {};
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [imagesDeleted, setImagesDeleted] = useState(false);
 
   const editorName = `comment-edit-editor${id}`;
   const editorSpec = {
+    onImageDeletion: () => {
+      setImagesDeleted(true);
+    },
     value: getQuillStoredState(editorName) || initialBody,
     onUpload: (files) => updateEditState({uploadedFiles: files}),
     participants: presences.filter((presence) => !presence.market_banned),
@@ -219,7 +223,7 @@ function CommentEdit(props) {
 
   function handleSave() {
     const imagesLoaded = allImagesLoaded(editBox?.current, initialUploadedFiles);
-    if (!imagesLoaded) {
+    if (!imagesLoaded && !imagesDeleted) {
       sendInfoPersistent({ id: 'loadImageError' }, {},
         () =>  window.location.reload(true));
       return Promise.resolve(false);

@@ -65,6 +65,7 @@ class ImageBlot extends Image {
     }
     return node;
   }
+
 }
 
 export default ImageBlot;

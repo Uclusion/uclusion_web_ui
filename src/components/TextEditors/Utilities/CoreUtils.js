@@ -204,6 +204,7 @@ export function createEditor (id, editorContents, config, forceCreate) {
     }
   }
 
+
   const {
     boxRef,
     containerRef,
@@ -245,7 +246,22 @@ export function createEditor (id, editorContents, config, forceCreate) {
     disableToolbarTabs(containerRef.current)
   }
   const onChange = generateOnChangeHandler(id);
+
+
+  const imageDeleteDetector = (delta, oldContents) => {
+    const newContents = editor.getContents();
+    const diff = newContents.diff(oldContents);
+    // if the old contents had an image insert and the new doesn't it was deleted
+    const deletedImages = diff.ops?.filter((op) => {
+      return op.insert?.image != null;
+    });
+    if(!_.isEmpty(deletedImages)){
+      pushMessage(`editor-${id}`, { type: 'image-deletion', contents: deletedImages});
+    }
+  }
   editor.on('text-change', onChange);
+  editor.on('text-change', imageDeleteDetector);
+
 }
 
 export function storeState (id, state) {

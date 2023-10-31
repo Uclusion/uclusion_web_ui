@@ -15,15 +15,27 @@ import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContex
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import _ from 'lodash'
+import { getAcceptedStage, getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { stageChangeInvestible } from '../../../api/investibles';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 
 function JobApproveStep(props) {
   const { marketId, groupId, updateFormData, formData, onFinish } = props;
-  const [, commentsDispatch] = useContext(CommentsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const history = useHistory();
   const validForm = formData.approveQuantity != null;
   const classes = useContext(WizardStylesContext)
   const { investibleId } = formData;
+  const inv = getInvestible(investiblesState, investibleId);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { stage: stageId, required_approvers: requiredApprovers } = marketInfo;
   const editorName = `newjobapproveeditor${investibleId}`;
 
   function onNext() {
@@ -52,6 +64,26 @@ function JobApproveStep(props) {
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
       return formData;
     })
+  }
+
+  function start() {
+    const fullMoveStage = getAcceptedStage(marketStagesState, marketId);
+    const fullCurrentStage = getFullStage(marketStagesState, marketId, stageId) || {};
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: stageId,
+        stage_id: fullMoveStage.id,
+      },
+    };
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
+          commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+          fullCurrentStage, marketPresencesDispatch);
+        navigate(history, formData.link);
+      });
   }
 
   function onTerminate() {
@@ -87,7 +119,6 @@ function JobApproveStep(props) {
         <Typography className={classes.introText} variant="h6">
           How certain are you this job should be done?
         </Typography>
-
         <AddInitialVote
           marketId={marketId}
           onChange={onQuantityChange}
@@ -103,6 +134,9 @@ function JobApproveStep(props) {
           validForm={validForm}
           showTerminate={true}
           onNext={onNext}
+          showOtherNext={_.isEmpty(requiredApprovers)}
+          onOtherNext={start}
+          otherNextLabel="skipAllApprovals"
           onTerminate={onTerminate}
           terminateLabel="JobWizardGotoJob"
           nextLabel="JobWizardApproveJob"

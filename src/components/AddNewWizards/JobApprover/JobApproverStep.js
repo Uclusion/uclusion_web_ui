@@ -62,11 +62,15 @@ function JobApproverStep (props) {
         <Typography className={classes.introText} variant="h6">
           Who should be required to approve the job?
         </Typography>
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Required approvers will not be able to dismiss their notification to approve.
+        </Typography>
         <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
         <AssignmentList
           fullMarketPresences={marketPresences}
           previouslyAssigned={approvers}
           onChange={onApproverChange}
+          listHeader="requiredApprovers"
         />
 
         <div className={classes.borderBottom}/>

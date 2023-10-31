@@ -1,0 +1,164 @@
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
+import _ from 'lodash';
+import WizardStepContainer from '../WizardStepContainer';
+import { WizardStylesContext } from '../WizardStylesContext';
+import WizardStepButtons from '../WizardStepButtons';
+import AssignmentList from '../../../pages/Dialog/Planning/AssignmentList';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { addPlanningInvestible, stageChangeInvestible, updateInvestible } from '../../../api/investibles';
+import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
+import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import JobDescription from '../../InboxWizards/JobDescription';
+import { moveCommentsFromIds } from './DecideWhereStep';
+import {
+  getFullStage,
+  getInCurrentVotingStage,
+  isFurtherWorkStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { useIntl } from 'react-intl';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+
+function JobApproverStep(props) {
+  const { marketId, updateFormData, formData, groupId, fromCommentIds, marketComments, previousStep } = props;
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const classes = useContext(WizardStylesContext);
+  const intl = useIntl();
+  const { investibleId } = formData;
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const inv = getInvestible(investibleState, investibleId) || {};
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { required_approvers: approvers, stage: stageId } = marketInfo;
+  const value = (formData.wasSet ? formData.approvers : approvers) || [];
+  const validForm = !_.isEqual(value, approvers);
+  const assignments = formData.assigned;
+  const roots = (fromCommentIds || []).map((fromCommentId) =>
+    marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
+  const comments = getCommentThreads(roots, marketComments);
+
+  function onApproverChange(newApprovers){
+    updateFormData({
+      approvers: newApprovers,
+      wasSet: true
+    });
+  }
+
+  function createJob() {
+    const name = intl.formatMessage({ id: 'jobFromBugs' });
+    // Coming from existing comments
+    const addInfo = {
+      name,
+      groupId,
+      marketId,
+      assignments,
+      requiredApprovers: value
+    }
+    return addPlanningInvestible(addInfo)
+      .then((inv) => {
+        setOperationRunning(false);
+        refreshInvestibles(investiblesDispatch, () => {}, [inv]);
+        const { id: investibleId } = inv.investible;
+        let link = formInvestibleLink(marketId, investibleId);
+        // update the form data with the saved investible
+        updateFormData({
+          investibleId,
+          link,
+        });
+        return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
+          commentsDispatch, messagesDispatch);
+      })
+  }
+
+  function assignJob() {
+    const fullCurrentStage = getFullStage(marketStagesState, marketId, stageId) || {};
+    if (isFurtherWorkStage(fullCurrentStage)) {
+      // if assignments changing from none to some need to use stageChangeInvestible instead
+      const fullMoveStage = getInCurrentVotingStage(marketStagesState, marketId);
+      const moveInfo = {
+        marketId,
+        investibleId,
+        stageInfo: {
+          assignments,
+          current_stage_id: stageId,
+          stage_id: fullMoveStage.id,
+          required_approvers: value
+        },
+      };
+      return stageChangeInvestible(moveInfo)
+        .then((newInv) => {
+          setOperationRunning(false);
+          onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
+            commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+            fullCurrentStage, marketPresencesDispatch);
+        });
+    } else {
+      const updateInfo = {
+        marketId,
+        investibleId,
+        assignments,
+        required_approvers: value,
+      };
+      return updateInvestible(updateInfo).then((fullInvestible) => {
+        setOperationRunning(false);
+        refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
+      });
+    }
+  }
+
+  return (
+    <WizardStepContainer
+      {...props}
+    >
+        <Typography className={classes.introText} variant="h6">
+          Who should be required to approve the job?
+        </Typography>
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Required approvers will not be able to dismiss their notification to approve.
+        </Typography>
+        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
+        <AssignmentList
+          fullMarketPresences={marketPresences}
+          previouslyAssigned={approvers}
+          onChange={onApproverChange}
+          listHeader="requiredApprovers"
+        />
+        <div className={classes.borderBottom}/>
+        <WizardStepButtons
+          {...props}
+          validForm={validForm}
+          showNext={true}
+          onNext={investibleId ? assignJob : createJob}
+          showTerminate
+          onTerminate={previousStep}
+          terminateLabel="OnboardingWizardGoBack"
+
+        />
+    </WizardStepContainer>
+  )
+}
+
+JobApproverStep.propTypes = {
+  updateFormData: PropTypes.func,
+  formData: PropTypes.object,
+}
+
+JobApproverStep.defaultProps = {
+  updateFormData: () => {},
+  formData: {},
+}
+
+export default JobApproverStep

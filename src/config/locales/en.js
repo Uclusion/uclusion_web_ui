@@ -667,6 +667,7 @@ const messages = defineMessages({
   planningMarketUnSubscribeExplanation: 'Unsubscribe from approvals and reviews',
   storyAddParticipantsLabel: 'Change Assigned',
   storyApproversLabel: 'Change required approvers',
+  addApproversLabel: 'Add required approvers',
   storyReviewersLabel: 'Change required reviewers',
   storyAddressedLabel: 'Add or remove following collaborators',
   dialogEditExpiresLabel: 'Add Time',
@@ -1173,6 +1174,7 @@ const messages = defineMessages({
   JobAssignBacklog: 'Move to not ready',
   JobWizardReady: 'Backlog ready to start',
   JobWizardNoAssign: 'Backlog not ready',
+  skipAllApprovals: 'Skip all approvals',
 
   //GroupWizard
   GroupWizardMeetingName: 'Your group name',

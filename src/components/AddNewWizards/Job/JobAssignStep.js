@@ -20,7 +20,6 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import {
-  getAcceptedStage,
   getFullStage, getFurtherWorkStage,
   getInCurrentVotingStage,
   isFurtherWorkStage
@@ -79,27 +78,6 @@ function JobAssignStep (props) {
         return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
           commentsDispatch, messagesDispatch);
       })
-  }
-
-  function start() {
-    const fullMoveStage = getAcceptedStage(marketStagesState, marketId);
-    const myPresence = presences.find((presence) => presence.current_user) || {};
-    const moveInfo = {
-      marketId,
-      investibleId,
-      stageInfo: {
-        assignments: [myPresence.id],
-        current_stage_id: stageId,
-        stage_id: fullMoveStage.id,
-      },
-    };
-    return stageChangeInvestible(moveInfo)
-      .then((newInv) => {
-        onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
-          commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
-          fullCurrentStage, marketPresencesDispatch);
-        navigate(history, formData.link);
-      });
   }
 
   function assignJob() {
@@ -162,13 +140,12 @@ function JobAssignStep (props) {
           finish={onFinish}
           validForm={validForm}
           showNext
+          onNextSkipStep
           showTerminate
           onNext={investibleId ? assignJob : createJob}
           isFinal={false}
           showOtherNext
-          onOtherNext={start}
-          otherNextValid
-          otherNextLabel="assignStartJob"
+          otherNextLabel="addApproversLabel"
           onTerminate={() => navigate(history, formData.link)}
           terminateLabel="JobWizardGotoJob"
           nextLabel="JobWizardAssignJob"

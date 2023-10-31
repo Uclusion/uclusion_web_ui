@@ -11,7 +11,7 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
 import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
 import { addMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { partialUpdateInvestment } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { partialUpdateInvestment, usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import _ from 'lodash'
@@ -29,14 +29,17 @@ function JobApproveStep(props) {
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const presences = usePresences(marketId);
   const history = useHistory();
   const validForm = formData.approveQuantity != null;
   const classes = useContext(WizardStylesContext)
   const { investibleId } = formData;
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage: stageId, required_approvers: requiredApprovers } = marketInfo;
+  const { stage: stageId, required_approvers: requiredApprovers, assigned } = marketInfo;
   const editorName = `newjobapproveeditor${investibleId}`;
+  const myPresence = presences.find((presence) => presence.current_user) || {};
+  const isAssignedToMe = assigned?.includes(myPresence.id);
 
   function onNext() {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;
@@ -134,7 +137,7 @@ function JobApproveStep(props) {
           validForm={validForm}
           showTerminate={true}
           onNext={onNext}
-          showOtherNext={_.isEmpty(requiredApprovers)}
+          showOtherNext={_.isEmpty(requiredApprovers)&&isAssignedToMe}
           onOtherNext={start}
           otherNextLabel="skipAllApprovals"
           onTerminate={onTerminate}

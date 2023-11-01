@@ -5,6 +5,9 @@
 import { convertDescription } from '../src/utils/stringFunctions'
 
 it.each([["<p>Try for name. And then some.</p>", "Try for name. And then some.", ""],
+  ["<p>Ready for Approval => Evaluate, Started => Approved</p>", "Ready for Approval => Evaluate, Started => Approved", "<p></p>"],
+  // Unfortunate but &gt etc. too much an edge case to code around
+  ["<p>Ready for Approval =&gt; Evaluate, Started =&gt; Approved</p>", "Ready for Approval => Evaluate, Started => Approved", "<p>Ready for Approval =&gt; Evaluate, Started =&gt; Approved</p>"],
   ["<p>Added <a href=\"https://github.com/Uclusion/uclusion_backend_common/commit/bd931fe65dc8b82bb2b9c519a2d5aed6259f236d\">https://github.com/Uclusion/uclusion_backend_common/commit/bd931fe65dc8b82bb2b9c519a2d5aed6259f236d</a> but fixture precedence order is still wrong:</p>", "Added...", "<p>Added <a href=\"https://github.com/Uclusion/uclusion_backend_common/commit/bd931fe65dc8b82bb2b9c519a2d5aed6259f236d\">https://github.com/Uclusion/uclusion_backend_common/commit/bd931fe65dc8b82bb2b9c519a2d5aed6259f236d</a> but fixture precedence order is still wrong:</p>"],
   ["<p>Try for name and then some to see what happens. Maybe so but then try something else.</p>", "Try for name and then some to see what happens.", "<p>Maybe so but then try something else.</p>"],
   ["<p>Try for name and then some to see what happens! Maybe so but then try something else.</p>", "Try for name and then some to see what happens!", "<p>Maybe so but then try something else.</p>"],

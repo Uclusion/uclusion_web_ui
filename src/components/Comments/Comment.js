@@ -351,7 +351,6 @@ const StyledBadge = styled(Badge)(() => ({
   '& .MuiBadge-badge': {
     right: -3,
     top: 13,
-    border: '1px solid grey',
     marginRight: 4,
     marginLeft: 8
   },

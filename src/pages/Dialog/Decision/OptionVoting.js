@@ -25,11 +25,10 @@ function OptionVoting(props) {
     if (expansionOpen) {
       expansionPanel = <DecisionInvestible
         userId={userId || ''}
-        investibleId={investibleId}
         market={market}
         fullInvestible={inv}
         marketPresences={marketPresences}
-        investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
+        investibleComments={comments.filter((comment) => comment.investible_id === investibleId)}
         isAdmin={isAdmin}
         inArchives={inArchives}
         isSent={isSent}

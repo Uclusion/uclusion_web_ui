@@ -136,7 +136,6 @@ function GridMobileDiv(props) {
  */
 function DecisionInvestible(props) {
   const {
-    investibleId,
     marketPresences,
     investibleComments,
     userId,
@@ -158,6 +157,7 @@ function DecisionInvestible(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const investibleId = fullInvestible?.investible?.id;
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
   const { id: marketId, market_stage: marketStage } = market;
@@ -395,12 +395,12 @@ DecisionInvestible.propTypes = {
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   investibleComments: PropTypes.arrayOf(PropTypes.object),
   comments: PropTypes.arrayOf(PropTypes.object),
-  investibleId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
   toggleEdit: PropTypes.func,
   isAdmin: PropTypes.bool,
   inArchives: PropTypes.bool,
   hidden: PropTypes.bool,
+  removeActions: PropTypes.bool
 };
 
 DecisionInvestible.defaultProps = {
@@ -410,6 +410,7 @@ DecisionInvestible.defaultProps = {
   isAdmin: false,
   inArchives: false,
   hidden: false,
+  removeActions: false
 };
 
 export default DecisionInvestible;

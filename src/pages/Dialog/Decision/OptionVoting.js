@@ -21,13 +21,13 @@ function OptionVoting(props) {
   function getOptionListItem(inv) {
     let expansionPanel = undefined;
     const expansionOpen = inv.investible.id === selectedInvestibleId;
+    const investibleId = inv.investible.id;
     if (expansionOpen) {
       expansionPanel = <DecisionInvestible
         userId={userId || ''}
-        investibleId={selectedInvestibleId}
+        investibleId={investibleId}
         market={market}
         fullInvestible={inv}
-        comments={comments}
         marketPresences={marketPresences}
         investibleComments={comments.filter((comment) => comment.investible_id === selectedInvestibleId)}
         isAdmin={isAdmin}
@@ -36,7 +36,6 @@ function OptionVoting(props) {
         removeActions={removeActions}
       />
     }
-    const investibleId = inv.investible.id;
     const description = stripHTML(inv.investible.description);
     const investors = marketPresences.filter((presence) =>
       presence.investments?.find((investment) => !investment.deleted && investment.investible_id === investibleId));

@@ -139,7 +139,6 @@ function DecisionInvestible(props) {
     investibleId,
     marketPresences,
     investibleComments,
-    comments,
     userId,
     market,
     fullInvestible,
@@ -171,10 +170,7 @@ function DecisionInvestible(props) {
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE) || [];
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
   const myIssues = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
-  const marketIssues = comments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved && !comment.investible_id);
-  const hasMarketIssue = !_.isEmpty(marketIssues);
   const hasIssue = !_.isEmpty(myIssues);
-  const hasIssueOrMarketIssue = hasMarketIssue || hasIssue;
   const { investible, market_infos: marketInfos } = fullInvestible;
   const marketInfo = marketInfos.find((info) => info.market_id === marketId) || {};
   const { group_id: groupId, stage } = marketInfo;
@@ -257,7 +253,7 @@ function DecisionInvestible(props) {
       .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
   }
 
-  const votingAllowed = !inProposed && !inArchives && !hasIssueOrMarketIssue && activeMarket;
+  const votingAllowed = !inProposed && !inArchives && !hasIssue && activeMarket;
   const displayVotingInput = !removeActions && votingAllowed && !yourVote;
   const displayCommentInput = !removeActions && !inArchives && marketId && !_.isEmpty(investible) && !hidden;
   const editClasses = useInvestibleEditStyles();

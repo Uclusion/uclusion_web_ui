@@ -236,12 +236,11 @@ function getMessageForComment(comment, market, type, Icon, intl, investibleState
   if (comment.investible_id) {
     const investible = getInvestible(investibleState, comment.investible_id)
     const notDoingStage = getNotDoingStage(marketStagesState, market.id) || {};
-    const backlogStage = getFurtherWorkStage(marketStagesState, market.id) || {};
     const marketInfo = getMarketInfo(investible, market.id) || {};
-    if ([notDoingStage.id, backlogStage.id].includes(marketInfo.stage)) {
+    if (notDoingStage.id === marketInfo.stage) {
       return null;
     }
-    if (investible && investible.investible && investible.investible.name) {
+    if (investible?.investible?.name) {
       message.investible = investible.investible.name;
     }
   }

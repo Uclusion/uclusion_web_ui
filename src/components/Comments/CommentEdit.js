@@ -40,6 +40,7 @@ import { allImagesLoaded } from '../../utils/windowUtils';
 import { sendInfoPersistent } from '../../utils/userMessage';
 import WizardStepContainer from '../AddNewWizards/WizardStepContainer';
 import WizardStepButtons from '../AddNewWizards/WizardStepButtons';
+import { WizardStylesContext } from '../AddNewWizards/WizardStylesContext';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -204,6 +205,7 @@ function CommentEdit(props) {
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, investible_id: investibleId,
     body: initialBody } = comment;
   const classes = useStyles();
+  const wizardClasses = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
@@ -289,14 +291,14 @@ function CommentEdit(props) {
         {...props}
         isLarge
       >
-        <Typography className={classes.introText}>
+        <Typography className={wizardClasses.introText}>
           What is your question?
         </Typography>
-        <Typography className={classes.introSubText} variant="subtitle1">
+        <Typography className={wizardClasses.introSubText} variant="subtitle1">
           Pick up where you left off asking this question.
         </Typography>
         {Editor}
-        <div className={classes.borderBottom} />
+        <div className={wizardClasses.borderBottom} />
         <WizardStepButtons
           {...props}
           nextLabel="JobCommentAddQUESTION"

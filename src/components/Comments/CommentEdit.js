@@ -327,7 +327,7 @@ function CommentEdit(props) {
         </SpinningIconLabelButton>
         <SpinningIconLabelButton
           icon={Update}
-          onClick={handleSave}
+          onClick={() => handleSave(true)}
           id="updateCommentButton"
         >
           {intl.formatMessage({ id: 'update' })}

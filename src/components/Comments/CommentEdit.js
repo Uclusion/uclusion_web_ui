@@ -1,32 +1,34 @@
 import React, { useContext, useRef, useState } from 'react';
-import { useIntl } from 'react-intl'
+import { useIntl } from 'react-intl';
 import {
   Card,
   CardActions,
   CardContent,
   darken,
   makeStyles,
-  Typography, useMediaQuery, useTheme
+  Typography,
+  useMediaQuery,
+  useTheme
 } from '@material-ui/core';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 import { getMentionsFromText, updateComment } from '../../api/comments';
-import { processTextAndFilesForSave } from '../../api/files'
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments'
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { processTextAndFilesForSave } from '../../api/files';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import _ from 'lodash';
-import { onCommentOpen } from '../../utils/commentFunctions'
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { findMessageOfType } from '../../utils/messageUtils'
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
+import { onCommentOpen } from '../../utils/commentFunctions';
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { findMessageOfType } from '../../utils/messageUtils';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { Clear, Feedback, Update } from '@material-ui/icons';
-import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
-import {  useEditor } from '../TextEditors/quillHooks'
-import { deleteOrDehilightMessages } from '../../api/users'
-import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils'
+import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
+import { useEditor } from '../TextEditors/quillHooks';
+import { deleteOrDehilightMessages } from '../../api/users';
+import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils';
 import { nameFromDescription } from '../../utils/stringFunctions';
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { removeMessages } from '../../contexts/NotificationsContext/notificationsContextReducer';
@@ -36,6 +38,8 @@ import HelpIcon from '@material-ui/icons/Help';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import { allImagesLoaded } from '../../utils/windowUtils';
 import { sendInfoPersistent } from '../../utils/userMessage';
+import WizardStepContainer from '../AddNewWizards/WizardStepContainer';
+import WizardStepButtons from '../AddNewWizards/WizardStepButtons';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -186,7 +190,8 @@ export function getIcon(commentType) {
 
 function CommentEdit(props) {
   const {
-    marketId, onSave, onCancel, comment, myNotificationType, editState, updateEditState, editStateReset, messages
+    marketId, onSave, onCancel, comment, myNotificationType, editState, updateEditState, editStateReset, isWizard,
+    messages
   } = props;
   const {
     uploadedFiles,
@@ -221,7 +226,7 @@ function CommentEdit(props) {
   }
   const [Editor, resetEditor] = useEditor(editorName, editorSpec);
 
-  function handleSave() {
+  function handleSave(isSent) {
     const imagesLoaded = allImagesLoaded(editBox?.current, initialUploadedFiles);
     if (!imagesLoaded && !imagesDeleted) {
       sendInfoPersistent({ id: 'loadImageError' }, {},
@@ -244,7 +249,7 @@ function CommentEdit(props) {
       label = nameFromDescription(tokensRemoved);
     }
     return updateComment({marketId, commentId: id, body: tokensRemoved, uploadedFiles: filteredUploads, mentions,
-      notificationType: myActualNotificationType, investibleLabel: label})
+      notificationType: myActualNotificationType, investibleLabel: label, isSent})
       .then((response) => {
         let comment = response;
         if (!_.isEmpty(label)) {
@@ -276,6 +281,37 @@ function CommentEdit(props) {
     resetEditor();
     editStateReset();
     onCancel();
+  }
+
+  if (isWizard) {
+    return (
+      <WizardStepContainer
+        {...props}
+        isLarge
+      >
+        <Typography className={classes.introText}>
+          What is your question?
+        </Typography>
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Pick up where you left off asking this question.
+        </Typography>
+        {Editor}
+        <div className={classes.borderBottom} />
+        <WizardStepButtons
+          {...props}
+          nextLabel="JobCommentAddQUESTION"
+          isFinal={false}
+          onNext={() => {
+              if (getQuillStoredState(editorName) !== initialBody) {
+                handleSave(false);
+              }
+            }
+          }
+          onTerminate={() => handleSave(true)}
+          showTerminate
+          terminateLabel="commentAddSendLabel"/>
+      </WizardStepContainer>
+    );
   }
 
   return (
@@ -310,11 +346,13 @@ CommentEdit.propTypes = {
   onSave: PropTypes.func,
   comment: PropTypes.object.isRequired,
   onCancel: PropTypes.func,
+  isWizard: PropTypes.bool
 };
 
 CommentEdit.defaultProps = {
   allowedTypes: [],
   onSave: () => {},
+  isWizard: false
 };
 
 export default CommentEdit;

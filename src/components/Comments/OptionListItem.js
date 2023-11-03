@@ -12,7 +12,6 @@ import DragImage from '../Dialogs/DragImage';
 
 const Item = styled("div")`
   margin-bottom: 1px;
-  min-width: 60vw;
 `
 
 const Div = styled("div")`

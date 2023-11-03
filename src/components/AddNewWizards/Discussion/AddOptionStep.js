@@ -6,10 +6,10 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { editorEmpty, getQuillStoredState, resetEditor } from '../../TextEditors/Utilities/CoreUtils';
 import { useEditor } from '../../TextEditors/quillHooks';
-import { convertDescription } from '../../../utils/stringFunctions';
+import { convertDescription, stripHTML } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInvestibles, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -19,6 +19,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
+import OptionListItem from '../../Comments/OptionListItem';
 
 function AddOptionStep(props) {
   const { formData } = props;
@@ -27,11 +28,12 @@ function AddOptionStep(props) {
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const history = useHistory();
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const allOptions = getMarketInvestibles(investibleState, inlineMarketId) || [];
   const marketStages = getStages(marketStagesState, inlineMarketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
 
@@ -68,6 +70,14 @@ function AddOptionStep(props) {
       })
   }
 
+  function getOptionListItem(inv) {
+    const investibleId = inv.investible.id;
+    const description = stripHTML(inv.investible.description);
+    return (
+      <OptionListItem id={investibleId} description={description} title={inv.investible.name} />
+    )
+  }
+
   function myOnFinish(){
     return sendComment(marketId, commentId).then((response) => {
       addCommentToMarket(response, commentState, commentDispatch);
@@ -84,6 +94,9 @@ function AddOptionStep(props) {
       <Typography className={classes.introText}>
         What are the options?
       </Typography>
+      <div style={{marginBottom: '2rem'}}>
+        {allOptions.map((fullInvestible) => getOptionListItem(fullInvestible))}
+      </div>
       {Editor}
       <div className={classes.borderBottom} />
       <WizardStepButtons

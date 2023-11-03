@@ -9,7 +9,13 @@ import { editorEmpty, getQuillStoredState, resetEditor, storeState } from '../..
 import { useEditor } from '../../TextEditors/quillHooks';
 import { convertDescription } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
-import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  formCommentLink,
+  formInvestibleLink,
+  formMarketAddInvestibleLink,
+  formMarketLink,
+  navigate
+} from '../../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -22,7 +28,8 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function JobDescriptionStep (props) {
-  const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData, jobType } = props;
+  const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData, jobType,
+    startOver } = props;
   const history = useHistory();
   const [, commentsDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -114,6 +121,24 @@ function JobDescriptionStep (props) {
     });
   }
 
+  const hasFromComments = _.size(fromCommentIds) > 0;
+  function onTerminate() {
+    if (hasFromComments) {
+      let checkedString;
+      roots.forEach((comment) => {
+        if (checkedString) {
+          checkedString += `&fromCommentId=${comment.id}`;
+        } else {
+          checkedString = `&fromCommentId=${comment.id}`;
+        }
+      });
+      startOver();
+      navigate(history, `${formMarketAddInvestibleLink(marketId, groupId)}${checkedString}`);
+    } else {
+      navigate(history, formMarketLink(marketId, groupId));
+    }
+  }
+
   const defaultFromPage = jobType === undefined ? 'IMMEDIATE' : (jobType === '0' ? 'READY' : 'NOT_READY');
   const currentValue = newQuantity || defaultFromPage || '';
   const onNext = currentValue === 'NOT_READY' ? onNotReady : (currentValue === 'READY' ?
@@ -175,8 +200,8 @@ function JobDescriptionStep (props) {
         onNextDoAdvance={currentValue === 'IMMEDIATE'}
         isFinal={currentValue !== 'IMMEDIATE'}
         showTerminate
-        onTerminate={() => navigate(history, formMarketLink(marketId, groupId))}
-        terminateLabel="JobWizardBack"
+        onTerminate={onTerminate}
+        terminateLabel={hasFromComments ? 'JobWizardStartOver' : 'JobWizardBack'}
       />
     </WizardStepContainer>
   );

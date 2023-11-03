@@ -11,7 +11,6 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constant
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import {
-  getFurtherWorkStage,
   getInCurrentVotingStage,
   getNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';

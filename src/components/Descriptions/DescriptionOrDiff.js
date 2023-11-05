@@ -5,6 +5,9 @@ import { findMessageOfTypeAndId } from '../../utils/messageUtils'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import QuillEditor2 from '../TextEditors/QuillEditor2'
 import _ from 'lodash'
+import { getDiff } from '../../contexts/DiffContext/diffContextHelper';
+import { DiffContext } from '../../contexts/DiffContext/DiffContext';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 
 function DescriptionOrDiff(props) {
   const {
@@ -14,9 +17,12 @@ function DescriptionOrDiff(props) {
   } = props;
 
   const [messagesState] = useContext(NotificationsContext);
+  const [diffState] = useContext(DiffContext);
+  const [marketsState, , tokensHash] = useContext(MarketsContext);
   const myMessage = findMessageOfTypeAndId(id, messagesState, 'DESCRIPTION');
+  const diff = marketsState.initializing || _.isEmpty(tokensHash) ? undefined : getDiff(diffState, id);
 
-  if (myMessage && showDiff) {
+  if (myMessage && showDiff && diff) {
     return (
       <DiffDisplay
         id={id}

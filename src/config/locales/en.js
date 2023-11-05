@@ -285,6 +285,7 @@ const messages = defineMessages({
   unreadDescriptionMobile: 'Modified',
   unreadEstimate: 'Okay with this estimate?',
   unreadEstimateMobile: 'Estimate change',
+  unreadJobEdit: 'Job edited',
   unreadAssignment: 'Assigned to You',
   unreadAssignmentMobile: 'Assigned',
   unreadOption: 'Consider option',

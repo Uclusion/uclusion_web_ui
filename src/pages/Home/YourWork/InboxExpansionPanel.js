@@ -48,6 +48,7 @@ import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined'
 import TaskedWizard from '../../../components/InboxWizards/ReviewNewTask/TaskedWizard';
 import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
 import TriageWizard from '../../../components/InboxWizards/Triage/TriageWizard';
+import InvestibleEditedWizard from '../../../components/InboxWizards/JobEdited/InvestibleEditedWizard';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -167,6 +168,10 @@ export function calculateTitleExpansionPanel(props) {
       item.expansionPanel = <EstimateChangeWizard investibleId={investibleId} marketId={marketId}
                                                   message={message} />,
       undefined, intl);
+  } else if (['UNREAD_DESCRIPTION', 'UNREAD_NAME', 'UNREAD_ATTACHMENT'].includes(messageType)) {
+    setItem(item, openExpansion, <InvestibleEditedWizard investibleId={investibleId} marketId={marketId}
+                                                         message={message} />,
+      'unreadJobEdit', intl);
   }
 }
 

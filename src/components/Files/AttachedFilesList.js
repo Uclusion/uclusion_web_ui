@@ -11,7 +11,7 @@ import FileUploader from './FileUploader';
 import { getMarketLogin } from '../../api/marketLogin';
 import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton';
 
-const useStyles = makeStyles((theme) => ({
+export const attachedFilesStyles = makeStyles((theme) => ({
   sectionTitle: {
     fontWeight: 700,
     marginBottom: '0.5rem',
@@ -35,11 +35,50 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+export function displayLinksList(filesList, fileBaseUrl, downloadFile, onDeleteClick, classes) {
+  return (filesList || []).map((file) => {
+    const {original_name, path} = file;
+    const linkToFile = `${fileBaseUrl}/${path}`;
+    return (
+      <div style={{width: '40%'}}>
+        <Link
+          href={linkToFile}
+          variant="inherit"
+          underline="always"
+          color="primary"
+          download={original_name}
+          onClick={(e) => {
+            if (downloadFile) {
+              e.preventDefault();
+              downloadFile(linkToFile, original_name);
+            }
+          }}
+          className={classes.file}
+        >
+          {original_name}
+        </Link>
+        <SpinningTooltipIconButton
+          id='deleteFiles'
+          translationId="delete"
+          edge="end"
+          onClick={() => {
+            if (onDeleteClick) {
+              onDeleteClick(path)
+            }
+          }}
+          icon={<DeleteIcon htmlColor="black" />}
+          aria-label="delete"
+        />
+      </div>
+    )
+  })
+}
+
 function AttachedFilesList(props) {
 
   const { marketId, attachedFiles, onUpload, onDeleteClick } = props;
   const [uploadInProgress, setUploadInProgress] = useState(false);
-  const classes = useStyles();
+  const classes = attachedFilesStyles();
   const intl = useIntl();
   const fileBaseUrl = config.file_download_configuration.baseURL;
 
@@ -62,39 +101,6 @@ function AttachedFilesList(props) {
       });
   }
 
-  function displayLinksList (filesList) {
-    return (filesList || []).map((file, index) => {
-      const {original_name, path} = file;
-      const linkToFile = `${fileBaseUrl}/${path}`;
-      return (
-      <div style={{width: '40%'}}>
-            <Link
-              href={linkToFile}
-              variant="inherit"
-              underline="always"
-              color="primary"
-              download={original_name}
-              onClick={(e) => {
-                e.preventDefault();
-                downloadFile(linkToFile, original_name);
-              }}
-              className={classes.file}
-            >
-              {original_name}
-            </Link>
-            <SpinningTooltipIconButton
-              id='deleteFiles'
-              translationId="delete"
-              edge="end"
-              onClick={() => onDeleteClick(path)}
-              icon={<DeleteIcon htmlColor="black" />}
-              aria-label="delete"
-            />
-        </div>
-      )
-    })
-  }
-
   const hasFiles = !_.isEmpty(attachedFiles);
 
   return (
@@ -113,7 +119,7 @@ function AttachedFilesList(props) {
       <div>
         <FileUploader key="uploader" marketId={marketId} onUpload={onUpload}
                       setUploadInProgress={setUploadInProgress}/>
-        {displayLinksList(attachedFiles)}
+        {displayLinksList(attachedFiles, fileBaseUrl, downloadFile, onDeleteClick, classes)}
       </div>
       )}
     </LoadingOverlay>

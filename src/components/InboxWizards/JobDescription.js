@@ -20,16 +20,21 @@ import { FormattedMessage } from 'react-intl';
 import CondensedTodos from '../../pages/Investible/Planning/CondensedTodos';
 import { REPLY_TYPE, TODO_TYPE } from '../../constants/comments';
 import GravatarGroup from '../Avatars/GravatarGroup';
+import { attachedFilesStyles, displayLinksList } from '../Files/AttachedFilesList';
+import config from '../../config';
 
 function JobDescription(props) {
   const { investibleId, marketId, comments, showDescription=true, showAssigned=true, inboxMessageId,
     removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder,
-    toggleCompression, useCompression, isSingleTaskDisplay = false } = props;
+    showAttachments, toggleCompression, useCompression, isSingleTaskDisplay = false,
+    showDiff = false } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const investibleEditClasses = useInvestibleEditStyles();
   const planningClasses = usePlanningInvestibleStyles();
+  const attachedStyles = attachedFilesStyles();
+  const fileBaseUrl = config.file_download_configuration.baseURL;
   const [investiblesState] = useContext(InvestiblesContext);
   const classes = wizardStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -40,7 +45,7 @@ function JobDescription(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const assignedPresences = marketPresences.filter((presence) => (assigned || []).includes(presence.id))
   const { investible: myInvestible } = inv || {};
-  const { name, description } = myInvestible || {};
+  const { name, description, attached_files: attachedFiles } = myInvestible || {};
   const editorIsEmpty = editorEmpty(description);
   const todoComments = comments?.filter((comment) => comment.comment_type === TODO_TYPE);
   const nonTodoComments = comments?.filter((comment) => comment.comment_type !== TODO_TYPE);
@@ -62,7 +67,18 @@ function JobDescription(props) {
           {name}
         </Typography>
         {!editorIsEmpty && showDescription && (
-          <DescriptionOrDiff id={investibleId} description={description} showDiff={false} />
+          <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} />
+        )}
+        {showAttachments && (
+          <>
+            <div className={attachedStyles.sectionTitle}>
+              <FormattedMessage id="attachedFilesSection"/>
+            </div>
+            <div>
+              {displayLinksList(attachedFiles, fileBaseUrl, undefined, undefined,
+                attachedStyles)}
+            </div>
+          </>
         )}
         {!_.isEmpty(todoComments) && !isSingleTaskDisplay && (
           <CondensedTodos comments={todoComments} investibleComments={comments} isInbox marketId={marketId}

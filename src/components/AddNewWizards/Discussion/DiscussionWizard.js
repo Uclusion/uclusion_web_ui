@@ -19,7 +19,7 @@ function DiscussionWizard(props) {
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const savedQuestion = (commentsState[marketId]||[]).find((comment) => {
     return comment.comment_type === QUESTION_TYPE && !comment.resolved && !comment.deleted && !comment.is_sent
-      && comment.created_by === myPresence?.id;
+      && comment.created_by === myPresence?.id && !comment.investible_id;
   });
   const hasDraft = isQuestion && savedQuestion;
   const draftData = {inlineMarketId: savedQuestion?.inline_market_id, commentId: savedQuestion?.id, groupId:

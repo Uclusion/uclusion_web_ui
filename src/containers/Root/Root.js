@@ -30,8 +30,8 @@ import { setOperationInProgress } from '../../components/ContextHacks/OperationI
 import GroupEdit from '../../pages/DialogSettings/GroupEdit';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
 import { refreshVersions } from '../../api/versionedFetchUtils';
-import { MarketsContext, marketsContextHack } from '../../contexts/MarketsContext/MarketsContext';
-import { CommentsContext, commentsContextHack } from '../../contexts/CommentsContext/CommentsContext';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 
 const useStyles = makeStyles({
   body: {
@@ -146,7 +146,7 @@ function Root() {
         navigate(history, url, true);
       }
     }
-  },  [pathname, history, ticketState]);
+  },  [pathname, history, ticketState, marketsState, commentsState]);
 
   useEffect(() => {
     function handleViewChange(isEntry) {

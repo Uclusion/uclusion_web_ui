@@ -30,7 +30,8 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
     parent_comment_id: parentCommentId, parent_comment_version: parentCommentVersion,
     type: messageType, type_object_id: typeObjectId,
     investment_user_id: investmentUserId, comment_market_id: commentMarketId, market_investible_id: marketInvestibleId,
-    market_investible_version: marketInvestibleVersion, decision_investible_id: decisionInvestibleId } = message;
+    market_investible_version: marketInvestibleVersion, decision_investible_id: decisionInvestibleId,
+    voted_list: voters } = message;
   const useMarketId = commentMarketId || marketId;
   let checked = commentVersion || parentCommentVersion;
   if (!checkComment(commentId, commentVersion, useMarketId, commentsState)) {
@@ -86,13 +87,20 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
       return false;
     }
   }
-  if (investmentUserId) {
+  if (investmentUserId || voters) {
     checked = true;
+    const toCheckList = voters ? voters : [investmentUserId];
     const presences = getMarketPresences(marketPresencesState, marketId) || [];
-    const investmentPresence = presences.find((presence) => presence.id === investmentUserId) || {};
-    const { investments } = investmentPresence;
-    if (_.isEmpty(investments)) {
-      console.warn(`Empty investments for ${investmentUserId} and ${marketId}`);
+    let allInvestorsFound = true;
+    toCheckList.forEach((investor) => {
+      const investmentPresence = presences.find((presence) => presence.id === investor) || {};
+      const { investments } = investmentPresence;
+      if (_.isEmpty(investments)) {
+        console.warn(`Empty investments for ${investor} and ${marketId}`);
+        allInvestorsFound = false;
+      }
+    });
+    if (!allInvestorsFound) {
       return false;
     }
   }

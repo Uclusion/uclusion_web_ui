@@ -30,6 +30,8 @@ import { setOperationInProgress } from '../../components/ContextHacks/OperationI
 import GroupEdit from '../../pages/DialogSettings/GroupEdit';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
 import { refreshVersions } from '../../api/versionedFetchUtils';
+import { MarketsContext, marketsContextHack } from '../../contexts/MarketsContext/MarketsContext';
+import { CommentsContext, commentsContextHack } from '../../contexts/CommentsContext/CommentsContext';
 
 const useStyles = makeStyles({
   body: {
@@ -62,6 +64,8 @@ function Root() {
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [, setOnline] = useContext(OnlineStateContext);
   const [ticketState] = useContext(TicketIndexContext);
+  const [marketsState] = useContext(MarketsContext);
+  const [commentsState] = useContext(CommentsContext);
 
   function hideHome() {
     return !pathname || pathname !== '/';
@@ -137,7 +141,7 @@ function Root() {
 
   useEffect(() => {
     if (isTicketPath(pathname)) {
-      const url = getUrlForTicketPath(pathname, ticketState);
+      const url = getUrlForTicketPath(pathname, ticketState, marketsState, commentsState);
       if (url) {
         navigate(history, url, true);
       }

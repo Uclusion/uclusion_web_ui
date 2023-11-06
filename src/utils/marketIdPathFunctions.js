@@ -4,11 +4,16 @@ import { getInvestibleName } from '../contexts/InvestibesContext/investiblesCont
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import { marketsContextHack } from '../contexts/MarketsContext/MarketsContext';
 import { investibleContextHack } from '../contexts/InvestibesContext/InvestiblesContext';
-import { getCommentRoot } from '../contexts/CommentsContext/commentsContextHelper'
+import { getComment, getCommentRoot } from '../contexts/CommentsContext/commentsContextHelper';
 import { commentsContextHack } from '../contexts/CommentsContext/CommentsContext'
 import { JOB_WIZARD_TYPE } from '../constants/markets';
 import { ticketContextHack } from '../contexts/TicketContext/TicketIndexContext';
-import { getTicket, isInvestibleTicket, isTicketPath } from '../contexts/TicketContext/ticketIndexContextHelper';
+import {
+  getTicket,
+  isInvestibleTicket,
+  isOptionTicket,
+  isTicketPath
+} from '../contexts/TicketContext/ticketIndexContextHelper';
 import { getInboxTarget } from '../contexts/NotificationsContext/notificationsContextHelper';
 
 export const VISIT_CHANNEL = 'VisitChannel';
@@ -107,11 +112,21 @@ function getNameForComment(comment, investibleState) {
   return readableTicketCode;
 }
 
-export function getUrlForTicketPath(pathname, ticketState) {
+export function getUrlForTicketPath(pathname, ticketState, marketsState, commentsState) {
   const ticket = getTicket(ticketState, pathname.substring(1));
   if (ticket) {
     if (isInvestibleTicket(pathname)) {
       const { marketId, investibleId } = ticket;
+      if (isOptionTicket(pathname)) {
+        const market = getMarket(marketsState, marketId) || {};
+        const { parent_comment_id: aParentCommentId, parent_comment_market_id: aParentMarketId } = market;
+        const parentComment = getComment(commentsState, aParentMarketId, aParentCommentId) || {};
+        const { investible_id: parentInvestibleId, market_id: parentMarketId, group_id: parentGroupId } = parentComment;
+        if (parentInvestibleId) {
+          return `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${investibleId}`;
+        }
+        return `${formMarketLink(parentMarketId, parentGroupId)}#option${investibleId}`;
+      }
       return formInvestibleLink(marketId, investibleId);
     }
     const { marketId, commentId, groupId, investibleId } = ticket;

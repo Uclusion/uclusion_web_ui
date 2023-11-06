@@ -4,6 +4,8 @@ import _ from 'lodash'
 import { getNameForUrl, getUrlForTicketPath } from '../../utils/marketIdPathFunctions';
 import { isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
 import { ticketContextHack } from '../../contexts/TicketContext/TicketIndexContext';
+import { marketsContextHack } from '../../contexts/MarketsContext/MarketsContext';
+import { commentsContextHack } from '../../contexts/CommentsContext/CommentsContext'
 
 const Clipboard = Quill.import('modules/clipboard');
 /**
@@ -46,7 +48,8 @@ class CustomQuillClipboard extends Clipboard {
       let url = text;
       const urlParts = new URL(url);
       if (isTicketPath(urlParts.pathname)) {
-        const urlFromTicket = getUrlForTicketPath(urlParts.pathname, ticketContextHack);
+        const urlFromTicket = getUrlForTicketPath(urlParts.pathname, ticketContextHack, marketsContextHack,
+          commentsContextHack);
         if (urlFromTicket) {
           url = urlFromTicket;
         }

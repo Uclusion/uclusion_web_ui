@@ -29,6 +29,8 @@ import {
 } from './Utilities/CoreUtils';
 import { isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
 import { ticketContextHack } from '../../contexts/TicketContext/TicketIndexContext';
+import { marketsContextHack } from '../../contexts/MarketsContext/MarketsContext';
+import { commentsContextHack } from '../../contexts/CommentsContext/CommentsContext';
 
 // https://github.com/derrickpelletier/react-loading-overlay/pull/57
 LoadingOverlay.propTypes = undefined;
@@ -126,7 +128,8 @@ function QuillEditor2 (props) {
           let url = link;
           const urlParts = new URL(url);
           if (isTicketPath(urlParts.pathname)) {
-            const urlFromTicket = getUrlForTicketPath(urlParts.pathname, ticketContextHack);
+            const urlFromTicket = getUrlForTicketPath(urlParts.pathname, ticketContextHack, marketsContextHack,
+              commentsContextHack);
             if (urlFromTicket) {
               url = urlFromTicket;
             }

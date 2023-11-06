@@ -15,3 +15,7 @@ export function isTicketPath(pathname) {
 export function isInvestibleTicket(pathname) {
   return pathname?.includes('/J-') || pathname?.includes('/O-');
 }
+
+export function isOptionTicket(pathname) {
+  return pathname?.includes('/O-');
+}

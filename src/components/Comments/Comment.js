@@ -46,9 +46,16 @@ import {
 } from '../../constants/markets';
 import { red } from '@material-ui/core/colors';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
-import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import {
+  addInvestible,
+  getInvestiblesInStage,
+  getMarketInvestibles
+} from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getInCurrentVotingStage,
+  getInReviewStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   formCommentEditReplyLink,
@@ -690,8 +697,11 @@ function Comment(props) {
     && marketType === PLANNING_TYPE && !removeActions;
   const yourVote = myInlinePresence && myInlinePresence.investments &&
     myInlinePresence.investments.find((investment) => !investment.deleted);
+  const allInlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || [];
+  const voteableOptions = getInvestiblesInStage(allInlineInvestibles,
+    getInCurrentVotingStage(marketStagesState, inlineMarketId)?.id, inlineMarketId);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
-    !myInlinePresence.abstain && !yourVote && !removeActions;
+    !myInlinePresence.abstain && !yourVote && !removeActions && !_.isEmpty(voteableOptions);
   const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
   const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>

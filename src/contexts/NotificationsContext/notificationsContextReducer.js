@@ -11,7 +11,6 @@ const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGES = 'REMOVE_MESSAGES';
 const QUICK_REMOVE_MESSAGES = 'QUICK_REMOVE_MESSAGES';
-const LEVEL_MESSAGE = 'LEVEL_MESSAGE';
 const ADD_MESSAGE = 'ADD_MESSAGE';
 const REMOVE_FOR_INVESTIBLE = 'REMOVE_FOR_INVESTIBLE';
 const DEHIGHLIGHT_MESSAGES = 'DEHIGHLIGHT_MESSAGES';
@@ -58,14 +57,6 @@ export function removeMessagesForInvestible(investibleId, useRemoveTypes) {
     type: REMOVE_FOR_INVESTIBLE,
     investibleId,
     useRemoveTypes
-  }
-}
-
-export function changeLevelMessage(message, level) {
-  return {
-    type: LEVEL_MESSAGE,
-    message,
-    level
   }
 }
 
@@ -119,26 +110,6 @@ function addSingleMessage(state, action) {
   return storeMessagesInState(state, newMessages);
 }
 
-function modifySingleMessage(state, message, modifyFunc) {
-  const { messages } = state;
-  const oldMessage = (messages || []).find((oldMessage) => oldMessage.market_id_user_id === message.market_id_user_id
-    && oldMessage.type_object_id === message.type_object_id);
-  if (oldMessage) {
-    const newMessage = modifyFunc(oldMessage);
-    // type_object_id sufficient to do the union because user id is the same and object id unique even without market id
-    const newMessages = _.unionBy([newMessage], messages, 'type_object_id');
-    return storeMessagesInState(state, newMessages);
-  }
-  return state;
-}
-
-function changeLevelSingleMessage(state, action) {
-  const { message, level } = action;
-  return modifySingleMessage(state, message, (message) => {
-    return { ...message, level };
-  });
-}
-
 function removeForInvestible(state, action) {
   const { messages } = state;
   const { investibleId, useRemoveTypes } = action;
@@ -174,7 +145,7 @@ function doDehighlightMessages(state, action) {
   messages.forEach((id) => {
     const message = existingMessages.find((message) => message.type_object_id === id);
     if (message) {
-      allMessages = allMessages.concat(message);
+      allMessages.push(message);
     }
   });
   const dehighlightedMessages = [];
@@ -203,8 +174,6 @@ function computeNewState (state, action) {
       return doDehighlightMessages(state, action);
     case ADD_MESSAGE:
       return addSingleMessage(state, action);
-    case LEVEL_MESSAGE:
-      return changeLevelSingleMessage(state, action);
     case REMOVE_FOR_INVESTIBLE:
       return removeForInvestible(state, action);
     default:
@@ -238,7 +207,7 @@ function reducer (state, action) {
       const { messages: existingMessages } = state;
       (messages || []).forEach((messageId) => {
         const message = existingMessages.find((message) => message.type_object_id === messageId);
-        if (message && message.market_id) {
+        if (message?.market_id) {
           if (!allMessages[message.market_id]) {
             allMessages[message.market_id] = [];
           }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import cx from 'clsx';
 import styled from 'styled-components';
 import { Box, IconButton, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
@@ -25,6 +25,7 @@ import {
 } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { useHistory } from 'react-router';
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 const Item = styled("div")`
   margin-bottom: 1px;
@@ -168,11 +169,12 @@ function WorkListItem(props) {
   const history = useHistory();
   const classes = workListStyles();
   const theme = useTheme();
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const [isHovered, setIsHovered] = useState(false);
-  const { link_type: linkType, type: messageType } = message || {};
+  const { link_type: linkType, type: messageType, is_highlighted: isHighlighted } = message || {};
   let fullText =  comment || investible || market;
   if (['UNREAD_REVIEWABLE', 'REVIEW_REQUIRED'].includes(messageType) && linkType === 'INVESTIBLE_REVIEW') {
     fullText = investible;
@@ -197,6 +199,9 @@ function WorkListItem(props) {
             }
             preventDefaultAndProp(event);
             setIsHovered(false);
+            if (messageType.startsWith('UNREAD_')&&isHighlighted) {
+              messagesDispatch(dehighlightMessages([message.type_object_id]));
+            }
             navigate(history, formInboxItemLink(id));
           }
         } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>

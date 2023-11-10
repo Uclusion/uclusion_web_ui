@@ -631,9 +631,10 @@ function PlanningInvestible(props) {
                 myBeingEdited={mobileLayout ? undefined : beingEdited}
                 stageChangedAt={mobileLayout ? undefined : new Date(marketInfo.last_stage_change_date)}
                 gravatar={<div style={{paddingLeft: '1rem'}}>
-                  <GravatarAndName key={createdBy.id} email={createdBy.email} labelId="created_by"
-                                           name={createdBy.name} typographyVariant="caption"
-                                           avatarClassName={classes.smallGravatar}
+                  <GravatarAndName key={createdBy.id} email={createdBy.email}
+                                   label={intl.formatMessage({ id: 'created_by' })}
+                                   name={createdBy.name} typographyVariant="caption"
+                                   avatarClassName={classes.smallGravatar}
                 /></div>}
               />
               <div className={classes.editRow}>

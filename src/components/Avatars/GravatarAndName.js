@@ -2,7 +2,6 @@ import React from 'react';
 import Gravatar from './Gravatar';
 import { Typography } from '@material-ui/core';
 import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
 
 
 function GravatarAndName(props) {
@@ -10,21 +9,20 @@ function GravatarAndName(props) {
   const {
     email,
     name,
-    labelId,
+    label,
     useBlank,
     avatarClassName,
     typographyClassName,
     typographyComponent,
     typographyVariant,
   } = props;
-  const intl = useIntl();
 
   return (
-    <div style={{display: 'flex', alignItems: 'center', paddingLeft: !labelId ? '0.5rem' : undefined}}>
-      {labelId && (
+    <div style={{display: 'flex', alignItems: 'center', paddingLeft: !label ? '0.5rem' : undefined}}>
+      {label && (
         <Typography style={{marginRight: 6}} variant={typographyVariant} className={typographyClassName}
                     component={typographyComponent}>
-          {intl.formatMessage({ id: labelId })}
+          {label}
         </Typography>
       )}
       <Gravatar name={name} email={email} useBlank={useBlank} className={avatarClassName}/>

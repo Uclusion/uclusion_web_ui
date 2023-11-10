@@ -334,9 +334,6 @@ const messages = defineMessages({
   noNew: 'No notifications.',
   noPending: 'Nothing pending.',
   enjoy: 'Enjoy your day',
-  nameChange: 'Job name changed to "{x}"',
-  investibleInboxHeader: '{x} / {y}',
-  notificationsListHeader: 'Events: {x}',
   aboutInbox: 'Get a job approved',
   demonstratesInbox: 'click this row to expand',
   notificationSummary: 'Summary',
@@ -1081,7 +1078,7 @@ const messages = defineMessages({
   tasksSection: 'Tasks',
   criticalBugs: 'Critical bugs',
   todoSection: 'Bugs',
-  jobFromBugs: 'Bugs',
+  jobFromBugs: 'Bugs {ticketList}',
   readyToStartCheckboxExplanation: 'Ready to start',
   viewTodo: 'View',
   editTodo: 'Edit',
@@ -1105,18 +1102,12 @@ const messages = defineMessages({
   // Search
   searchBoxPlaceholder: 'Search',
   searchBoxPlaceholderMobile: ' Search',
-  SearchResultsOverflow: 'Page {page} of {pages}',
   SearchResultsPrevious: 'Previous',
   SearchResultsNext: 'Next',
-  CommentSearchResult: 'Comment in {parentName}',
   NotificationResultJustify: 'Vote In:',
-  CommentSearchResultSubTitle: '{name}',
-  CommentSearchResultExcerpt: '{excerpt}...',
   MarketSearchResultWorkspace: 'Workspace',
   MarketSearchResultInitiative: 'Initiative',
   MarketSearchResultDialog: 'Dialog',
-  InvestibleSearchResultTitle: '{type} in {parentName}',
-
   InvestibleSearchResultStory: 'Job',
   InvestibleSearchResultOption: 'Option',
 
@@ -1128,7 +1119,6 @@ const messages = defineMessages({
   unbanUserWarning: 'Readmitting a collaborator will allow them to see any future updates',
 
   // Notifications
-  notificationMulitpleUpdates: '{n} Updates',
   notificationDismiss: 'Dismiss',
   notificationDismissThread: 'Dismiss thread',
 

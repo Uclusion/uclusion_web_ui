@@ -19,7 +19,7 @@ import FindJobStep from './FindJobStep';
 import JobApproverStep from './JobApproverStep';
 
 function JobWizard(props) {
-  const { marketId, groupId, jobType, isAssigned } = props;
+  const { marketId, groupId, jobType } = props;
   const [resolvedId, setResolvedId] = useState(undefined);
   const location = useLocation();
   const history = useHistory();
@@ -50,19 +50,7 @@ function JobWizard(props) {
     return aRequireInputId;
   }
 
-  function hasNonBug() {
-    // Avoid automatically fully creating the job when move a single non bug task
-    // because otherwise 50-50 name or description will have to be changed
-    const nonBugId = (fromCommentIds || []).find((fromCommentId) => {
-      const fromComment = comments.find((comment) => comment.id === fromCommentId);
-      return !fromComment?.ticket_code?.startsWith('B');
-    });
-    return !_.isEmpty(nonBugId);
-  }
-
   const requiresInputId = getOpenQuestionSuggestionId();
-  const isNonBugMove = hasNonBug();
-
   if (!_.isEmpty(fromCommentIds) && _.isEmpty(comments)) {
     return React.Fragment;
   }
@@ -74,17 +62,15 @@ function JobWizard(props) {
           <ResolveCommentsStep marketId={marketId} commentId={requiresInputId} marketComments={comments}
                                setResolvedId={setResolvedId} />
         )}
-        {fromCommentId && isAssigned === undefined && (
+        {fromCommentId && (
           <DecideWhereStep fromCommentIds={fromCommentIds} marketId={marketId} groupId={groupId}
-                           marketComments={comments} isNonBugMove={isNonBugMove} />
+                           marketComments={comments} />
         )}
-        {fromCommentId && isAssigned === undefined && (
+        {fromCommentId && (
           <FindJobStep marketId={marketId} groupId={groupId} marketComments={comments} fromCommentIds={fromCommentIds}/>
         )}
-        {(!fromCommentId || isNonBugMove || isAssigned === 'false') && (
-          <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} marketComments={comments}
-                              jobType={jobType} fromCommentIds={fromCommentIds} />
-        )}
+        <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} marketComments={comments}
+                            jobType={jobType} fromCommentIds={fromCommentIds} />
         <JobAssignStep onFinish={onFinish} marketId={marketId} groupId={groupId} marketComments={comments}
                        fromCommentIds={fromCommentIds} />
         <JobApproverStep marketId={marketId} groupId={groupId} fromCommentIds={fromCommentIds}

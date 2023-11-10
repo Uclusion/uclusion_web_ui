@@ -10,16 +10,15 @@ import { useEditor } from '../../TextEditors/quillHooks';
 import { convertDescription } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
 import {
-  formCommentLink,
-  formInvestibleLink,
-  formMarketAddInvestibleLink,
-  formMarketLink,
-  navigate
+    formInvestibleLink,
+    formMarketAddInvestibleLink,
+    formMarketLink,
+    navigate
 } from '../../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { bugRadioStyles } from '../Bug/BugDescriptionStep';
 import { useHistory } from 'react-router';
 import { moveCommentsFromIds } from './DecideWhereStep';
@@ -31,28 +30,42 @@ function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData, jobType,
     startOver } = props;
   const history = useHistory();
+  const intl = useIntl();
   const [, commentsDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const radioClasses = bugRadioStyles();
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
   const comments = getCommentThreads(roots, marketComments);
-  const isSingleComment = _.size(fromCommentIds) === 1;
-  const editorName = isSingleComment ? `addJobWizardF${fromCommentIds[0]}` : `addJobWizard${groupId}`;
-  let initializeOriginalValue = undefined;
-  const { newQuantity, investibleId } = formData;
-  if (isSingleComment && !investibleId && _.isEmpty(getQuillStoredState(editorName))) {
-    const fromComment = marketComments.find((comment) => comment.id === fromCommentIds[0]);
-    const { body, ticket_code: ticketCode, id, investible_id: investibleId } = fromComment || {};
-    // No need to clip to 80 here as that will happen when save
-    const { name } = convertDescription(body, 200);
-    if (!_.isEmpty(name)) {
-      initializeOriginalValue = `<p>${name}</p>`;
-      storeState(editorName,
-        `<p>${name} From <a href="${window.location.protocol}//${window.location.host}${formCommentLink(marketId, groupId, investibleId, id)}">${ticketCode}</a>.</p>`);
+  const editorName = !_.isEmpty(fromCommentIds) ? `addJobWizard${fromCommentIds[0]}` : `addJobWizard${groupId}`;
+  const { newQuantity } = formData;
+
+  function getDefaultDescription() {
+    let defaultDescription = undefined;
+    if (_.isEmpty(getQuillStoredState(editorName))) {
+      const fromComments = fromCommentIds.map((fromCommentId) =>
+        comments.find((comment) => comment.id === fromCommentId));
+      const isNotBugMove = fromComments.find((fromComment) => !fromComment?.ticket_code?.startsWith('B'));
+      if (isNotBugMove) {
+        const fromComment = marketComments.find((comment) => comment.id === fromCommentIds[0]);
+        const { body } = fromComment || {};
+        // No need to clip to 80 here as that will happen when save
+        const { name } = convertDescription(body, 200);
+        defaultDescription = name;
+      } else {
+        const ticketCodes = fromComments.map((comment) => decodeURI(comment.ticket_code));
+        const ticketList = ticketCodes.join(", ");
+        defaultDescription = intl.formatMessage({ id: 'jobFromBugs' }, { ticketList })
+      }
     }
+    return defaultDescription;
   }
-  const [originalValueToUse, setOriginalValueToUse] = useState(initializeOriginalValue);
+
+  const defaultDescription = getDefaultDescription();
+
+  if (!_.isEmpty(defaultDescription)) {
+    storeState(editorName, `<p>${defaultDescription}</p>`);
+  }
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -63,8 +76,7 @@ function JobDescriptionStep (props) {
     value: getQuillStoredState(editorName),
     marketId,
     onUpload: setUploadedFiles,
-    onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName)));
-      setOriginalValueToUse(undefined) },
+    onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); },
   };
 
   const [Editor] = useEditor(editorName, editorSpec);
@@ -73,7 +85,7 @@ function JobDescriptionStep (props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(uploadedFiles, originalValueToUse || getQuillStoredState(editorName));
+    } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
     const { name, description} = convertDescription(tokensRemoved);
     const addInfo = {
       name,

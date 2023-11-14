@@ -72,7 +72,7 @@ function TriageStep(props) {
         {intl.formatMessage({id: 'CriticalBugTitle'})}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Critical bugs must be assigned or moved to Normal.
+        Assign bugs or lower from Critical to remove this notification. Click a bug to see full display.
       </Typography>
       <h2 id="tasksOverview">
         <FormattedMessage id="criticalBugs" />

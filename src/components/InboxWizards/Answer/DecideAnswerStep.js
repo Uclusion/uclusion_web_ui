@@ -46,6 +46,9 @@ function DecideAnswerStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideAnswerTitle'})}
       </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Click an option to vote or comment.
+      </Typography>
       {commentRoot.investible_id && (
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                         removeActions={noOptions}

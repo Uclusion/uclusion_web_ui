@@ -42,7 +42,7 @@ function JobDescriptionStep (props) {
 
   function getDefaultDescription() {
     let defaultDescription = undefined;
-    if (_.isEmpty(getQuillStoredState(editorName))) {
+    if (_.isEmpty(getQuillStoredState(editorName))&&!_.isEmpty(fromCommentIds)) {
       const fromComments = fromCommentIds.map((fromCommentId) =>
         comments.find((comment) => comment.id === fromCommentId));
       const isNotBugMove = fromComments.find((fromComment) => !fromComment?.ticket_code?.startsWith('B'));

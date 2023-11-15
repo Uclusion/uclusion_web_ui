@@ -199,7 +199,7 @@ function WorkListItem(props) {
             }
             preventDefaultAndProp(event);
             setIsHovered(false);
-            if (messageType.startsWith('UNREAD_')&&isHighlighted) {
+            if (messageType?.startsWith('UNREAD_')&&isHighlighted) {
               messagesDispatch(dehighlightMessages([message.type_object_id]));
             }
             navigate(history, formInboxItemLink(id));

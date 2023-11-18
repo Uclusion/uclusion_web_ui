@@ -94,7 +94,7 @@ function ForgotPassword(props) {
           });
           setErrorMessage(message);
         } else {
-          toastError('errorForgotPasswordCodeFailed');
+          toastError(error, 'errorForgotPasswordCodeFailed');
         }
       });
   }
@@ -115,7 +115,7 @@ function ForgotPassword(props) {
           });
           setErrorMessage(message);
         } else {
-          toastError('errorForgotPasswordSetFailed');
+          toastError(error, 'errorForgotPasswordSetFailed');
         }
       });
   }

@@ -200,7 +200,7 @@ function Signup(props) {
           setMyMarket(market);
         }).catch((error) => {
         console.error(error);
-        toastError('errorMarketFetchFailed');
+        toastError(error, 'errorMarketFetchFailed');
       });
     }
   }, [marketToken]);

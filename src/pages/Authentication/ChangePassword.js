@@ -61,7 +61,7 @@ function ChangePassword(props) {
       })
       .catch((error) => {
         console.error(error);
-        toastError('errorChangePasswordFailed');
+        toastError(error, 'errorChangePasswordFailed');
       });
   }
 

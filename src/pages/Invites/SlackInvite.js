@@ -60,7 +60,7 @@ function SlackInvite(props) {
           }).catch((error) => {
             setMyLoading(false);
             console.error(error);
-            toastError('slack_register_failed');
+            toastError(error, 'slack_register_failed');
           });
       }
     }

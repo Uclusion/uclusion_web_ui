@@ -54,6 +54,17 @@ export function errorAndThrow(error, messageKey) {
   if (setOperationInProgress) {
     setOperationInProgress(false);
   }
+  // Throwing the error below won't reach LogRocket so must use this API
+  LogRocket.captureException(error, {
+    tags: {
+      // additional data to be grouped as "tags"
+      type: 'api',
+    },
+    extra: {
+      // additional arbitrary data associated with the event
+      messageKey,
+    },
+  });
   throw error;
 }
 
@@ -91,14 +102,26 @@ export function toastErrorAndThrow(error, messageKey) {
 }
 
 /**
- * Pops a toast and halts any operation in progress. Does not retjrow the error
+ * Pops a toast and halts any operation in progress. Does not rethrow the error
+ * @param error
  * @param messageKey
  */
-export function toastError(messageKey) {
+export function toastError(error, messageKey) {
   sendIntlMessage(ERROR, messageKey);
   if (setOperationInProgress) {
     setOperationInProgress(false);
   }
+  // Throwing the error below won't reach LogRocket so must use this API
+  LogRocket.captureException(error, {
+    tags: {
+      // additional data to be grouped as "tags"
+      type: 'api',
+    },
+    extra: {
+      // additional arbitrary data associated with the event
+      messageKey,
+    },
+  });
 }
 
 /**

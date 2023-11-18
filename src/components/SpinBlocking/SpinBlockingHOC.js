@@ -21,7 +21,7 @@ export function withSpinLock(Component) {
 
     function myOnError(error) {
       console.error(error);
-      toastError('spinVersionCheckError');
+      toastError(error, 'spinVersionCheckError');
       onError(error);
     }
 

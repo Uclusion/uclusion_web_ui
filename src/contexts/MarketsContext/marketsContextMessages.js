@@ -113,7 +113,7 @@ function beginListening(dispatch, setTokensHash) {
         });
       }).catch((error) => {
         console.error(error);
-        toastError('errorMarketFetchFailed');
+        toastError(error, 'errorMarketFetchFailed');
       });
     }
   });

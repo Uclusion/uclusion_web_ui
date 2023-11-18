@@ -47,7 +47,7 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
       setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion);
       onSignOut().catch((error) => {
         console.error(error);
-        toastError('errorSignOutFailed');
+        toastError(error, 'errorSignOutFailed');
       });
     };
     sendInfoPersistent({ id: 'noticeVersionForceLogout' }, {}, reloader);

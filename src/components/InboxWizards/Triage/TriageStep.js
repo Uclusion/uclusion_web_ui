@@ -48,12 +48,12 @@ function TriageStep(props) {
     }
     return comments.map((comment) => {
       const { id, body, updated_at: updatedAt, created_by: createdBy } = comment;
-      const { updated_at: msgUpdatedAt, created_at: msgCreatedAt } = message;
+      const { updated_at: msgUpdatedAt, created_at: msgCreatedAt, is_highlighted: isHighlighted } = message;
       const creator = marketPresences.find((presence) => presence.id === createdBy) || {};
       return (
         <CriticalItem id={id} title={stripHTML(body)} link={formCommentLink(marketId, groupId, undefined, id)}
                      date={new Date(updatedAt)} people={[creator]}
-                      isRead={deferred?.includes(id) || msgCreatedAt !== msgUpdatedAt}/>
+                      isRead={deferred?.includes(id) || msgCreatedAt !== msgUpdatedAt || !isHighlighted}/>
       );
     });
   }

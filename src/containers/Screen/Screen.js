@@ -46,11 +46,13 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    overflowX: 'hidden'
+    overflowX: 'hidden',
+    willChange: 'transform',
   },
   container: {
     padding: '46px 20px',
-    overflowX: 'hidden'
+    overflowX: 'hidden',
+    willChange: 'transform',
   },
   containerAll: {
     padding: '24px 20px',
@@ -60,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('md')]: {
       padding: '24px 12px',
     },
+    willChange: 'transform'
   },
   containerAllLeftPad: {
     padding: '10px 20px 0px 24px',
@@ -69,6 +72,7 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('md')]: {
       padding: '24px 12px 156px',
     },
+    willChange: 'transform',
   },
   bannerContainer: {
     position: 'sticky',

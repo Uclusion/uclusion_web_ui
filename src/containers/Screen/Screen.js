@@ -47,12 +47,12 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     overflowX: 'hidden',
-    willChange: 'transform',
+    willChange: 'scroll-position',
   },
   container: {
     padding: '46px 20px',
     overflowX: 'hidden',
-    willChange: 'transform',
+    willChange: 'scroll-position',
   },
   containerAll: {
     padding: '24px 20px',
@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('md')]: {
       padding: '24px 12px',
     },
-    willChange: 'transform'
+    willChange: 'scroll-position',
   },
   containerAllLeftPad: {
     padding: '10px 20px 0px 24px',
@@ -72,7 +72,7 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('md')]: {
       padding: '24px 12px 156px',
     },
-    willChange: 'transform',
+    willChange: 'scroll-position',
   },
   bannerContainer: {
     position: 'sticky',

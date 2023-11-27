@@ -39,10 +39,14 @@ function OnboardingBanner(props) {
         </div>
         <div>
           <Button
-          onClick={() => {
-            navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-          }}
-          className={wizardClasses.actionNext}>Create your workspace</Button>
+            onClick={() => {
+              navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+            }}
+            className={wizardClasses.actionNext}
+            id="workspaceFromDemoBanner"
+          >
+            Create your workspace
+          </Button>
         </div>
     </div>
   );

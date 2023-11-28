@@ -19,11 +19,9 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { addParticipants, inviteParticipants } from '../../../api/users'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
-import { extractUsersList } from '../../../utils/userFunctions'
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Email, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import GravatarAndName from '../../../components/Avatars/GravatarAndName'
 import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
@@ -32,31 +30,30 @@ import WorkspaceInviteLinker from '../../Home/WorkspaceInviteLinker'
 import EmailEntryBox, { getControllerName, getEmailList, setEmailList } from '../../../components/Email/EmailEntryBox';
 import { pushMessage } from '../../../utils/MessageBusUtils';
 
-function AddNewUsers (props) {
-  const { market, isAddToGroup = false, setToAddClean, group } = props
-  const { id: addToMarketId, invite_capability: marketToken } = market || {}
-  const { id: groupId } = group || {}
-  const classes = usePlanFormStyles()
-  const intl = useIntl()
-  const theme = useTheme()
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'))
-  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext)
-  const [marketState] = useContext(MarketsContext)
-  const [groupPresencesState] = useContext(GroupMembersContext)
-  const [, setOperationRunning] = useContext(OperationInProgressContext)
-  const [userState] = useContext(AccountContext)
-  const { user: unsafeUser } = userState || {}
-  const myUser = unsafeUser || {}
+function AddNewUsers(props) {
+  const { market, isAddToGroup = false, setToAddClean, group } = props;
+  const { id: addToMarketId, invite_capability: marketToken } = market || {};
+  const { id: groupId } = group || {};
+  const classes = usePlanFormStyles();
+  const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [userState] = useContext(AccountContext);
+  const { user: unsafeUser } = userState || {};
+  const myUser = unsafeUser || {};
 
-  const marketPresences = getMarketPresences(marketPresencesState, addToMarketId) || []
+  const marketPresences = getMarketPresences(marketPresencesState, addToMarketId) || [];
   const addToMarketPresences = groupId ?
     getGroupPresences(marketPresences, groupPresencesState, addToMarketId, groupId) :
-    (addToMarketId ? marketPresences : [{ external_id: myUser.external_id }])
-  const participants = Object.values(extractUsersList(marketPresencesState, marketState, addToMarketPresences))
-  const [checked, setChecked] = useState([])
-  const [searchValue, setSearchValue] = useState(undefined)
-  const [filteredNames, setFilteredNames] = useState(undefined)
-  const [emailsSent, setEmailsSent] = useState([])
+    (addToMarketId ? marketPresences : [myUser]);
+  const participants = _.difference(marketPresences, addToMarketPresences);
+  const [checked, setChecked] = useState([]);
+  const [searchValue, setSearchValue] = useState(undefined);
+  const [filteredNames, setFilteredNames] = useState(undefined);
+  const [emailsSent, setEmailsSent] = useState([]);
 
   useEffect(() => {
     if (!searchValue) {
@@ -83,16 +80,16 @@ function AddNewUsers (props) {
 
   function generateToAddClean (myChecked) {
     return myChecked.map((participant) => {
-      const { external_id, account_id, user_id } = participant
-      return { external_id, account_id, user_id }
+      const { external_id, account_id, id } = participant
+      return { external_id, account_id, id }
     })
   }
 
   function getCheckToggle (id) {
     return () => {
-      const found = checked.find((item) => item.user_id === id)
+      const found = checked.find((item) => item.id === id)
       if (!found) {
-        const userDetail = participants.find((participant) => participant.user_id === id)
+        const userDetail = participants.find((participant) => participant.id === id)
         if (userDetail) {
           const myChecked = checked.concat([userDetail])
           setChecked(myChecked)
@@ -101,7 +98,7 @@ function AddNewUsers (props) {
           }
         }
       } else {
-        const myChecked = checked.filter((item) => item.user_id !== id)
+        const myChecked = checked.filter((item) => item.id !== id)
         setChecked(myChecked)
         if (setToAddClean) {
           setToAddClean(generateToAddClean(myChecked))
@@ -112,9 +109,9 @@ function AddNewUsers (props) {
 
   function renderParticipantEntry (presenceEntry) {
     const {
-      user_id: id, name, email,
+      id, name, email,
     } = presenceEntry
-    const isChecked = !_.isEmpty(checked.find((item) => item.user_id === id))
+    const isChecked = !_.isEmpty(checked.find((item) => item.id === id))
     return (
       <ListItem
         key={id}

@@ -23,7 +23,8 @@ export function extractUsersList(marketPresencesState, marketState, addToMarketP
   return Object.keys(marketPresencesState).reduce((acc, marketId) => {
     const market = getMarket(marketState, marketId) || {};
     const marketPresences = marketPresencesState[marketId] || [];
-    if(!Array.isArray(marketPresences) || _.isEmpty(marketPresences) || market.market_sub_type === 'SUPPORT') {
+    if(!Array.isArray(marketPresences) || _.isEmpty(marketPresences) ||
+      ['SUPPORT', 'TEST'].includes(market.market_sub_type)) {
       return acc;
     }
     const macc = {};

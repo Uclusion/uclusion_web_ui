@@ -1,7 +1,7 @@
 import { VerticalBarSeries, XYPlot } from 'react-vis'
 import React from 'react'
 import { Card, Grid, Typography } from '@material-ui/core'
-import { INITIATIVE_TYPE } from '../constants/markets'
+import { INITIATIVE_TYPE, PLANNING_TYPE } from '../constants/markets';
 import {
   clearUclusionLocalStorage, getLoginPersistentItem, setLoginPersistentItem,
 } from '../components/localStorageUtils'
@@ -24,7 +24,7 @@ export function extractUsersList(marketPresencesState, marketState, addToMarketP
     const market = getMarket(marketState, marketId) || {};
     const marketPresences = marketPresencesState[marketId] || [];
     if(!Array.isArray(marketPresences) || _.isEmpty(marketPresences) ||
-      ['SUPPORT', 'TEST'].includes(market.market_sub_type)) {
+      ['SUPPORT', 'TEST'].includes(market.market_sub_type)||market.market_type !== PLANNING_TYPE) {
       return acc;
     }
     const macc = {};

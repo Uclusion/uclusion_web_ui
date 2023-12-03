@@ -64,8 +64,11 @@ class CustomQuillClipboard extends Clipboard {
         text = undefined;
       }
     }
-
-    this.onPaste(range, { html: filteredHtml, text });
+    if (text && filteredHtml) {
+      this.onPaste(range, { html: filteredHtml, text });
+    } else if (filteredHtml) {
+      this.onPaste(range, { html: filteredHtml });
+    }
   }
 
 

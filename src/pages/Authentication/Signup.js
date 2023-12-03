@@ -188,7 +188,6 @@ function Signup(props) {
   const doRetry = errorDescriptionSafe.includes('Already');
   const retryGoogle = doRetry && errorDescriptionSafe.includes('Google');
   const retryGithub = doRetry && !retryGoogle;
-  Auth.configure({ clientMetadata: {isInvite: `${!!marketToken}`}  });
 
   useEffect(() => {
     if (isSignedOut()) {

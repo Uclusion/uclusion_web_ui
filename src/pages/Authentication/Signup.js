@@ -188,6 +188,7 @@ function Signup(props) {
   const doRetry = errorDescriptionSafe.includes('Already');
   const retryGoogle = doRetry && errorDescriptionSafe.includes('Google');
   const retryGithub = doRetry && !retryGoogle;
+  Auth.configure({ clientMetadata: {isInvite: `${!!marketToken}`}  });
 
   useEffect(() => {
     if (isSignedOut()) {
@@ -469,9 +470,9 @@ function Signup(props) {
               // Must come back to this device so go ahead and set in local storage
               const aRedirect = getRedirect();
               if (aRedirect !== '/') {
-                setRedirect(aRedirect)
+                setRedirect(aRedirect);
               }
-              Auth.federatedSignIn({ provider: 'Google' })
+              Auth.federatedSignIn({ provider: 'Google' });
             }}>
               <img className={classes.googleImg} alt="Sign in with Google"
                    src={`/images/btn_google_dark_normal_ios.svg`}/>

@@ -7,6 +7,8 @@ import { toastErrorAndThrow } from '../utils/userMessage';
 import { pushMessage, registerListener } from '../utils/MessageBusUtils';
 import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL, NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL } from './versionedFetchUtils';
 import { LOGIN_LOADED_EVENT } from '../contexts/NotificationsContext/notificationsContextMessages';
+import { addDemo } from '../utils/demoLoader';
+import _ from 'lodash';
 
 export const HOME_ACCOUNT_ITEM_ID = 'home_account';
 export const HOME_ACCOUNT_LOCK_NAME = 'home_account_login_lock';
@@ -38,7 +40,11 @@ export async function getLogin (forceRefresh) {
     const { idToken, ssoClient } = ssoInfo;
     // update our cache
     const responseAccountData = await ssoClient.accountCognitoLogin(idToken, getIsInvited());
-    const { uclusion_token } = responseAccountData;
+    const { uclusion_token, demo } = responseAccountData;
+    // load the demo into the contexts
+    if (!_.isEmpty(demo)) {
+      addDemo(demo);
+    }
     // do post login handling - TODO:_ move this to a post login handler if there's ever more
     const notifications = await ssoClient.getMessages(uclusion_token);
     //block and ensure the context has the messages before we move forward

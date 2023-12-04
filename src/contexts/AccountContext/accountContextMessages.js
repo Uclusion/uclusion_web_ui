@@ -5,7 +5,6 @@ import { VERSIONS_EVENT } from '../../api/versionedFetchUtils'
 import { fixDates, updateBilling, updateInvoices } from './accountContextHelper'
 import _ from 'lodash'
 import { getInvoices, getPaymentInfo } from '../../api/users'
-import { addDemo } from '../../utils/demoLoader';
 import { isSignedOut } from '../../utils/userFunctions';
 import { getLogin } from '../../api/homeAccount';
 
@@ -15,17 +14,13 @@ export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
 function poll(dispatch, accountVersion, userVersion) {
   getLogin(true)
     .then((loginInfo) => {
-      const { account, user, demo } = loginInfo;
+      const { account, user } = loginInfo;
       const { version: founderUserVersion } = user;
       const { version: founderAccountVersion } = account;
       if ((accountVersion === undefined || accountVersion <= founderAccountVersion)
         &&(userVersion === undefined || userVersion <= founderUserVersion)) {
         dispatch(accountAndUserRefresh(fixDates(account), user));
         const { billing_customer_id: customerId } = account;
-        // load the demo into the contexts
-        if (!_.isEmpty(demo)) {
-          addDemo(demo);
-        }
         // handle billing
         if (!_.isEmpty(customerId)) {
           return getPaymentInfo()
@@ -44,6 +39,10 @@ function poll(dispatch, accountVersion, userVersion) {
 }
 
 export function beginListening(dispatch) {
+  if (!isSignedOut()) {
+    // If there is a refresh while signed in then need to reload
+    poll(dispatch);
+  }
   registerListener(AUTH_HUB_CHANNEL, 'accountContext', (data) => {
     const { payload: { event } } = data;
     switch (event) {

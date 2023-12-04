@@ -44,7 +44,7 @@ export function invoicesRefresh(invoices) {
 }
 
 function doAccountClear(state, action) {
-  return {initializing: false};
+  return {initializing: true};
 }
 
 function doBillingInfoRefresh(state, action) {

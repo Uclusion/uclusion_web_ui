@@ -12,37 +12,39 @@ export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
 export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
 
 function poll(dispatch, accountVersion, userVersion) {
-  getLogin(true)
-    .then((loginInfo) => {
-      const { account, user } = loginInfo;
-      const { version: founderUserVersion } = user;
-      const { version: founderAccountVersion } = account;
-      if ((accountVersion === undefined || accountVersion <= founderAccountVersion)
-        &&(userVersion === undefined || userVersion <= founderUserVersion)) {
-        dispatch(accountAndUserRefresh(fixDates(account), user));
-        const { billing_customer_id: customerId } = account;
-        // handle billing
-        if (!_.isEmpty(customerId)) {
-          return getPaymentInfo()
-            .then((paymentInfo) => {
-              updateBilling(dispatch, paymentInfo);
-              return getInvoices();
-            })
-            .then((invoices) => {
-              updateInvoices(dispatch, invoices);
-            });
+  if (isSignedOut()) {
+    setTimeout(() => poll(dispatch, accountVersion, userVersion), 1000);
+  } else {
+    getLogin(true)
+      .then((loginInfo) => {
+        const { account, user } = loginInfo;
+        const { version: founderUserVersion } = user;
+        const { version: founderAccountVersion } = account;
+        if ((accountVersion === undefined || accountVersion <= founderAccountVersion)
+          && (userVersion === undefined || userVersion <= founderUserVersion)) {
+          dispatch(accountAndUserRefresh(fixDates(account), user));
+          const { billing_customer_id: customerId } = account;
+          // handle billing
+          if (!_.isEmpty(customerId)) {
+            return getPaymentInfo()
+              .then((paymentInfo) => {
+                updateBilling(dispatch, paymentInfo);
+                return getInvoices();
+              })
+              .then((invoices) => {
+                updateInvoices(dispatch, invoices);
+              });
+          }
+        } else {
+          setTimeout(() => poll(dispatch, accountVersion, userVersion), 500);
         }
-      } else {
-        setTimeout(() => poll(dispatch, accountVersion, userVersion), 500);
-      }
-    });
+      });
+  }
 }
 
 export function beginListening(dispatch) {
-  if (!isSignedOut()) {
-    // If there is a refresh while signed in then need to reload
-    poll(dispatch);
-  }
+  // If there is a refresh while signed in then need to reload
+  poll(dispatch);
   registerListener(AUTH_HUB_CHANNEL, 'accountContext', (data) => {
     const { payload: { event } } = data;
     switch (event) {

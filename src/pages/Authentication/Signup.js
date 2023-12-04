@@ -271,13 +271,13 @@ function Signup(props) {
     const { name, email, password } = userState;
     const signupData = { name, email, password, code };
     let redirect = getRedirect();
+    if (redirect !== '/') {
+      setRedirect(redirect);
+    }
     return signUp(signupData, redirect).then((result) => {
       const { response, user } = result;
       if (response === 'ACCOUNT_CREATED') {
         const { email } = user;
-        if (redirect !== '/') {
-          setRedirect(redirect);
-        }
         setEmail(email);
         window.location.replace('/');
       } else {

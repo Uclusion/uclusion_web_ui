@@ -1,7 +1,7 @@
 import {
-  getLoginPersistentItem,
-  setLoginPersistentItem
-} from '../components/localStorageUtils'
+  getLoginPersistentItem, getUclusionLocalStorageItem,
+  setLoginPersistentItem, setUclusionLocalStorageItem
+} from '../components/localStorageUtils';
 import _ from 'lodash'
 import { getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from './userFunctions';
@@ -60,13 +60,14 @@ export function getPlanningMarketId(investibleId, marketsState, investiblesState
 }
 
 export function setRedirect(location) {
-  setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, location);
+  // The redirect and is_invited are not valid after a logout
+  setUclusionLocalStorageItem(REDIRECT_LOCAL_STORAGE_KEY, location);
   // The only way you have a redirect is if you are part of some workspace already
-  setLoginPersistentItem(IS_INVITED, true);
+  setUclusionLocalStorageItem(IS_INVITED, true);
 }
 
 export function clearRedirect() {
-  setLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY, undefined);
+  setUclusionLocalStorageItem(REDIRECT_LOCAL_STORAGE_KEY, undefined);
 }
 
 export function setCurrentWorkspace(location) {
@@ -82,19 +83,15 @@ export function setEmail(email) {
 }
 
 export function getRedirect() {
-  return getLoginPersistentItem(REDIRECT_LOCAL_STORAGE_KEY);
+  return getUclusionLocalStorageItem(REDIRECT_LOCAL_STORAGE_KEY);
 }
 
 export function getIsInvited() {
-  return getLoginPersistentItem(IS_INVITED);
+  return getUclusionLocalStorageItem(IS_INVITED);
 }
 
 export function getCurrentWorkspace() {
   return getLoginPersistentItem(WORKSPACE_LOCAL_STORAGE_KEY);
-}
-
-export function getUtm() {
-  return getLoginPersistentItem(UTM_LOCAL_STORAGE_KEY);
 }
 
 export function getEmail() {

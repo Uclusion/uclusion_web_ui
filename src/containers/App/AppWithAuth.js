@@ -25,6 +25,7 @@ import {
   loadMarketFromPromise
 } from '../../contexts/MarketsContext/marketsContextMessages';
 import { getMarketFromInvite } from '../../api/marketLogin';
+import { clearSignedOut } from '../../utils/userFunctions';
 
 Amplify.configure(awsconfig);
 
@@ -69,6 +70,7 @@ function AppWithAuth() {
       case 'signIn':
         const redirect = getRedirect();
         clearRedirect();
+        clearSignedOut();
         if (!_.isEmpty(redirect) && redirect !== '/') {
           console.log(`Redirecting on sign in to ${redirect}`);
           const urlParts = new URL(`${window.location.protocol}//${window.location.host}${redirect}`);

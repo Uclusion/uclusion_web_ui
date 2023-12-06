@@ -23,7 +23,6 @@ import { toastError } from '../../utils/userMessage'
 import queryString from 'query-string'
 import Gravatar from '../../components/Avatars/Gravatar'
 import CardContent from '@material-ui/core/CardContent'
-import { clearSignedOut, isSignedOut } from '../../utils/userFunctions'
 import InputAdornment from '@material-ui/core/InputAdornment';
 import IconButton from '@material-ui/core/IconButton';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
@@ -190,9 +189,6 @@ function Signup(props) {
   const retryGithub = doRetry && !retryGoogle;
 
   useEffect(() => {
-    if (isSignedOut()) {
-      clearSignedOut();
-    }
     if (marketToken) {
       console.info('Loading info');
       getMarketInfoForToken(marketToken)

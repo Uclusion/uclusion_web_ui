@@ -80,19 +80,17 @@ function ScrollProvider(props) {
   }, [hashFragment, history]);
 
   useEffect(() => {
-    if (!isSignedOut()) {
-      registerListener(VISIT_CHANNEL, 'storedURLHashRefresher', (data) => {
-        if (!data) {
-          return;
-        }
-        const { payload: { event, message: { isEntry } } } = data;
-        if (event === VIEW_EVENT && isEntry === false) {
-          // use isEntry false to make sure not clearing these on initial page load
-          setHashFragment(undefined);
-          setNoHighlightId(undefined);
-        }
-      });
-    }
+    registerListener(VISIT_CHANNEL, 'storedURLHashRefresher', (data) => {
+      if (!data || isSignedOut()) {
+        return;
+      }
+      const { payload: { event, message: { isEntry } } } = data;
+      if (event === VIEW_EVENT && isEntry === false) {
+        // use isEntry false to make sure not clearing these on initial page load
+        setHashFragment(undefined);
+        setNoHighlightId(undefined);
+      }
+    });
     return () => {};
   }, []);
 

@@ -27,6 +27,37 @@ export const LOAD_EVENT = 'LoadEvent';
 
 let loadingMarketHack = [];
 
+export function loadMarketFromPromise(loginPromise, dispatch) {
+  console.log('Logging into market');
+  return loginPromise.then((result) => {
+    console.log('Quick adding market after load');
+    const { market, user, stages, uclusion_token: token, investible } = result;
+    const { id, parent_comment_market_id: parentMarketId } = market;
+    if (dispatch) {
+      addMarketToStorage(dispatch, market);
+    } else {
+      pushMessage(PUSH_MARKETS_CHANNEL, { event: VERSIONS_EVENT, marketDetails: [market] });
+    }
+    pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId: id, presence: user });
+    pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: { [id]: stages } });
+    if (investible) {
+      pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [investible] });
+    }
+    const tokenStorageManager = new TokenStorageManager();
+    return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token).then(() => {
+      // We know the market we just logged into is dirty so skip normal call to check it first
+      const marketsStruct = {};
+      return getStorageStates().then((storageStates) => {
+        updateMarkets([id], marketsStruct, 1, storageStates, !_.isEmpty(parentMarketId))
+          .then(() => sendMarketsStruct(marketsStruct));
+      });
+    });
+  }).catch((error) => {
+    console.error(error);
+    toastError(error, 'errorMarketFetchFailed');
+  });
+}
+
 function beginListening(dispatch, setTokensHash) {
   registerListener(LOAD_TOKENS_CHANNEL, 'loadTokensStart', (data) => {
     const { payload: { event, key, token } } = data;
@@ -74,6 +105,7 @@ function beginListening(dispatch, setTokensHash) {
   registerListener(LOAD_MARKET_CHANNEL, 'marketsLoadStart', (data) => {
     const { payload: { event, marketToken, marketId } } = data;
     let loginPromise = undefined;
+    console.info(`Responding to event ${event}`);
     switch (event) {
       case INVITE_MARKET_EVENT:
         if (!loadingMarketHack.includes(marketToken)) {
@@ -92,29 +124,7 @@ function beginListening(dispatch, setTokensHash) {
       // console.debug(`Ignoring identity event ${event}`);
     }
     if (loginPromise) {
-      loginPromise.then((result) => {
-        console.log('Quick adding market after load');
-        const { market, user, stages, uclusion_token: token, investible } = result;
-        const { id, parent_comment_market_id: parentMarketId } = market;
-        addMarketToStorage(dispatch, market);
-        pushMessage(PUSH_PRESENCE_CHANNEL, { event: ADD_PRESENCE, marketId: id, presence: user });
-        pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: { [id]: stages } });
-        if (investible) {
-          pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [investible] });
-        }
-        const tokenStorageManager = new TokenStorageManager();
-        return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token).then(() => {
-          // We know the market we just logged into is dirty so skip normal call to check it first
-          const marketsStruct = {};
-          return getStorageStates().then((storageStates) => {
-            updateMarkets([id], marketsStruct, 1, storageStates, !_.isEmpty(parentMarketId))
-              .then(() => sendMarketsStruct(marketsStruct));
-          });
-        });
-      }).catch((error) => {
-        console.error(error);
-        toastError(error, 'errorMarketFetchFailed');
-      });
+      loadMarketFromPromise(loginPromise, dispatch);
     }
   });
 }

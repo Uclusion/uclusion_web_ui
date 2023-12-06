@@ -14,19 +14,17 @@ import { getLocaleMessages } from '../../config/locales'
 import VerifyEmail from '../../pages/Authentication/VerifyEmail'
 import IntlGlobalProvider from '../../components/ContextHacks/IntlGlobalProvider'
 import UclusionForgotPassword from '../../pages/Authentication/ForgotPassword'
-import { registerListener } from '../../utils/MessageBusUtils'
+import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../../contexts/WebSocketContext'
-import TokenStorageManager from '../../authorization/TokenStorageManager'
-import {
-  clearUclusionLocalStorage,
-  getUclusionLocalStorageItem,
-  setUclusionLocalStorageItem
-} from '../../components/localStorageUtils'
 import _ from 'lodash'
-import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
+import { decomposeMarketPath, formMarketLink } from '../../utils/marketIdPathFunctions';
 import queryString from 'query-string'
-import { getAndClearEmail } from '../../utils/redirectUtils'
-import AccountStorageManager from '../../authorization/AccountStorageManager';
+import { clearRedirect, getAndClearEmail, getRedirect } from '../../utils/redirectUtils';
+import jwt_decode from 'jwt-decode';
+import {
+  loadMarketFromPromise
+} from '../../contexts/MarketsContext/marketsContextMessages';
+import { getMarketFromInvite } from '../../api/marketLogin';
 
 Amplify.configure(awsconfig);
 
@@ -66,19 +64,27 @@ function AppWithAuth() {
 
   registerListener(AUTH_HUB_CHANNEL, 'signinSignoutLocalClearingHandler', (data) => {
     const { payload } = (data || {});
-    const { event, data: payLoadData } = (payload || {});
-    const { username } = (payLoadData || {});
+    const { event } = (payload || {});
     switch (event) {
       case 'signIn':
-        const oldUserName = getUclusionLocalStorageItem('userName');
-        if (oldUserName && oldUserName !== username) {
-          console.info(`Clearing storage for ${username} and ${oldUserName}`);
-          // Only clear if there was a userName there otherwise window refresh during signup
-          new TokenStorageManager().clearTokenStorage()
-            .then(() => clearUclusionLocalStorage(true))
-            .then(() => new AccountStorageManager().clearAccountStorage());
+        const redirect = getRedirect();
+        clearRedirect();
+        if (!_.isEmpty(redirect) && redirect !== '/') {
+          console.log(`Redirecting on sign in to ${redirect}`);
+          const urlParts = new URL(`${window.location.protocol}//${window.location.host}${redirect}`);
+          const { marketId: marketToken, action } = decomposeMarketPath(urlParts.pathname);
+          if (action === 'invite') {
+            const decoded = jwt_decode(marketToken);
+            const proposedMarketId = decoded.market_id;
+            loadMarketFromPromise(getMarketFromInvite(marketToken));
+            //Immediately replace the invite in the path name so don't send twice
+            window.history.replaceState(null, '', formMarketLink(proposedMarketId, proposedMarketId));
+          } else {
+            window.location.replace(redirect);
+          }
+        } else {
+          window.location.replace('/inbox');
         }
-        setUclusionLocalStorageItem('userName', username);
         break;
       default:
         // ignore

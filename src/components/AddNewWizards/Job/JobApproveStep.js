@@ -85,7 +85,7 @@ function JobApproveStep(props) {
         onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
           commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
           fullCurrentStage, marketPresencesDispatch);
-        navigate(history, formData.link);
+        return formData;
       });
   }
 

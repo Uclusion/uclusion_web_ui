@@ -319,6 +319,7 @@ const messages = defineMessages({
   pleaseUpgrade: 'Please upgrade',
   pleaseUpgradeMobile: 'Upgrade',
   unreadReply: 'Will you reply?',
+  unreadMention: 'Will you respond?',
   unreadReplyMobile: 'Reply',
   unreadResolved: 'Resolved comment',
   unreadResolvedMobile: 'Resolved',

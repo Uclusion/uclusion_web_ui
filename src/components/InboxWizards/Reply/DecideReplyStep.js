@@ -43,6 +43,7 @@ function DecideReplyStep(props) {
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
   const { comment_type: commentType } = commentRoot;
+  const { type: messageType } = message;
   const canResolve = commentRoot.created_by === userId && commentType !== REPORT_TYPE;
   const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState)
   const comments = investibleComments.filter((comment) =>
@@ -120,7 +121,7 @@ function DecideReplyStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'unreadReply'})}
+        {intl.formatMessage({id: messageType === 'UNREAD_MENTION' ? 'unreadMention' : 'unreadReply'})}
       </Typography>
       {showMoveToTask && (
         <Typography className={classes.introSubText} variant="subtitle1">

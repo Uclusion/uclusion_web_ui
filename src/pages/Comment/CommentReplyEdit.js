@@ -10,13 +10,16 @@ import CommentBox from '../../containers/CommentBox/CommentBox';
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { getComment } from '../../contexts/CommentsContext/commentsContextHelper';
+import { Typography } from '@material-ui/core';
+import { wizardStyles } from '../../components/InboxWizards/WizardStylesContext';
 
 function CommentReplyEdit(props) {
   const { hidden } = props;
   const location = useLocation();
   const { pathname } = location;
   const { marketId, investibleId: commentId } = decomposeMarketPath(pathname);
-  const intl = useIntl()
+  const intl = useIntl();
+  const classes = wizardStyles();
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
   const comment = getComment(commentsState, marketId, commentId) || {};
@@ -43,6 +46,9 @@ function CommentReplyEdit(props) {
     >
       {!hidden && (
         <div style={{paddingLeft: '3%', paddingRight: '3%', marginTop: '2rem'}}>
+          <Typography className={classes.introSubText} variant="subtitle1">
+            If you want a response from more than the author of the comment you are replying to then use mentions.
+          </Typography>
           <CommentBox comments={comments} marketId={marketId} replyEditId={commentId} displayRepliesAsTop
                       allowedTypes={[QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, ISSUE_TYPE]}/>
         </div>

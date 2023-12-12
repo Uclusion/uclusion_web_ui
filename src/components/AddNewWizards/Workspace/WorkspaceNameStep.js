@@ -56,7 +56,9 @@ function WorkspaceNameStep (props) {
           market_creator: user
         } = marketDetails;
         const createdMarketId = market.id;
-        userDispatch(accountUserRefresh(user));
+        if (user) {
+          userDispatch(accountUserRefresh(user));
+        }
         addMarketToStorage(marketsDispatch, market);
         addGroupsToStorage(groupsDispatch, () => {}, { [createdMarketId]: [group]});
         pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[createdMarketId]: stages }});

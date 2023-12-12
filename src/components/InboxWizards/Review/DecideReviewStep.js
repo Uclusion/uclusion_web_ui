@@ -66,8 +66,6 @@ function DecideReviewStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="DecideAddReview"
-        onNext={() => navigate(history, formCommentEditReplyLink(marketId, report.id, true),
-          false, true)}
         isFinal={false}
         spinOnClick={false}
         showOtherNext={!isNotDoing}

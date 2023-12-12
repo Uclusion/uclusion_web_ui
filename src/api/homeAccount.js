@@ -26,8 +26,13 @@ function getSSOInfo() {
       .then((ssoClient) => ({ ssoClient, idToken })));
 }
 
-export async function getLogin (forceRefresh) {
-  return navigator.locks.request(HOME_ACCOUNT_LOCK_NAME, async () => {
+export async function getLogin (forceRefresh=false, ifAvailable=false) {
+  return navigator.locks.request(HOME_ACCOUNT_LOCK_NAME, {ifAvailable},
+    async (aLock) => {
+    if (aLock === null) {
+      // For polling avoid these calls piling up
+      return undefined;
+    }
     const asm = getAccountStorageManager();
     const accountData = await asm.getValidAccount(HOME_ACCOUNT_ITEM_ID);
     if (!forceRefresh && accountData) {

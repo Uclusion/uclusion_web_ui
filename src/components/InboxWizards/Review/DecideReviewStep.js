@@ -8,7 +8,7 @@ import JobDescription from '../JobDescription';
 import { TODO_TYPE } from '../../../constants/comments';
 import { getComment, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { formCommentEditReplyLink, formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';

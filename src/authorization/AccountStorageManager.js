@@ -10,12 +10,11 @@ import { getTokenSecondsRemaining } from './tokenUtils';
 import localforage from 'localforage';
 
 export const STORAGE_KEYSPACE = 'ACCOUNT_STORAGE_MANAGER';
-export const ACCOUNT_NAMESPACE = 'ACCOUNT';
 
 class AccountStorageManager {
 
-  getKeyNamespace (accountId) {
-    return `ACCOUNT_${accountId}`;
+  getKeyNamespace () {
+    return 'ACCOUNT';
   }
 
   /**
@@ -30,7 +29,7 @@ class AccountStorageManager {
    * <i>regardless if it is valid</i>
    */
   getAccount() {
-    return new LocalForageHelper(this.getKeyNamespace(ACCOUNT_NAMESPACE), STORAGE_KEYSPACE)
+    return new LocalForageHelper(this.getKeyNamespace(), STORAGE_KEYSPACE)
       .getState()
       .catch((error) => {
         console.error('Got error getting account');
@@ -57,7 +56,7 @@ class AccountStorageManager {
    * @param accountData the response we want to store.
    */
   storeAccountData (accountData) {
-    const key = this.getKeyNamespace(ACCOUNT_NAMESPACE);
+    const key = this.getKeyNamespace();
     return new LocalForageHelper(key, STORAGE_KEYSPACE).setState(accountData);
   }
 

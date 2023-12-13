@@ -29,7 +29,7 @@ function getSSOInfo() {
 export async function getLogin (forceRefresh=false, ifAvailable=false) {
   return navigator.locks.request(HOME_ACCOUNT_LOCK_NAME, {ifAvailable},
     async (aLock) => {
-    if (aLock === null) {
+    if (ifAvailable && aLock === null) {
       // For polling avoid these calls piling up
       return undefined;
     }

@@ -19,7 +19,6 @@ import { InvestiblesProvider } from '../../contexts/InvestibesContext/Investible
 import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MarketsProvider } from '../../contexts/MarketsContext/MarketsContext'
 import { GroupMembersProvider } from '../../contexts/GroupMembersContext/GroupMembersContext'
-import { BannerProvider } from '../../contexts/BannerContext/BannerContext';
 
 export const LogoutContext = React.createContext([]);
 
@@ -87,13 +86,11 @@ function App(props) {
                       <WebSocketProvider config={config} userId={userId}>
                         <AppConfigProvider appConfig={configs}>
                           <ThemeProvider theme={defaultTheme}>
-                            <BannerProvider>
-                              <AccountPoller>
-                                <LogoutContext.Provider value={logoutChannel}>
-                                  <Root appConfig={configs}/>
-                                </LogoutContext.Provider>
-                              </AccountPoller>
-                            </BannerProvider>
+                            <AccountPoller>
+                              <LogoutContext.Provider value={logoutChannel}>
+                                <Root appConfig={configs}/>
+                              </LogoutContext.Provider>
+                            </AccountPoller>
                           </ThemeProvider>
                         </AppConfigProvider>
                       </WebSocketProvider>

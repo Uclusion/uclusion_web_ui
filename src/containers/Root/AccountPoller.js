@@ -2,13 +2,11 @@
  A simple component that only renders root if the home account user has been loaded in the contexts
  */
 
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import Screen from '../Screen/Screen';
 import { useIntl } from 'react-intl';
-import { BannerContext } from '../../contexts/BannerContext/BannerContext';
-import OnboardingBanner from '../../components/Banners/OnboardingBanner';
 
 export const OnboardingState = {
   NeedsOnboarding: 'NEEDS_ONBOARDING',
@@ -19,17 +17,9 @@ export const OnboardingState = {
 function AccountPoller (props) {
   const { children } = props;
   const [userState] = useContext(AccountContext);
-  const [,setBannerState] = useContext(BannerContext);
   const intl = useIntl();
-
-  useEffect(() => {
-    if(userState?.user?.onboarding_state === OnboardingState.DemoCreated){
-      setBannerState(<OnboardingBanner/>)
-    }else{
-      setBannerState(null);
-    }
-  }, [userState, setBannerState]);
-
+  console.debug('In Account Poller:')
+  console.debug(userState)
   if (userIsLoaded(userState)) {
     return <React.Fragment>{children}</React.Fragment>;
   }

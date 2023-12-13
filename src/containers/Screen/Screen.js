@@ -37,7 +37,8 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { BannerContext } from '../../contexts/BannerContext/BannerContext';
+import { OnboardingState } from '../Root/AccountPoller';
+import OnboardingBanner from '../../components/Banners/OnboardingBanner';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -177,7 +178,6 @@ function Screen(props) {
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [marketsState] = useContext(MarketsContext);
   const { results, search } = searchResults;
-  const [bannerState] = useContext(BannerContext);
   const {
     hidden,
     loading,
@@ -196,7 +196,7 @@ function Screen(props) {
     showBanner,
     disableSearch
   } = props;
-  const usedBanner = banner ?? bannerState;
+  const usedBanner = banner ?? (userState?.user?.onboarding_state === OnboardingState.DemoCreated ? <OnboardingBanner/> : undefined);
   const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
   const marketId = pathMarketId || searchMarketId || hashMarketId ||
     getPlanningMarketId(investibleId, marketsState, investiblesState);

@@ -22,6 +22,8 @@ function AccountPoller (props) {
   if (userIsLoaded(userState)) {
     return <React.Fragment>{children}</React.Fragment>;
   }
+  console.log('Waiting for loading in account poller with:')
+  console.log(userState);
   return (
     <Screen
       title="Uclusion"

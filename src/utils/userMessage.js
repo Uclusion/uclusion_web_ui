@@ -77,24 +77,27 @@ export function toastErrorAndThrow(error, messageKey) {
   if (setOperationInProgress) {
     setOperationInProgress(false);
   }
-  // Throwing the error below won't reach LogRocket so must use this API
-  LogRocket.captureException(error, {
-    tags: {
-      // additional data to be grouped as "tags"
-      type: 'api',
-    },
-    extra: {
-      // additional arbitrary data associated with the event
-      messageKey,
-    },
-  });
-  if (error && error.status === 208) {
+  if (error?.status === 208) {
     console.info('Api gateway duplicate 208 received');
     return refreshVersions().then(() => {
       console.warn(error);
       throw error;
     });
+  } else if (error?.status === 410) {
+    // This is a no op as they might already be on a different page and refreshing something old
+    console.info('Accessing banned market');
   } else {
+    // Throwing the error below won't reach LogRocket so must use this API
+    LogRocket.captureException(error, {
+      tags: {
+        // additional data to be grouped as "tags"
+        type: 'api',
+      },
+      extra: {
+        // additional arbitrary data associated with the event
+        messageKey,
+      },
+    });
     sendIntlMessage(ERROR, messageKey);
     console.error(error);
     throw error;

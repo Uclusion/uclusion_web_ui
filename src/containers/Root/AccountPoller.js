@@ -18,8 +18,7 @@ function AccountPoller (props) {
   const { children } = props;
   const [userState] = useContext(AccountContext);
   const intl = useIntl();
-  console.debug('In Account Poller:')
-  console.debug(userState)
+
   if (userIsLoaded(userState)) {
     return <React.Fragment>{children}</React.Fragment>;
   }

@@ -10,6 +10,7 @@ import { getTokenSecondsRemaining } from './tokenUtils';
 import localforage from 'localforage';
 
 export const STORAGE_KEYSPACE = 'ACCOUNT_STORAGE_MANAGER';
+export const ACCOUNT_NAMESPACE = 'ACCOUNT';
 
 class AccountStorageManager {
 
@@ -27,10 +28,9 @@ class AccountStorageManager {
   /**
    * Returns a token from the system for the given type and item id
    * <i>regardless if it is valid</i>
-   * @param accountId the id of the account we want
    */
-  getAccount (accountId) {
-    return new LocalForageHelper(this.getKeyNamespace(accountId), STORAGE_KEYSPACE)
+  getAccount() {
+    return new LocalForageHelper(this.getKeyNamespace(ACCOUNT_NAMESPACE), STORAGE_KEYSPACE)
       .getState()
       .catch((error) => {
         console.error('Got error getting account');
@@ -40,11 +40,10 @@ class AccountStorageManager {
 
   /**
    * Returns an account from account storage that has an account token that has not expired yet
-   * @param accountId the id of the item we want the token for
    * @returns the object form of the account, or null if it doesn't exist
    */
-  getValidAccount (accountId) {
-    return this.getAccount(accountId)
+  getValidAccount() {
+    return this.getAccount()
       .then((account) => {
         if (account && this.isAccountValid(account)) {
           return account;
@@ -58,7 +57,7 @@ class AccountStorageManager {
    * @param accountData the response we want to store.
    */
   storeAccountData (accountData) {
-    const key = this.getKeyNamespace(accountData.account.id);
+    const key = this.getKeyNamespace(ACCOUNT_NAMESPACE);
     return new LocalForageHelper(key, STORAGE_KEYSPACE).setState(accountData);
   }
 

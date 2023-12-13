@@ -34,7 +34,7 @@ export async function getLogin (forceRefresh=false, ifAvailable=false) {
       return undefined;
     }
     const asm = getAccountStorageManager();
-    const accountData = await asm.getValidAccount(HOME_ACCOUNT_ITEM_ID);
+    const accountData = await asm.getValidAccount();
     if (!forceRefresh && accountData) {
       // our account is still valid, so just return the stored account data
       return accountData;

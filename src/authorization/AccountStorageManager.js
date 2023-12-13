@@ -10,17 +10,11 @@ import { getTokenSecondsRemaining } from './tokenUtils';
 import localforage from 'localforage';
 
 export const STORAGE_KEYSPACE = 'ACCOUNT_STORAGE_MANAGER';
-export const ACCOUNT_NAMESPACE = 'ACCOUNT';
 
 class AccountStorageManager {
 
   getKeyNamespace (accountId) {
     return `ACCOUNT_${accountId}`;
-  }
-
-  getItemIdFromKey (key) {
-    const underscore = key.indexOf('_');
-    return key.substring(underscore + 1);
   }
 
   /**
@@ -33,7 +27,7 @@ class AccountStorageManager {
   /**
    * Returns a token from the system for the given type and item id
    * <i>regardless if it is valid</i>
-   * @param accouunt the id of the account we want
+   * @param accountId the id of the account we want
    */
   getAccount (accountId) {
     return new LocalForageHelper(this.getKeyNamespace(accountId), STORAGE_KEYSPACE)
@@ -46,7 +40,7 @@ class AccountStorageManager {
 
   /**
    * Returns an account from account storage that has an account token that has not expired yet
-   * @param itemId the id of the item we want the token for
+   * @param accountId the id of the item we want the token for
    * @returns the object form of the account, or null if it doesn't exist
    */
   getValidAccount (accountId) {
@@ -61,24 +55,24 @@ class AccountStorageManager {
 
   /**
    * Stores an account in the account storage, unless an account with exists,
-   * @param account the token we want to store.
+   * @param accountData the response we want to store.
    */
-  storeAccount (account) {
-    const key = this.getKeyNamespace(account.id);
-    return new LocalForageHelper(key, STORAGE_KEYSPACE).setState(account);
+  storeAccountData (accountData) {
+    const key = this.getKeyNamespace(accountData.account.id);
+    return new LocalForageHelper(key, STORAGE_KEYSPACE).setState(accountData);
   }
 
   /**
    * Takes a token string, decodes it, and determines if it's going to expire in the next
    * minute
-   * @param tokenString the string form of the token
+   * @param accountData the login response
    * @returns if the token is valid and not expiring in the next minute
    */
-  isAccountValid (account) {
-    if (_.isEmpty(account)) {
+  isAccountValid (accountData) {
+    if (_.isEmpty(accountData)) {
       return false;
     }
-    const { uclusion_token: accountToken } = account;
+    const { uclusion_token: accountToken } = accountData;
     const secondsRemaining = getTokenSecondsRemaining(accountToken);
     return secondsRemaining >= 60;
   }

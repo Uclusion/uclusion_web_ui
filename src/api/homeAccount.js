@@ -72,7 +72,7 @@ export async function getLogin (forceRefresh=false, ifAvailable=false) {
     });
 
     // now load the account into storage so we don't have to keep fetching it
-    await asm.storeAccount(HOME_ACCOUNT_ITEM_ID, responseAccountData);
+    await asm.storeAccountData(HOME_ACCOUNT_ITEM_ID, responseAccountData);
     return responseAccountData;
   });
 }

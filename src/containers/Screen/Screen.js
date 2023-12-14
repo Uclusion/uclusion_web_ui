@@ -37,8 +37,8 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { OnboardingState } from '../Root/AccountPoller';
 import OnboardingBanner from '../../components/Banners/OnboardingBanner';
+import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -158,8 +158,6 @@ function Screen(props) {
   const intl = useIntl();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [userState] = useContext(AccountContext);
-  const { user: unsafeUser } = userState || {};
-  const user = unsafeUser || {};
   const history = useHistory();
   const location = useLocation();
   const { pathname, search: querySearch, hash } = location;
@@ -218,7 +216,7 @@ function Screen(props) {
     markets = _.sortBy(filtered, 'name');
   }
   const defaultMarket = getFirstWorkspace(markets, marketId) || {};
-  const reallyAmLoading = !hidden && appEnabled && (loading || _.isEmpty(user));
+  const reallyAmLoading = !hidden && appEnabled && (loading || !userIsLoaded(userState));
   if ((hidden && !isInbox)||(marketId && _.isEmpty(defaultMarket))) {
     return <React.Fragment/>
   }

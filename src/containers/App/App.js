@@ -10,7 +10,6 @@ import LogRocket from 'logrocket'
 import { defaultTheme } from '../../config/themes'
 import { ThemeProvider } from '@material-ui/core/styles'
 import { CognitoUserProvider } from '../../contexts/CognitoUserContext/CongitoUserContext'
-import AccountPoller from '../Root/AccountPoller'
 import { BroadcastChannel } from 'broadcast-channel'
 import { onSignOut } from '../../utils/userFunctions'
 import { LeaderProvider } from '../../contexts/LeaderContext/LeaderContext'
@@ -86,11 +85,9 @@ function App(props) {
                       <WebSocketProvider config={config} userId={userId}>
                         <AppConfigProvider appConfig={configs}>
                           <ThemeProvider theme={defaultTheme}>
-                            <AccountPoller>
-                              <LogoutContext.Provider value={logoutChannel}>
-                                <Root appConfig={configs}/>
-                              </LogoutContext.Provider>
-                            </AccountPoller>
+                            <LogoutContext.Provider value={logoutChannel}>
+                              <Root appConfig={configs}/>
+                            </LogoutContext.Provider>
                           </ThemeProvider>
                         </AppConfigProvider>
                       </WebSocketProvider>

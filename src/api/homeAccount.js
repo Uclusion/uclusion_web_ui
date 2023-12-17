@@ -29,15 +29,17 @@ function getSSOInfo() {
 export async function getLogin (forceRefresh=false, ifAvailable=false) {
   return navigator.locks.request(HOME_ACCOUNT_LOCK_NAME, {ifAvailable},
     async (aLock) => {
-    if (ifAvailable && aLock === null) {
-      // For polling avoid these calls piling up
-      return undefined;
-    }
     const asm = getAccountStorageManager();
     const accountData = await asm.getValidAccount();
     if (!forceRefresh && accountData) {
       // our account is still valid, so just return the stored account data
       return accountData;
+    }
+
+    // This is lock is for calling Cognito from poller - if had on disk above go ahead and return
+    if (ifAvailable && aLock === null) {
+      // For polling avoid these calls piling up
+      return undefined;
     }
 
     //we've expired, time to refresh

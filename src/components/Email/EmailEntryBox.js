@@ -203,7 +203,9 @@ class EmailEntryBox extends React.Component{
     setEmailList(newEmails, this.marketId);
     const hash = this.hashEmail(email);
     const node = document.getElementById(hash);
-    node.remove();
+    if (node) {
+      node.remove();
+    }
   };
 
   onFocus = (event) => {

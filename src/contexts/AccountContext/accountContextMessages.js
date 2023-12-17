@@ -15,6 +15,7 @@ export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
 export function poll(dispatch, accountVersion, userVersion) {
     Auth.currentSession().then(() => {
       return getLogin(true, true).then((loginInfo) => {
+          let finished = false;
           if (loginInfo) {
             console.log('In poll after login');
             const { account, user } = loginInfo;
@@ -22,6 +23,7 @@ export function poll(dispatch, accountVersion, userVersion) {
             const { version: founderAccountVersion } = account;
             if ((accountVersion === undefined || accountVersion <= founderAccountVersion)
               && (userVersion === undefined || userVersion <= founderUserVersion)) {
+              finished = true;
               dispatch(accountAndUserRefresh(fixDates(account), user));
               const { billing_customer_id: customerId } = account;
               // handle billing
@@ -35,9 +37,10 @@ export function poll(dispatch, accountVersion, userVersion) {
                     updateInvoices(dispatch, invoices);
                   });
               }
-            } else {
-              setTimeout(() => poll(dispatch, accountVersion, userVersion), 500);
             }
+          }
+          if (!finished) {
+            setTimeout(() => poll(dispatch, accountVersion, userVersion), 500);
           }
         });
       }).catch(() => {

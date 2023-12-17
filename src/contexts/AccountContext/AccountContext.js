@@ -1,7 +1,8 @@
 import React, { useEffect, useReducer } from 'react'
 import { getUclusionLocalStorageItem } from '../../components/localStorageUtils'
 import { ACCOUNT_CONTEXT_KEY, reducer } from './accountContextReducer'
-import { beginListening } from './accountContextMessages'
+import { beginListening, poll } from './accountContextMessages';
+import { userIsLoaded } from './accountUserContextHelper';
 
 const EMPTY_STATE = { account: {}, billingInfo: {}, user: {}, initializing: true };
 const AccountContext = React.createContext(EMPTY_STATE);
@@ -15,6 +16,11 @@ function AccountProvider(props) {
   const { children } = props;
   const defaultValue = getUclusionLocalStorageItem(ACCOUNT_CONTEXT_KEY) || EMPTY_STATE;
   const [state, dispatch] = useReducer(reducer, defaultValue);
+
+  if (!userIsLoaded(state)) {
+    console.info('Starting poll for account from render');
+    poll(dispatch);
+  }
 
   useEffect(() => {
     beginListening(dispatch);

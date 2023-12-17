@@ -12,7 +12,7 @@ import { Auth } from 'aws-amplify';
 export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
 export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
 
-function poll(dispatch, accountVersion, userVersion) {
+export function poll(dispatch, accountVersion, userVersion) {
     Auth.currentSession().then(() => {
       return getLogin(true, true).then((loginInfo) => {
           if (loginInfo) {
@@ -67,6 +67,7 @@ export function beginListening(dispatch) {
     const { payload: { event, version } } = data;
     switch (event) {
       case VERSIONS_EVENT:
+        console.log('Starting poll after user versions event');
         poll(dispatch, undefined, version);
         break;
       default:
@@ -80,12 +81,11 @@ export function beginListening(dispatch) {
     const { payload: { event, version } } = data;
     switch (event) {
       case VERSIONS_EVENT:
+        console.log('Starting poll after account versions event');
         poll(dispatch, version, undefined);
         break;
       default:
         break;
     }
   });
-  // If there is a refresh while signed in then need to reload
-  poll(dispatch);
 }

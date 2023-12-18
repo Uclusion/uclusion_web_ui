@@ -43,10 +43,10 @@ export function removeInvestments(marketId, investibleId) {
   };
 }
 
-export function processBanned(fullList) {
+export function processBanned(bannedList) {
   return {
     type: BANNED_MARKETS,
-    fullList
+    bannedList
   }
 }
 
@@ -162,8 +162,7 @@ function doRemoveInvestibleInvestments(state, action) {
 
 // This can only come from the network
 function doProcessBanned(state, action) {
-  const { fullList } = action;
-  const bannedList = _.difference(Object.keys(state), fullList);
+  const { bannedList } = action;
   if (_.isEmpty(bannedList)) {
     // If he has been unbanned then this is a no op because normal market syncing will change his presence
     return state;
@@ -172,8 +171,7 @@ function doProcessBanned(state, action) {
   bannedList.forEach((marketId) => {
     const oldMarketUsers = state[marketId] || [];
     const myUser = oldMarketUsers.find((user) => user.current_user) || {};
-    // From quick add is a no-op because just hasn't reached the async list of markets yet
-    if (!myUser.market_banned && !myUser.fromQuickAdd) {
+    if (!myUser.market_banned) {
       const newPresence = {
         ...myUser,
         market_banned: true,

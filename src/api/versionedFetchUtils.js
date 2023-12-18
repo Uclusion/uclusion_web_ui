@@ -199,6 +199,7 @@ export async function doVersionRefresh() {
   const audits = await getChangedIds();
   const foregroundList = [];
   const backgroundList = [];
+  const bannedList = [];
   const inlineList = [];
   const fullList = [];
   const { marketsState } = storageStates;
@@ -221,20 +222,21 @@ export async function doVersionRefresh() {
     });
   });
   (audits || []).forEach((audit) => {
-    const { signature, inline, active, id } = audit;
+    const { signature, inline, active, banned, id } = audit;
     fullList.push(id);
     if (!checkSignatureInStorage(id, signature, storageStates) || failedList.includes(id)) {
       if (inline) {
         inlineList.push(id);
       } else if (active) {
         foregroundList.push(id);
+      } else if (banned) {
+        bannedList.push(id);
       } else {
         backgroundList.push(id);
       }
     }
   });
-  // use the full list to calculate market's we're banned from
-  pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, fullList });
+  pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
   // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
   console.info('Beginning inline versions update');
   console.info(inlineList);

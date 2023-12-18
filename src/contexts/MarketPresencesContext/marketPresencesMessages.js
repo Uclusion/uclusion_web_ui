@@ -16,13 +16,13 @@ export const ADD_PRESENCE = 'AddPresence';
 
 function beginListening(dispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'marketPresenceRemovedMarketStart', (data) => {
-    const { payload: { event, message, fullList } } = data;
+    const { payload: { event, message, bannedList } } = data;
     switch (event) {
       case VERSIONS_EVENT:
         dispatch(removeMarketsPresence(message));
         break;
       case BANNED_LIST:
-        dispatch(processBanned(fullList));
+        dispatch(processBanned(bannedList));
         break;
       default:
         // console.debug(`Ignoring identity event ${event}`);

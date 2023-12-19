@@ -273,6 +273,9 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
   const { markets, comments, marketPresences, marketStages, investibles, marketGroups, groupMembers } = fromStorage;
   const promises = [];
   const marketClient = await getMarketClient(marketId);
+  if (!marketClient) {
+    return promises;
+  }
   if (!_.isEmpty(markets.unmatchedSignatures)) {
     // can only be one :)
     promises.push(fetchMarketVersion(marketClient, marketId, markets.unmatchedSignatures[0], marketsStruct));

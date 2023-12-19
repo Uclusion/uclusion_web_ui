@@ -169,7 +169,7 @@ function WebSocketProvider(props) {
         getAppVersion().then((version) => {
           const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
           notifyNewApplicationVersion(currentVersion, cacheClearVersion);
-        });
+        }).catch(() => console.warn('Error checking version'));
       }
     }, MAX_DRIFT_TIME, pongTracker, state, () => {
       leaderDispatch(refreshOrMessage(`visit${Date.now()}`, userId));
@@ -182,7 +182,7 @@ function WebSocketProvider(props) {
     getAppVersion().then((version) => {
       const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
       notifyNewApplicationVersion(currentVersion, cacheClearVersion);
-    });
+    }).catch(() => console.warn('Error checking version'));
     return () => {};
   }, [config, leaderDispatch, userId]);
 

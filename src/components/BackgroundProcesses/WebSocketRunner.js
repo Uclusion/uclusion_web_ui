@@ -43,7 +43,7 @@ class WebSocketRunner {
         const actionString = JSON.stringify(action);
         this.socket.send(actionString);
       }
-    });
+    }).catch(() => console.warn('Error subscribing'));
   }
 
 

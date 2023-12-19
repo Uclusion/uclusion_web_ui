@@ -35,7 +35,7 @@ function beginListening(dispatch) {
       case VERSIONS_EVENT:
         getMessages().then((messages) => {
           dispatch(updateMessages(messages));
-        });
+        }).catch(() => console.warn('Error getting messages'));
         break;
       case ADD_EVENT:
         dispatch(addMessage(message));

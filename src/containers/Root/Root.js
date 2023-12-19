@@ -155,7 +155,7 @@ function Root() {
       broadcastView(marketId, investibleId, isEntry, action);
       if(isEntry){
         // refresh our versions if we're entering
-        refreshVersions();
+        refreshVersions().catch(() => console.warn('Error refreshing'));
       }
     }
 

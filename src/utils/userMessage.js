@@ -82,7 +82,7 @@ export function toastErrorAndThrow(error, messageKey) {
     return refreshVersions().then(() => {
       console.warn(error);
       throw error;
-    });
+    }).catch(() => console.warn('Error refreshing'));
   } else if (error?.status === 410) {
     // This is a no op as they might already be on a different page and refreshing something old
     console.info('Accessing banned market');

@@ -25,7 +25,7 @@ function LeaderProvider(props) {
         // Go ahead and get the latest when determine leader
         return refreshVersions(true).then(() => {
           console.info('Refreshed versions from leader init');
-        });
+        }).catch(() => console.warn('Error refreshing'));
       });
     }
     return () => {};

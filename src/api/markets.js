@@ -11,16 +11,14 @@ function fixupMarketForStorage(market) {
   };
 }
 
-export function getMarketDetails(marketId) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.get()
-      .then((market) => fixupMarketForStorage(market))
-      .then((market) => {
+export function getMarketDetails(client) {
+  return client.markets.get().then((market) => fixupMarketForStorage(market))
+    .then((market) => {
         return {
           ...market,
           currentUserId: market.current_user_id,
         };
-      }));
+      });
 }
 
 export function manageMarket(marketId, expirationMinutes) {
@@ -126,26 +124,20 @@ export function marketAbstain(marketId) {
 }
 
 // below called in hub messages, so difficult to decide when to toast a message
-export function getMarketStages(marketId) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.listStages());
+export function getMarketStages(client) {
+  return client.markets.listStages()
+    .catch((error) => errorAndThrow(error, 'errorStagesFetchFailed'));
 }
 
-export function getMarketGroups(marketId) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.listGroups());
+export function getMarketGroups(client) {
+  return client.markets.listGroups().catch((error) => errorAndThrow(error, 'errorGroupFetchFailed'));
 }
 
-export function getGroupMembers(marketId, groupIds) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.listGroupMembers(groupIds));
+export function getGroupMembers(client, groupIds) {
+  return client.markets.listGroupMembers(groupIds)
+    .catch((error) => errorAndThrow(error, 'errorGroupMembersFetchFailed'));
 }
 
-export function getMarketUsers(marketId) {
-  if (!marketId) {
-    console.error('No marketId');
-    throw new Error('NO MARKET ID');
-  }
-  return getMarketClient(marketId).then((client) => client.markets.listUsers())
-    .catch((error) => errorAndThrow(error, 'errorUsersFetchFailed'));
+export function getMarketUsers(client) {
+  return client.markets.listUsers().catch((error) => errorAndThrow(error, 'errorUsersFetchFailed'));
 }

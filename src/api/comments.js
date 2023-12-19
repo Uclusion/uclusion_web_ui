@@ -3,14 +3,12 @@ import { getMarketClient } from './marketLogin'
 import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
 import { AllSequentialMap } from '../utils/PromiseUtils'
 
-export function fetchComments(idList, marketId) {
-  const clientPromise = getMarketClient(marketId);
+export function fetchComments(idList, client) {
   const chunks = _.chunk(idList, 50);
-  return clientPromise.then((client) => {
     return AllSequentialMap(chunks, (chunk) => {
       return client.investibles.getMarketComments(chunk);
-    }).then((commentsLists) => _.flatten(commentsLists));
-  }).catch((error) => errorAndThrow(error, 'errorCommentFetchFailed'));
+    }).then((commentsLists) => _.flatten(commentsLists))
+      .catch((error) => errorAndThrow(error, 'errorCommentFetchFailed'));
 }
 
 export function saveComment(marketId, groupId, investibleId, replyId, body, commentType, uploadedFiles, mentions,

@@ -224,12 +224,12 @@ export async function doVersionRefresh() {
   (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
     if (!checkSignatureInStorage(id, signature, storageStates) || failedList.includes(id)) {
-      if (inline) {
+      if (banned) {
+        bannedList.push(id);
+      }else if (inline) {
         inlineList.push(id);
       } else if (active) {
         foregroundList.push(id);
-      } else if (banned) {
-        bannedList.push(id);
       } else {
         backgroundList.push(id);
       }

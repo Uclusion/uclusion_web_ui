@@ -75,7 +75,8 @@ const useStyles = makeStyles(theme => ({
     fontSize: '1rem'
   },
   googleImg: {
-    transform: 'scale(1.15)'
+    transform: 'scale(1.15)',
+    marginBottom: '-2px'
   },
   spacerText: {
     display: 'flex',

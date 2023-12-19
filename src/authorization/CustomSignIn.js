@@ -66,7 +66,8 @@ const useStyles = (theme) => ({
     fontSize: '1rem'
   },
   googleImg: {
-    transform: 'scale(1.15)'
+    transform: 'scale(1.15)',
+    marginBottom: '-2px'
   },
   githubText: {
     lineHeight: '46px',

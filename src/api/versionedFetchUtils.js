@@ -201,7 +201,6 @@ export async function doVersionRefresh() {
   const backgroundList = [];
   const bannedList = [];
   const inlineList = [];
-  const fullList = [];
   const { marketsState } = storageStates;
   const failedSignatures = getFailedSignatures(marketsState) || [];
   const failedList = [];
@@ -223,7 +222,6 @@ export async function doVersionRefresh() {
   });
   (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
-    fullList.push(id);
     if (!checkSignatureInStorage(id, signature, storageStates) || failedList.includes(id)) {
       if (inline) {
         inlineList.push(id);

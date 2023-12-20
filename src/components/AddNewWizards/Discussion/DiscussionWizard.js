@@ -30,7 +30,8 @@ function DiscussionWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="discussion_wizard" defaultFormData={hasDraft ? draftData : undefined}>
+      <FormdataWizard name="discussion_wizard" defaultFormData={hasDraft ? draftData : undefined}
+                      useLocalStorage={false}>
         {!hasDraft && (
           <AddCommentStep marketId={marketId} groupId={groupId} useType={commentType}  />
         )}

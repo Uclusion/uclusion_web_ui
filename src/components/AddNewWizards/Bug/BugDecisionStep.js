@@ -9,9 +9,10 @@ import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../..
 import { useHistory } from 'react-router';
 
 function BugDecisionStep(props) {
-  const { marketId, comment, comments } = props;
+  const { marketId, comment, comments, updateFormData, formData } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
+  const { useCompression } = formData;
 
   return (
     <WizardStepContainer
@@ -21,15 +22,15 @@ function BugDecisionStep(props) {
       <Typography className={classes.introText}>
         Do you want to move to a bug or job?
       </Typography>
-      <div className={classes.wizardCommentBoxDiv}>
-        <CommentBox
-          comments={comments}
-          marketId={marketId}
-          allowedTypes={[]}
-          isInbox
-          removeActions
-        />
-      </div>
+      <CommentBox
+        comments={comments}
+        marketId={marketId}
+        allowedTypes={[]}
+        isInbox
+        removeActions
+        toggleCompression={() => updateFormData({useCompression: !useCompression})}
+        useCompression={useCompression}
+      />
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}

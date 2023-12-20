@@ -28,7 +28,7 @@ function BugWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="bug_wizard" useLocalStorage={false}>
+      <FormdataWizard name="bug_wizard" defaultFormData={{useCompression: true}} useLocalStorage={false}>
         {!_.isEmpty(comment) && (
           <BugDecisionStep marketId={marketId} comment={comment} comments={comments} />
         )}

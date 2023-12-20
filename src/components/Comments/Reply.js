@@ -11,7 +11,11 @@ import { removeComment, updateComment } from '../../api/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CommentEdit from './CommentEdit';
-import { addMarketComments, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
+import {
+  addCommentToMarket,
+  addMarketComments, getComment,
+  getCommentRoot
+} from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import { formCommentLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
@@ -190,8 +194,16 @@ function Reply(props) {
 
   function myAccept () {
     setOperationRunning(true);
+    const replyId = comment.reply_id;
     return updateComment({marketId, commentId: comment.id, commentType: TODO_TYPE}).then((comment) => {
       handleAcceptSuggestion({ isMove: false, comment, commentsState, commentsDispatch, messagesState });
+      if (replyId) {
+        const parentComment = getComment(commentsState, marketId, replyId);
+        if (parentComment.children) {
+          parentComment.children = parentComment.children.filter((id) => id !== comment.id);
+          addCommentToMarket(parentComment, commentsState, commentsDispatch);
+        }
+      }
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
     })

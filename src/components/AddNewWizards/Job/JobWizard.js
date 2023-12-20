@@ -57,7 +57,8 @@ function JobWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name={`job_wizard${_.isArray(fromCommentId) ? '' : fromCommentId}`} useLocalStorage={false}>
+      <FormdataWizard name={`job_wizard${_.isArray(fromCommentId) ? '' : fromCommentId}`}
+                      defaultFormData={{useCompression: true}} useLocalStorage={false}>
         {(requiresInputId || (fromCommentId && resolvedId === fromCommentId)) && (
           <ResolveCommentsStep marketId={marketId} commentId={requiresInputId} marketComments={comments}
                                setResolvedId={setResolvedId} />

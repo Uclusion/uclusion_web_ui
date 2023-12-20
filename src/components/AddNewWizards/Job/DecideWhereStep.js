@@ -28,11 +28,12 @@ export function moveCommentsFromIds(inv, comments, fromCommentIds, marketId, gro
 }
 
 function DecideWhereStep (props) {
-  const { marketId, fromCommentIds, marketComments } = props;
+  const { marketId, fromCommentIds, marketComments, updateFormData, formData } = props;
   const classes = useContext(WizardStylesContext);
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
   const comments = getCommentThreads(roots, marketComments);
+  const { useCompression } = formData;
 
   if (comments.find((comment) => comment.id === 'notFound')) {
     return React.Fragment;
@@ -46,16 +47,16 @@ function DecideWhereStep (props) {
       <Typography className={classes.introText}>
         Where do you want to move?
       </Typography>
-      <div className={classes.wizardCommentBoxDiv}>
-        <CommentBox
-          comments={comments}
-          marketId={marketId}
-          allowedTypes={[]}
-          isInbox
-          isMove
-          removeActions
-        />
-      </div>
+      <CommentBox
+        comments={comments}
+        marketId={marketId}
+        allowedTypes={[]}
+        isInbox
+        isMove
+        removeActions
+        toggleCompression={() => updateFormData({useCompression: !useCompression})}
+        useCompression={useCompression}
+      />
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}

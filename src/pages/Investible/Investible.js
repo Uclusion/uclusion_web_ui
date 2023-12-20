@@ -51,10 +51,11 @@ function Investible(props) {
 
   useEffect(() => {
     if (!hidden && !hash.includes('option')) {
-      console.info("Handling option navigation.");
       if (parentInvestibleId) {
+        console.info("Handling option investible navigation.");
         navigate(history, `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${investibleId}`);
       } else if (parentMarketId && !hidden) {
+        console.info("Handling option navigation.");
         navigate(history, `${formMarketLink(parentMarketId, parentGroupId)}#option${investibleId}`);
       }
     }

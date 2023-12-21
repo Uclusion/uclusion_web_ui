@@ -284,7 +284,7 @@ function MarketTodos(props) {
       const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
       return (
         <BugListItem id={id} replyNum={replies.length + 1} title={stripHTML(body)}
-                     isNew={notificationType !== RED_LEVEL && isNewComment(comment, messagesState)}
+                     isNew={isNewComment(comment, messagesState)}
                      date={intl.formatDate(updatedAt)}
                      message={findMessageForCommentId(id, messagesState)}
                      useSelect={!isInArchives} expansionPanel={expansionPanel} checked={checked}

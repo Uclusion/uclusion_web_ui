@@ -652,8 +652,7 @@ function Comment(props) {
   }
 
   const diff = getDiff(diffState, id);
-  const myHighlightedState = myMessage || {};
-  const { level: myHighlightedLevel } = myHighlightedState;
+  const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myMessage || {};
   const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> : undefined;
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
@@ -662,7 +661,7 @@ function Comment(props) {
     if (isInbox && (!inboxMessageId || inboxMessageId === id)) {
       return classes.containerBlueLink;
     }
-    if (myHighlightedLevel) {
+    if (myHighlightedLevel && isHighlighted) {
       if (myHighlightedLevel === "YELLOW" || myHighlightedLevel === "BLUE") {
         return classes.containerYellow;
       }

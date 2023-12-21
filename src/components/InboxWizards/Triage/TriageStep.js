@@ -34,11 +34,9 @@ function TriageStep(props) {
     comment.group_id === groupId && !comment.resolved && !comment.deleted && !comment.investible_id &&
     comment.notification_type === RED_LEVEL);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const { deferred_notifications: deferred } = myPresence;
   const classes = wizardStyles();
 
-  function goToComment() {
+  function goToBugs() {
     navigate(history, formCommentLink(marketId, groupId, undefined, commentId));
   }
 
@@ -48,12 +46,12 @@ function TriageStep(props) {
     }
     return comments.map((comment) => {
       const { id, body, updated_at: updatedAt, created_by: createdBy } = comment;
-      const { updated_at: msgUpdatedAt, created_at: msgCreatedAt, is_highlighted: isHighlighted } = message;
+      const { is_highlighted: isHighlighted } = message;
       const creator = marketPresences.find((presence) => presence.id === createdBy) || {};
       return (
         <CriticalItem id={id} title={stripHTML(body)} link={formCommentLink(marketId, groupId, undefined, id)}
                      date={new Date(updatedAt)} people={[creator]}
-                      isRead={deferred?.includes(id) || msgCreatedAt !== msgUpdatedAt || !isHighlighted}/>
+                      isRead={!isHighlighted}/>
       );
     });
   }
@@ -85,7 +83,7 @@ function TriageStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="GotoBugs"
-        onNext={goToComment}
+        onNext={goToBugs}
         spinOnClick={false}
         showTerminate={message.is_highlighted}
         onFinish={markRead}

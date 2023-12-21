@@ -55,7 +55,7 @@ function WizardStepButtons (props) {
     } else {
       setOperationRunning(false);
       if (onIncrement) {
-        onIncrement();
+        onIncrement(resolved);
       } else {
         if (isAdvance) {
           if (skipNextStep || (!isOther && onNextSkipStep)) {

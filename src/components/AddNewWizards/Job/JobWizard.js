@@ -17,6 +17,7 @@ import { navigate } from '../../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import FindJobStep from './FindJobStep';
 import JobApproverStep from './JobApproverStep';
+import JobNameStep from './JobNameStep';
 
 function JobWizard(props) {
   const { marketId, groupId, jobType } = props;
@@ -72,6 +73,8 @@ function JobWizard(props) {
         )}
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} marketComments={comments}
                             jobType={jobType} fromCommentIds={fromCommentIds} />
+        <JobNameStep onFinish={onFinish} marketId={marketId} groupId={groupId} jobType={jobType}
+                     marketComments={comments} fromCommentIds={fromCommentIds} />
         <JobAssignStep onFinish={onFinish} marketId={marketId} groupId={groupId} marketComments={comments}
                        fromCommentIds={fromCommentIds} />
         <JobApproverStep marketId={marketId} groupId={groupId} fromCommentIds={fromCommentIds}

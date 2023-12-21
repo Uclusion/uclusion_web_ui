@@ -28,7 +28,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData, jobType,
-    startOver } = props;
+    startOver, nextStep } = props;
   const history = useHistory();
   const intl = useIntl();
   const [, commentsDispatch] = useContext(CommentsContext);
@@ -87,6 +87,15 @@ function JobDescriptionStep (props) {
       text: tokensRemoved,
     } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
     const { name, description} = convertDescription(tokensRemoved);
+    if (_.isEmpty(name)) {
+      updateFormData({
+        description,
+        uploadedFiles: filteredUploads,
+        jobStage: currentValue
+      });
+      resetEditor(editorName);
+      return Promise.resolve({isMissingName: true});
+    }
     const addInfo = {
       name,
       description,
@@ -117,11 +126,10 @@ function JobDescriptionStep (props) {
       })
   }
 
-  function onNotReady(formData){
+  function onNotReady(){
      createJob()
       .then(({link}) => {
         onFinish({
-          ...formData,
           link
         });
       });
@@ -131,6 +139,15 @@ function JobDescriptionStep (props) {
     updateFormData({
       newQuantity: event.target.value
     });
+  }
+
+  function doIncrement(resolved) {
+    const { isMissingName } = resolved;
+    if (isMissingName) {
+      nextStep();
+    } else if (currentValue === 'IMMEDIATE') {
+      nextStep(2);
+    }
   }
 
   const hasFromComments = _.size(fromCommentIds) > 0;
@@ -155,10 +172,7 @@ function JobDescriptionStep (props) {
   const currentValue = newQuantity || defaultFromPage || '';
   const onNext = currentValue === 'NOT_READY' ? onNotReady : (currentValue === 'READY' ?
     () => createJob(true).then(({link}) => {
-    onFinish({
-      ...formData,
-      link
-    });
+    onFinish({ link });
   }) : createJob);
   return (
     <WizardStepContainer
@@ -209,7 +223,7 @@ function JobDescriptionStep (props) {
         validForm={hasValue}
         nextLabel="jobCreate"
         onNext={onNext}
-        onNextDoAdvance={currentValue === 'IMMEDIATE'}
+        onIncrement={doIncrement}
         isFinal={currentValue !== 'IMMEDIATE'}
         showTerminate
         onTerminate={onTerminate}

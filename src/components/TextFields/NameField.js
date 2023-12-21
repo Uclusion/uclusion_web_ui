@@ -6,6 +6,7 @@ import { nameFromDescription } from '../../utils/stringFunctions'
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils'
 import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils'
 import InputLabel from '@material-ui/core/InputLabel'
+import _ from 'lodash';
 
 export function getNameStoredState(id) {
   return getUclusionLocalStorageItem(`name-editor-${id}`);
@@ -19,7 +20,7 @@ export const NAME_MAX_LENGTH = 80;
 
 function NameField(props) {
   const {
-    editorName, label, placeHolder, id, useCreateDefault, scrollId, initialValue
+    editorName, label, placeHolder, id, useCreateDefault, scrollId, initialValue, setHasValue
   } = props;
   const intl = useIntl();
   const defaultValue = getNameStoredState(id) || initialValue;
@@ -59,6 +60,9 @@ function NameField(props) {
     const { value } = event.target;
     storeState(value);
     setCharactersLeft(80 - (value || '').length);
+    if (!_.isEmpty(value)) {
+      setHasValue(true);
+    }
   }
 
   return (
@@ -90,13 +94,15 @@ NameField.propTypes = {
   id: PropTypes.string.isRequired,
   placeHolder: PropTypes.string,
   label: PropTypes.string,
-  useCreateDefault: PropTypes.bool
+  useCreateDefault: PropTypes.bool,
+  setHasValue: PropTypes.func
 }
 
 NameField.defaultProps = {
   placeHolder: "storyTitlePlaceholder",
   label: "agilePlanFormTitleLabel",
-  useCreateDefault: false
+  useCreateDefault: false,
+  setHasValue: () => {}
 }
 
 export default React.memo(NameField)

@@ -743,7 +743,7 @@ function PlanningInvestible(props) {
                 <div style={{display: 'flex'}}>
                   {allowedCommentTypes.map((allowedCommentType) => {
                     return (
-                      <SpinningButton id="newComment" className={wizardClasses.actionNext}
+                      <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
                                       icon={AddIcon} iconColor="black"
                                       style={{display: "flex", marginTop: '0.75rem',
                                         fontSize: mobileLayout ? '0.77rem' : undefined,

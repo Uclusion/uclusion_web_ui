@@ -25,10 +25,6 @@ function LeaderProvider(props) {
         // Could use broadcast ID to send message out to others to refresh out of login page
         // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
         dispatch(updateLeader(true));
-        // Go ahead and get the latest when determine leader
-        return refreshVersions(true).then(() => {
-          console.info('Refreshed versions from leader init');
-        }).catch(() => console.warn('Error refreshing'));
       });
     }
     return () => {};
@@ -38,7 +34,7 @@ function LeaderProvider(props) {
     if (isUserLoaded && isLeader) {
       waitForLeadership(() => {
         console.info('Leadership refreshing versions');
-        return refreshVersions(true).then(() => {
+        return refreshVersions().then(() => {
           console.info('Refreshed versions from leader init');
         }).catch(() => console.warn('Error refreshing'));
       });

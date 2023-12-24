@@ -43,15 +43,20 @@ export const LOGIN_EVENT = 'user_logged_in';
 export class MatchError extends Error {}
 
 let runner;
-const matchErrorHandlingVersionRefresh = () => {
-  return doVersionRefresh()
-    .catch((error) => {
-      console.error(error);
-      // we'll log match problems, but raise the rest
-      if (error instanceof MatchError) {
-        console.info('Ignoring match error');
-      } else {
-        throw(error);
+const matchErrorHandlingVersionRefresh = (ignoreIfInProgress=false) => {
+  return navigator.locks.request("REFRESH_LOCK", {ifAvailable: !ignoreIfInProgress},
+    async (aLock) => {
+    if (aLock || ignoreIfInProgress) {
+      return doVersionRefresh()
+        .catch((error) => {
+          console.error(error);
+          // we'll log match problems, but raise the rest
+          if (error instanceof MatchError) {
+            console.info('Ignoring match error');
+          } else {
+            throw (error);
+          }
+        });
       }
     });
 };
@@ -70,15 +75,12 @@ export function refreshVersions (ignoreIfInProgress=false) {
   if (isSignedOut()) {
     return Promise.resolve(true); // also do nothing when signed out
   }
-  if (!ignoreIfInProgress) {
-    return matchErrorHandlingVersionRefresh();
-  } else {
+  return matchErrorHandlingVersionRefresh(ignoreIfInProgress).then(() => {
+    // If missing always start a runner so max drift is honored
     if (runner == null){
       return startRefreshRunner();
-    } else {
-      return Promise.resolve(true); // do nothing
     }
-  }
+  });
 }
 
 export function refreshNotifications () {

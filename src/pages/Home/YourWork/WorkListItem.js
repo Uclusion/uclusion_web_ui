@@ -195,6 +195,7 @@ function WorkListItem(props) {
              onClick={
           (event) => {
             if (isNotSynced) {
+              console.info('Clicked when not synced.')
               return;
             }
             preventDefaultAndProp(event);

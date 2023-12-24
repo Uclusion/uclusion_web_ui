@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
-import { Card, Grid, Link, ListItem, makeStyles, Paper, Typography } from '@material-ui/core'
-import { FormattedMessage, useIntl } from 'react-intl'
-import Screen from '../../containers/Screen/Screen'
-import config from '../../config'
-import { toastErrorAndThrow } from '../../utils/userMessage'
-import OnboardingWorkspace from './OnboardingWorkspace'
-import SubSection from '../../containers/SubSection/SubSection'
-import { getLogin } from '../../api/homeAccount';
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Card, Grid, Link, ListItem, makeStyles, Paper, Typography } from '@material-ui/core';
+import { FormattedMessage, useIntl } from 'react-intl';
+import Screen from '../../containers/Screen/Screen';
+import config from '../../config';
+import OnboardingWorkspace from './OnboardingWorkspace';
+import SubSection from '../../containers/SubSection/SubSection';
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -55,23 +54,13 @@ function Support(props) {
   const {
     hidden,
   } = props;
+  const [userState] = useContext(AccountContext);
   const intl = useIntl();
   const classes = useStyles();
   const { version } = config;
-  const [externalId, setExternalId] = useState(undefined);
-  const [user, setUser] = useState(undefined);
+  const user = userState?.user;
+  const externalId = user?.external_id;
 
-  useEffect(() => {
-    if (!externalId && !hidden) {
-      getLogin()
-        .then((loginInfo) => {
-          const { user: myUser } = loginInfo;
-          const { external_id: myExternalId } = myUser;
-          setExternalId(myExternalId);
-          setUser(myUser);
-        }).catch((error) => toastErrorAndThrow(error, 'errorGetIdFailed'));
-    }
-  }, [externalId, hidden]);
   return (
     <Screen
       title={intl.formatMessage({ id: 'support' })}

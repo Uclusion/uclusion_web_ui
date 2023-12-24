@@ -1,7 +1,9 @@
-import React, { useEffect, useReducer } from 'react'
+import React, { useContext, useEffect, useReducer } from 'react';
 import { waitForLeadership } from 'tab-election';
 import reducer, { updateLeader } from './leaderContextReducer'
 import { refreshVersions } from '../../api/versionedFetchUtils'
+import { AccountContext } from '../AccountContext/AccountContext';
+import { userIsLoaded } from '../AccountContext/accountUserContextHelper';
 
 const EMPTY_STATE = {
   leader: undefined,
@@ -12,8 +14,9 @@ const LeaderContext = React.createContext(EMPTY_STATE);
 function LeaderProvider(props) {
   const { children, authState, userId } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
-
-
+  const [userState] = useContext(AccountContext);
+  const isUserLoaded = userIsLoaded(userState);
+  const { isLeader } = state;
 
   useEffect(() => {
     if (authState === 'signedIn' && userId) {
@@ -30,6 +33,18 @@ function LeaderProvider(props) {
     }
     return () => {};
   }, [authState, userId]);
+
+  useEffect(() => {
+    if (isUserLoaded && isLeader) {
+      waitForLeadership(() => {
+        console.info('Leadership refreshing versions');
+        return refreshVersions(true).then(() => {
+          console.info('Refreshed versions from leader init');
+        }).catch(() => console.warn('Error refreshing'));
+      });
+    }
+    return () => {};
+  }, [isUserLoaded, isLeader]);
 
   return (
     <LeaderContext.Provider value={[state, dispatch]}>

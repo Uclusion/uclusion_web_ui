@@ -32,6 +32,8 @@ import DialogArchives from '../../pages/DialogArchives/DialogArchives';
 import { refreshVersions } from '../../api/versionedFetchUtils';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 
 const useStyles = makeStyles({
   body: {
@@ -62,6 +64,7 @@ function Root() {
   const classes = useStyles();
   const { pathname } = location;
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
+  const [userState] = useContext(AccountContext);
   const [, setOnline] = useContext(OnlineStateContext);
   const [ticketState] = useContext(TicketIndexContext);
   const [marketsState] = useContext(MarketsContext);
@@ -139,6 +142,8 @@ function Root() {
     && hideGroupArchive() && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit()
     && !isTicketPath(pathname));
 
+  const isUserLoaded = userIsLoaded(userState);
+
   useEffect(() => {
     if (isTicketPath(pathname)) {
       const url = getUrlForTicketPath(pathname, ticketState, marketsState, commentsState);
@@ -153,7 +158,7 @@ function Root() {
       const currentPath = window.location.pathname;
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);
       broadcastView(marketId, investibleId, isEntry, action);
-      if(isEntry){
+      if (isEntry && isUserLoaded) {
         // refresh our versions if we're entering
         refreshVersions().catch(() => console.warn('Error refreshing'));
       }
@@ -195,7 +200,7 @@ function Root() {
     //  window.onanimationiteration = console.debug;
       registerMarketTokenListeners();
     }
-  },  [history, setOnline, location]);
+  },  [history, setOnline, location, isUserLoaded]);
 
   // Home - no content to prepare and we don't want its useEffects even around when not hidden
   // PlanningMarketEdit - if preserve state then when come back can have stale data

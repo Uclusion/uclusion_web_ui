@@ -16,6 +16,8 @@ import { refreshOrMessage } from './LeaderContext/leaderContextReducer'
 import { refreshNotifications, VERSIONS_EVENT } from '../api/versionedFetchUtils'
 import { getAppVersion } from '../api/sso'
 import { PUSH_ACCOUNT_CHANNEL, PUSH_HOME_USER_CHANNEL } from './AccountContext/accountContextMessages'
+import { AccountContext } from './AccountContext/AccountContext';
+import { userIsLoaded } from './AccountContext/accountUserContextHelper';
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -143,66 +145,79 @@ function createWebSocket(config, leaderDispatch, setState, leaderChannelId) {
 function WebSocketProvider(props) {
   const { children, config, userId } = props;
   const [, leaderDispatch] = useContext(LeaderContext);
+  const [userState] = useContext(AccountContext);
   const [state, setState] = useState();
+  const isUserLoaded = userIsLoaded(userState);
 
   useEffect(() => {
-    const interval = setInterval((tracker, socket, refresh, myCreateSocket) => {
-      const mySignedOut = isSignedOut();
-      const pingFailed = pongTracker.failureCount > 3;
-      if (socket && !pingFailed && !mySignedOut) {
-        sendPing(socket);
-      } else {
-        pongTracker.failureCount += 1;
-        if (pingFailed || !socket) {
-          if (socket) {
-            console.warn('Terminating socket');
-            socket.terminate();
+    let interval;
+    if (isUserLoaded) {
+      interval = setInterval((tracker, socket, refresh, myCreateSocket) => {
+        const mySignedOut = isSignedOut();
+        const pingFailed = pongTracker.failureCount > 3;
+        if (socket && !pingFailed && !mySignedOut) {
+          sendPing(socket);
+        } else {
+          pongTracker.failureCount += 1;
+          if (pingFailed || !socket) {
+            if (socket) {
+              console.warn('Terminating socket');
+              socket.terminate();
+            }
+            if (!mySignedOut) {
+              console.info(`Recreating socket with fail count ${pongTracker.failureCount}`);
+              myCreateSocket();
+            }
           }
-          if (!mySignedOut) {
-            console.info(`Recreating socket with fail count ${pongTracker.failureCount}`);
-            myCreateSocket();
-          }
         }
-      }
-      if (!mySignedOut) {
-        refresh();
-        getAppVersion().then((version) => {
-          const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
-          notifyNewApplicationVersion(currentVersion, cacheClearVersion);
-        }).catch(() => console.warn('Error checking version'));
-      }
-    }, MAX_DRIFT_TIME, pongTracker, state, () => {
-      leaderDispatch(refreshOrMessage(`visit${Date.now()}`, userId));
-    }, () => createWebSocket(config, leaderDispatch, setState, userId));
-    return () => clearInterval(interval);
-  }, [config, leaderDispatch, state, userId]);
-
-  useEffect(() => {
-    createWebSocket(config, leaderDispatch, setState, userId);
-    getAppVersion().then((version) => {
-      const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
-      notifyNewApplicationVersion(currentVersion, cacheClearVersion);
-    }).catch(() => console.warn('Error checking version'));
-    return () => {};
-  }, [config, leaderDispatch, userId]);
-
-  registerListener(AUTH_HUB_CHANNEL, 'webSocketsAuth', (data) => {
-    const { payload: { event } } = data;
-    switch (event) {
-      case 'signOut':
-        if (state) {
-          state.terminate();
+        if (!mySignedOut) {
+          refresh();
+          getAppVersion().then((version) => {
+            const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
+            notifyNewApplicationVersion(currentVersion, cacheClearVersion);
+          }).catch(() => console.warn('Error checking version'));
         }
-        break;
-      case 'signIn':
-        if (state) {
-          state.terminate();
-        }
-        createWebSocket(config, leaderDispatch, setState);
-        break;
-      default:
+      }, MAX_DRIFT_TIME, pongTracker, state, () => {
+        leaderDispatch(refreshOrMessage(`visit${Date.now()}`, userId));
+      }, () => createWebSocket(config, leaderDispatch, setState, userId));
     }
-  });
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [config, leaderDispatch, state, userId, isUserLoaded]);
+
+  useEffect(() => {
+    if (isUserLoaded) {
+      createWebSocket(config, leaderDispatch, setState, userId);
+      getAppVersion().then((version) => {
+        const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
+        notifyNewApplicationVersion(currentVersion, cacheClearVersion);
+      }).catch(() => console.warn('Error checking version'));
+    }
+    return () => {};
+  }, [config, leaderDispatch, userId, isUserLoaded]);
+
+  if (isUserLoaded) {
+    registerListener(AUTH_HUB_CHANNEL, 'webSocketsAuth', (data) => {
+      const { payload: { event } } = data;
+      switch (event) {
+        case 'signOut':
+          if (state) {
+            state.terminate();
+          }
+          break;
+        case 'signIn':
+          if (state) {
+            state.terminate();
+          }
+          createWebSocket(config, leaderDispatch, setState);
+          break;
+        default:
+      }
+    });
+  }
 
   return (
     <WebSocketContext.Provider value={[state, setState]}>

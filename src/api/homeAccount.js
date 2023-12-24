@@ -47,6 +47,8 @@ export async function getLogin (forceRefresh=false, ifAvailable=false) {
     const { idToken, ssoClient } = ssoInfo;
     // update our cache
     const responseAccountData = await ssoClient.accountCognitoLogin(idToken, getIsInvited());
+    // now load the account into storage so we don't have to keep fetching it
+    await asm.storeAccountData(responseAccountData);
     const { uclusion_token, demo } = responseAccountData;
     // load the demo into the contexts
     if (!_.isEmpty(demo)) {
@@ -72,9 +74,6 @@ export async function getLogin (forceRefresh=false, ifAvailable=false) {
       // the push the notifications
       pushMessage(NOTIFICATIONS_HUB_CHANNEL, {event: LOGIN_EVENT, messages: notifications});
     });
-
-    // now load the account into storage so we don't have to keep fetching it
-    await asm.storeAccountData(responseAccountData);
     return responseAccountData;
   });
 }

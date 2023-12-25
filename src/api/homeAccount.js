@@ -26,12 +26,12 @@ function getSSOInfo() {
       .then((ssoClient) => ({ ssoClient, idToken })));
 }
 
-export async function getLogin (forceRefresh=false, ifAvailable=false) {
+export async function getLogin(ifAvailable=false) {
   return navigator.locks.request(HOME_ACCOUNT_LOCK_NAME, {ifAvailable},
     async (aLock) => {
     const asm = getAccountStorageManager();
     const accountData = await asm.getValidAccount();
-    if (!forceRefresh && accountData) {
+    if (accountData) {
       // our account is still valid, so just return the stored account data
       return accountData;
     }

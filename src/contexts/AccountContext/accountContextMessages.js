@@ -14,7 +14,7 @@ export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
 
 export function poll(dispatch, accountVersion, userVersion) {
     Auth.currentSession().then(() => {
-      return getLogin(true, true).then((loginInfo) => {
+      return getLogin(true).then((loginInfo) => {
           let finished = false;
           if (loginInfo) {
             console.log('In poll after login');

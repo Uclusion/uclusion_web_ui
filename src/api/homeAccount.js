@@ -7,7 +7,7 @@ import { toastErrorAndThrow } from '../utils/userMessage';
 import { pushMessage, registerListener } from '../utils/MessageBusUtils';
 import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL, NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL } from './versionedFetchUtils';
 import { LOGIN_LOADED_EVENT } from '../contexts/NotificationsContext/notificationsContextMessages';
-import { addDemo, handleMarketData } from '../utils/demoLoader';
+import { handleMarketData } from '../utils/demoLoader';
 import _ from 'lodash';
 
 export const HOME_ACCOUNT_ITEM_ID = 'home_account';

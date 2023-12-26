@@ -21,16 +21,11 @@ function addInvestibles(investibles) {
   pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: DEMO_EVENT, investibles });
 }
 
-function addPresences(market, myUser, demoUser, presences) {
+function addPresences(market, presences) {
   const { id: marketId } = market;
-  if (myUser != null && demoUser != null) {
-    // remove the demo user
-    presences.filter((user) => user.id !== demoUser.id);
-    presences.push(myUser);
-    pushMessage(PUSH_PRESENCE_CHANNEL, { event: DEMO_EVENT, marketId, presences });
-    const users = presences.map((presence) => ({id: presence.id}));
-    pushMessage(PUSH_MEMBER_CHANNEL, { event: DEMO_EVENT, groupId: marketId, users });
-  }
+  pushMessage(PUSH_PRESENCE_CHANNEL, { event: DEMO_EVENT, marketId, presences });
+  const users = presences.map((presence) => ({id: presence.id}));
+  pushMessage(PUSH_MEMBER_CHANNEL, { event: DEMO_EVENT, groupId: marketId, users });
 }
 
 function addStages (market, stageDetails) {
@@ -46,7 +41,7 @@ function addMarket (market) {
   pushMessage(PUSH_MARKETS_CHANNEL, { event: DEMO_EVENT, marketDetails: [market] });
 }
 
-function handleMarketData(marketData, myUser, demoUser) {
+export function handleMarketData(marketData) {
   const {
     market, child_markets: childMarkets,
     comments, investibles, group,
@@ -55,24 +50,14 @@ function handleMarketData(marketData, myUser, demoUser) {
   addMarket(market);
   addStages(market, stages);
   addGroup(group);
-  addPresences(market, myUser, demoUser, presences);
+  addPresences(market, presences);
   addInvestibles(investibles);
   addComments(market, comments);
   if (!_.isEmpty(childMarkets)) {
-    childMarkets.forEach((child) => handleMarketData(child, myUser, demoUser));
+    childMarkets.forEach((child) => handleMarketData(child));
   }
   const tokenStorageManager = new TokenStorageManager();
   tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token).then(() => {
     console.info(`Done demo quick adding for ${market.id}`);
   });
-}
-
-export function addDemo (demo) {
-  const {
-     my_user: myUser, demo_user: demoUser
-  } = demo;
-  // we call a second function here, because I want to recurse on the structure
-  // of the market part of the demo, but hold myUser and demoUser constant
-  // in that recursion
-  handleMarketData(demo, myUser, demoUser);
 }

@@ -53,8 +53,7 @@ export function beginListening(dispatch) {
     const { payload: { event } } = data;
     switch (event) {
       case 'signIn':
-        console.log('Starting poll after sign in');
-        poll(dispatch);
+        // Trying move this to app with auth
         break;
       case 'signOut':
         dispatch(clearAccount());

@@ -26,6 +26,8 @@ import {
 } from '../../contexts/MarketsContext/marketsContextMessages';
 import { getMarketFromInvite } from '../../api/marketLogin';
 import { clearSignedOut } from '../../utils/userFunctions';
+import { poll } from '../../contexts/AccountContext/accountContextMessages';
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 
 Amplify.configure(awsconfig);
 
@@ -53,6 +55,7 @@ const useStyles = makeStyles({
 
 function AppWithAuth() {
   const [localeState] = useContext(LocaleContext);
+  const [, dispatch] = useContext(AccountContext);
   const { locale } = localeState;
   const classes = useStyles();
   const history = useHistory();
@@ -68,6 +71,8 @@ function AppWithAuth() {
     const { event } = (payload || {});
     switch (event) {
       case 'signIn':
+        console.log('Starting poll after sign in');
+        poll(dispatch);
         const redirect = getRedirect();
         clearRedirect();
         clearSignedOut();

@@ -21,7 +21,6 @@ import { userIsLoaded } from './AccountContext/accountUserContextHelper';
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
-export const NOTIFICATION_MESSAGE_EVENT = 'notification_web_push';
 export const SOCKET_OPEN_EVENT = 'web_socket_opened';
 
 const pongTracker = {failureCount: 0};
@@ -209,10 +208,7 @@ function WebSocketProvider(props) {
           }
           break;
         case 'signIn':
-          if (state) {
-            state.terminate();
-          }
-          createWebSocket(config, leaderDispatch, setState);
+          // runs after user is loaded so too late for sign in event
           break;
         default:
       }

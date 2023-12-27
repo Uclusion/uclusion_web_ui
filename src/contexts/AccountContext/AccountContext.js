@@ -17,11 +17,6 @@ function AccountProvider(props) {
   const defaultValue = getUclusionLocalStorageItem(ACCOUNT_CONTEXT_KEY) || EMPTY_STATE;
   const [state, dispatch] = useReducer(reducer, defaultValue);
 
-  if (!userIsLoaded(state)) {
-    console.info('Starting poll for account from render');
-    poll(dispatch);
-  }
-
   useEffect(() => {
     beginListening(dispatch);
   }, []);

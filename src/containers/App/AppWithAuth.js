@@ -72,10 +72,10 @@ function AppWithAuth() {
     switch (event) {
       case 'signIn':
         console.log('Starting poll after sign in');
+        clearSignedOut();
         await poll(dispatch);
         const redirect = getRedirect();
         clearRedirect();
-        clearSignedOut();
         if (!_.isEmpty(redirect) && redirect !== '/') {
           console.log(`Redirecting on sign in to ${redirect}`);
           const urlParts = new URL(`${window.location.protocol}//${window.location.host}${redirect}`);

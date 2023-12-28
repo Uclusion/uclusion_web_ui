@@ -4,11 +4,10 @@ import {
   removeMessagesForInvestible,
   updateMessages
 } from './notificationsContextReducer'
-import { pushMessage, registerListener } from '../../utils/MessageBusUtils';
+import { registerListener } from '../../utils/MessageBusUtils';
 import {
   LOGIN_EVENT,
   NOTIFICATIONS_HUB_CHANNEL,
-  NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL,
   VERSIONS_EVENT
 } from '../../api/versionedFetchUtils';
 import { getMessages } from '../../api/sso'
@@ -30,7 +29,6 @@ function beginListening(dispatch) {
     switch (event) {
       case LOGIN_EVENT:
         dispatch(updateMessages(messages));
-        pushMessage(NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL, {event: LOGIN_LOADED_EVENT});
         break;
       case VERSIONS_EVENT:
         getMessages().then((messages) => {

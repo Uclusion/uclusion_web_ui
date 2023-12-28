@@ -41,7 +41,7 @@ function addMarket (market) {
   pushMessage(PUSH_MARKETS_CHANNEL, { event: DEMO_EVENT, marketDetails: [market] });
 }
 
-export function handleMarketData(marketData) {
+export async function handleMarketData(marketData) {
   const {
     market, child_markets: childMarkets,
     comments, investibles, group,
@@ -53,11 +53,11 @@ export function handleMarketData(marketData) {
   addPresences(market, presences);
   addInvestibles(investibles);
   addComments(market, comments);
-  if (!_.isEmpty(childMarkets)) {
-    childMarkets.forEach((child) => handleMarketData(child));
-  }
   const tokenStorageManager = new TokenStorageManager();
-  tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token).then(() => {
-    console.info(`Done demo quick adding for ${market.id}`);
-  });
+  await tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token);
+  if (!_.isEmpty(childMarkets)) {
+    for (const child of childMarkets) {
+      await handleMarketData(child);
+    }
+  }
 }

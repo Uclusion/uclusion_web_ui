@@ -4,9 +4,8 @@ import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher
 import uclusion from 'uclusion_sdk';
 import config from '../config';
 import { toastErrorAndThrow } from '../utils/userMessage';
-import { pushMessage, registerListener } from '../utils/MessageBusUtils';
-import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL, NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL } from './versionedFetchUtils';
-import { LOGIN_LOADED_EVENT } from '../contexts/NotificationsContext/notificationsContextMessages';
+import { pushMessage } from '../utils/MessageBusUtils';
+import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL } from './versionedFetchUtils';
 import { handleMarketData } from '../utils/demoLoader';
 import { OnboardingState } from '../contexts/AccountContext/accountUserContextHelper';
 
@@ -46,8 +45,6 @@ export async function getLogin(ifAvailable=false) {
     const { idToken, ssoClient } = ssoInfo;
     // update our cache
     const responseAccountData = await ssoClient.accountCognitoLogin(idToken, getIsInvited());
-    // now load the account into storage so we don't have to keep fetching it
-    await asm.storeAccountData(responseAccountData);
     const { uclusion_token, user } = responseAccountData;
     // load the demo into the contexts
     if (user.onboarding_state === OnboardingState.NeedsOnboarding) {
@@ -60,28 +57,14 @@ export async function getLogin(ifAvailable=false) {
         tokenManager: accountFetcher}).then((client) => client.markets.getDemo());
       const { demo, user } = response;
       responseAccountData['user'] = user;
-      handleMarketData(demo);
+      await handleMarketData(demo);
     }
+    // load the account into storage with the potentially updated user
+    await asm.storeAccountData(responseAccountData);
     // do post login handling - TODO:_ move this to a post login handler if there's ever more
     const notifications = await ssoClient.getMessages(uclusion_token);
-    //block and ensure the context has the messages before we move forward
-    await new Promise((resolve) => {
-      // first register the listener
-      registerListener(NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL, 'loginLocker', (message) => {
-        const { payload: { event } } = message;
-        switch (event) {
-          case(LOGIN_LOADED_EVENT): {
-            resolve(true);
-            break;
-          }
-          default: {
-            console.error(`Got unknown event ${event} during login`);
-          }
-        }
-      });
-      // the push the notifications
-      pushMessage(NOTIFICATIONS_HUB_CHANNEL, {event: LOGIN_EVENT, messages: notifications});
-    });
+    // the push the notifications
+    pushMessage(NOTIFICATIONS_HUB_CHANNEL, {event: LOGIN_EVENT, messages: notifications});
     return responseAccountData;
   });
 }

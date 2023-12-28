@@ -16,6 +16,7 @@ class LocalForageHelper {
 
   setState (state) {
     if (isSignedOut()) {
+      console.warn('Storing state when signed out')
       // Do not store when signed out to avoid leaking data
       return Promise.resolve(false);
     }

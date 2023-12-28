@@ -66,13 +66,13 @@ function AppWithAuth() {
     ...getLocaleMessages(locale),
   };
 
-  registerListener(AUTH_HUB_CHANNEL, 'signinSignoutLocalClearingHandler', (data) => {
+  registerListener(AUTH_HUB_CHANNEL, 'signinSignoutLocalClearingHandler', async (data) => {
     const { payload } = (data || {});
     const { event } = (payload || {});
     switch (event) {
       case 'signIn':
         console.log('Starting poll after sign in');
-        poll(dispatch);
+        await poll(dispatch);
         const redirect = getRedirect();
         clearRedirect();
         clearSignedOut();
@@ -94,7 +94,7 @@ function AppWithAuth() {
         }
         break;
       default:
-        // ignore
+      // ignore
     }
   });
 

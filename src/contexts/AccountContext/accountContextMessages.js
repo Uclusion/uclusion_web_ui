@@ -7,15 +7,12 @@ import _ from 'lodash'
 import { getInvoices, getPaymentInfo } from '../../api/users'
 import { isSignedOut } from '../../utils/userFunctions';
 import { getLogin } from '../../api/homeAccount';
-import { Auth } from 'aws-amplify';
 
 export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
 export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
 
 export function poll(dispatch, accountVersion, userVersion) {
-    Auth.currentSession().then(() => {
       return getLogin(true).then((loginInfo) => {
-          let finished = false;
           if (loginInfo) {
             console.log('In poll after login');
             const { account, user } = loginInfo;
@@ -23,7 +20,6 @@ export function poll(dispatch, accountVersion, userVersion) {
             const { version: founderAccountVersion } = account;
             if ((accountVersion === undefined || accountVersion <= founderAccountVersion)
               && (userVersion === undefined || userVersion <= founderUserVersion)) {
-              finished = true;
               dispatch(accountAndUserRefresh(fixDates(account), user));
               const { billing_customer_id: customerId } = account;
               // handle billing
@@ -39,13 +35,7 @@ export function poll(dispatch, accountVersion, userVersion) {
               }
             }
           }
-          if (!finished) {
-            setTimeout(() => poll(dispatch, accountVersion, userVersion), 500);
-          }
         });
-      }).catch(() => {
-        setTimeout(() => poll(dispatch, accountVersion, userVersion), 1000);
-      });
 }
 
 export function beginListening(dispatch) {

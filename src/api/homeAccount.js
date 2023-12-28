@@ -8,9 +8,8 @@ import { pushMessage, registerListener } from '../utils/MessageBusUtils';
 import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL, NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL } from './versionedFetchUtils';
 import { LOGIN_LOADED_EVENT } from '../contexts/NotificationsContext/notificationsContextMessages';
 import { handleMarketData } from '../utils/demoLoader';
-import _ from 'lodash';
+import { OnboardingState } from '../contexts/AccountContext/accountUserContextHelper';
 
-export const HOME_ACCOUNT_ITEM_ID = 'home_account';
 export const HOME_ACCOUNT_LOCK_NAME = 'home_account_login_lock';
 
 
@@ -49,9 +48,18 @@ export async function getLogin(ifAvailable=false) {
     const responseAccountData = await ssoClient.accountCognitoLogin(idToken, getIsInvited());
     // now load the account into storage so we don't have to keep fetching it
     await asm.storeAccountData(responseAccountData);
-    const { uclusion_token, demo } = responseAccountData;
+    const { uclusion_token, user } = responseAccountData;
     // load the demo into the contexts
-    if (!_.isEmpty(demo)) {
+    if (user.onboarding_state === OnboardingState.NeedsOnboarding) {
+      const accountFetcher = {};
+      accountFetcher.getToken = () => {
+        return Promise.resolve(uclusion_token);
+      };
+      // Cleaner as separate call but barely
+      const response = await uclusion.constructClient({...config.api_configuration,
+        tokenManager: accountFetcher}).then((client) => client.markets.getDemo());
+      const { demo, user } = response;
+      responseAccountData['user'] = user;
       handleMarketData(demo);
     }
     // do post login handling - TODO:_ move this to a post login handler if there's ever more

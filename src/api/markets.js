@@ -21,28 +21,6 @@ export function getMarketDetails(client) {
       });
 }
 
-export function manageMarket(marketId, expirationMinutes) {
-  const updateOptions = { };
-  if (expirationMinutes !== undefined) {
-    updateOptions.expiration_minutes = expirationMinutes;
-  }
-  return getMarketClient(marketId)
-    .then((client) => client.markets.updateMarket(updateOptions))
-    .catch((error) => toastErrorAndThrow(error, 'errorMarketExpirationExtendFailed'));
-}
-
-export function attachFilesToGroup(marketId, groupId, metadatas) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.addAttachments(groupId, metadatas))
-    .catch((error) => toastErrorAndThrow(error, 'errorMarketAttachFilesFailed'));
-}
-
-export function deleteAttachedFilesFromMarket(marketId, files) {
-  return getMarketClient(marketId)
-    .then((client) => client.markets.deleteAttachments(files))
-    .catch((error) => toastErrorAndThrow(error, 'errorMarketRemoveAttachedFilesFailed'));
-}
-
 export function updateGroup(props) {
   const { marketId, groupId, name, description, uploadedFiles, ticketSubCode } = props;
   const updateOptions = {}

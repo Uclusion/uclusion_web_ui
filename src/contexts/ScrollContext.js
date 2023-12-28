@@ -7,7 +7,8 @@ import { registerListener } from '../utils/MessageBusUtils';
 const ScrollContext = React.createContext({});
 
 export function scrollToElement(element) {
-  element.scrollIntoView();
+  // TODO this won't work on Firefox but is so far the only solution
+  element.scrollIntoViewIfNeeded();
 }
 
 function ScrollProvider(props) {

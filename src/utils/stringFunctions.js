@@ -26,8 +26,7 @@ function decode(str) {
 
 export function stripHTML(foundSubstring) {
   if (foundSubstring) {
-    // first replace </blah with space</blah> to prevent concatenated end of line words
-    const processedSubstring = foundSubstring.replace("</", " </");
+    const processedSubstring = foundSubstring.replace("</p><p>", "</p> <p>");
     const htmlRemoved = decode(processedSubstring);
     if (htmlRemoved) {
       return htmlRemoved.trim();

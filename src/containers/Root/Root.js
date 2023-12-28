@@ -12,7 +12,6 @@ import {
   getUrlForTicketPath,
   navigate,
 } from '../../utils/marketIdPathFunctions';
-import Home from '../../pages/Home/Home';
 import Investible from '../../pages/Investible/Investible';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import SlackInvite from '../../pages/Invites/SlackInvite';
@@ -70,12 +69,8 @@ function Root() {
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
 
-  function hideHome() {
-    return !pathname || pathname !== '/';
-  }
-
   function hideInbox() {
-    return action !== 'inbox';
+    return action !== 'inbox' && pathname !== '/';
   }
 
   function hideWorkspaceWizard() {
@@ -137,7 +132,7 @@ function Root() {
   }
 
   // Page Not Found
-  const hidePNF = !(hideMarket() && hideSupport() && hideHome() && hideInvestible() && hideWorkspaceWizard() &&
+  const hidePNF = !(hideMarket() && hideSupport() && hideInvestible() && hideWorkspaceWizard() &&
     hideInbox() && hideSlackInvite() && hideChangePassword() && hideMarketEdit() && hideGroupSettings()
     && hideGroupArchive() && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit()
     && !isTicketPath(pathname));
@@ -210,9 +205,6 @@ function Root() {
       <div className={classes.body}>
         <div className={classes.root}>
           <div className={classes.content}>
-            {!hideHome() && (
-              <Home />
-            )}
             <Wizard hidden={hideWorkspaceWizard()} />
             <InboxFull hidden={hideInbox()} />
             <Market hidden={hideMarket()}/>

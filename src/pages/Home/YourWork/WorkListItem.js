@@ -188,10 +188,12 @@ function WorkListItem(props) {
       </div>
     );
   }
+
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
       <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
-        <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }} id={`link${id}`} key={`link${id}`}
+        <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }}
+             id={`${isNotSynced ? 'grey' : 'link'}${id}`} key={`link${id}`}
              onClick={
           (event) => {
             if (isNotSynced) {

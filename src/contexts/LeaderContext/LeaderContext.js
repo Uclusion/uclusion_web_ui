@@ -32,12 +32,10 @@ function LeaderProvider(props) {
 
   useEffect(() => {
     if (isUserLoaded && isLeader) {
-      waitForLeadership(() => {
-        console.info('Leadership refreshing versions');
-        return refreshVersions().then(() => {
-          console.info('Refreshed versions from leader init');
-        }).catch(() => console.warn('Error refreshing'));
-      });
+      console.info('Leadership refreshing versions');
+      return refreshVersions().then(() => {
+        console.info('Refreshed versions from leader init');
+      }).catch(() => console.warn('Error refreshing'));
     }
     return () => {};
   }, [isUserLoaded, isLeader]);

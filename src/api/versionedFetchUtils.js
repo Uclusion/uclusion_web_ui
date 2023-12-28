@@ -39,7 +39,6 @@ export const VERSIONS_EVENT = 'version_push';
 export const BANNED_LIST = 'banned_list';
 export const SYNC_ERROR_EVENT = 'sync_error';
 export const DEMO_EVENT = 'demo_loaded';
-export const LOGIN_EVENT = 'user_logged_in';
 export class MatchError extends Error {}
 
 let runner;

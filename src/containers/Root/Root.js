@@ -158,13 +158,13 @@ function Root() {
       const currentPath = window.location.pathname;
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);
       broadcastView(marketId, investibleId, isEntry, action);
-      if (isEntry && isUserLoaded) {
+      if (isEntry) {
         // refresh our versions if we're entering
         refreshVersions().catch(() => console.warn('Error refreshing'));
       }
     }
 
-    if (!window.myListenerMarker) {
+    if (!window.myListenerMarker && isUserLoaded) {
       window.myListenerMarker = true;
       // console.debug('Adding listeners');
       window.addEventListener('load', () => {

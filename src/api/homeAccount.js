@@ -6,6 +6,7 @@ import config from '../config';
 import { toastErrorAndThrow } from '../utils/userMessage';
 import { handleMarketData } from '../utils/demoLoader';
 import { OnboardingState } from '../contexts/AccountContext/accountUserContextHelper';
+import { refreshNotifications } from './versionedFetchUtils';
 
 export const HOME_ACCOUNT_LOCK_NAME = 'home_account_login_lock';
 
@@ -50,6 +51,8 @@ export async function getLogin(ifAvailable=false, accountVersion=null, userVersi
     const { uclusion_token, user } = responseAccountData;
     // load the demo into the contexts
     if (user.onboarding_state === OnboardingState.NeedsOnboarding) {
+      // Go ahead and get notification refresh going so user sees grey affect once spinning over
+      refreshNotifications();
       const accountFetcher = {};
       accountFetcher.getToken = () => {
         return Promise.resolve(uclusion_token);

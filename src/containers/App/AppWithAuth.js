@@ -17,10 +17,9 @@ import UclusionForgotPassword from '../../pages/Authentication/ForgotPassword'
 import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../../contexts/WebSocketContext'
 import _ from 'lodash'
-import { decomposeMarketPath, formMarketLink } from '../../utils/marketIdPathFunctions';
+import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
 import queryString from 'query-string'
 import { clearRedirect, getAndClearEmail, getRedirect } from '../../utils/redirectUtils';
-import jwt_decode from 'jwt-decode';
 import {
   loadMarketFromPromise
 } from '../../contexts/MarketsContext/marketsContextMessages';

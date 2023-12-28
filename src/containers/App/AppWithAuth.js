@@ -81,11 +81,7 @@ function AppWithAuth() {
           const urlParts = new URL(`${window.location.protocol}//${window.location.host}${redirect}`);
           const { marketId: marketToken, action } = decomposeMarketPath(urlParts.pathname);
           if (action === 'invite') {
-            const decoded = jwt_decode(marketToken);
-            const proposedMarketId = decoded.market_id;
             loadMarketFromPromise(getMarketFromInvite(marketToken));
-            //Immediately replace the invite in the path name so don't send twice
-            window.history.replaceState(null, '', formMarketLink(proposedMarketId, proposedMarketId));
           } else {
             window.location.replace(redirect);
           }

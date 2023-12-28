@@ -89,8 +89,6 @@ function AppWithAuth() {
           } else {
             window.location.replace(redirect);
           }
-        } else {
-          window.location.replace('/inbox');
         }
         break;
       default:

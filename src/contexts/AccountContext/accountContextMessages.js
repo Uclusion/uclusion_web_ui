@@ -12,30 +12,31 @@ export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
 export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
 
 export function poll(dispatch, accountVersion, userVersion) {
-      return getLogin(true).then((loginInfo) => {
-          if (loginInfo) {
-            console.log('In poll after login');
-            const { account, user } = loginInfo;
-            const { version: founderUserVersion } = user;
-            const { version: founderAccountVersion } = account;
-            if ((accountVersion === undefined || accountVersion <= founderAccountVersion)
-              && (userVersion === undefined || userVersion <= founderUserVersion)) {
-              dispatch(accountAndUserRefresh(fixDates(account), user));
-              const { billing_customer_id: customerId } = account;
-              // handle billing
-              if (!_.isEmpty(customerId)) {
-                return getPaymentInfo()
-                  .then((paymentInfo) => {
-                    updateBilling(dispatch, paymentInfo);
-                    return getInvoices();
-                  })
-                  .then((invoices) => {
-                    updateInvoices(dispatch, invoices);
-                  });
-              }
+  // TODO: need to try again after interval if this doesn't work but also needs to respond to await so tough
+    return getLogin(true, accountVersion, userVersion).then((loginInfo) => {
+        if (loginInfo) {
+          console.log('In poll after login');
+          const { account, user } = loginInfo;
+          const { version: founderUserVersion } = user;
+          const { version: founderAccountVersion } = account;
+          if ((accountVersion === undefined || accountVersion <= founderAccountVersion)
+            && (userVersion === undefined || userVersion <= founderUserVersion)) {
+            dispatch(accountAndUserRefresh(fixDates(account), user));
+            const { billing_customer_id: customerId } = account;
+            // handle billing
+            if (!_.isEmpty(customerId)) {
+              return getPaymentInfo()
+                .then((paymentInfo) => {
+                  updateBilling(dispatch, paymentInfo);
+                  return getInvoices();
+                })
+                .then((invoices) => {
+                  updateInvoices(dispatch, invoices);
+                });
             }
           }
-        });
+        }
+      });
 }
 
 export function beginListening(dispatch) {

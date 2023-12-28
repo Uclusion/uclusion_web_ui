@@ -4,8 +4,6 @@ import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher
 import uclusion from 'uclusion_sdk';
 import config from '../config';
 import { toastErrorAndThrow } from '../utils/userMessage';
-import { pushMessage } from '../utils/MessageBusUtils';
-import { LOGIN_EVENT, NOTIFICATIONS_HUB_CHANNEL } from './versionedFetchUtils';
 import { handleMarketData } from '../utils/demoLoader';
 import { OnboardingState } from '../contexts/AccountContext/accountUserContextHelper';
 
@@ -24,14 +22,18 @@ function getSSOInfo() {
       .then((ssoClient) => ({ ssoClient, idToken })));
 }
 
-export async function getLogin(ifAvailable=false) {
+export async function getLogin(ifAvailable=false, accountVersion=null, userVersion=null) {
   return navigator.locks.request(HOME_ACCOUNT_LOCK_NAME, {ifAvailable},
     async (aLock) => {
     const asm = getAccountStorageManager();
     const accountData = await asm.getValidAccount();
     if (accountData) {
-      // our account is still valid, so just return the stored account data
-      return accountData;
+      const updateRequired = (accountVersion != null && accountVersion > accountData.account.version)
+        || (userVersion != null && userVersion > accountData.user.version);
+      if (!updateRequired) {
+        // our account is still valid, so just return the stored account data
+        return accountData;
+      }
     }
 
     // This is lock is for calling Cognito from poller - if had on disk above go ahead and return
@@ -61,10 +63,7 @@ export async function getLogin(ifAvailable=false) {
     }
     // load the account into storage with the potentially updated user
     await asm.storeAccountData(responseAccountData);
-    // do post login handling - TODO:_ move this to a post login handler if there's ever more
-    const notifications = await ssoClient.getMessages(uclusion_token);
-    // the push the notifications
-    pushMessage(NOTIFICATIONS_HUB_CHANNEL, {event: LOGIN_EVENT, messages: notifications});
+    // Let the normal refresh get the messages as it will give time for the contexts to load the demo
     return responseAccountData;
   });
 }

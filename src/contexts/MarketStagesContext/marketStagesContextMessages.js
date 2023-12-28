@@ -1,5 +1,5 @@
 import {
-  removeMarketsStageDetails,
+  removeMarketsStageDetails, updateMarketStages,
   updateMarketStagesFromNetwork
 } from './marketStagesContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
@@ -18,11 +18,11 @@ function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_STAGE_CHANNEL, 'marketStagesPushStart',  (data) => {
-    const { payload: { event, stageDetails } } = data;
+    const { payload: { event, stageDetails, marketId } } = data;
     switch (event) {
       case DEMO_EVENT:
         console.info('Responding to demo stage event');
-        dispatch(updateMarketStagesFromNetwork(stageDetails));
+        dispatch(updateMarketStages(marketId, stageDetails));
         break;
       case VERSIONS_EVENT:
         dispatch(updateMarketStagesFromNetwork(stageDetails));

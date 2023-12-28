@@ -76,12 +76,12 @@ function AppWithAuth() {
         const redirect = getRedirect();
         clearRedirect();
         if (!_.isEmpty(redirect) && redirect !== '/') {
-          console.log(`Redirecting on sign in to ${redirect}`);
           const urlParts = new URL(`${window.location.protocol}//${window.location.host}${redirect}`);
           const { marketId: marketToken, action } = decomposeMarketPath(urlParts.pathname);
           if (action === 'invite') {
             loadMarketFromPromise(getMarketFromInvite(marketToken));
           } else {
+            console.log(`Redirecting on sign in to ${redirect}`);
             window.location.replace(redirect);
           }
         }

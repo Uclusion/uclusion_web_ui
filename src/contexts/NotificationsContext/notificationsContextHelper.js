@@ -7,15 +7,15 @@ import { getComment, getCommentRoot } from '../CommentsContext/commentsContextHe
 import { getGroup } from '../MarketGroupsContext/marketGroupsContextHelper';
 
 function checkComment(commentId, commentVersion, marketId, commentsState) {
-  if (!commentVersion) {
-    return true;
-  }
   const commentRoot = getCommentRoot(commentsState, marketId, commentId);
   if (!commentRoot) {
     console.warn(`Comment root missing for ${commentId} and ${marketId}`);
     return false;
   }
   const comment = getComment(commentsState, marketId, commentId);
+  if (!commentVersion) {
+    return !_.isEmpty(comment);
+  }
   if (comment.version < commentVersion) {
     console.warn(`Comment version mismatch ${comment.version} and ${commentVersion}`);
   }
@@ -27,17 +27,16 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
   groupState) {
   const { market_id: marketId, market_version: marketVersion, investible_id: investibleId,
     investible_version: investibleVersion, comment_id: commentId, comment_version: commentVersion,
-    parent_comment_id: parentCommentId, parent_comment_version: parentCommentVersion,
-    type: messageType, type_object_id: typeObjectId,
+    parent_comment_id: parentCommentId, type: messageType, type_object_id: typeObjectId,
     investment_user_id: investmentUserId, comment_market_id: commentMarketId, market_investible_id: marketInvestibleId,
     market_investible_version: marketInvestibleVersion, decision_investible_id: decisionInvestibleId,
     voted_list: voters } = message;
   const useMarketId = commentMarketId || marketId;
-  let checked = commentVersion || parentCommentVersion;
+  let checked = commentVersion;
   if (!checkComment(commentId, commentVersion, useMarketId, commentsState)) {
     return false;
   }
-  if (!checkComment(parentCommentId, parentCommentVersion, useMarketId, commentsState)) {
+  if (parentCommentId && !checkComment(parentCommentId, undefined, useMarketId, commentsState)) {
     return false;
   }
   if (marketVersion) {

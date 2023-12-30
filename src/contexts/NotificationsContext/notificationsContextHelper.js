@@ -6,13 +6,16 @@ import { getMarketInfo } from '../../utils/userFunctions'
 import { getComment, getCommentRoot } from '../CommentsContext/commentsContextHelper';
 import { getGroup } from '../MarketGroupsContext/marketGroupsContextHelper';
 
-function checkComment(commentId, commentVersion, marketId, commentsState) {
+function checkComment(commentId, commentVersion, marketId, commentsState, childId) {
   const commentRoot = getCommentRoot(commentsState, marketId, commentId);
   if (!commentRoot) {
     console.warn(`Comment root missing for ${commentId} and ${marketId}`);
     return false;
   }
   const comment = getComment(commentsState, marketId, commentId);
+  if (childId && !comment?.children?.includes(childId)) {
+    return false;
+  }
   if (!commentVersion) {
     return !_.isEmpty(comment);
   }
@@ -36,7 +39,8 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
   if (!checkComment(commentId, commentVersion, useMarketId, commentsState)) {
     return false;
   }
-  if (parentCommentId && !checkComment(parentCommentId, undefined, useMarketId, commentsState)) {
+  if (parentCommentId && !checkComment(parentCommentId, undefined, useMarketId, commentsState,
+    commentId)) {
     return false;
   }
   if (marketVersion) {

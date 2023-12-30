@@ -7,6 +7,9 @@ import { getComment, getCommentRoot } from '../CommentsContext/commentsContextHe
 import { getGroup } from '../MarketGroupsContext/marketGroupsContextHelper';
 
 function checkComment(commentId, commentVersion, marketId, commentsState, childId) {
+  if (!commentId) {
+    return true;
+  }
   const commentRoot = getCommentRoot(commentsState, marketId, commentId);
   if (!commentRoot) {
     console.warn(`Comment root missing for ${commentId} and ${marketId}`);

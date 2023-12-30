@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { updateMarketDetails, versionsUpdateDetails } from './marketsContextReducer'
 import { fixupItemForStorage } from '../ContextUtils'
 import { pushMessage } from '../../utils/MessageBusUtils'
-import { ACTIVE_STAGE } from '../../constants/markets'
+import { ACTIVE_STAGE } from '../../constants/markets';
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 import { PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
 
@@ -115,11 +115,7 @@ export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
       }
       const marketPresences = getMarketPresences(marketPresencesState, market?.id);
       const myPresence = marketPresences?.find((presence) => presence.current_user);
-      if (myPresence?.market_banned) {
-        return false;
-      }
-      const { market_sub_type } = market;
-      return 'SUPPORT' !== market_sub_type;
+      return !myPresence?.market_banned;
     });
     return { marketDetails: newMarketDetails };
   }

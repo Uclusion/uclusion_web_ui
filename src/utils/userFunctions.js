@@ -1,4 +1,4 @@
-import { PLANNING_TYPE } from '../constants/markets';
+import { PLANNING_TYPE, SUPPORT_SUB_TYPE, TEST_SUB_TYPE } from '../constants/markets';
 import {
   clearUclusionLocalStorage,
   getLoginPersistentItem,
@@ -22,7 +22,7 @@ export function extractUsersList(marketPresencesState, marketState, addToMarketP
     const market = getMarket(marketState, marketId) || {};
     const marketPresences = marketPresencesState[marketId] || [];
     if(!Array.isArray(marketPresences) || _.isEmpty(marketPresences) ||
-      ['SUPPORT', 'TEST'].includes(market.market_sub_type)||market.market_type !== PLANNING_TYPE) {
+      [SUPPORT_SUB_TYPE, TEST_SUB_TYPE].includes(market.market_sub_type)||market.market_type !== PLANNING_TYPE) {
       return acc;
     }
     const macc = {};

@@ -16,3 +16,5 @@ export const ADD_COLLABORATOR_WIZARD_TYPE = 'collaborator';
 export const DECISION_TYPE = 'DECISION';
 export const INITIATIVE_TYPE = 'INITIATIVE';
 export const ACTIVE_STAGE = 'Active';
+export const SUPPORT_SUB_TYPE = 'SUPPORT';
+export const TEST_SUB_TYPE = 'TEST';

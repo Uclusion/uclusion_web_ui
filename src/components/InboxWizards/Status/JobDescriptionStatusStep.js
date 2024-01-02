@@ -19,6 +19,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import UsefulRelativeTime from '../../TextFields/UseRelativeTime';
+import { getLabelForTerminate } from '../../../utils/messageUtils';
 
 
 function JobDescriptionStatusStep(props) {
@@ -99,8 +100,8 @@ function JobDescriptionStatusStep(props) {
             formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE));
         }}
         otherSpinOnClick={false}
-        showTerminate={isHighlighted}
-        terminateLabel="defer"/>
+        showTerminate={isHighlighted || alreadyMoved}
+        terminateLabel={getLabelForTerminate(message)} />
     </WizardStepContainer>
   );
 }

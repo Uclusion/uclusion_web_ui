@@ -106,7 +106,7 @@ export function calculateTitleExpansionPanel(props) {
                                                         commentId={commentId} commentMarketId={commentMarketId}
                                                         message={message} />,
       'DecidePromotionTitle', intl);
-  } else if (messageType === 'REPORT_REQUIRED') {
+  } else if (['REPORT_REQUIRED', 'UNREAD_MOVE_REPORT'].includes(messageType)) {
     setItem(item, openExpansion, <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />,
       'JobStatusTitle', intl);
   } else if (['ISSUE', 'UNREAD_COMMENT'].includes(messageType)) {

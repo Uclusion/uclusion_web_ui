@@ -60,7 +60,7 @@ export function beginListening(dispatch) {
     const { payload: { event, version } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        console.log('Starting poll after user versions event');
+        console.log(`Starting poll after user versions for ${version}`);
         poll(dispatch, undefined, version);
         break;
       default:
@@ -74,7 +74,7 @@ export function beginListening(dispatch) {
     const { payload: { event, version } } = data;
     switch (event) {
       case VERSIONS_EVENT:
-        console.log('Starting poll after account versions event');
+        console.log(`Starting poll after account versions for ${version}`);
         poll(dispatch, version, undefined);
         break;
       default:

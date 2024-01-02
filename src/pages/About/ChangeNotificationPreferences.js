@@ -76,10 +76,10 @@ const useStyles = makeStyles((theme) => ({
 function ChangeNotificationPreferences (props) {
   const { hidden } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [userState, userDispatch] = useContext(AccountContext) || {};
+  const [userState, userDispatch] = useContext(AccountContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const { user } = userState;
+  const { user } = userState || {};
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
   if (myNotHiddenMarketsState.marketDetails) {
@@ -124,7 +124,7 @@ function ChangeNotificationPreferences (props) {
       emailDelay: emailDelayValue, slackDelay: slackDelayValue }).then((user) =>{
       setOperationRunning(false);
       userDispatch(accountUserRefresh(user));
-      marketConfigsDispatch('clearMarketId');
+      marketConfigsDispatch({type: 'clearMarketId'});
     });
   }
 

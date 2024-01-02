@@ -1,15 +1,15 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useReducer, useState } from 'react';
 import {
   Card,
-  Checkbox,
-  FormControl,
+  Checkbox, FormControl,
   Grid,
   ListItem,
   ListItemIcon,
   ListItemText,
-  makeStyles,
-  TextField, Typography,
-} from '@material-ui/core'
+  makeStyles, MenuItem,
+  Select,
+  Typography,
+} from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { updateUser } from '../../api/users';
@@ -17,18 +17,20 @@ import config from '../../config';
 import Screen from '../../containers/Screen/Screen';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
 import SubSection from '../../containers/SubSection/SubSection';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { Face } from '@material-ui/icons'
-import Link from '@material-ui/core/Link'
-import Gravatar from '../../components/Avatars/Gravatar'
-import { AccountContext } from '../../contexts/AccountContext/AccountContext'
-import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { Face } from '@material-ui/icons';
+import Link from '@material-ui/core/Link';
+import Gravatar from '../../components/Avatars/Gravatar';
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer';
 import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
-import { PLANNING_TYPE } from '../../constants/markets';
+import { PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
 import _ from 'lodash';
 import { getFirstWorkspace } from '../../utils/redirectUtils';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import NotificationDelay from './NotificationDelay';
+import InputLabel from '@material-ui/core/InputLabel';
 
 const useStyles = makeStyles((theme) => ({
   disabled: {
@@ -78,83 +80,57 @@ function ChangeNotificationPreferences (props) {
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const { user } = userState;
-  const safeUser = user || {};
-  const [emailEnabled, setEmailEnabled] = useState(undefined);
-  const [slackEnabled, setSlackEnabled] = useState(undefined);
-  const [slackDelay, setSlackDelay] = useState(undefined);
-  const [emailDelay, setEmailDelay] = useState(undefined);
-  const intl = useIntl();
-  const classes = useStyles();
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
   if (myNotHiddenMarketsState.marketDetails) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) =>
       market.market_type === PLANNING_TYPE);
-    markets = _.sortBy(filtered, 'name');
+    markets = _.sortBy(filtered, (market) => market.market_sub_type === SUPPORT_SUB_TYPE, 'name');
   }
-  const defaultMarket = getFirstWorkspace(markets, undefined) || {};
+  const [chosenMarketId, setChosenMarketId] = useState(undefined);
+  const defaultMarket = getFirstWorkspace(markets, chosenMarketId);
   const marketId = defaultMarket?.id;
-  const notificationConfig = safeUser.notification_configs?.find((config) => config.market_id === marketId);
-  const originalEmailEnabled = notificationConfig?.email_enabled === undefined ? true :
-    notificationConfig?.email_enabled;
-  const emailEnabledValue = emailEnabled === undefined ? originalEmailEnabled : emailEnabled;
+  const [marketConfigs, marketConfigsDispatch] = useReducer((state, action) => {
+    if (action.type === 'clearMarketId') {
+      return _.omit(state, [marketId]);
+    }
+    const { value } = action;
+    const marketConfig = state[marketId] || {};
+    marketConfig[action.type] = value;
+    if (action.type.startsWith('slack')) {
+      marketConfig.slackValuesChanged = true;
+    }
+    if (action.type.startsWith('email')) {
+      marketConfig.emailValuesChanged = true;
+    }
+    return { ...state, [marketId]: marketConfig };
+  }, {});
+  const intl = useIntl();
+  const classes = useStyles();
+  const notificationConfig = user?.notification_configs?.find((config) => config.market_id === marketId);
+  const { emailDelay, emailEnabled, slackEnabled, slackDelay, emailValuesChanged,
+    slackValuesChanged } = marketConfigs[marketId] || {};
+  const slackEnabledValue = slackEnabled !== undefined ? slackEnabled :
+    (notificationConfig?.slack_enabled !== undefined ? notificationConfig?.slack_enabled : true);
+  const emailEnabledValue = emailEnabled !== undefined ? emailEnabled :
+    (notificationConfig?.email_enabled !== undefined ? notificationConfig?.email_enabled : true);
+  const emailDelayValue = emailDelay !== undefined ? emailDelay :
+    (notificationConfig?.email_delay !== undefined ? notificationConfig?.email_delay : 60);
+  const slackDelayValue = slackDelay !== undefined ? slackDelay :
+    (notificationConfig?.slack_delay !== undefined ? notificationConfig?.slack_delay : 30);
 
-  function onSetEmailPreferences() {
-    return updateUser({ marketId, emailEnabled: emailEnabledValue,
-      emailDelay: emailDelay ? emailDelay*60 : emailDelay }).then((user) =>{
+  function onSetPreferences() {
+    return updateUser({ marketId, emailEnabled: emailEnabledValue, slackEnabled: slackEnabledValue,
+      emailDelay: emailDelayValue, slackDelay: slackDelayValue }).then((user) =>{
       setOperationRunning(false);
       userDispatch(accountUserRefresh(user));
-      setEmailEnabled(undefined);
-      setEmailDelay(undefined);
-    });
-  }
-  const originalSlackEnabled = notificationConfig?.slack_enabled === undefined ? true :
-    notificationConfig?.slack_enabled;
-  const slackEnabledValue = slackEnabled === undefined ? originalSlackEnabled : slackEnabled;
-
-  function onSetSlackPreferences() {
-    return updateUser({ marketId, slackEnabled: slackEnabledValue, slackDelay }).then((user) =>{
-      setOperationRunning(false);
-      userDispatch(accountUserRefresh(user));
-      setSlackEnabled(undefined);
-      setSlackDelay(undefined);
+      marketConfigsDispatch('clearMarketId');
     });
   }
 
-  function handleToggleEmail () {
-    setEmailEnabled(!emailEnabledValue);
-  }
+  const slackAddressable = notificationConfig?.is_slack_addressable;
+  const slackDelayDisabled = !slackAddressable || !slackEnabledValue;
 
-  function handleToggleSlack () {
-    setSlackEnabled(!slackEnabledValue);
-  }
-
-  function handleChangeSlackDelay (event) {
-    const { value } = event.target;
-    const parsed = parseInt(value, 10);
-    if (!isNaN(parsed)) {
-      setSlackDelay(parsed);
-    } else {
-      setSlackDelay(undefined);
-    }
-  }
-
-  function handleChangeEmailDelay (event) {
-    const { value } = event.target;
-    const parsed = parseInt(value, 10);
-    if (!isNaN(parsed)) {
-      setEmailDelay(parsed);
-    } else {
-      setEmailDelay(undefined);
-    }
-  }
-  const originalSlackAddressable = notificationConfig?.is_slack_addressable === undefined ? false :
-    notificationConfig?.is_slack_addressable;
-  const slackDelayDisabled = !originalSlackAddressable || !slackEnabledValue;
-  const originalEmailDelay = notificationConfig?.email_delay === undefined ? 60 :
-    notificationConfig?.email_delay;
-  const originalSlackDelay = notificationConfig?.slack_delay === undefined ? 0 :
-    notificationConfig?.slack_delay;
   return (
     <Screen
       title={intl.formatMessage({ id: 'changePreferencesHeader' })}
@@ -171,7 +147,6 @@ function ChangeNotificationPreferences (props) {
             <Grid
               container
               direction="row"
-              justify="center"
               alignItems="baseline"
               style={{ paddingBottom: '0' }}
             >
@@ -179,14 +154,14 @@ function ChangeNotificationPreferences (props) {
                 key="avatarExplanation"
               >
                 <Typography variant="body2">
-                  Below is your current avatar image for <b>{safeUser.email}</b> provided by Gravatar. See <Link href="https://documentation.uclusion.com/getting-started/user-configuration/#setting-up-a-gravatar" target="_blank">user configuration</Link> for
+                  Below is your current avatar image for <b>{user?.email}</b> provided by Gravatar. See <Link href="https://documentation.uclusion.com/getting-started/user-configuration/#setting-up-a-gravatar" target="_blank">user configuration</Link> for
                   more information.
                 </Typography>
               </ListItem>
               <ListItem
                 key="avatar"
               >
-                <Gravatar className={classes.largeAvatar} email={safeUser.email}/>
+                <Gravatar className={classes.largeAvatar} email={user?.email}/>
               </ListItem>
               <Link href="https://www.gravatar.com"
                     target="_blank"
@@ -202,28 +177,46 @@ function ChangeNotificationPreferences (props) {
           </SubSection>
         </Card>
       </div>
-      {marketId && (
-        <>
-        <div className={classes.container} style={{marginTop: '3rem'}}>
+      <div className={classes.container} style={{marginTop: '3rem', marginBottom: '1rem'}}>
         <Card>
           <SubSection
-            title={intl.formatMessage({ id: 'changeEmailPreferences' })}
+            title={intl.formatMessage({ id: 'changePreferences' })}
             padChildren
           >
             <Grid
               container
               direction="row"
-              justify="center"
               alignItems="baseline"
               style={{ paddingBottom: '0' }}
             >
+              <ListItem key="workspace">
+                <FormControl variant="filled">
+                  <InputLabel id="markets">
+                    {intl.formatMessage({ id: 'switchWorkspace' })}
+                  </InputLabel>
+                  {marketId && (
+                    <Select
+                      value={marketId}
+                      onChange={(event) => setChosenMarketId(event.target.value)}
+                      style={{backgroundColor: "#ecf0f1"}}
+                    >
+                      {markets.map((market) => {
+                        return <MenuItem value={market.id}>{market.name}</MenuItem>
+                      })}
+                    </Select>
+                  )}
+                  <Typography>
+                    {intl.formatMessage({ id: 'notificationMarketSettingsExplanation' })}
+                  </Typography>
+                </FormControl>
+              </ListItem>
               <ListItem
                 key="email"
               >
                 <ListItemIcon>
                   <Checkbox
                     checked={emailEnabledValue}
-                    onClick={handleToggleEmail}
+                    onClick={() => marketConfigsDispatch({type: 'emailEnabled', value: !emailEnabled})}
                   />
                 </ListItemIcon>
                 <ListItemText>
@@ -231,66 +224,27 @@ function ChangeNotificationPreferences (props) {
                 </ListItemText>
               </ListItem>
               <ListItem style={{paddingTop: 0, marginTop: 0}}>
-                <FormControl fullWidth={true} margin="normal">
-                  <TextField
-                    id="emailDelay"
-                    variant="outlined"
-                    label={intl.formatMessage({ id: 'emailDelayInputLabel' })}
-                    inputProps={{
-                      className: classes.input,
-                      inputMode: "numeric",
-                      pattern: "[0-9]*"
-                    }}
-                    disabled={!emailEnabledValue}
-                    onChange={handleChangeEmailDelay}
-                    value={!emailEnabledValue ? '' : (emailDelay || Math.round(originalEmailDelay / 60) || 1)}
-                  />
-                </FormControl>
+                <NotificationDelay
+                  disabled={!emailEnabledValue}
+                  onChange={(event) => marketConfigsDispatch({type: 'emailDelay', value: event.target.value})}
+                  value={emailDelayValue}
+                  explanationId="emailDelayExplanation" labelId="emailDelayInputLabel"
+                />
               </ListItem>
-              <ListItem>
-                <SpinBlockingButton
-                  variant="outlined"
-                  fullWidth={true}
-                  id="changeEmailPreferences"
-                  color="primary"
-                  disabled={emailDelay === undefined && emailEnabled === undefined}
-                  className={classes.actionPrimary}
-                  onClick={onSetEmailPreferences}
-                >
-                  {intl.formatMessage({ id: 'changePreferencesButton' })}
-                </SpinBlockingButton>
-              </ListItem>
-            </Grid>
-          </SubSection>
-        </Card>
-        </div>
-        <div className={classes.container} style={{marginTop: '3rem'}}>
-        <Card>
-          <SubSection
-            title={intl.formatMessage({ id: 'changeSlackPreferences' })}
-            padChildren
-          >
-            <Grid
-              container
-              direction="row"
-              justify="center"
-              alignItems="baseline"
-              style={{ paddingBottom: '0' }}
-            >
-              <ListItem>
+              <ListItem style={{marginTop: '1rem'}}>
                 <a
-                  href={`${config.add_to_slack_url}&state=${safeUser.id}_${marketId}`}
+                  href={`${config.add_to_slack_url}&state=${user?.id}_${marketId}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {originalSlackAddressable && (
+                  {slackAddressable && (
                     <div style={{display: 'flex', alignItems: 'center'}}>
                       <svg xmlns="http://www.w3.org/2000/svg" style={{height: '24px', width: '24px', marginRight: '10px'}}
-                         viewBox="0 0 122.8 122.8"><path d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9zm6.5 0c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6z" fill="#e01e5a"></path><path d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2zm0 6.5c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3z" fill="#36c5f0"></path><path d="M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2zm-6.5 0c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3z" fill="#2eb67d"></path><path d="M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9zm0-6.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6z" fill="#ecb22e"></path></svg>
+                           viewBox="0 0 122.8 122.8"><path d="M25.8 77.6c0 7.1-5.8 12.9-12.9 12.9S0 84.7 0 77.6s5.8-12.9 12.9-12.9h12.9v12.9zm6.5 0c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9v32.3c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V77.6z" fill="#e01e5a"></path><path d="M45.2 25.8c-7.1 0-12.9-5.8-12.9-12.9S38.1 0 45.2 0s12.9 5.8 12.9 12.9v12.9H45.2zm0 6.5c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H12.9C5.8 58.1 0 52.3 0 45.2s5.8-12.9 12.9-12.9h32.3z" fill="#36c5f0"></path><path d="M97 45.2c0-7.1 5.8-12.9 12.9-12.9s12.9 5.8 12.9 12.9-5.8 12.9-12.9 12.9H97V45.2zm-6.5 0c0 7.1-5.8 12.9-12.9 12.9s-12.9-5.8-12.9-12.9V12.9C64.7 5.8 70.5 0 77.6 0s12.9 5.8 12.9 12.9v32.3z" fill="#2eb67d"></path><path d="M77.6 97c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9-12.9-5.8-12.9-12.9V97h12.9zm0-6.5c-7.1 0-12.9-5.8-12.9-12.9s5.8-12.9 12.9-12.9h32.3c7.1 0 12.9 5.8 12.9 12.9s-5.8 12.9-12.9 12.9H77.6z" fill="#ecb22e"></path></svg>
                       Reinstall Slack integration.
                     </div>
                   )}
-                  {!originalSlackAddressable && (
+                  {!slackAddressable && (
                     <img
                       alt="Add to Slack"
                       height="40"
@@ -307,40 +261,30 @@ function ChangeNotificationPreferences (props) {
                 <ListItemIcon>
                   <Checkbox
                     checked={slackEnabledValue}
-                    disabled={!originalSlackAddressable}
-                    onClick={handleToggleSlack}
+                    disabled={!slackAddressable}
+                    onClick={() => marketConfigsDispatch({type: 'slackEnabled', value: !slackEnabled})}
                   />
                 </ListItemIcon>
-                <ListItemText className={originalSlackAddressable ? undefined : classes.disabled}>
+                <ListItemText className={slackAddressable ? undefined : classes.disabled}>
                   {intl.formatMessage({ id: 'slackEnabledLabel' })}
                 </ListItemText>
               </ListItem>
               <ListItem style={{paddingTop: 0, marginTop: 0}}>
-                <FormControl fullWidth={true} margin="normal">
-                  <TextField
-                    id="slackDelay"
-                    disabled={slackDelayDisabled}
-                    variant="outlined"
-                    label={intl.formatMessage({ id: 'slackDelayInputLabel' })}
-                    inputProps={{
-                      className: classes.input,
-                      inputMode: "numeric",
-                      pattern: "[0-9]*"
-                    }}
-                    onChange={handleChangeSlackDelay}
-                    value={slackDelayDisabled ? '' : (slackDelay || originalSlackDelay || 30)}
-                  />
-                </FormControl>
+              <NotificationDelay
+                disabled={slackDelayDisabled}
+                onChange={(event) => marketConfigsDispatch({type: 'slackDelay', value: event.target.value})}
+                value={slackDelayValue}
+                explanationId="slackDelayExplanation" labelId="slackDelayInputLabel"/>
               </ListItem>
-              <ListItem>
+              <ListItem style={{marginTop: '1rem'}}>
                 <SpinBlockingButton
                   variant="outlined"
                   fullWidth={true}
-                  id="changeSlackPreferences"
+                  id="changeEmailPreferences"
                   color="primary"
-                  disabled={slackEnabled === undefined && slackDelay === undefined}
+                  disabled={!emailValuesChanged && !slackValuesChanged}
                   className={classes.actionPrimary}
-                  onClick={onSetSlackPreferences}
+                  onClick={onSetPreferences}
                 >
                   {intl.formatMessage({ id: 'changePreferencesButton' })}
                 </SpinBlockingButton>
@@ -349,8 +293,6 @@ function ChangeNotificationPreferences (props) {
           </SubSection>
         </Card>
       </div>
-      </>
-      )}
     </Screen>
   );
 }

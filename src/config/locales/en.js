@@ -547,6 +547,7 @@ const messages = defineMessages({
   signupRedirectLogin: 'Create account will redirect you to login.',
   switchWorkspace: 'Switch workspaces',
   editWorkspace: 'Edit workspace',
+  notificationMarketSettingsExplanation: 'Change notification settings of the chosen workspace',
 
   // Rich text editor
   RichTextEditorAddLinkTitle: 'Add Link',
@@ -836,13 +837,14 @@ const messages = defineMessages({
 
   // Change Preferences
   changePreferencesHeader: 'Integration preferences',
-  changeEmailPreferences: 'Email',
-  changeSlackPreferences: 'Slack',
+  changePreferences: 'Email and Slack by workspace',
   emailEnabledLabel: 'Send notifications via email',
   slackEnabledLabel: 'Send notifications via Slack',
   changePreferencesButton: 'Update Preferences',
-  slackDelayInputLabel: 'Minutes between notifications',
-  emailDelayInputLabel: 'Hours between emails',
+  slackDelayInputLabel: 'Time between alerts',
+  emailDelayInputLabel: 'Time between emails',
+  emailDelayExplanation: 'Minimum time after an email notification before sending another.',
+  slackDelayExplanation: 'Minimum time after a Slack notification before sending another.',
   doNotShowAgain: 'Do not show again',
 
   // your voting

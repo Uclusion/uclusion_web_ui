@@ -186,7 +186,8 @@ export function findMessagesForInvestibleId(investibleId, state) {
 export function findMessageForCommentId(commentId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
-  return safeMessages.find((message) => message.comment_id === commentId && !message.deleted);
+  return safeMessages.find((message) => (message.comment_id === commentId
+    || message.comment_list?.includes(commentId)) && !message.deleted);
 }
 
 export function findMessageOfType(aType, notificationId, state, subtype) {

@@ -221,7 +221,7 @@ function MarketTodos(props) {
         }
         bugDispatch(pin(rootComment.id));
         const message = findMessageForCommentId(rootComment.id, messagesState);
-        if (message && message.is_highlighted && notificationType !== RED_LEVEL) {
+        if (message?.is_highlighted) {
           let event = DEHIGHLIGHT_EVENT;
           if (message.type_object_id.startsWith('UNREAD')) {
             event = DELETE_EVENT;

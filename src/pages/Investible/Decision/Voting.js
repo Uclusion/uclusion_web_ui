@@ -155,7 +155,7 @@ function Voting(props) {
                 }}
               >
                 <div style={{display: 'flex'}}>
-                  <CardType compact={!midLayout}
+                  <CardType compact={!midLayout} compressed={!hasContent}
                     className={classes.cardType}
                     type={`certainty${Math.abs(quantity)}`}
                     gravatar={<GravatarAndName email={email}

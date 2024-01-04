@@ -207,7 +207,8 @@ function WorkListItem(props) {
             }
             navigate(history, formInboxItemLink(id));
           }
-        } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+        } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
+             onMouseOut={() => setIsHovered(false)} onMouseOver={() => setIsHovered(true)}>
           <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
             <Box flexShrink={0} className={gutterStyles.parent} key={`box${id}`}>
               {!mobileLayout && (

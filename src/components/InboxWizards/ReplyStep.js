@@ -23,6 +23,7 @@ import { removeInlineMarketMessages } from '../../utils/messageUtils';
 import { isSingleAssisted } from '../../utils/commentFunctions';
 import _ from 'lodash';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions';
 
 function ReplyStep(props) {
   const { marketId, commentId, message } = props;
@@ -69,8 +70,8 @@ function ReplyStep(props) {
           addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
         setOperationRunning(false);
-        // TODO GO look at your reply instead of back to inbox
         dismissWorkListItem(message, messagesDispatch);
+        navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
       });
   }
 

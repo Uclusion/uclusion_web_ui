@@ -65,7 +65,8 @@ function DecideResolveStep(props) {
         onCommentOpen(investiblesState, commentRoot.investible_id, marketStagesState, marketId, comment,
           investiblesDispatch, commentState, commentDispatch, myPresence);
         setOperationRunning(false);
-        dismissWorkListItem(message, messagesDispatch, history);
+        dismissWorkListItem(message, messagesDispatch);
+        navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
       });
   }
 

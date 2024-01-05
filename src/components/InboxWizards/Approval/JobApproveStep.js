@@ -17,7 +17,7 @@ import {
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import _ from 'lodash';
-import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleAddCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -87,7 +87,8 @@ function JobApproveStep(props) {
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
       setOperationRunning(false);
-      dismissWorkListItem(message, messagesDispatch, history);
+      dismissWorkListItem(message, messagesDispatch);
+      navigate(history, formInvestibleLink(marketId, investibleId));
     })
   }
 

@@ -14,8 +14,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import JobDescription from '../JobDescription';
 import { useHistory } from 'react-router';
 import { handleAcceptSuggestion } from '../../../utils/commentFunctions';
-import { navigate } from '../../../utils/marketIdPathFunctions';
-import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -46,7 +45,7 @@ function DecideAcceptRejectStep(props) {
       handleAcceptSuggestion({ isMove: false, comment, investible, investiblesDispatch, marketStagesState,
         commentsState, commentsDispatch, messagesState, messagesDispatch })
       setOperationRunning(false);
-      navigate(history, getInboxTarget());
+      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
     })
   }
 

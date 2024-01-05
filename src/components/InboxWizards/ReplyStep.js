@@ -69,7 +69,8 @@ function ReplyStep(props) {
           addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
         setOperationRunning(false);
-        dismissWorkListItem(message, messagesDispatch, history);
+        // TODO GO look at your reply instead of back to inbox
+        dismissWorkListItem(message, messagesDispatch);
       });
   }
 

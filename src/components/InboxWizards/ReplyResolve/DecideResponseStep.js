@@ -15,6 +15,7 @@ import { useHistory } from 'react-router';
 import { updateComment } from '../../../api/comments';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { TODO_TYPE } from '../../../constants/comments';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function DecideResponseStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -37,7 +38,8 @@ function DecideResponseStep(props) {
     return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
       addCommentToMarket(comment, commentState, commentDispatch);
       setOperationRunning(false);
-      dismissWorkListItem(message, messagesDispatch, history);
+      dismissWorkListItem(message, messagesDispatch);
+      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
     })
   }
 

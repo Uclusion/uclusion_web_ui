@@ -29,6 +29,7 @@ import { useHistory } from 'react-router';
 import { isSingleAssisted } from '../../../utils/commentFunctions';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function DecideReplyStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -85,7 +86,8 @@ function DecideReplyStep(props) {
     return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
       addCommentToMarket(comment, commentState, commentDispatch);
       setOperationRunning(false);
-      dismissWorkListItem(message, messagesDispatch, history);
+      dismissWorkListItem(message, messagesDispatch);
+      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
     })
   }
 

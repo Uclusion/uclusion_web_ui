@@ -42,7 +42,7 @@ import {
   editorEmpty,
   focusEditor,
   getQuillStoredState,
-  replaceEditorContents,
+  replaceEditorContents, resetEditor,
 } from '../TextEditors/Utilities/CoreUtils';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -355,7 +355,7 @@ function CommentAdd(props) {
 
 
   function clearMe () {
-    replaceEditorContents('', editorName);
+    resetEditor(editorName);
     commentAddStateReset();
   }
 
@@ -379,7 +379,7 @@ function CommentAdd(props) {
     onChange: () => setHasValue(!editorEmpty(getQuillStoredState(editorName))),
     buttons: type === REPLY_TYPE && !isWizard ? buttons : undefined
   }
-  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
+  const [Editor] = useEditor(editorName, editorSpec);
   function handleSave(isSent, passedNotificationType, doCreateInitiative, isJustClear=false,
     stopOperationRunning=true) {
     const currentUploadedFiles = uploadedFiles || [];
@@ -410,7 +410,7 @@ function CommentAdd(props) {
           addInvestible(investibleDispatch, () => {}, returnedInvestible);
         }
         commentAddStateReset();
-        resetEditor();
+        resetEditor(editorName);
         if (isSent !== false && investibleId) {
           changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState,
             inv.market_infos, useRootInvestible, investibleDispatch, comment, myPresence);

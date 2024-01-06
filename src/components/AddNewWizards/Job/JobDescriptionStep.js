@@ -120,7 +120,7 @@ function JobDescriptionStep (props) {
         });
         if (fromCommentIds) {
           return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
-            commentsDispatch, messagesDispatch)
+            commentsDispatch, messagesDispatch);
         }
         return {link};
       })
@@ -142,8 +142,7 @@ function JobDescriptionStep (props) {
   }
 
   function doIncrement(resolved) {
-    const { isMissingName } = resolved;
-    if (isMissingName) {
+    if (resolved?.isMissingName) {
       nextStep();
     } else if (currentValue === 'IMMEDIATE') {
       nextStep(2);

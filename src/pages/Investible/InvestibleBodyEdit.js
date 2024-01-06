@@ -20,7 +20,7 @@ import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelB
 import { useEditor } from '../../components/TextEditors/quillHooks';
 import LockedDialogTitleIcon from '@material-ui/icons/Lock';
 import IssueDialog from '../../components/Warnings/IssueDialog';
-import { getQuillStoredState } from '../../components/TextEditors/Utilities/CoreUtils';
+import { getQuillStoredState, resetEditor } from '../../components/TextEditors/Utilities/CoreUtils';
 import { PLANNING_TYPE } from '../../constants/markets';
 import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 
@@ -89,7 +89,7 @@ function InvestibleBodyEdit(props) {
     value: useDescription
   };
 
-  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
+  const [Editor] = useEditor(editorName, editorSpec);
 
   function handleSave(event) {
     preventDefaultAndProp(event);
@@ -118,7 +118,7 @@ function InvestibleBodyEdit(props) {
     return updateInvestible(updateInfo)
       .then((fullInvestible) => {
         setOperationRunning(false);
-        resetEditor();
+        resetEditor(editorName);
         clearNameStoredState(investibleId);
         return onSave(fullInvestible);
       });
@@ -127,7 +127,7 @@ function InvestibleBodyEdit(props) {
   function onCancel(event) {
     preventDefaultAndProp(event);
     pageStateReset();
-    resetEditor();
+    resetEditor(editorName);
     return realeaseInvestibleEditLock(marketId, investibleId).then((newInv) => {
       setOperationRunning(false);
       refreshInvestibles(investiblesDispatch, diffDispatch, [newInv]);
@@ -167,7 +167,7 @@ function InvestibleBodyEdit(props) {
       }).catch(() => {
         setOperationRunning(false);
         pageStateReset();
-        resetEditor();
+        resetEditor(editorName);
       });
   }
   if (!hidden && beingEdited && !loading) {
@@ -187,7 +187,7 @@ function InvestibleBodyEdit(props) {
           open={!hidden && (someoneElseEditing)}
           onClose={() => {
             pageStateReset();
-            resetEditor();
+            resetEditor(editorName);
           }}
           /* slots */
           actions={

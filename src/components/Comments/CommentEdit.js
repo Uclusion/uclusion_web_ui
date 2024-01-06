@@ -28,7 +28,7 @@ import { Clear, Feedback, Update } from '@material-ui/icons';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import { useEditor } from '../TextEditors/quillHooks';
 import { deleteOrDehilightMessages } from '../../api/users';
-import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils';
+import { getQuillStoredState, resetEditor } from '../TextEditors/Utilities/CoreUtils';
 import { nameFromDescription } from '../../utils/stringFunctions';
 import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { removeMessages } from '../../contexts/NotificationsContext/notificationsContextReducer';
@@ -226,7 +226,7 @@ function CommentEdit(props) {
     participants: presences.filter((presence) => !presence.market_banned),
     marketId,
   }
-  const [Editor, resetEditor] = useEditor(editorName, editorSpec);
+  const [Editor] = useEditor(editorName, editorSpec);
 
   function handleSave(isSent) {
     const imagesLoaded = allImagesLoaded(editBox?.current, initialUploadedFiles);
@@ -259,7 +259,7 @@ function CommentEdit(props) {
           comment = returnedComment;
           addInvestible(investibleDispatch, () => {}, returnedInvestible);
         }
-        resetEditor();
+        resetEditor(editorName);
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
           commentState, commentDispatch, myPresence);
         deleteOrDehilightMessages(messages || [], messagesDispatch, true, true);
@@ -280,7 +280,7 @@ function CommentEdit(props) {
   }
 
   function handleCancel() {
-    resetEditor();
+    resetEditor(editorName);
     editStateReset();
     onCancel();
   }

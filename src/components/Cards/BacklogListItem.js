@@ -1,13 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useMediaQuery, useTheme } from '@material-ui/core';
+import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { formInvestibleLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
 import GravatarGroup from '../Avatars/GravatarGroup';
-import { workListStyles } from '../Comments/OptionListItem';
 import DragImage from '../Dialogs/DragImage';
 
 const Item = styled("div")`
@@ -79,6 +78,18 @@ const DateLabelB = styled(DateLabel)`
   color: rgba(0, 0, 0, 0.87);
   font-weight: bold;
 `;
+
+export const workListStyles = makeStyles(() => {
+  return {
+    gravatarStyle: {
+      marginLeft: '0.75rem'
+    },
+    removed: {
+      transform: 'translateX(100vw)',
+      transitionDuration: '2s'
+    }
+  };
+});
 
 function BacklogListItem(props) {
   const {

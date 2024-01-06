@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
+import { useMediaQuery, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
@@ -9,10 +9,6 @@ import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import _ from 'lodash';
 import DragImage from '../Dialogs/DragImage';
-
-const Item = styled("div")`
-  margin-bottom: 1px;
-`
 
 const Div = styled("div")`
   height: 45px;
@@ -69,17 +65,23 @@ const DateLabel = styled(Text)`
   text-align: right;
 `;
 
-export const workListStyles = makeStyles(() => {
-  return {
-    gravatarStyle: {
-      marginLeft: '0.75rem'
-    },
-    removed: {
-      transform: 'translateX(100vw)',
-      transitionDuration: '2s'
-    }
-  };
-});
+const DateLabelHovered = styled(DateLabel)`
+    display: none;
+`;
+
+const GravatarNotHovered = styled("div")`
+    margin-left: '0.75rem'
+`;
+
+const Item = styled("div")`
+  margin-bottom: 1px;
+  &:hover ${GravatarNotHovered} {
+      display: none;
+  }
+  &:hover ${DateLabelHovered} {
+      display: block;
+  }
+`
 
 function OptionListItem(props) {
   const {
@@ -94,11 +96,8 @@ function OptionListItem(props) {
     questionResolved,
     isNotSynced = false
   } = props;
-  const classes = workListStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const [isHovered, setIsHovered] = useState(false);
-  const showExpansion = isHovered && !isNotSynced;
 
   const indexOfTitle = description.indexOf(title);
   let useDescription;
@@ -132,10 +131,11 @@ function OptionListItem(props) {
               preventDefaultAndProp(event);
               expandOrContract();
             }
-          } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+          }>
             <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
-              {!mobileLayout || _.isEmpty(people) || showExpansion ? React.Fragment :
-                <GravatarGroup users={people} className={classes.gravatarStyle}  /> }
+              {!mobileLayout || _.isEmpty(people) ? React.Fragment :
+                <GravatarNotHovered><GravatarGroup users={people}  /></GravatarNotHovered>
+              }
               {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
               {!mobileLayout && (
                 <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{useDescription}</Text>
@@ -143,14 +143,15 @@ function OptionListItem(props) {
               {!mobileLayout && (
                 <div style={{flexGrow: 1}}/>
               )}
-              {showExpansion && (
-                <DateLabel>
+              {!isNotSynced && (
+                <DateLabelHovered>
                   {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
                     : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
-                </DateLabel>
+                </DateLabelHovered>
               )}
-              {mobileLayout || _.isEmpty(people) || showExpansion ? React.Fragment :
-                <GravatarGroup users={people} className={classes.gravatarStyle}  /> }
+              {mobileLayout || _.isEmpty(people) ? React.Fragment :
+                <GravatarNotHovered><GravatarGroup users={people}  /></GravatarNotHovered>
+              }
               <div style={{paddingRight: '1rem'}} />
             </Div>
           </div>

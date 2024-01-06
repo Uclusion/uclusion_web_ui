@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import cx from 'clsx';
 import styled from 'styled-components';
 import { Box, IconButton, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
@@ -26,12 +26,6 @@ import {
 import { useHistory } from 'react-router';
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-
-const Item = styled("div")`
-  margin-bottom: 1px;
-  min-width: 80vw;
-  overflow-x: hidden;
-`
 
 const Div = styled("div")`
   height: 40px;
@@ -100,10 +94,30 @@ const DateLabel = styled(Text)`
   text-align: right;
 `;
 
-const DateLabelB = styled(DateLabel)`
+const DateLabelHovered = styled(DateLabel)`
+    display: none;
+`;
+
+const DateLabelNotHovered = styled(DateLabel)`
+
+`;
+
+const DateLabelBNotHovered = styled(DateLabelNotHovered)`
   color: rgba(0, 0, 0, 0.87);
   font-weight: bold;
 `;
+
+const Item = styled("div")`
+  margin-bottom: 1px;
+  min-width: 80vw;
+  overflow-x: hidden;
+  &:hover ${DateLabelNotHovered} {
+      display: none;
+  }
+  &:hover ${DateLabelHovered} {
+      display: block;
+  }
+`
 
 const workListStyles = makeStyles(() => {
   return {
@@ -173,13 +187,12 @@ function WorkListItem(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
-  const [isHovered, setIsHovered] = useState(false);
   const { link_type: linkType, type: messageType, is_highlighted: isHighlighted } = message || {};
   let fullText =  comment || investible || market;
   if (['UNREAD_REVIEWABLE', 'REVIEW_REQUIRED'].includes(messageType) && linkType === 'INVESTIBLE_REVIEW') {
     fullText = investible;
   }
-  const showExpansion = isHovered && !isNotSynced;
+
   if (expansionOpen) {
     return (
       <div id={`workListItem${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
@@ -201,14 +214,12 @@ function WorkListItem(props) {
               return;
             }
             preventDefaultAndProp(event);
-            setIsHovered(false);
             if (messageType?.startsWith('UNREAD_')&&isHighlighted) {
               messagesDispatch(dehighlightMessages([message.type_object_id]));
             }
             navigate(history, formInboxItemLink(id));
           }
-        } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
-             onMouseOut={() => setIsHovered(false)} onMouseOver={() => setIsHovered(true)}>
+        }>
           <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
             <Box flexShrink={0} className={gutterStyles.parent} key={`box${id}`}>
               {!mobileLayout && (
@@ -237,16 +248,16 @@ function WorkListItem(props) {
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
             <Text style={{ maxWidth: '55vw' }}>{fullText}</Text>
-            {showExpansion || mobileLayout || !date ? React.Fragment : (read ? (<DateLabel>{date}</DateLabel>) :
-              (<DateLabelB>{date}</DateLabelB>))}
-            {showExpansion && (
-              <DateLabel>
+            {mobileLayout || !date ? React.Fragment : (read ? (<DateLabelNotHovered>{date}</DateLabelNotHovered>) :
+              (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>))}
+            {!isNotSynced && (
+              <DateLabelHovered>
                 {isDeletable && !mobileLayout && (
                   <NotificationDeletion message={message} fromRow />
                 )}
                 {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
                   : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
-              </DateLabel>
+              </DateLabelHovered>
             )}
           </Div>
         </div>

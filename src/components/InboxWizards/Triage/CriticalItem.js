@@ -5,8 +5,8 @@ import RaisedCard from '../../Cards/RaisedCard';
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import GravatarGroup from '../../Avatars/GravatarGroup';
-import { workListStyles } from '../../Comments/OptionListItem';
 import UsefulRelativeTime from '../../TextFields/UseRelativeTime';
+import { workListStyles } from '../../Cards/BacklogListItem';
 
 const Item = styled("div")`
   margin-bottom: 1px;

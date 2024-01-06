@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import cx from 'clsx';
 import styled from 'styled-components';
 import { Box, IconButton, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
@@ -21,10 +21,6 @@ import { expandOrContract } from './BugListContext';
 import Chip from '@material-ui/core/Chip';
 import { useIntl } from 'react-intl';
 import DragImage from '../Dialogs/DragImage';
-
-const Item = styled("div")`
-  margin-bottom: 1px;
-`
 
 const Div = styled("div")`
   height: 40px;
@@ -98,10 +94,28 @@ const DateLabel = styled(Text)`
   text-align: right;
 `;
 
-const DateLabelB = styled(DateLabel)`
+const DateLabelHovered = styled(DateLabel)`
+    display: none;
+`;
+
+const DateLabelNotHovered = styled(DateLabel)`
+
+`;
+
+const DateLabelBNotHovered = styled(DateLabelNotHovered)`
   color: rgba(0, 0, 0, 0.87);
   font-weight: bold;
 `;
+
+const Item = styled("div")`
+  margin-bottom: 1px;
+  &:hover ${DateLabelNotHovered} {
+      display: none;
+  }
+  &:hover ${DateLabelHovered} {
+      display: block;
+  }
+`
 
 function BugListItem(props) {
   const {
@@ -125,7 +139,6 @@ function BugListItem(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
-  const [isHovered, setIsHovered] = useState(false);
 
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
@@ -154,7 +167,7 @@ function BugListItem(props) {
               }
               bugListDispatch(expandOrContract(id));
             }
-          } onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+          }>
             <Div key={`actions${id}`}>
               <Box flexShrink={0} className={gutterStyles.parent} key={`box${id}`}>
                 {!mobileLayout && (
@@ -178,14 +191,12 @@ function BugListItem(props) {
                   backgroundColor: 'white' }}/>
               </Tooltip>: React.Fragment}
               {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
-              {isHovered || mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelB>{date}</DateLabelB>) :
-                (<DateLabel>{date}</DateLabel>))}
-              {isHovered && (
-                <DateLabel>
-                  {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
-                    : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
-                </DateLabel>
-              )}
+              {mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>) :
+                (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}
+              <DateLabelHovered>
+                {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
+                  : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
+              </DateLabelHovered>
             </Div>
           </div>
         </RaisedCard>

@@ -31,7 +31,8 @@ function CondensedTodos(props) {
     marketInfo,
     marketId,
     groupId,
-    isInbox = false
+    isInbox = false,
+    hideTabs
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -137,25 +138,27 @@ function CondensedTodos(props) {
       <h2 id="tasksOverview" style={{paddingBottom: 0, marginBottom: 0}}>
         <FormattedMessage id="taskSection" />
       </h2>
-      <GmailTabs
-        value={showOpen ? 0 : 1}
-        onChange={(event, value) => {
-          setShowOpen(value === 0);
-        }}
-        indicatorColors={['black', 'black']}
-        style={{ paddingBottom: '1rem' }}>
-        <GmailTabItem label={intl.formatMessage({id: 'openHeader'})}
-                      color='black' tagLabel={intl.formatMessage({id: 'total'})}
-                      tag={`${_.size(openComments)}`}
-                      onDrop={onDropOpen}
-                      onDragOver={(event)=>event.preventDefault()}/>
-        <GmailTabItem label={intl.formatMessage({id: 'closedComments'})}
-                      color='black'
-                      tagLabel={intl.formatMessage({id: 'total'})}
-                      tag={`${_.size(resolvedComments)}`}
-                      onDrop={onDropResolved}
-                      onDragOver={(event)=>event.preventDefault()} />
-      </GmailTabs>
+      {!hideTabs && (
+        <GmailTabs
+          value={showOpen ? 0 : 1}
+          onChange={(event, value) => {
+            setShowOpen(value === 0);
+          }}
+          indicatorColors={['black', 'black']}
+          style={{ paddingBottom: '1rem' }}>
+          <GmailTabItem label={intl.formatMessage({id: 'openHeader'})}
+                        color='black' tagLabel={intl.formatMessage({id: 'total'})}
+                        tag={`${_.size(openComments)}`}
+                        onDrop={onDropOpen}
+                        onDragOver={(event)=>event.preventDefault()}/>
+          <GmailTabItem label={intl.formatMessage({id: 'closedComments'})}
+                        color='black'
+                        tagLabel={intl.formatMessage({id: 'total'})}
+                        tag={`${_.size(resolvedComments)}`}
+                        onDrop={onDropResolved}
+                        onDragOver={(event)=>event.preventDefault()} />
+        </GmailTabs>
+      )}
       {!_.isEmpty(tabComments) && (
         <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
           <div style={{display: 'flex', width: '80%'}}>
@@ -194,10 +197,12 @@ function CondensedTodos(props) {
 CondensedTodos.propTypes = {
   comments: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
+  hideTabs: PropTypes.bool
 };
 
 CondensedTodos.defaultProps = {
   comments: [],
+  hideTabs: false
 };
 
 export default CondensedTodos;

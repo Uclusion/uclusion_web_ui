@@ -9,6 +9,8 @@ import { getCommentThreads } from '../../../contexts/CommentsContext/commentsCon
 import { formCommentLink } from '../../../utils/marketIdPathFunctions';
 import { moveComments } from '../../../api/comments';
 import { onCommentsMove } from '../../../utils/commentFunctions';
+import CondensedTodos from '../../../pages/Investible/Planning/CondensedTodos';
+import _ from 'lodash';
 
 export function moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
   commentsDispatch, messagesDispatch) {
@@ -47,16 +49,21 @@ function DecideWhereStep (props) {
       <Typography className={classes.introText}>
         Where do you want to move?
       </Typography>
-      <CommentBox
-        comments={comments}
-        marketId={marketId}
-        allowedTypes={[]}
-        isInbox
-        isMove
-        removeActions
-        toggleCompression={() => updateFormData({useCompression: !useCompression})}
-        useCompression={useCompression}
-      />
+      {_.size(roots) > 1 && (
+        <CondensedTodos comments={roots} investibleComments={comments} isInbox marketId={marketId} hideTabs />
+      )}
+      {_.size(roots) === 1 && (
+        <CommentBox
+          comments={comments}
+          marketId={marketId}
+          allowedTypes={[]}
+          isInbox
+          isMove
+          removeActions
+          toggleCompression={() => updateFormData({useCompression: !useCompression})}
+          useCompression={useCompression}
+        />
+      )}
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}

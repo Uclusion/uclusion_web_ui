@@ -107,6 +107,12 @@ const useReplyStyles = makeStyles(
         marginRight: '0.25rem',
         overflow: 'unset'
       },
+      containerLink: {
+        marginTop: '1.5rem',
+        marginRight: '0.25rem',
+        overflow: 'unset',
+        cursor: 'pointer'
+      },
       containerBlueLink: {
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px blue",
         overflow: 'unset',
@@ -244,6 +250,7 @@ function Reply(props) {
           return classes.containerBlueLink;
         }
       }
+      return classes.containerLink;
     }
     return !isHighlighted ? classes.container : (isLinkedTo || (myMessage.level === 'RED')
       ? classes.containerRed : classes.containerYellow);

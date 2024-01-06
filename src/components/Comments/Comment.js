@@ -240,6 +240,11 @@ export const useCommentStyles = makeStyles(
         marginTop: "1.5rem",
         cursor: 'pointer'
       },
+      containerLink: {
+        overflow: "visible",
+        marginTop: "1.5rem",
+        cursor: 'pointer'
+      },
       container: {
         overflow: "visible",
         marginTop: "1.5rem"
@@ -658,8 +663,11 @@ function Comment(props) {
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = !replyBeingEdited || replies.length > 0;
   function getCommentHighlightStyle() {
-    if (isInbox && (!inboxMessageId || inboxMessageId === id)) {
-      return classes.containerBlueLink;
+    if (isInbox) {
+      if (!inboxMessageId || inboxMessageId === id) {
+        return classes.containerBlueLink;
+      }
+      return classes.containerLink;
     }
     if (myHighlightedLevel && isHighlighted) {
       if (myHighlightedLevel === "YELLOW" || myHighlightedLevel === "BLUE") {

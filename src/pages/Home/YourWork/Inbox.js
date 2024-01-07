@@ -22,6 +22,7 @@ import { setOperationInProgress } from '../../../components/ContextHacks/Operati
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { formInboxItemLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
+import { dehighlightMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 
 function Inbox(props) {
   const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults,
@@ -51,6 +52,16 @@ function Inbox(props) {
 
   function changePage(byNum) {
     inboxDispatch(setPage(page + byNum));
+  }
+
+  function goToItem(itemId) {
+    const { messages } = messagesState || {};
+    const itemMessage = messages?.find((message) => message.type_object_id === itemId &&
+      message.type.startsWith('UNREAD_') && message.is_highlighted);
+    if (itemMessage) {
+      messagesDispatch(dehighlightMessages([itemMessage.type_object_id]));
+    }
+    navigate(history, formInboxItemLink(itemId));
   }
 
   const { first, last, data, hasMore, hasLess, previousItemId, nextItemId, current } =
@@ -130,12 +141,12 @@ function Inbox(props) {
             {!isOnWorkItem && (
               `${first} - ${last} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
             )}
-            <IconButton disabled={!hasLess} onClick={() => isOnWorkItem ?
-              navigate(history, formInboxItemLink(previousItemId)) : changePage(-1)} >
+            <IconButton disabled={!hasLess} onClick={() => isOnWorkItem ? goToItem(previousItemId) :
+              changePage(-1)} >
               <KeyboardArrowLeft />
             </IconButton>
-            <IconButton disabled={!hasMore} onClick={() => isOnWorkItem ?
-              navigate(history, formInboxItemLink(nextItemId)) : changePage(1)}>
+            <IconButton disabled={!hasMore} onClick={() => isOnWorkItem ? goToItem(nextItemId) :
+              changePage(1)}>
               <KeyboardArrowRight />
             </IconButton>
           </Box>

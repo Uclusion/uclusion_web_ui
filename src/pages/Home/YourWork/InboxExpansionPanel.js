@@ -108,7 +108,7 @@ export function calculateTitleExpansionPanel(props) {
       'DecidePromotionTitle', intl);
   } else if (['REPORT_REQUIRED', 'UNREAD_MOVE_REPORT'].includes(messageType)) {
     setItem(item, openExpansion, <StatusWizard investibleId={investibleId} marketId={marketId} message={message} />,
-      'JobStatusTitle', intl);
+      messageType === 'REPORT_REQUIRED' ? 'JobStatusTitle' : 'JobMovedTitle', intl);
   } else if (['ISSUE', 'UNREAD_COMMENT'].includes(messageType)) {
     if (['INVESTIBLE_SUGGESTION', 'MARKET_SUGGESTION'].includes(linkType)) {
       if (isAssigned) {

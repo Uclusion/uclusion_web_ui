@@ -1020,6 +1020,7 @@ const messages = defineMessages({
   DecideIdeaTitle: 'Is this a good idea?',
   DecidePromotionTitle: 'Allow voting on this option?',
   JobStatusTitle: 'How will you update?',
+  JobMovedTitle: 'Okay job moved back?',
   DecideAcceptRejectTitle: 'Follow this suggestion?',
   DecideUnblockTitle: 'Help unblock this job?',
   NewTaskTitle: 'Questions on this task?',

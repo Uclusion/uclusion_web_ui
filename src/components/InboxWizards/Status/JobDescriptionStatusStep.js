@@ -64,7 +64,7 @@ function JobDescriptionStatusStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'JobStatusTitle'})}
+        {intl.formatMessage({id: message?.type === 'REPORT_REQUIRED' ? 'JobStatusTitle' : 'JobMovedTitle'})}
       </Typography>
       {alreadyMoved && (
         <Typography className={classes.introSubText} variant="subtitle1">

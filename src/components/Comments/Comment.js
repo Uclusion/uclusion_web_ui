@@ -731,11 +731,13 @@ function Comment(props) {
   if (useCompression && inboxMessageId) {
     return (
     <>
-      <Card elevation={3} style={{display: 'flex', paddingBottom: '1rem', cursor: 'pointer'}}
+      <Card elevation={3} style={{ display: 'flex', paddingBottom: '1rem', cursor: 'pointer' }}
             onClick={toggleCompression}>
         {cardTypeDisplay}
         <div className={classes.compressedComment}>
           {stripHTML(body)}</div>
+        <div style={{ flexGrow: 1 }}/>
+        <ExpandMoreIcon style={{ color: 'black', marginRight: '1rem', marginTop: '0.5rem' }}/>
       </Card>
       <LocalCommentsContext.Provider value={{ comments, marketId }}>
         {sortedReplies.map(child => {

@@ -54,18 +54,20 @@ function JobDescription(props) {
   return (
     <>
       <div style={{paddingLeft: '4px', paddingRight: '4px' }}>
-        {!_.isEmpty(assignedPresences) && showAssigned && (
-          <div className={planningClasses.assignments}
-               style={{paddingBottom: '1.5rem', display: 'flex', alignItems: 'center'}}>
-            <b style={{marginRight: '1rem'}}><FormattedMessage id="planningInvestibleAssignments" /></b>
-            <GravatarGroup users={assignedPresences} gravatarClassName={classes.smallGravatar} />
-          </div>
-        )}
-        <Typography className={investibleEditClasses.title} variant="h3" component="h1"
-                    style={{cursor: 'pointer', color: 'blue', textDecoration: 'underline'}}
-                    onClick={() => navigate(history, formInvestibleLink(marketId, investibleId))}>
-          {name}
-        </Typography>
+        <div style={{display: mobileLayout ? undefined : 'flex', paddingBottom: mobileLayout ? '1.5rem' : undefined}}>
+          <Typography className={investibleEditClasses.title} variant="h3" component="h1"
+                      style={{cursor: 'pointer', color: 'blue', textDecoration: 'underline'}}
+                      onClick={() => navigate(history, formInvestibleLink(marketId, investibleId))}>
+            {name}
+          </Typography>
+          {!_.isEmpty(assignedPresences) && showAssigned && (
+            <div className={planningClasses.assignments}
+                 style={{paddingLeft: '1.5rem', display: 'flex', alignItems: 'center'}}>
+              <b style={{marginRight: '1rem'}}><FormattedMessage id="planningInvestibleAssignments" /></b>
+              <GravatarGroup users={assignedPresences} gravatarClassName={classes.smallGravatar} />
+            </div>
+          )}
+        </div>
         {!editorIsEmpty && showDescription && (
           <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} />
         )}

@@ -22,6 +22,17 @@ import { REPLY_TYPE, TODO_TYPE } from '../../constants/comments';
 import GravatarGroup from '../Avatars/GravatarGroup';
 import { attachedFilesStyles, displayLinksList } from '../Files/AttachedFilesList';
 import config from '../../config';
+import CompressedDescription from './CompressedDescription';
+import { stripHTML } from '../../utils/stringFunctions';
+
+function isLargeDisplay(description) {
+  const stripped = stripHTML(description);
+  const paragraphed = `<p>${stripped}</p>`;
+  if (description !== paragraphed) {
+    return true;
+  }
+  return stripped.length > 250;
+}
 
 function JobDescription(props) {
   const { investibleId, marketId, comments, showDescription=true, showAssigned=true, inboxMessageId,
@@ -50,7 +61,8 @@ function JobDescription(props) {
   const todoComments = comments?.filter((comment) => comment.comment_type === TODO_TYPE);
   const nonTodoComments = comments?.filter((comment) => comment.comment_type !== TODO_TYPE);
   const nonTodoCommentsRoots = nonTodoComments?.filter((comment) => comment.comment_type !== REPLY_TYPE);
-
+  const normalDescriptionDisplay = showDiff || !isLargeDisplay(description);
+  const fullDescription = <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} />;
   return (
     <>
       <div style={{paddingLeft: '4px', paddingRight: '4px' }}>
@@ -68,8 +80,9 @@ function JobDescription(props) {
             </div>
           )}
         </div>
-        {!editorIsEmpty && showDescription && (
-          <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} />
+        {(!editorIsEmpty && showDescription) && (
+          !normalDescriptionDisplay ?
+            <CompressedDescription description={description} expansionPanel={fullDescription} /> : fullDescription
         )}
         {showAttachments && (
           <>

@@ -114,7 +114,7 @@ function JobApproveStep(props) {
       {...props}
     >
         <Typography className={classes.introText} variant="h6">
-          {intl.formatMessage({id: 'AssignmentApprovalTitle'})}
+          {intl.formatMessage({id: isAssigned ? 'ApproveOwnAssignmentFullTitle' : 'AssignmentApprovalTitle'})}
         </Typography>
         {wasDeleted && (
           <Typography className={classes.introSubText} variant="subtitle1">

@@ -6,19 +6,25 @@ import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInfo } from '../../../utils/userFunctions'
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
+import _ from 'lodash';
+import { useInvestibleVoters } from '../../../utils/votingUtils';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function DecideVoteStep(props) {
   const { marketId, commentRoot, formData, updateFormData, message } = props;
   const [commentState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
@@ -28,6 +34,10 @@ function DecideVoteStep(props) {
   const { stage } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const { useCompression } = formData;
+  const investibles = getMarketInvestibles(investiblesState, commentRoot.inline_market_id);
+  const marketPresences = getMarketPresences(marketPresencesState, commentRoot.inline_market_id) || [];
+  const voters = useInvestibleVoters(marketPresences,
+    _.isEmpty(investibles) ? undefined : investibles[0].investible.id, marketId);
 
   return (
     <WizardStepContainer
@@ -36,14 +46,26 @@ function DecideVoteStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideVoteTitle'})}
       </Typography>
+      {_.isEmpty(voters) && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Vote here or click the suggestion to reply, mute, resolve, or move to task.
+        </Typography>
+      )}
+      {!_.isEmpty(voters) && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Vote here or click the suggestion to reply, mute, resolve, or see <b>{_.size(voters)} existing votes</b>.
+        </Typography>
+      )}
       {commentRoot.investible_id && (
-        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                        removeActions
-                        showVoting
-                        useCompression={useCompression}
-                        toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                        showDescription={false}
-                        showAssigned={false} />
+        <div style={{paddingBottom: '1rem'}}>
+          <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                          removeActions
+                          showVoting={false}
+                          useCompression={useCompression}
+                          toggleCompression={() => updateFormData({useCompression: !useCompression})}
+                          showDescription={false}
+                          showAssigned={false} />
+        </div>
       )}
       {!commentRoot.investible_id && (
         <div className={classes.wizardCommentBoxDiv}>

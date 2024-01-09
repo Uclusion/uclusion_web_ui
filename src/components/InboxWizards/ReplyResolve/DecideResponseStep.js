@@ -52,7 +52,7 @@ function DecideResponseStep(props) {
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         If you are very certain then move this suggestion to a task and otherwise reply. Click the suggestion to
-        leave this wizard and add voting, resolve, or move."
+        leave this wizard and add voting, resolve, or move.
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id}
                       useCompression={useCompression}

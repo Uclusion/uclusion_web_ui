@@ -8,7 +8,9 @@ import {
   CardActions,
   CardContent,
   Checkbox,
-  FormControlLabel, IconButton, Tooltip,
+  FormControlLabel,
+  IconButton,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme
@@ -46,16 +48,9 @@ import {
 } from '../../constants/markets';
 import { red } from '@material-ui/core/colors';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
-import {
-  addInvestible,
-  getInvestiblesInStage,
-  getMarketInvestibles
-} from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import {
-  getInCurrentVotingStage,
-  getInReviewStage
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   formCommentEditReplyLink,
@@ -113,6 +108,7 @@ import Reply from './Reply';
 import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import styled from 'styled-components';
+import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -704,11 +700,8 @@ function Comment(props) {
     && marketType === PLANNING_TYPE && !removeActions;
   const yourVote = myInlinePresence && myInlinePresence.investments &&
     myInlinePresence.investments.find((investment) => !investment.deleted);
-  const allInlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId) || [];
-  const voteableOptions = getInvestiblesInStage(allInlineInvestibles,
-    getInCurrentVotingStage(marketStagesState, inlineMarketId)?.id, inlineMarketId);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
-    !myInlinePresence.abstain && !yourVote && !removeActions && !_.isEmpty(voteableOptions);
+    !myInlinePresence.abstain && !yourVote && !removeActions && myMessage.type === NOT_FULLY_VOTED_TYPE;
   const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
   const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>

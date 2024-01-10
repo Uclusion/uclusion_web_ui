@@ -253,7 +253,7 @@ function WorkListItem(props) {
             {!isNotSynced && (
               <DateLabelHovered>
                 {isDeletable && !mobileLayout && (
-                  <NotificationDeletion message={message} fromRow />
+                  <NotificationDeletion message={message} />
                 )}
                 {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
                   : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Link } from '@material-ui/core';
-import DeleteIcon from '@material-ui/icons/Delete';
 import { FormattedMessage, useIntl } from 'react-intl';
 import config from '../../config';
 import LoadingOverlay from 'react-loading-overlay';
@@ -10,6 +9,7 @@ import { makeStyles } from '@material-ui/styles';
 import FileUploader from './FileUploader';
 import { getMarketLogin } from '../../api/marketLogin';
 import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton';
+import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 
 export const attachedFilesStyles = makeStyles((theme) => ({
   sectionTitle: {
@@ -66,7 +66,7 @@ export function displayLinksList(filesList, fileBaseUrl, downloadFile, onDeleteC
               onDeleteClick(path)
             }
           }}
-          icon={<DeleteIcon htmlColor="black" />}
+          icon={<NotificationDeletion />}
           aria-label="delete"
         />
       </div>

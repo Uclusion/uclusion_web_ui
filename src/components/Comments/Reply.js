@@ -24,7 +24,6 @@ import { handleAcceptSuggestion } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { findMessageForCommentId, removeMessagesForCommentId } from '../../utils/messageUtils';
 import { invalidEditEvent } from '../../utils/windowUtils';
-import { Delete } from '@material-ui/icons';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 import { ScrollContext } from '../../contexts/ScrollContext';
@@ -32,6 +31,7 @@ import ListAltIcon from '@material-ui/icons/ListAlt';
 import { LocalCommentsContext, navigateEditReplyBack, useCommentStyles } from './Comment';
 import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
+import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -304,7 +304,7 @@ function Reply(props) {
               <TooltipIconButton
                 disabled={operationRunning !== false}
                 onClick={remove}
-                icon={<Delete fontSize={mobileLayout ? 'small' : undefined} />}
+                icon={<NotificationDeletion />}
                 size={mobileLayout ? 'small' : undefined}
                 translationId="commentRemoveLabel"
                 doFloatRight
@@ -314,7 +314,7 @@ function Reply(props) {
               <TooltipIconButton
                 disabled={operationRunning !== false}
                 onClick={myAccept}
-                icon={<ListAltIcon fontSize={mobileLayout ? 'small' : undefined} />}
+                icon={<ListAltIcon fontSize={mobileLayout ? 'small' : undefined} style={{marginRight: '1rem'}} />}
                 size={mobileLayout ? 'small' : undefined}
                 translationId="wizardAcceptLabel"
                 doFloatRight

@@ -74,7 +74,6 @@ import { invalidEditEvent } from '../../utils/windowUtils';
 import AddIcon from '@material-ui/icons/Add';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import {
-  Delete,
   Done,
   Edit,
   Eject,
@@ -109,6 +108,7 @@ import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import styled from 'styled-components';
 import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications';
+import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -803,7 +803,7 @@ function Comment(props) {
             {displayEditing && isReallyMobileLayout && !beingEdited && (
               <TooltipIconButton
                 onClick={toggleEdit}
-                icon={<Edit fontSize='small' />}
+                icon={<Edit fontSize='small' style={{marginRight: '1rem'}} />}
                 translationId="edit"
               />
             )}
@@ -818,7 +818,7 @@ function Comment(props) {
                 <TooltipIconButton
                   disabled={operationRunning !== false}
                   onClick={remove}
-                  icon={<Delete fontSize={mobileLayout ? 'small' : undefined} />}
+                  icon={<NotificationDeletion />}
                   size={mobileLayout ? 'small' : undefined}
                   translationId="commentRemoveLabel"
                 />

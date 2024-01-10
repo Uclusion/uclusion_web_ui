@@ -9,7 +9,7 @@ import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessageByInvestmentUserId } from '../../../utils/messageUtils';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
-import { Delete, Edit } from '@material-ui/icons';
+import { Edit } from '@material-ui/icons';
 import { invalidEditEvent } from '../../../utils/windowUtils';
 import { useHistory } from 'react-router';
 import clsx from 'clsx';
@@ -25,6 +25,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { useCommentStyles } from '../../../components/Comments/Comment';
 import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils';
 import { stripHTML } from '../../../utils/stringFunctions';
+import NotificationDeletion from '../../Home/YourWork/NotificationDeletion';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -188,7 +189,7 @@ function Voting(props) {
                       <TooltipIconButton
                         disabled={operationRunning !== false}
                         onClick={remove}
-                        icon={<Delete fontSize={mobileLayout ? 'small' : undefined} />}
+                        icon={<NotificationDeletion />}
                         size={mobileLayout ? 'small' : undefined}
                         translationId="commentRemoveLabel"
                       />

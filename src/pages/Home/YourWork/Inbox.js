@@ -2,7 +2,7 @@ import WorkListItem from './WorkListItem';
 import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core';
 import React, { useContext, useEffect, useReducer } from 'react';
 import { useIntl } from 'react-intl';
-import { ArrowBack, Delete, Inbox as InboxIcon, KeyboardArrowLeft } from '@material-ui/icons';
+import { ArrowBack, Inbox as InboxIcon, KeyboardArrowLeft } from '@material-ui/icons';
 import OutboxIcon from '../../../components/CustomChip/Outbox';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import _ from 'lodash';
@@ -23,6 +23,7 @@ import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { formInboxItemLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { dehighlightMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
+import NotificationDeletion from './NotificationDeletion';
 
 function Inbox(props) {
   const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults,
@@ -106,7 +107,7 @@ function Inbox(props) {
           )}
           {(checkAll || !_.isEmpty(determinate)) && 0 === tabIndex && !isOnWorkItem && (
             <TooltipIconButton
-              icon={<Delete htmlColor={ACTION_BUTTON_COLOR} />}
+              icon={<NotificationDeletion />}
               onClick={() => {
                 let toProcess = messagesFull.filter((message) => message.is_highlighted ||
                   message.type_object_id.startsWith('UNREAD'));

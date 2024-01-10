@@ -255,8 +255,8 @@ function WorkListItem(props) {
                 {isDeletable && !mobileLayout && (
                   <NotificationDeletion message={message} />
                 )}
-                {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
-                  : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
+                {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem', marginLeft: '1rem'}} />
+                  : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem', marginLeft: '1rem'}} />}
               </DateLabelHovered>
             )}
           </Div>

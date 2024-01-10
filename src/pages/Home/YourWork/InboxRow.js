@@ -10,7 +10,7 @@ import React, { useContext } from 'react';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { Assignment, Block, CalendarToday, PersonAddOutlined } from '@material-ui/icons';
+import { Assignment, Block, CalendarToday, PersonAddOutlined, ReportOutlined } from '@material-ui/icons';
 import Quiz from '../../../components/CustomChip/Quiz';
 import { useIntl } from 'react-intl';
 import { useMediaQuery, useTheme } from '@material-ui/core';
@@ -28,6 +28,7 @@ import ListAltIcon from '@material-ui/icons/ListAlt';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 
 function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
@@ -68,6 +69,10 @@ function getPriorityIcon(message, isAssigned) {
   }
   if (message.type === 'UNREAD_REPLY') {
     Icon = ReplyIcon;
+  }
+
+  if (message.type === 'UNREAD_MENTION') {
+    Icon = ReportOutlined;
   }
 
   if (message.type === 'UNREAD_ESTIMATE') {

@@ -68,12 +68,13 @@ function DecideAssignStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'DecideAssignmentTitle'})}
+        {intl.formatMessage({ id: 'DecideAssignmentTitle' })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         Take action here or click the job title to ask a question or make a suggestion.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} removeActions />
+      <JobDescription marketId={marketId} investibleId={investibleId} removeActions/>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="DecideAssignMe"
@@ -83,7 +84,7 @@ function DecideAssignStep(props) {
         otherNextLabel="JobAssignBacklog"
         onOtherNext={move}
         isOtherFinal
-        terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'markRead' }
+        terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'markRead'}
         showTerminate={true}
         onFinish={myTerminate}
       />

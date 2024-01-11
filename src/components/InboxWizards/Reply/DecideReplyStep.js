@@ -71,7 +71,7 @@ function DecideReplyStep(props) {
     const { assigned } = marketInfo;
     isAssigned = (assigned || []).includes(userId);
   }
-  const showMoveToTask = commentType === SUGGEST_CHANGE_TYPE && isAssigned;
+  const isMySuggestion = commentType === SUGGEST_CHANGE_TYPE && isAssigned;
   const { useCompression } = formData;
 
   function myOnFinish() {
@@ -118,6 +118,8 @@ function DecideReplyStep(props) {
       });
   }
 
+  const showMoveToTask = isMySuggestion || !canResolve;
+
   return (
     <WizardStepContainer
       {...props}
@@ -125,7 +127,7 @@ function DecideReplyStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: messageType === 'UNREAD_MENTION' ? 'unreadMention' : 'unreadReply'})}
       </Typography>
-      {showMoveToTask && (
+      {isMySuggestion && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Click the suggestion to leave this wizard and resolve or add voting.
         </Typography>
@@ -161,12 +163,11 @@ function DecideReplyStep(props) {
         nextLabel="issueReplyLabel"
         isFinal={false}
         spinOnClick={false}
-        showOtherNext={canResolve || hasThreadMessages}
-        otherNextLabel={showMoveToTask ? 'moveToTaskLabel' : (canResolve ? 'issueResolveLabel' : 'notificationDelete')}
+        showOtherNext
+        otherNextLabel={showMoveToTask ? 'moveReplyToTaskLabel' : 'issueResolveLabel'}
         isOtherFinal
-        onOtherNext={showMoveToTask ? moveToTask : (canResolve ? resolve : myOnFinish)}
+        onOtherNext={showMoveToTask ? moveToTask : resolve}
         onOtherNextDoAdvance={false}
-        otherSpinOnClick={canResolve}
         showTerminate
         terminateLabel={hasThreadMessages ? 'notificationDismissThread' : 'notificationDelete'}
         onFinish={hasThreadMessages ? dismissAll : myOnFinish}

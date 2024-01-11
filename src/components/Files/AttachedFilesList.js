@@ -66,7 +66,7 @@ export function displayLinksList(filesList, fileBaseUrl, downloadFile, onDeleteC
               onDeleteClick(path)
             }
           }}
-          icon={<NotificationDeletion />}
+          icon={<NotificationDeletion isRed />}
           aria-label="delete"
         />
       </div>

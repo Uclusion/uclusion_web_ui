@@ -765,8 +765,8 @@ function Comment(props) {
             className={getCommentHighlightStyle()}
             ref={editBox}
       >
-        <div onClick={() => {
-          if (isInbox) {
+        <div onClick={(event) => {
+          if (isInbox && !invalidEditEvent(event, history)) {
             navigate(history, formCommentLink(marketId, groupId, investibleId, id));
           }
         }}>

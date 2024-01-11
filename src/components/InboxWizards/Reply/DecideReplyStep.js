@@ -125,7 +125,7 @@ function DecideReplyStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: messageType === 'UNREAD_MENTION' ? 'unreadMention' : 'unreadReply'})}
+        {intl.formatMessage({id: messageType === 'REPLY_MENTION' ? 'unreadMention' : 'unreadReply'})}
       </Typography>
       {isMySuggestion && (
         <Typography className={classes.introSubText} variant="subtitle1">

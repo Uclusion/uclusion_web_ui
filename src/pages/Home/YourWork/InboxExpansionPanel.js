@@ -134,10 +134,10 @@ export function calculateTitleExpansionPanel(props) {
                                                   message={message} />,
         'DecideUnblockTitle', intl);
     }
-  } else if (['UNREAD_REPLY', 'UNREAD_MENTION'].includes(messageType)) {
+  } else if (['UNREAD_REPLY', 'REPLY_MENTION'].includes(messageType)) {
     setItem(item, openExpansion, <ReplyWizard commentId={commentId} marketId={commentMarketId || marketId}
                                                 message={message} />,
-      messageType === 'UNREAD_MENTION' ? 'unreadMention' : 'unreadReply', intl);
+      messageType === 'REPLY_MENTION' ? 'unreadMention' : 'unreadReply', intl);
   }else if (messageType === 'UNREAD_VOTE' && linkType === 'INVESTIBLE_VOTE') {
       setItem(item, openExpansion, <FeedbackWizard marketId={marketId} investibleId={investibleId} message={message} />,
         'startJobQ', intl);

@@ -70,7 +70,7 @@ function getPriorityIcon(message, isAssigned) {
     Icon = ReplyIcon;
   }
 
-  if (message.type === 'UNREAD_MENTION') {
+  if (message.type === 'REPLY_MENTION') {
     Icon = ReportOutlined;
   }
 

@@ -1,8 +1,10 @@
 import React from 'react';
 import { wizardStyles } from './WizardStylesContext';
+import { useIntl } from 'react-intl';
 
 function WizardStepContainer (props) {
   const { children, startOver } = props;
+  const intl = useIntl();
   const classes = wizardStyles();
   return (
     <>
@@ -19,7 +21,8 @@ function WizardStepContainer (props) {
         color: 'rgba(0, 0, 0, 0.62)',
         width: '20rem',
         marginLeft: 'auto', marginRight: 'auto',
-      }}>Start over
+      }}>
+        {intl.formatMessage({ id: 'JobWizardStartOver' })}
       </div>
       <div className={classes.baseCard} style={{ overflowX: 'hidden' }}>
         {children}

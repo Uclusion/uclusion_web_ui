@@ -463,8 +463,8 @@ function CommentAdd(props) {
                     true, false).then(() => {
                     wizardProps.onResolve();
                   })}
-                  showTerminate
-                  terminateLabel={wizardProps.terminateLabel || 'JobWizardStartOver'}
+                  showTerminate={!_.isEmpty(wizardProps.terminateLabel)}
+                  terminateLabel={wizardProps.terminateLabel}
                 />
               )}
               {wizardProps.isBug && (

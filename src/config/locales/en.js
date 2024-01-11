@@ -1188,7 +1188,7 @@ const messages = defineMessages({
   ApprovalWizardApprove: 'Approve job',
   ApprovalWizardAccept: 'Accept job',
   ApproveOwnAssignmentTitle: 'Approve assignment?',
-  ApproveOwnAssignmentFullTitle: 'Will you approve this assignment?',
+  ApproveOwnAssignmentFullTitle: 'How certain are you of taking this assignment?',
   ApprovalWizardBlock: 'Block instead',
   ISSUEApproveWizard: 'Create issue',
   QUESTIONApproveWizard: 'Create question',

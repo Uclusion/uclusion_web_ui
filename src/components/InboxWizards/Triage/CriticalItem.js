@@ -64,7 +64,6 @@ const Title = styled(Text)`
 
 const TitleB
   = styled(Title)`
-  padding-left: 1rem;
   font-weight: bold;
 `;
 

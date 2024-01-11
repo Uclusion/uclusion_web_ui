@@ -76,6 +76,8 @@ export function getDeterminateReducer() {
       newCheckAll = false;
     } else if (type === 'toggle') {
       newCheckAll = !checkAll;
+      // Toggling check all clears all previous
+      newDeterminate = {};
     } else if (id !== undefined) {
       const newValue = determinate[id] === undefined ? !checkAll : !determinate[id];
       if (newValue === checkAll) {

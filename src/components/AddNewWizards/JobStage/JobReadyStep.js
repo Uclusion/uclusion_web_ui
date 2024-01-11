@@ -53,7 +53,7 @@ function JobReadyStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         Choosing ready will send a one time notification to the group.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
+      <JobDescription marketId={marketId} investibleId={investibleId} showAssigned={false} />
       <FormControl component="fieldset">
         <RadioGroup
           aria-labelledby="comment-type-choice"

@@ -54,7 +54,7 @@ function TaskReviewStep(props) {
       <JobDescription marketId={marketId} investibleId={comment.investible_id} comments={orderedTasks}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                      removeActions preserveOrder isSingleTaskDisplay showDescription={false} />
+                      removeActions preserveOrder isSingleTaskDisplay />
       <WizardStepButtons
         {...props}
         nextLabel="issueReplyLabel"

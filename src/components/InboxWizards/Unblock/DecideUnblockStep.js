@@ -82,7 +82,7 @@ function DecideUnblockStep(props) {
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                      removeActions showDescription={false} />
+                      removeActions />
       <WizardStepButtons
         {...props}
         nextLabel='UnblockReplyLabel'

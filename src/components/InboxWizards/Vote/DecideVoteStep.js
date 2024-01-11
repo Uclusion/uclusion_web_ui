@@ -63,7 +63,6 @@ function DecideVoteStep(props) {
                           showVoting={false}
                           useCompression={useCompression}
                           toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                          showDescription={false}
                           showAssigned={false} />
         </div>
       )}

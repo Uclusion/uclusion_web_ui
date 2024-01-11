@@ -119,7 +119,7 @@ function JobAssignStep (props) {
         <Typography className={classes.introSubText} variant="subtitle1">
           {unassignedWarning} {reassigningWarning}
         </Typography>
-        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
+        <JobDescription marketId={marketId} investibleId={investibleId} showAssigned={false} />
         <AssignmentList
           fullMarketPresences={marketPresences}
           previouslyAssigned={assigned}

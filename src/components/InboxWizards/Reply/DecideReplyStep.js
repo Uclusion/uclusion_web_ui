@@ -132,7 +132,6 @@ function DecideReplyStep(props) {
       )}
       {commentRoot.investible_id && (
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                        showDescription={false}
                         showAssigned={false}
                         removeActions
                         showVoting

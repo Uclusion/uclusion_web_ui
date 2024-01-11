@@ -67,7 +67,7 @@ function JobCollaboratorStep (props) {
         <Typography className={classes.introText} variant="h6">
           Who outside the group should be collaborating on the job?
         </Typography>
-        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
+        <JobDescription marketId={marketId} investibleId={investibleId} showAssigned={false} />
         <AssignmentList
           fullMarketPresences={marketPresences}
           previouslyAssigned={addressedIds}

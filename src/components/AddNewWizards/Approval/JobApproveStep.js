@@ -91,7 +91,7 @@ function JobApproveStep(props) {
             Your approval was deleted or expired.
           </Typography>
         )}
-        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
+        <JobDescription marketId={marketId} investibleId={investibleId} showAssigned={false} />
         <AddInitialVote
           marketId={marketId}
           onChange={onQuantityChange}

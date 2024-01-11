@@ -62,7 +62,7 @@ function DecideReviewStep(props) {
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                      preserveOrder showAssigned={false} showDescription={false} />
+                      preserveOrder showAssigned={false} />
       <WizardStepButtons
         {...props}
         nextLabel="DecideAddReview"

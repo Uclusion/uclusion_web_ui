@@ -35,7 +35,7 @@ function isLargeDisplay(description) {
 }
 
 function JobDescription(props) {
-  const { investibleId, marketId, comments, showDescription=true, showAssigned=true, inboxMessageId,
+  const { investibleId, marketId, comments, showAssigned=true, inboxMessageId,
     removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder,
     showAttachments, toggleCompression, useCompression, isSingleTaskDisplay = false,
     showDiff = false } = props;
@@ -80,7 +80,7 @@ function JobDescription(props) {
             </div>
           )}
         </div>
-        {(!editorIsEmpty && showDescription) && (
+        {!editorIsEmpty && (
           !normalDescriptionDisplay ?
             <CompressedDescription description={description} expansionPanel={fullDescription} /> : fullDescription
         )}

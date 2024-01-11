@@ -110,7 +110,6 @@ function DecideAssistanceStep(props) {
                         showVoting
                         useCompression={useCompression}
                         toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                        showDescription={false}
                         showAssigned={false} />
       )}
       {!commentRoot.investible_id && (

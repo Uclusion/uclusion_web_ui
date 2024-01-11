@@ -131,7 +131,7 @@ function JobStageStep (props) {
         <Typography className={classes.introSubText} variant="subtitle1">
           Moving to backlog will remove assignment and approvals. {isAssigned ? '' : 'You must be assigned to move to Accepted.'}
         </Typography>
-        <JobDescription marketId={marketId} investibleId={investibleId} showDescription={false} showAssigned={false} />
+        <JobDescription marketId={marketId} investibleId={investibleId} showAssigned={false} />
         <FormControl component="fieldset">
           <RadioGroup
             aria-labelledby="stage-choice"

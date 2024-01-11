@@ -42,8 +42,10 @@ const Text = styled("div")`
 
 const Title = styled(Text)`
   flex-basis: 1000px;
+  padding-left: 1rem;
   min-width: 13vw;
-  color: black;
+  color: blue;
+  text-decoration: underline;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -62,7 +64,6 @@ const Title = styled(Text)`
 
 const TitleB
   = styled(Title)`
-  color: rgba(0, 0, 0, 0.87);
   padding-left: 1rem;
   font-weight: bold;
 `;

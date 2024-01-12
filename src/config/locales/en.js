@@ -1061,7 +1061,7 @@ const messages = defineMessages({
   notificationLabelBLUE: 'Minor - no notification',
   able: 'Normal',
   convenient: 'Minor',
-  createNewQUESTION: 'Add question',
+  createNewQUESTION: 'Ask question',
   createNewISSUE: 'Add blocker',
   createNewTODO: 'Add task',
   createNewSUGGEST: 'Add suggestion',

@@ -11,13 +11,16 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import JobDescription from '../JobDescription';
 import { updateInvestible } from '../../../api/investibles';
-import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { TODO_TYPE } from '../../../constants/comments';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 
 function DecideAssignStep(props) {
   const { marketId, investibleId, message } = props;
@@ -25,8 +28,15 @@ function DecideAssignStep(props) {
   const [, invDispatch] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [commentsState] = useContext(CommentsContext);
   const history = useHistory();
   const intl = useIntl();
+  const inv = getInvestible(investiblesState, investibleId);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
+  const todos = marketComments.filter((comment) => comment.comment_type === TODO_TYPE &&
+    comment.investible_id === investibleId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const classes = wizardStyles();
@@ -73,7 +83,7 @@ function DecideAssignStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         Take action here or click the job title to ask a question or make a suggestion.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} removeActions/>
+      <JobDescription marketId={marketId} investibleId={investibleId} removeActions comments={todos}/>
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}

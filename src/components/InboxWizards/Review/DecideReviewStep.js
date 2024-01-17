@@ -20,6 +20,7 @@ import { getFullStage, isNotDoingStage } from '../../../contexts/MarketStagesCon
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
+import _ from 'lodash';
 
 function DecideReviewStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -38,8 +39,10 @@ function DecideReviewStep(props) {
   const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
   const isNotDoing = isNotDoingStage(fullStage);
   const investibleComments = getInvestibleComments(investibleId, marketId, commentsState);
-  const comments = investibleComments.filter((comment) =>
+  const todoComments = investibleComments.filter((comment) => comment.comment_type === TODO_TYPE);
+  const reports = investibleComments.filter((comment) =>
     comment.root_comment_id === report.id || comment.id === report.id);
+  const comments = _.concat(reports, todoComments);
   const { useCompression } = formData;
 
   return (

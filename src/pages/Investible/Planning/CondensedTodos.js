@@ -1,6 +1,6 @@
 import React, { useContext, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { Checkbox, IconButton, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
@@ -18,11 +18,12 @@ import BugListItem from '../../../components/Comments/BugListItem';
 import getReducer from '../../../components/Comments/BugListContext';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
-import { Eject } from '@material-ui/icons';
+import { Eject, ExpandLess } from '@material-ui/icons';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { isNewComment } from '../../../components/Comments/Options';
 import { todoClasses } from '../../Dialog/Planning/MarketTodos';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 function CondensedTodos(props) {
   const {
@@ -32,7 +33,8 @@ function CondensedTodos(props) {
     marketId,
     groupId,
     isInbox = false,
-    hideTabs
+    hideTabs,
+    isDefaultOpen = false
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -43,6 +45,7 @@ function CondensedTodos(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState] = useContext(NotificationsContext);
   const [showOpen, setShowOpen] = useState(true);
+  const [sectionOpen, setSectionOpen] = useState(isDefaultOpen);
   const [todoState, todoDispatch] = useReducer(getReducer(), {expansionState: {}});
   const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
     {determinate: {}, indeterminate: false, checkAll: false});
@@ -54,8 +57,8 @@ function CondensedTodos(props) {
   const tabComments = _.orderBy(tabCommentsRaw, ['updated_at'], ['desc']);
 
   function getRows() {
-    if (_.isEmpty(tabComments)) {
-      return <div className={classes.grow} key={`${showOpen}empty`}/>
+    if (_.isEmpty(tabComments) || !sectionOpen) {
+      return <div className={sectionOpen ? classes.grow : undefined} key={`${showOpen}empty`}/>
     }
     return tabComments.map((comment) => {
       const { id, body, updated_at: updatedAt } = comment;
@@ -132,13 +135,24 @@ function CondensedTodos(props) {
     }
   }
 
+  function toggleTodos() {
+    setSectionOpen(!sectionOpen);
+  }
+
   return (
-    <div className={classes.outerBorder} id="investibleCondensedTodos"
-         style={{marginLeft: '1rem', marginBottom: isInbox ? undefined : '2.5rem'}}>
-      <h2 id="tasksOverview" style={{paddingBottom: 0, marginBottom: 0}}>
-        <FormattedMessage id="taskSection" />
-      </h2>
-      {!hideTabs && (
+    <div className={sectionOpen ? classes.outerBorder : undefined} id="investibleCondensedTodos"
+         style={{marginLeft: '1rem'}}>
+      <div style={{display: 'flex', alignItems: 'center', marginTop: isInbox ? '1rem' : undefined}}>
+        <h2 id="tasksOverview" style={{paddingBottom: 0, marginBottom: 0, marginTop: 0, paddingTop: 0}}>
+          <FormattedMessage id="taskSection" />
+        </h2>
+        <IconButton onClick={() => toggleTodos()} style={{marginLeft: '0.5rem', marginBottom: 0,
+          paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
+          {sectionOpen ? <ExpandLess fontSize='large' htmlColor='black' /> :
+            <ExpandMoreIcon fontSize='large' htmlColor='black' />}
+        </IconButton>
+      </div>
+      {!hideTabs && sectionOpen && (
         <GmailTabs
           value={showOpen ? 0 : 1}
           onChange={(event, value) => {
@@ -159,7 +173,7 @@ function CondensedTodos(props) {
                         onDragOver={(event)=>event.preventDefault()} />
         </GmailTabs>
       )}
-      {!_.isEmpty(tabComments) && (
+      {!_.isEmpty(tabComments) && sectionOpen && (
         <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
           <div style={{display: 'flex', width: '80%'}}>
             {!mobileLayout && !isInbox && (
@@ -177,13 +191,13 @@ function CondensedTodos(props) {
           </div>
         </div>
       )}
-      {_.isEmpty(tabComments) && showOpen && (
+      {_.isEmpty(tabComments) && showOpen && sectionOpen && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           No open tasks.
         </Typography>
       )}
-      {_.isEmpty(tabComments) && !showOpen && (
+      {_.isEmpty(tabComments) && !showOpen && sectionOpen && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           No resolved tasks.

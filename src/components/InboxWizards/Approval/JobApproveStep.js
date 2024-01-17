@@ -27,7 +27,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useHistory } from 'react-router';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
-import { ISSUE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { useIntl } from 'react-intl';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
@@ -52,6 +52,8 @@ function JobApproveStep(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { group_id: groupId } = marketInfo;
   const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
+  const todos = marketComments.filter((comment) => comment.comment_type === TODO_TYPE &&
+    comment.investible_id === investibleId);
   const yourReason = getReasonForVote(yourVote, marketComments);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const voters = useInvestibleVoters(marketPresences, investibleId, marketId);
@@ -132,7 +134,7 @@ function JobApproveStep(props) {
             see <b>{_.size(voters)} existing approvals</b>.
           </Typography>
         )}
-        <JobDescription marketId={marketId} investibleId={investibleId} showVoting />
+        <JobDescription marketId={marketId} investibleId={investibleId} showVoting comments={todos} />
         <div style={{marginBottom: '1rem'}}/>
         <AddInitialVote
           marketId={marketId}

@@ -115,8 +115,9 @@ function JobDescription(props) {
                           marketInfo={marketInfo} />
         )}
         {(!_.isEmpty(nonTodoCommentsRoots) || isSingleTaskDisplay) && (
-          <div style={{paddingTop: '1rem', paddingBottom: '0.5rem', paddingLeft: '0.25rem',
-            paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden', overflowX: 'hidden' }}>
+          <div style={{paddingTop: _.isEmpty(todoComments) ? '1rem' : undefined, paddingBottom: '0.5rem',
+            paddingLeft: '0.25rem', paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden',
+            overflowX: 'hidden' }}>
             <CommentBox
               comments={isSingleTaskDisplay ? comments : nonTodoComments}
               preserveOrder={preserveOrder}

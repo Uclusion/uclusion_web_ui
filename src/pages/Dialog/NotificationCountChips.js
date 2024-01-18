@@ -5,7 +5,7 @@ import {
 } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import Chip from '@material-ui/core/Chip'
-import { AssignmentInd, RateReview } from '@material-ui/icons'
+import { AssignmentInd } from '@material-ui/icons'
 import Approval from '../../components/CustomChip/Approval'
 
 
@@ -26,32 +26,24 @@ function NotificationCountChips(props) {
     id,
     presence
   } = props;
-  const { mentioned_notifications: mentions, approve_notifications: approvals,
-    review_notifications: reviews } = presence;
+  const { mentioned_notifications: mentions, approve_notifications: approvals } = presence;
   const classes = useStyles();
   const intl = useIntl();
 
   return (
     <>
-      {mentions && mentions.length > 0 && (
+      {mentions?.length > 0 && (
         <Tooltip key={`tipmention${id}`}
                  title={intl.formatMessage({ id: 'mentionsExplanation' })}>
           <Chip component="span" icon={<AssignmentInd className={classes.iconTodo}/>} label={`${mentions.length}`}
                 size='small' className={classes.chipStyle}/>
         </Tooltip>
       )}
-      {approvals && approvals.length > 0 && (
+      {approvals?.length > 0 && (
         <Tooltip key={`tipapprov${id}`}
                  title={intl.formatMessage({ id: 'approvalExplanation' })}>
           <Chip component="span" icon={<Approval className={classes.iconTodo}/>}
                 label={`${approvals.length}`} size='small' className={classes.chipStyle}/>
-        </Tooltip>
-      )}
-      {reviews && reviews.length > 0 && (
-        <Tooltip key={`tipreview${id}`}
-                 title={intl.formatMessage({ id: 'reviewExplanation' })}>
-          <Chip component="span" icon={<RateReview className={classes.iconTodo}/>}
-                label={`${reviews.length}`} size='small' className={classes.chipStyle}/>
         </Tooltip>
       )}
     </>

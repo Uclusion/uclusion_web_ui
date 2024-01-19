@@ -312,7 +312,7 @@ function CommentAdd(props) {
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const ourMarket = getMarket(marketsState, marketId) || {};
 
-  function handleClear () {
+  function handleClear() {
     replaceEditorContents('', editorName);
     onCancel();
   }
@@ -354,7 +354,7 @@ function CommentAdd(props) {
   }, [autoFocus, editorName]);
 
 
-  function clearMe () {
+  function clearMe() {
     resetEditor(editorName);
     commentAddStateReset();
   }
@@ -502,8 +502,11 @@ function CommentAdd(props) {
                   showOtherNext={type === TODO_TYPE}
                   otherNextLabel='addAnother'
                   isOtherFinal={false}
-                  onOtherNext={() => handleSave(true, undefined, false,
-                    true )}
+                  onOtherNext={() => {
+                      handleSave(true, undefined, false, true );
+                      resetEditor(editorName, '', {placeholder});
+                    }
+                  }
                   showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : !investibleId}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}

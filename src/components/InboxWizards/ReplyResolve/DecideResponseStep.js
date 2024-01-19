@@ -50,10 +50,17 @@ function DecideResponseStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideIdeaTitle'})}
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        If you are very certain then move this suggestion to a task and otherwise reply. Click the suggestion to
-        leave this wizard and add voting, resolve, or move.
-      </Typography>
+      {commentRoot.investible_id && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          If you are very certain then move this suggestion to a task and otherwise reply. Click the suggestion to
+          leave this wizard and add voting, resolve, or move.
+        </Typography>
+      )}
+      {!commentRoot.investible_id && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Click the suggestion to leave this wizard and add voting, resolve, or move.
+        </Typography>
+      )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})}
@@ -63,7 +70,7 @@ function DecideResponseStep(props) {
         nextLabel='UnblockReplyLabel'
         isFinal={false}
         spinOnClick={false}
-        showOtherNext
+        showOtherNext={commentRoot.investible_id}
         otherNextLabel='wizardAcceptLabel'
         onOtherNext={moveToTask}
         isOtherFinal

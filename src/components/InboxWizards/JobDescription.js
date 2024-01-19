@@ -46,7 +46,7 @@ function isLargeDisplay(description) {
     return true;
   }
   const stripped = stripHTML(description);
-  return stripped.length > 250;
+  return stripped?.length > 250;
 }
 
 function JobDescription(props) {
@@ -78,26 +78,30 @@ function JobDescription(props) {
   const nonTodoCommentsRoots = nonTodoComments?.filter((comment) => comment.comment_type !== REPLY_TYPE);
   const normalDescriptionDisplay = showDiff || !isLargeDisplay(description);
   const fullDescription = <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} />;
+
   return (
     <>
       <div style={{paddingLeft: '4px', paddingRight: '4px' }}>
-        <div style={{display: mobileLayout ? undefined : 'flex', paddingBottom: mobileLayout ? '1.5rem' : undefined}}>
-          <Typography className={investibleEditClasses.title} variant="h3" component="h1"
-                      style={{cursor: 'pointer', color: 'blue', textDecoration: 'underline'}}
-                      onClick={() => navigate(history, formInvestibleLink(marketId, investibleId))}>
-            {name}
-          </Typography>
-          {!_.isEmpty(assignedPresences) && showAssigned && (
-            <div className={planningClasses.assignments}
-                 style={{paddingLeft: '1.5rem', display: 'flex', alignItems: 'center'}}>
-              <b style={{marginRight: '1rem'}}><FormattedMessage id="planningInvestibleAssignments" /></b>
-              <GravatarGroup users={assignedPresences} gravatarClassName={classes.smallGravatar} />
-            </div>
-          )}
-        </div>
+        {investibleId && (
+          <div
+            style={{ display: mobileLayout ? undefined : 'flex', paddingBottom: mobileLayout ? '1.5rem' : undefined }}>
+            <Typography className={investibleEditClasses.title} variant="h3" component="h1"
+                        style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                        onClick={() => navigate(history, formInvestibleLink(marketId, investibleId))}>
+              {name}
+            </Typography>
+            {!_.isEmpty(assignedPresences) && showAssigned && (
+              <div className={planningClasses.assignments}
+                   style={{ paddingLeft: '1.5rem', display: 'flex', alignItems: 'center' }}>
+                <b style={{ marginRight: '1rem' }}><FormattedMessage id="planningInvestibleAssignments"/></b>
+                <GravatarGroup users={assignedPresences} gravatarClassName={classes.smallGravatar}/>
+              </div>
+            )}
+          </div>
+        )}
         {!editorIsEmpty && (
           !normalDescriptionDisplay ?
-            <CompressedDescription description={description} expansionPanel={fullDescription} /> : fullDescription
+            <CompressedDescription description={description} expansionPanel={fullDescription}/> : fullDescription
         )}
         {showAttachments && (
           <>
@@ -112,10 +116,11 @@ function JobDescription(props) {
         )}
         {!_.isEmpty(todoComments) && !isSingleTaskDisplay && (
           <CondensedTodos comments={todoComments} investibleComments={comments} isInbox marketId={marketId}
-                          marketInfo={marketInfo} />
+                          marketInfo={marketInfo}/>
         )}
         {(!_.isEmpty(nonTodoCommentsRoots) || isSingleTaskDisplay) && (
-          <div style={{paddingTop: _.isEmpty(todoComments) ? '1rem' : undefined, paddingBottom: '0.5rem',
+          <div style={{
+            paddingTop: investibleId && _.isEmpty(todoComments) ? '1rem' : undefined, paddingBottom: '0.5rem',
             paddingLeft: '0.25rem', paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden',
             overflowX: 'hidden' }}>
             <CommentBox

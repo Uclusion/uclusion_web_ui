@@ -88,12 +88,6 @@ export const headerStyles = makeStyles((theme) => {
     breadCrumbImage: {
       height: 40,
     },
-    centerMe: {
-      width: `100%`,
-    },
-    offlineStyle: {
-      padding: '15px',
-    },
     menuButton: {
       marginLeft: '-3px',
       marginRight: theme.spacing(2),
@@ -233,13 +227,11 @@ function Header (props) {
           </div>
           {!hideTools && toolbarButtons}
           {!online && (
-            <div className={classes.centerMe}>
-              <Paper className={classes.offlineStyle}>
-                <Typography variant="h5">
-                  {intl.formatMessage({ id: 'warningOffline' })}
-                </Typography>
-              </Paper>
-            </div>
+            <Paper style={{marginRight: '4rem'}}>
+              <Typography variant="h5" style={{paddingLeft: '6px', paddingRight: '6px'}}>
+                {intl.formatMessage({ id: 'warningOffline' })}
+              </Typography>
+            </Paper>
           )}
           <SearchBox disableSearch={disableSearch}/>
           {!hideTools && (

@@ -5,7 +5,10 @@ import { useHistory } from 'react-router';
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestibleNav';
 import React, { useContext } from 'react';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getMarketPresences,
+  getPresencesForGroup
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { PLACEHOLDER } from '../../../constants/global';
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils';
 import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -21,6 +24,7 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -129,7 +133,9 @@ function InvestiblesByPerson(props) {
   const wizardClasses = wizardStyles();
   const { market_id: marketId, id: groupId } = group || {};
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const groupPresences = getPresencesForGroup(presences, groupPresencesState, marketId, groupId) || [];
   const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
@@ -178,9 +184,9 @@ function InvestiblesByPerson(props) {
         const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId,
           comments);
         const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
-        const { mentioned_notifications: mentions, approve_notifications: approvals, review_notifications: reviews }
-          = presence || {};
-        if (_.isEmpty(myInvestiblesStageHash) && _.isEmpty(mentions) && _.isEmpty(approvals) && _.isEmpty(reviews)) {
+        const groupPresence = groupPresences.find((groupPresence) => groupPresence.id === presence.id);
+        const { mentioned_notifications: mentions, approve_notifications: approvals } = groupPresence || {};
+        if (_.isEmpty(myInvestiblesStageHash) && _.isEmpty(mentions) && _.isEmpty(approvals)) {
           return <React.Fragment/>
         }
         return (
@@ -193,7 +199,7 @@ function InvestiblesByPerson(props) {
                     <Typography variant="body1" className={myClassName}>
                       {name}
                       {!mobileLayout && (
-                        <NotificationCountChips id={id} presence={presence || {}}/>
+                        <NotificationCountChips id={id} presence={groupPresence || {}}/>
                       )}
                     </Typography>
                   </div>}

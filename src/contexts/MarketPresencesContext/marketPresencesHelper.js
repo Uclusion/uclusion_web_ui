@@ -67,6 +67,13 @@ export function getGroupPresences(presences, groupMembersState, marketId, groupI
   return groupPresences;
 }
 
+export function getPresencesForGroup(presences, groupMembersState, marketId, groupId) {
+  const groupCapabilities = groupMembersState[groupId] || [];
+  return (isEveryoneGroup(groupId, marketId) || _.isEmpty(groupId)) ? presences
+    : presences.filter((presence) => groupCapabilities.find((groupCapability) =>
+      !groupCapability.deleted && groupCapability.id === presence.id && groupCapability.group_id === groupId));
+}
+
 export function usePresences(marketId) {
   const [presencesState] = useContext(MarketPresencesContext);
   return getMarketPresences(presencesState, marketId) || [];

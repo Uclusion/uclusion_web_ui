@@ -6,7 +6,7 @@ import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { RED_LEVEL } from '../../../constants/notifications';
 import _ from 'lodash';
 import { stripHTML } from '../../../utils/stringFunctions';

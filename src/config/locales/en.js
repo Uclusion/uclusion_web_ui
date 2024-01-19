@@ -1082,7 +1082,7 @@ const messages = defineMessages({
   createBlueExplanation: 'Create a new bug without notification',
   taskSection: 'Tasks',
   tasksSection: 'Tasks',
-  criticalBugs: 'Critical bugs',
+  criticalBugs: 'Critical bugs for group {groupName}',
   todoSection: 'Bugs',
   jobFromBugs: 'Bugs {ticketList}',
   readyToStartCheckboxExplanation: 'Ready to start',

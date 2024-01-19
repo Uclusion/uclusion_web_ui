@@ -13,27 +13,28 @@ import { stripHTML } from '../../../utils/stringFunctions';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import CriticalItem from './CriticalItem';
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { deleteOrDehilightMessages } from '../../../api/users';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 
 function TriageStep(props) {
   const { marketId, commentId, message } = props;
   const [commentState] = useContext(CommentsContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [groupState] = useContext(MarketGroupsContext);
   const intl = useIntl();
   const history = useHistory();
   const commentRoot = getComment(commentState, marketId, commentId) || {};
   const { group_id: groupId } = commentRoot;
+  const group = getGroup(groupState, marketId, groupId) || {};
+  const { name: groupName } = group;
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.group_id === groupId && !comment.resolved && !comment.deleted && !comment.investible_id &&
     comment.notification_type === RED_LEVEL);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const classes = wizardStyles();
 
   function goToBugs() {
@@ -45,13 +46,11 @@ function TriageStep(props) {
       return React.Fragment;
     }
     return comments.map((comment) => {
-      const { id, body, updated_at: updatedAt, created_by: createdBy } = comment;
+      const { id, body, updated_at: updatedAt } = comment;
       const { is_highlighted: isHighlighted, comment_list: highlightedComments } = message;
-      const creator = marketPresences.find((presence) => presence.id === createdBy) || {};
       return (
         <CriticalItem id={id} title={stripHTML(body)} link={formCommentLink(marketId, groupId, undefined, id)}
-                     date={new Date(updatedAt)} people={[creator]}
-                      isRead={!isHighlighted && !highlightedComments?.includes(id)}/>
+                     date={new Date(updatedAt)} isRead={!isHighlighted && !highlightedComments?.includes(id)}/>
       );
     });
   }
@@ -75,7 +74,7 @@ function TriageStep(props) {
         Assign bugs or lower from Critical to remove this notification. Click a bug to see full display.
       </Typography>
       <h2 id="tasksOverview">
-        <FormattedMessage id="criticalBugs" />
+        {intl.formatMessage({id: 'criticalBugs'}, { groupName })}
       </h2>
       <div style={{marginBottom: '2.5rem'}}>
         {getRows()}

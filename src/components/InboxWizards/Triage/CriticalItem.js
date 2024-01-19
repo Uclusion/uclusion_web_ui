@@ -4,9 +4,7 @@ import PropTypes from 'prop-types';
 import RaisedCard from '../../Cards/RaisedCard';
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import GravatarGroup from '../../Avatars/GravatarGroup';
 import UsefulRelativeTime from '../../TextFields/UseRelativeTime';
-import { workListStyles } from '../../Cards/BacklogListItem';
 
 const Item = styled("div")`
   margin-bottom: 1px;
@@ -86,11 +84,9 @@ function CriticalItem(props) {
     date,
     id,
     link,
-    people,
     isRead
   } = props;
   const history = useHistory();
-  const classes = workListStyles();
 
   return (
     <>
@@ -104,7 +100,6 @@ function CriticalItem(props) {
             }
           }>
             <Div key={`actions${id}`}>
-              <GravatarGroup users={people} className={classes.gravatarStyle}/>
               {!isRead && (
                 <TitleB>{title}</TitleB>
               )}

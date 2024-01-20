@@ -46,30 +46,6 @@ export function getMarketDetailsForType(state, marketPresencesState, marketType 
   return null;
 }
 
-export function x(state, marketPresenceState, searchResults = {}) {
-  const { marketDetails } = state;
-  const { results, parentResults, search } = searchResults;
-  if (marketDetails) {
-    return marketDetails.filter((market) => {
-      if(!market){
-        return false;
-      }
-      const { id, market_stage: marketStage, market_sub_type: marketSubType } = market;
-      const marketPresences = getMarketPresences(marketPresenceState, id) || [];
-      const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      if (myPresence.market_banned || 'SUPPORT' === marketSubType) {
-        return false;
-      }
-      const shown = marketStage !== ACTIVE_STAGE || !myPresence.following;
-      if (_.isEmpty(search)) {
-        return shown;
-      }
-      return shown && (results.find((item) => item.id === id) || parentResults.find((parentId) => parentId === id));
-    });
-  }
-  return [];
-}
-
 export function addMarket(result, marketDispatch, presenceDispatch) {
   const {
     market,

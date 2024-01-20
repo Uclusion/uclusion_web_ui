@@ -9,7 +9,12 @@ import WizardStepButtons from '../WizardStepButtons';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { addGroupsToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { pushMessage } from '../../../utils/MessageBusUtils';
-import { PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../../api/versionedFetchUtils';
+import {
+  BANNED_LIST,
+  PUSH_STAGE_CHANNEL,
+  REMOVED_MARKETS_CHANNEL,
+  VERSIONS_EVENT
+} from '../../../api/versionedFetchUtils';
 import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import TokenStorageManager from '../../../authorization/TokenStorageManager';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -21,6 +26,7 @@ import { formMarketLink } from '../../../utils/marketIdPathFunctions';
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
 import Link from '@material-ui/core/Link';
+import { PLANNING_TYPE } from '../../../constants/markets';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData } = props;
@@ -28,7 +34,7 @@ function WorkspaceNameStep (props) {
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
-  const [, marketsDispatch] = useContext(MarketsContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [, userDispatch] = useContext(AccountContext);
@@ -63,6 +69,11 @@ function WorkspaceNameStep (props) {
         addGroupsToStorage(groupsDispatch, () => {}, { [createdMarketId]: [group]});
         pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: {[createdMarketId]: stages }});
         addPresenceToMarket(presenceDispatch, createdMarketId, presence);
+        const demo = marketsState?.marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
+          market.object_type === 'DEMO');
+        if (!_.isEmpty(demo)){
+          pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList: [demo.id] });
+        }
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
           .then(() => {

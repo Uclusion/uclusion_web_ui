@@ -138,6 +138,7 @@ function JobApproveStep(props) {
           showTerminate={true}
           onNext={onNext}
           showOtherNext={_.isEmpty(requiredApprovers)&&isAssignedToMe}
+          otherNextValid
           onOtherNext={start}
           otherNextLabel="skipAllApprovals"
           onTerminate={onTerminate}

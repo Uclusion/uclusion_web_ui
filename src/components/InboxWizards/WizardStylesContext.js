@@ -40,8 +40,8 @@ export const wizardStyles = makeStyles(
         }
       },
       introText: {
-        fontSize: '45px',
-        lineHeight: '56px',
+        fontSize: '35px',
+        lineHeight: '40px',
         fontWeight: 700,
         marginBottom: '1rem'
       },

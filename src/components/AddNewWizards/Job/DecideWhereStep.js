@@ -50,19 +50,22 @@ function DecideWhereStep (props) {
         Where do you want to move?
       </Typography>
       {_.size(roots) > 1 && (
-        <CondensedTodos comments={roots} investibleComments={comments} isInbox marketId={marketId} hideTabs />
+        <CondensedTodos comments={roots} investibleComments={comments} isInbox marketId={marketId} hideTabs/>
       )}
       {_.size(roots) === 1 && (
-        <CommentBox
-          comments={comments}
-          marketId={marketId}
-          allowedTypes={[]}
-          isInbox
-          isMove
-          removeActions
-          toggleCompression={() => updateFormData({useCompression: !useCompression})}
-          useCompression={useCompression}
-        />
+        <>
+          <CommentBox
+            comments={comments}
+            marketId={marketId}
+            allowedTypes={[]}
+            isInbox
+            isMove
+            removeActions
+            toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+            useCompression={useCompression}
+          />
+          <div className={classes.borderBottom}/>
+        </>
       )}
       <div className={classes.borderBottom} />
       <WizardStepButtons

@@ -46,7 +46,11 @@ function DialogArchives() {
   const presenceMap = getPresenceMap(marketPresences);
   const completeStage = getInReviewStage(marketStagesState, marketId) || {};
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
-  const marketInvestibles = getMarketInvestibles(investiblesState, marketId, searchResults) || [];
+  const marketInvestiblesRaw = getMarketInvestibles(investiblesState, marketId, searchResults) || [];
+  const marketInvestibles = marketInvestiblesRaw.filter((investible) => {
+    const marketInfo = getMarketInfo(investible, marketId);
+    return marketInfo.group_id === groupId;
+  });
   const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, completeStage.id, marketId);
   const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id, marketId);
   const comments = getMarketComments(commentsState, marketId, groupId) || [];

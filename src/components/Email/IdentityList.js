@@ -19,7 +19,7 @@ import { usePlanFormStyles } from '../AgilePlan';
 function IdentityList (props) {
   const { participants, checked, setChecked } = props;
   const classes = usePlanFormStyles();
-  const [filteredNames, setFilteredNames] = useState(participants);
+  const [searchValueLower, setSearchValueLower] = useState(undefined);
   function getCheckToggle(id) {
     return () => {
       if (!checked.find((item) => item.id === id || item.user_id === id)) {
@@ -64,10 +64,11 @@ function IdentityList (props) {
     )
   }
 
-  function onSearchChange(event) {
-    const { value } = event.target;
-    const searchValueLower = value.toLowerCase();
-    const filteredEntries = participants.filter((entry) => {
+  function filterForSearch() {
+    if (_.isEmpty(searchValueLower)) {
+      return participants;
+    }
+    return participants.filter((entry) => {
       const { name } = entry;
       const nameLower = name.toLowerCase();
       let index = 0;
@@ -80,7 +81,13 @@ function IdentityList (props) {
       }
       return true;
     })
-    setFilteredNames(filteredEntries);
+  }
+
+  const filteredNames = filterForSearch();
+
+  function onSearchChange(event) {
+    const { value } = event.target;
+    setSearchValueLower(value.toLowerCase());
   }
 
   return (

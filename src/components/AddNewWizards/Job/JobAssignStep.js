@@ -133,6 +133,8 @@ function JobAssignStep (props) {
           fullMarketPresences={presences}
           previouslyAssigned={assigneeId ? [assigneeId] : undefined}
           onChange={onAssignmentChange}
+          groupId={groupId}
+          marketId={marketId}
         />
         <div className={classes.borderBottom}/>
         <WizardStepButtons

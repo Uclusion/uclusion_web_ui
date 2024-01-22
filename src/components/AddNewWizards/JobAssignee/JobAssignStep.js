@@ -125,6 +125,8 @@ function JobAssignStep (props) {
           previouslyAssigned={assigned}
           requiresInput={isRequiresInput()}
           onChange={onAssignmentChange}
+          groupId={groupId}
+          marketId={marketId}
         />
 
         <div className={classes.borderBottom}/>

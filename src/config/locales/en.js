@@ -611,6 +611,7 @@ const messages = defineMessages({
   noQuestions: 'Questions should go in their own comment.',
   noQuestionUploads: 'Questions should go in their own comment.',
   collaborators: 'Collaborators',
+  onlyThisGroup: 'Only this group',
   inlineAddLabel: 'Add option',
   inlineProposeLabel: 'Propose option',
   inlineAddLabelMobile: 'Option',

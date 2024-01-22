@@ -73,6 +73,10 @@ function JobCollaboratorStep (props) {
           previouslyAssigned={addressedIds}
           cannotBeAssigned={cannotBeAssigned}
           onChange={onAddressedChange}
+          groupId={groupId}
+          marketId={marketId}
+          showAllOnly
+          listHeader="collaborators"
         />
 
         <div className={classes.borderBottom}/>

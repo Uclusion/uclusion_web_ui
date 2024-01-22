@@ -27,7 +27,7 @@ function JobApproverStep (props) {
   const classes = useContext(WizardStylesContext);
   const inv = getInvestible(investibleState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { required_approvers: approvers } = marketInfo;
+  const { required_approvers: approvers, group_id: groupId } = marketInfo;
   const value = (formData.wasSet ? formData.approvers : approvers) || [];
   const validForm = !_.isEqual(value, approvers);
 
@@ -71,6 +71,8 @@ function JobApproverStep (props) {
           previouslyAssigned={approvers}
           onChange={onApproverChange}
           listHeader="requiredApprovers"
+          groupId={groupId}
+          marketId={marketId}
         />
 
         <div className={classes.borderBottom}/>

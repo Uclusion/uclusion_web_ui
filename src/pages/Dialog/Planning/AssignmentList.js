@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useIntl } from 'react-intl';
 import Typography from '@material-ui/core/Typography';
 import IdentityList from '../../../components/Email/IdentityList';
+import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { Checkbox } from '@material-ui/core';
 
 function AssignmentList(props) {
   const {
@@ -12,12 +15,19 @@ function AssignmentList(props) {
     previouslyAssigned,
     cannotBeAssigned,
     listHeader,
-    requiresInput
+    requiresInput,
+    groupId,
+    marketId,
+    showAllOnly
   } = props;
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const [groupOnly, setGroupOnly] = useState(!showAllOnly);
   const [checked, setChecked] = useState(fullMarketPresences.filter((presence) =>
     previouslyAssigned.includes(presence.id)));
   const intl = useIntl();
-  const marketPresences = fullMarketPresences.filter((presence) => !presence.market_banned);
+  const marketPresencesRaw = fullMarketPresences.filter((presence) => !presence.market_banned);
+  const marketPresences = groupOnly ? getGroupPresences(marketPresencesRaw, groupPresencesState, marketId, groupId)
+    || [] : marketPresencesRaw;
 
   function getSortedPresenceWithAssignable() {
     const assignable = _.isEmpty(cannotBeAssigned) ? marketPresences : marketPresences.filter((presence) =>
@@ -37,9 +47,21 @@ function AssignmentList(props) {
 
   return (
     <div>
-      <Typography>
-        {intl.formatMessage({ id: listHeader })}
-      </Typography>
+      <div style={{display: 'flex', alignItems: 'center'}}>
+        <Typography>
+          {intl.formatMessage({ id: listHeader })}
+        </Typography>
+        <div style={{flexGrow: 1}} />
+        {!showAllOnly && (
+          <div>
+            {intl.formatMessage({ id: 'onlyThisGroup' })}
+            <Checkbox
+              checked={groupOnly}
+              onClick={() => setGroupOnly(!groupOnly)}
+            />
+          </div>
+        )}
+      </div>
       <IdentityList participants={participants} setChecked={mySetChecked} checked={checked} />
       {requiresInput && (
         <Typography color='error'>
@@ -56,7 +78,10 @@ AssignmentList.propTypes = {
   previouslyAssigned: PropTypes.arrayOf(PropTypes.string),
   cannotBeAssigned: PropTypes.arrayOf(PropTypes.string),
   onChange: PropTypes.func,
-  requiresInput: PropTypes.bool
+  requiresInput: PropTypes.bool,
+  groupId: PropTypes.string.isRequired,
+  marketId: PropTypes.string.isRequired,
+  showAllOnly: PropTypes.bool
 };
 
 AssignmentList.defaultProps = {
@@ -64,7 +89,8 @@ AssignmentList.defaultProps = {
   onChange: () => {},
   previouslyAssigned: [],
   cannotBeAssigned: [],
-  requiresInput: false
+  requiresInput: false,
+  showAllOnly: false
 };
 
 export default AssignmentList;

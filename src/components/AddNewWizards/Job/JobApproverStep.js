@@ -135,6 +135,8 @@ function JobApproverStep(props) {
           previouslyAssigned={approvers}
           onChange={onApproverChange}
           listHeader="requiredApprovers"
+          groupId={groupId}
+          marketId={marketId}
         />
         <div className={classes.borderBottom}/>
         <WizardStepButtons

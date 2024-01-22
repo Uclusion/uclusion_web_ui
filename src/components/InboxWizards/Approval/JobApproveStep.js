@@ -31,6 +31,8 @@ import { ISSUE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { useIntl } from 'react-intl';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
@@ -43,6 +45,8 @@ function JobApproveStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [investiblesState] = useContext(InvestiblesContext);
+  const [marketsState] = useContext(MarketsContext);
+  const market = getMarket(marketsState, marketId) || {};
   const history = useHistory();
   const validForm = formData.approveQuantity != null;
   const classes = wizardStyles();
@@ -125,13 +129,15 @@ function JobApproveStep(props) {
         )}
         {!wasDeleted && _.isEmpty(voters) && (
           <Typography className={classes.introSubText} variant="subtitle1">
-            Take action here or click the job title to ask a question or make a suggestion.
+            Take action here or click the job title to ask a question or make a suggestion. Your approval will expire
+            in {market.investment_expiration} days.
           </Typography>
         )}
         {!wasDeleted && !_.isEmpty(voters) && (
           <Typography className={classes.introSubText} variant="subtitle1">
             Take action here or click the job title to ask a question, make a suggestion, or
-            see <b>{_.size(voters)} existing approvals</b>.
+            see <b>{_.size(voters)} existing approvals</b>. Your approval will expire
+            in {market.investment_expiration} days.
           </Typography>
         )}
         <JobDescription marketId={marketId} investibleId={investibleId} showVoting comments={todos} />

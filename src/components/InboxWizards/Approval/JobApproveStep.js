@@ -140,7 +140,8 @@ function JobApproveStep(props) {
             in {market.investment_expiration} days.
           </Typography>
         )}
-        <JobDescription marketId={marketId} investibleId={investibleId} showVoting comments={todos} />
+        <JobDescription marketId={marketId} investibleId={investibleId} showVoting comments={todos}
+                        showRequiredApprovers />
         <div style={{marginBottom: '1rem'}}/>
         <AddInitialVote
           marketId={marketId}

@@ -50,7 +50,7 @@ function isLargeDisplay(description) {
 }
 
 function JobDescription(props) {
-  const { investibleId, marketId, comments, showAssigned=true, inboxMessageId,
+  const { investibleId, marketId, comments, showAssigned=true, inboxMessageId, showRequiredApprovers = false,
     removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder,
     showAttachments, toggleCompression, useCompression, isSingleTaskDisplay = false,
     showDiff = false } = props;
@@ -67,9 +67,11 @@ function JobDescription(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { assigned } = marketInfo || {};
+  const { assigned, required_approvers:  requiredApproversIds } = marketInfo || {};
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const assignedPresences = marketPresences.filter((presence) => (assigned || []).includes(presence.id))
+  const assignedPresences = marketPresences.filter((presence) => (assigned || []).includes(presence.id));
+  const requiredApprovers = marketPresences.filter((presence) => (requiredApproversIds || [])
+    .includes(presence.id));
   const { investible: myInvestible } = inv || {};
   const { name, description, attached_files: attachedFiles } = myInvestible || {};
   const editorIsEmpty = editorEmpty(description);
@@ -95,6 +97,13 @@ function JobDescription(props) {
                    style={{ paddingLeft: '1.5rem', display: 'flex', alignItems: 'center' }}>
                 <b style={{ marginRight: '1rem' }}><FormattedMessage id="planningInvestibleAssignments"/></b>
                 <GravatarGroup users={assignedPresences} gravatarClassName={classes.smallGravatar}/>
+              </div>
+            )}
+            {!_.isEmpty(requiredApprovers) && showRequiredApprovers && (
+              <div className={planningClasses.assignments}
+                   style={{ paddingLeft: '1.5rem', display: 'flex', alignItems: 'center' }}>
+                <b style={{ marginRight: '1rem' }}><FormattedMessage id="requiredApprovers"/></b>
+                <GravatarGroup users={requiredApprovers} gravatarClassName={classes.smallGravatar}/>
               </div>
             )}
           </div>

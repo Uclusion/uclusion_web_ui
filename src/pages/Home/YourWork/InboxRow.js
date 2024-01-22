@@ -10,7 +10,7 @@ import React, { useContext } from 'react';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { Assignment, Block, CalendarToday, PersonAddOutlined, ReportOutlined } from '@material-ui/icons';
+import { Assignment, Block, CalendarToday, Done, PersonAddOutlined, ReportOutlined } from '@material-ui/icons';
 import Quiz from '../../../components/CustomChip/Quiz';
 import { useIntl } from 'react-intl';
 import { useMediaQuery, useTheme } from '@material-ui/core';
@@ -33,6 +33,9 @@ function getPriorityIcon(message, isAssigned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
     market_type: marketType } = message;
   let Icon = Quiz;
+  if (message.type === 'UNREAD_VOTE') {
+    Icon = Done;
+  }
   if (isAssigned) {
     Icon = Assignment;
   }

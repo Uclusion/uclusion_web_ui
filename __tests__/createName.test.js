@@ -5,6 +5,7 @@
 import { convertDescription } from '../src/utils/stringFunctions'
 
 it.each([["<p>Try for name. And then some.</p>", "Try for name. And then some.", ""],
+  ["<p><a href=\"https://en.wikipedia.org/wiki/Region-based_memory_management\" rel=\"noopener noreferrer\" target=\"_blank\">Region based memory management</a> for garbage collection. That will still be useful even if we go with reference counting later as internal references won't have to be tracked.</p>", "Region based memory management for garbage collection.", "<p><a href=\"https://en.wikipedia.org/wiki/Region-based_memory_management\" rel=\"noopener noreferrer\" target=\"_blank\">Region based memory management</a> for garbage collection. That will still be useful even if we go with reference counting later as internal references won't have to be tracked.</p>"],
   ["<p>Ready for Approval => Evaluate, Started => Approved</p>", "Ready for Approval => Evaluate, Started => Approved", "<p></p>"],
   // Unfortunate but &gt etc. too much an edge case to code around
   ["<p>Ready for Approval =&gt; Evaluate, Started =&gt; Approved</p>", "Ready for Approval => Evaluate, Started => Approved", "<p>Ready for Approval =&gt; Evaluate, Started =&gt; Approved</p>"],

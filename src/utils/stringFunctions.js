@@ -107,6 +107,9 @@ function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, 
     extracted = extracted.substring(0, sentencePosition + 1);
   }
   if (extracted.length <= maxLength) {
+    if (isFallbackFullDescription) {
+      return { name: extracted, description };
+    }
     let splitDescription = description.substring(3 + extracted.length);
     if (splitDescription.startsWith(' ')) {
       splitDescription = splitDescription.substring(1);

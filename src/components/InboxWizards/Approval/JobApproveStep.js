@@ -151,6 +151,7 @@ function JobApproveStep(props) {
           onUpload={onApproveChange('approveUploadedFiles')}
           editorName={editorName}
           defaultReason={!editorEmpty(yourReason?.body) ? yourReason?.body : undefined}
+          isInbox
         />
         <div className={classes.borderBottom}/>
         <WizardStepButtons

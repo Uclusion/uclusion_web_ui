@@ -61,7 +61,8 @@ function AddInitialVote(props) {
     newQuantity,
     onEditorChange,
     editorName,
-    defaultReason
+    defaultReason,
+    isInbox=false
   } = props;
   const intl = useIntl();
   const theme = useTheme();
@@ -129,7 +130,9 @@ function AddInitialVote(props) {
             </RadioGroup>
           )}
         </FormControl>
-        {Editor}
+        <div style={{paddingRight: isInbox ? '12rem' : undefined}}>
+          {Editor}
+        </div>
     </div>
   );
 }

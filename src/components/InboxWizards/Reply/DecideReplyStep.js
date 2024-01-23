@@ -125,7 +125,7 @@ function DecideReplyStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: messageType === 'REPLY_MENTION' ? 'unreadMention' : 'unreadReply'})}
+        {intl.formatMessage({ id: messageType === 'REPLY_MENTION' ? 'unreadMention' : 'unreadReply' })}
       </Typography>
       {isMySuggestion && (
         <Typography className={classes.introSubText} variant="subtitle1">
@@ -139,8 +139,8 @@ function DecideReplyStep(props) {
                         showVoting
                         isSingleTaskDisplay
                         useCompression={useCompression}
-                        toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                        inboxMessageId={commentId} />
+                        toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                        inboxMessageId={commentId}/>
       )}
       {!commentRoot.investible_id && (
         <div className={classes.wizardCommentBoxDiv}>
@@ -152,12 +152,13 @@ function DecideReplyStep(props) {
             showVoting
             inboxMessageId={commentId}
             removeActions
-            toggleCompression={() => updateFormData({useCompression: !useCompression})}
+            toggleCompression={() => updateFormData({ useCompression: !useCompression })}
             useCompression={useCompression}
             displayRepliesAsTop
           />
         </div>
       )}
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="issueReplyLabel"

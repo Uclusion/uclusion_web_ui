@@ -44,7 +44,7 @@ function DecideVoteStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'DecideVoteTitle'})}
+        {intl.formatMessage({ id: 'DecideVoteTitle' })}
       </Typography>
       {_.isEmpty(voters) && (
         <Typography className={classes.introSubText} variant="subtitle1">
@@ -57,14 +57,12 @@ function DecideVoteStep(props) {
         </Typography>
       )}
       {commentRoot.investible_id && (
-        <div style={{paddingBottom: '1rem'}}>
-          <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                          removeActions
-                          showVoting={false}
-                          useCompression={useCompression}
-                          toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                          showAssigned={false} />
-        </div>
+        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                        removeActions
+                        showVoting={false}
+                        useCompression={useCompression}
+                        toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                        showAssigned={false}/>
       )}
       {!commentRoot.investible_id && (
         <div className={classes.wizardCommentBoxDiv}>
@@ -78,10 +76,11 @@ function DecideVoteStep(props) {
             isInbox
             removeActions
             useCompression={useCompression}
-            toggleCompression={() => updateFormData({useCompression: !useCompression})}
+            toggleCompression={() => updateFormData({ useCompression: !useCompression })}
           />
         </div>
       )}
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="voteFor"

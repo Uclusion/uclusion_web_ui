@@ -175,7 +175,7 @@ export const wizardStyles = makeStyles(
       },
       borderBottom: {
         borderBottom: '1px solid transparent',
-        margin: '10px 0',
+        margin: '15px 0',
         width: '100%',
       },
       dateContainer: {

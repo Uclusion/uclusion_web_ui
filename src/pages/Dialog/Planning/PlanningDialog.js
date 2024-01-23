@@ -444,7 +444,7 @@ function PlanningDialog(props) {
                      hidden={hidden}
                      setSectionOpen={() => {
                        updatePageState({sectionOpen: 'marketTodos', tabIndex: 1});
-                     }} group={group} userId={myPresence.id}/>
+                     }} group={group} />
       </div>
       </div>
     </Screen>

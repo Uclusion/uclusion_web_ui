@@ -3,31 +3,19 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
-import WizardStepButtons from '../WizardStepButtons';
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { useIntl } from 'react-intl';
 import { RED_LEVEL } from '../../../constants/notifications';
-import _ from 'lodash';
-import { stripHTML } from '../../../utils/stringFunctions';
-import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
-import CriticalItem from './CriticalItem';
-import { deleteOrDehilightMessages } from '../../../api/users';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import MarketTodos from '../../../pages/Dialog/Planning/MarketTodos';
 
 function TriageStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId } = props;
   const [commentState] = useContext(CommentsContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [groupState] = useContext(MarketGroupsContext);
   const intl = useIntl();
-  const history = useHistory();
   const commentRoot = getComment(commentState, marketId, commentId) || {};
   const { group_id: groupId } = commentRoot;
   const group = getGroup(groupState, marketId, groupId) || {};
@@ -36,32 +24,6 @@ function TriageStep(props) {
     comment.group_id === groupId && !comment.resolved && !comment.deleted && !comment.investible_id &&
     comment.notification_type === RED_LEVEL);
   const classes = wizardStyles();
-
-  function goToBugs() {
-    navigate(history, formCommentLink(marketId, groupId, undefined, commentId));
-  }
-
-  function getRows() {
-    if (_.isEmpty(comments)) {
-      return React.Fragment;
-    }
-    return comments.map((comment) => {
-      const { id, body, updated_at: updatedAt } = comment;
-      const { is_highlighted: isHighlighted, comment_list: highlightedComments } = message;
-      return (
-        <CriticalItem id={id} title={stripHTML(body)} link={formCommentLink(marketId, groupId, undefined, id)}
-                     date={new Date(updatedAt)} isRead={!isHighlighted && !highlightedComments?.includes(id)}/>
-      );
-    });
-  }
-
-  function markRead() {
-    return deleteOrDehilightMessages([message], messagesDispatch, false, true)
-      .then(() => {
-        setOperationRunning(false);
-        navigate(history, getInboxTarget());
-      })
-  }
 
   return (
     <WizardStepContainer
@@ -76,19 +38,10 @@ function TriageStep(props) {
       <h2 id="tasksOverview">
         {intl.formatMessage({id: 'criticalBugs'}, { groupName })}
       </h2>
-      <div style={{marginBottom: '2.5rem'}}>
-        {getRows()}
-      </div>
-      <WizardStepButtons
-        {...props}
-        nextLabel="GotoBugs"
-        onNext={goToBugs}
-        spinOnClick={false}
-        showTerminate={message.is_highlighted}
-        onFinish={markRead}
-        terminateLabel="defer"
-        terminateSpinOnClick
-      />
+      <MarketTodos comments={comments} marketId={marketId} groupId={groupId}
+                   sectionOpen={true}
+                   hidden={false}
+                   setSectionOpen={() => {}} group={group} isInbox />
     </WizardStepContainer>
   );
 }

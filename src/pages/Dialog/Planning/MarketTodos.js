@@ -161,7 +161,8 @@ function MarketTodos(props) {
     groupId,
     isInArchives = false,
     sectionOpen, setSectionOpen,
-    hidden
+    hidden,
+    isInbox=false
   } = props
   const classes = todoClasses();
   const wizardClasses = wizardStyles();
@@ -202,7 +203,7 @@ function MarketTodos(props) {
     PAGE_SIZE);
 
   useEffect(() => {
-    if (hash && !hidden) {
+    if (hash && !hidden && !isInbox) {
       const todoParents = comments.filter(comment => comment.comment_type === TODO_TYPE &&
         !comment.investible_id && !comment.resolved) || [];
       const todoCommentIds = getThreadIds(todoParents, comments);
@@ -235,7 +236,7 @@ function MarketTodos(props) {
       }
     }
     return () => {};
-  }, [comments, hash, hidden, history, messagesState, sectionOpen, setSectionOpen]);
+  }, [comments, hash, hidden, history, messagesState, sectionOpen, setSectionOpen, isInbox]);
 
   function processTabNotifications() {
     const allMessages = [];
@@ -364,7 +365,7 @@ function MarketTodos(props) {
           sends notifications based on severity.
         </div>
       }/>
-      {!isInArchives && (
+      {!isInArchives && !isInbox && (
         <SpinningButton id="newMarketTodo"
                         className={wizardClasses.actionNext}
                         style={{marginBottom: '1rem'}}
@@ -375,35 +376,37 @@ function MarketTodos(props) {
           <FormattedMessage id='createBug'/>
         </SpinningButton>
       )}
-      <GmailTabs
-        value={tabIndex}
-        onChange={(event, value) => {
-          bugDispatch(setTab(value));
-        }}
-        indicatorColors={['#E85757', '#e6e969', '#2F80ED']}
-        style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
-        <GmailTabItem icon={immediateTodosChip} label={intl.formatMessage({id: 'immediate'})}
-                      color='black' tagLabel={unreadRedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                      tagColor={unreadRedCount > 0 ? '#E85757' : undefined}
-                      tag={unreadRedCount > 0 ? `${unreadRedCount}` :
-                        (_.size(redComments) > 0 ? `${_.size(redComments)}` : undefined)}
-                      onDrop={onDropImmediate}
-                      onDragOver={(event)=>event.preventDefault()}/>
-        <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'able'})}
-                      color='black' tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
-                      tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                      tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
-                        (_.size(yellowComments) > 0 ? `${_.size(yellowComments)}` : undefined)}
-                      onDrop={onDropAble}
-                      onDragOver={(event)=>event.preventDefault()} />
-        <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'convenient'})}
-                      color='black' tagColor={unreadBlueCount > 0 ? '#E85757' : undefined}
-                      tagLabel={unreadBlueCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                      tag={unreadBlueCount > 0 ? `${unreadBlueCount}` :
-                        (_.size(blueComments) > 0 ? `${_.size(blueComments)}` : undefined)}
-                      onDrop={onDropConvenient}
-                      onDragOver={(event)=>event.preventDefault()} />
-      </GmailTabs>
+      {!isInbox && (
+        <GmailTabs
+          value={tabIndex}
+          onChange={(event, value) => {
+            bugDispatch(setTab(value));
+          }}
+          indicatorColors={['#E85757', '#e6e969', '#2F80ED']}
+          style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
+          <GmailTabItem icon={immediateTodosChip} label={intl.formatMessage({id: 'immediate'})}
+                        color='black' tagLabel={unreadRedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                        tagColor={unreadRedCount > 0 ? '#E85757' : undefined}
+                        tag={unreadRedCount > 0 ? `${unreadRedCount}` :
+                          (_.size(redComments) > 0 ? `${_.size(redComments)}` : undefined)}
+                        onDrop={onDropImmediate}
+                        onDragOver={(event)=>event.preventDefault()}/>
+          <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'able'})}
+                        color='black' tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
+                        tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                        tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
+                          (_.size(yellowComments) > 0 ? `${_.size(yellowComments)}` : undefined)}
+                        onDrop={onDropAble}
+                        onDragOver={(event)=>event.preventDefault()} />
+          <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'convenient'})}
+                        color='black' tagColor={unreadBlueCount > 0 ? '#E85757' : undefined}
+                        tagLabel={unreadBlueCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                        tag={unreadBlueCount > 0 ? `${unreadBlueCount}` :
+                          (_.size(blueComments) > 0 ? `${_.size(blueComments)}` : undefined)}
+                        onDrop={onDropConvenient}
+                        onDragOver={(event)=>event.preventDefault()} />
+        </GmailTabs>
+      )}
       {!_.isEmpty(tabComments) && (
         <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
           <div style={{display: 'flex', width: '80%'}}>

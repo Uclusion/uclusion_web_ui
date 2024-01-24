@@ -8,6 +8,7 @@ import { getComment } from '../../../contexts/CommentsContext/commentsContextHel
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
 
 function VoteCertaintyStep(props) {
   const { market, investibleId, formData, updateFormData, isFor, showSwitch, currentReasonId } = props;
@@ -31,6 +32,14 @@ function VoteCertaintyStep(props) {
             `How certain are you of voting ${isFor ? 'for' : 'against'} this suggestion?`
           )}
         </Typography>
+        <CommentBox
+          comments={[parentComment]}
+          marketId={parentMarketId}
+          allowedTypes={[]}
+          removeActions={true}
+          showVoting={false}
+          isInbox
+        />
         <AddEditVote
           marketId={market.id}
           wizardProps={{...props, finish: () =>

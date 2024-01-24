@@ -1,4 +1,4 @@
-import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { Link, useMediaQuery, useTheme } from '@material-ui/core';
 import DescriptionOrDiff from '../Descriptions/DescriptionOrDiff';
 import React, { useContext } from 'react';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
@@ -12,7 +12,7 @@ import { editorEmpty } from '../TextEditors/Utilities/CoreUtils';
 import CommentBox from '../../containers/CommentBox/CommentBox';
 import { getFullStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
-import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formInvestibleLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { usePlanningInvestibleStyles } from '../../pages/Investible/Planning/PlanningInvestible';
 import { FormattedMessage } from 'react-intl';
@@ -86,11 +86,13 @@ function JobDescription(props) {
         {investibleId && (
           <div
             style={{ display: mobileLayout ? undefined : 'flex', paddingBottom: mobileLayout ? '1.5rem' : undefined }}>
-            <Typography variant="h6" component="h1"
-                        style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
-                        onClick={() => navigate(history, formInvestibleLink(marketId, investibleId))}>
+            <Link href={formInvestibleLink(marketId, investibleId)} variant="h6"
+                        onClick={(event) => {
+                          preventDefaultAndProp(event);
+                          navigate(history, formInvestibleLink(marketId, investibleId));
+                        }}>
               {name}
-            </Typography>
+            </Link>
             {!_.isEmpty(createdBy) && showCreatedBy && (
               <div className={planningClasses.assignments}
                    style={{ paddingLeft: '1.5rem', display: 'flex', alignItems: 'center' }}>

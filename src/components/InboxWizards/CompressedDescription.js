@@ -70,7 +70,8 @@ function CompressedDescription(props) {
   const title = stripHTML(description);
   return (
     <>
-      <Item style={{display: expansionOpen ? 'none' : undefined, minWidth: '80vw', paddingRight: '12rem'}}>
+      <Item style={{display: expansionOpen ? 'none' : undefined, minWidth: '80vw', paddingRight: '12rem',
+        marginTop: '0.3rem'}}>
         <RaisedCard elevation={3} rowStyle>
           <div style={{ width: '100%', cursor: 'pointer' }}
                onClick={

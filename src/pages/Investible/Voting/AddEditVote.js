@@ -231,12 +231,12 @@ function AddEditVote(props) {
       <WizardStepButtons
         {...wizardProps}
         validForm={approveQuantity !== undefined && approveQuantity !== 0}
-        showTerminate={!isInbox || voteMessage.is_highlighted}
+        showTerminate={voteMessage?.is_highlighted}
         onNext={mySave}
         showOtherNext={hasVoted}
         onOtherNext={() => mySave(true)}
         otherNextLabel={otherVoteId}
-        terminateLabel={isInbox ? "defer" : "InitiativeCommmentWizardTerminate"}
+        terminateLabel={isInbox ? "defer" : undefined}
         nextLabel={voteId}
       />
     </React.Fragment>

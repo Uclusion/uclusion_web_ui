@@ -13,13 +13,13 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import {
-  formCommentLink,
-  navigate, navigateToOption
-} from '../../../utils/marketIdPathFunctions';
+import { navigateToOption } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { WizardStylesContext } from '../WizardStylesContext';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
+import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 
 function OptionDescriptionStep (props) {
   const { marketId, parentGroupId, parentInvestibleId, parentMarketId, parentCommentId, createdBy } = props;
@@ -28,6 +28,7 @@ function OptionDescriptionStep (props) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentsState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
   const presences = usePresences(marketId);
@@ -37,6 +38,7 @@ function OptionDescriptionStep (props) {
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
   const proposedStage = marketStages.find((stage) => !stage.allows_investment) || {};
   const isQuestionCreator = createdBy === myPresence.id;
+  const parentComment = getComment(commentsState, parentMarketId, parentCommentId);
 
   const editorSpec = {
     placeholder: "Ex: make magic happen via A, B, C",
@@ -82,6 +84,14 @@ function OptionDescriptionStep (props) {
       <Typography className={classes.introText}>
         What is the new option?
       </Typography>
+      <CommentBox
+        comments={[parentComment]}
+        marketId={parentMarketId}
+        allowedTypes={[]}
+        removeActions={true}
+        showVoting={false}
+        isInbox
+      />
       {Editor}
       <div className={classes.borderBottom} />
       <WizardStepButtons
@@ -94,10 +104,7 @@ function OptionDescriptionStep (props) {
         onOtherDoAdvance={false}
         isOtherFinal={false}
         otherNextLabel="JobCommentCreateAnotherOption"
-        onTerminate={() => navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId,
-          parentCommentId))}
-        showTerminate={true}
-        terminateLabel="JobOptionTerminate"/>
+      />
     </WizardStepContainer>
   );
 }

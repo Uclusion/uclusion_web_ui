@@ -24,14 +24,16 @@ function VoteCertaintyStep(props) {
       {...props}
       isLarge
     >
-        <Typography className={classes.introText} variant="h6">
-          {showSwitch && (
-            'How do you edit voting on this suggestion?'
-          )}
-          {!showSwitch && (
-            `How certain are you of voting ${isFor ? 'for' : 'against'} this suggestion?`
-          )}
-        </Typography>
+        {!showSwitch && (
+          <Typography className={classes.introText} variant="h6">
+            How certain are you of voting <i>{isFor ? 'for' : 'against'}</i> this suggestion?
+          </Typography>
+        )}
+        {showSwitch && (
+          <Typography className={classes.introText} variant="h6">
+            How do you edit voting on this suggestion?
+          </Typography>
+        )}
         <CommentBox
           comments={[parentComment]}
           marketId={parentMarketId}
@@ -44,8 +46,7 @@ function VoteCertaintyStep(props) {
           marketId={market.id}
           wizardProps={{...props, finish: () =>
               navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId, parentCommentId)),
-            onFinish: () =>
-              navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId, parentCommentId))}}
+            }}
           investibleId={investibleId}
           currentReasonId={currentReasonId}
           groupId={market.id}

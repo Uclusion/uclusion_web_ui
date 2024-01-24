@@ -122,8 +122,6 @@ function PromoCodeInput(props) {
             validForm={!_.isEmpty(promoBoxValue)}
             nextLabel="ApplyPromoCode"
             onNext={validatePromo}
-            showTerminate={wizardProps.message.is_highlighted}
-            terminateLabel='defer'
           />
         </div>
       )}

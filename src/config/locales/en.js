@@ -503,7 +503,6 @@ const messages = defineMessages({
   JobCommentConfigure: 'Create option',
   JobCommentCreateAnotherOption: 'Create and add another',
   JobOptionTerminate: 'Go to question',
-  defer: 'Snooze',
   DecideStartNavigate: 'Go to bug',
   DiscussionCommentAddQUESTION: 'Add options',
   DiscussionCommentAddSUGGEST: 'Add suggestion',

@@ -13,12 +13,11 @@ function getMessageTextForId(rawId, isMobile, intl) {
 }
 
 export function getShowTerminate(message) {
-  return message.type_object_id.startsWith('UNREAD') || message.is_highlighted;
+  return message.type_object_id.startsWith('UNREAD');
 }
 
 export function getLabelForTerminate(message) {
-  return message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' :
-    (message.is_highlighted ? 'defer' : 'DecideWizardMute');
+  return message.type_object_id.startsWith('UNREAD') ? 'notificationDelete' : 'DecideWizardMute';
 }
 
 export function removeInlineMarketMessages(inlineMarketId, investiblesState, commentsState, messagesState,

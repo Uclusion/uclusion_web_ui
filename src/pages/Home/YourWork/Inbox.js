@@ -57,8 +57,7 @@ function Inbox(props) {
 
   function goToItem(itemId) {
     const { messages } = messagesState || {};
-    const itemMessage = messages?.find((message) => message.type_object_id === itemId &&
-      message.type.startsWith('UNREAD_') && message.is_highlighted);
+    const itemMessage = messages?.find((message) => message.type_object_id === itemId && message.is_highlighted);
     if (itemMessage) {
       messagesDispatch(dehighlightMessages([itemMessage.type_object_id]));
     }

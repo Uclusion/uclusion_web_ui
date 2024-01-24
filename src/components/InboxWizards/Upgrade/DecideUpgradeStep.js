@@ -39,8 +39,6 @@ function DecideUpgradeStep(props) {
         showOtherNext
         otherNextLabel="WizardPromoInfo"
         onOtherNext={() => updateFormData({ isCard: false })}
-        showTerminate={message.is_highlighted}
-        terminateLabel='defer'
       />
     </WizardStepContainer>
   );

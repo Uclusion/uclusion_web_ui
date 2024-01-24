@@ -91,8 +91,8 @@ function FindJobStep(props) {
           nextLabel="storyFromComment"
           onOtherNext={() => onNext(false)}
           otherNextLabel="storyFromCommentNav"
-          terminateLabel={ message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'defer' }
-          showTerminate={message.type_object_id.startsWith('UNREAD') || message.is_highlighted}
+          terminateLabel="notificationDismiss"
+          showTerminate={message.type_object_id.startsWith('UNREAD')}
           onFinish={myTerminate}
         />
     </WizardStepContainer>

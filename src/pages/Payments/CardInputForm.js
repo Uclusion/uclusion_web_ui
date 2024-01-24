@@ -252,8 +252,6 @@ function CardInputForm (props) {
               validForm={validForm}
               nextLabel="WizardPaymentInfo"
               onNext={() => myOnSubmit()}
-              showTerminate={wizardProps.message.is_highlighted}
-              terminateLabel='defer'
             />
           )}
         </Grid>

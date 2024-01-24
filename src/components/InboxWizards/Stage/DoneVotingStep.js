@@ -105,7 +105,6 @@ function DoneVotingStep(props) {
         onOtherNext={() => navigate(history,
             formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE))
         }
-        isOtherFinal={false}
         otherSpinOnClick={false}
         otherNextLabel="commentIconAskQuestionLabel"
         showTerminate

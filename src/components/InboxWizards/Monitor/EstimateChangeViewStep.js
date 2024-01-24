@@ -46,7 +46,6 @@ function EstimateChangeViewStep(props) {
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
       <WizardStepButtons
         {...props}
-        isFinal={false}
         nextLabel="createNewQUESTION"
         onNext={() => navigate(history,
           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE))}

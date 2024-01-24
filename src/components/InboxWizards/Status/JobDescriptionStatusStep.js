@@ -95,6 +95,7 @@ function JobDescriptionStatusStep(props) {
         spinOnClick={false}
         showOtherNext={!alreadyMoved}
         otherNextLabel="StatusWizardReport"
+        isOtherFinal
         onOtherNext={() => {
           navigate(history,
             formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE));

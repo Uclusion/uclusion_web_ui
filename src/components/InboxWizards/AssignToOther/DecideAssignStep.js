@@ -70,7 +70,6 @@ function DecideAssignStep(props) {
         nextLabel="DecideWizardReassign"
         spinOnClick={false}
         onNext={() => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
-        isFinal={false}
         showOtherNext
         onOtherNext={moveToBacklog}
         isOtherFinal

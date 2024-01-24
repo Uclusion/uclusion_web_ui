@@ -73,6 +73,7 @@ function DecideReviewStep(props) {
         spinOnClick={false}
         showOtherNext={!isNotDoing}
         otherSpinOnClick={false}
+        isOtherFinal
         onOtherNext={() => navigate(history,
           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE))}
         otherNextLabel="DecideAddTask"

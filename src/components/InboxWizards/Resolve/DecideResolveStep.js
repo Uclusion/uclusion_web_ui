@@ -190,14 +190,12 @@ function DecideResolveStep(props) {
         <WizardStepButtons
           {...props}
           nextLabel="BugWizardMoveToJob"
-          isFinal={false}
           spinOnClick={false}
           onNext={() => navigate(history,
             `${formMarketAddInvestibleLink(marketId, commentRoot.group_id)}&fromCommentId=${commentId}`)}
           showOtherNext
           otherNextLabel="commentResolveLabel"
           onOtherNext={() => resolve(false)}
-          isOtherFinal
           otherSpinOnClick
           showTerminate={true}
           onFinish={() => myTerminate()}

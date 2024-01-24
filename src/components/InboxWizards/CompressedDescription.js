@@ -23,35 +23,15 @@ const Div = styled("div")`
 
 const Text = styled("div")`
   -webkit-font-smoothing: antialiased;
-  font-size: 18px;
+  font-size: 14px;
   color: #5f6368;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex-grow: 1;
+  padding-left: 0.5rem;
   @media (max-width: 768px) {
     font-size: 14px;
-  }
-`;
-
-const Title = styled(Text)`
-  flex-basis: 1000px;
-  min-width: 13vw;
-  color: black;
-  white-space: nowrap;
-  overflow: hidden;
-  padding-left: 1rem;
-  text-overflow: ellipsis;
-  flex-grow: 1;
-  & > *:not(:first-child) {
-    font-size: 12px;
-    margin-left: 4px;
-  };
-  @media (max-width: 768px) {
-    flex-basis: 300px;
-  }
-  @media (max-width: 1000px) {
-    margin-left: 8px;
   }
 `;
 
@@ -100,7 +80,7 @@ function CompressedDescription(props) {
             }
           }>
             <Div>
-              <Title>{title}</Title>
+              <Text>{title}</Text>
               <ExpandMoreIcon style={{color: 'black', marginLeft: '1rem', marginRight: '1rem'}} />
             </Div>
           </div>

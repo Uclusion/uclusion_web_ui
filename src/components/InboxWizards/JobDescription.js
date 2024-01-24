@@ -1,7 +1,6 @@
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import DescriptionOrDiff from '../Descriptions/DescriptionOrDiff';
 import React, { useContext } from 'react';
-import { useInvestibleEditStyles } from '../../pages/Investible/InvestibleBodyEdit';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { wizardStyles } from './WizardStylesContext';
@@ -53,11 +52,10 @@ function JobDescription(props) {
   const { investibleId, marketId, comments, showAssigned=true, inboxMessageId, showRequiredApprovers = false,
     removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder,
     showAttachments, toggleCompression, useCompression, isSingleTaskDisplay = false,
-    showDiff = false } = props;
+    showCreatedBy = false, showDiff = false } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const investibleEditClasses = useInvestibleEditStyles();
   const planningClasses = usePlanningInvestibleStyles();
   const attachedStyles = attachedFilesStyles();
   const fileBaseUrl = config.file_download_configuration.baseURL;
@@ -67,8 +65,9 @@ function JobDescription(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { assigned, required_approvers:  requiredApproversIds } = marketInfo || {};
+  const { assigned, required_approvers:  requiredApproversIds, created_by: createdById } = marketInfo || {};
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const createdBy = marketPresences.find((presence) => presence.id === createdById) || {};
   const assignedPresences = marketPresences.filter((presence) => (assigned || []).includes(presence.id));
   const requiredApprovers = marketPresences.filter((presence) => (requiredApproversIds || [])
     .includes(presence.id));
@@ -87,11 +86,18 @@ function JobDescription(props) {
         {investibleId && (
           <div
             style={{ display: mobileLayout ? undefined : 'flex', paddingBottom: mobileLayout ? '1.5rem' : undefined }}>
-            <Typography className={investibleEditClasses.title} variant="h3" component="h1"
+            <Typography variant="h6" component="h1"
                         style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
                         onClick={() => navigate(history, formInvestibleLink(marketId, investibleId))}>
               {name}
             </Typography>
+            {!_.isEmpty(createdBy) && showCreatedBy && (
+              <div className={planningClasses.assignments}
+                   style={{ paddingLeft: '1.5rem', display: 'flex', alignItems: 'center' }}>
+                <b style={{ marginRight: '1rem' }}><FormattedMessage id="created_by"/></b>
+                <GravatarGroup users={[createdBy]} gravatarClassName={classes.smallGravatar}/>
+              </div>
+            )}
             {!_.isEmpty(assignedPresences) && showAssigned && (
               <div className={planningClasses.assignments}
                    style={{ paddingLeft: '1.5rem', display: 'flex', alignItems: 'center' }}>

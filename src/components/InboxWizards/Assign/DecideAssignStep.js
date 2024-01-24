@@ -83,7 +83,7 @@ function DecideAssignStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         Take action here or click the job title to ask a question or make a suggestion.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} removeActions comments={todos}/>
+      <JobDescription marketId={marketId} investibleId={investibleId} removeActions comments={todos} showCreatedBy />
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}

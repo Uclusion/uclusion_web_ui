@@ -96,21 +96,21 @@ function JobDescription(props) {
             {!_.isEmpty(createdBy) && showCreatedBy && (
               <div className={planningClasses.assignments}
                    style={{ paddingLeft: '1.5rem', display: 'flex', alignItems: 'center' }}>
-                <b style={{ marginRight: '1rem' }}><FormattedMessage id="created_by"/></b>
+                <b style={{ marginRight: '0.5rem' }}><FormattedMessage id="created_by"/></b>
                 <GravatarGroup users={[createdBy]} gravatarClassName={classes.smallGravatar}/>
               </div>
             )}
             {!_.isEmpty(assignedPresences) && showAssigned && (
               <div className={planningClasses.assignments}
                    style={{ paddingLeft: '1.5rem', display: 'flex', alignItems: 'center' }}>
-                <b style={{ marginRight: '1rem' }}><FormattedMessage id="planningInvestibleAssignments"/></b>
+                <b style={{ marginRight: '0.5rem' }}><FormattedMessage id="planningInvestibleAssignments"/></b>
                 <GravatarGroup users={assignedPresences} gravatarClassName={classes.smallGravatar}/>
               </div>
             )}
             {!_.isEmpty(requiredApprovers) && showRequiredApprovers && (
               <div className={planningClasses.assignments}
                    style={{ paddingLeft: '1.5rem', display: 'flex', alignItems: 'center' }}>
-                <b style={{ marginRight: '1rem' }}><FormattedMessage id="requiredApprovers"/></b>
+                <b style={{ marginRight: '0.5rem' }}><FormattedMessage id="requiredApprovers"/></b>
                 <GravatarGroup users={requiredApprovers} gravatarClassName={classes.smallGravatar}/>
               </div>
             )}

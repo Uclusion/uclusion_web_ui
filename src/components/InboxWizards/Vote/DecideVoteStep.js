@@ -62,7 +62,7 @@ function DecideVoteStep(props) {
                         showVoting={false}
                         useCompression={useCompression}
                         toggleCompression={() => updateFormData({ useCompression: !useCompression })}
-                        showAssigned={false}/>
+        />
       )}
       {!commentRoot.investible_id && (
         <div className={classes.wizardCommentBoxDiv}>

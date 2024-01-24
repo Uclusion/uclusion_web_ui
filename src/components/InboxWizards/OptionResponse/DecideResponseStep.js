@@ -58,7 +58,7 @@ function DecideResponseStep(props) {
         <JobDescription marketId={marketId} investibleId={decisionInvestibleId}
                         comments={optionComments}
                         removeActions
-                        showAssigned={false}
+                        showCreatedBy
         />
       </div>
       <WizardStepButtons

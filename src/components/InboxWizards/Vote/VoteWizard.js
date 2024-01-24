@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import FormdataWizard from 'react-formdata-wizard';
 import DecideVoteStep from './DecideVoteStep';
-import VoteCertaintyStep from './VoteCertaintyStep';
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -24,7 +23,6 @@ function VoteWizard(props) {
     <FormdataWizard name={`vote_wizard${commentId}`}
                     defaultFormData={{parentElementId, originalQuantity: 0, useCompression: true}}>
       <DecideVoteStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
-      <VoteCertaintyStep onFinish={myOnFinish} marketId={marketId} commentRoot={commentRoot} message={message}/>
     </FormdataWizard>
   );
 }

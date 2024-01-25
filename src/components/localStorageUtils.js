@@ -34,6 +34,9 @@ export function getUclusionLocalStorageItem(key) {
 }
 
 export function clearUclusionLocalStorage(doReload=true) {
+  const persistent = localStorage.getItem(LOGIN_PERSISTENT);
+  localStorage.clear()
+  localStorage.setItem(LOGIN_PERSISTENT, persistent);
   localStorage.setItem(ROOT, '');
   return localforage.clear().then(() => {
     if (doReload) {

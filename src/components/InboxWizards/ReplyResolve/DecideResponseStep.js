@@ -68,7 +68,7 @@ function DecideResponseStep(props) {
       )}
       {!commentRoot.investible_id && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Click the suggestion to leave this wizard and add voting, resolve, or move.
+          Click the suggestion to leave this wizard and add voting or move.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id}

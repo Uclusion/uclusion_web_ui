@@ -67,14 +67,18 @@ function InlineInitiativeBox(props) {
     <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
       {showVoteButtons && (
         <div style={{display: 'flex'}}>
-            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
-              marginTop: '2rem', marginBottom: '1.5rem'}} onClick={() => navigate(history,
-              `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, inlineInvestibleId)}&voteFor=true`)}>
+            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id={`voteFor${anInlineMarket.id}`}
+                                     style={{display: "flex", marginTop: '2rem', marginBottom: '1.5rem'}}
+                                     onClick={() => navigate(history,
+                                       `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, 
+                                         inlineInvestibleId)}&voteFor=true`)}>
               <FormattedMessage id="voteFor" />
             </SpinningIconLabelButton>
-            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{display: "flex",
-              marginTop: '2rem', marginBottom: '1.5rem'}} onClick={() => navigate(history,
-              `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, inlineInvestibleId)}&voteFor=false`)}>
+            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+                                     id={`voteAgainst${anInlineMarket.id}`}
+                                     style={{display: "flex", marginTop: '2rem', marginBottom: '1.5rem'}}
+                                     onClick={() => navigate(history, `${formWizardLink(APPROVAL_WIZARD_TYPE, 
+                                       anInlineMarket.id, inlineInvestibleId)}&voteFor=false`)}>
               <FormattedMessage id="voteAgainst" />
             </SpinningIconLabelButton>
         </div>

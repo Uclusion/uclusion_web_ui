@@ -67,7 +67,7 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
       return false;
     }
   }
-  if (marketInvestibleId) {
+  if (decisionInvestibleId || investibleId || marketInvestibleId) {
     checked = true;
     let inv;
     if (decisionInvestibleId || investibleId) {
@@ -84,10 +84,11 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
       marketInfo = getMarketInfo(inv, commentMarketId);
     }
     if (_.isEmpty(marketInfo) || marketInfo.version < marketInvestibleVersion) {
+      const idForLogging = decisionInvestibleId || investibleId || marketInvestibleId;
       if (!_.isEmpty(marketInfo)) {
-        console.warn(`Info ${marketInfo.version} less ${marketInvestibleVersion} for ${marketInvestibleId}`);
+        console.warn(`Info ${marketInfo.version} less ${marketInvestibleVersion} for ${idForLogging}`);
       } else {
-        console.warn(`Missing market info for ${marketInvestibleId} in ${marketId}`);
+        console.warn(`Missing market info for ${idForLogging} in ${marketId}`);
       }
       console.warn(message);
       return false;

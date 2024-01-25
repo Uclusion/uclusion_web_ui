@@ -198,7 +198,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
   return (
     <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                 variant="body1">
-      Your For You tab is empty.<br/><br/> New and snoozed notifications display here.
+      Your For You tab is empty.<br/><br/> Notifications from others display here.
     </Typography>
   );
 }

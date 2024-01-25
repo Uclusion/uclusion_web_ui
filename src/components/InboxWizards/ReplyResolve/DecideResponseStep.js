@@ -12,7 +12,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { useHistory } from 'react-router';
-import { updateComment } from '../../../api/comments';
+import { resolveComment, updateComment } from '../../../api/comments';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { TODO_TYPE } from '../../../constants/comments';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -22,6 +22,7 @@ function DecideResponseStep(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
@@ -41,6 +42,15 @@ function DecideResponseStep(props) {
       dismissWorkListItem(message, messagesDispatch);
       navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
     })
+  }
+
+  function resolve() {
+    return resolveComment(marketId, commentId)
+      .then((comment) => {
+        addCommentToMarket(comment, commentsState, commentsDispatch);
+        setOperationRunning(false);
+        dismissWorkListItem(message, messagesDispatch, history);
+      });
   }
 
   return (
@@ -70,9 +80,10 @@ function DecideResponseStep(props) {
         nextLabel='UnblockReplyLabel'
         isFinal={false}
         spinOnClick={false}
-        showOtherNext={commentRoot.investible_id}
-        otherNextLabel='wizardAcceptLabel'
-        onOtherNext={moveToTask}
+        showOtherNext
+        otherNextLabel={commentRoot.investible_id ? 'wizardAcceptLabel' : 'issueResolveLabel'}
+        onOtherNext={commentRoot.investible_id ? moveToTask : resolve}
+        onOtherNextDoAdvance={false}
         isOtherFinal
         onFinish={myTerminate}
         showTerminate={getShowTerminate(message)}

@@ -351,9 +351,10 @@ function PlanningInvestible(props) {
   const { investible } = marketInvestible;
   const { name, locked_by: lockedBy, created_at: createdAt } = investible;
   const [marketStagesState] = useContext(MarketStagesContext);
+  const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
-    {sectionOpen: 'descriptionVotingSection'});
+    {sectionOpen: fullStage.move_on_comment ? 'assistanceSection' : 'descriptionVotingSection'});
   const {
     beingEdited,
     sectionOpen,
@@ -436,7 +437,6 @@ function PlanningInvestible(props) {
   } = stagesInfo;
 
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const blockingCommentsUnresolved = investibleComments.filter(

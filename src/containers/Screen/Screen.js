@@ -161,7 +161,7 @@ function Screen(props) {
   const history = useHistory();
   const location = useLocation();
   const { pathname, search: querySearch, hash } = location;
-  const { action, marketId: pathMarketId, investibleId: pathInvestibleId } = decomposeMarketPath(pathname);
+  const { action, marketId: pathMarketIdRaw, investibleId: pathInvestibleId } = decomposeMarketPath(pathname);
   const values = queryString.parse(querySearch);
   const { groupId, marketId: searchMarketId, investibleId: searchInvestibleId } = values || {};
   const hashValues = queryString.parse(hash);
@@ -196,6 +196,14 @@ function Screen(props) {
   } = props;
   const usedBanner = banner ?? (userState?.user?.onboarding_state === OnboardingState.DemoCreated ? <OnboardingBanner/> : undefined);
   const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
+  let pathMarketId = undefined;
+  if (action === 'inbox') {
+    const message = messagesState?.messages?.find((message) => message.type_object_id === pathMarketIdRaw &&
+      !message.deleted);
+    pathMarketId = message?.market_id;
+  } else if (action === 'dialog') {
+    pathMarketId = pathMarketIdRaw;
+  }
   const marketId = pathMarketId || searchMarketId || hashMarketId ||
     getPlanningMarketId(investibleId, marketsState, investiblesState);
   useEffect(() => {

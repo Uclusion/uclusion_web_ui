@@ -99,7 +99,8 @@ function DecidePromoteStep(props) {
         otherNextLabel="createComment"
         otherSpinOnClick={false}
         onOtherNext={() => navigate(history,
-          formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId))}
+          formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, undefined,
+            undefined, message.type_object_id))}
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}
         onTerminate={myOnFinish}

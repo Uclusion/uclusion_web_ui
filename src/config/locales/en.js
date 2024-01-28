@@ -534,6 +534,7 @@ const messages = defineMessages({
   mentionsExplanation: 'Count of outstanding mentions',
   approvalExplanation: 'Count of outstanding required approvals',
   reviewExplanation: 'Count of outstanding required reviews',
+  backToInboxWizard: 'Back to inbox wizard',
 
   // stages
   marketStageFollowTooltip: 'Subscribe',

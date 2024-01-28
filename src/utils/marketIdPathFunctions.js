@@ -257,13 +257,16 @@ export function formGroupArchiveLink(marketId, groupId) {
   return formatGroupLinkWithPrefix('groupArchive', marketId, groupId);
 }
 
-export function formInvestibleAddCommentLink(wizardType, investibleId, marketId, commentType) {
+export function formInvestibleAddCommentLink(wizardType, investibleId, marketId, commentType, typeObjectId) {
   let link = `/wizard#type=${wizardType.toLowerCase()}&investibleId=${investibleId}`;
   if (marketId) {
     link += `&marketId=${marketId}`;
   }
   if (commentType) {
     link += `&commentType=${commentType}`;
+  }
+  if (typeObjectId) {
+    link += `&typeObjectId=${typeObjectId}`
   }
   return link;
 }
@@ -276,7 +279,7 @@ export function formMarketAddCommentLink(wizardType, marketId, groupId, commentT
   return link;
 }
 
-export function formWizardLink(wizardType, marketId, investibleId, groupId, commentId) {
+export function formWizardLink(wizardType, marketId, investibleId, groupId, commentId, typeObjectId) {
   let link = `/wizard#type=${wizardType.toLowerCase()}&marketId=${marketId}`;
   if (investibleId) {
     link += `&investibleId=${investibleId}`;
@@ -286,6 +289,9 @@ export function formWizardLink(wizardType, marketId, investibleId, groupId, comm
   }
   if (commentId) {
     link += `&commentId=${commentId}`;
+  }
+  if (typeObjectId) {
+    link += `&typeObjectId=${typeObjectId}`
   }
   return link;
 

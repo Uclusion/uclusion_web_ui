@@ -7,7 +7,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 
 function StageWizard(props) {
-  const { marketId, investibleId, rowId } = props;
+  const { marketId, investibleId, rowId, typeObjectId } = props;
   const [investiblesState] = useContext(InvestiblesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -16,7 +16,7 @@ function StageWizard(props) {
   return (
     <FormdataWizard name={`stage_wizard${investibleId}`} defaultFormData={{parentElementId: rowId}}>
       <DoneVotingStep marketId={marketId} investibleId={investibleId} groupId={groupId}
-                      currentStageId={currentStageId} />
+                      currentStageId={currentStageId} typeObjectId={typeObjectId} />
     </FormdataWizard>
   );
 }

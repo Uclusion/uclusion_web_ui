@@ -22,7 +22,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { JOB_ASSIGNEE_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideAssignStep(props) {
-  const { marketId, investibleId } = props;
+  const { marketId, investibleId, typeObjectId } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -69,7 +69,8 @@ function DecideAssignStep(props) {
         {...props}
         nextLabel="DecideWizardReassign"
         spinOnClick={false}
-        onNext={() => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
+        onNext={() => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId,
+          undefined, undefined, typeObjectId))}
         showOtherNext
         onOtherNext={moveToBacklog}
         isOtherFinal

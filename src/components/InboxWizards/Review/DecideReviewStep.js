@@ -75,7 +75,9 @@ function DecideReviewStep(props) {
         otherSpinOnClick={false}
         isOtherFinal
         onOtherNext={() => navigate(history,
-          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE))}
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE,
+            message.type_object_id))}
+        onOtherNextDoAdvance={false}
         otherNextLabel="DecideAddTask"
         terminateLabel={getLabelForTerminate(message)}
         showTerminate={getShowTerminate(message)}

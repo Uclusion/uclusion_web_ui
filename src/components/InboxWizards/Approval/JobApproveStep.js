@@ -165,7 +165,8 @@ function JobApproveStep(props) {
           otherSpinOnClick={false}
           otherNextLabel="ApprovalWizardBlock"
           onOtherNext={() => navigate(history,
-            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE))}
+            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,
+              message.type_object_id))}
           showTerminate={getShowTerminate(message)}
           terminateLabel={getLabelForTerminate(message)}
         />

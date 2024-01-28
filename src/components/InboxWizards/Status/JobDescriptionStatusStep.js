@@ -98,7 +98,8 @@ function JobDescriptionStatusStep(props) {
         isOtherFinal
         onOtherNext={() => {
           navigate(history,
-            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE));
+            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE,
+              message.type_object_id));
         }}
         otherSpinOnClick={false}
         showTerminate={isHighlighted || alreadyMoved}

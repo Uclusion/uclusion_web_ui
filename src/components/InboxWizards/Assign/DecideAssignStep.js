@@ -56,7 +56,8 @@ function DecideAssignStep(props) {
       setOperationRunning(false);
       dismissWorkListItem(message, messagesDispatch);
       const marketInfo = getMarketInfo(fullInvestible, marketId);
-      navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, marketInfo.group_id))
+      navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, marketInfo.group_id,
+        undefined, message.type_object_id))
     });
   }
 

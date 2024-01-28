@@ -38,7 +38,9 @@ export const wizardStyles = makeStyles(
       },
       baseCard: {
         width: '100%',
-        padding: '32px',
+        paddingTop: '16px',
+        paddingLeft: '32px',
+        paddingRight: '32px',
         [theme.breakpoints.down('xs')]: {
           paddingTop: 'unset',
         }

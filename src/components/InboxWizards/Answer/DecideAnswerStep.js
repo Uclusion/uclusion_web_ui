@@ -83,7 +83,8 @@ function DecideAnswerStep(props) {
           showOtherNext
           otherNextLabel={isQuestionCreator ? 'inlineAddLabel' : 'inlineProposeLabel'}
           otherSpinOnClick={false}
-          onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id))}
+          onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id,
+            undefined, undefined, message.type_object_id))}
           onOtherNextDoAdvance={false}
           onFinish={myOnFinish}
           showTerminate={getShowTerminate(message)}

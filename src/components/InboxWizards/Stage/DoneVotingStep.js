@@ -30,7 +30,7 @@ import { getMarketComments } from '../../../contexts/CommentsContext/commentsCon
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function DoneVotingStep(props) {
-  const { marketId, investibleId, groupId, currentStageId } = props;
+  const { marketId, investibleId, groupId, currentStageId, typeObjectId } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, invDispatch] = useContext(InvestiblesContext);
@@ -103,7 +103,7 @@ function DoneVotingStep(props) {
         onNext={() => moveToStage(acceptedStage, true)}
         showOtherNext
         onOtherNext={() => navigate(history,
-            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE))
+            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE, typeObjectId))
         }
         otherSpinOnClick={false}
         otherNextLabel="commentIconAskQuestionLabel"

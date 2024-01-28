@@ -48,12 +48,14 @@ function EstimateChangeViewStep(props) {
         {...props}
         nextLabel="createNewQUESTION"
         onNext={() => navigate(history,
-          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE))}
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE,
+            message.type_object_id))}
         spinOnClick={false}
         showOtherNext
         otherNextLabel="createNewISSUE"
         onOtherNext={() => navigate(history,
-          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE))}
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,
+            message.type_object_id))}
         otherSpinOnClick={false}
         onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
         terminateLabel="notificationDelete"

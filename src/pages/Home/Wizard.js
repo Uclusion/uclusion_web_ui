@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
-import { useLocation } from 'react-router'
+import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types'
-import { useIntl } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl';
 import Screen from '../../containers/Screen/Screen'
 import GroupWizard from '../../components/AddNewWizards/Group/GroupWizard'
 import queryString from 'query-string'
@@ -38,6 +38,9 @@ import { findMessagesForUserPoked } from '../../utils/messageUtils';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import _ from 'lodash';
 import DismissableText from '../../components/Notifications/DismissableText';
+import { formInboxItemLink, navigate } from '../../utils/marketIdPathFunctions';
+import SpinningButton from '../../components/SpinBlocking/SpinningButton';
+import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -45,9 +48,12 @@ function Wizard(props) {
   const { hash } = location;
   const values = queryString.parse(hash);
   const { type: createType, marketId, groupId, jobType, investibleId,
-    commentId, commentType, voteFor, stageId, isAssign} = values;
+    commentId, commentType, voteFor, stageId, isAssign, typeObjectId
+  } = values;
   const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
+  const history = useHistory();
+  const wizardClasses = wizardStyles();
   const upgradeMessages = findMessagesForUserPoked(messagesState);
 
   if (!_.isEmpty(upgradeMessages)) {
@@ -74,6 +80,15 @@ function Wizard(props) {
       tabTitle={intl.formatMessage({ id: 'wizardBreadCrumb' })}
       hidden={hidden}
     >
+      {typeObjectId && (
+        <SpinningButton id="newMarketQuestion"
+                        className={wizardClasses.actionNext}
+                        style={{marginTop: '1rem', marginLeft: '2rem'}}
+                        variant="text" doSpin={false}
+                        onClick={() => navigate(history, formInboxItemLink(typeObjectId))}>
+          <FormattedMessage id='backToInboxWizard'/>
+        </SpinningButton>
+      )}
       {createType === PLANNING_TYPE.toLowerCase() && (
         <GroupWizard marketId={marketId} />
       )}

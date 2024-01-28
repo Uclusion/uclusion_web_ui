@@ -74,12 +74,12 @@ export function calculateTitleExpansionPanel(props) {
   }
   else if (isOutboxAccepted) {
     setItem(item, openExpansion, <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}
-                                               rowId={message.id} />,
+                                               rowId={message.id} typeObjectId={message.type_object_id}/>,
       'DecideAssignTitle', intl);
   } else if (!messageType) {
     if (message.isWaitingStart) {
       setItem(item, openExpansion, <StageWizard investibleId={message.id} marketId={message.marketId}
-                                                rowId={message.id} />,
+                                                rowId={message.id} typeObjectId={message.type_object_id} />,
         'finishApprovalQ', intl);
     } else if (message.isOutboxType) {
       setItem(item, openExpansion, <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId}

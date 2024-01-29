@@ -41,7 +41,7 @@ function TriageStep(props) {
       <MarketTodos comments={comments} marketId={marketId} groupId={groupId}
                    sectionOpen={true}
                    hidden={false}
-                   setSectionOpen={() => {}} group={group} isInbox />
+                   setSectionOpen={() => {}} group={group} isInbox openDefaultId={commentRoot.id} />
     </WizardStepContainer>
   );
 }

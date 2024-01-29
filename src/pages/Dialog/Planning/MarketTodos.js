@@ -162,7 +162,8 @@ function MarketTodos(props) {
     isInArchives = false,
     sectionOpen, setSectionOpen,
     hidden,
-    isInbox=false
+    isInbox=false,
+    openDefaultId
   } = props
   const classes = todoClasses();
   const wizardClasses = wizardStyles();
@@ -177,7 +178,8 @@ function MarketTodos(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [bugState, bugDispatch] = useReducer(getReducer(),
-    {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
+    {page: 1, tabIndex: 0, expansionState: openDefaultId ? {[openDefaultId]: true} : {}, pageState: {},
+      defaultPage: 1});
   const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
     {determinate: {}, indeterminate: false, checkAll: false});
   const { indeterminate, determinate, checkAll } = determinateState;

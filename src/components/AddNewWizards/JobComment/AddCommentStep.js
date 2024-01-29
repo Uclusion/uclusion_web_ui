@@ -74,7 +74,7 @@ function AddCommentStep (props) {
           Use @ mentions to limit who this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies.
         </Typography>
         )}
-      <JobDescription marketId={marketId} investibleId={investibleId} showAssigned={false} />
+      <JobDescription marketId={marketId} investibleId={investibleId} />
       <CommentAdd
         nameKey="JobCommentAdd"
         type={useType}

@@ -7,6 +7,7 @@ import IdentityList from '../../../components/Email/IdentityList';
 import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { Checkbox } from '@material-ui/core';
+import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 
 function AssignmentList(props) {
   const {
@@ -28,6 +29,7 @@ function AssignmentList(props) {
   const marketPresencesRaw = fullMarketPresences.filter((presence) => !presence.market_banned);
   const marketPresences = groupOnly ? getGroupPresences(marketPresencesRaw, groupPresencesState, marketId, groupId)
     || [] : marketPresencesRaw;
+  const useShowAllOnly = showAllOnly || isEveryoneGroup(groupId, marketId);
 
   function getSortedPresenceWithAssignable() {
     const assignable = _.isEmpty(cannotBeAssigned) ? marketPresences : marketPresences.filter((presence) =>
@@ -52,7 +54,7 @@ function AssignmentList(props) {
           {intl.formatMessage({ id: listHeader })}
         </Typography>
         <div style={{flexGrow: 1}} />
-        {!showAllOnly && (
+        {!useShowAllOnly && (
           <div>
             {intl.formatMessage({ id: 'onlyThisGroup' })}
             <Checkbox

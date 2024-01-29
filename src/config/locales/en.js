@@ -1032,7 +1032,7 @@ const messages = defineMessages({
   DecideAssignmentTitle: 'Can you take this job?',
 
   // Comments
-  issuePresent: 'Blocking Issue',
+  issuePresent: 'Blocking issue',
   nonBlockIssuePresent: 'Issue',
   questionPresent: 'Question',
   suggestPresent: 'Suggestion',

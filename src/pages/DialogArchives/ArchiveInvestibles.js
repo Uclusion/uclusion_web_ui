@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { Grid, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { useIntl } from 'react-intl';
@@ -99,9 +99,27 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
       event.dataTransfer.setData("text", id);
       event.dataTransfer.setData("stageId", stageId);
     }
-    const TypeIcon = isBlockedStage(stage) ? <Block htmlColor='#E85757' />
-      : (isRequiredInputStage(stage) ? (_.isEmpty(questionComments) ? <LightbulbOutlined htmlColor='#E85757' /> :
-        <QuestionIcon htmlColor='#E85757' />) : undefined);
+    const assistanceType = isBlockedStage(stage) ? 0 : (isRequiredInputStage(stage) ?
+      (_.isEmpty(questionComments) ? 1 : 2) : -1);
+    let TypeIcon;
+    let typeExplanation;
+    switch (assistanceType) {
+      case 0:
+        TypeIcon = <Block htmlColor='#E85757' />;
+        typeExplanation = 'issuePresent';
+        break;
+      case 1:
+        TypeIcon = <LightbulbOutlined htmlColor='#E85757' />;
+        typeExplanation = 'suggestPresent';
+        break;
+      case 2:
+        TypeIcon = <QuestionIcon htmlColor='#E85757' />;
+        typeExplanation = 'questionPresent';
+        break;
+      default:
+        TypeIcon = undefined;
+        typeExplanation = undefined;
+    }
     const ticketNumber = ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
     return (
       <>
@@ -135,7 +153,9 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
                   )}
                   {TypeIcon && (
                     <Grid item xs={1}>
-                      {TypeIcon}
+                      <Tooltip title={intl.formatMessage({ id: typeExplanation })}>
+                        {TypeIcon}
+                      </Tooltip>
                     </Grid>
                   )}
                   <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>

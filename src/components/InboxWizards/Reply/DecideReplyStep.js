@@ -15,7 +15,12 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
-import { findMessageForCommentId, getLabelForTerminate, removeInlineMarketMessages } from '../../../utils/messageUtils';
+import {
+  findMessageForCommentId,
+  getLabelForTerminate,
+  getShowTerminate,
+  removeInlineMarketMessages
+} from '../../../utils/messageUtils';
 import _ from 'lodash';
 import { resolveComment, updateComment } from '../../../api/comments';
 import { getFullStage, isRequiredInputStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -168,7 +173,7 @@ function DecideReplyStep(props) {
         isOtherFinal
         onOtherNext={showMoveToTask ? moveToTask : resolve}
         onOtherNextDoAdvance={false}
-        showTerminate
+        showTerminate={getShowTerminate(message)}
         terminateLabel={hasThreadMessages ? 'notificationDismissThread' : getLabelForTerminate(message)}
         onFinish={hasThreadMessages ? dismissAll : myOnFinish}
       />

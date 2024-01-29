@@ -5,7 +5,7 @@ import FormdataWizard from 'react-formdata-wizard';
 import ChooseCommentTypeStep from './ChooseCommentTypeStep';
 import AddCommentStep from './AddCommentStep';
 
-function BugWizard(props) {
+function DecisionCommentWizard(props) {
   const { investibleId } = props;
 
   return (
@@ -18,8 +18,8 @@ function BugWizard(props) {
   );
 }
 
-BugWizard.propTypes = {
+DecisionCommentWizard.propTypes = {
   investibleId: PropTypes.string.isRequired
 };
-export default BugWizard;
+export default DecisionCommentWizard;
 

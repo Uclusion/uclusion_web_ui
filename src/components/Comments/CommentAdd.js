@@ -4,7 +4,7 @@ import _ from 'lodash'
 import {
   darken,
   makeStyles,
-  Paper, Typography, useMediaQuery, useTheme,
+  Paper
 } from '@material-ui/core';
 import PropTypes from 'prop-types'
 import { getMentionsFromText, saveComment } from '../../api/comments';
@@ -42,7 +42,7 @@ import {
   editorEmpty,
   focusEditor,
   getQuillStoredState,
-  replaceEditorContents, resetEditor,
+  resetEditor,
 } from '../TextEditors/Utilities/CoreUtils';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
@@ -51,8 +51,6 @@ import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
 import WizardStepButtons from '../InboxWizards/WizardStepButtons'
 import AddWizardStepButtons from '../AddNewWizards/WizardStepButtons'
 import { nameFromDescription } from '../../utils/stringFunctions';
-import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
-import { Clear, Send } from '@material-ui/icons';
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { getMarketInfo } from '../../utils/userFunctions';
@@ -274,15 +272,13 @@ export function quickNotificationChanges(apiType, investibleId, messagesState, m
 
 function CommentAdd(props) {
   const {
-    marketId, groupId, onSave, type, parent, nameKey, onCancel, fromInvestibleId,
-    mentionsAllowed, commentAddState, updateCommentAddState, commentAddStateReset, autoFocus=true, threadMessages,
-    nameDifferentiator='', wizardProps
+    marketId, groupId, onSave, type, parent, nameKey, fromInvestibleId, mentionsAllowed, commentAddState,
+    updateCommentAddState, commentAddStateReset, autoFocus=true, threadMessages, nameDifferentiator='',
+    wizardProps
   } = props;
   const {
     uploadedFiles
   } = commentAddState;
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
   const history = useHistory();
   const [commentsState, commentDispatch] = useContext(CommentsContext);
@@ -312,32 +308,6 @@ function CommentAdd(props) {
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const ourMarket = getMarket(marketsState, marketId) || {};
 
-  function handleClear() {
-    replaceEditorContents('', editorName);
-    onCancel();
-  }
-
-  // Having to pass in buttons because of issues with LoadingOverlay in intermediate sizes
-  const buttons = (
-    <div style={{marginTop: '0.5rem'}}>
-      <SpinningIconLabelButton onClick={handleClear} doSpin={false} icon={Clear}>
-        {intl.formatMessage({ id: 'commentReplyCancelLabel' })}
-      </SpinningIconLabelButton>
-      <SpinningIconLabelButton
-        onClick={() => handleSave()}
-        icon={Send}
-        id={`commentSendButton${nameDifferentiator}`}
-      >
-        {intl.formatMessage({ id: 'commentAddSendLabel' })}
-      </SpinningIconLabelButton>
-      {!mobileLayout && (
-        <Typography className={classes.storageIndicator}>
-          {intl.formatMessage({ id: 'edited' })}
-        </Typography>
-      )}
-    </div>
-  );
-
   useEffect(() => {
     // If didn't focus to begin with then focus when type is changed
     if (type && !autoFocus) {
@@ -359,11 +329,10 @@ function CommentAdd(props) {
     commentAddStateReset();
   }
 
-  function handleSpinStop (comment, isJustClear) {
-    clearMe()
-    if (!isJustClear) {
-      onSave(comment)
-    }
+  function handleSpinStop (comment) {
+    setOperationRunning(false);
+    clearMe();
+    onSave(comment);
   }
   const isWizard = !_.isEmpty(wizardProps);
   const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
@@ -376,12 +345,10 @@ function CommentAdd(props) {
     placeholder,
     onUpload: (files) => updateCommentAddState({uploadedFiles: files}),
     mentionsAllowed,
-    onChange: () => setHasValue(!editorEmpty(getQuillStoredState(editorName))),
-    buttons: type === REPLY_TYPE && !isWizard ? buttons : undefined
+    onChange: () => setHasValue(!editorEmpty(getQuillStoredState(editorName)))
   }
   const [Editor] = useEditor(editorName, editorSpec);
-  function handleSave(isSent, passedNotificationType, doCreateInitiative, isJustClear=false,
-    stopOperationRunning=true) {
+  function handleSave(isSent, passedNotificationType, doCreateInitiative) {
     const currentUploadedFiles = uploadedFiles || [];
     const myBodyNow = getQuillStoredState(editorName);
     const {
@@ -429,14 +396,10 @@ function CommentAdd(props) {
           }
           const tokenStorageManager = new TokenStorageManager();
           return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token).then(() => {
-            setOperationRunning(false);
-            handleSpinStop(comment, isJustClear);
+            handleSpinStop(comment);
           });
         }
-        if (stopOperationRunning) {
-          setOperationRunning(false);
-        }
-        handleSpinStop(comment, isJustClear);
+        handleSpinStop(comment);
       });
   }
   return (

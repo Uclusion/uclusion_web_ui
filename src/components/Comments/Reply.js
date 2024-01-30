@@ -5,8 +5,7 @@ import { Button, Card, CardActions, CardContent, Typography, useMediaQuery, useT
 import { makeStyles } from '@material-ui/styles';
 import _ from 'lodash';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
-import CommentAdd from './CommentAdd';
-import { ISSUE_TYPE, REPLY_TYPE, REPORT_TYPE, TODO_TYPE, } from '../../constants/comments';
+import { ISSUE_TYPE, REPORT_TYPE, TODO_TYPE, } from '../../constants/comments';
 import { removeComment, updateComment } from '../../api/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -18,7 +17,7 @@ import {
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
-import { formCommentLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
+import { formCommentLink, formWizardLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { handleAcceptSuggestion } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
@@ -28,10 +27,11 @@ import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 import { ScrollContext } from '../../contexts/ScrollContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
-import { LocalCommentsContext, navigateEditReplyBack, useCommentStyles } from './Comment';
+import { LocalCommentsContext, useCommentStyles } from './Comment';
 import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
+import { REPLY_WIZARD_TYPE } from '../../constants/markets';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -179,9 +179,6 @@ function Reply(props) {
   const isEditable = comment.created_by === userId;
   const classes = useReplyStyles();
   const commentClasses = useCommentStyles();
-  const [replyAddStateFull, replyAddDispatch] = usePageStateReducer('replyAdd');
-  const [replyAddState, updateReplyAddState, replyAddStateReset] =
-    getPageReducerPage(replyAddStateFull, replyAddDispatch, comment.id);
   const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, comment.id);
   const rootComment = getCommentRoot(commentsState, marketId, comment.id);
@@ -194,8 +191,13 @@ function Reply(props) {
   }
 
   function handleEditClick() {
-    navigateEditReplyBack(history, comment.id, marketId, groupId, investibleId, replyEditId, false, isFromInbox,
-      setNoHighlightId);
+    const id = comment.id;
+    if (replyEditId) {
+      navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+      setNoHighlightId(id);
+    } else {
+      navigate(history, `/comment/${marketId}/${id}#c${id}`, false, true);
+    }
   }
 
   function myAccept () {
@@ -233,8 +235,7 @@ function Reply(props) {
   }
 
   function setReplyOpen() {
-    navigateEditReplyBack(history, comment.id, marketId, groupId, investibleId, replyEditId, true, isFromInbox,
-      setNoHighlightId);
+    navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId, undefined, undefined, comment.id));
   }
   const { level: myHighlightedLevel } = myMessage;
   const isLinkedTo = noHighlightId !== comment.id && hashFragment?.includes(comment.id);
@@ -376,22 +377,6 @@ function Reply(props) {
         </div>
       </Card>
       <div className={classes.replyContainer}>
-        {replyBeingEdited && marketId && comment && (
-          <CommentAdd
-            marketId={marketId}
-            groupId={groupId}
-            parent={comment}
-            onSave={() => setReplyOpen()}
-            onCancel={() => setReplyOpen()}
-            type={REPLY_TYPE}
-            commentAddState={replyAddState}
-            updateCommentAddState={updateReplyAddState}
-            commentAddStateReset={replyAddStateReset}
-            threadMessages={myMessage ? [myMessage] : []}
-            nameDifferentiator="reply"
-            wizardProps={wizardProps}
-          />
-        )}
         {comment.children !== undefined && (
           <div className={classes.cardContent}>
             <ThreadedReplies

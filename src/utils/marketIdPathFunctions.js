@@ -218,14 +218,6 @@ export function formatGroupLinkWithPrefix(prefix, marketId, groupId) {
   return `/${prefix}/${marketId}?groupId=${groupId}`;
 }
 
-export function formCommentEditReplyLink(marketId, commentId, isReply=false) {
-  let base = `/comment/${marketId}/${commentId}`;
-  if (isReply) {
-    return `${base}?reply=true#c${commentId}`;
-  }
-  return `${base}#c${commentId}`;
-}
-
 export function navigateToOption(history, parentMarketId, parentInvestibleId, groupId, id) {
   if (parentInvestibleId) {
     navigate(history, `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${id}`);

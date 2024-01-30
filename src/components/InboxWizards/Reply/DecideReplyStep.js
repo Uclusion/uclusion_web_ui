@@ -8,7 +8,7 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
   addCommentToMarket,
   getCommentRoot,
-  getInvestibleComments,
+  getInvestibleComments, getMarketComments,
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -52,8 +52,9 @@ function DecideReplyStep(props) {
   const { comment_type: commentType } = commentRoot;
   const { type: messageType } = message;
   const canResolve = commentRoot.created_by === userId && commentType !== REPORT_TYPE;
-  const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState)
-  const comments = investibleComments.filter((comment) =>
+  const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState);
+  const marketComments = getMarketComments(commentState, marketId, commentRoot.group_id);
+  const comments = marketComments.filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const threadMessages = [];
   comments.forEach((comment) => {
@@ -159,7 +160,6 @@ function DecideReplyStep(props) {
             removeActions
             toggleCompression={() => updateFormData({ useCompression: !useCompression })}
             useCompression={useCompression}
-            displayRepliesAsTop
           />
         </div>
       )}

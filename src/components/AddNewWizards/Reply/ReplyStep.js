@@ -24,6 +24,9 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
+import { REPLY_TYPE } from '../../../constants/comments';
+import CommentAdd from '../../Comments/CommentAdd';
+import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 
 function ReplyStep(props) {
   const { marketId, commentId, updateFormData, formData } = props;
@@ -39,6 +42,9 @@ function ReplyStep(props) {
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
   const parentComment = getComment(commentState, marketId, comment.reply_id);
   const rootComment = getComment(commentState, marketId, comment.root_comment_id);
+  const [commentAddReplyStateFull, commentAddReplyDispatch] = usePageStateReducer('addReplyWizard');
+  const [commentAddReplyState, updateCommentAddReplyState, commentAddStateReplyReset] =
+    getPageReducerPage(commentAddReplyStateFull, commentAddReplyDispatch, commentId);
   const comments = [comment];
   if (parentComment) {
     comments.push(parentComment);
@@ -52,10 +58,12 @@ function ReplyStep(props) {
   const message = findMessageForCommentId(commentId, messagesState);
   const { useCompression } = formData;
 
-  function myTerminate() {
+  function onSave(createdComment) {
     if (message) {
-      dismissWorkListItem(message, messagesDispatch, history);
+      dismissWorkListItem(message, messagesDispatch);
     }
+    navigate(history, formCommentLink(createdComment.market_id, createdComment.group_id, createdComment.investible_id,
+      createdComment.id));
   }
 
   function resolve() {
@@ -114,7 +122,19 @@ function ReplyStep(props) {
         toggleCompression={() => updateFormData({useCompression: !useCompression})}
         isReply
         useCompression={useCompression}
-        wizardProps={{...props, isReply: true, onSave: myTerminate, onResolve: resolve}}
+      />
+      <CommentAdd
+        nameKey="CommentAddBug"
+        type={REPLY_TYPE}
+        parent={comment}
+        wizardProps={{...props, isReply: true, onResolve: resolve}}
+        commentAddState={commentAddReplyState}
+        updateCommentAddState={updateCommentAddReplyState}
+        commentAddStateReset={commentAddStateReplyReset}
+        marketId={marketId}
+        groupId={rootComment?.group_id}
+        onSave={onSave}
+        nameDifferentiator="reply"
       />
     </WizardStepContainer>
   );

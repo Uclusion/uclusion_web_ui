@@ -100,7 +100,6 @@ function BugDescriptionStep (props) {
         groupId={groupId}
         onSave={(comment) => navigate(history, formCommentLink(marketId, groupId, undefined, comment.id))}
         nameDifferentiator="addBug"
-        isStory={false}
       />
     </WizardStepContainer>
   );

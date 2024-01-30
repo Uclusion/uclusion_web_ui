@@ -18,7 +18,6 @@ import {
 import { makeStyles } from '@material-ui/styles';
 import _ from 'lodash';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
-import CommentAdd from './CommentAdd';
 import {
   ISSUE_TYPE,
   JUSTIFY_TYPE,
@@ -44,7 +43,7 @@ import {
   INITIATIVE_TYPE,
   JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
   OPTION_WIZARD_TYPE,
-  PLANNING_TYPE
+  PLANNING_TYPE, REPLY_WIZARD_TYPE
 } from '../../constants/markets';
 import { red } from '@material-ui/core/colors';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
@@ -53,7 +52,6 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
-  formCommentEditReplyLink,
   formCommentLink,
   formMarketAddInvestibleLink,
   formWizardLink,
@@ -94,7 +92,6 @@ import LoadingDisplay from '../LoadingDisplay';
 import { pushMessage } from '../../utils/MessageBusUtils';
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../contexts/MarketsContext/marketsContextMessages';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
-import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
@@ -344,17 +341,6 @@ export const useCommentStyles = makeStyles(
 
 export const LocalCommentsContext = React.createContext(null);
 
-export function navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply=false,
-  isFromInbox, setNoHighlightId) {
-  if (replyEditId) {
-    const path = isFromInbox ? getInboxTarget() : formCommentLink(marketId, groupId, investibleId, id);
-    navigate(history, path);
-    setNoHighlightId(id);
-  } else {
-    navigate(history, formCommentEditReplyLink(marketId, id, isReply), false, true);
-  }
-}
-
 const StyledBadge = styled(Badge)(() => ({
   '& .MuiBadge-badge': {
     right: -3,
@@ -390,6 +376,7 @@ function InitialReply(props) {
     );
   }
   return <Reply comment={comment} enableEditing={enableEditing} replyEditId={replyEditId}
+                useCompression={useCompression} toggleCompression={toggleCompression}
                 inboxMessageId={inboxMessageId} isInbox={isInbox} wizardProps={wizardProps}/>;
 }
 
@@ -445,7 +432,6 @@ function Comment(props) {
     setSelectedInvestibleIdParent, isMove } = props;
   const history = useHistory();
   const editBox = useRef(null);
-  const myParams = new URL(document.location).searchParams;
   const theme = useTheme();
   const isReallyMobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -455,9 +441,8 @@ function Comment(props) {
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, body, is_sent: isSent, group_id: groupId,
     in_progress: inProgress } = comment;
-  const replyBeingEdited = replyEditId === id && (isReply || (myParams && !_.isEmpty(myParams.get('reply'))));
+  const replyBeingEdited = replyEditId === id && isReply;
   const beingEdited = replyEditId === id && !replyBeingEdited;
-  const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
   const presences = usePresences(marketId);
   const inlinePresences = usePresences(inlineMarketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
@@ -487,9 +472,6 @@ function Comment(props) {
   const hasUser = userIsLoaded(userState);
   const enableActions = !inArchives && !stagePreventsActions;
   const enableEditing = enableActions && !resolved; //resolved comments or those in archive aren't editable
-  const [replyAddStateFull, replyAddDispatch] = usePageStateReducer('replyAdd');
-  const [replyAddState, updateReplyAddState, replyAddStateReset] =
-    getPageReducerPage(replyAddStateFull, replyAddDispatch, id);
   const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, id);
   const {
@@ -521,17 +503,13 @@ function Comment(props) {
     updateEditState({showDiff: !showDiff});
   }
 
-  function toggleBase(isReply) {
-    navigateEditReplyBack(history, id, marketId, groupId, investibleId, replyEditId, isReply, isFromInbox,
-      setNoHighlightId);
-  }
-
-  function toggleReply() {
-    toggleBase(true);
-  }
-
   function toggleEdit() {
-    toggleBase(false);
+    if (replyEditId) {
+      navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+      setNoHighlightId(id);
+    } else {
+      navigate(history, `/comment/${marketId}/${id}#c${id}`, false, true);
+    }
   }
 
   function setBeingEdited(value, event) {
@@ -928,7 +906,8 @@ function Comment(props) {
                 )}
                 {isSent !== false && enableEditing && !removeActions && (
                   <SpinningIconLabelButton
-                    onClick={toggleReply}
+                    onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+                      undefined, undefined, id))}
                     icon={ReplyIcon}
                     iconOnly={mobileLayout}
                     id={`commentReplyButton${id}`}
@@ -997,22 +976,6 @@ function Comment(props) {
           )}
         </div>
       </Card>
-      {replyBeingEdited && marketId && comment && (
-        <CommentAdd
-          marketId={marketId}
-          groupId={groupId}
-          parent={comment}
-          onSave={wizardProps ? wizardProps.onSave : toggleReply}
-          onCancel={toggleReply}
-          type={REPLY_TYPE}
-          commentAddState={replyAddState}
-          updateCommentAddState={updateReplyAddState}
-          commentAddStateReset={replyAddStateReset}
-          threadMessages={myMessage ? [myMessage] : []}
-          nameDifferentiator="reply"
-          wizardProps={wizardProps}
-        />
-      )}
       {useCompression && threadSize > 0 && (
         <IconButton id={`removeCompressed${id}`} onClick={toggleCompression}
                     style={{border: '1px solid grey', marginTop: -7}}>

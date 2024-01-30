@@ -124,7 +124,7 @@ function ReplyStep(props) {
         useCompression={useCompression}
       />
       <CommentAdd
-        nameKey="CommentAddBug"
+        nameKey="CommentAddReply"
         type={REPLY_TYPE}
         parent={comment}
         wizardProps={{...props, isReply: true, onResolve: resolve}}

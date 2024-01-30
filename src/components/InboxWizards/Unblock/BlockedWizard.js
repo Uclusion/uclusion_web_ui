@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FormdataWizard from 'react-formdata-wizard';
 import DecideUnblockStep from './DecideUnblockStep';
-import ReplyStep from '../ReplyStep';
 
 function BlockedWizard(props) {
   const { marketId, commentId, message } = props;
@@ -10,7 +9,6 @@ function BlockedWizard(props) {
   return (
     <FormdataWizard name={`unblock_wizard${commentId}`} defaultFormData={{parentElementId, useCompression: true}}>
       <DecideUnblockStep marketId={marketId} commentId={commentId} message={message}/>
-      <ReplyStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
   );
 }

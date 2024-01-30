@@ -20,8 +20,9 @@ import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import JobDescription from '../JobDescription';
 import { useHistory } from 'react-router';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
+import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideUnblockStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -86,7 +87,8 @@ function DecideUnblockStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel='UnblockReplyLabel'
-        isFinal={false}
+        onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+          undefined, undefined, commentId, message.type_object_id))}
         spinOnClick={false}
         showOtherNext
         otherNextLabel='DecideMoveToBacklog'

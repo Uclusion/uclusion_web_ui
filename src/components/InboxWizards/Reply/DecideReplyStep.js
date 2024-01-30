@@ -34,7 +34,8 @@ import { useHistory } from 'react-router';
 import { isSingleAssisted } from '../../../utils/commentFunctions';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideReplyStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -166,7 +167,8 @@ function DecideReplyStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="issueReplyLabel"
-        isFinal={false}
+        onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+          undefined, undefined, commentId, message.type_object_id))}
         spinOnClick={false}
         showOtherNext
         otherNextLabel={showMoveToTask ? 'moveReplyToTaskLabel' : 'issueResolveLabel'}

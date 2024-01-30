@@ -8,10 +8,10 @@ import JobDescription from '../JobDescription';
 import { TODO_TYPE } from '../../../constants/comments';
 import { getComment, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { JOB_COMMENT_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { useIntl } from 'react-intl';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -69,7 +69,8 @@ function DecideReviewStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="DecideAddReview"
-        isFinal={false}
+        onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+          undefined, undefined, commentId, message.type_object_id))}
         spinOnClick={false}
         showOtherNext={!isNotDoing}
         otherSpinOnClick={false}

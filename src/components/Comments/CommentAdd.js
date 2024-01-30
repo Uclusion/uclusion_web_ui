@@ -452,7 +452,7 @@ function CommentAdd(props) {
           {isWizard && (
             <div style={{marginTop: '2rem'}}>
               {wizardProps.isReply && (
-                <WizardStepButtons
+                <AddWizardStepButtons
                   {...wizardProps}
                   validForm={hasValue}
                   nextLabel="commentAddSendLabel"

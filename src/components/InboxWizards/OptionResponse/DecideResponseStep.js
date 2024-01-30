@@ -14,6 +14,8 @@ import JobDescription from '../JobDescription';
 import { useHistory } from 'react-router';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideResponseStep(props) {
   const { marketId, commentId, message } = props;
@@ -64,7 +66,8 @@ function DecideResponseStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="issueReplyLabel"
-        isFinal={false}
+        onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+          undefined, undefined, commentId, message.type_object_id))}
         spinOnClick={false}
         onFinish={myOnFinish}
         showTerminate={true}

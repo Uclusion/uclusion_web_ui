@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FormdataWizard from 'react-formdata-wizard';
 import DecideAnswerStep from './DecideAnswerStep';
-import ReplyStep from '../ReplyStep';
 
 function AnswerWizard(props) {
   const { marketId, commentId, message } = props;
@@ -10,7 +9,6 @@ function AnswerWizard(props) {
   return (
     <FormdataWizard name={`answer_wizard${commentId}`} defaultFormData={{parentElementId, useCompression: true}}>
       <DecideAnswerStep marketId={marketId} commentId={commentId} message={message}/>
-      <ReplyStep marketId={marketId} commentId={commentId} message={message}/>
     </FormdataWizard>
   );
 }

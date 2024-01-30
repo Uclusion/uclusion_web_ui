@@ -147,7 +147,7 @@ function CommentBox(props) {
 
   return (
     <Grid id="commentBox" container spacing={1}
-          style={{paddingBottom: _.isEmpty(sortedRoots) || isInbox || usePadding === false ? 0 : '45vh'}}>
+          style={{paddingBottom: _.isEmpty(sortedRoots) || isInbox || usePadding === false ? 0 : '45vh', margin: 0}}>
       {getCommentCards()}
     </Grid>
   );

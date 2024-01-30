@@ -15,7 +15,7 @@ import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { OPTION_WIZARD_TYPE } from '../../../constants/markets';
+import { OPTION_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 
 function DecideAnswerStep(props) {
@@ -79,13 +79,14 @@ function DecideAnswerStep(props) {
         <WizardStepButtons
           {...props}
           nextLabel="issueReplyLabel"
+          onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+            undefined, undefined, commentId, message.type_object_id))}
           spinOnClick={false}
           showOtherNext
           otherNextLabel={isQuestionCreator ? 'inlineAddLabel' : 'inlineProposeLabel'}
           otherSpinOnClick={false}
           onOtherNext={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, commentRoot.inline_market_id,
-            undefined, undefined, message.type_object_id))}
-          onOtherNextDoAdvance={false}
+            undefined, undefined, undefined, message.type_object_id))}
           onFinish={myOnFinish}
           showTerminate={getShowTerminate(message)}
           terminateLabel={getLabelForTerminate(message)}

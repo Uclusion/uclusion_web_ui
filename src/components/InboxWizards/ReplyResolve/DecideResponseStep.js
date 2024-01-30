@@ -15,7 +15,8 @@ import { useHistory } from 'react-router';
 import { resolveComment, updateComment } from '../../../api/comments';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { TODO_TYPE } from '../../../constants/comments';
-import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideResponseStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -78,7 +79,8 @@ function DecideResponseStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel='UnblockReplyLabel'
-        isFinal={false}
+        onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+          undefined, undefined, commentId, message.type_object_id))}
         spinOnClick={false}
         showOtherNext
         otherNextLabel={commentRoot.investible_id ? 'wizardAcceptLabel' : 'issueResolveLabel'}

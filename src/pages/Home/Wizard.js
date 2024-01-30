@@ -18,7 +18,7 @@ import {
   JOB_STAGE_WIZARD_TYPE,
   JOB_WIZARD_TYPE,
   PLANNING_TYPE,
-  WORKSPACE_WIZARD_TYPE, JOB_COMMENT_CONFIGURE_WIZARD_TYPE, OPTION_WIZARD_TYPE
+  WORKSPACE_WIZARD_TYPE, JOB_COMMENT_CONFIGURE_WIZARD_TYPE, OPTION_WIZARD_TYPE, REPLY_WIZARD_TYPE
 } from '../../constants/markets';
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
@@ -41,6 +41,7 @@ import DismissableText from '../../components/Notifications/DismissableText';
 import { formInboxItemLink, navigate } from '../../utils/marketIdPathFunctions';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext';
+import ReplyWizard from '../../components/AddNewWizards/Reply/ReplyWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -92,7 +93,9 @@ function Wizard(props) {
       {createType === PLANNING_TYPE.toLowerCase() && (
         <GroupWizard marketId={marketId} />
       )}
-
+      {createType === REPLY_WIZARD_TYPE && (
+        <ReplyWizard marketId={marketId} commentId={commentId} />
+      )}
       {createType === WORKSPACE_WIZARD_TYPE.toLowerCase() && (
         <WorkspaceWizard />
       )}

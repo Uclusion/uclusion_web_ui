@@ -1,49 +1,61 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
-import WizardStepContainer from './WizardStepContainer';
-import { wizardStyles } from './WizardStylesContext';
 import {
   addCommentToMarket, getComment,
   getCommentRoot,
   getInvestibleComments
-} from '../../contexts/CommentsContext/commentsContextHelper';
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
-import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
-import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { getMarketInfo } from '../../utils/userFunctions';
-import { getFullStage, isRequiredInputStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
-import { dismissWorkListItem } from '../../pages/Home/YourWork/WorkListItem';
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import CommentBox from '../../containers/CommentBox/CommentBox';
+} from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { getFullStage, isRequiredInputStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { useHistory } from 'react-router';
-import { resolveComment } from '../../api/comments';
-import { removeInlineMarketMessages } from '../../utils/messageUtils';
-import { isSingleAssisted } from '../../utils/commentFunctions';
+import { resolveComment } from '../../../api/comments';
+import { findMessageForCommentId, removeInlineMarketMessages } from '../../../utils/messageUtils';
+import { isSingleAssisted } from '../../../utils/commentFunctions';
 import _ from 'lodash';
-import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import WizardStepContainer from '../WizardStepContainer';
+import { WizardStylesContext } from '../WizardStylesContext';
 
 function ReplyStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId, updateFormData, formData } = props;
   const history = useHistory();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const classes = wizardStyles();
+  const classes = useContext(WizardStylesContext);
   const comment = getComment(commentState, marketId, commentId);
   const inv = comment.investible_id ? getInvestible(investibleState, comment.investible_id) : undefined;
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
+  const parentComment = getComment(commentState, marketId, comment.reply_id);
+  const rootComment = getComment(commentState, marketId, comment.root_comment_id);
   const comments = [comment];
+  if (parentComment) {
+    comments.push(parentComment);
+    if (rootComment && parentComment.id !== rootComment.id) {
+      comments.push(rootComment);
+    }
+  }
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+  const message = findMessageForCommentId(commentId, messagesState);
+  const { useCompression } = formData;
 
   function myTerminate() {
-    dismissWorkListItem(message, messagesDispatch, history);
+    if (message) {
+      dismissWorkListItem(message, messagesDispatch, history);
+    }
   }
 
   function resolve() {
@@ -70,7 +82,9 @@ function ReplyStep(props) {
           addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
         setOperationRunning(false);
-        dismissWorkListItem(message, messagesDispatch);
+        if (message) {
+          dismissWorkListItem(message, messagesDispatch);
+        }
         navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
       });
   }
@@ -78,6 +92,7 @@ function ReplyStep(props) {
   return (
     <WizardStepContainer
       {...props}
+      isLarge
     >
       <Typography className={classes.introText}>
         What is your reply?
@@ -95,8 +110,10 @@ function ReplyStep(props) {
         isInbox
         removeActions
         replyEditId={commentId}
+        inboxMessageId={commentId}
+        toggleCompression={() => updateFormData({useCompression: !useCompression})}
         isReply
-        displayRepliesAsTop
+        useCompression={useCompression}
         wizardProps={{...props, isReply: true, onSave: myTerminate, onResolve: resolve}}
       />
     </WizardStepContainer>

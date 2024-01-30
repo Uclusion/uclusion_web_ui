@@ -55,6 +55,16 @@ export function getMarketComments(state, marketId, groupId) {
     (groupId === undefined || comment.group_id === groupId));
 }
 
+export function getThreadBelowIds(parentCommentId, marketComments) {
+  const threadIds = [];
+  const parentComment = marketComments.find((aComment) => aComment.id === parentCommentId);
+  parentComment?.children?.forEach((childCommentId) => {
+    threadIds.push(childCommentId);
+    threadIds.concat(getThreadBelowIds(childCommentId, marketComments));
+  })
+  return threadIds;
+}
+
 export function getCommentThreads(roots, marketComments) {
   let allThreads = [];
   (roots || []).forEach((root) => {

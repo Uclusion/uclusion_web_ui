@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import {
   addCommentToMarket, getComment,
   getCommentRoot,
-  getInvestibleComments
+  getInvestibleComments, getMarketComments, getThreadBelowIds
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -40,18 +40,15 @@ function ReplyStep(props) {
   const comment = getComment(commentState, marketId, commentId);
   const inv = comment.investible_id ? getInvestible(investibleState, comment.investible_id) : undefined;
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
-  const parentComment = getComment(commentState, marketId, comment.reply_id);
+  const marketComments = getMarketComments(commentState, marketId, comment?.group_id);
   const rootComment = getComment(commentState, marketId, comment.root_comment_id);
   const [commentAddReplyStateFull, commentAddReplyDispatch] = usePageStateReducer('addReplyWizard');
   const [commentAddReplyState, updateCommentAddReplyState, commentAddStateReplyReset] =
     getPageReducerPage(commentAddReplyStateFull, commentAddReplyDispatch, commentId);
-  const comments = [comment];
-  if (parentComment) {
-    comments.push(parentComment);
-    if (rootComment && parentComment.id !== rootComment.id) {
-      comments.push(rootComment);
-    }
-  }
+  const threadBelowIds = getThreadBelowIds(commentId, marketComments);
+  const comments = marketComments.filter((aComment) =>
+    (aComment.root_comment_id === rootComment.id || aComment.id === rootComment.id)
+    &&!threadBelowIds.includes(aComment.id));
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};

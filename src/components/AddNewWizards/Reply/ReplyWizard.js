@@ -9,7 +9,7 @@ function ReplyWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name={`reply_wizard${commentId}`}>
+      <FormdataWizard name={`reply_wizard${commentId}`} defaultFormData={{useCompression: true}}>
         <ReplyStep marketId={marketId} commentId={commentId} />
       </FormdataWizard>
     </WizardStylesProvider>

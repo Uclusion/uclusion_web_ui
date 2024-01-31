@@ -160,8 +160,7 @@ function Reply(props) {
     toggleCompression } = props;
   const history = useHistory();
   const myParams = new URL(document.location).searchParams;
-  const replyBeingEdited = replyEditId === comment.id &&
-    ((myParams && !_.isEmpty(myParams.get('reply'))) || isInbox);
+  const replyBeingEdited = replyEditId === comment.id && isInbox;
   const beingEdited = replyEditId === comment.id && !replyBeingEdited;
   const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
   const theme = useTheme();
@@ -288,7 +287,7 @@ function Reply(props) {
     <>
       <Card className={getHighlightClass()} id={`${isInbox ? 'inbox' : ''}c${comment.id}`}>
         <div onClick={() => {
-          if (isInbox && (!replyBeingEdited || beingEdited)) {
+          if (replyBeingEdited) {
             navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
           }
         }}>

@@ -699,7 +699,7 @@ function Comment(props) {
               gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
     />
   );
-  if (useCompression && inboxMessageId) {
+  if (useCompression && inboxMessageId && inboxMessageId !== id) {
     return (
     <>
       <Card elevation={3} style={{ display: 'flex', paddingBottom: '1rem', cursor: 'pointer' }}

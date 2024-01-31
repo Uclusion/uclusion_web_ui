@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import {
   addCommentToMarket, getComment,
   getCommentRoot,
-  getInvestibleComments, getMarketComments, getThreadBelowIds
+  getInvestibleComments, getMarketComments, getThreadAboveIds
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -44,10 +44,8 @@ function ReplyStep(props) {
   const [commentAddReplyStateFull, commentAddReplyDispatch] = usePageStateReducer('addReplyWizard');
   const [commentAddReplyState, updateCommentAddReplyState, commentAddStateReplyReset] =
     getPageReducerPage(commentAddReplyStateFull, commentAddReplyDispatch, commentId);
-  const threadBelowIds = getThreadBelowIds(commentId, marketComments);
-  const rootId = comment.root_comment_id || commentId;
-  const comments = marketComments.filter((aComment) =>
-    (aComment.root_comment_id === rootId || aComment.id === rootId) &&!threadBelowIds.includes(aComment.id));
+  const threadAboveIds = getThreadAboveIds(commentId, marketComments);
+  const comments = marketComments.filter((aComment) => threadAboveIds.includes(aComment.id));
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { CardContent, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
@@ -35,7 +35,12 @@ import { setUclusionLocalStorageItem } from '../../../components/localStorageUti
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
 import AddIcon from '@material-ui/icons/Add';
-import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  decomposeMarketPath,
+  formInvestibleAddCommentLink,
+  formWizardLink,
+  navigate
+} from '../../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -149,6 +154,7 @@ function DecisionInvestible(props) {
   } = props;
   const intl = useIntl();
   const history = useHistory();
+  const location = useLocation();
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -189,6 +195,9 @@ function DecisionInvestible(props) {
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState, votingPageStateReset] =
     getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
+  const { pathname } = location;
+  const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
+  const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
 
   function isEditableByUser() {
     return !removeActions && !inArchives && (isAdmin || (inProposed && createdBy === userId));
@@ -352,7 +361,8 @@ function DecisionInvestible(props) {
             <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
                                      style={{display: "flex", marginBottom: '1rem'}}
                                      onClick={() => navigate(history,
-                                       formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId))}>
+                                       formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, undefined,
+                                         undefined, typeObjectId))}>
               <FormattedMessage id="createNewVote" />
             </SpinningIconLabelButton>
           )}
@@ -376,7 +386,8 @@ function DecisionInvestible(props) {
             {displayCommentInput && (
               <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
                                        onClick={() => navigate(history,
-                                         formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId))}>
+                                         formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId,
+                                           undefined, undefined, typeObjectId))}>
                 <FormattedMessage id='createComment'/>
               </SpinningIconLabelButton>
             )}

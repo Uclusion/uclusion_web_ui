@@ -76,7 +76,8 @@ function DecideResolveStep(props) {
       setOperationRunning(false);
       if (!commentRoot.investible_id) {
         // Only need to move if market suggestion
-        navigate(history, `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}`);
+        navigate(history, `${formMarketAddInvestibleLink(marketId, comment.group_id, undefined, 
+          message.type_object_id)}&fromCommentId=${comment.id}`);
       }
     })
   }
@@ -106,7 +107,8 @@ function DecideResolveStep(props) {
           } else {
             wizardFinish(
               {
-                link: `${formMarketAddInvestibleLink(marketId, commentRoot.group_id)}&fromCommentId=${commentId}`
+                link: `${formMarketAddInvestibleLink(marketId, commentRoot.group_id, undefined, 
+                  message.type_object_id)}&fromCommentId=${commentId}`
               },
               setOperationRunning, message, history, marketId, commentRoot.investible_id, messagesDispatch);
           }
@@ -191,7 +193,8 @@ function DecideResolveStep(props) {
           nextLabel="BugWizardMoveToJob"
           spinOnClick={false}
           onNext={() => navigate(history,
-            `${formMarketAddInvestibleLink(marketId, commentRoot.group_id)}&fromCommentId=${commentId}`)}
+            `${formMarketAddInvestibleLink(marketId, commentRoot.group_id, undefined, 
+              message.type_object_id)}&fromCommentId=${commentId}`)}
           showOtherNext
           otherNextLabel="commentResolveLabel"
           onOtherNext={() => resolve(false)}

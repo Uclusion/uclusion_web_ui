@@ -17,8 +17,14 @@ import {
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
-import { formCommentLink, formWizardLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
+import {
+  decomposeMarketPath,
+  formCommentLink,
+  formWizardLink,
+  navigate,
+  preventDefaultAndProp
+} from '../../utils/marketIdPathFunctions';
+import { useHistory, useLocation } from 'react-router';
 import { handleAcceptSuggestion } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { findMessageForCommentId, removeMessagesForCommentId } from '../../utils/messageUtils';
@@ -160,10 +166,9 @@ function Reply(props) {
   const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps, useCompression,
     toggleCompression } = props;
   const history = useHistory();
-  const myParams = new URL(document.location).searchParams;
+  const location = useLocation();
   const replyBeingEdited = replyEditId === comment.id && isInbox;
   const beingEdited = replyEditId === comment.id && !replyBeingEdited;
-  const isFromInbox = myParams && !_.isEmpty(myParams.get('inbox'));
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const marketId = useMarketId();
@@ -173,6 +178,9 @@ function Reply(props) {
   const [messagesState] = useContext(NotificationsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const { pathname } = location;
+  const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
+  const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
   const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
   const myPresence = presences.find(presence => presence.current_user) || {};
   const userId = myPresence?.id;
@@ -235,7 +243,8 @@ function Reply(props) {
   }
 
   function setReplyOpen() {
-    navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId, undefined, undefined, comment.id));
+    navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId, undefined, undefined, comment.id,
+      typeObjectId));
   }
   const { level: myHighlightedLevel } = myMessage;
   const isLinkedTo = noHighlightId !== comment.id && hashFragment?.includes(comment.id);
@@ -305,7 +314,7 @@ function Reply(props) {
                 value={comment.created_at}
               />
             </Typography>
-            {(myPresence.is_admin || isEditable) && enableEditing && !isFromInbox && (
+            {(myPresence.is_admin || isEditable) && enableEditing && (
               <TooltipIconButton
                 disabled={operationRunning !== false}
                 onClick={remove}
@@ -343,7 +352,6 @@ function Reply(props) {
                 className={classes.editor}
                 value={comment.body}
                 id={comment.id}
-                noOverflow={isFromInbox}
                 setBeingEdited={setBeingEdited}
                 isEditable={!mobileLayout && enableEditing && isEditable}
               />

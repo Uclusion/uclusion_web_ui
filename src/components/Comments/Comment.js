@@ -52,13 +52,14 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
+  decomposeMarketPath,
   formCommentLink,
   formMarketAddInvestibleLink,
   formWizardLink,
   navigate,
   preventDefaultAndProp
 } from '../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import { marketAbstain } from '../../api/markets';
 import { handleAcceptSuggestion, isSingleAssisted, onCommentOpen } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
@@ -431,6 +432,7 @@ function Comment(props) {
     inboxMessageId, toggleCompression, useCompression, showVoting, selectedInvestibleIdParent,
     setSelectedInvestibleIdParent, isMove } = props;
   const history = useHistory();
+  const location = useLocation();
   const editBox = useRef(null);
   const theme = useTheme();
   const isReallyMobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -441,6 +443,9 @@ function Comment(props) {
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, body, is_sent: isSent, group_id: groupId,
     in_progress: inProgress } = comment;
+  const { pathname } = location;
+  const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
+  const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
   const replyBeingEdited = replyEditId === id && isReply;
   const beingEdited = replyEditId === id && !replyBeingEdited;
   const presences = usePresences(marketId);
@@ -543,7 +548,7 @@ function Comment(props) {
     }
     if (marketType === INITIATIVE_TYPE) {
       return <InlineInitiativeBox anInlineMarket={anInlineMarket} removeActions={removeActions}
-                                  isTaskDisplay={commentType === TODO_TYPE}
+                                  isTaskDisplay={commentType === TODO_TYPE} typeObjectId={typeObjectId}
                                   showAcceptReject={showAcceptReject || commentType !== SUGGEST_CHANGE_TYPE}
                                   inArchives={marketStage !== ACTIVE_STAGE || inArchives || resolved} />;
     }
@@ -864,7 +869,7 @@ function Comment(props) {
                 {showAddVoting && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
-                      undefined, undefined, id))} iconOnly={mobileLayout}
+                      undefined, undefined, id, typeObjectId))} iconOnly={mobileLayout}
                                            doSpin={false} icon={ThumbsUpDownIcon}>
                     {!mobileLayout && intl.formatMessage({ id: 'addVoting' })}
                   </SpinningIconLabelButton>
@@ -890,7 +895,8 @@ function Comment(props) {
                 {inlineMarket.market_type === DECISION_TYPE && enableEditing && !removeActions && (
                   <SpinningIconLabelButton
                     doSpin={false}
-                    onClick={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, inlineMarketId))}
+                    onClick={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, inlineMarketId,
+                      undefined, undefined, undefined, typeObjectId))}
                     icon={AddIcon}
                     iconOnly={mobileLayout}
                     id={`addOptionButton${id}`}
@@ -911,7 +917,7 @@ function Comment(props) {
                 {isSent !== false && enableEditing && !removeActions && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
-                      undefined, undefined, id))}
+                      undefined, undefined, id, typeObjectId))}
                     icon={ReplyIcon}
                     iconOnly={mobileLayout}
                     id={`commentReplyButton${id}`}
@@ -938,7 +944,7 @@ function Comment(props) {
                 {showMoveButton && mobileLayout && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history,
-                      `${formMarketAddInvestibleLink(marketId, groupId, undefined, 
+                      `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
                         investibleId && commentType === TODO_TYPE ? BUG_WIZARD_TYPE 
                           : undefined)}&fromCommentId=${id}`)}
                     doSpin={false}
@@ -951,7 +957,7 @@ function Comment(props) {
                 {showConfigureVotingButton && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
-                      undefined, undefined, id))}
+                      undefined, undefined, id, typeObjectId))}
                     doSpin={false} icon={SettingsIcon} iconOnly={mobileLayout}>
                     {!mobileLayout && intl.formatMessage({ id: 'configureVoting' })}
                   </SpinningIconLabelButton>
@@ -959,7 +965,7 @@ function Comment(props) {
                 {showMoveButton && !mobileLayout && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history,
-                      `${formMarketAddInvestibleLink(marketId, groupId, undefined,
+                      `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
                         investibleId && commentType === TODO_TYPE ? BUG_WIZARD_TYPE
                           : undefined)}&fromCommentId=${id}`)}
                     doSpin={false}

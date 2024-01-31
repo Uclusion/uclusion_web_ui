@@ -289,8 +289,12 @@ export function formWizardLink(wizardType, marketId, investibleId, groupId, comm
 
 }
 
-export function formMarketAddInvestibleLink(marketId, groupId, jobType, wizardType=JOB_WIZARD_TYPE) {
-  const baseLink = `/wizard#type=${wizardType}&marketId=${marketId}&groupId=${groupId}`
+export function formMarketAddInvestibleLink(marketId, groupId, jobType, typeObjectId, wizardType=JOB_WIZARD_TYPE)
+{
+  let baseLink = `/wizard#type=${wizardType}&marketId=${marketId}&groupId=${groupId}`
+  if (typeObjectId) {
+    baseLink += `&typeObjectId=${typeObjectId}`
+  }
   if (jobType !== undefined) {
     return `${baseLink}&jobType=${jobType}`;
   }

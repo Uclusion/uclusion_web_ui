@@ -20,7 +20,7 @@ import { APPROVAL_WIZARD_TYPE } from '../../constants/markets';
 
 function InlineInitiativeBox(props) {
   const {
-    anInlineMarket, inArchives, removeActions, isTaskDisplay
+    anInlineMarket, inArchives, removeActions, isTaskDisplay, typeObjectId
   } = props;
   const history = useHistory();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
@@ -71,14 +71,16 @@ function InlineInitiativeBox(props) {
                                      style={{display: "flex", marginTop: '2rem', marginBottom: '1.5rem'}}
                                      onClick={() => navigate(history,
                                        `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, 
-                                         inlineInvestibleId)}&voteFor=true`)}>
+                                         inlineInvestibleId, undefined, undefined, 
+                                         typeObjectId)}&voteFor=true`)}>
               <FormattedMessage id="voteFor" />
             </SpinningIconLabelButton>
             <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
                                      id={`voteAgainst${anInlineMarket.id}`}
                                      style={{display: "flex", marginTop: '2rem', marginBottom: '1.5rem'}}
                                      onClick={() => navigate(history, `${formWizardLink(APPROVAL_WIZARD_TYPE, 
-                                       anInlineMarket.id, inlineInvestibleId)}&voteFor=false`)}>
+                                       anInlineMarket.id, inlineInvestibleId, undefined, undefined, 
+                                       typeObjectId)}&voteFor=false`)}>
               <FormattedMessage id="voteAgainst" />
             </SpinningIconLabelButton>
         </div>

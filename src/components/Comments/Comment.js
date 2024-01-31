@@ -714,20 +714,24 @@ function Comment(props) {
         {sortedReplies.map(child => {
           const parent = findParentInDescendants(child, inboxMessageId, comments);
           if (parent) {
+            const numberHidden = calculateNumberHidden(comment, inboxMessageId, comments, parent);
             return (
-              <InitialReply
-                key={parent.id}
-                comment={parent}
-                marketId={marketId}
-                enableEditing={enableEditing}
-                replyEditId={replyEditId}
-                inboxMessageId={inboxMessageId}
-                useCompression
-                toggleCompression={toggleCompression}
-                numberHidden={calculateNumberHidden(comment, inboxMessageId, comments, parent)}
-                isInbox={isInbox}
-                wizardProps={wizardProps}
-              />
+              <>
+                <div style={{marginBottom: numberHidden === 0 ? '15px' : undefined}} />
+                <InitialReply
+                  key={parent.id}
+                  comment={parent}
+                  marketId={marketId}
+                  enableEditing={enableEditing}
+                  replyEditId={replyEditId}
+                  inboxMessageId={inboxMessageId}
+                  useCompression
+                  toggleCompression={toggleCompression}
+                  numberHidden={numberHidden}
+                  isInbox={isInbox}
+                  wizardProps={wizardProps}
+                />
+              </>
             );
           }
           return React.Fragment;

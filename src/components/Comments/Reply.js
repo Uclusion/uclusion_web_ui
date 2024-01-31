@@ -32,6 +32,7 @@ import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import { REPLY_WIZARD_TYPE } from '../../constants/markets';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -263,10 +264,14 @@ function Reply(props) {
   if (useCompression && comment.id !== inboxMessageId) {
     return (
       <>
-        <Card elevation={3} style={{display: 'flex', paddingBottom: '0.25rem', paddingLeft: '0.5rem',
-        paddingTop: '1rem', paddingRight: '0.5rem', cursor: 'pointer'}} onClick={toggleCompression}>
-          <Gravatar name={commenter.name} email={commenter.email} className={commentClasses.smallGravatar} />
+        <Card elevation={3} style={{
+          display: 'flex', paddingBottom: '0.25rem', paddingLeft: '0.5rem',
+          paddingTop: '1rem', paddingRight: '0.5rem', cursor: 'pointer'
+        }} onClick={toggleCompression}>
+          <Gravatar name={commenter.name} email={commenter.email} className={commentClasses.smallGravatar}/>
           <div className={commentClasses.compressedComment}>{stripHTML(comment.body)}</div>
+          <div style={{ flexGrow: 1 }}/>
+          <ExpandMoreIcon style={{ color: 'black', marginRight: '1rem' }}/>
         </Card>
         <div className={classes.cardContent}>
           <ThreadedReplies
@@ -383,6 +388,7 @@ function Reply(props) {
               enableEditing={enableEditing}
               replyEditId={replyEditId}
               isInbox={isInbox}
+              inboxMessageId={inboxMessageId}
               wizardProps={wizardProps}
             />
           </div>
@@ -446,6 +452,7 @@ function ThreadedReplies(props) {
                   enableEditing={enableEditing}
                   replyEditId={replyEditId}
                   isInbox={isInbox}
+                  inboxMessageId={inboxMessageId}
                   wizardProps={wizardProps}
                 />
               );
@@ -480,10 +487,10 @@ function ThreadedReplies(props) {
 }
 
 function ThreadedReply(props) {
-  const { comment, enableEditing, messages, replyEditId, isInbox, wizardProps } = props;
+  const { comment, enableEditing, messages, replyEditId, isInbox, inboxMessageId, wizardProps } = props;
   return <Reply key={`c${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment}
                 enableEditing={enableEditing} messages={messages} replyEditId={replyEditId}
-                isInbox={isInbox} wizardProps={wizardProps} />;
+                isInbox={isInbox} inboxMessageId={inboxMessageId} wizardProps={wizardProps} />;
 }
 
 function useCommenter(comment, presences) {

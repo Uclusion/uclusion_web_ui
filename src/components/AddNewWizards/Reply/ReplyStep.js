@@ -37,18 +37,17 @@ function ReplyStep(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
-  const comment = getComment(commentState, marketId, commentId);
+  const comment = getComment(commentState, marketId, commentId) || {};
   const inv = comment.investible_id ? getInvestible(investibleState, comment.investible_id) : undefined;
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, comment?.group_id);
-  const rootComment = getComment(commentState, marketId, comment.root_comment_id);
   const [commentAddReplyStateFull, commentAddReplyDispatch] = usePageStateReducer('addReplyWizard');
   const [commentAddReplyState, updateCommentAddReplyState, commentAddStateReplyReset] =
     getPageReducerPage(commentAddReplyStateFull, commentAddReplyDispatch, commentId);
   const threadBelowIds = getThreadBelowIds(commentId, marketComments);
+  const rootId = comment.root_comment_id || commentId;
   const comments = marketComments.filter((aComment) =>
-    (aComment.root_comment_id === rootComment.id || aComment.id === rootComment.id)
-    &&!threadBelowIds.includes(aComment.id));
+    (aComment.root_comment_id === rootId || aComment.id === rootId) &&!threadBelowIds.includes(aComment.id));
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
@@ -129,7 +128,7 @@ function ReplyStep(props) {
         updateCommentAddState={updateCommentAddReplyState}
         commentAddStateReset={commentAddStateReplyReset}
         marketId={marketId}
-        groupId={rootComment?.group_id}
+        groupId={comment?.group_id}
         onSave={onSave}
         nameDifferentiator="reply"
       />

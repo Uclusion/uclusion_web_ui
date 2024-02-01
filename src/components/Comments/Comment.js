@@ -429,7 +429,8 @@ function findParentInDescendants(useComment, inboxMessageId, comments) {
 function Comment(props) {
   const { comment, marketId, comments, noAuthor, defaultShowDiff, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
-    inboxMessageId, toggleCompression, useCompression, showVoting, selectedInvestibleIdParent, isMove } = props;
+    inboxMessageId, toggleCompression: toggleCompressionRaw, useCompression, showVoting, selectedInvestibleIdParent,
+    isMove } = props;
   const history = useHistory();
   const location = useLocation();
   const editBox = useRef(null);
@@ -498,6 +499,10 @@ function Comment(props) {
       }
     }
   }, [hasUser, marketsState, inlineMarketId, operationRunning]);
+
+  function toggleCompression() {
+    toggleCompressionRaw(id);
+  }
 
   function toggleDiffShow(event) {
     preventDefaultAndProp(event)

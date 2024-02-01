@@ -358,6 +358,7 @@ function PlanningInvestible(props) {
   const {
     beingEdited,
     sectionOpen,
+    compressionHash
   } = pageState;
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
@@ -577,6 +578,26 @@ function PlanningInvestible(props) {
                                                investibleComments={investibleComments}
                                                marketInfo={marketInfo} marketId={marketId}
                                                updatePageState={updatePageState} />;
+  function getUseCompression(commentId) {
+    if (compressionHash) {
+      const useCompression = compressionHash[commentId];
+      if (useCompression !== undefined) {
+        return useCompression;
+      }
+    }
+    return true;
+  }
+
+  function toggleUseCompression(commentId) {
+    if (compressionHash) {
+      const useCompression = !compressionHash[commentId];
+      const newCompressionHash = {...compressionHash, [commentId]: useCompression};
+      updatePageState({compressionHash: newCompressionHash});
+    } else {
+      updatePageState({compressionHash: {[commentId]: false}});
+    }
+  }
+
   return (
     <Screen
       title={title}
@@ -768,6 +789,8 @@ function PlanningInvestible(props) {
                 formerStageId={formerStageId}
                 marketInfo={marketInfo}
                 investible={marketInvestible}
+                toggleCompression={sectionOpen === 'assistanceSection' ? toggleUseCompression : undefined}
+                useCompression={sectionOpen === 'assistanceSection' ? getUseCompression : undefined}
                 useInProgressSorting={sectionOpen === 'tasksSection'}
               />
             </Grid>

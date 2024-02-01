@@ -56,8 +56,9 @@ const TitleB = styled(Title)`
   font-weight: bold;
 `;
 
-const DateLabel = styled(Text)`
+const DateLabel = styled("div")`
   font-size: 14px;
+  padding-left: 1rem;
   padding-right: 1rem;
   text-align: right;
 `;

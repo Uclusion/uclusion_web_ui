@@ -5,10 +5,10 @@ import WizardStepContainer from '../WizardStepContainer';
 import WizardStepButtons from '../WizardStepButtons';
 import { editorEmpty, getQuillStoredState, resetEditor } from '../../TextEditors/Utilities/CoreUtils';
 import { useEditor } from '../../TextEditors/quillHooks';
-import { convertDescription } from '../../../utils/stringFunctions';
+import { convertDescription, stripHTML } from '../../../utils/stringFunctions';
 import { addDecisionInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInvestibles, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -20,6 +20,8 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import OptionListItem from '../../Comments/OptionListItem';
+import _ from 'lodash';
 
 function OptionDescriptionStep (props) {
   const { marketId, parentGroupId, parentInvestibleId, parentMarketId, parentCommentId, createdBy } = props;
@@ -29,6 +31,7 @@ function OptionDescriptionStep (props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
+  const [investibleState] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
   const presences = usePresences(marketId);
@@ -39,6 +42,7 @@ function OptionDescriptionStep (props) {
   const proposedStage = marketStages.find((stage) => !stage.allows_investment) || {};
   const isQuestionCreator = createdBy === myPresence.id;
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId);
+  const allOptions = getMarketInvestibles(investibleState, marketId) || [];
 
   const editorSpec = {
     placeholder: "Ex: make magic happen via A, B, C",
@@ -76,6 +80,14 @@ function OptionDescriptionStep (props) {
       });
   }
 
+  function getOptionListItem(inv) {
+    const investibleId = inv.investible.id;
+    const description = stripHTML(inv.investible.description);
+    return (
+      <OptionListItem id={investibleId} description={description} title={inv.investible.name} />
+    )
+  }
+
   return (
     <WizardStepContainer
       {...props}
@@ -92,8 +104,13 @@ function OptionDescriptionStep (props) {
         showVoting={false}
         isInbox
       />
+      {!_.isEmpty(allOptions) && (
+        <div style={{ marginBottom: '2rem' }}>
+          {allOptions.map((fullInvestible) => getOptionListItem(fullInvestible))}
+        </div>
+      )}
       {Editor}
-      <div className={classes.borderBottom} />
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         validForm={hasValue}

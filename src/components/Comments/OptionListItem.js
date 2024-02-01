@@ -109,7 +109,7 @@ function OptionListItem(props) {
           <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }} id={`link${id}`} key={`link${id}`}
                onClick={
             (event) => {
-              if (isNotSynced) {
+              if (isNotSynced || !expandOrContract) {
                 return;
               }
               preventDefaultAndProp(event);
@@ -130,11 +130,14 @@ function OptionListItem(props) {
               {mobileLayout || _.isEmpty(people) ? React.Fragment :
                 <GravatarGroup users={people}  />
               }
-              {!isNotSynced && (
+              {!isNotSynced && expandOrContract && (
                 <DateLabel>
                   {expansionOpen ? <ExpandLess style={{color: 'black'}} />
                     : <ExpandMoreIcon style={{color: 'black'}} />}
                 </DateLabel>
+              )}
+              {!expandOrContract && (
+                <div style={{marginRight: '1rem'}} />
               )}
             </Div>
           </div>

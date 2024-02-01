@@ -329,10 +329,12 @@ function CommentAdd(props) {
     commentAddStateReset();
   }
 
-  function handleSpinStop (comment) {
+  function handleSpinStop (comment, isJustClear) {
     setOperationRunning(false);
     clearMe();
-    onSave(comment);
+    if (!isJustClear) {
+      onSave(comment);
+    }
   }
   const isWizard = !_.isEmpty(wizardProps);
   const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
@@ -348,7 +350,7 @@ function CommentAdd(props) {
     onChange: () => setHasValue(!editorEmpty(getQuillStoredState(editorName)))
   }
   const [Editor] = useEditor(editorName, editorSpec);
-  function handleSave(isSent, passedNotificationType, doCreateInitiative) {
+  function handleSave(isSent, passedNotificationType, doCreateInitiative, isJustClear) {
     const currentUploadedFiles = uploadedFiles || [];
     const myBodyNow = getQuillStoredState(editorName);
     const {
@@ -396,10 +398,10 @@ function CommentAdd(props) {
           }
           const tokenStorageManager = new TokenStorageManager();
           return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, inlineMarketId, token).then(() => {
-            handleSpinStop(comment);
+            handleSpinStop(comment, isJustClear);
           });
         }
-        handleSpinStop(comment);
+        handleSpinStop(comment, isJustClear);
       });
   }
   return (
@@ -423,7 +425,7 @@ function CommentAdd(props) {
                   showOtherNext
                   otherNextLabel="commentAddSendResolve"
                   onOtherNext={() => handleSave( true, undefined, undefined,
-                    true, false).then(() => {
+                    true).then(() => {
                     wizardProps.onResolve();
                   })}
                   showTerminate={!_.isEmpty(wizardProps.terminateLabel)}

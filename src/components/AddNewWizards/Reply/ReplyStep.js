@@ -61,6 +61,7 @@ function ReplyStep(props) {
   }
 
   function resolve() {
+    setOperationRunning(true);
     const commentRoot = getCommentRoot(commentState, marketId, commentId);
     return resolveComment(marketId, commentRoot.id)
       .then((comment) => {

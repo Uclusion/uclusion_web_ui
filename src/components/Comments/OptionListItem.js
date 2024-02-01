@@ -58,29 +58,12 @@ const TitleB = styled(Title)`
 
 const DateLabel = styled(Text)`
   font-size: 14px;
-  min-width: 10vw;
-  flex-basis: 100px;
-  flex-shrink: 0;
-  padding-right: 2rem;
+  padding-right: 1rem;
   text-align: right;
-`;
-
-const DateLabelHovered = styled(DateLabel)`
-    display: none;
-`;
-
-const GravatarNotHovered = styled("div")`
-    margin-left: '0.75rem'
 `;
 
 const Item = styled("div")`
   margin-bottom: 1px;
-  &:hover ${GravatarNotHovered} {
-      display: none;
-  }
-  &:hover ${DateLabelHovered} {
-      display: block;
-  }
 `
 
 function OptionListItem(props) {
@@ -134,7 +117,7 @@ function OptionListItem(props) {
           }>
             <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
               {!mobileLayout || _.isEmpty(people) ? React.Fragment :
-                <GravatarNotHovered><GravatarGroup users={people}  /></GravatarNotHovered>
+                <GravatarGroup users={people}  />
               }
               {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
               {!mobileLayout && (
@@ -143,16 +126,15 @@ function OptionListItem(props) {
               {!mobileLayout && (
                 <div style={{flexGrow: 1}}/>
               )}
-              {!isNotSynced && (
-                <DateLabelHovered>
-                  {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
-                    : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
-                </DateLabelHovered>
-              )}
               {mobileLayout || _.isEmpty(people) ? React.Fragment :
-                <GravatarNotHovered><GravatarGroup users={people}  /></GravatarNotHovered>
+                <GravatarGroup users={people}  />
               }
-              <div style={{paddingRight: '1rem'}} />
+              {!isNotSynced && (
+                <DateLabel>
+                  {expansionOpen ? <ExpandLess style={{color: 'black'}} />
+                    : <ExpandMoreIcon style={{color: 'black'}} />}
+                </DateLabel>
+              )}
             </Div>
           </div>
         </RaisedCard>

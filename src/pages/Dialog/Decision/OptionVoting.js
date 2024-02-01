@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import DecisionInvestible from '../../Investible/Decision/DecisionInvestible';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
@@ -52,12 +51,9 @@ function OptionVoting(props) {
     )
   }
 
-  const orderedInvestiblesArray = _.orderBy(investibles, [(inv) => {
-    return isNew(inv, messagesState) ? 0 : 1;
-  }, (inv) => inv.investible.name]);
   return (
     <div>
-      {(orderedInvestiblesArray || []).map((fullInvestible) => getOptionListItem(fullInvestible))}
+      {(investibles || []).map((fullInvestible) => getOptionListItem(fullInvestible))}
     </div>
   );
 }

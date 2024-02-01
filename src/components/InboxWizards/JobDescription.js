@@ -50,9 +50,9 @@ function isLargeDisplay(description) {
 
 function JobDescription(props) {
   const { investibleId, marketId, comments, showAssigned=true, inboxMessageId, showRequiredApprovers = false,
-    removeActions, showVoting, selectedInvestibleIdParent, setSelectedInvestibleIdParent, preserveOrder,
-    showAttachments, toggleCompression, useCompression, isSingleTaskDisplay = false,
-    showCreatedBy = false, showDiff = false } = props;
+    removeActions, showVoting, selectedInvestibleIdParent, preserveOrder, showAttachments, toggleCompression,
+    useCompression, isSingleTaskDisplay = false, showCreatedBy = false,
+    showDiff = false } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -155,7 +155,6 @@ function JobDescription(props) {
               removeActions={removeActions}
               showVoting={showVoting}
               selectedInvestibleIdParent={selectedInvestibleIdParent}
-              setSelectedInvestibleIdParent={setSelectedInvestibleIdParent}
             />
           </div>
         )}

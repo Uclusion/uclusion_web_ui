@@ -24,6 +24,7 @@ import { moveInvestibleToCurrentVoting } from '../../api/investibles';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { ACTIVE_STAGE } from '../../constants/markets';
 import { useLocation } from 'react-router';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 
 export function isNew(inv, messagesState) {
   const investibleId = inv.investible.id;
@@ -38,7 +39,7 @@ export function isNewComment(comment, messagesState) {
 
 function Options(props) {
   const { anInlineMarket, marketId, investibleId, inArchives, isEditable, isSent, groupId, removeActions,
-    selectedInvestibleIdParent, setSelectedInvestibleIdParent, searchResults, isInbox } = props;
+    selectedInvestibleIdParent, searchResults, isInbox } = props;
   const location = useLocation();
   const { hash } = location;
   const intl = useIntl();
@@ -46,16 +47,27 @@ function Options(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [tabIndex, setTabIndex] = useState(0);
-  const [selectedInvestibleIdLocal, setSelectedInvestibleIdLocal] = useState(undefined);
-  const selectedInvestibleId = selectedInvestibleIdParent || selectedInvestibleIdLocal;
-  const setSelectedInvestibleId = setSelectedInvestibleIdParent || setSelectedInvestibleIdLocal;
+  const underConsiderationStage = getInCurrentVotingStage(marketStagesState, anInlineMarket.id);
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults, isInbox)
     || [];
+  function getInlineInvestiblesForStage(stage) {
+    const investiblesRaw = inlineInvestibles.filter((investible) => {
+      const aMarketInfo = getMarketInfo(investible, anInlineMarket.id);
+      return aMarketInfo && aMarketInfo.stage === stage?.id && !aMarketInfo.deleted;
+    }) || [];
+    return _.orderBy(investiblesRaw, [(inv) => {
+      return isNew(inv, messagesState) ? 0 : 1;
+    }, (inv) => inv.investible.name]);
+  }
+  const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
+  const firstConsidered = _.isEmpty(underConsideration) ? undefined : underConsideration[0];
+  const [selectedInvestibleId, setSelectedInvestibleId] = useState(selectedInvestibleIdParent ||
+    firstConsidered?.investible?.id);
   const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
-  const underConsiderationStage = getInCurrentVotingStage(marketStagesState, anInlineMarket.id);
   const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
   const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
   const strippedInvestibles = inlineInvestibles.map(inv => inv.investible);
@@ -79,13 +91,6 @@ function Options(props) {
         {intl.formatMessage({ id: 'commentAbstainingLabel' })}</Typography>
       <GravatarGroup users={abstaining}/>
     </div>;
-
-  function getInlineInvestiblesForStage(stage) {
-    return inlineInvestibles.filter((investible) => {
-      const aMarketInfo = getMarketInfo(investible, anInlineMarket.id);
-      return aMarketInfo && aMarketInfo.stage === stage?.id && !aMarketInfo.deleted;
-    }) || [];
-  }
 
   function onDrop(event, fromStage, toStage) {
     const moveInfo = {
@@ -116,7 +121,6 @@ function Options(props) {
     return React.Fragment;
   }
 
-  const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
   const proposed = getInlineInvestiblesForStage(proposedStage);
   const unreadCount = _.size(underConsideration.filter((inv) => isNew(inv)));
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');

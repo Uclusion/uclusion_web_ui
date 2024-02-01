@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -24,7 +24,6 @@ function DecideAnswerStep(props) {
   const [commentState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
-  const [selectedInvestibleId, setSelectedInvestibleId] = useState(undefined);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
@@ -54,9 +53,7 @@ function DecideAnswerStep(props) {
                         removeActions={noOptions}
                         showVoting
                         useCompression={useCompression}
-                        toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                        selectedInvestibleIdParent={selectedInvestibleId}
-                        setSelectedInvestibleIdParent={setSelectedInvestibleId} />
+                        toggleCompression={() => updateFormData({useCompression: !useCompression})} />
       )}
       {!commentRoot.investible_id && (
         <div className={classes.wizardCommentBoxDiv}>
@@ -69,8 +66,6 @@ function DecideAnswerStep(props) {
             showVoting
             useCompression={useCompression}
             toggleCompression={() => updateFormData({useCompression: !useCompression})}
-            selectedInvestibleIdParent={selectedInvestibleId}
-            setSelectedInvestibleIdParent={setSelectedInvestibleId}
           />
         </div>
       )}

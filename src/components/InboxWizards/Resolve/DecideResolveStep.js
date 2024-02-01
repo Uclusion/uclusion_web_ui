@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -37,8 +37,7 @@ function DecideResolveStep(props) {
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [selectedInvestibleId, setSelectedInvestibleId] = useState(message.decision_investible_id
-    || message.investible_id);
+  const selectedInvestibleId = message.decision_investible_id || message.investible_id;
   const history = useHistory();
   const presences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = presences?.find((presence) => presence.current_user) || {};
@@ -144,8 +143,7 @@ function DecideResolveStep(props) {
                         showVoting
                         useCompression={useCompression}
                         toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                        selectedInvestibleIdParent={selectedInvestibleId}
-                        setSelectedInvestibleIdParent={setSelectedInvestibleId} />
+                        selectedInvestibleIdParent={selectedInvestibleId} />
       )}
       {!commentRoot.investible_id && (
         <div className={classes.wizardCommentBoxDiv}>
@@ -160,7 +158,6 @@ function DecideResolveStep(props) {
             removeActions
             showVoting
             selectedInvestibleIdParent={selectedInvestibleId}
-            setSelectedInvestibleIdParent={setSelectedInvestibleId}
           />
         </div>
       )}

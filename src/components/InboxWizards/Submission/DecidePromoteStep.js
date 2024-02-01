@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
@@ -33,7 +33,6 @@ function DecidePromoteStep(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [selectedInvestibleId, setSelectedInvestibleId] = useState(investibleId);
   const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const commentRoot = getCommentRoot(commentState, commentMarketId, commentId) || {id: 'fake'};
@@ -49,7 +48,7 @@ function DecidePromoteStep(props) {
   function promote() {
     const moveInfo = {
       marketId,
-      investibleId: selectedInvestibleId || investibleId,
+      investibleId,
       stageInfo: {
         current_stage_id: proposedStage.id,
         stage_id: inCurrentVotingStage.id,
@@ -74,8 +73,8 @@ function DecidePromoteStep(props) {
         <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                         removeActions
                         showVoting
-                        selectedInvestibleIdParent={selectedInvestibleId}
-                        setSelectedInvestibleIdParent={setSelectedInvestibleId} />
+                        selectedInvestibleIdParent={investibleId}
+        />
       )}
       {!commentRoot.investible_id && (
         <div className={classes.wizardCommentBoxDiv}>
@@ -86,8 +85,7 @@ function DecidePromoteStep(props) {
             isInbox
             removeActions
             showVoting
-            selectedInvestibleIdParent={selectedInvestibleId}
-            setSelectedInvestibleIdParent={setSelectedInvestibleId}
+            selectedInvestibleIdParent={investibleId}
           />
         </div>
       )}

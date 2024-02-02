@@ -45,6 +45,7 @@ function AddCommentStep (props) {
         groupId});
     }
   }
+  const movingJob = isAssistance && !inAssistanceStage;
   return (
     <WizardStepContainer
       {...props}
@@ -53,10 +54,11 @@ function AddCommentStep (props) {
       <Typography className={classes.introText}>
         What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?
       </Typography>
-      {isAssistance && !inAssistanceStage && (
+      {movingJob && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
-          Assistance Needed.
+          Assistance Needed. Use @ mentions to limit who
+          this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies.
         </Typography>
       )}
       {useType === TODO_TYPE && (
@@ -69,7 +71,7 @@ function AddCommentStep (props) {
           For feedback explain what needs reviewing. Use @ mentions to require and only notify specific reviewers.
         </Typography>
       )}
-      {![REPORT_TYPE, TODO_TYPE].includes(useType) && (
+      {![REPORT_TYPE, TODO_TYPE].includes(useType) && !movingJob && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Use @ mentions to limit who this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies.
         </Typography>

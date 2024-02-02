@@ -25,6 +25,7 @@ import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -134,6 +135,8 @@ function InvestiblesByPerson(props) {
   const { market_id: marketId, id: groupId } = group || {};
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { search } = searchResults;
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getPresencesForGroup(presences, groupPresencesState, marketId, groupId) || [];
   const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
@@ -186,7 +189,8 @@ function InvestiblesByPerson(props) {
         const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
         const groupPresence = groupPresences.find((groupPresence) => groupPresence.id === presence.id);
         const { mentioned_notifications: mentions, approve_notifications: approvals } = groupPresence || {};
-        if (_.isEmpty(myInvestiblesStageHash) && _.isEmpty(mentions) && _.isEmpty(approvals)) {
+        if (_.isEmpty(myInvestiblesStageHash) &&
+          ((_.isEmpty(mentions) && _.isEmpty(approvals))||!_.isEmpty(search))) {
           return <React.Fragment/>
         }
         return (

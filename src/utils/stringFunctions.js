@@ -35,7 +35,7 @@ export function stripHTML(foundSubstring) {
   return undefined;
 }
 
-function processForName(htmlElementNames, description, subDivideCharacters=[]) {
+function processForName(htmlElementNames, description) {
   const elements = [];
   htmlElementNames.forEach((htmlComponent) => {
     const entryBeginElement = `<${htmlComponent}>`;
@@ -52,20 +52,7 @@ function processForName(htmlElementNames, description, subDivideCharacters=[]) {
           if (!_.isEmpty(strippedElement)) {
             const hasInteriorHtml = strippedElement.length <
               fullElement.length - entryBeginElement.length - entryEndElement.length;
-            let usedSubdivideCharacters = false;
-            if (hasInteriorHtml && fullElement.includes('<a')) {
-              // Try to use the first sentence if possible instead of content with a link
-              subDivideCharacters.forEach((subDivideCharacter) => {
-                const subDivideParts = strippedElement.split(subDivideCharacter);
-                if (subDivideParts.length > 0) {
-                  // If we have a leading sentence with no html inside then use it
-                  if (fullElement.includes(subDivideParts[0])) {
-                    usedSubdivideCharacters = true;
-                  }
-                }
-              })
-            }
-            elements.push({ strippedElement, fullElement, hasInteriorHtml, usedSubdivideCharacters });
+            elements.push({ strippedElement, fullElement, hasInteriorHtml });
           }
         }
       });
@@ -90,10 +77,10 @@ function indexOfOrOutofBounds(extracted, aChar) {
 }
 
 function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, maxLength, fullElement,
-  isFallbackFullDescription, usedSubdivideCharacters=false) {
+  isFallbackFullDescription) {
   let extracted = strippedElement || '';
   const endsInSentence = extracted.endsWith('.') || extracted.endsWith('!') || extracted.endsWith('?');
-  if (extracted.length <= maxLength && (endsInSentence || isFallbackFullDescription) && !usedSubdivideCharacters) {
+  if (extracted.length <= maxLength && (endsInSentence || isFallbackFullDescription)) {
     if (fullElement) {
       return { name: extracted, description: removePrefix(fullElement, description) };
     }
@@ -149,11 +136,11 @@ export function convertDescription(description, maxLength = 80) {
       undefined, true);
   }
 
-  const pElements = processForName(["p"], description, ['.', '?', '!']);
+  const pElements = processForName(["p"], description);
   if (!_.isEmpty(pElements)) {
     const firstPElement = pElements[0];
-    const { hasInteriorHtml, usedSubdivideCharacters } = firstPElement;
-    if (hasInteriorHtml && !usedSubdivideCharacters) {
+    const { hasInteriorHtml } = firstPElement;
+    if (hasInteriorHtml) {
       const interiorElements = processForName(["li", "td"], firstPElement.fullElement);
       if (!_.isEmpty(interiorElements)) {
         // collapsing a table into the name doesn't make sense but can take a row out of it
@@ -166,7 +153,7 @@ export function convertDescription(description, maxLength = 80) {
         undefined, true);
     }
     return addSentenceAwareAmpersandRemoveDuplicate(firstPElement.strippedElement, description, maxLength,
-      firstPElement.fullElement, undefined, usedSubdivideCharacters);
+      firstPElement.fullElement);
   }
 
   // Could be no p element and just a table

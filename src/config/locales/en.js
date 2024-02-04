@@ -580,6 +580,7 @@ const messages = defineMessages({
   // Archives
   archivesTitle: 'Archive',
   inboxMarkRead: 'Mark selected read',
+  outboxMark: 'Poke selected',
   inboxArchive: 'Delete selected',
   inboxCollapseAll: 'Collapse All',
   inboxExpandAll: 'Expand All',

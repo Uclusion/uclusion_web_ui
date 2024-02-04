@@ -2,7 +2,7 @@ import WorkListItem from './WorkListItem';
 import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core';
 import React, { useContext, useEffect, useReducer } from 'react';
 import { useIntl } from 'react-intl';
-import { ArrowBack, Inbox as InboxIcon, KeyboardArrowLeft } from '@material-ui/icons';
+import { ArrowBack, Inbox as InboxIcon, KeyboardArrowLeft, NotificationsActive } from '@material-ui/icons';
 import OutboxIcon from '../../../components/CustomChip/Outbox';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import _ from 'lodash';
@@ -18,12 +18,13 @@ import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { calculateTitleExpansionPanel, createDefaultInboxRow } from './InboxExpansionPanel';
 import { getUnpaginatedItems, PAGE_SIZE, setPage, setTab } from './InboxContext';
 import { stripHTML } from '../../../utils/stringFunctions';
-import { setOperationInProgress } from '../../../components/ContextHacks/OperationInProgressGlobalProvider';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { formInboxItemLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { dehighlightMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import NotificationDeletion from './NotificationDeletion';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { getMarketClient } from '../../../api/marketLogin';
 
 function Inbox(props) {
   const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults,
@@ -31,6 +32,7 @@ function Inbox(props) {
   const intl = useIntl();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, , tokensHash] = useContext(MarketsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -39,6 +41,10 @@ function Inbox(props) {
   const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
     {determinate: {}, indeterminate: false, checkAll: false});
   const { indeterminate, determinate, checkAll } = determinateState;
+  const [determinateStateOutbox, determinateDispatchOutbox] = useReducer(getDeterminateReducer(),
+    {determinate: {}, indeterminate: false, checkAll: false});
+  const { indeterminate: indeterminateOutbox, determinate: determinateOutbox,
+    checkAll: checkAllOutbox } = determinateStateOutbox;
   const unreadCount = _.isEmpty(search) ? getInboxCount(messagesState) : 0;
   const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex);
   useEffect(() => {
@@ -97,11 +103,12 @@ function Inbox(props) {
       )}
       <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
         <div style={{display: 'flex', width: '80%'}}>
-          {!mobileLayout && 0 === tabIndex && !isOnWorkItem && (
+          {!mobileLayout && !isOnWorkItem && (
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
-                      checked={checkAll}
-                      indeterminate={indeterminate}
-                      onChange={() => determinateDispatch({type: 'toggle'})}
+                      checked={0 === tabIndex ? checkAll : checkAllOutbox}
+                      indeterminate={0 === tabIndex ? indeterminate : indeterminateOutbox}
+                      onChange={() => 0 === tabIndex ? determinateDispatch({type: 'toggle'}) :
+                        determinateDispatchOutbox({type: 'toggle'})}
             />
           )}
           {(checkAll || !_.isEmpty(determinate)) && 0 === tabIndex && !isOnWorkItem && (
@@ -123,9 +130,42 @@ function Inbox(props) {
                   .then(() => {
                     determinateDispatch({type: 'clear'});
                   }).finally(() => {
-                    setOperationInProgress(false);
+                    setOperationRunning(false);
                   });
               }} translationId="inboxMarkRead" />
+          )}
+          {(checkAllOutbox || !_.isEmpty(determinateOutbox)) && 1 === tabIndex && !isOnWorkItem && (
+            <TooltipIconButton
+              icon={<NotificationsActive />}
+              onClick={() => {
+                let toProcess = outBoxMessagesOrdered;
+                if (checkAll) {
+                  if (!_.isEmpty(determinateOutbox)) {
+                    const keys = Object.keys(determinateOutbox);
+                    toProcess = messagesFull.filter((message) => !keys.includes(message.id));
+                  }
+                } else {
+                  const keys = Object.keys(determinateOutbox);
+                  toProcess = messagesFull.filter((message) => keys.includes(message.id));
+                }
+                let promiseChain = Promise.resolve(true);
+                if (!_.isEmpty(toProcess)) {
+                  toProcess.forEach((message) => {
+                    // getMarketClient will cache so only way to improve performance here would be poke takes list
+                    promiseChain = promiseChain.then(() => getMarketClient(message.marketId).then((client) => {
+                        if (message.isInvestibleType) {
+                          return client.users.pokeInvestible(message.id);
+                        }
+                        return client.users.pokeComment(message.id);
+                      }));
+                  });
+                }
+                return promiseChain.then(() => {
+                    determinateDispatchOutbox({type: 'clear'});
+                  }).finally(() => {
+                    setOperationRunning(false);
+                  });
+              }} translationId="outboxMark" />
           )}
           {isOnWorkItem && (
             <TooltipIconButton icon={<ArrowBack style={{marginLeft: '0.5rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
@@ -195,7 +235,10 @@ function Inbox(props) {
           }
           const expansionOpen = isOnWorkItem && workItemId === id;
           calculateTitleExpansionPanel({ item, intl, openExpansion: expansionOpen });
-          return <WorkListItem id={id} useSelect={false} {...item} key={id} expansionOpen={expansionOpen} />;
+          const determinateChecked = determinateOutbox[message.id];
+          const checked = determinateChecked !== undefined ? determinateChecked : checkAllOutbox;
+          return <WorkListItem id={id} useSelect {...item} key={id} expansionOpen={expansionOpen}
+                               determinateDispatch={determinateDispatchOutbox} checked={checked} />;
         })
       }
     </div>

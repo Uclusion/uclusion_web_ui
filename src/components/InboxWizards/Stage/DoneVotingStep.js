@@ -6,7 +6,7 @@ import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
-import { formInvestibleAddCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import JobDescription from '../JobDescription';
 import { stageChangeInvestible } from '../../../api/investibles';
@@ -20,17 +20,18 @@ import { useIntl } from 'react-intl';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
-import { JUSTIFY_TYPE, QUESTION_TYPE } from '../../../constants/comments';
+import { JUSTIFY_TYPE } from '../../../constants/comments';
 import Voting from '../../../pages/Investible/Decision/Voting';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import Link from '@material-ui/core/Link';
+import { pokeInvestible } from '../../../api/users';
 
 function DoneVotingStep(props) {
-  const { marketId, investibleId, groupId, currentStageId, typeObjectId } = props;
+  const { marketId, investibleId, groupId, currentStageId } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, invDispatch] = useContext(InvestiblesContext);
@@ -83,7 +84,8 @@ function DoneVotingStep(props) {
         {intl.formatMessage({ id: 'finishApprovalQ' })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        {intl.formatMessage({ id: 'planningInvestibleAcceptedExplanation' })}.
+        Approval expiration is set to {market.investment_expiration} days. Poke to resend notifications and
+        message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
       </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} removeActions />
       <Voting
@@ -102,15 +104,14 @@ function DoneVotingStep(props) {
         nextLabel="startJob"
         onNext={() => moveToStage(acceptedStage, true)}
         showOtherNext
-        onOtherNext={() => navigate(history,
-            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE, typeObjectId))
-        }
-        otherSpinOnClick={false}
-        otherNextLabel="commentIconAskQuestionLabel"
+        onOtherNext={() => moveToStage(backlogStage, false)}
+        otherNextLabel="DecideMoveBacklog"
         showTerminate
-        terminateLabel="DecideMoveBacklog"
+        terminateLabel="poke"
         terminateSpinOnClick
-        onFinish={() => moveToStage(backlogStage, false)}
+        onFinish={() => pokeInvestible(marketId, investibleId).then(() => {
+          setOperationRunning(false);
+        })}
       />
     </WizardStepContainer>
   );

@@ -371,10 +371,8 @@ export function getOutboxMessages(props) {
       if (!_.isEmpty(debtors)) {
         message.debtors = debtors;
       }
-      // don't push if isWaitingStart true and nothing is deleted or expiring
-      if (!message.isWaitingStart || _.size(votersForInvestibleRaw) > _.size(votersForInvestible)) {
-        messages.push(message);
-      }
+
+      messages.push(message);
     });
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, QUESTION_TYPE,

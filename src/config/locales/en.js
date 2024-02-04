@@ -395,7 +395,6 @@ const messages = defineMessages({
   planningInvestibleMoveToFurtherWorkLabel: 'Backlog',
   planningInvestibleMoveToNotDoingLabel: 'Not Doing',
   DecideStageMove: 'Move',
-  planningInvestibleAcceptedExplanation: 'Some approvals are expiring. Move this job to Accepted or backlog.',
   planningInvestibleNotDoingExplanation: 'Move to Not Doing will unassign and archive the job',
   planningVotingStageLabel: 'Assigned',
   planningAcceptedStageLabel: 'Accepted',

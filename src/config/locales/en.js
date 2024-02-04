@@ -974,7 +974,7 @@ const messages = defineMessages({
   errorUpdateStageFailed: 'There was a problem updating allowed jobs. Please try again.',
   errorMarketFetchFailed: 'There was an error processing your invite. Please try again.',
   errorBanUserFailed: 'There was a problem removing the collaborator. Please try again.',
-  errorPokeUsersFailed: 'There was a problem poking the collaborators. Please try again.',
+  errorPokeFailed: 'There was a problem poking. Please try again.',
   errorGuestUserFailed: 'There was a problem changing the collaborator. Please try again.',
   errorCancelSubFailed: 'There was a problem cancelling your subscription. Please try again.',
   errorStartSubFailed: 'There was a problem starting your subscription. Please try again.',

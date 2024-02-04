@@ -17,10 +17,16 @@ export function banUser(marketId, userId) {
     .catch((error) => toastErrorAndThrow(error, 'errorBanUserFailed'));
 }
 
-export function pokeUsers(marketId, commentId, userIds) {
+export function pokeComment(marketId, commentId) {
   return getMarketClient(marketId)
-    .then((client) => client.users.highlightNotifications(commentId, userIds))
-    .catch((error) => toastErrorAndThrow(error, 'errorPokeUsersFailed'));
+    .then((client) => client.users.pokeComment(commentId))
+    .catch((error) => toastErrorAndThrow(error, 'errorPokeFailed'));
+}
+
+export function pokeInvestible(marketId, investibleId) {
+  return getMarketClient(marketId)
+    .then((client) => client.users.pokeInvestible(investibleId))
+    .catch((error) => toastErrorAndThrow(error, 'errorPokeFailed'));
 }
 
 export function deleteOrDehilightMessages(messages, messagesDispatch, doRemove=true,

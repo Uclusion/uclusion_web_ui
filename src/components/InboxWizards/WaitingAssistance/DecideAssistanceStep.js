@@ -23,7 +23,7 @@ import JobDescription from '../JobDescription';
 import { changePresence, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import GravatarGroup from '../../Avatars/GravatarGroup';
-import { pokeUsers } from '../../../api/users';
+import { pokeComment } from '../../../api/users';
 import Link from '@material-ui/core/Link';
 import _ from 'lodash';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -57,7 +57,6 @@ function DecideAssistanceStep(props) {
     const { deferred_notifications: deferred } = presence;
     return (deferred || []).includes(commentId);
   });
-  const deferredUserIds = (snoozed || []).map((presence) => presence.id);
   const { useCompression } = formData;
 
   function myOnFinish() {
@@ -94,7 +93,7 @@ function DecideAssistanceStep(props) {
         </Typography>
       )}
       <Typography className={classes.introSubText} variant="subtitle1">
-        Poke to resend notifications and message <Link href="https://documentation.uclusion.com/notifications/slack/#adding-uclusion-to-a-slack-channel" target="_blank">configured channels</Link>.
+        Poke to resend notifications and message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
       </Typography>
       {!_.isEmpty(snoozed) && (
         <Box sx={{ p: 2, border: '1px solid grey' }} style={{marginBottom: '1rem', paddingTop: 0, width: '50rem'}}>
@@ -143,7 +142,7 @@ function DecideAssistanceStep(props) {
         showTerminate
         terminateLabel="poke"
         terminateSpinOnClick
-        onFinish={() => pokeUsers(marketId, commentId, deferredUserIds).then(() => {
+        onFinish={() => pokeComment(marketId, commentId).then(() => {
           // quick remove the comment id on the deferred_notifications of the snoozed presences
           (snoozed || []).forEach((presence) => {
             const { deferred_notifications: deferred } = presence;

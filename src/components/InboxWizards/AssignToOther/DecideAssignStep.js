@@ -20,6 +20,8 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { JOB_ASSIGNEE_WIZARD_TYPE } from '../../../constants/markets';
+import { pokeInvestible } from '../../../api/users';
+import Link from '@material-ui/core/Link';
 
 function DecideAssignStep(props) {
   const { marketId, investibleId, typeObjectId } = props;
@@ -62,7 +64,8 @@ function DecideAssignStep(props) {
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         You assigned this job <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/> and
-        the assignee has not accepted.
+        the assignee has not accepted. Poke to resend notifications and
+        message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
       </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} />
       <WizardStepButtons
@@ -75,6 +78,12 @@ function DecideAssignStep(props) {
         onOtherNext={moveToBacklog}
         isOtherFinal
         otherNextLabel="DecideMoveBacklog"
+        showTerminate
+        terminateLabel="poke"
+        terminateSpinOnClick
+        onFinish={() => pokeInvestible(marketId, investibleId).then(() => {
+          setOperationRunning(false);
+        })}
       />
     </WizardStepContainer>
   );

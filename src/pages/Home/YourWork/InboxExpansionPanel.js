@@ -186,7 +186,7 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
     return (
       <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                   variant="body1">
-        Your From You tab is empty.<br/><br/> Your unanswered questions and suggestions display here.
+        Your From You tab is empty.<br/><br/> Process or poke your questions, suggestions, and unapproved jobs here.
       </Typography>
     );
   }

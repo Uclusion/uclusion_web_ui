@@ -398,15 +398,39 @@ function PlanningInvestible(props) {
             if (!_.isEmpty(rootComment.investible_id)) {
               switch (rootComment.comment_type) {
                 case TODO_TYPE:
-                  updatePageState({ sectionOpen: 'tasksSection' });
+                  if (sectionOpen !== 'tasksSection') {
+                    updatePageState({ sectionOpen: 'tasksSection' });
+                  }
                   break;
                 case ISSUE_TYPE:
                 case SUGGEST_CHANGE_TYPE:
                 case QUESTION_TYPE:
-                  updatePageState({ sectionOpen: 'assistanceSection' });
+                  if (found.comment_type === REPLY_TYPE) {
+                    let newCompressionHash = undefined;
+                    if (!_.isEmpty(compressionHash)) {
+                      if (compressionHash[rootComment.id] !== false) {
+                        newCompressionHash = { ...compressionHash, [rootComment.id]: false };
+                      }
+                    } else {
+                      newCompressionHash = { [rootComment.id]: false };
+                    }
+                    if (newCompressionHash) {
+                      updatePageState({ sectionOpen: 'assistanceSection', compressionHash: newCompressionHash });
+                    } else {
+                      if (sectionOpen !== 'assistanceSection') {
+                        updatePageState({ sectionOpen: 'assistanceSection' });
+                      }
+                    }
+                  } else {
+                    if (sectionOpen !== 'assistanceSection') {
+                      updatePageState({ sectionOpen: 'assistanceSection' });
+                    }
+                  }
                   break;
                 case REPORT_TYPE:
-                  updatePageState({ sectionOpen: 'descriptionVotingSection' });
+                  if (sectionOpen !== 'descriptionVotingSection') {
+                    updatePageState({ sectionOpen: 'descriptionVotingSection' });
+                  }
                   break;
                 default:
               }
@@ -415,7 +439,7 @@ function PlanningInvestible(props) {
         }
       }
     }
-  }, [investibleComments, hash, sectionOpen, updatePageState, hidden, history]);
+  }, [investibleComments, hash, sectionOpen, updatePageState, hidden, history, compressionHash]);
 
   let lockedByName
   if (lockedBy) {

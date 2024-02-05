@@ -38,13 +38,6 @@ export function dehighlightMessages(messages) {
   }
 }
 
-export function addMessage(message) {
-  return {
-    type: ADD_MESSAGE,
-    message
-  }
-}
-
 export function quickRemoveMessages(messages) {
   return {
     type: QUICK_REMOVE_MESSAGES,

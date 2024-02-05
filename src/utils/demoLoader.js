@@ -8,7 +8,7 @@ import {
   PUSH_COMMENTS_CHANNEL,
   PUSH_MEMBER_CHANNEL,
   PUSH_GROUPS_CHANNEL,
-  NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT
+  NOTIFICATIONS_HUB_CHANNEL
 } from '../api/versionedFetchUtils';
 import _ from 'lodash';
 import { TOKEN_TYPE_MARKET } from '../api/tokenConstants';

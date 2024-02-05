@@ -1,5 +1,5 @@
 import {
-  addMessage, dehighlightMessages,
+  dehighlightMessages,
   removeMessages,
   removeMessagesForInvestible,
   updateMessages

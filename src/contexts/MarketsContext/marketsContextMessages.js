@@ -9,7 +9,7 @@ import TokenStorageManager from '../../authorization/TokenStorageManager'
 import { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET }  from '../../api/tokenConstants';
 import {
   DEMO_EVENT,
-  getStorageStates,
+  getStorageStates, NOTIFICATIONS_HUB_CHANNEL,
   PUSH_INVESTIBLES_CHANNEL,
   PUSH_MARKETS_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
@@ -18,6 +18,7 @@ import {
   VERSIONS_EVENT
 } from '../../api/versionedFetchUtils';
 import _ from 'lodash'
+import { ADD_EVENT } from '../NotificationsContext/notificationsContextMessages';
 
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
 export const INVITE_MARKET_EVENT = 'InviteMarketEvent';
@@ -31,8 +32,11 @@ export function loadMarketFromPromise(loginPromise, dispatch) {
   console.log('Logging into market');
   return loginPromise.then((result) => {
     console.log('Quick adding market after load');
-    const { market, user, stages, uclusion_token: token, investible } = result;
+    const { market, user, stages, uclusion_token: token, investible, notifications } = result;
     const { id, parent_comment_market_id: parentMarketId } = market;
+    if (notifications) {
+      pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: ADD_EVENT, notifications });
+    }
     if (dispatch) {
       addMarketToStorage(dispatch, market);
     } else {

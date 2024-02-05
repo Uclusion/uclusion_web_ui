@@ -20,7 +20,7 @@ export const STAGE_CHANGE_EVENT = 'stage_change_event';
 
 function beginListening(dispatch) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
-    const { payload: { event, message } } = data;
+    const { payload: { event, notifications } } = data;
     // // console.debug(`Notifications context responding to push event ${event}`);
 
     switch (event) {
@@ -30,7 +30,7 @@ function beginListening(dispatch) {
         }).catch(() => console.warn('Error getting messages'));
         break;
       case ADD_EVENT:
-        dispatch(addMessage(message));
+        dispatch(updateMessages(notifications));
         break;
       default:
         // console.debug(`Ignoring push event ${event}`);

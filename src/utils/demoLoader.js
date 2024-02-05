@@ -3,11 +3,17 @@ import {
   DEMO_EVENT,
   PUSH_STAGE_CHANNEL,
   PUSH_MARKETS_CHANNEL,
-  PUSH_PRESENCE_CHANNEL, PUSH_INVESTIBLES_CHANNEL, PUSH_COMMENTS_CHANNEL, PUSH_MEMBER_CHANNEL, PUSH_GROUPS_CHANNEL
+  PUSH_PRESENCE_CHANNEL,
+  PUSH_INVESTIBLES_CHANNEL,
+  PUSH_COMMENTS_CHANNEL,
+  PUSH_MEMBER_CHANNEL,
+  PUSH_GROUPS_CHANNEL,
+  NOTIFICATIONS_HUB_CHANNEL, VERSIONS_EVENT
 } from '../api/versionedFetchUtils';
 import _ from 'lodash';
 import { TOKEN_TYPE_MARKET } from '../api/tokenConstants';
 import TokenStorageManager from '../authorization/TokenStorageManager';
+import { ADD_EVENT } from '../contexts/NotificationsContext/notificationsContextMessages';
 
 function addComments (market, comments) {
   // make it look like a normal comment push
@@ -45,8 +51,9 @@ export async function handleMarketData(marketData) {
   const {
     market, child_markets: childMarkets,
     comments, investibles, group,
-    stages, presences, token
+    stages, presences, token, notifications
   } = marketData;
+  pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: ADD_EVENT, notifications });
   addMarket(market);
   addStages(market, stages);
   addGroup(group);

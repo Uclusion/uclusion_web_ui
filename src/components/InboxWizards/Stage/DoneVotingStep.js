@@ -31,7 +31,7 @@ import Link from '@material-ui/core/Link';
 import { pokeInvestible } from '../../../api/users';
 
 function DoneVotingStep(props) {
-  const { marketId, investibleId, groupId, currentStageId } = props;
+  const { marketId, investibleId, groupId, currentStageId, formData, updateFormData } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, invDispatch] = useContext(InvestiblesContext);
@@ -49,6 +49,7 @@ function DoneVotingStep(props) {
   const investmentReasons = marketComments.filter((comment) => {
     return comment.comment_type === JUSTIFY_TYPE && comment.investible_id === investibleId;
   });
+  const { useCompression } = formData;
 
   function moveToStage(aStage, isGotoJob) {
     const moveInfo = {
@@ -87,7 +88,7 @@ function DoneVotingStep(props) {
         Approval expiration is set to {market.investment_expiration} days. Poke to resend notifications and
         message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} removeActions />
+      <JobDescription marketId={marketId} investibleId={investibleId} removeActions/>
       <Voting
         investibleId={investibleId}
         marketPresences={marketPresences}
@@ -98,7 +99,10 @@ function DoneVotingStep(props) {
         yourPresence={marketPresences.find((presence) => presence.current_user)}
         market={market}
         isInbox
+        toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+        useCompression={useCompression}
       />
+      <div className={classes.marginBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="startJob"

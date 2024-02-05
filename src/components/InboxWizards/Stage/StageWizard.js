@@ -14,7 +14,8 @@ function StageWizard(props) {
   const { stage: currentStageId, group_id: groupId } = marketInfo || {};
 
   return (
-    <FormdataWizard name={`stage_wizard${investibleId}`} defaultFormData={{parentElementId: rowId}}>
+    <FormdataWizard name={`stage_wizard${investibleId}`}
+                    defaultFormData={{parentElementId: rowId, useCompression: true}}>
       <DoneVotingStep marketId={marketId} investibleId={investibleId} groupId={groupId}
                       currentStageId={currentStageId} typeObjectId={typeObjectId} />
     </FormdataWizard>

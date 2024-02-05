@@ -9,7 +9,7 @@ import ExpiresDisplay from '../../../components/Expiration/ExpiresDisplay';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessageByInvestmentUserId } from '../../../utils/messageUtils';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
-import { Edit } from '@material-ui/icons';
+import { Edit, ExpandLess } from '@material-ui/icons';
 import { invalidEditEvent } from '../../../utils/windowUtils';
 import { useHistory } from 'react-router';
 import clsx from 'clsx';
@@ -22,10 +22,12 @@ import { removeInvestment } from '../../../api/marketInvestibles';
 import { commonQuick } from '../../../components/AddNewWizards/Approval/ApprovalWizard';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { useCommentStyles } from '../../../components/Comments/Comment';
 import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils';
 import { stripHTML } from '../../../utils/stringFunctions';
 import NotificationDeletion from '../../Home/YourWork/NotificationDeletion';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
+import { FormattedMessage } from 'react-intl';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -82,6 +84,10 @@ const useVoteStyles = makeStyles(
       },
       createdBy: {
         fontSize: '15px',
+      },
+      createdByCompressed: {
+        fontSize: '15px',
+        whiteSpace: 'nowrap',
       }
     };
   },
@@ -95,7 +101,7 @@ const useVoteStyles = makeStyles(
  */
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingAllowed,
-    yourPresence, market, isInbox, groupId, useCompression=false, toggleCompression=() => {}} = props;
+    yourPresence, market, isInbox, groupId, useCompression, toggleCompression=() => {}} = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -105,7 +111,6 @@ function Voting(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useVoteStyles();
-  const commentClasses = useCommentStyles();
   const voters = useInvestibleVoters(marketPresences, investibleId, market.id);
   const sortedVoters = _.sortBy(voters, 'quantity', 'updatedAt');
 
@@ -125,7 +130,22 @@ function Voting(props) {
 
   return (
     <div>
-        {sortedVoters.map((voter, index) => {
+      {useCompression === false && (
+        <SpinningIconLabelButton
+          icon={ExpandLess}
+          doSpin={false}
+          onClick={(event) => {
+            preventDefaultAndProp(event);
+            toggleCompression();
+          }}
+          style={{marginBottom: '1rem'}}
+        >
+          <FormattedMessage
+            id="commentCloseThreadLabel"
+          />
+        </SpinningIconLabelButton>
+      )}
+        {sortedVoters.map((voter) => {
           const { name, email, id: userId, quantity, commentId, updatedAt } = voter;
           const isYourVote = userId === yourPresence.id;
           const myMessage = findMessageByInvestmentUserId(userId, investibleId, messagesState);
@@ -141,31 +161,35 @@ function Voting(props) {
           const hasContent = !editorEmpty(reason?.body);
           return (
             <div className={myMessage && classes.highlighted}
-                 style={{width: hasContent || midLayout ? undefined : '50%'}} key={index}>
+                 style={{width: hasContent || midLayout ? undefined : '50%',
+                   cursor: useCompression ? 'pointer' : undefined}} key={userId}>
               <Card
                 key={userId}
-                className={clsx(index % 2 === 1 ? classes.cardPadded : classes.card,
-                  isEditable ? classes.editable : classes.notEditable)}
+                className={clsx(classes.cardPadded, isEditable ? classes.editable : classes.notEditable)}
                 id={voteId}
                 elevation={3}
                 style={{paddingBottom: hasContent ? undefined : '1rem'}}
                 onClick={(event) => {
                   if (isEditable) {
                     setBeingEdited(true, event);
+                  } else {
+                    toggleCompression();
                   }
                 }}
               >
                 <div style={{display: 'flex'}}>
-                  <CardType compact={!midLayout} compressed={!hasContent}
+                  <CardType compact={!midLayout} compressed={!hasContent || useCompression}
                     className={classes.cardType}
                     type={`certainty${Math.abs(quantity)}`}
                     gravatar={<GravatarAndName email={email}
                                        name={name} typographyVariant="caption"
-                                       typographyClassName={classes.createdBy}
+                                       typographyClassName={useCompression ? classes.createdByCompressed : classes.createdBy}
                                        avatarClassName={classes.smallGravatar}
                               />}
                   />
-                  <div style={{flexGrow: 1}}/>
+                  {!useCompression && (
+                    <div style={{ flexGrow: 1 }}/>
+                  )}
                   {isEditable && mobileLayout && (
                     <div className={classes.editVoteDisplay}>
                       <TooltipIconButton
@@ -176,13 +200,25 @@ function Voting(props) {
                       />
                     </div>
                   )}
+                  {useCompression && hasContent && (
+                    <div style={{marginLeft: '1rem', marginRight: '1rem', paddingTop: '5px', textOverflow: 'ellipsis',
+                      overflow: 'hidden', whiteSpace: 'nowrap'}}>
+                      {stripHTML(reason.body)}
+                    </div>
+                  )}
+                  {useCompression && (
+                    <div style={{ flexGrow: 1 }}/>
+                  )}
                   {showExpiration && !mobileLayout && (
-                    <div style={{marginRight: '2rem', paddingTop: '5px'}}>
+                    <div style={{marginRight: '1rem', paddingTop: '5px'}}>
                       <ExpiresDisplay
                         createdAt={new Date(updatedAt)}
                         expirationMinutes={expirationMinutes}
                       />
                     </div>
+                  )}
+                  {useCompression && (
+                    <ExpandMoreIcon style={{ color: 'black', marginRight: '1rem', paddingTop: '5px' }}/>
                   )}
                   {isEditable && (
                     <div style={{marginRight: '2rem'}}>
@@ -196,17 +232,12 @@ function Voting(props) {
                     </div>
                   )}
                 </div>
-                {hasContent && (
-                  <CardContent className={classes.cardContent} onClick={toggleCompression}>
-                    {!useCompression &&
-                      <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable}
-                                           id={isInbox ? `inboxReason${reason.id}` : reason.id}
-                                           setBeingEdited={(event) => setBeingEdited(true, event)}
-                      />}
-                    {useCompression && (
-                      <div className={commentClasses.compressedComment}>
-                        {stripHTML(reason.body)}</div>
-                    )}
+                {hasContent && !useCompression && (
+                  <CardContent className={classes.cardContent}>
+                    <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable}
+                                         id={isInbox ? `inboxReason${reason.id}` : reason.id}
+                                         setBeingEdited={(event) => setBeingEdited(true, event)}
+                    />
                   </CardContent>
                 )}
               </Card>

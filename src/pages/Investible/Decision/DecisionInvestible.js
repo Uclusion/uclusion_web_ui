@@ -193,8 +193,9 @@ function DecisionInvestible(props) {
   } = investible;
   const optionCreatedBy = marketPresences.find(presence => presence.id === createdBy) || {};
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
-  const [votingPageState, updateVotingPageState, votingPageStateReset] =
-    getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId);
+  const [votingPageState, updateVotingPageState] =
+    getPageReducerPage(votingPageStateFull, votingPageDispatch, investibleId, {useCompression: true});
+  const { useCompression } = votingPageState;
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
@@ -370,13 +371,12 @@ function DecisionInvestible(props) {
             investibleId={investibleId}
             marketPresences={marketPresences}
             investmentReasons={investmentReasons}
-            votingPageState={votingPageState}
-            updateVotingPageState={updateVotingPageState}
-            votingPageStateReset={votingPageStateReset}
             market={market}
             groupId={marketId}
             votingAllowed={votingAllowed}
             yourPresence={yourPresence}
+            toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
+            useCompression={useCompression}
           />
         </>
       )}

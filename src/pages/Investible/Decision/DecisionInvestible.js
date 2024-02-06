@@ -316,7 +316,7 @@ function DecisionInvestible(props) {
     </div>
   </CardActions>;
   return (
-    <div style={{marginLeft: !mobileLayout ? '2rem' : undefined, marginRight: !mobileLayout ? '2rem' : undefined}}
+    <div style={{ marginLeft: !mobileLayout ? '2rem' : undefined, marginRight: !mobileLayout ? '2rem' : undefined }}
          id={`option${investibleId}`}>
       <div className={classes.root} id="optionMain">
         <CardType
@@ -356,15 +356,15 @@ function DecisionInvestible(props) {
       {!inProposed && (
         <>
           <h2 id="approvals">
-            <FormattedMessage id="decisionInvestibleOthersVoting" />
+            <FormattedMessage id="decisionInvestibleOthersVoting"/>
           </h2>
           {displayVotingInput && investibleId && (
             <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
-                                     style={{display: "flex", marginBottom: '1rem'}}
+                                     style={{ display: 'flex', marginBottom: '1rem' }}
                                      onClick={() => navigate(history,
                                        formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, undefined,
                                          undefined, typeObjectId))}>
-              <FormattedMessage id="createNewVote" />
+              <FormattedMessage id="createNewApproval"/>
             </SpinningIconLabelButton>
           )}
           <Voting
@@ -381,20 +381,21 @@ function DecisionInvestible(props) {
         </>
       )}
       {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (
-        <Grid container spacing={2} style={{paddingBottom: '1rem'}}>
-          <Grid item xs={12} style={{ marginBottom: '1rem', marginTop: '1rem'  }}>
-            {displayCommentInput && (
-              <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
-                                       onClick={() => navigate(history,
-                                         formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId,
-                                           undefined, undefined, typeObjectId))}>
-                <FormattedMessage id='createComment'/>
-              </SpinningIconLabelButton>
-            )}
-            <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
-                        isInbox={removeActions} removeActions={removeActions} usePadding={false} />
-          </Grid>
-        </Grid>
+        <>
+          <h2 id="approvals" style={{marginTop: '2rem'}}>
+            <FormattedMessage id="comments"/>
+          </h2>
+          {displayCommentInput && (
+            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+             onClick={() => navigate(history,
+               formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId,
+                 undefined, undefined, typeObjectId))}>
+              <FormattedMessage id="createComment"/>
+            </SpinningIconLabelButton>
+          )}
+          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
+                      isInbox={removeActions} removeActions={removeActions} usePadding={false} />
+        </>
       )}
     </div>
   );

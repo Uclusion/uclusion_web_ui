@@ -53,7 +53,9 @@ export async function handleMarketData(marketData) {
     comments, investibles, group,
     stages, presences, token, notifications
   } = marketData;
-  pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: ADD_EVENT, notifications });
+  if (notifications) {
+    pushMessage(NOTIFICATIONS_HUB_CHANNEL, { event: ADD_EVENT, notifications });
+  }
   addMarket(market);
   addStages(market, stages);
   addGroup(group);

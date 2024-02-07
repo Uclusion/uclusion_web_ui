@@ -57,8 +57,7 @@ function AddCommentStep (props) {
       {movingJob && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
-          Assistance Needed. Use @ mentions to limit who
-          this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies.
+          Assistance Needed. Use @ mentions to specify who is notified.
         </Typography>
       )}
       {useType === TODO_TYPE && (

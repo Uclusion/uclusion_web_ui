@@ -45,7 +45,6 @@ import {
   formMarketAddCommentLink, formMarketAddInvestibleLink, formWizardLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
-import { isInStages } from './userUtils';
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import { DISCUSSION_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';

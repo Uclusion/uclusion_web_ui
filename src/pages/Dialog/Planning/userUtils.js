@@ -9,12 +9,6 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { onCommentsMove } from '../../../utils/commentFunctions';
 
-export function isInStages(investible, stages, marketId) {
-  const marketInfo = getMarketInfo(investible, marketId);
-  const { stage } = marketInfo;
-  return !_.isEmpty(stages.find((visibleStage) => visibleStage.id === stage));
-}
-
 /**
  * Returns the investibles in the market assigned to the user
  * @param userId

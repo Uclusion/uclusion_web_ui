@@ -101,7 +101,7 @@ function ReplyStep(props) {
         What is your reply?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        If you want a response from more than the author of the comment you are replying to then use mentions.
+        If you want a response from more than the author of the comment you are replying to then use @ mentions.
       </Typography>
       <CommentBox
         comments={comments}

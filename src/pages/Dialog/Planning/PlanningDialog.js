@@ -415,8 +415,7 @@ function PlanningDialog(props) {
               pageState={pageState} updatePageState={updatePageState}
             />
             <DismissableText textId="notificationHelp"
-                             display={_.isEmpty(investibles.find((investible) =>
-                               isInStages(investible, visibleStages, marketId)))}
+                             display={_.isEmpty(blockedOrRequiresInputInvestibles)&&_.isEmpty(swimlaneInvestibles)}
                              text={
                                isEveryoneGroup(groupId, marketId) ?
                                  <div>

@@ -381,7 +381,7 @@ function DecisionInvestible(props) {
         </>
       )}
       {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (
-        <>
+        <div style={{paddingBottom: '1rem'}}>
           <h2 id="approvals" style={{marginTop: '2rem'}}>
             <FormattedMessage id="comments"/>
           </h2>
@@ -395,7 +395,7 @@ function DecisionInvestible(props) {
           )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
                       isInbox={removeActions} removeActions={removeActions} usePadding={false} />
-        </>
+        </div>
       )}
     </div>
   );

@@ -420,12 +420,12 @@ function PlanningDialog(props) {
                              text={
                                isEveryoneGroup(groupId, marketId) ?
                                  <div>
-                                   Use the "Add job" button above
+                                   There are no assigned jobs. Use the "Add job" button above
                                    and <Link href="https://documentation.uclusion.com/groups/#everyone" target="_blank">everyone</Link> will
                                    be notified.
                                  </div> :
               <div>
-                Use the "Add job" button above
+                There are no assigned jobs. Use the "Add job" button above
                 and <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> are
                 sent to this group backed by instructional wizards.
               </div>

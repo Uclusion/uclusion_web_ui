@@ -306,16 +306,17 @@ function PlanningDialog(props) {
           paddingTop: mobileLayout ? '0.5rem' : '1.25rem',
           marginTop: '-30px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
         <GmailTabItem icon={<AssignmentInd />} onDrop={onDropAssigned}
-                      onDragOver={(event)=>event.preventDefault()}
+                      onDragOver={(event)=>event.preventDefault()} toolTipId='assignedJobsToolTip'
                       label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
                       tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
         <GmailTabItem icon={<AssignmentIcon />} onDrop={onDropBacklog}
-                      onDragOver={(event)=>event.preventDefault()}
+                      onDragOver={(event)=>event.preventDefault()} toolTipId='backlogJobsToolTip'
                       label={intl.formatMessage({id: 'planningDialogBacklog'})}
                       tag={_.isEmpty(search) || backlogSearchResults === 0 ? undefined : `${backlogSearchResults}`} />
         <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
+                      toolTipId='bugsToolTip'
                       tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
-        <GmailTabItem icon={<QuestionIcon />}
+        <GmailTabItem icon={<QuestionIcon />} toolTipId='discussionToolTip'
                       label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})}
                       tag={_.isEmpty(search) || _.isEmpty(questionSuggestionComments) ? undefined :
                         `${_.size(questionSuggestionComments)}`} />

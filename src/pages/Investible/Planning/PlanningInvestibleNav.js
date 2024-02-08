@@ -161,7 +161,10 @@ export default function PlanningInvestibleNav(props) {
       )}
       <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
         <div className={classes.assignmentContainer}>
-          <b><FormattedMessage id="collaborators"/></b>
+          <Tooltip
+            title={intl.formatMessage({ id: 'collaboratorsExplanation' })}>
+            <b><FormattedMessage id="collaborators"/></b>
+          </Tooltip>
           <Assignments
             classes={classes}
             marketPresences={marketPresences}

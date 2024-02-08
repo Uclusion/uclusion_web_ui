@@ -145,6 +145,7 @@ function SubscriptionStatus (props) {
     <Card>
       <SubSection
         title="Subscription"
+        helpLink='https://documentation.uclusion.com/getting-started/login/#billing'
         padChildren
       >
         <Typography>

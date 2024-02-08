@@ -2,15 +2,18 @@ import React from 'react';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import { useGmailTabsStyles, useGmailTabItemStyles } from '@mui-treasury/styles/tabs/gmail';
-import { useMediaQuery, useTheme } from '@material-ui/core';
+import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
+import { useIntl } from 'react-intl';
 
 export function GmailTabItem(props) {
-  const { color='#055099', label, tag, tagLabel = 'total', tagColor='#055099',
+  const { color='#055099', label, tag, tagLabel = 'total', tagColor='#055099', toolTipId,
     ...other } = props;
   const theme = useTheme();
+  const intl = useIntl();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const tabItemStyles = useGmailTabItemStyles({ ...props, color });
-  const useLabel = mobileLayout ? '' : label;
+  const useLabel = mobileLayout ? '' : (toolTipId ? <Tooltip
+    title={intl.formatMessage({ id: toolTipId })}><div>{label}</div></Tooltip> : label);
   return (
     <Tab
       disableTouchRipple

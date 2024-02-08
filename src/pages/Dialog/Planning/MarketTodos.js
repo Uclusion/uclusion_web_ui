@@ -391,21 +391,21 @@ function MarketTodos(props) {
                         tagColor={unreadRedCount > 0 ? '#E85757' : undefined}
                         tag={unreadRedCount > 0 ? `${unreadRedCount}` :
                           (_.size(redComments) > 0 ? `${_.size(redComments)}` : undefined)}
-                        onDrop={onDropImmediate}
+                        onDrop={onDropImmediate} toolTipId='immediateToolTip'
                         onDragOver={(event)=>event.preventDefault()}/>
           <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'able'})}
                         color='black' tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
                         tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
                           (_.size(yellowComments) > 0 ? `${_.size(yellowComments)}` : undefined)}
-                        onDrop={onDropAble}
+                        onDrop={onDropAble} toolTipId='normalToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
           <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'convenient'})}
                         color='black' tagColor={unreadBlueCount > 0 ? '#E85757' : undefined}
                         tagLabel={unreadBlueCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tag={unreadBlueCount > 0 ? `${unreadBlueCount}` :
                           (_.size(blueComments) > 0 ? `${_.size(blueComments)}` : undefined)}
-                        onDrop={onDropConvenient}
+                        onDrop={onDropConvenient} toolTipId='minorToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
         </GmailTabs>
       )}

@@ -86,18 +86,22 @@ class EmailEntryBox extends React.Component{
     return hashCode;
   }
 
+  setValidEmail(email, entryBoxNode) {
+    const newEmails = [...this.emailList, email];
+    this.emailList = newEmails;
+    setEmailList(newEmails, this.marketId);
+    // render the chip
+    const chip = this.generateChip(email);
+    entryBoxNode.appendChild(chip);
+  }
+
   emailEntered = (entryBoxNode, onValidEmail, onInvalidEmail) => {
     const { text: email, node: textNode } = this.getText(entryBoxNode);
     const emailValidation = this.validateEmail(email);
     if (emailValidation.valid) {
-      const newEmails = [...this.emailList, email];
-      this.emailList = newEmails;
-      setEmailList(newEmails, this.marketId);
+      this.setValidEmail(email, entryBoxNode);
       //zero out the text
       textNode.remove();
-      // render the chip
-      const chip = this.generateChip(email);
-      entryBoxNode.appendChild(chip);
       onValidEmail?.(email);
     } else {
       onInvalidEmail?.(emailValidation.error, email);
@@ -213,14 +217,17 @@ class EmailEntryBox extends React.Component{
   };
 
   onPaste = (event) => {
-    event.preventDefault();
     // the w3 regexp minus the start and end chars
     const matchingRegexp = /([a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)/g;
     const pasted = event.clipboardData.getData('text');
     const emails = pasted.match(matchingRegexp);
-    if(emails) {
+    const { target } = event;
+    if (emails) {
+      event.preventDefault();
       const toBeAdded = emails.filter((email) => !this.emailList.includes(email));
-      setEmailList([...this.emailList, ...toBeAdded]);
+      toBeAdded.forEach((email) => {
+        this.setValidEmail(email, target)
+      })
     }
   }
 

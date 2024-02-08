@@ -643,6 +643,8 @@ const messages = defineMessages({
   backlogJobsToolTip: 'Use backlog jobs to find an assignee or discuss a job that is not ready for assignment.',
   bugsToolTip: 'Open a bug so it can be prioritized while waiting to be moved to a job.',
   discussionToolTip: 'Discuss suggestions and questions and create jobs from them when necessary.',
+  votedOptionsToolTip: 'Only options promoted by the question creator can be approved.',
+  proposedOptionsToolTip: 'Options here wait for promotion by the question creator or are permanently blocked.',
   storyFromComment: 'Move',
   storyFromCommentNav: 'Move and go to job',
   channelOptions: 'Group Options',

@@ -141,10 +141,10 @@ function Options(props) {
           <GmailTabItem icon={<ThumbsUpDownIcon htmlColor={htmlColor} />} onDrop={onDropApprovable}
                         label={intl.formatMessage({id: 'decisionDialogCurrentVotingLabel'})}
                         color='black' tagLabel={unreadCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                        tagColor={unreadCount > 0 ? '#E85757' : undefined}
+                        tagColor={unreadCount > 0 ? '#E85757' : undefined} toolTipId='votedOptionsToolTip'
                         tag={unreadCount > 0 ? `${unreadCount}` :
                           (_.size(underConsideration) > 0 ? `${_.size(underConsideration)}` : undefined)} />
-          <GmailTabItem icon={<Block />} onDrop={onDropProposed}
+          <GmailTabItem icon={<Block />} onDrop={onDropProposed} toolTipId='proposedOptionsToolTip'
                         label={intl.formatMessage({id: 'decisionDialogProposedOptionsLabel'})}
                         tag={_.size(proposed) > 0 ? `${_.size(proposed)}` : undefined} />
         </GmailTabs>

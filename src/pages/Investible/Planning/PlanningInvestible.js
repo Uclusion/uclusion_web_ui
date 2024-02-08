@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Grid, IconButton, makeStyles, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
@@ -69,6 +69,8 @@ import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
 import CondensedTodos from './CondensedTodos';
+import { ExpandLess } from '@material-ui/icons';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -351,6 +353,7 @@ function PlanningInvestible(props) {
   const { investible } = marketInvestible;
   const { name, locked_by: lockedBy, created_at: createdAt } = investible;
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [approvalsOpen, setApprovalsOpen] = useState(true);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
@@ -622,6 +625,10 @@ function PlanningInvestible(props) {
     }
   }
 
+  function toggleApprovals() {
+    setApprovalsOpen(!approvalsOpen);
+  }
+
   return (
     <Screen
       title={title}
@@ -724,10 +731,17 @@ function PlanningInvestible(props) {
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen />
             <div style={{paddingLeft: mobileLayout ? undefined : '1rem',
               paddingRight: mobileLayout ? undefined : '1rem'}}>
-              <h2 id="approvals">
-                <FormattedMessage id="decisionInvestibleOthersVoting" />
-              </h2>
-              {(displayVotingInput || hasUsableVotingInput) && investibleId && (
+              <div style={{display: 'flex', alignItems: 'center'}}>
+                <h2 id="approvals">
+                  <FormattedMessage id="decisionInvestibleOthersVoting" />
+                </h2>
+                <IconButton onClick={() => toggleApprovals()} style={{marginLeft: '0.5rem', marginBottom: 0,
+                  paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
+                  {approvalsOpen ? <ExpandLess fontSize='large' htmlColor='black' /> :
+                    <ExpandMoreIcon fontSize='large' htmlColor='black' />}
+                </IconButton>
+              </div>
+              {(displayVotingInput || hasUsableVotingInput) && investibleId && approvalsOpen && (
                 <SpinningButton id="newApproval" className={wizardClasses.actionNext}
                                 icon={AddIcon} iconColor="black"
                                 style={{display: "flex", marginBottom: '1.5rem'}}
@@ -737,7 +751,7 @@ function PlanningInvestible(props) {
                   <FormattedMessage id='createNewApproval'/>
                 </SpinningButton>
               )}
-              {(_.isEmpty(search) || displayApprovalsBySearch > 0) && (
+              {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsOpen && (
                 <Voting
                   investibleId={investibleId}
                   marketPresences={marketPresences}

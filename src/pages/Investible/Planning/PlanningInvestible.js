@@ -658,11 +658,13 @@ function PlanningInvestible(props) {
             paddingTop: '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
           <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('total')}
                         label={intl.formatMessage({id: 'descriptionVotingLabel'})}
+                        toolTipId='jobOverviewToolTip'
                         tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />
           <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
+                        toolTipId='jobTasksToolTip'
                         tag={countUnresolved(todoCommentsSearched, search)} tagLabel={getTagLabel('open')} />
           {displayAssistanceSection && (
-            <GmailTabItem icon={getIcon(QUESTION_TYPE)}
+            <GmailTabItem icon={getIcon(QUESTION_TYPE)} toolTipId='jobAssistanceToolTip'
                           label={intl.formatMessage({id: 'requiresInputStageLabel'})}
                           tag={countUnresolved(assistanceCommentsSearched, search)}
                           tagLabel={getTagLabel('open')} />

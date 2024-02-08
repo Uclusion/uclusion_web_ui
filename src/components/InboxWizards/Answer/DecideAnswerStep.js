@@ -4,7 +4,6 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -48,27 +47,11 @@ function DecideAnswerStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         Add your approval to an existing option or propose a new option for the creator of this question.
       </Typography>
-      {commentRoot.investible_id && (
-        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                        removeActions={noOptions}
-                        showVoting
-                        useCompression={useCompression}
-                        toggleCompression={() => updateFormData({useCompression: !useCompression})} />
-      )}
-      {!commentRoot.investible_id && (
-        <div className={classes.wizardCommentBoxDiv}>
-          <CommentBox
-            comments={comments}
-            marketId={marketId}
-            allowedTypes={[]}
-            isInbox
-            removeActions={noOptions}
-            showVoting
-            useCompression={useCompression}
-            toggleCompression={() => updateFormData({useCompression: !useCompression})}
-          />
-        </div>
-      )}
+      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                      removeActions={noOptions}
+                      showVoting
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({useCompression: !useCompression})} />
       <div style={{marginBottom: '2rem'}}/>
       {noOptions && (
         <WizardStepButtons

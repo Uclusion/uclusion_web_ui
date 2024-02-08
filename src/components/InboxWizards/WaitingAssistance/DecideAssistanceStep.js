@@ -4,13 +4,12 @@ import { Box, Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
-import CommentBox from '../../../containers/CommentBox/CommentBox'
 import { addCommentToMarket, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
 import { getMarketInfo } from '../../../utils/userFunctions'
-import { getFullStage, getStageNameForId } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getStageNameForId } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useHistory } from 'react-router'
@@ -46,8 +45,7 @@ function DecideAssistanceStep(props) {
   const classes = wizardStyles();
   const inv = getInvestible(investibleState, commentRoot.investible_id) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
-  const fullStage = getFullStage(marketStagesState, marketId, stage);
+  const { former_stage_id: formerStageId, assigned } = marketInfo;
   const nextStageId = getFormerStageId(formerStageId, marketId, marketStagesState);
   const nextStageName = getStageNameForId(marketStagesState, marketId, nextStageId, intl);
   const isSingle = isSingleAssisted(comments, assigned);
@@ -103,29 +101,12 @@ function DecideAssistanceStep(props) {
           <GravatarGroup users={snoozed}/>
         </Box>
       )}
-      {commentRoot.investible_id && (
-        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                        removeActions
-                        showVoting
-                        useCompression={useCompression}
-                        toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                        showCreatedBy />
-      )}
-      {!commentRoot.investible_id && (
-        <div className={classes.wizardCommentBoxDiv}>
-          <CommentBox
-            comments={comments}
-            marketId={marketId}
-            allowedTypes={[]}
-            fullStage={fullStage}
-            investible={inv}
-            marketInfo={marketInfo}
-            isInbox
-            showVoting
-            removeActions
-          />
-        </div>
-      )}
+      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                      removeActions
+                      showVoting
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
+                      showCreatedBy />
       <WizardStepButtons
         {...props}
         finish={myOnFinish}

@@ -4,7 +4,6 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { addCommentToMarket, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -137,30 +136,12 @@ function DecideResolveStep(props) {
           This job is complete.
         </Typography>
       )}
-      {commentRoot.investible_id && (
-        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                        removeActions
-                        showVoting
-                        useCompression={useCompression}
-                        toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                        selectedInvestibleIdParent={selectedInvestibleId} />
-      )}
-      {!commentRoot.investible_id && (
-        <div className={classes.wizardCommentBoxDiv}>
-          <CommentBox
-            comments={comments}
-            marketId={marketId}
-            allowedTypes={[]}
-            fullStage={fullStage}
-            investible={inv}
-            marketInfo={marketInfo}
-            isInbox
-            removeActions
-            showVoting
-            selectedInvestibleIdParent={selectedInvestibleId}
-          />
-        </div>
-      )}
+      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                      removeActions
+                      showVoting
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
+                      selectedInvestibleIdParent={selectedInvestibleId} />
       {isOpenSuggestion && (
         <WizardStepButtons
           {...props}

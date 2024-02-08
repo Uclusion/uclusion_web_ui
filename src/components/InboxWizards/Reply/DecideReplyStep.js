@@ -4,7 +4,6 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
 import {
   addCommentToMarket,
   getCommentRoot,
@@ -139,30 +138,13 @@ function DecideReplyStep(props) {
           Click the suggestion to leave this wizard and resolve or add voting.
         </Typography>
       )}
-      {commentRoot.investible_id && (
-        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                        removeActions
-                        showVoting
-                        isSingleTaskDisplay
-                        useCompression={useCompression}
-                        toggleCompression={() => updateFormData({ useCompression: !useCompression })}
-                        inboxMessageId={commentId}/>
-      )}
-      {!commentRoot.investible_id && (
-        <div className={classes.wizardCommentBoxDiv}>
-          <CommentBox
-            comments={comments}
-            marketId={marketId}
-            allowedTypes={[]}
-            isInbox
-            showVoting
-            inboxMessageId={commentId}
-            removeActions
-            toggleCompression={() => updateFormData({ useCompression: !useCompression })}
-            useCompression={useCompression}
-          />
-        </div>
-      )}
+      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                      removeActions
+                      showVoting
+                      isSingleTaskDisplay
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                      inboxMessageId={commentId}/>
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}

@@ -24,11 +24,12 @@ function InlineInitiativeBox(props) {
   } = props;
   const history = useHistory();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
-  const [votingPageState, updateVotingPageState, votingPageStateReset] =
-    getPageReducerPage(votingPageStateFull, votingPageDispatch, anInlineMarket.id);
+  const [votingPageState, updateVotingPageState] =
+    getPageReducerPage(votingPageStateFull, votingPageDispatch, anInlineMarket.id, {useCompression: true});
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
+  const { useCompression } = votingPageState;
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
@@ -92,9 +93,8 @@ function InlineInitiativeBox(props) {
         investibleId={inlineInvestibleId}
         marketPresences={positiveVoters}
         investmentReasons={investmentReasons}
-        votingPageState={votingPageState}
-        updateVotingPageState={updateVotingPageState}
-        votingPageStateReset={votingPageStateReset}
+        toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
+        useCompression={useCompression}
         market={anInlineMarket}
         groupId={anInlineMarket.id}
         votingAllowed={!inArchives}
@@ -107,9 +107,8 @@ function InlineInitiativeBox(props) {
         investibleId={inlineInvestibleId}
         marketPresences={negativeVoters}
         investmentReasons={investmentReasons}
-        votingPageState={votingPageState}
-        updateVotingPageState={updateVotingPageState}
-        votingPageStateReset={votingPageStateReset}
+        toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
+        useCompression={useCompression}
         market={anInlineMarket}
         groupId={anInlineMarket.id}
         votingAllowed={!inArchives}

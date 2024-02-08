@@ -4,7 +4,6 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -69,26 +68,11 @@ function DecidePromoteStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecidePromotionTitle'})}
       </Typography>
-      {commentRoot.investible_id && (
-        <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                        removeActions
-                        showVoting
-                        selectedInvestibleIdParent={investibleId}
-        />
-      )}
-      {!commentRoot.investible_id && (
-        <div className={classes.wizardCommentBoxDiv}>
-          <CommentBox
-            comments={comments}
-            marketId={marketId}
-            allowedTypes={[]}
-            isInbox
-            removeActions
-            showVoting
-            selectedInvestibleIdParent={investibleId}
-          />
-        </div>
-      )}
+      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+                      removeActions
+                      showVoting
+                      selectedInvestibleIdParent={investibleId}
+      />
       <WizardStepButtons
         {...props}
         nextLabel="promoteOption"

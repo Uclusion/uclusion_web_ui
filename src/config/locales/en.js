@@ -647,6 +647,8 @@ const messages = defineMessages({
   proposedOptionsToolTip: 'Options here wait for promotion by the question creator or are permanently blocked.',
   forYouToolTip: 'Events by others create notifications that display here for you.',
   fromYouToolTip: 'Your questions, suggestions, and assignments display here for processing or poking.',
+  openTasksToolTip: 'Overview of open tasks for this job',
+  resolvedTasksToolTip: 'Overview of resolved tasks for this job.',
   storyFromComment: 'Move',
   storyFromCommentNav: 'Move and go to job',
   channelOptions: 'Group Options',

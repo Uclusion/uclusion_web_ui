@@ -163,13 +163,13 @@ function CondensedTodos(props) {
           <GmailTabItem label={intl.formatMessage({id: 'openHeader'})}
                         color='black' tagLabel={intl.formatMessage({id: 'total'})}
                         tag={`${_.size(openComments)}`}
-                        onDrop={onDropOpen}
+                        onDrop={onDropOpen} toolTipId='openTasksToolTip'
                         onDragOver={(event)=>event.preventDefault()}/>
           <GmailTabItem label={intl.formatMessage({id: 'closedComments'})}
                         color='black'
                         tagLabel={intl.formatMessage({id: 'total'})}
                         tag={`${_.size(resolvedComments)}`}
-                        onDrop={onDropResolved}
+                        onDrop={onDropResolved} toolTipId='resolvedTasksToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
         </GmailTabs>
       )}

@@ -645,6 +645,8 @@ const messages = defineMessages({
   discussionToolTip: 'Discuss suggestions and questions and create jobs from them when necessary.',
   votedOptionsToolTip: 'Only options promoted by the question creator can be approved.',
   proposedOptionsToolTip: 'Options here wait for promotion by the question creator or are permanently blocked.',
+  forYouToolTip: 'Events by others create notifications that display here for you.',
+  fromYouToolTip: 'Your questions, suggestions, and assignments display here for processing or poking.',
   storyFromComment: 'Move',
   storyFromCommentNav: 'Move and go to job',
   channelOptions: 'Group Options',

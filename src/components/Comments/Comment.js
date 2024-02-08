@@ -61,7 +61,12 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import { useHistory, useLocation } from 'react-router';
 import { marketAbstain } from '../../api/markets';
-import { handleAcceptSuggestion, isSingleAssisted, onCommentOpen } from '../../utils/commentFunctions';
+import {
+  changeInvestibleStageOnCommentOpen,
+  handleAcceptSuggestion,
+  isSingleAssisted,
+  onCommentOpen
+} from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
   findMessageForCommentId,
@@ -107,6 +112,8 @@ import Gravatar from '../Avatars/Gravatar';
 import styled from 'styled-components';
 import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
+import { quickNotificationChanges } from './CommentAdd';
+import LightbulbOutlined from '../CustomChip/LightbulbOutlined';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -552,7 +559,6 @@ function Comment(props) {
     if (marketType === INITIATIVE_TYPE) {
       return <InlineInitiativeBox anInlineMarket={anInlineMarket} removeActions={removeActions}
                                   isTaskDisplay={commentType === TODO_TYPE} typeObjectId={typeObjectId}
-                                  showAcceptReject={showAcceptReject || commentType !== SUGGEST_CHANGE_TYPE}
                                   inArchives={marketStage !== ACTIVE_STAGE || inArchives || resolved} />;
     }
     return getDialog(anInlineMarket);
@@ -591,12 +597,28 @@ function Comment(props) {
       });
   }
 
-  function myAccept () {
+  function myAccept() {
     setOperationRunning(true);
     return updateComment({marketId, commentId: id, commentType: TODO_TYPE}).then((comment) => {
       handleAcceptSuggestion({ isMove: myPresenceIsAssigned && myPresence === createdBy &&
           isSingleAssisted(comments, assigned), comment, investible, investiblesDispatch, marketStagesState,
         commentsState, commentsDispatch, messagesState })
+      setOperationRunning(false);
+      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, id));
+    })
+  }
+
+  function myMoveToSuggestion() {
+    setOperationRunning(true);
+    return updateComment({marketId, commentId: id, commentType: SUGGEST_CHANGE_TYPE}).then((comment) => {
+      const withNewComment = _.concat(comments, comment);
+      addCommentToMarket(comment, commentsState, commentsDispatch);
+      if (myPresenceIsAssigned && myPresence === createdBy && isSingleAssisted(withNewComment, assigned)) {
+        changeInvestibleStageOnCommentOpen(false, true, marketStagesState,
+          [marketInfo], investible, investiblesDispatch, comment, myPresence);
+        quickNotificationChanges(comment.comment_type, comment.investible_id, messagesState, messagesDispatch,
+          [], comment, undefined, commentsState, commentsDispatch, comment.market_id, myPresence);
+      }
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, id));
     })
@@ -673,8 +695,7 @@ function Comment(props) {
     )
   }
 
-  const showAcceptReject = commentType === SUGGEST_CHANGE_TYPE && investibleId && !resolved &&
-    marketType === PLANNING_TYPE && !removeActions;
+  const showAcceptReject =  investibleId && !resolved && marketType === PLANNING_TYPE && !removeActions;
   const showMoveButton = isSent !== false
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(commentType)
     && !inArchives && !removeActions && enableActions && marketType === PLANNING_TYPE;
@@ -877,7 +898,7 @@ function Comment(props) {
                     {!mobileLayout && intl.formatMessage({ id: 'addVoting' })}
                   </SpinningIconLabelButton>
                 )}
-                {showAcceptReject && (
+                {showAcceptReject && commentType === SUGGEST_CHANGE_TYPE && (
                   <SpinningIconLabelButton onClick={myAccept} icon={ListAltIcon} iconOnly={mobileLayout}
                                            id={`convertToTask${id}`}>
                     {!mobileLayout && intl.formatMessage({ id: 'wizardAcceptLabel' })}
@@ -963,6 +984,12 @@ function Comment(props) {
                       undefined, undefined, id, typeObjectId))}
                     doSpin={false} icon={SettingsIcon} iconOnly={mobileLayout}>
                     {!mobileLayout && intl.formatMessage({ id: 'configureVoting' })}
+                  </SpinningIconLabelButton>
+                )}
+                {showAcceptReject && commentType === TODO_TYPE && (
+                  <SpinningIconLabelButton onClick={myMoveToSuggestion} icon={LightbulbOutlined} iconOnly={mobileLayout}
+                                           id={`convertToSuggestion${id}`}>
+                    {!mobileLayout && intl.formatMessage({ id: 'moveToSuggestion' })}
                   </SpinningIconLabelButton>
                 )}
                 {showMoveButton && !mobileLayout && (

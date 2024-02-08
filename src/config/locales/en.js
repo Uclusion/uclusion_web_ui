@@ -637,6 +637,8 @@ const messages = defineMessages({
   immediateToolTip: 'Critical bugs remain in the triage notification until moved or resolved.',
   normalToolTip: 'Normal bugs send a notification that can be dismissed.',
   minorToolTip: 'Minor bugs do not send notifications.',
+  readyToStartToolTip: 'Ready to Start jobs send a notification that can be dismissed.',
+  notReadyToolTip: 'Not Ready jobs do not send notifications.',
   storyFromComment: 'Move',
   storyFromCommentNav: 'Move and go to job',
   channelOptions: 'Group Options',

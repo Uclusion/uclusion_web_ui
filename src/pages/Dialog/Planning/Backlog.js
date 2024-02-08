@@ -127,12 +127,12 @@ function Backlog(props) {
         <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'readyToStartHeader'})}
                       color='black'
                       tag={unreadYellowCount > 0 ? `${unreadYellowCount}` : undefined}
-                      onDrop={onDropAble}
+                      onDrop={onDropAble} toolTipId='readyToStartToolTip'
                       onDragOver={(event)=>event.preventDefault()} />
         <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'notReadyToStartHeader'})}
                       color='black'
                       tag={unreadBlueCount > 0 ? `${unreadBlueCount}` : undefined}
-                      onDrop={onDropConvenient}
+                      onDrop={onDropConvenient} toolTipId='notReadyToolTip'
                       onDragOver={(event)=>event.preventDefault()} />
       </GmailTabs>
       {!_.isEmpty(data) && (

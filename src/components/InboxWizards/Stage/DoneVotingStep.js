@@ -11,11 +11,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import JobDescription from '../JobDescription';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import {
-  getAcceptedStage,
-  getFurtherWorkStage,
-  isAcceptedStage
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { useIntl } from 'react-intl';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -26,7 +22,6 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import Link from '@material-ui/core/Link';
 import { pokeInvestible } from '../../../api/users';
 
@@ -41,8 +36,6 @@ function DoneVotingStep(props) {
   const [marketsState] = useContext(MarketsContext);
   const history = useHistory();
   const classes = wizardStyles();
-  const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
-  const backlogStage = getFurtherWorkStage(marketStagesState, marketId)
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const marketComments = getMarketComments(commentsState, marketId, groupId);
   const market = getMarket(marketsState, marketId) || {};
@@ -51,29 +44,23 @@ function DoneVotingStep(props) {
   });
   const { useCompression } = formData;
 
-  function moveToStage(aStage, isGotoJob) {
+  function moveToStage() {
+    const acceptedStage = getAcceptedStage(marketStagesState, marketId) || {};
     const moveInfo = {
       marketId,
       investibleId,
       stageInfo: {
         current_stage_id: currentStageId,
-        stage_id: aStage.id,
+        stage_id: acceptedStage.id,
       },
     };
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
-        onInvestibleStageChange(aStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
-          invDispatch, () => {}, marketStagesState, undefined, aStage, marketPresencesDispatch);
+        onInvestibleStageChange(acceptedStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
+          invDispatch, () => {}, marketStagesState, undefined, acceptedStage,
+          marketPresencesDispatch);
         setOperationRunning(false);
-        if (isGotoJob) {
-          if (isAcceptedStage(aStage)) {
-            navigate(history, `${formInvestibleLink(marketId, investibleId)}#start`);
-          } else {
-            navigate(history, formInvestibleLink(marketId, investibleId));
-          }
-        } else {
-          navigate(history, getInboxTarget());
-        }
+        navigate(history, `${formInvestibleLink(marketId, investibleId)}#start`);
       });
   }
 
@@ -106,10 +93,11 @@ function DoneVotingStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="startJob"
-        onNext={() => moveToStage(acceptedStage, true)}
+        onNext={() => moveToStage()}
         showOtherNext
-        onOtherNext={() => moveToStage(backlogStage, false)}
-        otherNextLabel="DecideMoveBacklog"
+        otherSpinOnClick={false}
+        otherNextLabel="RejectAssignment"
+        isOtherFinal={false}
         showTerminate
         terminateLabel="poke"
         terminateSpinOnClick

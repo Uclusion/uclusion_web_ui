@@ -363,6 +363,8 @@ const messages = defineMessages({
   jobTypeLabelIMMEDIATE: 'Immediate - assign now',
   jobTypeLabelREADY: 'Ready to start - notify in backlog',
   jobTypeLabelNOT_READY: 'Not ready - backlog no notification',
+  backlogReadyToStart: 'Backlog - Ready to Start',
+  backlogNotReadyToStart: 'Backlog - Not Ready',
   jobCreate: 'Create job',
 
   // Investible
@@ -390,6 +392,7 @@ const messages = defineMessages({
   planningInvestibleNextStageAcceptedLabel: 'Accepted',
   startJobQ: 'Have enough approvals?',
   finishApprovalQ: 'Done with approval?',
+  rejectAssignmentQ: 'Where to send this job?',
   planningInvestibleNextStageInReviewLabel: 'Tasks Complete',
   planningInvestibleMoveToVerifiedLabel: 'Tasks Complete',
   planningInvestibleMoveToFurtherWorkLabel: 'Backlog',
@@ -1235,6 +1238,7 @@ const messages = defineMessages({
   moveToTaskLabel: 'Move to task',
   moveReplyToTaskLabel: 'Move reply to task',
   DecideMoveBacklog: 'Move to backlog',
+  RejectAssignment: 'Reject assignment',
   BugWizardMoveToBug: 'Move to bug',
   BugWizardMoveToJob: 'Move to job',
 

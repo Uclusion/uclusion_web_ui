@@ -79,7 +79,7 @@ export function calculateTitleExpansionPanel(props) {
   } else if (!messageType) {
     if (message.isWaitingStart) {
       setItem(item, openExpansion, <StageWizard investibleId={message.id} marketId={message.marketId}
-                                                rowId={message.id} typeObjectId={message.type_object_id} />,
+                                                rowId={message.id} typeObjectId={message.id} />,
         'finishApprovalQ', intl);
     } else if (message.isOutboxType) {
       setItem(item, openExpansion, <WaitingAssistanceWizard commentId={message.id} marketId={message.marketId}

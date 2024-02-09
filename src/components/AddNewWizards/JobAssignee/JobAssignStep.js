@@ -12,7 +12,7 @@ import {
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router'
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -28,6 +28,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import JobDescription from '../../InboxWizards/JobDescription';
+import { JOB_ASSIGNEE_WIZARD_TYPE } from '../../../constants/markets';
 
 function JobAssignStep (props) {
   const { marketId, updateFormData, formData, onFinish, investibleId, marketInfo } = props;
@@ -91,6 +92,8 @@ function JobAssignStep (props) {
       messagesDispatch(removeMessages(messageIds));
       removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
       setOperationRunning(false);
+      // Remove type object id as will not be able to return to inbox row necessarily
+      history.replace(formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId));
     });
   }
 

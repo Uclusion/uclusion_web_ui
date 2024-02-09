@@ -56,8 +56,8 @@ function DecideAssignStep(props) {
       setOperationRunning(false);
       dismissWorkListItem(message, messagesDispatch);
       const marketInfo = getMarketInfo(fullInvestible, marketId);
-      navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, marketInfo.group_id,
-        undefined, message.type_object_id))
+      // Do not include type object ID as this inbox row will be gone
+      navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, marketInfo.group_id));
     });
   }
 
@@ -90,11 +90,9 @@ function DecideAssignStep(props) {
         {...props}
         nextLabel="DecideAssignMe"
         onNext={myAssign}
-        isFinal={false}
         showOtherNext
         otherNextLabel="JobAssignBacklog"
         onOtherNext={move}
-        isOtherFinal
         terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'markRead'}
         showTerminate={true}
         onFinish={myTerminate}

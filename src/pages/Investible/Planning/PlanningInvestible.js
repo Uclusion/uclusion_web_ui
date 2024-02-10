@@ -384,6 +384,7 @@ function PlanningInvestible(props) {
       // Check if already on the right tab and only change tab if not
       if (!element) {
         if (hash.startsWith('#cv') || hash.startsWith('#approve')) {
+          setApprovalsOpen(true);
           updatePageState({ sectionOpen: 'descriptionVotingSection' });
           history.replace(window.location.pathname + window.location.search);
         } else if (hash.startsWith('#start')) {

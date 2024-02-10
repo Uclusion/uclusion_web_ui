@@ -88,7 +88,7 @@ function JobApproveStep(props) {
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
       setOperationRunning(false);
       dismissWorkListItem(message, messagesDispatch);
-      navigate(history, formInvestibleLink(marketId, investibleId));
+      navigate(history, `${formInvestibleLink(marketId, investibleId)}#approve`);
     })
   }
 

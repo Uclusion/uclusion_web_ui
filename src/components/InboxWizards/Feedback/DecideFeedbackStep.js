@@ -21,15 +21,13 @@ import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUt
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getAcceptedStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { getMarketInfo } from '../../../utils/userFunctions';
 
 function DecideFeedbackStep(props) {
-  const { marketId, investibleId, message, updateFormData, formData } = props;
+  const { marketId, investibleId, message, updateFormData, formData, currentStageId } = props;
   const intl = useIntl();
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
@@ -37,41 +35,38 @@ function DecideFeedbackStep(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const market = getMarket(marketsState, marketId) || {};
-  const inv = getInvestible(investibleState, investibleId);
-  const marketInfo = getMarketInfo(inv, marketId) || {};
   const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
   const investmentReasons = investibleComments.filter((comment) => {
     return comment.comment_type === JUSTIFY_TYPE && comment.investible_id === message.investible_id;
   });
   const classes = wizardStyles();
   const { useCompression } = formData;
-  const acceptedStage = getAcceptedStage(marketStagesState, marketId);
-  const backlogStage = getFurtherWorkStage(marketStagesState, marketId);
 
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
   }
 
-  function next(targetStage) {
+  function accept() {
+    const acceptedStage = getAcceptedStage(marketStagesState, marketId);
     const moveInfo = {
       marketId,
       investibleId,
       stageInfo: {
-        current_stage_id: marketInfo.stage,
-        stage_id: targetStage.id,
+        current_stage_id: currentStageId,
+        stage_id: acceptedStage.id,
       },
     };
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
-        onInvestibleStageChange(targetStage.id, newInv, investibleId, marketId, undefined,
+        onInvestibleStageChange(acceptedStage.id, newInv, investibleId, marketId, undefined,
           undefined, investiblesDispatch, () => {}, marketStagesState, undefined,
-          targetStage, undefined);
+          acceptedStage, undefined);
         setOperationRunning(false);
-        navigate(history, formInvestibleLink(marketId, investibleId));
+        navigate(history, `${formInvestibleLink(marketId, investibleId)}#start`);
       });
   }
 
@@ -102,10 +97,11 @@ function DecideFeedbackStep(props) {
         {...props}
         onFinish={myOnFinish}
         nextLabel="startJob"
-        onNext={() => next(acceptedStage)}
-        otherNextLabel="DecideMoveBacklog"
-        onOtherNext={() => next(backlogStage)}
+        onNext={() => accept()}
         showOtherNext
+        otherSpinOnClick={false}
+        otherNextLabel="RejectAssignment"
+        isOtherFinal={false}
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}
       />

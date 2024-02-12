@@ -5,7 +5,7 @@ import DoneVotingStep from './DoneVotingStep';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import RejectStep from './RejectStep';
+import RejectStep from '../RejectStep';
 
 function StageWizard(props) {
   const { marketId, investibleId, rowId, typeObjectId } = props;

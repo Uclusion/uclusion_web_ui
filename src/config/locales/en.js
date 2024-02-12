@@ -1235,6 +1235,7 @@ const messages = defineMessages({
   DecideResolveAndGoJob: 'Resolve and go to job',
   DecideResolveAndMoveToJob: 'Resolve and move to job',
   DecideWizardReassign: 'Reassign',
+  DecideJobOwner: 'Stop assignment',
   moveToTaskLabel: 'Move to task',
   moveReplyToTaskLabel: 'Move reply to task',
   DecideMoveBacklog: 'Move to backlog',

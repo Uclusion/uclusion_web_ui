@@ -81,7 +81,7 @@ import {
   Done,
   Edit,
   Eject,
-  ExpandLess,
+  ExpandLess, NotificationsActive,
   NotInterested,
   SettingsBackupRestore,
   UnfoldMore
@@ -584,12 +584,12 @@ function Comment(props) {
       });
   }
 
-  function abstain() {
+  function abstain(abstain) {
     setOperationRunning(true);
-    return marketAbstain(inlineMarketId)
+    return marketAbstain(inlineMarketId, abstain)
       .then(() => {
         const newValues = {
-          abstain: true,
+          abstain,
         }
         changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues)
         removeMessagesForCommentId(id, messagesState)
@@ -709,6 +709,7 @@ function Comment(props) {
     myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote && !removeActions && myMessage?.type === NOT_FULLY_VOTED_TYPE;
+  const showUnmute = !removeActions && myInlinePresence.abstain && !resolved && enableActions;
   const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
   const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>
@@ -930,12 +931,22 @@ function Comment(props) {
                 )}
                 {showAbstain && (
                   <SpinningIconLabelButton
-                    onClick={abstain}
+                    onClick={() => abstain(true)}
                     icon={NotInterested}
                     iconOnly={mobileLayout}
                     id={`commentAbstainButton${id}`}
                   >
                     {!mobileLayout && intl.formatMessage({ id: 'commentAbstainLabel' })}
+                  </SpinningIconLabelButton>
+                )}
+                {showUnmute && (
+                  <SpinningIconLabelButton
+                    onClick={() => abstain(false)}
+                    icon={NotificationsActive}
+                    iconOnly={mobileLayout}
+                    id={`commentUnmuteButton${id}`}
+                  >
+                    {!mobileLayout && intl.formatMessage({ id: 'commentUnmuteLabel' })}
                   </SpinningIconLabelButton>
                 )}
                 {isSent !== false && enableEditing && !removeActions && (

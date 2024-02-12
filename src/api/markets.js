@@ -95,9 +95,9 @@ export function updateStage(marketId, stageId, allowedInvestibles, daysVisible) 
     .catch((error) => toastErrorAndThrow(error, 'errorUpdateStageFailed'));
 }
 
-export function marketAbstain(marketId) {
+export function marketAbstain(marketId, isAbstain=true) {
   return getMarketClient(marketId)
-    .then((client) => client.markets.updateAbstain(true))
+    .then((client) => client.markets.updateAbstain(isAbstain))
     .catch((error) => toastErrorAndThrow(error, 'errorUpdateAbstainFailed'));
 }
 

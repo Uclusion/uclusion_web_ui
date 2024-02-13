@@ -84,11 +84,8 @@ const useVoteStyles = makeStyles(
       },
       createdBy: {
         fontSize: '15px',
-      },
-      createdByCompressed: {
-        fontSize: '15px',
         whiteSpace: 'nowrap',
-      }
+      },
     };
   },
   { name: "Vote" }
@@ -183,7 +180,7 @@ function Voting(props) {
                     type={`certainty${Math.abs(quantity)}`}
                     gravatar={<GravatarAndName email={email}
                                        name={name} typographyVariant="caption"
-                                       typographyClassName={useCompression ? classes.createdByCompressed : classes.createdBy}
+                                       typographyClassName={classes.createdBy}
                                        avatarClassName={classes.smallGravatar}
                               />}
                   />

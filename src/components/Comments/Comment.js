@@ -215,6 +215,7 @@ export const useCommentStyles = makeStyles(
       },
       createdBy: {
         fontSize: '15px',
+        whiteSpace: 'nowrap'
       },
       childWrapper: {
         // borderTop: '1px solid #DCDCDC',

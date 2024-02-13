@@ -66,7 +66,7 @@ const Text = styled("div")`
 `;
 
 const Title = styled(Text)`
-  flex-basis: 180px;
+  flex-basis: 225px;
   min-width: 13vw;
   flex-shrink: 0;
   flex-grow: 0;
@@ -247,7 +247,7 @@ function WorkListItem(props) {
             </Box>
             {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
-            <Text style={{ maxWidth: '55vw' }}>{fullText}</Text>
+            <Text>{fullText}</Text>
             {mobileLayout || !date ? React.Fragment : (read ? (<DateLabelNotHovered>{date}</DateLabelNotHovered>) :
               (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>))}
             {!isNotSynced && (

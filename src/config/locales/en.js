@@ -151,7 +151,6 @@ const messages = defineMessages({
 
   // Support
   supportInfoText: 'Send an email to <a>support</a> which includes the version and user ID above.',
-  supportFeatureInfoText: 'This button takes you to a workspace with Uclusion support as a collaborator.',
   featureRequest: 'Feature Request',
   createFeatureRequest: 'Create feature request',
   createOnboardingWorkspace: 'Support Help',

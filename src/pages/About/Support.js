@@ -83,9 +83,13 @@ function Support(props) {
             >
               <ListItem key="supportFeatureInfoText">
                 <Typography variant="body2">
-                  <FormattedMessage
-                    id="supportFeatureInfoText"
-                  />
+                  This button takes you to a workspace with Uclusion support as a collaborator.
+                </Typography>
+              </ListItem>
+              <ListItem key="supportFeatureInfoText2">
+                <Typography variant="body2">
+                  Once in the support workspace you can <Link href="https://documentation.uclusion.com/groups/bugs/" target="_blank">open a bug</Link>,
+                  make suggestion, ask a question, or even assign a job to Uclusion support and we will respond.
                 </Typography>
               </ListItem>
               <ListItem key="onboarding">

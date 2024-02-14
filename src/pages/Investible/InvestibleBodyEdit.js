@@ -27,10 +27,7 @@ import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 export const useInvestibleEditStyles = makeStyles(
   theme => ({
     actions: {
-      marginTop: '1rem',
-      [theme.breakpoints.between(601, 1400)]: {
-        marginTop: '5rem',
-      },
+      marginTop: '1rem'
     },
     containerEditable: {
       cursor: 'url(\'/images/edit_cursor.svg\') 0 24, pointer',

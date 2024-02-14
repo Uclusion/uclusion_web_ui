@@ -25,7 +25,6 @@ const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
 const MAX_CONCURRENT_ARCHIVE_API_CALLS = 1;
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';
-export const NOTIFICATIONS_HUB_CONTROL_PLANE_CHANNEL = 'NotificationsChannelControlPlane';
 export const PUSH_MARKETS_CHANNEL = 'MarketsChannel';
 export const PUSH_COMMENTS_CHANNEL = 'CommentsChannel';
 export const PUSH_INVESTIBLES_CHANNEL = 'InvestiblesChannel';
@@ -105,7 +104,7 @@ export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, stor
   return getVersions(marketIds, isInline)
     .then((marketSignatures) => {
       //console.error(marketSignatures);
-      return LimitedParallelMap(marketSignatures, (marketSignature) => {
+      return new LimitedParallelMap(marketSignatures, (marketSignature) => {
         //console.error("MarketSignature")
         //console.error(marketSignature);
         const { market_id: marketId, signatures: componentSignatures } = marketSignature;
@@ -299,7 +298,7 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
   if (!_.isEmpty(groupMembers.unmatchedSignatures)) {
     promises.push(fetchGroupMembers(marketClient, marketId, groupMembers, marketsStruct));
   }
-  return LimitedParallelMap(promises, (promise) => promise, MAX_CONCURRENT_API_CALLS);
+  return new LimitedParallelMap(promises, (promise) => promise, MAX_CONCURRENT_API_CALLS);
 }
 
 function fetchMarketVersion (marketClient, marketId, marketSignature, marketsStruct) {

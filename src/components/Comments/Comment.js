@@ -831,7 +831,7 @@ function Comment(props) {
                 <TooltipIconButton
                   disabled={operationRunning !== false}
                   onClick={remove}
-                  icon={<NotificationDeletion isRed />}
+                  icon={<NotificationDeletion isRed={operationRunning === false} />}
                   size={mobileLayout ? 'small' : undefined}
                   translationId="commentRemoveLabel"
                 />

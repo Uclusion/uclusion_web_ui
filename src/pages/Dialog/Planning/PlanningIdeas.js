@@ -574,7 +574,7 @@ function StageInvestible(props) {
           )}
         </Grid>
         {ticketNumber && (
-          <Grid item xs={1} style={{ paddingBottom: '0.2rem' }}>
+          <Grid item xs={1} style={{ marginLeft: '1rem', paddingBottom: '0.2rem' }}>
             <Typography variant="subtitle2" style={{whiteSpace: 'nowrap'}}>J-{ticketNumber}</Typography>
           </Grid>
         )}

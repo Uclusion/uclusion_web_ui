@@ -16,7 +16,7 @@ import CardActions from '@material-ui/core/CardActions'
 
 function ManageUsers(props) {
   const {
-    market, isInbox, name, group
+    market, name, group
   } = props;
   const intl = useIntl();
   const theme = useTheme();
@@ -52,7 +52,7 @@ function ManageUsers(props) {
         </CardActions>
       )}
       <CardContent>
-        <AddNewUsers market={market} isInbox={isInbox} name={name} group={group} isAddToGroup={isAddGroup}
+        <AddNewUsers market={market} name={name} group={group} isAddToGroup={isAddGroup}
                      setToAddClean={(value) => setChecked(value)} />
       </CardContent>
     </>

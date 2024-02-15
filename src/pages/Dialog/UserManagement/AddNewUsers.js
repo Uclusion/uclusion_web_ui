@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
-import _ from 'lodash'
-import { useIntl } from 'react-intl'
+import React, { useContext, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import _ from 'lodash';
+import { useIntl } from 'react-intl';
 import {
   Checkbox,
   IconButton,
@@ -11,36 +11,25 @@ import {
   ListItemIcon,
   ListItemText,
   TextField,
-  Typography, useMediaQuery, useTheme,
-} from '@material-ui/core'
-import SearchIcon from '@material-ui/icons/Search'
-import clsx from 'clsx'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { addParticipants, inviteParticipants } from '../../../api/users'
-import { usePlanFormStyles } from '../../../components/AgilePlan'
-import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
-import { Email, SettingsBackupRestore } from '@material-ui/icons'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import GravatarAndName from '../../../components/Avatars/GravatarAndName'
-import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
-import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
-import WorkspaceInviteLinker from '../../Home/WorkspaceInviteLinker'
-import EmailEntryBox, { getControllerName, getEmailList, setEmailList } from '../../../components/Email/EmailEntryBox';
-import { pushMessage } from '../../../utils/MessageBusUtils';
+  Typography,
+} from '@material-ui/core';
+import SearchIcon from '@material-ui/icons/Search';
+import clsx from 'clsx';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { usePlanFormStyles } from '../../../components/AgilePlan';
+import GravatarAndName from '../../../components/Avatars/GravatarAndName';
+import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 
 function AddNewUsers(props) {
-  const { market, isAddToGroup = false, setToAddClean, group } = props;
-  const { id: addToMarketId, invite_capability: marketToken } = market || {};
+  const { market, setToAddClean, group } = props;
+  const { id: addToMarketId } = market || {};
   const { id: groupId } = group || {};
   const classes = usePlanFormStyles();
   const intl = useIntl();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [userState] = useContext(AccountContext);
   const { user: unsafeUser } = userState || {};
   const myUser = unsafeUser || {};
@@ -53,7 +42,6 @@ function AddNewUsers(props) {
   const [checked, setChecked] = useState([]);
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);
-  const [emailsSent, setEmailsSent] = useState([]);
 
   useEffect(() => {
     if (!searchValue) {
@@ -136,43 +124,9 @@ function AddNewUsers(props) {
     )
   }
 
-  function addInvitees() {
-    const email1 = getEmailList(addToMarketId);
-    if (_.isEmpty(email1)) {
-      return Promise.resolve(true)
-    }
-    return inviteParticipants(addToMarketId, email1).then((result) => {
-      setEmailList([], addToMarketId);
-      onSaveSpinStop(result)
-      setEmailsSent(emailsSent.concat(email1))
-    })
-  }
-
-  function handleSaveEmails () {
-    return addInvitees().then(() => {
-      pushMessage(getControllerName(addToMarketId), { type: 'clear' });
-      setOperationRunning(false);
-    })
-  }
-
-  function handleSaveParticipants () {
-    return addParticipants(addToMarketId, generateToAddClean(checked))
-      .then((result) => {
-        setOperationRunning(false)
-        onSaveSpinStop(result)
-      })
-  }
-
   function onSearchChange (event) {
     const { value } = event.target
     setSearchValue(value)
-  }
-
-  function onSaveSpinStop (result) {
-    if (!result) {
-      return
-    }
-    marketPresencesDispatch(addMarketPresences(addToMarketId, result))
   }
 
   const displayNames = filteredNames || participants || []
@@ -182,22 +136,9 @@ function AddNewUsers(props) {
         <>
           <List
             dense
-            className={isAddToGroup ? classes.scrollableList : clsx(classes.scrollableList, classes.sharedForm)}
+            className={classes.scrollableList}
           >
             <ListItem className={classes.searchContainer} key="search">
-              {!isAddToGroup && (
-                <SpinningIconLabelButton
-                  onClick={handleSaveParticipants}
-                  icon={SettingsBackupRestore}
-                  id="participantAddButton"
-                  disabled={_.isEmpty(checked)}
-                >
-                  {intl.formatMessage({
-                    id: mobileLayout ? 'addExistingCollaboratorMobile' :
-                      'addExistingCollaborator'
-                  })}
-                </SpinningIconLabelButton>
-              )}
               {_.size(participants) > 10 && (
                 <ListItemText>
                   <TextField
@@ -228,80 +169,10 @@ function AddNewUsers(props) {
           <div className={classes.spacer} style={{ maxWidth: '5rem' }}/>
         </>
       }
-      {isAddToGroup && displayNames.length === 0 && (
+      {displayNames.length === 0 && (
         <Typography variant="body1">
           {intl.formatMessage({ id: 'everyoneInGroupAddExplanation' })}
         </Typography>
-      )}
-      {!isAddToGroup && (
-        <List
-          dense
-          style={{ padding: '0' }}
-        >
-          {displayNames.length > 0 &&
-            <ListItem className={classes.listItem} style={{ paddingTop: '0', paddingBottom: '1rem' }}>
-              <Typography className={classes.cardTitle} style={{ padding: '0' }}>
-                {intl.formatMessage({ id: 'addParticipantsNewPerson' })}
-              </Typography>
-            </ListItem>
-          }
-          {emailsSent.length > 0 && (
-            <>
-              <ListItem className={classes.listItem}>
-                <Typography className={classes.cardTitle} style={{ padding: '0' }}>
-                  {intl.formatMessage({ id: 'emailsSentLabel' })}
-                </Typography>
-              </ListItem>
-              <ListItem>
-                <List dense id="emailsSentList">
-                  {emailsSent.map((entry) => {
-                    return (
-                      <ListItemText>
-                        {entry}
-                      </ListItemText>
-                    )
-                  })
-                  }
-                </List>
-              </ListItem>
-            </>
-          )}
-          {addToMarketId && (!groupId || groupId === addToMarketId) && (
-            <>
-              <form
-                autoComplete="off"
-                className={classes.manage}
-              >
-                <ListItem
-                  className={classes.listItem}
-                  id="emailInput"
-                  key="emailInput"
-                >
-                  <ListItemText>
-                    <Typography style={{ paddingBottom: '0.5rem' }}>
-                      {intl.formatMessage({ id: 'inviteParticipantsEmailLabel' })}
-                    </Typography>
-                    <EmailEntryBox marketId={addToMarketId}
-                                   placeholder={intl.formatMessage({ id: 'searchParticipantsPlaceholder' })}/>
-                  </ListItemText>
-                </ListItem>
-                <ListItem id="emailButtons" key="emailButtons" className={classes.rightAlign}>
-                  <SpinningIconLabelButton onClick={handleSaveEmails} icon={Email} id="addressAddSaveButton"
-                                           allowOtherOperations={true}>
-                    <Typography variant="body1">
-                      {intl.formatMessage({ id: 'addressAddSaveLabel' })}
-                    </Typography>
-                  </SpinningIconLabelButton>
-                </ListItem>
-              </form>
-              <ListItem className={classes.listItem}>
-                <WorkspaceInviteLinker
-                  marketToken={marketToken}
-                />
-              </ListItem>
-            </>
-          )}
-        </List>
       )}
     </>
   )

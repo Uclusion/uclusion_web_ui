@@ -8,7 +8,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import ManageUsers from './UserManagement/ManageUsers'
 
 function DialogManage(props) {
-  const { marketId, isInbox, name, group } = props;
+  const { marketId, name, group } = props;
   const [marketsState] = useContext(MarketsContext);
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_stage: marketStage } = renderableMarket;
@@ -21,15 +21,6 @@ function DialogManage(props) {
 
   if (!isAdmin || !active) {
     return React.Fragment;
-  }
-
-  if (isInbox) {
-    return (
-      <ManageUsers
-        market={renderableMarket}
-        isInbox
-      />
-    );
   }
 
   return (

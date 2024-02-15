@@ -54,7 +54,7 @@ function GroupMembersStep (props) {
         <Typography className={classes.introText} variant="h6">
           Who should be in {groupText}?
         </Typography>
-        <AddNewUsers isAddToGroup setToAddClean={(value) => updateFormData({ toAddClean: value })}/>
+        <AddNewUsers setToAddClean={(value) => updateFormData({ toAddClean: value })}/>
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}

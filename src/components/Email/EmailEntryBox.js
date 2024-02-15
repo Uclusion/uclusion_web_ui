@@ -7,28 +7,11 @@ import { Send } from '@material-ui/icons';
 import Chip from '@material-ui/core/Chip';
 import PropTypes from 'prop-types'
 import * as ReactDOM from 'react-dom';
-import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils'
-import { registerListener } from '../../utils/MessageBusUtils';
+import _ from 'lodash';
 
 
 const ENTRY_BOX_ID = "emailEntryBox";
-
-// we're using local storage for get/set, because it's synchronous
-// we COULD instead broadcast on data plane for the box in the message bus
-// which we would do if this was a generic component
-export function setEmailList(emailList, id) {
-  setUclusionLocalStorageItem(`${ENTRY_BOX_ID}-${id}`, emailList);
-}
-
-export function getEmailList(id) {
-  return getUclusionLocalStorageItem(`${ENTRY_BOX_ID}-${id}`);
-}
-
 const ENTRY_BOX_ERROR_ID = "emailEntryBoxError";
-
-export function getControllerName(marketId) {
-  return `${ENTRY_BOX_ID}-${marketId}-controller`;
-}
 
 class EmailEntryBox extends React.Component{
 
@@ -36,19 +19,9 @@ class EmailEntryBox extends React.Component{
     super(props);
     this.emailList = [];
     this.marketId = props.marketId;
-    registerListener(getControllerName(this.marketId), 'constructor', (message) => {
-      const {type} = message.payload;
-      switch(type) {
-        case 'clear':
-          this.emailList = [];
-          setEmailList([], this.marketId);
-          document.getElementById(ENTRY_BOX_ID).innerHTML = '';
-          document.getElementById(ENTRY_BOX_ERROR_ID).innerHTML = '';
-          return;
-        default:
-          // do nothing
-      }
-    })
+    this.alreadyInList = props.alreadyInList || [];
+    this.setEmailList = props.setEmailList;
+    this.setIsValid = props.setIsValid;
   }
    wizardStyles = {
       editBox: {
@@ -82,14 +55,13 @@ class EmailEntryBox extends React.Component{
 
   hashEmail = (email) => {
     //stolen from https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
-    const hashCode = email => email.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0)
-    return hashCode;
+    return email.split('').reduce((a,b) => (((a << 5) - a) + b.charCodeAt(0))|0, 0);
   }
 
   setValidEmail(email, entryBoxNode) {
     const newEmails = [...this.emailList, email];
     this.emailList = newEmails;
-    setEmailList(newEmails, this.marketId);
+    this.setEmailList(newEmails);
     // render the chip
     const chip = this.generateChip(email);
     entryBoxNode.appendChild(chip);
@@ -111,6 +83,11 @@ class EmailEntryBox extends React.Component{
   onBlur = (event) => {
     const { target } = event;
     this.emailEntered(target);
+    const isValid = !_.isEmpty(this.emailList);
+    this.setIsValid(isValid);
+    if (!isValid) {
+      this.setError('No valid or not already present emails entered');
+    }
   }
 
   // gets the placeholder node
@@ -124,7 +101,7 @@ class EmailEntryBox extends React.Component{
     if (!email) {
       return { valid: false };
     }
-    if (this.emailList.includes(email)) {
+    if (this.emailList.includes(email)||this.alreadyInList.includes(email)) {
       return {
         valid: false,
         error: `${email} is already present.`
@@ -199,12 +176,14 @@ class EmailEntryBox extends React.Component{
         return;
       }
     }
+    // Something has been entered so enable the wizard send button - see Slack handling
+    this.setIsValid(true);
     this.setError(null);
   };
 
   doDelete = (email) => {
-    const newEmails = this.emailList.filter((candidate) => email !== candidate);
-    setEmailList(newEmails, this.marketId);
+    this.emailList = this.emailList.filter((candidate) => email !== candidate);
+    this.setEmailList(this.emailList);
     const hash = this.hashEmail(email);
     const node = document.getElementById(hash);
     node?.remove();
@@ -250,7 +229,7 @@ class EmailEntryBox extends React.Component{
       </div>
     )
   }
-};
+}
 
 EmailEntryBox.propTypes = {
   marketId: PropTypes.string.isRequired,

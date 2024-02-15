@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import EmailEntryBox, { getEmailList, setEmailList } from '../../Email/EmailEntryBox'
+import EmailEntryBox from '../../Email/EmailEntryBox'
 import WizardStepButtons from '../WizardStepButtons';
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 import { inviteParticipants } from '../../../api/users'
@@ -12,17 +12,15 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
 
 function WorkspaceMembersStep(props) {
-  const { formData } = props;
+  const { formData, updateFormData } = props;
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
 
   const myOnFinish = () => {
-    const addToMarketId = formData.marketId;
-    const value = getEmailList(addToMarketId);
-    if (!_.isEmpty(value)) {
-      return inviteParticipants(addToMarketId, value).then((result) => {
-        setEmailList([], addToMarketId);
+    const { emails, marketId: addToMarketId } = formData;
+    if (!_.isEmpty(emails)) {
+      return inviteParticipants(addToMarketId, emails).then((result) => {
         setOperationRunning(false);
         marketPresencesDispatch(addMarketPresences(addToMarketId, result));
       });
@@ -38,7 +36,9 @@ function WorkspaceMembersStep(props) {
       <Typography className={classes.introText} variant="h6">
         Who else needs to be in the workspace?
       </Typography>
-      <EmailEntryBox marketId={formData.marketId} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
+      <EmailEntryBox marketId={formData.marketId} setEmailList={(emails) => updateFormData({ emails })}
+                     placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"
+      />
       <div className={classes.borderBottom} />
       <WizardStepButtons {...props} showSkip={false} showLink={true} onNext={myOnFinish} isFinal={false} />
     </div>

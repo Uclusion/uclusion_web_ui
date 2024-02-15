@@ -154,7 +154,7 @@ function Voting(props) {
               navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, market.id, investibleId, groupId));
             }
           }
-          const isEditable = isYourVote && votingAllowed;
+          const isEditable = isYourVote && votingAllowed && !useCompression;
           const hasContent = !editorEmpty(reason?.body);
           return (
             <div className={myMessage && classes.highlighted}

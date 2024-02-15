@@ -17,8 +17,9 @@ export function editorEmpty (originalContents) {
   if (_.isEmpty(originalContents)) {
     return true;
   }
-  const contents = originalContents.replace(/[\n\r]+/g, '').trim();
-  return (contents.length === 0 || contents === '<p></p>' || contents === '<p><br></p>')
+  const contents = originalContents.replace(/[\n\r]+/g, '').replaceAll('<p>', '')
+    .replaceAll('</p>', '').replaceAll('<br>', '').trim();
+  return contents.length === 0;
 }
 
 function disableToolbarTabs (editorNode) {

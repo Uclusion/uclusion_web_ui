@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import EmailEntryBox from '../../Email/EmailEntryBox'
+import EmailEntryBox, { getEmailList, setEmailList } from '../../Email/EmailEntryBox';
 import WizardStepButtons from '../WizardStepButtons';
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 import { inviteParticipants } from '../../../api/users'
@@ -23,13 +23,15 @@ function InviteByEmailStep(props) {
   const market = getMarket(marketsState, marketId) || {};
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const inMarketEmailList = marketPresences.map((presence) => presence.email);
-  const { emails, isValid } = formData;
+  const { isValid } = formData;
 
   const myOnFinish = () => {
+    const emails = getEmailList(marketId);
     if (!_.isEmpty(emails)) {
       return inviteParticipants(marketId, emails).then((result) => {
         setOperationRunning(false);
         marketPresencesDispatch(addMarketPresences(marketId, result));
+        setEmailList([], marketId);
         finish();
       });
     }
@@ -44,7 +46,6 @@ function InviteByEmailStep(props) {
         Who should be added by email?
       </Typography>
       <EmailEntryBox marketId={marketId} alreadyInList={inMarketEmailList}
-                     setEmailList={(emails) => updateFormData({ emails })}
                      setIsValid={(isValid) => updateFormData({ isValid })}
                      placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
       <div className={classes.borderBottom} />

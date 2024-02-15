@@ -8,10 +8,20 @@ import Chip from '@material-ui/core/Chip';
 import PropTypes from 'prop-types'
 import * as ReactDOM from 'react-dom';
 import _ from 'lodash';
+import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils';
 
 
 const ENTRY_BOX_ID = "emailEntryBox";
 const ENTRY_BOX_ERROR_ID = "emailEntryBoxError";
+
+// we're using local storage for get/set, because it's synchronous and works with onblur
+export function setEmailList(emailList, id) {
+  setUclusionLocalStorageItem(`${ENTRY_BOX_ID}-${id}`, emailList);
+}
+
+export function getEmailList(id) {
+  return getUclusionLocalStorageItem(`${ENTRY_BOX_ID}-${id}`);
+}
 
 class EmailEntryBox extends React.Component{
 
@@ -20,7 +30,6 @@ class EmailEntryBox extends React.Component{
     this.emailList = [];
     this.marketId = props.marketId;
     this.alreadyInList = props.alreadyInList || [];
-    this.setEmailList = props.setEmailList;
     this.setIsValid = props.setIsValid;
   }
    wizardStyles = {
@@ -61,7 +70,7 @@ class EmailEntryBox extends React.Component{
   setValidEmail(email, entryBoxNode) {
     const newEmails = [...this.emailList, email];
     this.emailList = newEmails;
-    this.setEmailList(newEmails);
+    setEmailList(newEmails, this.marketId);
     // render the chip
     const chip = this.generateChip(email);
     entryBoxNode.appendChild(chip);
@@ -183,7 +192,7 @@ class EmailEntryBox extends React.Component{
 
   doDelete = (email) => {
     this.emailList = this.emailList.filter((candidate) => email !== candidate);
-    this.setEmailList(this.emailList);
+    setEmailList(this.emailList, this.marketId);
     const hash = this.hashEmail(email);
     const node = document.getElementById(hash);
     node?.remove();

@@ -305,7 +305,7 @@ function PlanningDialog(props) {
       <div style={{ paddingBottom: '0.25rem', zIndex: 7, position: 'fixed',
         paddingTop: mobileLayout ? '0.5rem' : '1.25rem', width: '100%',
         marginTop: '-35px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
-        {isDemo && (
+        {isDemo && !mobileLayout && (
           <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen}/>
         )}
         <GmailTabs

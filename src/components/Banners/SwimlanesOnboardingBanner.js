@@ -71,7 +71,7 @@ function SwimlanesOnboardingBanner(props) {
               <>
                 <Typography><b>More demo!</b></Typography>
                 <Typography className={classes.ctaSub}>
-                  Questions and suggestions can be used at the group level and later moved to a job.
+                  Use questions and suggestions at the group level and move them later to a job.
                 </Typography>
               </>
             )}

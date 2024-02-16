@@ -84,6 +84,12 @@ function OnboardingBanner(props) {
           <Typography>What work should be done next is an asynchronous group decision.</Typography>
         </div>
       )}
+      {isInbox && typeObjectId && !typeObjectId.includes('_') && (
+        <div>
+          <Typography><b>Enjoying the demo?</b> Poke if you don't get a response.</Typography>
+          <Typography>Here you can see progress on socializing your assignment proposal.</Typography>
+        </div>
+      )}
       <div>
         <Button
           onClick={() => {

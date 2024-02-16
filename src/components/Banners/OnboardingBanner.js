@@ -2,9 +2,9 @@ import React from 'react';
 import { Button, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { wizardStyles } from '../InboxWizards/WizardStylesContext';
-import { navigate } from '../../utils/marketIdPathFunctions';
+import { decomposeMarketPath, navigate } from '../../utils/marketIdPathFunctions';
 import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 const useStyles = makeStyles(() => {
   return {
     bannerBox: {
@@ -15,35 +15,82 @@ const useStyles = makeStyles(() => {
       display: 'flex',
       justifyContent: 'space-around'
     },
-    ctaContainer: {
-      marginLeft: '3rem',
-    },
-    cta: {
-      fontWeight: 'bold',
-    },
-    ctaSub: {
-      fontWeight: 'normal',
-    }
   };
 });
 
 function OnboardingBanner(props) {
   const classes = useStyles();
   const history = useHistory();
+  const location = useLocation();
   const wizardClasses = wizardStyles();
+  const { pathname } = location;
+  const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
+  const isInbox = action === 'inbox';
+  const typeObjectId = isInbox ? typeObjectIdRaw : undefined;
+
   return (
     <div className={classes.bannerBox}>
+      {isInbox && typeObjectId === undefined && (
         <div>
-        <Typography className={classes.cta}>Enjoying the demo?</Typography>
-        <Typography className={classes.ctaSub}>You can invite others, or create your own workspace.</Typography>
+          <Typography><b>Enjoying the demo?</b> Below an agenda for the meeting you won't have.</Typography>
+          <Typography>The inbox is across all groups and workspaces.</Typography>
         </div>
+      )}
+      {isInbox && typeObjectId?.startsWith('NOT_FULLY_VOTED') && (
         <div>
-          <Button
-            onClick={() => {
-              navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-            }}
-            className={wizardClasses.actionNext}
-            id="workspaceFromDemoBanner"
+          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography>Asynchronous avoids on the fly pressure to decide.</Typography>
+        </div>
+      )}
+      {isInbox && typeObjectId?.startsWith('UNREAD_COMMENT') && (
+        <div>
+          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography>This notifications self destructs when no longer needed.</Typography>
+        </div>
+      )}
+      {isInbox && typeObjectId?.startsWith('REPLY_MENTION') && (
+        <div>
+          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography>Mentions go to just that person and cannot be dismissed.</Typography>
+        </div>
+      )}
+      {isInbox && typeObjectId?.startsWith('UNASSIGNED') && (
+        <div>
+          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography>Triage gets important bugs looked at quickly.</Typography>
+        </div>
+      )}
+      {isInbox && typeObjectId?.startsWith('REVIEW_REQUIRED') && (
+        <div>
+          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography>Reviews can be before you write code or after a UI is up.</Typography>
+        </div>
+      )}
+      {isInbox && typeObjectId?.startsWith('UNREAD_ESTIMATE') && (
+        <div>
+          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography>Updated guess at completion dates always available without meetings.</Typography>
+        </div>
+      )}
+      {isInbox && typeObjectId?.startsWith('UNREAD_REVIEWABLE') && (
+        <div>
+          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography>Jobs are self assigned without meetings.</Typography>
+        </div>
+      )}
+      {isInbox && typeObjectId?.startsWith('UNREAD_JOB_APPROVAL_REQUEST') && (
+        <div>
+          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography>What work should be done next is an asynchronous group decision.</Typography>
+        </div>
+      )}
+      <div>
+        <Button
+          onClick={() => {
+            navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+          }}
+          className={wizardClasses.actionNext}
+          id="workspaceFromDemoBanner"
           >
             Create your workspace
           </Button>

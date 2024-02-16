@@ -60,6 +60,9 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import SwimlanesOnboardingBanner from '../../../components/Banners/SwimlanesOnboardingBanner';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { getMarket, marketIsDemo } from '../../../contexts/MarketsContext/marketsContextHelper';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -103,6 +106,8 @@ function PlanningDialog(props) {
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [groupState] = useContext(MarketGroupsContext);
+  const [marketsState] = useContext(MarketsContext);
+  const market = getMarket(marketsState, marketId) || {};
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
   const isAdmin = myPresence.is_admin;
@@ -145,6 +150,8 @@ function PlanningDialog(props) {
   });
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const presenceMap = getPresenceMap(marketPresences);
+  const isDemo = marketIsDemo(market);
+
   function isSectionOpen(section) {
     return sectionOpen === section || (!sectionOpen && section === 'storiesSection');
   }
@@ -295,36 +302,41 @@ function PlanningDialog(props) {
       openMenuItems={navListItemTextArray}
       navigationOptions={{useHoverFunctions: !mobileLayout, resetFunction: () => resetFunction(0)}}
     >
-      <GmailTabs
-        value={tabIndex}
-        id='dialog-header'
-        onChange={(event, value) => {
-          resetFunction(value);
-        }}
-        indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}
-        style={{ paddingBottom: '0.25rem', zIndex: 8, position: 'fixed',
-          paddingTop: mobileLayout ? '0.5rem' : '1.25rem',
-          marginTop: '-30px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
-        <GmailTabItem icon={<AssignmentInd />} onDrop={onDropAssigned}
-                      onDragOver={(event)=>event.preventDefault()} toolTipId='assignedJobsToolTip'
-                      label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
-                      tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
-        <GmailTabItem icon={<AssignmentIcon />} onDrop={onDropBacklog}
-                      onDragOver={(event)=>event.preventDefault()} toolTipId='backlogJobsToolTip'
-                      label={intl.formatMessage({id: 'planningDialogBacklog'})}
-                      tag={_.isEmpty(search) || backlogSearchResults === 0 ? undefined : `${backlogSearchResults}`} />
-        <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
-                      toolTipId='bugsToolTip'
-                      tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
-        <GmailTabItem icon={<QuestionIcon />} toolTipId='discussionToolTip'
-                      label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})}
-                      tag={_.isEmpty(search) || _.isEmpty(questionSuggestionComments) ? undefined :
-                        `${_.size(questionSuggestionComments)}`} />
-      </GmailTabs>
+      <div style={{ paddingBottom: '0.25rem', zIndex: 7, position: 'fixed',
+        paddingTop: mobileLayout ? '0.5rem' : '1.25rem', width: '100%',
+        marginTop: '-35px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
+        {isDemo && (
+          <SwimlanesOnboardingBanner group={group}/>
+        )}
+        <GmailTabs
+          value={tabIndex}
+          id='dialog-header'
+          onChange={(event, value) => {
+            resetFunction(value);
+          }}
+          indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}>
+          <GmailTabItem icon={<AssignmentInd />} onDrop={onDropAssigned}
+                        onDragOver={(event)=>event.preventDefault()} toolTipId='assignedJobsToolTip'
+                        label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
+                        tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
+          <GmailTabItem icon={<AssignmentIcon />} onDrop={onDropBacklog}
+                        onDragOver={(event)=>event.preventDefault()} toolTipId='backlogJobsToolTip'
+                        label={intl.formatMessage({id: 'planningDialogBacklog'})}
+                        tag={_.isEmpty(search) || backlogSearchResults === 0 ? undefined : `${backlogSearchResults}`} />
+          <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
+                        toolTipId='bugsToolTip'
+                        tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
+          <GmailTabItem icon={<QuestionIcon />} toolTipId='discussionToolTip'
+                        label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})}
+                        tag={_.isEmpty(search) || _.isEmpty(questionSuggestionComments) ? undefined :
+                          `${_.size(questionSuggestionComments)}`} />
+        </GmailTabs>
+      </div>
       <div style={{display: 'flex', overflow: 'hidden'}}>
         <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}
                       archivedSize={archivedSize} />
-      <div style={{paddingTop: '4rem', width: '96%', marginLeft: 'auto', marginRight: 'auto', overflow: 'hidden'}}>
+      <div style={{paddingTop: isDemo ? '8rem' : '4rem', width: '96%', marginLeft: 'auto', marginRight: 'auto',
+        overflow: 'hidden'}}>
         <div ref={refToTop}></div>
         {isSectionOpen('discussionSection') && (
           <div id="discussionSection">

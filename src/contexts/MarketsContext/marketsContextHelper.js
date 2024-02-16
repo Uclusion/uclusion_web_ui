@@ -13,6 +13,10 @@ export function getMarket(state, marketId) {
   return usedDetails.find((market) => market?.id === marketId);
 }
 
+export function marketIsDemo(market) {
+  return market.object_type === 'DEMO';
+}
+
 export function getFailedSignatures(state) {
   const { failedSignatures } = state || {};
   return failedSignatures;

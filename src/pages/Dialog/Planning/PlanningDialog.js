@@ -306,7 +306,7 @@ function PlanningDialog(props) {
         paddingTop: mobileLayout ? '0.5rem' : '1.25rem', width: '100%',
         marginTop: '-35px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
         {isDemo && (
-          <SwimlanesOnboardingBanner group={group}/>
+          <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen}/>
         )}
         <GmailTabs
           value={tabIndex}

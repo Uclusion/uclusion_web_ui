@@ -32,7 +32,7 @@ function OnboardingBanner(props) {
     <div className={classes.bannerBox}>
       {isInbox && typeObjectId === undefined && (
         <div>
-          <Typography><b>Enjoying the demo?</b> Below an agenda for the meeting you won't have.</Typography>
+          <Typography><b>Welcome to the demo!</b> Below an agenda for the meetings you won't have.</Typography>
           <Typography>The inbox is across all groups and workspaces.</Typography>
         </div>
       )}

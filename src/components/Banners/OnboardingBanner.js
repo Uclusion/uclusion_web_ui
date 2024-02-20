@@ -18,7 +18,7 @@ const useStyles = makeStyles(() => {
   };
 });
 
-function OnboardingBanner(props) {
+function OnboardingBanner() {
   const classes = useStyles();
   const history = useHistory();
   const location = useLocation();
@@ -30,7 +30,7 @@ function OnboardingBanner(props) {
 
   return (
     <div className={classes.bannerBox}>
-      {isInbox && typeObjectId === undefined && (
+      {((isInbox && typeObjectId === undefined) || !isInbox) && (
         <div>
           <Typography><b>Welcome to the demo!</b> Below an agenda for the meetings you won't have.</Typography>
           <Typography>The inbox is across all groups and workspaces.</Typography>

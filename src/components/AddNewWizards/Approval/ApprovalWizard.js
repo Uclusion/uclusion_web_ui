@@ -84,6 +84,7 @@ function ApprovalWizard(props) {
         {marketType === INITIATIVE_TYPE && (
           <VoteCertaintyStep market={market} investibleId={investibleId} currentReasonId={yourReason?.id}
                              showSwitch={!wasDeleted && !_.isEmpty(yourVote)}
+                             wasDeleted={wasDeleted}
                              isFor={yourVote ? approveQuantity >= 0 : voteFor==='true'}  />
         )}
       </FormdataWizard>

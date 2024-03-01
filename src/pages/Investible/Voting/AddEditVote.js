@@ -107,7 +107,7 @@ function AddEditVote(props) {
     investibleId,
     groupId,
     multiplier, wizardProps, hasVoted, currentReasonId,
-    formData, updateFormData, voteMessage, isInbox
+    formData, updateFormData, voteMessage, isInbox, wasDeleted
   } = props;
   const {
     approveQuantity,
@@ -149,7 +149,7 @@ function AddEditVote(props) {
       investibleId,
       groupId,
       newQuantity: approveQuantity*userMultiplier,
-      currentQuantity: originalQuantity,
+      currentQuantity: wasDeleted ? 0 : originalQuantity,
       newReasonText: reasonText,
       currentReasonId,
       reasonNeedsUpdate,

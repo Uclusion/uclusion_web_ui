@@ -11,7 +11,7 @@ import { useHistory } from 'react-router';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 
 function VoteCertaintyStep(props) {
-  const { market, investibleId, formData, updateFormData, isFor, showSwitch, currentReasonId } = props;
+  const { market, investibleId, formData, updateFormData, isFor, showSwitch, currentReasonId, wasDeleted } = props;
   const [commentsState] = useContext(CommentsContext);
   const history = useHistory();
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
@@ -55,6 +55,7 @@ function VoteCertaintyStep(props) {
           multiplier={isFor ? 1 : -1}
           formData={formData}
           updateFormData={updateFormData}
+          wasDeleted={wasDeleted}
           isInbox={false}
         />
     </WizardStepContainer>

@@ -168,9 +168,8 @@ function PlanningDialog(props) {
             const rootComment = filterToRoot(comments, found.id);
             if (_.isEmpty(rootComment.investible_id)) {
               if (!rootComment.resolved) {
-                if (rootComment.comment_type === TODO_TYPE) {
-                  updatePageState({ sectionOpen: 'marketTodos', tabIndex: 2 });
-                } else {
+                if (rootComment.comment_type !== TODO_TYPE) {
+                  // TODO TYPE handled by MarketTodos so is no op here
                   updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
                 }
               } else {
@@ -454,7 +453,7 @@ function PlanningDialog(props) {
                      sectionOpen={isSectionOpen('marketTodos')}
                      hidden={hidden}
                      setSectionOpen={() => {
-                       updatePageState({sectionOpen: 'marketTodos', tabIndex: 1});
+                       updatePageState({sectionOpen: 'marketTodos', tabIndex: 2});
                      }} group={group} />
       </div>
       </div>

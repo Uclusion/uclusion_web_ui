@@ -50,7 +50,8 @@ function DecideWhereStep (props) {
         Where do you want to move?
       </Typography>
       {_.size(roots) > 1 && (
-        <CondensedTodos comments={roots} investibleComments={comments} isInbox marketId={marketId} hideTabs/>
+        <CondensedTodos comments={roots} investibleComments={comments} isInbox marketId={marketId} hideTabs
+                        isDefaultOpen />
       )}
       {_.size(roots) === 1 && (
         <>

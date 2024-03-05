@@ -738,10 +738,13 @@ function PlanningInvestible(props) {
                 <h2 id="approvals">
                   <FormattedMessage id="decisionInvestibleOthersVoting" />
                 </h2>
-                <IconButton onClick={() => toggleApprovals()} style={{marginLeft: '0.5rem', marginBottom: 0,
+                <IconButton onClick={() => toggleApprovals()} style={{marginBottom: 0,
                   paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
+                  <Tooltip key='toggleApprovals'
+                           title={<FormattedMessage id={`${approvalsOpen ? 'closeApprovals' : 'openApprovals'}Tip`} />}>
                   {approvalsOpen ? <ExpandLess fontSize='large' htmlColor='black' /> :
                     <ExpandMoreIcon fontSize='large' htmlColor='black' />}
+                  </Tooltip>
                 </IconButton>
               </div>
               {(displayVotingInput || hasUsableVotingInput) && investibleId && approvalsOpen && (

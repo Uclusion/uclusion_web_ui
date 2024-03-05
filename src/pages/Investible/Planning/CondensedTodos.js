@@ -1,6 +1,6 @@
 import React, { useContext, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Checkbox, IconButton, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { Checkbox, IconButton, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
@@ -146,10 +146,14 @@ function CondensedTodos(props) {
         <h2 id="tasksOverview" style={{paddingBottom: 0, marginBottom: 0, marginTop: 0, paddingTop: 0}}>
           <FormattedMessage id="taskSection" />
         </h2>
-        <IconButton onClick={() => toggleTodos()} style={{marginLeft: '0.5rem', marginBottom: 0,
+        <IconButton onClick={() => toggleTodos()} style={{marginBottom: 0,
           paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
-          {sectionOpen ? <ExpandLess fontSize='large' htmlColor='black' /> :
+          <Tooltip key='toggleTodos'
+                   title={<FormattedMessage id={`${sectionOpen ? 'closeTodos' : 'openTodos'}Tip`} />}>
+            {sectionOpen ?
+              <ExpandLess fontSize='large' htmlColor='black' /> :
             <ExpandMoreIcon fontSize='large' htmlColor='black' />}
+          </Tooltip>
         </IconButton>
       </div>
       {!hideTabs && sectionOpen && (

@@ -802,7 +802,7 @@ function PlanningInvestible(props) {
             <Grid item xs={12} style={{ marginTop: mobileLayout ? undefined : '15px',
               paddingLeft: mobileLayout ? undefined : '1rem' }}>
               {showCommentAdd && !_.isEmpty(allowedCommentTypes) && (
-                <div style={{display: 'flex'}}>
+                <div style={{display: 'flex', marginLeft: '0.5rem'}}>
                   {allowedCommentTypes.map((allowedCommentType) => {
                     return (
                       <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}

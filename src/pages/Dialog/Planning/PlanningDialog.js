@@ -169,7 +169,7 @@ function PlanningDialog(props) {
             if (_.isEmpty(rootComment.investible_id)) {
               if (!rootComment.resolved) {
                 if (rootComment.comment_type !== TODO_TYPE) {
-                  // TODO TYPE handled by MarketTodos so is no op here
+                  // TO DO TYPE handled by MarketTodos so is no op here
                   updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
                 }
               } else {

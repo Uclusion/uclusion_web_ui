@@ -88,7 +88,7 @@ const TitleB
 
 const DateLabel = styled(Text)`
   font-size: 14px;
-  flex-basis: 100px;
+  flex-basis: 120px;
   flex-shrink: 0;
   padding-right: 2rem;
   text-align: right;

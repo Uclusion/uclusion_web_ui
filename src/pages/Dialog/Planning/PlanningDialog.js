@@ -342,7 +342,7 @@ function PlanningDialog(props) {
             <Grid item id="discussionAddArea" xs={12}>
               {_.isEmpty(search) && marketId && !hidden && (
                 <>
-                  <div style={{display: 'flex', marginBottom: '1.5rem'}}>
+                  <div style={{display: 'flex', marginBottom: '1.5rem', marginLeft: '0.5rem'}}>
                     <SpinningButton id="newMarketQuestion"
                                     icon={AddIcon} iconColor="black"
                                     className={wizardClasses.actionNext}

@@ -28,7 +28,7 @@ import PropTypes from 'prop-types';
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible, updateInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { UNASSIGNED_TYPE } from '../../../constants/notifications';
-import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage, isBlockedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -143,20 +143,23 @@ export default function PlanningInvestibleNav(props) {
       )}
       {market.id && marketInvestible.investible && isFurtherWork && (
         <div className={classes.assignmentContainer} style={{paddingBottom: headerPaddingBottom}}>
-          <FormControlLabel
-            id='readyToStartCheckbox'
-            control={
-              <Checkbox
-                id={`readyToStartCheckbox${investibleId}`}
-                value={openForInvestment}
-                disabled={operationRunning !== false}
-                checked={operationRunning === `readyToStartCheckbox${investibleId}` ? !openForInvestment :
-                  openForInvestment}
-                onClick={() => setReadyToStart(!openForInvestment)}
-              />
-            }
-            label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
-          />
+          <Tooltip key='readyToStartCheckboxKey'
+                   title={<FormattedMessage id='readyToStartExplanation' />}>
+            <FormControlLabel
+              id='readyToStartCheckbox'
+              control={
+                <Checkbox
+                  id={`readyToStartCheckbox${investibleId}`}
+                  value={openForInvestment}
+                  disabled={operationRunning !== false || isBlockedStage(fullStage)}
+                  checked={operationRunning === `readyToStartCheckbox${investibleId}` ? !openForInvestment :
+                    openForInvestment}
+                  onClick={() => setReadyToStart(!openForInvestment)}
+                />
+              }
+              label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
+            />
+          </Tooltip>
         </div>
       )}
       <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>

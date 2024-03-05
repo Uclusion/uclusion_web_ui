@@ -1110,6 +1110,7 @@ const messages = defineMessages({
   todoSection: 'Bugs',
   jobFromBugs: 'Bugs {ticketList}',
   readyToStartCheckboxExplanation: 'Ready to start',
+  readyToStartExplanation: 'Ready to start jobs send a notification for assignment.',
   viewTodo: 'View',
   editTodo: 'Edit',
   markRead: 'Mark read',

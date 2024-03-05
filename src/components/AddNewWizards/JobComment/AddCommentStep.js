@@ -49,7 +49,7 @@ function AddCommentStep (props) {
   return (
     <WizardStepContainer
       {...props}
-      isLarge
+      isXLarge
     >
       <Typography className={classes.introText}>
         What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?

@@ -32,7 +32,8 @@ function OnboardingBanner() {
     <div className={classes.bannerBox}>
       {((isInbox && typeObjectId === undefined) || !isInbox) && (
         <div>
-          <Typography><b>Welcome to the demo!</b> Below an agenda for the meetings you won't have.</Typography>
+          <Typography><b>Welcome to the demo!</b> Click around to see this team using a workspace instead of meetings.
+          </Typography>
           <Typography>The inbox is across all groups and workspaces.</Typography>
         </div>
       )}

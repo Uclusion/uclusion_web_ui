@@ -23,6 +23,7 @@ import { PLANNING_TYPE } from '../../../constants/markets';
 import { updateMarketStagesFromNetwork } from '../../../contexts/MarketStagesContext/marketStagesContextReducer';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { processBanned } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer';
+import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData } = props;
@@ -35,6 +36,8 @@ function WorkspaceNameStep (props) {
   const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [, userDispatch] = useContext(AccountContext);
   const [, stagesDispatch] = useContext(MarketStagesContext);
+  const [userState] = useContext(AccountContext);
+  const isDemoOn = userState?.user?.onboarding_state !== OnboardingState.FirstMarketJoined;
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -92,6 +95,11 @@ function WorkspaceNameStep (props) {
         <Typography className={classes.introText}>
           What do you want to call your workspace?
         </Typography>
+        {isDemoOn && (
+          <Typography className={classes.introSubText} variant="subtitle1">
+            <b>Warning</b>: Creating this workspace <i>ends the demo</i> and removes its workspace.
+          </Typography>
+        )}
         <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
           Everyone in a <Link href="https://documentation.uclusion.com/getting-started/#setting-up-a-workspace" target="_blank">workspace</Link> can
           see everything inside of it.

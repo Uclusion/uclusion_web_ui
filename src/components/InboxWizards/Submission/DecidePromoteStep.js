@@ -3,63 +3,19 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
-import WizardStepButtons from '../WizardStepButtons';
 import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useIntl } from 'react-intl';
-import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { DECISION_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
-import { useHistory } from 'react-router';
-import { moveInvestibleToCurrentVoting } from '../../../api/investibles';
-import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import {
-  getInCurrentVotingStage,
-  getProposedOptionsStage
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import JobDescription from '../JobDescription';
-import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecidePromoteStep(props) {
-  const { marketId, commentId, investibleId, commentMarketId, message } = props;
-  const history = useHistory();
+  const { marketId, commentId, investibleId, commentMarketId } = props;
   const [commentState] = useContext(CommentsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
-  const [, invDispatch] = useContext(InvestiblesContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const inCurrentVotingStage = getInCurrentVotingStage(marketStagesState, marketId);
-  const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const commentRoot = getCommentRoot(commentState, commentMarketId, commentId) || {id: 'fake'};
   const comments = (commentState[commentMarketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const intl = useIntl();
-
-  function myOnFinish() {
-    removeWorkListItem(message, messagesDispatch, history);
-  }
-
-  function promote() {
-    const moveInfo = {
-      marketId,
-      investibleId,
-      stageInfo: {
-        current_stage_id: proposedStage.id,
-        stage_id: inCurrentVotingStage.id,
-      },
-    };
-    return moveInvestibleToCurrentVoting(moveInfo)
-      .then((inv) => {
-        setOperationRunning(false);
-        refreshInvestibles(invDispatch, () => {}, [inv]);
-        myOnFinish();
-      });
-  }
 
   return (
     <WizardStepContainer
@@ -68,24 +24,12 @@ function DecidePromoteStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecidePromotionTitle'})}
       </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Drag and drop to allow voting on an option or leave a comment explaining why it should not be promoted.
+      </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                      removeActions
                       showVoting
                       selectedInvestibleIdParent={investibleId}
-      />
-      <WizardStepButtons
-        {...props}
-        nextLabel="promoteOption"
-        onNext={promote}
-        showOtherNext
-        otherNextLabel="createComment"
-        otherSpinOnClick={false}
-        onOtherNext={() => navigate(history,
-          formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, undefined,
-            undefined, message.type_object_id))}
-        showTerminate={getShowTerminate(message)}
-        terminateLabel={getLabelForTerminate(message)}
-        onTerminate={myOnFinish}
       />
     </WizardStepContainer>
   );

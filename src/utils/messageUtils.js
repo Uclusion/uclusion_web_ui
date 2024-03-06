@@ -157,6 +157,15 @@ export function findMessagesForCommentId(commentId, state) {
   return safeMessages.filter((message) => message.comment_id === commentId && !message.deleted);
 }
 
+export function findMessagesForTypeObjectId(typeObjectId, state) {
+  if (!typeObjectId) {
+    return undefined;
+  }
+  const { messages } = (state || {});
+  const safeMessages = messages || [];
+  return safeMessages.find((message) => message.type_object_id === typeObjectId && !message.deleted);
+}
+
 export function findMessagesForUserPoked(state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];

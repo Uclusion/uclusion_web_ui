@@ -14,7 +14,7 @@ export function getMarket(state, marketId) {
 }
 
 export function marketIsDemo(market) {
-  return market.object_type === 'DEMO';
+  return market?.object_type === 'DEMO';
 }
 
 export function getFailedSignatures(state) {

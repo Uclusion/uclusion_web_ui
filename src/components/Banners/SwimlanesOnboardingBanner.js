@@ -1,11 +1,9 @@
 import React from 'react';
-import { Button, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import { wizardStyles } from '../InboxWizards/WizardStylesContext';
-import { navigate } from '../../utils/marketIdPathFunctions';
-import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { useHistory } from 'react-router';
 import { isEveryoneGroup } from '../../contexts/GroupMembersContext/groupMembersHelper';
+import DemoCreateWorkspaceButton from '../Buttons/DemoCreateWorkspaceButton';
+
 const useStyles = makeStyles(() => {
   return {
     bannerBackground: {
@@ -29,8 +27,7 @@ const useStyles = makeStyles(() => {
 function SwimlanesOnboardingBanner(props) {
   const { group, sectionOpen } = props;
   const classes = useStyles();
-  const history = useHistory();
-  const wizardClasses = wizardStyles();
+
   return (
     <div className={classes.bannerBackground}>
       <div className={classes.bannerBox}>
@@ -77,15 +74,7 @@ function SwimlanesOnboardingBanner(props) {
             )}
           </div>
           <div style={{marginTop: '0.8rem'}}>
-            <Button
-              onClick={() => {
-                navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-              }}
-              className={wizardClasses.actionNext}
-              id="workspaceFromDemoBanner"
-            >
-              Create your workspace
-            </Button>
+            <DemoCreateWorkspaceButton />
           </div>
       </div>
     </div>

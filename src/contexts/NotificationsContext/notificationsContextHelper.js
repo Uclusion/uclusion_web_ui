@@ -131,14 +131,14 @@ export function getInboxTarget() {
   return '/inbox';
 }
 
-export function getInboxCount(messagesState) {
+export function getInboxCount(messagesState, isRawCount=false) {
   let calcPend = 0;
   if (!_.isEmpty(messagesState)) {
     const { messages } = messagesState;
     if (!_.isEmpty(messages)) {
       messages.forEach((message) => {
         const { is_highlighted: isHighlighted } = message;
-        if (isHighlighted && isInInbox(message)) {
+        if ((isHighlighted || isRawCount) && isInInbox(message)) {
           calcPend += 1;
         }
       });

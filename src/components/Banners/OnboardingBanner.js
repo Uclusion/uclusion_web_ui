@@ -1,10 +1,14 @@
-import React from 'react';
-import { Button, Typography } from '@material-ui/core';
+import React, { useContext } from 'react';
+import { Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import { wizardStyles } from '../InboxWizards/WizardStylesContext';
-import { decomposeMarketPath, navigate } from '../../utils/marketIdPathFunctions';
-import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { useHistory, useLocation } from 'react-router';
+import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
+import { useLocation } from 'react-router';
+import DemoCreateWorkspaceButton from '../Buttons/DemoCreateWorkspaceButton';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
+import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
+import { getMarket, marketIsDemo } from '../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+
 const useStyles = makeStyles(() => {
   return {
     bannerBox: {
@@ -20,50 +24,56 @@ const useStyles = makeStyles(() => {
 
 function OnboardingBanner() {
   const classes = useStyles();
-  const history = useHistory();
+  const [messagesState] = useContext(NotificationsContext);
+  const [marketsState] = useContext(MarketsContext);
   const location = useLocation();
-  const wizardClasses = wizardStyles();
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const isInbox = action === 'inbox';
   const typeObjectId = isInbox ? typeObjectIdRaw : undefined;
+  const message = findMessagesForTypeObjectId(typeObjectId, messagesState);
+  const market = getMarket(marketsState, message?.market_id);
+
+  if (message && !marketIsDemo(market)) {
+    return React.Fragment;
+  }
 
   return (
     <div className={classes.bannerBox}>
       {((isInbox && typeObjectId === undefined) || !isInbox) && (
         <div>
-          <Typography><b>Welcome to the demo!</b> Click around to see this team using a workspace instead of meetings.
+          <Typography><b>Welcome to the demo!</b> This team uses a workspace instead of meetings. Click a notification to help.
           </Typography>
           <Typography>The inbox is across all groups and workspaces.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('NOT_FULLY_VOTED') && (
         <div>
-          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography><b>Enjoying the demo?</b> Help the team by voting.</Typography>
           <Typography>Asynchronous avoids on the fly pressure to decide.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_COMMENT') && (
         <div>
-          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography><b>Enjoying the demo?</b> Process this notification to help.</Typography>
           <Typography>This notifications self destructs when no longer needed.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('REPLY_MENTION') && (
         <div>
-          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography><b>Enjoying the demo?</b> Your help was requested here.</Typography>
           <Typography>Mentions go to just that person and cannot be dismissed.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('UNASSIGNED') && (
         <div>
-          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography><b>Enjoying the demo?</b> Take this assignment to help.</Typography>
           <Typography>Triage gets important bugs looked at quickly.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('REVIEW_REQUIRED') && (
         <div>
-          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography><b>Enjoying the demo?</b> Complete this review to help.</Typography>
           <Typography>Reviews can be before you write code or after a UI is up.</Typography>
         </div>
       )}
@@ -75,13 +85,13 @@ function OnboardingBanner() {
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_REVIEWABLE') && (
         <div>
-          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography><b>Enjoying the demo?</b> Take this assignment to help.</Typography>
           <Typography>Jobs are self assigned without meetings.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_JOB_APPROVAL_REQUEST') && (
         <div>
-          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography><b>Enjoying the demo?</b> Approve this assignment to help.</Typography>
           <Typography>What work should be done next is an asynchronous group decision.</Typography>
         </div>
       )}
@@ -92,16 +102,8 @@ function OnboardingBanner() {
         </div>
       )}
       <div>
-        <Button
-          onClick={() => {
-            navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-          }}
-          className={wizardClasses.actionNext}
-          id="workspaceFromDemoBanner"
-          >
-            Create your workspace
-          </Button>
-        </div>
+        <DemoCreateWorkspaceButton />
+      </div>
     </div>
   );
 }

@@ -60,7 +60,7 @@ function InlineInitiativeBox(props) {
   const yourPresence = anInlineMarketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence?.investments?.find((investment) => investment.investible_id === inlineInvestibleId &&
       !investment.deleted);
-  const showVoteButtons = !isCreator && !yourVote && inlineInvestibleId && !removeActions;
+  const showVoteButtons = !isCreator && !yourVote && inlineInvestibleId && !removeActions && !isTaskDisplay;
   if (isTaskDisplay && _.isEmpty(positiveVoters) && _.isEmpty(negativeVoters)) {
     return React.Fragment;
   }

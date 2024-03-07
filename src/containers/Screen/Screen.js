@@ -208,7 +208,7 @@ function Screen(props) {
     getPlanningMarketId(investibleId, marketsState, investiblesState);
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
-      const calcPend = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
+      const calcPend = getInboxCount(messagesState);
       if (calcPend > 0) {
         document.title = `(${calcPend}) ${tabTitle}`;
       } else {
@@ -295,7 +295,7 @@ function Screen(props) {
     const items = itemsRaw.filter((item) => !_.isEmpty(item));
     navListItemTextArray.push(...items);
   }
-  const inboxCount = getInboxCount(messagesState, marketState, marketPresencesState, commentsState, investiblesState);
+  const inboxCount = getInboxCount(messagesState);
   const navigationMenu =
     {
       headerItemTextArray: [

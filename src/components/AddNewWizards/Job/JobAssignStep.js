@@ -26,6 +26,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function JobAssignStep (props) {
   const { marketId, updateFormData, formData, onFinish, assigneeId, groupId, marketComments, fromCommentIds } = props;
@@ -57,7 +58,7 @@ function JobAssignStep (props) {
   }
 
   function createJob() {
-    const name = intl.formatMessage({ id: 'jobFromBugs' });
+    const name = createJobNameFromComments(roots, intl);
     // Coming from existing comments usually ready to start - bugs are and voted questions or suggestion should be
     const addInfo = {
       name,

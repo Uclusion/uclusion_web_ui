@@ -25,6 +25,7 @@ import { moveCommentsFromIds } from './DecideWhereStep';
 import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData, jobType,
@@ -53,9 +54,7 @@ function JobDescriptionStep (props) {
         const { name } = convertDescription(body, 200);
         defaultDescription = name;
       } else {
-        const ticketCodes = fromComments.map((comment) => decodeURI(comment.ticket_code));
-        const ticketList = ticketCodes.join(", ");
-        defaultDescription = intl.formatMessage({ id: 'jobFromBugs' }, { ticketList })
+        defaultDescription = createJobNameFromComments(fromComments, intl);
       }
     }
     return defaultDescription;

@@ -27,6 +27,7 @@ import { useIntl } from 'react-intl';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function JobApproverStep(props) {
   const { marketId, updateFormData, formData, groupId, fromCommentIds, marketComments, previousStep } = props;
@@ -58,7 +59,7 @@ function JobApproverStep(props) {
   }
 
   function createJob() {
-    const name = intl.formatMessage({ id: 'jobFromBugs' });
+    const name = createJobNameFromComments(roots, intl);
     // Coming from existing comments
     const addInfo = {
       name,

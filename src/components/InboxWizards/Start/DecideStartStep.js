@@ -15,11 +15,15 @@ import { useHistory } from 'react-router';
 import { wizardFinish } from '../InboxWizardUtils';
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { onDropTodo } from '../../../pages/Dialog/Planning/userUtils';
 import { useIntl } from 'react-intl';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { addPlanningInvestible } from '../../../api/investibles';
+import { moveComments } from '../../../api/comments';
+import { onCommentsMove } from '../../../utils/commentFunctions';
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function DecideStartStep(props) {
   const { marketId, commentId, message } = props;
@@ -44,9 +48,32 @@ function DecideStartStep(props) {
     removeWorkListItem(message, messagesDispatch, history);
   }
 
+  function onDropTodo() {
+      const name = createJobNameFromComments([commentRoot], intl);
+      const addInfo = {
+        marketId,
+        name,
+        groupId: commentRoot.group_id,
+        stageId: acceptedStage.id,
+        assignments: [myPresence.id]
+      };
+      return addPlanningInvestible(addInfo).then((inv) => {
+        const { investible } = inv;
+        return moveComments(marketId, investible.id, [commentId])
+          .then((movedComments) => {
+            onCommentsMove([commentId], messagesState, comments, investible.id, commentsDispatch, marketId,
+              movedComments, messagesDispatch);
+            addInvestible(invDispatch, () => {}, inv);
+            if (setOperationRunning) {
+              setOperationRunning(false);
+            }
+            return investible.id;
+          });
+      });
+  }
+
   function myAccept() {
-    onDropTodo(commentId, commentState, marketId, undefined, intl, commentsDispatch, invDispatch,
-      myPresence.id, acceptedStage.id, 'jobFromBugs', messagesState, messagesDispatch)
+    return onDropTodo()
       .then((investibleId) => {
         wizardFinish( { link: `${formInvestibleLink(marketId, investibleId)}#start` }, setOperationRunning,
           message, history, marketId, investibleId, messagesDispatch);
@@ -76,10 +103,10 @@ function DecideStartStep(props) {
         {...props}
         nextLabel="DecideStartBug"
         onNext={myAccept}
-        isFinal={false}
         onNextDoAdvance={false}
         showOtherNext
         otherSpinOnClick={false}
+        isOtherFinal={false}
         otherNextLabel="DecideStartBugExisting"
         terminateLabel="notificationDismiss"
         showTerminate={message.type_object_id.startsWith('UNREAD')}

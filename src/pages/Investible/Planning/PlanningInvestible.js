@@ -778,7 +778,8 @@ function PlanningInvestible(props) {
                 <SpinningButton id="newReport" className={wizardClasses.actionNext}
                                 icon={AddIcon} iconColor="black"
                                 variant="text" doSpin={false}
-                                style={{display: "flex", marginTop: '0.75rem', marginBottom: '0.75rem'}}
+                                style={{display: "flex", marginTop: '0.75rem', marginBottom: '0.75rem',
+                                  marginLeft: '0.5rem'}}
                                 onClick={() => navigate(history,
                                   formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                     REPORT_TYPE))}>

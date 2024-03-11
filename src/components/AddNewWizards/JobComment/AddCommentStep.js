@@ -11,20 +11,30 @@ import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageSta
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
-import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import {
+  ISSUE_TYPE,
+  QUESTION_TYPE,
+  REPLY_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE
+} from '../../../constants/comments';
 import {
   getBlockedStage,
   getRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import JobDescription from '../../InboxWizards/JobDescription';
+import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 
 function AddCommentStep (props) {
-  const { investibleId, marketId, useType, updateFormData } = props;
+  const { investibleId, marketId, useType, updateFormData, formData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentState] = useContext(CommentsContext);
   const inv = getInvestible(investibleState, investibleId) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { group_id: groupId, stage: currentStageId } = marketInfo;
@@ -36,6 +46,10 @@ function AddCommentStep (props) {
     getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId);
   const isAssistance = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useType);
   const inAssistanceStage = [requiresInputStage.id, blockingStage.id].includes(currentStageId);
+  const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
+  const comments = useType === TODO_TYPE ? investibleComments?.filter((comment) =>
+    [TODO_TYPE, REPLY_TYPE].includes(comment.comment_type)) : undefined;
+  const { useCompression } = formData;
 
   function onSave(comment) {
     if (comment.is_sent) {
@@ -75,7 +89,9 @@ function AddCommentStep (props) {
           Use @ mentions to limit who this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies.
         </Typography>
         )}
-      <JobDescription marketId={marketId} investibleId={investibleId} />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({useCompression: !useCompression})} />
       <CommentAdd
         nameKey="JobCommentAdd"
         type={useType}

@@ -25,14 +25,14 @@ function JobCommentWizard(props) {
   });
   const hasDraft = isQuestion && savedQuestion;
   const draftData = {inlineMarketId: savedQuestion?.inline_market_id, commentId: savedQuestion?.id, groupId:
-    savedQuestion?.group_id, marketId, investibleId };
+    savedQuestion?.group_id, marketId, investibleId, useCompression: true };
   const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, savedQuestion?.id);
 
   return (
     <WizardStylesProvider>
       <FormdataWizard name={`job_comment_wizard${investibleId}`} useLocalStorage={false}
-                      defaultFormData={hasDraft ? draftData : undefined}>
+                      defaultFormData={hasDraft ? draftData : {useCompression: true}}>
         {!hasDraft && (
           <AddCommentStep investibleId={investibleId} marketId={marketId} useType={commentType} />
         )}

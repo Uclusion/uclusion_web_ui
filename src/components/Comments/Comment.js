@@ -229,22 +229,21 @@ export const useCommentStyles = makeStyles(
       containerRed: {
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px red",
         overflow: "visible",
-        marginTop: "1.5rem"
+        marginTop: "0.5rem"
       },
       containerYellow: {
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px yellow",
         overflow: "visible",
-        marginTop: "1.5rem"
+        marginTop: "0.5rem"
       },
       containerBlueLink: {
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px blue",
         overflow: "visible",
-        marginTop: "1.5rem",
+        marginTop: "0.5rem",
         cursor: 'pointer'
       },
       containerLink: {
         overflow: "visible",
-        marginTop: "1.5rem",
         cursor: 'pointer'
       },
       container: {

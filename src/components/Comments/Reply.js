@@ -483,6 +483,7 @@ function ThreadedReplies(props) {
               key={`threadc${reply.id}`}
               enableEditing={enableEditing}
               replyEditId={replyEditId}
+              inboxMessageId={inboxMessageId}
               isInbox={isInbox}
               wizardProps={wizardProps}
             />

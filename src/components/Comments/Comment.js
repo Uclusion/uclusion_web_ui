@@ -114,6 +114,7 @@ import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import { quickNotificationChanges } from './CommentAdd';
 import LightbulbOutlined from '../CustomChip/LightbulbOutlined';
+import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -581,6 +582,9 @@ function Comment(props) {
         addMarketComments(commentsDispatch, marketId, [comment]);
         removeMessagesForCommentId(id, messagesState);
         setOperationRunning(false);
+        if (isInbox) {
+          navigate(history, getInboxTarget());
+        }
       });
   }
 
@@ -594,6 +598,9 @@ function Comment(props) {
         changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues)
         removeMessagesForCommentId(id, messagesState)
         setOperationRunning(false);
+        if (isInbox) {
+          navigate(history, getInboxTarget());
+        }
       });
   }
 
@@ -649,6 +656,9 @@ function Comment(props) {
           addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
         setOperationRunning(false);
+        if (isInbox) {
+          navigate(history, getInboxTarget());
+        }
       });
   }
 

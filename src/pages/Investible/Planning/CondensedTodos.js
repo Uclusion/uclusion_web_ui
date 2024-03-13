@@ -75,6 +75,7 @@ function CondensedTodos(props) {
           isInbox={isInbox}
           removeActions={isInbox}
           stagePreventsActions={isInbox}
+          idPrepend='condensed'
         />
       </div>
       const determinateChecked = determinate[id];

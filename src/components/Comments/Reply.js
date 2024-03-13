@@ -172,6 +172,7 @@ function Reply(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const marketId = useMarketId();
+  const idPrepend = usePrependId();
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || { name: "unknown", email: "" };
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
@@ -196,6 +197,10 @@ function Reply(props) {
 
   function useMarketId() {
     return React.useContext(LocalCommentsContext).marketId;
+  }
+
+  function usePrependId() {
+    return React.useContext(LocalCommentsContext).idPrepend;
   }
 
   function handleEditClick() {
@@ -296,10 +301,10 @@ function Reply(props) {
       </>
     );
   }
-
+console.debug(`id pre pend is ${idPrepend}`)
   return (
     <>
-      <Card className={getHighlightClass()} id={`${isInbox ? 'inbox' : ''}c${comment.id}`}>
+      <Card className={getHighlightClass()} id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
         <div onClick={() => {
           if (replyBeingEdited) {
             navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));

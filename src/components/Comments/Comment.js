@@ -438,7 +438,7 @@ function Comment(props) {
   const { comment, marketId, comments, noAuthor, defaultShowDiff, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, toggleCompression: toggleCompressionRaw, useCompression, showVoting, selectedInvestibleIdParent,
-    isMove } = props;
+    isMove, idPrepend='c' } = props;
   const history = useHistory();
   const location = useLocation();
   const editBox = useRef(null);
@@ -750,7 +750,7 @@ function Comment(props) {
         <div style={{ flexGrow: 1 }}/>
         <ExpandMoreIcon style={{ color: 'black', marginRight: '1rem', marginTop: '0.5rem' }}/>
       </Card>
-      <LocalCommentsContext.Provider value={{ comments, marketId }}>
+      <LocalCommentsContext.Provider value={{ comments, marketId, idPrepend }}>
         {sortedReplies.map(child => {
           const parent = findParentInDescendants(child, inboxMessageId, comments);
           if (parent) {
@@ -1052,7 +1052,7 @@ function Comment(props) {
       )}
       {!useCompression && (
         <Box marginTop={1} paddingX={1} className={classes.childWrapper}>
-          <LocalCommentsContext.Provider value={{ comments, marketId }}>
+          <LocalCommentsContext.Provider value={{ comments, marketId, idPrepend }}>
             {sortedReplies.map(child => {
               const { id: childId } = child;
               return (

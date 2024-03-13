@@ -57,6 +57,15 @@ function Inbox(props) {
     }
   }, [unpaginatedItems, page, inboxDispatch]);
 
+  useEffect(() => {
+    // If on first tab and trying to return to second tab panel
+    if (workItemId) {
+      if (!workItemId.includes('_')&&tabIndex === 0) {
+        inboxDispatch(setTab(1));
+      }
+    }
+  }, [inboxDispatch, tabIndex, workItemId]);
+
   function changePage(byNum) {
     inboxDispatch(setPage(page + byNum));
   }

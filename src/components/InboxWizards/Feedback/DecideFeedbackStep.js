@@ -18,25 +18,17 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { JUSTIFY_TYPE } from '../../../constants/comments';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
-import { stageChangeInvestible } from '../../../api/investibles';
-import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { JOB_APPROVERS_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideFeedbackStep(props) {
-  const { marketId, investibleId, message, updateFormData, formData, currentStageId } = props;
+  const { marketId, investibleId, message, updateFormData, formData } = props;
   const intl = useIntl();
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const market = getMarket(marketsState, marketId) || {};
   const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
@@ -49,27 +41,6 @@ function DecideFeedbackStep(props) {
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
   }
-
-  function accept() {
-    const acceptedStage = getAcceptedStage(marketStagesState, marketId);
-    const moveInfo = {
-      marketId,
-      investibleId,
-      stageInfo: {
-        current_stage_id: currentStageId,
-        stage_id: acceptedStage.id,
-      },
-    };
-    return stageChangeInvestible(moveInfo)
-      .then((newInv) => {
-        onInvestibleStageChange(acceptedStage.id, newInv, investibleId, marketId, undefined,
-          undefined, investiblesDispatch, () => {}, marketStagesState, undefined,
-          acceptedStage, undefined);
-        setOperationRunning(false);
-        navigate(history, `${formInvestibleLink(marketId, investibleId)}#start`);
-      });
-  }
-
 
   return (
     <WizardStepContainer
@@ -96,12 +67,16 @@ function DecideFeedbackStep(props) {
       <WizardStepButtons
         {...props}
         onFinish={myOnFinish}
-        nextLabel="startJob"
-        onNext={() => accept()}
+        nextLabel="addApproversLabel"
+        spinOnClick={false}
+        onNextDoAdvance={false}
+        onNext={() => navigate(history,
+          formWizardLink(JOB_APPROVERS_WIZARD_TYPE, marketId, investibleId, undefined, undefined,
+            message.type_object_id))}
         showOtherNext
+        isOtherFinal={false}
         otherSpinOnClick={false}
         otherNextLabel="RejectAssignment"
-        isOtherFinal={false}
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}
       />

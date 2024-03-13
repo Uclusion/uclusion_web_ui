@@ -18,7 +18,7 @@ function StageWizard(props) {
     <FormdataWizard name={`stage_wizard${investibleId}`}
                     defaultFormData={{parentElementId: rowId, useCompression: true}}>
       <DoneVotingStep marketId={marketId} investibleId={investibleId} groupId={groupId}
-                      currentStageId={currentStageId} typeObjectId={typeObjectId} />
+                      typeObjectId={typeObjectId} />
       <RejectStep marketId={marketId} investibleId={investibleId} groupId={groupId}
                       currentStageId={currentStageId} typeObjectId={typeObjectId} />
     </FormdataWizard>

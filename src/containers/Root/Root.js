@@ -8,7 +8,7 @@ import Support from '../../pages/About/Support';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {
   broadcastView,
-  decomposeMarketPath,
+  decomposeMarketPath, formMarketLink,
   getUrlForTicketPath,
   navigate,
 } from '../../utils/marketIdPathFunctions';
@@ -33,6 +33,8 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
+import Screen from '../Screen/Screen';
+import { useIntl } from 'react-intl';
 
 const useStyles = makeStyles({
   body: {
@@ -60,6 +62,7 @@ const useStyles = makeStyles({
 function Root() {
   const history = useHistory();
   const location = useLocation();
+  const intl = useIntl();
   const classes = useStyles();
   const { pathname } = location;
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
@@ -68,6 +71,9 @@ function Root() {
   const [ticketState] = useContext(TicketIndexContext);
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
+  const { marketDetails } = marketsState;
+  const supportMarket = (marketDetails || []).find((market) => market.market_sub_type === 'SUPPORT') || {};
+  const marketLink = supportMarket.id ? formMarketLink(supportMarket.id, supportMarket.id) : undefined;
 
   function hideInbox() {
     return action !== 'inbox' && pathname !== '/';
@@ -149,6 +155,14 @@ function Root() {
   },  [pathname, history, ticketState, marketsState, commentsState]);
 
   useEffect(() => {
+    if (action === 'supportWorkspace') {
+      if (marketLink) {
+        navigate(history, marketLink, true);
+      }
+    }
+  },  [action, history, marketLink]);
+
+  useEffect(() => {
     function handleViewChange(isEntry) {
       const currentPath = window.location.pathname;
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);
@@ -196,6 +210,18 @@ function Root() {
       registerMarketTokenListeners();
     }
   },  [history, setOnline, location, isUserLoaded]);
+
+  if (action === 'supportWorkspace') {
+    return (
+      <Screen
+        hidden={false}
+        loading
+        title={intl.formatMessage({ id: 'loadingMessage' })}
+      >
+        <div />
+      </Screen>
+    );
+  }
 
   // Home - no content to prepare and we don't want its useEffects even around when not hidden
   // PlanningMarketEdit - if preserve state then when come back can have stale data

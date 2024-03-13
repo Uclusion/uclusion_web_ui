@@ -39,9 +39,8 @@ export function getMessages(allOutBoxMessagesOrderedRaw, messagesFullRaw, search
 }
 
 export function getUnpaginatedItems(messagesHash, tabIndex) {
-  const {outBoxMessagesOrdered, inboxMessagesOrdered, teamMessagesOrdered} = messagesHash;
-  return tabIndex === PENDING_INDEX ? outBoxMessagesOrdered : (tabIndex === 0 ? inboxMessagesOrdered
-    : teamMessagesOrdered);
+  const {outBoxMessagesOrdered, inboxMessagesOrdered } = messagesHash;
+  return tabIndex === PENDING_INDEX ? outBoxMessagesOrdered :  inboxMessagesOrdered;
 }
 
 function updateTab(state, action) {

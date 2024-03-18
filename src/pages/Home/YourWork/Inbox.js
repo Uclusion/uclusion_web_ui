@@ -28,7 +28,7 @@ import { getMarketClient } from '../../../api/marketLogin';
 
 function Inbox(props) {
   const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults,
-    workItemId } = props;
+    workItemId, hidden } = props;
   const intl = useIntl();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, , tokensHash] = useContext(MarketsContext);
@@ -59,12 +59,12 @@ function Inbox(props) {
 
   useEffect(() => {
     // If on first tab and trying to return to second tab panel
-    if (workItemId) {
+    if (!hidden && workItemId) {
       if (!workItemId.includes('_')&&tabIndex === 0) {
         inboxDispatch(setTab(1));
       }
     }
-  }, [inboxDispatch, tabIndex, workItemId]);
+  }, [hidden, inboxDispatch, tabIndex, workItemId]);
 
   function changePage(byNum) {
     inboxDispatch(setPage(page + byNum));

@@ -94,7 +94,7 @@ function InboxFull(props) {
     >
       <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} loadingFromInvite={fromInvite}
              workItemId={workItemId} messagesHash={messagesHash} messagesFull={messagesFull}
-             searchResults={searchResults}
+             searchResults={searchResults} hidden={hidden}
       />
     </Screen>
   );

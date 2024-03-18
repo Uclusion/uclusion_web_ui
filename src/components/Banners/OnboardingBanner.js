@@ -8,6 +8,8 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import { getMarket, marketIsDemo } from '../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import Link from '@material-ui/core/Link';
+import { PLANNING_TYPE } from '../../constants/markets';
 
 const useStyles = makeStyles(() => {
   return {
@@ -42,56 +44,56 @@ function OnboardingBanner() {
     <div className={classes.bannerBox}>
       {((isInbox && typeObjectId === undefined) || !isInbox) && (
         <div>
-          <Typography><b>Welcome to the demo!</b> This team uses a workspace instead of meetings. Click a notification to help.
+          <Typography><b>Welcome to the inbox!</b> Clicking a For You row helps process incoming notifications with context.
           </Typography>
-          <Typography>The inbox is across all groups and workspaces.</Typography>
+          <Typography>The From You tab tracks the input your team owes you.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('NOT_FULLY_VOTED') && (
         <div>
-          <Typography><b>Enjoying the demo?</b> Help the team by voting.</Typography>
-          <Typography>Asynchronous avoids on the fly pressure to decide.</Typography>
+          <Typography><b>Enjoying the demo?</b> This is part of the <Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">job assistance</Link> flow.</Typography>
+          <Typography>Help the team by voting.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_COMMENT') && (
         <div>
-          <Typography><b>Enjoying the demo?</b> Process this notification to help.</Typography>
+          <Typography><b>Enjoying the demo?</b> This is part of the <Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">job assistance</Link> flow.</Typography>
           <Typography>This notifications self destructs when no longer needed.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('REPLY_MENTION') && (
         <div>
-          <Typography><b>Enjoying the demo?</b> Your help was requested here.</Typography>
+          <Typography><b>Enjoying the demo?</b> This is part of the <Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">job assistance</Link> flow.</Typography>
           <Typography>Mentions go to just that person and cannot be dismissed.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('UNASSIGNED') && (
         <div>
-          <Typography><b>Enjoying the demo?</b> Take this assignment to help.</Typography>
-          <Typography>Triage gets important bugs looked at quickly.</Typography>
+          <Typography><b>Enjoying the demo?</b> This is part of the <Link href="https://documentation.uclusion.com/flows/#self-assigning-bugs" target="_blank">self assigning bugs</Link> flow.</Typography>
+          <Typography>Take this bug to help.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('REVIEW_REQUIRED') && (
         <div>
-          <Typography><b>Enjoying the demo?</b> Complete this review to help.</Typography>
-          <Typography>Reviews can be before you write code or after a UI is up.</Typography>
+          <Typography><b>Enjoying the demo?</b> This is part of the <Link href="https://documentation.uclusion.com/flows/#job-review" target="_blank">job review</Link> flow.</Typography>
+          <Typography>Complete this review to help.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_ESTIMATE') && (
         <div>
-          <Typography><b>Enjoying the demo?</b></Typography>
+          <Typography><b>Enjoying the demo?</b> This is part of the <Link href="https://documentation.uclusion.com/flows/#job-estimation" target="_blank">job estimation</Link> flow.</Typography>
           <Typography>Updated guess at completion dates always available without meetings.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_REVIEWABLE') && (
         <div>
-          <Typography><b>Enjoying the demo?</b> Take this assignment to help.</Typography>
-          <Typography>Jobs are self assigned without meetings.</Typography>
+          <Typography><b>Enjoying the demo?</b> This is part of the <Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">self assigning jobs</Link> flow.</Typography>
+          <Typography>Take this assignment to help.</Typography>
         </div>
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_JOB_APPROVAL_REQUEST') && (
         <div>
-          <Typography><b>Enjoying the demo?</b> Approve this assignment to help.</Typography>
+          <Typography><b>Enjoying the demo?</b> This is part of the <Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">job approval</Link> flow.</Typography>
           <Typography>What work should be done next is an asynchronous group decision.</Typography>
         </div>
       )}

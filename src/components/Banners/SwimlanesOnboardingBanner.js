@@ -35,7 +35,7 @@ function SwimlanesOnboardingBanner(props) {
   return (
     <div className={classes.bannerBackground}>
       <div className={classes.bannerBox}>
-          <div style={{marginTop: '0.8rem'}}>
+          <div style={{marginTop: '0.8rem'}} id='swimlanesDemoBannerText'>
             {(!sectionOpen || sectionOpen === 'storiesSection') && isEveryoneGroup(group.id, group.market_id) && (
               <>
                 <Typography><b>Welcome to the demo!</b> Instead of standup, Assistance Needed shows where input is

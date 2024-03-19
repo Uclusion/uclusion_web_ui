@@ -9,7 +9,6 @@ import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import { getMarket, marketIsDemo } from '../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import Link from '@material-ui/core/Link';
-import { PLANNING_TYPE } from '../../constants/markets';
 
 const useStyles = makeStyles(() => {
   return {

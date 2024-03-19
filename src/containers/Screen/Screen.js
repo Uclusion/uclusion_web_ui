@@ -18,7 +18,6 @@ import { getInboxCount, getInboxTarget } from '../../contexts/NotificationsConte
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import Sidebar from '../../components/Menus/Sidebar'
 import AddIcon from '@material-ui/icons/Add'
 import { Group, GroupOutlined, Inbox, MoreVert } from '@material-ui/icons';
@@ -168,10 +167,8 @@ function Screen(props) {
   const { marketId: hashMarketId, investibleId: hashInvestibleId } = hashValues || {};
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const [marketState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
-  const [commentsState] = useContext(CommentsContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [marketsState] = useContext(MarketsContext);
@@ -215,7 +212,7 @@ function Screen(props) {
         document.title = `${tabTitle}`;
       }
     }
-  }, [commentsState, hidden, investiblesState, marketPresencesState, marketState, messagesState, tabTitle]);
+  }, [hidden, messagesState, tabTitle]);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
   if (myNotHiddenMarketsState.marketDetails) {

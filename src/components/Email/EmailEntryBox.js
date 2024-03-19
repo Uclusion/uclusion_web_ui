@@ -243,10 +243,12 @@ class EmailEntryBox extends React.Component{
 EmailEntryBox.propTypes = {
   marketId: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
+  setIsValid: PropTypes.func
 };
 
 EmailEntryBox.defaultProps = {
   placeholder: 'Ex. bfollis@uclusion.com, disrael@uclusion.com',
+  setIsValid: () => {}
 };
 
 export default EmailEntryBox;

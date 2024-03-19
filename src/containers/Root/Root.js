@@ -32,9 +32,11 @@ import { refreshVersions } from '../../api/versionedFetchUtils';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
+import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import Screen from '../Screen/Screen';
 import { useIntl } from 'react-intl';
+import { DEMO_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import _ from 'lodash';
 
 const useStyles = makeStyles({
   body: {
@@ -72,8 +74,11 @@ function Root() {
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
   const { marketDetails } = marketsState;
-  const supportMarket = (marketDetails || []).find((market) => market.market_sub_type === 'SUPPORT') || {};
+  const supportMarket = marketDetails?.find((market) => market.market_sub_type === 'SUPPORT') || {};
   const marketLink = supportMarket.id ? formMarketLink(supportMarket.id, supportMarket.id) : undefined;
+  const demo = marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
+    market.object_type === DEMO_TYPE);
+  const isDemoUser = userState?.user?.onboarding_state === OnboardingState.DemoCreated;
 
   function hideInbox() {
     return action !== 'inbox' && pathname !== '/';
@@ -163,6 +168,14 @@ function Root() {
   },  [action, history, marketLink]);
 
   useEffect(() => {
+    if (pathname === '/' && isDemoUser) {
+      if (!_.isEmpty(demo)) {
+        navigate(history, formMarketLink(demo.id, demo.id), true);
+      }
+    }
+  },  [demo, history, pathname, isDemoUser]);
+
+  useEffect(() => {
     function handleViewChange(isEntry) {
       const currentPath = window.location.pathname;
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);
@@ -211,7 +224,19 @@ function Root() {
     }
   },  [history, setOnline, location, isUserLoaded]);
 
-  if (action === 'supportWorkspace') {
+  function demoNotReady () {
+    if (!isUserLoaded) {
+      return true;
+    }
+    if (isDemoUser) {
+      if (_.isEmpty(demo)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  if (action === 'supportWorkspace' || demoNotReady()) {
     return (
       <Screen
         hidden={false}

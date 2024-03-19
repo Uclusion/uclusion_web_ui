@@ -19,7 +19,7 @@ import { formMarketLink } from '../../../utils/marketIdPathFunctions';
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
 import Link from '@material-ui/core/Link';
-import { PLANNING_TYPE } from '../../../constants/markets';
+import { DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { updateMarketStagesFromNetwork } from '../../../contexts/MarketStagesContext/marketStagesContextReducer';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { processBanned } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer';
@@ -70,7 +70,7 @@ function WorkspaceNameStep (props) {
         stagesDispatch(updateMarketStagesFromNetwork({[createdMarketId]: stages }));
         addPresenceToMarket(presenceDispatch, createdMarketId, presence);
         const demo = marketsState?.marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
-          market.object_type === 'DEMO');
+          market.object_type === DEMO_TYPE);
         if (!_.isEmpty(demo)){
           presenceDispatch(processBanned([demo.id]));
         }

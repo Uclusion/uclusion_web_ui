@@ -38,10 +38,10 @@ function SwimlanesOnboardingBanner(props) {
           <div style={{marginTop: '0.8rem'}}>
             {(!sectionOpen || sectionOpen === 'storiesSection') && isEveryoneGroup(group.id, group.market_id) && (
               <>
-                <Typography><b>Welcome to the demo!</b> Instead of standup, these swimlanes show what this group is
-                  working on and Assistance Needed</Typography>
+                <Typography><b>Welcome to the demo!</b> Instead of standup, Assistance Needed shows where input is
+                  required and the swimlanes show</Typography>
                 <Typography className={classes.ctaSub}>
-                  shows where input is required. As a team member
+                  status of jobs seeking approval and in progress. As a team member
                   your <Link href="/inbox" onClick={(event) => {
                     preventDefaultAndProp(event);
                     navigate(history, '/inbox');

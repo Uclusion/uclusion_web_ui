@@ -19,3 +19,4 @@ export const INITIATIVE_TYPE = 'INITIATIVE';
 export const ACTIVE_STAGE = 'Active';
 export const SUPPORT_SUB_TYPE = 'SUPPORT';
 export const TEST_SUB_TYPE = 'TEST';
+export const DEMO_TYPE = 'DEMO';

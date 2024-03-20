@@ -6,7 +6,6 @@ import { useIntl } from 'react-intl'
 import {
   decomposeMarketPath,
   formInvestibleLink,
-  formMarketLink,
   navigate
 } from '../../utils/marketIdPathFunctions'
 import Screen from '../../containers/Screen/Screen'
@@ -21,21 +20,15 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getStages } from '../../contexts/MarketStagesContext/marketStagesContextHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
-import jwt_decode from 'jwt-decode'
 import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper'
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
-import { pushMessage } from '../../utils/MessageBusUtils'
-import {
-  INVITE_MARKET_EVENT,
-  LOAD_MARKET_CHANNEL
-} from '../../contexts/MarketsContext/marketsContextMessages'
 import UpgradeBanner from '../../components/Banners/UpgradeBanner'
 import { canCreate } from '../../contexts/AccountContext/accountContextHelper'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import queryString from 'query-string';
 
 function Dialog(props) {
-  const { hidden } = props;
+  const { hidden, loadedMarketId } = props;
   const [addInvestibleMode, setAddInvestibleMode] = useState(false);
   const history = useHistory();
   const intl = useIntl();
@@ -45,7 +38,6 @@ function Dialog(props) {
   const { groupId } = values || {};
   const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
   const { marketId: marketEntity, action } = decomposeMarketPath(pathname);
-  const [marketIdFromToken, setMarketIdFromToken] = useState(undefined);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -53,7 +45,7 @@ function Dialog(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
-  const marketId = action === 'invite' ? marketIdFromToken : marketEntity;
+  const marketId = action === 'invite' ? loadedMarketId : marketEntity;
   const allInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
   const comments = getMarketComments(commentsState, marketId, groupId) || [];
   const investibles = _.isEmpty(search) ? allInvestibles : allInvestibles.filter((inv) => {
@@ -75,41 +67,6 @@ function Dialog(props) {
     !marketTokenLoaded(marketId, tokensHash);
   const createEnabled = canCreate(userState);
   const banner = (loading || createEnabled ? undefined : <UpgradeBanner/>);
-
-  useEffect(() => {
-    if (!hidden && !isInitialization && hasUser && marketEntity) {
-      let proposedMarketId;
-      if (action === 'invite') {
-        const decoded = jwt_decode(marketEntity);
-        proposedMarketId = decoded.market_id;
-        setMarketIdFromToken(proposedMarketId);
-      } else {
-        proposedMarketId = marketEntity;
-      }
-      // Ignore regular URL case because can cause performance problems to do things for that case
-      if (action === 'invite') {
-        const loadedMarket = getMarket(marketsState, proposedMarketId);
-        if (_.isEmpty(loadedMarket)) {
-          pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: marketEntity })
-          //Immediately replace the invite in the path name so don't send twice
-          window.history.replaceState(null, '', formMarketLink(proposedMarketId, proposedMarketId));
-        }
-      }
-    }
-    if (hidden) {
-      setMarketIdFromToken(undefined);
-    }
-  }, [action, hasUser, hidden, isInitialization, marketEntity, marketsState]);
-
-  useEffect(() => {
-    if (!hidden && action === 'invite' && marketId && !_.isEmpty(loadedMarket)) {
-      // Try to remove the market token from the URL to avoid book marking it or other weirdness
-      // Potentially this fails since inside useEffect
-      console.info('Navigating to market');
-      history.push(formMarketLink(marketId, marketId));
-    }
-    return () => {}
-  }, [hidden, action, history, marketId, loadedMarket, marketType]);
 
   useEffect(() => {
     if (!hidden && myHashFragment) {

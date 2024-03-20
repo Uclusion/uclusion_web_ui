@@ -37,6 +37,9 @@ import Screen from '../Screen/Screen';
 import { useIntl } from 'react-intl';
 import { DEMO_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import _ from 'lodash';
+import jwt_decode from 'jwt-decode';
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
+import PlanningMarketLoad from '../../pages/Dialog/Planning/PlanningMarketLoad';
 
 const useStyles = makeStyles({
   body: {
@@ -101,9 +104,6 @@ function Root() {
   }
 
   function hideMarket() {
-    if (action === 'invite') {
-      return false;
-    }
     return (action !== 'dialog') || (!marketId) || (!!marketId && !!investibleId);
   }
 
@@ -134,6 +134,10 @@ function Root() {
     return action !== 'marketEdit';
   }
 
+  function hideMarketLoad() {
+    return action !== 'invite';
+  }
+
   function hideGroupSettings() {
     return action !== 'groupEdit';
   }
@@ -143,8 +147,8 @@ function Root() {
   }
 
   // Page Not Found
-  const hidePNF = !(hideMarket() && hideSupport() && hideInvestible() && hideWorkspaceWizard() &&
-    hideInbox() && hideSlackInvite() && hideChangePassword() && hideMarketEdit() && hideGroupSettings()
+  const hidePNF = !(hideMarket() && hideSupport() && hideInvestible() && hideWorkspaceWizard() && hideInbox()
+    && hideSlackInvite() && hideChangePassword() && hideMarketEdit() && hideGroupSettings() && hideMarketLoad()
     && hideGroupArchive() && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit()
     && !isTicketPath(pathname));
 
@@ -174,6 +178,21 @@ function Root() {
       }
     }
   },  [demo, history, pathname, isDemoUser]);
+
+  useEffect(() => {
+    if (action === 'invite') {
+      // In this case the marketId is a token
+      const decoded = jwt_decode(marketId);
+      const loadedMarket = getMarket(marketsState, decoded.market_id);
+      if (!_.isEmpty(loadedMarket)) {
+        // Try to remove the market token from the URL to avoid book marking it or other weirdness
+        // Potentially this fails since inside useEffect
+        console.info('Navigating to market');
+        history.push(formMarketLink(loadedMarket.id, loadedMarket.id));
+      }
+    }
+    return () => {}
+  }, [action, history, marketId, marketsState]);
 
   useEffect(() => {
     function handleViewChange(isEntry) {
@@ -268,6 +287,9 @@ function Root() {
             <ChangeNotificationPreferences hidden={hideChangeNotification()}/>
             {!hideMarketEdit() && (
               <PlanningMarketEdit />
+            )}
+            {!hideMarketLoad() && (
+              <PlanningMarketLoad />
             )}
             {!hideGroupSettings() && (
               <GroupEdit />

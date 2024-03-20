@@ -9,7 +9,6 @@ import _ from 'lodash';
 import { deleteOrDehilightMessages } from '../../../api/users';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getInboxCount, getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import InboxRow from './InboxRow';
 import { getPaginatedItems } from '../../../utils/messageUtils';
@@ -27,11 +26,9 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { getMarketClient } from '../../../api/marketLogin';
 
 function Inbox(props) {
-  const { loadingFromInvite=false, messagesFull, inboxState, inboxDispatch, messagesHash, searchResults,
-    workItemId, hidden } = props;
+  const { messagesFull, inboxState, inboxDispatch, messagesHash, searchResults, workItemId, hidden } = props;
   const intl = useIntl();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [, , tokensHash] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
   const theme = useTheme();
@@ -82,8 +79,7 @@ function Inbox(props) {
   const { first, last, data, hasMore, hasLess, previousItemId, nextItemId, current } =
     getPaginatedItems(unpaginatedItems, page, PAGE_SIZE, workItemId);
   const isOnWorkItem = workItemId && current > 0;
-  const defaultRow = createDefaultInboxRow(unpaginatedItems, loadingFromInvite, messagesState, tokensHash, intl,
-    determinate, determinateDispatch, checkAll, tabIndex);
+  const defaultRow = createDefaultInboxRow(unpaginatedItems, tabIndex);
   const { outBoxMessagesOrdered, inboxMessagesOrdered } = messagesHash;
   const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   return (

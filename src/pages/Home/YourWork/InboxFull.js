@@ -10,11 +10,6 @@ import {
 } from '../../../contexts/MarketsContext/marketsContextHelper'
 import { useHistory } from 'react-router'
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-import { pushMessage } from '../../../utils/MessageBusUtils';
-import queryString from 'query-string'
-import { INVITE_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages'
-import { userIsLoaded } from '../../../contexts/AccountContext/accountUserContextHelper'
-import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 import { getMessages } from './InboxContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -32,19 +27,15 @@ function InboxFull(props) {
   const intl = useIntl();
   const history = useHistory();
   const { location } = history;
-  const { search: querySearch, pathname } = location;
+  const { pathname } = location;
   const { marketId: workItemId } = decomposeMarketPath(pathname);
-  const values = queryString.parse(querySearch || '');
-  const { fromInvite } = values || {};
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [messagesState] = useContext(NotificationsContext);
-  const [userState] = useContext(AccountContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const hasUser = userIsLoaded(userState);
   const { messages: messagesUnsafe } = messagesState;
   const messagesMapped = (messagesUnsafe || []).map((message) => {
     return {...message, id: message.type_object_id};
@@ -59,10 +50,7 @@ function InboxFull(props) {
   const [inboxState, inboxDispatch] = useReducer(getReducer(messagesHash),
     {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
-  if (fromInvite && fromInvite !== 'loaded') {
-    pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketToken: fromInvite });
-  }
-  let loading = marketsState.initializing || messagesState.initializing || (fromInvite && !hasUser);
+  let loading = marketsState.initializing || messagesState.initializing;
   if (!loading && myNotHiddenMarketsState.marketDetails) {
     myNotHiddenMarketsState.marketDetails.forEach((market) => {
       if (!marketTokenLoaded(market.id, tokensHash)) {
@@ -92,9 +80,8 @@ function InboxFull(props) {
       disableSearch={!_.isEmpty(workItemId)}
       showBanner
     >
-      <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} loadingFromInvite={fromInvite}
-             workItemId={workItemId} messagesHash={messagesHash} messagesFull={messagesFull}
-             searchResults={searchResults} hidden={hidden}
+      <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} workItemId={workItemId} messagesHash={messagesHash}
+             messagesFull={messagesFull} searchResults={searchResults} hidden={hidden}
       />
     </Screen>
   );

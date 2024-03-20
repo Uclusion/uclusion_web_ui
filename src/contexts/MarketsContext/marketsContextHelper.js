@@ -1,5 +1,4 @@
 import { addPresenceToMarket, getMarketPresences } from '../MarketPresencesContext/marketPresencesHelper'
-import _ from 'lodash'
 import { updateMarketDetails, versionsUpdateDetails } from './marketsContextReducer'
 import { fixupItemForStorage } from '../ContextUtils'
 import { pushMessage } from '../../utils/MessageBusUtils'
@@ -24,11 +23,6 @@ export function getFailedSignatures(state) {
 
 export function marketTokenLoaded(marketId, tokensHash) {
   return tokensHash && tokensHash[`MARKET_${marketId}`];
-}
-
-export function hasNoChannels(tokensHash) {
-  // To have a channel must have the account plus support market plus one market
-  return _.size(tokensHash) < 3;
 }
 
 export function getMarketDetailsForType(state, marketPresencesState, marketType = 'DECISION',

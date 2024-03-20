@@ -2,10 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 import {
   getMarketDetailsForType,
-  getNotHiddenMarketDetailsForUser,
-  hasNoChannels
+  getNotHiddenMarketDetailsForUser
 } from '../../../contexts/MarketsContext/marketsContextHelper';
-import LoadingDisplay from '../../../components/LoadingDisplay';
 import { Assignment, Block, PersonAddOutlined } from '@material-ui/icons';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -175,8 +173,7 @@ export function calculateTitleExpansionPanel(props) {
   }
 }
 
-export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messagesState, tokensHash, intl, determinate,
-  determinateDispatch, checkAll, tabIndex) {
+export function createDefaultInboxRow(messagesOrdered, tabIndex) {
   if (!_.isEmpty(messagesOrdered)) {
     return undefined;
   }
@@ -189,10 +186,6 @@ export function createDefaultInboxRow(messagesOrdered, loadingFromInvite, messag
         Your From You tab is empty.<br/><br/> Process or poke your questions, suggestions, and unapproved jobs here.
       </Typography>
     );
-  }
-
-  if (loadingFromInvite && hasNoChannels(tokensHash)) {
-    return <LoadingDisplay showMessage messageId="loadingMessage" noMargin />;
   }
 
   return (

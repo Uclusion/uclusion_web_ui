@@ -1,7 +1,7 @@
 import { addSyncError, removeMarketDetails } from './marketsContextReducer'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import { addMarketsToStorage, addMarketToStorage } from './marketsContextHelper'
-import { getMarketFromInvite, getMarketFromUrl } from '../../api/marketLogin'
+import { getMarketFromUrl } from '../../api/marketLogin'
 import { toastError } from '../../utils/userMessage'
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 import localforage from 'localforage'
@@ -107,28 +107,25 @@ function beginListening(dispatch, setTokensHash) {
     }
   });
   registerListener(LOAD_MARKET_CHANNEL, 'marketsLoadStart', (data) => {
-    const { payload: { event, marketToken, marketId } } = data;
-    let loginPromise = undefined;
+    const { payload: { event, marketId } } = data;
     console.info(`Responding to event ${event}`);
     switch (event) {
       case INVITE_MARKET_EVENT:
-        if (!loadingMarketHack.includes(marketToken)) {
-          loadingMarketHack.push(marketToken);
-          loginPromise = getMarketFromInvite(marketToken);
-        }
+        const marketsStruct = {};
+        getStorageStates().then((storageStates) => {
+          updateMarkets([marketId], marketsStruct, 1, storageStates)
+            .then(() => sendMarketsStruct(marketsStruct));
+        });
         break;
       case GUEST_MARKET_EVENT:
         if (!loadingMarketHack.includes(marketId)) {
           loadingMarketHack.push(marketId);
           // Login with market id to create subscribed capability if necessary
-          loginPromise = getMarketFromUrl(marketId);
+          loadMarketFromPromise(getMarketFromUrl(marketId), dispatch);
         }
         break;
       default:
       // console.debug(`Ignoring identity event ${event}`);
-    }
-    if (loginPromise) {
-      loadMarketFromPromise(loginPromise, dispatch);
     }
   });
 }

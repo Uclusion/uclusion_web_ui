@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Typography } from '@material-ui/core';
+import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
 import { useLocation } from 'react-router';
@@ -27,6 +27,8 @@ function OnboardingBanner() {
   const classes = useStyles();
   const [messagesState] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const location = useLocation();
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
@@ -35,7 +37,7 @@ function OnboardingBanner() {
   const message = findMessagesForTypeObjectId(typeObjectId, messagesState);
   const market = getMarket(marketsState, message?.market_id);
 
-  if (message && !marketIsDemo(market)) {
+  if (mobileLayout || (message && !marketIsDemo(market))) {
     return React.Fragment;
   }
 

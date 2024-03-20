@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography } from '@material-ui/core';
+import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import { isEveryoneGroup } from '../../contexts/GroupMembersContext/groupMembersHelper';
 import DemoCreateWorkspaceButton from '../Buttons/DemoCreateWorkspaceButton';
@@ -31,12 +31,31 @@ function SwimlanesOnboardingBanner(props) {
   const { group, sectionOpen } = props;
   const history = useHistory();
   const classes = useStyles();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
+  const isOpeningScreen = (!sectionOpen || sectionOpen === 'storiesSection') &&
+    isEveryoneGroup(group.id, group.market_id);
+
+  if (mobileLayout) {
+    if (isOpeningScreen) {
+      return (
+        <div className={classes.bannerBackground}>
+          <div style={{ marginTop: '0.25rem', marginLeft: '0.25rem' }} id='swimlanesDemoBannerText'>
+            <Typography>
+              <b>Welcome to the demo!</b> We recommend switching to desktop for a more optimized experience.
+            </Typography>
+          </div>
+        </div>
+      );
+    }
+    return React.Fragment;
+  }
 
   return (
     <div className={classes.bannerBackground}>
       <div className={classes.bannerBox}>
           <div style={{marginTop: '0.8rem'}} id='swimlanesDemoBannerText'>
-            {(!sectionOpen || sectionOpen === 'storiesSection') && isEveryoneGroup(group.id, group.market_id) && (
+            {isOpeningScreen && (
               <>
                 <Typography><b>Welcome to the demo!</b> Instead of standup, Assistance Needed shows where input is
                   required and the swimlanes show</Typography>

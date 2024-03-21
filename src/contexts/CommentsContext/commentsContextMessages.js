@@ -7,7 +7,6 @@ import {
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
 import {
-  DEMO_EVENT,
   PUSH_COMMENTS_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
@@ -44,9 +43,6 @@ function beginListening(dispatch, diffDispatch) {
       pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
     }
     switch (event) {
-      case DEMO_EVENT:
-        console.info('Responding to demo comment event');
-      // eslint-disable-next-line no-fallthrough
       case VERSIONS_EVENT:
         const fixedUpForDiff = allComments.map((comment) => {
           const { id, body: description, updated_by,  updated_by_you } = comment;

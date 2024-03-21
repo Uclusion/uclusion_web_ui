@@ -20,7 +20,7 @@ function getBody(itemType, item) {
   }
 }
 
-function transformItemsToIndexable(itemType, items){
+export function transformItemsToIndexable(itemType, items){
   return items.map((item) => {
     const { id: itemId, market_id: itemMarketId, group_id: itemGroupId, deleted: itemDeleted } = item;
     let marketId = itemMarketId;

@@ -28,7 +28,7 @@ function TicketIndexProvider(props) {
   ticketContextHack = state;
 
   return (
-    <TicketIndexContext.Provider value={[state]} >
+    <TicketIndexContext.Provider value={[state, dispatch]} >
       {props.children}
     </TicketIndexContext.Provider>
   );

@@ -37,7 +37,6 @@ export const PUSH_GROUPS_CHANNEL = 'MarketsGroupsChannel';
 export const VERSIONS_EVENT = 'version_push';
 export const BANNED_LIST = 'banned_list';
 export const SYNC_ERROR_EVENT = 'sync_error';
-export const DEMO_EVENT = 'demo_loaded';
 export class MatchError extends Error {}
 
 let runner;

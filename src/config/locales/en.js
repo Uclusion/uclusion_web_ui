@@ -1010,6 +1010,7 @@ const messages = defineMessages({
   errorMarketLoginFailed: 'There was a problem authenticating the operation. Please try again.',
   errorPreferenceUpdateFailed: 'There was a problem updating your preferences. Please try again.',
   errorUserLoadFailed: 'We could not load your user. Please login again.',
+  errorDemoLoadFailed: 'We could not load your demo. Please login again.',
   warningAlreadyInMarket: 'You are already a part of this market.',
   homeStartTour: 'Start Tour',
   //summary

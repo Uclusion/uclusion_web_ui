@@ -8,7 +8,6 @@ import localforage from 'localforage'
 import TokenStorageManager from '../../authorization/TokenStorageManager'
 import { TOKEN_STORAGE_KEYSPACE, TOKEN_TYPE_MARKET }  from '../../api/tokenConstants';
 import {
-  DEMO_EVENT,
   getStorageStates, NOTIFICATIONS_HUB_CHANNEL,
   PUSH_INVESTIBLES_CHANNEL,
   PUSH_MARKETS_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
@@ -92,10 +91,6 @@ function beginListening(dispatch, setTokensHash) {
   registerListener(PUSH_MARKETS_CHANNEL, 'marketsPushStart', (data) => {
     const { payload: { event, marketDetails, signature} } = data;
     switch (event) {
-      case DEMO_EVENT:
-        console.info('Responding to demo market event');
-        addMarketsToStorage(dispatch, marketDetails);
-        break;
       case VERSIONS_EVENT:
         addMarketsToStorage(dispatch, marketDetails);
         break;

@@ -4,9 +4,9 @@ import {
   versionsUpdateMarketPresences
 } from './marketPresencesContextReducer'
 import { registerListener } from '../../utils/MessageBusUtils'
-import { addDemoPresencesToMarket, addPresenceToMarket } from './marketPresencesHelper';
+import { addPresenceToMarket } from './marketPresencesHelper';
 import {
-  BANNED_LIST, DEMO_EVENT,
+  BANNED_LIST,
   PUSH_PRESENCE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
   VERSIONS_EVENT
@@ -29,15 +29,11 @@ function beginListening(dispatch) {
     }
   });
   registerListener(PUSH_PRESENCE_CHANNEL, 'marketPresencePushStart', (data) => {
-    const { payload: { event, marketId, userDetails, presence, presences } } = data;
+    const { payload: { event, marketId, userDetails, presence } } = data;
 
     switch (event) {
       case VERSIONS_EVENT:
         dispatch(versionsUpdateMarketPresences(userDetails));
-        break;
-      case DEMO_EVENT:
-        addDemoPresencesToMarket(dispatch, marketId, presences);
-        console.info('Responding to demo presences event');
         break;
       case ADD_PRESENCE:
         addPresenceToMarket(dispatch, marketId, presence);

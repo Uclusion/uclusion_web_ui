@@ -301,7 +301,7 @@ function Reply(props) {
       </>
     );
   }
-console.debug(`id pre pend is ${idPrepend}`)
+
   return (
     <>
       <Card className={getHighlightClass()} id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>

@@ -4,8 +4,6 @@ import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher
 import uclusion from 'uclusion_sdk';
 import config from '../config';
 import { toastErrorAndThrow } from '../utils/userMessage';
-import { handleMarketData } from '../utils/demoLoader';
-import { OnboardingState } from '../contexts/AccountContext/accountUserContextHelper';
 
 export const HOME_ACCOUNT_LOCK_NAME = 'home_account_login_lock';
 
@@ -47,23 +45,8 @@ export async function getLogin(ifAvailable=false, accountVersion=null, userVersi
     const { idToken, ssoClient } = ssoInfo;
     // update our cache
     const responseAccountData = await ssoClient.accountCognitoLogin(idToken, getIsInvited());
-    const { uclusion_token, user } = responseAccountData;
-    // load the demo into the contexts
-    if (user.onboarding_state === OnboardingState.NeedsOnboarding) {
-      const accountFetcher = {};
-      accountFetcher.getToken = () => {
-        return Promise.resolve(uclusion_token);
-      };
-      // Cleaner as separate call but barely
-      const response = await uclusion.constructClient({...config.api_configuration,
-        tokenManager: accountFetcher}).then((client) => client.markets.getDemo());
-      const { demo, user } = response;
-      responseAccountData['user'] = user;
-      await handleMarketData(demo);
-    }
-    // load the account into storage with the potentially updated user
+    // load the account into storage
     await asm.storeAccountData(responseAccountData);
-    // Let the normal refresh get the messages as it will give time for the contexts to load the demo
     return responseAccountData;
   });
 }
@@ -92,4 +75,16 @@ export function updateUiPreferences(newPreferences){
   return getAccountClient()
     .then((client) => client.users.update({ uiPreferences: stringData}))
     .catch((error) => toastErrorAndThrow(error, 'errorPreferenceUpdateFailed'));
+}
+
+export function getDemo(){
+  return getAccountClient()
+    .then((client) => client.markets.getDemo())
+    .catch((error) => {
+      if (error.status !== 404) {
+        toastErrorAndThrow(error, 'errorDemoLoadFailed');
+      } else {
+        console.error('Ignoring 404 on get demo as means demo load was called already');
+      }
+    });
 }

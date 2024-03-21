@@ -35,9 +35,9 @@ function Dialog(props) {
   const location = useLocation();
   const { pathname, hash, search: querySearch } = location
   const values = queryString.parse(querySearch);
-  const { groupId } = values || {};
+  const { groupId: proposedGroupId } = values || {};
   const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
-  const { marketId: marketEntity, action } = decomposeMarketPath(pathname);
+  const { marketId: marketEntity } = decomposeMarketPath(pathname);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -45,7 +45,8 @@ function Dialog(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
-  const marketId = action === 'invite' ? loadedMarketId : marketEntity;
+  const marketId = loadedMarketId || marketEntity;
+  const groupId = proposedGroupId || marketId;
   const allInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
   const comments = getMarketComments(commentsState, marketId, groupId) || [];
   const investibles = _.isEmpty(search) ? allInvestibles : allInvestibles.filter((inv) => {

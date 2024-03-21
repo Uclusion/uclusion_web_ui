@@ -34,7 +34,7 @@ function SwimlanesOnboardingBanner(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const isOpeningScreen = (!sectionOpen || sectionOpen === 'storiesSection') &&
-    isEveryoneGroup(group.id, group.market_id);
+    isEveryoneGroup(group?.id, group?.market_id);
 
   if (mobileLayout) {
     if (isOpeningScreen) {
@@ -69,7 +69,7 @@ function SwimlanesOnboardingBanner(props) {
                 </Typography>
               </>
             )}
-            {(!sectionOpen || sectionOpen === 'storiesSection') && !isEveryoneGroup(group.id, group.market_id) && (
+            {(!sectionOpen || sectionOpen === 'storiesSection') && !isEveryoneGroup(group?.id, group?.market_id) && (
               <>
                 <Typography><b>Bonus demo!</b> This group split off to discuss marketing.</Typography>
                 <Typography className={classes.ctaSub}>

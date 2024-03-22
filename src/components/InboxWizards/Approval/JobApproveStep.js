@@ -133,11 +133,17 @@ function JobApproveStep(props) {
             in {market.investment_expiration} days.
           </Typography>
         )}
-        {!wasDeleted && !_.isEmpty(voters) && (
+        {!wasDeleted && !_.isEmpty(voters) && !isAssigned && (
           <Typography className={classes.introSubText} variant="subtitle1">
             Take action here or click the job title to ask a question, make a suggestion, or
             see <b>{_.size(voters)} existing approvals</b>. Your approval will expire
             in {market.investment_expiration} days.
+          </Typography>
+        )}
+        {!wasDeleted && !_.isEmpty(voters) && isAssigned && (
+          <Typography className={classes.introSubText} variant="subtitle1">
+            Approve to mark your acceptance or click the job title to ask a question, make a suggestion, or
+            see <b>{_.size(voters)} existing approvals</b>.
           </Typography>
         )}
         <JobDescription marketId={marketId} investibleId={investibleId} showVoting comments={todos}

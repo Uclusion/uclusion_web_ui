@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { useHistory, useLocation } from 'react-router'
-import { decomposeMarketPath, VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions';
+import { decomposeMarketPath, removeHash, VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions';
 import { isSignedOut } from '../utils/userFunctions';
 import { registerListener } from '../utils/MessageBusUtils';
 
@@ -31,7 +31,7 @@ function ScrollProvider(props) {
           // Remove the hash from the URL so we don't end up scrolling again
           // - use replace instead of push so back button works
           console.info(`Replacing path after scrolling to ${originalScrollTarget}`);
-          history.replace(window.location.pathname + window.location.search);
+          removeHash(history);
           return true;
         }
         return false;

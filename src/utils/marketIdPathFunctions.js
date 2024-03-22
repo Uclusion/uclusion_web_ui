@@ -18,6 +18,7 @@ import { getInboxTarget } from '../contexts/NotificationsContext/notificationsCo
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
+export const MARKET_TODOS_HASH = 'Todos';
 
 /** Given the pathpart _without the hash or query params
  * will extract the action, the marketId and the investibleId
@@ -216,6 +217,14 @@ export function formInvestibleLink(marketId, investibleId) {
 
 export function formatGroupLinkWithPrefix(prefix, marketId, groupId) {
   return `/${prefix}/${marketId}?groupId=${groupId}`;
+}
+
+export function formatGroupLinkWithSuffix(suffix, marketId, groupId) {
+  return `/dialog/${marketId}?groupId=${groupId}#${suffix}`;
+}
+
+export function removeHash(history) {
+  history.replace(window.location.pathname + window.location.search);
 }
 
 export function navigateToOption(history, parentMarketId, parentInvestibleId, groupId, id) {

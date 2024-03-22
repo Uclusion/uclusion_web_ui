@@ -1111,7 +1111,6 @@ const messages = defineMessages({
   openApprovalsTip: 'Expand approvals',
   closeApprovalsTip: 'Collapse approvals',
   tasksSection: 'Tasks',
-  criticalBugs: 'Critical bugs for group {groupName}',
   todoSection: 'Bugs',
   jobFromBugs: 'Bugs {ticketList}',
   readyToStartCheckboxExplanation: 'Ready to start',

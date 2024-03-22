@@ -12,7 +12,12 @@ import { updateComment } from '../../../api/comments';
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { formMarketAddCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  formMarketAddCommentLink,
+  formMarketAddInvestibleLink, MARKET_TODOS_HASH,
+  navigate,
+  removeHash
+} from '../../../utils/marketIdPathFunctions';
 import Chip from '@material-ui/core/Chip';
 import {
   findMessageForCommentId,
@@ -231,10 +236,15 @@ function MarketTodos(props) {
           }
           pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: message.type_object_id });
         }
-        history.replace(window.location.pathname + window.location.search);
+        removeHash(history);
       }
-      if ((foundCommentId || hash.includes('Todos')) && !sectionOpen) {
-        setSectionOpen();
+      if (foundCommentId || hash.includes('Todos')) {
+        if (!sectionOpen) {
+          setSectionOpen();
+        }
+        if (hash.includes(MARKET_TODOS_HASH)) {
+          removeHash(history);
+        }
       }
     }
     return () => {};

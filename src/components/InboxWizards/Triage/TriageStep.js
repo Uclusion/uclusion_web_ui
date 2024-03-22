@@ -10,12 +10,21 @@ import { RED_LEVEL } from '../../../constants/notifications';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import MarketTodos from '../../../pages/Dialog/Planning/MarketTodos';
+import {
+  formatGroupLinkWithSuffix,
+  MARKET_TODOS_HASH,
+  navigate,
+  preventDefaultAndProp
+} from '../../../utils/marketIdPathFunctions';
+import Link from '@material-ui/core/Link';
+import { useHistory } from 'react-router';
 
 function TriageStep(props) {
   const { marketId, commentId } = props;
   const [commentState] = useContext(CommentsContext);
   const [groupState] = useContext(MarketGroupsContext);
   const intl = useIntl();
+  const history = useHistory();
   const commentRoot = getComment(commentState, marketId, commentId) || {};
   const { group_id: groupId } = commentRoot;
   const group = getGroup(groupState, marketId, groupId) || {};
@@ -24,6 +33,7 @@ function TriageStep(props) {
     comment.group_id === groupId && !comment.resolved && !comment.deleted && !comment.investible_id &&
     comment.notification_type === RED_LEVEL);
   const classes = wizardStyles();
+  const pathToBugs = formatGroupLinkWithSuffix(MARKET_TODOS_HASH, marketId, groupId);
 
   return (
     <WizardStepContainer
@@ -36,7 +46,10 @@ function TriageStep(props) {
         Assign bugs with the Move button or lower from Critical to remove this notification.
       </Typography>
       <h2 id="tasksOverview">
-        {intl.formatMessage({id: 'criticalBugs'}, { groupName })}
+        Critical <Link href={pathToBugs} onClick={(event) => {
+        preventDefaultAndProp(event);
+        navigate(history, pathToBugs);
+      }}>bugs</Link> for group {groupName}
       </h2>
       <MarketTodos comments={comments} marketId={marketId} groupId={groupId}
                    sectionOpen={true}

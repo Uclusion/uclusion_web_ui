@@ -35,7 +35,11 @@ import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import CardType, { BUG, DECISION_TYPE } from '../CardType';
-import { addCommentToMarket, addMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import {
+  addCommentToMarket,
+  addMarketComments,
+  getMarketComments
+} from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import {
   ACTIVE_STAGE,
@@ -110,7 +114,7 @@ import Reply from './Reply';
 import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import styled from 'styled-components';
-import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications';
+import { NOT_FULLY_VOTED_TYPE, RED_LEVEL } from '../../constants/notifications';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import { quickNotificationChanges } from './CommentAdd';
 import LightbulbOutlined from '../CustomChip/LightbulbOutlined';
@@ -636,6 +640,13 @@ function Comment(props) {
       .then((response) => {
         const comment = commentType === REPORT_TYPE ? response['comment'] : response;
         addCommentToMarket(comment, commentsState, commentsDispatch);
+        const isTriage = typeObjectIdRaw?.startsWith('UNASSIGNED_');
+        let criticalCommentsNumber = 0;
+        if (isTriage) {
+          const marketComments = getMarketComments(commentsState, marketId, groupId);
+          criticalCommentsNumber = _.size(marketComments?.filter((comment) => comment.comment_type === TODO_TYPE &&
+            !comment.investible_id && comment.notification_type === RED_LEVEL && !comment.resolved));
+        }
         removeMessagesForCommentId(id, messagesState);
         if (inlineMarketId) {
           removeInlineMarketMessages(inlineMarketId, investiblesState, commentsState, messagesState, messagesDispatch);
@@ -656,7 +667,7 @@ function Comment(props) {
           addInvestible(investiblesDispatch, () => {}, newInvestible);
         }
         setOperationRunning(false);
-        if (isInbox) {
+        if (isInbox || criticalCommentsNumber === 1) {
           navigate(history, getInboxTarget());
         }
       });

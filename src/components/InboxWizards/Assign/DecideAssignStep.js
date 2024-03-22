@@ -14,12 +14,12 @@ import { updateInvestible } from '../../../api/investibles';
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
-import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
+import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { APPROVAL_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { TODO_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 
 function DecideAssignStep(props) {
@@ -61,19 +61,6 @@ function DecideAssignStep(props) {
     });
   }
 
-  function move() {
-    const updateInfo = {
-      marketId,
-      investibleId,
-      openForInvestment: false
-    };
-    return updateInvestible(updateInfo).then((fullInvestible) => {
-      refreshInvestibles(invDispatch, () => {}, [fullInvestible]);
-      setOperationRunning(false);
-      dismissWorkListItem(message, messagesDispatch, history);
-    });
-  }
-
   return (
     <WizardStepContainer
       {...props}
@@ -91,8 +78,11 @@ function DecideAssignStep(props) {
         nextLabel="DecideAssignMe"
         onNext={myAssign}
         showOtherNext
-        otherNextLabel="JobAssignBacklog"
-        onOtherNext={move}
+        otherSpinOnClick={false}
+        otherNextLabel="ApprovalWizardBlock"
+        onOtherNext={() => navigate(history,
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,
+            message.type_object_id))}
         terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'markRead'}
         showTerminate={true}
         onFinish={myTerminate}

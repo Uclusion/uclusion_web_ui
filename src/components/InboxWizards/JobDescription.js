@@ -131,10 +131,6 @@ function JobDescription(props) {
             </div>
           </>
         )}
-        {!_.isEmpty(todoComments) && !isSingleTaskDisplay && (
-          <CondensedTodos comments={todoComments} investibleComments={comments} isInbox marketId={marketId}
-                          marketInfo={marketInfo}/>
-        )}
         {(!_.isEmpty(nonTodoCommentsRoots) || isSingleTaskDisplay) && (
           <div style={{
             paddingTop: investibleId && _.isEmpty(todoComments) ? '1rem' : undefined, paddingBottom: '0.5rem',
@@ -157,6 +153,10 @@ function JobDescription(props) {
               selectedInvestibleIdParent={selectedInvestibleIdParent}
             />
           </div>
+        )}
+        {!_.isEmpty(todoComments) && !isSingleTaskDisplay && (
+          <CondensedTodos comments={todoComments} investibleComments={comments} isInbox marketId={marketId}
+                          marketInfo={marketInfo}/>
         )}
       </div>
       <div className={classes.borderBottom} />

@@ -442,7 +442,7 @@ function Comment(props) {
   const { comment, marketId, comments, noAuthor, defaultShowDiff, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, toggleCompression: toggleCompressionRaw, useCompression, showVoting, selectedInvestibleIdParent,
-    isMove, idPrepend='c' } = props;
+    isMove, idPrepend='c', usePadding=true } = props;
   const history = useHistory();
   const location = useLocation();
   const editBox = useRef(null);
@@ -793,11 +793,9 @@ function Comment(props) {
   }
   const threadSize = calculateNumberHidden(comment, undefined, comments, undefined);
   return (
-    <div style={{paddingLeft: '0.5rem', width: '98%'}}>
-      <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false ? 0 : undefined}}
-            className={getCommentHighlightStyle()}
-            ref={editBox}
-      >
+    <div style={{paddingLeft: usePadding ? '0.5rem' : undefined, width: '98%'}}>
+      <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false || usePadding === false ? 0
+          : undefined}} className={getCommentHighlightStyle()} ref={editBox}>
         <div onClick={(event) => {
           if (isInbox && !invalidEditEvent(event, history)) {
             navigate(history, formCommentLink(marketId, groupId, investibleId, id));

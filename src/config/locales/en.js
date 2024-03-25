@@ -1069,7 +1069,7 @@ const messages = defineMessages({
   inProgress: 'In progress',
   markInProgress: 'Mark in progress',
   todoSimple: 'task',
-  reportsSectionLabel: 'Status',
+  reportsSectionLabel: 'Progress',
   todoPresent: 'Task',
   issueTip: 'Use to halt an option or job until resolved.',
   questionTip: 'Question',

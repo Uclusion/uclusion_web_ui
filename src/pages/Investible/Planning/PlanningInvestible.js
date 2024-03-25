@@ -735,7 +735,7 @@ function PlanningInvestible(props) {
             <div style={{paddingLeft: mobileLayout ? undefined : '1rem',
               paddingRight: mobileLayout ? undefined : '1rem'}}>
               <div style={{display: 'flex', alignItems: 'center'}}>
-                <h2 id="approvals">
+                <h2 id="approvals" style={{marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
                   <FormattedMessage id="decisionInvestibleOthersVoting" />
                 </h2>
                 <IconButton onClick={() => toggleApprovals()} style={{marginBottom: 0,
@@ -778,8 +778,7 @@ function PlanningInvestible(props) {
                 <SpinningButton id="newReport" className={wizardClasses.actionNext}
                                 icon={AddIcon} iconColor="black"
                                 variant="text" doSpin={false}
-                                style={{display: "flex", marginTop: '0.75rem', marginBottom: '0.75rem',
-                                  marginLeft: '0.5rem'}}
+                                style={{display: "flex", marginTop: '0.75rem', marginBottom: '0.75rem'}}
                                 onClick={() => navigate(history,
                                   formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                     REPORT_TYPE))}>

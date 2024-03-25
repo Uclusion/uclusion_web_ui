@@ -137,6 +137,7 @@ function CommentBox(props) {
               isReply={isReply}
               wizardProps={wizardProps}
               isMove={isMove}
+              usePadding={usePadding}
             />
           </div>
         </Grid>

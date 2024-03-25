@@ -386,7 +386,7 @@ function DecisionInvestible(props) {
             <FormattedMessage id="comments"/>
           </h2>
           {displayCommentInput && (
-            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
+            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{marginBottom: '1rem'}}
              onClick={() => navigate(history,
                formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId,
                  undefined, undefined, typeObjectId))}>

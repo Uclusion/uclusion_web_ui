@@ -131,7 +131,7 @@ function DecideResolveStep(props) {
           New vote(s).
         </Typography>
       )}
-      {isReopen && isInReviewStage(fullStage) && (
+      {isReopen && inv && isInReviewStage(fullStage) && (
         <Typography className={classes.introSubText} variant="subtitle1">
           This job is complete.
         </Typography>
@@ -139,6 +139,7 @@ function DecideResolveStep(props) {
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       removeActions
                       showVoting
+                      isSingleTaskDisplay={!inv}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})}
                       selectedInvestibleIdParent={selectedInvestibleId} />

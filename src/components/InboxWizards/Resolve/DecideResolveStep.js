@@ -139,7 +139,7 @@ function DecideResolveStep(props) {
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       removeActions
                       showVoting
-                      isSingleTaskDisplay={!inv}
+                      isSingleTaskDisplay={commentRoot.comment_type === TODO_TYPE}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})}
                       selectedInvestibleIdParent={selectedInvestibleId} />

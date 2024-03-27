@@ -20,7 +20,7 @@ import Link from '@material-ui/core/Link';
 import { useHistory } from 'react-router';
 
 function TriageStep(props) {
-  const { marketId, commentId } = props;
+  const { marketId, commentId, message } = props;
   const [commentState] = useContext(CommentsContext);
   const [groupState] = useContext(MarketGroupsContext);
   const intl = useIntl();
@@ -51,7 +51,7 @@ function TriageStep(props) {
         navigate(history, pathToBugs);
       }}>bugs</Link> for group {groupName}
       </h2>
-      <MarketTodos comments={comments} marketId={marketId} groupId={groupId}
+      <MarketTodos comments={comments} marketId={marketId} groupId={groupId} message={message}
                    sectionOpen={true}
                    hidden={false}
                    setSectionOpen={() => {}} group={group} isInbox openDefaultId={commentRoot.id} />

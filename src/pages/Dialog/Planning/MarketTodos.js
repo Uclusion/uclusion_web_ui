@@ -168,7 +168,8 @@ function MarketTodos(props) {
     sectionOpen, setSectionOpen,
     hidden,
     isInbox=false,
-    openDefaultId
+    openDefaultId,
+    message
   } = props
   const classes = todoClasses();
   const wizardClasses = wizardStyles();
@@ -359,7 +360,12 @@ function MarketTodos(props) {
       });
       determinateDispatch({type: 'clear'});
       if (checkedString) {
-        navigate(history, `${formMarketAddInvestibleLink(marketId, groupId)}${checkedString}`);
+        if (message) {
+          navigate(history, `${formMarketAddInvestibleLink(marketId, groupId, undefined, 
+            message.type_object_id)}${checkedString}`);
+        } else {
+          navigate(history, `${formMarketAddInvestibleLink(marketId, groupId)}${checkedString}`);
+        }
       }
     }
   }

@@ -12,10 +12,15 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import { useHistory } from 'react-router';
-import { resolveComment, updateComment } from '../../../api/comments';
+import { updateComment } from '../../../api/comments';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { TODO_TYPE } from '../../../constants/comments';
-import { formCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  formCommentLink,
+  formMarketAddInvestibleLink,
+  formWizardLink,
+  navigate
+} from '../../../utils/marketIdPathFunctions';
 import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideResponseStep(props) {
@@ -23,7 +28,6 @@ function DecideResponseStep(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
@@ -45,15 +49,6 @@ function DecideResponseStep(props) {
     })
   }
 
-  function resolve() {
-    return resolveComment(marketId, commentId)
-      .then((comment) => {
-        addCommentToMarket(comment, commentsState, commentsDispatch);
-        setOperationRunning(false);
-        dismissWorkListItem(message, messagesDispatch, history);
-      });
-  }
-
   return (
     <WizardStepContainer
       {...props}
@@ -69,7 +64,8 @@ function DecideResponseStep(props) {
       )}
       {!commentRoot.investible_id && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Click the suggestion to leave this wizard and add voting or move.
+          If you are very certain then move this suggestion to a job and otherwise reply. Click the suggestion to
+          leave this wizard and add voting or resolve.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id}
@@ -78,14 +74,18 @@ function DecideResponseStep(props) {
                       comments={comments} removeActions />
       <WizardStepButtons
         {...props}
-        nextLabel='UnblockReplyLabel'
-        onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
-          undefined, undefined, commentId, message.type_object_id))}
-        spinOnClick={false}
-        showOtherNext
-        otherNextLabel={commentRoot.investible_id ? 'wizardAcceptLabel' : 'issueResolveLabel'}
-        onOtherNext={commentRoot.investible_id ? moveToTask : resolve}
+        spinOnClick={!!commentRoot.investible_id}
+        onNextDoAdvance={!!commentRoot.investible_id}
+        nextLabel={commentRoot.investible_id ? 'wizardAcceptLabel' : 'BugWizardMoveToJob'}
+        onNext={commentRoot.investible_id ? moveToTask : () => navigate(history,
+          `${formMarketAddInvestibleLink(marketId, commentRoot.group_id, undefined,
+            message.type_object_id)}&fromCommentId=${commentId}`)}
         onOtherNextDoAdvance={false}
+        showOtherNext
+        otherSpinOnClick={false}
+        otherNextLabel='UnblockReplyLabel'
+        onOtherNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+          commentRoot.investible_id, commentRoot.group_id, commentId, message.type_object_id))}
         isOtherFinal
         onFinish={myTerminate}
         showTerminate={getShowTerminate(message)}

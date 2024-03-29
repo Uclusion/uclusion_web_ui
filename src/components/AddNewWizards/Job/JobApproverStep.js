@@ -15,26 +15,22 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import JobDescription from '../../InboxWizards/JobDescription';
-import { moveCommentsFromIds } from './DecideWhereStep';
 import {
   getFullStage,
   getInCurrentVotingStage,
   isFurtherWorkStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
-import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { useIntl } from 'react-intl';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function JobApproverStep(props) {
-  const { marketId, updateFormData, formData, groupId, fromCommentIds, marketComments, previousStep } = props;
+  const { marketId, updateFormData, formData, groupId, moveFromComments, roots, previousStep } = props;
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
@@ -47,9 +43,6 @@ function JobApproverStep(props) {
   const value = (formData.wasSet ? formData.approvers : approvers) || [];
   const validForm = !_.isEqual(value, approvers);
   const assignments = formData.assigned;
-  const roots = (fromCommentIds || []).map((fromCommentId) =>
-    marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
-  const comments = getCommentThreads(roots, marketComments);
 
   function onApproverChange(newApprovers){
     updateFormData({
@@ -79,8 +72,9 @@ function JobApproverStep(props) {
           investibleId,
           link,
         });
-        return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
-          commentsDispatch, messagesDispatch);
+        if (moveFromComments) {
+          return moveFromComments(inv, formData, updateFormData);
+        }
       })
   }
 

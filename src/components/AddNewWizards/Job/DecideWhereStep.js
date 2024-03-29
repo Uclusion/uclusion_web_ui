@@ -6,28 +6,8 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { formCommentLink } from '../../../utils/marketIdPathFunctions';
-import { moveComments } from '../../../api/comments';
-import { onCommentsMove } from '../../../utils/commentFunctions';
 import CondensedTodos from '../../../pages/Investible/Planning/CondensedTodos';
 import _ from 'lodash';
-
-export function moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
-  commentsDispatch, messagesDispatch) {
-  const { investible } = inv;
-  const investibleId = investible.id;
-  return moveComments(marketId, investibleId, fromCommentIds)
-    .then((movedComments) => {
-      onCommentsMove(fromCommentIds, messagesState, comments, investibleId, commentsDispatch, marketId,
-        movedComments, messagesDispatch);
-      const link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
-      updateFormData({
-        investibleId,
-        link,
-      });
-      return {link};
-    });
-}
 
 function DecideWhereStep (props) {
   const { marketId, fromCommentIds, marketComments, updateFormData, formData } = props;

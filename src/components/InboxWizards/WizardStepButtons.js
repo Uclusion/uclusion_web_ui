@@ -50,13 +50,13 @@ function WizardStepButtons(props) {
 
   async function nextState(nextFunction, isOtherNext=false) {
     const nextReturn = nextFunction();
-    if (lastStep) {
-      const resolved = await Promise.resolve(nextReturn);
-      return finish(resolved);
-    } else {
-      if ((!isOtherNext && onNextDoAdvance)||(isOtherNext && onOtherNextDoAdvance)) {
-        nextStep();
+    const doAdvance = (!isOtherNext && onNextDoAdvance)||(isOtherNext && onOtherNextDoAdvance);
+    if (doAdvance) {
+      if (lastStep) {
+        const resolved = await Promise.resolve(nextReturn);
+        return finish(resolved);
       }
+      nextStep();
     }
     if (nextReturn) {
       return nextReturn.then(() => {

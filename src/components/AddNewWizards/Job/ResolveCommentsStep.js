@@ -1,33 +1,21 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import CommentBox from '../../../containers/CommentBox/CommentBox'
-import {
-  addCommentToMarket
-} from '../../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import {
-  getInvestible
-} from '../../../contexts/InvestibesContext/investiblesContextHelper'
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { getMarketInfo } from '../../../utils/userFunctions'
-import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper'
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
-import { resolveComment } from '../../../api/comments'
-import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments'
-import { removeMessagesForCommentId } from '../../../utils/messageUtils'
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext'
-
+import CommentBox from '../../../containers/CommentBox/CommentBox';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 
 function DecideResolveStep(props) {
-  const { marketId, commentId, marketComments, setResolvedId } = props;
-  const [commentState, commentDispatch] = useContext(CommentsContext);
+  const { marketId, commentId, marketComments, updateFormData } = props;
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [messagesState] = useContext(NotificationsContext);
   const comment = (marketComments || []).find((comment) => comment.id === commentId) || {id: 'fake'};
   const classes = useContext(WizardStylesContext);
   const inv = comment.investible_id ? getInvestible(investibleState, comment.investible_id) : undefined;
@@ -35,15 +23,6 @@ function DecideResolveStep(props) {
   const { stage } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const isSuggestion = comment.comment_type === SUGGEST_CHANGE_TYPE;
-
-  function resolve() {
-    return resolveComment(marketId, commentId)
-      .then((comment) => {
-        addCommentToMarket(comment, commentState, commentDispatch);
-        removeMessagesForCommentId(commentId, messagesState);
-        setResolvedId(commentId);
-      });
-  }
 
   if (comment.id === 'fake') {
     return React.Fragment;
@@ -54,8 +33,18 @@ function DecideResolveStep(props) {
       {...props}
       isLarge
     >
-      <Typography className={classes.introText}>
-        Will you resolve this {isSuggestion ? 'suggestion' : 'question'}?
+      {isSuggestion && (
+        <Typography className={classes.introText}>
+          Will you move this suggestion to a task?
+        </Typography>
+      )}
+      {!isSuggestion && (
+        <Typography className={classes.introText}>
+          Will you resolve this question?
+        </Typography>
+      )}
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Jobs with open {isSuggestion ? 'suggestions' : 'questions'} move to Assistance Needed.
       </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
@@ -70,13 +59,27 @@ function DecideResolveStep(props) {
           showVoting
         />
       </div>
-      <WizardStepButtons
-        {...props}
-        nextLabel="commentResolveLabel"
-        onNext={resolve}
-        isFinal={false}
-        showSkip
-      />
+      {isSuggestion && (
+        <WizardStepButtons
+          {...props}
+          nextLabel="wizardAcceptLabel"
+          onNext={() => updateFormData({doTaskId: commentId})}
+          showOtherNext
+          otherNextLabel="commentResolveLabelInstead"
+          onOtherNext={() => updateFormData({doResolveId: commentId})}
+          isFinal={false}
+          showSkip
+        />
+      )}
+      {!isSuggestion && (
+        <WizardStepButtons
+          {...props}
+          nextLabel="commentResolveLabel"
+          onNext={() => updateFormData({doResolveId: commentId})}
+          isFinal={false}
+          showSkip
+        />
+      )}
     </WizardStepContainer>
   );
 }

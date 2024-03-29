@@ -8,16 +8,10 @@ import { addPlanningInvestible } from '../../../api/investibles';
 import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { moveCommentsFromIds } from './DecideWhereStep';
-import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import NameField, { clearNameStoredState, getNameStoredState } from '../../TextFields/NameField';
 
 function JobNameStep(props) {
-  const { marketId, groupId, updateFormData, onFinish, formData, fromCommentIds, marketComments } = props;
-  const [, commentsDispatch] = useContext(CommentsContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const { marketId, groupId, updateFormData, onFinish, formData, moveFromComments } = props;
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
   const [hasValue, setHasValue] = useState(false);
@@ -47,12 +41,8 @@ function JobNameStep(props) {
           investibleId,
           link,
         });
-        if (fromCommentIds) {
-          const roots = (fromCommentIds || []).map((fromCommentId) =>
-            marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
-          const comments = getCommentThreads(roots, marketComments);
-          return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
-            commentsDispatch, messagesDispatch)
+        if (moveFromComments) {
+          return moveFromComments(inv, formData, updateFormData);
         }
         if (jobStage === 'IMMEDIATE') {
           return { link };

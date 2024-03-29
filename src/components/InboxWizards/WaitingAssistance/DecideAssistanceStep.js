@@ -13,7 +13,7 @@ import { getStageNameForId } from '../../../contexts/MarketStagesContext/marketS
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useHistory } from 'react-router'
-import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { resolveComment, updateComment } from '../../../api/comments'
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { getFormerStageId, handleAcceptSuggestion, isSingleAssisted } from '../../../utils/commentFunctions';
@@ -55,7 +55,7 @@ function DecideAssistanceStep(props) {
     const { deferred_notifications: deferred } = presence;
     return (deferred || []).includes(commentId);
   });
-  const { useCompression } = formData;
+  const { useCompression, parentElementId } = formData;
 
   function myOnFinish() {
     navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentRoot.id));
@@ -75,6 +75,19 @@ function DecideAssistanceStep(props) {
         addCommentToMarket(comment, commentsState, commentsDispatch);
         setOperationRunning(false);
       });
+  }
+
+  function doPokeComment() {
+    return pokeComment(marketId, commentId).then(() => {
+      // quick remove the comment id on the deferred_notifications of the snoozed presences
+      (snoozed || []).forEach((presence) => {
+        const { deferred_notifications: deferred } = presence;
+        const newDeferred = deferred.filter((id) => id !== commentId) || [];
+        changePresence(presence, marketPresencesDispatch, marketId,
+          { deferred_notifications: newDeferred });
+      });
+      setOperationRunning(false);
+    });
   }
 
   return (
@@ -107,33 +120,45 @@ function DecideAssistanceStep(props) {
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})}
                       showCreatedBy />
-      <WizardStepButtons
-        {...props}
-        finish={myOnFinish}
-        nextLabel={isSuggest ? 'wizardAcceptLabel' : 'commentResolveLabel'}
-        onNext={() => {
-          if (isSuggest) {
-            return accept();
-          }
-          resolve();
-        }}
-        showOtherNext={isSuggest}
-        otherNextLabel="commentResolveLabel"
-        onOtherNext={resolve}
-        showTerminate
-        terminateLabel="poke"
-        terminateSpinOnClick
-        onFinish={() => pokeComment(marketId, commentId).then(() => {
-          // quick remove the comment id on the deferred_notifications of the snoozed presences
-          (snoozed || []).forEach((presence) => {
-            const { deferred_notifications: deferred } = presence;
-            const newDeferred = deferred.filter((id) => id !== commentId) || [];
-            changePresence(presence, marketPresencesDispatch, marketId,
-              { deferred_notifications: newDeferred });
-          });
-          setOperationRunning(false);
-        })}
-      />
+      {commentRoot.investible_id && (
+        <WizardStepButtons
+          {...props}
+          finish={myOnFinish}
+          nextLabel={isSuggest ? 'wizardAcceptLabel' : 'commentResolveLabel'}
+          onNext={() => {
+            if (isSuggest) {
+              return accept();
+            }
+            resolve();
+          }}
+          showOtherNext={isSuggest}
+          otherNextLabel="commentResolveLabel"
+          onOtherNext={resolve}
+          showTerminate
+          terminateLabel="poke"
+          terminateSpinOnClick
+          onFinish={doPokeComment}
+        />
+      )}
+      {!commentRoot.investible_id && (
+        <WizardStepButtons
+          {...props}
+          finish={myOnFinish}
+          nextLabel="BugWizardMoveToJob"
+          spinOnClick={false}
+          onNextDoAdvance={false}
+          onNext={() => navigate(history,
+            `${formMarketAddInvestibleLink(marketId, commentRoot.group_id, undefined,
+              parentElementId)}&fromCommentId=${commentId}`)}
+          showOtherNext
+          otherNextLabel="commentResolveLabel"
+          onOtherNext={resolve}
+          showTerminate
+          terminateLabel="poke"
+          terminateSpinOnClick
+          onFinish={doPokeComment}
+        />
+      )}
     </WizardStepContainer>
   );
 }

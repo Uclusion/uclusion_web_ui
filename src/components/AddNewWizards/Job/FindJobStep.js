@@ -4,13 +4,9 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import _ from 'lodash';
-import { moveComments } from '../../../api/comments';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import ChooseJob from '../../Search/ChooseJob';
 import {
   getStages,
@@ -20,26 +16,22 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
-import { onCommentsMove } from '../../../utils/commentFunctions';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 
 function FindJobStep(props) {
-  const { marketId, groupId, updateFormData, formData, marketComments, startOver, clearFormData,
-    fromCommentIds } = props;
+  const { marketId, groupId, updateFormData, formData, startOver, moveFromComments, roots } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
-  const [, commentsDispatch] = useContext(CommentsContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [groupState] = useContext(MarketGroupsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const { investibleId } = formData;
   const group = getGroup(groupState, marketId, groupId) || {};
   const marketStages = getStages(marketStagesState, marketId);
   const activeMarketStages = marketStages.filter((stage) => {
     return !isInReviewStage(stage) && !isNotDoingStage(stage);
   });
-  const roots = (fromCommentIds || []).map((fromCommentId) =>
-    marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
-  const comments = getCommentThreads(roots, marketComments);
   const currentInvestibleId = roots[0].investible_id;
 
   function onTerminate() {
@@ -56,19 +48,10 @@ function FindJobStep(props) {
   }
 
   function onNext() {
-    const fromCommentIds = roots.map((comment) => comment.id);
-    const link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
-    return moveComments(marketId, investibleId, fromCommentIds)
-      .then((movedComments) => {
-        onCommentsMove(fromCommentIds, messagesState, marketComments, investibleId, commentsDispatch, marketId,
-          movedComments, messagesDispatch);
-        clearFormData();
-        navigate(history, link);
-      });
-  }
-
-  if (comments.find((comment) => comment.id === 'notFound')) {
-    return React.Fragment;
+    if (moveFromComments) {
+      const inv = getInvestible(investiblesState, investibleId);
+      return moveFromComments(inv, formData, updateFormData).then(({link}) => navigate(history, link));
+    }
   }
 
   return (

@@ -10,10 +10,10 @@ import { useEditor } from '../../TextEditors/quillHooks';
 import { convertDescription } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
 import {
-    formInvestibleLink,
-    formMarketAddInvestibleLink,
-    formMarketLink,
-    navigate
+  formInvestibleLink,
+  formMarketAddInvestibleLink,
+  formMarketLink,
+  navigate
 } from '../../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -21,40 +21,29 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { FormattedMessage, useIntl } from 'react-intl';
 import { bugRadioStyles } from '../Bug/BugDescriptionStep';
 import { useHistory } from 'react-router';
-import { moveCommentsFromIds } from './DecideWhereStep';
-import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function JobDescriptionStep (props) {
-  const { marketId, groupId, updateFormData, onFinish, fromCommentIds, marketComments, formData, jobType,
-    startOver, nextStep } = props;
+  const { marketId, groupId, updateFormData, onFinish, roots, formData, jobType, startOver, nextStep,
+    moveFromComments } = props;
   const history = useHistory();
   const intl = useIntl();
-  const [, commentsDispatch] = useContext(CommentsContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const radioClasses = bugRadioStyles();
-  const roots = (fromCommentIds || []).map((fromCommentId) =>
-    marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
-  const comments = getCommentThreads(roots, marketComments);
-  const editorName = !_.isEmpty(fromCommentIds) ? `addJobWizard${fromCommentIds[0]}` : `addJobWizard${groupId}`;
+  const editorName = !_.isEmpty(roots) ? `addJobWizard${roots[0].id}` : `addJobWizard${groupId}`;
   const { newQuantity } = formData;
 
   function getDefaultDescription() {
     let defaultDescription = undefined;
-    if (_.isEmpty(getQuillStoredState(editorName))&&!_.isEmpty(fromCommentIds)) {
-      const fromComments = fromCommentIds.map((fromCommentId) =>
-        comments.find((comment) => comment.id === fromCommentId));
-      const isNotBugMove = fromComments.find((fromComment) => !fromComment?.ticket_code?.startsWith('B'));
+    if (_.isEmpty(getQuillStoredState(editorName))&&!_.isEmpty(roots)) {
+      const isNotBugMove = roots.find((fromComment) => !fromComment?.ticket_code?.startsWith('B'));
       if (isNotBugMove) {
-        const fromComment = marketComments.find((comment) => comment.id === fromCommentIds[0]);
+        const fromComment = roots[0];
         const { body } = fromComment || {};
         // No need to clip to 80 here as that will happen when save
         const { name } = convertDescription(body, 200);
         defaultDescription = name;
       } else {
-        defaultDescription = createJobNameFromComments(fromComments, intl);
+        defaultDescription = createJobNameFromComments(roots, intl);
       }
     }
     return defaultDescription;
@@ -117,9 +106,8 @@ function JobDescriptionStep (props) {
           investibleId,
           link,
         });
-        if (fromCommentIds) {
-          return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
-            commentsDispatch, messagesDispatch);
+        if (moveFromComments) {
+          return moveFromComments(inv, formData, updateFormData);
         }
         return {link};
       })
@@ -148,7 +136,7 @@ function JobDescriptionStep (props) {
     }
   }
 
-  const hasFromComments = _.size(fromCommentIds) > 0;
+  const hasFromComments = _.size(roots) > 0;
   function onTerminate() {
     if (hasFromComments) {
       let checkedString;

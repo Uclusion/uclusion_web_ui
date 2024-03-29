@@ -493,6 +493,7 @@ const messages = defineMessages({
   commentReplyCancelLabel: 'Cancel',
   commentReopenLabel: 'Reopen',
   commentResolveLabel: 'Resolve',
+  commentResolveLabelInstead: 'Resolve instead',
   UnblockReplyLabel: 'Reply',
   commentAbstainLabel: 'Mute',
   commentUnmuteLabel: 'Unmute',

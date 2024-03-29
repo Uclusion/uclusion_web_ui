@@ -1,26 +1,24 @@
-import React, { useContext } from 'react'
-import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
-import _ from 'lodash'
-import WizardStepContainer from '../WizardStepContainer'
-import { WizardStylesContext } from '../WizardStylesContext'
-import WizardStepButtons from '../WizardStepButtons'
-import AssignmentList from '../../../pages/Dialog/Planning/AssignmentList'
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import React, { useContext } from 'react';
+import PropTypes from 'prop-types';
+import { Typography } from '@material-ui/core';
+import _ from 'lodash';
+import WizardStepContainer from '../WizardStepContainer';
+import { WizardStylesContext } from '../WizardStylesContext';
+import WizardStepButtons from '../WizardStepButtons';
+import AssignmentList from '../../../pages/Dialog/Planning/AssignmentList';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { addPlanningInvestible, stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router';
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
-import { moveCommentsFromIds } from './DecideWhereStep';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useIntl } from 'react-intl';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import {
-  getFullStage, getFurtherWorkStage,
+  getFullStage,
+  getFurtherWorkStage,
   getInCurrentVotingStage,
   isFurtherWorkStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -29,7 +27,7 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function JobAssignStep (props) {
-  const { marketId, updateFormData, formData, onFinish, assigneeId, groupId, marketComments, fromCommentIds } = props;
+  const { marketId, updateFormData, formData, onFinish, assigneeId, groupId, moveFromComments, roots } = props;
   const history = useHistory();
   const value = formData.wasSet ? (formData.assigned || []) : (assigneeId ? [assigneeId] : []);
   const validForm = !_.isEmpty(value);
@@ -38,7 +36,6 @@ function JobAssignStep (props) {
   const presences = getMarketPresences(presencesState, marketId);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const classes = useContext(WizardStylesContext);
   const { investibleId } = formData;
@@ -46,9 +43,6 @@ function JobAssignStep (props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage: stageId } = marketInfo;
   const fullCurrentStage = getFullStage(marketStagesState, marketId, stageId) || {};
-  const roots = (fromCommentIds || []).map((fromCommentId) =>
-    marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
-  const comments = getCommentThreads(roots, marketComments);
 
   function onAssignmentChange(newAssignments){
     updateFormData({
@@ -76,8 +70,9 @@ function JobAssignStep (props) {
           investibleId,
           link,
         });
-        return moveCommentsFromIds(inv, comments, fromCommentIds, marketId, groupId, messagesState, updateFormData,
-          commentsDispatch, messagesDispatch);
+        if (moveFromComments) {
+          return moveFromComments(inv, formData, updateFormData);
+        }
       })
   }
 

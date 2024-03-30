@@ -50,7 +50,7 @@ function DecideAnswerStep(props) {
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       removeActions={noOptions}
                       showVoting
-                      useCompression={useCompression}
+                      useCompression={noOptions && useCompression}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})} />
       <div style={{marginBottom: '2rem'}}/>
       {noOptions && (

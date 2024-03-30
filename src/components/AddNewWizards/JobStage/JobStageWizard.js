@@ -80,7 +80,8 @@ function JobStageWizard(props) {
       <FormdataWizard name={`job_stage_wizard${investibleId}`} useLocalStorage={false}
                       defaultFormData={{approveQuantity: Math.abs(approveQuantity), originalQuantity: approveQuantity,
                         wasDeleted: yourVote?.deleted, userId: yourPresence?.id, approveReason: originalReason,
-                        originalReason, stage: stageId ? stageId : undefined, stageWasSet: !!stageId}}>
+                        originalReason, stage: stageId ? stageId : undefined, stageWasSet: !!stageId,
+                        useCompression: true}}>
         {!stageId && (
           <JobStageStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
                         requiresAction={requiresAction} />

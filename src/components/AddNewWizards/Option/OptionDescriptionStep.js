@@ -24,7 +24,8 @@ import OptionListItem from '../../Comments/OptionListItem';
 import _ from 'lodash';
 
 function OptionDescriptionStep (props) {
-  const { marketId, parentGroupId, parentInvestibleId, parentMarketId, parentCommentId, createdBy } = props;
+  const { marketId, parentGroupId, parentInvestibleId, parentMarketId, parentCommentId, createdBy, updateFormData,
+    formData } = props;
   const editorName = `addOptionWizard${marketId}`;
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -43,6 +44,7 @@ function OptionDescriptionStep (props) {
   const isQuestionCreator = createdBy === myPresence.id;
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId);
   const allOptions = getMarketInvestibles(investibleState, marketId) || [];
+  const { useCompression } = formData;
 
   const editorSpec = {
     placeholder: "Ex: make magic happen via A, B, C",
@@ -103,6 +105,8 @@ function OptionDescriptionStep (props) {
         removeActions={true}
         showVoting={false}
         isInbox
+        toggleCompression={() => updateFormData({useCompression: !useCompression})}
+        useCompression={useCompression}
       />
       {!_.isEmpty(allOptions) && (
         <div style={{ marginBottom: '2rem' }}>

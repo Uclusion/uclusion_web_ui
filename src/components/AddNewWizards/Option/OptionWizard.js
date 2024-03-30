@@ -23,7 +23,7 @@ function OptionWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="option_wizard" useLocalStorage={false}>
+      <FormdataWizard name="option_wizard" useLocalStorage={false} defaultFormData={{useCompression: true}}>
         <OptionDescriptionStep marketId={marketId} parentMarketId={parentMarketId} parentCommentId={parentCommentId}
                                parentInvestibleId={parentInvestibleId} parentGroupId={parentGroupId}
                                createdBy={createdBy} />

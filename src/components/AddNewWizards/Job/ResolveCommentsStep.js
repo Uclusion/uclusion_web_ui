@@ -13,7 +13,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 
 function DecideResolveStep(props) {
-  const { marketId, commentId, marketComments, updateFormData } = props;
+  const { marketId, commentId, marketComments, updateFormData, formData } = props;
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const comment = (marketComments || []).find((comment) => comment.id === commentId) || {id: 'fake'};
@@ -23,6 +23,7 @@ function DecideResolveStep(props) {
   const { stage } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const isSuggestion = comment.comment_type === SUGGEST_CHANGE_TYPE;
+  const { useCompression } = formData;
 
   if (comment.id === 'fake') {
     return React.Fragment;
@@ -57,6 +58,8 @@ function DecideResolveStep(props) {
           isInbox
           removeActions
           showVoting
+          toggleCompression={() => updateFormData({useCompression: !useCompression})}
+          useCompression={useCompression}
         />
       </div>
       {isSuggestion && (

@@ -71,7 +71,7 @@ function ApprovalWizard(props) {
     <WizardStylesProvider>
       <FormdataWizard name={`approval_wizard${investibleId}`} useLocalStorage={false}
                       defaultFormData={{approveQuantity: Math.abs(approveQuantity),
-                        originalQuantity: approveQuantity, wasDeleted,
+                        originalQuantity: approveQuantity, wasDeleted, useCompression: true,
                         userId: yourPresence?.id, approveReason: originalReason, originalReason}}>
         {marketType === PLANNING_TYPE && (
           <JobApproveStep marketId={marketId} groupId={groupId} investibleId={investibleId}

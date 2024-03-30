@@ -18,6 +18,7 @@ function VoteCertaintyStep(props) {
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId) || {};
   const { investible_id: parentInvestibleId, group_id: parentGroupId } = parentComment;
   const classes = wizardStyles();
+  const { useCompression } = formData;
 
   return (
     <WizardStepContainer
@@ -38,9 +39,11 @@ function VoteCertaintyStep(props) {
           comments={[parentComment]}
           marketId={parentMarketId}
           allowedTypes={[]}
-          removeActions={true}
+          removeActions
           showVoting={false}
           isInbox
+          toggleCompression={() => updateFormData({useCompression: !useCompression})}
+          useCompression={useCompression}
         />
         <AddEditVote
           marketId={market.id}

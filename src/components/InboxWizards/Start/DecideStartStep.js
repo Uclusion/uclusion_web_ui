@@ -26,7 +26,7 @@ import { addInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function DecideStartStep(props) {
-  const { marketId, commentId, message } = props;
+  const { marketId, commentId, message, updateFormData, formData } = props;
   const [commentState, commentsDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -43,6 +43,7 @@ function DecideStartStep(props) {
   const classes = wizardStyles();
   const marketStages = getStages(marketStagesState, marketId) || [];
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
+  const { useCompression } = formData;
 
   function myTerminate() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -97,6 +98,8 @@ function DecideStartStep(props) {
           allowedTypes={[]}
           isInbox
           removeActions
+          toggleCompression={() => updateFormData({useCompression: !useCompression})}
+          useCompression={useCompression}
         />
       </div>
       <WizardStepButtons

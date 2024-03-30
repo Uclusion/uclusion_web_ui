@@ -45,7 +45,7 @@ function TaskToBugStep (props) {
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const radioClasses = useStyles();
-  const { newQuantity } = formData;
+  const { newQuantity, useCompression } = formData;
 
   function onChange(event) {
     updateFormData({
@@ -117,6 +117,8 @@ function TaskToBugStep (props) {
           allowedTypes={[]}
           isInbox
           removeActions
+          toggleCompression={() => updateFormData({useCompression: !useCompression})}
+          useCompression={useCompression}
         />
       </div>
       <div className={classes.borderBottom} />

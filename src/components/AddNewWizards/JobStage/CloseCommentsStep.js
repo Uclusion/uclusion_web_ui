@@ -24,7 +24,8 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function CloseCommentsStep(props) {
-  const { marketId, investibleId, formData, marketInfo, myFinish: finish, isAssign, requiresAction } = props;
+  const { marketId, investibleId, formData, marketInfo, myFinish: finish, isAssign, requiresAction,
+    updateFormData } = props;
   const classes = useContext(WizardStylesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -34,7 +35,7 @@ function CloseCommentsStep(props) {
   const marketComments = getMarketComments(commentsState, marketId, groupId);
   const unresolvedComments = marketComments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);
-  const { stage, assigned: newAssigned } = formData;
+  const { stage, assigned: newAssigned, useCompression } = formData;
   const assigned = newAssigned || originalAssigned;
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage);
   const fullCurrentStage = getFullStage(marketStagesState, marketId, currentStageId);
@@ -102,6 +103,8 @@ function CloseCommentsStep(props) {
           allowedTypes={[]}
           isInbox
           removeActions
+          toggleCompression={() => updateFormData({useCompression: !useCompression})}
+          useCompression={useCompression}
         />
       </div>
       <div className={classes.borderBottom} />

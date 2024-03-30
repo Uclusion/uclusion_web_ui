@@ -4,7 +4,11 @@ import { Box, Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
-import { addCommentToMarket, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper'
+import {
+  addCommentToMarket,
+  getCommentRoot, getInvestibleComments,
+  getMarketComments
+} from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext'
@@ -40,15 +44,18 @@ function DecideAssistanceStep(props) {
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const comments = (commentState[marketId] || []).filter((comment) =>
-    comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
+  const marketComments = getMarketComments(commentState, marketId, commentRoot.group_id);
+  const comments = marketComments.filter((comment) => comment.root_comment_id === commentRoot.id
+    || comment.id === commentRoot.id);
+  const investibleComments = commentRoot.investible_id ?
+    getInvestibleComments(commentRoot.investible_id, marketId, commentState) : undefined;
   const classes = wizardStyles();
   const inv = getInvestible(investibleState, commentRoot.investible_id) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { former_stage_id: formerStageId, assigned } = marketInfo;
   const nextStageId = getFormerStageId(formerStageId, marketId, marketStagesState);
   const nextStageName = getStageNameForId(marketStagesState, marketId, nextStageId, intl);
-  const isSingle = isSingleAssisted(comments, assigned);
+  const isSingle = commentRoot.investible_id ? isSingleAssisted(investibleComments, assigned) : false;
   const isSuggest = commentRoot.comment_type === SUGGEST_CHANGE_TYPE;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const snoozed = marketPresences.filter((presence) => {
@@ -66,6 +73,7 @@ function DecideAssistanceStep(props) {
       handleAcceptSuggestion({ isMove: isSingle, comment, investible: inv, investiblesDispatch,
         marketStagesState, commentsState, commentsDispatch, messagesState, messagesDispatch })
       setOperationRunning(false);
+      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
     })
   }
 

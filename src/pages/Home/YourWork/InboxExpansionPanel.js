@@ -4,7 +4,7 @@ import {
   getMarketDetailsForType,
   getNotHiddenMarketDetailsForUser
 } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { Assignment, Block, PersonAddOutlined } from '@material-ui/icons';
+import { Assignment, Block, BugReportOutlined, PersonAddOutlined } from '@material-ui/icons';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -14,7 +14,7 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getUserInvestibles, getUserPendingAcceptanceInvestibles } from '../../Dialog/Planning/userUtils';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { calculateInvestibleVoters } from '../../../utils/votingUtils';
@@ -44,7 +44,7 @@ import NewGroupWizard from '../../../components/InboxWizards/NewGroup/NewGroupWi
 import RespondInOptionWizard from '../../../components/InboxWizards/OptionResponse/RespondInOptionWizard';
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
 import TaskedWizard from '../../../components/InboxWizards/ReviewNewTask/TaskedWizard';
-import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
+import { NOT_FULLY_VOTED_TYPE, RED_LEVEL, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
 import TriageWizard from '../../../components/InboxWizards/Triage/TriageWizard';
 import InvestibleEditedWizard from '../../../components/InboxWizards/JobEdited/InvestibleEditedWizard';
 
@@ -223,7 +223,8 @@ function getMessageForComment(comment, market, type, Icon, intl, investibleState
     icon: Icon,
     comment: comment.body,
     title: `Done with this
-        ${type === QUESTION_TYPE ? ' question' : (type === SUGGEST_CHANGE_TYPE ? ' suggestion' : ' issue')}?`,
+        ${type === QUESTION_TYPE ? ' question' : (type === SUGGEST_CHANGE_TYPE ? ' suggestion' : 
+      (type === TODO_TYPE ? ' bug' : ' issue'))}?`,
     updatedAt: comment.updated_at,
     link: formCommentLink(market.id, comment.group_id, comment.investible_id, commentId),
     inFurtherWork: false,
@@ -284,11 +285,13 @@ export function getOutboxMessages(props) {
     const comments = getMarketComments(commentsState, market.id);
     const myUnresolvedRoots = comments.filter((comment) => !comment.resolved &&
       comment.created_by === myPresence.id && !comment.reply_id);
-    const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE) || [];
-    const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE) || [];
-    const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
+    const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
+    const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
+    const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
+    const bugs = myUnresolvedRoots.filter((comment) => comment.comment_type === TODO_TYPE && !comment.investible_id &&
+      comment.notification_type === RED_LEVEL);
     return { market, comments, inVotingInvestibles: inVotingInvestibles.concat(inVotingNotAcceptedMarked), questions,
-      issues, suggestions};
+      issues, suggestions, bugs};
   });
 
   const messages = [];
@@ -329,7 +332,7 @@ export function getOutboxMessages(props) {
   });
 
   workspacesData.forEach((workspacesData) => {
-    const { market, comments, inVotingInvestibles, questions, issues, suggestions } = workspacesData;
+    const { market, comments, inVotingInvestibles, questions, issues, suggestions, bugs } = workspacesData;
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     inVotingInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;
@@ -386,6 +389,14 @@ export function getOutboxMessages(props) {
     suggestions.forEach((comment) => {
       const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
         <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
+        comments, marketPresences)
+      if (message) {
+        messages.push(message);
+      }
+    });
+    bugs.forEach((comment) => {
+      const message = getMessageForComment(comment, market, TODO_TYPE,
+        <BugReportOutlined style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
         comments, marketPresences)
       if (message) {
         messages.push(message);

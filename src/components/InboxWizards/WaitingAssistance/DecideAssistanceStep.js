@@ -30,6 +30,7 @@ import { pokeComment } from '../../../api/users';
 import Link from '@material-ui/core/Link';
 import _ from 'lodash';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { YELLOW_LEVEL } from '../../../constants/notifications';
 
 
 function DecideAssistanceStep(props) {
@@ -74,7 +75,7 @@ function DecideAssistanceStep(props) {
         marketStagesState, commentsState, commentsDispatch, messagesState, messagesDispatch })
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
-    })
+    });
   }
 
   function resolve() {
@@ -83,6 +84,14 @@ function DecideAssistanceStep(props) {
         addCommentToMarket(comment, commentsState, commentsDispatch);
         setOperationRunning(false);
       });
+  }
+
+  function makeNormal() {
+    return updateComment({marketId, commentId, notificationType: YELLOW_LEVEL}).then((comment) => {
+      addCommentToMarket(comment, commentsState, commentsDispatch);
+      setOperationRunning(false);
+      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
+    });
   }
 
   function doPokeComment() {
@@ -97,6 +106,8 @@ function DecideAssistanceStep(props) {
       setOperationRunning(false);
     });
   }
+  const isQuestion = commentRoot.comment_type === QUESTION_TYPE;
+  const isBug = !commentRoot.investible_id && !(isSuggest || isQuestion);
 
   return (
     <WizardStepContainer
@@ -104,16 +115,26 @@ function DecideAssistanceStep(props) {
     >
       <Typography className={classes.introText}>
         Done with this
-        {commentRoot.comment_type === QUESTION_TYPE ? ' question' : (isSuggest ? ' suggestion' : ' blocking issue')}?
+        {isQuestion ? ' question' : (isSuggest ? ' suggestion' : (commentRoot.investible_id ? ' blocking issue' :
+          ' critical bug'))}?
       </Typography>
       {isSingle && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Resolving moves this job to {nextStageName}.
+          Resolving moves this job to {nextStageName}. Poke to resend notifications and
+          message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
         </Typography>
       )}
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Poke to resend notifications and message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
-      </Typography>
+      {isBug && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Moving this bug to normal removes it from triage but sends a one time notification. Poke to resend
+          notifications and message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
+        </Typography>
+      )}
+      {!isBug && !isSingle && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Poke to resend notifications and message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
+        </Typography>
+      )}
       {!_.isEmpty(snoozed) && (
         <Box sx={{ p: 2, border: '1px solid grey' }} style={{marginBottom: '1rem', paddingTop: 0, width: '50rem'}}>
           <Typography className={classes.introSubText} variant="subtitle1">
@@ -125,6 +146,7 @@ function DecideAssistanceStep(props) {
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       removeActions
                       showVoting
+                      isSingleTaskDisplay={isBug}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})}
                       showCreatedBy />
@@ -148,7 +170,7 @@ function DecideAssistanceStep(props) {
           onFinish={doPokeComment}
         />
       )}
-      {!commentRoot.investible_id && (
+      {!commentRoot.investible_id && (isSuggest || isQuestion) && (
         <WizardStepButtons
           {...props}
           finish={myOnFinish}
@@ -161,6 +183,25 @@ function DecideAssistanceStep(props) {
           showOtherNext
           otherNextLabel="commentResolveLabel"
           onOtherNext={resolve}
+          showTerminate
+          terminateLabel="poke"
+          terminateSpinOnClick
+          onFinish={doPokeComment}
+        />
+      )}
+      {isBug && (
+        <WizardStepButtons
+          {...props}
+          finish={myOnFinish}
+          nextLabel="BugWizardMoveToJob"
+          spinOnClick={false}
+          onNextDoAdvance={false}
+          onNext={() => navigate(history,
+            `${formMarketAddInvestibleLink(marketId, commentRoot.group_id, undefined,
+              parentElementId)}&fromCommentId=${commentId}`)}
+          showOtherNext
+          otherNextLabel="makeNormal"
+          onOtherNext={makeNormal}
           showTerminate
           terminateLabel="poke"
           terminateSpinOnClick

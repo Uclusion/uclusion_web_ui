@@ -1086,6 +1086,7 @@ const messages = defineMessages({
   notificationLabelYELLOW: 'Normal - notify once',
   notificationLabelBLUE: 'Minor - no notification',
   able: 'Normal',
+  makeNormal: 'Move to normal',
   convenient: 'Minor',
   createNewQUESTION: 'Ask question',
   createNewISSUE: 'Add blocker',

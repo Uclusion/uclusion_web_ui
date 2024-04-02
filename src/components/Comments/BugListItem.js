@@ -15,12 +15,13 @@ import {
   DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../contexts/NotificationsContext/notificationsContextMessages';
-import { ExpandLess } from '@material-ui/icons';
+import { ExpandLess, ReportOutlined } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { expandOrContract } from './BugListContext';
 import Chip from '@material-ui/core/Chip';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import DragImage from '../Dialogs/DragImage';
+import { POKED } from '../../constants/notifications';
 
 const Div = styled("div")`
   height: 40px;
@@ -139,6 +140,8 @@ function BugListItem(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
+  const { alert_type: alertType } = message || {}
+  const poked = alertType === POKED;
 
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
@@ -183,6 +186,16 @@ function BugListItem(props) {
                   >
                     {checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />}
                   </StyledIconButton>
+                )}
+                {poked && (
+                  <Tooltip key='pokedRowKey'
+                           title={<FormattedMessage id='pokedBugExplanation' />}>
+                    <StyledIconButton
+                      classes={actionStyles}
+                    >
+                      <ReportOutlined style={{fontSize: 24, color: '#E85757'}}/>
+                    </StyledIconButton>
+                  </Tooltip>
                 )}
               </Box>
               {replyNum > 1 ? <Tooltip key={`tipreplies${id}`}

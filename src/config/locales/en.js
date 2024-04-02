@@ -502,6 +502,7 @@ const messages = defineMessages({
   poke: 'Poke',
   poked: 'Poked',
   pokedExplanation: 'This notification was poked by its author to increase urgency.',
+  pokedBugExplanation: 'This bug was poked by its author to increase urgency.',
   commentRemoveLabel: 'Delete',
   commentCloseThreadLabel: 'Collapse',
   lastUpdatedBy: ' by',

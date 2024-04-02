@@ -26,12 +26,12 @@ import { DECISION_TYPE, INITIATIVE_TYPE } from '../../../constants/markets';
 import ReplyIcon from '@material-ui/icons/Reply';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
+import { NOT_FULLY_VOTED_TYPE, POKED, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 
-function getPriorityIcon(message, isAssigned) {
+function getPriorityIcon(message, isAssigned, isMentioned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
-    market_type: marketType } = message;
+    market_type: marketType, alert_type: alertType } = message;
   let Icon = Quiz;
   if (message.type === 'UNREAD_VOTE') {
     Icon = Done;
@@ -79,6 +79,10 @@ function getPriorityIcon(message, isAssigned) {
 
   if (message.type === 'UNREAD_ESTIMATE') {
     Icon = CalendarToday;
+  }
+
+  if (alertType === POKED || isMentioned) {
+    Icon = ReportOutlined;
   }
 
   if (!isHighlighted) {
@@ -130,10 +134,9 @@ function InboxRow(props) {
       groupState)
   }
 
-  item.icon = getPriorityIcon(message, isAssigned);
-
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   let rootComment;
+  let originalComment;
   if (commentId) {
     const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market
     let useMarketId = commentMarketId || marketId;
@@ -146,11 +149,13 @@ function InboxRow(props) {
     rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
     if (rootComment) {
       if (rootComment.id !== commentId) {
-        const originalComment = getComment(commentState, commentMarketId || marketId, commentId) || {};
+        originalComment = getComment(commentState, commentMarketId || marketId, commentId) || {};
         const comment = stripHTML(originalComment.body);
         if (comment) {
           item.comment = comment;
         }
+      } else {
+        originalComment = rootComment;
       }
       if (!item.comment) {
         const comment = stripHTML(rootComment.body);
@@ -160,6 +165,8 @@ function InboxRow(props) {
       }
     }
   }
+  const isMentioned = originalComment?.mentions?.includes(userId);
+  item.icon = getPriorityIcon(message, isAssigned, isMentioned);
 
   if (rootComment?.resolved && !typeObjectId?.includes('UNREAD_RESOLVED') && !typeObjectId?.includes('UNREAD_REPLY')) {
     console.warn('Notification out of date with a resolved comment')

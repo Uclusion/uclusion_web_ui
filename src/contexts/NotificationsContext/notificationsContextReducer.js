@@ -14,6 +14,7 @@ const QUICK_REMOVE_MESSAGES = 'QUICK_REMOVE_MESSAGES';
 const ADD_MESSAGE = 'ADD_MESSAGE';
 const REMOVE_FOR_INVESTIBLE = 'REMOVE_FOR_INVESTIBLE';
 const DEHIGHLIGHT_MESSAGES = 'DEHIGHLIGHT_MESSAGES';
+const DEHIGHLIGHT_CRITICAL_MESSAGE = 'DEHIGHLIGHT_CRITICAL_MESSAGE';
 
 /** Messages you can send the reducer */
 
@@ -35,6 +36,14 @@ export function dehighlightMessages(messages) {
   return {
     type: DEHIGHLIGHT_MESSAGES,
     messages
+  }
+}
+
+export function dehighlightCriticalMessage(message, originalMessage) {
+  return {
+    type: DEHIGHLIGHT_CRITICAL_MESSAGE,
+    message,
+    originalMessage
   }
 }
 
@@ -154,6 +163,23 @@ function doDehighlightMessages(state, action) {
   return storeMessagesInState(state, newMessages);
 }
 
+function doDehighlightCriticalMessage (state, action) {
+  const { messages: existingMessages } = state;
+  const { message: rollupTypeObjectId, originalMessage } = action;
+  const message = existingMessages?.find((message) => message.type_object_id === rollupTypeObjectId);
+  if (_.isEmpty(message)) {
+    return state;
+  }
+  const originalId = originalMessage.split('_')[1];
+  const { highlighted_list: highlightedList } = message;
+  message.highlighted_list = highlightedList.filter((id) => id !== originalId);
+  if (_.isEmpty(message.highlighted_list)) {
+    message.is_highlighted = false;
+  }
+  const newMessages = _.unionBy([message], existingMessages, 'type_object_id');
+  return storeMessagesInState(state, newMessages);
+}
+
 function computeNewState (state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
@@ -165,6 +191,8 @@ function computeNewState (state, action) {
       return doRemoveMessages(state, action);
     case DEHIGHLIGHT_MESSAGES:
       return doDehighlightMessages(state, action);
+    case DEHIGHLIGHT_CRITICAL_MESSAGE:
+      return doDehighlightCriticalMessage(state, action);
     case ADD_MESSAGE:
       return addSingleMessage(state, action);
     case REMOVE_FOR_INVESTIBLE:
@@ -187,38 +215,50 @@ function storeStatePromise(action, newState) {
 }
 
 function reducer (state, action) {
-  const isDehighilightRemove = [DEHIGHLIGHT_MESSAGES, REMOVE_MESSAGES].includes(action.type);
+  const isDehighilightRemove = [DEHIGHLIGHT_MESSAGES, DEHIGHLIGHT_CRITICAL_MESSAGE,
+    REMOVE_MESSAGES].includes(action.type);
   if (isDehighilightRemove) {
-    const { messages, message } = action;
-    let allMessages = {};
-    if (message) {
-      if (message.market_id) {
-        allMessages[message.market_id] = [];
-        allMessages[message.market_id].push(message.type_object_id);
+    if (action.type === DEHIGHLIGHT_CRITICAL_MESSAGE) {
+      const { message: rollupTypeObjectId, originalMessage } = action;
+      const { messages: existingMessages } = state;
+      const message = existingMessages?.find((message) => message.type_object_id === rollupTypeObjectId);
+      if (message) {
+        getMarketClient(message.market_id).then((client) =>
+          client.users.dehighlightNotifications([originalMessage]))
+          .then(() => storeStatePromise(action, computeNewState(state, action)));
       }
     } else {
-      const { messages: existingMessages } = state;
-      (messages || []).forEach((messageId) => {
-        const message = existingMessages.find((message) => message.type_object_id === messageId);
-        if (message?.market_id) {
-          if (!allMessages[message.market_id]) {
-            allMessages[message.market_id] = [];
+      const { messages, message } = action;
+      let allMessages = {};
+      if (message) {
+        if (message.market_id) {
+          allMessages[message.market_id] = [];
+          allMessages[message.market_id].push(message.type_object_id);
+        }
+      } else {
+        const { messages: existingMessages } = state;
+        (messages || []).forEach((messageId) => {
+          const message = existingMessages.find((message) => message.type_object_id === messageId);
+          if (message?.market_id) {
+            if (!allMessages[message.market_id]) {
+              allMessages[message.market_id] = [];
+            }
+            if (action.type !== DEHIGHLIGHT_MESSAGES || message.is_highlighted) {
+              allMessages[message.market_id].push(message.type_object_id);
+            }
           }
-          if (action.type !== DEHIGHLIGHT_MESSAGES || message.is_highlighted) {
-            allMessages[message.market_id].push(message.type_object_id);
-          }
+        });
+      }
+      Object.keys(allMessages).forEach((key) => {
+        if (action.type === REMOVE_MESSAGES) {
+          getMarketClient(key).then((client) => client.users.removeNotifications(allMessages[key])).then(() =>
+            storeStatePromise(action, computeNewState(state, action)));
+        } else if (!_.isEmpty(allMessages[key])) {
+          getMarketClient(key).then((client) => client.users.dehighlightNotifications(allMessages[key]))
+            .then(() => storeStatePromise(action, computeNewState(state, action)));
         }
       });
     }
-    Object.keys(allMessages).forEach((key) => {
-      if (action.type === REMOVE_MESSAGES) {
-        getMarketClient(key).then((client) => client.users.removeNotifications(allMessages[key])).then(() =>
-          storeStatePromise(action, computeNewState(state, action)));
-      } else if (!_.isEmpty(allMessages[key])) {
-        getMarketClient(key).then((client) => client.users.dehighlightNotifications(allMessages[key]))
-          .then(() => storeStatePromise(action, computeNewState(state, action)));
-      }
-    })
   }
   const newState = computeNewState(state, action);
   if (!isDehighilightRemove) {

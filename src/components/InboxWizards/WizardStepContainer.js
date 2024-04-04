@@ -3,6 +3,7 @@ import { wizardStyles } from './WizardStylesContext';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import { POKED } from '../../constants/notifications';
+import _ from 'lodash';
 
 function WizardStepContainer (props) {
   const { children, startOver, message } = props;
@@ -10,8 +11,8 @@ function WizardStepContainer (props) {
   const classes = wizardStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const { alert_type: alertType } = message || {}
-  const poked = alertType === POKED;
+  const { alert_type: alertType, poked_list: pokedList } = message || {}
+  const poked = alertType === POKED || !_.isEmpty(pokedList);
 
   return (
     <>

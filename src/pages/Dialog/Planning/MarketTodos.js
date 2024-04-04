@@ -281,6 +281,7 @@ function MarketTodos(props) {
     if (_.isEmpty(data)) {
       return <div className={classes.grow} key={`${tabIndex}empty`}/>
     }
+
     return data.map((comment) => {
       const { id, body, updated_at: updatedAt, notification_type: notificationType } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];

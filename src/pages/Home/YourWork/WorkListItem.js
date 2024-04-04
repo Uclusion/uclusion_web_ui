@@ -26,6 +26,7 @@ import {
 import { useHistory } from 'react-router';
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { UNASSIGNED_TYPE } from '../../../constants/notifications';
 
 const Div = styled("div")`
   height: 40px;
@@ -214,7 +215,8 @@ function WorkListItem(props) {
               return;
             }
             preventDefaultAndProp(event);
-            if (isHighlighted) {
+            // UNASSIGNED_TYPE only dehighlights when everything inside it has
+            if (isHighlighted && messageType !== UNASSIGNED_TYPE) {
               messagesDispatch(dehighlightMessages([message.type_object_id]));
             }
             navigate(history, formInboxItemLink(id));

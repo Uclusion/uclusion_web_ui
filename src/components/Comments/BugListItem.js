@@ -11,7 +11,7 @@ import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { pushMessage } from '../../utils/MessageBusUtils';
 import {
-  DEHIGHLIGHT_EVENT,
+  DEHIGHLIGHT_CRITICAL_EVENT,
   DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../contexts/NotificationsContext/notificationsContextMessages';
@@ -22,6 +22,7 @@ import Chip from '@material-ui/core/Chip';
 import { FormattedMessage, useIntl } from 'react-intl';
 import DragImage from '../Dialogs/DragImage';
 import { POKED } from '../../constants/notifications';
+import _ from 'lodash';
 
 const Div = styled("div")`
   height: 40px;
@@ -140,8 +141,8 @@ function BugListItem(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
-  const { alert_type: alertType } = message || {}
-  const poked = alertType === POKED;
+  const { alert_type: alertType, poked_list: pokedList } = message || {}
+  const poked = !_.isEmpty(pokedList) ? pokedList.includes(id) : alertType === POKED;
 
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
@@ -162,11 +163,12 @@ function BugListItem(props) {
             (event) => {
               preventDefaultAndProp(event);
               if (isNew) {
-                let event = DEHIGHLIGHT_EVENT;
+                let event = DEHIGHLIGHT_CRITICAL_EVENT;
                 if (message.type_object_id.startsWith('UNREAD')) {
                   event = DELETE_EVENT;
                 }
-                pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: message.type_object_id });
+                pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: message.type_object_id,
+                  originalMessage: `${message.type}_${id}` });
               }
               bugListDispatch(expandOrContract(id));
             }

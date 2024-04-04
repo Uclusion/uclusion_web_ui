@@ -28,10 +28,11 @@ import ListAltIcon from '@material-ui/icons/ListAlt';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { NOT_FULLY_VOTED_TYPE, POKED, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import _ from 'lodash';
 
 function getPriorityIcon(message, isAssigned, isMentioned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
-    market_type: marketType, alert_type: alertType } = message;
+    market_type: marketType, alert_type: alertType, poked_list: pokedList } = message;
   let Icon = Quiz;
   if (message.type === 'UNREAD_VOTE') {
     Icon = Done;
@@ -81,7 +82,7 @@ function getPriorityIcon(message, isAssigned, isMentioned) {
     Icon = CalendarToday;
   }
 
-  if (alertType === POKED || isMentioned) {
+  if (alertType === POKED || !_.isEmpty(pokedList) || isMentioned) {
     Icon = ReportOutlined;
   }
 

@@ -1,9 +1,10 @@
 import {
+  dehighlightCriticalMessage,
   dehighlightMessages,
   removeMessages,
   removeMessagesForInvestible,
   updateMessages
-} from './notificationsContextReducer'
+} from './notificationsContextReducer';
 import { registerListener } from '../../utils/MessageBusUtils';
 import {
   NOTIFICATIONS_HUB_CHANNEL,
@@ -14,6 +15,7 @@ import { getMessages } from '../../api/sso'
 export const ADD_EVENT = 'add_event';
 export const DELETE_EVENT = 'delete_event';
 export const DEHIGHLIGHT_EVENT = 'dehighlight_event';
+export const DEHIGHLIGHT_CRITICAL_EVENT = 'dehighlight_critical_event';
 export const MODIFY_NOTIFICATIONS_CHANNEL = 'delete_notifications';
 export const STAGE_CHANGE_EVENT = 'stage_change_event';
 
@@ -37,7 +39,7 @@ function beginListening(dispatch) {
     }
   });
   registerListener(MODIFY_NOTIFICATIONS_CHANNEL, 'notificationsDelete', (data) => {
-    const { payload: { event, investibleId, useRemoveTypes, message, messages } } = data;
+    const { payload: { event, investibleId, useRemoveTypes, message, originalMessage, messages } } = data;
     switch (event) {
       case DELETE_EVENT:
         if (messages === undefined) {
@@ -45,6 +47,9 @@ function beginListening(dispatch) {
         } else {
           dispatch(removeMessages(messages));
         }
+        break;
+      case DEHIGHLIGHT_CRITICAL_EVENT:
+        dispatch(dehighlightCriticalMessage(message, originalMessage))
         break;
       case DEHIGHLIGHT_EVENT:
         if (messages === undefined) {

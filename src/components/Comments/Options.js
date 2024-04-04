@@ -34,7 +34,10 @@ export function isNew(inv, messagesState) {
 
 export function isNewComment(comment, messagesState) {
   const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
-  return myMessage.is_highlighted;
+  if (myMessage?.highlighted_list !== undefined) {
+    return myMessage.highlighted_list.includes(comment.id);
+  }
+  return myMessage?.is_highlighted;
 }
 
 function Options(props) {

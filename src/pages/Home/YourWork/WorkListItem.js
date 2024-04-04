@@ -20,6 +20,7 @@ import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import NotificationDeletion from './NotificationDeletion';
 import {
+  dehighlightCriticalMessage,
   dehighlightMessages, quickRemoveMessages,
   removeMessages
 } from '../../../contexts/NotificationsContext/notificationsContextReducer';
@@ -216,8 +217,13 @@ function WorkListItem(props) {
             }
             preventDefaultAndProp(event);
             // UNASSIGNED_TYPE only dehighlights when everything inside it has
-            if (isHighlighted && messageType !== UNASSIGNED_TYPE) {
-              messagesDispatch(dehighlightMessages([message.type_object_id]));
+            if (isHighlighted) {
+              if (messageType === UNASSIGNED_TYPE) {
+                messagesDispatch(dehighlightCriticalMessage(message.type_object_id,
+                  `${messageType}_${message.comment_id}`))
+              } else {
+                messagesDispatch(dehighlightMessages([message.type_object_id]));
+              }
             }
             navigate(history, formInboxItemLink(id));
           }

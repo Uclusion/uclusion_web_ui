@@ -159,6 +159,8 @@ const messages = defineMessages({
   gettingLockMessage: 'Obtaining lock',
   creatingDemoMessage: "Hang tight, we're creating a demo just for you",
   loadingMessage: 'Page loading',
+  demoLoadingMessage: 'Please wait while your sandbox demo is downloaded - this may take some time...',
+  marketLoadingMessage: 'Please wait while your workspace invitation is processed...',
   commentLoadingMessage: 'Comment loading',
   commentOptionsLoadingMessage: 'Comment options loading',
   loadingMarket: 'Processing invite',
@@ -1267,6 +1269,13 @@ const messages = defineMessages({
   AddOptionWizardOptionNamePlaceHolder: 'Your option\'s name',
   AddOptionWizardOptionDescriptionPlaceHolder: 'Your option\'s description',
   AddOptionWizardCancelOption: 'Cancel New Option',
+
+  //ComposeWizard
+  JOBComposeLabel: 'Job - can be assigned and holds tasks, questions, suggestions, and progress reports',
+  QUESTIONComposeLabel: 'Question - can have approvable options and movable to a job',
+  SUGGESTComposeLabel: 'Suggestion - voted for or against and movable to a job as suggestion or task',
+  TODOComposeLabel: 'Bug - movable to a job as a task',
+
 
   //UnblockWizard
   DecideMoveToBacklog: 'Move job to backlog',

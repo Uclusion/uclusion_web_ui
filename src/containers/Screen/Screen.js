@@ -189,7 +189,8 @@ function Screen(props) {
     hideMenu,
     overrideMenu,
     showBanner,
-    disableSearch
+    disableSearch,
+    loadingMessageId
   } = props;
   const usedBanner = banner ?? (userState?.user?.onboarding_state === OnboardingState.DemoCreated ? <OnboardingBanner/> : undefined);
   const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
@@ -350,7 +351,7 @@ function Screen(props) {
           </div>
         )}
         {reallyAmLoading && (
-         <LoadingDisplay showMessage messageId="loadingMessage" />
+         <LoadingDisplay showMessage messageId={loadingMessageId} />
         )}
       </div>
     </div>
@@ -370,7 +371,8 @@ Screen.propTypes = {
   tabTitle: PropTypes.string,
   appEnabled: PropTypes.bool,
   banner: PropTypes.node,
-  disableSearch: PropTypes.bool
+  disableSearch: PropTypes.bool,
+  loadingMessageId: PropTypes.string
 };
 
 Screen.defaultProps = {
@@ -383,7 +385,8 @@ Screen.defaultProps = {
   sidebarActions: [],
   appEnabled: true,
   banner: undefined,
-  disableSearch: false
+  disableSearch: false,
+  loadingMessageId: 'loadingMessage'
 };
 
 export default Screen;

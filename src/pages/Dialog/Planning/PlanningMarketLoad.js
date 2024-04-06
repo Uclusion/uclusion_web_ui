@@ -65,7 +65,8 @@ function PlanningMarketLoad() {
   }
 
   return (
-    <Suspense fallback={<Screen hidden={false} loading title={intl.formatMessage({ id: 'loadingMessage' })}>
+    <Suspense fallback={<Screen hidden={false} loading loadingMessageId='marketLoadingMessage'
+                                title={intl.formatMessage({ id: 'loadingMessage' })}>
       <div />
     </Screen>}>
       <LoadMarket marketToken={marketToken} />

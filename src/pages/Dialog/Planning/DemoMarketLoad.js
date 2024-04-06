@@ -37,7 +37,7 @@ function DemoMarketLoad(props) {
   const [index] = useContext(SearchIndexContext);
   const intl = useIntl();
 
-  const loadingScreen = <Screen hidden={false} loading
+  const loadingScreen = <Screen hidden={false} loading loadingMessageId='demoLoadingMessage'
                                 title={intl.formatMessage({ id: 'loadingMessage' })}>
     <div />
   </Screen>;

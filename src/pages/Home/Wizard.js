@@ -18,7 +18,7 @@ import {
   JOB_STAGE_WIZARD_TYPE,
   JOB_WIZARD_TYPE,
   PLANNING_TYPE,
-  WORKSPACE_WIZARD_TYPE, JOB_COMMENT_CONFIGURE_WIZARD_TYPE, OPTION_WIZARD_TYPE, REPLY_WIZARD_TYPE
+  WORKSPACE_WIZARD_TYPE, JOB_COMMENT_CONFIGURE_WIZARD_TYPE, OPTION_WIZARD_TYPE, REPLY_WIZARD_TYPE, COMPOSE_WIZARD_TYPE
 } from '../../constants/markets';
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
@@ -42,6 +42,7 @@ import { formInboxItemLink, navigate } from '../../utils/marketIdPathFunctions';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext';
 import ReplyWizard from '../../components/AddNewWizards/Reply/ReplyWizard';
+import ComposeWizard from '../../components/AddNewWizards/Compose/ComposeWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -131,6 +132,9 @@ function Wizard(props) {
       )}
       {createType === DISCUSSION_WIZARD_TYPE.toLowerCase() && (
         <DiscussionWizard marketId={marketId} groupId={groupId} commentType={commentType} />
+      )}
+      {createType === COMPOSE_WIZARD_TYPE.toLowerCase() && (
+        <ComposeWizard marketId={marketId} />
       )}
       {createType === APPROVAL_WIZARD_TYPE.toLowerCase() && (
         <ApprovalWizard marketId={marketId} groupId={groupId} investibleId={investibleId} voteFor={voteFor} />

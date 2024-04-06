@@ -6,7 +6,7 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import { TODO_TYPE } from '../../../constants/comments';
 import CommentAdd from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
-import { formCommentLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 
@@ -91,8 +91,7 @@ function BugDescriptionStep (props) {
       <CommentAdd
         nameKey="CommentAddBug"
         type={TODO_TYPE}
-        wizardProps={{...props, isBug: true, bugType: currentQuantity,
-          goBack: () => navigate(history, formMarketLink(marketId, groupId))}}
+        wizardProps={{...props, isBug: true, bugType: currentQuantity}}
         commentAddState={commentAddBugState}
         updateCommentAddState={updateCommentAddBugState}
         commentAddStateReset={commentAddStateBugReset}

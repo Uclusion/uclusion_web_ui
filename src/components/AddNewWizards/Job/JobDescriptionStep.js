@@ -12,7 +12,6 @@ import { addPlanningInvestible } from '../../../api/investibles';
 import {
   formInvestibleLink,
   formMarketAddInvestibleLink,
-  formMarketLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
 import { processTextAndFilesForSave } from '../../../api/files';
@@ -138,20 +137,16 @@ function JobDescriptionStep (props) {
 
   const hasFromComments = _.size(roots) > 0;
   function onTerminate() {
-    if (hasFromComments) {
-      let checkedString;
-      roots.forEach((comment) => {
-        if (checkedString) {
-          checkedString += `&fromCommentId=${comment.id}`;
-        } else {
-          checkedString = `&fromCommentId=${comment.id}`;
-        }
-      });
-      startOver();
-      navigate(history, `${formMarketAddInvestibleLink(marketId, groupId)}${checkedString}`);
-    } else {
-      navigate(history, formMarketLink(marketId, groupId));
-    }
+    let checkedString;
+    roots.forEach((comment) => {
+      if (checkedString) {
+        checkedString += `&fromCommentId=${comment.id}`;
+      } else {
+        checkedString = `&fromCommentId=${comment.id}`;
+      }
+    });
+    startOver();
+    navigate(history, `${formMarketAddInvestibleLink(marketId, groupId)}${checkedString}`);
   }
 
   const defaultFromPage = jobType === undefined ? 'IMMEDIATE' : (jobType === '0' ? 'READY' : 'NOT_READY');
@@ -211,9 +206,9 @@ function JobDescriptionStep (props) {
         onNext={onNext}
         onIncrement={doIncrement}
         isFinal={currentValue !== 'IMMEDIATE'}
-        showTerminate
+        showTerminate={hasFromComments}
         onTerminate={onTerminate}
-        terminateLabel={hasFromComments ? 'JobWizardStartOver' : 'JobWizardBack'}
+        terminateLabel='JobWizardStartOver'
       />
     </WizardStepContainer>
   );

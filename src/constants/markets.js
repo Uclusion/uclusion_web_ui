@@ -5,6 +5,7 @@ export const OPTION_WIZARD_TYPE = 'option';
 export const BUG_WIZARD_TYPE = 'bug';
 export const REPLY_WIZARD_TYPE = 'reply';
 export const DISCUSSION_WIZARD_TYPE = 'discussion';
+export const COMPOSE_WIZARD_TYPE = 'compose';
 export const JOB_COMMENT_WIZARD_TYPE = 'jobComment';
 export const JOB_COMMENT_CONFIGURE_WIZARD_TYPE = 'jobCommentConfigure';
 export const APPROVAL_WIZARD_TYPE = 'approval';

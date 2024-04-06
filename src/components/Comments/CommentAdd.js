@@ -437,10 +437,7 @@ function CommentAdd(props) {
                   {...wizardProps}
                   validForm={hasValue && !_.isEmpty(wizardProps.bugType)}
                   nextLabel="createBug"
-                  onNext={() => handleSave( true, wizardProps.bugType)}
-                  onTerminate={() => wizardProps.goBack()}
-                  showTerminate={true}
-                  terminateLabel="OnboardingWizardGoBack"/>
+                  onNext={() => handleSave( true, wizardProps.bugType)} />
               )}
               {!wizardProps.isBug && !wizardProps.isAddWizard && !wizardProps.isReply && (
                 <WizardStepButtons

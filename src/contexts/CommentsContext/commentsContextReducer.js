@@ -46,7 +46,8 @@ export function removeMarketsComments(marketIds) {
 
 function doAddMarketComments(state, action) {
   const { marketId, comments } = action;
-  const transformedComments = comments.map((comment) => {
+  const transformedCommentsRaw = fixupItemsForStorage(comments);
+  const transformedComments = transformedCommentsRaw.map((comment) => {
     return { ...comment, fromQuickAdd: true }
   });
   const oldComments = state[marketId] || [];

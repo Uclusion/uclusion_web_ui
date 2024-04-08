@@ -6,7 +6,7 @@ import { MarketPresencesContext } from './MarketPresencesContext';
 
 
 export function addDemoPresencesToMarket(dispatch, marketId, presences) {
-  dispatch(addMarketPresences(marketId, presences, true));
+  dispatch(addMarketPresences(marketId, presences));
 }
 export function addPresenceToMarket(dispatch, marketId, presence) {
   dispatch(addMarketPresence(marketId, presence));

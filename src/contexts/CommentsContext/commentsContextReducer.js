@@ -27,6 +27,14 @@ export function updateCommentsFromVersions(commentDetails) {
   };
 }
 
+export function updateComments(marketId, comments) {
+  return {
+    type: OVERWRITE_MARKET_COMMENTS,
+    marketId,
+    comments
+  };
+}
+
 export function removeMarketsComments(marketIds) {
   return {
     type: REMOVE_MARKETS_COMMENT,
@@ -41,12 +49,10 @@ function doAddMarketComments(state, action) {
   const transformedComments = comments.map((comment) => {
     return { ...comment, fromQuickAdd: true }
   });
-  const oldComments = state[marketId] || []
-  const newComments = addByIdAndVersion(transformedComments, oldComments)
-  return {
-    ...removeInitializing(state, true),
-    [marketId]: newComments,
-  };
+  const oldComments = state[marketId] || [];
+  const newState = {...state};
+  newState[marketId] = addByIdAndVersion(transformedComments, oldComments);
+  return removeInitializing(newState);
 }
 
 function doAddMarketsComments(state, action) {
@@ -54,7 +60,7 @@ function doAddMarketsComments(state, action) {
   const newState = {...state};
   Object.keys(commentDetails).forEach((marketId) => {
     const transformedComments = fixupItemsForStorage(commentDetails[marketId]);
-    const oldComments = state[marketId] || []
+    const oldComments = state[marketId] || [];
     newState[marketId] = addByIdAndVersion(transformedComments, oldComments);
   });
   return removeInitializing(newState);

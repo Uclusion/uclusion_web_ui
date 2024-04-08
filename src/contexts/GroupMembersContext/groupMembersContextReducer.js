@@ -32,12 +32,11 @@ export function addGroupMember(groupId, user) {
   };
 }
 
-export function addGroupMembers(groupId, users, fromDemo) {
+export function addGroupMembers(groupId, users) {
   return {
     type: ADD_GROUP_MEMBERS,
     groupId,
-    users,
-    fromDemo
+    users
   };
 }
 

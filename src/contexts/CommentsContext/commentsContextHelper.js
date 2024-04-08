@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { updateCommentsFromVersions } from './commentsContextReducer';
+import { updateComments } from './commentsContextReducer';
 import { pushMessage } from '../../utils/MessageBusUtils';
 import {
   INDEX_COMMENT_TYPE,
@@ -130,5 +130,5 @@ export function addCommentToMarket(comment, state, dispatch) {
 }
 
 export function addMarketComments(dispatch, marketId, comments) {
-  dispatch(updateCommentsFromVersions({[marketId]: comments}));
+  dispatch(updateComments(marketId, comments));
 }

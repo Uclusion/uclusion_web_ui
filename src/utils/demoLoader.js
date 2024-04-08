@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { TOKEN_TYPE_MARKET } from '../api/tokenConstants';
 import TokenStorageManager from '../authorization/TokenStorageManager';
-import { addMarketsToStorage } from '../contexts/MarketsContext/marketsContextHelper';
+import { addMarketToStorage } from '../contexts/MarketsContext/marketsContextHelper';
 import { updateMessages } from '../contexts/NotificationsContext/notificationsContextReducer';
 import { updateMarketStages } from '../contexts/MarketStagesContext/marketStagesContextReducer';
 import { addGroupMembers } from '../contexts/GroupMembersContext/groupMembersContextReducer';
@@ -13,19 +13,13 @@ import {
   transformItemsToIndexable
 } from '../contexts/SearchIndexContext/searchIndexContextMessages';
 import { addContents } from '../contexts/DiffContext/diffContextReducer';
-import { updateCommentsFromVersions } from '../contexts/CommentsContext/commentsContextReducer';
+import { updateComments } from '../contexts/CommentsContext/commentsContextReducer';
 
 function addComments(commentsDispatch, diffDispatch, index, ticketDispatch, market, comments) {
-  // make it look like a normal comment push
-  const commentDetails = {
-    [market.id]: comments
-  };
-  let allComments = [];
-  Object.values(commentDetails).forEach((comments) => allComments = allComments.concat(comments));
-  const indexable = transformItemsToIndexable(INDEX_COMMENT_TYPE, allComments);
+  const indexable = transformItemsToIndexable(INDEX_COMMENT_TYPE, comments);
   index.addDocuments(indexable.filter((item) => item.type !== 'DELETED'));
   const ticketCodeItems = [];
-  allComments.forEach((comment) => {
+  comments.forEach((comment) => {
     const { market_id: marketId, id: commentId, group_id: groupId, ticket_code: ticketCode,
       investible_id: investibleId } = comment;
     if (ticketCode) {
@@ -35,23 +29,23 @@ function addComments(commentsDispatch, diffDispatch, index, ticketDispatch, mark
   if (!_.isEmpty(ticketCodeItems)) {
     ticketDispatch({items: ticketCodeItems});
   }
-  const fixedUpForDiff = allComments.map((comment) => {
+  const fixedUpForDiff = comments.map((comment) => {
     const { id, body: description, updated_by,  updated_by_you } = comment;
     return { id, description, updated_by, updated_by_you };
   });
   diffDispatch(addContents(fixedUpForDiff));
-  commentsDispatch(updateCommentsFromVersions(commentDetails));
+  commentsDispatch(updateComments(market.id, comments));
 }
 
 function addInvestibles(dispatch, diffDispatch, investibles) {
-  refreshInvestibles(dispatch, diffDispatch, investibles, true);
+  refreshInvestibles(dispatch, diffDispatch, investibles, false);
 }
 
 function addPresences(presenceDispatch, memberDispatch, market, presences) {
   const { id: marketId } = market;
   addDemoPresencesToMarket(presenceDispatch, marketId, presences);
   const users = presences.map((presence) => ({id: presence.id}));
-  memberDispatch(addGroupMembers(marketId, users, true));
+  memberDispatch(addGroupMembers(marketId, users));
 }
 
 function addStages(dispatch, market, stageDetails) {
@@ -64,7 +58,7 @@ function addGroup(dispatch, groupDetails) {
 }
 
 function addMarket(dispatch, market) {
-  addMarketsToStorage(dispatch, [market]);
+  addMarketToStorage(dispatch, market);
 }
 
 export async function handleMarketData(marketData, dispatchers) {

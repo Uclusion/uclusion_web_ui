@@ -16,9 +16,9 @@ function getStorage(storageKey) {
   return JSON.parse(storage);
 }
 
-export function removeInitializing(state, isQuickAdd=false) {
+export function removeInitializing(state) {
   const { initializing } = state;
-  if (!isQuickAdd && initializing) {
+  if (initializing) {
     // In case network beats the initialization
     return _.omit(state, ['initializing']);
   }

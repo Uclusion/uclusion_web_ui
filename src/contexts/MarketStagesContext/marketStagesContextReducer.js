@@ -49,7 +49,7 @@ function doUpdateMarketStages(state, action) {
     return { ...stage, fromQuickAdd: true };
   });
   return {
-    ...removeInitializing(state, true),
+    ...removeInitializing(state),
     [marketId]: stagesListTransformed,
   };
 }

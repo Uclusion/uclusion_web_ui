@@ -50,7 +50,7 @@ function doUpdateInvestibles(state, action, isQuickAdd) {
     })
     return { investible: newInvestible, market_infos: newMarketInfos }
   }) : investibles
-  const oldInvestibles = Object.values(removeInitializing(state, false))
+  const oldInvestibles = Object.values(removeInitializing(state))
   const newInvestibles = addByIdAndVersion(transformedInvestibles, oldInvestibles, (item) => item.investible.id,
     (item1, item2) => {
       const { investible: investible1, market_infos: marketInfos1 } = item1
@@ -66,7 +66,7 @@ function doUpdateInvestibles(state, action, isQuickAdd) {
       return !collision
     })
   const investibleHash = _.keyBy(newInvestibles, (item) => item.investible.id)
-  return { ...removeInitializing(state, isQuickAdd), ...investibleHash }
+  return { ...removeInitializing(state), ...investibleHash }
 }
 
 function computeNewState(state, action) {

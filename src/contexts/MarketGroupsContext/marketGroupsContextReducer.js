@@ -51,7 +51,7 @@ function doUpdateMarketGroups(state, action) {
   const oldGroups = state[marketId] || [];
   const newGroups = _.unionBy(groupsListTransformed, oldGroups, 'id');
   return {
-    ...removeInitializing(state, true),
+    ...removeInitializing(state),
     [marketId]: newGroups,
   };
 }

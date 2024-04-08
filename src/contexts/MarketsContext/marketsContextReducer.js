@@ -56,7 +56,7 @@ function doUpdateMarketDetails(state, action) {
   const transformedMarketDetails = [{ ...marketDetail, fromQuickAdd: true }]
   const newDetails = addByIdAndVersion(transformedMarketDetails, oldMarketDetails)
   return {
-    ...removeInitializing(state, true),
+    ...removeInitializing(state),
     marketDetails: newDetails,
   };
 }

@@ -7,13 +7,8 @@ import WizardStepButtons from '../WizardStepButtons';
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { FormattedMessage } from 'react-intl';
 import _ from 'lodash';
-import { formMarketAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import {
-  BUG_WIZARD_TYPE,
-  DISCUSSION_WIZARD_TYPE,
-  JOB_WIZARD_TYPE
-} from '../../../constants/markets';
 import { useHistory } from 'react-router';
+import { goToChosenWizard } from './ComposeWizard';
 
 function ChooseTypeStep (props) {
   const { marketId, groupId, updateFormData, formData } = props;
@@ -23,23 +18,6 @@ function ChooseTypeStep (props) {
   const { useType } = formData;
   const isFinal = !_.isEmpty(groupId);
 
-  function goToChosenWizard() {
-    switch(useType) {
-      case 'JOB':
-        navigate(history, formWizardLink(JOB_WIZARD_TYPE, marketId, undefined, groupId));
-        break;
-      case QUESTION_TYPE:
-        navigate(history, formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, QUESTION_TYPE));
-        break;
-      case SUGGEST_CHANGE_TYPE:
-        navigate(history, formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, SUGGEST_CHANGE_TYPE));
-        break;
-      default:
-        navigate(history, formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, 0));
-        break;
-    }
-  }
-
   return (
     <WizardStepContainer
       {...props}
@@ -48,7 +26,7 @@ function ChooseTypeStep (props) {
         What do you want to create?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        These are the top level objects in Uclusion.
+        These are the types that can be created directly under a workspace.
       </Typography>
       <FormControl component="fieldset">
         <RadioGroup
@@ -80,7 +58,7 @@ function ChooseTypeStep (props) {
         {...props}
         validForm={!_.isEmpty(useType)}
         nextLabel="WizardContinue"
-        onNext={isFinal ? goToChosenWizard : undefined}
+        onNext={isFinal ? () => goToChosenWizard(useType, marketId, groupId, history) : undefined}
         isFinal={isFinal}
         spinOnClick={false}
         showTerminate={false}

@@ -4,72 +4,47 @@ import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@m
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
-import { FormattedMessage } from 'react-intl';
 import _ from 'lodash';
-import { formMarketAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import {
-  BUG_WIZARD_TYPE,
-  DISCUSSION_WIZARD_TYPE,
-  JOB_WIZARD_TYPE
-} from '../../../constants/markets';
 import { useHistory } from 'react-router';
+import { goToChosenWizard } from './ComposeWizard';
 
 function ChooseGroupStep (props) {
-  const { marketId, groupId, updateFormData, formData } = props;
+  const { marketId, groups, updateFormData, formData } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
-  const allowedTypes = ['JOB', QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE];
-  const { useType } = formData;
-  const isFinal = !_.isEmpty(groupId);
-
-  function goToChosenWizard() {
-    switch(useType) {
-      case 'JOB':
-        navigate(history, formWizardLink(JOB_WIZARD_TYPE, marketId, undefined, groupId));
-        break;
-      case QUESTION_TYPE:
-        navigate(history, formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, QUESTION_TYPE));
-        break;
-      case SUGGEST_CHANGE_TYPE:
-        navigate(history, formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, SUGGEST_CHANGE_TYPE));
-        break;
-      default:
-        navigate(history, formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, 0));
-        break;
-    }
-  }
+  const { useType, groupId } = formData;
 
   return (
     <WizardStepContainer
       {...props}
     >
       <Typography className={classes.introText}>
-        What do you want to create?
+        Create in which group?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        These are the top level objects in Uclusion.
+        Groups control who gets notified by default.
       </Typography>
       <FormControl component="fieldset">
         <RadioGroup
-          aria-labelledby="type-choice"
+          aria-labelledby="group-choice"
           onChange={(event) => {
             const { value } = event.target;
-            updateFormData({ useType: value });
+            updateFormData({ groupId: value });
           }}
-          value={useType || ''}
+          value={groupId || ''}
         >
-          {allowedTypes.map((objectType) => {
+          {groups.map((group) => {
+            const groupId = group.id;
             return (
                 <FormControlLabel
-                  id={`type${objectType}`}
-                  key={objectType}
+                  id={`type${groupId}`}
+                  key={groupId}
                   /* prevent clicking the label stealing focus */
                   onMouseDown={e => e.preventDefault()}
                   control={<Radio color="primary" />}
-                  label={<FormattedMessage id={`${objectType.toLowerCase()}ComposeLabel`} />}
+                  label={group.name}
                   labelPlacement="end"
-                  value={objectType}
+                  value={groupId}
                 />
             );
           })}
@@ -80,8 +55,7 @@ function ChooseGroupStep (props) {
         {...props}
         validForm={!_.isEmpty(useType)}
         nextLabel="WizardContinue"
-        onNext={isFinal ? goToChosenWizard : undefined}
-        isFinal={isFinal}
+        onNext={() => goToChosenWizard(useType, marketId, groupId, history)}
         spinOnClick={false}
         showTerminate={false}
       />

@@ -1275,6 +1275,7 @@ const messages = defineMessages({
   QUESTIONComposeLabel: 'Question - can have approvable options and movable to a job',
   SUGGESTComposeLabel: 'Suggestion - voted for or against and movable to a job as suggestion or task',
   TODOComposeLabel: 'Bug - movable to a job as a task',
+  compose: 'Compose',
 
 
   //UnblockWizard

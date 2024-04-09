@@ -29,7 +29,12 @@ import {
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { useIntl } from 'react-intl'
 import WorkspaceMenu from '../../pages/Home/WorkspaceMenu'
-import { ADD_COLLABORATOR_WIZARD_TYPE, PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
+import {
+  ADD_COLLABORATOR_WIZARD_TYPE,
+  COMPOSE_WIZARD_TYPE,
+  PLANNING_TYPE,
+  SUPPORT_SUB_TYPE
+} from '../../constants/markets';
 import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper'
 import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
@@ -38,6 +43,7 @@ import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMem
 import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import OnboardingBanner from '../../components/Banners/OnboardingBanner';
 import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
+import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -162,9 +168,9 @@ function Screen(props) {
   const { pathname, search: querySearch, hash } = location;
   const { action, marketId: pathMarketIdRaw, investibleId: pathInvestibleId } = decomposeMarketPath(pathname);
   const values = queryString.parse(querySearch);
-  const { groupId, marketId: searchMarketId, investibleId: searchInvestibleId } = values || {};
+  const { groupId, marketId: searchMarketId, investibleId: searchInvestibleId} = values || {};
   const hashValues = queryString.parse(hash);
-  const { marketId: hashMarketId, investibleId: hashInvestibleId } = hashValues || {};
+  const { marketId: hashMarketId, investibleId: hashInvestibleId, type } = hashValues || {};
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -305,7 +311,13 @@ function Screen(props) {
                               inactiveGroups={inactiveGroups} chosenGroup={useGroupId}/>,
       navListItemTextArray: !_.isEmpty(defaultMarket) ? [
         {
+          icon: EditOutlinedIcon, text: intl.formatMessage({ id: 'compose' }),
+          isBold: action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase(),
+          target: `/wizard#type=${COMPOSE_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
+        },
+        {
           icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
+          isBold: action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase(),
           target: `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
         }
       ] : null}

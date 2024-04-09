@@ -339,8 +339,8 @@ const messages = defineMessages({
   aboutInbox: 'Get a job approved',
   demonstratesInbox: 'click this row to expand',
   notificationSummary: 'Summary',
-  viewInChannel: 'View in group',
-  viewInChannelLower: 'view in group',
+  viewInGroup: 'Group views',
+  viewInGroupTip: 'The primary views for displaying and creating data.',
   inactiveGroups: 'Inactive groups',
 
   // Address list

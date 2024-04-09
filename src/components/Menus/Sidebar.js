@@ -4,22 +4,23 @@ import React from 'react'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader, SubMenu } from 'react-pro-sidebar'
-import { IconButton, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { IconButton, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 
 function processRegularItem(properties) {
   const {classes, history, text, target, num, Icon, iconColor='black', onClickFunc, isBold,
     index, search, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon,
-    resetFunction} = properties;
+    resetFunction, tipText} = properties;
   if (!text) {
     return React.Fragment
   }
   const textNoSpaces = text.split(' ').join('')
   if (!target && !onClickFunc) {
     return (
-      <MenuItem icon={<Icon htmlColor="darkgrey" />} key={`noOnClick${index}${textNoSpaces}`}>
-        <span style={{color: "darkgrey"}}>{text}</span>
-      </MenuItem>
-    )
+      <Tooltip key={`tip${textNoSpaces}`}
+               title={tipText}>
+        <span style={{fontSize: '1.2rem', paddingLeft: '0.5rem'}}>{text}</span>
+      </Tooltip>
+    );
   }
   const key = `${index}${textNoSpaces}`;
   const backgroundColor = isBold && !isSubMenu ? '#b4d0d8' : undefined;
@@ -119,7 +120,7 @@ export default function Sidebar(props) {
         <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {
             const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, openMenuItems,
-              onEnterFunc, onLeaveFunc, endIcon, resetFunction } = navItem;
+              onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText } = navItem;
             if (subItems) {
               return (
                 <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
@@ -134,7 +135,7 @@ export default function Sidebar(props) {
               );
             }
             return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold,
-              index: topIndex, search, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction})
+              index: topIndex, search, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText})
           })}
         </Menu>
       )}

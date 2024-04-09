@@ -297,6 +297,10 @@ function Screen(props) {
       }
     });
     const items = itemsRaw.filter((item) => !_.isEmpty(item));
+    navListItemTextArray.push({
+      text: intl.formatMessage({ id: 'viewInGroup' }),
+      tipText: intl.formatMessage({ id: 'viewInGroupTip' })
+    });
     navListItemTextArray.push(...items);
   }
   const inboxCount = getInboxCount(messagesState);

@@ -21,6 +21,7 @@ import { isInInbox } from '../../../contexts/NotificationsContext/notificationsC
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext'
 import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions';
 import _ from 'lodash';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -35,6 +36,7 @@ function InboxFull(props) {
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [groupsState] = useContext(MarketGroupsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { messages: messagesUnsafe } = messagesState;
   const messagesMapped = (messagesUnsafe || []).map((message) => {
@@ -46,7 +48,7 @@ function InboxFull(props) {
   const allOutBoxMessagesOrdered = getOutboxMessages({messagesState, marketsState, marketPresencesState,
     investiblesState, marketStagesState, commentsState, intl});
   const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesFull,
-    searchResults, workItemId);
+    searchResults, workItemId, groupsState);
   const [inboxState, inboxDispatch] = useReducer(getReducer(messagesHash),
     {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);

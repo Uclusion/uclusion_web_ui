@@ -233,7 +233,7 @@ function WorkListItem(props) {
               {!mobileLayout && (
                 <StyledIconButton
                   className={cx(checked && "MailListItem-checked")}
-                  style={{marginLeft: '0.15rem', visibility: useSelect ? 'visible' : 'hidden'}}
+                  style={{visibility: useSelect ? 'visible' : 'hidden'}}
                   classes={actionStyles}
                   onClick={(event) => {
                     preventDefaultAndProp(event);

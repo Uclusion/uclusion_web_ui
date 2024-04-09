@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 
 const UPDATE_PAGE = 'UPDATE_PAGE';
 const UPDATE_TAB = 'SET_TAB';
@@ -31,10 +32,23 @@ function searchFiltered(raw, searchResults, workItemId) {
     });
 }
 
-export function getMessages(allOutBoxMessagesOrderedRaw, messagesFullRaw, searchResults, workItemId) {
+function addWorkspaceGroupAttribute (messagesFull, groupsState) {
+  return messagesFull.map((message) => {
+    const group = getGroup(groupsState, undefined, message.group_id);
+    if (group) {
+      return {...message, groupAttr: `${group.market_id}_${group.id}`};
+    }
+    return message;
+  });
+}
+
+export function getMessages(allOutBoxMessagesOrderedRaw, messagesFullRaw, searchResults, workItemId,
+  groupsState) {
   const messagesFull = searchFiltered(messagesFullRaw, searchResults, workItemId);
   const outBoxMessagesOrdered = searchFiltered(allOutBoxMessagesOrderedRaw, searchResults, workItemId);
-  const inboxMessagesOrdered =  _.orderBy(messagesFull, ['updated_at'], ['desc']) || [];
+  const messagesFullMapped = addWorkspaceGroupAttribute(messagesFull, groupsState);
+  const inboxMessagesOrdered =  _.orderBy(messagesFullMapped,
+    ['groupAttr', 'updated_at'], ['asc', 'desc']) || [];
   return {outBoxMessagesOrdered, inboxMessagesOrdered };
 }
 

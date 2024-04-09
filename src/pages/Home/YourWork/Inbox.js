@@ -18,17 +18,41 @@ import { calculateTitleExpansionPanel, createDefaultInboxRow } from './InboxExpa
 import { getUnpaginatedItems, PAGE_SIZE, setPage, setTab } from './InboxContext';
 import { stripHTML } from '../../../utils/stringFunctions';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
-import { formInboxItemLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  formInboxItemLink,
+  formMarketLink,
+  navigate,
+  preventDefaultAndProp
+} from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { dehighlightMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import NotificationDeletion from './NotificationDeletion';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketClient } from '../../../api/marketLogin';
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import Link from '@material-ui/core/Link';
+
+function createWorkspaceGroupHeader(market, group, history) {
+  const link = formMarketLink(market.id, group.id);
+  return (<div style={{marginTop: '0.3rem'}}>
+    Workspace {market.name} and group <Link href={link} onClick={
+    (event) => {
+      preventDefaultAndProp(event);
+      navigate(history, link);
+    }
+  }>{group.name}</Link>
+  </div>);
+}
 
 function Inbox(props) {
   const { messagesFull, inboxState, inboxDispatch, messagesHash, searchResults, workItemId, hidden } = props;
   const intl = useIntl();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [groupsState] = useContext(MarketGroupsContext);
+  const [marketsState] = useContext(MarketsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
   const theme = useTheme();
@@ -82,6 +106,26 @@ function Inbox(props) {
   const defaultRow = createDefaultInboxRow(unpaginatedItems, tabIndex);
   const { outBoxMessagesOrdered, inboxMessagesOrdered } = messagesHash;
   const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
+  const inboxRows = [];
+  let currentWorkSpaceGroupId = undefined;
+  data.forEach((message) => {
+    if (message.isOutboxType || !message.type_object_id) {
+      return React.Fragment;
+    }
+    if (currentWorkSpaceGroupId !== message.groupAttr) {
+      currentWorkSpaceGroupId = message.groupAttr;
+      const group = getGroup(groupsState, undefined, message.group_id);
+      const market = getMarket(marketsState, group.market_id);
+      inboxRows.push(createWorkspaceGroupHeader(market, group));
+    }
+    const isDeletable =  message.type_object_id.startsWith('UNREAD');
+    const determinateChecked = determinate[message.type_object_id];
+    const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
+    inboxRows.push(<InboxRow message={message} key={message.type_object_id}
+                     determinateDispatch={determinateDispatch}
+                     expansionOpen={isOnWorkItem && workItemId === message.type_object_id}
+                     isDeletable={isDeletable} checked={checked} />);
+  });
   return (
     <>
     <div style={{zIndex: 8, position: 'sticky', marginTop: mobileLayout ? '-30px' : (isOnWorkItem ? '-12px' : '-8px'),
@@ -106,7 +150,7 @@ function Inbox(props) {
                         tag={_.size(outBoxMessagesOrdered) > 0 ? `${_.size(outBoxMessagesOrdered)}` : undefined} />
         </GmailTabs>
       )}
-      <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
+      <div style={{paddingBottom: tabIndex > 0 ? '0.25rem' : undefined, backgroundColor: 'white'}}>
         <div style={{display: 'flex', width: '80%'}}>
           {!mobileLayout && !isOnWorkItem && (
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
@@ -186,11 +230,13 @@ function Inbox(props) {
             {!isOnWorkItem && (
               `${first} - ${last} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
             )}
-            <IconButton disabled={!hasLess} onClick={() => isOnWorkItem ? goToItem(previousItemId) :
+            <IconButton disabled={!hasLess} style={{padding: 0}}
+                        onClick={() => isOnWorkItem ? goToItem(previousItemId) :
               changePage(-1)} >
               <KeyboardArrowLeft />
             </IconButton>
-            <IconButton disabled={!hasMore} onClick={() => isOnWorkItem ? goToItem(nextItemId) :
+            <IconButton disabled={!hasMore} style={{padding: '4px'}}
+                        onClick={() => isOnWorkItem ? goToItem(nextItemId) :
               changePage(1)}>
               <KeyboardArrowRight />
             </IconButton>
@@ -200,18 +246,7 @@ function Inbox(props) {
     </div>
     <div id="inbox">
       {defaultRow}
-      { data.map((message) => {
-          if (message.isOutboxType || !message.type_object_id) {
-            return React.Fragment;
-          }
-          const isDeletable =  message.type_object_id.startsWith('UNREAD');
-          const determinateChecked = determinate[message.type_object_id];
-          const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-          return <InboxRow message={message} key={message.type_object_id}
-                           determinateDispatch={determinateDispatch}
-                           expansionOpen={isOnWorkItem && workItemId === message.type_object_id}
-                           isDeletable={isDeletable} checked={checked} />;
-      })}
+      { inboxRows }
       {
         data.map((message) => {
           if (!message.isOutboxType) {

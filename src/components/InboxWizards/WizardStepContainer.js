@@ -23,7 +23,7 @@ function WizardStepContainer (props) {
         justifyContent: 'center',
         zIndex: 9,
         position: 'sticky',
-        marginTop: '-41px',
+        marginTop: '-28px',
         marginBottom: '25px',
         paddingRight: '8rem',
         color: 'rgba(0, 0, 0, 0.62)',

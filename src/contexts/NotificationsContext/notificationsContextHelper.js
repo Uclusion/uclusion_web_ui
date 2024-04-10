@@ -17,9 +17,13 @@ function checkComment(commentId, commentVersion, marketId, commentsState, childI
   }
   const comment = getComment(commentsState, marketId, commentId);
   if (childId && !comment?.children?.includes(childId)) {
+    console.warn(`Child missing for ${commentId} and ${childId}`);
     return false;
   }
   if (!commentVersion) {
+    if (_.isEmpty(comment)) {
+      console.warn(`Comment missing for ${commentId}`);
+    }
     return !_.isEmpty(comment);
   }
   if (comment.version < commentVersion) {

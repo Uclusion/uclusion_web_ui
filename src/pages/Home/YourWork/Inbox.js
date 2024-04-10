@@ -112,7 +112,7 @@ function Inbox(props) {
     if (message.isOutboxType || !message.type_object_id) {
       return React.Fragment;
     }
-    if (currentWorkSpaceGroupId !== message.groupAttr) {
+    if (currentWorkSpaceGroupId !== message.groupAttr && !isOnWorkItem) {
       currentWorkSpaceGroupId = message.groupAttr;
       const group = getGroup(groupsState, undefined, message.group_id);
       const market = getMarket(marketsState, group.market_id);

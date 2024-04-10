@@ -306,7 +306,7 @@ function Reply(props) {
     <>
       <Card className={getHighlightClass()} id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
         <div onClick={() => {
-          if (replyBeingEdited) {
+          if (replyBeingEdited || comment.id === inboxMessageId) {
             navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
           }
         }}>

@@ -115,8 +115,12 @@ function Inbox(props) {
     if (currentWorkSpaceGroupId !== message.groupAttr && !isOnWorkItem) {
       currentWorkSpaceGroupId = message.groupAttr;
       const group = getGroup(groupsState, undefined, message.group_id);
-      const market = getMarket(marketsState, group.market_id);
-      inboxRows.push(createWorkspaceGroupHeader(market, group));
+      if (group) {
+        const market = getMarket(marketsState, group.market_id);
+        if (market) {
+          inboxRows.push(createWorkspaceGroupHeader(market, group));
+        }
+      }
     }
     const isDeletable =  message.type_object_id.startsWith('UNREAD');
     const determinateChecked = determinate[message.type_object_id];

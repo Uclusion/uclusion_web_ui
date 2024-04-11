@@ -164,7 +164,7 @@ function JobApproveStep(props) {
           {...props}
           onFinish={onFinish}
           validForm={validForm}
-          nextLabel={isAssigned ? 'ApprovalWizardAccept' : 'yourVotingVoteForThisPlanning'}
+          nextLabel={isAssigned ? 'ApprovalWizardAccept' : 'ApprovalWizardApprove'}
           onNext={onNext}
           showOtherNext
           otherNextValid

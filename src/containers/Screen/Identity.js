@@ -13,8 +13,7 @@ import { useHistory } from 'react-router';
 import Divider from '@material-ui/core/Divider';
 import Link from '@material-ui/core/Link';
 import { FormattedMessage, useIntl } from 'react-intl'
-import { openInNewTab } from '../../utils/marketIdPathFunctions'
-import SignOut from '../../pages/Authentication/SignOut';
+import { openInNewTab } from '../../utils/marketIdPathFunctions';
 import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
 import config from '../../config';
 import { isFederated } from '../../contexts/CognitoUserContext/cognitoUserContextHelper';
@@ -24,6 +23,7 @@ import Grid from '@material-ui/core/Grid'
 import IconButton from '@material-ui/core/IconButton'
 import { ContactSupport, Face, Payment, PermIdentity, VpnKey } from '@material-ui/icons';
 import md5 from 'md5';
+import { SIGN_OUT_WIZARD_TYPE } from '../../constants/markets';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -228,7 +228,15 @@ function Identity () {
           </div>
           <Divider />
           <div className={classes.signOut}>
-            <SignOut />
+            <Button
+              variant="outlined"
+              onClick={goTo(`/wizard#type=${SIGN_OUT_WIZARD_TYPE.toLowerCase()}`)}
+              className={classes.action}
+              disableRipple
+              id="signoutButton"
+            >
+              {intl.formatMessage({ id: 'signOutButton' })}
+            </Button>
           </div>
           <div className={classes.terms}>
             {mobileLayout && (

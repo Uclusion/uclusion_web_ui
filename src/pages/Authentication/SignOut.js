@@ -1,8 +1,9 @@
-import React, { useContext } from 'react'
-import { Button, makeStyles } from '@material-ui/core'
-import { useIntl } from 'react-intl'
-import { onSignOut } from '../../utils/userFunctions'
-import { LogoutContext } from '../../containers/App/App'
+import React from 'react';
+import { Button, makeStyles } from '@material-ui/core';
+import { useIntl } from 'react-intl';
+import { navigate } from '../../utils/marketIdPathFunctions';
+import { SIGN_OUT_WIZARD_TYPE } from '../../constants/markets';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles( {
   action: {
@@ -14,27 +15,14 @@ const useStyles = makeStyles( {
   }
 })
 function SignOut(props) {
-  const logoutChannel = useContext(LogoutContext);
   const classes = useStyles();
   const intl = useIntl();
-
-  function myOnSignOut() {
-    if (logoutChannel) {
-      if (logoutChannel.postMessage) {
-        logoutChannel.postMessage('signedOut').then(() => onSignOut()).then(() => {
-          console.info('Reloaded already in onSignOut');
-        });
-      } else {
-        console.warn(logoutChannel);
-        onSignOut();
-      }
-    }
-  }
+  const history = useHistory();
 
   return (
     <Button
       variant="outlined"
-      onClick={myOnSignOut}
+      onClick={() => navigate(history, `/wizard#type=${SIGN_OUT_WIZARD_TYPE.toLowerCase()}`)}
       className={classes.action}
       disableRipple
       id="signoutButton"

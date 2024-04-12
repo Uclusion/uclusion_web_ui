@@ -35,12 +35,14 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import Screen from '../Screen/Screen';
 import { useIntl } from 'react-intl';
-import { DEMO_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import { DEMO_TYPE, PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
 import _ from 'lodash';
 import jwt_decode from 'jwt-decode';
-import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getMarket, getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningMarketLoad from '../../pages/Dialog/Planning/PlanningMarketLoad';
 import DemoMarketLoad from '../../pages/Dialog/Planning/DemoMarketLoad';
+import { getFirstWorkspace } from '../../utils/redirectUtils';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 const useStyles = makeStyles({
   body: {
@@ -82,15 +84,25 @@ function Root() {
   const marketLink = supportMarket.id ? formMarketLink(supportMarket.id, supportMarket.id) : undefined;
   const demo = marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
     market.object_type === DEMO_TYPE);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
+  let markets = [];
+  if (myNotHiddenMarketsState.marketDetails) {
+    const filtered = myNotHiddenMarketsState.marketDetails.filter((market) =>
+      market.market_type === PLANNING_TYPE);
+    markets = _.sortBy(filtered, (market) => market.market_sub_type === SUPPORT_SUB_TYPE, 'name');
+  }
+  const defaultMarket = getFirstWorkspace(markets, marketId);
+  const defaultMarketLink = defaultMarket?.id ? formMarketLink(defaultMarket.id, defaultMarket.id) :
+    undefined;
   const isDemoUser = [OnboardingState.DemoCreated, OnboardingState.NeedsOnboarding]
     .includes(userState?.user?.onboarding_state);
   const demoCreatedUser = userState?.user?.onboarding_state === OnboardingState.DemoCreated;
+  const firstMarketJoinedUser = userState?.user?.onboarding_state === OnboardingState.FirstMarketJoined;
+  const isRootPath = pathname === '/';
 
   function hideInbox() {
-    if (pathname === '/' && isDemoUser) {
-      return true;
-    }
-    return action !== 'inbox' && pathname !== '/';
+    return action !== 'inbox';
   }
 
   function hideWorkspaceWizard() {
@@ -114,7 +126,7 @@ function Root() {
   }
 
   function hideDemoLoad() {
-    return !isDemoUser || pathname !== '/';
+    return !isDemoUser || !isRootPath;
   }
 
   function hideInvestible() {
@@ -157,10 +169,10 @@ function Root() {
   }
 
   // Page Not Found
-  const hidePNF = !(hideMarket() && hideSupport() && hideInvestible() && hideWorkspaceWizard() && hideInbox()
-    && hideSlackInvite() && hideChangePassword() && hideMarketEdit() && hideGroupSettings() && hideMarketLoad()
-    && hideGroupArchive() && hideChangeNotification() && hideBillingHome() && hideTodoAdd() && hideCommentReplyEdit()
-    && hideDemoLoad() && !isTicketPath(pathname));
+  const hidePNF = isRootPath || !(hideMarket() && hideSupport() && hideInvestible() && hideWorkspaceWizard() &&
+    hideInbox() && hideSlackInvite() && hideChangePassword() && hideMarketEdit() && hideGroupSettings() &&
+    hideMarketLoad() && hideGroupArchive() && hideChangeNotification() && hideBillingHome() && hideTodoAdd() &&
+    hideCommentReplyEdit() && hideDemoLoad() && !isTicketPath(pathname));
 
   const isUserLoaded = userIsLoaded(userState);
 
@@ -182,13 +194,19 @@ function Root() {
   },  [action, history, marketLink]);
 
   useEffect(() => {
-    if (pathname === '/' && demoCreatedUser) {
-      if (!_.isEmpty(demo)) {
-        // Should be loading market already so just need url correct
-        window.history.replaceState(null, '', formMarketLink(demo.id, demo.id));
+    if (isRootPath) {
+      if (demoCreatedUser) {
+        if (!_.isEmpty(demo)) {
+          // Should be loading market already so just need url correct
+          window.history.replaceState(null, '', formMarketLink(demo.id, demo.id));
+        }
+      } else if (firstMarketJoinedUser) {
+        if (!_.isEmpty(defaultMarketLink)) {
+          navigate(history, defaultMarketLink, true);
+        }
       }
     }
-  },  [demo, history, pathname, demoCreatedUser]);
+  },  [demo, history, isRootPath, demoCreatedUser, defaultMarketLink, firstMarketJoinedUser]);
 
   useEffect(() => {
     if (action === 'invite') {
@@ -252,7 +270,7 @@ function Root() {
     }
   },  [history, setOnline, location, isUserLoaded]);
 
-  if (action === 'supportWorkspace') {
+  if (action === 'supportWorkspace' || (isRootPath && firstMarketJoinedUser && _.isEmpty(defaultMarketLink))) {
     return (
       <Screen
         hidden={false}

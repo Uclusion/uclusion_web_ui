@@ -34,7 +34,8 @@ function CondensedTodos(props) {
     groupId,
     isInbox = false,
     hideTabs,
-    isDefaultOpen = false
+    isDefaultOpen = false,
+    defaultToOpenComments = true
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -44,7 +45,7 @@ function CondensedTodos(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState] = useContext(NotificationsContext);
-  const [showOpen, setShowOpen] = useState(true);
+  const [showOpen, setShowOpen] = useState(defaultToOpenComments);
   const [sectionOpen, setSectionOpen] = useState(isDefaultOpen);
   const [todoState, todoDispatch] = useReducer(getReducer(), {expansionState: {}});
   const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),

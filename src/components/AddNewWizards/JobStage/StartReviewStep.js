@@ -76,7 +76,8 @@ function StartReviewStep(props) {
       <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
         {isInReviewStage(fullMoveStage) ? 'What was finished?' : 'Why are you not doing?'}
       </Typography>
-      <CondensedTodos comments={roots} investibleComments={comments} isInbox marketId={marketId} hideTabs />
+      <CondensedTodos comments={roots} investibleComments={comments} isInbox marketId={marketId} hideTabs
+                      defaultToOpenComments={false} />
       <CommentAdd
         nameKey="CommentAddStartReview"
         type={REPORT_TYPE}

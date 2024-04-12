@@ -10,7 +10,15 @@ import React, { useContext } from 'react';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { Assignment, Block, CalendarToday, Done, PersonAddOutlined, ReportOutlined } from '@material-ui/icons';
+import {
+  Assignment,
+  Block,
+  CalendarToday,
+  Done,
+  PersonAddOutlined,
+  ReportOutlined,
+  Schedule
+} from '@material-ui/icons';
 import Quiz from '../../../components/CustomChip/Quiz';
 import { useIntl } from 'react-intl';
 import { useMediaQuery, useTheme } from '@material-ui/core';
@@ -42,6 +50,9 @@ function getPriorityIcon(message, isAssigned, isMentioned) {
   }
   if (message.type?.includes('REVIEW') && !isAssigned) {
     Icon = RateReviewIcon;
+  }
+  if (message.type === 'REPORT_REQUIRED') {
+    Icon = Schedule;
   }
   if (['UNASSIGNED', 'UNREAD_GROUP'].includes(message.type) || (message.type === 'UNREAD_REVIEWABLE'
       && ['INVESTIBLE', 'MARKET_TODO'].includes(linkType))) {

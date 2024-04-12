@@ -79,13 +79,13 @@ function JobStageStep (props) {
   const hasOpenTodos = !_.isEmpty(openTodos) && isInReviewStage(fullMoveStage);
   const isCloseComments = hasOpenTodos ||
     (fullCurrentStage.move_on_comment && openAssistance && !fullMoveStage.close_comments_on_entrance);
+  const isFinal = isFurtherWorkStage(fullMoveStage)||
+    !(_.isEmpty(assigned)||isCloseComments||isInReviewStage(fullMoveStage)||isNotDoingStage(fullMoveStage));
   function move() {
-    if (!isNotDoingStage(fullMoveStage)&&!isFurtherWorkStage(fullMoveStage)) {
-      if (_.isEmpty(assigned)||isCloseComments) {
-        //No op go to next step
-        setOperationRunning(false);
-        return Promise.resolve(true);
-      }
+    if (!isFinal) {
+      //No op go to next step
+      setOperationRunning(false);
+      return Promise.resolve(true);
     }
     const moveInfo = {
       marketId,
@@ -163,7 +163,7 @@ function JobStageStep (props) {
           {...props}
           validForm={validForm}
           showNext
-          isFinal={isNotDoingStage(fullMoveStage)}
+          isFinal={isFinal}
           onIncrement={doIncrement}
           onNext={move}
         />

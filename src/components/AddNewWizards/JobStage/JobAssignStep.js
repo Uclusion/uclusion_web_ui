@@ -93,7 +93,7 @@ function JobAssignStep (props) {
           Who should be working on the job?
         </Typography>
         <Typography className={classes.introSubText} variant="subtitle1">
-          {isAcceptedStage(fullMoveStage) ? 'You must be assigned to this job to move it to Accepted.' :
+          {isAcceptedStage(fullMoveStage) ? 'You must be assigned to this job to move it to Approved.' :
             'This job must be assigned to move out of backlog.'}
         </Typography>
         <AssignmentList

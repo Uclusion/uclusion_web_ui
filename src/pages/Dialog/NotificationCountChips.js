@@ -5,7 +5,7 @@ import {
 } from '@material-ui/core'
 import { useIntl } from 'react-intl'
 import Chip from '@material-ui/core/Chip'
-import { AssignmentInd } from '@material-ui/icons'
+import { ReportOutlined } from '@material-ui/icons';
 import Approval from '../../components/CustomChip/Approval'
 
 
@@ -35,7 +35,7 @@ function NotificationCountChips(props) {
       {mentions?.length > 0 && (
         <Tooltip key={`tipmention${id}`}
                  title={intl.formatMessage({ id: 'mentionsExplanation' })}>
-          <Chip component="span" icon={<AssignmentInd className={classes.iconTodo}/>} label={`${mentions.length}`}
+          <Chip component="span" icon={<ReportOutlined className={classes.iconTodo}/>} label={`${mentions.length}`}
                 size='small' className={classes.chipStyle}/>
         </Tooltip>
       )}

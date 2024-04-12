@@ -166,7 +166,7 @@ function InboxRow(props) {
       }
     }
   }
-  const isMentioned = originalComment?.mentions?.includes(userId);
+  const isMentioned = originalComment?.mentions?.find((mention) => mention.user_id === userId);
   item.icon = getPriorityIcon(message, isAssigned, isMentioned);
 
   if (rootComment?.resolved && !typeObjectId?.includes('UNREAD_RESOLVED') && !typeObjectId?.includes('UNREAD_REPLY')) {

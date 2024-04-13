@@ -11,7 +11,7 @@ const EMPTY_VERSION = { object_versions: [] };
  * @param checkVersion Whether to include version in the calculation or not
  * @returns {boolean}
  */
-function signatureMatches(signature, object, checkVersion=true) {
+export function signatureMatches(signature, object, checkVersion=true) {
   for (const key of Object.keys(signature)) {
     const signatureVersion = signature[key];
     const objectVersion = object[key];

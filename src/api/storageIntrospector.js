@@ -1,6 +1,7 @@
-import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils'
+import { getFetchSignaturesForMarket, signatureMatcher } from './versionSignatureUtils';
 import _ from 'lodash'
 import { getMarketInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper'
+import { REPLY_TYPE } from '../constants/comments';
 
 /**
  Functions used during the fetch process to check what we have in local storage.
@@ -41,7 +42,7 @@ export function checkInStorage(marketId, fetchSignatures, storageStates) {
   } = fetchSignatures;
   const { commentsState, investiblesState, marketsState, marketPresencesState, marketStagesState,
     marketGroupsState, groupMembersState } = storageStates;
-  const commentsMatches = satisfyComments(marketId, comments, commentsState);
+  const commentsMatches = satisfyComments(comments, ((commentsState || {})[marketId]) || []);
   // keep updating the required versions so it's an ever shrinking map
   const investibleMatches = satisfyInvestibles(marketId, investibles, investiblesState);
   const marketMatches = satisfyMarkets(markets, marketsState);
@@ -60,12 +61,32 @@ export function checkInStorage(marketId, fetchSignatures, storageStates) {
   };
 }
 
-function satisfyComments (marketId, commentSignatures, commentsState) {
-    const usedState = commentsState || {};
-    // Comments State is just a id, version pair, just like version signatures, so to check we just unpack every comment
-    const marketComments = usedState[marketId];
-    const usedComments = _.isArray(marketComments)? marketComments : [];
-    return signatureMatcher(usedComments, commentSignatures);
+export function satisfyComments(commentSignatures, marketComments) {
+    const { matched, unmatchedSignatures, allMatched } =
+      signatureMatcher(marketComments, commentSignatures);
+    // check that parent includes child or if parent that all children exist
+    // this is required because the parent and child signatures will come in at different times
+    let reallyAllMatched = allMatched;
+    matched?.forEach((comment) => {
+      if (comment.comment_type === REPLY_TYPE) {
+        const parent = marketComments.find(aComment => aComment.id === comment.reply_id);
+        if (!parent?.children?.includes(comment.id)) {
+          console.warn(`From child signature parent ${parent?.id} missing child ${comment.id}`);
+          // If parent is not there then need parent else need next version of parent
+          unmatchedSignatures.push({id: comment.reply_id, version: parent ? parent.version + 1 : 1});
+          reallyAllMatched = false;
+        }
+      }
+      comment?.children?.forEach((childId) => {
+        const child = marketComments.find(aComment => aComment.id === childId);
+        if (!child) {
+          console.warn(`From parent signature parent ${comment.id} missing child ${childId}`);
+          unmatchedSignatures.push({id: childId, version: 1});
+          reallyAllMatched = false;
+        }
+      });
+    });
+    return { matched, unmatchedSignatures, allMatched: reallyAllMatched };
 }
 
 function satisfyInvestibles(marketId, investibleSignatures, investibleState) {

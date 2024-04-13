@@ -6,7 +6,7 @@ import { getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatu
 import { fetchComments } from './comments'
 import { fetchInvestibles } from './marketInvestibles'
 import { LimitedParallelMap } from '../utils/PromiseUtils'
-import { checkInStorage, checkSignatureInStorage } from './storageIntrospector'
+import { checkInStorage, checkSignatureInStorage, satisfyComments } from './storageIntrospector';
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { COMMENTS_CONTEXT_NAMESPACE } from '../contexts/CommentsContext/CommentsContext'
 import { INVESTIBLES_CONTEXT_NAMESPACE } from '../contexts/InvestibesContext/InvestiblesContext'
@@ -280,7 +280,7 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
     promises.push(fetchMarketVersion(marketClient, marketId, markets.unmatchedSignatures[0], marketsStruct));
   }
   if (!_.isEmpty(comments.unmatchedSignatures)) {
-    promises.push(fetchMarketComments(marketClient, marketId, comments, marketsStruct));
+    promises.push(fetchMarketComments(marketClient, marketId, comments, marketsStruct, storageStates.commentsState));
   }
   if (!_.isEmpty(investibles.unmatchedSignatures)) {
     promises.push(fetchMarketInvestibles(marketClient, marketId, investibles, marketsStruct));
@@ -300,7 +300,7 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
   return new LimitedParallelMap(promises, (promise) => promise, MAX_CONCURRENT_API_CALLS);
 }
 
-function fetchMarketVersion (marketClient, marketId, marketSignature, marketsStruct) {
+function fetchMarketVersion(marketClient, marketId, marketSignature, marketsStruct) {
   return getMarketDetails(marketClient)
     .then((marketDetails) => {
       // console.log(marketDetails);
@@ -309,23 +309,27 @@ function fetchMarketVersion (marketClient, marketId, marketSignature, marketsStr
       addMarketsStructInfo('markets', marketsStruct, [marketDetails]);
       if (!match.allMatched) {
         console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            unmatched: match.unmatchedSignatures} });
+        const unmatched = match.unmatchedSignatures.map((signature) => {
+          return {...signature, object_type: 'market'}
+        });
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched} });
       }
     });
 }
 
-function fetchMarketComments (marketClient, marketId, allComments, marketsStruct) {
+function fetchMarketComments(marketClient, marketId, allComments, marketsStruct, commentsState) {
   const commentsSignatures = allComments.unmatchedSignatures;
   const commentIds = commentsSignatures.map((comment) => comment.id);
   return fetchComments(commentIds, marketClient)
     .then((comments) => {
-      const match = signatureMatcher(comments, commentsSignatures);
+      const match = satisfyComments(commentsSignatures, ((commentsState || {})[marketId]) || []);
       addMarketsStructInfo('comments', marketsStruct, comments, marketId);
       if (!match.allMatched) {
+        const unmatched = match.unmatchedSignatures.map((signature) => {
+          return {...signature, object_type: 'comment'}
+        });
         console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            unmatched: match.unmatchedSignatures} });
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched} });
       }
     });
 }
@@ -341,8 +345,10 @@ function fetchMarketInvestibles(marketClient, marketId, allInvestibles, marketsS
       addMarketsStructInfo('investibles', marketsStruct, investibles);
       if (!match.allMatched) {
         console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            unmatched: match.unmatchedSignatures} });
+        const unmatched = match.unmatchedSignatures.map((signature) => {
+          return {...signature, object_type: 'investible'}
+        });
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched} });
       }
     });
 }
@@ -355,8 +361,10 @@ function fetchMarketPresences(marketClient, marketId, allMp, marketsStruct) {
       addMarketsStructInfo('users', marketsStruct, users, marketId);
       if (!match.allMatched) {
         console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            unmatched: match.unmatchedSignatures} });
+        const unmatched = match.unmatchedSignatures.map((signature) => {
+          return {...signature, object_type: 'market_capability'}
+        });
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched} });
       }
     });
 }
@@ -369,8 +377,10 @@ function fetchMarketStages(marketClient, marketId, allMs, marketsStruct) {
       addMarketsStructInfo('stages', marketsStruct, stages, marketId);
       if (!match.allMatched) {
         console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            unmatched: match.unmatchedSignatures} });
+        const unmatched = match.unmatchedSignatures.map((signature) => {
+          return {...signature, object_type: 'stage'}
+        });
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched} });
       }
     });
 }
@@ -383,9 +393,10 @@ function fetchMarketGroups(marketClient, marketId, allMg, marketsStruct) {
         addMarketsStructInfo('group', marketsStruct, groups, marketId);
         if(!match.allMatched) {
           console.warn(match.unmatchedSignatures);
-          pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            unmatched: match.unmatchedSignatures
-          }})
+          const unmatched = match.unmatchedSignatures.map((signature) => {
+            return {...signature, object_type: 'group'}
+          });
+          pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched}})
         }
     })
 }
@@ -404,9 +415,10 @@ function fetchGroupMembers(marketClient, marketId, allMg, marketsStruct) {
       addMarketsStructInfo('members', marketsStruct, users);
       if(!match.allMatched) {
         console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            unmatched: match.unmatchedSignatures
-          }})
+        const unmatched = match.unmatchedSignatures.map((signature) => {
+          return {...signature, object_type: 'group_capability'}
+        });
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched}})
       }
     })
 }

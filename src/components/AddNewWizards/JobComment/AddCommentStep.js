@@ -9,8 +9,7 @@ import CommentAdd from '../../Comments/CommentAdd';
 import { useHistory } from 'react-router';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { getMarketInfo } from '../../../utils/userFunctions';
+import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
@@ -34,18 +33,14 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function AddCommentStep (props) {
-  const { investibleId, marketId, useType, updateFormData, formData, resolveId } = props;
+  const { investibleId, marketId, useType, updateFormData, formData, resolveId, groupId, currentStageId } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
-  const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const inv = getInvestible(investibleState, investibleId) || {};
-  const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { group_id: groupId, stage: currentStageId } = marketInfo;
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
   const history = useHistory();

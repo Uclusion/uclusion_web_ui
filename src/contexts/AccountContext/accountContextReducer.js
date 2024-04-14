@@ -1,10 +1,12 @@
 import { setUclusionLocalStorageItem } from '../../components/localStorageUtils'
+import { OnboardingState } from './accountUserContextHelper';
 
 const REFRESH_ACCOUNT = 'REFRESH_ACCOUNT';
 const CLEAR_ACCOUNT = 'CLEAR_ACCOUNT';
 const REFRESH_BILLING_INFO = 'REFRESH_BILLING_INFO';
 const REFRESH_INVOICES = 'REFRESH_INVOICES';
 const REFRESH_ACCOUNT_USER = 'REFRESH_ACCOUNT_USER';
+const QUICK_JOIN_ACCOUNT_USER = 'QUICK_JOIN_ACCOUNT_USER';
 const REFRESH_ACCOUNT_AND_USER = 'REFRESH_ACCOUNT_AND_USER';
 export const ACCOUNT_CONTEXT_KEY = 'account_context';
 
@@ -72,6 +74,12 @@ export function accountUserRefresh(user) {
   };
 }
 
+export function accountUserJoinedMarket() {
+  return {
+    type: QUICK_JOIN_ACCOUNT_USER
+  };
+}
+
 function doAccountRefresh(state, action) {
   const { account } = action;
   return {
@@ -112,24 +120,37 @@ function doAccountUserRefresh(state, action) {
   };
 }
 
+function doAccountUserQuickJoin(state) {
+  const { user } = state;
+  if (user.onboarding_state === OnboardingState.FirstMarketJoined) {
+    return state;
+  }
+  return  {
+    ...state,
+    user: {...user, onboarding_state: OnboardingState.FirstMarketJoined}
+  };
+}
+
 export function reducer(state, action) {
   function calculateState () {
-    const { type } = action
+    const { type } = action;
     switch (type) {
       case REFRESH_ACCOUNT_USER:
-        return doAccountUserRefresh(state, action)
+        return doAccountUserRefresh(state, action);
       case REFRESH_ACCOUNT:
-        return doAccountRefresh(state, action)
+        return doAccountRefresh(state, action);
       case CLEAR_ACCOUNT:
-        return doAccountClear(state, action)
+        return doAccountClear(state, action);
       case REFRESH_BILLING_INFO:
-        return doBillingInfoRefresh(state, action)
+        return doBillingInfoRefresh(state, action);
       case REFRESH_INVOICES:
-        return doInvoicesRefresh(state, action)
+        return doInvoicesRefresh(state, action);
       case REFRESH_ACCOUNT_AND_USER:
-        return doAccountAndUserRefresh(state, action)
+        return doAccountAndUserRefresh(state, action);
+      case QUICK_JOIN_ACCOUNT_USER:
+        return doAccountUserQuickJoin(state);
       default:
-        return state
+        return state;
     }
   }
 

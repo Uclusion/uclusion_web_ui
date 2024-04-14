@@ -24,6 +24,8 @@ import {
   INVITE_MARKET_EVENT,
   LOAD_MARKET_CHANNEL
 } from '../../../contexts/MarketsContext/marketsContextMessages';
+import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
+import { accountUserJoinedMarket } from '../../../contexts/AccountContext/accountContextReducer';
 
 function PlanningMarketLoad() {
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -32,6 +34,7 @@ function PlanningMarketLoad() {
   const [, stagesDispatch] = useContext(MarketStagesContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [, userDispatch] = useContext(AccountContext);
   const intl = useIntl();
   const history = useHistory();
   const { location } = history;
@@ -42,6 +45,8 @@ function PlanningMarketLoad() {
     const loadedMarketId = suspend(async () => {
       const result = await getMarketFromInvite(marketToken);
       console.log('Quick adding market after invite load');
+      // The user below is not home user so just fabricate the onboarding state if necessary
+      userDispatch(accountUserJoinedMarket());
       const { market, user, stages, uclusion_token: token, investible, notifications } = result;
       const { id } = market;
       if (notifications) {

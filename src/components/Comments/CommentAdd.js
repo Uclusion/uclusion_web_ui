@@ -461,10 +461,11 @@ function CommentAdd(props) {
                     handleSave();
                   } : (wizardProps.onTerminate ? wizardProps.onTerminate :
                     () => navigate(history, formInvestibleLink(marketId, investibleId)))}
-                  showOtherNext={type === TODO_TYPE}
-                  otherNextLabel='addAnother'
+                  showOtherNext={type === TODO_TYPE || wizardProps.isResolve}
+                  otherNextLabel={type === TODO_TYPE ? 'addAnother' : 'commentResolveLabelOnly'}
                   isOtherFinal={false}
-                  onOtherNext={() => {
+                  otherNextValid={wizardProps.isResolve ? true : undefined}
+                  onOtherNext={wizardProps.isResolve ? wizardProps.onResolve : () => {
                       handleSave(true, undefined, false, true );
                       resetEditor(editorName, '', {placeholder});
                     }

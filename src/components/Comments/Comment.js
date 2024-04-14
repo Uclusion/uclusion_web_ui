@@ -45,7 +45,7 @@ import {
   ACTIVE_STAGE,
   BUG_WIZARD_TYPE,
   INITIATIVE_TYPE,
-  JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
+  JOB_COMMENT_CONFIGURE_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE,
   OPTION_WIZARD_TYPE,
   PLANNING_TYPE, REPLY_WIZARD_TYPE
 } from '../../constants/markets';
@@ -57,7 +57,7 @@ import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStage
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   decomposeMarketPath,
-  formCommentLink,
+  formCommentLink, formInvestibleAddCommentLink,
   formMarketAddInvestibleLink,
   formWizardLink,
   navigate,
@@ -927,7 +927,10 @@ function Comment(props) {
                 )}
                 {((resolved && showReopen) || (!resolved && showResolve)) && (
                   <SpinningIconLabelButton
-                    onClick={resolved ? reopen : resolve}
+                    doSpin={resolved || commentType !== REPORT_TYPE}
+                    onClick={resolved ? reopen : (commentType === REPORT_TYPE ? () => navigate(history,
+                      `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                        REPORT_TYPE)}&resolveId=${id}`) : resolve)}
                     icon={resolved ? SettingsBackupRestore : Done}
                     id={`commentResolveReopenButton${id}`}
                     iconOnly={mobileLayout && !resolved}

@@ -9,7 +9,7 @@ import CommentAdd from '../../Comments/CommentAdd';
 import { useHistory } from 'react-router';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import {
   ISSUE_TYPE,
@@ -25,16 +25,24 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import JobDescription from '../../InboxWizards/JobDescription';
-import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import _ from 'lodash';
+import { resolveComment } from '../../../api/comments';
+import { removeMessagesForCommentId } from '../../../utils/messageUtils';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function AddCommentStep (props) {
-  const { investibleId, marketId, useType, updateFormData, formData } = props;
+  const { investibleId, marketId, useType, updateFormData, formData, resolveId } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [commentState] = useContext(CommentsContext);
+  const [commentState, commentDispatch] = useContext(CommentsContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const inv = getInvestible(investibleState, investibleId) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { group_id: groupId, stage: currentStageId } = marketInfo;
@@ -50,6 +58,7 @@ function AddCommentStep (props) {
   const comments = useType === TODO_TYPE ? investibleComments?.filter((comment) =>
     [TODO_TYPE, REPLY_TYPE].includes(comment.comment_type)) : undefined;
   const { useCompression } = formData;
+  const isResolve = !_.isEmpty(resolveId);
 
   function onSave(comment) {
     if (comment.is_sent) {
@@ -59,6 +68,19 @@ function AddCommentStep (props) {
         groupId});
     }
   }
+
+  function onReportResolveOnly() {
+    return resolveComment(marketId, resolveId)
+      .then((response) => {
+        const comment = response['comment'];
+        addCommentToMarket(comment, commentState, commentDispatch);
+        removeMessagesForCommentId(resolveId, messagesState, messagesDispatch);
+        addInvestible(investiblesDispatch, () => {}, response['investible']);
+        setOperationRunning(false);
+        navigate(history, formCommentLink(marketId, groupId, investibleId, resolveId));
+      });
+  }
+
   const movingJob = isAssistance && !inAssistanceStage;
   return (
     <WizardStepContainer
@@ -79,9 +101,15 @@ function AddCommentStep (props) {
           Opening a task prevents moving this job to Tasks Complete stage until resolved.
         </Typography>
       )}
-      {useType === REPORT_TYPE && (
+      {useType === REPORT_TYPE && !isResolve && (
         <Typography className={classes.introSubText} variant="subtitle1">
           For feedback explain what needs reviewing. Use @ mentions to require and only notify specific reviewers.
+        </Typography>
+      )}
+      {useType === REPORT_TYPE && isResolve && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Opening a new progress report automatically resolves older reports. If you don't have a new report choose
+          'Resolve only' below.
         </Typography>
       )}
       {![REPORT_TYPE, TODO_TYPE].includes(useType) && !movingJob && (
@@ -95,7 +123,7 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="JobCommentAdd"
         type={useType}
-        wizardProps={{...props, isAddWizard: true}}
+        wizardProps={{...props, isAddWizard: true, isResolve, onResolve: onReportResolveOnly}}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

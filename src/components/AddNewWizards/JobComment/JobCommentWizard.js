@@ -12,7 +12,7 @@ import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageSta
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function JobCommentWizard(props) {
-  const { investibleId, marketId, commentType } = props;
+  const { investibleId, marketId, commentType, resolveId } = props;
   const [commentsState] = useContext(CommentsContext);
   const presences = usePresences(marketId);
   const isQuestion = commentType === QUESTION_TYPE;
@@ -34,7 +34,7 @@ function JobCommentWizard(props) {
       <FormdataWizard name={`job_comment_wizard${investibleId}`} useLocalStorage={false}
                       defaultFormData={hasDraft ? draftData : {useCompression: true}}>
         {!hasDraft && (
-          <AddCommentStep investibleId={investibleId} marketId={marketId} useType={commentType} />
+          <AddCommentStep investibleId={investibleId} marketId={marketId} useType={commentType} resolveId={resolveId} />
         )}
         {hasDraft && (
           <CommentEdit

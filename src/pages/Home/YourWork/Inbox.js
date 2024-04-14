@@ -1,5 +1,5 @@
 import WorkListItem from './WorkListItem';
-import { Box, Checkbox, IconButton, useMediaQuery, useTheme } from '@material-ui/core';
+import { Box, Checkbox, useMediaQuery, useTheme } from '@material-ui/core';
 import React, { useContext, useEffect, useReducer } from 'react';
 import { useIntl } from 'react-intl';
 import { ArrowBack, Inbox as InboxIcon, KeyboardArrowLeft, NotificationsActive } from '@material-ui/icons';
@@ -234,16 +234,12 @@ function Inbox(props) {
             {!isOnWorkItem && (
               `${first} - ${last} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
             )}
-            <IconButton disabled={!hasLess} style={{padding: 0}}
-                        onClick={() => isOnWorkItem ? goToItem(previousItemId) :
-              changePage(-1)} >
-              <KeyboardArrowLeft />
-            </IconButton>
-            <IconButton disabled={!hasMore} style={{padding: '4px'}}
-                        onClick={() => isOnWorkItem ? goToItem(nextItemId) :
-              changePage(1)}>
-              <KeyboardArrowRight />
-            </IconButton>
+            <TooltipIconButton disabled={!hasLess} icon={<KeyboardArrowLeft htmlColor={ACTION_BUTTON_COLOR} />}
+                               onClick={() => isOnWorkItem ? goToItem(previousItemId) :
+                                 changePage(-1)} translationId="SearchResultsPrevious" />
+            <TooltipIconButton disabled={!hasMore} icon={<KeyboardArrowRight htmlColor={ACTION_BUTTON_COLOR} />}
+                               onClick={() => isOnWorkItem ? goToItem(nextItemId) :
+                                 changePage(1)} translationId="SearchResultsNext" />
           </Box>
         </div>
       </div>

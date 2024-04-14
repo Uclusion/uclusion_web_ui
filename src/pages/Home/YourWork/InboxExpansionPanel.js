@@ -47,6 +47,7 @@ import TaskedWizard from '../../../components/InboxWizards/ReviewNewTask/TaskedW
 import { NOT_FULLY_VOTED_TYPE, RED_LEVEL, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
 import TriageWizard from '../../../components/InboxWizards/Triage/TriageWizard';
 import InvestibleEditedWizard from '../../../components/InboxWizards/JobEdited/InvestibleEditedWizard';
+import Approval from '../../../components/CustomChip/Approval';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -338,7 +339,7 @@ export function getOutboxMessages(props) {
       const investibleId = investible.investible.id;
       const notAccepted = investible.notAccepted;
       const label = notAccepted ? 'planningUnacceptedLabel' : 'startJobQ';
-      const messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
+      let messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
         <Assignment style={{ fontSize: 24, color: '#ffc61a', }}/>;
       const message = getMessageForInvestible(investible, market, label, messageIcon, intl)
       const votersForInvestibleRaw = calculateInvestibleVoters(investibleId, market.id, marketsState,
@@ -347,6 +348,7 @@ export function getOutboxMessages(props) {
       const marketInfo = getMarketInfo(investible, market.id)
       if (!notAccepted) {
         message.isWaitingStart = true;
+        message.icon = <Approval style={{ fontSize: 24, color: '#ffc61a', }}/>;
       }
       let debtors = [];
       if (notAccepted) {

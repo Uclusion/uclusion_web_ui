@@ -37,6 +37,7 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { NOT_FULLY_VOTED_TYPE, POKED, UNREAD_JOB_APPROVAL_REQUEST } from '../../../constants/notifications';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import _ from 'lodash';
+import Approval from '../../../components/CustomChip/Approval';
 
 function getPriorityIcon(message, isAssigned, isMentioned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
@@ -67,7 +68,7 @@ function getPriorityIcon(message, isAssigned, isMentioned) {
     } else if (marketType === DECISION_TYPE || decisionInvestibleId) {
       Icon = QuestionIcon;
     } else {
-      Icon = ThumbsUpDownIcon;
+      Icon = Approval;
     }
   }
   if (['ISSUE', 'UNREAD_COMMENT'].includes(message.type)) {

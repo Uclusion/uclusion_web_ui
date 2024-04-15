@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl'
 
 function TooltipIconButton(props) {
   const {
-    onClick, size, id, icon, translationId, disabled, children, doFloatRight
+    onClick, size, id, icon, translationId, disabled, children, doFloatRight, noPadding
   } = props;
   const intl = useIntl();
   const usedId = id || translationId;
@@ -20,7 +20,7 @@ function TooltipIconButton(props) {
           id={usedId}
           onClick={onClick}
           size={size}
-          style={{float: doFloatRight ? 'right': undefined}}
+          style={{float: doFloatRight ? 'right': undefined, padding: noPadding ? 0 : undefined}}
         >
           {React.cloneElement(icon, {})}
           {children}

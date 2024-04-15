@@ -16,7 +16,6 @@ import {
   DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../../contexts/NotificationsContext/notificationsContextMessages';
-import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import NotificationDeletion from './NotificationDeletion';
 import {
@@ -28,6 +27,7 @@ import { useHistory } from 'react-router';
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { UNASSIGNED_TYPE } from '../../../constants/notifications';
+import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 
 const Div = styled("div")`
   height: 40px;
@@ -195,6 +195,13 @@ function WorkListItem(props) {
     fullText = investible;
   }
 
+  function remove(event) {
+    if (message) {
+      preventDefaultAndProp(event);
+      removeWorkListItem(message, messagesDispatch);
+    }
+  }
+
   if (expansionOpen) {
     return (
       <div id={`workListItem${id}`} style={{visibility: expansionOpen ? 'visible' : 'hidden',
@@ -261,10 +268,20 @@ function WorkListItem(props) {
             {!isNotSynced && (
               <DateLabelHovered>
                 {isDeletable && !mobileLayout && (
-                  <NotificationDeletion message={message} />
+                  <TooltipIconButton
+                    onClick={remove}
+                    icon={<NotificationDeletion />}
+                    size="small"
+                    noPadding
+                    translationId="notificationDismiss"
+                  />
                 )}
-                {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem', marginLeft: '1rem'}} />
-                  : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem', marginLeft: '1rem'}} />}
+                <TooltipIconButton
+                  icon={<ExpandMoreIcon />}
+                  size="small"
+                  noPadding
+                  translationId="rowExpand"
+                />
               </DateLabelHovered>
             )}
           </Div>

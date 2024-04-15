@@ -337,7 +337,7 @@ const messages = defineMessages({
   noPending: 'Nothing pending.',
   enjoy: 'Enjoy your day',
   aboutInbox: 'Get a job approved',
-  demonstratesInbox: 'click this row to expand',
+  rowExpand: 'Click this row to expand.',
   notificationSummary: 'Summary',
   viewInGroup: 'Group views',
   viewInGroupTip: 'The primary views for displaying and creating data.',

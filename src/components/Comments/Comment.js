@@ -760,7 +760,14 @@ function Comment(props) {
         <div className={classes.compressedComment}>
           {stripHTML(body)}</div>
         <div style={{ flexGrow: 1 }}/>
-        <ExpandMoreIcon style={{ color: 'black', marginRight: '1rem', marginTop: '0.5rem' }}/>
+        <div style={{ marginRight: '1rem', marginTop: '0.5rem' }}>
+          <TooltipIconButton
+            icon={<ExpandMoreIcon />}
+            size="small"
+            noPadding
+            translationId="rowExpandComment"
+          />
+        </div>
       </Card>
       <LocalCommentsContext.Provider value={{ comments, marketId, idPrepend }}>
         {sortedReplies.map(child => {

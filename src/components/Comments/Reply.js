@@ -285,7 +285,14 @@ function Reply(props) {
           <Gravatar name={commenter.name} email={commenter.email} className={commentClasses.smallGravatar}/>
           <div className={commentClasses.compressedComment}>{stripHTML(comment.body)}</div>
           <div style={{ flexGrow: 1 }}/>
-          <ExpandMoreIcon style={{ color: 'black', marginRight: '1rem' }}/>
+          <div style={{ marginRight: '1rem' }}>
+            <TooltipIconButton
+              icon={<ExpandMoreIcon />}
+              size="small"
+              noPadding
+              translationId="rowExpandComment"
+            />
+          </div>
         </Card>
         <div className={classes.cardContent}>
           <ThreadedReplies

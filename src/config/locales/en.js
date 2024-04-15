@@ -338,6 +338,7 @@ const messages = defineMessages({
   enjoy: 'Enjoy your day',
   aboutInbox: 'Get a job approved',
   rowExpand: 'Click this row to expand.',
+  rowCollapse: 'Click this row to collapse.',
   notificationSummary: 'Summary',
   viewInGroup: 'Group views',
   viewInGroupTip: 'The primary views for displaying and creating data.',

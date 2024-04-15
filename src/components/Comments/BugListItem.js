@@ -23,6 +23,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import DragImage from '../Dialogs/DragImage';
 import { POKED } from '../../constants/notifications';
 import _ from 'lodash';
+import TooltipIconButton from '../Buttons/TooltipIconButton';
 
 const Div = styled("div")`
   height: 40px;
@@ -209,8 +210,18 @@ function BugListItem(props) {
               {mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>) :
                 (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}
               <DateLabelHovered>
-                {expansionOpen ? <ExpandLess style={{color: 'black', marginRight: '1rem'}} />
-                  : <ExpandMoreIcon style={{color: 'black', marginRight: '1rem'}} />}
+                {expansionOpen ? <TooltipIconButton
+                    icon={<ExpandLess />}
+                    size="small"
+                    noPadding
+                    translationId="rowCollapse"
+                  />
+                  : <TooltipIconButton
+                    icon={<ExpandMoreIcon />}
+                    size="small"
+                    noPadding
+                    translationId="rowExpand"
+                  />}
               </DateLabelHovered>
             </Div>
           </div>

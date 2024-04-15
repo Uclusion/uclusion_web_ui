@@ -9,6 +9,7 @@ import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import _ from 'lodash';
 import DragImage from '../Dialogs/DragImage';
+import TooltipIconButton from '../Buttons/TooltipIconButton';
 
 const Div = styled("div")`
   height: 45px;
@@ -132,8 +133,18 @@ function OptionListItem(props) {
               }
               {!isNotSynced && expandOrContract && (
                 <DateLabel>
-                  {expansionOpen ? <ExpandLess style={{color: 'black'}} />
-                    : <ExpandMoreIcon style={{color: 'black'}} />}
+                  {expansionOpen ? <TooltipIconButton
+                      icon={<ExpandLess />}
+                      size="small"
+                      noPadding
+                      translationId="rowCollapse"
+                    />
+                    : <TooltipIconButton
+                      icon={<ExpandMoreIcon />}
+                      size="small"
+                      noPadding
+                      translationId="rowExpand"
+                    />}
                 </DateLabel>
               )}
               {!expandOrContract && (

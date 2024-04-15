@@ -34,6 +34,7 @@ function CondensedTodos(props) {
     groupId,
     isInbox = false,
     hideTabs,
+    usePadding = true,
     isDefaultOpen = false,
     defaultToOpenComments = true
   } = props
@@ -143,7 +144,7 @@ function CondensedTodos(props) {
 
   return (
     <div className={sectionOpen ? classes.outerBorder : undefined} id="investibleCondensedTodos"
-         style={{marginLeft: '1rem'}}>
+         style={{marginLeft: usePadding ? '1rem' : undefined}}>
       <div style={{display: 'flex', alignItems: 'center', marginTop: isInbox ? '1rem' : undefined}}>
         <h2 id="tasksOverview" style={{paddingBottom: 0, marginBottom: 0, marginTop: 0, paddingTop: 0}}>
           <FormattedMessage id="taskSection" />

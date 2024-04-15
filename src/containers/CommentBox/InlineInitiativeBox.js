@@ -69,7 +69,7 @@ function InlineInitiativeBox(props) {
       {showVoteButtons && (
         <div style={{display: 'flex'}}>
             <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id={`voteFor${anInlineMarket.id}`}
-                                     style={{display: "flex", marginTop: '2rem', marginBottom: '1.5rem'}}
+                                     style={{display: "flex", marginTop: '2rem'}}
                                      onClick={() => navigate(history,
                                        `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, 
                                          inlineInvestibleId, undefined, undefined, 
@@ -78,7 +78,7 @@ function InlineInitiativeBox(props) {
             </SpinningIconLabelButton>
             <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
                                      id={`voteAgainst${anInlineMarket.id}`}
-                                     style={{display: "flex", marginTop: '2rem', marginBottom: '1.5rem'}}
+                                     style={{display: "flex", marginTop: '2rem'}}
                                      onClick={() => navigate(history, `${formWizardLink(APPROVAL_WIZARD_TYPE, 
                                        anInlineMarket.id, inlineInvestibleId, undefined, undefined, 
                                        typeObjectId)}&voteFor=false`)}>
@@ -100,7 +100,7 @@ function InlineInitiativeBox(props) {
         votingAllowed={!inArchives}
         yourPresence={myInlinePresence}
       />
-      <h2>
+      <h2 style={{marginTop: '1.75rem'}}>
         <FormattedMessage id="initiativeVotingAgainst" />
       </h2>
       <Voting

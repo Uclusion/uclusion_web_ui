@@ -63,6 +63,7 @@ function DoneVotingStep(props) {
         toggleCompression={() => updateFormData({ useCompression: !useCompression })}
         useCompression={useCompression}
       />
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="addApproversLabel"

@@ -82,15 +82,15 @@ function JobDescription(props) {
 
   return (
     <>
-      <div style={{paddingLeft: '4px', paddingRight: '4px' }}>
+      <div style={{ paddingLeft: '4px', paddingRight: '4px' }}>
         {investibleId && (
           <div
             style={{ display: mobileLayout ? undefined : 'flex', paddingBottom: mobileLayout ? '1.5rem' : undefined }}>
             <Link href={formInvestibleLink(marketId, investibleId)} variant="h6"
-                        onClick={(event) => {
-                          preventDefaultAndProp(event);
-                          navigate(history, formInvestibleLink(marketId, investibleId));
-                        }}>
+                  onClick={(event) => {
+                    preventDefaultAndProp(event);
+                    navigate(history, formInvestibleLink(marketId, investibleId));
+                  }}>
               {name}
             </Link>
             {!_.isEmpty(createdBy) && showCreatedBy && (
@@ -131,11 +131,13 @@ function JobDescription(props) {
             </div>
           </>
         )}
+        <div className={classes.borderBottom}/>
         {(!_.isEmpty(nonTodoCommentsRoots) || isSingleTaskDisplay) && (
           <div style={{
-            paddingTop: investibleId && _.isEmpty(todoComments) ? '1rem' : undefined, paddingBottom: '0.5rem',
-            paddingLeft: '0.25rem', paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden',
-            overflowX: 'hidden' }}>
+            paddingBottom: '0.5rem',
+            paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden',
+            overflowX: 'hidden'
+          }}>
             <CommentBox
               comments={isSingleTaskDisplay ? comments : nonTodoComments}
               preserveOrder={preserveOrder}
@@ -145,6 +147,7 @@ function JobDescription(props) {
               investible={inv}
               marketInfo={marketInfo}
               isInbox
+              usePadding={false}
               toggleCompression={toggleCompression}
               useCompression={useCompression}
               inboxMessageId={inboxMessageId}
@@ -156,10 +159,9 @@ function JobDescription(props) {
         )}
         {!_.isEmpty(todoComments) && !isSingleTaskDisplay && (
           <CondensedTodos comments={todoComments} investibleComments={comments} isInbox marketId={marketId}
-                          marketInfo={marketInfo}/>
+                          marketInfo={marketInfo} usePadding={false}/>
         )}
       </div>
-      <div className={classes.borderBottom} />
     </>
   )
 }

@@ -8,6 +8,7 @@ import { stripHTML } from '../../utils/stringFunctions';
 import { ExpandLess } from '@material-ui/icons';
 import { FormattedMessage } from 'react-intl';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
+import TooltipIconButton from '../Buttons/TooltipIconButton';
 
 const Div = styled("div")`
   height: 40px;
@@ -82,7 +83,14 @@ function CompressedDescription(props) {
           }>
             <Div>
               <Text>{title}</Text>
-              <ExpandMoreIcon style={{color: 'black', marginLeft: '1rem', marginRight: '1rem'}} />
+              <div style={{marginLeft: '1rem', marginRight: '1rem'}}>
+                <TooltipIconButton
+                  icon={<ExpandMoreIcon />}
+                  size="small"
+                  noPadding
+                  translationId="rowExpand"
+                />
+              </div>
             </Div>
           </div>
         </RaisedCard>

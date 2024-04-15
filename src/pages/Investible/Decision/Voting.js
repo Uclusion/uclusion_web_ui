@@ -215,7 +215,14 @@ function Voting(props) {
                     </div>
                   )}
                   {useCompression && (
-                    <ExpandMoreIcon style={{ color: 'black', marginRight: '1rem', paddingTop: '5px' }}/>
+                    <div style={{ marginRight: '1rem' }}>
+                      <TooltipIconButton
+                        icon={<ExpandMoreIcon />}
+                        size="small"
+                        noPadding
+                        translationId="rowExpand"
+                      />
+                    </div>
                   )}
                   {isEditable && (
                     <div style={{marginRight: '2rem'}}>

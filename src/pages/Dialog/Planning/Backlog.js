@@ -61,7 +61,8 @@ function Backlog(props) {
   const isEmptyBacklog = _.isEmpty(furtherWorkInvestibles) && _.isEmpty(furtherWorkReadyToStart);
   const yellowChip = <Chip color="primary" size='small' className={classes.chipStyleYellow} />;
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
-  const unreadYellowCount = _.size(furtherWorkReadyToStart);
+  const yellowCount = _.size(furtherWorkReadyToStart);
+  const unreadYellowCount = _.size(furtherWorkReadyToStart.filter((inv) => isNew(inv, messagesState)));
   const unreadBlueCount = _.size(furtherWorkInvestibles);
 
   function onDrop(investibleId) {
@@ -125,8 +126,10 @@ function Backlog(props) {
         indicatorColors={['#e6e969', '#2F80ED']}
         style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
         <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'readyToStartHeader'})}
-                      color='black'
-                      tag={unreadYellowCount > 0 ? `${unreadYellowCount}` : undefined}
+                      color='black' tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
+                      tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
+                        (yellowCount > 0 ? `${yellowCount}` : undefined)}
+                      tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                       onDrop={onDropAble} toolTipId='readyToStartToolTip'
                       onDragOver={(event)=>event.preventDefault()} />
         <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'notReadyToStartHeader'})}

@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext'
 import WizardStepButtons from '../WizardStepButtons';
 import JobDescription from '../JobDescription'
-import { REPORT_TYPE } from '../../../constants/comments'
+import { ISSUE_TYPE, REPORT_TYPE } from '../../../constants/comments';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -20,6 +20,8 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import UsefulRelativeTime from '../../TextFields/UseRelativeTime';
 import { getLabelForTerminate } from '../../../utils/messageUtils';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 
 function JobDescriptionStatusStep(props) {
@@ -30,6 +32,7 @@ function JobDescriptionStatusStep(props) {
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const { is_highlighted: isHighlighted, link_type: linkType } = message;
   const market = getMarket(marketsState, marketId) || {};
   const { started_expiration: startedExpiration } = market;
@@ -58,6 +61,16 @@ function JobDescriptionStatusStep(props) {
   const millisBeforeMove = startedExpiration*86400000 - millisStalled;
   const alreadyMoved = linkType === 'INVESTIBLE_STAGE';
   const { useCompression } = formData;
+
+  function myTerminate() {
+    if (isHighlighted || alreadyMoved) {
+      removeWorkListItem(message, messagesDispatch, history);
+    } else {
+      navigate(history,
+        formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,
+          message.type_object_id));
+    }
+  }
 
   return (
     <WizardStepContainer
@@ -102,8 +115,9 @@ function JobDescriptionStatusStep(props) {
               message.type_object_id));
         }}
         otherSpinOnClick={false}
-        showTerminate={isHighlighted || alreadyMoved}
-        terminateLabel={getLabelForTerminate(message)} />
+        showTerminate
+        onFinish={myTerminate}
+        terminateLabel={(isHighlighted || alreadyMoved) ? getLabelForTerminate(message) : 'ApprovalWizardBlock'} />
     </WizardStepContainer>
   );
 }

@@ -37,6 +37,7 @@ function SignOutWarningStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         Reloading after a sign out takes time and email and Slack alerts are only sent for high priority.
       </Typography>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="signOutButton"

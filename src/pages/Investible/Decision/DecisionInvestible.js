@@ -10,7 +10,12 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { ACTIVE_STAGE, APPROVAL_WIZARD_TYPE, DECISION_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import {
+  ACTIVE_STAGE,
+  APPROVAL_WIZARD_TYPE,
+  DECISION_COMMENT_WIZARD_TYPE,
+  OPTION_EDIT_WIZARD_TYPE
+} from '../../../constants/markets';
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -21,17 +26,16 @@ import AttachedFilesList from '../../../components/Files/AttachedFilesList';
 import { useMetaDataStyles } from '../Planning/PlanningInvestibleNav';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles';
-import { doSetEditWhenValid } from '../../../utils/windowUtils';
+import { invalidEditEvent } from '../../../utils/windowUtils';
 import EditMarketButton from '../../Dialog/EditMarketButton';
 import { ExpandLess } from '@material-ui/icons';
-import InvestibleBodyEdit, { useInvestibleEditStyles } from '../InvestibleBodyEdit';
+import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper';
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
 import AddIcon from '@material-ui/icons/Add';
@@ -41,6 +45,13 @@ import {
   formWizardLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
+import { pushMessage } from '../../../utils/MessageBusUtils';
+import {
+  LOCK_INVESTIBLE,
+  LOCK_INVESTIBLE_CHANNEL
+} from '../../../contexts/InvestibesContext/investiblesContextMessages';
+import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -168,9 +179,8 @@ function DecisionInvestible(props) {
   const diff = getDiff(diffState, investibleId);
   const { id: marketId, market_stage: marketStage } = market;
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
-  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
+  const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
-    beingEdited,
     showDiff
   } = pageState;
   const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE) || [];
@@ -189,7 +199,7 @@ function DecisionInvestible(props) {
   const yourVote = yourPresence.investments?.find((investment) => investment.investible_id === investibleId
     && !investment.deleted);
   const {
-    name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles,
+    name, created_by: createdBy, locked_by: lockedBy, attached_files: attachedFiles, description
   } = investible;
   const optionCreatedBy = marketPresences.find(presence => presence.id === createdBy) || {};
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
@@ -219,12 +229,16 @@ function DecisionInvestible(props) {
     updatePageState({showDiff: !showDiff});
   }
 
-  function mySetBeingEdited(isEdit, event) {
-    return doSetEditWhenValid(isEdit, isEditableByUser,
-      (value) => {
-        updatePageState({beingEdited: value});
-        setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
-      }, event, history);
+  function mySetBeingEdited(event) {
+    if (!isEditableByUser() || invalidEditEvent(event, history)) {
+      return;
+    }
+    const needsLock = lockedBy !== yourPresence?.id && !_.isEmpty(lockedBy);
+    if (needsLock) {
+      pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
+    }
+    setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
+    navigate(history, formWizardLink(OPTION_EDIT_WIZARD_TYPE, marketId, investibleId))
   }
 
   const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
@@ -232,11 +246,11 @@ function DecisionInvestible(props) {
   function getActions() {
     return (
     <dl className={classes.upperRightCard}>
-      {mobileLayout && isEditableByUser() && !beingEdited && (
+      {mobileLayout && isEditableByUser() && (
           <EditMarketButton
             labelId="edit"
             marketId={marketId}
-            onClick={(event) => mySetBeingEdited(true, event)}
+            onClick={(event) => mySetBeingEdited(event)}
           />
       )}
       {allowDelete && (
@@ -267,21 +281,19 @@ function DecisionInvestible(props) {
   const displayVotingInput = !removeActions && votingAllowed && !yourVote;
   const displayCommentInput = !removeActions && !inArchives && marketId && !_.isEmpty(investible) && !hidden;
   const editClasses = useInvestibleEditStyles();
-  const contents = <CardContent className={beingEdited ? classes.editCardContent : classes.votingCardContent}>
+  const contents = <CardContent className={classes.votingCardContent}>
     {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
       <Typography>
         {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
       </Typography>
     )}
     {marketId && investibleId && userId && (
-      <InvestibleBodyEdit hidden={hidden} marketId={marketId} investibleId={investibleId}
-                          pageState={pageState}
-                          userId={userId}
-                          pageStateUpdate={updatePageState}
-                          pageStateReset={pageStateReset}
-                          fullInvestible={fullInvestible}
-                          beingEdited={beingEdited}
-                          isEditableByUser={isEditableByUser}/>
+      <div className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}>
+        <Typography className={editClasses.title} variant="h3" component="h1">
+          {name}
+        </Typography>
+        <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff}/>
+      </div>
     )}
   </CardContent>;
   const actions = <CardActions className={mobileLayout ? undefined : classes.actions}>
@@ -323,17 +335,16 @@ function DecisionInvestible(props) {
           className={classes.cardType}
           type={VOTING_TYPE}
           subtype={inProposed ? PROPOSED : OPTION}
-          myBeingEdited={beingEdited}
         />
         <GridMobileDiv>
           {mobileLayout && actions}
           <div className={classes.editRow}>
-            {mobileLayout && isEditableByUser() && !beingEdited && (
+            {mobileLayout && isEditableByUser() && (
               <div>
                 <EditMarketButton
                   labelId="edit"
                   marketId={marketId}
-                  onClick={(event) => mySetBeingEdited(true, event)}
+                  onClick={(event) => mySetBeingEdited(event)}
                 />
               </div>
             )}
@@ -342,7 +353,7 @@ function DecisionInvestible(props) {
           {!mobileLayout && (
             <Grid item md={10} xs={12}
                   className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}
-                  onClick={(event) => mySetBeingEdited(true, event)}>
+                  onClick={(event) => mySetBeingEdited(event)}>
               {contents}
             </Grid>
           )}

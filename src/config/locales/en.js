@@ -440,7 +440,7 @@ const messages = defineMessages({
   dialogNotParticipating: 'Click to become a collaborator',
   lockedBy: 'Locked by {x}',
   lockFailedWarning: 'Failed to acquire lock. Retry?',
-  breakLock: 'Break Lock',
+  breakLock: 'Break lock',
   noVoters: 'None',
   reassignWarning: 'Re-assigning will remove all approval.',
   planningUnacceptedLabel: 'Unaccepted',

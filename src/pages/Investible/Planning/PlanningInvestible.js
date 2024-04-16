@@ -33,13 +33,12 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { allImagesLoaded, doSetEditWhenValid, invalidEditEvent } from '../../../utils/windowUtils';
+import { allImagesLoaded, invalidEditEvent } from '../../../utils/windowUtils';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences } from '../../Dialog/Planning/userUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessageOfType } from '../../../utils/messageUtils';
-import InvestibleBodyEdit from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
 import { pushMessage } from '../../../utils/MessageBusUtils';
 import {
@@ -48,8 +47,12 @@ import {
 } from '../../../contexts/InvestibesContext/investiblesContextMessages';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
-import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
-import { ACTIVE_STAGE, APPROVAL_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import {
+  ACTIVE_STAGE,
+  APPROVAL_WIZARD_TYPE,
+  JOB_COMMENT_WIZARD_TYPE,
+  JOB_EDIT_WIZARD_TYPE
+} from '../../../constants/markets';
 import {
   OPERATION_HUB_CHANNEL,
   STOP_OPERATION
@@ -71,6 +74,9 @@ import AddIcon from '@material-ui/icons/Add';
 import CondensedTodos from './CondensedTodos';
 import { ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
+import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
+import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -329,6 +335,7 @@ function PlanningInvestible(props) {
   const leftNavBreak = useMediaQuery(theme.breakpoints.down('md'));
   const refToTop = useRef();
   const classes = usePlanningInvestibleStyles();
+  const editClasses = useInvestibleEditStyles();
   const wizardClasses = wizardStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -351,17 +358,17 @@ function PlanningInvestible(props) {
     former_stage_id: formerStageId, group_id: groupId, created_by: createdById } = marketInfo;
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
-  const { name, locked_by: lockedBy, created_at: createdAt } = investible;
+  const { name, description, locked_by: lockedBy, created_at: createdAt } = investible;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [approvalsOpen, setApprovalsOpen] = useState(true);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
-  const [pageState, updatePageState, pageStateReset] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
+  const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
     {sectionOpen: fullStage.move_on_comment ? 'assistanceSection' : 'descriptionVotingSection'});
   const {
-    beingEdited,
     sectionOpen,
-    compressionHash
+    compressionHash,
+    showDiff
   } = pageState;
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
@@ -547,26 +554,17 @@ function PlanningInvestible(props) {
     return imagesLoaded && !inArchives;
   }
 
-  function mySetBeingEdited(isEdit, event) {
-    if (!isEdit || lockedBy === userId || !_.isEmpty(lockedBy)) {
-      // Either don't lock or throw the modal up - both of which InvestibleBodyEdit can handle
-      return doSetEditWhenValid(isEdit, isEditableByUser,
-        (value) => {
-          updatePageState({beingEdited: value});
-          setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
-        }, event, history);
-    }
+  function mySetBeingEdited(event) {
     if (!isEditableByUser() || invalidEditEvent(event, history)) {
       return;
     }
-    updatePageState({beingEdited: true});
-    setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
-    window.scrollTo(0, 0);
-    if ((isInReview || isInAccepted) && _.size(assigned) === 1) {
-      // Only one person can edit so no need to get a lock
-      return;
+    const needsLock = !((isInReview || isInAccepted) && _.size(assigned) === 1) && lockedBy !== myPresence?.id
+      && !_.isEmpty(lockedBy);
+    if (needsLock) {
+      pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
     }
-    pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
+    setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
+    navigate(history, formWizardLink(JOB_EDIT_WIZARD_TYPE, marketId, investibleId));
   }
 
   const displayApprovalsBySearch = _.isEmpty(search) ? _.size(invested) : _.size(investmentReasonsSearched);
@@ -683,7 +681,6 @@ function PlanningInvestible(props) {
                 isAssigned={isAssigned}
                 className={classes.cardType}
                 createdAt={mobileLayout ? undefined : createdAt}
-                myBeingEdited={mobileLayout ? undefined : beingEdited}
                 stageChangedAt={mobileLayout ? undefined : new Date(marketInfo.last_stage_change_date)}
                 gravatar={<div style={{paddingLeft: '1rem'}}>
                   <GravatarAndName key={createdBy.id} email={createdBy.email}
@@ -693,46 +690,41 @@ function PlanningInvestible(props) {
                 /></div>}
               />
               <div className={classes.editRow}>
-                {mobileLayout && !inMarketArchives && isEditableByUser() && !beingEdited && (
+                {mobileLayout && !inMarketArchives && isEditableByUser() && (
                   <div>
                     <EditMarketButton
                       labelId="edit"
                       marketId={marketId}
-                      onClick={(event) => mySetBeingEdited(true, event)}
+                      onClick={(event) => mySetBeingEdited(event)}
                     />
                   </div>
                 )}
               </div>
             </div>
-            <div className={beingEdited ? classes.editCardContent : classes.votingCardContent}
+            <div className={classes.votingCardContent}
                  style={{display: 'flex'}}>
-              <div className={!beingEdited && isEditableByUser() ? classes.fullWidthEditable :
-                classes.fullWidth} onClick={(event) => !beingEdited &&
-                mySetBeingEdited(true, event)}>
+              <div className={isEditableByUser() ? classes.fullWidthEditable :
+                classes.fullWidth} onClick={(event) =>
+                mySetBeingEdited(event)}>
                 {lockedBy && myPresence.id !== lockedBy && isEditableByUser() && (
                   <Typography>
                     {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
                   </Typography>
                 )}
                 {marketId && investibleId && (
-                  <InvestibleBodyEdit
-                    ref={editorBox}
-                    hidden={hidden}
-                    marketId={marketId}
-                    userId={userId}
-                    investibleId={investibleId}
-                    pageState={pageState}
-                    pageStateUpdate={updatePageState}
-                    pageStateReset={pageStateReset}
-                    fullInvestible={marketInvestible}
-                    setBeingEdited={mySetBeingEdited} beingEdited={beingEdited}
-                    isEditableByUser={isEditableByUser}/>
+                  <div className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}>
+                    <Typography className={editClasses.title} variant="h3" component="h1">
+                      {name}
+                    </Typography>
+                    <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff}/>
+                  </div>
                 )}
               </div>
             </div>
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
-                            marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen />
-            <div style={{paddingLeft: mobileLayout ? undefined : '1rem',
+                            marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen/>
+            <div style={{
+              paddingLeft: mobileLayout ? undefined : '1rem',
               paddingRight: mobileLayout ? undefined : '1rem'}}>
               <div style={{display: 'flex', alignItems: 'center'}}>
                 <h2 id="approvals" style={{marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0}}>

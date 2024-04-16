@@ -23,7 +23,7 @@ import {
   OPTION_WIZARD_TYPE,
   REPLY_WIZARD_TYPE,
   COMPOSE_WIZARD_TYPE,
-  SIGN_OUT_WIZARD_TYPE
+  SIGN_OUT_WIZARD_TYPE, JOB_EDIT_WIZARD_TYPE, OPTION_EDIT_WIZARD_TYPE
 } from '../../constants/markets';
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
@@ -49,6 +49,8 @@ import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext
 import ReplyWizard from '../../components/AddNewWizards/Reply/ReplyWizard';
 import ComposeWizard from '../../components/AddNewWizards/Compose/ComposeWizard';
 import SignOutWizard from '../../components/AddNewWizards/SignOut/SignOutWizard';
+import JobEditWizard from '../../components/AddNewWizards/JobEdit/JobEditWizard';
+import OptionEditWizard from '../../components/AddNewWizards/OptionEdit/OptionEditWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -136,6 +138,12 @@ function Wizard(props) {
       )}
       {createType === JOB_STAGE_WIZARD_TYPE.toLowerCase() && (
         <JobStageWizard investibleId={investibleId} marketId={marketId} stageId={stageId} isAssign={isAssign} />
+      )}
+      {createType === JOB_EDIT_WIZARD_TYPE.toLowerCase() && (
+        <JobEditWizard investibleId={investibleId} marketId={marketId} />
+      )}
+      {createType === OPTION_EDIT_WIZARD_TYPE.toLowerCase() && (
+        <OptionEditWizard investibleId={investibleId} marketId={marketId} />
       )}
       {createType === DISCUSSION_WIZARD_TYPE.toLowerCase() && (
         <DiscussionWizard marketId={marketId} groupId={groupId} commentType={commentType} />

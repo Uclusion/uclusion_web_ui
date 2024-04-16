@@ -166,7 +166,6 @@ export default function CardType(props) {
     subtype,
     label = type in labelIntlIds ? <FormattedMessage id={labelIntlIds[type]}/> : undefined,
     createdAt,
-    myBeingEdited,
     stageChangedAt,
     marketDaysEstimate,
     onEstimateChange,
@@ -226,11 +225,6 @@ export default function CardType(props) {
           )}
           {gravatar}
         </>
-      )}
-      {myBeingEdited && (
-        <Typography className={classes.lastEdited} variant="body2">
-          {intl.formatMessage({ id: 'edited' })}
-        </Typography>
       )}
       {isInAccepted && (
         <DaysEstimate marketId={marketId} onChange={onEstimateChange} value={marketDaysEstimate}

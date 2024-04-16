@@ -60,9 +60,7 @@ function NameField(props) {
     const { value } = event.target;
     storeState(value);
     setCharactersLeft(80 - (value || '').length);
-    if (!_.isEmpty(value)) {
-      setHasValue(true);
-    }
+    setHasValue(!_.isEmpty(value));
   }
 
   return (

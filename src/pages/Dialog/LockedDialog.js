@@ -1,11 +1,4 @@
-import React from 'react'
-import { FormattedMessage } from 'react-intl'
-import PropTypes from 'prop-types'
 import { darken, makeStyles } from '@material-ui/core/styles';
-import { Dialog } from '../../components/Dialogs';
-import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton';
-import { Clear } from '@material-ui/icons';
-import WarningIcon from '@material-ui/icons/Warning';
 
 export const useLockedDialogStyles = makeStyles(
   (theme) => {
@@ -95,45 +88,3 @@ export const useLockedDialogStyles = makeStyles(
   },
   { name: "LockedDialog" }
 );
-
-export function LockedDialog(props) {
-  const { actions, classes, open, onClose } = props;
-
-  const autoFocusRef = React.useRef(null);
-
-  return (
-    <Dialog
-      autoFocusRef={autoFocusRef}
-      classes={{
-        root: classes.root,
-        actions: classes.actions,
-        content: classes.content,
-        title: classes.title
-      }}
-      open={open}
-      onClose={onClose}
-      /* slots */
-      actions={
-        <React.Fragment>
-          <SpinningIconLabelButton onClick={onClose} doSpin={false} icon={Clear} ref={autoFocusRef}>
-            <FormattedMessage id="lockDialogCancel" />
-          </SpinningIconLabelButton>
-          {actions}
-        </React.Fragment>
-      }
-      content={<FormattedMessage id="lockDialogContent" />}
-      title={
-        <React.Fragment>
-          <WarningIcon className={classes.warningTitleIcon} />
-          <FormattedMessage id="lockDialogTitle" />
-        </React.Fragment>
-      }
-    />
-  );
-}
-
-LockedDialog.propTypes = {
-  actions: PropTypes.node.isRequired,
-  onClose: PropTypes.func.isRequired,
-  open: PropTypes.bool.isRequired
-};

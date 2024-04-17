@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/styles'
 import { useIntl } from 'react-intl'
 import { Button, Tooltip } from '@material-ui/core'
 import LinkIcon from '@material-ui/icons/Link'
-import { formInviteLink } from '../../utils/marketIdPathFunctions'
+import { formInviteLink, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -56,7 +56,8 @@ function WorkspaceInviteLinker(props) {
           variant="outlined"
           id='copyInviteLink'
           style={{textTransform: 'none', justifyContent: 'left'}} disableRipple={true}
-                onClick={() => {
+                onClick={(event) => {
+                  preventDefaultAndProp(event);
                   navigator.clipboard.writeText(link);
                   setCopiedToClipboard(true);
                 }} onMouseLeave={() => {

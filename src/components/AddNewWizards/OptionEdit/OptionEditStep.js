@@ -101,7 +101,7 @@ function OptionEditStep(props) {
         useCompression={useCompression}
       />
       <div className={classes.borderBottom}/>
-      <NameField id={investibleId} setHasValue={setHasValue}/>
+      <NameField id={investibleId} setHasValue={setHasValue} placeHolder="optionTitlePlaceholder"/>
       {Editor}
       <CardActions className={classes.actions}>
         <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton">

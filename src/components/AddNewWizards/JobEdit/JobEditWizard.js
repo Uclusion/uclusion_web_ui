@@ -20,7 +20,7 @@ function JobEditWizard(props) {
   const { marketId, investibleId } = props;
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [wasUnlocked, setWasUnlocked] = useState(false);
+  const [wasUnlocked, setWasUnlocked] = useState(undefined);
   const presences = usePresences(marketId);
   const inv = getInvestible(investibleState, investibleId) || {};
   const { investible } = inv;
@@ -39,11 +39,13 @@ function JobEditWizard(props) {
   return (
     <WizardStylesProvider>
       <FormdataWizard name={`job_edit_wizard${investibleId}`} useLocalStorage={false}>
-        {(needsLock || wasUnlocked) && (
+        {(needsLock || (!_.isEmpty(wasUnlocked) && wasUnlocked === lockedBy)) && (
           <JobUnlockStep marketId={marketId} investible={investible}
-                         onFinishUnlock={() => setWasUnlocked(true)} />
+                         onFinishUnlock={() => setWasUnlocked(myPresence.id)} />
         )}
-        <JobEditStep marketId={marketId} investible={investible} />
+        {(_.isEmpty(wasUnlocked) || !needsLock) && (
+          <JobEditStep marketId={marketId} investible={investible} />
+        )}
       </FormdataWizard>
     </WizardStylesProvider>
   );

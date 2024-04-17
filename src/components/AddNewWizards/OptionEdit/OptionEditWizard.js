@@ -18,7 +18,7 @@ function OptionEditWizard(props) {
   const [investibleState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
-  const [wasUnlocked, setWasUnlocked] = useState(false);
+  const [wasUnlocked, setWasUnlocked] = useState(undefined);
   const presences = usePresences(marketId);
   const inv = getInvestible(investibleState, investibleId) || {};
   const { investible } = inv;
@@ -37,11 +37,13 @@ function OptionEditWizard(props) {
     <WizardStylesProvider>
       <FormdataWizard name={`option_edit_wizard${investibleId}`} useLocalStorage={false}
                       defaultFormData={{useCompression: true}}>
-        {(needsLock || wasUnlocked) && (
+        {(needsLock || (!_.isEmpty(wasUnlocked) && wasUnlocked === lockedBy)) && (
           <OptionUnlockStep marketId={marketId} investible={investible} parentComment={parentComment}
-                            onFinishUnlock={() => setWasUnlocked(true)} />
+                            onFinishUnlock={() => setWasUnlocked(myPresence.id)} />
         )}
-        <OptionEditStep marketId={marketId} investible={investible} parentComment={parentComment} />
+        {(_.isEmpty(wasUnlocked) || !needsLock) && (
+          <OptionEditStep marketId={marketId} investible={investible} parentComment={parentComment} />
+        )}
       </FormdataWizard>
     </WizardStylesProvider>
   );

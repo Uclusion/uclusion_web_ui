@@ -558,9 +558,9 @@ function PlanningInvestible(props) {
     if (!isEditableByUser() || invalidEditEvent(event, history)) {
       return;
     }
-    const needsLock = !((isInReview || isInAccepted) && _.size(assigned) === 1) && lockedBy !== myPresence?.id
-      && !_.isEmpty(lockedBy);
-    if (needsLock) {
+    const needsLock = !((isInReview || isInAccepted) && _.size(assigned) === 1) && lockedBy !== myPresence?.id;
+    // Do not attempt to grab the lock from someone else here - have wizard for that
+    if (needsLock && _.isEmpty(lockedBy)) {
       pushMessage(LOCK_INVESTIBLE_CHANNEL, { event: LOCK_INVESTIBLE, marketId, investibleId });
     }
     setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);

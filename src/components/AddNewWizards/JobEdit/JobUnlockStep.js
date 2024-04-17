@@ -12,20 +12,26 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
+import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function JobUnlockStep (props) {
-  const { marketId, investible, onFinishUnlock, investibleId } = props;
+  const { marketId, investible, onFinishUnlock, totalSteps } = props;
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
   const history = useHistory();
-  const { locked_by: lockedBy, updated_at: updatedAt } = investible || {};
+  const presences = usePresences(marketId);
+  const { locked_by: lockedBy, updated_at: updatedAt, id: investibleId } = investible || {};
+  const lockedPresence = presences.find((presence) => presence.id === lockedBy);
 
   function breakLock() {
     return lockInvestibleForEdit(marketId, investibleId, true)
       .then((result) => {
-        onFinishUnlock();
+        if (totalSteps > 1) {
+          // If there is only one step means somebody grabbed a lock while we were editing
+          onFinishUnlock();
+        }
         setOperationRunning(false);
         refreshInvestibles(investiblesDispatch, diffDispatch, [result]);
       });
@@ -39,7 +45,7 @@ function JobUnlockStep (props) {
           Unlock this job?
         </Typography>
         <Typography className={classes.introSubText} variant="subtitle1">
-          This job was locked by locked by {lockedBy} <UsefulRelativeTime value={updatedAt}/>
+          This job was locked by locked by {lockedPresence?.name} <UsefulRelativeTime value={updatedAt}/>
         </Typography>
         <div className={classes.borderBottom}/>
         <WizardStepButtons

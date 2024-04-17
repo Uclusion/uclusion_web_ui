@@ -14,13 +14,13 @@ import { navigateToOption } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 
 function OptionUnlockStep (props) {
-  const { marketId, investible, onFinishUnlock, investibleId, parentComment } = props;
+  const { marketId, investible, onFinishUnlock, parentComment } = props;
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
   const history = useHistory();
-  const { locked_by: lockedBy, updated_at: updatedAt } = investible || {};
+  const { locked_by: lockedBy, updated_at: updatedAt, id: investibleId } = investible || {};
 
   function breakLock() {
     return lockInvestibleForEdit(marketId, investibleId, true)

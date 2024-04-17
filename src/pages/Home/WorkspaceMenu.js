@@ -48,7 +48,6 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     display: 'flex',
-    width: '90%',
     '& .MuiButton-label': {
       lineHeight: '1.2'
     },

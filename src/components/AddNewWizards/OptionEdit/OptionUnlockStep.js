@@ -10,7 +10,7 @@ import { refreshInvestibles } from '../../../contexts/InvestibesContext/investib
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { formInvestibleLink, navigate, navigateToOption } from '../../../utils/marketIdPathFunctions';
+import { navigateToOption } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 
 function OptionUnlockStep (props) {

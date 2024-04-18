@@ -223,7 +223,6 @@ function usersSignatureGenerator (versionsSignatures) {
 function investiblesSignatureGenerator(versionsSignatures) {
   const invSignature = getSpecificTypeSignatures(versionsSignatures, 'investible');
   const infoSignature = getSpecificTypeSignatures(versionsSignatures, 'market_investible');
-  const addressedSignatures =  getSpecificTypeSignatures(versionsSignatures,'addressed');
   // an investible needs an update regardless of whether or not it's the market info or the
   // investible itself, so we need to join here
   const fetchSigs = invSignature.object_versions.reduce((acc, sig) => {
@@ -259,29 +258,6 @@ function investiblesSignatureGenerator(versionsSignatures) {
           {
             id: infoId,
             version,
-          }
-        ]
-      };
-    }
-  });
-  // For now separate and merge elsewhere
-  addressedSignatures.object_versions.forEach((sig) => {
-    const { object_id_two: userId, version, object_id_one: marketInfoId } = sig;
-    if (fetchSigs[marketInfoId]) {
-      fetchSigs[marketInfoId] = {
-        market_infos: [
-          {
-            id: marketInfoId,
-            addressed: _.union([{user_id: userId, version}], ...fetchSigs[marketInfoId].market_infos[0].addressed)
-          }
-        ]
-      };
-    } else {
-      fetchSigs[marketInfoId] = {
-        market_infos: [
-          {
-            id: marketInfoId,
-            addressed: [{user_id: userId, version}]
           }
         ]
       };

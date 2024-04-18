@@ -46,6 +46,9 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { Menu, MenuItem, ProSidebar, SidebarHeader } from 'react-pro-sidebar';
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { useAddressed } from '../../../utils/votingUtils';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 export default function PlanningInvestibleNav(props) {
   const { name, market, marketInvestible, classes, userId, isAssigned,
@@ -59,10 +62,13 @@ export default function PlanningInvestibleNav(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [groupState] = useContext(MarketGroupsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
-  const { stage, addressed, required_approvers:  requiredApprovers, open_for_investment: openForInvestment,
+  const { stage, required_approvers:  requiredApprovers, open_for_investment: openForInvestment,
     accepted, group_id: groupId } = marketInfo;
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
+  const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
   const group = getGroup(groupState, marketId, groupId) || {};
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
@@ -82,7 +88,7 @@ export default function PlanningInvestibleNav(props) {
   const {
     isFurtherWork,
   } = stagesInfo;
-  const addressedIds = (addressed || []).filter((address) => !address.deleted && !address.abstain)
+  const addressedIds = (addressed || []).filter((address) => !address.abstain)
     .map((address) => address.user_id);
   const investibleCollaborators = useCollaborators(marketPresences, investibleComments, marketPresencesState,
     investibleId, market.id);

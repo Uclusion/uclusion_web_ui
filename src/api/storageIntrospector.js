@@ -67,7 +67,7 @@ export function checkInStorage(marketId, fetchSignatures, storageStates) {
 
 export function satisfyComments(commentSignatures, marketComments) {
     const { matched, unmatchedSignatures, allMatched } =
-      signatureMatcher(marketComments, commentSignatures);
+      signatureMatcher(marketComments, commentSignatures || []);
     // check that parent includes child or if parent that all children exist
     // this is required because the parent and child signatures will come in at different times
     let reallyAllMatched = allMatched;
@@ -109,36 +109,36 @@ function satisfyInvestibles(marketId, investibleSignatures, investibleState) {
         };
       }
     });
-    return signatureMatcher(marketInvestibles, investibleSignatures);
+    return signatureMatcher(marketInvestibles, investibleSignatures || []);
 }
 
 function satisfyMarkets(marketsSignatures, marketsState) {
     const usedState = marketsState || {};
     const allMarkets = usedState.marketDetails || [];
-    return signatureMatcher(allMarkets, marketsSignatures);
+    return signatureMatcher(allMarkets, marketsSignatures || []);
 }
 
 function satisfyMarketPresences(marketId, presenceSignatures, mpState) {
     const usedState = mpState || {};
     const marketPresences = usedState[marketId];
     const usedPresences = marketPresences || [];
-    return signatureMatcher(usedPresences, presenceSignatures);
+    return signatureMatcher(usedPresences, presenceSignatures || []);
 }
 
 function satisfyMarketStages(marketId, stageSignatures, stagesState) {
     const usedState = stagesState || {};
     const marketStages = usedState[marketId] || [];
-    return signatureMatcher(marketStages, stageSignatures);
+    return signatureMatcher(marketStages, stageSignatures || []);
 }
 
 function satisfyMarketGroups(marketId, groupSignatures, groupsState) {
   const usedState = groupsState ?? {};
   const marketGroups = usedState[marketId] ?? [];
-  return signatureMatcher(marketGroups, groupSignatures);
+  return signatureMatcher(marketGroups, groupSignatures || []);
 }
 
 function satisfyGroupMembers(marketId, groupSignatures, groupsState) {
   const usedState = groupsState ?? {};
   const allGroupsUsers = _.flatten(Object.values(usedState));
-  return signatureMatcher(allGroupsUsers, groupSignatures);
+  return signatureMatcher(allGroupsUsers, groupSignatures || []);
 }

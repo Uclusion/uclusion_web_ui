@@ -215,6 +215,7 @@ export async function doVersionRefresh() {
       const { id, unmatched: signatures } = fullSignature;
       const unmatched = [];
       signatures.forEach((signature) => {
+        console.debug(signature)
         if (!checkServerSignaturesInStorage(id, {[signatureType]: [signature]}, storageStates)) {
           unmatched.push(signature);
           if (!failedMarketList.includes(id)) {

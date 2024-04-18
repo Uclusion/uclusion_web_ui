@@ -17,6 +17,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import JobDescription from '../../InboxWizards/JobDescription';
+import { useAddressed } from '../../../utils/votingUtils';
 
 function JobCollaboratorStep (props) {
   const { marketId, updateFormData, formData, onFinish, investibleId } = props;
@@ -29,9 +30,10 @@ function JobCollaboratorStep (props) {
   const classes = useContext(WizardStylesContext);
   const inv = getInvestible(investibleState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { assigned, addressed, group_id: groupId } = marketInfo;
+  const { assigned, group_id: groupId } = marketInfo;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
-  const addressedIds = (addressed || []).filter((address) => !address.deleted && !address.abstain)
+  const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
+  const addressedIds = (addressed || []).filter((address) => !address.abstain)
     .map((address) => address.user_id);
   const value = (formData.wasSet ? formData.addressed : addressedIds) || [];
   const validForm = !_.isEqual(value, addressedIds);

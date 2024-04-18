@@ -16,8 +16,17 @@ export function useInvestibleVoters(marketPresences, investibleId, marketId) {
     marketPresences);
 }
 
+export function useAddressed(groupPresences, marketPresences, investibleId, marketId) {
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [marketsState] = useContext(MarketsContext);
+  const investedOrAddressed = calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,
+    marketPresences, true, true);
+  const groupPresencesIds = groupPresences.map((presence) => presence.id);
+  return investedOrAddressed.filter((investor) => !groupPresencesIds.includes(investor.id));
+}
+
 export function calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,
-  marketPresences, includeExpired) {
+  marketPresences, includeExpired, includeAddressed=false) {
   const market = getMarket(marketsState, marketId) || {};
   const { investment_expiration: investmentExpiration } = market;
   const inv = getInvestible(investiblesState, investibleId);
@@ -37,7 +46,8 @@ export function calculateInvestibleVoters(investibleId, marketId, marketsState, 
       const updatedAtDate = new Date(updatedAt);
       const lastEventTime = Math.max(lastStageChangeDate.getTime(), updatedAtDate.getTime());
       const isExpired = Date.now() - lastEventTime > investmentExpiration*86400000;
-      if (investibleId === invId && (includeExpired || (!deleted && !isExpired))) {
+      // Check quantity exists or else is just addressed
+      if (investibleId === invId && (includeExpired || (!deleted && !isExpired)) && (includeAddressed || quantity)) {
         acc.push({ name, id, email, quantity, commentId, updatedAt, deleted, isExpired });
       }
     });

@@ -89,7 +89,7 @@ export default function PlanningInvestibleNav(props) {
     isFurtherWork,
   } = stagesInfo;
   const addressedIds = (addressed || []).filter((address) => !address.abstain)
-    .map((address) => address.user_id);
+    .map((address) => address.id);
   const investibleCollaborators = useCollaborators(marketPresences, investibleComments, marketPresencesState,
     investibleId, market.id);
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));

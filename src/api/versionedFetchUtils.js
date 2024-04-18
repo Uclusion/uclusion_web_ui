@@ -6,7 +6,12 @@ import { getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatu
 import { fetchComments } from './comments'
 import { fetchInvestibles } from './marketInvestibles'
 import { LimitedParallelMap } from '../utils/PromiseUtils'
-import { checkInStorage, checkSignatureInStorage, satisfyComments } from './storageIntrospector';
+import {
+  checkInStorage,
+  checkServerSignaturesInStorage,
+  checkSignatureInStorage,
+  satisfyComments
+} from './storageIntrospector';
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { COMMENTS_CONTEXT_NAMESPACE } from '../contexts/CommentsContext/CommentsContext'
 import { INVESTIBLES_CONTEXT_NAMESPACE } from '../contexts/InvestibesContext/InvestiblesContext'
@@ -203,26 +208,32 @@ export async function doVersionRefresh() {
   const inlineList = [];
   const { marketsState } = storageStates;
   const failedSignatures = getFailedSignatures(marketsState) || [];
-  const failedList = [];
-  failedSignatures.forEach((fullSignature) => {
-    const { id, unmatched: signatures } = fullSignature;
-    const failedSignatures = [];
-    signatures.forEach((signature) => {
-      if (!checkSignatureInStorage(id, signature, storageStates)) {
-        failedSignatures.push(signature);
-        failedList.push(id);
-      }
-    });
-    pushMessage(PUSH_MARKETS_CHANNEL, {
-      event: SYNC_ERROR_EVENT, signature: {
-        id,
-        unmatched: failedSignatures
-      }
+  const failedMarketList = [];
+  Object.keys(failedSignatures).forEach((signatureType) => {
+    const signatureTypeFailures = failedSignatures[signatureType];
+    signatureTypeFailures.forEach(fullSignature => {
+      const { id, unmatched: signatures } = fullSignature;
+      const unmatched = [];
+      signatures.forEach((signature) => {
+        if (!checkServerSignaturesInStorage(id, {[signatureType]: [signature]}, storageStates)) {
+          unmatched.push(signature);
+          if (!failedMarketList.includes(id)) {
+            failedMarketList.push(id);
+          }
+        }
+      });
+      pushMessage(PUSH_MARKETS_CHANNEL, {
+        event: SYNC_ERROR_EVENT, signature: {
+          id,
+          signatureType,
+          unmatched
+        }
+      });
     });
   });
   (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
-    if (!checkSignatureInStorage(id, signature, storageStates) || failedList.includes(id)) {
+    if (!checkSignatureInStorage(id, signature, storageStates) || failedMarketList.includes(id)) {
       if (banned) {
         bannedList.push(id);
       }else if (inline) {
@@ -309,10 +320,8 @@ function fetchMarketVersion(marketClient, marketId, marketSignature, marketsStru
       addMarketsStructInfo('markets', marketsStruct, [marketDetails]);
       if (!match.allMatched) {
         console.warn(match.unmatchedSignatures);
-        const unmatched = match.unmatchedSignatures.map((signature) => {
-          return {...signature, object_type: 'market'}
-        });
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched} });
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
+            signatureType: 'markets', unmatched: match.unmatchedSignatures} });
       }
     });
 }
@@ -325,11 +334,9 @@ function fetchMarketComments(marketClient, marketId, allComments, marketsStruct,
       const match = satisfyComments(commentsSignatures, ((commentsState || {})[marketId]) || []);
       addMarketsStructInfo('comments', marketsStruct, comments, marketId);
       if (!match.allMatched) {
-        const unmatched = match.unmatchedSignatures.map((signature) => {
-          return {...signature, object_type: 'comment'}
-        });
         console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched} });
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
+            signatureType: 'comments', unmatched: match.unmatchedSignatures} });
       }
     });
 }
@@ -345,10 +352,8 @@ function fetchMarketInvestibles(marketClient, marketId, allInvestibles, marketsS
       addMarketsStructInfo('investibles', marketsStruct, investibles);
       if (!match.allMatched) {
         console.warn(match.unmatchedSignatures);
-        const unmatched = match.unmatchedSignatures.map((signature) => {
-          return {...signature, object_type: 'investible'}
-        });
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched} });
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT,
+          signature: {id: marketId, signatureType: 'investibles', unmatched: match.unmatchedSignatures} });
       }
     });
 }
@@ -361,10 +366,8 @@ function fetchMarketPresences(marketClient, marketId, allMp, marketsStruct) {
       addMarketsStructInfo('users', marketsStruct, users, marketId);
       if (!match.allMatched) {
         console.warn(match.unmatchedSignatures);
-        const unmatched = match.unmatchedSignatures.map((signature) => {
-          return {...signature, object_type: 'market_capability'}
-        });
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched} });
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
+            signatureType: 'marketPresences', unmatched: match.unmatchedSignatures} });
       }
     });
 }
@@ -377,10 +380,8 @@ function fetchMarketStages(marketClient, marketId, allMs, marketsStruct) {
       addMarketsStructInfo('stages', marketsStruct, stages, marketId);
       if (!match.allMatched) {
         console.warn(match.unmatchedSignatures);
-        const unmatched = match.unmatchedSignatures.map((signature) => {
-          return {...signature, object_type: 'stage'}
-        });
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched} });
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
+            signatureType: 'marketStages', unmatched: match.unmatchedSignatures} });
       }
     });
 }
@@ -393,10 +394,8 @@ function fetchMarketGroups(marketClient, marketId, allMg, marketsStruct) {
         addMarketsStructInfo('group', marketsStruct, groups, marketId);
         if(!match.allMatched) {
           console.warn(match.unmatchedSignatures);
-          const unmatched = match.unmatchedSignatures.map((signature) => {
-            return {...signature, object_type: 'group'}
-          });
-          pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched}})
+          pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
+              signatureType: 'marketGroups', unmatched: match.unmatchedSignatures}})
         }
     })
 }
@@ -415,10 +414,8 @@ function fetchGroupMembers(marketClient, marketId, allMg, marketsStruct) {
       addMarketsStructInfo('members', marketsStruct, users);
       if(!match.allMatched) {
         console.warn(match.unmatchedSignatures);
-        const unmatched = match.unmatchedSignatures.map((signature) => {
-          return {...signature, object_type: 'group_capability'}
-        });
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId, unmatched}})
+        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
+            signatureType: 'groupMembers', unmatched: match.unmatchedSignatures}})
       }
     })
 }

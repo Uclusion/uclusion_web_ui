@@ -85,16 +85,17 @@ function removeStoredMarkets(state, action) {
 function addFailedSignatures(state, action) {
   const { signature } = action;
   const { failedSignatures } = state;
-  const { id, unmatched } = signature;
+  const { id, signatureType, unmatched } = signature;
+  const oldFailedSignatures = (failedSignatures || [])[signatureType];
   let newFailedSignatures;
   if (_.isEmpty(unmatched)) {
-    newFailedSignatures = (failedSignatures || []).filter((failedSignature) => failedSignature.id !== id);
+    newFailedSignatures = (oldFailedSignatures || []).filter((failedSignature) => failedSignature.id !== id);
   } else {
-    newFailedSignatures = _.unionBy([signature], failedSignatures, (item) => item.id);
+    newFailedSignatures = _.unionBy([signature], oldFailedSignatures, (item) => item.id);
   }
   return {
     ...state,
-    failedSignatures: newFailedSignatures,
+    failedSignatures: {...failedSignatures, [signatureType]: newFailedSignatures}
   };
 }
 

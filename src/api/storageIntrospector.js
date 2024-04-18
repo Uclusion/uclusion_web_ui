@@ -15,9 +15,13 @@ import { REPLY_TYPE } from '../constants/comments';
  * @param storageStates
  */
 export function checkSignatureInStorage(marketId, fetchSignature, storageStates) {
-  const serverFetchSignatures = getFetchSignaturesForMarket([{type: fetchSignature.object_type,
+  const serverSignatures = getFetchSignaturesForMarket([{type: fetchSignature.object_type,
     object_versions: [fetchSignature]}]);
-  const fromStorage = checkInStorage(marketId, serverFetchSignatures, storageStates);
+  return checkServerSignaturesInStorage(marketId, serverSignatures, storageStates);
+}
+
+export function checkServerSignaturesInStorage(marketId, serverSignatures, storageStates) {
+  const fromStorage = checkInStorage(marketId, serverSignatures, storageStates);
   const { markets, marketGroups, comments, marketPresences, marketStages, investibles, groupMembers } = fromStorage;
   return markets.allMatched && comments.allMatched && marketPresences.allMatched && marketStages.allMatched
     && investibles.allMatched && marketGroups.allMatched && groupMembers.allMatched;

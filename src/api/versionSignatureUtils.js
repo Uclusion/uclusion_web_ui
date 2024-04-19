@@ -31,8 +31,12 @@ export function signatureMatches(signature, object, checkVersion=true) {
       // we're not going to consider order, so we'll consider a match if
       // a least one of the objectVersion entries matches the signatureVersion
       keySatisfied = signatureVersion.reduce((acc, entry) => {
-        acc = acc && !!objectVersion.find((obj) => signatureMatches(entry, obj, checkVersion));
-        return acc;
+        const isSingleMatch = !!objectVersion.find((obj) => signatureMatches(entry, obj, checkVersion));
+        if (!isSingleMatch) {
+          console.warn(`No match for ${key} and:`);
+          console.warn(entry);
+        }
+        return acc && isSingleMatch;
       }, true);
     } else if ('object' === typeof signatureVersion) {
       keySatisfied = signatureMatches(signatureVersion, objectVersion, checkVersion);

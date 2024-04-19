@@ -17,11 +17,15 @@ export function signatureMatches(signature, object, checkVersion=true) {
     const objectVersion = object[key];
     const fromQuickAdd = object.fromQuickAdd;
     if (!objectVersion) {
+      console.warn('No object version for:');
+      console.warn(object);
       return false;
     }
     let keySatisfied;
     if (_.isArray(signatureVersion)) {
       if (!_.isArray(objectVersion)) {
+        console.warn(`Object version ${objectVersion} is not an array for:`);
+        console.warn(signatureVersion);
         return false;
       }
       // we're not going to consider order, so we'll consider a match if
@@ -34,12 +38,18 @@ export function signatureMatches(signature, object, checkVersion=true) {
       keySatisfied = signatureMatches(signatureVersion, objectVersion, checkVersion);
     } else if (key.endsWith('id')) {
       keySatisfied = objectVersion === signatureVersion;
+      console.warn(`For key ${key} the object version ${objectVersion} not matching ${signatureVersion}`);
     } else {
       if (checkVersion) {
         if (fromQuickAdd) {
+          // This forces replacing the quick add with the DB version
+          // That's not good for performance but does guarantee integrity
+          // Especially in the case that the market would not register as dirty because quick add was last audit
+          // So for instance on the demo would not get the second group since it's not in the quick add unless do this
           keySatisfied = objectVersion > signatureVersion;
         } else {
           keySatisfied = objectVersion >= signatureVersion;
+          console.warn(`For check version key ${key} and ${objectVersion} not matching ${signatureVersion}`);
         }
       } else {
         keySatisfied = true;

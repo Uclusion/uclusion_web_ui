@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
 const EMPTY_VERSION = { object_versions: [] };
-
+let reportedAlready = false;
 /**
  * A matcher that checks if the version is greater than or equal to the
  * value in the signature. However, If the signature contains an ID key (e..g market_id) then it
@@ -38,8 +38,10 @@ export function signatureMatches(signature, object, checkVersion=true) {
       keySatisfied = signatureMatches(signatureVersion, objectVersion, checkVersion);
     } else if (key.endsWith('id')) {
       keySatisfied = objectVersion === signatureVersion;
-      if (!keySatisfied) {
+      if (!keySatisfied && !reportedAlready) {
+        reportedAlready = true;
         console.warn(`For key ${key} the object version ${objectVersion} not matching ${signatureVersion}`);
+        console.warn(object);
       }
     } else {
       if (checkVersion) {

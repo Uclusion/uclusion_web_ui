@@ -1,7 +1,7 @@
 import _ from 'lodash'
 
 const EMPTY_VERSION = { object_versions: [] };
-let reportedAlready = false;
+
 /**
  * A matcher that checks if the version is greater than or equal to the
  * value in the signature. However, If the signature contains an ID key (e..g market_id) then it
@@ -17,14 +17,14 @@ export function signatureMatches(signature, object, checkVersion=true) {
     const objectVersion = object[key];
     const fromQuickAdd = object.fromQuickAdd;
     if (!objectVersion) {
-      console.warn('No object version for:');
+      console.warn(`No object version for ${key} and:`);
       console.warn(object);
       return false;
     }
     let keySatisfied;
     if (_.isArray(signatureVersion)) {
       if (!_.isArray(objectVersion)) {
-        console.warn(`Object version ${objectVersion} is not an array for:`);
+        console.warn(`Object version ${objectVersion} is not an array for ${key} and:`);
         console.warn(signatureVersion);
         return false;
       }
@@ -38,11 +38,6 @@ export function signatureMatches(signature, object, checkVersion=true) {
       keySatisfied = signatureMatches(signatureVersion, objectVersion, checkVersion);
     } else if (key.endsWith('id')) {
       keySatisfied = objectVersion === signatureVersion;
-      if (!keySatisfied && !reportedAlready) {
-        reportedAlready = true;
-        console.warn(`For key ${key} the object version ${objectVersion} not matching ${signatureVersion}`);
-        console.warn(object);
-      }
     } else {
       if (checkVersion) {
         if (fromQuickAdd) {
@@ -53,9 +48,6 @@ export function signatureMatches(signature, object, checkVersion=true) {
           keySatisfied = objectVersion > signatureVersion;
         } else {
           keySatisfied = objectVersion >= signatureVersion;
-          if (!keySatisfied) {
-            console.warn(`For check version key ${key} and ${objectVersion} not matching ${signatureVersion}`);
-          }
         }
       } else {
         keySatisfied = true;

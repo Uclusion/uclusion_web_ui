@@ -6,12 +6,16 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import AssignmentList from '../../../pages/Dialog/Planning/AssignmentList';
-import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getGroupPresences,
+  getMarketPresences,
+  partialUpdateInvestment
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { addressInvestible } from '../../../api/investibles';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -22,11 +26,11 @@ import { useAddressed } from '../../../utils/votingUtils';
 function JobCollaboratorStep (props) {
   const { marketId, updateFormData, formData, onFinish, investibleId } = props;
   const history = useHistory();
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [investibleState] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
   const inv = getInvestible(investibleState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -34,7 +38,7 @@ function JobCollaboratorStep (props) {
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
   const addressedIds = (addressed || []).filter((address) => !address.abstain)
-    .map((address) => address.user_id);
+    .map((address) => address.id);
   const value = (formData.wasSet ? formData.addressed : addressedIds) || [];
   const validForm = !_.isEqual(value, addressedIds);
   const cannotBeAssigned = _.union(assigned, groupPresences.map((presence) => presence.id));
@@ -55,8 +59,11 @@ function JobCollaboratorStep (props) {
     const notFollowingNow = addressedIds.filter((userId) => !value.includes(userId))
       .map((userId) => { return {user_id: userId, is_following: false}; });
     const newAddressed = _.union(following, notFollowingNow);
-    return addressInvestible(marketId, investibleId, newAddressed).then((fullInvestible) => {
-      refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
+    return addressInvestible(marketId, investibleId, newAddressed).then((partialUserList) => {
+      partialUserList.forEach((partialUser) => {
+        const investmentResult = { ...partialUser, investible_id: investibleId, market_id: marketId }
+        partialUpdateInvestment(marketPresencesDispatch, investmentResult, false);
+      });
       setOperationRunning(false);
       finish();
     });

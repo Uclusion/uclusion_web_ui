@@ -38,7 +38,9 @@ export function signatureMatches(signature, object, checkVersion=true) {
       keySatisfied = signatureMatches(signatureVersion, objectVersion, checkVersion);
     } else if (key.endsWith('id')) {
       keySatisfied = objectVersion === signatureVersion;
-      console.warn(`For key ${key} the object version ${objectVersion} not matching ${signatureVersion}`);
+      if (!keySatisfied) {
+        console.warn(`For key ${key} the object version ${objectVersion} not matching ${signatureVersion}`);
+      }
     } else {
       if (checkVersion) {
         if (fromQuickAdd) {
@@ -49,7 +51,9 @@ export function signatureMatches(signature, object, checkVersion=true) {
           keySatisfied = objectVersion > signatureVersion;
         } else {
           keySatisfied = objectVersion >= signatureVersion;
-          console.warn(`For check version key ${key} and ${objectVersion} not matching ${signatureVersion}`);
+          if (!keySatisfied) {
+            console.warn(`For check version key ${key} and ${objectVersion} not matching ${signatureVersion}`);
+          }
         }
       } else {
         keySatisfied = true;

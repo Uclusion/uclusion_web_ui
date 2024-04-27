@@ -992,6 +992,7 @@ const messages = defineMessages({
   errorStagesFetchFailed: 'There was a problem receiving the stages',
   errorGroupFetchFailed: 'There was a problem receiving the groups',
   errorGroupMembersFetchFailed: 'There was a problem receiving the group members',
+  errorInvestmentsFetchFailed: 'There was a problem receiving the voting',
   errorInvestibleListFetchFailed: 'There was a problem fetching the data list',
   errorSignupFailed: 'There was a problem signing up. Please try again',
   errorResendFailed: 'There was a problem resending the link. Please try again',

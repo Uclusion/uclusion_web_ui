@@ -16,11 +16,6 @@ export function marketIsDemo(market) {
   return market?.object_type === 'DEMO';
 }
 
-export function getFailedSignatures(state) {
-  const { failedSignatures } = state || {};
-  return failedSignatures;
-}
-
 export function marketTokenLoaded(marketId, tokensHash) {
   return tokensHash && tokensHash[`MARKET_${marketId}`];
 }

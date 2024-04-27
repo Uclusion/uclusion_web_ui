@@ -4,9 +4,9 @@ import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
 import { JUSTIFY_TYPE } from '../constants/comments';
 import { AllSequentialMap } from '../utils/PromiseUtils';
 
-export function fetchInvestibles(idList, client) {
-  const chunks = _.chunk(idList, 50);
-    return AllSequentialMap(chunks, (idList) => client.markets.getMarketInvestibles(idList))
+export function fetchInvestibles(signatures, client) {
+  const chunks = _.chunk(signatures, 50);
+    return AllSequentialMap(chunks, (signatureList) => client.markets.getMarketInvestibles(signatureList))
       .then((investibleLists) => _.flatten(investibleLists))
       .catch((error) => errorAndThrow(error, 'errorInvestibleFetchFailed'));
 }

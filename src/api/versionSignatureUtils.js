@@ -265,6 +265,7 @@ function investiblesSignatureGenerator(versionsSignatures) {
       fetchSigs[invId] = {
         investible: {
           id: invId,
+          version: 1
         },
         market_infos: [
           {

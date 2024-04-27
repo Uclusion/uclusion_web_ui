@@ -1,4 +1,4 @@
-import { addSyncError, removeMarketDetails } from './marketsContextReducer'
+import { removeMarketDetails } from './marketsContextReducer'
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import { addMarketsToStorage, addMarketToStorage } from './marketsContextHelper'
 import { getMarketFromUrl } from '../../api/marketLogin'
@@ -12,7 +12,7 @@ import {
   PUSH_INVESTIBLES_CHANNEL,
   PUSH_MARKETS_CHANNEL, PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
-  sendMarketsStruct, SYNC_ERROR_EVENT,
+  sendMarketsStruct,
   updateMarkets,
   VERSIONS_EVENT
 } from '../../api/versionedFetchUtils';
@@ -89,13 +89,10 @@ function beginListening(dispatch, setTokensHash) {
     }
   });
   registerListener(PUSH_MARKETS_CHANNEL, 'marketsPushStart', (data) => {
-    const { payload: { event, marketDetails, signature} } = data;
+    const { payload: { event, marketDetails } } = data;
     switch (event) {
       case VERSIONS_EVENT:
         addMarketsToStorage(dispatch, marketDetails);
-        break;
-      case SYNC_ERROR_EVENT:
-        dispatch(addSyncError(signature));
         break;
       default:
         // console.debug(`Ignoring identity event ${event}`);

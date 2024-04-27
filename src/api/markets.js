@@ -3,6 +3,8 @@ import { fixupItemForStorage } from '../contexts/ContextUtils'
 import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
 import { INITIATIVE_TYPE, PLANNING_TYPE } from '../constants/markets'
 import { getAccountClient } from './homeAccount';
+import _ from 'lodash';
+import { AllSequentialMap } from '../utils/PromiseUtils';
 
 function fixupMarketForStorage(market) {
   const itemFixed = fixupItemForStorage(market);
@@ -102,20 +104,39 @@ export function marketAbstain(marketId, isAbstain=true) {
 }
 
 // below called in hub messages, so difficult to decide when to toast a message
-export function getMarketStages(client) {
-  return client.markets.listStages()
+export function getMarketStages(signatures, client) {
+  const chunks = _.chunk(signatures, 100);
+  return AllSequentialMap(chunks, (chunk) => {
+    return client.markets.listStages(chunk);
+  }).then((stagesLists) => _.flatten(stagesLists))
     .catch((error) => errorAndThrow(error, 'errorStagesFetchFailed'));
 }
 
-export function getMarketGroups(client) {
-  return client.markets.listGroups().catch((error) => errorAndThrow(error, 'errorGroupFetchFailed'));
+export function getMarketGroups(signatures, client) {
+  const chunks = _.chunk(signatures, 100);
+  return AllSequentialMap(chunks, (chunk) => {
+    return client.markets.listGroups(chunk);
+  }).then((groupsLists) => _.flatten(groupsLists))
+    .catch((error) => errorAndThrow(error, 'errorGroupFetchFailed'));
 }
 
-export function getGroupMembers(client, groupIds) {
-  return client.markets.listGroupMembers(groupIds)
+export function getInvestments(userId, signatures, client) {
+  return client.markets.listInvestments(userId, signatures)
     .catch((error) => errorAndThrow(error, 'errorGroupMembersFetchFailed'));
 }
 
-export function getMarketUsers(client) {
-  return client.markets.listUsers().catch((error) => errorAndThrow(error, 'errorUsersFetchFailed'));
+export function getGroupMembers(signaturesHash, client) {
+  const chunks = Object.keys(signaturesHash);
+  return AllSequentialMap(chunks, (groupId) => {
+    return client.markets.listGroupMembers(groupId, signaturesHash[groupId]);
+  }).then((usersLists) => _.flatten(usersLists))
+    .catch((error) => errorAndThrow(error, 'errorGroupMembersFetchFailed'));
+}
+
+export function getMarketUsers(signatures, client) {
+  const chunks = _.chunk(signatures, 100);
+  return AllSequentialMap(chunks, (chunk) => {
+    return client.markets.listUsers(chunk);
+  }).then((usersLists) => _.flatten(usersLists))
+    .catch((error) => errorAndThrow(error, 'errorUsersFetchFailed'));
 }

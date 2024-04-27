@@ -1,16 +1,21 @@
 import _ from 'lodash'
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getChangedIds, getVersions } from './summaries'
-import { getGroupMembers, getMarketDetails, getMarketGroups, getMarketStages, getMarketUsers } from './markets'
-import { getFetchSignaturesForMarket, signatureMatcher, } from './versionSignatureUtils'
+import {
+  getGroupMembers,
+  getInvestments,
+  getMarketDetails,
+  getMarketGroups,
+  getMarketStages,
+  getMarketUsers
+} from './markets';
+import { getFetchSignaturesForMarket } from './versionSignatureUtils'
 import { fetchComments } from './comments'
 import { fetchInvestibles } from './marketInvestibles'
 import { LimitedParallelMap } from '../utils/PromiseUtils'
 import {
   checkInStorage,
-  checkServerSignaturesInStorage,
   checkSignatureInStorage,
-  satisfyComments
 } from './storageIntrospector';
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { COMMENTS_CONTEXT_NAMESPACE } from '../contexts/CommentsContext/CommentsContext'
@@ -18,7 +23,6 @@ import { INVESTIBLES_CONTEXT_NAMESPACE } from '../contexts/InvestibesContext/Inv
 import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext'
 import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from '../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext/MarketStagesContext'
-import { getFailedSignatures } from '../contexts/MarketsContext/marketsContextHelper'
 import { MARKET_GROUPS_CONTEXT_NAMESPACE } from '../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GROUP_MEMBERS_CONTEXT_NAMESPACE } from '../contexts/GroupMembersContext/GroupMembersContext'
 import { RepeatingFunction } from '../utils/RepeatingFunction';
@@ -206,34 +210,9 @@ export async function doVersionRefresh() {
   const backgroundList = [];
   const bannedList = [];
   const inlineList = [];
-  const { marketsState } = storageStates;
-  const failedSignatures = getFailedSignatures(marketsState) || [];
-  const failedMarketList = [];
-  Object.keys(failedSignatures).forEach((signatureType) => {
-    const signatureTypeFailures = failedSignatures[signatureType];
-    signatureTypeFailures.forEach(fullSignature => {
-      const { id, unmatched: signatures } = fullSignature;
-      const unmatched = [];
-      signatures.forEach((signature) => {
-        if (!checkServerSignaturesInStorage(id, {[signatureType]: [signature]}, storageStates)) {
-          unmatched.push(signature);
-          if (!failedMarketList.includes(id)) {
-            failedMarketList.push(id);
-          }
-        }
-      });
-      pushMessage(PUSH_MARKETS_CHANNEL, {
-        event: SYNC_ERROR_EVENT, signature: {
-          id,
-          signatureType,
-          unmatched
-        }
-      });
-    });
-  });
   (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
-    if (!checkSignatureInStorage(id, signature, storageStates) || failedMarketList.includes(id)) {
+    if (!checkSignatureInStorage(id, signature, storageStates)) {
       if (banned) {
         bannedList.push(id);
       }else if (inline) {
@@ -288,10 +267,10 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
   }
   if (!_.isEmpty(markets.unmatchedSignatures)) {
     // can only be one :)
-    promises.push(fetchMarketVersion(marketClient, marketId, markets.unmatchedSignatures[0], marketsStruct));
+    promises.push(fetchMarketVersion(marketClient, marketId, marketsStruct));
   }
   if (!_.isEmpty(comments.unmatchedSignatures)) {
-    promises.push(fetchMarketComments(marketClient, marketId, comments, marketsStruct, storageStates.commentsState));
+    promises.push(fetchMarketComments(marketClient, marketId, comments, marketsStruct));
   }
   if (!_.isEmpty(investibles.unmatchedSignatures)) {
     promises.push(fetchMarketInvestibles(marketClient, marketId, investibles, marketsStruct));
@@ -311,111 +290,76 @@ async function doRefreshMarket(marketId, componentSignatures, marketsStruct, sto
   return new LimitedParallelMap(promises, (promise) => promise, MAX_CONCURRENT_API_CALLS);
 }
 
-function fetchMarketVersion(marketClient, marketId, marketSignature, marketsStruct) {
+function fetchMarketVersion(marketClient, marketId, marketsStruct) {
+  // No need to pass signatures here as it's already a consistent read
   return getMarketDetails(marketClient)
     .then((marketDetails) => {
-      // console.log(marketDetails);
-      const match = signatureMatcher([marketDetails], [marketSignature]);
       // we bothered to fetch the data, so we should use it:)
       addMarketsStructInfo('markets', marketsStruct, [marketDetails]);
-      if (!match.allMatched) {
-        console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            signatureType: 'markets', unmatched: match.unmatchedSignatures} });
-      }
     });
 }
 
-function fetchMarketComments(marketClient, marketId, allComments, marketsStruct, commentsState) {
-  const commentsSignatures = allComments.unmatchedSignatures;
-  const commentIds = commentsSignatures.map((comment) => comment.id);
-  return fetchComments(commentIds, marketClient)
+function fetchMarketComments(marketClient, marketId, allComments, marketsStruct) {
+  // This call already has signatures for parent reply added if necessary
+  return fetchComments(allComments.unmatchedSignatures, marketClient)
     .then((comments) => {
-      const match = satisfyComments(commentsSignatures, ((commentsState || {})[marketId]) || []);
+      // Versions will be correct because they were sent down and consistent read done if not matching
+      // Anything not returned is just missing from the DB for now
       addMarketsStructInfo('comments', marketsStruct, comments, marketId);
-      if (!match.allMatched) {
-        console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            signatureType: 'comments', unmatched: match.unmatchedSignatures} });
-      }
     });
 }
 
 function fetchMarketInvestibles(marketClient, marketId, allInvestibles, marketsStruct) {
-  const investiblesSignatures = allInvestibles.unmatchedSignatures;
-  // For now ignore any market info by itself signature - it will get matched up elsewhere
-  const investibleSignaturesFiltered = investiblesSignatures.filter((sig) => sig.investible);
-  const investibleIds = investibleSignaturesFiltered.map((inv) => inv.investible.id);
-  return fetchInvestibles(investibleIds, marketClient)
+  return fetchInvestibles(allInvestibles.unmatchedSignatures, marketClient)
     .then((investibles) => {
-      const match = signatureMatcher(investibles, investiblesSignatures);
       addMarketsStructInfo('investibles', marketsStruct, investibles);
-      if (!match.allMatched) {
-        console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT,
-          signature: {id: marketId, signatureType: 'investibles', unmatched: match.unmatchedSignatures} });
-      }
     });
 }
 
 function fetchMarketPresences(marketClient, marketId, allMp, marketsStruct) {
-  const mpSignatures = allMp.unmatchedSignatures;
-  return getMarketUsers(marketClient)
+  const userSignatures = allMp.unmatchedSignatures.map(signature => {
+    return {id: signature.id, version: signature.market_capability_version};
+  });
+  return getMarketUsers(userSignatures, marketClient)
     .then((users) => {
-      const match = signatureMatcher(users, mpSignatures);
-      addMarketsStructInfo('users', marketsStruct, users, marketId);
-      if (!match.allMatched) {
-        console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            signatureType: 'marketPresences', unmatched: match.unmatchedSignatures} });
-      }
+      const promises = [];
+      users.forEach((user) => {
+        const userRawSignature = allMp.unmatchedSignatures.find(signature => signature.id === user.id);
+        const investmentSignatures = userRawSignature.investments;
+        promises.push(getInvestments(user.id, investmentSignatures, marketClient).then((investments) => {
+          user.investments = investments;
+        }));
+      });
+      return new LimitedParallelMap(promises, (promise) => promise, MAX_CONCURRENT_API_CALLS)
+        .then(() => addMarketsStructInfo('users', marketsStruct, users, marketId));
     });
 }
 
 function fetchMarketStages(marketClient, marketId, allMs, marketsStruct) {
-  const msSignatures = allMs.unmatchedSignatures;
-  return getMarketStages(marketClient)
+  return getMarketStages(allMs.unmatchedSignatures, marketClient)
     .then((stages) => {
-      const match = signatureMatcher(stages, msSignatures);
       addMarketsStructInfo('stages', marketsStruct, stages, marketId);
-      if (!match.allMatched) {
-        console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            signatureType: 'marketStages', unmatched: match.unmatchedSignatures} });
-      }
     });
 }
 
 function fetchMarketGroups(marketClient, marketId, allMg, marketsStruct) {
-  const mgSignatures = allMg.unmatchedSignatures;
-  return getMarketGroups(marketClient)
+  return getMarketGroups(allMg.unmatchedSignatures, marketClient)
     .then((groups) => {
-        const match = signatureMatcher(groups, mgSignatures);
         addMarketsStructInfo('group', marketsStruct, groups, marketId);
-        if(!match.allMatched) {
-          console.warn(match.unmatchedSignatures);
-          pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-              signatureType: 'marketGroups', unmatched: match.unmatchedSignatures}})
-        }
     })
 }
 
 function fetchGroupMembers(marketClient, marketId, allMg, marketsStruct) {
   const mgSignatures = allMg.unmatchedSignatures;
-  const groupIds = [];
+  const signaturesByGroupId = {};
   mgSignatures.forEach((sign) => {
-    if (!groupIds.includes(sign.group_id)) {
-      groupIds.push(sign.group_id);
+    if (!signaturesByGroupId[sign.group_id]) {
+      signaturesByGroupId[sign.group_id] = [];
     }
+    signaturesByGroupId[sign.group_id].push(sign);
   });
-  return getGroupMembers(marketClient, groupIds)
+  return getGroupMembers(signaturesByGroupId, marketClient)
     .then((users) => {
-      const match = signatureMatcher(users, mgSignatures);
       addMarketsStructInfo('members', marketsStruct, users);
-      if(!match.allMatched) {
-        console.warn(match.unmatchedSignatures);
-        pushMessage(PUSH_MARKETS_CHANNEL, { event: SYNC_ERROR_EVENT, signature: {id: marketId,
-            signatureType: 'groupMembers', unmatched: match.unmatchedSignatures}})
-      }
     })
 }

@@ -3,8 +3,8 @@ import { getMarketClient } from './marketLogin'
 import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
 import { AllSequentialMap } from '../utils/PromiseUtils'
 
-export function fetchComments(idList, client) {
-  const chunks = _.chunk(idList, 50);
+export function fetchComments(signatures, client) {
+  const chunks = _.chunk(signatures, 100);
     return AllSequentialMap(chunks, (chunk) => {
       return client.investibles.getMarketComments(chunk);
     }).then((commentsLists) => _.flatten(commentsLists))

@@ -206,7 +206,7 @@ function usersSignatureGenerator (versionsSignatures) {
         ...fetchSigs[userId],
         investments: [
           ...investments, {
-            id: marketInfoId,
+            type_object_id: `investible_${marketInfoId}`,
             version: version,
           }
         ]
@@ -216,7 +216,7 @@ function usersSignatureGenerator (versionsSignatures) {
         id: userId,
         investments: [
           {
-            id: marketInfoId,
+            type_object_id: `investible_${marketInfoId}`,
             version: version,
           }
         ]

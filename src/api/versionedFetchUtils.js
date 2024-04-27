@@ -45,7 +45,6 @@ export const PUSH_STAGE_CHANNEL = 'MarketsStagesChannel';
 export const PUSH_GROUPS_CHANNEL = 'MarketsGroupsChannel';
 export const VERSIONS_EVENT = 'version_push';
 export const BANNED_LIST = 'banned_list';
-export const SYNC_ERROR_EVENT = 'sync_error';
 export class MatchError extends Error {}
 
 let runner;
@@ -326,9 +325,11 @@ function fetchMarketPresences(marketClient, marketId, allMp, marketsStruct) {
       users.forEach((user) => {
         const userRawSignature = allMp.unmatchedSignatures.find(signature => signature.id === user.id);
         const investmentSignatures = userRawSignature.investments;
-        promises.push(getInvestments(user.id, investmentSignatures, marketClient).then((investments) => {
-          user.investments = investments;
-        }));
+        if (!_.isEmpty(investmentSignatures)) {
+          promises.push(getInvestments(user.id, investmentSignatures, marketClient).then((investments) => {
+            user.investments = investments;
+          }));
+        }
       });
       return new LimitedParallelMap(promises, (promise) => promise, MAX_CONCURRENT_API_CALLS)
         .then(() => addMarketsStructInfo('users', marketsStruct, users, marketId));
@@ -353,10 +354,11 @@ function fetchGroupMembers(marketClient, marketId, allMg, marketsStruct) {
   const mgSignatures = allMg.unmatchedSignatures;
   const signaturesByGroupId = {};
   mgSignatures.forEach((sign) => {
-    if (!signaturesByGroupId[sign.group_id]) {
-      signaturesByGroupId[sign.group_id] = [];
+    const groupId = sign.group_id;
+    if (!signaturesByGroupId[groupId]) {
+      signaturesByGroupId[groupId] = [];
     }
-    signaturesByGroupId[sign.group_id].push(sign);
+    signaturesByGroupId[groupId].push({id: sign.id, version: sign.version});
   });
   return getGroupMembers(signaturesByGroupId, marketClient)
     .then((users) => {

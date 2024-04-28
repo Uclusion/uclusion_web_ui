@@ -108,7 +108,7 @@ function Voting(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useVoteStyles();
-  const voters = useInvestibleVoters(marketPresences, investibleId, market.id);
+  const voters = useInvestibleVoters(marketPresences, investibleId, market.id, !showExpiration);
   const sortedVoters = _.sortBy(voters, 'quantity', 'updatedAt');
 
   function remove(event) {
@@ -190,8 +190,8 @@ function Voting(props) {
                   {isEditable && mobileLayout && (
                     <div className={classes.editVoteDisplay}>
                       <TooltipIconButton
-                        onClick={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, market.id, investibleId,
-                          groupId))}
+                        onClick={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, market.id,
+                          investibleId, groupId))}
                         icon={<Edit fontSize='small' />}
                         translationId="edit"
                       />

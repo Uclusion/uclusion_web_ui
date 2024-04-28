@@ -44,7 +44,7 @@ function JobAssignStep (props) {
   const { assigned, group_id: groupId } = marketInfo;
   const value = (formData.wasSet ? formData.assigned : assigned) || [];
   const validForm = !_.isEqual(value, assigned || []);
-  const voters = useInvestibleVoters(marketPresences, investibleId, marketId);
+  const voters = useInvestibleVoters(marketPresences, investibleId, marketId, true);
   const comments = getMarketComments(commentsState, marketId, groupId);
   const unresolvedComments = comments.filter(comment => comment.investible_id === investibleId &&
     !comment.resolved);

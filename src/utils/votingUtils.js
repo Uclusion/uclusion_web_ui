@@ -10,11 +10,11 @@ import { MarketsContext } from '../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper';
 import _ from 'lodash';
 
-export function useInvestibleVoters(marketPresences, investibleId, marketId) {
+export function useInvestibleVoters(marketPresences, investibleId, marketId, includeExpired=false) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
   return calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,
-    marketPresences);
+    marketPresences, includeExpired);
 }
 
 export function useAddressed(groupPresences, marketPresences, investibleId, marketId) {

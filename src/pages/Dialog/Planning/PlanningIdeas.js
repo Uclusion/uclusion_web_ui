@@ -546,7 +546,7 @@ function StageInvestible(props) {
   const [messagesState] = useContext(NotificationsContext)
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
-  const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId);
+  const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId, !isVoting);
   const collaboratorsForInvestible = getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible,
     marketPresences, marketPresencesState, isVoting);
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));

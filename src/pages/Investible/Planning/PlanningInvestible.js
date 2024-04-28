@@ -291,8 +291,9 @@ export const usePlanningInvestibleStyles = makeStyles(
 );
 
 export function useCollaborators(marketPresences, investibleComments, marketPresencesState, investibleId, marketId) {
-  const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments, marketPresencesState);
-  const voters = useInvestibleVoters(marketPresences, investibleId, marketId);
+  const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments,
+    marketPresencesState);
+  const voters = useInvestibleVoters(marketPresences, investibleId, marketId, true);
   const concated = [...voters, ...investibleCommentorPresences];
   return _.uniq((concated || []).map((presence) => presence.id));
 }

@@ -171,7 +171,7 @@ function Backlog(props) {
       {data.map((inv) => {
         const { investible } = inv;
         const votersForInvestible = calculateInvestibleVoters(investible.id, marketId, marketsState,
-          investiblesState, marketPresences);
+          investiblesState, marketPresences, true);
         const collaboratorsForInvestible = getCollaboratorsForInvestible(investible.id, marketId, comments,
           votersForInvestible, marketPresences, marketPresencesState);
         return (

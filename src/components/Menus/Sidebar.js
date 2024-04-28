@@ -18,7 +18,7 @@ function processRegularItem(properties) {
     return (
       <Tooltip key={`tip${textNoSpaces}`}
                title={tipText}>
-        <span style={{fontSize: '1.2rem', paddingLeft: '0.5rem'}}>{text}</span>
+        <span style={{paddingLeft: '3.25rem'}}>{text}</span>
       </Tooltip>
     );
   }
@@ -26,7 +26,7 @@ function processRegularItem(properties) {
   const backgroundColor = isBold && !isSubMenu ? '#b4d0d8' : undefined;
   return (
     <div key={`sidebarMenuHolder${key}`}>
-      <MenuItem icon={<Icon htmlColor={iconColor} />}
+      <MenuItem icon={<Icon style={{fontSize: '1.3rem', paddingBottom: isLarge ? undefined :'2px'}} htmlColor={iconColor} />}
                 style={{backgroundColor, borderRadius: 22, width: '97%',
                 marginLeft: 'auto', marginRight: 'auto'}}
                 key={key} id={textNoSpaces}

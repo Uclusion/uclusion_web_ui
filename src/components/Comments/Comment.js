@@ -45,9 +45,11 @@ import {
   ACTIVE_STAGE,
   BUG_WIZARD_TYPE,
   INITIATIVE_TYPE,
-  JOB_COMMENT_CONFIGURE_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE,
+  JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
+  JOB_COMMENT_WIZARD_TYPE,
   OPTION_WIZARD_TYPE,
-  PLANNING_TYPE, REPLY_WIZARD_TYPE
+  PLANNING_TYPE,
+  REPLY_WIZARD_TYPE
 } from '../../constants/markets';
 import { red } from '@material-ui/core/colors';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
@@ -57,7 +59,8 @@ import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStage
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   decomposeMarketPath,
-  formCommentLink, formInvestibleAddCommentLink,
+  formCommentLink,
+  formInvestibleAddCommentLink,
   formMarketAddInvestibleLink,
   formWizardLink,
   navigate,
@@ -65,12 +68,7 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import { useHistory, useLocation } from 'react-router';
 import { marketAbstain } from '../../api/markets';
-import {
-  changeInvestibleStageOnCommentOpen,
-  handleAcceptSuggestion,
-  isSingleAssisted,
-  onCommentOpen
-} from '../../utils/commentFunctions';
+import { onCommentOpen } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
   findMessageForCommentId,
@@ -85,7 +83,8 @@ import {
   Done,
   Edit,
   Eject,
-  ExpandLess, NotificationsActive,
+  ExpandLess,
+  NotificationsActive,
   NotInterested,
   SettingsBackupRestore,
   UnfoldMore
@@ -106,7 +105,6 @@ import { userIsLoaded } from '../../contexts/AccountContext/accountUserContextHe
 import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { ScrollContext } from '../../contexts/ScrollContext';
-import ListAltIcon from '@material-ui/icons/ListAlt';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Options from './Options';
@@ -116,8 +114,6 @@ import Gravatar from '../Avatars/Gravatar';
 import styled from 'styled-components';
 import { NOT_FULLY_VOTED_TYPE, RED_LEVEL } from '../../constants/notifications';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
-import { quickNotificationChanges } from './CommentAdd';
-import LightbulbOutlined from '../CustomChip/LightbulbOutlined';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 
 export const useCommentStyles = makeStyles(
@@ -609,33 +605,6 @@ function Comment(props) {
       });
   }
 
-  function myAccept() {
-    setOperationRunning(true);
-    return updateComment({marketId, commentId: id, commentType: TODO_TYPE}).then((comment) => {
-      handleAcceptSuggestion({ isMove: myPresenceIsAssigned && myPresence === createdBy &&
-          isSingleAssisted(comments, assigned), comment, investible, investiblesDispatch, marketStagesState,
-        commentsState, commentsDispatch, messagesState })
-      setOperationRunning(false);
-      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, id));
-    })
-  }
-
-  function myMoveToSuggestion() {
-    setOperationRunning(true);
-    return updateComment({marketId, commentId: id, commentType: SUGGEST_CHANGE_TYPE}).then((comment) => {
-      const withNewComment = _.concat(comments, comment);
-      addCommentToMarket(comment, commentsState, commentsDispatch);
-      if (myPresenceIsAssigned && myPresence === createdBy && isSingleAssisted(withNewComment, assigned)) {
-        changeInvestibleStageOnCommentOpen(false, true, marketStagesState,
-          [marketInfo], investible, investiblesDispatch, comment, myPresence);
-        quickNotificationChanges(comment.comment_type, comment.investible_id, messagesState, messagesDispatch,
-          [], comment, undefined, commentsState, commentsDispatch, comment.market_id, myPresence);
-      }
-      setOperationRunning(false);
-      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, id));
-    })
-  }
-
   function resolve() {
     return resolveComment(marketId, id)
       .then((response) => {
@@ -717,7 +686,6 @@ function Comment(props) {
     )
   }
 
-  const showAcceptReject =  investibleId && !resolved && marketType === PLANNING_TYPE && !removeActions;
   const showMoveButton = isSent !== false
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(commentType)
     && !inArchives && !removeActions && enableActions && marketType === PLANNING_TYPE;
@@ -918,20 +886,6 @@ function Comment(props) {
                     />
                   </SpinningIconLabelButton>
                 )}
-                {showAddVoting && (
-                  <SpinningIconLabelButton
-                    onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
-                      undefined, undefined, id, typeObjectId))} iconOnly={mobileLayout}
-                                           doSpin={false} icon={ThumbsUpDownIcon}>
-                    {!mobileLayout && intl.formatMessage({ id: 'addVoting' })}
-                  </SpinningIconLabelButton>
-                )}
-                {showAcceptReject && commentType === SUGGEST_CHANGE_TYPE && (
-                  <SpinningIconLabelButton onClick={myAccept} icon={ListAltIcon} iconOnly={mobileLayout}
-                                           id={`convertToTask${id}`}>
-                    {!mobileLayout && intl.formatMessage({ id: 'wizardAcceptLabel' })}
-                  </SpinningIconLabelButton>
-                )}
                 {((resolved && showReopen) || (!resolved && showResolve)) && (
                   <SpinningIconLabelButton
                     doSpin={resolved || commentType !== REPORT_TYPE}
@@ -945,6 +899,26 @@ function Comment(props) {
                     {(!mobileLayout || resolved) && intl.formatMessage({
                       id: resolved ? 'commentReopenLabel' : 'commentResolveLabel'
                     })}
+                  </SpinningIconLabelButton>
+                )}
+                {isSent !== false && enableEditing && !removeActions && (
+                  <SpinningIconLabelButton
+                    onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+                      undefined, undefined, id, typeObjectId))}
+                    icon={ReplyIcon}
+                    iconOnly={mobileLayout}
+                    id={`commentReplyButton${id}`}
+                    doSpin={false}
+                  >
+                    {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })}
+                  </SpinningIconLabelButton>
+                )}
+                {showAddVoting && (
+                  <SpinningIconLabelButton
+                    onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
+                      undefined, undefined, id, typeObjectId))} iconOnly={mobileLayout}
+                    doSpin={false} icon={ThumbsUpDownIcon}>
+                    {!mobileLayout && intl.formatMessage({ id: 'addVoting' })}
                   </SpinningIconLabelButton>
                 )}
                 {inlineMarket.market_type === DECISION_TYPE && enableEditing && !removeActions && (
@@ -979,18 +953,6 @@ function Comment(props) {
                     {!mobileLayout && intl.formatMessage({ id: 'commentUnmuteLabel' })}
                   </SpinningIconLabelButton>
                 )}
-                {isSent !== false && enableEditing && !removeActions && (
-                  <SpinningIconLabelButton
-                    onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
-                      undefined, undefined, id, typeObjectId))}
-                    icon={ReplyIcon}
-                    iconOnly={mobileLayout}
-                    id={`commentReplyButton${id}`}
-                    doSpin={false}
-                  >
-                    {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })}
-                  </SpinningIconLabelButton>
-                )}
                 {commentType === TODO_TYPE && investibleId && !removeActions && enableEditing && (
                   <FormControlLabel
                     id='inProgressCheckbox'
@@ -1010,8 +972,8 @@ function Comment(props) {
                   <SpinningIconLabelButton
                     onClick={() => navigate(history,
                       `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
-                        investibleId && commentType === TODO_TYPE ? BUG_WIZARD_TYPE 
-                          : undefined)}&fromCommentId=${id}`)}
+                        investibleId && [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) ? 
+                          BUG_WIZARD_TYPE : undefined)}&fromCommentId=${id}`)}
                     doSpin={false}
                     iconOnly={true}
                     icon={Eject}
@@ -1027,18 +989,12 @@ function Comment(props) {
                     {!mobileLayout && intl.formatMessage({ id: 'configureVoting' })}
                   </SpinningIconLabelButton>
                 )}
-                {showAcceptReject && commentType === TODO_TYPE && (
-                  <SpinningIconLabelButton onClick={myMoveToSuggestion} icon={LightbulbOutlined} iconOnly={mobileLayout}
-                                           id={`convertToSuggestion${id}`}>
-                    {!mobileLayout && intl.formatMessage({ id: 'moveToSuggestion' })}
-                  </SpinningIconLabelButton>
-                )}
                 {showMoveButton && !mobileLayout && (
                   <SpinningIconLabelButton
                     onClick={() => navigate(history,
                       `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
-                        investibleId && commentType === TODO_TYPE ? BUG_WIZARD_TYPE
-                          : undefined)}&fromCommentId=${id}`)}
+                        investibleId && [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) ? 
+                          BUG_WIZARD_TYPE : undefined)}&fromCommentId=${id}`)}
                     doSpin={false}
                     icon={Eject}
                   >

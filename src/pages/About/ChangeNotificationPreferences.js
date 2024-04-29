@@ -165,6 +165,7 @@ function ChangeNotificationPreferences (props) {
               </ListItem>
               <Link href="https://www.gravatar.com"
                     target="_blank"
+                    key="avatarLinkLink"
                     underline="none"
               >
                 <ListItem key="avatarLink">
@@ -185,6 +186,7 @@ function ChangeNotificationPreferences (props) {
           >
             <Grid
               container
+              key="preferencesGrid"
               direction="row"
               alignItems="baseline"
               style={{ paddingBottom: '0' }}
@@ -201,7 +203,7 @@ function ChangeNotificationPreferences (props) {
                       style={{backgroundColor: "#ecf0f1"}}
                     >
                       {markets.map((market) => {
-                        return <MenuItem value={market.id}>{market.name}</MenuItem>
+                        return <MenuItem key={`key${market.id}`} value={market.id}>{market.name}</MenuItem>
                       })}
                     </Select>
                   )}
@@ -223,7 +225,7 @@ function ChangeNotificationPreferences (props) {
                   {intl.formatMessage({ id: 'emailEnabledLabel' })}
                 </ListItemText>
               </ListItem>
-              <ListItem style={{paddingTop: 0, marginTop: 0}}>
+              <ListItem key="emailDelay" style={{paddingTop: 0, marginTop: 0}}>
                 <NotificationDelay
                   disabled={!emailEnabledValue}
                   onChange={(event) => marketConfigsDispatch({type: 'emailDelay', value: event.target.value})}
@@ -231,7 +233,7 @@ function ChangeNotificationPreferences (props) {
                   explanationId="emailDelayExplanation" labelId="emailDelayInputLabel"
                 />
               </ListItem>
-              <ListItem style={{marginTop: '1rem'}}>
+              <ListItem key="slackLink" style={{marginTop: '1rem'}}>
                 <a
                   href={`${config.add_to_slack_url}&state=${user?.id}_${marketId}`}
                   target="_blank"
@@ -269,14 +271,14 @@ function ChangeNotificationPreferences (props) {
                   {intl.formatMessage({ id: 'slackEnabledLabel' })}
                 </ListItemText>
               </ListItem>
-              <ListItem style={{paddingTop: 0, marginTop: 0}}>
-              <NotificationDelay
-                disabled={slackDelayDisabled}
-                onChange={(event) => marketConfigsDispatch({type: 'slackDelay', value: event.target.value})}
-                value={slackDelayValue}
-                explanationId="slackDelayExplanation" labelId="slackDelayInputLabel"/>
+              <ListItem key="slackDelay" style={{paddingTop: 0, marginTop: 0}}>
+                <NotificationDelay
+                  disabled={slackDelayDisabled}
+                  onChange={(event) => marketConfigsDispatch({type: 'slackDelay', value: event.target.value})}
+                  value={slackDelayValue}
+                  explanationId="slackDelayExplanation" labelId="slackDelayInputLabel"/>
               </ListItem>
-              <ListItem style={{marginTop: '1rem'}}>
+              <ListItem key="changePreferences" style={{marginTop: '1rem'}}>
                 <SpinBlockingButton
                   variant="outlined"
                   fullWidth={true}

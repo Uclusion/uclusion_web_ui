@@ -106,7 +106,7 @@ function SubSection (props) {
   const classes = useStyles();
 
   return (
-    <React.Fragment>
+    <React.Fragment key={`frag${id}`}>
       <AppBar
         id={id}
         className={type === SECTION_TYPE_SECONDARY ? classes.secondarySubHeader :

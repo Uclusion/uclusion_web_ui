@@ -145,7 +145,7 @@ function InvestiblesByPerson(props) {
   });
 
   return (
-    <>
+    <React.Fragment key="investiblesByPerson">
       <SpinningButton id="addJob"
                       className={wizardClasses.actionNext}
                       icon={AddIcon} iconColor="black"
@@ -191,7 +191,7 @@ function InvestiblesByPerson(props) {
         const { mentioned_notifications: mentions, approve_notifications: approvals } = groupPresence || {};
         if (_.isEmpty(myInvestiblesStageHash) &&
           ((_.isEmpty(mentions) && _.isEmpty(approvals))||!_.isEmpty(search))) {
-          return <React.Fragment/>
+          return <React.Fragment key={`investiblesByPerson${id}`}/>
         }
         return (
             <Card id={`sl${id}`} key={id} className={classes.root} elevation={3} style={{marginBottom: '1rem'}}>
@@ -234,7 +234,7 @@ function InvestiblesByPerson(props) {
         );
       })
     }
-    </>
+    </React.Fragment>
   );
 }
 

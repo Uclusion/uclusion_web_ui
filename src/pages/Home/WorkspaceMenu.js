@@ -164,16 +164,15 @@ function WorkspaceMenu(props) {
           <ProSidebar width="14rem">
             <SidebarContent>
               <ProMenu iconShape="circle">
-                <MenuItem icon={<SettingsIcon htmlColor="black" fontSize='small' />}
+                <MenuItem icon={<SettingsIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}}
+                                              htmlColor="black" fontSize='small' />}
                           key="settingsIconKey" id="settingsIconId"
-                          style={{marginBottom: '1rem'}}
                           onClick={goTo(`${formMarketEditLink(defaultMarket.id)}`)}
                 >
                   {intl.formatMessage({ id: 'settings' })}
                 </MenuItem>
-                <MenuItem icon={<AddIcon htmlColor="black" />}
+                <MenuItem icon={<AddIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
                           key="addGroupKey" id="addGroupId"
-                          style={{marginBottom: '1rem'}}
                           onClick={() => {
                             recordPositionToggle();
                             navigate(history,
@@ -196,7 +195,8 @@ function WorkspaceMenu(props) {
                       if (chosenGroup?.id === group.id) {
                         return <React.Fragment key={key}/>;
                       }
-                      return <MenuItem icon={<GroupOutlined htmlColor="black" />}
+                      return <MenuItem icon={<GroupOutlined style={{fontSize: '1.3rem', paddingBottom: '2px'}}
+                                                            htmlColor="black" />}
                                        id={key}
                                        key={key}
                                        onClick={() => {
@@ -208,9 +208,9 @@ function WorkspaceMenu(props) {
                     })}
                   </SubMenu>
                 )}
-                <MenuItem icon={<AddIcon htmlColor="black" />}
+                <MenuItem icon={<AddIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
                           key="addWorkspace Key" id="addWorkspaceIconId"
-                          style={{marginTop: '1rem', marginBottom: '1rem'}}
+                          style={{marginBottom: '0.5rem'}}
                           onClick={()=> {
                             recordPositionToggle();
                             navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
@@ -232,7 +232,8 @@ function WorkspaceMenu(props) {
                       if (market.id === defaultMarket.id) {
                         return <React.Fragment key={key}/>;
                       }
-                      return <MenuItem icon={<AgilePlanIcon htmlColor="black" fontSize='small' />}
+                      return <MenuItem icon={<AgilePlanIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}}
+                                                            htmlColor="black" fontSize='small' />}
                                        id={key}
                                        key={key}
                                        style={{paddingLeft: '-15px', marginLeft: '-15px'}}

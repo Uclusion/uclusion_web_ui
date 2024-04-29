@@ -122,7 +122,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
     }
     const ticketNumber = ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
     return (
-      <>
+      <React.Fragment key={`frag${id}`}>
         <Grid
           id={id}
           key={id}
@@ -178,7 +178,7 @@ function getInvestibles(investibles, marketPresences, marketPresencesState, pres
         {!mobileLayout && (
           <DragImage id={id} name={name} />
         )}
-      </>
+      </React.Fragment>
     );
   });
 }
@@ -204,9 +204,9 @@ function ArchiveInvestbiles(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
 
   return (
-    <Grid container className={classes.white}>
+    <Grid id="archiveGrid" key="archiveGrid" container className={classes.white}>
       {_.isEmpty(investibles) && (
-        <div className={classes.grow} />
+        <div id="grow" key="grow" className={classes.grow} />
       )}
       {getInvestibles(investibles, marketPresences, marketPresencesState, presenceMap, marketId, comments, history,
         intl, elevation, allowDragDrop, unResolvedMarketComments, presenceId, marketStagesState, classes, mobileLayout)}

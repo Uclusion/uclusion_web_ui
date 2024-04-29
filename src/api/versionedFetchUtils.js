@@ -147,6 +147,9 @@ export function sendMarketsStruct(marketsStruct) {
 }
 
 function addMarketsStructInfo(infoType, marketsStruct, details, marketId) {
+  if (_.isEmpty(details)) {
+    return;
+  }
   if (marketId) {
     if (!marketsStruct[infoType]) {
       marketsStruct[infoType] = {};

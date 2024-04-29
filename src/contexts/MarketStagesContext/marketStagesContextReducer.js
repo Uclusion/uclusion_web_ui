@@ -4,6 +4,7 @@ import { MARKET_STAGES_CONTEXT_NAMESPACE, STAGES_CHANNEL } from './MarketStagesC
 import { removeInitializing } from '../../components/localStorageUtils'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { addByIdAndVersion } from '../ContextUtils';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_STAGES = 'UPDATE_MARKET_STAGES';
@@ -58,7 +59,7 @@ function doUpdateMarketsStages(state, action) {
   const { stageDetails } = action;
   const newState = {...state};
   Object.keys(stageDetails).forEach((marketId) => {
-    newState[marketId] = stageDetails[marketId];
+    newState[marketId] = addByIdAndVersion(stageDetails[marketId], newState[marketId]);
   });
   return removeInitializing(newState);
 }

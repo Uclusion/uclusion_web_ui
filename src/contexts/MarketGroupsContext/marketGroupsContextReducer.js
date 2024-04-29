@@ -4,6 +4,7 @@ import { removeInitializing } from '../../components/localStorageUtils'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import _ from 'lodash'
+import { addByIdAndVersion } from '../ContextUtils';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_GROUPS = 'UPDATE_MARKET_GROUPS';
@@ -60,7 +61,7 @@ function doUpdateMarketsGroups(state, action) {
   const { groupDetails } = action;
   const newState = {...state};
   Object.keys(groupDetails).forEach((marketId) => {
-    newState[marketId] = groupDetails[marketId];
+    newState[marketId] = addByIdAndVersion(groupDetails[marketId], newState[marketId]);
   });
   return removeInitializing(newState);
 }

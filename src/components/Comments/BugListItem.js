@@ -155,7 +155,7 @@ function BugListItem(props) {
   }
 
   return (
-    <>
+    <React.Fragment key={`fragBugListItem${id}`}>
       <Item key={`listItem${id}`} id={id} style={{minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
             onDragStart={onDragStart} draggable>
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
@@ -227,14 +227,14 @@ function BugListItem(props) {
           </div>
         </RaisedCard>
       </Item>
-      <div id={`bugListItemExpansion${id}`} style={{display: expansionOpen ? 'block' : 'none',
+      <div id={`bugListItemExpansion${id}`} key={`bugListItemExpansionKey${id}`} style={{display: expansionOpen ? 'block' : 'none',
         paddingBottom: '0.5rem'}} draggable={false}>
         {expansionPanel || <React.Fragment />}
       </div>
       {!mobileLayout && (
         <DragImage id={id} name={title} />
       )}
-    </>
+    </React.Fragment>
   );
 }
 

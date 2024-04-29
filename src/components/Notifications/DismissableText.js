@@ -109,12 +109,12 @@ function DismissableText(props) {
   }
 
   if (cantShow || display === false) {
-    return React.Fragment;
+    return <React.Fragment key={textId} />;
   }
 
   if (checkBoxFunc) {
     return (
-      <div style={{marginLeft: '1rem', marginRight: '0.5rem', paddingTop: '0.25rem'}}>
+      <div key={textId} style={{marginLeft: '1rem', marginRight: '0.5rem', paddingTop: '0.25rem'}}>
         <Typography>
           {intl.formatMessage({ id: 'doNotShowAgain' })}
           <Checkbox
@@ -130,7 +130,8 @@ function DismissableText(props) {
   }
 
   return (
-    <dl className={display === true ? (noPad ? classes.rootEmptyNoPadding : classes.rootEmpty) : classes.root} >
+    <dl key={textId} className={display === true ? (noPad ? classes.rootEmptyNoPadding : classes.rootEmpty) :
+      classes.root} >
       <dl className={display === true ? classes.center : classes.leftMost}>
         <LiveHelpTwoToneIcon htmlColor="#4ce6a5" fontSize="medium" className={classes.help}/>
         {text}

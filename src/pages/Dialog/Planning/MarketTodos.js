@@ -279,13 +279,13 @@ function MarketTodos(props) {
 
   function getRows() {
     if (_.isEmpty(data)) {
-      return <div className={classes.grow} key={`${tabIndex}empty`}/>
+      return <div className={classes.grow} key={`todos${tabIndex}empty`}/>
     }
 
     return data.map((comment) => {
       const { id, body, updated_at: updatedAt, notification_type: notificationType } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
-      const expansionPanel = <div id={`c${id}`}
+      const expansionPanel = <div id={`c${id}`} key={`c${id}key`}
                                   style={{marginBottom: '1rem', marginRight: '1rem', marginLeft: '1rem'}}>
         <Comment
           marketId={marketId}
@@ -298,7 +298,7 @@ function MarketTodos(props) {
       const determinateChecked = determinate[id];
       const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
       return (
-        <BugListItem id={id} replyNum={replies.length + 1} title={stripHTML(body)}
+        <BugListItem id={id} key={id} replyNum={replies.length + 1} title={stripHTML(body)}
                      isNew={isNewComment(comment, messagesState)}
                      date={intl.formatDate(updatedAt)}
                      message={findMessageForCommentId(id, messagesState)}
@@ -375,8 +375,8 @@ function MarketTodos(props) {
   const yellowChip = <Chip color="primary" size='small' className={classes.chipStyleYellow} />;
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
   return (
-    <div className={classes.outerBorder} id="marketTodos" style={{display: sectionOpen ? 'block' : 'none',
-      marginTop: '1rem', overflowX: 'hidden'}}>
+    <div className={classes.outerBorder} id="marketTodos" key="marketTodosKey" style={{display: sectionOpen ? 'block' :
+        'none', marginTop: '1rem', overflowX: 'hidden'}}>
       <DismissableText textId="todosHelp" display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
                        text={
         <div>
@@ -427,7 +427,7 @@ function MarketTodos(props) {
         </GmailTabs>
       )}
       {!_.isEmpty(tabComments) && (
-        <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
+        <div key="todoComments" style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
           <div style={{display: 'flex', width: '80%'}}>
             {!mobileLayout && !isInArchives && (
               <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}

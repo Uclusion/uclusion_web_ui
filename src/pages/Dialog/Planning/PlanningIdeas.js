@@ -407,7 +407,7 @@ function Stage(props) {
     const numQuestionsSuggestions = countByType(investible, comments,
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
     return (
-      <>
+      <React.Fragment key={`stageFrag${investible.id}`}>
         <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
              className={classes.outlinedAccepted}
              style={{minWidth: isReview ? '45%' : undefined}}
@@ -435,7 +435,7 @@ function Stage(props) {
         {!mobileLayout && (
           <DragImage id={investible.id} name={investible.name} />
         )}
-      </>
+      </React.Fragment>
     )});
   if (!isReview) {
     return investiblesMap;

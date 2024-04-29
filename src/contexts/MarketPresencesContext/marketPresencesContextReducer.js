@@ -134,10 +134,8 @@ function doUpdateMarketPresences(state, action) {
   const { userDetails } = action;
   const newState = {...state};
   Object.keys(userDetails).forEach((marketId) => {
-    const oldUsersRaw = state[marketId] || [];
-    const oldUsers = oldUsersRaw.filter((user) => user.fromQuickAdd);
     // Avoid clobbering presences that were quick added
-    newState[marketId] = addByIdAndVersion(userDetails[marketId], oldUsers);
+    newState[marketId] = addByIdAndVersion(userDetails[marketId], newState[marketId]);
   });
   return removeInitializing(newState);
 }

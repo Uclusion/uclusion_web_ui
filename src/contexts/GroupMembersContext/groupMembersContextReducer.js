@@ -93,10 +93,7 @@ function doUpdateGroupMembers(state, action) {
   })
   const newState = {...state};
   Object.keys(userDetails).forEach((groupId) => {
-    const oldUsersRaw = state[groupId] || [];
-    const oldUsers = oldUsersRaw.filter((user) => user.fromQuickAdd);
-    // Avoid clobbering what was quick added
-    newState[groupId] = addByIdAndVersion(userDetails[groupId], oldUsers);
+    newState[groupId] = addByIdAndVersion(userDetails[groupId], newState[groupId]);
   });
   return removeInitializing(newState);
 }

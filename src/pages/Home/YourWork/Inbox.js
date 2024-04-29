@@ -37,7 +37,7 @@ import Link from '@material-ui/core/Link';
 
 function createWorkspaceGroupHeader(market, group, history) {
   const link = formMarketLink(market.id, group.id);
-  return (<div style={{marginTop: '0.3rem'}}>
+  return (<div id={`inboxGroupHeader${group.id}`} key={`inboxGroupHeaderKey${group.id}`} style={{marginTop: '0.3rem'}}>
     Workspace {market.name} and group <Link href={link} onClick={
     (event) => {
       preventDefaultAndProp(event);

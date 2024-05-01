@@ -44,11 +44,14 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'none',
     border: '1px solid',
     borderRadius: '8px',
-    fontSize: '1rem',
-    marginLeft: '1rem',
     display: 'flex',
+    '& .MuiButton-endIcon': {
+      marginLeft: 0,
+      marginRight: 0
+    },
+    padding: '5px 3px 5px 5px',
     '& .MuiButton-label': {
-      lineHeight: '1.2'
+      lineHeight: '1.2',
     },
     [theme.breakpoints.down('sm')]: {
       width: 'auto',
@@ -134,10 +137,10 @@ function WorkspaceMenu(props) {
   }
 
   return (
-    <div style={{paddingTop: '1rem'}}>
+    <div style={{paddingTop: '1rem', marginLeft: '7px', maxWidth: 'calc(100% - 9px)'}}>
       <Button
         onClick={recordPositionToggle}
-        endIcon={<ExpandMoreIcon htmlColor="black"/>}
+        endIcon={<ExpandMoreIcon style={{fontSize: '1rem', marginLeft: 0}} htmlColor="black"/>}
         className={classes.buttonClass}
         id="workspaceMenuButton"
       >

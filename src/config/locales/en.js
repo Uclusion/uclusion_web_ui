@@ -1279,10 +1279,11 @@ const messages = defineMessages({
   AddOptionWizardCancelOption: 'Cancel New Option',
 
   //ComposeWizard
-  JOBComposeLabel: 'Job - holds assignments, tasks, questions, suggestions, and progress reports',
+  JOBComposeLabel: 'Job - holds assignments, tasks, questions, suggestions, blockers, and status',
   QUESTIONComposeLabel: 'Question - can have approvable options and movable to a job',
   SUGGESTComposeLabel: 'Suggestion - voted for or against and movable to a job as suggestion or task',
   TODOComposeLabel: 'Bug - movable to a job as a task',
+  GROUPComposeLabel: 'Group - for notification addressing and views of other types',
   compose: 'Compose',
 
 

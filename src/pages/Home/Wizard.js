@@ -51,6 +51,9 @@ import ComposeWizard from '../../components/AddNewWizards/Compose/ComposeWizard'
 import SignOutWizard from '../../components/AddNewWizards/SignOut/SignOutWizard';
 import JobEditWizard from '../../components/AddNewWizards/JobEdit/JobEditWizard';
 import OptionEditWizard from '../../components/AddNewWizards/OptionEdit/OptionEditWizard';
+import AddWizardOnboardingBanner from '../../components/Banners/AddWizardOnboardingBanner';
+import { getMarket, marketIsDemo } from '../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -62,9 +65,12 @@ function Wizard(props) {
     typeObjectId, resolveId } = values;
   const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
+  const [marketsState] = useContext(MarketsContext);
   const history = useHistory();
   const wizardClasses = wizardStyles();
   const upgradeMessages = findMessagesForUserPoked(messagesState);
+  const market = getMarket(marketsState, marketId) || {};
+  const isDemo = marketIsDemo(market);
 
   if (!_.isEmpty(upgradeMessages)) {
     return (
@@ -88,6 +94,8 @@ function Wizard(props) {
     <Screen
       title={intl.formatMessage({ 'id': 'wizardBreadCrumb' })}
       tabTitle={intl.formatMessage({ id: 'wizardBreadCrumb' })}
+      banner={<AddWizardOnboardingBanner createType={createType} />}
+      showBanner={isDemo}
       hidden={hidden}
     >
       {typeObjectId && (

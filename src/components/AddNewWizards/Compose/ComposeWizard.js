@@ -7,8 +7,8 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import _ from 'lodash';
 import ChooseGroupStep from './ChooseGroupStep';
 import { formMarketAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { BUG_WIZARD_TYPE, DISCUSSION_WIZARD_TYPE, JOB_WIZARD_TYPE } from '../../../constants/markets';
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { BUG_WIZARD_TYPE, DISCUSSION_WIZARD_TYPE, JOB_WIZARD_TYPE, PLANNING_TYPE } from '../../../constants/markets';
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 
 export function goToChosenWizard(useType, marketId, groupId, history) {
   switch(useType) {
@@ -21,8 +21,11 @@ export function goToChosenWizard(useType, marketId, groupId, history) {
     case SUGGEST_CHANGE_TYPE:
       navigate(history, formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, SUGGEST_CHANGE_TYPE));
       break;
-    default:
+    case TODO_TYPE:
       navigate(history, formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, 0));
+      break;
+    default:
+      navigate(history, `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${marketId}`)
       break;
   }
 }
@@ -38,7 +41,7 @@ function ComposeWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name={`compose_wizard${marketId}`}>
+      <FormdataWizard name={`compose_wizard${marketId}`} useLocalStorage={false}>
         <ChooseTypeStep marketId={marketId} groupId={groupId} />
         {_.isEmpty(groupId) && (
           <ChooseGroupStep marketId={marketId} groups={groups} />

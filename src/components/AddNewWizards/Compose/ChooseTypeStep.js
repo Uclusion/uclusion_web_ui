@@ -14,9 +14,9 @@ function ChooseTypeStep (props) {
   const { marketId, groupId, updateFormData, formData } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
-  const allowedTypes = ['JOB', QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE];
+  const allowedTypes = ['JOB', QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, 'GROUP'];
   const { useType } = formData;
-  const isFinal = !_.isEmpty(groupId);
+  const isFinal = !_.isEmpty(groupId) || useType === 'GROUP';
 
   return (
     <WizardStepContainer
@@ -60,6 +60,7 @@ function ChooseTypeStep (props) {
         nextLabel="WizardContinue"
         onNext={isFinal ? () => goToChosenWizard(useType, marketId, groupId, history) : undefined}
         isFinal={isFinal}
+        onNextDoAdvance={!isFinal}
         spinOnClick={false}
         showTerminate={false}
       />

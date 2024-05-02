@@ -6,7 +6,7 @@ import { POKED } from '../../constants/notifications';
 import _ from 'lodash';
 
 function WizardStepContainer (props) {
-  const { children, startOver, message } = props;
+  const { children, startOver, message, currentStep } = props;
   const intl = useIntl();
   const classes = wizardStyles();
   const theme = useTheme();
@@ -16,25 +16,27 @@ function WizardStepContainer (props) {
 
   return (
     <>
-      <div onClick={startOver} style={{
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 9,
-        position: 'sticky',
-        marginTop: '-28px',
-        marginBottom: '25px',
-        paddingRight: '8rem',
-        color: 'rgba(0, 0, 0, 0.62)',
-        width: '20rem',
-        marginLeft: 'auto', marginRight: 'auto',
-      }}>
-        {intl.formatMessage({ id: 'JobWizardStartOver' })}
-      </div>
+      {currentStep > 0 && (
+        <div onClick={startOver} style={{
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9,
+          position: 'sticky',
+          marginTop: '-27px',
+          marginBottom: '25px',
+          paddingRight: '8rem',
+          color: 'rgba(0, 0, 0, 0.62)',
+          width: '20rem',
+          marginLeft: 'auto', marginRight: 'auto',
+        }}>
+          {intl.formatMessage({ id: 'JobWizardStartOver' })}
+        </div>
+      )}
       {poked && (
-        <Tooltip key='pokedKey'
-                 title={<FormattedMessage id='pokedExplanation' />}>
+        <Tooltip key="pokedKey"
+                 title={<FormattedMessage id="pokedExplanation"/>}>
           <div style={{
             cursor: 'pointer',
             display: 'flex',
@@ -44,7 +46,7 @@ function WizardStepContainer (props) {
             border: '2px solid #2D9CDB',
             paddingTop: '3px',
             position: 'sticky',
-            marginTop: mobileLayout ? '-10px' : '-41px',
+            marginTop: mobileLayout ? '-4px' : '-30px',
             marginBottom: '25px',
             marginLeft: '10rem',
             color: 'red',

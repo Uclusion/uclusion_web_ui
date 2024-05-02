@@ -132,7 +132,7 @@ function Inbox(props) {
   });
   return (
     <>
-    <div style={{zIndex: 8, position: 'sticky', marginTop: mobileLayout ? '-30px' : (isOnWorkItem ? '-12px' : '-8px'),
+    <div style={{zIndex: 8, position: 'sticky', marginTop: mobileLayout ? '-30px' : (isOnWorkItem ? '-5px' : '-8px'),
       width: '100%', marginLeft: isOnWorkItem ? undefined : '-0.5rem'}}
       id="inbox-header">
       {!isOnWorkItem && (

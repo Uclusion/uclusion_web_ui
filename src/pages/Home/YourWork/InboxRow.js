@@ -52,7 +52,7 @@ function getPriorityIcon(message, isAssigned, isMentioned) {
   if (message.type?.includes('REVIEW') && !isAssigned) {
     Icon = RateReviewIcon;
   }
-  if (message.type === 'REPORT_REQUIRED') {
+  if (['UNREAD_MOVE_REPORT', 'REPORT_REQUIRED'].includes(message.type)) {
     Icon = Schedule;
   }
   if (['UNASSIGNED', 'UNREAD_GROUP'].includes(message.type) || (message.type === 'UNREAD_REVIEWABLE'

@@ -40,6 +40,7 @@ export function GmailTabs(props) {
     <Tabs
       {...tabsProps}
       classes={tabsStyles}
+      style={{boxShadow: 'unset'}}
       TabIndicatorProps={{
         ...props.TabIndicatorProps,
         children: <div className={`MuiIndicator-${props.value}`} />,

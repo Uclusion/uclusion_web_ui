@@ -4,6 +4,26 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import { POKED } from '../../constants/notifications';
 import _ from 'lodash';
+import styled from 'styled-components';
+
+const StartOverText = styled("div")`
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9;
+    position: sticky;
+    margin-top: -27px;
+    margin-bottom: 25px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-right: 8rem;
+    color: rgba(0, 0, 0, 0.62);
+    width: 20rem;
+    &:hover {
+        color: darkgrey;
+    }
+`;
 
 function WizardStepContainer (props) {
   const { children, startOver, message, currentStep } = props;
@@ -17,22 +37,9 @@ function WizardStepContainer (props) {
   return (
     <>
       {currentStep > 0 && (
-        <div onClick={startOver} style={{
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 9,
-          position: 'sticky',
-          marginTop: '-27px',
-          marginBottom: '25px',
-          paddingRight: '8rem',
-          color: 'rgba(0, 0, 0, 0.62)',
-          width: '20rem',
-          marginLeft: 'auto', marginRight: 'auto',
-        }}>
+        <StartOverText onClick={startOver}>
           {intl.formatMessage({ id: 'JobWizardStartOver' })}
-        </div>
+        </StartOverText>
       )}
       {poked && (
         <Tooltip key="pokedKey"

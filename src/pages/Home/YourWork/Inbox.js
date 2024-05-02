@@ -142,6 +142,7 @@ function Inbox(props) {
             window.scrollTo(0, 0);
             inboxDispatch(setTab(value));
           }}
+          removeBoxShadow
           indicatorColors={[htmlColor, '#00008B']}
           style={{ paddingBottom: '0.5rem', paddingTop: '1rem', marginTop: '-1rem' }}>
           <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}

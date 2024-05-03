@@ -44,8 +44,7 @@ function addInvestibles(dispatch, diffDispatch, investibles) {
 function addPresences(presenceDispatch, memberDispatch, market, presences) {
   const { id: marketId } = market;
   addDemoPresencesToMarket(presenceDispatch, marketId, presences);
-  const users = presences.map((presence) => ({id: presence.id}));
-  memberDispatch(addGroupMembers(marketId, users));
+  memberDispatch(addGroupMembers(marketId, presences));
 }
 
 function addStages(dispatch, market, stageDetails) {

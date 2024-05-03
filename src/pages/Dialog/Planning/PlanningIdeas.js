@@ -415,7 +415,7 @@ function Stage(props) {
              onMouseOut={() => doRemoveEdit(investible.id)}
              onClick={event => {
                preventDefaultAndProp(event);
-               navigate(history, formInvestibleLink(marketId, investible.id));
+               navigate(history, `${formInvestibleLink(marketId, investible.id)}#investible-header`);
              }}
         >
           <StageInvestible
@@ -541,7 +541,7 @@ function StageInvestible(props) {
   const { completion_estimate: daysEstimate, ticket_code: ticketCode } = marketInfo;
   const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
-  const to = formInvestibleLink(marketId, id);
+  const to = `${formInvestibleLink(marketId, id)}#investible-header`;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext)
   const classes = generalStageStyles();

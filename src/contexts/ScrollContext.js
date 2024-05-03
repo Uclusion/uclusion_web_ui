@@ -7,8 +7,14 @@ import { registerListener } from '../utils/MessageBusUtils';
 const ScrollContext = React.createContext({});
 
 export function scrollToElement(element) {
-  // TODO this won't work on Firefox but is so far the only solution
-  element.scrollIntoViewIfNeeded();
+  if (element.id.includes('header')) {
+    // Use hash to guarantee the page is rendered before scrolling
+    // So far only done for investible and probably not necessary as removing height 100% from index.html fixed
+    window.scrollTo(0, 0);
+  } else {
+    // TODO this won't work on Firefox but is so far the only solution
+    element.scrollIntoViewIfNeeded();
+  }
 }
 
 function ScrollProvider(props) {

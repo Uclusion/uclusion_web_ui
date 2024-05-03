@@ -313,7 +313,7 @@ function PlanningDialog(props) {
           onChange={(event, value) => {
             resetFunction(value);
           }}
-          indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B', '#00008B']}>
+          indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B']}>
           <GmailTabItem icon={<AssignmentInd />} onDrop={onDropAssigned}
                         onDragOver={(event)=>event.preventDefault()} toolTipId='assignedJobsToolTip'
                         label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}

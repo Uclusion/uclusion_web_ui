@@ -387,7 +387,7 @@ function PlanningInvestible(props) {
   const hasUsableVotingInput = !inArchives && addEditVotingHasContents(investibleId, false, operationRunning);
 
   useEffect(() => {
-    if (hash && hash.length > 1 && !hidden) {
+    if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {
       const element = document.getElementById(hash.substring(1, hash.length));
       // Check if already on the right tab and only change tab if not
       if (!element) {

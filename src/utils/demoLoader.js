@@ -41,10 +41,9 @@ function addInvestibles(dispatch, diffDispatch, investibles) {
   refreshInvestibles(dispatch, diffDispatch, investibles, false);
 }
 
-function addPresences(presenceDispatch, memberDispatch, market, presences) {
+function addPresences(presenceDispatch, market, presences) {
   const { id: marketId } = market;
   addDemoPresencesToMarket(presenceDispatch, marketId, presences);
-  memberDispatch(addGroupMembers(marketId, presences));
 }
 
 function addStages(dispatch, market, stageDetails) {
@@ -66,16 +65,14 @@ export async function handleMarketData(marketData, dispatchers) {
     comments, investibles, group,
     stages, presences, token, notifications
   } = marketData;
-  const {
-    marketsDispatch, messagesDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch, groupMembersDispatch,
-    investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch
-  } = dispatchers;
+  const { marketsDispatch, messagesDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch,
+    investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch } = dispatchers;
   if (notifications) {
     messagesDispatch(updateMessages(notifications));
   }
   addStages(marketStagesDispatch, market, stages);
   addGroup(groupsDispatch, group);
-  addPresences(presenceDispatch, groupMembersDispatch, market, presences);
+  addPresences(presenceDispatch, market, presences);
   addInvestibles(investiblesDispatch, diffDispatch, investibles);
   addComments(commentsDispatch, diffDispatch, index, ticketsDispatch, market, comments);
   const tokenStorageManager = new TokenStorageManager();

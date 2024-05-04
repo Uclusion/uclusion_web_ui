@@ -56,6 +56,8 @@ function DecideResolveStep(props) {
           investible={inv}
           marketInfo={marketInfo}
           isInbox
+          compressAll
+          inboxMessageId={commentId}
           removeActions
           showVoting
           toggleCompression={() => updateFormData({useCompression: !useCompression})}

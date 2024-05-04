@@ -97,6 +97,8 @@ function OptionEditStep(props) {
         removeActions={true}
         showVoting={false}
         isInbox
+        compressAll
+        inboxMessageId={parentComment?.id}
         toggleCompression={() => updateFormData({ useCompression: !useCompression })}
         useCompression={useCompression}
       />

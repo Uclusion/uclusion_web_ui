@@ -40,8 +40,10 @@ function DecideWhereStep (props) {
             marketId={marketId}
             allowedTypes={[]}
             isInbox
+            compressAll
             isMove
             removeActions
+            inboxMessageId={roots[0].id}
             toggleCompression={() => updateFormData({ useCompression: !useCompression })}
             useCompression={useCompression}
           />

@@ -102,6 +102,8 @@ function CloseCommentsStep(props) {
           marketId={marketId}
           allowedTypes={[]}
           isInbox
+          compressAll
+          inboxMessageId={_.size(mustResolveComments) === 1 ? mustResolveComments[0].id : undefined}
           removeActions
           toggleCompression={() => updateFormData({useCompression: !useCompression})}
           useCompression={useCompression}

@@ -43,7 +43,7 @@ import {
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import {
   ACTIVE_STAGE,
-  BUG_WIZARD_TYPE,
+  BUG_WIZARD_TYPE, DELETE_COMMENT_TYPE,
   INITIATIVE_TYPE,
   JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
   JOB_COMMENT_WIZARD_TYPE,
@@ -438,7 +438,7 @@ function Comment(props) {
   const { comment, marketId, comments, noAuthor, defaultShowDiff, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, toggleCompression: toggleCompressionRaw, useCompression, showVoting, selectedInvestibleIdParent,
-    isMove, idPrepend='c', usePadding=true } = props;
+    isMove, idPrepend='c', usePadding=true, compressAll=false } = props;
   const history = useHistory();
   const location = useLocation();
   const editBox = useRef(null);
@@ -576,18 +576,6 @@ function Comment(props) {
         setOperationRunning(false);
       });
   }
-  function remove() {
-    setOperationRunning(true);
-    return removeComment(marketId, id)
-      .then((comment) => {
-        addMarketComments(commentsDispatch, marketId, [comment]);
-        removeMessagesForCommentId(id, messagesState);
-        setOperationRunning(false);
-        if (isInbox) {
-          navigate(history, getInboxTarget());
-        }
-      });
-  }
 
   function abstain(abstain) {
     setOperationRunning(true);
@@ -719,7 +707,9 @@ function Comment(props) {
               gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
     />
   );
-  if (useCompression && inboxMessageId && inboxMessageId !== id) {
+  const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,
+    undefined, id);
+  if (useCompression && inboxMessageId && (compressAll || inboxMessageId !== id)) {
     return (
     <>
       <Card elevation={3} style={{ display: 'flex', paddingBottom: '1rem', cursor: 'pointer' }}
@@ -824,7 +814,8 @@ function Comment(props) {
               <div style={{marginRight: '2rem'}}>
                 <TooltipIconButton
                   disabled={operationRunning !== false}
-                  onClick={remove}
+                  onClick={isInbox ? () => navigate(history, `${deleteWizardBaseLink}&isInbox=${isInbox}`) :
+                    () => navigate(history, deleteWizardBaseLink)}
                   icon={<NotificationDeletion isRed={operationRunning === false} />}
                   size={mobileLayout ? 'small' : undefined}
                   translationId="commentRemoveLabel"

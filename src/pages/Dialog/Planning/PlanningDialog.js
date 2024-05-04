@@ -39,6 +39,7 @@ import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
 import SubSection from '../../../containers/SubSection/SubSection';
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import {
+  DISCUSSION_HASH,
   formArchiveCommentLink,
   formGroupArchiveLink,
   formGroupEditLink,
@@ -160,7 +161,7 @@ function PlanningDialog(props) {
     if (hash && !hidden) {
       const element = document.getElementById(hash.substring(1, hash.length));
       if (!element) {
-        if (hash.includes('option')) {
+        if (hash.includes('option')||hash.includes(DISCUSSION_HASH)) {
           updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
         } else {
           const found = comments.find((comment) => hash.includes(comment.id));

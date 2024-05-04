@@ -23,7 +23,7 @@ import {
   OPTION_WIZARD_TYPE,
   REPLY_WIZARD_TYPE,
   COMPOSE_WIZARD_TYPE,
-  SIGN_OUT_WIZARD_TYPE, JOB_EDIT_WIZARD_TYPE, OPTION_EDIT_WIZARD_TYPE
+  SIGN_OUT_WIZARD_TYPE, JOB_EDIT_WIZARD_TYPE, OPTION_EDIT_WIZARD_TYPE, DELETE_COMMENT_TYPE
 } from '../../constants/markets';
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
@@ -54,6 +54,7 @@ import OptionEditWizard from '../../components/AddNewWizards/OptionEdit/OptionEd
 import AddWizardOnboardingBanner from '../../components/Banners/AddWizardOnboardingBanner';
 import { getMarket, marketIsDemo } from '../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import DeleteWizard from '../../components/AddNewWizards/Delete/DeleteWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -62,7 +63,7 @@ function Wizard(props) {
   const values = queryString.parse(hash);
   const { type: createType, marketId, groupId, jobType, investibleId,
     commentId, commentType, voteFor, stageId, isAssign,
-    typeObjectId, resolveId } = values;
+    typeObjectId, resolveId, isInbox } = values;
   const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
@@ -167,6 +168,9 @@ function Wizard(props) {
       )}
       {createType === JOB_COMMENT_CONFIGURE_WIZARD_TYPE.toLowerCase() && (
         <JobCommentConfigureWizard marketId={marketId} commentId={commentId} />
+      )}
+      {createType === DELETE_COMMENT_TYPE.toLowerCase() && (
+        <DeleteWizard marketId={marketId} commentId={commentId} isInbox={isInbox} />
       )}
     </Screen>
   );

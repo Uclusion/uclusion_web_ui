@@ -8,6 +8,7 @@ export const DISCUSSION_WIZARD_TYPE = 'discussion';
 export const COMPOSE_WIZARD_TYPE = 'compose';
 export const JOB_COMMENT_WIZARD_TYPE = 'jobComment';
 export const JOB_COMMENT_CONFIGURE_WIZARD_TYPE = 'jobCommentConfigure';
+export const DELETE_COMMENT_TYPE = 'deleteComment';
 export const APPROVAL_WIZARD_TYPE = 'approval';
 export const JOB_ASSIGNEE_WIZARD_TYPE = 'jobAssignee';
 export const JOB_COLLABORATOR_WIZARD_TYPE = 'jobCollaborator';

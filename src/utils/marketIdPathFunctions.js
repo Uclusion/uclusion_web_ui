@@ -19,6 +19,7 @@ import { getInboxTarget } from '../contexts/NotificationsContext/notificationsCo
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
 export const MARKET_TODOS_HASH = 'Todos';
+export const DISCUSSION_HASH = 'Discussion';
 
 /** Given the pathpart _without the hash or query params
  * will extract the action, the marketId and the investibleId

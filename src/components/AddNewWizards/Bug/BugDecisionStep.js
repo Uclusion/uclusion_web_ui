@@ -134,6 +134,7 @@ function BugDecisionStep (props) {
         marketId={marketId}
         allowedTypes={[]}
         isInbox
+        inboxMessageId={comment?.id}
         removeActions
         toggleCompression={() => updateFormData({ useCompression: !useCompression })}
         useCompression={useCompression}

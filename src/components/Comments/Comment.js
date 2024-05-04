@@ -27,7 +27,7 @@ import {
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE,
 } from '../../constants/comments';
-import { removeComment, reopenComment, resolveComment, updateComment } from '../../api/comments';
+import { reopenComment, resolveComment, updateComment } from '../../api/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { changeMyPresence, usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -37,7 +37,6 @@ import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/mark
 import CardType, { BUG, DECISION_TYPE } from '../CardType';
 import {
   addCommentToMarket,
-  addMarketComments,
   getMarketComments
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';

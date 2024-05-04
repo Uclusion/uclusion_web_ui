@@ -4,7 +4,6 @@ import TokenStorageManager from '../authorization/TokenStorageManager';
 import { addMarketToStorage } from '../contexts/MarketsContext/marketsContextHelper';
 import { updateMessages } from '../contexts/NotificationsContext/notificationsContextReducer';
 import { updateMarketStages } from '../contexts/MarketStagesContext/marketStagesContextReducer';
-import { addGroupMembers } from '../contexts/GroupMembersContext/groupMembersContextReducer';
 import { addGroupToStorage } from '../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { addDemoPresencesToMarket } from '../contexts/MarketPresencesContext/marketPresencesHelper';
 import { refreshInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper';

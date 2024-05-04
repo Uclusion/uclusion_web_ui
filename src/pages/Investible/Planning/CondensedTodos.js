@@ -59,8 +59,8 @@ function CondensedTodos(props) {
   const tabComments = _.orderBy(tabCommentsRaw, ['updated_at'], ['desc']);
 
   function getRows() {
-    if (_.isEmpty(tabComments) || !sectionOpen) {
-      return <div className={sectionOpen ? classes.grow : undefined} key={`${showOpen}empty`}/>
+    if (!sectionOpen) {
+      return <div style={{marginBottom: '1rem'}} key={`${showOpen}empty`}/>
     }
     return tabComments.map((comment) => {
       const { id, body, updated_at: updatedAt } = comment;

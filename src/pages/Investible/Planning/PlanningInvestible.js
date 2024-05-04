@@ -670,7 +670,7 @@ function PlanningInvestible(props) {
                           tagLabel={getTagLabel('open')} />
           )}
         </GmailTabs>
-        <div style={{paddingBottom: '0.25rem'}} ref={refToTop}></div>
+        <div style={{paddingBottom: '0.5rem'}} ref={refToTop}></div>
         {sectionOpen === 'descriptionVotingSection' && (
           <>
             <div style={{display: 'flex'}}>

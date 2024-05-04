@@ -1,6 +1,14 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
+import {
+  FormControl,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
@@ -14,6 +22,8 @@ function ChooseTypeStep (props) {
   const { marketId, groupId, updateFormData, formData } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const allowedTypes = ['JOB', QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, 'GROUP'];
   const { useType } = formData;
   const isFinal = !_.isEmpty(groupId) || useType === 'GROUP';
@@ -42,6 +52,7 @@ function ChooseTypeStep (props) {
                 <FormControlLabel
                   id={`type${objectType}`}
                   key={objectType}
+                  style={{marginBottom: mobileLayout ? '0.5rem' : undefined}}
                   /* prevent clicking the label stealing focus */
                   onMouseDown={e => e.preventDefault()}
                   control={<Radio color="primary" />}

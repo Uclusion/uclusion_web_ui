@@ -116,6 +116,7 @@ function TaskToBugStep (props) {
           marketId={marketId}
           allowedTypes={[]}
           isInbox
+          compressAll
           inboxMessageId={comment?.id}
           removeActions
           toggleCompression={() => updateFormData({useCompression: !useCompression})}

@@ -42,6 +42,7 @@ function VoteCertaintyStep(props) {
           removeActions
           showVoting={false}
           isInbox
+          compressAll
           inboxMessageId={parentComment?.id}
           toggleCompression={() => updateFormData({useCompression: !useCompression})}
           useCompression={useCompression}

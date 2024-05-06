@@ -19,7 +19,6 @@ import { loadStripe } from '@stripe/stripe-js';
 import { SearchIndexProvider } from '../../contexts/SearchIndexContext/SearchIndexContext';
 import { SearchResultsProvider } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { ScrollProvider } from '../../contexts/ScrollContext';
-import { NonParticipantsMarketsProvider } from '../../contexts/NonParticipantMarketsContext/NonParticipantMarketsContext';
 import { TicketIndexProvider } from '../../contexts/TicketContext/TicketIndexContext';
 import { MarketGroupsProvider } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 
@@ -36,18 +35,16 @@ function Main () {
                   <OperationInProgressGlobalProvider>
                     <ScrollProvider>
                       <NotificationsProvider>
-                        <NonParticipantsMarketsProvider>
-                          <MarketStagesProvider>
-                            <MarketGroupsProvider>
-                              <LocaleProvider>
-                                <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
-                                <Elements stripe={stripePromise}>
-                                  <AppWithAuth/>
-                                </Elements>
-                              </LocaleProvider>
-                            </MarketGroupsProvider>
-                          </MarketStagesProvider>
-                        </NonParticipantsMarketsProvider>
+                        <MarketStagesProvider>
+                          <MarketGroupsProvider>
+                            <LocaleProvider>
+                              <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
+                              <Elements stripe={stripePromise}>
+                                <AppWithAuth/>
+                              </Elements>
+                            </LocaleProvider>
+                          </MarketGroupsProvider>
+                        </MarketStagesProvider>
                       </NotificationsProvider>
                     </ScrollProvider>
                   </OperationInProgressGlobalProvider>

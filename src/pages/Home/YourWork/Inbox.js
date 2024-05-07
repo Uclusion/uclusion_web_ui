@@ -9,7 +9,11 @@ import _ from 'lodash';
 import { deleteOrDehilightMessages } from '../../../api/users';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { getInboxCount, getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import {
+  dehighlightMessage,
+  getInboxCount,
+  getInboxTarget
+} from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import InboxRow from './InboxRow';
 import { getPaginatedItems } from '../../../utils/messageUtils';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
@@ -25,7 +29,6 @@ import {
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { dehighlightMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import NotificationDeletion from './NotificationDeletion';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketClient } from '../../../api/marketLogin';
@@ -95,7 +98,7 @@ function Inbox(props) {
     const { messages } = messagesState || {};
     const itemMessage = messages?.find((message) => message.type_object_id === itemId && message.is_highlighted);
     if (itemMessage) {
-      messagesDispatch(dehighlightMessages([itemMessage.type_object_id]));
+      dehighlightMessage(itemMessage, messagesDispatch);
     }
     navigate(history, formInboxItemLink(itemId));
   }

@@ -5,6 +5,8 @@ import { getInvestible } from '../InvestibesContext/investiblesContextHelper'
 import { getMarketInfo } from '../../utils/userFunctions'
 import { getComment, getCommentRoot } from '../CommentsContext/commentsContextHelper';
 import { getGroup } from '../MarketGroupsContext/marketGroupsContextHelper';
+import { UNASSIGNED_TYPE } from '../../constants/notifications';
+import { dehighlightCriticalMessage, dehighlightMessages } from './notificationsContextReducer';
 
 function checkComment(commentId, commentVersion, marketId, commentsState, childId) {
   if (!commentId) {
@@ -31,6 +33,15 @@ function checkComment(commentId, commentVersion, marketId, commentsState, childI
   }
   // Can't enforce strict equality cause some other operation can occur on the question than resolved
   return comment.version >= commentVersion;
+}
+
+export function dehighlightMessage(message, messagesDispatch) {
+  if (message.type === UNASSIGNED_TYPE) {
+    messagesDispatch(dehighlightCriticalMessage(message.type_object_id,
+      `${message.type}_${message.comment_id}`))
+  } else {
+    messagesDispatch(dehighlightMessages([message.type_object_id]));
+  }
 }
 
 export function messageIsSynced(message, marketState, marketPresencesState, commentsState, investiblesState,

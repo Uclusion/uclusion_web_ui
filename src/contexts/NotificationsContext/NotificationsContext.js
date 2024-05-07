@@ -9,6 +9,7 @@ import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 export const EMPTY_STATE = {
   initializing: true,
   messages: [],
+  navigations: [],
 };
 
 const NotificationsContext = React.createContext(EMPTY_STATE);
@@ -53,6 +54,7 @@ function NotificationsProvider(props) {
           dispatch(initializeState({
             page: undefined,
             messages: [],
+            navigations: []
           }));
         }
       });

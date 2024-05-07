@@ -268,6 +268,8 @@ const messages = defineMessages({
   closedComments: 'Resolved',
   commentReplyEdit: 'Comment Edit',
   labels: 'Labels',
+  previousNavigation: 'Go to previous navigation if exists',
+  nextNavigation: 'Go to the next most likely thing that needs doing',
 
   //Inbox notification titles
   unfinished: 'Unfinished',

@@ -10,6 +10,8 @@ export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MESSAGES = 'REMOVE_MESSAGES';
+const REMOVE_NAVIGATION = 'REMOVE_NAVIGATION';
+const ADD_NAVIGATION = 'ADD_NAVIGATION';
 const QUICK_REMOVE_MESSAGES = 'QUICK_REMOVE_MESSAGES';
 const ADD_MESSAGE = 'ADD_MESSAGE';
 const REMOVE_FOR_INVESTIBLE = 'REMOVE_FOR_INVESTIBLE';
@@ -29,6 +31,20 @@ export function removeMessages(messages) {
   return {
     type: REMOVE_MESSAGES,
     messages
+  }
+}
+
+export function removeNavigation(url) {
+  return {
+    type: REMOVE_NAVIGATION,
+    url
+  }
+}
+
+export function addNavigation(url) {
+  return {
+    type: ADD_NAVIGATION,
+    url
   }
 }
 
@@ -78,6 +94,7 @@ export function initializeState (newState) {
 function storeMessagesInState(state, messagesToStore) {
   return {
     messages: messagesToStore,
+    navigations: state.navigations
   };
 }
 
@@ -180,6 +197,33 @@ function doDehighlightCriticalMessage (state, action) {
   return storeMessagesInState(state, newMessages);
 }
 
+function doRemoveNavigation (state, action) {
+  const { navigations } = state;
+  const { url } = action;
+  const filteredNavigations = navigations.filter((aNavigation) => {
+    return aNavigation.url !== url;
+  });
+  return {
+    messages: state.messages,
+    navigations: filteredNavigations
+  };
+}
+
+function doAddNavigation(state, action) {
+  const { url } = action;
+  const { navigations } = state;
+  const newNavigations = _.concat(navigations || [], {url, time: new Date()});
+  const now = Date.now();
+  const filteredNavigations = newNavigations.filter((aNavigation) => {
+    // remove more than a day old
+    return now - aNavigation.time.getTime() > 86400000;
+  });
+  return {
+    messages: state.messages,
+    navigations: filteredNavigations
+  };
+}
+
 function computeNewState (state, action) {
   switch (action.type) {
     case UPDATE_MESSAGES:
@@ -195,6 +239,10 @@ function computeNewState (state, action) {
       return doDehighlightCriticalMessage(state, action);
     case ADD_MESSAGE:
       return addSingleMessage(state, action);
+    case REMOVE_NAVIGATION:
+      return doRemoveNavigation(state, action);
+    case ADD_NAVIGATION:
+      return doAddNavigation(state, action);
     case REMOVE_FOR_INVESTIBLE:
       return removeForInvestible(state, action);
     default:

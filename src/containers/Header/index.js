@@ -24,6 +24,7 @@ import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 import config from '../../config';
 import Hamburger from '../../components/Menus/Hamburger'
 import SearchBox from '../../components/Search/SearchBox'
+import NavigationChevrons from '../../components/Menus/NavigationChevrons';
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -193,7 +194,7 @@ function Header (props) {
         <Toolbar className={classes.topBar}>
           <div className={classes.sidebar}>
             {mobileLayout && !operationRunning && (
-              <Hamburger navMenu={navMenu} />
+              <Hamburger navMenu={navMenu}/>
             )}
             {(!mobileLayout || operationRunning) && (
               <Link href="/" onClick={(event) => {
@@ -227,24 +228,26 @@ function Header (props) {
           </div>
           {!hideTools && toolbarButtons}
           {!online && (
-            <Paper style={{marginRight: '4rem'}}>
-              <Typography variant="h5" style={{paddingLeft: '6px', paddingRight: '6px'}}>
+            <Paper style={{ marginRight: '4rem' }}>
+              <Typography variant="h5" style={{ paddingLeft: '6px', paddingRight: '6px' }}>
                 {intl.formatMessage({ id: 'warningOffline' })}
               </Typography>
             </Paper>
           )}
           <SearchBox disableSearch={disableSearch}/>
+          <div className={classes.grow}/>
+          <NavigationChevrons/>
           {!hideTools && (
             <React.Fragment>
               <div className={classes.grow}/>
-              <div className={classes.padLeft} />
+              <div className={classes.padLeft}/>
               {!mobileLayout && (
                 <Tooltip title={<FormattedMessage id="help"/>}>
                   <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: 'white' }} id="helpIcon"
                                    onClick={() => openInNewTab(config.helpLink)}/>
                 </Tooltip>
               )}
-              <Identity />
+              <Identity/>
             </React.Fragment>
           )}
         </Toolbar>

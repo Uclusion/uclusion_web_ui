@@ -19,14 +19,12 @@ import {
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import NotificationDeletion from './NotificationDeletion';
 import {
-  dehighlightCriticalMessage,
   dehighlightMessages, quickRemoveMessages,
   removeMessages
 } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { useHistory } from 'react-router';
-import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { dehighlightMessage, getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { UNASSIGNED_TYPE } from '../../../constants/notifications';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 
 const Div = styled("div")`
@@ -225,12 +223,7 @@ function WorkListItem(props) {
             preventDefaultAndProp(event);
             // UNASSIGNED_TYPE only dehighlights when everything inside it has
             if (isHighlighted) {
-              if (messageType === UNASSIGNED_TYPE) {
-                messagesDispatch(dehighlightCriticalMessage(message.type_object_id,
-                  `${messageType}_${message.comment_id}`))
-              } else {
-                messagesDispatch(dehighlightMessages([message.type_object_id]));
-              }
+              dehighlightMessage(message, messagesDispatch);
             }
             navigate(history, formInboxItemLink(id));
           }

@@ -212,7 +212,8 @@ function doRemoveNavigation (state, action) {
 function doAddNavigation(state, action) {
   const { url } = action;
   const { navigations } = state;
-  const newNavigations = _.concat(navigations || [], {url, time: new Date()});
+  const prunedNavigations = (navigations || []).filter((navigation) => navigation.url !== url);
+  const newNavigations = _.concat(prunedNavigations, {url, time: new Date()});
   const now = Date.now();
   const filteredNavigations = newNavigations.filter((aNavigation) => {
     // remove more than a day old

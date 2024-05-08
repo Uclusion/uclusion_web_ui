@@ -5,7 +5,6 @@ import {
   ArrowForward
 } from '@material-ui/icons';
 import {
-  formCommentLink,
   formInboxItemLink,
   formInvestibleLink,
   navigate
@@ -43,10 +42,7 @@ function getInvestibleCandidate(investible, market, navigations, isOutbox=false)
 }
 
 function getCommentCandidate(comment, market, navigations) {
-  const candidate = {investibleId: comment.investible_id, marketId: market.id, groupId: comment.group_id,
-    commentId: comment.id};
-  candidate.url = formCommentLink(candidate.marketId, candidate.groupId, candidate.investibleId,
-    candidate.commentId);
+  const candidate = {url: formInboxItemLink(comment.id)};
   const candidateMeta = navigations.find((navigation) => navigation.url === candidate.url);
   if (candidateMeta) {
     candidate.time = candidateMeta.time;

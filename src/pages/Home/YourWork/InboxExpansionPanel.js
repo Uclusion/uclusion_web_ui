@@ -9,6 +9,7 @@ import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constant
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import {
+  getAcceptedStage,
   getInCurrentVotingStage,
   getNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -264,18 +265,14 @@ function getMessageForComment(comment, market, type, Icon, intl, investibleState
   return message;
 }
 
-export function getOutboxMessages(props) {
-  const { marketsState, marketPresencesState, investiblesState, marketStagesState, commentsState, intl } = props;
-  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
-  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
-  const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE,
-    true);
-
-  const workspacesData = planningDetails.map((market) => {
+export function getWorkspaceData(planningDetails, marketPresencesState, investiblesState, commentsState,
+  marketStagesState) {
+  return planningDetails.map((market) => {
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     const myPresence = marketPresences.find((presence) => presence.current_user) || {};
     const investibles = getMarketInvestibles(investiblesState, market.id);
     const inVotingStage = getInCurrentVotingStage(marketStagesState, market.id) || {};
+    const approvedStage = getAcceptedStage(marketStagesState, market.id) || {};
     const inVotingInvestibles = getUserInvestibles(myPresence.id, market.id, investibles,
       [inVotingStage]) || [];
     const inVotingNotAccepted = getUserPendingAcceptanceInvestibles(myPresence.id, market.id, investibles,
@@ -283,6 +280,8 @@ export function getOutboxMessages(props) {
     const inVotingNotAcceptedMarked = inVotingNotAccepted.map((investible) => {
       return {...investible, notAccepted: true};
     });
+    const approvedInvestibles = getUserInvestibles(myPresence.id, market.id, investibles,
+      [approvedStage]) || [];
     const comments = getMarketComments(commentsState, market.id);
     const myUnresolvedRoots = comments.filter((comment) => !comment.resolved &&
       comment.created_by === myPresence.id && !comment.reply_id);
@@ -292,20 +291,37 @@ export function getOutboxMessages(props) {
     const bugs = myUnresolvedRoots.filter((comment) => comment.comment_type === TODO_TYPE && !comment.investible_id &&
       comment.notification_type === RED_LEVEL);
     return { market, comments, inVotingInvestibles: inVotingInvestibles.concat(inVotingNotAcceptedMarked), questions,
-      issues, suggestions, bugs};
+      issues, suggestions, bugs, approvedInvestibles};
   });
+}
+
+export function getDecisionData(market, marketPresencesState, commentsState) {
+  const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+  const comments = getMarketComments(commentsState, market.id);
+  const myUnresolvedRoots = comments.filter((comment) => !comment.resolved &&
+    comment.created_by === myPresence.id && !comment.reply_id);
+  const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE) || [];
+  const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE) || [];
+  const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
+  return { questions, issues, suggestions, comments, marketPresences }
+}
+
+export function getOutboxMessages(props) {
+  const { marketsState, marketPresencesState, investiblesState, marketStagesState, commentsState, intl } = props;
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
+  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
+  const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE,
+    true);
+
+  const workspacesData = getWorkspaceData(planningDetails, marketPresencesState, investiblesState, commentsState,
+    marketStagesState);
 
   const messages = [];
 
   decisionDetails.forEach((market) => {
-    const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
-    const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-    const comments = getMarketComments(commentsState, market.id);
-    const myUnresolvedRoots = comments.filter((comment) => !comment.resolved &&
-      comment.created_by === myPresence.id && !comment.reply_id);
-    const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE) || [];
-    const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE) || [];
-    const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE) || [];
+    const { questions, issues, suggestions, comments, marketPresences } =
+      getDecisionData(market, marketPresencesState, commentsState);
     questions.forEach((comment) => {
       const message = getMessageForComment(comment, market, QUESTION_TYPE,
         <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
@@ -332,8 +348,8 @@ export function getOutboxMessages(props) {
     });
   });
 
-  workspacesData.forEach((workspacesData) => {
-    const { market, comments, inVotingInvestibles, questions, issues, suggestions, bugs } = workspacesData;
+  workspacesData.forEach((workspaceData) => {
+    const { market, comments, inVotingInvestibles, questions, issues, suggestions, bugs } = workspaceData;
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     inVotingInvestibles.forEach((investible) => {
       const investibleId = investible.investible.id;

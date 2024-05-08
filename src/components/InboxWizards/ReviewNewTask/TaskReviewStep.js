@@ -50,12 +50,13 @@ function TaskReviewStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'NewTaskTitle'})}
+        {intl.formatMessage({ id: 'NewTaskTitle' })}
       </Typography>
       <JobDescription marketId={marketId} investibleId={comment.investible_id} comments={orderedTasks}
                       useCompression={useCompression}
-                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                      removeActions preserveOrder isSingleTaskDisplay />
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                      removeActions preserveOrder isSingleTaskDisplay/>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="issueReplyLabel"

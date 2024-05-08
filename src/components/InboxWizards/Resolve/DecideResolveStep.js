@@ -146,15 +146,16 @@ function DecideResolveStep(props) {
                       showVoting
                       isSingleTaskDisplay={commentRoot.comment_type === TODO_TYPE}
                       useCompression={useCompression}
-                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                      selectedInvestibleIdParent={selectedInvestibleId} />
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                      selectedInvestibleIdParent={selectedInvestibleId}/>
+      <div className={classes.borderBottom}/>
       {isOpenSuggestion && (
         <WizardStepButtons
           {...props}
           nextLabel={commentRoot.investible_id ? 'moveToTaskLabel' : 'BugWizardMoveToJob'}
           onNextDoAdvance={false}
           onNext={commentRoot.investible_id ? acceptAndMove : () =>
-            navigate(history, `${formMarketAddInvestibleLink(marketId, commentRoot.group_id, undefined, 
+            navigate(history, `${formMarketAddInvestibleLink(marketId, commentRoot.group_id, undefined,
               message.type_object_id)}&fromCommentId=${commentRoot.id}`)}
           showOtherNext
           otherNextLabel="commentResolveLabel"
@@ -181,7 +182,7 @@ function DecideResolveStep(props) {
           spinOnClick={false}
           onNextDoAdvance={false}
           onNext={() => navigate(history,
-            `${formMarketAddInvestibleLink(marketId, commentRoot.group_id, undefined, 
+            `${formMarketAddInvestibleLink(marketId, commentRoot.group_id, undefined,
               message.type_object_id)}&fromCommentId=${commentId}`)}
           showOtherNext
           otherNextLabel="commentResolveLabel"

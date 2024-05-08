@@ -42,7 +42,7 @@ function DecideResponseStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'DecideResponseTitle'})}
+        {intl.formatMessage({ id: 'DecideResponseTitle' })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         A comment was opened inside an option on this question.
@@ -56,13 +56,14 @@ function DecideResponseStep(props) {
           removeActions
         />
       </div>
-      <div style={{width: '90%', marginLeft: 'auto', marginRight: 'auto',}}>
+      <div style={{ width: '90%', marginLeft: 'auto', marginRight: 'auto', }}>
         <JobDescription marketId={marketId} investibleId={decisionInvestibleId}
                         comments={optionComments}
                         removeActions
                         showCreatedBy
         />
       </div>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="issueReplyLabel"

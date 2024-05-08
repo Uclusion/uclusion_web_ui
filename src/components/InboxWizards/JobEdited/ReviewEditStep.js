@@ -26,7 +26,7 @@ function ReviewEditStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'unreadJobEdit'})}
+        {intl.formatMessage({ id: 'unreadJobEdit' })}
       </Typography>
       {previousName && (
         <Typography className={classes.introSubText} variant="subtitle1">
@@ -39,7 +39,8 @@ function ReviewEditStep(props) {
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} removeActions showDiff={isDescriptionEdited}
-                      showAttachments={isAttachmentsEdited} />
+                      showAttachments={isAttachmentsEdited}/>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         showNext={false}

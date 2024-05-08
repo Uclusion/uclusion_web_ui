@@ -28,14 +28,15 @@ function DecideAssignStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'DecideAssignTitle'})}
+        {intl.formatMessage({ id: 'DecideAssignTitle' })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         You assigned this job <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/> and
         the assignee has not accepted. Poke to resend notifications and
         message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} />
+      <JobDescription marketId={marketId} investibleId={investibleId}/>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="DecideJobOwner"

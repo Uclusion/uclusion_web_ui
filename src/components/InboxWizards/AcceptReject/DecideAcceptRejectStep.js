@@ -68,8 +68,9 @@ function DecideAcceptRejectStep(props) {
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id}
                       comments={comments}
                       useCompression={useCompression}
-                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                      removeActions />
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                      removeActions/>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         onFinish={myOnFinish}

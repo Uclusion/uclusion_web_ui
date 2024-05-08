@@ -104,18 +104,21 @@ function DecideAssistanceStep(props) {
       {isSingle && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Resolving moves this job to {nextStageName}. Poke to resend notifications and
-          message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
+          message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured
+          channels</Link>.
         </Typography>
       )}
       {isBug && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Moving this bug to normal removes it from triage but sends a one time notification. Poke to resend
-          notifications and message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
+          notifications and message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured
+          channels</Link>.
         </Typography>
       )}
       {!isBug && !isSingle && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Poke to resend notifications and message <Link href="https://documentation.uclusion.com/notifications" target="_blank">configured channels</Link>.
+          Poke to resend notifications and message <Link href="https://documentation.uclusion.com/notifications"
+                                                         target="_blank">configured channels</Link>.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
@@ -123,8 +126,9 @@ function DecideAssistanceStep(props) {
                       showVoting
                       isSingleTaskDisplay={isBug}
                       useCompression={useCompression}
-                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                      showCreatedBy />
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                      showCreatedBy/>
+      <div className={classes.borderBottom}/>
       {commentRoot.investible_id && (
         <WizardStepButtons
           {...props}

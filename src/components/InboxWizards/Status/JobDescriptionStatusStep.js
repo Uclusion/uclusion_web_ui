@@ -77,7 +77,7 @@ function JobDescriptionStatusStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: message?.type === 'REPORT_REQUIRED' ? 'JobStatusTitle' : 'JobMovedTitle'})}
+        {intl.formatMessage({ id: message?.type === 'REPORT_REQUIRED' ? 'JobStatusTitle' : 'JobMovedTitle' })}
       </Typography>
       {alreadyMoved && (
         <Typography className={classes.introSubText} variant="subtitle1">
@@ -87,7 +87,8 @@ function JobDescriptionStatusStep(props) {
       )}
       {!alreadyMoved && millisBeforeMove > 0 && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Without an estimated date or progress report this job moves to Assigned <UsefulRelativeTime milliSecondsGiven={millisBeforeMove}/>.
+          Without an estimated date or progress report this job moves to Assigned <UsefulRelativeTime
+          milliSecondsGiven={millisBeforeMove}/>.
           Reporting progress also gets feedback.
         </Typography>
       )}
@@ -99,8 +100,9 @@ function JobDescriptionStatusStep(props) {
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}
                       useCompression={useCompression}
-                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                      removeActions />
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                      removeActions/>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel={alreadyMoved ? 'StatusWizardEstimateStart' : 'StatusWizardEstimate'}
@@ -117,7 +119,7 @@ function JobDescriptionStatusStep(props) {
         otherSpinOnClick={false}
         showTerminate
         onFinish={myTerminate}
-        terminateLabel={(isHighlighted || alreadyMoved) ? getLabelForTerminate(message) : 'ApprovalWizardBlock'} />
+        terminateLabel={(isHighlighted || alreadyMoved) ? getLabelForTerminate(message) : 'ApprovalWizardBlock'}/>
     </WizardStepContainer>
   );
 }

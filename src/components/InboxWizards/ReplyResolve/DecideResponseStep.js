@@ -54,7 +54,7 @@ function DecideResponseStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'DecideIdeaTitle'})}
+        {intl.formatMessage({ id: 'DecideIdeaTitle' })}
       </Typography>
       {commentRoot.investible_id && (
         <Typography className={classes.introSubText} variant="subtitle1">
@@ -70,8 +70,9 @@ function DecideResponseStep(props) {
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id}
                       useCompression={useCompression}
-                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                      comments={comments} removeActions />
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                      comments={comments} removeActions/>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         spinOnClick={!!commentRoot.investible_id}
@@ -83,7 +84,7 @@ function DecideResponseStep(props) {
         onOtherNextDoAdvance={false}
         showOtherNext
         otherSpinOnClick={false}
-        otherNextLabel='UnblockReplyLabel'
+        otherNextLabel="UnblockReplyLabel"
         onOtherNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
           commentRoot.investible_id, commentRoot.group_id, commentId, message.type_object_id))}
         isOtherFinal

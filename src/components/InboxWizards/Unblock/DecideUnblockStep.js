@@ -75,23 +75,24 @@ function DecideUnblockStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'DecideUnblockTitle'})}
+        {intl.formatMessage({ id: 'DecideUnblockTitle' })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         Take action here or click the issue to resolve or move.
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       useCompression={useCompression}
-                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                      removeActions />
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                      removeActions/>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
-        nextLabel='UnblockReplyLabel'
+        nextLabel="UnblockReplyLabel"
         onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
           undefined, undefined, commentId, message.type_object_id))}
         spinOnClick={false}
         showOtherNext
-        otherNextLabel='DecideMoveToBacklog'
+        otherNextLabel="DecideMoveToBacklog"
         onOtherNext={moveToBacklog}
         isOtherFinal
         onFinish={myTerminate}

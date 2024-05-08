@@ -8,7 +8,6 @@ import {
   formCommentLink,
   formInboxItemLink,
   formInvestibleLink,
-  formMarketLink,
   navigate
 } from '../../utils/marketIdPathFunctions';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
@@ -16,7 +15,6 @@ import { useHistory, useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
   dehighlightMessage,
-  getInboxTarget,
   isInInbox
 } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { addNavigation, removeNavigation } from '../../contexts/NotificationsContext/notificationsContextReducer';
@@ -33,9 +31,10 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 
-function getInvestibleCandidate(investible, market, navigations) {
+function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {investibleId: investible.investible.id, marketId: market.id};
-  candidate.url = formInvestibleLink(candidate.marketId, candidate.investibleId);
+  candidate.url = isOutbox ? formInboxItemLink(candidate.investibleId)  :
+    formInvestibleLink(candidate.marketId, candidate.investibleId);
   const candidateMeta = navigations.find((navigation) => navigation.url === candidate.url);
   if (candidateMeta) {
     candidate.time = candidateMeta.time;
@@ -78,21 +77,14 @@ export default function NavigationChevrons() {
     true);
   const approvedCandidates = [];
   const outboxCandidates = [];
-  const swimlaneCandidates = [];
   workspacesData.forEach((workspaceData) => {
     const { market, approvedInvestibles, inVotingInvestibles, questions, issues, suggestions, bugs } = workspaceData;
-    const swimlaneCandidate = {url: formMarketLink(market.id, market.id)};
-    const candidateMeta = navigations.find((navigation) => navigation.url === swimlaneCandidate.url);
-    if (candidateMeta) {
-      swimlaneCandidate.time = candidateMeta.time;
-    }
-    swimlaneCandidates.push(swimlaneCandidate);
     approvedInvestibles?.forEach((investible) => {
       const candidate = getInvestibleCandidate(investible, market, navigations);
       approvedCandidates.push(candidate);
     });
     inVotingInvestibles?.forEach((investible) => {
-      const candidate = getInvestibleCandidate(investible, market, navigations);
+      const candidate = getInvestibleCandidate(investible, market, navigations, true);
       outboxCandidates.push(candidate);
     });
     const openPlanningComments = questions.concat(issues).concat(suggestions).concat(bugs);
@@ -116,6 +108,30 @@ export default function NavigationChevrons() {
     allExistingUrls.includes(navigation.url) && navigation.url !== resource);
   const backDisabled = _.isEmpty(previous);
 
+  function computeNext() {
+    const highlightedNext = highlightedMessages.find((message) =>
+      formInboxItemLink(message.type_object_id) !== resource);
+    if (highlightedNext) {
+      dehighlightMessage(highlightedNext, messagesDispatch);
+      return formInboxItemLink(highlightedNext.type_object_id);
+    }
+    if (!_.isEmpty(approvedCandidates)) {
+      const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['desc']);
+      const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource);
+      if (approvedNext) {
+        return approvedNext.url;
+      }
+    }
+    if (!_.isEmpty(outboxCandidates)) {
+      const orderedOutboxCandidates = _.orderBy(outboxCandidates, ['time'], ['desc']);
+      const outboxNext = _.find(orderedOutboxCandidates, (candidate) => candidate.url !== resource);
+      if (outboxNext) {
+        return outboxNext.url;
+      }
+    }
+    return undefined;
+  }
+
   function doPreviousNavigation() {
     const url = previous?.url;
     if (url) {
@@ -128,40 +144,12 @@ export default function NavigationChevrons() {
     }
   }
 
-  function doNextNavigation () {
-    const highlightedNext = highlightedMessages.find((message) =>
-      formInboxItemLink(message.type_object_id) !== resource);
-    let url;
-    if (highlightedNext) {
-      dehighlightMessage(highlightedNext, messagesDispatch);
-      url = formInboxItemLink(highlightedNext.type_object_id);
-    } else if (!_.isEmpty(workspacesData)) {
-      const orderedApprovedCandidates = _.orderBy(approvedCandidates || [], ['time'],
-        ['desc']);
-      const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource);
-      if (approvedNext) {
-        url = approvedNext.url;
-      } else {
-        const orderedOutboxCandidates = _.orderBy(outboxCandidates || [], ['time'],
-          ['desc']);
-        const outboxNext = _.find(orderedOutboxCandidates, (candidate) => candidate.url !== resource);
-        if (outboxNext) {
-          url = outboxNext.url;
-        }
-      }
-    }
-    if (!url) {
-      const orderedSwimlaneCandidates = _.orderBy(swimlaneCandidates || [], ['time'],
-        ['desc']);
-      const swimlaneNext = _.find(orderedSwimlaneCandidates, (candidate) => candidate.url !== resource);
-      if (swimlaneNext) {
-        url = swimlaneNext.url;
-      } else {
-        url = getInboxTarget();
-      }
-    }
-    messagesDispatch(addNavigation(url));
-    navigate(history, url);
+  const nextUrl = computeNext();
+  const nextDisabled = _.isEmpty(nextUrl);
+
+  function doNextNavigation() {
+    messagesDispatch(addNavigation(nextUrl));
+    navigate(history, nextUrl);
   }
 
   return (
@@ -170,7 +158,8 @@ export default function NavigationChevrons() {
                              icon={<ArrowBack htmlColor={backDisabled ? 'disabled' : 'white'} />}
                              onClick={doPreviousNavigation} translationId="previousNavigation" />
           <div style={{marginLeft: '0.5rem'}}/>
-          <TooltipIconButton icon={<ArrowForward htmlColor='white' />} onClick={doNextNavigation}
+          <TooltipIconButton disabled={nextDisabled}
+                             icon={<ArrowForward htmlColor={nextDisabled ? 'disabled' : 'white'} />} onClick={doNextNavigation}
                              translationId="nextNavigation" />
         </Toolbar>
 

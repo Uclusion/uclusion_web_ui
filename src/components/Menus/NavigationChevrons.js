@@ -14,7 +14,11 @@ import {
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { useHistory, useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import { dehighlightMessage, getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import {
+  dehighlightMessage,
+  getInboxTarget,
+  isInInbox
+} from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { addNavigation, removeNavigation } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import _ from 'lodash';
 import {
@@ -65,7 +69,7 @@ export default function NavigationChevrons() {
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const { messages, navigations } = messagesState || {};
-  const allMessages = messages?.filter((message) => !message.deleted) || [];
+  const allMessages = messages?.filter((message) => isInInbox(message)) || [];
   const highlightedMessages = allMessages.filter((message) => message.is_highlighted);
   const orderedNavigations = _.orderBy(navigations || [], ['time'], ['desc']);
   const workspacesData = getWorkspaceData(planningDetails, marketPresencesState, investiblesState, commentsState,

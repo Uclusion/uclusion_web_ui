@@ -50,7 +50,7 @@ function DecideReviewStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({id: 'DecideReviewTitle'})}
+        {intl.formatMessage({ id: 'DecideReviewTitle' })}
       </Typography>
       {isNotDoing && (
         <Typography className={classes.introSubText} variant="subtitle1">
@@ -64,8 +64,9 @@ function DecideReviewStep(props) {
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions
                       useCompression={useCompression}
-                      toggleCompression={() => updateFormData({useCompression: !useCompression})}
-                      preserveOrder />
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                      preserveOrder/>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="DecideAddReview"

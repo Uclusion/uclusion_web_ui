@@ -37,13 +37,15 @@ function EstimateChangeViewStep(props) {
     <WizardStepContainer
       {...props}
     >
-      <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
-        {intl.formatMessage({id: 'unreadEstimate'})}
+      <Typography className={classes.introText} style={{ marginBottom: 'unset' }}>
+        {intl.formatMessage({ id: 'unreadEstimate' })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Estimate changed from {message.text ? intl.formatDate(new Date(message.text)) : 'none'} to {intl.formatDate(daysEstimate)}.
+        Estimate changed
+        from {message.text ? intl.formatDate(new Date(message.text)) : 'none'} to {intl.formatDate(daysEstimate)}.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions />
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions/>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="createNewQUESTION"

@@ -131,10 +131,10 @@ function JobDescription(props) {
             </div>
           </>
         )}
-        <div className={classes.borderBottom}/>
         {(!_.isEmpty(nonTodoCommentsRoots) || isSingleTaskDisplay) && (
           <div style={{
             paddingBottom: '0.5rem',
+            marginTop: '1.5rem',
             paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden',
             overflowX: 'hidden'
           }}>

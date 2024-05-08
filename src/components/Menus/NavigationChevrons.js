@@ -31,9 +31,8 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
-  const candidate = {investibleId: investible.investible.id, marketId: market.id};
-  candidate.url = isOutbox ? formInboxItemLink(candidate.investibleId)  :
-    formInvestibleLink(candidate.marketId, candidate.investibleId);
+  const candidate = {url: isOutbox ? formInboxItemLink(investible.investible.id)  :
+      formInvestibleLink(market.id, investible.investible.id)};
   const candidateMeta = navigations.find((navigation) => navigation.url === candidate.url);
   if (candidateMeta) {
     candidate.time = candidateMeta.time;

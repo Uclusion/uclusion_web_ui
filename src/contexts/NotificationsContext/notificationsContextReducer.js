@@ -216,7 +216,7 @@ function doAddNavigation(state, action) {
   const now = Date.now();
   const filteredNavigations = newNavigations.filter((aNavigation) => {
     // remove more than a day old
-    return now - aNavigation.time.getTime() > 86400000;
+    return now - aNavigation.time.getTime() < 86400000;
   });
   return {
     messages: state.messages,

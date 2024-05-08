@@ -33,7 +33,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: isOutbox ? formInboxItemLink(investible.investible.id)  :
       formInvestibleLink(market.id, investible.investible.id)};
-  const candidateMeta = navigations.find((navigation) => navigation.url === candidate.url);
+  const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
   if (candidateMeta) {
     candidate.time = candidateMeta.time;
   }
@@ -42,7 +42,7 @@ function getInvestibleCandidate(investible, market, navigations, isOutbox=false)
 
 function getCommentCandidate(comment, market, navigations) {
   const candidate = {url: formInboxItemLink(comment.id)};
-  const candidateMeta = navigations.find((navigation) => navigation.url === candidate.url);
+  const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
   if (candidateMeta) {
     candidate.time = candidateMeta.time;
   }
@@ -82,16 +82,16 @@ export default function NavigationChevrons() {
       const candidate = getInvestibleCandidate(investible, market, navigations, true);
       outboxCandidates.push(candidate);
     });
-    const openPlanningComments = questions.concat(issues).concat(suggestions).concat(bugs);
-    openPlanningComments.forEach((comment) => {
+    const openPlanningComments = questions?.concat(issues).concat(suggestions).concat(bugs);
+    openPlanningComments?.forEach((comment) => {
       const candidate = getCommentCandidate(comment, market, navigations);
       outboxCandidates.push(candidate);
     });
   });
   decisionDetails.forEach((market) => {
     const { questions, issues, suggestions } = getDecisionData(market, marketPresencesState, commentsState);
-    const openDecisionComments = questions.concat(issues).concat(suggestions);
-    openDecisionComments.forEach((comment) => {
+    const openDecisionComments = questions?.concat(issues).concat(suggestions);
+    openDecisionComments?.forEach((comment) => {
       const candidate = getCommentCandidate(comment, market, navigations);
       outboxCandidates.push(candidate);
     });
@@ -104,7 +104,7 @@ export default function NavigationChevrons() {
   const backDisabled = _.isEmpty(previous);
 
   function computeNext() {
-    const highlightedNext = highlightedMessages.find((message) =>
+    const highlightedNext = highlightedMessages?.find((message) =>
       formInboxItemLink(message.type_object_id) !== resource);
     if (highlightedNext) {
       dehighlightMessage(highlightedNext, messagesDispatch);

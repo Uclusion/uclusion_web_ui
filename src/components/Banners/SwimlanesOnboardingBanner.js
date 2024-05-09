@@ -4,8 +4,6 @@ import { makeStyles } from '@material-ui/styles';
 import { isEveryoneGroup } from '../../contexts/GroupMembersContext/groupMembersHelper';
 import DemoCreateWorkspaceButton from '../Buttons/DemoCreateWorkspaceButton';
 import Link from '@material-ui/core/Link';
-import { navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router';
 
 const useStyles = makeStyles(() => {
   return {
@@ -29,7 +27,6 @@ const useStyles = makeStyles(() => {
 
 function SwimlanesOnboardingBanner(props) {
   const { group, sectionOpen } = props;
-  const history = useHistory();
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));

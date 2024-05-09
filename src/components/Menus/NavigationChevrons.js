@@ -107,24 +107,23 @@ export default function NavigationChevrons() {
     const highlightedNext = highlightedMessages?.find((message) =>
       formInboxItemLink(message.type_object_id) !== resource);
     if (highlightedNext) {
-      dehighlightMessage(highlightedNext, messagesDispatch);
-      return formInboxItemLink(highlightedNext.type_object_id);
+      return {url: formInboxItemLink(highlightedNext.type_object_id), message: highlightedNext};
     }
     if (!_.isEmpty(approvedCandidates)) {
       const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['desc']);
       const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource);
       if (approvedNext) {
-        return approvedNext.url;
+        return {url: approvedNext.url};
       }
     }
     if (!_.isEmpty(outboxCandidates)) {
       const orderedOutboxCandidates = _.orderBy(outboxCandidates, ['time'], ['desc']);
       const outboxNext = _.find(orderedOutboxCandidates, (candidate) => candidate.url !== resource);
       if (outboxNext) {
-        return outboxNext.url;
+        return {url: outboxNext.url};
       }
     }
-    return undefined;
+    return {};
   }
 
   function doPreviousNavigation() {
@@ -143,8 +142,11 @@ export default function NavigationChevrons() {
   const nextDisabled = _.isEmpty(nextUrl);
 
   function doNextNavigation() {
-    messagesDispatch(addNavigation(nextUrl));
-    navigate(history, nextUrl);
+    if (nextUrl.message) {
+      dehighlightMessage(nextUrl.message, messagesDispatch);
+    }
+    messagesDispatch(addNavigation(nextUrl.url));
+    navigate(history, nextUrl.url);
   }
 
   return (

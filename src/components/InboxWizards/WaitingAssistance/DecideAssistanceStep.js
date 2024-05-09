@@ -124,6 +124,7 @@ function DecideAssistanceStep(props) {
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       removeActions
                       showVoting
+                      inboxMessageId={commentId}
                       isSingleTaskDisplay={isBug}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}

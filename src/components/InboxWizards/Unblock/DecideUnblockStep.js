@@ -81,7 +81,7 @@ function DecideUnblockStep(props) {
         Take action here or click the issue to resolve or move.
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                      useCompression={useCompression}
+                      useCompression={useCompression} inboxMessageId={commentId}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}
                       removeActions/>
       <div className={classes.borderBottom}/>

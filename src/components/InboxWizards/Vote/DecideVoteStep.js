@@ -24,7 +24,7 @@ function DecideVoteStep(props) {
         {intl.formatMessage({ id: 'DecideVoteTitle' })}
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                      showVoting
+                      showVoting inboxMessageId={commentRoot.id}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}
       />

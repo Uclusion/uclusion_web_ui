@@ -67,6 +67,7 @@ function DecideAcceptRejectStep(props) {
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id}
                       comments={comments}
+                      inboxMessageId={commentId}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}
                       removeActions/>

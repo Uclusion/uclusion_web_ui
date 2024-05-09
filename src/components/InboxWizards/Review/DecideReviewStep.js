@@ -63,7 +63,7 @@ function DecideReviewStep(props) {
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions
-                      useCompression={useCompression}
+                      useCompression={useCompression} inboxMessageId={commentId}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}
                       preserveOrder/>
       <div className={classes.borderBottom}/>

@@ -145,6 +145,7 @@ function DecideResolveStep(props) {
                       removeActions
                       showVoting
                       isSingleTaskDisplay={commentRoot.comment_type === TODO_TYPE}
+                      inboxMessageId={commentId}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}
                       selectedInvestibleIdParent={selectedInvestibleId}/>

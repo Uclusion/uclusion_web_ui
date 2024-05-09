@@ -53,7 +53,7 @@ function TaskReviewStep(props) {
         {intl.formatMessage({ id: 'NewTaskTitle' })}
       </Typography>
       <JobDescription marketId={marketId} investibleId={comment.investible_id} comments={orderedTasks}
-                      useCompression={useCompression}
+                      useCompression={useCompression} inboxMessageId={commentId}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}
                       removeActions preserveOrder isSingleTaskDisplay/>
       <div className={classes.borderBottom}/>

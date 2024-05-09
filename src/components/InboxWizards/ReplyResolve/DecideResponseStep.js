@@ -70,6 +70,7 @@ function DecideResponseStep(props) {
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id}
                       useCompression={useCompression}
+                      inboxMessageId={commentId}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}
                       comments={comments} removeActions/>
       <div className={classes.borderBottom}/>

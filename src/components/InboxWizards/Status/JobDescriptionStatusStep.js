@@ -50,8 +50,10 @@ function JobDescriptionStatusStep(props) {
   if (millisSinceDue !== null && millisSinceDue < millisStalled) {
     millisStalled = millisSinceDue;
   }
+  let reportId;
   comments.forEach((comment) => {
     if (comment.comment_type === REPORT_TYPE) {
+      reportId = comment.id;
       const millisSinceReporting = Date.now() - (new Date(comment.updated_at)).getTime();
       if (millisSinceReporting < millisStalled) {
         millisStalled = millisSinceReporting;
@@ -99,7 +101,7 @@ function JobDescriptionStatusStep(props) {
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}
-                      useCompression={useCompression}
+                      useCompression={useCompression} inboxMessageId={reportId}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}
                       removeActions/>
       <div className={classes.borderBottom}/>

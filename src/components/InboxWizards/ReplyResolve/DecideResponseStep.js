@@ -58,14 +58,14 @@ function DecideResponseStep(props) {
       </Typography>
       {commentRoot.investible_id && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          If you are very certain then move this suggestion to a task and otherwise reply. Click the suggestion to
-          leave this wizard and add voting, resolve, or move.
+          If you are very certain then move this suggestion to a task and otherwise reply. Click through the suggestion
+          to leave this wizard and add voting, resolve, or move.
         </Typography>
       )}
       {!commentRoot.investible_id && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          If you are very certain then move this suggestion to a job and otherwise reply. Click the suggestion to
-          leave this wizard and add voting or resolve.
+          If you are very certain then move this suggestion to a job and otherwise reply. Click through the suggestion
+          to leave this wizard and add voting or resolve.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id}

@@ -10,7 +10,7 @@ import {
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import {
-  addMarketComments,
+  addCommentToMarket,
   getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -29,7 +29,7 @@ export function commonQuick(result, commentsDispatch, marketId, commentsState, m
   const { commentResult, investmentResult } = result;
   const { commentAction, comment } = commentResult;
   if (commentAction !== 'NOOP') {
-    addMarketComments(commentsDispatch, marketId, [comment]);
+    addCommentToMarket(comment, commentsState, commentsDispatch);
   }
   partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
   let useVoteMessage;

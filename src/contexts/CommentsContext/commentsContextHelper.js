@@ -129,6 +129,7 @@ export function addCommentToMarket(comment, state, dispatch) {
   addMarketComments(dispatch, marketId, updates);
 }
 
+// Only use this method for altering, resolving, etc. where search and ticket index are not relevant
 export function addMarketComments(dispatch, marketId, comments) {
   dispatch(updateComments(marketId, comments));
 }

@@ -13,15 +13,17 @@ import { REPLY_TYPE } from '../constants/comments';
  * @param marketId
  * @param fetchSignature
  * @param storageStates
+ * @param checkQuickAdd Indicates if this is an audit check used for determining if market is dirty
  */
-export function checkSignatureInStorage(marketId, fetchSignature, storageStates) {
+export function checkSignatureInStorage(marketId, fetchSignature, storageStates, checkQuickAdd = false) {
   const serverSignatures = getFetchSignaturesForMarket([{type: fetchSignature.object_type,
     object_versions: [fetchSignature]}]);
-  return checkServerSignaturesInStorage(marketId, serverSignatures, storageStates);
+  return checkServerSignaturesInStorage(marketId, serverSignatures, storageStates, checkQuickAdd);
 }
 
-export function checkServerSignaturesInStorage(marketId, serverSignatures, storageStates) {
-  const fromStorage = checkInStorage(marketId, serverSignatures, storageStates);
+export function checkServerSignaturesInStorage(marketId, serverSignatures, storageStates,
+  checkQuickAdd = false) {
+  const fromStorage = checkInStorage(marketId, serverSignatures, storageStates, checkQuickAdd);
   const { markets, marketGroups, comments, marketPresences, marketStages, investibles, groupMembers } = fromStorage;
   return markets.allMatched && comments.allMatched && marketPresences.allMatched && marketStages.allMatched
     && investibles.allMatched && marketGroups.allMatched && groupMembers.allMatched;
@@ -33,8 +35,9 @@ export function checkServerSignaturesInStorage(marketId, serverSignatures, stora
  * @param marketId
  * @param fetchSignatures
  * @param storageStates
+ * @param checkQuickAdd Indicates if this is an audit check used for determining if market is dirty
  */
-export function checkInStorage(marketId, fetchSignatures, storageStates) {
+export function checkInStorage(marketId, fetchSignatures, storageStates, checkQuickAdd = false) {
   const {
     comments,
     markets,
@@ -46,14 +49,15 @@ export function checkInStorage(marketId, fetchSignatures, storageStates) {
   } = fetchSignatures;
   const { commentsState, investiblesState, marketsState, marketPresencesState, marketStagesState,
     marketGroupsState, groupMembersState } = storageStates;
-  const commentsMatches = satisfyComments(comments, ((commentsState || {})[marketId]) || []);
+  const commentsMatches = satisfyComments(comments, ((commentsState || {})[marketId]) || [],
+    checkQuickAdd);
   // keep updating the required versions so it's an ever shrinking map
-  const investibleMatches = satisfyInvestibles(marketId, investibles, investiblesState);
-  const marketMatches = satisfyMarkets(markets, marketsState);
-  const presenceMatches = satisfyMarketPresences(marketId, marketPresences, marketPresencesState);
-  const stageMatches = satisfyMarketStages(marketId, marketStages, marketStagesState);
-  const groupMatches = satisfyMarketGroups(marketId, marketGroups, marketGroupsState);
-  const groupMembersMatches = satisfyGroupMembers(marketId, groupMembers, groupMembersState);
+  const investibleMatches = satisfyInvestibles(marketId, investibles, investiblesState, checkQuickAdd);
+  const marketMatches = satisfyMarkets(markets, marketsState, checkQuickAdd);
+  const presenceMatches = satisfyMarketPresences(marketId, marketPresences, marketPresencesState, checkQuickAdd);
+  const stageMatches = satisfyMarketStages(marketId, marketStages, marketStagesState, checkQuickAdd);
+  const groupMatches = satisfyMarketGroups(marketId, marketGroups, marketGroupsState, checkQuickAdd);
+  const groupMembersMatches = satisfyGroupMembers(marketId, groupMembers, groupMembersState, checkQuickAdd);
   return {
     comments: commentsMatches,
     investibles: investibleMatches,
@@ -65,9 +69,9 @@ export function checkInStorage(marketId, fetchSignatures, storageStates) {
   };
 }
 
-export function satisfyComments(commentSignatures, marketComments) {
+export function satisfyComments(commentSignatures, marketComments, checkQuickAdd = false) {
     const { matched, unmatchedSignatures, allMatched } =
-      signatureMatcher(marketComments, commentSignatures || []);
+      signatureMatcher(marketComments, commentSignatures || [], checkQuickAdd);
     // check that parent includes child or if parent that all children exist
     // this is required because the parent and child signatures will come in at different times
     let reallyAllMatched = allMatched;
@@ -93,7 +97,7 @@ export function satisfyComments(commentSignatures, marketComments) {
     return { matched, unmatchedSignatures, allMatched: reallyAllMatched };
 }
 
-function satisfyInvestibles(marketId, investibleSignatures, investibleState) {
+function satisfyInvestibles(marketId, investibleSignatures, investibleState, checkQuickAdd = false) {
     const usedState = investibleState || {};
     const marketInvestibles = getMarketInvestibles(usedState, marketId);
     const marketInfoSignatures = (investibleSignatures || []).filter((sig) => !sig.investible) || [];
@@ -109,36 +113,36 @@ function satisfyInvestibles(marketId, investibleSignatures, investibleState) {
         };
       }
     });
-    return signatureMatcher(marketInvestibles, investibleSignatures || []);
+    return signatureMatcher(marketInvestibles, investibleSignatures || [], checkQuickAdd);
 }
 
-function satisfyMarkets(marketsSignatures, marketsState) {
+function satisfyMarkets(marketsSignatures, marketsState, checkQuickAdd = false) {
     const usedState = marketsState || {};
     const allMarkets = usedState.marketDetails || [];
-    return signatureMatcher(allMarkets, marketsSignatures || []);
+    return signatureMatcher(allMarkets, marketsSignatures || [], checkQuickAdd);
 }
 
-function satisfyMarketPresences(marketId, presenceSignatures, mpState) {
+function satisfyMarketPresences(marketId, presenceSignatures, mpState, checkQuickAdd = false) {
     const usedState = mpState || {};
     const marketPresences = usedState[marketId];
     const usedPresences = marketPresences || [];
-    return signatureMatcher(usedPresences, presenceSignatures || []);
+    return signatureMatcher(usedPresences, presenceSignatures || [], checkQuickAdd);
 }
 
-function satisfyMarketStages(marketId, stageSignatures, stagesState) {
+function satisfyMarketStages(marketId, stageSignatures, stagesState, checkQuickAdd = false) {
     const usedState = stagesState || {};
     const marketStages = usedState[marketId] || [];
-    return signatureMatcher(marketStages, stageSignatures || []);
+    return signatureMatcher(marketStages, stageSignatures || [], checkQuickAdd);
 }
 
-function satisfyMarketGroups(marketId, groupSignatures, groupsState) {
+function satisfyMarketGroups(marketId, groupSignatures, groupsState, checkQuickAdd = false) {
   const usedState = groupsState ?? {};
   const marketGroups = usedState[marketId] ?? [];
-  return signatureMatcher(marketGroups, groupSignatures || []);
+  return signatureMatcher(marketGroups, groupSignatures || [], checkQuickAdd);
 }
 
-function satisfyGroupMembers(marketId, groupSignatures, groupsState) {
+function satisfyGroupMembers(marketId, groupSignatures, groupsState, checkQuickAdd = false) {
   const usedState = groupsState ?? {};
   const allGroupsUsers = _.flatten(Object.values(usedState));
-  return signatureMatcher(allGroupsUsers, groupSignatures || []);
+  return signatureMatcher(allGroupsUsers, groupSignatures || [], checkQuickAdd);
 }

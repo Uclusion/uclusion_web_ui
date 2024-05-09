@@ -214,7 +214,7 @@ export async function doVersionRefresh() {
   const inlineList = [];
   (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
-    if (!checkSignatureInStorage(id, signature, storageStates)) {
+    if (!checkSignatureInStorage(id, signature, storageStates, true)) {
       if (banned) {
         bannedList.push(id);
       }else if (inline) {

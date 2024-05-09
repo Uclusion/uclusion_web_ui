@@ -8,7 +8,10 @@ import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
-import { addMarketComments, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import {
+  addCommentToMarket,
+  getMarketComments
+} from '../../../contexts/CommentsContext/commentsContextHelper';
 import {
   getMarketPresences,
   getReasonForVote,
@@ -83,7 +86,7 @@ function JobApproveStep(props) {
       const { commentResult, investmentResult } = result;
       const { commentAction, comment } = commentResult;
       if (commentAction !== "NOOP") {
-        addMarketComments(commentsDispatch, marketId, [comment]);
+        addCommentToMarket(comment, commentsState, commentsDispatch);
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
       setOperationRunning(false);

@@ -10,7 +10,7 @@ import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
 import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
-import { addMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { partialUpdateInvestment, usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -62,7 +62,7 @@ function JobApproveStep(props) {
       const { commentResult, investmentResult } = result;
       const { commentAction, comment } = commentResult;
       if (commentAction !== "NOOP") {
-        addMarketComments(commentsDispatch, marketId, [comment]);
+        addCommentToMarket(comment, commentsState, commentsDispatch);
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
       return formData;

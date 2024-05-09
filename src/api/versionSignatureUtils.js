@@ -9,9 +9,10 @@ const EMPTY_VERSION = { object_versions: [] };
  * @param signature
  * @param object
  * @param checkVersion Whether to include version in the calculation or not
+ * @param checkQuickAdd Indicates if this is an audit check used for determining if market is dirty
  * @returns {boolean}
  */
-export function signatureMatches(signature, object, checkVersion=true) {
+export function signatureMatches(signature, object, checkVersion=true, checkQuickAdd = false) {
   for (const key of Object.keys(signature)) {
     const signatureVersion = signature[key];
     const objectVersion = object[key];
@@ -44,12 +45,14 @@ export function signatureMatches(signature, object, checkVersion=true) {
       keySatisfied = objectVersion === signatureVersion;
     } else {
       if (checkVersion) {
-        if (fromQuickAdd) {
-          // This forces replacing the quick add with the DB version
-          // That's not good for performance but does guarantee integrity
-          // Especially in the case that the market would not register as dirty because quick add was last audit
+        if (fromQuickAdd && checkQuickAdd) {
+          // This forces registering the market as dirty because quick add was last audit
           // So for instance on the demo would not get the second group since it's not in the quick add unless do this
           keySatisfied = objectVersion > signatureVersion;
+          // Super evil but otherwise this market stays dirty. Cannot change via reducer or get unwanted re-renders.
+          if (!keySatisfied) {
+            object.fromQuickAdd = false;
+          }
         } else {
           keySatisfied = objectVersion >= signatureVersion;
         }
@@ -73,13 +76,15 @@ export function signatureMatches(signature, object, checkVersion=true) {
  * this runs in 0_n^2, so be careful.
  * @param fetched
  * @param signatures
+ * @param checkQuickAdd Indicates if this is an audit check used for determining if market is dirty
  */
-export function signatureMatcher(fetched, signatures) {
+export function signatureMatcher(fetched, signatures, checkQuickAdd = false) {
   const matched = [];
   const matchedSignatures = [];
   for (let x = 0; x < fetched.length; x++) {
     const object = fetched[x];
-    const matchingSignature = signatures.find((signature) => signatureMatches(signature, object));
+    const matchingSignature = signatures.find((signature) => signatureMatches(signature, object,
+      true, checkQuickAdd));
     const objectPresent = matchingSignature || signatures.find((signature) => signatureMatches(signature,
       object, false));
     if (matchingSignature) {

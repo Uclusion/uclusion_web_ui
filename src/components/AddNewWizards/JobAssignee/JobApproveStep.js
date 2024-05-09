@@ -11,7 +11,7 @@ import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
 import { resetEditor } from '../../TextEditors/Utilities/CoreUtils';
 import {
-  addMarketComments,
+  addCommentToMarket,
   getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import {
@@ -69,7 +69,7 @@ function JobApproveStep(props) {
       const { commentResult, investmentResult } = result;
       const { commentAction, comment } = commentResult;
       if (commentAction !== "NOOP") {
-        addMarketComments(commentsDispatch, marketId, [comment]);
+        addCommentToMarket(comment, commentsState, commentsDispatch);
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
       setOperationRunning(false);

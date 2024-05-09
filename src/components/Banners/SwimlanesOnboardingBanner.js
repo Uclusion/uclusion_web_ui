@@ -57,15 +57,10 @@ function SwimlanesOnboardingBanner(props) {
           <div style={{marginTop: '0.8rem'}} id='swimlanesDemoBannerText'>
             {isOpeningScreen && (
               <>
-                <Typography><b>Welcome to the demo!</b> Instead of standup, Assistance Needed shows where input is
-                  required and the swimlanes show</Typography>
+                <Typography><b>Welcome to the demo!</b> Here is group 'Everyone' status and your inbox has notifications
+                  backed by wizards.</Typography>
                 <Typography className={classes.ctaSub}>
-                  status of jobs seeking approval and in progress. As a team member
-                  your <Link href="/inbox" onClick={(event) => {
-                    preventDefaultAndProp(event);
-                    navigate(history, '/inbox');
-                  }}>inbox</Link> tells you
-                  what you need to do next to help.
+                  The right arrow in the top header above navigates to what you need to do next to help.
                 </Typography>
               </>
             )}

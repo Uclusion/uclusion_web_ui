@@ -123,7 +123,7 @@ function DecideAssistanceStep(props) {
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       removeActions
-                      showVoting
+                      showVoting={!isBug}
                       inboxMessageId={commentId}
                       isSingleTaskDisplay={isBug}
                       useCompression={useCompression}

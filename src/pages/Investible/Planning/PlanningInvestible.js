@@ -634,8 +634,6 @@ function PlanningInvestible(props) {
       title={title}
       tabTitle={name}
       hidden={hidden}
-      hideMenu={mobileLayout}
-      overrideMenu={investibleNav}
     >
       {!mobileLayout && (
         <div className={classes.paper} style={{ paddingTop: mobileLayout ? undefined : '2rem', paddingBottom: '1rem',
@@ -655,7 +653,8 @@ function PlanningInvestible(props) {
           id='investible-header'
           indicatorColors={['#00008B', '#00008B', '#00008B']}
           style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
-            paddingTop: '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
+            paddingTop: mobileLayout ? undefined : '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0,
+            marginLeft: '-0.5rem' }}>
           <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('total')}
                         label={intl.formatMessage({id: 'descriptionVotingLabel'})}
                         toolTipId='jobOverviewToolTip'
@@ -701,8 +700,9 @@ function PlanningInvestible(props) {
                 )}
               </div>
             </div>
-            <div className={classes.votingCardContent}
-                 style={{display: 'flex'}}>
+            <div className={mobileLayout? undefined : classes.votingCardContent}
+                 style={{display: 'flex', paddingLeft: mobileLayout ? '10px' : undefined,
+                   paddingBottom: mobileLayout ? '20px' : undefined}}>
               <div className={isEditableByUser() ? classes.fullWidthEditable :
                 classes.fullWidth} onClick={(event) =>
                 mySetBeingEdited(event)}>
@@ -722,6 +722,7 @@ function PlanningInvestible(props) {
               </div>
             </div>
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
+                            usePadding={!mobileLayout}
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen/>
             <div style={{
               paddingLeft: mobileLayout ? undefined : '1rem',

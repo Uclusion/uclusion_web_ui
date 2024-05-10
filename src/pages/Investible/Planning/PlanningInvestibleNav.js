@@ -1,19 +1,12 @@
 import clsx from 'clsx';
-import {
-  Checkbox,
-  FormControlLabel,
-  makeStyles,
-  Tooltip,
-  useMediaQuery,
-  useTheme
-} from '@material-ui/core';
+import { Checkbox, FormControlLabel, makeStyles, Tooltip } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { ExpandLess, Group, Inbox, SyncAlt } from '@material-ui/icons';
+import { ExpandLess, SyncAlt } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
 import React, { useContext } from 'react';
-import { Assignments, useCollaborators, rejectInvestible } from './PlanningInvestible';
+import { Assignments, rejectInvestible, useCollaborators } from './PlanningInvestible';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -33,19 +26,16 @@ import { addInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import IconButton from '@material-ui/core/IconButton';
-import { formMarketLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import {
   JOB_APPROVERS_WIZARD_TYPE,
   JOB_ASSIGNEE_WIZARD_TYPE,
-  JOB_COLLABORATOR_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE
+  JOB_COLLABORATOR_WIZARD_TYPE,
+  JOB_STAGE_WIZARD_TYPE
 } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
-import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
-import { Menu, MenuItem, ProSidebar, SidebarHeader } from 'react-pro-sidebar';
-import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { useAddressed } from '../../../utils/votingUtils';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
@@ -61,15 +51,11 @@ export default function PlanningInvestibleNav(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [groupState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const { stage, required_approvers:  requiredApprovers, open_for_investment: openForInvestment,
     accepted, group_id: groupId } = marketInfo;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
-  const group = getGroup(groupState, marketId, groupId) || {};
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
   function onDeleteFile(path) {
@@ -108,31 +94,15 @@ export default function PlanningInvestibleNav(props) {
       setOperationRunning(false);
     });
   }
-  const headerPaddingBottom = mobileLayout ? '1rem' : undefined;
+
   return (
     <>
-      {mobileLayout && (
-        <ProSidebar width="16rem">
-          <SidebarHeader>
-            <Menu iconShape="circle">
-              <MenuItem icon={<Inbox htmlColor="black" />} key="navBackGroup"
-                        onClick={() => navigate(history, getInboxTarget())}>
-                <span style={{fontSize: '1rem'}}>{intl.formatMessage({ id: 'inbox' })}</span>
-              </MenuItem>
-              <MenuItem icon={<Group htmlColor="black" />} key="navBackGroup"
-                        onClick={() => navigate(history, formMarketLink(marketId, groupId))}>
-                <span style={{fontSize: '1rem'}}>{group.name}</span>
-              </MenuItem>
-            </Menu>
-          </SidebarHeader>
-        </ProSidebar>
-      )}
-      <div style={{maxWidth: '11rem', width: '100%', marginTop: mobileLayout ? '1.5rem': undefined}}>
+      <div style={{maxWidth: '11rem', width: '100%'}}>
         {name}
       </div>
       <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
       {market.id && marketInvestible.investible && (
-        <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
+        <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments
               classes={classes}
@@ -148,7 +118,7 @@ export default function PlanningInvestibleNav(props) {
         </div>
       )}
       {market.id && marketInvestible.investible && isFurtherWork && (
-        <div className={classes.assignmentContainer} style={{paddingBottom: headerPaddingBottom}}>
+        <div className={classes.assignmentContainer}>
           <Tooltip key='readyToStartCheckboxKey'
                    title={<FormattedMessage id='readyToStartExplanation' />}>
             <FormControlLabel
@@ -168,7 +138,7 @@ export default function PlanningInvestibleNav(props) {
           </Tooltip>
         </div>
       )}
-      <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
+      <div className={clsx(classes.group, classes.assignments)}>
         <div className={classes.assignmentContainer}>
           <Tooltip
             title={intl.formatMessage({ id: 'collaboratorsExplanation' })}>
@@ -183,7 +153,7 @@ export default function PlanningInvestibleNav(props) {
         </div>
       </div>
       {market.id && marketInvestible.investible && isInVoting && (
-        <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
+        <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments
               classes={classes}
@@ -198,7 +168,7 @@ export default function PlanningInvestibleNav(props) {
         </div>
       )}
       {!isEveryoneGroup(groupId, marketId) && (
-        <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: headerPaddingBottom}}>
+        <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments
               classes={classes}
@@ -223,17 +193,12 @@ export default function PlanningInvestibleNav(props) {
         accepted={accepted || []}
         myUserId={userId}
       />
-      {!mobileLayout && (
-        <>
-          <div style={{paddingBottom: headerPaddingBottom}} />
-          <AttachedFilesList
-            marketId={market.id}
-            onUpload={onAttachFiles}
-            onDeleteClick={onDeleteFile}
-            attachedFiles={attachedFiles}
-          />
-        </>
-      )}
+      <AttachedFilesList
+        marketId={market.id}
+        onUpload={onAttachFiles}
+        onDeleteClick={onDeleteFile}
+        attachedFiles={attachedFiles}
+      />
     </>
   );
 }

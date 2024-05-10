@@ -68,6 +68,9 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('md')]: {
       padding: '24px 12px',
     },
+    [theme.breakpoints.down('sm')]: {
+      padding: '0px 12px 0px 12px',
+    },
     willChange: 'scroll-position',
   },
   containerAllLeftPad: {
@@ -83,10 +86,6 @@ const useStyles = makeStyles((theme) => ({
   bannerContainer: {
     position: 'sticky',
     top: 0,
-  },
-  listContainer: {
-    flex: '0 0 auto',
-    height: '100%',
   },
   navListIcon: {
     marginRight: 6,
@@ -192,13 +191,12 @@ function Screen(props) {
     isInbox,
     openMenuItems,
     navigationOptions,
-    hideMenu,
-    overrideMenu,
     showBanner,
     disableSearch,
     loadingMessageId
   } = props;
-  const usedBanner = banner ?? (userState?.user?.onboarding_state === OnboardingState.DemoCreated ? <OnboardingBanner/> : undefined);
+  const usedBanner = banner ?? (userState?.user?.onboarding_state === OnboardingState.DemoCreated ?
+    <OnboardingBanner/> : undefined);
   const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
   let pathMarketId = undefined;
   if (action === 'inbox') {
@@ -329,10 +327,10 @@ function Screen(props) {
   if (navigationMenu.navListItemTextArray) {
     navigationMenu.navListItemTextArray = navigationMenu.navListItemTextArray.concat(navListItemTextArray);
   }
-  const myContainerClass = !hideMenu && !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
-  const contentClass = mobileLayout || hideMenu ? classes.contentNoStyle : classes.content;
-  const sideNavigationContents = hideMenu ? overrideMenu :
-    <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />;
+  const myContainerClass = !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
+  const contentClass = mobileLayout ? classes.contentNoStyle : classes.content;
+  const sideNavigationContents = <Sidebar navigationOptions={navigationMenu} search={search} title={title}
+                                          classes={classes} />;
   const renderBanner = showBanner && usedBanner && !hidden;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">
@@ -347,7 +345,7 @@ function Screen(props) {
           disableSearch={disableSearch}
         />
       )}
-      {!hideMenu && !mobileLayout && !hidden && (
+      {!mobileLayout && !hidden && (
         <div className={classes.paper}>
           <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />
         </div>
@@ -361,8 +359,8 @@ function Screen(props) {
                 {usedBanner}
               </div>
             )}
-            <div style={{height: '100%'}}>
-            {children}
+            <div>
+              {children}
             </div>
           </div>
         )}

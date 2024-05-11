@@ -236,7 +236,8 @@ function Screen(props) {
     navigate(history, formMarketLink(newMarketId, newMarketId));
   }
   const useGroupId = groupId ? groupId : (investibleId ?
-    getGroupForInvestibleId(investibleId, defaultMarket.id, investiblesState) : undefined);
+    getGroupForInvestibleId(investibleId, defaultMarket.id, investiblesState) :
+    (pathname === '/' ? defaultMarket.id : undefined));
   const navListItemTextArray = [];
   const inactiveGroups = [];
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {

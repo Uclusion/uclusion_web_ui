@@ -46,7 +46,7 @@ function doUpdateMarketDetails(state, action) {
   const { marketDetail } = action;
   const { marketDetails: oldMarketDetails } = state;
   syncMarketList.push(marketDetail.id);
-  const newDetails = addByIdAndVersion(marketDetail, oldMarketDetails)
+  const newDetails = addByIdAndVersion([marketDetail], oldMarketDetails)
   return {
     ...removeInitializing(state),
     marketDetails: newDetails,

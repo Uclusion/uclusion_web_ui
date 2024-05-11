@@ -8,6 +8,7 @@ import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
+import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_MARKET_PRESENCE = 'ADD_MARKET_PRESENCE';
@@ -84,6 +85,7 @@ export function removeMarketsPresence(marketIds) {
 
 function doPatchInvestment(state, action) {
   const { investmentPatch, allowMultiVote } = action;
+  syncMarketList.push(investmentPatch.market_id);
   const oldMarketUsers = state[investmentPatch.market_id] || [];
   const oldPresence = oldMarketUsers.find((oldUser) => oldUser.id === investmentPatch.user_id);
   if (_.isEmpty(oldPresence)) {
@@ -95,8 +97,7 @@ function doPatchInvestment(state, action) {
     : [investmentPatch];
   const newPresence = {
     ...oldPresence,
-    investments: newInvestments,
-    fromQuickAdd: true
+    investments: newInvestments
   };
   const newMarketUsers = _.unionBy([newPresence], oldMarketUsers, 'id');
   return {
@@ -109,8 +110,9 @@ function doPatchInvestment(state, action) {
 
 function doAddMarketPresence(state, action) {
   const { marketId, user } = action;
+  syncMarketList.push(marketId);
   const oldUsers = state[marketId] || [];
-  const newUsers = _.unionBy([{ ...user, fromQuickAdd: true }], oldUsers, 'id');
+  const newUsers = _.unionBy([user], oldUsers, 'id');
   return {
     ...state,
     [marketId]: newUsers,
@@ -119,11 +121,9 @@ function doAddMarketPresence(state, action) {
 
 function doAddMarketPresences(state, action) {
   const { marketId, users } = action;
+  syncMarketList.push(marketId);
   const oldUsers = state[marketId] || [];
-  const transformedUsers = users.map((user) => {
-    return { ...user, fromQuickAdd: true };
-  });
-  const newUsers = _.unionBy(transformedUsers, oldUsers, 'id');
+  const newUsers = _.unionBy(users, oldUsers, 'id');
   return {
     ...state,
     [marketId]: newUsers,
@@ -142,13 +142,14 @@ function doUpdateMarketPresences(state, action) {
 
 function doRemoveInvestibleInvestments(state, action) {
   const { marketId, investibleId } = action;
+  syncMarketList.push(marketId);
   const oldUsers = state[marketId] || [];
   const transformedUsers = oldUsers.map((user) => {
-    const newInvestments = user.investments?.filter((investment) => investment.investible_id !== investibleId);
+    const newInvestments = user.investments?.filter((investment) =>
+      investment.investible_id !== investibleId);
     return {
       ...user,
-      investments: newInvestments,
-      fromQuickAdd: true
+      investments: newInvestments
     };
   });
   return {

@@ -29,6 +29,7 @@ import { RepeatingFunction } from '../utils/RepeatingFunction';
 import { MAX_DRIFT_TIME } from '../contexts/WebSocketContext';
 import { isSignedOut } from '../utils/userFunctions';
 import { getMarketClient } from './marketLogin';
+import { syncMarketList } from '../components/ContextHacks/ForceMarketSyncProvider';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -214,7 +215,8 @@ export async function doVersionRefresh() {
   const inlineList = [];
   (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
-    if (!checkSignatureInStorage(id, signature, storageStates, true)) {
+    const dirtyFromQuickAdd = syncMarketList.includes(id);
+    if (dirtyFromQuickAdd || !checkSignatureInStorage(id, signature, storageStates, true)) {
       if (banned) {
         bannedList.push(id);
       }else if (inline) {
@@ -223,6 +225,9 @@ export async function doVersionRefresh() {
         foregroundList.push(id);
       } else {
         backgroundList.push(id);
+      }
+      if (dirtyFromQuickAdd) {
+        _.remove(syncMarketList, (value) => value === id);
       }
     }
   });

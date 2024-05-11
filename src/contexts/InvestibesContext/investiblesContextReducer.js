@@ -8,6 +8,7 @@ import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import _ from 'lodash'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
+import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
@@ -41,17 +42,17 @@ export function versionsUpdateInvestibles(investibles) {
 
 // expects that the investibles are already in a storable state
 function doUpdateInvestibles(state, action, isQuickAdd) {
-  const { investibles } = action
-  const transformedInvestibles = isQuickAdd ? investibles.map((inv) => {
-    const { investible, market_infos: marketInfos } = inv
-    const newInvestible = { ...investible, fromQuickAdd: true }
-    const newMarketInfos = marketInfos.map((marketInfo) => {
-      return { ...marketInfo, fromQuickAdd: true }
-    })
-    return { investible: newInvestible, market_infos: newMarketInfos }
-  }) : investibles
+  const { investibles } = action;
+  if (isQuickAdd) {
+    investibles.forEach((investible) => {
+      const { market_infos: marketInfos } = investible;
+      marketInfos.forEach((marketInfo) => {
+        syncMarketList.push(marketInfo.market_id);
+      })
+    });
+  }
   const oldInvestibles = Object.values(removeInitializing(state))
-  const newInvestibles = addByIdAndVersion(transformedInvestibles, oldInvestibles, (item) => item.investible.id,
+  const newInvestibles = addByIdAndVersion(investibles, oldInvestibles, (item) => item.investible.id,
     (item1, item2) => {
       const { investible: investible1, market_infos: marketInfos1 } = item1
       const { investible: investible2, market_infos: marketInfos2 } = item2

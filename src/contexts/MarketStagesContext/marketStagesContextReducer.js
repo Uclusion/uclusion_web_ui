@@ -5,6 +5,7 @@ import { removeInitializing } from '../../components/localStorageUtils'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { addByIdAndVersion } from '../ContextUtils';
+import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_STAGES = 'UPDATE_MARKET_STAGES';
@@ -46,12 +47,10 @@ export function removeMarketsStageDetails(marketIds) {
 
 function doUpdateMarketStages(state, action) {
   const { marketId, stagesList } = action;
-  const stagesListTransformed = stagesList.map((stage) => {
-    return { ...stage, fromQuickAdd: true };
-  });
+  syncMarketList.push(marketId);
   return {
     ...removeInitializing(state),
-    [marketId]: stagesListTransformed,
+    [marketId]: stagesList,
   };
 }
 

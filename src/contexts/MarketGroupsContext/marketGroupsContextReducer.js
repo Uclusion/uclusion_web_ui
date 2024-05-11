@@ -5,6 +5,7 @@ import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import _ from 'lodash'
 import { addByIdAndVersion } from '../ContextUtils';
+import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_GROUPS = 'UPDATE_MARKET_GROUPS';
@@ -46,11 +47,9 @@ export function removeMarketsGroupsDetails(marketIds) {
 
 function doUpdateMarketGroups(state, action) {
   const { marketId, groupsList } = action;
-  const groupsListTransformed = groupsList.map((group) => {
-    return { ...group, fromQuickAdd: true };
-  });
+  syncMarketList.push(marketId);
   const oldGroups = state[marketId] || [];
-  const newGroups = _.unionBy(groupsListTransformed, oldGroups, 'id');
+  const newGroups = _.unionBy(groupsList, oldGroups, 'id');
   return {
     ...removeInitializing(state),
     [marketId]: newGroups,

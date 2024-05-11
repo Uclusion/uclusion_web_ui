@@ -8,9 +8,9 @@ import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
+import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
-const ADD_GROUP_MEMBER = 'ADD_GROUP_MEMBER';
 const ADD_GROUP_MEMBERS = 'ADD_GROUP_MEMBERS';
 const UPDATE_FROM_VERSIONS = 'UPDATE_FROM_VERSIONS';
 const MODIFY_GROUP_MEMBERS = 'MODIFY_GROUP_MEMBERS';
@@ -24,17 +24,10 @@ export function initializeState(newState) {
   };
 }
 
-export function addGroupMember(groupId, user) {
-  return {
-    type: ADD_GROUP_MEMBER,
-    groupId,
-    user,
-  };
-}
-
-export function addGroupMembers(groupId, users) {
+export function addGroupMembers(marketId, groupId, users) {
   return {
     type: ADD_GROUP_MEMBERS,
+    marketId,
     groupId,
     users
   };
@@ -55,26 +48,11 @@ export function versionsUpdateGroupMembers(memberDetails) {
   };
 }
 
-/** Functions that update the state **/
-
-function doAddGroupMember(state, action) {
-  const { groupId, user } = action;
-  const oldUsers = state[groupId] || [];
-  const member = { id: user.id, deleted: false, group_id: groupId, version: 1 };
-  const newUsers = _.unionBy([{ ...member, fromQuickAdd: true }], oldUsers, 'id');
-  return {
-    ...state,
-    [groupId]: newUsers,
-  };
-}
-
 function doAddGroupMembers(state, action) {
-  const { groupId, users } = action;
+  const { marketId, groupId, users } = action;
+  syncMarketList.push(marketId);
   const oldUsers = state[groupId] || [];
-  const transformedUsers = users.map((user) => {
-    return { ...user, fromQuickAdd: true };
-  });
-  const newUsers = _.unionBy(transformedUsers, oldUsers, 'id');
+  const newUsers = _.unionBy(users, oldUsers, 'id');
   return {
     ...state,
     [groupId]: newUsers,
@@ -110,8 +88,6 @@ function computeNewState(state, action) {
   switch(action.type) {
     case INITIALIZE_STATE:
       return action.newState;
-    case ADD_GROUP_MEMBER:
-      return doAddGroupMember(state, action);
     case ADD_GROUP_MEMBERS:
       return doAddGroupMembers(state, action);
     case MODIFY_GROUP_MEMBERS:

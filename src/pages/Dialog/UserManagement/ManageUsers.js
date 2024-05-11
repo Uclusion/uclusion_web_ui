@@ -35,7 +35,7 @@ function ManageUsers(props) {
     });
     return changeGroupParticipation(market.id, group.id, added).then((newUsers) => {
         setOperationRunning(false);
-        groupPresencesDispatch(addGroupMembers(group.id, newUsers));
+        groupPresencesDispatch(addGroupMembers(market.id, group.id, newUsers));
       });
   }
 

@@ -5,6 +5,7 @@ import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion, fixupItemsForStorage } from '../ContextUtils'
+import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
@@ -46,10 +47,8 @@ export function removeMarketsComments(marketIds) {
 
 function doAddMarketComments(state, action) {
   const { marketId, comments } = action;
-  const transformedCommentsRaw = fixupItemsForStorage(comments);
-  const transformedComments = transformedCommentsRaw.map((comment) => {
-    return { ...comment, fromQuickAdd: true }
-  });
+  syncMarketList.push(marketId);
+  const transformedComments = fixupItemsForStorage(comments);
   const oldComments = state[marketId] || [];
   const newState = {...state};
   newState[marketId] = addByIdAndVersion(transformedComments, oldComments);

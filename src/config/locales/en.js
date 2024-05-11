@@ -1127,6 +1127,8 @@ const messages = defineMessages({
   closeTodosTip: 'Collapse tasks',
   openApprovalsTip: 'Expand approvals',
   closeApprovalsTip: 'Collapse approvals',
+  closeDetailsTip: 'Collapse details',
+  openDetailsTip: 'Expand details',
   tasksSection: 'Tasks',
   todoSection: 'Bugs',
   jobFromBugs: 'Bugs {ticketList}',

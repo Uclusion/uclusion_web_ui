@@ -270,6 +270,19 @@ export const usePlanningInvestibleStyles = makeStyles(
       minWidth: '15rem',
       textOverflow: 'ellipsis',
     },
+    mobileDetails: {
+      overflowY: 'none',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: "flex-start",
+      '& > div': {
+        borderRadius: '6px',
+        marginBottom: '1rem'
+      },
+      flex: '1 0 auto',
+      minWidth: '15rem',
+      textOverflow: 'ellipsis',
+    },
     group: {
       borderRadius: 6,
       display: "flex",
@@ -361,6 +374,7 @@ function PlanningInvestible(props) {
   const { investible } = marketInvestible;
   const { name, description, locked_by: lockedBy, created_at: createdAt } = investible;
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [approvalsOpen, setApprovalsOpen] = useState(true);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
@@ -625,6 +639,10 @@ function PlanningInvestible(props) {
     }
   }
 
+  function toggleDetails() {
+    setDetailsOpen(!detailsOpen);
+  }
+
   function toggleApprovals() {
     setApprovalsOpen(!approvalsOpen);
   }
@@ -721,6 +739,28 @@ function PlanningInvestible(props) {
                 )}
               </div>
             </div>
+            {mobileLayout && (
+              <div style={{marginBottom: '1rem'}}>
+                <div style={{display: 'flex', alignItems: 'center'}}>
+                  <h2 id="details" style={{marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
+                    <FormattedMessage id="planningInvestibleOpenLabel" />
+                  </h2>
+                  <IconButton onClick={() => toggleDetails()} style={{marginBottom: 0,
+                    paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
+                    <Tooltip key='toggleDetails'
+                             title={<FormattedMessage id={`${detailsOpen ? 'closeDetails' : 'openDetails'}Tip`} />}>
+                      {detailsOpen ? <ExpandLess fontSize='large' htmlColor='black' /> :
+                        <ExpandMoreIcon fontSize='large' htmlColor='black' />}
+                    </Tooltip>
+                  </IconButton>
+                </div>
+                {detailsOpen && (
+                  <div className={classes.mobileDetails}>
+                    {investibleNav}
+                  </div>
+                )}
+              </div>
+            )}
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
                             usePadding={!mobileLayout}
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen/>

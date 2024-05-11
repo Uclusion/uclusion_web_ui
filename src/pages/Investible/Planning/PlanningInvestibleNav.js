@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { Checkbox, FormControlLabel, makeStyles, Tooltip } from '@material-ui/core';
+import { Checkbox, FormControlLabel, makeStyles, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { ExpandLess, SyncAlt } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -52,6 +52,8 @@ export default function PlanningInvestibleNav(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const { stage, required_approvers:  requiredApprovers, open_for_investment: openForInvestment,
     accepted, group_id: groupId } = marketInfo;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
@@ -97,9 +99,11 @@ export default function PlanningInvestibleNav(props) {
 
   return (
     <>
-      <div style={{maxWidth: '11rem', width: '100%'}}>
-        {name}
-      </div>
+      {!mobileLayout && (
+        <div style={{ maxWidth: '11rem', width: '100%' }}>
+          {name}
+        </div>
+      )}
       <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
       {market.id && marketInvestible.investible && (
         <div className={clsx(classes.group, classes.assignments)}>

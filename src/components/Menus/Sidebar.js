@@ -3,11 +3,11 @@ import _ from 'lodash'
 import React from 'react'
 import { navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader, SubMenu } from 'react-pro-sidebar'
-import { IconButton, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader } from 'react-pro-sidebar'
+import { IconButton, Tooltip, Typography } from '@material-ui/core';
 
 function processRegularItem(properties) {
-  const {classes, history, text, target, num, Icon, iconColor='black', onClickFunc, isBold,
+  const {classes, history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue,
     index, search, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon,
     resetFunction, tipText} = properties;
   if (!text) {
@@ -23,7 +23,7 @@ function processRegularItem(properties) {
     );
   }
   const key = `${index}${textNoSpaces}`;
-  const backgroundColor = isBold && !isSubMenu ? '#b4d0d8' : undefined;
+  const backgroundColor = isBold && !isSubMenu && isBlue ? '#b4d0d8' : undefined;
   return (
     <div key={`sidebarMenuHolder${key}`}>
       <MenuItem icon={<Icon style={{fontSize: '1.3rem', paddingBottom: isLarge ? undefined :'2px'}} htmlColor={iconColor} />}
@@ -83,9 +83,7 @@ function processRegularItem(properties) {
 
 export default function Sidebar(props) {
   const history = useHistory();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const { navigationOptions, search, title, classes } = props;
+  const { navigationOptions, search, classes } = props;
   const { navListItemTextArray, navMenu, listOnClick, headerItemTextArray } = navigationOptions || {};
   return (
     <ProSidebar width="16rem">
@@ -93,23 +91,10 @@ export default function Sidebar(props) {
         {!_.isEmpty(headerItemTextArray) && (
           <Menu onClick={listOnClick} iconShape="circle">
             {headerItemTextArray.map((navItem, topIndex) => {
-              const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, openMenuItems,
+              const { text, target, num, icon: Icon, onClickFunc, isBold, isBlue, openMenuItems,
                 iconColor } = navItem;
-              if (subItems) {
-                return (
-                  <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
-                           icon={<Icon htmlColor="black" />}
-                           open={mobileLayout || (!_.isEmpty(search) && num > 0) ? true : undefined}>
-                    {subItems.map((subItem, index) => {
-                      const { text, target, num, icon: Icon, onClickFunc } = subItem
-                      return processRegularItem({classes, history, text, target, num, Icon, onClickFunc,
-                        index, search, isSubMenu: true})
-                    })}
-                  </SubMenu>
-                );
-              }
               return processRegularItem({classes, history, text, target, num, Icon, iconColor, onClickFunc,
-                isBold, index: topIndex, search, openMenuItems, isLarge: true})
+                isBold, isBlue, index: topIndex, search, openMenuItems, isLarge: true})
             })}
           </Menu>
         )}
@@ -119,22 +104,9 @@ export default function Sidebar(props) {
       {!_.isEmpty(navListItemTextArray) && (
         <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {
-            const { text, target, num, icon: Icon, onClickFunc, subItems, isBold, openMenuItems,
+            const { text, target, num, icon: Icon, onClickFunc, isBold, isBlue, openMenuItems,
               onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText } = navItem;
-            if (subItems) {
-              return (
-                <SubMenu title={text} key={`top${topIndex}${text}${title}`} onClick={onClickFunc}
-                         icon={<Icon htmlColor="black" />}
-                         open={mobileLayout || (!_.isEmpty(search) && num > 0) ? true : undefined}>
-                  {subItems.map((subItem, index) => {
-                    const { text, target, num, icon: Icon, onClickFunc } = subItem
-                    return processRegularItem({classes, history, text, target, num, Icon, onClickFunc,
-                      index, search, isSubMenu: true})
-                  })}
-                </SubMenu>
-              );
-            }
-            return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold,
+            return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold, isBlue,
               index: topIndex, search, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText})
           })}
         </Menu>

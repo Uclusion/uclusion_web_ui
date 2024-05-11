@@ -246,7 +246,8 @@ function Screen(props) {
     const marketPresences = getMarketPresences(marketPresencesState, defaultMarket.id) || [];
     const myPresence = marketPresences.find((presence) => presence.current_user) || {};
     const itemsRaw = itemsSorted.map((group) => {
-      const groupPresences = getGroupPresences(marketPresences, groupPresencesState, defaultMarket.id, group.id) || [];
+      const groupPresences = getGroupPresences(marketPresences, groupPresencesState, defaultMarket.id,
+        group.id) || [];
       const isChosen = group.id === useGroupId;
       if (_.isEmpty(groupPresences)) {
         inactiveGroups.push(group);
@@ -254,14 +255,15 @@ function Screen(props) {
           return {};
         }
       }
-      const myIcon = groupPresences.find((presence) => presence.id === myPresence.id) ? Group : GroupOutlined;
+      const myIcon = groupPresences.find((presence) => presence.id === myPresence.id) ?
+        Group : GroupOutlined;
       const outsetAvailable = isChosen && useHoverFunctions;
       let num = undefined;
       if (!_.isEmpty(search)) {
         num = (results || []).filter((item) => item.groupId === group.id);
       }
       return {icon: myIcon, endIcon: outsetAvailable ? MoreVert : undefined, text: group.name, num,
-        isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
+        isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined, isBlue: groupId === group.id,
         resetFunction: isChosen ? resetFunction : undefined,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);
@@ -303,11 +305,14 @@ function Screen(props) {
     navListItemTextArray.push(...items);
   }
   const inboxCount = getInboxCount(messagesState);
+  const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();
+  const addCollaboratorChosen = action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase();
   const navigationMenu =
     {
       headerItemTextArray: [
         {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(),
-          isBold: action?.includes('inbox'), iconColor: inboxCount > 0 ? '#E85757' : undefined,
+          isBold: action?.includes('inbox'), isBlue: pathname === getInboxTarget(),
+          iconColor: inboxCount > 0 ? '#E85757' : undefined,
           num: _.isEmpty(search) ? inboxCount : undefined}
       ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
@@ -315,12 +320,12 @@ function Screen(props) {
       navListItemTextArray: !_.isEmpty(defaultMarket) ? [
         {
           icon: EditOutlinedIcon, text: intl.formatMessage({ id: 'compose' }),
-          isBold: action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase(),
+          isBold: composeChosen, isBlue: composeChosen,
           target: `/wizard#type=${COMPOSE_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
         },
         {
           icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
-          isBold: action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase(),
+          isBold: addCollaboratorChosen, isBlue: addCollaboratorChosen,
           target: `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
         }
       ] : null}

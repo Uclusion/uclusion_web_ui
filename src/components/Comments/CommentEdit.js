@@ -34,13 +34,13 @@ import { addInvestible } from '../../contexts/InvestibesContext/investiblesConte
 import { removeMessages } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
 import BlockIcon from '@material-ui/icons/Block';
-import HelpIcon from '@material-ui/icons/Help';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import { allImagesLoaded } from '../../utils/windowUtils';
 import { sendInfoPersistent } from '../../utils/userMessage';
 import WizardStepContainer from '../AddNewWizards/WizardStepContainer';
 import WizardStepButtons from '../AddNewWizards/WizardStepButtons';
 import { WizardStylesContext } from '../AddNewWizards/WizardStylesContext';
+import QuestionIcon from '@material-ui/icons/ContactSupport';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -175,7 +175,7 @@ export function getIcon(commentType) {
       return <BlockIcon />;
     }
     case QUESTION_TYPE: {
-      return <HelpIcon />;
+      return <QuestionIcon />;
     }
     case TODO_TYPE: {
       return <AssignmentIcon />;

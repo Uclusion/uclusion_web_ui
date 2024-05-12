@@ -111,13 +111,16 @@ const DateLabelBNotHovered = styled(DateLabelNotHovered)`
 `;
 
 const Item = styled("div")`
-  margin-bottom: 1px;
-  &:hover ${DateLabelNotHovered} {
-      display: none;
-  }
-  &:hover ${DateLabelHovered} {
-      display: block;
-  }
+    margin-bottom: 1px;
+    &:hover ${DateLabelNotHovered} {
+        display: none;
+    }
+    &:hover ${DateLabelHovered} {
+        display: block;
+    }
+    @media (max-width: 768px) {
+        max-width: 98%;
+    }
 `
 
 function BugListItem(props) {

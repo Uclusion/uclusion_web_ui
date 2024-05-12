@@ -335,8 +335,8 @@ function PlanningDialog(props) {
       <div style={{display: 'flex', overflow: 'hidden'}}>
         <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}
                       archivedSize={archivedSize} />
-      <div style={{paddingTop: isDemo ? '8rem' : '4rem', width: '96%', marginLeft: 'auto', marginRight: 'auto',
-        overflow: 'hidden'}}>
+      <div style={{paddingTop: isDemo ? (mobileLayout ? '10rem' : '8rem') : '4rem', width: '96%', marginLeft: 'auto',
+        marginRight: 'auto', overflow: 'hidden'}}>
         <div ref={refToTop}></div>
         {isSectionOpen('discussionSection') && (
           <div id="discussionSection">

@@ -5,7 +5,7 @@ import { isEveryoneGroup } from '../../contexts/GroupMembersContext/groupMembers
 import DemoCreateWorkspaceButton from '../Buttons/DemoCreateWorkspaceButton';
 import Link from '@material-ui/core/Link';
 
-const useStyles = makeStyles(() => {
+const useStyles = makeStyles((theme) => {
   return {
     bannerBackground: {
       background: 'white',
@@ -17,7 +17,11 @@ const useStyles = makeStyles(() => {
       },
       width: '70%',
       display: 'flex',
-      justifyContent: 'space-around'
+      justifyContent: 'space-around',
+      [theme.breakpoints.down('sm')]: {
+        marginLeft: '0.2rem',
+        width: 'unset',
+      }
     },
     ctaSub: {
       fontWeight: 'normal',
@@ -33,31 +37,16 @@ function SwimlanesOnboardingBanner(props) {
   const isOpeningScreen = (!sectionOpen || sectionOpen === 'storiesSection') &&
     isEveryoneGroup(group?.id, group?.market_id);
 
-  if (mobileLayout) {
-    if (isOpeningScreen) {
-      return (
-        <div className={classes.bannerBackground}>
-          <div style={{ marginTop: '0.25rem', marginLeft: '0.25rem' }} id='swimlanesDemoBannerText'>
-            <Typography>
-              <b>Welcome to the demo!</b> We recommend switching to desktop for a more optimized experience.
-            </Typography>
-          </div>
-        </div>
-      );
-    }
-    return React.Fragment;
-  }
-
   return (
-    <div className={classes.bannerBackground}>
+    <div className={classes.bannerBackground} id='bannerId'>
       <div className={classes.bannerBox}>
-          <div style={{marginTop: '0.8rem'}} id='swimlanesDemoBannerText'>
+          <div style={{marginTop: mobileLayout? '1.65rem' : '0.8rem'}} id='swimlanesDemoBannerText'>
             {isOpeningScreen && (
               <>
-                <Typography><b>Welcome to the demo!</b> Here is group 'Everyone' status and your inbox has notifications
-                  backed by wizards.</Typography>
+                <Typography><b>Welcome to the demo!</b> Here is group 'Everyone' status and your inbox has notification
+                  wizards.</Typography>
                 <Typography className={classes.ctaSub}>
-                  The right arrow in the top header above navigates to what you need to do next to help.
+                  The right arrow above navigates to things to do.
                 </Typography>
               </>
             )}
@@ -71,7 +60,7 @@ function SwimlanesOnboardingBanner(props) {
             )}
             {sectionOpen === 'marketTodos' && (
               <>
-                <Typography><b>More demo!</b> This is part of the <Link href="https://documentation.uclusion.com/flows/#self-assigning-bugs" target="_blank">self assigning bugs</Link> flow.</Typography>
+                <Typography><b>More demo!</b> - <Link href="https://documentation.uclusion.com/flows/#self-assigning-bugs" target="_blank">self assigning bugs</Link> flow.</Typography>
                 <Typography className={classes.ctaSub}>
                   Bugs can be quickly created and later moved to tasks in a job.
                 </Typography>
@@ -79,7 +68,7 @@ function SwimlanesOnboardingBanner(props) {
             )}
             {sectionOpen === 'backlogSection' && (
               <>
-                <Typography><b>More demo!</b> This is part of the <Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">self assigning jobs</Link> flow.</Typography>
+                <Typography><b>More demo!</b> - <Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">self assigning jobs</Link> flow.</Typography>
                 <Typography className={classes.ctaSub}>
                   Ready to start jobs send notifications to the group for assignment.
                 </Typography>
@@ -94,13 +83,14 @@ function SwimlanesOnboardingBanner(props) {
               </>
             )}
           </div>
-          <div style={{marginTop: '0.8rem'}}>
-            <DemoCreateWorkspaceButton />
+        {!mobileLayout && (
+          <div style={{ marginTop: '0.8rem' }}>
+            <DemoCreateWorkspaceButton/>
           </div>
+        )}
       </div>
     </div>
   );
 }
-
 
 export default SwimlanesOnboardingBanner;

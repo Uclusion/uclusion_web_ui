@@ -130,7 +130,7 @@ function AddInitialVote(props) {
             </RadioGroup>
           )}
         </FormControl>
-        <div style={{paddingRight: isInbox ? '12rem' : undefined}}>
+        <div style={{paddingRight: isInbox && !mobileLayout ? '12rem' : undefined}}>
           {Editor}
         </div>
     </div>

@@ -53,13 +53,18 @@ const DateLabelNotHovered = styled(DateLabel)`
 `;
 
 const Item = styled("div")`
-  margin-bottom: 1px;
-  &:hover ${DateLabelNotHovered} {
-      display: none;
-  }
-  &:hover ${DateLabelHovered} {
-      display: block;
-  }
+    margin-bottom: 1px;
+    margin-top: 0.3rem;
+    padding-right: 12rem;
+    &:hover ${DateLabelNotHovered} {
+        display: none;
+    }
+    &:hover ${DateLabelHovered} {
+        display: block;
+    }
+    @media (max-width: 768px) {
+        padding-right: unset;
+    }
 `
 
 function CompressedDescription(props) {
@@ -71,8 +76,7 @@ function CompressedDescription(props) {
   const title = stripHTML(description);
   return (
     <>
-      <Item style={{display: expansionOpen ? 'none' : undefined, paddingRight: '12rem',
-        marginTop: '0.3rem'}}>
+      <Item style={{display: expansionOpen ? 'none' : undefined}}>
         <RaisedCard elevation={3} rowStyle>
           <div style={{ width: '100%', cursor: 'pointer' }}
                onClick={

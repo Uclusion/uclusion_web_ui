@@ -687,7 +687,7 @@ function Comment(props) {
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote && !removeActions && myMessage?.type === NOT_FULLY_VOTED_TYPE;
   const showUnmute = !removeActions && myInlinePresence.abstain && !resolved && enableActions;
-  const isDeletable = !isInbox && (commentType === REPORT_TYPE || isEditable || resolved);
+  const isDeletable = !isInbox && !beingEdited && (commentType === REPORT_TYPE || isEditable || resolved);
   const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>
     : <GravatarAndName key={myPresence.id} email={createdBy.email}
@@ -758,7 +758,7 @@ function Comment(props) {
   }
   const threadSize = calculateNumberHidden(comment, undefined, comments, undefined);
   return (
-    <div style={{paddingLeft: usePadding ? '0.5rem' : undefined, width: '98%'}}>
+    <div style={{paddingLeft: usePadding && !beingEdited ? '0.5rem' : undefined, width: '98%'}}>
       <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false || usePadding === false ? 0
           : undefined}} className={getCommentHighlightStyle()} ref={editBox}>
         <div onClick={(event) => {
@@ -803,7 +803,7 @@ function Comment(props) {
                 translationId="edit"
               />
             )}
-            {!mobileLayout && !isInbox && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
+            {!mobileLayout && !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
               && marketType !== DECISION_TYPE && (
               <div style={{marginRight: '2rem', marginTop: '-0.25rem'}}>
                 <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
@@ -823,7 +823,7 @@ function Comment(props) {
             )}
           </Box>
           <CardContent className={classes.cardContent}>
-            {!noAuthor && mobileLayout && (
+            {!noAuthor && mobileLayout && !beingEdited && (
               <GravatarAndName
                 key={myPresence.id}
                 email={createdBy.email}

@@ -429,7 +429,7 @@ export function generateEditorOptions (id, config) {
 
   if (layout) {
     modules.toolbar.container = [
-      ['bold', 'italic', 'link', 'image', 'video', 'clean'],
+      ['bold', 'italic', 'link', { header: [1, 2, false] }, 'image', 'video', 'clean'],
     ]
   }
 

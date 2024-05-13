@@ -39,6 +39,7 @@ const Text = styled("div")`
   flex-grow: 1;
   @media (max-width: 768px) {
     font-size: 14px;
+    max-width: 97%;
   }
 `;
 

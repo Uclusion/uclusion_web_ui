@@ -235,12 +235,18 @@ function Header (props) {
             </Paper>
           )}
           <SearchBox disableSearch={disableSearch}/>
-          <div className={classes.grow}/>
+          {!mobileLayout && (
+            <div className={classes.grow}/>
+          )}
           <NavigationChevrons/>
           {!hideTools && (
             <React.Fragment>
-              <div className={classes.grow}/>
-              <div className={classes.padLeft}/>
+              {!mobileLayout && (
+                <div className={classes.grow}/>
+              )}
+              {!mobileLayout && (
+                <div className={classes.padLeft}/>
+              )}
               {!mobileLayout && (
                 <Tooltip title={<FormattedMessage id="help"/>}>
                   <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: 'white' }} id="helpIcon"

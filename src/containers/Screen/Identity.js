@@ -140,10 +140,10 @@ function Identity () {
   return (
     <div
       id="profileLink"
-      style={{ paddingLeft: !mobileLayout ? '2rem' : '0.5rem' }}
+      style={{ paddingLeft: !mobileLayout ? '2rem' : undefined }}
     >
       {mobileLayout && (
-        <IconButton onClick={recordPositionToggle} id="identityButton">
+        <IconButton onClick={recordPositionToggle} id="identityButton" style={{paddingLeft: 0}}>
           <SettingsIcon htmlColor="white"/>
         </IconButton>
       )}

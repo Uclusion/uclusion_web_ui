@@ -153,9 +153,9 @@ function SearchBox(props) {
 
   return (
     <div id='search-box' onClick={(event) => event.stopPropagation()}
-         style={{flex: 1, maxWidth: '800px'}}>
+         style={{flex: 1, maxWidth: mobileLayout ? undefined : '800px'}}>
       <TextField
-        style={{backgroundColor: '#e5edee', width: '100%', minWidth: '15rem'}}
+        style={{backgroundColor: '#e5edee', width: '100%', minWidth: mobileLayout ? '12rem' : '15rem'}}
         onChange={onSearchChange}
         onKeyPress={(ev) => {
           if (ev.key === 'Enter') {

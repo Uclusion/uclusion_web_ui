@@ -40,7 +40,7 @@ function SwimlanesOnboardingBanner(props) {
   return (
     <div className={classes.bannerBackground} id='bannerId'>
       <div className={classes.bannerBox}>
-          <div style={{marginTop: mobileLayout? '1.65rem' : '0.8rem'}} id='swimlanesDemoBannerText'>
+          <div style={{marginTop: '0.8rem'}} id='swimlanesDemoBannerText'>
             {isOpeningScreen && (
               <>
                 <Typography><b>Welcome to the demo!</b> Here is group 'Everyone' status and your inbox has notification

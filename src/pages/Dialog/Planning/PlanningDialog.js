@@ -302,9 +302,8 @@ function PlanningDialog(props) {
       openMenuItems={navListItemTextArray}
       navigationOptions={{useHoverFunctions: !mobileLayout, resetFunction: () => resetFunction(0)}}
     >
-      <div style={{ paddingBottom: '0.25rem', zIndex: 7, position: 'fixed',
-        paddingTop: mobileLayout ? '0.5rem' : '1.25rem', width: '100%',
-        marginTop: '-35px', paddingLeft: 0, marginLeft: '-0.5rem' }}>
+      <div style={{ paddingBottom: '0.25rem', zIndex: 7, position: 'fixed', width: '100%', paddingLeft: 0,
+        marginLeft: '-0.5rem' }}>
         {isDemo && (
           <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen}/>
         )}
@@ -383,7 +382,7 @@ function PlanningDialog(props) {
           </div>
         )}
         {isSectionOpen('storiesSection') && (
-          <div id="storiesSection" style={{overflowX: 'hidden'}}>
+          <div id="storiesSection" style={{overflowX: 'hidden', marginTop: '0.5rem'}}>
             {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
               <>
                 <SubSection

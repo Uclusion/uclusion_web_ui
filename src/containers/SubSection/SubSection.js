@@ -117,7 +117,7 @@ function SubSection (props) {
         position="static"
         hidden={hidden}
       >
-        <Toolbar variant="dense">
+        <Toolbar variant="dense" style={{minHeight: '30px'}}>
           {titleIcon}
           {helpLink && (
             <>

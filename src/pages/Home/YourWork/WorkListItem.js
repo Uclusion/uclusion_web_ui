@@ -66,7 +66,7 @@ const Text = styled("div")`
 `;
 
 const Title = styled(Text)`
-  flex-basis: 225px;
+  flex-basis: 170px;
   min-width: 13vw;
   flex-shrink: 0;
   flex-grow: 0;

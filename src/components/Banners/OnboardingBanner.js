@@ -13,7 +13,6 @@ import Link from '@material-ui/core/Link';
 const useStyles = makeStyles((theme) => {
   return {
     bannerBox: {
-      height: '70px',
       '& button': {
         fontWeight: 'bold'
       },

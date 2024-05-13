@@ -135,8 +135,7 @@ function Inbox(props) {
   });
   return (
     <>
-    <div style={{zIndex: 8, position: 'sticky', marginTop: isOnWorkItem ? (mobileLayout ? undefined : '-5px') : '-8px',
-      width: '100%', marginLeft: isOnWorkItem ? undefined : '-0.5rem'}}
+    <div style={{zIndex: 8, position: 'sticky', width: '100%', marginLeft: isOnWorkItem ? undefined : '-0.5rem'}}
       id="inbox-header">
       {!isOnWorkItem && (
         <GmailTabs

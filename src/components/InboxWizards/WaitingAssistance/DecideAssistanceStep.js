@@ -97,7 +97,7 @@ function DecideAssistanceStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        Done with this
+        Done with
         {isQuestion ? ' question' : (isSuggest ? ' suggestion' : (commentRoot.investible_id ? ' blocking issue' :
           ' critical bug'))}?
       </Typography>

@@ -375,19 +375,11 @@ function MarketTodos(props) {
   const yellowChip = <Chip color="primary" size='small' className={classes.chipStyleYellow} />;
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
   return (
-    <div className={classes.outerBorder} id="marketTodos" key="marketTodosKey" style={{display: sectionOpen ? 'block' :
-        'none', marginTop: '1rem', overflowX: 'hidden'}}>
-      <DismissableText textId="todosHelp" display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
-                       text={
-        <div>
-          Use "Add bug" below to create a <Link href="https://documentation.uclusion.com/groups/bugs" target="_blank">bug</Link> that
-          sends notifications based on severity.
-        </div>
-      }/>
+    <div id="marketTodos" key="marketTodosKey" style={{display: sectionOpen ? 'block' : 'none', overflowX: 'hidden'}}>
       {!isInArchives && !isInbox && (
         <SpinningButton id="newMarketTodo"
                         className={wizardClasses.actionNext}
-                        style={{marginBottom: '1rem'}}
+                        style={{marginBottom: '1rem', marginTop: '1rem'}}
                         variant="text" doSpin={false}
                         icon={AddIcon} iconColor="black"
                         onClick={() => navigate(history,
@@ -395,6 +387,13 @@ function MarketTodos(props) {
           <FormattedMessage id='createBug'/>
         </SpinningButton>
       )}
+      <DismissableText textId="todosHelp" noPad display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
+                       text={
+        <div>
+          Use "Add bug" above to create a <Link href="https://documentation.uclusion.com/groups/bugs" target="_blank">bug</Link> that
+          sends notifications based on severity.
+        </div>
+      }/>
       {!isInbox && (
         <GmailTabs
           value={tabIndex}

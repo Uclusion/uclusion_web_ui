@@ -39,7 +39,6 @@ const useStyles = makeStyles(theme => ({
   },
   center: {
     fontSize: 16,
-    padding: '14px',
     display: 'flex'
   },
   rightMost: {

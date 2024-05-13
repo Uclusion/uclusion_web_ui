@@ -783,7 +783,7 @@ function PlanningInvestible(props) {
               {(displayVotingInput || hasUsableVotingInput) && investibleId && approvalsOpen && (
                 <SpinningButton id="newApproval" className={wizardClasses.actionNext}
                                 icon={AddIcon} iconColor="black"
-                                style={{display: "flex", marginBottom: '1.5rem'}}
+                                style={{display: "flex", marginBottom: '1.5rem', marginTop: '0.5rem'}}
                                 variant="text" doSpin={false}
                                 onClick={() => navigate(history,
                                   formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}>

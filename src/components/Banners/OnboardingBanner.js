@@ -13,13 +13,20 @@ import Link from '@material-ui/core/Link';
 const useStyles = makeStyles((theme) => {
   return {
     bannerBox: {
+      marginLeft: '10rem',
+      [theme.breakpoints.down('sm')]: {
+        marginLeft: 'unset'
+      }
+    },
+    bannerBoxStuff: {
       '& button': {
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        marginLeft: '5rem'
       },
       display: 'flex',
-      justifyContent: 'space-around',
+      marginBottom: '0.3rem',
       [theme.breakpoints.down('sm')]: {
-        marginTop: '0.1rem',
+        marginTop: '0.3rem',
         display: 'unset'
       }
     },
@@ -46,71 +53,50 @@ function OnboardingBanner() {
 
   return (
     <div className={classes.bannerBox}>
+      <div className={classes.bannerBoxStuff}>
       {((isInbox && typeObjectId === undefined) || !isInbox) && (
-        <div>
           <Typography><b>Welcome to the inbox!</b> Click a row to process work with context.
           </Typography>
-        </div>
       )}
       {isInbox && typeObjectId?.startsWith('NOT_FULLY_VOTED') && (
-        <div>
-          <Typography><b>Enjoying the demo?</b> - <Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">job assistance</Link> flow.</Typography>
-          <Typography>Help the team by voting.</Typography>
-        </div>
+          <Typography><Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">Job assistance</Link>.
+            Help the demo team by voting.</Typography>
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_COMMENT') && (
-        <div>
-          <Typography><b>Enjoying the demo?</b> - <Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">job assistance</Link> flow.</Typography>
-          <Typography>Notifications go away if no longer needed.</Typography>
-        </div>
+          <Typography><Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">Job assistance</Link>.
+            Goes away if not needed.</Typography>
       )}
       {isInbox && typeObjectId?.startsWith('REPLY_MENTION') && (
-        <div>
-          <Typography><b>Enjoying the demo?</b> - <Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">job assistance</Link> flow.</Typography>
-          <Typography>No dismiss button when you are mentioned.</Typography>
-        </div>
+          <Typography><Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">Job assistance</Link>.
+            No dismiss when mentioned.</Typography>
       )}
       {isInbox && typeObjectId?.startsWith('UNASSIGNED') && (
-        <div>
-          <Typography><b>Enjoying the demo?</b> - <Link href="https://documentation.uclusion.com/flows/#self-assigning-bugs" target="_blank">self assigning bugs</Link> flow.</Typography>
-          <Typography>Take this bug to help.</Typography>
-        </div>
+          <Typography><Link href="https://documentation.uclusion.com/flows/#self-assigning-bugs" target="_blank">Self assigning bugs</Link>.
+            Take this bug to help.</Typography>
       )}
       {isInbox && typeObjectId?.startsWith('REVIEW_REQUIRED') && (
-        <div>
-          <Typography><b>Enjoying the demo?</b> - <Link href="https://documentation.uclusion.com/flows/#job-review" target="_blank">job review</Link> flow.</Typography>
-          <Typography>Complete this review to help.</Typography>
-        </div>
+          <Typography><Link href="https://documentation.uclusion.com/flows/#job-review" target="_blank">Job review</Link>.
+            Complete this review to help.</Typography>
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_ESTIMATE') && (
-        <div>
-          <Typography><b>Enjoying the demo?</b> - <Link href="https://documentation.uclusion.com/flows/#job-estimation" target="_blank">job estimation</Link> flow.</Typography>
-          <Typography>Updated estimates available without meetings.</Typography>
-        </div>
+          <Typography><Link href="https://documentation.uclusion.com/flows/#job-estimation" target="_blank">Job estimation</Link>.
+            Updated estimates available without meetings.</Typography>
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_REVIEWABLE') && (
-        <div>
-          <Typography><b>Enjoying the demo?</b> - <Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">self assigning jobs</Link> flow.</Typography>
-          <Typography>Take this assignment to help.</Typography>
-        </div>
+          <Typography><Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">Self assigning jobs</Link>.
+            Take this assignment to help.</Typography>
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_JOB_APPROVAL_REQUEST') && (
-        <div>
-          <Typography><b>Enjoying the demo?</b> - <Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">job approval</Link> flow.</Typography>
-          <Typography>Help decide what work should be done.</Typography>
-        </div>
+          <Typography><Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">Job approval</Link>.
+            Help decide what work is done.</Typography>
       )}
       {isInbox && typeObjectId && !typeObjectId.includes('_') && (
-        <div>
-          <Typography><b>Enjoying the demo?</b> Poke when no response.</Typography>
-          <Typography>Here you socialize your assignment proposal.</Typography>
-        </div>
+          <Typography>Here you socialize your assignment proposal. Poke if no response.</Typography>
       )}
       {!mobileLayout && (
-        <div>
-          <DemoCreateWorkspaceButton/>
-        </div>
+        <DemoCreateWorkspaceButton/>
       )}
+      </div>
     </div>
   );
 }

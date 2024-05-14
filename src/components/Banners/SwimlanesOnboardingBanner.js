@@ -43,10 +43,9 @@ function SwimlanesOnboardingBanner(props) {
           <div style={{marginTop: '0.8rem'}} id='swimlanesDemoBannerText'>
             {isOpeningScreen && (
               <>
-                <Typography><b>Welcome to the demo!</b> Here is group 'Everyone' status and your inbox has notification
-                  wizards.</Typography>
+                <Typography><b>Welcome to the demo!</b> The right arrow above navigates to things to do.</Typography>
                 <Typography className={classes.ctaSub}>
-                  The right arrow above navigates to things to do.
+                  Here is group 'Everyone' status and your inbox has notification wizards.
                 </Typography>
               </>
             )}

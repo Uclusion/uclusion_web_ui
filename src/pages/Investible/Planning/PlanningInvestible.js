@@ -345,7 +345,7 @@ function PlanningInvestible(props) {
   } = props;
   const theme = useTheme();
   const editorBox = useRef(null);
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const leftNavBreak = useMediaQuery(theme.breakpoints.down('md'));
   const refToTop = useRef();
   const classes = usePlanningInvestibleStyles();

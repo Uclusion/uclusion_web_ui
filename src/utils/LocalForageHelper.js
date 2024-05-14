@@ -23,6 +23,10 @@ class LocalForageHelper {
     return localforage.createInstance({ storeName: this.keyspace }).setItem(this.namespace, state);
   }
 
+  deleteState() {
+    return localforage.createInstance({ storeName: this.keyspace }).removeItem(this.namespace);
+  }
+
   getState () {
     return localforage.createInstance({ storeName: this.keyspace }).getItem(this.namespace)
       .then((state) => {

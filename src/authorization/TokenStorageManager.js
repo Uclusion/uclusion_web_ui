@@ -70,6 +70,16 @@ export default class TokenStorageManager {
   }
 
   /**
+   * Deletes a token in the token storage
+   * @param tokenType the type of token we're deleting
+   * @param itemId the item id we're deleting a token for
+   */
+  deleteToken(tokenType, itemId) {
+    const key = this.getKeyNamespace(tokenType, itemId);
+    return new LocalForageHelper(key, TOKEN_STORAGE_KEYSPACE).deleteState();
+  }
+
+  /**
    * Takes a token string, decodes it, and determines if it's going to expire in the next
    * minute
    * @param tokenString the string form of the token

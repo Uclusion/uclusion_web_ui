@@ -30,6 +30,8 @@ import { MAX_DRIFT_TIME } from '../contexts/WebSocketContext';
 import { isSignedOut } from '../utils/userFunctions';
 import { getMarketClient } from './marketLogin';
 import { syncMarketList } from '../components/ContextHacks/ForceMarketSyncProvider';
+import { TOKEN_TYPE_MARKET } from './tokenConstants';
+import TokenStorageManager from '../authorization/TokenStorageManager';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -213,12 +215,15 @@ export async function doVersionRefresh() {
   const backgroundList = [];
   const bannedList = [];
   const inlineList = [];
+  const bannedPromises = [];
   (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
     const dirtyFromQuickAdd = syncMarketList.includes(id);
     if (dirtyFromQuickAdd || !checkSignatureInStorage(id, signature, storageStates, true)) {
       if (banned) {
         bannedList.push(id);
+        const tokenStorageManager = new TokenStorageManager();
+        bannedPromises.push(tokenStorageManager.deleteToken(TOKEN_TYPE_MARKET, id));
       }else if (inline) {
         inlineList.push(id);
       } else if (active) {
@@ -231,7 +236,9 @@ export async function doVersionRefresh() {
       }
     }
   });
+  // These banned audits might be processed over and over but for now that's cheap so allow
   pushMessage(REMOVED_MARKETS_CHANNEL, { event: BANNED_LIST, bannedList });
+  await Promise.all(bannedPromises);
   // Starting operation in progress just presents as a bug to the user because freezes all buttons so just log
   console.info('Beginning inline versions update');
   console.info(inlineList);

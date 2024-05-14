@@ -1,8 +1,6 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react'
-import { useHistory, useLocation } from 'react-router'
-import { decomposeMarketPath, removeHash, VIEW_EVENT, VISIT_CHANNEL } from '../utils/marketIdPathFunctions';
-import { isSignedOut } from '../utils/userFunctions';
-import { registerListener } from '../utils/MessageBusUtils';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { useHistory, useLocation } from 'react-router';
+import { decomposeMarketPath, removeHash } from '../utils/marketIdPathFunctions';
 
 const ScrollContext = React.createContext({});
 
@@ -34,6 +32,11 @@ function ScrollProvider(props) {
         if (element !== null && window.getComputedStyle(element).display !== 'none') {
           if (observer) observer.disconnect()
           scrollToElement(element);
+          window.setTimeout(() => {
+            // Turn off the whatever effect is used to show the object was navigated to
+            setHashFragment(undefined);
+            setNoHighlightId(undefined);
+          }, 2000);
           // Remove the hash from the URL so we don't end up scrolling again
           // - use replace instead of push so back button works
           console.info(`Replacing path after scrolling to ${originalScrollTarget}`);
@@ -67,27 +70,12 @@ function ScrollProvider(props) {
   }, [hashFragment, history]);
 
   useEffect(() => {
-    registerListener(VISIT_CHANNEL, 'storedURLHashRefresher', (data) => {
-      if (!data || isSignedOut()) {
-        return;
-      }
-      const { payload: { event, message: { isEntry } } } = data;
-      if (event === VIEW_EVENT && isEntry === false) {
-        // use isEntry false to make sure not clearing these on initial page load
-        setHashFragment(undefined);
-        setNoHighlightId(undefined);
-      }
-    });
-    return () => {};
-  }, []);
-
-  useEffect(() => {
     const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
     if (processedPath !== pathname || hashFragment !== myHashFragment) {
       setProcessedPath(pathname);
       const { action } = decomposeMarketPath(pathname);
       if (!myHashFragment || (!['dialog', 'inbox', 'comment'].includes(action) && pathname !== '/')) {
-        //Scroll to the top if its a new page and there is no anchor to scroll to
+        //Scroll to the top if it's a new page and there is no anchor to scroll to
         if (!hashFragment) {
           window.scrollTo(0, 0);
         }

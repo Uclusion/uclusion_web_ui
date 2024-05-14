@@ -242,6 +242,12 @@ export const useCommentStyles = makeStyles(
         marginTop: "0.5rem",
         cursor: 'pointer'
       },
+      containerHashYellow: {
+        backgroundColor: "#FBF6D8",
+        overflow: "visible",
+        marginTop: "1.5rem",
+        cursor: 'pointer'
+      },
       containerLink: {
         overflow: "visible",
         cursor: 'pointer'
@@ -658,7 +664,7 @@ function Comment(props) {
       return classes.containerRed;
     }
     if (noHighlightId !== id && hashFragment?.includes(id)) {
-      return classes.containerYellow;
+      return classes.containerHashYellow;
     }
     return classes.container;
   }

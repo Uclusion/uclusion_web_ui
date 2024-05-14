@@ -143,6 +143,13 @@ const useReplyStyles = makeStyles(
         paddingRight: '0.5rem',
         overflow: 'unset'
       },
+      containerHashYellow: {
+        marginTop: '1.5rem',
+        backgroundColor: "#FBF6D8",
+        marginRight: '0.25rem',
+        paddingRight: '0.5rem',
+        overflow: 'unset'
+      },
       containerRed: {
         marginTop: '1.5rem',
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px red",
@@ -267,8 +274,11 @@ function Reply(props) {
       }
       return classes.containerLink;
     }
-    return !isHighlighted ? classes.container : (isLinkedTo || (myMessage.level === 'RED')
-      ? classes.containerRed : classes.containerYellow);
+    if (isLinkedTo) {
+      return classes.containerHashYellow;
+    }
+    return !isHighlighted ? classes.container : (myMessage.level === 'RED' ? classes.containerRed :
+      classes.containerYellow);
   }
 
   if (!marketId) {

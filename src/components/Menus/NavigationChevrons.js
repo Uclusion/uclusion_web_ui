@@ -99,9 +99,6 @@ export default function NavigationChevrons() {
   let allExistingUrls = allMessages.map((message) => formInboxItemLink(message.type_object_id));
   allExistingUrls = allExistingUrls.concat(approvedCandidates.map((candidate) => candidate.url));
   allExistingUrls = allExistingUrls.concat(outboxCandidates.map((candidate) => candidate.url));
-  const previous = _.find(orderedNavigations, (navigation) =>
-    allExistingUrls.includes(navigation.url) && navigation.url !== resource);
-  const backDisabled = _.isEmpty(previous);
 
   function computeNext() {
     const highlightedNext = highlightedMessages?.find((message) =>
@@ -126,6 +123,12 @@ export default function NavigationChevrons() {
     return {};
   }
 
+  const nextUrl = computeNext();
+  const previous = _.find(orderedNavigations, (navigation) =>
+    allExistingUrls.includes(navigation.url) && navigation.url !== resource && navigation.url !== nextUrl?.url);
+  const backDisabled = _.isEmpty(previous);
+  const nextDisabled = _.isEmpty(nextUrl);
+
   function doPreviousNavigation() {
     const url = previous?.url;
     if (url) {
@@ -137,9 +140,6 @@ export default function NavigationChevrons() {
       navigate(history, url);
     }
   }
-
-  const nextUrl = computeNext();
-  const nextDisabled = _.isEmpty(nextUrl);
 
   function doNextNavigation() {
     if (nextUrl.message) {
@@ -156,7 +156,8 @@ export default function NavigationChevrons() {
                              onClick={doPreviousNavigation} translationId="previousNavigation" />
           <div style={{marginLeft: '0.5rem'}}/>
           <TooltipIconButton disabled={nextDisabled}
-                             icon={<ArrowForward htmlColor={nextDisabled ? 'disabled' : 'white'} />} onClick={doNextNavigation}
+                             icon={<ArrowForward htmlColor={nextDisabled ? 'disabled' : 'white'} />}
+                             onClick={doNextNavigation}
                              translationId="nextNavigation" />
         </Toolbar>
 

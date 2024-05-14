@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory, useLocation } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { CardContent, Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { CardContent, Grid, IconButton, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import Voting from './Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
@@ -174,6 +174,7 @@ function DecisionInvestible(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const investibleId = fullInvestible?.investible?.id;
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
@@ -229,6 +230,10 @@ function DecisionInvestible(props) {
     updatePageState({showDiff: !showDiff});
   }
 
+  function toggleDetails() {
+    setDetailsOpen(!detailsOpen);
+  }
+
   function mySetBeingEdited(event) {
     if (!isEditableByUser() || invalidEditEvent(event, history)) {
       return;
@@ -246,13 +251,6 @@ function DecisionInvestible(props) {
   function getActions() {
     return (
     <dl className={classes.upperRightCard}>
-      {mobileLayout && isEditableByUser() && (
-          <EditMarketButton
-            labelId="edit"
-            marketId={marketId}
-            onClick={(event) => mySetBeingEdited(event)}
-          />
-      )}
       {allowDelete && (
         <DeleteInvestibleActionButton
           key="delete"
@@ -293,6 +291,15 @@ function DecisionInvestible(props) {
           {name}
         </Typography>
         <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff}/>
+      </div>
+    )}
+    {mobileLayout && isEditableByUser() && (
+      <div>
+        <EditMarketButton
+          labelId="edit"
+          marketId={marketId}
+          onClick={(event) => mySetBeingEdited(event)}
+        />
       </div>
     )}
   </CardContent>;
@@ -337,18 +344,6 @@ function DecisionInvestible(props) {
           subtype={inProposed ? PROPOSED : OPTION}
         />
         <GridMobileDiv>
-          {mobileLayout && actions}
-          <div className={classes.editRow}>
-            {mobileLayout && isEditableByUser() && (
-              <div>
-                <EditMarketButton
-                  labelId="edit"
-                  marketId={marketId}
-                  onClick={(event) => mySetBeingEdited(event)}
-                />
-              </div>
-            )}
-          </div>
           {mobileLayout && contents}
           {!mobileLayout && (
             <Grid item md={10} xs={12}
@@ -364,6 +359,26 @@ function DecisionInvestible(props) {
           )}
         </GridMobileDiv>
       </div>
+      {mobileLayout && (
+        <div style={{ marginBottom: detailsOpen ? undefined : '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <h2 id="details" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
+              <FormattedMessage id="planningInvestibleOpenLabel"/>
+            </h2>
+            <IconButton onClick={() => toggleDetails()} style={{
+              marginBottom: 0,
+              paddingBottom: 0, marginTop: 0, paddingTop: 0
+            }}>
+              <Tooltip key="toggleDetails"
+                       title={<FormattedMessage id={`${detailsOpen ? 'closeDetails' : 'openDetails'}Tip`}/>}>
+                {detailsOpen ? <ExpandLess fontSize="large" htmlColor="black"/> :
+                  <ExpandMoreIcon fontSize="large" htmlColor="black"/>}
+              </Tooltip>
+            </IconButton>
+          </div>
+          {detailsOpen && actions}
+        </div>
+      )}
       {!inProposed && (
         <>
           <h2 id="approvals">
@@ -392,20 +407,20 @@ function DecisionInvestible(props) {
         </>
       )}
       {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (
-        <div style={{paddingBottom: '1rem'}}>
-          <h2 id="approvals" style={{marginTop: '2rem'}}>
+        <div style={{ paddingBottom: '1rem' }}>
+          <h2 id="approvals" style={{ marginTop: '2rem' }}>
             <FormattedMessage id="comments"/>
           </h2>
           {displayCommentInput && (
-            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{marginBottom: '1rem'}}
-             onClick={() => navigate(history,
-               formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId,
-                 undefined, undefined, typeObjectId))}>
+            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{ marginBottom: '1rem' }}
+                                     onClick={() => navigate(history,
+                                       formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId,
+                                         undefined, undefined, typeObjectId))}>
               <FormattedMessage id="createComment"/>
             </SpinningIconLabelButton>
           )}
           <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
-                      isInbox={removeActions} removeActions={removeActions} usePadding={false} />
+                      isInbox={removeActions} removeActions={removeActions} usePadding={false}/>
         </div>
       )}
     </div>

@@ -21,13 +21,8 @@
 }
 @media screen and (max-width: 925px) {
     ._loading_overlay_wrapper {
-        margin-bottom: 70px;
-    }
-}
-@media screen and (max-width: 600px) {
-    ._loading_overlay_wrapper {
         margin-bottom: 0;
-    }  
+    }
 }
 .ql-toolbar {
     /* <== using sticky here breaks the dropdowns */

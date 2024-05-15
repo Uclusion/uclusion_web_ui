@@ -158,14 +158,13 @@ function Voting(props) {
           const hasContent = !editorEmpty(reason?.body);
           return (
             <div className={myMessage && classes.highlighted}
-                 style={{width: hasContent || midLayout ? undefined : '50%',
-                   cursor: useCompression ? 'pointer' : undefined}} key={userId}>
+                 style={{width: 'fit-content', cursor: useCompression ? 'pointer' : undefined}} key={userId}>
               <Card
                 key={userId}
                 className={clsx(classes.cardPadded, isEditable ? classes.editable : classes.notEditable)}
                 id={voteId}
                 elevation={3}
-                style={{paddingBottom: hasContent ? undefined : '1rem'}}
+                style={{paddingBottom: '1rem'}}
                 onClick={(event) => {
                   if (isEditable) {
                     setBeingEdited(true, event);
@@ -197,10 +196,10 @@ function Voting(props) {
                       />
                     </div>
                   )}
-                  {useCompression && hasContent && (
+                  {useCompression && (
                     <div style={{marginLeft: '1rem', marginRight: '1rem', paddingTop: '5px', textOverflow: 'ellipsis',
                       overflow: 'hidden', whiteSpace: 'nowrap'}}>
-                      {stripHTML(reason.body)}
+                      {hasContent && stripHTML(reason.body)}
                     </div>
                   )}
                   {useCompression && (

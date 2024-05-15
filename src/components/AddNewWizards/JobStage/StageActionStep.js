@@ -17,12 +17,19 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { commonQuick } from '../Approval/ApprovalWizard';
 import JobDescription from '../../InboxWizards/JobDescription';
-import { getFullStage, isFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getAcceptedStage,
+  getFullStage,
+  isFurtherWorkStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import StartReviewStep from './StartReviewStep';
 import JobReadyStep from './JobReadyStep';
+import { stageChangeInvestible } from '../../../api/investibles';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { getMarketInfo } from '../../../utils/userFunctions';
 
 function StageActionStep(props) {
   const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId } = props;
@@ -31,15 +38,18 @@ function StageActionStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [investiblesState] = useContext(InvestiblesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const editorName = getJobApproveEditorName(investibleId);
+  const marketInfo = getMarketInfo(inv, marketId) || {};
+  const { required_approvers: requiredApprovers, assigned } = marketInfo;
   const {approveUploadedFiles, approveReason, approveQuantity, stage, wasDeleted,
     originalReason, originalQuantity, userId } = formData;
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage) || {};
   const validForm = approveQuantity > 0;
+  const isAssignedToMe = assigned?.includes(userId);
 
   if (fullMoveStage.close_comments_on_entrance) {
     return (
@@ -92,12 +102,31 @@ function StageActionStep(props) {
     };
   }
 
-
   function onQuantityChange(event) {
     const {value} = event.target;
     updateFormData({
       approveQuantity: parseInt(value, 10)
     });
+  }
+
+  function start() {
+    const fullMoveStage = getAcceptedStage(marketStagesState, marketId);
+    const fullCurrentStage = getFullStage(marketStagesState, marketId, stage) || {};
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: stage,
+        stage_id: fullMoveStage.id,
+      },
+    };
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
+          commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+          fullCurrentStage, marketPresencesDispatch);
+        return formData;
+      });
   }
 
   return (
@@ -129,6 +158,10 @@ function StageActionStep(props) {
           validForm={validForm}
           onNext={onNext}
           nextLabel="JobWizardApproveJob"
+          showOtherNext={_.isEmpty(requiredApprovers)&&isAssignedToMe}
+          otherNextValid
+          onOtherNext={start}
+          otherNextLabel="skipAllApprovals"
           showTerminate
           onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
           terminateLabel="JobWizardGotoJob"

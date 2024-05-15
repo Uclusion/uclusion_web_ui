@@ -125,7 +125,8 @@ function StageActionStep(props) {
         onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
           commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
           fullCurrentStage, marketPresencesDispatch);
-        return formData;
+        setOperationRunning(false);
+        navigate(history, formInvestibleLink(marketId, investibleId));
       });
   }
 

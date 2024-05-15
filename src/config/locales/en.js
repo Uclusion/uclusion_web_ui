@@ -401,7 +401,7 @@ const messages = defineMessages({
   inboxVotingLabel: 'In approval',
   planningInvestibleNextStageAcceptedLabel: 'Approved',
   planningAcceptedStageLabel: 'Approved',
-  startJobQ: 'Have enough approvals?',
+  startJobQ: 'Enough approvals?',
   finishApprovalQ: 'Done with approval?',
   rejectAssignmentQ: 'Where to send this job?',
   planningInvestibleNextStageInReviewLabel: 'Tasks Complete',

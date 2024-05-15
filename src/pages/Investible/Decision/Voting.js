@@ -164,7 +164,7 @@ function Voting(props) {
                 className={clsx(classes.cardPadded, isEditable ? classes.editable : classes.notEditable)}
                 id={voteId}
                 elevation={3}
-                style={{paddingBottom: '1rem'}}
+                style={{paddingBottom: hasContent && !useCompression ? undefined : '1rem'}}
                 onClick={(event) => {
                   if (isEditable) {
                     setBeingEdited(true, event);

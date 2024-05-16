@@ -9,7 +9,6 @@ import { ISSUE_TYPE, REPORT_TYPE, TODO_TYPE, } from '../../constants/comments';
 import { removeComment, updateComment } from '../../api/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import CommentEdit from './CommentEdit';
 import {
   addCommentToMarket,
   addMarketComments, getComment,
@@ -30,7 +29,6 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { findMessageForCommentId, removeMessagesForCommentId } from '../../utils/messageUtils';
 import { invalidEditEvent } from '../../utils/windowUtils';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
-import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 import { ScrollContext } from '../../contexts/ScrollContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { LocalCommentsContext, useCommentStyles } from './Comment';
@@ -175,7 +173,6 @@ function Reply(props) {
   const history = useHistory();
   const location = useLocation();
   const replyBeingEdited = replyEditId === comment.id && isInbox;
-  const beingEdited = replyEditId === comment.id && !replyBeingEdited;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const marketId = useMarketId();
@@ -195,8 +192,6 @@ function Reply(props) {
   const isEditable = comment.created_by === userId;
   const classes = useReplyStyles();
   const commentClasses = useCommentStyles();
-  const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
-  const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, comment.id);
   const rootComment = getCommentRoot(commentsState, marketId, comment.id);
   const { investible_id: investibleId, group_id: groupId } = comment || {};
   const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(rootComment?.comment_type)
@@ -356,20 +351,7 @@ function Reply(props) {
                 doFloatRight
               />
             )}
-            {beingEdited && (
-              <CommentEdit
-                intl={intl}
-                onCancel={handleEditClick}
-                onSave={handleEditClick}
-                marketId={marketId}
-                editState={editState}
-                updateEditState={updateEditState}
-                editStateReset={editStateReset}
-                comment={comment}
-                messages={!_.isEmpty(myMessage) ? [myMessage] : []}
-              />
-            )}
-            {!beingEdited && !_.isEmpty(comment) && (
+            {!_.isEmpty(comment) && (
               <ReadOnlyQuillEditor
                 className={classes.editor}
                 value={comment.body}
@@ -379,7 +361,6 @@ function Reply(props) {
               />
             )}
           </CardContent>
-          {!beingEdited && (
           <CardActions className={classes.cardActions}>
             <Typography className={classes.timePosted} variant="body2">
               <FormattedDate value={comment.created_at} />
@@ -407,7 +388,6 @@ function Reply(props) {
               </Button>
             )}
           </CardActions>
-          )}
         </div>
       </Card>
       <div className={classes.replyContainer}>

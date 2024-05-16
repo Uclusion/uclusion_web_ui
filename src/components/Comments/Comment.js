@@ -459,8 +459,8 @@ function Comment(props) {
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
-  const replyBeingEdited = replyEditId === id && isReply;
-  const beingEdited = replyEditId === id && !replyBeingEdited;
+  const beingEdited = replyEditId === id;
+  const replyBeingEdited = beingEdited && isReply;
   const presences = usePresences(marketId);
   const inlinePresences = usePresences(inlineMarketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
@@ -705,11 +705,11 @@ function Comment(props) {
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
               subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : undefined}
               label={overrideLabel} color={color} compressed={useCompression}
-              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
+              gravatar={noAuthor || mobileLayout || beingEdited ? undefined : gravatarWithName}
     />
   ): (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact compressed={useCompression}
-              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
+              gravatar={noAuthor || mobileLayout || beingEdited ? undefined : gravatarWithName}
     />
   );
   const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,
@@ -775,7 +775,7 @@ function Comment(props) {
           <Box display="flex">
             {cardTypeDisplay}
             <div style={{flexGrow: 1}}/>
-            {commentType !== JUSTIFY_TYPE && commentType !== REPLY_TYPE && (
+            {(beingEdited || ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)) && (
               <>
                 {mobileLayout && (
                   <Typography className={classes.timeElapsed} variant="body2">

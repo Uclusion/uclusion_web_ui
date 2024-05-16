@@ -214,8 +214,8 @@ function Reply(props) {
     const id = comment.id;
     if (replyEditId) {
       navigate(history, formCommentLink(marketId, groupId, investibleId, id));
-      setNoHighlightId(id);
     } else {
+      setNoHighlightId(id);
       navigate(history, `/comment/${marketId}/${id}#c${id}`, false, true);
     }
   }
@@ -380,33 +380,33 @@ function Reply(props) {
             )}
           </CardContent>
           {!beingEdited && (
-            <CardActions className={classes.cardActions}>
-              <Typography className={classes.timePosted} variant="body2">
-                <FormattedDate value={comment.created_at} />
-              </Typography>
+          <CardActions className={classes.cardActions}>
+            <Typography className={classes.timePosted} variant="body2">
+              <FormattedDate value={comment.created_at} />
+            </Typography>
               {enableEditing && (
-                <Button
-                  className={classes.action}
-                  id={`commentReplyButton${comment.id}`}
-                  onClick={(event) => {
-                    preventDefaultAndProp(event);
-                    setReplyOpen();
-                  }}
-                  variant="text"
-                >
-                  {intl.formatMessage({ id: "issueReplyLabel" })}
-                </Button>
-              )}
+              <Button
+                className={classes.action}
+                id={`commentReplyButton${comment.id}`}
+                onClick={(event) => {
+                  preventDefaultAndProp(event);
+                  setReplyOpen();
+                }}
+                variant="text"
+              >
+                {intl.formatMessage({ id: "issueReplyLabel" })}
+              </Button>
+            )}
               {enableEditing && isEditable && mobileLayout && (
-                <Button
-                  className={classes.action}
-                  onClick={handleEditClick}
-                  variant="text"
-                >
-                  <FormattedMessage id="commentEditLabel" />
-                </Button>
-              )}
-            </CardActions>
+              <Button
+                className={classes.action}
+                onClick={handleEditClick}
+                variant="text"
+              >
+                <FormattedMessage id="commentEditLabel" />
+              </Button>
+            )}
+          </CardActions>
           )}
         </div>
       </Card>

@@ -88,7 +88,7 @@ function AddCommentStep (props) {
       {movingJob && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
-          Assistance Needed. Use @ mentions to specify who is notified.
+          Assistance Needed. Whole group notified unless use @ mentions.
         </Typography>
       )}
       {useType === TODO_TYPE && (
@@ -98,7 +98,8 @@ function AddCommentStep (props) {
       )}
       {useType === REPORT_TYPE && !isResolve && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          For feedback explain what needs reviewing. Use @ mentions to require and only notify specific reviewers.
+          For feedback from whole group explain what needs reviewing. Use @ mentions to require and only notify
+          specific reviewers.
         </Typography>
       )}
       {useType === REPORT_TYPE && isResolve && (
@@ -109,7 +110,8 @@ function AddCommentStep (props) {
       )}
       {![REPORT_TYPE, TODO_TYPE].includes(useType) && !movingJob && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Use @ mentions to limit who this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies.
+          This {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies whole group unless use
+          @ mentions.
         </Typography>
         )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}

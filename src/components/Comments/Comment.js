@@ -527,10 +527,11 @@ function Comment(props) {
 
   function toggleEdit() {
     if (replyEditId) {
+      setNoHighlightId(undefined);
       navigate(history, formCommentLink(marketId, groupId, investibleId, id));
     } else {
       setNoHighlightId(id);
-      navigate(history, `/comment/${marketId}/${id}#c${id}`, false, true);
+      navigate(history, `/comment/${marketId}/${id}`, false, true);
     }
   }
 

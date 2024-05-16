@@ -461,6 +461,7 @@ function Comment(props) {
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
   const beingEdited = replyEditId === id;
   const replyBeingEdited = beingEdited && isReply;
+  const thisCommentBeingEdited = beingEdited && !replyBeingEdited;
   const presences = usePresences(marketId);
   const inlinePresences = usePresences(inlineMarketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
@@ -841,16 +842,16 @@ function Comment(props) {
               />
             )}
             <Box marginTop={1}>
-              {!beingEdited && !displayingDiff && !_.isEmpty(comment) && (
+              {!thisCommentBeingEdited && !displayingDiff && !_.isEmpty(comment) && (
                 <ReadOnlyQuillEditor value={body} setBeingEdited={setBeingEdited}
                                      noOverflow={isInbox}
                                      id={isInbox ? `inboxComment${id}` : id}
                                      isEditable={!isReallyMobileLayout && displayEditing}/>
               )}
-              {!beingEdited && displayingDiff && (
+              {!thisCommentBeingEdited && displayingDiff && (
                 <DiffDisplay id={id} />
               )}
-              {beingEdited && (
+              {thisCommentBeingEdited && (
                 <CommentEdit
                   marketId={marketId}
                   comment={comment}
@@ -866,7 +867,7 @@ function Comment(props) {
               )}
             </Box>
           </CardContent>
-          {showActions && !beingEdited && (
+          {showActions && !thisCommentBeingEdited && (
             <CardActions>
               <div className={classes.actions}>
                 {useCompression === false && (

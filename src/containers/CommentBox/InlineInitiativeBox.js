@@ -25,11 +25,12 @@ function InlineInitiativeBox(props) {
   const history = useHistory();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState] =
-    getPageReducerPage(votingPageStateFull, votingPageDispatch, anInlineMarket.id, {useCompression: true});
+    getPageReducerPage(votingPageStateFull, votingPageDispatch, anInlineMarket.id,
+      {useCompressionFor: true, useCompressionAgainst: true});
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
-  const { useCompression } = votingPageState;
+  const { useCompressionFor, useCompressionAgainst } = votingPageState;
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
@@ -93,8 +94,8 @@ function InlineInitiativeBox(props) {
         investibleId={inlineInvestibleId}
         marketPresences={positiveVoters}
         investmentReasons={investmentReasons}
-        toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
-        useCompression={useCompression}
+        toggleCompression={() => updateVotingPageState({ useCompressionFor: !useCompressionFor })}
+        useCompression={useCompressionFor}
         market={anInlineMarket}
         groupId={anInlineMarket.id}
         votingAllowed={!inArchives}
@@ -107,8 +108,8 @@ function InlineInitiativeBox(props) {
         investibleId={inlineInvestibleId}
         marketPresences={negativeVoters}
         investmentReasons={investmentReasons}
-        toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
-        useCompression={useCompression}
+        toggleCompression={() => updateVotingPageState({ useCompressionAgainst: !useCompressionAgainst })}
+        useCompression={useCompressionAgainst}
         market={anInlineMarket}
         groupId={anInlineMarket.id}
         votingAllowed={!inArchives}

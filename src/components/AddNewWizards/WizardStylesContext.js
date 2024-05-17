@@ -66,7 +66,6 @@ export const wizardStyles = makeStyles(
         borderRadius: 8,
         padding: '4px',
         width: '100%',
-        marginBottom: '30px',
         '& > div:before': {
           borderBottom: 0
         },
@@ -183,7 +182,7 @@ export const wizardStyles = makeStyles(
       },
       borderBottom: {
         borderBottom: '1px solid transparent',
-        margin: '20px 0',
+        margin: '25px 0',
         width: '100%',
       },
       dateContainer: {

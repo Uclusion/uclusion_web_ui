@@ -415,7 +415,7 @@ function CommentAdd(props) {
         <div className={classes.editor} style={{paddingBottom: isWizard ? undefined : '1rem'}}>
           {Editor}
           {isWizard && (
-            <div style={{marginTop: '2rem'}}>
+            <div style={{marginTop: '40px'}}>
               {wizardProps.isReply && (
                 <AddWizardStepButtons
                   {...wizardProps}

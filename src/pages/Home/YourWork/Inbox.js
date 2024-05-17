@@ -237,10 +237,12 @@ function Inbox(props) {
             {!isOnWorkItem && (
               `${first} - ${last} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
             )}
-            <TooltipIconButton disabled={!hasLess} icon={<KeyboardArrowLeft htmlColor={ACTION_BUTTON_COLOR} />}
+            <TooltipIconButton disabled={!hasLess} icon={<KeyboardArrowLeft
+              htmlColor={hasLess ? ACTION_BUTTON_COLOR : 'disabled'} />}
                                onClick={() => isOnWorkItem ? goToItem(previousItemId) :
                                  changePage(-1)} translationId="SearchResultsPrevious" />
-            <TooltipIconButton disabled={!hasMore} icon={<KeyboardArrowRight htmlColor={ACTION_BUTTON_COLOR} />}
+            <TooltipIconButton disabled={!hasMore} icon={<KeyboardArrowRight
+              htmlColor={hasMore ? ACTION_BUTTON_COLOR : 'disabled'} />}
                                onClick={() => isOnWorkItem ? goToItem(nextItemId) :
                                  changePage(1)} translationId="SearchResultsNext" />
           </Box>

@@ -175,7 +175,7 @@ export const wizardStyles = makeStyles(
       },
       borderBottom: {
         borderBottom: '1px solid transparent',
-        margin: '15px 0',
+        margin: '25px 0',
         width: '100%',
       },
       dateContainer: {
@@ -205,7 +205,7 @@ export const wizardStyles = makeStyles(
         paddingBottom: '1rem',
         overflowY: 'hidden',
         overflowX: 'hidden',
-        marginBottom: '1rem',
+        marginBottom: '40px',
         paddingLeft: '4px',
         paddingRight: '10rem',
         [theme.breakpoints.down('md')]: {

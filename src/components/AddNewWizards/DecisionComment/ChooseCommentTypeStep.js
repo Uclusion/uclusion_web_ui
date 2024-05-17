@@ -6,21 +6,14 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import { FormattedMessage } from 'react-intl';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import _ from 'lodash';
 
 function ChooseCommentTypeStep (props) {
-  const { investibleId, updateFormData, formData } = props;
+  const { updateFormData, formData, marketId, stage } = props;
   const classes = useContext(WizardStylesContext);
-  const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const inv = getInvestible(investibleState, investibleId);
-  // Only one market possible for decision investible
-  const marketInfo = inv?.market_infos[0];
-  const { stage, market_id: marketId, group_id: groupId } = marketInfo || {};
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const allowedTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
   const { useType } = formData;
@@ -42,7 +35,7 @@ function ChooseCommentTypeStep (props) {
           aria-labelledby="comment-type-choice"
           onChange={(event) => {
             const { value } = event.target;
-            updateFormData({ useType: value, marketId, groupId });
+            updateFormData({ useType: value });
           }}
           value={useType || ''}
         >

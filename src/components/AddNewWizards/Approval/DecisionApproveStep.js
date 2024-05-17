@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { navigateToOption } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleAddCommentLink, navigate, navigateToOption } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
@@ -18,6 +18,8 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { commonQuick } from './ApprovalWizard';
 import JobDescription from '../../InboxWizards/JobDescription';
+import { DECISION_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { ISSUE_TYPE } from '../../../constants/comments';
 
 function DecisionApproveStep(props) {
   const { market, updateFormData, formData, investibleId, hasOtherVote, currentReasonId } = props;
@@ -122,6 +124,12 @@ function DecisionApproveStep(props) {
           validForm={validForm}
           onNext={onNext}
           nextLabel="DecisionWizardApprove"
+          showOtherNext
+          otherNextValid
+          otherNextLabel="ApprovalWizardBlock"
+          otherSpinOnClick={false}
+          onOtherNext={() => navigate(history,
+            formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, undefined, ISSUE_TYPE))}
         />
     </WizardStepContainer>
   )

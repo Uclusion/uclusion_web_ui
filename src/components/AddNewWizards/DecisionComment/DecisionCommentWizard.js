@@ -1,18 +1,31 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import ChooseCommentTypeStep from './ChooseCommentTypeStep';
 import AddCommentStep from './AddCommentStep';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 
 function DecisionCommentWizard(props) {
-  const { investibleId } = props;
+  const { investibleId, commentType } = props;
+  const [investibleState] = useContext(InvestiblesContext);
+  const inv = getInvestible(investibleState, investibleId);
+  // Only one market possible for decision investible
+  const marketInfo = inv?.market_infos[0];
+  const { stage, market_id: marketId, group_id: groupId } = marketInfo || {};
+
+  if (!groupId) {
+    return React.Fragment;
+  }
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name={`decision_comment_wizard${investibleId}`}>
-        <ChooseCommentTypeStep investibleId={investibleId} />
-        <AddCommentStep investibleId={investibleId} />
+      <FormdataWizard name={`decision_comment_wizard${investibleId}`} defaultFormData={{useType: commentType}}>
+        {!commentType && (
+          <ChooseCommentTypeStep investibleId={investibleId} marketId={marketId} stage={stage} />
+        )}
+        <AddCommentStep investibleId={investibleId} marketId={marketId} groupId={groupId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

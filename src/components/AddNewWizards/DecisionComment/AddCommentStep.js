@@ -14,12 +14,12 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function AddCommentStep (props) {
-  const { investibleId, formData } = props;
+  const { investibleId, formData, marketId, groupId } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
-  const { useType, marketId, groupId } = formData;
+  const { useType } = formData;
   const history = useHistory();
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
@@ -43,7 +43,7 @@ function AddCommentStep (props) {
       isLarge
     >
       <Typography className={classes.introText}>
-        What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Tip` }).toLowerCase()}?
+        What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` }).toLowerCase()}?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         This comment will go to those interested in this option - otherwise use @ mentions for different addressing.

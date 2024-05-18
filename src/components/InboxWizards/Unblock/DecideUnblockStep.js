@@ -65,7 +65,7 @@ function DecideUnblockStep(props) {
         investiblesDispatch, () => {}, marketStagesState, undefined, fullStage,
         marketPresencesDispatch);
       setOperationRunning(false);
-      dismissWorkListItem(message, messagesDispatch, history);
+      dismissWorkListItem(message, messagesDispatch);
       navigate(history, formInvestibleLink(marketId, investibleId));
     });
   }

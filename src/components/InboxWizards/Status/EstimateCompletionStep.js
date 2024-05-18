@@ -22,6 +22,7 @@ import { getAcceptedStage, getFullStage } from '../../../contexts/MarketStagesCo
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function EstimateCompletionStep(props) {
   const { marketId, investibleId, message, updateFormData, formData } = props;
@@ -79,7 +80,8 @@ function EstimateCompletionStep(props) {
             commentsDispatch, investiblesDispatch, diffDispatch, marketStagesState, undefined,
             fullCurrentStage, marketPresencesDispatch);
           setOperationRunning(false);
-          dismissWorkListItem(message, messagesDispatch, history);
+          dismissWorkListItem(message, messagesDispatch);
+          navigate(history, formInvestibleLink(marketId, investibleId));
         });
     }
     const updateInfo = {

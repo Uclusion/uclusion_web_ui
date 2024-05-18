@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Card, CardContent, useMediaQuery, useTheme } from '@material-ui/core';
+import { Card, CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import { makeStyles } from '@material-ui/styles';
 import CardType from '../../../components/CardType';
@@ -98,7 +98,7 @@ const useVoteStyles = makeStyles(
  */
 function Voting(props) {
   const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingAllowed,
-    yourPresence, market, isInbox, groupId, useCompression, toggleCompression=() => {}} = props;
+    yourPresence, market, isInbox, groupId, useCompression, showEmptyText, toggleCompression=() => {}} = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -121,7 +121,18 @@ function Voting(props) {
     });
   }
 
-  if (!yourPresence || _.isEmpty(sortedVoters)) {
+  if (!yourPresence) {
+    return React.Fragment;
+  }
+
+  if (_.isEmpty(sortedVoters)) {
+    if (showEmptyText) {
+      return (
+        <Typography style={{marginTop: '1rem'}} variant="body1">
+          No approvals.
+        </Typography>
+      );
+    }
     return React.Fragment;
   }
 

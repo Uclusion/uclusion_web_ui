@@ -797,6 +797,7 @@ function PlanningInvestible(props) {
                   expirationMinutes={market.investment_expiration * 1440}
                   votingAllowed={canVote}
                   yourPresence={yourPresence}
+                  showEmptyText={!displayVotingInput}
                   market={market}
                   groupId={groupId}
                   isAssigned={isAssigned}

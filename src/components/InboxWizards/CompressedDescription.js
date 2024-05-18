@@ -56,6 +56,7 @@ const Item = styled("div")`
     margin-bottom: 1px;
     margin-top: 0.3rem;
     padding-right: 12rem;
+    width: fit-content;
     &:hover ${DateLabelNotHovered} {
         display: none;
     }

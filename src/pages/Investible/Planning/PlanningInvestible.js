@@ -57,7 +57,6 @@ import {
   OPERATION_HUB_CHANNEL,
   STOP_OPERATION
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages';
-import { addEditVotingHasContents } from '../Voting/AddEditVote';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -397,8 +396,7 @@ function PlanningInvestible(props) {
   const yourVote = yourPresence?.investments?.find((investment) =>
     investment.investible_id === investibleId);
   const displayVotingInput = canVote && _.isEmpty(search) && !yourVote;
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
-  const hasUsableVotingInput = !inArchives && addEditVotingHasContents(investibleId, false, operationRunning);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {
@@ -780,7 +778,7 @@ function PlanningInvestible(props) {
                   </Tooltip>
                 </IconButton>
               </div>
-              {(displayVotingInput || hasUsableVotingInput) && investibleId && approvalsOpen && (
+              {displayVotingInput && investibleId && approvalsOpen && (
                 <SpinningButton id="newApproval" className={wizardClasses.actionNext}
                                 icon={AddIcon} iconColor="black"
                                 style={{display: "flex", marginBottom: '1.5rem', marginTop: '0.5rem'}}

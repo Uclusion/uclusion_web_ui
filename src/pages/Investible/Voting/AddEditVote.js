@@ -96,11 +96,6 @@ function getEditVoteEditorName(investibleId, isInbox) {
   return `${isInbox ? 'inbox' : ''}add-edit-vote-reason${investibleId}`;
 }
 
-export function addEditVotingHasContents(investibleId, isInbox, operationRunning) {
-  return !_.isEmpty(getQuillStoredState(getEditVoteEditorName(investibleId, isInbox))) &&
-    !['voteIssueProceedButton', 'addOrUpdateVoteButton'].includes(operationRunning);
-}
-
 function AddEditVote(props) {
   const {
     marketId,

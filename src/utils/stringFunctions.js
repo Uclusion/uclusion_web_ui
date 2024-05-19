@@ -35,16 +35,19 @@ export function stripHTML(foundSubstring) {
   return undefined;
 }
 
-export function isLargeDisplay(description) {
-  const forbiddenList = ['img', 'br', 'table', 'tr', 'td', 'tbody', 'th', 'li', 'ol', 'ul'];
-  const singleRootedList = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+export function isLargeDisplay(description, linesAllowed=3) {
+  if (_.isEmpty(description)) {
+    return false;
+  }
+  const forbiddenList = ['img', 'table', 'tr', 'td', 'tbody', 'th'];
+  const singleRootedList = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'br', 'li', 'ol', 'ul'];
   let txt = new DOMParser().parseFromString(description, "text/html");
   let rootCount = 0;
   singleRootedList.forEach((tag) => {
     const elements = txt.getElementsByTagName(tag);
     rootCount += elements.length;
   });
-  if (rootCount > 1) {
+  if (rootCount > linesAllowed) {
     return true;
   }
   rootCount = 0;
@@ -56,7 +59,7 @@ export function isLargeDisplay(description) {
     return true;
   }
   const stripped = stripHTML(description);
-  return stripped?.length > 250;
+  return stripped?.length > 1000;
 }
 
 function processForName(htmlElementNames, description) {

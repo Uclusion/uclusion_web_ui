@@ -108,7 +108,7 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Options from './Options';
 import Reply from './Reply';
-import { stripHTML } from '../../utils/stringFunctions';
+import { isLargeDisplay, stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import styled from 'styled-components';
 import { NOT_FULLY_VOTED_TYPE, RED_LEVEL } from '../../constants/notifications';
@@ -345,6 +345,7 @@ export const useCommentStyles = makeStyles(
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         paddingRight: '0.5rem',
+        marginRight: '0.5rem',
         marginTop: '0.25rem'
       }
   }
@@ -716,24 +717,269 @@ function Comment(props) {
   );
   const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,
     undefined, id);
+  const commentCard = <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false || usePadding === false ? 0
+      : undefined}} className={getCommentHighlightStyle()} ref={editBox}>
+    <div onClick={(event) => {
+      if (isInbox && !invalidEditEvent(event, history)) {
+        navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+      }
+    }}>
+      <Box display="flex">
+        {cardTypeDisplay}
+        <div style={{flexGrow: 1}}/>
+        {(beingEdited || ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)) && (
+          <>
+            {mobileLayout && (
+              <Typography className={classes.timeElapsed} variant="body2">
+                {intl.formatDate(comment.updated_at)}
+              </Typography>
+            )}
+            {!mobileLayout && (
+              <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '0.25rem'}}>
+                Created <UsefulRelativeTime value={comment.created_at}/>
+                {noAuthor &&
+                  `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
+                {comment.created_at < comment.updated_at && !resolved && (
+                  <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
+                )}
+                {resolved && (
+                  <> Resolved <UsefulRelativeTime value={comment.updated_at}/></>
+                )}
+                {comment.created_at < comment.updated_at && !displayUpdatedBy && (
+                  <>.</>
+                )}
+                {displayUpdatedBy &&
+                  `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
+              </Typography>
+            )}
+          </>
+        )}
+        {displayEditing && isReallyMobileLayout && !beingEdited && (
+          <TooltipIconButton
+            onClick={toggleEdit}
+            icon={<Edit fontSize='small' style={{marginRight: '1rem'}} />}
+            translationId="edit"
+          />
+        )}
+        {!mobileLayout && !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
+          && marketType !== DECISION_TYPE && (
+            <div style={{marginRight: '2rem', marginTop: '-0.25rem'}}>
+              <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
+            </div>
+          )}
+        {(myPresence.is_admin || isEditable) && enableActions && isDeletable && (
+          <div style={{marginRight: '2rem'}}>
+            <TooltipIconButton
+              disabled={operationRunning !== false}
+              onClick={isInbox ? () => navigate(history, `${deleteWizardBaseLink}&isInbox=${isInbox}`) :
+                () => navigate(history, deleteWizardBaseLink)}
+              icon={<NotificationDeletion isRed={operationRunning === false} />}
+              size={mobileLayout ? 'small' : undefined}
+              translationId="commentRemoveLabel"
+            />
+          </div>
+        )}
+      </Box>
+      <CardContent className={classes.cardContent}>
+        {!noAuthor && mobileLayout && !beingEdited && (
+          <GravatarAndName
+            key={myPresence.id}
+            email={createdBy.email}
+            name={createdBy.name}
+            typographyVariant="caption"
+            typographyClassName={classes.createdBy}
+            avatarClassName={classes.smallGravatar}
+          />
+        )}
+        <Box marginTop={1}>
+          {!thisCommentBeingEdited && !displayingDiff && !_.isEmpty(comment) && (
+            <ReadOnlyQuillEditor value={body} setBeingEdited={setBeingEdited}
+                                 noOverflow={isInbox}
+                                 id={isInbox ? `inboxComment${id}` : id}
+                                 isEditable={!isReallyMobileLayout && displayEditing}/>
+          )}
+          {!thisCommentBeingEdited && displayingDiff && (
+            <DiffDisplay id={id} />
+          )}
+          {thisCommentBeingEdited && (
+            <CommentEdit
+              marketId={marketId}
+              comment={comment}
+              onSave={toggleEdit}
+              onCancel={toggleEdit}
+              editState={editState}
+              updateEditState={updateEditState}
+              editStateReset={editStateReset}
+              myNotificationType={myNotificationType}
+              isInReview={createdInReview}
+              messages={myMessage ? [myMessage] : []}
+            />
+          )}
+        </Box>
+      </CardContent>
+      {showActions && !thisCommentBeingEdited && (
+        <CardActions>
+          <div className={classes.actions}>
+            {useCompression === false && (
+              <SpinningIconLabelButton
+                icon={ExpandLess}
+                doSpin={false}
+                onClick={(event) => {
+                  preventDefaultAndProp(event);
+                  toggleCompression();
+                }}
+              >
+                <FormattedMessage
+                  id="commentCloseThreadLabel"
+                />
+              </SpinningIconLabelButton>
+            )}
+            {((resolved && showReopen) || (!resolved && showResolve)) && (
+              <SpinningIconLabelButton
+                doSpin={resolved || commentType !== REPORT_TYPE}
+                onClick={resolved ? reopen : (commentType === REPORT_TYPE ? () => navigate(history,
+                  `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                    REPORT_TYPE)}&resolveId=${id}`) : resolve)}
+                icon={resolved ? SettingsBackupRestore : Done}
+                id={`commentResolveReopenButton${id}`}
+                iconOnly={mobileLayout && !resolved}
+              >
+                {(!mobileLayout || resolved) && intl.formatMessage({
+                  id: resolved ? 'commentReopenLabel' : 'commentResolveLabel'
+                })}
+              </SpinningIconLabelButton>
+            )}
+            {isSent !== false && enableEditing && !removeActions && (
+              <SpinningIconLabelButton
+                onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+                  undefined, undefined, id, typeObjectId))}
+                icon={ReplyIcon}
+                iconOnly={mobileLayout}
+                id={`commentReplyButton${id}`}
+                doSpin={false}
+              >
+                {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })}
+              </SpinningIconLabelButton>
+            )}
+            {showAddVoting && (
+              <SpinningIconLabelButton
+                onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
+                  undefined, undefined, id, typeObjectId))} iconOnly={mobileLayout}
+                doSpin={false} icon={ThumbsUpDownIcon}>
+                {!mobileLayout && intl.formatMessage({ id: 'addVoting' })}
+              </SpinningIconLabelButton>
+            )}
+            {inlineMarket.market_type === DECISION_TYPE && enableEditing && !removeActions && (
+              <SpinningIconLabelButton
+                doSpin={false}
+                onClick={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, inlineMarketId,
+                  undefined, undefined, undefined, typeObjectId))}
+                icon={AddIcon}
+                iconOnly={mobileLayout}
+                id={`addOptionButton${id}`}
+              >
+                {!mobileLayout && intl.formatMessage({ id: 'inlineAddLabel' })}
+              </SpinningIconLabelButton>
+            )}
+            {showAbstain && (
+              <SpinningIconLabelButton
+                onClick={() => abstain(true)}
+                icon={NotInterested}
+                iconOnly={mobileLayout}
+                id={`commentAbstainButton${id}`}
+              >
+                {!mobileLayout && intl.formatMessage({ id: 'commentAbstainLabel' })}
+              </SpinningIconLabelButton>
+            )}
+            {showUnmute && (
+              <SpinningIconLabelButton
+                onClick={() => abstain(false)}
+                icon={NotificationsActive}
+                iconOnly={mobileLayout}
+                id={`commentUnmuteButton${id}`}
+              >
+                {!mobileLayout && intl.formatMessage({ id: 'commentUnmuteLabel' })}
+              </SpinningIconLabelButton>
+            )}
+            {commentType === TODO_TYPE && investibleId && !removeActions && enableEditing && (
+              <FormControlLabel
+                id='inProgressCheckbox'
+                style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem'}}
+                control={
+                  <Checkbox
+                    id={`inProgressCheckbox${id}`}
+                    checked={operationRunning === `inProgressCheckbox${id}` ? !inProgress : inProgress}
+                    onClick={handleToggleInProgress}
+                    disabled={!myPresenceIsAssigned || removeActions || operationRunning !== false}
+                  />
+                }
+                label={mobileLayout ? undefined : intl.formatMessage({ id: 'inProgress' })}
+              />
+            )}
+            {showMoveButton && mobileLayout && (
+              <SpinningIconLabelButton
+                onClick={() => navigate(history,
+                  `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
+                    investibleId && [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) ?
+                      BUG_WIZARD_TYPE : undefined)}&fromCommentId=${id}`)}
+                doSpin={false}
+                iconOnly={true}
+                icon={Eject}
+              />
+            )}
+          </div>
+          <div className={mobileLayout ? classes.actions : classes.actionsEnd}>
+            {showConfigureVotingButton && (
+              <SpinningIconLabelButton
+                onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
+                  undefined, undefined, id, typeObjectId))}
+                doSpin={false} icon={SettingsIcon} iconOnly={mobileLayout}>
+                {!mobileLayout && intl.formatMessage({ id: 'configureVoting' })}
+              </SpinningIconLabelButton>
+            )}
+            {showMoveButton && !mobileLayout && (
+              <SpinningIconLabelButton
+                onClick={() => navigate(history,
+                  `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
+                    investibleId && [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) ?
+                      BUG_WIZARD_TYPE : undefined)}&fromCommentId=${id}`)}
+                doSpin={false}
+                icon={Eject}
+              >
+                {intl.formatMessage({ id: "storyFromComment" })}
+              </SpinningIconLabelButton>
+            )}
+            {myMessage && diff && !mobileLayout && (
+              <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                       onClick={(event) => toggleDiffShow(event)}
+                                       doSpin={false}>
+                <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+              </SpinningIconLabelButton>
+            )}
+          </div>
+        </CardActions>
+      )}
+    </div>
+  </Card>;
+  const compressedCommentCard = <Card elevation={3} style={{ display: 'flex', paddingBottom: '1rem',
+    cursor: 'pointer', width: 'fit-content', maxWidth: '98%' }} onClick={toggleCompression}>
+    {cardTypeDisplay}
+    <div className={classes.compressedComment}>
+      {stripHTML(body)}</div>
+    <div style={{ flexGrow: 1 }}/>
+    <div style={{ marginRight: '1rem', marginTop: '0.5rem' }}>
+      <TooltipIconButton
+        icon={<ExpandMoreIcon />}
+        size="small"
+        noPadding
+        translationId="rowExpandComment"
+      />
+    </div>
+  </Card>;
   if (useCompression && inboxMessageId && (compressAll || inboxMessageId !== id)) {
     return (
     <>
-      <Card elevation={3} style={{ display: 'flex', paddingBottom: '1rem', cursor: 'pointer', width: 'fit-content' }}
-            onClick={toggleCompression}>
-        {cardTypeDisplay}
-        <div className={classes.compressedComment}>
-          {stripHTML(body)}</div>
-        <div style={{ flexGrow: 1 }}/>
-        <div style={{ marginRight: '1rem', marginTop: '0.5rem' }}>
-          <TooltipIconButton
-            icon={<ExpandMoreIcon />}
-            size="small"
-            noPadding
-            translationId="rowExpandComment"
-          />
-        </div>
-      </Card>
+      {isLargeDisplay(body, 7) ? compressedCommentCard  : commentCard}
       <LocalCommentsContext.Provider value={{ comments, marketId, idPrepend }}>
         {sortedReplies.map(child => {
           const parent = findParentInDescendants(child, inboxMessageId, comments);
@@ -767,250 +1013,7 @@ function Comment(props) {
   const threadSize = calculateNumberHidden(comment, undefined, comments, undefined);
   return (
     <div style={{paddingLeft: usePadding && !beingEdited ? '0.5rem' : undefined, width: '98%'}}>
-      <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false || usePadding === false ? 0
-          : undefined}} className={getCommentHighlightStyle()} ref={editBox}>
-        <div onClick={(event) => {
-          if (isInbox && !invalidEditEvent(event, history)) {
-            navigate(history, formCommentLink(marketId, groupId, investibleId, id));
-          }
-        }}>
-          <Box display="flex">
-            {cardTypeDisplay}
-            <div style={{flexGrow: 1}}/>
-            {(beingEdited || ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)) && (
-              <>
-                {mobileLayout && (
-                  <Typography className={classes.timeElapsed} variant="body2">
-                    {intl.formatDate(comment.updated_at)}
-                  </Typography>
-                )}
-                {!mobileLayout && (
-                  <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '0.25rem'}}>
-                    Created <UsefulRelativeTime value={comment.created_at}/>
-                    {noAuthor &&
-                    `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
-                    {comment.created_at < comment.updated_at && !resolved && (
-                      <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
-                    )}
-                    {resolved && (
-                      <> Resolved <UsefulRelativeTime value={comment.updated_at}/></>
-                    )}
-                    {comment.created_at < comment.updated_at && !displayUpdatedBy && (
-                      <>.</>
-                    )}
-                    {displayUpdatedBy &&
-                    `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
-                  </Typography>
-                )}
-              </>
-            )}
-            {displayEditing && isReallyMobileLayout && !beingEdited && (
-              <TooltipIconButton
-                onClick={toggleEdit}
-                icon={<Edit fontSize='small' style={{marginRight: '1rem'}} />}
-                translationId="edit"
-              />
-            )}
-            {!mobileLayout && !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
-              && marketType !== DECISION_TYPE && (
-              <div style={{marginRight: '2rem', marginTop: '-0.25rem'}}>
-                <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
-              </div>
-            )}
-            {(myPresence.is_admin || isEditable) && enableActions && isDeletable && (
-              <div style={{marginRight: '2rem'}}>
-                <TooltipIconButton
-                  disabled={operationRunning !== false}
-                  onClick={isInbox ? () => navigate(history, `${deleteWizardBaseLink}&isInbox=${isInbox}`) :
-                    () => navigate(history, deleteWizardBaseLink)}
-                  icon={<NotificationDeletion isRed={operationRunning === false} />}
-                  size={mobileLayout ? 'small' : undefined}
-                  translationId="commentRemoveLabel"
-                />
-              </div>
-            )}
-          </Box>
-          <CardContent className={classes.cardContent}>
-            {!noAuthor && mobileLayout && !beingEdited && (
-              <GravatarAndName
-                key={myPresence.id}
-                email={createdBy.email}
-                name={createdBy.name}
-                typographyVariant="caption"
-                typographyClassName={classes.createdBy}
-                avatarClassName={classes.smallGravatar}
-              />
-            )}
-            <Box marginTop={1}>
-              {!thisCommentBeingEdited && !displayingDiff && !_.isEmpty(comment) && (
-                <ReadOnlyQuillEditor value={body} setBeingEdited={setBeingEdited}
-                                     noOverflow={isInbox}
-                                     id={isInbox ? `inboxComment${id}` : id}
-                                     isEditable={!isReallyMobileLayout && displayEditing}/>
-              )}
-              {!thisCommentBeingEdited && displayingDiff && (
-                <DiffDisplay id={id} />
-              )}
-              {thisCommentBeingEdited && (
-                <CommentEdit
-                  marketId={marketId}
-                  comment={comment}
-                  onSave={toggleEdit}
-                  onCancel={toggleEdit}
-                  editState={editState}
-                  updateEditState={updateEditState}
-                  editStateReset={editStateReset}
-                  myNotificationType={myNotificationType}
-                  isInReview={createdInReview}
-                  messages={myMessage ? [myMessage] : []}
-                />
-              )}
-            </Box>
-          </CardContent>
-          {showActions && !thisCommentBeingEdited && (
-            <CardActions>
-              <div className={classes.actions}>
-                {useCompression === false && (
-                  <SpinningIconLabelButton
-                    icon={ExpandLess}
-                    doSpin={false}
-                    onClick={(event) => {
-                      preventDefaultAndProp(event);
-                      toggleCompression();
-                    }}
-                  >
-                    <FormattedMessage
-                      id="commentCloseThreadLabel"
-                    />
-                  </SpinningIconLabelButton>
-                )}
-                {((resolved && showReopen) || (!resolved && showResolve)) && (
-                  <SpinningIconLabelButton
-                    doSpin={resolved || commentType !== REPORT_TYPE}
-                    onClick={resolved ? reopen : (commentType === REPORT_TYPE ? () => navigate(history,
-                      `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                        REPORT_TYPE)}&resolveId=${id}`) : resolve)}
-                    icon={resolved ? SettingsBackupRestore : Done}
-                    id={`commentResolveReopenButton${id}`}
-                    iconOnly={mobileLayout && !resolved}
-                  >
-                    {(!mobileLayout || resolved) && intl.formatMessage({
-                      id: resolved ? 'commentReopenLabel' : 'commentResolveLabel'
-                    })}
-                  </SpinningIconLabelButton>
-                )}
-                {isSent !== false && enableEditing && !removeActions && (
-                  <SpinningIconLabelButton
-                    onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
-                      undefined, undefined, id, typeObjectId))}
-                    icon={ReplyIcon}
-                    iconOnly={mobileLayout}
-                    id={`commentReplyButton${id}`}
-                    doSpin={false}
-                  >
-                    {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })}
-                  </SpinningIconLabelButton>
-                )}
-                {showAddVoting && (
-                  <SpinningIconLabelButton
-                    onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
-                      undefined, undefined, id, typeObjectId))} iconOnly={mobileLayout}
-                    doSpin={false} icon={ThumbsUpDownIcon}>
-                    {!mobileLayout && intl.formatMessage({ id: 'addVoting' })}
-                  </SpinningIconLabelButton>
-                )}
-                {inlineMarket.market_type === DECISION_TYPE && enableEditing && !removeActions && (
-                  <SpinningIconLabelButton
-                    doSpin={false}
-                    onClick={() => navigate(history, formWizardLink(OPTION_WIZARD_TYPE, inlineMarketId,
-                      undefined, undefined, undefined, typeObjectId))}
-                    icon={AddIcon}
-                    iconOnly={mobileLayout}
-                    id={`addOptionButton${id}`}
-                  >
-                    {!mobileLayout && intl.formatMessage({ id: 'inlineAddLabel' })}
-                  </SpinningIconLabelButton>
-                )}
-                {showAbstain && (
-                  <SpinningIconLabelButton
-                    onClick={() => abstain(true)}
-                    icon={NotInterested}
-                    iconOnly={mobileLayout}
-                    id={`commentAbstainButton${id}`}
-                  >
-                    {!mobileLayout && intl.formatMessage({ id: 'commentAbstainLabel' })}
-                  </SpinningIconLabelButton>
-                )}
-                {showUnmute && (
-                  <SpinningIconLabelButton
-                    onClick={() => abstain(false)}
-                    icon={NotificationsActive}
-                    iconOnly={mobileLayout}
-                    id={`commentUnmuteButton${id}`}
-                  >
-                    {!mobileLayout && intl.formatMessage({ id: 'commentUnmuteLabel' })}
-                  </SpinningIconLabelButton>
-                )}
-                {commentType === TODO_TYPE && investibleId && !removeActions && enableEditing && (
-                  <FormControlLabel
-                    id='inProgressCheckbox'
-                    style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem'}}
-                    control={
-                      <Checkbox
-                        id={`inProgressCheckbox${id}`}
-                        checked={operationRunning === `inProgressCheckbox${id}` ? !inProgress : inProgress}
-                        onClick={handleToggleInProgress}
-                        disabled={!myPresenceIsAssigned || removeActions || operationRunning !== false}
-                      />
-                    }
-                    label={mobileLayout ? undefined : intl.formatMessage({ id: 'inProgress' })}
-                  />
-                )}
-                {showMoveButton && mobileLayout && (
-                  <SpinningIconLabelButton
-                    onClick={() => navigate(history,
-                      `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
-                        investibleId && [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) ? 
-                          BUG_WIZARD_TYPE : undefined)}&fromCommentId=${id}`)}
-                    doSpin={false}
-                    iconOnly={true}
-                    icon={Eject}
-                  />
-                )}
-              </div>
-              <div className={mobileLayout ? classes.actions : classes.actionsEnd}>
-                {showConfigureVotingButton && (
-                  <SpinningIconLabelButton
-                    onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
-                      undefined, undefined, id, typeObjectId))}
-                    doSpin={false} icon={SettingsIcon} iconOnly={mobileLayout}>
-                    {!mobileLayout && intl.formatMessage({ id: 'configureVoting' })}
-                  </SpinningIconLabelButton>
-                )}
-                {showMoveButton && !mobileLayout && (
-                  <SpinningIconLabelButton
-                    onClick={() => navigate(history,
-                      `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
-                        investibleId && [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) ? 
-                          BUG_WIZARD_TYPE : undefined)}&fromCommentId=${id}`)}
-                    doSpin={false}
-                    icon={Eject}
-                  >
-                    {intl.formatMessage({ id: "storyFromComment" })}
-                  </SpinningIconLabelButton>
-                )}
-                {myMessage && diff && !mobileLayout && (
-                  <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
-                                           onClick={(event) => toggleDiffShow(event)}
-                                           doSpin={false}>
-                    <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
-                  </SpinningIconLabelButton>
-                )}
-              </div>
-            </CardActions>
-          )}
-        </div>
-      </Card>
+      {commentCard}
       {useCompression && threadSize > 0 && (
         <IconButton id={`removeCompressed${id}`} onClick={toggleCompression}
                     style={{border: '1px solid grey', marginTop: -7}}>

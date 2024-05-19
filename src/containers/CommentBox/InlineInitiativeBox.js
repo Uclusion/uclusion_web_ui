@@ -66,7 +66,7 @@ function InlineInitiativeBox(props) {
     return React.Fragment;
   }
   return (
-    <div style={{paddingLeft: '1rem', paddingRight: '1rem', paddingBottom: '0.5rem'}}>
+    <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
       {showVoteButtons && (
         <div style={{display: 'flex'}}>
             <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id={`voteFor${anInlineMarket.id}`}

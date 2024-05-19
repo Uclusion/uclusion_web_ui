@@ -32,7 +32,7 @@ import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { ScrollContext } from '../../contexts/ScrollContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { LocalCommentsContext, useCommentStyles } from './Comment';
-import { stripHTML } from '../../utils/stringFunctions';
+import { isLargeDisplay, stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import { REPLY_WIZARD_TYPE } from '../../constants/markets';
@@ -280,25 +280,102 @@ function Reply(props) {
     return React.Fragment;
   }
 
+  const compressedCommentCard = <Card elevation={3} style={{
+    display: 'flex', paddingBottom: '0.25rem', paddingLeft: '0.5rem',
+    paddingTop: '1rem', paddingRight: '0.5rem', cursor: 'pointer'
+  }} onClick={toggleCompression}>
+    <Gravatar name={commenter.name} email={commenter.email} className={commentClasses.smallGravatar}/>
+    <div className={commentClasses.compressedComment}>{stripHTML(comment.body)}</div>
+    <div style={{ flexGrow: 1 }}/>
+    <div style={{ marginRight: '1rem' }}>
+      <TooltipIconButton
+        icon={<ExpandMoreIcon />}
+        size="small"
+        noPadding
+        translationId="rowExpandComment"
+      />
+    </div>
+  </Card>;
+
+  const commentCard = <Card className={getHighlightClass()} id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
+    <div onClick={() => {
+      if (replyBeingEdited || isInbox) {
+        navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
+      }
+    }}>
+      <CardContent className={classes.cardContent}>
+        <Typography className={classes.commenter} variant="body2">
+          {commenter.name}
+        </Typography>
+        <Typography className={classes.timeElapsed} variant="body2">
+          <UsefulRelativeTime
+            value={comment.created_at}
+          />
+        </Typography>
+        {(myPresence.is_admin || isEditable) && enableEditing && (
+          <TooltipIconButton
+            disabled={operationRunning !== false}
+            onClick={remove}
+            icon={<NotificationDeletion isRed />}
+            size={mobileLayout ? 'small' : undefined}
+            translationId="commentRemoveLabel"
+            doFloatRight
+          />
+        )}
+        {showConvert && (
+          <TooltipIconButton
+            disabled={operationRunning !== false}
+            onClick={myAccept}
+            icon={<ListAltIcon fontSize={mobileLayout ? 'small' : undefined} style={{marginRight: '1rem'}} />}
+            size={mobileLayout ? 'small' : undefined}
+            translationId="wizardAcceptLabel"
+            doFloatRight
+          />
+        )}
+        {!_.isEmpty(comment) && (
+          <ReadOnlyQuillEditor
+            className={classes.editor}
+            value={comment.body}
+            id={comment.id}
+            setBeingEdited={setBeingEdited}
+            isEditable={!mobileLayout && enableEditing && isEditable}
+          />
+        )}
+      </CardContent>
+      <CardActions className={classes.cardActions}>
+        <Typography className={classes.timePosted} variant="body2">
+          <FormattedDate value={comment.created_at} />
+        </Typography>
+        {enableEditing && (
+          <Button
+            className={classes.action}
+            id={`commentReplyButton${comment.id}`}
+            onClick={(event) => {
+              preventDefaultAndProp(event);
+              setReplyOpen();
+            }}
+            variant="text"
+          >
+            {intl.formatMessage({ id: "issueReplyLabel" })}
+          </Button>
+        )}
+        {enableEditing && isEditable && mobileLayout && (
+          <Button
+            className={classes.action}
+            onClick={handleEditClick}
+            variant="text"
+          >
+            <FormattedMessage id="commentEditLabel" />
+          </Button>
+        )}
+      </CardActions>
+    </div>
+  </Card>;
+
   if (useCompression && comment.id !== inboxMessageId) {
     return (
       <>
-        <Card elevation={3} style={{
-          display: 'flex', paddingBottom: '0.25rem', paddingLeft: '0.5rem',
-          paddingTop: '1rem', paddingRight: '0.5rem', cursor: 'pointer'
-        }} onClick={toggleCompression}>
-          <Gravatar name={commenter.name} email={commenter.email} className={commentClasses.smallGravatar}/>
-          <div className={commentClasses.compressedComment}>{stripHTML(comment.body)}</div>
-          <div style={{ flexGrow: 1 }}/>
-          <div style={{ marginRight: '1rem' }}>
-            <TooltipIconButton
-              icon={<ExpandMoreIcon />}
-              size="small"
-              noPadding
-              translationId="rowExpandComment"
-            />
-          </div>
-        </Card>
+        {isLargeDisplay(comment.body) ? compressedCommentCard  : commentCard}
         <div className={classes.cardContent}>
           <ThreadedReplies
             replies={comment.children}
@@ -316,80 +393,7 @@ function Reply(props) {
 
   return (
     <>
-      <Card className={getHighlightClass()} id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
-        <div onClick={() => {
-          if (replyBeingEdited || isInbox) {
-            navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
-          }
-        }}>
-          <CardContent className={classes.cardContent}>
-            <Typography className={classes.commenter} variant="body2">
-              {commenter.name}
-            </Typography>
-            <Typography className={classes.timeElapsed} variant="body2">
-              <UsefulRelativeTime
-                value={comment.created_at}
-              />
-            </Typography>
-            {(myPresence.is_admin || isEditable) && enableEditing && (
-              <TooltipIconButton
-                disabled={operationRunning !== false}
-                onClick={remove}
-                icon={<NotificationDeletion isRed />}
-                size={mobileLayout ? 'small' : undefined}
-                translationId="commentRemoveLabel"
-                doFloatRight
-              />
-            )}
-            {showConvert && (
-              <TooltipIconButton
-                disabled={operationRunning !== false}
-                onClick={myAccept}
-                icon={<ListAltIcon fontSize={mobileLayout ? 'small' : undefined} style={{marginRight: '1rem'}} />}
-                size={mobileLayout ? 'small' : undefined}
-                translationId="wizardAcceptLabel"
-                doFloatRight
-              />
-            )}
-            {!_.isEmpty(comment) && (
-              <ReadOnlyQuillEditor
-                className={classes.editor}
-                value={comment.body}
-                id={comment.id}
-                setBeingEdited={setBeingEdited}
-                isEditable={!mobileLayout && enableEditing && isEditable}
-              />
-            )}
-          </CardContent>
-          <CardActions className={classes.cardActions}>
-            <Typography className={classes.timePosted} variant="body2">
-              <FormattedDate value={comment.created_at} />
-            </Typography>
-              {enableEditing && (
-              <Button
-                className={classes.action}
-                id={`commentReplyButton${comment.id}`}
-                onClick={(event) => {
-                  preventDefaultAndProp(event);
-                  setReplyOpen();
-                }}
-                variant="text"
-              >
-                {intl.formatMessage({ id: "issueReplyLabel" })}
-              </Button>
-            )}
-              {enableEditing && isEditable && mobileLayout && (
-              <Button
-                className={classes.action}
-                onClick={handleEditClick}
-                variant="text"
-              >
-                <FormattedMessage id="commentEditLabel" />
-              </Button>
-            )}
-          </CardActions>
-        </div>
-      </Card>
+      {commentCard}
       <div className={classes.replyContainer}>
         {comment.children !== undefined && (
           <div className={classes.cardContent}>

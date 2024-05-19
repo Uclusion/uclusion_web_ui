@@ -37,7 +37,7 @@ import { BUG_WIZARD_TYPE } from '../../../constants/markets';
 import BugListItem from '../../../components/Comments/BugListItem';
 import getReducer, {
   contractAll,
-  expandAll, initialize,
+  expandAll,
   PAGE_SIZE,
   pin,
   setPage,

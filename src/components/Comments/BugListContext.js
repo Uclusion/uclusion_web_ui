@@ -6,6 +6,7 @@ const EXPAND_ALL_ON_PAGE = 'EXPAND_ALL_ON_PAGE';
 const CONTRACT_ALL_ON_PAGE = 'CONTRACT_ALL_ON_PAGE';
 const EXPAND_OR_CONTRACT = 'EXPAND_OR_CONTRACT';
 const PIN = 'PIN';
+const INITIALIZE = 'INITIALIZE'
 
 export const PAGE_SIZE = 15;
 
@@ -14,6 +15,13 @@ export function setPage(pageNum) {
     type: UPDATE_PAGE,
     pageNum
   };
+}
+
+export function initialize(state) {
+  return {
+    type: INITIALIZE,
+    state
+  }
 }
 
 export function setTab(tabNum) {
@@ -110,6 +118,8 @@ function getReducer() {
         return toggleExpandRow(state, action);
       case PIN:
         return pinId(state, action);
+      case INITIALIZE:
+        return action.state;
       default:
         return state;
     }

@@ -37,7 +37,7 @@ import { BUG_WIZARD_TYPE } from '../../../constants/markets';
 import BugListItem from '../../../components/Comments/BugListItem';
 import getReducer, {
   contractAll,
-  expandAll,
+  expandAll, initialize,
   PAGE_SIZE,
   pin,
   setPage,
@@ -183,9 +183,10 @@ function MarketTodos(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const [bugState, bugDispatch] = useReducer(getReducer(),
-    {page: 1, tabIndex: 0, expansionState: openDefaultId ? {[openDefaultId]: true} : {}, pageState: {},
-      defaultPage: 1});
+  const useOpenDefaultId = message?.is_highlighted ? openDefaultId : undefined;
+  const reducerInitState = {page: 1, tabIndex: 0,
+    expansionState: useOpenDefaultId ? {[useOpenDefaultId]: true} : {}, pageState: {}, defaultPage: 1};
+  const [bugState, bugDispatch] = useReducer(getReducer(), reducerInitState);
   const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
     {determinate: {}, indeterminate: false, checkAll: false});
   const { indeterminate, determinate, checkAll } = determinateState;

@@ -35,6 +35,30 @@ export function stripHTML(foundSubstring) {
   return undefined;
 }
 
+export function isLargeDisplay(description) {
+  const forbiddenList = ['img', 'br', 'table', 'tr', 'td', 'tbody', 'th', 'li', 'ol', 'ul'];
+  const singleRootedList = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  let txt = new DOMParser().parseFromString(description, "text/html");
+  let rootCount = 0;
+  singleRootedList.forEach((tag) => {
+    const elements = txt.getElementsByTagName(tag);
+    rootCount += elements.length;
+  });
+  if (rootCount > 1) {
+    return true;
+  }
+  rootCount = 0;
+  forbiddenList.forEach((tag) => {
+    const elements = txt.getElementsByTagName(tag);
+    rootCount += elements.length;
+  });
+  if (rootCount > 0) {
+    return true;
+  }
+  const stripped = stripHTML(description);
+  return stripped?.length > 250;
+}
+
 function processForName(htmlElementNames, description) {
   const elements = [];
   htmlElementNames.forEach((htmlComponent) => {

@@ -23,12 +23,11 @@ import { commonQuick } from '../../../components/AddNewWizards/Approval/Approval
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { editorEmpty } from '../../../components/TextEditors/Utilities/CoreUtils';
-import { stripHTML } from '../../../utils/stringFunctions';
+import { isLargeDisplay, stripHTML } from '../../../utils/stringFunctions';
 import NotificationDeletion from '../../Home/YourWork/NotificationDeletion';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { FormattedMessage } from 'react-intl';
-import { isLargeDisplay } from '../../../components/InboxWizards/JobDescription';
 
 const useVoteStyles = makeStyles(
   theme => {

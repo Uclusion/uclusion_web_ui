@@ -28,6 +28,7 @@ import NotificationDeletion from '../../Home/YourWork/NotificationDeletion';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { FormattedMessage } from 'react-intl';
+import { isLargeDisplay } from '../../../components/InboxWizards/JobDescription';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -166,16 +167,17 @@ function Voting(props) {
             }
           }
           const isEditable = isYourVote && votingAllowed && !useCompression;
+          const myUseCompression = useCompression && isLargeDisplay(reason?.body);
           const hasContent = !editorEmpty(reason?.body);
           return (
             <div className={myMessage && classes.highlighted}
-                 style={{width: 'fit-content', cursor: useCompression ? 'pointer' : undefined}} key={userId}>
+                 style={{width: 'fit-content', cursor: myUseCompression ? 'pointer' : undefined}} key={userId}>
               <Card
                 key={userId}
                 className={clsx(classes.cardPadded, isEditable ? classes.editable : classes.notEditable)}
                 id={voteId}
                 elevation={3}
-                style={{paddingBottom: hasContent && !useCompression ? undefined : '1rem'}}
+                style={{paddingBottom: hasContent && !myUseCompression ? undefined : '1rem'}}
                 onClick={(event) => {
                   if (isEditable) {
                     setBeingEdited(true, event);
@@ -185,7 +187,7 @@ function Voting(props) {
                 }}
               >
                 <div style={{display: 'flex'}}>
-                  <CardType compact={!midLayout} compressed={!hasContent || useCompression}
+                  <CardType compact={!midLayout} compressed={!hasContent || myUseCompression}
                     className={classes.cardType}
                     type={`certainty${Math.abs(quantity)}`}
                     gravatar={<GravatarAndName email={email}
@@ -194,7 +196,7 @@ function Voting(props) {
                                        avatarClassName={classes.smallGravatar}
                               />}
                   />
-                  {!useCompression && (
+                  {!myUseCompression && (
                     <div style={{ flexGrow: 1 }}/>
                   )}
                   {isEditable && mobileLayout && (
@@ -207,13 +209,13 @@ function Voting(props) {
                       />
                     </div>
                   )}
-                  {useCompression && (
+                  {myUseCompression && (
                     <div style={{marginLeft: '1rem', marginRight: '1rem', paddingTop: '5px', textOverflow: 'ellipsis',
                       overflow: 'hidden', whiteSpace: 'nowrap'}}>
                       {hasContent && stripHTML(reason.body)}
                     </div>
                   )}
-                  {useCompression && (
+                  {myUseCompression && (
                     <div style={{ flexGrow: 1 }}/>
                   )}
                   {showExpiration && !mobileLayout && (
@@ -224,7 +226,7 @@ function Voting(props) {
                       />
                     </div>
                   )}
-                  {useCompression && (
+                  {myUseCompression && (
                     <div style={{ marginRight: '1rem' }}>
                       <TooltipIconButton
                         icon={<ExpandMoreIcon />}
@@ -246,7 +248,7 @@ function Voting(props) {
                     </div>
                   )}
                 </div>
-                {hasContent && !useCompression && (
+                {hasContent && !myUseCompression && (
                   <CardContent className={classes.cardContent}>
                     <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable}
                                          id={isInbox ? `inboxReason${reason.id}` : reason.id}

@@ -24,7 +24,7 @@ import config from '../../config';
 import CompressedDescription from './CompressedDescription';
 import { stripHTML } from '../../utils/stringFunctions';
 
-function isLargeDisplay(description) {
+export function isLargeDisplay(description) {
   const forbiddenList = ['img', 'br', 'table', 'tr', 'td', 'tbody', 'th', 'li', 'ol', 'ul'];
   const singleRootedList = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
   let txt = new DOMParser().parseFromString(description, "text/html");

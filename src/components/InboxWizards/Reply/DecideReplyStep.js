@@ -140,7 +140,6 @@ function DecideReplyStep(props) {
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       removeActions
-                      showVoting
                       isSingleTaskDisplay
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}

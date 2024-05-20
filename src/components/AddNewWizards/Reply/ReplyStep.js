@@ -114,6 +114,7 @@ function ReplyStep(props) {
         removeActions
         replyEditId={commentId}
         inboxMessageId={commentId}
+        compressAll
         toggleCompression={() => updateFormData({useCompression: !useCompression})}
         isReply
         useCompression={useCompression}

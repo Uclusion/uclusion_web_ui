@@ -368,6 +368,20 @@ const StyledBadge = styled(Badge)(() => ({
   }
 }));
 
+function getCompressionButton(numberHidden, inboxMessageId, toggleCompression, intl) {
+  return (
+    <IconButton id={`removeCompressed${inboxMessageId}`} onClick={toggleCompression}
+                style={{border: '1px solid grey', marginTop: -11, marginBottom: -11}}>
+      <Tooltip key={`tipCompressed${inboxMessageId}`}
+               title={intl.formatMessage({ id: 'removeCompressionExplanation' })}>
+        <StyledBadge badgeContent={numberHidden} style={{paddingRight: '7px'}} >
+          <UnfoldMore />
+        </StyledBadge>
+      </Tooltip>
+    </IconButton>
+  );
+}
+
 function InitialReply(props) {
   const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps,
     numberHidden = 0, useCompression, toggleCompression } = props;
@@ -375,15 +389,7 @@ function InitialReply(props) {
   if (numberHidden > 0) {
     return (
       <>
-        <IconButton id={`removeCompressed${inboxMessageId}`} onClick={toggleCompression}
-                    style={{border: '1px solid grey', marginTop: -11, marginBottom: -11}}>
-          <Tooltip key={`tipCompressed${inboxMessageId}`}
-                   title={intl.formatMessage({ id: 'removeCompressionExplanation' })}>
-            <StyledBadge badgeContent={numberHidden} style={{paddingRight: '7px'}} >
-              <UnfoldMore />
-            </StyledBadge>
-          </Tooltip>
-        </IconButton>
+        {getCompressionButton(numberHidden, inboxMessageId, toggleCompression, intl)}
         <Reply comment={comment} enableEditing={enableEditing} replyEditId={replyEditId}
                useCompression={useCompression} toggleCompression={toggleCompression}
                inboxMessageId={inboxMessageId} isInbox={isInbox} wizardProps={wizardProps}/>
@@ -981,7 +987,12 @@ function Comment(props) {
     <>
       {isLargeDisplay(body, 7) ? compressedCommentCard  : commentCard}
       <LocalCommentsContext.Provider value={{ comments, marketId, idPrepend }}>
-        {sortedReplies.map(child => {
+        {inboxMessageId === id &&
+          getCompressionButton(
+            _.size(comments.filter((aComment) => aComment.root_comment_id === id)),
+            id, toggleCompression, intl)
+        }
+        {inboxMessageId !== id && sortedReplies.map(child => {
           const parent = findParentInDescendants(child, inboxMessageId, comments);
           if (parent) {
             const numberHidden = calculateNumberHidden(comment, inboxMessageId, comments, parent);

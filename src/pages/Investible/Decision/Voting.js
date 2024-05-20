@@ -146,7 +146,7 @@ function Voting(props) {
             preventDefaultAndProp(event);
             toggleCompression();
           }}
-          style={{marginBottom: '1rem'}}
+          style={{marginTop: '1rem'}}
         >
           <FormattedMessage
             id="commentCloseThreadLabel"
@@ -170,7 +170,8 @@ function Voting(props) {
           const hasContent = !editorEmpty(reason?.body);
           return (
             <div className={myMessage && classes.highlighted}
-                 style={{width: 'fit-content', cursor: myUseCompression ? 'pointer' : undefined}} key={userId}>
+                 style={{width: 'fit-content', cursor: myUseCompression ? 'pointer' : undefined,
+                   maxWidth: myUseCompression ? '98%' : undefined}} key={userId}>
               <Card
                 key={userId}
                 className={clsx(classes.cardPadded, isEditable ? classes.editable : classes.notEditable)}

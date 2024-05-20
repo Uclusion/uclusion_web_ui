@@ -59,7 +59,7 @@ export function isLargeDisplay(description, linesAllowed=3) {
     return true;
   }
   const stripped = stripHTML(description);
-  return stripped?.length > 1000;
+  return stripped?.length > linesAllowed*90;
 }
 
 function processForName(htmlElementNames, description) {

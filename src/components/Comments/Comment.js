@@ -982,14 +982,13 @@ function Comment(props) {
     </div>
   </Card>;
   if (useCompression && inboxMessageId && (compressAll || inboxMessageId !== id)) {
+    const numInThread = _.size(comments.filter((aComment) => aComment.root_comment_id === id));
     return (
     <>
-      {isLargeDisplay(body, 7) ? compressedCommentCard  : commentCard}
+      {isLargeDisplay(body, inboxMessageId !== id ? 1 : 7) ? compressedCommentCard  : commentCard}
       <LocalCommentsContext.Provider value={{ comments, marketId, idPrepend }}>
-        {inboxMessageId === id &&
-          getCompressionButton(
-            _.size(comments.filter((aComment) => aComment.root_comment_id === id)),
-            id, toggleCompression, intl)
+        {inboxMessageId === id && numInThread > 0 &&
+          getCompressionButton(numInThread, id, toggleCompression, intl)
         }
         {inboxMessageId !== id && sortedReplies.map(child => {
           const parent = findParentInDescendants(child, inboxMessageId, comments);

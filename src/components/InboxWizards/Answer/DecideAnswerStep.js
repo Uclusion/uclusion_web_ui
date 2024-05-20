@@ -51,7 +51,7 @@ function DecideAnswerStep(props) {
                       removeActions={noOptions}
                       showVoting
                       inboxMessageId={commentId}
-                      useCompression={!noOptions ? undefined : useCompression}
+                      useCompression={useCompression}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})} />
       <div style={{marginBottom: '2rem'}}/>
       {noOptions && (

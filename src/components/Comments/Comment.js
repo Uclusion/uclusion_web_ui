@@ -558,8 +558,7 @@ function Comment(props) {
     return (
       <Options anInlineMarket={anInlineMarket} marketId={marketId} investibleId={investibleId} inArchives={inArchives}
                isEditable={isEditable} isSent={isSent} groupId={groupId} removeActions={removeActions} isInbox={isInbox}
-               selectedInvestibleIdParent={selectedInvestibleIdParent} searchResults={searchResults}
-               useCompression={useCompression} />
+               selectedInvestibleIdParent={selectedInvestibleIdParent} searchResults={searchResults} />
     );
   }
 
@@ -1018,6 +1017,7 @@ function Comment(props) {
           return React.Fragment;
         })}
       </LocalCommentsContext.Provider>
+      {getDecision(inlineMarketId)}
     </>
     );
   }

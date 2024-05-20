@@ -123,7 +123,7 @@ function JobDescription(props) {
               investible={inv}
               marketInfo={marketInfo}
               isInbox
-              compressAll={!showVoting}
+              compressAll
               usePadding={false}
               toggleCompression={toggleCompression}
               useCompression={useCompression}

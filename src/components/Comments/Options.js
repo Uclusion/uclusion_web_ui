@@ -42,7 +42,7 @@ export function isNewComment(comment, messagesState) {
 
 function Options(props) {
   const { anInlineMarket, marketId, investibleId, inArchives, isEditable, isSent, groupId, removeActions,
-    selectedInvestibleIdParent, searchResults, isInbox, useCompression } = props;
+    selectedInvestibleIdParent, searchResults, isInbox } = props;
   const location = useLocation();
   const { hash } = location;
   const intl = useIntl();
@@ -66,8 +66,7 @@ function Options(props) {
     }, (inv) => inv.investible.name]);
   }
   const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
-  const firstConsidered = _.isEmpty(underConsideration) || useCompression ? undefined :
-    underConsideration[0];
+  const firstConsidered = _.isEmpty(underConsideration) ? undefined : underConsideration[0];
   const [selectedInvestibleId, setSelectedInvestibleId] = useState(selectedInvestibleIdParent ||
     firstConsidered?.investible?.id);
   const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];

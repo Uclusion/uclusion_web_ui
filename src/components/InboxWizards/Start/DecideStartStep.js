@@ -97,6 +97,8 @@ function DecideStartStep(props) {
           marketId={marketId}
           allowedTypes={[]}
           isInbox
+          inboxMessageId={commentId}
+          compressAll
           removeActions
           toggleCompression={() => updateFormData({useCompression: !useCompression})}
           useCompression={useCompression}

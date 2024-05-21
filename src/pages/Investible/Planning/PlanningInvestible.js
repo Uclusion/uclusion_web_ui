@@ -762,7 +762,7 @@ function PlanningInvestible(props) {
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
                             usePadding={!mobileLayout}
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen/>
-            <div style={{
+            <div style={{ paddingBottom: mobileLayout ? undefined : '15vh',
               paddingLeft: mobileLayout ? undefined : '1rem',
               paddingRight: mobileLayout ? undefined : '1rem'}}>
               <div style={{display: 'flex', alignItems: 'center'}}>

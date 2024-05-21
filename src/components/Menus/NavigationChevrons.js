@@ -29,6 +29,8 @@ import { getDecisionData, getWorkspaceData } from '../../pages/Home/YourWork/Inb
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { addWorkspaceGroupAttribute } from '../../pages/Home/YourWork/InboxContext';
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: isOutbox ? formInboxItemLink(investible.investible.id)  :
@@ -57,6 +59,7 @@ export default function NavigationChevrons() {
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [groupsState] = useContext(MarketGroupsContext);
   const location = useLocation();
   const { pathname, search, hash } = location;
   const resource = `${pathname}${search}${hash}`;
@@ -101,10 +104,14 @@ export default function NavigationChevrons() {
   allExistingUrls = allExistingUrls.concat(outboxCandidates.map((candidate) => candidate.url));
 
   function computeNext() {
-    const highlightedNext = highlightedMessages?.find((message) =>
-      formInboxItemLink(message.type_object_id) !== resource);
-    if (highlightedNext) {
-      return {url: formInboxItemLink(highlightedNext.type_object_id), message: highlightedNext};
+    const highlighted = highlightedMessages?.filter((message) =>
+      formInboxItemLink(message.type_object_id) !== resource) || [];
+    const highlightedMapped = addWorkspaceGroupAttribute(highlighted, groupsState);
+    const highlightedOrdered =  _.orderBy(highlightedMapped, ['groupAttr', 'updated_at'],
+      ['asc', 'desc']);
+    if (!_.isEmpty(highlightedOrdered)) {
+      const message = highlightedOrdered[0];
+      return {url: formInboxItemLink(message.type_object_id), message};
     }
     if (!_.isEmpty(approvedCandidates)) {
       const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['desc']);

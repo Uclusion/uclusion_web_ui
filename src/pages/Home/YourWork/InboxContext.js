@@ -32,7 +32,7 @@ function searchFiltered(raw, searchResults, workItemId) {
     });
 }
 
-function addWorkspaceGroupAttribute (messagesFull, groupsState) {
+export function addWorkspaceGroupAttribute (messagesFull, groupsState) {
   return messagesFull.map((message) => {
     const group = getGroup(groupsState, undefined, message.group_id);
     if (group) {

@@ -102,6 +102,8 @@ export default function NavigationChevrons() {
   let allExistingUrls = allMessages.map((message) => formInboxItemLink(message.type_object_id));
   allExistingUrls = allExistingUrls.concat(approvedCandidates.map((candidate) => candidate.url));
   allExistingUrls = allExistingUrls.concat(outboxCandidates.map((candidate) => candidate.url));
+  const previous = _.find(orderedNavigations, (navigation) =>
+    allExistingUrls.includes(navigation.url) && navigation.url !== resource);
 
   function computeNext() {
     const highlighted = highlightedMessages?.filter((message) =>
@@ -115,14 +117,16 @@ export default function NavigationChevrons() {
     }
     if (!_.isEmpty(approvedCandidates)) {
       const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['desc']);
-      const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource);
+      const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource &&
+        candidate.url !== previous?.url);
       if (approvedNext) {
         return {url: approvedNext.url};
       }
     }
     if (!_.isEmpty(outboxCandidates)) {
       const orderedOutboxCandidates = _.orderBy(outboxCandidates, ['time'], ['desc']);
-      const outboxNext = _.find(orderedOutboxCandidates, (candidate) => candidate.url !== resource);
+      const outboxNext = _.find(orderedOutboxCandidates, (candidate) => candidate.url !== resource &&
+        candidate.url !== previous?.url);
       if (outboxNext) {
         return {url: outboxNext.url};
       }
@@ -131,10 +135,8 @@ export default function NavigationChevrons() {
   }
 
   const nextUrl = computeNext();
-  const previous = _.find(orderedNavigations, (navigation) =>
-    allExistingUrls.includes(navigation.url) && navigation.url !== resource);
   const backDisabled = _.isEmpty(previous);
-  const nextDisabled = _.isEmpty(nextUrl) || nextUrl.url === previous?.url;
+  const nextDisabled = _.isEmpty(nextUrl);
 
   function doPreviousNavigation() {
     const url = previous?.url;

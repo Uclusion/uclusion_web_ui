@@ -70,7 +70,7 @@ function Inbox(props) {
   const { indeterminate: indeterminateOutbox, determinate: determinateOutbox,
     checkAll: checkAllOutbox } = determinateStateOutbox;
   const unreadCount = _.isEmpty(search) ? getInboxCount(messagesState) : 0;
-  const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex);
+  const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex, workItemId);
   useEffect(() => {
     // If the last item on a page is deleted then must go down
     if ((page - 1)*PAGE_SIZE + 1 > _.size(unpaginatedItems)) {

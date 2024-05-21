@@ -52,9 +52,12 @@ export function getMessages(allOutBoxMessagesOrderedRaw, messagesFullRaw, search
   return {outBoxMessagesOrdered, inboxMessagesOrdered };
 }
 
-export function getUnpaginatedItems(messagesHash, tabIndex) {
+export function getUnpaginatedItems(messagesHash, tabIndex, workItemId) {
   const {outBoxMessagesOrdered, inboxMessagesOrdered } = messagesHash;
-  return tabIndex === PENDING_INDEX ? outBoxMessagesOrdered :  inboxMessagesOrdered;
+  if (workItemId) {
+    return workItemId.includes('_') ? inboxMessagesOrdered : outBoxMessagesOrdered;
+  }
+  return tabIndex === PENDING_INDEX ? outBoxMessagesOrdered : inboxMessagesOrdered;
 }
 
 function updateTab(state, action) {

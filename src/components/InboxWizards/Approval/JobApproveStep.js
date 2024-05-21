@@ -20,7 +20,12 @@ import {
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import _ from 'lodash';
-import { formInvestibleAddCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  formInvestibleAddCommentLink,
+  formInvestibleLink,
+  navigate,
+  preventDefaultAndProp
+} from '../../../utils/marketIdPathFunctions';
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -36,6 +41,7 @@ import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUt
 import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import Link from '@material-ui/core/Link';
 
 export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
@@ -64,6 +70,7 @@ function JobApproveStep(props) {
   const yourReason = getReasonForVote(yourVote, marketComments);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const voters = useInvestibleVoters(marketPresences, investibleId, marketId);
+  const pathToApprovals = `${formInvestibleLink(marketId, investibleId)}#approve`;
 
   function onNext() {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;
@@ -91,7 +98,7 @@ function JobApproveStep(props) {
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
       setOperationRunning(false);
       dismissWorkListItem(message, messagesDispatch);
-      navigate(history, `${formInvestibleLink(marketId, investibleId)}#approve`);
+      navigate(history, pathToApprovals);
     })
   }
 
@@ -139,14 +146,20 @@ function JobApproveStep(props) {
         {!wasDeleted && !_.isEmpty(voters) && !isAssigned && (
           <Typography className={classes.introSubText} variant="subtitle1">
             Take action here or click the job title to ask a question, make a suggestion, or
-            see <b>{_.size(voters)} existing approvals</b>. Your approval will expire
+            see <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
+            preventDefaultAndProp(event);
+            navigate(history, pathToApprovals);
+          }}>existing approvals</Link>. Your approval will expire
             in {market.investment_expiration} days.
           </Typography>
         )}
         {!wasDeleted && !_.isEmpty(voters) && isAssigned && (
           <Typography className={classes.introSubText} variant="subtitle1">
             Approve to mark your acceptance or click the job title to ask a question, make a suggestion, or
-            see <b>{_.size(voters)} existing approvals</b>.
+            see <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
+            preventDefaultAndProp(event);
+            navigate(history, pathToApprovals);
+          }}>existing approvals</Link>.
           </Typography>
         )}
         <JobDescription marketId={marketId} investibleId={investibleId} showVoting comments={todos}

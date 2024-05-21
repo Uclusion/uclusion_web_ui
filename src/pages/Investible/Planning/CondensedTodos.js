@@ -161,6 +161,7 @@ function CondensedTodos(props) {
       </div>
       {!hideTabs && sectionOpen && (
         <GmailTabs
+          removeBoxShadow
           value={showOpen ? 0 : 1}
           onChange={(event, value) => {
             setShowOpen(value === 0);

@@ -111,8 +111,9 @@ function JobDescription(props) {
           <div style={{
             paddingBottom: '0.5rem',
             marginTop: '1.5rem',
-            paddingRight: mobileLayout ? '0.5rem' : '10rem', overflowY: 'hidden',
-            overflowX: 'hidden'
+            overflowY: 'hidden',
+            overflowX: 'hidden',
+            paddingRight: '0.5rem'
           }}>
             <CommentBox
               comments={isSingleTaskDisplay ? comments : nonTodoComments}

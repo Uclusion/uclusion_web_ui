@@ -63,7 +63,7 @@ function WizardStepContainer (props) {
           </div>
         </Tooltip>
       )}
-      <div className={classes.baseCard} style={{ overflowX: 'hidden' }}>
+      <div className={classes.baseCard} style={{ overflowX: 'hidden', maxWidth: '80rem' }}>
         {children}
       </div>
     </>

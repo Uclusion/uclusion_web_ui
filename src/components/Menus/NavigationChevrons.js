@@ -132,9 +132,9 @@ export default function NavigationChevrons() {
 
   const nextUrl = computeNext();
   const previous = _.find(orderedNavigations, (navigation) =>
-    allExistingUrls.includes(navigation.url) && navigation.url !== resource && navigation.url !== nextUrl?.url);
+    allExistingUrls.includes(navigation.url) && navigation.url !== resource);
   const backDisabled = _.isEmpty(previous);
-  const nextDisabled = _.isEmpty(nextUrl);
+  const nextDisabled = _.isEmpty(nextUrl) || nextUrl.url === previous?.url;
 
   function doPreviousNavigation() {
     const url = previous?.url;

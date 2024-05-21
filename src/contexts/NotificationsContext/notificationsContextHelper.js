@@ -6,7 +6,7 @@ import { getMarketInfo } from '../../utils/userFunctions'
 import { getComment, getCommentRoot } from '../CommentsContext/commentsContextHelper';
 import { getGroup } from '../MarketGroupsContext/marketGroupsContextHelper';
 import { UNASSIGNED_TYPE } from '../../constants/notifications';
-import { dehighlightCriticalMessage, dehighlightMessages } from './notificationsContextReducer';
+import { dehighlightMessages } from './notificationsContextReducer';
 
 function checkComment(commentId, commentVersion, marketId, commentsState, childId) {
   if (!commentId) {
@@ -36,10 +36,8 @@ function checkComment(commentId, commentVersion, marketId, commentsState, childI
 }
 
 export function dehighlightMessage(message, messagesDispatch) {
-  if (message.type === UNASSIGNED_TYPE) {
-    messagesDispatch(dehighlightCriticalMessage(message.type_object_id,
-      `${message.type}_${message.comment_id}`))
-  } else {
+  if (message.type !== UNASSIGNED_TYPE) {
+    // Handle unassigned on the triage page after render or else default open row breaks
     messagesDispatch(dehighlightMessages([message.type_object_id]));
   }
 }

@@ -32,7 +32,7 @@ import { SearchResultsContext } from '../../../contexts/SearchResultsContext/Sea
 import DismissableText from '../../../components/Notifications/DismissableText';
 import { deleteOrDehilightMessages } from '../../../api/users';
 import { stripHTML } from '../../../utils/stringFunctions';
-import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
+import { BLUE_LEVEL, RED_LEVEL, UNASSIGNED_TYPE, YELLOW_LEVEL } from '../../../constants/notifications';
 import { BUG_WIZARD_TYPE } from '../../../constants/markets';
 import BugListItem from '../../../components/Comments/BugListItem';
 import getReducer, {
@@ -60,6 +60,7 @@ import {
   MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../../contexts/NotificationsContext/notificationsContextMessages';
 import { pushMessage } from '../../../utils/MessageBusUtils';
+import { dehighlightCriticalMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 
 export const todoClasses = makeStyles(
   theme => {
@@ -251,6 +252,13 @@ function MarketTodos(props) {
     }
     return () => {};
   }, [comments, hash, hidden, history, messagesState, sectionOpen, setSectionOpen, isInbox]);
+
+  useEffect(() => {
+    if (openDefaultId && message?.type === UNASSIGNED_TYPE) {
+      messagesDispatch(dehighlightCriticalMessage(message.type_object_id,
+        `${message.type}_${openDefaultId}`));
+    }
+  }, [message?.type, message?.type_object_id, messagesDispatch, openDefaultId]);
 
   function processTabNotifications() {
     const allMessages = [];

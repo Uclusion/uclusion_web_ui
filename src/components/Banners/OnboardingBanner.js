@@ -87,11 +87,11 @@ function OnboardingBanner() {
             Take this assignment to help.</Typography>
       )}
       {isInbox && typeObjectId?.startsWith('UNREAD_JOB_APPROVAL_REQUEST') && (
-          <Typography><Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">Job approval</Link>.
+          <Typography><Link href="https://documentation.uclusion.com/flows/#job-approval" target="_blank">Job approval</Link>.
             Help decide what work is done.</Typography>
       )}
       {isInbox && typeObjectId && !typeObjectId.includes('_') && (
-          <Typography>Here you socialize your assignment proposal. Poke if no response.</Typography>
+          <Typography><Link href="https://documentation.uclusion.com/flows/#job-approval" target="_blank">Job approval</Link> for your assignment. Poke if no response.</Typography>
       )}
       {!mobileLayout && (
         <DemoCreateWorkspaceButton/>

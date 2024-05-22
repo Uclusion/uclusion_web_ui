@@ -13,7 +13,7 @@ import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/
 import {
   ACTIVE_STAGE,
   APPROVAL_WIZARD_TYPE,
-  DECISION_COMMENT_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE,
+  DECISION_COMMENT_WIZARD_TYPE,
   OPTION_EDIT_WIZARD_TYPE
 } from '../../../constants/markets';
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';

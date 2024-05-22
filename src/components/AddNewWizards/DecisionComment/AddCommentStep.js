@@ -12,9 +12,10 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import JobDescription from '../../InboxWizards/JobDescription';
 
 function AddCommentStep (props) {
-  const { investibleId, commentType, marketId, groupId } = props;
+  const { investibleId, commentType, marketId, groupId, formData, updateFormData } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [marketsState] = useContext(MarketsContext);
@@ -26,6 +27,8 @@ function AddCommentStep (props) {
   const market = getMarket(marketsState, marketId) || {};
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId) || {};
+  const { useCompression } = formData;
+
   function onFinish() {
     if (parentComment.investible_id) {
       navigate(history,
@@ -47,6 +50,9 @@ function AddCommentStep (props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         This comment will go to those interested in this option - otherwise use @ mentions for different addressing.
       </Typography>
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={[]}
+                      useCompression={useCompression}
+                      toggleCompression={() => updateFormData({useCompression: !useCompression})} />
       <CommentAdd
         nameKey="DecisionCommentAdd"
         type={commentType}

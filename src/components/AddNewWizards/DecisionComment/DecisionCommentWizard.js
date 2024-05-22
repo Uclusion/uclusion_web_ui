@@ -20,7 +20,7 @@ function DecisionCommentWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name={`decision_comment_wizard${investibleId}`}>
+      <FormdataWizard name={`decision_comment_wizard${investibleId}`} defaultFormData={{useCompression: true}}>
         <AddCommentStep investibleId={investibleId} marketId={marketId} groupId={groupId} commentType={commentType} />
       </FormdataWizard>
     </WizardStylesProvider>

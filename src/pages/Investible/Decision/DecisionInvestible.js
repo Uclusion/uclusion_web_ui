@@ -13,7 +13,7 @@ import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/
 import {
   ACTIVE_STAGE,
   APPROVAL_WIZARD_TYPE,
-  DECISION_COMMENT_WIZARD_TYPE,
+  DECISION_COMMENT_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE,
   OPTION_EDIT_WIZARD_TYPE
 } from '../../../constants/markets';
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
@@ -52,6 +52,8 @@ import {
   LOCK_INVESTIBLE_CHANNEL
 } from '../../../contexts/InvestibesContext/investiblesContextMessages';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
+import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
+import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -170,6 +172,7 @@ function DecisionInvestible(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const metaClasses = useMetaDataStyles();
+  const wizardClasses = wizardStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
@@ -385,13 +388,14 @@ function DecisionInvestible(props) {
             <FormattedMessage id="decisionInvestibleOthersVoting"/>
           </h2>
           {displayVotingInput && investibleId && (
-            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
-                                     style={{ display: 'flex', marginBottom: '1rem' }}
-                                     onClick={() => navigate(history,
-                                       formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, undefined,
-                                         undefined, typeObjectId))}>
+            <SpinningButton id="approvalButton" icon={AddIcon} iconColor="black" className={wizardClasses.actionNext}
+                            variant="text" doSpin={false}
+                            style={{ display: 'flex', marginBottom: '1rem' }}
+                            onClick={() => navigate(history,
+                             formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, undefined,
+                               undefined, typeObjectId))}>
               <FormattedMessage id="createNewApproval"/>
-            </SpinningIconLabelButton>
+            </SpinningButton>
           )}
           <Voting
             investibleId={investibleId}
@@ -412,19 +416,33 @@ function DecisionInvestible(props) {
             <FormattedMessage id="comments"/>
           </h2>
           {displayCommentInput && (
-            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground style={{ marginBottom: '1rem' }}
-                                     onClick={() => navigate(history,
-                                       formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId,
-                                         undefined, undefined, typeObjectId))}>
-              <FormattedMessage id="createComment"/>
-            </SpinningIconLabelButton>
-          )}
-          <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
-                      isInbox={removeActions} removeActions={removeActions} usePadding={false}/>
-        </div>
+            <div style={{display: mobileLayout ? undefined : 'flex'}}>
+              {allowedCommentTypes.map((allowedCommentType) => {
+                return (
+                  <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
+                                  icon={AddIcon} iconColor="black"
+                                  style={{
+                                    display: "flex",
+                                    marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
+                                  }}
+                                  variant="text" doSpin={false}
+                                  onClick={() => navigate(history,
+                                    formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                                      allowedCommentType))}>
+                    <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`}/>
+                  </SpinningButton>
+                );
+              })}
+            </div>
       )}
+      <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
+                  isInbox={removeActions} removeActions={removeActions} usePadding={false}/>
     </div>
-  );
+  )
+}
+</div>
+)
+  ;
 }
 
 DecisionInvestible.propTypes = {

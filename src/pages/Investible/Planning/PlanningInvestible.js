@@ -837,13 +837,12 @@ function PlanningInvestible(props) {
             <Grid item xs={12} style={{ marginTop: mobileLayout ? undefined : '15px',
               paddingLeft: mobileLayout ? undefined : '1rem' }}>
               {showCommentAdd && !_.isEmpty(allowedCommentTypes) && (
-                <div style={{display: 'flex', marginLeft: '0.5rem'}}>
+                <div style={{display: mobileLayout ? undefined : 'flex', marginLeft: '0.5rem'}}>
                   {allowedCommentTypes.map((allowedCommentType) => {
                     return (
                       <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
                                       icon={AddIcon} iconColor="black"
                                       style={{display: "flex", marginTop: '0.75rem',
-                                        fontSize: mobileLayout ? '0.77rem' : undefined,
                                         marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'}}
                                       variant="text" doSpin={false}
                                       onClick={() => navigate(history,

@@ -116,35 +116,36 @@ function JobApproveStep(props) {
       {...props}
       isLarge
     >
-        <Typography className={classes.introText} variant="h6">
-          How certain are you this job should be done?
+      <Typography className={classes.introText} variant="h6">
+        How certain are you this job should be done?
+      </Typography>
+      {wasDeleted && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Your approval was deleted or expired.
         </Typography>
-        {wasDeleted && (
-          <Typography className={classes.introSubText} variant="subtitle1">
-            Your approval was deleted or expired.
-          </Typography>
-        )}
-        <JobDescription marketId={marketId} investibleId={investibleId} />
-        <AddInitialVote
-          marketId={marketId}
-          onChange={onQuantityChange}
-          newQuantity={approveQuantity}
-          onEditorChange={onApproveChange('approveReason')}
-          onUpload={onApproveChange('approveUploadedFiles')}
-          defaultReason={approveReason}
-          editorName={editorName}
-        />
-        <div className={classes.borderBottom}/>
-        <WizardStepButtons
-          {...props}
-          validForm={validForm}
-          onNext={onNext}
-          nextLabel="JobWizardApproveJob"
-          showOtherNext={_.isEmpty(requiredApprovers)&&isAssignedToMe}
-          otherNextValid
-          onOtherNext={start}
-          otherNextLabel="skipAllApprovals"
-        />
+      )}
+      <JobDescription marketId={marketId} investibleId={investibleId}/>
+      <div className={classes.borderBottom}/>
+      <AddInitialVote
+        marketId={marketId}
+        onChange={onQuantityChange}
+        newQuantity={approveQuantity}
+        onEditorChange={onApproveChange('approveReason')}
+        onUpload={onApproveChange('approveUploadedFiles')}
+        defaultReason={approveReason}
+        editorName={editorName}
+      />
+      <div className={classes.borderBottom}/>
+      <WizardStepButtons
+        {...props}
+        validForm={validForm}
+        onNext={onNext}
+        nextLabel="JobWizardApproveJob"
+        showOtherNext={_.isEmpty(requiredApprovers) && isAssignedToMe}
+        otherNextValid
+        onOtherNext={start}
+        otherNextLabel="skipAllApprovals"
+      />
     </WizardStepContainer>
   )
 }

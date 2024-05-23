@@ -129,69 +129,69 @@ function JobApproveStep(props) {
     <WizardStepContainer
       {...props}
     >
-        <Typography className={classes.introText} variant="h6">
-          {intl.formatMessage({id: isAssigned ? 'ApproveOwnAssignmentFullTitle' : 'AssignmentApprovalTitle'})}
+      <Typography className={classes.introText} variant="h6">
+        {intl.formatMessage({ id: isAssigned ? 'ApproveOwnAssignmentFullTitle' : 'AssignmentApprovalTitle' })}
+      </Typography>
+      {wasDeleted && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Your approval was deleted or expired.
         </Typography>
-        {wasDeleted && (
-          <Typography className={classes.introSubText} variant="subtitle1">
-            Your approval was deleted or expired.
-          </Typography>
-        )}
-        {!wasDeleted && _.isEmpty(voters) && (
-          <Typography className={classes.introSubText} variant="subtitle1">
-            Take action here or click the job title to ask a question or make a suggestion. Your approval will expire
-            in {market.investment_expiration} days.
-          </Typography>
-        )}
-        {!wasDeleted && !_.isEmpty(voters) && !isAssigned && (
-          <Typography className={classes.introSubText} variant="subtitle1">
-            Take action here or click the job title to ask a question, make a suggestion, or
-            see <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
-            preventDefaultAndProp(event);
-            navigate(history, pathToApprovals);
-          }}>existing approvals</Link>. Your approval will expire
-            in {market.investment_expiration} days.
-          </Typography>
-        )}
-        {!wasDeleted && !_.isEmpty(voters) && isAssigned && (
-          <Typography className={classes.introSubText} variant="subtitle1">
-            Approve to mark your acceptance or click the job title to ask a question, make a suggestion, or
-            see <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
-            preventDefaultAndProp(event);
-            navigate(history, pathToApprovals);
-          }}>existing approvals</Link>.
-          </Typography>
-        )}
-        <JobDescription marketId={marketId} investibleId={investibleId} showVoting comments={todos}
-                        showRequiredApprovers />
-        <div style={{marginBottom: '1rem'}}/>
-        <AddInitialVote
-          marketId={marketId}
-          onChange={onQuantityChange}
-          newQuantity={approveQuantity}
-          onEditorChange={onApproveChange('approveReason')}
-          onUpload={onApproveChange('approveUploadedFiles')}
-          editorName={editorName}
-          defaultReason={!editorEmpty(yourReason?.body) ? yourReason?.body : undefined}
-          isInbox
-        />
-        <div className={classes.borderBottom}/>
-        <WizardStepButtons
-          {...props}
-          onFinish={onFinish}
-          validForm={validForm}
-          nextLabel={isAssigned ? 'ApprovalWizardAccept' : 'ApprovalWizardApprove'}
-          onNext={onNext}
-          showOtherNext
-          otherNextValid
-          otherSpinOnClick={false}
-          otherNextLabel="ApprovalWizardBlock"
-          onOtherNext={() => navigate(history,
-            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,
-              message.type_object_id))}
-          showTerminate={getShowTerminate(message)}
-          terminateLabel={getLabelForTerminate(message)}
-        />
+      )}
+      {!wasDeleted && _.isEmpty(voters) && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Take action here or click the job title to ask a question or make a suggestion. Your approval will expire
+          in {market.investment_expiration} days.
+        </Typography>
+      )}
+      {!wasDeleted && !_.isEmpty(voters) && !isAssigned && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Take action here or click the job title to ask a question, make a suggestion, or
+          see <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
+          preventDefaultAndProp(event);
+          navigate(history, pathToApprovals);
+        }}>existing approvals</Link>. Your approval will expire
+          in {market.investment_expiration} days.
+        </Typography>
+      )}
+      {!wasDeleted && !_.isEmpty(voters) && isAssigned && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Approve to mark your acceptance or click the job title to ask a question, make a suggestion, or
+          see <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
+          preventDefaultAndProp(event);
+          navigate(history, pathToApprovals);
+        }}>existing approvals</Link>.
+        </Typography>
+      )}
+      <JobDescription marketId={marketId} investibleId={investibleId} showVoting comments={todos}
+                      showRequiredApprovers/>
+      <div className={classes.borderBottom}/>
+      <AddInitialVote
+        marketId={marketId}
+        onChange={onQuantityChange}
+        newQuantity={approveQuantity}
+        onEditorChange={onApproveChange('approveReason')}
+        onUpload={onApproveChange('approveUploadedFiles')}
+        editorName={editorName}
+        defaultReason={!editorEmpty(yourReason?.body) ? yourReason?.body : undefined}
+        isInbox
+      />
+      <div className={classes.borderBottom}/>
+      <WizardStepButtons
+        {...props}
+        onFinish={onFinish}
+        validForm={validForm}
+        nextLabel={isAssigned ? 'ApprovalWizardAccept' : 'ApprovalWizardApprove'}
+        onNext={onNext}
+        showOtherNext
+        otherNextValid
+        otherSpinOnClick={false}
+        otherNextLabel="ApprovalWizardBlock"
+        onOtherNext={() => navigate(history,
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,
+            message.type_object_id))}
+        showTerminate={getShowTerminate(message)}
+        terminateLabel={getLabelForTerminate(message)}
+      />
     </WizardStepContainer>
   )
 }

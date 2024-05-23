@@ -103,33 +103,34 @@ function JobApproveStep(props) {
       {...props}
       isLarge
     >
-        <Typography className={classes.introText} variant="h6">
-          How certain are you this job should be done?
+      <Typography className={classes.introText} variant="h6">
+        How certain are you this job should be done?
+      </Typography>
+      {quantity && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Changing the assignment removed your previous approval.
         </Typography>
-        {quantity && (
-          <Typography className={classes.introSubText} variant="subtitle1">
-            Changing the assignment removed your previous approval.
-          </Typography>
-        )}
-        <AddInitialVote
-          marketId={marketId}
-          onChange={onQuantityChange}
-          newQuantity={approveQuantity || quantity}
-          defaultReason={yourReason.body}
-          onEditorChange={onApproveChange('approveReason')}
-          onUpload={onApproveChange('approveUploadedFiles')}
-          editorName={editorName}
-        />
-        <div className={classes.borderBottom}/>
-        <WizardStepButtons
-          {...props}
-          validForm={validForm}
-          showTerminate={true}
-          onNext={onNext}
-          onTerminate={onTerminate}
-          terminateLabel="JobWizardGotoJob"
-          nextLabel="yourVotingVoteForThisPlanning"
-        />
+      )}
+      <div className={classes.borderBottom}/>
+      <AddInitialVote
+        marketId={marketId}
+        onChange={onQuantityChange}
+        newQuantity={approveQuantity || quantity}
+        defaultReason={yourReason.body}
+        onEditorChange={onApproveChange('approveReason')}
+        onUpload={onApproveChange('approveUploadedFiles')}
+        editorName={editorName}
+      />
+      <div className={classes.borderBottom}/>
+      <WizardStepButtons
+        {...props}
+        validForm={validForm}
+        showTerminate={true}
+        onNext={onNext}
+        onTerminate={onTerminate}
+        terminateLabel="JobWizardGotoJob"
+        nextLabel="yourVotingVoteForThisPlanning"
+      />
     </WizardStepContainer>
   )
 }

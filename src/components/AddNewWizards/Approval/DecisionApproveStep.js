@@ -90,47 +90,48 @@ function DecisionApproveStep(props) {
       {...props}
       isLarge
     >
-        <Typography className={classes.introText} variant="h6">
-          How certain are you of this option?
+      <Typography className={classes.introText} variant="h6">
+        How certain are you of this option?
+      </Typography>
+      {allowsMultiple && !wasDeleted && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          You can vote for more than one option.
         </Typography>
-        {allowsMultiple && !wasDeleted && (
-          <Typography className={classes.introSubText} variant="subtitle1">
-            You can vote for more than one option.
-          </Typography>
-        )}
-        {hasOtherVote && !allowsMultiple && !wasDeleted && (
-          <Typography className={classes.introSubText} variant="subtitle1">
-            Voting for this option clears your previous vote.
-          </Typography>
-        )}
-        {wasDeleted && (
-          <Typography className={classes.introSubText} variant="subtitle1">
-            Your vote was deleted.
-          </Typography>
-        )}
-        <JobDescription marketId={marketId} investibleId={investibleId} />
-        <AddInitialVote
-          marketId={marketId}
-          onChange={onQuantityChange}
-          newQuantity={approveQuantity}
-          onEditorChange={onApproveChange('approveReason')}
-          onUpload={onApproveChange('approveUploadedFiles')}
-          defaultReason={approveReason}
-          editorName={editorName}
-        />
-        <div className={classes.borderBottom}/>
-        <WizardStepButtons
-          {...props}
-          validForm={validForm}
-          onNext={onNext}
-          nextLabel="DecisionWizardApprove"
-          showOtherNext
-          otherNextValid
-          otherNextLabel="ApprovalWizardBlock"
-          otherSpinOnClick={false}
-          onOtherNext={() => navigate(history,
-            formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, undefined, ISSUE_TYPE))}
-        />
+      )}
+      {hasOtherVote && !allowsMultiple && !wasDeleted && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Voting for this option clears your previous vote.
+        </Typography>
+      )}
+      {wasDeleted && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Your vote was deleted.
+        </Typography>
+      )}
+      <JobDescription marketId={marketId} investibleId={investibleId}/>
+      <div className={classes.borderBottom}/>
+      <AddInitialVote
+        marketId={marketId}
+        onChange={onQuantityChange}
+        newQuantity={approveQuantity}
+        onEditorChange={onApproveChange('approveReason')}
+        onUpload={onApproveChange('approveUploadedFiles')}
+        defaultReason={approveReason}
+        editorName={editorName}
+      />
+      <div className={classes.borderBottom}/>
+      <WizardStepButtons
+        {...props}
+        validForm={validForm}
+        onNext={onNext}
+        nextLabel="DecisionWizardApprove"
+        showOtherNext
+        otherNextValid
+        otherNextLabel="ApprovalWizardBlock"
+        otherSpinOnClick={false}
+        onOtherNext={() => navigate(history,
+          formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, undefined, ISSUE_TYPE))}
+      />
     </WizardStepContainer>
   )
 }

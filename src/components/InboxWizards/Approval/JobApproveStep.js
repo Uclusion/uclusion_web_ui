@@ -139,8 +139,8 @@ function JobApproveStep(props) {
       )}
       {!wasDeleted && _.isEmpty(voters) && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Take action here or click the job title to ask a question or make a suggestion. Your approval will expire
-          in {market.investment_expiration} days.
+          Take action here or click the job title to ask a question or make a suggestion. You are the first approver
+          and approvals expire in {market.investment_expiration} days.
         </Typography>
       )}
       {!wasDeleted && !_.isEmpty(voters) && !isAssigned && (
@@ -149,8 +149,7 @@ function JobApproveStep(props) {
           see <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, pathToApprovals);
-        }}>existing approvals</Link>. Your approval will expire
-          in {market.investment_expiration} days.
+        }}>existing approvals</Link>. Approvals expire in {market.investment_expiration} days.
         </Typography>
       )}
       {!wasDeleted && !_.isEmpty(voters) && isAssigned && (

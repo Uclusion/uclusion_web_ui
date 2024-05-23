@@ -32,7 +32,7 @@ import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { ScrollContext } from '../../contexts/ScrollContext';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { LocalCommentsContext, useCommentStyles } from './Comment';
-import { isLargeDisplay, stripHTML } from '../../utils/stringFunctions';
+import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import { REPLY_WIZARD_TYPE } from '../../constants/markets';
@@ -297,7 +297,8 @@ function Reply(props) {
     </div>
   </Card>;
 
-  const commentCard = <Card className={getHighlightClass()} id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
+  const commentCard = <Card className={getHighlightClass()}
+                            id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
     <div onClick={() => {
       if (replyBeingEdited || isInbox) {
         navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
@@ -375,7 +376,7 @@ function Reply(props) {
   if (useCompression && comment.id !== inboxMessageId) {
     return (
       <>
-        {isLargeDisplay(comment.body) ? compressedCommentCard  : commentCard}
+        {compressedCommentCard}
         <div className={classes.cardContent}>
           <ThreadedReplies
             replies={comment.children}

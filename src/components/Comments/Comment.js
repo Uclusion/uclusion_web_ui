@@ -985,7 +985,8 @@ function Comment(props) {
     const numInThread = _.size(comments.filter((aComment) => aComment.root_comment_id === id));
     return (
     <>
-      {isLargeDisplay(body, inboxMessageId !== id ? 1 : 7) ? compressedCommentCard  : commentCard}
+      {inboxMessageId !== id ? compressedCommentCard :
+        (isLargeDisplay(body, 7) ? compressedCommentCard  : commentCard)}
       <LocalCommentsContext.Provider value={{ comments, marketId, idPrepend }}>
         {inboxMessageId === id && numInThread > 0 &&
           getCompressionButton(numInThread, id, toggleCompression, intl)

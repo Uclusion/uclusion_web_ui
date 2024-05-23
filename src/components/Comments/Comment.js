@@ -722,8 +722,10 @@ function Comment(props) {
   );
   const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,
     undefined, id);
-  const commentCard = <Card elevation={3} style={{overflow: 'unset', marginTop: isSent === false || usePadding === false ? 0
-      : undefined}} className={getCommentHighlightStyle()} ref={editBox}>
+  const commentCard = <Card elevation={3}
+                            style={{overflow: 'unset', marginTop: isSent === false || usePadding === false ? 0
+      : undefined, width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
+                            ref={editBox}>
     <div onClick={(event) => {
       if (isInbox && !invalidEditEvent(event, history)) {
         navigate(history, formCommentLink(marketId, groupId, investibleId, id));

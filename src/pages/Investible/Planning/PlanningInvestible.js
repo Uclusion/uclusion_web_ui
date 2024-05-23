@@ -394,7 +394,7 @@ function PlanningInvestible(props) {
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const createdBy = marketPresences.find((presence) => presence.id === createdById) || {};
   const yourVote = yourPresence?.investments?.find((investment) =>
-    investment.investible_id === investibleId);
+    investment.investible_id === investibleId && !investment.deleted);
   const displayVotingInput = canVote && _.isEmpty(search) && !yourVote;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
 

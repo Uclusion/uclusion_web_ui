@@ -47,7 +47,7 @@ function JobApproveStep(props) {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
     } = processTextAndFilesForSave(approveUploadedFiles, approveReason);
-
+    const reasonNeedsUpdate = !_.isEmpty(tokensRemoved);
     const updateInfo = {
       marketId,
       investibleId,
@@ -55,9 +55,14 @@ function JobApproveStep(props) {
       newQuantity: parseInt(approveQuantity),
       currentQuantity: 0,
       newReasonText: tokensRemoved,
-      reasonNeedsUpdate: !_.isEmpty(tokensRemoved),
+      reasonNeedsUpdate,
       uploadedFiles: filteredUploads
     };
+    if (!reasonNeedsUpdate) {
+      const yourVote = myPresence.investments?.find((investment) =>
+        investment.investible_id === investibleId);
+      updateInfo.currentReasonId = yourVote?.comment_id;
+    }
     return updateInvestment(updateInfo).then((result) => {
       const { commentResult, investmentResult } = result;
       const { commentAction, comment } = commentResult;

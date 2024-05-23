@@ -68,6 +68,7 @@ function JobApproveStep(props) {
       reasonNeedsUpdate,
       uploadedFiles: filteredUploads
     };
+    console.debug(`current reason id is ${currentReasonId}`)
     return updateInvestment(updateInfo).then((result) => {
       doQuick(result);
       navigate(history, `${formInvestibleLink(marketId, investibleId)}#cv${userId}`);

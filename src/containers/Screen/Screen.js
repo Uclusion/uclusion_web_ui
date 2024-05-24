@@ -263,7 +263,8 @@ function Screen(props) {
         num = (results || []).filter((item) => item.groupId === group.id);
       }
       return {icon: myIcon, endIcon: outsetAvailable ? MoreVert : undefined, text: group.name, num,
-        isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined, isBlue: groupId === group.id,
+        isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
+        isBlue: groupId === group.id || pathname === '/',
         resetFunction: isChosen ? resetFunction : undefined,
         onClickFunc: (event) => {
           preventDefaultAndProp(event);

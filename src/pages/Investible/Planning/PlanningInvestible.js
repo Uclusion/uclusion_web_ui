@@ -803,7 +803,7 @@ function PlanningInvestible(props) {
                   isAssigned={isAssigned}
                 />
               )}
-              <h2 id="status" style={{paddingTop: '1rem', paddingBottom: 0, marginBottom: 0}}>
+              <h2 id="status" style={{paddingTop: '1.5rem', paddingBottom: 0, marginBottom: 0}}>
                 <FormattedMessage id="reportsSectionLabel" />
               </h2>
               {showCommentAdd && isAssigned && (
@@ -816,6 +816,12 @@ function PlanningInvestible(props) {
                                     REPORT_TYPE))}>
                   <FormattedMessage id='createNewStatus'/>
                 </SpinningButton>
+              )}
+              {(!showCommentAdd || !isAssigned)&&_.isEmpty(reportsCommentsSearched) && (
+                <Typography style={{marginTop: '1rem', marginLeft: 'auto', marginRight: 'auto'}}
+                            variant="body1">
+                  No progress reports.
+                </Typography>
               )}
               <CommentBox
                 comments={reportsCommentsSearched.concat(replies)}

@@ -549,9 +549,8 @@ const messages = defineMessages({
   notification: 'notification',
   notificationDelete: 'Dismiss',
   informational: 'Informational',
-  mentionsExplanation: 'Count of outstanding mentions',
-  approvalExplanation: 'Count of outstanding required approvals',
-  reviewExplanation: 'Count of outstanding required reviews',
+  mentionsExplanation: 'Count of mentions for this person to process',
+  approvalExplanation: 'Count of required approvals for this person to process',
   backToInboxWizard: 'Back to inbox wizard',
 
   // stages

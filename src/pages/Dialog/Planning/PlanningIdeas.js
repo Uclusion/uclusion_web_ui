@@ -563,9 +563,13 @@ function StageInvestible(props) {
             </div>
           )}
           {unaccepted && (
-            <div className={planClasses.daysEstimation} style={{wordWrap: 'normal'}}>
-              <FormattedMessage id='planningUnacceptedLabel' />
-            </div>
+            <Tooltip
+              title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
+            >
+              <div className={planClasses.daysEstimation} style={{wordWrap: 'normal'}}>
+                <FormattedMessage id='planningUnacceptedLabel' />
+              </div>
+            </Tooltip>
           )}
           {hasDaysEstimate && (
             <div style={{ whiteSpace: 'nowrap' }}>

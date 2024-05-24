@@ -245,6 +245,12 @@ function PlanningIdeas(props) {
             <b><FormattedMessage id="planningVotingStageLabel" /></b>
           </div>
         )}
+        {_.isEmpty(myInvestiblesStageHash) && (
+          <Typography style={{marginTop: '1rem', marginLeft: 'auto', marginRight: 'auto'}}
+                      variant="body1">
+            No assigned jobs.
+          </Typography>
+        )}
         <VotingStage
           id={inDialogStageId}
           investibles={myInvestiblesStageHash[inDialogStageId] || []}

@@ -14,9 +14,11 @@ import { getPageReducerPage, usePageStateReducer } from '../../components/PageSt
 import GravatarGroup from '../../components/Avatars/GravatarGroup'
 import AddIcon from '@material-ui/icons/Add';
 import { formWizardLink, navigate } from '../../utils/marketIdPathFunctions';
-import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton';
 import { useHistory } from 'react-router';
 import { APPROVAL_WIZARD_TYPE } from '../../constants/markets';
+import SpinningButton from '../../components/SpinBlocking/SpinningButton';
+import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext';
+import { Typography } from '@material-ui/core';
 
 function InlineInitiativeBox(props) {
   const {
@@ -30,6 +32,7 @@ function InlineInitiativeBox(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
+  const wizardClasses = wizardStyles();
   const { useCompressionFor, useCompressionAgainst } = votingPageState;
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
@@ -67,29 +70,24 @@ function InlineInitiativeBox(props) {
   }
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
-      {showVoteButtons && (
-        <div style={{display: 'flex'}}>
-            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground id={`voteFor${anInlineMarket.id}`}
-                                     style={{display: "flex", marginTop: '2rem'}}
-                                     onClick={() => navigate(history,
-                                       `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, 
-                                         inlineInvestibleId, undefined, undefined, 
-                                         typeObjectId)}&voteFor=true`)}>
-              <FormattedMessage id="voteFor" />
-            </SpinningIconLabelButton>
-            <SpinningIconLabelButton icon={AddIcon} doSpin={false} whiteBackground
-                                     id={`voteAgainst${anInlineMarket.id}`}
-                                     style={{display: "flex", marginTop: '2rem'}}
-                                     onClick={() => navigate(history, `${formWizardLink(APPROVAL_WIZARD_TYPE, 
-                                       anInlineMarket.id, inlineInvestibleId, undefined, undefined, 
-                                       typeObjectId)}&voteFor=false`)}>
-              <FormattedMessage id="voteAgainst" />
-            </SpinningIconLabelButton>
-        </div>
-      )}
-      <h2>
+      <h2 style={{marginBottom: '0.5rem'}}>
         <FormattedMessage id="initiativeVotingFor"/>
       </h2>
+      {showVoteButtons && (
+        <SpinningButton icon={AddIcon} doSpin={false} className={wizardClasses.actionNext} iconColor="black"
+                        variant="text"
+                        id={`voteFor${anInlineMarket.id}`} style={{display: "flex", marginBottom: '1rem'}}
+                        onClick={() => navigate(history,
+                          `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, inlineInvestibleId, 
+                            undefined, undefined, typeObjectId)}&voteFor=true`)}>
+          <FormattedMessage id="voteFor" />
+        </SpinningButton>
+      )}
+      {!showVoteButtons && _.isEmpty(positiveVoters) && (
+        <Typography style={{marginLeft: 'auto', marginRight: 'auto'}} variant="body1">
+          No for votes.
+        </Typography>
+      )}
       <Voting
         investibleId={inlineInvestibleId}
         marketPresences={positiveVoters}
@@ -101,9 +99,24 @@ function InlineInitiativeBox(props) {
         votingAllowed={!inArchives}
         yourPresence={myInlinePresence}
       />
-      <h2 style={{marginTop: '1.75rem'}}>
+      <h2 style={{marginTop: '1.75rem', marginBottom: '0.5rem'}}>
         <FormattedMessage id="initiativeVotingAgainst" />
       </h2>
+      {showVoteButtons && (
+        <SpinningButton icon={AddIcon} doSpin={false} className={wizardClasses.actionNext} iconColor="black"
+                        variant="text"
+                        id={`voteAgainst${anInlineMarket.id}`} style={{display: "flex", marginBottom: '1rem'}}
+                        onClick={() => navigate(history,
+                          `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, inlineInvestibleId,
+                            undefined, undefined, typeObjectId)}&voteFor=false`)}>
+          <FormattedMessage id="voteAgainst" />
+        </SpinningButton>
+      )}
+      {!showVoteButtons && _.isEmpty(negativeVoters) && (
+        <Typography style={{marginLeft: 'auto', marginRight: 'auto'}} variant="body1">
+          No against votes.
+        </Typography>
+      )}
       <Voting
         investibleId={inlineInvestibleId}
         marketPresences={negativeVoters}

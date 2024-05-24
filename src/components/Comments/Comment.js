@@ -724,7 +724,7 @@ function Comment(props) {
     undefined, id);
   const commentCard = <Card elevation={3}
                             style={{overflow: 'unset', marginTop: isSent === false || usePadding === false ? 0
-      : undefined, width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
+      : '1rem', width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
                             ref={editBox}>
     <div onClick={(event) => {
       if (isInbox && !invalidEditEvent(event, history)) {
@@ -969,7 +969,8 @@ function Comment(props) {
     </div>
   </Card>;
   const compressedCommentCard = <Card elevation={3} style={{ display: 'flex', paddingBottom: '1rem',
-    cursor: 'pointer', width: 'fit-content', maxWidth: '98%' }} onClick={toggleCompression}>
+    cursor: 'pointer', width: 'fit-content', maxWidth: '98%', marginTop: isSent === false || usePadding === false ? 0
+      : '1rem' }} onClick={toggleCompression}>
     {cardTypeDisplay}
     <div className={classes.compressedComment}>
       {stripHTML(body)}</div>

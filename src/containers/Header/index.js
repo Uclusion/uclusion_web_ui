@@ -147,7 +147,7 @@ function Header (props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
-  const { toolbarButtons, appEnabled, hideTools, navMenu, disableSearch } = props;
+  const { toolbarButtons, appEnabled, navMenu, disableSearch } = props;
   const [operationRunning] = useContext(OperationInProgressContext);
   const [logoTimer, setLogoTimer] = useState(undefined);
   const [logoImage, setLogoImage] = useState(NORMAL_LOGO);
@@ -226,7 +226,7 @@ function Header (props) {
               </Link>
             )}
           </div>
-          {!hideTools && toolbarButtons}
+          {toolbarButtons}
           {!online && (
             <Paper style={{ marginRight: '4rem' }}>
               <Typography variant="h5" style={{ paddingLeft: '6px', paddingRight: '6px' }}>
@@ -239,23 +239,19 @@ function Header (props) {
             <div className={classes.grow}/>
           )}
           <NavigationChevrons/>
-          {!hideTools && (
-            <React.Fragment>
-              {!mobileLayout && (
-                <div className={classes.grow}/>
-              )}
-              {!mobileLayout && (
-                <div className={classes.padLeft}/>
-              )}
-              {!mobileLayout && (
-                <Tooltip title={<FormattedMessage id="help"/>}>
-                  <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: 'white' }} id="helpIcon"
-                                   onClick={() => openInNewTab(config.helpLink)}/>
-                </Tooltip>
-              )}
-              <Identity/>
-            </React.Fragment>
+          {!mobileLayout && (
+            <div className={classes.grow}/>
           )}
+          {!mobileLayout && (
+            <div className={classes.padLeft}/>
+          )}
+          {!mobileLayout && (
+            <Tooltip title={<FormattedMessage id="help"/>}>
+              <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: 'white' }} id="helpIcon"
+                               onClick={() => openInNewTab(config.helpLink)}/>
+            </Tooltip>
+          )}
+          <Identity/>
         </Toolbar>
       </AppBar>
     </div>
@@ -267,8 +263,7 @@ Header.propTypes = {
   title: PropTypes.any,
   titleIcon: PropTypes.any,
   hidden: PropTypes.bool,
-  appEnabled: PropTypes.bool.isRequired,
-  hideTools: PropTypes.bool,
+  appEnabled: PropTypes.bool.isRequired
 };
 
 Header.defaultProps = {
@@ -276,7 +271,6 @@ Header.defaultProps = {
   title: '',
   titleIcon: undefined,
   hidden: false,
-  hideTools: false,
 };
 
 export default Header;

@@ -31,6 +31,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { addWorkspaceGroupAttribute } from '../../pages/Home/YourWork/InboxContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: isOutbox ? formInboxItemLink(investible.investible.id)  :
@@ -60,7 +61,9 @@ export default function NavigationChevrons() {
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [groupsState] = useContext(MarketGroupsContext);
+  const [searchResults] = useContext(SearchResultsContext);
   const location = useLocation();
+  const { search: searchText } = searchResults;
   const { pathname, search, hash } = location;
   const resource = `${pathname}${search}${hash}`;
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
@@ -156,6 +159,11 @@ export default function NavigationChevrons() {
     }
     messagesDispatch(addNavigation(nextUrl.url, allExistingUrls));
     navigate(history, nextUrl.url);
+  }
+
+  if (!_.isEmpty(searchText)) {
+    // Otherwise too confusing and think next goes to next item found or something
+    return React.Fragment;
   }
 
   return (

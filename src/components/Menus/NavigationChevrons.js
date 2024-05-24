@@ -154,7 +154,7 @@ export default function NavigationChevrons() {
     if (nextUrl.message) {
       dehighlightMessage(nextUrl.message, messagesDispatch);
     }
-    messagesDispatch(addNavigation(nextUrl.url));
+    messagesDispatch(addNavigation(nextUrl.url, allExistingUrls));
     navigate(history, nextUrl.url);
   }
 

@@ -41,10 +41,11 @@ export function removeNavigation(url) {
   }
 }
 
-export function addNavigation(url) {
+export function addNavigation(url, allExistingUrls) {
   return {
     type: ADD_NAVIGATION,
-    url
+    url,
+    allExistingUrls
   }
 }
 
@@ -210,12 +211,15 @@ function doRemoveNavigation (state, action) {
 }
 
 function doAddNavigation(state, action) {
-  const { url } = action;
+  const { url, allExistingUrls } = action;
   const { navigations } = state;
   const prunedNavigations = (navigations || []).filter((navigation) => navigation.url !== url);
   const newNavigations = _.concat(prunedNavigations, {url, time: new Date()});
   const now = Date.now();
   const filteredNavigations = newNavigations.filter((aNavigation) => {
+    if (!allExistingUrls?.includes(aNavigation.url)) {
+      return false;
+    }
     // remove more than a day old
     return now - aNavigation.time.getTime() < 86400000;
   });

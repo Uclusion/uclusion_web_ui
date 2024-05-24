@@ -190,7 +190,9 @@ function doDehighlightCriticalMessage (state, action) {
   }
   const originalId = originalMessage.split('_')[1];
   const { highlighted_list: highlightedList } = message;
-  message.highlighted_list = highlightedList.filter((id) => id !== originalId);
+  if (!_.isEmpty(highlightedList)) {
+    message.highlighted_list = highlightedList.filter((id) => id !== originalId);
+  }
   if (_.isEmpty(message.highlighted_list)) {
     message.is_highlighted = false;
   }

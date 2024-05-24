@@ -31,6 +31,7 @@ import { isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHel
 import { ticketContextHack } from '../../contexts/TicketContext/TicketIndexContext';
 import { marketsContextHack } from '../../contexts/MarketsContext/MarketsContext';
 import { commentsContextHack } from '../../contexts/CommentsContext/CommentsContext';
+import { MyLink } from './Utilities/LinkUtils';
 
 // https://github.com/derrickpelletier/react-loading-overlay/pull/57
 LoadingOverlay.propTypes = undefined;
@@ -44,6 +45,7 @@ Quill.register('modules/s3Upload', QuillS3ImageUploader);
 Quill.register('modules/imageResize', ImageResize);
 Quill.register('modules/mention', QuillMention);
 Quill.register(CustomCodeBlock, true);
+Quill.register(MyLink);
 const useStyles = makeStyles(
   theme => {
     return {

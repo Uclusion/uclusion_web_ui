@@ -1,18 +1,14 @@
 import Quill from 'quill';
 
-/**
- * Reworks the Quill Link sanitizer to add https etc if it's missing from
- * the original link
- */
-export function addQuillLinkFixer () {
-  const Link = Quill.import('formats/link');
-  var builtinSanitizer = Link.sanitize;
-  Link.sanitize = function (originalLinkValue) {
-    let linkValue = originalLinkValue;
-    // do nothing, since this implies user's already using a custom protocol
-    if (/^\w+:/.test(linkValue)) {
-      return builtinSanitizer.call(this, linkValue);
+const Link = Quill.import('formats/link');
+
+export class MyLink extends Link {
+  static create(value) {
+    const node = super.create(value);
+    if (!value?.startsWith('http')) {
+      // See https://github.com/quilljs/quill/issues/1139 on removing target for internal links
+      node.removeAttribute('target');
     }
-    return builtinSanitizer.call(this, 'https://' + linkValue);
-  };
+    return node;
+  }
 }

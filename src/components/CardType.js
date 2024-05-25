@@ -218,7 +218,7 @@ export default function CardType(props) {
         <>
           {label && (
             <div className={clsx(classes.root, className)}
-                 style={{marginRight: (compressed || mobileLayout) ? '0.25rem' : '1rem'}}>
+                 style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
               <IconComponent className={classes.icon}/>
               <span className={classes.label}>{label}</span>
             </div>

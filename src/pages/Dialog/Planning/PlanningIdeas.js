@@ -248,7 +248,7 @@ function PlanningIdeas(props) {
         {_.isEmpty(myInvestiblesStageHash) && (
           <Typography style={{marginTop: '1rem', marginLeft: 'auto', marginRight: 'auto'}}
                       variant="body1">
-            No assigned jobs.
+            No assigned, unassisted jobs.
           </Typography>
         )}
         <VotingStage

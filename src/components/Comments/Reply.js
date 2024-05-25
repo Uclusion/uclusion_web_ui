@@ -67,7 +67,10 @@ const useReplyStyles = makeStyles(
       cardContent: {
         // 25px in Figma
         marginLeft: theme.spacing(3),
-        padding: 0
+        paddingTop: 0,
+        paddingRight: 0,
+        paddingLeft: 0,
+        paddingBottom: "0.5rem",
       },
       cardActions: {
         marginLeft: theme.spacing(3),
@@ -88,7 +91,8 @@ const useReplyStyles = makeStyles(
         display: "inline-block",
         fontSize: 14,
         fontWeight: "bold",
-        marginRight: "8px"
+        marginRight: "8px",
+        paddingBottom: '0.5rem'
       },
       replyContainer: {
         marginLeft: "6px",

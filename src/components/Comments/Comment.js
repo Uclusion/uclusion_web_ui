@@ -128,7 +128,11 @@ export const useCommentStyles = makeStyles(
         lineHeight: "175%"
       },
       cardContent: {
-        padding: "0 20px"
+        paddingTop: 0,
+        paddingRight: "20px",
+        paddingLeft: "20px",
+        paddingBottom: "0.75rem",
+        overflowY: 'hidden'
       },
       cardActions: {
         padding: "8px"
@@ -969,6 +973,7 @@ function Comment(props) {
     </div>
   </Card>;
   const compressedCommentCard = <Card elevation={3} style={{ display: 'flex', paddingBottom: '1rem',
+    height: '100%',
     cursor: 'pointer', width: 'fit-content', maxWidth: '98%', marginTop: isSent === false || usePadding === false ? 0
       : '1rem' }} onClick={toggleCompression}>
     {cardTypeDisplay}

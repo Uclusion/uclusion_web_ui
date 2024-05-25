@@ -15,10 +15,11 @@ const useStyles = makeStyles(
         "& .ql-container.ql-snow": {
           fontFamily: theme.typography.fontFamily,
           fontSize: 15,
-          border: 0
+          border: 0,
         },
         "& .ql-editor": {
-          paddingLeft: 0
+          paddingLeft: 0,
+          overflowY: 'hidden',
         },
       },
       editable: {

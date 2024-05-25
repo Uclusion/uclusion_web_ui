@@ -55,11 +55,13 @@
 }
 .ql-editor {
     min-height: 6rem;
-    padding: 0;
     white-space: pre-wrap;
     white-space: -moz-pre-wrap;
     white-space: -pre-wrap;
     white-space: -o-pre-wrap;
+}
+[contenteditable="false"].ql-editor {
+    padding: 0;
 }
 .ql-editor h1,
 .ql-editor h2,

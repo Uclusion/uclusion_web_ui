@@ -746,7 +746,7 @@ function Comment(props) {
               </Typography>
             )}
             {!mobileLayout && (
-              <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '0.25rem'}}>
+              <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '1rem'}}>
                 Created <UsefulRelativeTime value={comment.created_at}/>
                 {noAuthor &&
                   `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.

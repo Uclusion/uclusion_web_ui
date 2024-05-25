@@ -113,14 +113,15 @@ function AddCommentStep (props) {
           This {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies whole group unless use
           @ mentions.
         </Typography>
-        )}
+      )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}
                       useCompression={useCompression}
-                      toggleCompression={() => updateFormData({useCompression: !useCompression})} />
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}/>
+      <div className={classes.borderBottom}/>
       <CommentAdd
         nameKey="JobCommentAdd"
         type={useType}
-        wizardProps={{...props, isAddWizard: true, isResolve, onResolve: onReportResolveOnly}}
+        wizardProps={{ ...props, isAddWizard: true, isResolve, onResolve: onReportResolveOnly }}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

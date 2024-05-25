@@ -19,7 +19,7 @@ import { APPROVAL_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE } from '../../../constant
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { ISSUE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { TODO_TYPE } from '../../../constants/comments';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 
 function DecideAssignStep(props) {
@@ -68,9 +68,6 @@ function DecideAssignStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({ id: 'DecideAssignmentTitle' })}
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Take action here or click the job title to ask a question or make a suggestion.
-      </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} removeActions comments={todos} showCreatedBy />
       <div className={classes.borderBottom}/>
       <WizardStepButtons
@@ -79,9 +76,9 @@ function DecideAssignStep(props) {
         onNext={myAssign}
         showOtherNext
         otherSpinOnClick={false}
-        otherNextLabel="ApprovalWizardBlock"
+        otherNextLabel="WizardJobAssistance"
         onOtherNext={() => navigate(history,
-          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, undefined,
             message.type_object_id))}
         terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'markRead'}
         showTerminate={true}

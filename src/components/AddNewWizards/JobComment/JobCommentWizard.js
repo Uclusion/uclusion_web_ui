@@ -17,6 +17,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { getInCurrentVotingStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import _ from 'lodash';
 import DoneWithApprovalStep from './DoneWithApprovalStep';
+import ChooseCommentTypeStep from './ChooseCommentTypeStep';
 
 function JobCommentWizard(props) {
   const { investibleId, marketId, commentType, resolveId } = props;
@@ -24,9 +25,10 @@ function JobCommentWizard(props) {
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [wasMovedToApproval, setWasMovedToApproval] = useState(false);
+  const [useCommentType, setUseCommentType] = useState(commentType);
   const presences = usePresences(marketId);
-  const isQuestion = commentType === QUESTION_TYPE;
-  const isReport = commentType === REPORT_TYPE;
+  const isQuestion = useCommentType === QUESTION_TYPE;
+  const isReport = useCommentType === REPORT_TYPE;
   const investibleComments = (commentsState[marketId]||[]).filter(comment =>
     comment.investible_id === investibleId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
@@ -52,12 +54,16 @@ function JobCommentWizard(props) {
     <WizardStylesProvider>
       <FormdataWizard name={`job_comment_wizard${investibleId}`} useLocalStorage={false}
                       defaultFormData={hasDraft ? draftData : {useCompression: true}}>
+        {_.isEmpty(commentType) && (
+          <ChooseCommentTypeStep investibleId={investibleId} marketId={marketId} useType={useCommentType}
+                                 setUseCommentType={setUseCommentType} />
+        )}
         {((isReport && assignedStage.id === stage)||wasMovedToApproval) && (
           <DoneWithApprovalStep investibleId={investibleId} marketId={marketId} currentStageId={stage}
                                 onFinishMove={() => setWasMovedToApproval(true)} />
         )}
         {!hasDraft && (
-          <AddCommentStep investibleId={investibleId} marketId={marketId} useType={commentType} resolveId={resolveId}
+          <AddCommentStep investibleId={investibleId} marketId={marketId} useType={useCommentType} resolveId={resolveId}
                           currentStageId={stage} groupId={groupId} />
         )}
         {hasDraft && (
@@ -73,8 +79,8 @@ function JobCommentWizard(props) {
         {isQuestion && (
           <AddOptionStep investibleId={investibleId} marketId={marketId} />
         )}
-        {[QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) && (
-          <ConfigureCommentStep useType={commentType} />
+        {[QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useCommentType) && (
+          <ConfigureCommentStep useType={useCommentType} />
         )}
       </FormdataWizard>
     </WizardStylesProvider>

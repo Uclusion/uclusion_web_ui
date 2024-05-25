@@ -35,7 +35,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useHistory } from 'react-router';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
-import { ISSUE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { TODO_TYPE } from '../../../constants/comments';
 import { useIntl } from 'react-intl';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
@@ -142,14 +142,12 @@ function JobApproveStep(props) {
       )}
       {!wasDeleted && _.isEmpty(voters) && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Take action here or click the job title to ask a question or make a suggestion. You are the first approver
-          and approvals expire in {market.investment_expiration} days.
+          You are the first approver and approvals expire in {market.investment_expiration} days.
         </Typography>
       )}
       {!wasDeleted && !_.isEmpty(voters) && !isAssigned && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Take action here or click the job title to ask a question, make a suggestion, or
-          see <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
+          There are <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, pathToApprovals);
         }}>existing approvals</Link>. Approvals expire in {market.investment_expiration} days.
@@ -157,8 +155,7 @@ function JobApproveStep(props) {
       )}
       {!wasDeleted && !_.isEmpty(voters) && isAssigned && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Approve to mark your acceptance or click the job title to ask a question, make a suggestion, or
-          see <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
+          Approve to mark your acceptance. There are <b>{_.size(voters)}</b> <Link href={pathToApprovals} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, pathToApprovals);
         }}>existing approvals</Link>.
@@ -187,9 +184,9 @@ function JobApproveStep(props) {
         showOtherNext
         otherNextValid
         otherSpinOnClick={false}
-        otherNextLabel="ApprovalWizardBlock"
+        otherNextLabel="WizardJobAssistance"
         onOtherNext={() => navigate(history,
-          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, undefined,
             message.type_object_id))}
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}

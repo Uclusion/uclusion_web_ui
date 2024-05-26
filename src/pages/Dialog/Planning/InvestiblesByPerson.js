@@ -19,8 +19,6 @@ import NotificationCountChips from '../NotificationCountChips';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import CardContent from '@material-ui/core/CardContent';
 import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas';
-import { Info } from '@material-ui/icons';
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
@@ -158,23 +156,20 @@ function InvestiblesByPerson(props) {
       {!mobileLayout && (
         <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
           <div>
-            <b><FormattedMessage id="planningVotingStageLabel" /></b>
             <Link href="https://documentation.uclusion.com/groups/jobs/stages/#assigned" target="_blank">
-              <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
+              <b><FormattedMessage id="planningVotingStageLabel"/></b>
             </Link>
           </div>
           <div>
-            <b><FormattedMessage id='planningAcceptedStageLabel' /></b>
             <Link href="https://documentation.uclusion.com/groups/jobs/stages/#approved"
                   target="_blank">
-              <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
+              <b><FormattedMessage id="planningAcceptedStageLabel"/></b>
             </Link>
           </div>
-          <div style={{flex: '2 1 50%'}}>
-            <b><FormattedMessage id="planningReviewStageLabel"/></b>
+          <div style={{ flex: '2 1 50%' }}>
             <Link href="https://documentation.uclusion.com/groups/jobs/stages/#tasks-complete-and-not-doing"
                   target="_blank">
-              <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
+              <b><FormattedMessage id="planningReviewStageLabel"/></b>
             </Link>
           </div>
         </dl>

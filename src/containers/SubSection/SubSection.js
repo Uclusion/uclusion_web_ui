@@ -7,8 +7,6 @@ import {
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING
 } from '../../constants/global';
-import { Info } from '@material-ui/icons'
-import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -120,14 +118,11 @@ function SubSection (props) {
         <Toolbar variant="dense" style={{minHeight: '30px'}}>
           {titleIcon}
           {helpLink && (
-            <>
-              <Typography className={bolder ? classes.headerTitleBolder : classes.headerTitle}>
-                {title}
-              </Typography>
+            <Typography className={bolder ? classes.headerTitleBolder : classes.headerTitle}>
               <Link href={helpLink} target="_blank">
-                <Info htmlColor={ACTION_BUTTON_COLOR} style={{height: '1.1rem'}} />
+                {title}
               </Link>
-            </>
+            </Typography>
           )}
           {!helpLink && (
             <Typography className={bolder ? classes.headerTitleBolder : classes.headerTitle}>

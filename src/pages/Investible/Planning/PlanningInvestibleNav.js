@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { Checkbox, FormControlLabel, makeStyles, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { ExpandLess, SyncAlt } from '@material-ui/icons';
+import { ExpandLess, SyncAlt, ThumbDown } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
@@ -16,7 +16,6 @@ import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messag
 import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper';
 import { getCurrentStageLabelId, getStagesInfo } from '../../../utils/stageUtils';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import PropTypes from 'prop-types';
 import { attachFilesToInvestible, deleteAttachedFilesFromInvestible, updateInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
@@ -25,7 +24,6 @@ import { getFullStage, isBlockedStage } from '../../../contexts/MarketStagesCont
 import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import IconButton from '@material-ui/core/IconButton';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import {
   JOB_APPROVERS_WIZARD_TYPE,
@@ -34,7 +32,6 @@ import {
   JOB_STAGE_WIZARD_TYPE
 } from '../../../constants/markets';
 import { useHistory } from 'react-router';
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
 import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { useAddressed } from '../../../utils/votingUtils';
@@ -381,8 +378,7 @@ function MarketMetaData(props) {
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
-  const classes = useMetaDataStyles();
-  const unacceptedAssignment = findMessageOfType('UNACCEPTED_ASSIGNMENT', investibleId, messagesState);
+  const unacceptedAssignment = findMessageOfType('UNREAD_JOB_APPROVAL_REQUEST', investibleId, messagesState);
   const unaccepted = unacceptedAssignment && isAssigned && !accepted.includes(myUserId);
   const stageLabelId = getCurrentStageLabelId(stagesInfo);
 
@@ -403,25 +399,24 @@ function MarketMetaData(props) {
       <div style={{maxWidth: '15rem', marginRight: '1rem'}}>
         <div style={{marginBottom: '0.5rem', display: 'flex', flexDirection: 'row'}}>
           <b><FormattedMessage id={'allowedStagesDropdownLabel'}/></b>
-          <Tooltip
-            title={intl.formatMessage({ id: 'investibleEditStageHelper' })}
-          >
-            <IconButton
-              style={{paddingTop: 0, marginBottom: 0, paddingBottom: 0, marginTop: '-0.25rem'}}
+            <SpinningIconLabelButton
+              icon={SyncAlt}
+              iconOnly
+              id="stageButton"
+              doSpin={false}
+              whiteBackground
+              style={{marginLeft: '1rem', padding: 0, marginBottom: 0, marginTop: '-0.25rem'}}
               onClick={() => navigate(history,
                 formWizardLink(JOB_STAGE_WIZARD_TYPE, market.id, investibleId))}
-            >
-              <SyncAlt htmlColor={ACTION_BUTTON_COLOR}/>
-            </IconButton>
-          </Tooltip>
+            />
         </div>
           {intl.formatMessage({id: stageLabelId})}
       </div>
       {unaccepted && (
         <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
-          <SpinningButton onClick={myRejectInvestible} className={classes.actionSecondary} id='reject'>
-            {intl.formatMessage({ id: 'saveReject' })}
-          </SpinningButton>
+          <SpinningIconLabelButton onClick={myRejectInvestible} icon={ThumbDown} id='reject' whiteBackground>
+            {intl.formatMessage({ id: 'rejectAssignment' })}
+          </SpinningIconLabelButton>
         </div>
       )}
       {myMessageDescription && diff && (

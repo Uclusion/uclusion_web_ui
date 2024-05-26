@@ -221,6 +221,7 @@ const messages = defineMessages({
   saveVote: 'Approve',
   updateVote: 'Update approval',
   saveReject: 'Reject',
+  rejectAssignment: 'Reject assignment',
   keepReject: 'Stay reject',
   keepFor: 'Stay approve',
   switchToFor: 'Switch to approve',

@@ -29,7 +29,6 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { PLACEHOLDER } from '../../../constants/global';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -77,6 +76,7 @@ import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDif
 import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import DismissableText from '../../../components/Notifications/DismissableText';
+import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -961,16 +961,15 @@ export function Assignments(props) {
             <b><FormattedMessage id={assignmentColumnMessageId} /></b>
           )}
           {toggleIconButton && (
-            <Tooltip
-              title={intl.formatMessage({ id: toolTipId })}
-            >
-              <IconButton
-                style={{paddingTop: 0, marginBottom: 0, paddingBottom: 0, marginTop: '-0.25rem'}}
+              <SpinningIconLabelButton
+                icon={PersonAddIcon}
+                iconOnly
+                doSpin={false}
+                id={toolTipId}
+                whiteBackground
+                style={{marginLeft: '1rem', paddingTop: 0, marginBottom: 0, paddingBottom: 0, marginTop: '-0.25rem'}}
                 onClick={toggleIconButton}
-              >
-                <PersonAddIcon htmlColor={ACTION_BUTTON_COLOR}/>
-              </IconButton>
-            </Tooltip>
+              />
           )}
         </div>
       )}

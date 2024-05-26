@@ -29,6 +29,7 @@ const useStyles = makeStyles(
           textTransform: 'none'
         },
         fontSize: '1rem',
+        maxHeight: '1.8rem',
         borderRadius: '15px',
         "&:hover": {
           backgroundColor: "#F1F1F1"
@@ -79,7 +80,9 @@ function SpinningIconLabelButton(props) {
       onClick(event);
     }
   }
-  const myIcon = spinningDisabled || disabled ? <Icon color='disabled' /> : <Icon htmlColor={iconColor} />;
+  const myIcon = spinningDisabled || disabled ?
+    <Icon color='disabled' style={{fontSize: iconOnly ? 24 : undefined}} /> :
+    <Icon style={{ fontSize: iconOnly ? 24 : undefined }} htmlColor={iconColor} />;
   return (
     <Button
       disabled={spinningDisabled || disabled}
@@ -89,7 +92,7 @@ function SpinningIconLabelButton(props) {
       onClick={myOnClick}
       style={{whiteSpace: 'nowrap', width: 'fit-content', minWidth: 0}}
       startIcon={iconOnly ? undefined : myIcon}
-      className={noMargin ? classes.buttonNoMargin: whiteBackground ? classes.buttonWhiteBackground : classes.button}
+      className={noMargin ? classes.buttonNoMargin : (whiteBackground ? classes.buttonWhiteBackground : classes.button)}
       {...rest}
     >
       {iconOnly && myIcon}

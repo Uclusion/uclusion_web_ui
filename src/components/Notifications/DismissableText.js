@@ -37,6 +37,9 @@ const useStyles = makeStyles(theme => ({
     padding: '14px',
     display: 'flex'
   },
+  isLeft: {
+    marginLeft: theme.spacing(1)
+  },
   center: {
     fontSize: 16,
     display: 'flex'
@@ -72,7 +75,7 @@ const useStyles = makeStyles(theme => ({
 
 function DismissableText(props) {
   const {
-    text, checkBoxFunc, textId, display, noPad
+    text, checkBoxFunc, textId, display, noPad, isLeft
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -129,8 +132,8 @@ function DismissableText(props) {
   }
 
   return (
-    <dl key={textId} className={display === true ? (noPad ? classes.rootEmptyNoPadding : classes.rootEmpty) :
-      classes.root} >
+    <dl key={textId} className={isLeft ? classes.isLeft :
+      (display === true ? (noPad ? classes.rootEmptyNoPadding : classes.rootEmpty) : classes.root)} >
       <dl className={display === true ? classes.center : classes.leftMost}>
         <LiveHelpTwoToneIcon htmlColor="#4ce6a5" fontSize="medium" className={classes.help}/>
         {text}

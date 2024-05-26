@@ -76,6 +76,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
+import DismissableText from '../../../components/Notifications/DismissableText';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -860,6 +861,14 @@ function PlanningInvestible(props) {
                   })}
                 </div>
               )}
+              <DismissableText textId="investibleCommentHelp" display={_.isEmpty(sectionComments)} noPad isLeft
+                               text={
+                                 <ul style={{paddingLeft: 0, marginLeft: '1rem'}}>
+                                   <li>Blocking issue - asks for help clearing the blocker</li>
+                                   <li>Question - invites others to add voteable options for brainstorming</li>
+                                   <li>Suggestion - others vote on this idea and then can be converted to a task</li>
+                                 </ul>
+                               }/>
               <CommentBox
                 comments={sectionComments.concat(replies)}
                 marketId={marketId}

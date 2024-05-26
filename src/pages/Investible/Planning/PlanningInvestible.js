@@ -864,11 +864,11 @@ function PlanningInvestible(props) {
               <DismissableText textId="investibleCommentHelp" display={_.isEmpty(sectionComments)} noPad isLeft
                                text={
                                  sectionOpen === 'assistanceSection' ? (
-                                 <ul style={{paddingLeft: 0, marginLeft: '1rem'}}>
-                                   <li>Blocking issue - asks for help clearing the blocker</li>
-                                   <li>Question - invites others to add voteable options for brainstorming</li>
-                                   <li>Suggestion - others vote on this idea and then can be converted to a task</li>
-                                 </ul>) : (<div>Tasks can be moved between jobs or converted to or from bugs.</div>)
+                                   <ul style={{ paddingLeft: 0, marginLeft: '1rem' }}>
+                                     <li>Question - invites others to add voteable options for brainstorming</li>
+                                     <li>Suggestion - others vote on this idea and then can be converted to a task</li>
+                                     <li>Blocking issue - asks for help clearing the blocker</li>
+                                   </ul>) : (<div>Tasks can be moved between jobs or converted to or from bugs.</div>)
                                }/>
               <CommentBox
                 comments={sectionComments.concat(replies)}

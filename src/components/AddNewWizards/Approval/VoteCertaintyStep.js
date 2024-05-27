@@ -25,44 +25,46 @@ function VoteCertaintyStep(props) {
       {...props}
       isLarge
     >
-        {!showSwitch && (
-          <Typography className={classes.introText} variant="h6">
-            How certain are you of voting <i>{isFor ? 'for' : 'against'}</i> this suggestion?
-          </Typography>
-        )}
-        {showSwitch && (
-          <Typography className={classes.introText} variant="h6">
-            How do you edit voting on this suggestion?
-          </Typography>
-        )}
-        <CommentBox
-          comments={[parentComment]}
-          marketId={parentMarketId}
-          allowedTypes={[]}
-          removeActions
-          showVoting={false}
-          isInbox
-          compressAll
-          inboxMessageId={parentComment?.id}
-          toggleCompression={() => updateFormData({useCompression: !useCompression})}
-          useCompression={useCompression}
-        />
-        <AddEditVote
-          marketId={market.id}
-          wizardProps={{...props, finish: () =>
-              navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId, parentCommentId)),
-            }}
-          investibleId={investibleId}
-          currentReasonId={currentReasonId}
-          groupId={market.id}
-          hasVoted={showSwitch}
-          allowMultiVote={false}
-          multiplier={isFor ? 1 : -1}
-          formData={formData}
-          updateFormData={updateFormData}
-          wasDeleted={wasDeleted}
-          isInbox={false}
-        />
+      {!showSwitch && (
+        <Typography className={classes.introText} variant="h6">
+          How certain are you of voting <i>{isFor ? 'for' : 'against'}</i> this suggestion?
+        </Typography>
+      )}
+      {showSwitch && (
+        <Typography className={classes.introText} variant="h6">
+          How do you edit voting on this suggestion?
+        </Typography>
+      )}
+      <CommentBox
+        comments={[parentComment]}
+        marketId={parentMarketId}
+        allowedTypes={[]}
+        removeActions
+        showVoting={false}
+        isInbox
+        compressAll
+        inboxMessageId={parentComment?.id}
+        toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+        useCompression={useCompression}
+      />
+      <div className={classes.borderBottom}/>
+      <AddEditVote
+        marketId={market.id}
+        wizardProps={{
+          ...props, finish: () =>
+            navigate(history, formCommentLink(parentMarketId, parentGroupId, parentInvestibleId, parentCommentId)),
+        }}
+        investibleId={investibleId}
+        currentReasonId={currentReasonId}
+        groupId={market.id}
+        hasVoted={showSwitch}
+        allowMultiVote={false}
+        multiplier={isFor ? 1 : -1}
+        formData={formData}
+        updateFormData={updateFormData}
+        wasDeleted={wasDeleted}
+        isInbox={false}
+      />
     </WizardStepContainer>
   )
 }

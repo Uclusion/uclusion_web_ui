@@ -7,6 +7,7 @@ import {
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING
 } from '../../constants/global';
+import { DARKER_LINK_COLOR } from '../../pages/Dialog/Planning/InvestiblesByPerson';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -119,7 +120,7 @@ function SubSection (props) {
           {titleIcon}
           {helpLink && (
             <Typography className={bolder ? classes.headerTitleBolder : classes.headerTitle}>
-              <Link href={helpLink} target="_blank">
+              <Link href={helpLink} target="_blank" style={{color: DARKER_LINK_COLOR}}>
                 {title}
               </Link>
             </Typography>

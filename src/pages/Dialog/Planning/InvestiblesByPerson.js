@@ -111,6 +111,8 @@ export function countByType(investible, comments, commentTypes, stageId) {
   return _.size(openComments);
 }
 
+export const DARKER_LINK_COLOR = '#00468b';
+
 function InvestiblesByPerson(props) {
   const {
     comments,
@@ -156,19 +158,20 @@ function InvestiblesByPerson(props) {
       {!mobileLayout && (
         <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
           <div>
-            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#assigned" target="_blank">
+            <Link href="https://documentation.uclusion.com/groups/jobs/stages/#assigned" target="_blank"
+                  style={{color: DARKER_LINK_COLOR}}>
               <b><FormattedMessage id="planningVotingStageLabel"/></b>
             </Link>
           </div>
           <div>
             <Link href="https://documentation.uclusion.com/groups/jobs/stages/#approved"
-                  target="_blank">
+                  target="_blank" style={{color: DARKER_LINK_COLOR}}>
               <b><FormattedMessage id="planningAcceptedStageLabel"/></b>
             </Link>
           </div>
           <div style={{ flex: '2 1 50%' }}>
             <Link href="https://documentation.uclusion.com/groups/jobs/stages/#tasks-complete-and-not-doing"
-                  target="_blank">
+                  target="_blank" style={{color: DARKER_LINK_COLOR}}>
               <b><FormattedMessage id="planningReviewStageLabel"/></b>
             </Link>
           </div>

@@ -47,7 +47,7 @@ function DemoCreateWorkspaceButton() {
         className={wizardClasses.actionNext}
         id="composeFromDemoBanner"
       >
-        Add to the demo
+        Add in the demo
       </Button>
     );
   }

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, Radio, RadioGroup, Tooltip, Typography } from '@material-ui/core';
+import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
@@ -37,19 +37,16 @@ function ChooseCommentTypeStep (props) {
         >
           {allowedTypes.map((commentType) => {
             return (
-              <Tooltip key={`tip${commentType}`}
-                       title={<FormattedMessage id={`${commentType.toLowerCase()}Tip`}/>}>
-                <FormControlLabel
-                  id={`commentAddLabel${commentType}`}
-                  key={commentType}
-                  /* prevent clicking the label stealing focus */
-                  onMouseDown={e => e.preventDefault()}
-                  control={<Radio color="primary"/>}
-                  label={<FormattedMessage id={`${commentType.toLowerCase()}Compose`}/>}
-                  labelPlacement="end"
-                  value={commentType}
-                />
-              </Tooltip>
+              <FormControlLabel
+                id={`commentAddLabel${commentType}`}
+                key={commentType}
+                /* prevent clicking the label stealing focus */
+                onMouseDown={e => e.preventDefault()}
+                control={<Radio color="primary"/>}
+                label={<FormattedMessage id={`${commentType.toLowerCase()}Compose`}/>}
+                labelPlacement="end"
+                value={commentType}
+              />
             );
           })}
         </RadioGroup>

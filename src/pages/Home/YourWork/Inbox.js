@@ -188,7 +188,7 @@ function Inbox(props) {
                   }).finally(() => {
                     setOperationRunning(false);
                   });
-              }} translationId="inboxMarkRead" />
+              }} translationId="inboxArchive" />
           )}
           {(checkAllOutbox || !_.isEmpty(determinateOutbox)) && 1 === tabIndex && !isOnWorkItem && (
             <TooltipIconButton

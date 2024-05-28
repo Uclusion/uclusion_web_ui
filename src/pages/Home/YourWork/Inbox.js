@@ -171,16 +171,16 @@ function Inbox(props) {
             <TooltipIconButton
               icon={<NotificationDeletion />}
               onClick={() => {
-                let toProcess = messagesFull.filter((message) => message.is_highlighted ||
-                  message.type_object_id.startsWith('UNREAD'));
+                // UNREAD are the only ones that can be selected
+                let toProcess = messagesFull.filter((message) => message.type_object_id.startsWith('UNREAD'));
                 if (checkAll) {
                   if (!_.isEmpty(determinate)) {
                     const keys = Object.keys(determinate);
-                    toProcess = messagesFull.filter((message) => !keys.includes(message.type_object_id));
+                    toProcess = toProcess.filter((message) => !keys.includes(message.type_object_id));
                   }
                 } else {
                   const keys = Object.keys(determinate);
-                  toProcess = messagesFull.filter((message) => keys.includes(message.type_object_id));
+                  toProcess = toProcess.filter((message) => keys.includes(message.type_object_id));
                 }
                 return deleteOrDehilightMessages(toProcess, messagesDispatch)
                   .then(() => {

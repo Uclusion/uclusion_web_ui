@@ -145,6 +145,8 @@ function QuillEditor2 (props) {
             //refocus the editor because for some reason it moves to the top during insert
           } else {
             editor.format('link', url);
+            // Remove selection or typing will erase the link text
+            editor.setSelection(selected.index + selected.length, 0);
           }
         }}
       />

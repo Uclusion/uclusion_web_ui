@@ -5,6 +5,7 @@ import { Dialog } from '../../Dialogs';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Button, Typography } from '@material-ui/core';
 import TextField from '@material-ui/core/TextField';
+import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 
 function LinkDialog (props) {
   const {
@@ -19,6 +20,20 @@ function LinkDialog (props) {
 
   function resetForm() {
     setLinkUrl("");
+  }
+
+  function doInsert() {
+    onSave(linkUrl);
+    resetForm();
+    onClose();
+  }
+
+  function onKeyPress(e){
+    // If press enter
+    if (e.keyCode === 13){
+      preventDefaultAndProp(e);
+      doInsert();
+    }
   }
 
   return (
@@ -37,6 +52,7 @@ function LinkDialog (props) {
             fullWidth
             label={intl.formatMessage({ id: "LinkDialogUrl" })}
             onChange={(event) => setLinkUrl(event.target.value)}
+            onKeyDown={onKeyPress}
             placeholder={intl.formatMessage({
               id: "LinkDialogUrlPlaceHolder"
             })}
@@ -45,7 +61,6 @@ function LinkDialog (props) {
           />
         </div>
       )}
-      title={<FormattedMessage id="LinkDialogTitle"/>}
       actions={
         <React.Fragment>
           <Button
@@ -59,11 +74,7 @@ function LinkDialog (props) {
           </Button>
           <Button
             disabled={_.isEmpty(linkUrl)}
-            onClick={() => {
-              onSave(linkUrl);
-              resetForm();
-              onClose();
-            }}
+            onClick={doInsert}
           >
             <FormattedMessage id="VideoDialogTitleAddButton"/>
           </Button>

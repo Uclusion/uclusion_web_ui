@@ -35,7 +35,7 @@ import {
   PLANNING_TYPE,
   SUPPORT_SUB_TYPE
 } from '../../constants/markets';
-import { getMarket, getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
 import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';

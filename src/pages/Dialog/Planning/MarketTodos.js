@@ -383,8 +383,10 @@ function MarketTodos(props) {
   const immediateTodosChip = <Chip color="primary" size='small' className={classes.chipStyleRed} />;
   const yellowChip = <Chip color="primary" size='small' className={classes.chipStyleYellow} />;
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
+
   return (
-    <div id="marketTodos" key="marketTodosKey" style={{display: sectionOpen ? 'block' : 'none', overflowX: 'hidden'}}>
+    <div id="marketTodos" key="marketTodosKey" style={{display: sectionOpen ? 'block' : 'none',
+      overflowX: 'hidden', paddingBottom: !(isInbox || isInArchives) ? '5rem' : undefined}}>
       {!isInArchives && !isInbox && (
         <SpinningButton id="newMarketTodo"
                         className={wizardClasses.actionNext}

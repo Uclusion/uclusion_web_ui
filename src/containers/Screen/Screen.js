@@ -35,7 +35,7 @@ import {
   PLANNING_TYPE,
   SUPPORT_SUB_TYPE
 } from '../../constants/markets';
-import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper'
+import { getMarket, getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
 import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';
@@ -235,6 +235,12 @@ function Screen(props) {
     setCurrentWorkspace(newMarketId);
     navigate(history, formMarketLink(newMarketId, newMarketId));
   }
+
+  if (marketId && defaultMarket.id !== marketId) {
+    // Handle they are on banned market
+    setMarketIdFull(defaultMarket.id);
+  }
+
   const useGroupId = groupId ? groupId : (investibleId ?
     getGroupForInvestibleId(investibleId, defaultMarket.id, investiblesState) :
     (pathname === '/' ? defaultMarket.id : undefined));

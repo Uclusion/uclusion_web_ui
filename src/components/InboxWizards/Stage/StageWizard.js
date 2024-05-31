@@ -6,6 +6,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import RejectStep from '../RejectStep';
+import OtherOptionsStep from './OtherOptionsStep';
 
 function StageWizard(props) {
   const { marketId, investibleId, rowId, typeObjectId } = props;
@@ -18,6 +19,8 @@ function StageWizard(props) {
     <FormdataWizard name={`stage_wizard${investibleId}`}
                     defaultFormData={{parentElementId: rowId, useCompression: true}}>
       <DoneVotingStep marketId={marketId} investibleId={investibleId} groupId={groupId}
+                      typeObjectId={typeObjectId} />
+      <OtherOptionsStep marketId={marketId} investibleId={investibleId} groupId={groupId}
                       typeObjectId={typeObjectId} />
       <RejectStep marketId={marketId} investibleId={investibleId} groupId={groupId}
                       currentStageId={currentStageId} typeObjectId={typeObjectId} />

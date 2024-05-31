@@ -6,7 +6,7 @@ import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
-import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import JobDescription from '../JobDescription';
 import { useIntl } from 'react-intl';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -19,15 +19,26 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import Link from '@material-ui/core/Link';
 import { pokeInvestible } from '../../../api/users';
-import { JOB_APPROVERS_WIZARD_TYPE } from '../../../constants/markets';
+import { getAcceptedStage, getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { stageChangeInvestible } from '../../../api/investibles';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
 
 function DoneVotingStep(props) {
-  const { marketId, investibleId, groupId, formData, updateFormData, typeObjectId } = props;
+  const { marketId, investibleId, groupId, formData, updateFormData } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [commentsState] = useContext(CommentsContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const history = useHistory();
   const classes = wizardStyles();
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -36,7 +47,31 @@ function DoneVotingStep(props) {
   const investmentReasons = marketComments.filter((comment) => {
     return comment.comment_type === JUSTIFY_TYPE && comment.investible_id === investibleId;
   });
+  const marketInvestible = getInvestible(investiblesState, investibleId) || {};
+  const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
+  const { stage: currentStageId } = marketInfo;
   const { useCompression } = formData;
+
+  function accept() {
+    const startedStage = getAcceptedStage(marketStagesState, marketId);
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: currentStageId,
+        stage_id: startedStage.id,
+      },
+    };
+    const fullCurrentStage = getFullStage(marketStagesState, marketId, currentStageId);
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(startedStage.id, newInv, investibleId, marketId, commentsState,
+          commentsDispatch, investiblesDispatch, diffDispatch, marketStagesState, undefined,
+          fullCurrentStage, marketPresencesDispatch);
+        setOperationRunning(false);
+        navigate(history, formInvestibleLink(marketId, investibleId));
+      });
+  }
 
   return (
     <WizardStepContainer
@@ -66,15 +101,12 @@ function DoneVotingStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
-        nextLabel="addApproversLabel"
-        spinOnClick={false}
+        nextLabel="doneApprovalLabel"
         onNextDoAdvance={false}
-        onNext={() => navigate(history,
-          formWizardLink(JOB_APPROVERS_WIZARD_TYPE, marketId, investibleId, undefined, undefined,
-            typeObjectId))}
+        onNext={accept}
         showOtherNext
         otherSpinOnClick={false}
-        otherNextLabel="RejectAssignment"
+        otherNextLabel="notDoneApprovalLabel"
         isOtherFinal={false}
         showTerminate
         terminateLabel="poke"

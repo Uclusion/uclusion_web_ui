@@ -137,6 +137,8 @@ function Identity () {
     };
   }
 
+  const gravatarExists = GravatarExists();
+
   return (
     <div
       id="profileLink"
@@ -208,19 +210,25 @@ function Identity () {
               </Tooltip>
             </Grid>
           </Grid>
-          {!GravatarExists() && (
-            <Link href="https://www.gravatar.com"
-                  target="_blank"
-                  underline="none"
-                  style={{alignItems: 'center'}}
-            >
-              <div className={classes.listAction} style={{marginTop: '2rem'}}>
-                <Face style={{fontSize: 'medium', marginRight: 6}} />
-                {intl.formatMessage({ id: 'IdentityChangeAvatar' })}
-              </div>
-            </Link>
+          {!gravatarExists && (
+            <Grid container alignItems="center">
+              <Grid item xs={2} />
+              <Grid item xs={9}>
+                <Link href="https://www.gravatar.com"
+                      target="_blank"
+                      underline="none"
+                      style={{alignItems: 'center', display: 'flex', marginTop: '1rem'}}
+                >
+                  <Face style={{fontSize: 'medium', marginRight: 6}} />
+                  <div>
+                    {intl.formatMessage({ id: 'IdentityChangeAvatar' })}
+                  </div>
+                </Link>
+              </Grid>
+            </Grid>
           )}
-          <div onClick={goTo('/support')} className={classes.listAction} style={{marginTop: '1rem'}}>
+          <div onClick={goTo('/support')} className={classes.listAction}
+               style={{marginTop: gravatarExists ? '1rem' : undefined}}>
             <Button style={{textTransform: 'none'}}>
               <ContactSupport style={{fontSize: 'medium', marginRight: 6}} />
               {intl.formatMessage({ id: 'support' })}

@@ -163,17 +163,17 @@ function ChangeNotificationPreferences (props) {
               >
                 <Gravatar className={classes.largeAvatar} email={user?.email}/>
               </ListItem>
-              <Link href="https://www.gravatar.com"
-                    target="_blank"
-                    key="avatarLinkLink"
-                    underline="none"
-              >
-                <ListItem key="avatarLink">
+              <ListItem>
+                <Link href="https://www.gravatar.com"
+                      target="_blank"
+                      key="avatarLinkLink"
+                      underline="none"
+                      style={{display: 'flex'}}
+                >
                   <Face style={{fontSize: 'medium', marginRight: 6}} />
-                  <ListItemText className={classes.name}
-                                primary={intl.formatMessage({ id: 'IdentityChangeAvatar' })} />
-                </ListItem>
-              </Link>
+                  <div className={classes.name}>{intl.formatMessage({ id: 'IdentityChangeAvatar' })}</div>
+                </Link>
+              </ListItem>
             </Grid>
           </SubSection>
         </Card>

@@ -118,7 +118,8 @@ export default function NavigationChevrons() {
       const message = highlightedOrdered[0];
       return {url: formInboxItemLink(message.type_object_id), message};
     }
-    if (!_.isEmpty(approvedCandidates)) {
+    // next flips through approved assignments if more than one or through the one approved assignment and outbox
+    if (!_.isEmpty(approvedCandidates)&&(_.size(approvedCandidates) > 1 || _.isEmpty(outboxCandidates))) {
       const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['desc']);
       const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource &&
         candidate.url !== previous?.url);
@@ -127,11 +128,15 @@ export default function NavigationChevrons() {
       }
     }
     if (!_.isEmpty(outboxCandidates)) {
-      const orderedOutboxCandidates = _.orderBy(outboxCandidates, ['time'], ['desc']);
-      const outboxNext = _.find(orderedOutboxCandidates, (candidate) => candidate.url !== resource &&
+      let candidates = outboxCandidates;
+      if (!_.isEmpty(approvedCandidates)) {
+        candidates = outboxCandidates.concat(approvedCandidates);
+      }
+      const orderedCandidates = _.orderBy(candidates, ['time'], ['desc']);
+      const candidateNext = _.find(orderedCandidates, (candidate) => candidate.url !== resource &&
         candidate.url !== previous?.url);
-      if (outboxNext) {
-        return {url: outboxNext.url};
+      if (candidateNext) {
+        return {url: candidateNext.url};
       }
     }
     return {};

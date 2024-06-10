@@ -24,6 +24,7 @@ import IconButton from '@material-ui/core/IconButton'
 import { ContactSupport, Face, Payment, PermIdentity, VpnKey } from '@material-ui/icons';
 import md5 from 'md5';
 import { SIGN_OUT_WIZARD_TYPE } from '../../constants/markets';
+import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -107,17 +108,22 @@ function Identity () {
   const canChangeUserValues = !isFederated(user);
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [online] = useContext(OnlineStateContext);
   const history = useHistory();
   const intl = useIntl();
   const email = user?.email || '';
   const chipLabel = user?.name || '';
 
   function GravatarExists() {
-    const url = `https://www.gravatar.com/avatar/${md5(email, { encoding: 'binary' })}?d=404`;
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url, false);
-    http.send();
-    return http.status !== 404;
+    try {
+      const url = `https://www.gravatar.com/avatar/${md5(email, { encoding: 'binary' })}?d=404`;
+      const http = new XMLHttpRequest();
+      http.open('HEAD', url, false);
+      http.send();
+      return http.status !== 404;
+    } catch (e) {
+      return false;
+    }
   }
 
   const recordPositionToggle = (event) => {
@@ -137,7 +143,7 @@ function Identity () {
     };
   }
 
-  const gravatarExists = GravatarExists();
+  const gravatarExists = !online || GravatarExists();
 
   return (
     <div

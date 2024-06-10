@@ -109,8 +109,8 @@ function Identity () {
   const [menuOpen, setMenuOpen] = useState(false);
   const history = useHistory();
   const intl = useIntl();
-  const email = !user ? '' : user.email;
-  const chipLabel = !user ? '' : (user.name || '');
+  const email = user?.email || '';
+  const chipLabel = user?.name || '';
 
   function GravatarExists() {
     const url = `https://www.gravatar.com/avatar/${md5(email, { encoding: 'binary' })}?d=404`;

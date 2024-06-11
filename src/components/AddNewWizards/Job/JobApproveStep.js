@@ -22,6 +22,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import JobDescription from '../../InboxWizards/JobDescription';
 
 function JobApproveStep(props) {
   const { marketId, groupId, updateFormData, formData, onFinish } = props;
@@ -127,7 +128,8 @@ function JobApproveStep(props) {
       <Typography className={classes.introText} variant="h6">
         How certain are you this job should be done?
       </Typography>
-      <div className={classes.borderBottom}/>
+      <JobDescription marketId={marketId} investibleId={investibleId}/>
+      <div style={{paddingBottom: '1rem'}} />
       <AddInitialVote
         marketId={marketId}
         onChange={onQuantityChange}

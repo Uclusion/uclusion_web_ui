@@ -706,7 +706,7 @@ const messages = defineMessages({
   planningMarketUnSubscribeExplanation: 'Unsubscribe from approvals and reviews',
   storyAddParticipantsLabel: 'Change assigned',
   storyApproversLabel: 'Change required approvers',
-  addApproversLabel: 'Add required approvers',
+  addApproversLabel: 'Require approvers',
   doneApprovalLabel: 'Yes - move to Approved',
   notDoneApprovalLabel: 'No - other options',
   storyReviewersLabel: 'Change required reviewers',

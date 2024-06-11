@@ -15,12 +15,10 @@ const useStyles = makeStyles((theme) => {
       '& button': {
         fontWeight: 'bold'
       },
-      width: '70%',
       display: 'flex',
       justifyContent: 'space-around',
       [theme.breakpoints.down('sm')]: {
-        marginLeft: '0.2rem',
-        width: 'unset',
+        marginLeft: '0.5rem',
       }
     },
     ctaSub: {

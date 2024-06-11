@@ -258,9 +258,9 @@ function WorkListItem(props) {
             <Text>{fullText}</Text>
             {mobileLayout || !date ? React.Fragment : (read ? (<DateLabelNotHovered>{date}</DateLabelNotHovered>) :
               (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>))}
-            {!isNotSynced && (
+            {!isNotSynced && !mobileLayout && (
               <DateLabelHovered>
-                {isDeletable && !mobileLayout && (
+                {isDeletable && (
                   <TooltipIconButton
                     onClick={remove}
                     icon={<NotificationDeletion />}
@@ -276,6 +276,9 @@ function WorkListItem(props) {
                   translationId="rowExpand"
                 />
               </DateLabelHovered>
+            )}
+            {!isNotSynced && mobileLayout && (
+              <ExpandMoreIcon />
             )}
           </Div>
         </div>

@@ -212,20 +212,27 @@ function BugListItem(props) {
               {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
               {mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>) :
                 (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}
-              <DateLabelHovered>
-                {expansionOpen ? <TooltipIconButton
-                    icon={<ExpandLess />}
-                    size="small"
-                    noPadding
-                    translationId="rowCollapse"
-                  />
-                  : <TooltipIconButton
-                    icon={<ExpandMoreIcon />}
-                    size="small"
-                    noPadding
-                    translationId="rowExpand"
-                  />}
-              </DateLabelHovered>
+              {mobileLayout && (
+                <div style={{paddingRight: '0.25rem'}}>
+                  {expansionOpen ? <ExpandLess /> : <ExpandMoreIcon /> }
+                </div>
+              )}
+              {!mobileLayout && (
+                <DateLabelHovered>
+                  {expansionOpen ? <TooltipIconButton
+                      icon={<ExpandLess />}
+                      size="small"
+                      noPadding
+                      translationId="rowCollapse"
+                    />
+                    : <TooltipIconButton
+                      icon={<ExpandMoreIcon />}
+                      size="small"
+                      noPadding
+                      translationId="rowExpand"
+                    />}
+                </DateLabelHovered>
+              )}
             </Div>
           </div>
         </RaisedCard>

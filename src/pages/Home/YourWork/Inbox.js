@@ -250,7 +250,8 @@ function Inbox(props) {
       </div>
     </div>
     <div id="inbox">
-      {defaultRow}
+      {!mobileLayout && defaultRow}
+      {mobileLayout && <div style={{paddingLeft: '1rem'}}>{defaultRow}</div>}
       { inboxRows }
       {
         data.map((message) => {

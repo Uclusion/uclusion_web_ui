@@ -36,34 +36,12 @@ const Text = styled("div")`
   }
 `;
 
-const DateLabel = styled(Text)`
-  font-size: 14px;
-  flex-basis: 100px;
-  flex-shrink: 0;
-  padding-right: 2rem;
-  text-align: right;
-`;
-
-const DateLabelHovered = styled(DateLabel)`
-    display: none;
-`;
-
-const DateLabelNotHovered = styled(DateLabel)`
-
-`;
-
 const Item = styled("div")`
     margin-bottom: 1px;
     margin-top: 0.3rem;
     padding-right: 12rem;
     width: fit-content;
     max-width: 98%;
-    &:hover ${DateLabelNotHovered} {
-        display: none;
-    }
-    &:hover ${DateLabelHovered} {
-        display: block;
-    }
     @media (max-width: 768px) {
         padding-right: unset;
     }

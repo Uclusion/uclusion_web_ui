@@ -120,7 +120,7 @@ export default function NavigationChevrons() {
     }
     // next flips through approved assignments if more than one or through the one approved assignment and outbox
     if (!_.isEmpty(approvedCandidates)&&(_.size(approvedCandidates) > 1 || _.isEmpty(outboxCandidates))) {
-      const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['desc']);
+      const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['asc']);
       const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource &&
         candidate.url !== previous?.url);
       if (approvedNext) {
@@ -132,7 +132,7 @@ export default function NavigationChevrons() {
       if (!_.isEmpty(approvedCandidates)) {
         candidates = outboxCandidates.concat(approvedCandidates);
       }
-      const orderedCandidates = _.orderBy(candidates, ['time'], ['desc']);
+      const orderedCandidates = _.orderBy(candidates, ['time'], ['asc']);
       const candidateNext = _.find(orderedCandidates, (candidate) => candidate.url !== resource &&
         candidate.url !== previous?.url);
       if (candidateNext) {

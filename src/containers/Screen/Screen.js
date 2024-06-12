@@ -236,7 +236,7 @@ function Screen(props) {
     navigate(history, formMarketLink(newMarketId, newMarketId));
   }
 
-  if (marketId && defaultMarket.id !== marketId) {
+  if (action === 'dialog' && marketId && defaultMarket.id !== marketId) {
     // Handle they are on banned market
     setMarketIdFull(defaultMarket.id);
   }

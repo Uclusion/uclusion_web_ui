@@ -9,34 +9,38 @@ import WizardStepButtons from '../WizardStepButtons';
 import { changeGroupParticipation } from '../../../api/markets';
 import { navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { modifyGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
+import { addGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function GroupMembersStep (props) {
   const { updateFormData, formData, marketId } = props
   const [, groupMembersDispatch] = useContext(GroupMembersContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [groupState] = useContext(MarketGroupsContext);
+  const [marketsState] = useContext(MarketsContext);
+  const presences = usePresences(marketId);
   const history = useHistory();
-  const validForm = !_.isEmpty(formData.toAddClean)
-  const classes = useContext(WizardStylesContext)
-  const groupText = formData.name ?? 'your group'
+  const validForm = !_.isEmpty(formData.toAddClean);
+  const classes = useContext(WizardStylesContext);
+  const { groupId } = formData;
+  const group = getGroup(groupState, marketId, groupId) || {};
+  const market = getMarket(marketsState, marketId);
 
   function onNext() {
-    const {groupId} = formData;
-    const follows = formData.toAddClean?.map((user) => {
-      return {
-        is_following: true,
-        user_id: user.user_id,
-      }
+    const added = formData.toAddClean?.map((added) => {
+      const found = presences.find((presence) => presence.external_id === added.external_id);
+      return {user_id: found.id, is_following: true};
     });
-    if((follows?.length ?? 0) > 0) {
-      return changeGroupParticipation(marketId, groupId, follows).then((members)=>{
-        setOperationRunning(false);
-        groupMembersDispatch(modifyGroupMembers(groupId, members));
-      });
-    }
-    return Promise.resolve(true);
+    return changeGroupParticipation(market.id, group.id, added).then((newUsers) => {
+      setOperationRunning(false);
+      groupMembersDispatch(addGroupMembers(market.id, group.id, newUsers));
+    });
   }
 
   function onTerminate() {
@@ -52,9 +56,9 @@ function GroupMembersStep (props) {
       {...props}
     >
         <Typography className={classes.introText} variant="h6">
-          Who should be in {groupText}?
+          Who else needs to be in the group?
         </Typography>
-        <AddNewUsers setToAddClean={(value) => updateFormData({ toAddClean: value })}/>
+        <AddNewUsers market={market} group={group} setToAddClean={(value) => updateFormData({ toAddClean: value })}/>
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}

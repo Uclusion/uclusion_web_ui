@@ -41,9 +41,8 @@ function ManageExistingUsers(props) {
   const [groupPresencesState, groupPresencesDispatch] = useContext(GroupMembersContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, id, true) || [];
-  const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const { is_admin: isAdmin } = yourPresence;
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, id, true)
+    || [];
 
   function followUnfollow(userId, wasRemoved) {
     setOperationRunning({userId, isFollowing: wasRemoved});
@@ -89,7 +88,7 @@ function ManageExistingUsers(props) {
     });
   }
 
-  if (_.isEmpty(groupPresences) || !isAdmin){
+  if (_.isEmpty(groupPresences)){
     return <React.Fragment/>
   }
 

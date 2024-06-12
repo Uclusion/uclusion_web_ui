@@ -17,7 +17,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import Link from '@material-ui/core/Link';
 
 function GroupNameStep (props) {
-  const { updateFormData, formData, marketId } = props;
+  const { updateFormData, formData, marketId, isSingleWorkspaceMember } = props;
   const history = useHistory();
   const intl = useIntl();
   const value = formData.name || '';
@@ -96,10 +96,9 @@ function GroupNameStep (props) {
       <WizardStepButtons
         {...props}
         validForm={validForm}
-        onNext={onNext}
-        isFinal={false}
-        nextLabel="GroupWizardAddMembers"
-        showTerminate={validForm}
+        onNext={isSingleWorkspaceMember ? onNext : onTerminate}
+        nextLabel={isSingleWorkspaceMember ? 'GroupWizardGotoGroup' : 'GroupWizardAddMembers'}
+        showTerminate={validForm && !isSingleWorkspaceMember}
         onTerminate={onTerminate}
         terminateLabel="GroupWizardGotoGroup"/>
     </WizardStepContainer>

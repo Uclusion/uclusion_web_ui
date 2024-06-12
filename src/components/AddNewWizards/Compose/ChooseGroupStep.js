@@ -53,7 +53,7 @@ function ChooseGroupStep (props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
-        validForm={!_.isEmpty(useType)}
+        validForm={!_.isEmpty(groupId)}
         nextLabel="WizardContinue"
         onNext={() => goToChosenWizard(useType, marketId, groupId, history)}
         spinOnClick={false}

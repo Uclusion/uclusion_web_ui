@@ -15,9 +15,10 @@ import clsx from 'clsx';
 import { countByType } from './InvestiblesByPerson'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import {
+  getGroupPresences,
   getMarketPresences,
   removeInvestibleInvestments
-} from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import Chip from '@material-ui/core/Chip';
 import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
@@ -28,7 +29,14 @@ import {
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getMarketInfo } from '../../../utils/userFunctions'
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments'
+import {
+  ISSUE_TYPE,
+  JUSTIFY_TYPE,
+  QUESTION_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE
+} from '../../../constants/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import {
   getFullStage,
@@ -51,6 +59,7 @@ import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import DragImage from '../../../components/Dialogs/DragImage';
 import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime';
 import { isInPast } from '../../../utils/timerUtils';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -101,7 +110,9 @@ function PlanningIdeas(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
 
   function isBlockedByTodo(investibleId, currentStageId, targetStageId) {
@@ -295,6 +306,7 @@ function PlanningIdeas(props) {
           myPresence={myPresence}
           presenceId={presenceId}
           comments={comments}
+          groupPresences={groupPresences}
           marketPresences={marketPresences}
         />
       </div>
@@ -384,6 +396,7 @@ function Stage(props) {
     isVoting,
     showCompletion,
     marketPresences,
+    groupPresences,
     presenceId
   } = props;
   const theme = useTheme();
@@ -405,6 +418,24 @@ function Stage(props) {
     event.dataTransfer.setData('text', event.target.id);
     event.dataTransfer.setData('stageId', id);
   }
+
+  function countNumRequiredReviews(investibleId, marketComments, groupPresences) {
+    const review = marketComments.find((comment) => {
+      return comment.comment_type === REPORT_TYPE && comment.investible_id === investibleId && !comment.resolved;
+    });
+    if (_.isEmpty(review)) {
+      return 0;
+    }
+    let count = 0;
+    groupPresences?.forEach((presence) => {
+      const { mentioned_notifications: mentioned } = presence;
+      if (mentioned.includes(review.id)) {
+        count++;
+      }
+    });
+    return count;
+  }
+
   const investiblesMap = sortedInvestibles.map(inv => {
     const { investible } = inv;
     const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -412,6 +443,7 @@ function Stage(props) {
       !marketInfo.accepted?.includes(presenceId);
     const numQuestionsSuggestions = countByType(investible, comments,
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
+    const numRequiredReviews = countNumRequiredReviews(investible.id, comments, groupPresences);
     return (
       <React.Fragment key={`stageFrag${investible.id}`}>
         <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
@@ -433,6 +465,7 @@ function Stage(props) {
             isReview={isReview}
             isVoting={isVoting}
             numQuestionsSuggestions={numQuestionsSuggestions}
+            numRequiredReviews={numRequiredReviews}
             unaccepted={unaccepted}
             showCompletion={showCompletion}
             mobileLayout={mobileLayout}
@@ -516,6 +549,7 @@ function StageInvestible(props) {
     comments,
     marketPresences,
     numQuestionsSuggestions,
+    numRequiredReviews,
     mobileLayout,
     unaccepted,
     isReview,
@@ -556,8 +590,10 @@ function StageInvestible(props) {
   const collaboratorsForInvestible = getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible,
     marketPresences, marketPresencesState, isVoting);
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
-  let chip = mobileLayout ? undefined : getChip(numQuestionsSuggestions,
-    numQuestionsSuggestions === 0, 'inputRequiredCountExplanation');
+  let chip = mobileLayout ? undefined :
+    getChip(isReview ? numRequiredReviews : numQuestionsSuggestions,
+      (!isReview && numQuestionsSuggestions === 0)||(isReview && numRequiredReviews === 0),
+      isReview ? 'requiredReviewsCountExplanation' : 'inputRequiredCountExplanation');
   const ticketNumber = getTicketNumber(ticketCode);
   return (
     <>

@@ -417,6 +417,7 @@ const messages = defineMessages({
   planningReviewStageLabel: 'Tasks Complete',
   approvalsCountExplanation: 'Not enough approvals',
   inputRequiredCountExplanation: 'Open questions or suggestions for assignee',
+  requiredReviewsCountExplanation: 'Open required reviews',
   planningVerifiedStageLabel: 'Tasks Complete',
   planningFurtherWorkStageLabel: 'Backlog',
   requiresInputStageLabel: 'Assistance',

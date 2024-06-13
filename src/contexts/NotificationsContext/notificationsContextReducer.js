@@ -216,14 +216,14 @@ function doAddNavigation(state, action) {
   const { url, allExistingUrls } = action;
   const { navigations } = state;
   const prunedNavigations = (navigations || []).filter((navigation) => navigation.url !== url);
-  const newNavigations = _.concat(prunedNavigations, {url, time: new Date()});
+  const newNavigations = _.concat(prunedNavigations, {url, time: new Date().getTime()});
   const now = Date.now();
   const filteredNavigations = newNavigations.filter((aNavigation) => {
     if (!allExistingUrls?.includes(aNavigation.url)) {
       return false;
     }
     // remove more than a day old
-    return now - aNavigation.time.getTime() < 86400000;
+    return now - aNavigation.time < 86400000;
   });
   return {
     messages: state.messages,

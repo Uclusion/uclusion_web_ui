@@ -118,8 +118,11 @@ export default function NavigationChevrons() {
       const message = highlightedOrdered[0];
       return {url: formInboxItemLink(message.type_object_id), message};
     }
+    const notHighlightedMessages = allMessages.filter((message) => !message.is_highlighted);
     // next flips through approved assignments if more than one or through the one approved assignment and outbox
-    if (!_.isEmpty(approvedCandidates)&&(_.size(approvedCandidates) > 1 || _.isEmpty(outboxCandidates))) {
+    if (!_.isEmpty(approvedCandidates)&&
+      (_.size(approvedCandidates) > 1 || (_.isEmpty(outboxCandidates)&&_.isEmpty(notHighlightedMessages)))) {
+      // Time as a long gets larger so smallest would be oldest
       const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['asc']);
       const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource &&
         candidate.url !== previous?.url);
@@ -130,11 +133,33 @@ export default function NavigationChevrons() {
     if (!_.isEmpty(outboxCandidates)) {
       let candidates = outboxCandidates;
       if (!_.isEmpty(approvedCandidates)) {
-        candidates = outboxCandidates.concat(approvedCandidates);
+        candidates = candidates.concat(approvedCandidates);
       }
       const orderedCandidates = _.orderBy(candidates, ['time'], ['asc']);
       const candidateNext = _.find(orderedCandidates, (candidate) => candidate.url !== resource &&
         candidate.url !== previous?.url);
+      if (candidateNext) {
+        return {url: candidateNext.url};
+      }
+    }
+    const notHighlighted = notHighlightedMessages?.filter((message) =>
+      formInboxItemLink(message.type_object_id) !== resource) || [];
+    const notHighlightedMapped = notHighlighted.map((message) => {
+      const candidate = {...message, url: formInboxItemLink(message.type_object_id)};
+      const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
+      if (candidateMeta) {
+        candidate.time = candidateMeta.time;
+      }
+      return candidate;
+    });
+    if (!_.isEmpty(notHighlightedMapped)) {
+      let candidates = notHighlightedMapped;
+      if (!_.isEmpty(approvedCandidates)) {
+        candidates = candidates.concat(approvedCandidates);
+      }
+      const candidatesOrdered = _.orderBy(candidates, ['time'], ['asc']);
+      const candidateNext = _.find(candidatesOrdered, (candidate) =>
+        candidate.url !== resource && candidate.url !== previous?.url);
       if (candidateNext) {
         return {url: candidateNext.url};
       }

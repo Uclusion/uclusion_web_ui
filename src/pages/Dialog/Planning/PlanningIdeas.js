@@ -287,6 +287,7 @@ function PlanningIdeas(props) {
           marketId={marketId}
           presenceId={presenceId}
           myPresence={myPresence}
+          groupPresences={groupPresences}
           marketPresences={marketPresences}
           comments={comments}
         />
@@ -590,10 +591,11 @@ function StageInvestible(props) {
   const collaboratorsForInvestible = getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible,
     marketPresences, marketPresencesState, isVoting);
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
+  const isReviewable = isReview || showCompletion;
   let chip = mobileLayout ? undefined :
-    getChip(isReview ? numRequiredReviews : numQuestionsSuggestions,
-      (!isReview && numQuestionsSuggestions === 0)||(isReview && numRequiredReviews === 0),
-      isReview ? 'requiredReviewsCountExplanation' : 'inputRequiredCountExplanation');
+    getChip(isReviewable ? numRequiredReviews : numQuestionsSuggestions,
+      (!isReviewable && numQuestionsSuggestions === 0)||(isReviewable && numRequiredReviews === 0),
+      isReviewable ? 'requiredReviewsCountExplanation' : 'inputRequiredCountExplanation');
   const ticketNumber = getTicketNumber(ticketCode);
   return (
     <>

@@ -42,6 +42,10 @@ import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import Link from '@material-ui/core/Link';
+import { stageChangeInvestible } from '../../../api/investibles';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
@@ -53,8 +57,9 @@ function JobApproveStep(props) {
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
-  const [investiblesState] = useContext(InvestiblesContext);
+  const [investiblesState, invDispatch] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const market = getMarket(marketsState, marketId) || {};
   const history = useHistory();
   const validForm = formData.approveQuantity != null;
@@ -63,7 +68,7 @@ function JobApproveStep(props) {
   const wasDeleted = yourVote?.deleted;
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { group_id: groupId } = marketInfo;
+  const { group_id: groupId, stage: currentStageId } = marketInfo;
   const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
   const todos = marketComments.filter((comment) => comment.comment_type === TODO_TYPE &&
     comment.investible_id === investibleId);
@@ -114,12 +119,32 @@ function JobApproveStep(props) {
     };
   }
 
-
   function onQuantityChange(event) {
     const {value} = event.target;
     updateFormData({
       approveQuantity: parseInt(value, 10)
     });
+  }
+
+  function moveToBacklog() {
+    const backlogStage = getFurtherWorkStage(marketStagesState, marketId)
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: currentStageId,
+        stage_id: backlogStage.id,
+        open_for_investment: true
+      },
+    };
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(backlogStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
+          invDispatch, () => {}, marketStagesState, undefined, backlogStage,
+          marketPresencesDispatch);
+        setOperationRunning(false);
+        navigate(history, `${formInvestibleLink(marketId, investibleId)}#approve`);
+      });
   }
 
   const {approveQuantity} = formData;
@@ -184,8 +209,8 @@ function JobApproveStep(props) {
         showOtherNext
         otherNextValid
         otherSpinOnClick={false}
-        otherNextLabel="WizardJobAssistance"
-        onOtherNext={() => navigate(history,
+        otherNextLabel={wasDeleted ? 'JobAssignBacklog' : 'WizardJobAssistance'}
+        onOtherNext={wasDeleted ? moveToBacklog : () => navigate(history,
           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, undefined,
             message.type_object_id))}
         showTerminate={getShowTerminate(message)}

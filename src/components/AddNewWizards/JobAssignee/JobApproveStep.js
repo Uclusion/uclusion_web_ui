@@ -73,7 +73,8 @@ function JobApproveStep(props) {
       }
       partialUpdateInvestment(marketPresencesDispatch, investmentResult, true);
       setOperationRunning(false);
-      onTerminate();
+      resetEditor(editorName);
+      navigate(history, `${formInvestibleLink(marketId, investibleId)}#cv${yourPresence.id}`);
     })
   }
 

@@ -116,33 +116,34 @@ function JobAssignStep (props) {
       {...props}
       isLarge
     >
-        <Typography className={classes.introText} variant="h6">
-          Who should be working on the job?
-        </Typography>
-        <Typography className={classes.introSubText} variant="subtitle1">
-          {unassignedWarning} {reassigningWarning}
-        </Typography>
-        <JobDescription marketId={marketId} investibleId={investibleId} showAssigned={false} />
-        <AssignmentList
-          fullMarketPresences={marketPresences}
-          previouslyAssigned={assigned}
-          requiresInput={isRequiresInput()}
-          onChange={onAssignmentChange}
-          groupId={groupId}
-          marketId={marketId}
-        />
+      <Typography className={classes.introText} variant="h6">
+        Who should be working on the job?
+      </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        {unassignedWarning} {reassigningWarning}
+      </Typography>
+      <JobDescription marketId={marketId} investibleId={investibleId} showAssigned={false}/>
+      <div style={{marginTop: '2rem'}}/>
+      <AssignmentList
+        fullMarketPresences={marketPresences}
+        previouslyAssigned={assigned}
+        requiresInput={isRequiresInput()}
+        onChange={onAssignmentChange}
+        groupId={groupId}
+        marketId={marketId}
+      />
 
-        <div className={classes.borderBottom}/>
-        <WizardStepButtons
-          {...props}
-          finish={onFinish}
-          validForm={validForm}
-          showNext={true}
-          nextLabel="createAssignment"
-          onNext={assignJob}
-          isFinal={_.isEmpty(value)}
-          onNextDoAdvance={!_.isEmpty(value)}
-        />
+      <div className={classes.borderBottom}/>
+      <WizardStepButtons
+        {...props}
+        finish={onFinish}
+        validForm={validForm}
+        showNext
+        nextLabel="createAssignment"
+        onNext={assignJob}
+        isFinal={_.isEmpty(value)}
+        onNextDoAdvance={!_.isEmpty(value)}
+      />
     </WizardStepContainer>
   )
 }

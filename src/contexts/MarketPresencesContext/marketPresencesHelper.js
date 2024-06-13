@@ -17,7 +17,7 @@ export function removeInvestibleInvestments(state, dispatch, marketId, investibl
   presences.forEach((presence) => {
     const { investments: oldInvestments } = presence;
     let modified = false;
-    const investments = oldInvestments.map((investment) => {
+    const investments = oldInvestments?.map((investment) => {
       const { investible_id: myInvestibleId, deleted } = investment;
       if (myInvestibleId !== investibleId || deleted) {
         return investment;

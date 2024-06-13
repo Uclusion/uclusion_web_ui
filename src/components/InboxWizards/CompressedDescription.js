@@ -83,6 +83,7 @@ function CompressedDescription(props) {
         paddingBottom: '0.5rem'}} draggable={false}>
         {expansionPanel || <React.Fragment />}
         <SpinningIconLabelButton
+          style={{marginTop: '0.5rem'}}
           icon={ExpandLess}
           doSpin={false}
           onClick={(event) => {

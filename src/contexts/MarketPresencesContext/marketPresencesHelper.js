@@ -70,8 +70,7 @@ export function getGroupPresences(presences, groupMembersState, marketId, groupI
 export function getPresencesForGroup(presences, groupMembersState, marketId, groupId) {
   const groupCapabilities = groupMembersState[groupId] || [];
   return (isEveryoneGroup(groupId, marketId) || _.isEmpty(groupId)) ? presences
-    : presences.filter((presence) => groupCapabilities.find((groupCapability) =>
-      !groupCapability.deleted && groupCapability.id === presence.id && groupCapability.group_id === groupId));
+    : groupCapabilities.filter((groupCapability) => !groupCapability.deleted);
 }
 
 export function usePresences(marketId) {

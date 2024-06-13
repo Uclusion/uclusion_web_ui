@@ -37,18 +37,14 @@ function getInvestibleCandidate(investible, market, navigations, isOutbox=false)
   const candidate = {url: isOutbox ? formInboxItemLink(investible.investible.id)  :
       formInvestibleLink(market.id, investible.investible.id)};
   const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
-  if (candidateMeta) {
-    candidate.time = candidateMeta.time;
-  }
+  candidate.time = candidateMeta?.time || 0;
   return candidate;
 }
 
 function getCommentCandidate(comment, market, navigations) {
   const candidate = {url: formInboxItemLink(comment.id)};
   const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
-  if (candidateMeta) {
-    candidate.time = candidateMeta.time;
-  }
+  candidate.time = candidateMeta?.time || 0;
   return candidate;
 }
 
@@ -147,9 +143,7 @@ export default function NavigationChevrons() {
     const notHighlightedMapped = notHighlighted.map((message) => {
       const candidate = {...message, url: formInboxItemLink(message.type_object_id)};
       const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
-      if (candidateMeta) {
-        candidate.time = candidateMeta.time;
-      }
+      candidate.time = candidateMeta?.time || 0;
       return candidate;
     });
     if (!_.isEmpty(notHighlightedMapped)) {

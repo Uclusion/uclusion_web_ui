@@ -425,7 +425,7 @@ const messages = defineMessages({
   planningBlockedStageLabel: 'Assistance',
   allowedStagesDropdownLabel: 'Stage',
   planningInvestibleAssignments: 'Assigned',
-  requiredApprovers: 'Required Approvers',
+  requiredApprovers: 'Required approvers',
   addressed: 'Outside',
   planningInvestibleDecision: 'Add Dialog',
   missingEstimatedCompletion: 'No estimated completion',

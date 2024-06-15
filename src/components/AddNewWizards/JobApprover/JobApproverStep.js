@@ -66,6 +66,7 @@ function JobApproverStep (props) {
           Required approvers will not be able to dismiss their notification to approve.
         </Typography>
         <JobDescription marketId={marketId} investibleId={investibleId} />
+      <div style={{marginTop: '1rem'}} />
         <AssignmentList
           fullMarketPresences={marketPresences}
           previouslyAssigned={approvers}

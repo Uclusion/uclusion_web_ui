@@ -29,9 +29,11 @@ import { INITIATIVE_TYPE } from '../../constants/markets';
 import TokenStorageManager from '../../authorization/TokenStorageManager';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 import { TOKEN_TYPE_MARKET } from '../../api/tokenConstants';
+import _ from 'lodash';
 
 function ConfigureCommentStep(props) {
-  const { updateFormData, formData, useType, comment, allowMulti, previousStep, navigateOnFinish } = props;
+  const { updateFormData, formData, useType, comment, allowMulti, previousStep, navigateOnFinish,
+    typeObjectId } = props;
   const classes = useContext(WizardStylesContext);
   const history = useHistory();
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -190,7 +192,7 @@ function ConfigureCommentStep(props) {
         nextLabel="OnboardingWizardFinish"
         onNext={configureComment}
         spinOnClick={true}
-        showTerminate={true}
+        showTerminate={_.isEmpty(typeObjectId)}
         onTerminate={navigateOnFinish ? onFinish : previousStep}
         terminateLabel="OnboardingWizardGoBack"
       />

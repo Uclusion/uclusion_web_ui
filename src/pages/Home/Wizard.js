@@ -167,7 +167,7 @@ function Wizard(props) {
         <ApprovalWizard marketId={marketId} groupId={groupId} investibleId={investibleId} voteFor={voteFor} />
       )}
       {createType === JOB_COMMENT_CONFIGURE_WIZARD_TYPE.toLowerCase() && (
-        <JobCommentConfigureWizard marketId={marketId} commentId={commentId} />
+        <JobCommentConfigureWizard marketId={marketId} commentId={commentId} typeObjectId={typeObjectId} />
       )}
       {createType === DELETE_COMMENT_TYPE.toLowerCase() && (
         <DeleteWizard marketId={marketId} commentId={commentId} isInbox={isInbox} />

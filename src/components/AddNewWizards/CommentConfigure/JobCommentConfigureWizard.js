@@ -10,7 +10,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { QUESTION_TYPE } from '../../../constants/comments';
 
 function JobCommentConfigureWizard(props) {
-  const { marketId, commentId } = props;
+  const { marketId, commentId, typeObjectId } = props;
   const [commentsState] = useContext(CommentsContext);
   const [marketsState] = useContext(MarketsContext);
   const comment = getComment(commentsState, marketId, commentId);
@@ -23,6 +23,7 @@ function JobCommentConfigureWizard(props) {
     <WizardStylesProvider>
       <FormdataWizard name={`job_comment_configure_wizard${commentId}`} useLocalStorage={false}>
         <ConfigureCommentStep useType={comment.comment_type} comment={comment} navigateOnFinish
+                              typeObjectId={typeObjectId}
                               allowMulti={inlineMarket?.allow_multi_vote} />
       </FormdataWizard>
     </WizardStylesProvider>

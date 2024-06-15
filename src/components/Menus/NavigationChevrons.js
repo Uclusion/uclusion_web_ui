@@ -103,6 +103,7 @@ export default function NavigationChevrons() {
   allExistingUrls = allExistingUrls.concat(outboxCandidates.map((candidate) => candidate.url));
   const previous = _.find(orderedNavigations, (navigation) =>
     allExistingUrls.includes(navigation.url) && navigation.url !== resource);
+  const isOnExistingUrl = allExistingUrls.includes(resource);
 
   function computeNext() {
     const highlighted = highlightedMessages?.filter((message) =>
@@ -115,9 +116,9 @@ export default function NavigationChevrons() {
       return {url: formInboxItemLink(message.type_object_id), message};
     }
     const notHighlightedMessages = allMessages.filter((message) => !message.is_highlighted);
-    // next flips through approved assignments if more than one or through the one approved assignment and outbox
     if (!_.isEmpty(approvedCandidates)&&
-      (_.size(approvedCandidates) > 1 || (_.isEmpty(outboxCandidates)&&_.isEmpty(notHighlightedMessages)))) {
+      (!isOnExistingUrl || _.size(approvedCandidates) > 1 ||
+        (_.isEmpty(outboxCandidates)&&_.isEmpty(notHighlightedMessages)))) {
       // Time as a long gets larger so smallest would be oldest
       const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['asc']);
       const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource &&

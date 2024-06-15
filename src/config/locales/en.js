@@ -710,6 +710,7 @@ const messages = defineMessages({
   addApproversLabel: 'Require approvers',
   doneApprovalLabel: 'Yes - move to Approved',
   notDoneApprovalLabel: 'No - other options',
+  otherOptionsLabel: 'Other options',
   storyReviewersLabel: 'Change required reviewers',
   storyAddressedLabel: 'Add or remove collaborators to receive notifications on this job.',
   dialogEditExpiresLabel: 'Add Time',

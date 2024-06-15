@@ -6,6 +6,7 @@ import EstimateCompletionStep from './EstimateCompletionStep';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useHistory } from 'react-router';
+import OtherOptionsStep from './OtherOptionsStep';
 
 function StatusWizard(props) {
   const { marketId, investibleId, message } = props;
@@ -22,6 +23,8 @@ function StatusWizard(props) {
       <JobDescriptionStatusStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}
                                 message={message}/>
       <EstimateCompletionStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId} message={message}/>
+      <OtherOptionsStep onFinish={myOnFinish} marketId={marketId} investibleId={investibleId}
+                                message={message}/>
     </FormdataWizard>
   );
 }

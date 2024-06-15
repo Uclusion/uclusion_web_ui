@@ -120,6 +120,7 @@ function EstimateCompletionStep(props) {
           validForm={!_.isEqual(newEstimate, daysEstimate)}
           nextLabel={alreadyMoved ? 'StatusWizardDateStart' : 'StatusWizardDate'}
           onNext={submit}
+          onNextDoAdvance={false}
           showTerminate={message.type_object_id.startsWith('UNREAD')}
           terminateLabel="notificationDismiss"
         />

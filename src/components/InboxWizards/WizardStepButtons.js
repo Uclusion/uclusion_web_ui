@@ -33,7 +33,9 @@ function WizardStepButtons(props) {
     onOtherNextDoAdvance,
     otherNextValid,
     isFinal,
-    isOtherFinal
+    isOtherFinal,
+    skipNextStep,
+    onOtherNextSkipStep
   } = props;
   const intl = useIntl();
   const classes = wizardStyles();
@@ -56,7 +58,11 @@ function WizardStepButtons(props) {
         const resolved = await Promise.resolve(nextReturn);
         return finish(resolved);
       }
-      nextStep();
+      if (skipNextStep || (isOtherNext && onOtherNextSkipStep)) {
+        nextStep(2);
+      } else {
+        nextStep();
+      }
     }
     if (nextReturn) {
       return nextReturn.then(() => {

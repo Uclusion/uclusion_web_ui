@@ -9,7 +9,7 @@ import { ISSUE_TYPE, REPORT_TYPE } from '../../../constants/comments';
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleAddCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 import { useIntl } from 'react-intl';
@@ -22,6 +22,12 @@ import UsefulRelativeTime from '../../TextFields/UseRelativeTime';
 import { getLabelForTerminate } from '../../../utils/messageUtils';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { stageChangeInvestible } from '../../../api/investibles';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 
 function JobDescriptionStatusStep(props) {
@@ -29,10 +35,13 @@ function JobDescriptionStatusStep(props) {
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
-  const [commentsState] = useContext(CommentsContext);
-  const [investiblesState] = useContext(InvestiblesContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [investiblesState, invDispatch] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { is_highlighted: isHighlighted, link_type: linkType } = message;
   const market = getMarket(marketsState, marketId) || {};
   const { started_expiration: startedExpiration } = market;
@@ -40,7 +49,8 @@ function JobDescriptionStatusStep(props) {
   const comments = getCommentsSortedByType(marketComments, investibleId, true, true);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { completion_estimate: daysEstimate, last_stage_change_date: lastStageChangeDate } = marketInfo;
+  const { completion_estimate: daysEstimate, last_stage_change_date: lastStageChangeDate,
+    stage: currentStageId } = marketInfo;
   let millisSinceDue = null;
   if (daysEstimate) {
     const daysEstimateDate = new Date(daysEstimate);
@@ -72,6 +82,27 @@ function JobDescriptionStatusStep(props) {
         formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,
           message.type_object_id));
     }
+  }
+
+  function moveToBacklog() {
+    const backlogStage = getFurtherWorkStage(marketStagesState, marketId)
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: currentStageId,
+        stage_id: backlogStage.id,
+        open_for_investment: true
+      },
+    };
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(backlogStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
+          invDispatch, () => {}, marketStagesState, undefined, backlogStage,
+          marketPresencesDispatch);
+        setOperationRunning(false);
+        navigate(history, `${formInvestibleLink(marketId, investibleId)}#approve`);
+      });
   }
 
   return (
@@ -110,15 +141,12 @@ function JobDescriptionStatusStep(props) {
         nextLabel={alreadyMoved ? 'StatusWizardEstimateStart' : 'StatusWizardEstimate'}
         isFinal={false}
         spinOnClick={false}
-        showOtherNext={!alreadyMoved}
-        otherNextLabel="StatusWizardReport"
-        isOtherFinal
-        onOtherNext={() => {
-          navigate(history,
-            formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE,
-              message.type_object_id));
-        }}
-        otherSpinOnClick={false}
+        showOtherNext
+        otherNextLabel={alreadyMoved ? 'JobAssignBacklog' : 'otherOptionsLabel'}
+        onOtherNext={alreadyMoved ? moveToBacklog : undefined}
+        onOtherNextSkipStep
+        onOtherNextDoAdvance={!alreadyMoved}
+        otherSpinOnClick={alreadyMoved}
         showTerminate
         onFinish={myTerminate}
         terminateLabel={(isHighlighted || alreadyMoved) ? getLabelForTerminate(message) : 'ApprovalWizardBlock'}/>

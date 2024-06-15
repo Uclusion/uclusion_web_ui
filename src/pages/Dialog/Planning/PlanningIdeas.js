@@ -31,7 +31,6 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getMarketInfo } from '../../../utils/userFunctions'
 import {
   ISSUE_TYPE,
-  JUSTIFY_TYPE,
   QUESTION_TYPE,
   REPORT_TYPE,
   SUGGEST_CHANGE_TYPE,

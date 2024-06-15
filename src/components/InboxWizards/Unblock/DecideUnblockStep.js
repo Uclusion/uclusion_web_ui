@@ -78,7 +78,7 @@ function DecideUnblockStep(props) {
         {intl.formatMessage({ id: 'DecideUnblockTitle' })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Take action here or click through the issue to resolve or move.
+        Choosing reply also gives you the option to resolve.
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       useCompression={useCompression} inboxMessageId={commentId}

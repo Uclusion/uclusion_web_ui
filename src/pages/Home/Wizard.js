@@ -134,7 +134,7 @@ function Wizard(props) {
       )}
       {createType === JOB_COMMENT_WIZARD_TYPE.toLowerCase() && (
         <JobCommentWizard investibleId={investibleId} marketId={marketId} commentType={commentType}
-                          resolveId={resolveId} />
+                          resolveId={resolveId} typeObjectId={typeObjectId} />
       )}
       {createType === JOB_ASSIGNEE_WIZARD_TYPE.toLowerCase() && (
         <JobAssigneeWizard investibleId={investibleId} marketId={marketId} />

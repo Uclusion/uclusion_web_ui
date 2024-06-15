@@ -4,22 +4,30 @@ import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@m
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { FormattedMessage } from 'react-intl';
 import _ from 'lodash';
 import JobDescription from '../../InboxWizards/JobDescription';
+import { findMessagesForTypeObjectId } from '../../../utils/messageUtils';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function ChooseCommentTypeStep (props) {
-  const { marketId, investibleId, setUseCommentType, useType } = props;
+  const { marketId, investibleId, setUseCommentType, useType, typeObjectId } = props;
+  const [messagesState] = useContext(NotificationsContext);
   const classes = useContext(WizardStylesContext);
   const allowedTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
-
+  const message = findMessagesForTypeObjectId(typeObjectId, messagesState);
+  const isReview = ['UNREAD_REVIEWABLE', 'REVIEW_REQUIRED'].includes(message?.type)
+    && message?.link_type === 'INVESTIBLE_REVIEW';
+  if (isReview) {
+    allowedTypes.push(TODO_TYPE);
+  }
   return (
     <WizardStepContainer
       {...props}
     >
       <Typography className={classes.introText}>
-        What type of assistance do you need?
+        {isReview ? 'What do you need for your review?' :'What type of assistance do you need?'}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         Creating a comment notifies the group.
@@ -43,7 +51,7 @@ function ChooseCommentTypeStep (props) {
                 /* prevent clicking the label stealing focus */
                 onMouseDown={e => e.preventDefault()}
                 control={<Radio color="primary"/>}
-                label={<FormattedMessage id={`${commentType.toLowerCase()}Compose`}/>}
+                label={<FormattedMessage id={`${commentType.toLowerCase()}${isReview ? 'Review' : 'Compose'}`}/>}
                 labelPlacement="end"
                 value={commentType}
               />

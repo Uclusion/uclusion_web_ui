@@ -59,7 +59,7 @@ function DecideReviewStep(props) {
       )}
       {!isNotDoing && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Review here or click the job title to ask a question or make a suggestion.
+          Choose other options to add a task, question, suggestion, or block.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments} removeActions
@@ -77,10 +77,10 @@ function DecideReviewStep(props) {
         otherSpinOnClick={false}
         isOtherFinal
         onOtherNext={() => navigate(history,
-          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE,
+          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, undefined,
             message.type_object_id))}
         onOtherNextDoAdvance={false}
-        otherNextLabel="DecideAddTask"
+        otherNextLabel="otherOptionsLabel"
         terminateLabel={getLabelForTerminate(message)}
         showTerminate={getShowTerminate(message)}
         onFinish={() => removeWorkListItem(message, messagesDispatch, history)}

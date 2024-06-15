@@ -20,7 +20,7 @@ import DoneWithApprovalStep from './DoneWithApprovalStep';
 import ChooseCommentTypeStep from './ChooseCommentTypeStep';
 
 function JobCommentWizard(props) {
-  const { investibleId, marketId, commentType, resolveId } = props;
+  const { investibleId, marketId, commentType, resolveId, typeObjectId } = props;
   const [commentsState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -56,7 +56,7 @@ function JobCommentWizard(props) {
                       defaultFormData={hasDraft ? draftData : {useCompression: true}}>
         {_.isEmpty(commentType) && (
           <ChooseCommentTypeStep investibleId={investibleId} marketId={marketId} useType={useCommentType}
-                                 setUseCommentType={setUseCommentType} />
+                                 setUseCommentType={setUseCommentType} typeObjectId={typeObjectId} />
         )}
         {((isReport && assignedStage.id === stage)||wasMovedToApproval) && (
           <DoneWithApprovalStep investibleId={investibleId} marketId={marketId} currentStageId={stage}

@@ -21,7 +21,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
-function JobDescriptionStatusStep(props) {
+function OtherOptionsStep(props) {
   const { marketId, investibleId, message, formData, updateFormData } = props;
   const classes = wizardStyles();
   const history = useHistory();
@@ -92,14 +92,14 @@ function JobDescriptionStatusStep(props) {
   );
 }
 
-JobDescriptionStatusStep.propTypes = {
+OtherOptionsStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
 };
 
-JobDescriptionStatusStep.defaultProps = {
+OtherOptionsStep.defaultProps = {
   updateFormData: () => {},
   formData: {}
 };
 
-export default JobDescriptionStatusStep;
+export default OtherOptionsStep;

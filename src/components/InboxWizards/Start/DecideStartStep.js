@@ -88,9 +88,6 @@ function DecideStartStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideStartTitle'})}
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Take action here or click the bug to resolve or reply.
-      </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}
@@ -112,7 +109,7 @@ function DecideStartStep(props) {
         showOtherNext
         otherSpinOnClick={false}
         isOtherFinal={false}
-        otherNextLabel="DecideStartBugExisting"
+        otherNextLabel="otherOptionsLabel"
         terminateLabel="notificationDismiss"
         showTerminate={message.type_object_id.startsWith('UNREAD')}
         onFinish={myTerminate}

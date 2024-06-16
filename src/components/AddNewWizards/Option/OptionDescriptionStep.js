@@ -111,7 +111,8 @@ function OptionDescriptionStep (props) {
         useCompression={useCompression}
       />
       {!_.isEmpty(allOptions) && (
-        <div style={{ marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '2rem', marginTop: '1rem' }}>
+          Existing options
           {allOptions.map((fullInvestible) => getOptionListItem(fullInvestible))}
         </div>
       )}

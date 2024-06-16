@@ -150,7 +150,7 @@ export const wizardStyles = makeStyles(
         }
       },
       actionNext: {
-        width: 180,
+        width: 200,
         border: '2px solid #2D9CDB',
         color: 'black !important',
         textTransform: 'unset !important',

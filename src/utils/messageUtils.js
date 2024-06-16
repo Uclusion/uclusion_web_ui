@@ -209,7 +209,7 @@ export function findMessageByInvestmentUserId(investmentUserId, investibleId, st
   const { messages } = (state || {});
   const safeMessages = messages || [];
   return safeMessages.find((message) => message.voted_list?.includes(investmentUserId) && !message.deleted &&
-    message.investible_id === investibleId);
+    (message.investible_id === investibleId || message.type_object_id.includes(investibleId)));
 }
 
 export function findMessageOfTypeAndId(notificationId, state, subtype) {

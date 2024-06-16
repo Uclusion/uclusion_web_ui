@@ -55,10 +55,22 @@ function ChooseJob(props) {
       marketStageIds.includes(investibleStageId) && (!isAssignedToMe || assigned?.includes(userId));
   });
   const results = _.isEmpty(searchQuery) ? undefined : (index.search(searchQuery) || []);
-  const investibles = _.isEmpty(searchQuery) ? activeGroupInvestibles : activeGroupInvestibles.filter((inv) => {
+  const investiblesRaw = _.isEmpty(searchQuery) ? activeGroupInvestibles : activeGroupInvestibles.filter((inv) => {
     const { investible } = inv;
     return results.find((item) => item.id === investible.id);
   });
+  const investibles = _.orderBy(investiblesRaw, [(investible) => {
+    const marketInfo = getMarketInfo(investible, marketId);
+    const { assigned } = marketInfo;
+    if (assigned?.includes(userId)) {
+      return 1;
+    }
+    return 0;
+  }, (investible) => {
+    const marketInfo = getMarketInfo(investible, marketId);
+    return parseInt(getTicketNumber(marketInfo.ticket_code), 10);
+  }], ['desc', 'desc']);
+
   const { investibleId } = formData;
 
   function onSearchChange(event) {

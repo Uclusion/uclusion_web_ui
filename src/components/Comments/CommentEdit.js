@@ -225,6 +225,7 @@ function CommentEdit(props) {
     onUpload: (files) => updateEditState({uploadedFiles: files}),
     participants: presences.filter((presence) => !presence.market_banned),
     marketId,
+    autoFocus: true
   }
   const [Editor] = useEditor(editorName, editorSpec);
 

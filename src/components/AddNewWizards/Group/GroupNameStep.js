@@ -82,6 +82,7 @@ function GroupNameStep (props) {
         id="groupName"
         className={classes.input}
         value={value}
+        autoFocus
         onChange={onNameChange}
         placeholder={intl.formatMessage({ id: 'GroupWizardMeetingName' })}
         variant="outlined"

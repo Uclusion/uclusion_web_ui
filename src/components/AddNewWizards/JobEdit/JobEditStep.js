@@ -37,7 +37,8 @@ function JobEditStep(props) {
     onUpload: (files) => updateFormData({uploadedFiles: files}),
     marketId,
     placeholder: intl.formatMessage({ id: 'investibleAddDescriptionDefault' }),
-    value: useDescription
+    value: useDescription,
+    autoFocus: true
   };
 
   const [Editor] = useEditor(editorName, editorSpec);

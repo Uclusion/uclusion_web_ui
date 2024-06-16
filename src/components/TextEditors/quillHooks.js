@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { registerListener } from '../../utils/MessageBusUtils';
 import QuillEditor2 from './QuillEditor2';
-import { resetEditor } from './Utilities/CoreUtils'
+import { focusEditor, resetEditor } from './Utilities/CoreUtils';
 
 export function useEditor (name, spec) {
 
@@ -19,8 +19,16 @@ export function useEditor (name, spec) {
     className,
     onChange,
     onImageDeletion,
-    buttons
+    buttons,
+    autoFocus
   } = spec;
+
+  useEffect(() => {
+    if (autoFocus) {
+      focusEditor(name);
+    }
+    return () => {};
+  }, [autoFocus, name]);
 
   registerListener(`editor-${name}`, `${name}-controller`, (message) => {
     const { type, newUploads, contents } = message.payload;

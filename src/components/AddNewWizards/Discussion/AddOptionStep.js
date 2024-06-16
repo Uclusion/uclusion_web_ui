@@ -42,6 +42,7 @@ function AddOptionStep(props) {
     value: getQuillStoredState(editorName),
     marketId: inlineMarketId,
     onUpload: setUploadedFiles,
+    autoFocus: true,
     onChange: () => setHasValue(!editorEmpty(getQuillStoredState(editorName))),
   };
 

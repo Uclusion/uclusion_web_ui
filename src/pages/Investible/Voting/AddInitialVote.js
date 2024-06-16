@@ -11,7 +11,7 @@ import {
   Select, useMediaQuery, useTheme
 } from '@material-ui/core';
 import { useEditor } from '../../../components/TextEditors/quillHooks';
-import { getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
+import { focusEditor, getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
 import InputLabel from '@material-ui/core/InputLabel';
 
 const useStyles = makeStyles(
@@ -77,6 +77,10 @@ function AddInitialVote(props) {
   };
   const [Editor] = useEditor(editorName, editorSpec);
   const certainties = [5, 25, 50, 75, 100];
+  function myOnChange(event) {
+    onChange(event);
+    focusEditor(editorName);
+  }
   return (
     <div style={{paddingBottom: '0.5rem'}}>
         <FormControl className={classes.certainty}>
@@ -85,7 +89,7 @@ function AddInitialVote(props) {
               <InputLabel id="select-label"><FormattedMessage id='noQuantity' /></InputLabel>
               <Select
                 value={newQuantity || 0}
-                onChange={onChange}
+                onChange={myOnChange}
                 label={<FormattedMessage id='noQuantity' />}
               >
                 {certainties.map(certainty => {
@@ -106,7 +110,7 @@ function AddInitialVote(props) {
             <RadioGroup
               aria-labelledby="add-vote-certainty"
               className={classes.certaintyGroup}
-              onChange={onChange}
+              onChange={myOnChange}
               value={newQuantity || 0}
             >
               {certainties.map(certainty => {

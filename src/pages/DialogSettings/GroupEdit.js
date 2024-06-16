@@ -115,6 +115,7 @@ function GroupEdit() {
           className={wizardClasses.input}
           value={groupName === undefined ? name : groupName}
           onChange={(event) => {setGroupName(event.target.value)}}
+          autoFocus
           variant="outlined"
           inputProps={{ maxLength : NAME_MAX_LENGTH }}
           endAdornment={

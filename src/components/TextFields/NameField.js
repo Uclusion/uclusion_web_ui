@@ -72,6 +72,7 @@ function NameField(props) {
         ref={focusWorkAround}
         defaultValue={defaultValue}
         onChange={handleChange}
+        autoFocus
         inputProps={{ maxLength : NAME_MAX_LENGTH }}
         placeholder={intl.formatMessage({
           id: placeHolder

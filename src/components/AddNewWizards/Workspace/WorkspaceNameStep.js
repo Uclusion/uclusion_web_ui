@@ -109,6 +109,7 @@ function WorkspaceNameStep (props) {
           className={classes.input}
           value={value}
           onChange={onNameChange}
+          autoFocus
           placeholder="Ex: ACME Corp"
           variant="outlined"
           inputProps={{ maxLength : NAME_MAX_LENGTH }}

@@ -62,6 +62,7 @@ function JobDescriptionStep (props) {
     placeholder: "Ex: make magic happen via A, B, C",
     value: getQuillStoredState(editorName),
     marketId,
+    autoFocus: true,
     onUpload: setUploadedFiles,
     onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); },
   };

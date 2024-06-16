@@ -316,14 +316,6 @@ function CommentAdd(props) {
     return () => {};
   }, [autoFocus, editorName, type]);
 
-  useEffect(() => {
-    if (autoFocus) {
-      focusEditor(editorName);
-    }
-    return () => {};
-  }, [autoFocus, editorName]);
-
-
   function clearMe() {
     resetEditor(editorName);
     commentAddStateReset();
@@ -342,6 +334,7 @@ function CommentAdd(props) {
   const useBody = getQuillStoredState(editorName);
   const editorSpec = {
     value: useBody,
+    autoFocus,
     participants: presences.filter((presence) => !presence.market_banned),
     marketId,
     placeholder,

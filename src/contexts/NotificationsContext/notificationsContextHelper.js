@@ -7,6 +7,7 @@ import { getComment, getCommentRoot } from '../CommentsContext/commentsContextHe
 import { getGroup } from '../MarketGroupsContext/marketGroupsContextHelper';
 import { UNASSIGNED_TYPE } from '../../constants/notifications';
 import { dehighlightMessages } from './notificationsContextReducer';
+import { addWorkspaceGroupAttribute } from '../../pages/Home/YourWork/InboxContext';
 
 function checkComment(commentId, commentVersion, marketId, commentsState, childId) {
   if (!commentId) {
@@ -144,14 +145,17 @@ export function getInboxTarget() {
   return '/inbox';
 }
 
-export function getInboxCount(messagesState, isRawCount=false) {
+export function getInboxCount(messagesState, groupAttr, groupsState, isRawCount=false) {
   let calcPend = 0;
   if (!_.isEmpty(messagesState)) {
     const { messages } = messagesState;
     if (!_.isEmpty(messages)) {
-      messages.forEach((message) => {
+      const fullGroupAttr = `${groupAttr}_${groupAttr}`;
+      const messagesProcessed = groupsState ? addWorkspaceGroupAttribute(messages, groupsState) : messages;
+      messagesProcessed.forEach((message) => {
         const { is_highlighted: isHighlighted } = message;
-        if ((isHighlighted || isRawCount) && isInInbox(message)) {
+        if ((isHighlighted || isRawCount) && isInInbox(message) && (!groupAttr || !message.groupAttr
+          || message.groupAttr === fullGroupAttr)) {
           calcPend += 1;
         }
       });

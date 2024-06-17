@@ -51,7 +51,7 @@ function DecideReplyStep(props) {
   const userId = myPresence?.id;
   const { comment_type: commentType } = commentRoot;
   const { type: messageType } = message;
-  const canResolve = commentRoot.created_by === userId && commentType !== REPORT_TYPE;
+  const canResolve = commentType !== REPORT_TYPE;
   const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, commentRoot.group_id);
   const comments = marketComments.filter((comment) =>

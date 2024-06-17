@@ -429,7 +429,7 @@ function Stage(props) {
     let count = 0;
     groupPresences?.forEach((presence) => {
       const { mentioned_notifications: mentioned } = presence;
-      if (mentioned.includes(review.id)) {
+      if (mentioned?.includes(review.id)) {
         count++;
       }
     });

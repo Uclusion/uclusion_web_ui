@@ -322,8 +322,8 @@ function Reply(props) {
           <TooltipIconButton
             disabled={operationRunning !== false}
             onClick={remove}
-            icon={<NotificationDeletion isRed />}
-            size={mobileLayout ? 'small' : undefined}
+            icon={<NotificationDeletion height={22} width={22} isRed />}
+            size='small'
             translationId="commentRemoveLabel"
             doFloatRight
           />
@@ -332,8 +332,8 @@ function Reply(props) {
           <TooltipIconButton
             disabled={operationRunning !== false}
             onClick={myAccept}
-            icon={<ListAltIcon fontSize={mobileLayout ? 'small' : undefined} style={{marginRight: '1rem'}} />}
-            size={mobileLayout ? 'small' : undefined}
+            icon={<ListAltIcon fontSize='small' style={{marginRight: '1rem'}} />}
+            size='small'
             translationId="wizardAcceptLabel"
             doFloatRight
           />

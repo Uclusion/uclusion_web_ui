@@ -20,7 +20,7 @@ import { processTextAndFilesForSave } from '../../api/files'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import {
-  addCommentToMarket, addMarketComments, getComment,
+  addCommentToMarket, addMarketComments, getComment, getCommentRoot,
   getMarketComments
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import {
@@ -289,6 +289,7 @@ function CommentAdd(props) {
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const classes = useStyles();
   const usedParent = parent || {};
+  const rootComment = getCommentRoot(commentsState, marketId, usedParent.id);
   const { investible_id: parentInvestible, id: parentId } = usedParent;
   const investibleId = fromInvestibleId || parentInvestible;
   const inv = getInvestible(investibleState, investibleId) || {};
@@ -415,7 +416,7 @@ function CommentAdd(props) {
                   validForm={hasValue}
                   nextLabel="commentAddSendLabel"
                   onNext={() => handleSave( true)}
-                  showOtherNext
+                  showOtherNext={rootComment?.comment_type !== REPORT_TYPE}
                   otherNextLabel="commentAddSendResolve"
                   onOtherNext={() => handleSave( true, undefined, undefined,
                     true).then(() => {

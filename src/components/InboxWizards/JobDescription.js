@@ -58,7 +58,7 @@ function JobDescription(props) {
 
   return (
     <>
-      <div style={{ paddingLeft: '4px', paddingRight: '4px' }}>
+      <div style={{ paddingLeft: '4px', marginRight: '10%' }}>
         {investibleId && (
           <div
             style={{ display: mobileLayout ? undefined : 'flex', paddingBottom: mobileLayout ? '1.5rem' : undefined }}>

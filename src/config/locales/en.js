@@ -1080,8 +1080,8 @@ const messages = defineMessages({
   // Comments
   issuePresent: 'Blocking issue',
   nonBlockIssuePresent: 'Issue',
-  questionPresent: 'Question',
-  suggestPresent: 'Suggestion',
+  questionPresent: 'Assignee has question',
+  suggestPresent: 'Assignee has suggestion',
   reportPresent: 'Progress Report',
   reviewReportPresent: 'Review Report',
   issueCompose: 'Blocking issue - asks for help clearing the blocker',

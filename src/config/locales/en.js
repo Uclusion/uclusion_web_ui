@@ -654,7 +654,7 @@ const messages = defineMessages({
   changeStage: 'Change stage',
   planningMarketActivate: 'Activate group',
   immediate: 'Critical',
-  immediateToolTip: 'Critical bugs remain in the triage notification until moved or resolved.',
+  immediateToolTip: 'Critical bugs remain in the inbox notification until moved or resolved.',
   normalToolTip: 'Normal bugs send a notification that can be dismissed.',
   minorToolTip: 'Minor bugs do not send notifications.',
   readyToStartToolTip: 'Ready to Start jobs send a notification that can be dismissed.',
@@ -1073,7 +1073,7 @@ const messages = defineMessages({
   DecideResolveReopenTitle: 'Do you reopen?',
   DecideResolveTitle: 'Can you resolve?',
   DecideStartTitle: 'Can you start this bug?',
-  CriticalBugTitle: 'Can you triage?',
+  CriticalBugTitle: 'Can you assign?',
   DecideReviewTitle: 'Will you review?',
   DecideAssignmentTitle: 'Take this job?',
 

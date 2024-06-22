@@ -22,19 +22,19 @@ import {
   removeInlineMarketMessages
 } from '../../../utils/messageUtils';
 import _ from 'lodash';
-import { resolveComment } from '../../../api/comments';
+import { resolveComment, updateComment } from '../../../api/comments';
 import { getFullStage, isRequiredInputStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { useHistory } from 'react-router';
 import { isSingleAssisted } from '../../../utils/commentFunctions';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideReplyStep(props) {
@@ -115,7 +115,15 @@ function DecideReplyStep(props) {
         dismissWorkListItem(message, messagesDispatch, history);
       });
   }
-
+  function moveToTask() {
+    return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
+      addCommentToMarket(comment, commentState, commentDispatch);
+      setOperationRunning(false);
+      dismissWorkListItem(message, messagesDispatch);
+      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
+    })
+  }
+  const showTerminate = getShowTerminate(message);
   return (
     <WizardStepContainer
       {...props}
@@ -126,6 +134,11 @@ function DecideReplyStep(props) {
       {isMySuggestion && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Choose other options to move to task, add voting, or resolve.
+        </Typography>
+      )}
+      {!isMySuggestion && !showTerminate && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Move to task moves this reply to its own task.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
@@ -143,14 +156,16 @@ function DecideReplyStep(props) {
         spinOnClick={false}
         onNextDoAdvance={false}
         showOtherNext={isMySuggestion || canResolve}
-        otherNextLabel={isMySuggestion ? 'otherOptionsLabel' : 'issueResolveLabel'}
-        onOtherNext={isMySuggestion ? undefined : resolve}
+        otherNextLabel={isMySuggestion ? 'otherOptionsLabel' : (showTerminate ? 'issueResolveLabel' :
+          'moveToTaskLabel')}
+        onOtherNext={isMySuggestion ? undefined : (showTerminate ? resolve : moveToTask)}
         otherSpinOnClick={!isMySuggestion}
         isOtherFinal={!isMySuggestion}
         onOtherNextDoAdvance={isMySuggestion}
-        showTerminate={getShowTerminate(message)}
-        terminateLabel={hasThreadMessages ? 'notificationDismissThread' : getLabelForTerminate(message)}
-        onFinish={hasThreadMessages ? dismissAll : myOnFinish}
+        showTerminate={showTerminate || !isMySuggestion}
+        terminateLabel={showTerminate ?
+          (hasThreadMessages ? 'notificationDismissThread' : getLabelForTerminate(message)) : 'issueResolveLabel'}
+        onFinish={showTerminate ? (hasThreadMessages ? dismissAll : myOnFinish) : resolve}
       />
     </WizardStepContainer>
   );

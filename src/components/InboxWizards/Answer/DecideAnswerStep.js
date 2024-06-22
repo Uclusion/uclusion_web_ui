@@ -45,7 +45,8 @@ function DecideAnswerStep(props) {
         {intl.formatMessage({id: 'DecideAnswerTitle'})}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Add your approval to an existing option or propose a new option for the creator of this question.
+        Approve an existing option or propose a new option. Use the mute
+        button if you don't want further notifications on this vote.
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       removeActions={noOptions}

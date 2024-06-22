@@ -23,6 +23,9 @@ function DecideVoteStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({ id: 'DecideVoteTitle' })}
       </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Use the mute button if you don't want further notifications on this vote.
+      </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       showVoting inboxMessageId={commentRoot.id}
                       useCompression={useCompression}

@@ -1,5 +1,13 @@
 import clsx from 'clsx';
-import { Checkbox, FormControlLabel, makeStyles, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
+import {
+  Checkbox,
+  FormControlLabel,
+  makeStyles,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { ExpandLess, SyncAlt, ThumbDown } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -41,6 +49,16 @@ import _ from 'lodash';
 import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { DaysEstimate } from '../../../components/AgilePlan/DaysEstimate';
 
+const useStyles = makeStyles(
+  () => ({
+    myCheckbox: {
+      '& .MuiSvgIcon-root': {
+        scale: '1.4'
+      },
+    },
+  }),
+  { name: "PlanningInvestibleNav" }
+);
 export default function PlanningInvestibleNav(props) {
   const { name, market, marketInvestible, classes, userId, isAssigned,
     pageState, marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId,
@@ -54,6 +72,7 @@ export default function PlanningInvestibleNav(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const styles = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const { stage, required_approvers:  requiredApprovers, open_for_investment: openForInvestment,
@@ -120,6 +139,8 @@ export default function PlanningInvestibleNav(props) {
       });
     }
   }
+  const readyToStartChecked = operationRunning === `readyToStartCheckbox${investibleId}` ?
+    !openForInvestment : openForInvestment;
 
   return (
     <>
@@ -155,17 +176,21 @@ export default function PlanningInvestibleNav(props) {
                    title={<FormattedMessage id='readyToStartExplanation' />}>
             <FormControlLabel
               id='readyToStartCheckbox'
+              style={{marginLeft: '0.25rem'}}
               control={
                 <Checkbox
                   id={`readyToStartCheckbox${investibleId}`}
                   value={openForInvestment}
+                  className={styles.myCheckbox}
+                  style={{color: 'white', backgroundColor: readyToStartChecked ? 'black' : 'white',
+                    padding: 0, borderRadius: 0}}
                   disabled={operationRunning !== false || isBlockedStage(fullStage)}
-                  checked={operationRunning === `readyToStartCheckbox${investibleId}` ? !openForInvestment :
-                    openForInvestment}
+                  checked={readyToStartChecked}
                   onClick={() => setReadyToStart(!openForInvestment)}
                 />
               }
-              label={intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}
+              label={<Typography variant="body2" style={{marginLeft: '0.8rem'}}>
+                {intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}</Typography>}
             />
           </Tooltip>
         </div>

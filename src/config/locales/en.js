@@ -428,7 +428,7 @@ const messages = defineMessages({
   requiredApprovers: 'Required approvers',
   addressed: 'Outside',
   planningInvestibleDecision: 'Add Dialog',
-  missingEstimatedCompletion: 'No estimated completion',
+  missingEstimatedCompletion: 'No completion date',
   estimatedCompletionToday: 'Due',
   estimatedCompletionJustText: 'job due',
   planningInvestibleDescription: '- Description',

@@ -45,6 +45,17 @@ const useStyles = makeStyles(
           backgroundColor: "#F1F1F1"
         }
       },
+      buttonNoMarginWhite: {
+        backgroundColor: "#FFF",
+        '& .MuiButton-label': {
+          textTransform: 'none'
+        },
+        fontSize: '1rem',
+        borderRadius: '15px',
+        "&:hover": {
+          backgroundColor: "#F1F1F1"
+        }
+      },
     }
   },
   { name: "Button" }
@@ -92,7 +103,8 @@ function SpinningIconLabelButton(props) {
       onClick={myOnClick}
       style={{whiteSpace: 'nowrap', width: 'fit-content', minWidth: 0}}
       startIcon={iconOnly ? undefined : myIcon}
-      className={noMargin ? classes.buttonNoMargin : (whiteBackground ? classes.buttonWhiteBackground : classes.button)}
+      className={noMargin ? (whiteBackground ? classes.buttonNoMarginWhite : classes.buttonNoMargin) :
+        (whiteBackground ? classes.buttonWhiteBackground : classes.button)}
       {...rest}
     >
       {iconOnly && myIcon}

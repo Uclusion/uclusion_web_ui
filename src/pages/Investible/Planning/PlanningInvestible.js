@@ -27,17 +27,11 @@ import EditMarketButton from '../../Dialog/EditMarketButton';
 import CardType from '../../../components/CardType';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { PLACEHOLDER } from '../../../constants/global';
-import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
-import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { stageChangeInvestible } from '../../../api/investibles';
 import { allImagesLoaded, invalidEditEvent } from '../../../utils/windowUtils';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences } from '../../Dialog/Planning/userUtils';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { findMessageOfType } from '../../../utils/messageUtils';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
 import { pushMessage } from '../../../utils/MessageBusUtils';
 import {
@@ -61,11 +55,9 @@ import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getStagesInfo } from '../../../utils/stageUtils';
-import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import PlanningInvestibleNav, { useMetaDataStyles } from './PlanningInvestibleNav';
 import { getIcon } from '../../../components/Comments/CommentEdit';
 import GravatarAndName from '../../../components/Avatars/GravatarAndName';
-import { getMidnightToday } from '../../../utils/timerUtils';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
@@ -351,9 +343,6 @@ function PlanningInvestible(props) {
   const classes = usePlanningInvestibleStyles();
   const editClasses = useInvestibleEditStyles();
   const wizardClasses = wizardStyles();
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [, diffDispatch] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { results, parentResults, search } = searchResults;
   const { id: marketId, market_stage: marketStage } = market;
@@ -368,8 +357,8 @@ function PlanningInvestible(props) {
       return comment.comment_type === JUSTIFY_TYPE;
   });
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-  const { stage, assigned: invAssigned, completion_estimate: marketDaysEstimate, ticket_code: ticketCode,
-    former_stage_id: formerStageId, group_id: groupId, created_by: createdById } = marketInfo;
+  const { stage, assigned: invAssigned, ticket_code: ticketCode, former_stage_id: formerStageId, group_id: groupId,
+    created_by: createdById } = marketInfo;
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
   const { name, description, locked_by: lockedBy, created_at: createdAt } = investible;
@@ -397,7 +386,6 @@ function PlanningInvestible(props) {
   const yourVote = yourPresence?.investments?.find((investment) =>
     investment.investible_id === investibleId && !investment.deleted);
   const displayVotingInput = canVote && _.isEmpty(search) && !yourVote;
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
 
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {
@@ -488,7 +476,6 @@ function PlanningInvestible(props) {
 
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const inMarketArchives = isInNotDoing || isInVerified;
-  const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const blockingCommentsUnresolved = investibleComments.filter(
     comment => comment.comment_type === ISSUE_TYPE && !comment.resolved
   );
@@ -542,26 +529,6 @@ function PlanningInvestible(props) {
   }
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
-
-  function handleDateChange(rawDate) {
-    const date = getMidnightToday(rawDate);
-    const daysEstimate = marketDaysEstimate ? new Date(marketDaysEstimate) : undefined;
-    if (!_.isEqual(date, daysEstimate)) {
-      const updateInfo = {
-        marketId,
-        investibleId,
-        daysEstimate: date,
-      };
-      setOperationRunning(true);
-      return updateInvestible(updateInfo).then((fullInvestible) => {
-        refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
-        if (reportMessage) {
-          messagesDispatch(removeMessages([reportMessage.type_object_id]));
-        }
-        setOperationRunning(false);
-      });
-    }
-  }
 
   function isEditableByUser() {
     const imagesLoaded = allImagesLoaded(editorBox?.current)
@@ -691,8 +658,6 @@ function PlanningInvestible(props) {
           <>
             <div style={{display: 'flex'}}>
               <CardType
-                marketDaysEstimate={marketDaysEstimate}
-                onEstimateChange={handleDateChange}
                 isInAccepted={isInAccepted}
                 isAssigned={isAssigned}
                 className={classes.cardType}

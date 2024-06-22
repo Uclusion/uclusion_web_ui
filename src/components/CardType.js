@@ -33,7 +33,6 @@ import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { Block, BugReport } from '@material-ui/icons';
-import { DaysEstimate } from './AgilePlan/DaysEstimate';
 import LightbulbOutlined from './CustomChip/LightbulbOutlined';
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
@@ -159,7 +158,6 @@ const labelIntlIds = {
 export default function CardType(props) {
   const {
     className,
-    marketId,
     gravatar,
     type,
     resolved,
@@ -167,13 +165,9 @@ export default function CardType(props) {
     label = type in labelIntlIds ? <FormattedMessage id={labelIntlIds[type]}/> : undefined,
     createdAt,
     stageChangedAt,
-    marketDaysEstimate,
-    onEstimateChange,
-    isInAccepted,
     color,
     compact = false,
-    compressed = false,
-    isAssigned
+    compressed = false
   } = props;
   const classes = useCardTypeStyles({ type, resolved, color });
   const intl = useIntl();
@@ -225,10 +219,6 @@ export default function CardType(props) {
           )}
           {gravatar}
         </>
-      )}
-      {isInAccepted && (
-        <DaysEstimate marketId={marketId} onChange={onEstimateChange} value={marketDaysEstimate}
-                      isAssigned={isAssigned} />
       )}
       {createdAt && (
         <Typography className={classes.timeElapsed} variant="body2">

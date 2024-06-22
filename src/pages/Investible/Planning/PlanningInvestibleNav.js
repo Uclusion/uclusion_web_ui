@@ -21,7 +21,7 @@ import { attachFilesToInvestible, deleteAttachedFilesFromInvestible, updateInves
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { UNASSIGNED_TYPE } from '../../../constants/notifications';
 import { getFullStage, isBlockedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { addInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -36,6 +36,10 @@ import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
 import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { useAddressed } from '../../../utils/votingUtils';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { getMidnightToday } from '../../../utils/timerUtils';
+import _ from 'lodash';
+import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
+import { DaysEstimate } from '../../../components/AgilePlan/DaysEstimate';
 
 export default function PlanningInvestibleNav(props) {
   const { name, market, marketInvestible, classes, userId, isAssigned,
@@ -44,6 +48,7 @@ export default function PlanningInvestibleNav(props) {
   const intl = useIntl();
   const history = useHistory();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -52,7 +57,7 @@ export default function PlanningInvestibleNav(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const { stage, required_approvers:  requiredApprovers, open_for_investment: openForInvestment,
-    accepted, group_id: groupId } = marketInfo;
+    accepted, group_id: groupId, completion_estimate: marketDaysEstimate } = marketInfo;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
@@ -71,13 +76,15 @@ export default function PlanningInvestibleNav(props) {
 
   const stagesInfo = getStagesInfo(market.id, marketStagesState, stage);
   const {
-    isFurtherWork,
+    isInAccepted,
+    isFurtherWork
   } = stagesInfo;
   const addressedIds = (addressed || []).filter((address) => !address.abstain)
     .map((address) => address.id);
   const investibleCollaborators = useCollaborators(marketPresences, investibleComments, marketPresencesState,
     investibleId, market.id);
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
+  const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
 
   function setReadyToStart(isReadyToStart) {
     const updateInfo = {
@@ -94,6 +101,26 @@ export default function PlanningInvestibleNav(props) {
     });
   }
 
+  function handleDateChange(rawDate) {
+    const date = getMidnightToday(rawDate);
+    const daysEstimate = marketDaysEstimate ? new Date(marketDaysEstimate) : undefined;
+    if (!_.isEqual(date, daysEstimate)) {
+      const updateInfo = {
+        marketId,
+        investibleId,
+        daysEstimate: date,
+      };
+      setOperationRunning(true);
+      return updateInvestible(updateInfo).then((fullInvestible) => {
+        refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
+        if (reportMessage) {
+          messagesDispatch(removeMessages([reportMessage.type_object_id]));
+        }
+        setOperationRunning(false);
+      });
+    }
+  }
+
   return (
     <>
       {!mobileLayout && (
@@ -102,6 +129,10 @@ export default function PlanningInvestibleNav(props) {
         </div>
       )}
       <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
+      {isInAccepted && (
+        <DaysEstimate marketId={marketId} onChange={handleDateChange} value={marketDaysEstimate}
+                      isAssigned={isAssigned} />
+      )}
       {market.id && marketInvestible.investible && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>

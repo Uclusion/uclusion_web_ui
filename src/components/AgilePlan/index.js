@@ -64,7 +64,6 @@ export const usePlanFormStyles = makeStyles(
     daysEstimationContainer: {
       display: 'flex',
       alignItems: 'start',
-      marginLeft: '1rem',
       marginRight: '1rem',
     },
 

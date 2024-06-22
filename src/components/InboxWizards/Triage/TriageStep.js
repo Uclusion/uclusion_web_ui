@@ -43,7 +43,7 @@ function TriageStep(props) {
         {intl.formatMessage({id: 'CriticalBugTitle'})}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Assign bugs with the Move button or lower from Critical to remove this notification.
+        Click on a row to assign with the Move button, resolve, or reply. Click the link 'bugs' for other actions.
       </Typography>
       <h2 id="tasksOverview">
         Critical <Link href={pathToBugs} onClick={(event) => {

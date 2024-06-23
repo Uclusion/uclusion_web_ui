@@ -112,7 +112,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     flex: '1 0 auto',
-    backgroundColor: '#e5edee',
+    backgroundColor: '#DFF0F2',
     height: '100%',
     zIndex: 8,
     position: 'fixed',

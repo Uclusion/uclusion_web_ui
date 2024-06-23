@@ -65,7 +65,7 @@ export const headerStyles = makeStyles((theme) => {
       flexGrow: 1,
     },
     appBar: {
-      background: '#8cbcc4',
+      background: '#8ABABF',
       height: '60px',
     },
     appBarNoSidebar: {

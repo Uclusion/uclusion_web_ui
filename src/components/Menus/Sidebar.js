@@ -23,7 +23,7 @@ function processRegularItem(properties) {
     );
   }
   const key = `${index}${textNoSpaces}`;
-  const backgroundColor = isBold && !isSubMenu && isBlue ? '#b4d0d8' : undefined;
+  const backgroundColor = isBold && !isSubMenu && isBlue ? '#84B1D9' : undefined;
   return (
     <div key={`sidebarMenuHolder${key}`}>
       <MenuItem icon={<Icon style={{fontSize: '1.3rem', paddingBottom: isLarge ? undefined :'2px'}} htmlColor={iconColor} />}

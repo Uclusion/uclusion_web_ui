@@ -97,11 +97,6 @@ function AddCommentStep (props) {
           Assistance Needed. Whole group notified unless use @ mentions.
         </Typography>
       )}
-      {!movingJob && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Add options to start voting on possible answers to this question. Whole group notified unless use @ mentions.
-        </Typography>
-      )}
       {useType === TODO_TYPE && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening a task prevents moving this job to Tasks Complete stage until resolved.
@@ -122,7 +117,7 @@ function AddCommentStep (props) {
       {![REPORT_TYPE, TODO_TYPE].includes(useType) && !movingJob && (
         <Typography className={classes.introSubText} variant="subtitle1">
           This {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies whole group unless use
-          @ mentions.
+          @ mentions. Add options to start voting on possible answers to this question.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}

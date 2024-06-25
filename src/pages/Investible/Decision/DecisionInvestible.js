@@ -1,9 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory, useLocation } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { CardContent, Grid, IconButton, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import Voting from './Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
@@ -177,7 +177,6 @@ function DecisionInvestible(props) {
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const investibleId = fullInvestible?.investible?.id;
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
@@ -233,10 +232,6 @@ function DecisionInvestible(props) {
     updatePageState({showDiff: !showDiff});
   }
 
-  function toggleDetails() {
-    setDetailsOpen(!detailsOpen);
-  }
-
   function mySetBeingEdited(event) {
     if (!isEditableByUser() || invalidEditEvent(event, history)) {
       return;
@@ -282,7 +277,65 @@ function DecisionInvestible(props) {
   const displayVotingInput = !removeActions && votingAllowed && !yourVote;
   const displayCommentInput = !removeActions && !inArchives && marketId && !_.isEmpty(investible) && !hidden;
   const editClasses = useInvestibleEditStyles();
-  const contents = <CardContent className={classes.votingCardContent}>
+  const afterDescription = <>{!inProposed && (
+    <>
+      <h2 id="approvals" style={{marginTop: '2rem'}}>
+        <FormattedMessage id="decisionInvestibleOthersVoting"/>
+      </h2>
+      {displayVotingInput && investibleId && (
+        <SpinningButton id="approvalButton" icon={AddIcon} iconColor="black" className={wizardClasses.actionNext}
+                        variant="text" doSpin={false}
+                        style={{ display: 'flex', marginBottom: '1rem' }}
+                        onClick={() => navigate(history,
+                          formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, undefined,
+                            undefined, typeObjectId))}>
+          <FormattedMessage id="createNewApproval"/>
+        </SpinningButton>
+      )}
+      <Voting
+        investibleId={investibleId}
+        marketPresences={marketPresences}
+        investmentReasons={investmentReasons}
+        market={market}
+        groupId={marketId}
+        votingAllowed={votingAllowed}
+        yourPresence={yourPresence}
+        toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
+        useCompression={useCompression}
+      />
+    </>
+  )}
+    {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (
+      <div style={{ paddingBottom: '1rem' }}>
+        <h2 id="approvals" style={{ marginTop: '2rem' }}>
+          <FormattedMessage id="comments"/>
+        </h2>
+        {displayCommentInput && (
+          <div style={{display: mobileLayout ? undefined : 'flex'}}>
+            {allowedCommentTypes.map((allowedCommentType) => {
+              return (
+                <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
+                                icon={AddIcon} iconColor="black"
+                                style={{
+                                  display: "flex",
+                                  marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
+                                }}
+                                variant="text" doSpin={false}
+                                onClick={() => navigate(history,
+                                  formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                                    allowedCommentType))}>
+                  <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`}/>
+                </SpinningButton>
+              );
+            })}
+          </div>
+        )}
+        <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
+                    isInbox={removeActions} removeActions={removeActions} usePadding={false}/>
+      </div>
+    )
+    }</>;
+  const contents = <div className={classes.votingCardContent}>
     {lockedBy && yourPresence.id !== lockedBy && isEditableByUser() && (
       <Typography>
         {intl.formatMessage({ id: "lockedBy" }, { x: lockedByName })}
@@ -305,7 +358,8 @@ function DecisionInvestible(props) {
         />
       </div>
     )}
-  </CardContent>;
+    {afterDescription}
+  </div>;
   const actions = <CardActions className={mobileLayout ? undefined : classes.actions}>
     <div className={mobileLayout ? undefined : clsx(metaClasses.root, classes.flexCenter)}>
       {!removeActions && activeMarket && (
@@ -337,6 +391,7 @@ function DecisionInvestible(props) {
       )}
     </div>
   </CardActions>;
+
   return (
     <div style={{ marginLeft: !mobileLayout ? '2rem' : undefined, marginRight: !mobileLayout ? '2rem' : undefined }}
          id={`option${investibleId}`}>
@@ -363,83 +418,15 @@ function DecisionInvestible(props) {
         </GridMobileDiv>
       </div>
       {mobileLayout && (
-        <div style={{ marginBottom: detailsOpen ? undefined : '1rem' }}>
+        <div>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <h2 id="details" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
               <FormattedMessage id="planningInvestibleOpenLabel"/>
             </h2>
-            <IconButton onClick={() => toggleDetails()} style={{
-              marginBottom: 0,
-              paddingBottom: 0, marginTop: 0, paddingTop: 0
-            }}>
-              <Tooltip key="toggleDetails"
-                       title={<FormattedMessage id={`${detailsOpen ? 'closeDetails' : 'openDetails'}Tip`}/>}>
-                {detailsOpen ? <ExpandLess fontSize="large" htmlColor="black"/> :
-                  <ExpandMoreIcon fontSize="large" htmlColor="black"/>}
-              </Tooltip>
-            </IconButton>
           </div>
-          {detailsOpen && actions}
+          {actions}
         </div>
       )}
-      {!inProposed && (
-        <>
-          <h2 id="approvals">
-            <FormattedMessage id="decisionInvestibleOthersVoting"/>
-          </h2>
-          {displayVotingInput && investibleId && (
-            <SpinningButton id="approvalButton" icon={AddIcon} iconColor="black" className={wizardClasses.actionNext}
-                            variant="text" doSpin={false}
-                            style={{ display: 'flex', marginBottom: '1rem' }}
-                            onClick={() => navigate(history,
-                             formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, undefined,
-                               undefined, typeObjectId))}>
-              <FormattedMessage id="createNewApproval"/>
-            </SpinningButton>
-          )}
-          <Voting
-            investibleId={investibleId}
-            marketPresences={marketPresences}
-            investmentReasons={investmentReasons}
-            market={market}
-            groupId={marketId}
-            votingAllowed={votingAllowed}
-            yourPresence={yourPresence}
-            toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
-            useCompression={useCompression}
-          />
-        </>
-      )}
-      {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (
-        <div style={{ paddingBottom: '1rem' }}>
-          <h2 id="approvals" style={{ marginTop: '2rem' }}>
-            <FormattedMessage id="comments"/>
-          </h2>
-          {displayCommentInput && (
-            <div style={{display: mobileLayout ? undefined : 'flex'}}>
-              {allowedCommentTypes.map((allowedCommentType) => {
-                return (
-                  <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
-                                  icon={AddIcon} iconColor="black"
-                                  style={{
-                                    display: "flex",
-                                    marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
-                                  }}
-                                  variant="text" doSpin={false}
-                                  onClick={() => navigate(history,
-                                    formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                                      allowedCommentType))}>
-                    <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`}/>
-                  </SpinningButton>
-                );
-              })}
-            </div>
-      )}
-      <CommentBox comments={investmentReasonsRemoved} marketId={marketId} allowedTypes={allowedCommentTypes}
-                  isInbox={removeActions} removeActions={removeActions} usePadding={false}/>
-    </div>
-  )
-}
 </div>
 )
   ;

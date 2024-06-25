@@ -43,7 +43,7 @@ function JobCommentWizard(props) {
   const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, savedQuestion?.id);
   const inv = getInvestible(investibleState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage, group_id: groupId } = marketInfo;
+  const { stage, group_id: groupId, assigned } = marketInfo;
   const assignedStage = getInCurrentVotingStage(marketStagesState, marketId);
 
   if (!stage || _.isEmpty(assignedStage)) {
@@ -64,7 +64,7 @@ function JobCommentWizard(props) {
         )}
         {!hasDraft && (
           <AddCommentStep investibleId={investibleId} marketId={marketId} useType={useCommentType} resolveId={resolveId}
-                          currentStageId={stage} groupId={groupId} />
+                          currentStageId={stage} groupId={groupId} assigned={assigned} />
         )}
         {hasDraft && (
           <CommentEdit

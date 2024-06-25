@@ -31,9 +31,11 @@ import { resolveComment } from '../../../api/comments';
 import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function AddCommentStep (props) {
-  const { investibleId, marketId, useType, updateFormData, formData, resolveId, groupId, currentStageId } = props;
+  const { investibleId, marketId, useType, updateFormData, formData, resolveId, groupId, currentStageId,
+    assigned } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -41,6 +43,7 @@ function AddCommentStep (props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const presences = usePresences(marketId);
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
   const history = useHistory();
@@ -54,6 +57,9 @@ function AddCommentStep (props) {
     [TODO_TYPE, REPLY_TYPE].includes(comment.comment_type)) : undefined;
   const { useCompression } = formData;
   const isResolve = !_.isEmpty(resolveId);
+  const myPresence = presences?.find((presence) => presence.current_user);
+  const userId = myPresence?.id;
+  const userIsAssigned = assigned?.includes(userId);
 
   function onSave(comment) {
     if (comment.is_sent) {
@@ -76,7 +82,7 @@ function AddCommentStep (props) {
       });
   }
 
-  const movingJob = isAssistance && !inAssistanceStage;
+  const movingJob = isAssistance && !inAssistanceStage && userIsAssigned;
   return (
     <WizardStepContainer
       {...props}
@@ -89,6 +95,11 @@ function AddCommentStep (props) {
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
           Assistance Needed. Whole group notified unless use @ mentions.
+        </Typography>
+      )}
+      {!movingJob && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Add options to start voting on possible answers to this question. Whole group notified unless use @ mentions.
         </Typography>
       )}
       {useType === TODO_TYPE && (

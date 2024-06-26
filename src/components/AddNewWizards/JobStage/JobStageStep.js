@@ -80,7 +80,7 @@ function JobStageStep (props) {
   const isCloseComments = hasOpenTodos ||
     (fullCurrentStage.move_on_comment && openAssistance && !fullMoveStage.close_comments_on_entrance);
   const isFinal = isFurtherWorkStage(fullMoveStage)||
-    !(_.isEmpty(assigned)||isCloseComments||isInReviewStage(fullMoveStage)||isNotDoingStage(fullMoveStage));
+    !(_.isEmpty(assigned)||isCloseComments||isInReviewStage(fullMoveStage));
   function move() {
     if (!isFinal) {
       //No op go to next step

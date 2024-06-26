@@ -717,11 +717,11 @@ function Comment(props) {
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
               subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : undefined}
               label={overrideLabel} color={color} compressed={useCompression}
-              gravatar={noAuthor || mobileLayout || beingEdited ? undefined : gravatarWithName}
+              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
     />
   ): (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact compressed={useCompression}
-              gravatar={noAuthor || mobileLayout || beingEdited ? undefined : gravatarWithName}
+              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
     />
   );
   const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,

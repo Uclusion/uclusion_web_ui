@@ -52,6 +52,9 @@ const useVoteStyles = makeStyles(
         "& .ql-editor": {
           padding: 0
         },
+        '&:last-child': {
+          paddingBottom: '18px'
+        }
       },
       cardType: {
         display: "inline-block"
@@ -85,6 +88,7 @@ const useVoteStyles = makeStyles(
       createdBy: {
         fontSize: '15px',
         whiteSpace: 'nowrap',
+        paddingRight: '0.5rem'
       },
     };
   },

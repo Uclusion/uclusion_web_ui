@@ -53,7 +53,8 @@ function JobReadyStep(props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         Choosing ready will send a one time notification to the group.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} />
+      <JobDescription marketId={marketId} investibleId={investibleId}/>
+      <div style={{ marginBottom: '2rem' }} />
       <FormControl component="fieldset">
         <RadioGroup
           aria-labelledby="comment-type-choice"
@@ -71,8 +72,8 @@ function JobReadyStep(props) {
                 key={answer}
                 /* prevent clicking the label stealing focus */
                 onMouseDown={e => e.preventDefault()}
-                control={<Radio color="primary" />}
-                label={<FormattedMessage id={id} />}
+                control={<Radio color="primary"/>}
+                label={<FormattedMessage id={id}/>}
                 labelPlacement="end"
                 value={answer}
               />
@@ -80,7 +81,7 @@ function JobReadyStep(props) {
           })}
         </RadioGroup>
       </FormControl>
-      <div className={classes.borderBottom} />
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="OnboardingWizardFinish"
@@ -91,7 +92,7 @@ function JobReadyStep(props) {
         terminateLabel="OnboardingWizardSkip"
       />
     </WizardStepContainer>
-  );
+);
 }
 
 JobReadyStep.propTypes = {

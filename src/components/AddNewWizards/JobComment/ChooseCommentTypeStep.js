@@ -29,9 +29,6 @@ function ChooseCommentTypeStep (props) {
       <Typography className={classes.introText}>
         {isReview ? 'What do you need for your review?' :'What type of assistance do you need?'}
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Creating a comment notifies the group.
-      </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId}/>
       <div className={classes.borderBottom}/>
       <FormControl component="fieldset">
@@ -51,7 +48,7 @@ function ChooseCommentTypeStep (props) {
                 /* prevent clicking the label stealing focus */
                 onMouseDown={e => e.preventDefault()}
                 control={<Radio color="primary"/>}
-                label={<FormattedMessage id={`${commentType.toLowerCase()}${isReview ? 'Review' : 'Compose'}`}/>}
+                label={<FormattedMessage id={`${commentType.toLowerCase()}Review`}/>}
                 labelPlacement="end"
                 value={commentType}
               />

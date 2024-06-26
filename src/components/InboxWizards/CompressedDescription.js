@@ -39,7 +39,6 @@ const Text = styled("div")`
 const Item = styled("div")`
     margin-bottom: 1px;
     margin-top: 0.3rem;
-    padding-right: 12rem;
     width: fit-content;
     max-width: 98%;
     @media (max-width: 768px) {

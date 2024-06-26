@@ -24,6 +24,7 @@ function ChooseCommentTypeStep (props) {
   }
   return (
     <WizardStepContainer
+      isLarge
       {...props}
     >
       <Typography className={classes.introText}>

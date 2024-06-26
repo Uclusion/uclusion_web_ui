@@ -67,26 +67,36 @@ function Options(props) {
   }
   const underConsideration = getInlineInvestiblesForStage(underConsiderationStage);
   const firstConsidered = _.isEmpty(underConsideration) ? undefined : underConsideration[0];
-  const [selectedInvestibleId, setSelectedInvestibleId] = useState(selectedInvestibleIdParent ||
-    firstConsidered?.investible?.id);
-  const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
-  const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
-  const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
-  const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
-  const strippedInvestibles = inlineInvestibles.map(inv => inv.investible);
+  const selectedInvestibleId = selectedInvestibleIdParent || firstConsidered?.investible?.id;
   const selectedInvestible = inlineInvestibles.find((inv) => inv.investible.id === selectedInvestibleId);
+  const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
   const selectedStageTab = selectedInvestible ?
     (getMarketInfo(selectedInvestible, anInlineMarket.id).stage === proposedStage.id ? 1 : 0) : undefined;
+  const [selectedInvestibleIdTabZero, setSelectedInvestibleIdTabZero] = useState(
+    selectedStageTab === 0 ? selectedInvestibleId : undefined);
+  const [selectedInvestibleIdTabOne, setSelectedInvestibleIdTabOne] = useState(
+    selectedStageTab === 1 ? selectedInvestibleId : undefined);
+  const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
+  const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
+  const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
+  const strippedInvestibles = inlineInvestibles.map(inv => inv.investible);
   const useTabIndex = selectedStageTab || tabIndex;
 
   useEffect(() => {
-    if (hash && !hash.includes(selectedInvestibleId)) {
+    if (hash && !hash.includes(selectedInvestibleIdTabZero) && !hash.includes(selectedInvestibleIdTabOne)) {
       const foundInv = (strippedInvestibles || []).find((investible) => hash.includes(investible.id));
+      const foundStageTab = foundInv ?
+        (getMarketInfo(foundInv, anInlineMarket.id).stage === proposedStage.id ? 1 : 0) : undefined;
       if (foundInv) {
-        setSelectedInvestibleId(foundInv.id);
+        if (foundStageTab === 0) {
+          setSelectedInvestibleIdTabZero(foundInv.id);
+        } else if (foundStageTab === 1) {
+          setSelectedInvestibleIdTabOne(foundInv.id);
+        }
       }
     }
-  }, [strippedInvestibles, hash, setSelectedInvestibleId, selectedInvestibleId]);
+  }, [strippedInvestibles, hash, selectedInvestibleId, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne,
+    anInlineMarket.id, proposedStage.id]);
 
   const abstained = _.isEmpty(abstaining) ? undefined :
     <div style={{display: 'flex', paddingLeft: '2rem', alignItems: 'center'}}>
@@ -136,7 +146,6 @@ function Options(props) {
         <GmailTabs
           value={useTabIndex}
           onChange={(event, value) => {
-            setSelectedInvestibleId(undefined);
             setTabIndex(value);
           }}
           indicatorColors={[htmlColor, '#00008B']}
@@ -178,8 +187,8 @@ function Options(props) {
         isAdmin={isEditable}
         isSent={isSent}
         removeActions={removeActions}
-        selectedInvestibleId={selectedInvestibleId}
-        setSelectedInvestibleId={setSelectedInvestibleId}
+        selectedInvestibleId={useTabIndex === 0 ? selectedInvestibleIdTabZero : selectedInvestibleIdTabOne}
+        setSelectedInvestibleId={useTabIndex === 0 ? setSelectedInvestibleIdTabZero : setSelectedInvestibleIdTabOne}
       />
     </div>
   );

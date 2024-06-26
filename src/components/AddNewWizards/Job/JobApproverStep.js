@@ -39,10 +39,12 @@ function JobApproverStep(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const inv = getInvestible(investibleState, investibleId) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { required_approvers: approvers, stage: stageId } = marketInfo;
+  const { required_approvers: approvers, stage: stageId, assigned } = marketInfo;
   const value = (formData.wasSet ? formData.approvers : approvers) || [];
   const validForm = !_.isEqual(value, approvers);
   const assignments = formData.assigned;
+  const cannotBeAssigned = _.union(assignments || assigned,
+    marketPresences?.find((presence) => presence.current_user));
 
   function onApproverChange(newApprovers){
     updateFormData({
@@ -130,6 +132,7 @@ function JobApproverStep(props) {
           previouslyAssigned={approvers}
           onChange={onApproverChange}
           listHeader="requiredApprovers"
+          cannotBeAssigned={cannotBeAssigned}
           groupId={groupId}
           marketId={marketId}
         />

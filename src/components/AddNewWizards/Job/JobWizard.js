@@ -9,8 +9,13 @@ import { useHistory, useLocation } from 'react-router';
 import queryString from 'query-string'
 import _ from 'lodash'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext'
-import { getCommentThreads, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import {
+  addCommentToMarket,
+  getComment,
+  getCommentThreads,
+  getMarketComments
+} from '../../../contexts/CommentsContext/commentsContextHelper';
+import { QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import ResolveCommentsStep from './ResolveCommentsStep'
 import DecideWhereStep from './DecideWhereStep';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -47,15 +52,30 @@ function JobWizard(props) {
 
   function moveFromComments(inv, formData, updateFormData) {
     const { doResolveId, doTaskId } = formData;
+    let myDoTaskId = doTaskId;
+    let replyId;
+    if (roots[0].comment_type === REPLY_TYPE) {
+      myDoTaskId = roots[0].id;
+      replyId = roots[0].reply_id;
+    }
     const { investible } = inv;
     const investibleId = investible.id;
     const movingComments = getCommentThreads(roots, comments);
     return moveComments(marketId, investibleId, fromCommentIds, doResolveId ? [doResolveId]: undefined,
-      doTaskId ? [doTaskId] : undefined)
+      myDoTaskId ? [myDoTaskId] : undefined)
       .then((movedComments) => {
-        setModifiedId(doResolveId || doTaskId);
+        if (!replyId) {
+          setModifiedId(doResolveId || myDoTaskId);
+        }
         onCommentsMove(fromCommentIds, messagesState, movingComments, investibleId, commentsDispatch, marketId,
           movedComments, messagesDispatch);
+        if (replyId) {
+          const parentComment = getComment(commentsState, marketId, replyId);
+          if (parentComment.children) {
+            parentComment.children = parentComment.children.filter((id) => id !== myDoTaskId);
+            addCommentToMarket(parentComment, commentsState, commentsDispatch);
+          }
+        }
         const link = formCommentLink(marketId, groupId, investibleId, fromCommentIds[0]);
         updateFormData({
           investibleId,

@@ -6,25 +6,21 @@ import { makeStyles } from '@material-ui/styles';
 import _ from 'lodash';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import { ISSUE_TYPE, REPORT_TYPE, TODO_TYPE, } from '../../constants/comments';
-import { removeComment, updateComment } from '../../api/comments';
+import { removeComment } from '../../api/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import {
-  addCommentToMarket,
-  addMarketComments, getComment,
-  getCommentRoot
-} from '../../contexts/CommentsContext/commentsContextHelper';
+import { addMarketComments, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import {
   decomposeMarketPath,
   formCommentLink,
+  formMarketAddInvestibleLink,
   formWizardLink,
   navigate,
   preventDefaultAndProp
 } from '../../utils/marketIdPathFunctions';
 import { useHistory, useLocation } from 'react-router';
-import { handleAcceptSuggestion } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { findMessageForCommentId, removeMessagesForCommentId } from '../../utils/messageUtils';
 import { invalidEditEvent } from '../../utils/windowUtils';
@@ -35,7 +31,7 @@ import { LocalCommentsContext, useCommentStyles } from './Comment';
 import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
-import { REPLY_WIZARD_TYPE } from '../../constants/markets';
+import { BUG_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../constants/markets';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 const useReplyStyles = makeStyles(
@@ -219,23 +215,6 @@ function Reply(props) {
     }
   }
 
-  function myAccept () {
-    setOperationRunning(true);
-    const replyId = comment.reply_id;
-    return updateComment({marketId, commentId: comment.id, commentType: TODO_TYPE}).then((comment) => {
-      handleAcceptSuggestion({ isMove: false, comment, commentsState, commentsDispatch, messagesState });
-      if (replyId) {
-        const parentComment = getComment(commentsState, marketId, replyId);
-        if (parentComment.children) {
-          parentComment.children = parentComment.children.filter((id) => id !== comment.id);
-          addCommentToMarket(parentComment, commentsState, commentsDispatch);
-        }
-      }
-      setOperationRunning(false);
-      navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
-    })
-  }
-
   function remove() {
     setOperationRunning(true);
     return removeComment(marketId, comment.id)
@@ -331,12 +310,17 @@ function Reply(props) {
         {showConvert && (
           <TooltipIconButton
             disabled={operationRunning !== false}
-            onClick={myAccept}
-            icon={<ListAltIcon fontSize='small' style={{marginRight: '1rem'}} />}
+            onClick={() => navigate(history,
+              `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
+                BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}`)}
+            icon={<ListAltIcon fontSize='small' />}
             size='small'
             translationId="wizardAcceptLabel"
             doFloatRight
           />
+        )}
+        {showConvert && (
+          <div style={{marginRight: '1rem'}} />
         )}
         {!_.isEmpty(comment) && (
           <ReadOnlyQuillEditor

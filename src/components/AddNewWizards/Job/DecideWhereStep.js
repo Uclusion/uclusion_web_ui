@@ -8,6 +8,7 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
 import CondensedTodos from '../../../pages/Investible/Planning/CondensedTodos';
 import _ from 'lodash';
+import { REPLY_TYPE } from '../../../constants/comments';
 
 function DecideWhereStep (props) {
   const { marketId, fromCommentIds, marketComments, updateFormData, formData } = props;
@@ -43,6 +44,7 @@ function DecideWhereStep (props) {
             compressAll
             isMove
             removeActions
+            displayRepliesAsTop={roots[0].comment_type === REPLY_TYPE}
             inboxMessageId={roots[0].id}
             toggleCompression={() => updateFormData({ useCompression: !useCompression })}
             useCompression={useCompression}

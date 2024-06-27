@@ -8,7 +8,7 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { FormattedMessage } from 'react-intl';
-import { SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { REPLY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { alterComment, updateComment } from '../../../api/comments';
 import {
   changeInvestibleStageOnCommentOpen,
@@ -32,7 +32,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function BugDecisionStep (props) {
-  const { marketId, comment, comments, updateFormData, formData } = props;
+  const { marketId, comment, comments, updateFormData, formData, typeObjectId } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const presences = usePresences(marketId);
@@ -45,7 +45,7 @@ function BugDecisionStep (props) {
   if (comment.comment_type === SUGGEST_CHANGE_TYPE) {
     allowedTypes.unshift('ConvertTask');
     allowedTypes.push('Discussion');
-  } else if (comment.comment_type === TODO_TYPE) {
+  } else if ([TODO_TYPE, REPLY_TYPE].includes(comment.comment_type)) {
     allowedTypes.push('ConvertSuggestion');
     allowedTypes.push('Bug');
   }
@@ -136,11 +136,12 @@ function BugDecisionStep (props) {
         isInbox
         compressAll
         inboxMessageId={comment?.id}
+        displayRepliesAsTop={comment.comment_type === REPLY_TYPE}
         removeActions
         toggleCompression={() => updateFormData({ useCompression: !useCompression })}
         useCompression={useCompression}
       />
-      <div className={classes.borderBottom}/>
+      <div style={{marginBottom: '2rem'}} />
       <FormControl component="fieldset">
         <RadioGroup
           aria-labelledby="type-choice"
@@ -166,13 +167,14 @@ function BugDecisionStep (props) {
           })}
         </RadioGroup>
       </FormControl>
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         validForm={!_.isEmpty(useType)}
         onNext={getNextFunction()}
-        isFinal={useType?.startsWith('Convert')||useType === 'Discussion'}
-        spinOnClick={useType?.startsWith('Convert')||useType === 'Discussion'}
-        showTerminate
+        isFinal={useType?.startsWith('Convert') || useType === 'Discussion'}
+        spinOnClick={useType?.startsWith('Convert') || useType === 'Discussion'}
+        showTerminate={_.isEmpty(typeObjectId)}
         terminateLabel="OnboardingWizardGoBack"
         onTerminate={() => navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id,
           comment.id))}

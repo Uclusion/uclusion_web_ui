@@ -22,20 +22,20 @@ import {
   removeInlineMarketMessages
 } from '../../../utils/messageUtils';
 import _ from 'lodash';
-import { resolveComment, updateComment } from '../../../api/comments';
+import { resolveComment } from '../../../api/comments';
 import { getFullStage, isRequiredInputStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import { useHistory } from 'react-router';
 import { isSingleAssisted } from '../../../utils/commentFunctions';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { formCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
+import { formMarketAddInvestibleLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { BUG_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideReplyStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -49,7 +49,7 @@ function DecideReplyStep(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
-  const { comment_type: commentType } = commentRoot;
+  const { comment_type: commentType, group_id: groupId } = commentRoot;
   const { type: messageType } = message;
   const canResolve = commentType !== REPORT_TYPE;
   const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState);
@@ -115,14 +115,11 @@ function DecideReplyStep(props) {
         dismissWorkListItem(message, messagesDispatch, history);
       });
   }
-  function moveToTask() {
-    return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((comment) => {
-      addCommentToMarket(comment, commentState, commentDispatch);
-      setOperationRunning(false);
-      dismissWorkListItem(message, messagesDispatch);
-      navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
-    })
-  }
+
+  const moveToTask = () => navigate(history,
+    `${formMarketAddInvestibleLink(marketId, groupId, undefined, message.type_object_id, 
+      BUG_WIZARD_TYPE)}&fromCommentId=${commentId}`);
+
   const showTerminate = getShowTerminate(message);
   return (
     <WizardStepContainer
@@ -159,7 +156,7 @@ function DecideReplyStep(props) {
         otherNextLabel={isMySuggestion ? 'otherOptionsLabel' : (showTerminate ? 'issueResolveLabel' :
           'moveToTaskLabel')}
         onOtherNext={isMySuggestion ? undefined : (showTerminate ? resolve : moveToTask)}
-        otherSpinOnClick={!isMySuggestion}
+        otherSpinOnClick={!isMySuggestion && showTerminate}
         isOtherFinal={!isMySuggestion}
         onOtherNextDoAdvance={isMySuggestion}
         showTerminate={showTerminate || !isMySuggestion}

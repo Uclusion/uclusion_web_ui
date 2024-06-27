@@ -372,7 +372,7 @@ const messages = defineMessages({
   ConvertTaskMoveLabel: 'Convert to task',
   ConvertSuggestionMoveLabel: 'Convert to suggestion',
   BugMoveLabel: 'Convert to bug',
-  JobMoveLabel: 'Move to job',
+  JobMoveLabel: 'Move to task in job',
   DiscussionMoveLabel: 'Move to discussion',
   backlogReadyToStart: 'Backlog - Ready to Start',
   backlogNotReadyToStart: 'Backlog - Not Ready',

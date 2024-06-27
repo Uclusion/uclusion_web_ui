@@ -104,6 +104,10 @@ function convertUserUiPreferences(user) {
 
 function doAccountAndUserRefresh(state, action) {
   const { account, user } = action;
+  const { user: oldUser } = state;
+  if (oldUser?.version > user.version) {
+    return state;
+  }
   return {
     ...state,
     initializing: false,
@@ -114,6 +118,10 @@ function doAccountAndUserRefresh(state, action) {
 
 function doAccountUserRefresh(state, action) {
   const { user } = action;
+  const { user: oldUser } = state;
+  if (oldUser?.version > user.version) {
+    return state;
+  }
   return {
     ...state,
     user: convertUserUiPreferences(user)

@@ -86,7 +86,7 @@ function Options(props) {
     if (hash && !hash.includes(selectedInvestibleIdTabZero) && !hash.includes(selectedInvestibleIdTabOne)) {
       const foundInv = (strippedInvestibles || []).find((investible) => hash.includes(investible.id));
       const foundStageTab = foundInv ?
-        (getMarketInfo(foundInv, anInlineMarket.id).stage === proposedStage.id ? 1 : 0) : undefined;
+        (getMarketInfo(foundInv, anInlineMarket?.id)?.stage === proposedStage?.id ? 1 : 0) : undefined;
       if (foundInv) {
         if (foundStageTab === 0) {
           setSelectedInvestibleIdTabZero(foundInv.id);
@@ -96,7 +96,7 @@ function Options(props) {
       }
     }
   }, [strippedInvestibles, hash, selectedInvestibleId, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne,
-    anInlineMarket.id, proposedStage.id]);
+    anInlineMarket?.id, proposedStage?.id]);
 
   const abstained = _.isEmpty(abstaining) ? undefined :
     <div style={{display: 'flex', paddingLeft: '2rem', alignItems: 'center'}}>

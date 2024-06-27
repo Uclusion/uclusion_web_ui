@@ -658,7 +658,8 @@ function Comment(props) {
 
   const diff = getDiff(diffState, id);
   const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myMessage || {};
-  const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> : undefined;
+  const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> :
+    (commentType === REPLY_TYPE ? <FormattedMessage id="issueReplyLabel" /> : undefined);
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = !replyBeingEdited || replies.length > 0;
@@ -715,7 +716,8 @@ function Comment(props) {
   />;
   const cardTypeDisplay = overrideLabel ? (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
-              subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : undefined}
+              subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : (commentType === REPLY_TYPE ?
+                TODO_TYPE : undefined)}
               label={overrideLabel} color={color} compressed={useCompression}
               gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
     />

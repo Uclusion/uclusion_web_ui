@@ -125,48 +125,50 @@ function JobStageStep (props) {
     <WizardStepContainer
       {...props}
     >
-        <Typography className={classes.introText} variant="h6">
-          Where will you move this job?
-        </Typography>
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Moving to backlog will remove assignment and approvals. {isAssigned ? '' : 'You must be assigned to move to Approved.'}
-        </Typography>
-        <JobDescription marketId={marketId} investibleId={investibleId} />
-        <FormControl component="fieldset">
-          <RadioGroup
-            aria-labelledby="stage-choice"
-            onChange={(event) => {
-              const { value } = event.target;
-              onStageChange(value);
-            }}
-            value={value}
-          >
-            {fullStages.map((fullStage) => {
-              const stageId = fullStage.id;
-              return (
-                <FormControlLabel
-                  id={stageId}
-                  key={stageId}
-                  /* prevent clicking the label stealing focus */
-                  onMouseDown={e => e.preventDefault()}
-                  control={<Radio color="primary" />}
-                  label={getStageNameForId(marketStagesState, marketId, stageId, intl)}
-                  labelPlacement="end"
-                  value={stageId}
-                />
-              );
-            })}
-          </RadioGroup>
-        </FormControl>
-        <div className={classes.borderBottom}/>
-        <WizardStepButtons
-          {...props}
-          validForm={validForm}
-          showNext
-          isFinal={isFinal}
-          onIncrement={doIncrement}
-          onNext={move}
-        />
+      <Typography className={classes.introText} variant="h6">
+        Where will you move this job?
+      </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Moving to backlog will remove assignment and
+        approvals. {isAssigned ? '' : 'You must be assigned to move to Approved.'}
+      </Typography>
+      <JobDescription marketId={marketId} investibleId={investibleId}/>
+      <div style={{ marginBottom: '2rem' }}/>
+      <FormControl component="fieldset">
+        <RadioGroup
+          aria-labelledby="stage-choice"
+          onChange={(event) => {
+            const { value } = event.target;
+            onStageChange(value);
+          }}
+          value={value}
+        >
+          {fullStages.map((fullStage) => {
+            const stageId = fullStage.id;
+            return (
+              <FormControlLabel
+                id={stageId}
+                key={stageId}
+                /* prevent clicking the label stealing focus */
+                onMouseDown={e => e.preventDefault()}
+                control={<Radio color="primary"/>}
+                label={getStageNameForId(marketStagesState, marketId, stageId, intl)}
+                labelPlacement="end"
+                value={stageId}
+              />
+            );
+          })}
+        </RadioGroup>
+      </FormControl>
+      <div className={classes.borderBottom}/>
+      <WizardStepButtons
+        {...props}
+        validForm={validForm}
+        showNext
+        isFinal={isFinal}
+        onIncrement={doIncrement}
+        onNext={move}
+      />
     </WizardStepContainer>
   )
 }

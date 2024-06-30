@@ -782,8 +782,6 @@ const messages = defineMessages({
   inviteLinkerCopied: 'Link copied to clipboard',
   inviteLinkerDirectionsInitiative: 'Share this link',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
-  slackIntegrationSuccessful: 'Slack was successfully integrated.',
-  slackIntegrationPartial: 'Now type /uclusion in any Slack channel to receive messages from groups in this workspace.',
 
   // Assignment List
   assignmentListHeader: 'Assigned to',

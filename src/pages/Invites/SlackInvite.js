@@ -12,6 +12,7 @@ import { toastError } from '../../utils/userMessage';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer'
 import { getAccountClient } from '../../api/homeAccount';
+import Link from '@material-ui/core/Link';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,10 +20,7 @@ const useStyles = makeStyles((theme) => ({
   },
   section: {
     padding: theme.spacing(2),
-    marginBottom: theme.spacing(2),
-    '&:last-child': {
-      marginBottom: 0,
-    },
+    maxWidth: '40rem'
   },
   row: {
     display: 'flex',
@@ -76,11 +74,14 @@ function SlackInvite(props) {
       <div className={classes.root}>
         <Paper className={classes.section}>
           <Typography className={classes.row}>
-            {intl.formatMessage({ id: 'slackIntegrationSuccessful' })}
+            Almost there!
           </Typography>
-
           <Typography className={classes.row}>
-            {intl.formatMessage({ id: 'slackIntegrationPartial' })}
+            Now type /uclusion in the Slack channel where you want group alerts to go.
+          </Typography>
+          <Typography>
+            See <Link href="https://documentation.uclusion.com/notifications/slack" target="_blank"> Slack integration documentation</Link> for
+            detailed instructions.
           </Typography>
         </Paper>
       </div>

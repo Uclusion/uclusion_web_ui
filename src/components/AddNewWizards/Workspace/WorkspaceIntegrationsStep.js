@@ -26,7 +26,6 @@ function WorkspaceIntegrationsStep(props) {
       </Typography>
       <a
         href={`${config.add_to_slack_url}&state=${user?.id}_${formData.marketId}`}
-        target="_blank"
         rel="noopener noreferrer"
       >
         <img

@@ -236,7 +236,6 @@ function ChangeNotificationPreferences (props) {
               <ListItem key="slackLink" style={{marginTop: '1rem'}}>
                 <a
                   href={`${config.add_to_slack_url}&state=${user?.id}_${marketId}`}
-                  target="_blank"
                   rel="noopener noreferrer"
                 >
                   {slackAddressable && (

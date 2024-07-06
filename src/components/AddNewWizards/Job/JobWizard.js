@@ -43,6 +43,7 @@ function JobWizard(props) {
   const comments = marketId ? getMarketComments(commentsState, marketId, groupId) : [];
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     comments.find((comment) => comment.id === fromCommentId));
+  const isReplyConvert = roots[0].comment_type === REPLY_TYPE;
 
   function onFinish(formData) {
     const { link } = formData;
@@ -54,7 +55,7 @@ function JobWizard(props) {
     const { doResolveId, doTaskId } = formData;
     let myDoTaskId = doTaskId;
     let replyId;
-    if (roots[0].comment_type === REPLY_TYPE) {
+    if (isReplyConvert) {
       myDoTaskId = roots[0].id;
       replyId = roots[0].reply_id;
     }
@@ -118,7 +119,7 @@ function JobWizard(props) {
                            marketComments={comments} />
         )}
         {fromCommentId && (
-          <FindJobStep marketId={marketId} groupId={groupId} roots={roots}
+          <FindJobStep marketId={marketId} groupId={groupId} roots={roots} isConvert={isReplyConvert}
                        moveFromComments={fromCommentIds ? moveFromComments : undefined}/>
         )}
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} roots={roots}

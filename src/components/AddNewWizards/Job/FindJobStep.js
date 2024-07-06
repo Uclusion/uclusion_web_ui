@@ -20,7 +20,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 
 function FindJobStep(props) {
-  const { marketId, groupId, updateFormData, formData, startOver, moveFromComments, roots } = props;
+  const { marketId, groupId, updateFormData, formData, startOver, moveFromComments, roots, isConvert } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -67,7 +67,7 @@ function FindJobStep(props) {
           groupId={groupId}
           formData={formData}
           marketStages={activeMarketStages}
-          excluded={currentInvestibleId ? [currentInvestibleId] : undefined}
+          excluded={currentInvestibleId && !isConvert ? [currentInvestibleId] : undefined}
           onChange={(id) => {
             updateFormData({ investibleId: id })
           }}

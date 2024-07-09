@@ -408,7 +408,8 @@ function Signup(props) {
           <div className={classes.paper}>
             { !myMarket &&
             <span>
-              <svg style={{ verticalAlign: 'middle', width: '140px', marginBottom: '-1rem' }}
+              <svg style={{ verticalAlign: 'middle', width: '150px', display: 'flex', marginLeft: 'auto',
+                marginRight: 'auto', marginBottom: '-0.75rem' }}
                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
                 <path fill="#fff"
                       d="M888.67,328.66a43,43,0,0,1-34.38,42.12v43.84l-43-43H174.05a62.72,62.72,0,0,1-62.72-62.72V228.36a43,43,0,0,1,43-43H845.69a43,43,0,0,1,43,43Z"/>

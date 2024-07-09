@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import { formCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { REPORT_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { useHistory } from 'react-router';
 import CommentAdd from '../../Comments/CommentAdd';
@@ -63,7 +63,8 @@ function StartReviewStep(props) {
         if (comment) {
           navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
         } else {
-          navigate(history, formInvestibleLink(marketId, investibleId));
+          // Nothing to see in the investible so go to swimlanes
+          navigate(history, formMarketLink(marketId, groupId));
         }
       });
   }

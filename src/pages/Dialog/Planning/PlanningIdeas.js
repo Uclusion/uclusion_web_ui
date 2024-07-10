@@ -227,15 +227,19 @@ function PlanningIdeas(props) {
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned } = marketInfo;
     const draggerIsAssigned = (assigned || []).includes(myPresence.id);
-    const isBlocked = isBlockedByTodo(id, stageId, divId);
     const fullCurrentStage = getFullStage(marketStagesState, marketId, stageId);
     if (divId === acceptedStageId && !draggerIsAssigned) {
       // Go to change stage assign step with acceptedStageId destination
       return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=true`;
     }
-    if (isBlocked || isBlockedStage(fullCurrentStage) || isRequiredInputStage(fullCurrentStage)) {
-      // Go to change stage close comment step with divId destination
-      return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}`;
+    if (divId === inReviewStageId || isBlockedStage(fullCurrentStage) || isRequiredInputStage(fullCurrentStage)) {
+      const isBlocked = isBlockedByTodo(id, stageId, divId);
+      if (isBlocked) {
+        // Go to change stage close comment step with divId destination
+        return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}`;
+      }
+      // Go to change stage add review step with divId destination
+      return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=false`;
     }
     return undefined;
   }

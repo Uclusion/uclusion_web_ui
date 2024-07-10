@@ -47,9 +47,13 @@ function StageActionStep(props) {
   const { required_approvers: requiredApprovers, assigned } = marketInfo;
   const {approveUploadedFiles, approveReason, approveQuantity, stage, wasDeleted,
     originalReason, originalQuantity, userId } = formData;
-  const fullMoveStage = getFullStage(marketStagesState, marketId, stage) || {};
+  const fullMoveStage = getFullStage(marketStagesState, marketId, stage);
   const validForm = approveQuantity > 0;
   const isAssignedToMe = assigned?.includes(userId);
+
+  if (_.isEmpty(fullMoveStage)) {
+    return React.Fragment;
+  }
 
   if (fullMoveStage.close_comments_on_entrance) {
     return (

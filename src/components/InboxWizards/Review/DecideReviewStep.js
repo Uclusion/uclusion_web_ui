@@ -80,7 +80,7 @@ function DecideReviewStep(props) {
           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, undefined,
             message.type_object_id))}
         onOtherNextDoAdvance={false}
-        otherNextLabel="otherOptionsLabel"
+        otherNextLabel="commentInJob"
         terminateLabel={getLabelForTerminate(message)}
         showTerminate={getShowTerminate(message)}
         onFinish={() => removeWorkListItem(message, messagesDispatch, history)}

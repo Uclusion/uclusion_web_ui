@@ -712,6 +712,7 @@ const messages = defineMessages({
   moveSuggestionLabel: 'Move suggestion',
   notDoneApprovalLabel: 'No - other options',
   otherOptionsLabel: 'Other options',
+  commentInJob: 'Comment in job',
   storyReviewersLabel: 'Change required reviewers',
   storyAddressedLabel: 'Add or remove collaborators to receive notifications on this job.',
   dialogEditExpiresLabel: 'Add Time',

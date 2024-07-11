@@ -48,6 +48,17 @@ function OnboardingBanner() {
   const market = getMarket(marketsState, message?.market_id);
 
   if (message && !marketIsDemo(market)) {
+    if (market?.market_sub_type === 'SUPPORT' && typeObjectId?.startsWith('UNREAD_COMMENT')) {
+      return (
+        <div className={classes.bannerBox}>
+          <div className={classes.bannerBoxStuff}>
+            <Typography>
+              <b>Welcome to support!</b> Clicking this message put you in the support workspace.
+            </Typography>
+          </div>
+        </div>
+      );
+    }
     return React.Fragment;
   }
 

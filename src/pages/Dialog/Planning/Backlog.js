@@ -29,6 +29,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 
 function Backlog(props) {
   const {
@@ -58,6 +59,7 @@ function Backlog(props) {
     ['desc']);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabInvestibles,
     page, PAGE_SIZE);
+  const market = getMarket(marketsState, marketId) || {};
   const isEmptyBacklog = _.isEmpty(furtherWorkInvestibles) && _.isEmpty(furtherWorkReadyToStart);
   const yellowChip = <Chip color="primary" size='small' className={classes.chipStyleYellow} />;
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
@@ -112,11 +114,16 @@ function Backlog(props) {
       </SpinningButton>
       <DismissableText textId="backlogHelp" noPad={true}
                        display={isEmptyBacklog}
-                       text={
-                           <div>
-                             Use the "Add job" button above to create backlog. "Ready to Start" sends notifications to
-                             this group.
-                           </div>
+                       text={market?.market_sub_type === 'SUPPORT' ?
+                         <div>
+                           Use the "Add job" button above to create backlog. "Ready to Start" sends notifications to
+                           support.
+                         </div>
+                         :
+                         <div>
+                           Use the "Add job" button above to create backlog. "Ready to Start" sends notifications to
+                           this group.
+                         </div>
                        }/>
       <GmailTabs
         value={tabIndex}

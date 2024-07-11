@@ -426,18 +426,25 @@ function PlanningDialog(props) {
             <DismissableText textId="notificationHelp"
                              display={_.isEmpty(blockedOrRequiresInputInvestibles)&&_.isEmpty(swimlaneInvestibles)}
                              text={
-                               isEveryoneGroup(groupId, marketId) ?
+                               isEveryoneGroup(groupId, marketId) ? (market?.market_sub_type === 'SUPPORT' ?
+                                   <div>
+                                     There are no assigned jobs. Use the "Add job" button above and support will be
+                                     notified.
+                                   </div>
+                                   :
+                                   <div>
+                                     There are no assigned jobs. Use the "Add job" button above
+                                     and <Link href="https://documentation.uclusion.com/groups/#everyone"
+                                               target="_blank">everyone</Link> will
+                                     be notified.
+                                   </div>) :
                                  <div>
                                    There are no assigned jobs. Use the "Add job" button above
-                                   and <Link href="https://documentation.uclusion.com/groups/#everyone" target="_blank">everyone</Link> will
-                                   be notified.
-                                 </div> :
-              <div>
-                There are no assigned jobs. Use the "Add job" button above
-                and <Link href="https://documentation.uclusion.com/notifications" target="_blank">notifications</Link> are
-                sent to this group backed by instructional wizards.
-              </div>
-            }/>
+                                   and <Link href="https://documentation.uclusion.com/notifications"
+                                             target="_blank">notifications</Link> are
+                                   sent to this group backed by instructional wizards.
+                                 </div>
+                             }/>
           </div>
         )}
         {isSectionOpen('backlogSection') && (

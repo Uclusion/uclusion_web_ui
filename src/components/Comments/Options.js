@@ -80,10 +80,10 @@ function Options(props) {
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
   const useTabIndex = selectedStageTab || tabIndex;
+  const foundInv = (inlineInvestibles || []).find((inv) => hash?.includes(inv.investible.id));
 
   useEffect(() => {
     if (hash && !hash.includes(selectedInvestibleIdTabZero) && !hash.includes(selectedInvestibleIdTabOne)) {
-      const foundInv = (inlineInvestibles || []).find((inv) => hash.includes(inv.investible.id));
       const foundStageTab = foundInv ?
         (getMarketInfo(foundInv, anInlineMarket?.id)?.stage === proposedStage?.id ? 1 : 0) : undefined;
       if (foundInv) {
@@ -95,8 +95,8 @@ function Options(props) {
         setTabIndex(foundStageTab);
       }
     }
-  }, [inlineInvestibles, hash, selectedInvestibleId, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne,
-    anInlineMarket?.id, proposedStage?.id]);
+  }, [hash, selectedInvestibleId, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne, anInlineMarket?.id,
+    proposedStage?.id, foundInv]);
 
   const abstained = _.isEmpty(abstaining) ? undefined :
     <div style={{display: 'flex', paddingLeft: '2rem', alignItems: 'center'}}>

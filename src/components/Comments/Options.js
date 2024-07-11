@@ -79,23 +79,23 @@ function Options(props) {
   const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
-  const strippedInvestibles = inlineInvestibles.map(inv => inv.investible);
   const useTabIndex = selectedStageTab || tabIndex;
 
   useEffect(() => {
     if (hash && !hash.includes(selectedInvestibleIdTabZero) && !hash.includes(selectedInvestibleIdTabOne)) {
-      const foundInv = (strippedInvestibles || []).find((investible) => hash.includes(investible.id));
+      const foundInv = (inlineInvestibles || []).find((inv) => hash.includes(inv.investible.id));
       const foundStageTab = foundInv ?
         (getMarketInfo(foundInv, anInlineMarket?.id)?.stage === proposedStage?.id ? 1 : 0) : undefined;
       if (foundInv) {
         if (foundStageTab === 0) {
-          setSelectedInvestibleIdTabZero(foundInv.id);
+          setSelectedInvestibleIdTabZero(foundInv.investible.id);
         } else if (foundStageTab === 1) {
-          setSelectedInvestibleIdTabOne(foundInv.id);
+          setSelectedInvestibleIdTabOne(foundInv.investible.id);
         }
+        setTabIndex(foundStageTab);
       }
     }
-  }, [strippedInvestibles, hash, selectedInvestibleId, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne,
+  }, [inlineInvestibles, hash, selectedInvestibleId, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne,
     anInlineMarket?.id, proposedStage?.id]);
 
   const abstained = _.isEmpty(abstaining) ? undefined :

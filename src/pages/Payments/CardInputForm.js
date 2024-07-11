@@ -20,6 +20,7 @@ import clsx from 'clsx';
 import Button from '@material-ui/core/Button';
 import WizardStepButtons from '../../components/InboxWizards/WizardStepButtons';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+
 // this is used to style the Elements Card component
 const CARD_OPTIONS = {
   iconStyle: 'solid',
@@ -174,7 +175,8 @@ function CardInputForm (props) {
       >
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <CardElement options={CARD_OPTIONS} onChange={onCardChange}/>
+            <CardElement options={CARD_OPTIONS} onChange={onCardChange}
+                         onReady={(element) => element.focus()}/>
           </Grid>
           <Grid item xs={12}>
             <TextField
@@ -184,7 +186,6 @@ function CardInputForm (props) {
               required
               fullWidth
               id="name"
-              autoFocus
               value={billingDetails.name}
               label={intl.formatMessage({ id: 'upgradeFormCardName' })}
               onChange={onBillingDetailsChange('name')}

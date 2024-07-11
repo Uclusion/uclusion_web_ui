@@ -342,7 +342,8 @@ function DecisionInvestible(props) {
       </Typography>
     )}
     {marketId && investibleId && userId && (
-      <div className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}>
+      <div className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}
+           onClick={(event) => mySetBeingEdited(event)}>
         <Typography className={editClasses.title} variant="h3" component="h1">
           {name}
         </Typography>
@@ -404,9 +405,7 @@ function DecisionInvestible(props) {
         <GridMobileDiv>
           {mobileLayout && contents}
           {!mobileLayout && (
-            <Grid item md={10} xs={12}
-                  className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}
-                  onClick={(event) => mySetBeingEdited(event)}>
+            <Grid item md={10} xs={12}>
               {contents}
             </Grid>
           )}

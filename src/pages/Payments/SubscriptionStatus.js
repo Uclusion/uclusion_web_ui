@@ -18,6 +18,7 @@ import { useIntl } from 'react-intl';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import SubSection from '../../containers/SubSection/SubSection';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
+import Link from '@material-ui/core/Link';
 
 
 const styleClasses = makeStyles(
@@ -145,9 +146,11 @@ function SubscriptionStatus (props) {
     <Card>
       <SubSection
         title="Subscription"
-        helpLink='https://documentation.uclusion.com/getting-started/login/#billing'
         padChildren
       >
+        <Typography>
+          See <Link href="https://documentation.uclusion.com/getting-started/login/#billing" target="_blank">billing</Link> for help.
+        </Typography>
         <Typography>
           {tierMessage}
         </Typography>

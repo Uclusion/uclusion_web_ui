@@ -120,33 +120,34 @@ function JobApproverStep(props) {
     <WizardStepContainer
       {...props}
     >
-        <Typography className={classes.introText} variant="h6">
-          Who should be required to approve the job?
-        </Typography>
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Required approvers will not be able to dismiss their notification to approve.
-        </Typography>
-        <JobDescription marketId={marketId} investibleId={investibleId} />
-        <AssignmentList
-          fullMarketPresences={marketPresences}
-          previouslyAssigned={approvers}
-          onChange={onApproverChange}
-          listHeader="requiredApprovers"
-          cannotBeAssigned={cannotBeAssigned}
-          groupId={groupId}
-          marketId={marketId}
-        />
-        <div className={classes.borderBottom}/>
-        <WizardStepButtons
-          {...props}
-          validForm={validForm}
-          showNext={true}
-          onNext={investibleId ? assignJob : createJob}
-          showTerminate
-          onTerminate={previousStep}
-          terminateLabel="OnboardingWizardGoBack"
+      <Typography className={classes.introText} variant="h6">
+        Who should be required to approve the job?
+      </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Required approvers will not be able to dismiss their notification to approve.
+      </Typography>
+      <JobDescription marketId={marketId} investibleId={investibleId}/>
+      <div style={{ marginTop: '1rem' }}/>
+      <AssignmentList
+        fullMarketPresences={marketPresences}
+        previouslyAssigned={approvers}
+        onChange={onApproverChange}
+        listHeader="requiredApprovers"
+        cannotBeAssigned={cannotBeAssigned}
+        groupId={groupId}
+        marketId={marketId}
+      />
+      <div className={classes.borderBottom}/>
+      <WizardStepButtons
+        {...props}
+        validForm={validForm}
+        showNext={true}
+        onNext={investibleId ? assignJob : createJob}
+        showTerminate
+        onTerminate={previousStep}
+        terminateLabel="OnboardingWizardGoBack"
 
-        />
+      />
     </WizardStepContainer>
   )
 }

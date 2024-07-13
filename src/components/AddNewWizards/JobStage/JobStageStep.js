@@ -26,7 +26,7 @@ import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import JobDescription from '../../InboxWizards/JobDescription';
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getMarketPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function JobStageStep (props) {
   const { marketId, updateFormData, formData, nextStep, investibleId, marketInfo, myFinish: finish,
@@ -39,6 +39,7 @@ function JobStageStep (props) {
   const [marketPresencesState,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const classes = useContext(WizardStylesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const isSingleUser = isSingleUserMarket(marketPresences);
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
   const { stage, assigned, group_id: groupId } = marketInfo;
@@ -51,7 +52,9 @@ function JobStageStep (props) {
   const fullMoveStage = getFullStage(marketStagesState, marketId, value) || {};
   const marketComments = getMarketComments(commentsState, marketId, groupId) || [];
   const comments = getCommentsSortedByType(marketComments, investibleId, false) || [];
-  const fullStages = _.orderBy(fullStagesRaw, (aStage) => {
+  const fullStagesFiltered = isSingleUser ?
+    fullStagesRaw?.filter((aStage) => !aStage.allows_investment) : fullStagesRaw;
+  const fullStages = _.orderBy(fullStagesFiltered, (aStage) => {
     if (isFurtherWorkStage(aStage)) {
       return 0;
     }
@@ -79,7 +82,7 @@ function JobStageStep (props) {
   const hasOpenTodos = !_.isEmpty(openTodos) && isInReviewStage(fullMoveStage);
   const isCloseComments = hasOpenTodos ||
     (fullCurrentStage.move_on_comment && openAssistance && !fullMoveStage.close_comments_on_entrance);
-  const isFinal = isFurtherWorkStage(fullMoveStage)||
+  const isFinal = isFurtherWorkStage(fullMoveStage)|| (isAcceptedStage(fullMoveStage)&&isSingleUser&&!isCloseComments)||
     !(_.isEmpty(assigned)||isCloseComments||isInReviewStage(fullMoveStage));
   function move() {
     if (!isFinal) {
@@ -95,6 +98,9 @@ function JobStageStep (props) {
         stage_id: fullMoveStage.id,
       },
     };
+    if (isSingleUser&&_.isEmpty(assigned)&&!isFurtherWorkStage(fullMoveStage)&&!isNotDoingStage(fullMoveStage)) {
+      moveInfo.stageInfo.assignments = [userId];
+    }
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
         onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
@@ -111,7 +117,7 @@ function JobStageStep (props) {
 
   function doIncrement() {
     if (!isNotDoingStage(fullMoveStage)) {
-      if (_.isEmpty(assigned)) {
+      if (_.isEmpty(assigned)&&!isSingleUser) {
         // Go to next normal step
         nextStep();
       } else if (isCloseComments) {
@@ -128,10 +134,12 @@ function JobStageStep (props) {
       <Typography className={classes.introText} variant="h6">
         Where will you move this job?
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Moving to backlog will remove assignment and
-        approvals. {isAssigned ? '' : 'You must be assigned to move to Approved.'}
-      </Typography>
+      {!isSingleUser && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Moving to backlog will remove assignment and
+          approvals. {isAssigned ? '' : 'You must be assigned to move to Approved.'}
+        </Typography>
+      )}
       <JobDescription marketId={marketId} investibleId={investibleId}/>
       <div style={{ marginBottom: '2rem' }}/>
       <FormControl component="fieldset">

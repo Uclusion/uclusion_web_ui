@@ -16,7 +16,7 @@ import { countByType } from './InvestiblesByPerson'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import {
   getGroupPresences,
-  getMarketPresences,
+  getMarketPresences, isSingleUserMarket,
   removeInvestibleInvestments
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -111,6 +111,7 @@ function PlanningIdeas(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  const isSingleUser = isSingleUserMarket(marketPresences);
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
 
@@ -249,44 +250,49 @@ function PlanningIdeas(props) {
     event.preventDefault();
   }
 
+  const acceptedInvestibles = isSingleUser ? (myInvestiblesStageHash[acceptedStageId] || [])
+      .concat(myInvestiblesStageHash[inDialogStageId] || []) : myInvestiblesStageHash[acceptedStageId] || [];
+
   return (
     <div className={mobileLayout ? undefined : classes.stages}>
-      <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
-           onDragOver={onDragOverProcess}
-      >
-        {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inDialogStageId]) && (
-          <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>
-            <b><FormattedMessage id="planningVotingStageLabel" /></b>
-          </div>
-        )}
-        {_.isEmpty(myInvestiblesStageHash) && (
-          <Typography style={{marginTop: '1rem', marginLeft: 'auto', marginRight: 'auto'}}
-                      variant="body1">
-            No assigned, unassisted jobs.
-          </Typography>
-        )}
-        <VotingStage
-          id={inDialogStageId}
-          investibles={myInvestiblesStageHash[inDialogStageId] || []}
-          marketId={marketId}
-          groupId={groupId}
-          presenceId={presenceId}
-          marketPresences={marketPresences}
-          comments={comments}
-          myPresence={myPresence}
-        />
-      </div>
+      {!isSingleUser && (
+        <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
+             onDragOver={onDragOverProcess}
+        >
+          {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inDialogStageId]) && (
+            <div style={{ marginTop: '0.5rem', marginLeft: '0.5rem' }}>
+              <b><FormattedMessage id="planningVotingStageLabel"/></b>
+            </div>
+          )}
+          {_.isEmpty(myInvestiblesStageHash) && (
+            <Typography style={{ marginTop: '1rem', marginLeft: 'auto', marginRight: 'auto' }}
+                        variant="body1">
+              No assigned, unassisted jobs.
+            </Typography>
+          )}
+          <VotingStage
+            id={inDialogStageId}
+            investibles={myInvestiblesStageHash[inDialogStageId] || []}
+            marketId={marketId}
+            groupId={groupId}
+            presenceId={presenceId}
+            marketPresences={marketPresences}
+            comments={comments}
+            myPresence={myPresence}
+          />
+        </div>
+      )}
       <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted}
            onDragOver={onDragOverProcess}
       >
         {mobileLayout && !_.isEmpty(myInvestiblesStageHash[acceptedStageId]) && (
-          <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>
-            <b><FormattedMessage id="planningAcceptedStageLabel" /></b>
+          <div style={{ marginTop: '0.5rem', marginLeft: '0.5rem' }}>
+            <b><FormattedMessage id="planningAcceptedStageLabel"/></b>
           </div>
         )}
         <AcceptedStage
           id={acceptedStageId}
-          investibles={myInvestiblesStageHash[acceptedStageId] || []}
+          investibles={acceptedInvestibles}
           marketId={marketId}
           presenceId={presenceId}
           myPresence={myPresence}
@@ -295,7 +301,7 @@ function PlanningIdeas(props) {
           comments={comments}
         />
       </div>
-      <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview} style={{flex: '2 1 50%'}}
+      <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview} style={{ flex: '2 1 50%' }}
            onDragOver={onDragOverProcess}
       >
         {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inReviewStageId]) && (

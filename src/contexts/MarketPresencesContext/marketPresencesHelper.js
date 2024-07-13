@@ -78,6 +78,11 @@ export function usePresences(marketId) {
   return getMarketPresences(presencesState, marketId) || [];
 }
 
+export function isSingleUserMarket(presences) {
+  const presencesFiltered = presences?.filter((presence) => !presence.market_banned);
+  return presencesFiltered?.length === 1;
+}
+
 export function getMarketPresence(state, marketId, userId) {
   const presences = getMarketPresences(state, marketId) || [];
   return presences.find((presence) => presence.id === userId);
@@ -120,13 +125,6 @@ export function changeBanStatus(state, dispatch, marketId, userId, isBanned) {
     market_banned: isBanned,
   };
   dispatch(addMarketPresence(marketId, newPresence));
-}
-
-export function changeObserverStatus(state, dispatch, marketId, isObserver) {
-  const newValues = {
-    following: !isObserver,
-  };
-  changeMyPresence(state, dispatch, marketId, newValues);
 }
 
 /** Used for quick add. Updates our investment with what data we know.

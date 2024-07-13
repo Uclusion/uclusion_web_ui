@@ -25,10 +25,20 @@ import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffConte
 import { getCurrentStageLabelId, getStagesInfo } from '../../../utils/stageUtils';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import PropTypes from 'prop-types';
-import { attachFilesToInvestible, deleteAttachedFilesFromInvestible, updateInvestible } from '../../../api/investibles';
+import {
+  attachFilesToInvestible,
+  deleteAttachedFilesFromInvestible,
+  stageChangeInvestible,
+  updateInvestible
+} from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { UNASSIGNED_TYPE } from '../../../constants/notifications';
-import { getFullStage, isBlockedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getAcceptedStage,
+  getFullStage,
+  isBlockedStage,
+  isFurtherWorkStage, isNotDoingStage
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -41,7 +51,7 @@ import {
 } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
-import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getGroupPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { useAddressed } from '../../../utils/votingUtils';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { getMidnightToday } from '../../../utils/timerUtils';
@@ -69,9 +79,10 @@ export default function PlanningInvestibleNav(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const styles = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -141,6 +152,27 @@ export default function PlanningInvestibleNav(props) {
   }
   const readyToStartChecked = operationRunning === `readyToStartCheckbox${investibleId}` ?
     !openForInvestment : openForInvestment;
+  const isSingleUser = isSingleUserMarket(marketPresences);
+
+  function assignToSingleUser() {
+    const fullMoveStage = getAcceptedStage(marketStagesState, marketId);
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: marketInfo.stage,
+        stage_id: fullMoveStage.id,
+        assignments: [userId]
+      },
+    };
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
+          commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+          fullStage, marketPresencesDispatch);
+        setOperationRunning(false);
+      });
+  }
 
   return (
     <>
@@ -162,7 +194,7 @@ export default function PlanningInvestibleNav(props) {
               marketPresences={marketPresences}
               assigned={assigned}
               unaccceptedList={isInVoting ? assignedNotAccepted : undefined}
-              toggleIconButton={() => navigate(history,
+              toggleIconButton={isSingleUser ? assignToSingleUser : () => navigate(history,
                 formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
               assignmentColumnMessageId='planningInvestibleAssignments'
               toolTipId='storyAddParticipantsLabel'

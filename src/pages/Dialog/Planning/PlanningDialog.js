@@ -11,7 +11,11 @@ import Screen from '../../../containers/Screen/Screen';
 import { QUESTION_TYPE, REPLY_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences, getPresenceMap } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getMarketPresences,
+  getPresenceMap,
+  isSingleUserMarket
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles';
 import { getInvestible, getInvestiblesInStage } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -246,7 +250,32 @@ function PlanningDialog(props) {
 
   function onDropJob(id, isAssigned) {
     if (isAssigned) {
-      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&isAssign=${isAssigned}`)
+      if (isSingleUserMarket(marketPresences)) {
+        const presence = marketPresences.find((presence) => !presence.market_banned);
+        const inv = getInvestible(investibleState, id);
+        const marketInfo = getMarketInfo(inv, marketId) || {};
+        if (marketInfo.stage !== acceptedStage.id) {
+          const moveInfo = {
+            marketId,
+            investibleId: id,
+            stageInfo: {
+              current_stage_id: marketInfo.stage,
+              stage_id: acceptedStage.id,
+              assignments: [presence.id]
+            },
+          };
+          setOperationRunning(true);
+          return stageChangeInvestible(moveInfo)
+            .then((newInv) => {
+              onInvestibleStageChange(furtherWorkStage.id, newInv, id, marketId, commentsState,
+                commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+                getFullStage(marketStagesState, marketId, marketInfo.stage), marketPresencesDispatch);
+              setOperationRunning(false);
+            });
+        }
+      } else {
+        navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&isAssign=${isAssigned}`);
+      }
     } else {
       const inv = getInvestible(investibleState, id);
       const marketInfo = getMarketInfo(inv, marketId) || {};

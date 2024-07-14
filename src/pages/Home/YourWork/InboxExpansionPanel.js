@@ -6,7 +6,7 @@ import {
 } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { Assignment, Block, BugReportOutlined, PersonAddOutlined } from '@material-ui/icons';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets';
-import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getMarketPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import {
   getAcceptedStage,
@@ -351,75 +351,77 @@ export function getOutboxMessages(props) {
   workspacesData.forEach((workspaceData) => {
     const { market, comments, inVotingInvestibles, questions, issues, suggestions, bugs } = workspaceData;
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
-    inVotingInvestibles.forEach((investible) => {
-      const investibleId = investible.investible.id;
-      const notAccepted = investible.notAccepted;
-      const label = notAccepted ? 'planningUnacceptedLabel' : 'startJobQ';
-      let messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
-        <Assignment style={{ fontSize: 24, color: '#ffc61a', }}/>;
-      const message = getMessageForInvestible(investible, market, label, messageIcon, intl)
-      const votersForInvestibleRaw = calculateInvestibleVoters(investibleId, market.id, marketsState,
-        investiblesState, marketPresences, true);
-      const votersForInvestible = votersForInvestibleRaw.filter((voter) => !voter.isExpired && !voter.deleted);
-      const marketInfo = getMarketInfo(investible, market.id)
-      if (!notAccepted) {
-        message.isWaitingStart = true;
-        message.icon = <Approval style={{ fontSize: 24, color: '#ffc61a', }}/>;
-      }
-      let debtors = [];
-      if (notAccepted) {
-        debtors = marketPresences.filter((presence) => marketInfo.assigned?.includes(presence.id));
-      } else if (!_.isEmpty(marketInfo.required_approvers)) {
-        //add required approvers that have not voted or commented
-        marketInfo.required_approvers.forEach((userId) => {
-          const aComment = comments.find((comment) => !comment.resolved && comment.investible_id === investibleId &&
-            comment.created_by === userId && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
-          if (!aComment && !votersForInvestible.includes(userId)) {
-            const user = marketPresences.find((presence) => presence.id === userId);
-            if (user) {
-              debtors.push(user);
+    if (!isSingleUserMarket(marketPresences)) {
+      inVotingInvestibles.forEach((investible) => {
+        const investibleId = investible.investible.id;
+        const notAccepted = investible.notAccepted;
+        const label = notAccepted ? 'planningUnacceptedLabel' : 'startJobQ';
+        let messageIcon = notAccepted ? <PersonAddOutlined style={{ fontSize: 24, color: '#ffc61a', }}/> :
+          <Assignment style={{ fontSize: 24, color: '#ffc61a', }}/>;
+        const message = getMessageForInvestible(investible, market, label, messageIcon, intl)
+        const votersForInvestibleRaw = calculateInvestibleVoters(investibleId, market.id, marketsState,
+          investiblesState, marketPresences, true);
+        const votersForInvestible = votersForInvestibleRaw.filter((voter) => !voter.isExpired && !voter.deleted);
+        const marketInfo = getMarketInfo(investible, market.id)
+        if (!notAccepted) {
+          message.isWaitingStart = true;
+          message.icon = <Approval style={{ fontSize: 24, color: '#ffc61a', }}/>;
+        }
+        let debtors = [];
+        if (notAccepted) {
+          debtors = marketPresences.filter((presence) => marketInfo.assigned?.includes(presence.id));
+        } else if (!_.isEmpty(marketInfo.required_approvers)) {
+          //add required approvers that have not voted or commented
+          marketInfo.required_approvers.forEach((userId) => {
+            const aComment = comments.find((comment) => !comment.resolved && comment.investible_id === investibleId &&
+              comment.created_by === userId && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
+            if (!aComment && !votersForInvestible.includes(userId)) {
+              const user = marketPresences.find((presence) => presence.id === userId);
+              if (user) {
+                debtors.push(user);
+              }
             }
-          }
-        });
-      }
-      if (!_.isEmpty(debtors)) {
-        message.debtors = debtors;
-      }
+          });
+        }
+        if (!_.isEmpty(debtors)) {
+          message.debtors = debtors;
+        }
 
-      messages.push(message);
-    });
-    questions.forEach((comment) => {
-      const message = getMessageForComment(comment, market, QUESTION_TYPE,
-        <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences)
-      if (message) {
         messages.push(message);
-      }
-    });
-    issues.forEach((comment) => {
-      const message = getMessageForComment(comment, market, ISSUE_TYPE,
-        <Block style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences)
-      if (message) {
-        messages.push(message);
-      }
-    });
-    suggestions.forEach((comment) => {
-      const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
-        <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences)
-      if (message) {
-        messages.push(message);
-      }
-    });
-    bugs.forEach((comment) => {
-      const message = getMessageForComment(comment, market, TODO_TYPE,
-        <BugReportOutlined style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences)
-      if (message) {
-        messages.push(message);
-      }
-    });
+      });
+      questions.forEach((comment) => {
+        const message = getMessageForComment(comment, market, QUESTION_TYPE,
+          <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
+          comments, marketPresences)
+        if (message) {
+          messages.push(message);
+        }
+      });
+      issues.forEach((comment) => {
+        const message = getMessageForComment(comment, market, ISSUE_TYPE,
+          <Block style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
+          comments, marketPresences)
+        if (message) {
+          messages.push(message);
+        }
+      });
+      suggestions.forEach((comment) => {
+        const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
+          <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
+          comments, marketPresences)
+        if (message) {
+          messages.push(message);
+        }
+      });
+      bugs.forEach((comment) => {
+        const message = getMessageForComment(comment, market, TODO_TYPE,
+          <BugReportOutlined style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
+          comments, marketPresences)
+        if (message) {
+          messages.push(message);
+        }
+      });
+    }
   });
 
   return _.orderBy(messages, ['updatedAt'], ['asc']);

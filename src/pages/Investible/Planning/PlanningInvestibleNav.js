@@ -91,6 +91,7 @@ export default function PlanningInvestibleNav(props) {
   const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
+
   function onDeleteFile(path) {
     return deleteAttachedFilesFromInvestible(market.id, investibleId, [path]).then((investible) => {
       addInvestible(investiblesDispatch, diffDispatch, investible);
@@ -152,6 +153,7 @@ export default function PlanningInvestibleNav(props) {
   const readyToStartChecked = operationRunning === `readyToStartCheckbox${investibleId}` ?
     !openForInvestment : openForInvestment;
   const isSingleUser = isSingleUserMarket(marketPresences);
+  const useInVoting = isInVoting && !isSingleUser;
 
   function assignToSingleUser() {
     const fullMoveStage = getAcceptedStage(marketStagesState, marketId);
@@ -192,7 +194,7 @@ export default function PlanningInvestibleNav(props) {
               classes={classes}
               marketPresences={marketPresences}
               assigned={assigned}
-              unaccceptedList={isInVoting ? assignedNotAccepted : undefined}
+              unaccceptedList={useInVoting ? assignedNotAccepted : undefined}
               toggleIconButton={isSingleUser ? assignToSingleUser : () => navigate(history,
                 formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
               assignmentColumnMessageId='planningInvestibleAssignments'
@@ -240,7 +242,7 @@ export default function PlanningInvestibleNav(props) {
           />
         </div>
       </div>
-      {market.id && marketInvestible.investible && isInVoting && (
+      {market.id && marketInvestible.investible && useInVoting && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments

@@ -69,6 +69,7 @@ import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
+import { isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -386,6 +387,7 @@ function PlanningInvestible(props) {
   const yourVote = yourPresence?.investments?.find((investment) =>
     investment.investible_id === investibleId && !investment.deleted);
   const displayVotingInput = canVote && _.isEmpty(search) && !yourVote;
+  const isSingleUser = isSingleUserMarket(marketPresences);
 
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {
@@ -728,99 +730,110 @@ function PlanningInvestible(props) {
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
                             usePadding={!mobileLayout}
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen/>
-            <div style={{ paddingBottom: mobileLayout ? undefined : '15vh',
-              paddingLeft: mobileLayout ? undefined : '1rem',
-              paddingRight: mobileLayout ? undefined : '1rem'}}>
-              <div style={{display: 'flex', alignItems: 'center'}}>
-                <h2 id="approvals" style={{marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
-                  <FormattedMessage id="decisionInvestibleOthersVoting" />
+            {!isSingleUser && (
+              <div style={{
+                paddingBottom: mobileLayout ? undefined : '15vh',
+                paddingLeft: mobileLayout ? undefined : '1rem',
+                paddingRight: mobileLayout ? undefined : '1rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <h2 id="approvals" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
+                    <FormattedMessage id="decisionInvestibleOthersVoting"/>
+                  </h2>
+                  <IconButton onClick={() => toggleApprovals()} style={{
+                    marginBottom: 0,
+                    paddingBottom: 0, marginTop: 0, paddingTop: 0
+                  }}>
+                    <Tooltip key="toggleApprovals"
+                             title={<FormattedMessage
+                               id={`${approvalsOpen ? 'closeApprovals' : 'openApprovals'}Tip`}/>}>
+                      {approvalsOpen ? <ExpandLess fontSize="large" htmlColor="black"/> :
+                        <ExpandMoreIcon fontSize="large" htmlColor="black"/>}
+                    </Tooltip>
+                  </IconButton>
+                </div>
+                {displayVotingInput && investibleId && approvalsOpen && (
+                  <SpinningButton id="newApproval" className={wizardClasses.actionNext}
+                                  icon={AddIcon} iconColor="black"
+                                  style={{ display: 'flex', marginBottom: '1.5rem', marginTop: '0.5rem' }}
+                                  variant="text" doSpin={false}
+                                  onClick={() => navigate(history,
+                                    formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}>
+                    <FormattedMessage id="createNewApproval"/>
+                  </SpinningButton>
+                )}
+                {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsOpen && (
+                  <Voting
+                    investibleId={investibleId}
+                    marketPresences={marketPresences}
+                    investmentReasons={investmentReasonsSearched}
+                    showExpiration={fullStage.has_expiration}
+                    expirationMinutes={market.investment_expiration * 1440}
+                    votingAllowed={canVote}
+                    yourPresence={yourPresence}
+                    showEmptyText={!displayVotingInput}
+                    market={market}
+                    groupId={groupId}
+                    isAssigned={isAssigned}
+                  />
+                )}
+                <h2 id="status" style={{ paddingTop: '1.5rem', paddingBottom: 0, marginBottom: 0 }}>
+                  <FormattedMessage id="reportsSectionLabel"/>
                 </h2>
-                <IconButton onClick={() => toggleApprovals()} style={{marginBottom: 0,
-                  paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
-                  <Tooltip key='toggleApprovals'
-                           title={<FormattedMessage id={`${approvalsOpen ? 'closeApprovals' : 'openApprovals'}Tip`} />}>
-                  {approvalsOpen ? <ExpandLess fontSize='large' htmlColor='black' /> :
-                    <ExpandMoreIcon fontSize='large' htmlColor='black' />}
-                  </Tooltip>
-                </IconButton>
-              </div>
-              {displayVotingInput && investibleId && approvalsOpen && (
-                <SpinningButton id="newApproval" className={wizardClasses.actionNext}
-                                icon={AddIcon} iconColor="black"
-                                style={{display: "flex", marginBottom: '1.5rem', marginTop: '0.5rem'}}
-                                variant="text" doSpin={false}
-                                onClick={() => navigate(history,
-                                  formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}>
-                  <FormattedMessage id='createNewApproval'/>
-                </SpinningButton>
-              )}
-              {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsOpen && (
-                <Voting
-                  investibleId={investibleId}
-                  marketPresences={marketPresences}
-                  investmentReasons={investmentReasonsSearched}
-                  showExpiration={fullStage.has_expiration}
-                  expirationMinutes={market.investment_expiration * 1440}
-                  votingAllowed={canVote}
-                  yourPresence={yourPresence}
-                  showEmptyText={!displayVotingInput}
-                  market={market}
-                  groupId={groupId}
-                  isAssigned={isAssigned}
+                {showCommentAdd && isAssigned && (
+                  <SpinningButton id="newReport" className={wizardClasses.actionNext}
+                                  icon={AddIcon} iconColor="black"
+                                  variant="text" doSpin={false}
+                                  style={{ display: 'flex', marginTop: '0.75rem', marginBottom: '0.75rem' }}
+                                  onClick={() => navigate(history,
+                                    formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                                      REPORT_TYPE))}>
+                    <FormattedMessage id="createNewStatus"/>
+                  </SpinningButton>
+                )}
+                {(!showCommentAdd || !isAssigned) && _.isEmpty(reportsCommentsSearched) && (
+                  <Typography style={{ marginTop: '1rem', marginLeft: 'auto', marginRight: 'auto' }}
+                              variant="body1">
+                    No progress reports.
+                  </Typography>
+                )}
+                <CommentBox
+                  comments={reportsCommentsSearched.concat(replies)}
+                  marketId={marketId}
+                  isRequiresInput={isRequiresInput}
+                  isInBlocking={isInBlocked}
+                  fullStage={fullStage}
+                  assigned={assigned}
+                  formerStageId={formerStageId}
+                  marketInfo={marketInfo}
+                  investible={marketInvestible}
+                  usePadding={false}
                 />
-              )}
-              <h2 id="status" style={{paddingTop: '1.5rem', paddingBottom: 0, marginBottom: 0}}>
-                <FormattedMessage id="reportsSectionLabel" />
-              </h2>
-              {showCommentAdd && isAssigned && (
-                <SpinningButton id="newReport" className={wizardClasses.actionNext}
-                                icon={AddIcon} iconColor="black"
-                                variant="text" doSpin={false}
-                                style={{display: "flex", marginTop: '0.75rem', marginBottom: '0.75rem'}}
-                                onClick={() => navigate(history,
-                                  formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                                    REPORT_TYPE))}>
-                  <FormattedMessage id='createNewStatus'/>
-                </SpinningButton>
-              )}
-              {(!showCommentAdd || !isAssigned)&&_.isEmpty(reportsCommentsSearched) && (
-                <Typography style={{marginTop: '1rem', marginLeft: 'auto', marginRight: 'auto'}}
-                            variant="body1">
-                  No progress reports.
-                </Typography>
-              )}
-              <CommentBox
-                comments={reportsCommentsSearched.concat(replies)}
-                marketId={marketId}
-                isRequiresInput={isRequiresInput}
-                isInBlocking={isInBlocked}
-                fullStage={fullStage}
-                assigned={assigned}
-                formerStageId={formerStageId}
-                marketInfo={marketInfo}
-                investible={marketInvestible}
-                usePadding={false}
-              />
-            </div>
+              </div>
+            )}
           </>
         )}
         {sectionOpen !== 'descriptionVotingSection' && (
           <Grid container spacing={2}>
-            <Grid item xs={12} style={{ marginTop: mobileLayout ? undefined : '15px',
-              paddingLeft: mobileLayout ? undefined : '1rem' }}>
+            <Grid item xs={12} style={{
+              marginTop: mobileLayout ? undefined : '15px',
+              paddingLeft: mobileLayout ? undefined : '1rem'
+            }}>
               {showCommentAdd && !_.isEmpty(allowedCommentTypes) && (
-                <div style={{display: mobileLayout ? undefined : 'flex', marginLeft: '0.5rem'}}>
+                <div style={{ display: mobileLayout ? undefined : 'flex', marginLeft: '0.5rem' }}>
                   {allowedCommentTypes.map((allowedCommentType) => {
                     return (
                       <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
                                       icon={AddIcon} iconColor="black"
-                                      style={{display: "flex", marginTop: '0.75rem',
-                                        marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'}}
+                                      style={{
+                                        display: 'flex', marginTop: '0.75rem',
+                                        marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
+                                      }}
                                       variant="text" doSpin={false}
                                       onClick={() => navigate(history,
                                         formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                           allowedCommentType))}>
-                        <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile': ''}`}/>
+                        <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`}/>
                       </SpinningButton>
                     );
                   })}
@@ -877,7 +890,7 @@ PlanningInvestible.defaultProps = {
   hidden: false
 };
 
-export function rejectInvestible(marketId, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
+export function rejectInvestible (marketId, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
   diffDispatch, marketStagesState, marketPresencesDispatch) {
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
   const marketInfo = getMarketInfo(marketInvestible, marketId);

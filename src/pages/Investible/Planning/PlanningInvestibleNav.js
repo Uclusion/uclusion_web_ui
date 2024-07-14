@@ -36,8 +36,7 @@ import { UNASSIGNED_TYPE } from '../../../constants/notifications';
 import {
   getAcceptedStage,
   getFullStage,
-  isBlockedStage,
-  isFurtherWorkStage, isNotDoingStage
+  isBlockedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';

@@ -109,7 +109,7 @@ function JobDescriptionStatusStep(props) {
   }
 
   const stageName = isSingleUser ? 'Backlog' : 'Assigned';
-
+  const noOtherOptions = alreadyMoved || isSingleUser;
   return (
     <WizardStepContainer
       {...props}
@@ -147,11 +147,11 @@ function JobDescriptionStatusStep(props) {
         isFinal={false}
         spinOnClick={false}
         showOtherNext
-        otherNextLabel={alreadyMoved ? 'JobAssignBacklog' : 'otherOptionsLabel'}
-        onOtherNext={alreadyMoved ? moveToBacklog : undefined}
+        otherNextLabel={noOtherOptions ? 'JobAssignBacklog' : 'otherOptionsLabel'}
+        onOtherNext={noOtherOptions ? moveToBacklog : undefined}
         onOtherNextSkipStep
-        onOtherNextDoAdvance={!alreadyMoved}
-        otherSpinOnClick={alreadyMoved}
+        onOtherNextDoAdvance={!noOtherOptions}
+        otherSpinOnClick={noOtherOptions}
         showTerminate
         onFinish={myTerminate}
         terminateLabel={(isHighlighted || alreadyMoved) ? getLabelForTerminate(message) : 'ApprovalWizardBlock'}/>

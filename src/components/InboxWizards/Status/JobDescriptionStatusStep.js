@@ -28,6 +28,7 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { getMarketPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 
 function JobDescriptionStatusStep(props) {
@@ -40,13 +41,14 @@ function JobDescriptionStatusStep(props) {
   const [marketsState] = useContext(MarketsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [marketPresencesState,,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { is_highlighted: isHighlighted, link_type: linkType } = message;
   const market = getMarket(marketsState, marketId) || {};
   const { started_expiration: startedExpiration } = market;
   const marketComments = getMarketComments(commentsState, marketId);
   const comments = getCommentsSortedByType(marketComments, investibleId, true, true);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { completion_estimate: daysEstimate, last_stage_change_date: lastStageChangeDate,
@@ -73,6 +75,7 @@ function JobDescriptionStatusStep(props) {
   const millisBeforeMove = startedExpiration*86400000 - millisStalled;
   const alreadyMoved = linkType === 'INVESTIBLE_STAGE';
   const { useCompression } = formData;
+  const isSingleUser = isSingleUserMarket(marketPresences);
 
   function myTerminate() {
     if (isHighlighted || alreadyMoved) {
@@ -105,6 +108,8 @@ function JobDescriptionStatusStep(props) {
       });
   }
 
+  const stageName = isSingleUser ? 'Backlog' : 'Assigned';
+
   return (
     <WizardStepContainer
       {...props}
@@ -114,20 +119,20 @@ function JobDescriptionStatusStep(props) {
       </Typography>
       {alreadyMoved && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          This job was moved back to Assigned after {startedExpiration} days with no estimate or progress
+          This job was moved back to {stageName} after {startedExpiration} days with no estimate or progress
           report.
         </Typography>
       )}
       {!alreadyMoved && millisBeforeMove > 0 && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Without an estimated date or progress report this job moves to Assigned <UsefulRelativeTime
+          Without an estimated date or progress report this job moves to {stageName} <UsefulRelativeTime
           milliSecondsGiven={millisBeforeMove}/>.
           Reporting progress also gets feedback.
         </Typography>
       )}
       {!alreadyMoved && millisBeforeMove <= 0 && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Without an estimated date or progress report this job will move to Assigned. Reporting progress also
+          Without an estimated date or progress report this job will move to {stageName}. Reporting progress also
           gets feedback.
         </Typography>
       )}

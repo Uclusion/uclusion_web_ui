@@ -16,7 +16,11 @@ import {
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { getMarketPresences, getReasonForVote } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getMarketPresences,
+  getReasonForVote,
+  isSingleUserMarket
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -38,6 +42,7 @@ function JobStageWizard(props) {
     investment.investible_id === investibleId);
   const marketComments = getMarketComments(commentsState, marketId, groupId);
   const yourReason = getReasonForVote(yourVote, marketComments);
+  const isSingleUser = isSingleUserMarket(marketPresences);
 
   if (_.isEmpty(stage)) {
     return React.Fragment;
@@ -45,7 +50,7 @@ function JobStageWizard(props) {
 
   function requiresAction(fullMoveStage) {
     if (!_.isEmpty(fullMoveStage)&&!isNotDoingStage(fullMoveStage)) {
-      if (fullMoveStage.close_comments_on_entrance) {
+      if (fullMoveStage.close_comments_on_entrance && !isSingleUser) {
         return true;
       }
       if (fullMoveStage.allows_investment) {
@@ -84,7 +89,7 @@ function JobStageWizard(props) {
                         useCompression: true}}>
         {!stageId && (
           <JobStageStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                        requiresAction={requiresAction} />
+                        requiresAction={requiresAction} isSingleUser={isSingleUser} />
         )}
         {(!stageId || isAssign === 'true') && (
           <JobAssignStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}

@@ -26,11 +26,11 @@ import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import JobDescription from '../../InboxWizards/JobDescription';
-import { getMarketPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function JobStageStep (props) {
   const { marketId, updateFormData, formData, nextStep, investibleId, marketInfo, myFinish: finish,
-    requiresAction } = props;
+    requiresAction, isSingleUser } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -39,7 +39,6 @@ function JobStageStep (props) {
   const [marketPresencesState,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const classes = useContext(WizardStylesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const isSingleUser = isSingleUserMarket(marketPresences);
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
   const { stage, assigned, group_id: groupId } = marketInfo;

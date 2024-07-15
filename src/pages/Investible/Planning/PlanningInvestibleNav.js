@@ -228,20 +228,22 @@ export default function PlanningInvestibleNav(props) {
           </Tooltip>
         </div>
       )}
-      <div className={clsx(classes.group, classes.assignments)}>
-        <div className={classes.assignmentContainer}>
-          <Tooltip
-            title={intl.formatMessage({ id: 'collaboratorsExplanation' })}>
-            <b><FormattedMessage id="collaborators"/></b>
-          </Tooltip>
-          <Assignments
-            classes={classes}
-            marketPresences={marketPresences}
-            assigned={investibleCollaborators}
-            toolTipId="collaborators"
-          />
+      {!isSingleUser && (
+        <div className={clsx(classes.group, classes.assignments)}>
+          <div className={classes.assignmentContainer}>
+            <Tooltip
+              title={intl.formatMessage({ id: 'collaboratorsExplanation' })}>
+              <b><FormattedMessage id="collaborators"/></b>
+            </Tooltip>
+            <Assignments
+              classes={classes}
+              marketPresences={marketPresences}
+              assigned={investibleCollaborators}
+              toolTipId="collaborators"
+            />
+          </div>
         </div>
-      </div>
+      )}
       {market.id && marketInvestible.investible && useInVoting && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
@@ -249,7 +251,7 @@ export default function PlanningInvestibleNav(props) {
               classes={classes}
               marketPresences={marketPresences}
               assigned={requiredApprovers}
-              toolTipId='storyApproversLabel'
+              toolTipId="storyApproversLabel"
               toggleIconButton={() => navigate(history,
                 formWizardLink(JOB_APPROVERS_WIZARD_TYPE, marketId, investibleId))}
               assignmentColumnMessageId='requiredApprovers'

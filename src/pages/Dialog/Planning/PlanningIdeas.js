@@ -599,6 +599,7 @@ function StageInvestible(props) {
   const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId, !isVoting);
   const collaboratorsForInvestible = getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible,
     marketPresences, marketPresencesState, isVoting);
+  const isSingleUser = isSingleUserMarket(marketPresences);
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
   const isReviewable = isReview || showCompletion;
   let chip = mobileLayout ? undefined :
@@ -610,7 +611,7 @@ function StageInvestible(props) {
     <>
       <Grid container>
         <Grid item xs={4}>
-          {!unaccepted && (isVoting || isReview) && (
+          {!unaccepted && (isVoting || isReview) && !isSingleUser && (
             <div>
               <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
             </div>

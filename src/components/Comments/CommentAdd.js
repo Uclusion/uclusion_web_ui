@@ -30,7 +30,7 @@ import {
 import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketPresences, isSingleUserMarket } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions'
 import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../utils/messageUtils';
@@ -296,6 +296,7 @@ function CommentAdd(props) {
   const info = getMarketInfo(inv, marketId);
   const { assigned, stage: currentStageId } = info || {};
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const isSingleUser = isSingleUserMarket(presences);
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
   const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId);
@@ -468,7 +469,7 @@ function CommentAdd(props) {
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}
               {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
-                !investibleId && (
+                !investibleId && !isSingleUser && (
                 <AddWizardStepButtons
                   {...wizardProps}
                   validForm={hasValue}
@@ -486,14 +487,30 @@ function CommentAdd(props) {
                   terminateLabel="configureVoting"/>
               )}
               {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
-                investibleId && (
+                !investibleId && isSingleUser && (
+                  <AddWizardStepButtons
+                    {...wizardProps}
+                    validForm={hasValue}
+                    nextLabel="noVoteSuggestion"
+                    onNext={() => handleSave( true, undefined, false)}
+                    onNextDoAdvance={false}
+                    onTerminate={() => {
+                      wizardProps.updateFormData({marketId, groupId});
+                      wizardProps.nextStep();
+                    }}
+                    showTerminate={hasValue}
+                    terminateLabel="configureVoting"/>
+                )}
+              {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
+                investibleId && !isSingleUser && (
                 <AddWizardStepButtons
                   {...wizardProps}
                   validForm={hasValue}
                   nextLabel={createInlineInitiative ? 'voteSuggestion' : 'noVoteSuggestion'}
                   onNext={() => handleSave( true, undefined, createInlineInitiative)}
                   onNextDoAdvance={false}
-                  isFinal={false}
+                  isFinal={!createInlineInitiative}
+                  isOtherFinal={createInlineInitiative}
                   showOtherNext={true}
                   otherNextLabel={createInlineInitiative ? 'noVoteSuggestion' : 'voteSuggestion'}
                   onOtherNext={() => handleSave( true, undefined, !createInlineInitiative)}
@@ -505,6 +522,16 @@ function CommentAdd(props) {
                   showTerminate={hasValue}
                   terminateLabel="configureVoting"/>
               )}
+              {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
+                investibleId && isSingleUser && (
+                  <AddWizardStepButtons
+                    {...wizardProps}
+                    validForm={hasValue}
+                    nextLabel={'noVoteSuggestion'}
+                    onNext={() => handleSave( true, undefined, false)}
+                    onNextDoAdvance={false}
+                  />
+                )}
               {wizardProps.isAddWizard && type === QUESTION_TYPE && ourMarket.market_type === PLANNING_TYPE && (
                 <AddWizardStepButtons
                   {...wizardProps}

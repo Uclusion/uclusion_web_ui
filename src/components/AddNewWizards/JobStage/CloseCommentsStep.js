@@ -84,11 +84,11 @@ function CloseCommentsStep(props) {
       isLarge
     >
       <Typography className={classes.introText}>
-        Will you resolve these comments?
+        {isMustResolve ? 'Okay that these comments will be resolved?' : 'Will you resolve these comments?'}
       </Typography>
       {isMustResolve && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          The below comments must be resolved to change this job's stage.
+          The below comments will be resolved to change this job's stage.
         </Typography>
       )}
       {!isMustResolve && (

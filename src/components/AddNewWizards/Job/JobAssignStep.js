@@ -27,7 +27,8 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function JobAssignStep (props) {
-  const { marketId, updateFormData, formData, onFinish, assigneeId, groupId, moveFromComments, roots } = props;
+  const { marketId, updateFormData, formData, onFinish, assigneeId, groupId, moveFromComments, roots,
+    isSingleUser } = props;
   const history = useHistory();
   const value = formData.wasSet ? (formData.assigned || []) : (assigneeId ? [assigneeId] : []);
   const validForm = !_.isEmpty(value);
@@ -138,11 +139,11 @@ function JobAssignStep (props) {
           finish={onFinish}
           validForm={validForm}
           showNext
-          onNextSkipStep
+          onNextSkipStep={!isSingleUser}
           showTerminate
           onNext={investibleId ? assignJob : createJob}
-          isFinal={false}
-          showOtherNext
+          isFinal={isSingleUser}
+          showOtherNext={!isSingleUser}
           otherNextLabel="addApproversLabel"
           onTerminate={() => navigate(history, formData.link)}
           terminateLabel="JobWizardGotoJob"

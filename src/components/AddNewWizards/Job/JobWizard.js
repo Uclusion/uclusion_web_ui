@@ -26,6 +26,8 @@ import JobNameStep from './JobNameStep';
 import { moveComments } from '../../../api/comments';
 import { onCommentsMove } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { getMarketPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function JobWizard(props) {
   const { marketId, groupId, jobType } = props;
@@ -40,6 +42,9 @@ function JobWizard(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const isSingleUser = isSingleUserMarket(presences);
   const comments = marketId ? getMarketComments(commentsState, marketId, groupId) : [];
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     comments.find((comment) => comment.id === fromCommentId));
@@ -127,10 +132,14 @@ function JobWizard(props) {
         <JobNameStep onFinish={onFinish} marketId={marketId} groupId={groupId} jobType={jobType}
                      moveFromComments={fromCommentIds ? moveFromComments : undefined} />
         <JobAssignStep onFinish={onFinish} marketId={marketId} groupId={groupId} roots={roots}
-                       moveFromComments={fromCommentIds ? moveFromComments : undefined} />
-        <JobApproverStep marketId={marketId} groupId={groupId} roots={roots}
-                         moveFromComments={fromCommentIds ? moveFromComments : undefined} />
-        <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId} />
+                       isSingleUser={isSingleUser} moveFromComments={fromCommentIds ? moveFromComments : undefined} />
+        {!isSingleUser && (
+          <JobApproverStep marketId={marketId} groupId={groupId} roots={roots}
+                           moveFromComments={fromCommentIds ? moveFromComments : undefined} />
+        )}
+        {!isSingleUser && (
+          <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId} />
+        )}
       </FormdataWizard>
     </WizardStylesProvider>
   );

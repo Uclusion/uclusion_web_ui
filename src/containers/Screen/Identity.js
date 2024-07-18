@@ -143,7 +143,8 @@ function Identity () {
     };
   }
 
-  const gravatarExists = !online || GravatarExists();
+  // No need to check when menu closed
+  const gravatarExists = menuOpen && (!online || GravatarExists());
 
   return (
     <div

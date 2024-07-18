@@ -653,6 +653,7 @@ const messages = defineMessages({
   activateDialogQuestion: 'This group is inactive. Do you want to activate and continue work?',
   changeStage: 'Change stage',
   planningMarketActivate: 'Activate group',
+  tabGroupAppend: '(Group)',
   immediate: 'Critical',
   immediateToolTip: 'Critical bugs remain in the inbox notification until moved or resolved.',
   normalToolTip: 'Normal bugs send a notification that can be dismissed.',

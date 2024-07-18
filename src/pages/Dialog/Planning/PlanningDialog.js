@@ -320,12 +320,14 @@ function PlanningDialog(props) {
       onDropJob(id, false);
     }
   }
-
+  const groupIsEveryone = isEveryoneGroup(groupId, marketId);
+  const tabName = groupIsEveryone ? market?.name : groupName;
+  const tabTitle = `${tabName} ${intl.formatMessage({id: 'tabGroupAppend'})}`;
   return (
     <Screen
       title={groupName}
       hidden={hidden}
-      tabTitle={groupName}
+      tabTitle={tabTitle}
       banner={banner}
       showBanner={banner != null}
       openMenuItems={navListItemTextArray}
@@ -455,7 +457,7 @@ function PlanningDialog(props) {
             <DismissableText textId="notificationHelp"
                              display={_.isEmpty(blockedOrRequiresInputInvestibles)&&_.isEmpty(swimlaneInvestibles)}
                              text={
-                               isEveryoneGroup(groupId, marketId) ? (market?.market_sub_type === 'SUPPORT' ?
+                              groupIsEveryone ? (market?.market_sub_type === 'SUPPORT' ?
                                    <div>
                                      There are no assigned jobs. Use the "Add job" button above and support will be
                                      notified.

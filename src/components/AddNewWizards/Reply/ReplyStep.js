@@ -21,7 +21,7 @@ import { findMessageForCommentId, removeInlineMarketMessages } from '../../../ut
 import { isSingleAssisted } from '../../../utils/commentFunctions';
 import _ from 'lodash';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { REPLY_TYPE } from '../../../constants/comments';
@@ -88,7 +88,9 @@ function ReplyStep(props) {
         if (message) {
           dismissWorkListItem(message, messagesDispatch);
         }
-        navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));
+        const navigateTo = comment.investible_id ? formInvestibleLink(marketId, comment.investible_id) :
+          formMarketLink(marketId, comment.group_id);
+        navigate(history, navigateTo);
       });
   }
 

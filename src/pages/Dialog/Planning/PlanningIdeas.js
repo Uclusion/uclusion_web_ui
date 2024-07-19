@@ -235,12 +235,14 @@ function PlanningIdeas(props) {
     }
     if (divId === inReviewStageId || isBlockedStage(fullCurrentStage) || isRequiredInputStage(fullCurrentStage)) {
       const isBlocked = isBlockedByTodo(id, stageId, divId);
-      if (isBlocked) {
+      if (isBlocked || divId !== inReviewStageId) {
         // Go to change stage close comment step with divId destination
         return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}`;
       }
-      // Go to change stage add review step with divId destination
-      return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=false`;
+      if (!isSingleUser) {
+        // Go to change stage add review step with divId destination
+        return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=false`;
+      }
     }
     return undefined;
   }

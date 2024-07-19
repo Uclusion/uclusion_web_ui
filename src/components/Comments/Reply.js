@@ -6,10 +6,9 @@ import { makeStyles } from '@material-ui/styles';
 import _ from 'lodash';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import { ISSUE_TYPE, REPORT_TYPE, TODO_TYPE, } from '../../constants/comments';
-import { removeComment } from '../../api/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { addMarketComments, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
+import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import {
@@ -22,7 +21,7 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import { useHistory, useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import { findMessageForCommentId, removeMessagesForCommentId } from '../../utils/messageUtils';
+import { findMessageForCommentId } from '../../utils/messageUtils';
 import { invalidEditEvent } from '../../utils/windowUtils';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { ScrollContext } from '../../contexts/ScrollContext';
@@ -31,7 +30,7 @@ import { LocalCommentsContext, useCommentStyles } from './Comment';
 import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
-import { BUG_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../constants/markets';
+import { BUG_WIZARD_TYPE, DELETE_COMMENT_TYPE, REPLY_WIZARD_TYPE } from '../../constants/markets';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 const useReplyStyles = makeStyles(
@@ -181,8 +180,8 @@ function Reply(props) {
   const commenter = useCommenter(comment, presences) || { name: "unknown", email: "" };
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const [messagesState] = useContext(NotificationsContext);
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
+  const [commentsState] = useContext(CommentsContext);
+  const [operationRunning] = useContext(OperationInProgressContext);
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
@@ -213,16 +212,6 @@ function Reply(props) {
       setNoHighlightId(id);
       navigate(history, `/comment/${marketId}/${id}`, false, true);
     }
-  }
-
-  function remove() {
-    setOperationRunning(true);
-    return removeComment(marketId, comment.id)
-      .then((comment) => {
-        addMarketComments(commentsDispatch, marketId, [comment]);
-        removeMessagesForCommentId(comment.id, messagesState);
-        setOperationRunning(false);
-      });
   }
 
   function setBeingEdited(value, event) {
@@ -300,7 +289,8 @@ function Reply(props) {
         {(myPresence.is_admin || isEditable) && enableEditing && (
           <TooltipIconButton
             disabled={operationRunning !== false}
-            onClick={remove}
+            onClick={isInbox ? () => navigate(history, `${deleteWizardBaseLink}&isInbox=${isInbox}`) :
+              () => navigate(history, deleteWizardBaseLink)}
             icon={<NotificationDeletion height={22} width={22} isRed />}
             size='small'
             translationId="commentRemoveLabel"
@@ -380,6 +370,9 @@ function Reply(props) {
       </>
     );
   }
+
+  const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,
+    undefined, comment.id);
 
   return (
     <>

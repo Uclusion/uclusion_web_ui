@@ -74,9 +74,11 @@ function DeleteWarningStep(props) {
         isInbox
         compressAll
         inboxMessageId={commentId}
-        toggleCompression={() => updateFormData({useCompression: !useCompression})}
+        toggleCompression={() => updateFormData({ useCompression: !useCompression })}
         useCompression={useCompression}
+        displayRepliesAsTop
       />
+      <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
         nextLabel="commentRemoveLabel"

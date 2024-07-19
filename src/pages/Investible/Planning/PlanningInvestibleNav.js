@@ -195,8 +195,8 @@ export default function PlanningInvestibleNav(props) {
               marketPresences={marketPresences}
               assigned={assigned}
               unaccceptedList={useInVoting ? assignedNotAccepted : undefined}
-              toggleIconButton={isSingleUser ? assignToSingleUser : () => navigate(history,
-                formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
+              toggleIconButton={isSingleUser ? (_.isEmpty(assigned) ? assignToSingleUser : undefined) :
+                () => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
               assignmentColumnMessageId='planningInvestibleAssignments'
               toolTipId='storyAddParticipantsLabel'
             />

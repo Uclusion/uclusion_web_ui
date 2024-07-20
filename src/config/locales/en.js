@@ -371,6 +371,7 @@ const messages = defineMessages({
   jobTypeLabelNOT_READY: 'Not ready - backlog no notification',
   ConvertTaskMoveLabel: 'Convert to task in current job',
   ConvertSuggestionMoveLabel: 'Convert to suggestion in current job',
+  SuggestionMoveLabel: 'Move to suggestion in job',
   BugMoveLabel: 'Convert to bug',
   JobMoveLabel: 'Move to task in job',
   DiscussionMoveLabel: 'Move to discussion',

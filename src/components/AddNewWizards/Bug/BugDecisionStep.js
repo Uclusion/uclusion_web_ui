@@ -45,6 +45,7 @@ function BugDecisionStep (props) {
   if (comment.comment_type === SUGGEST_CHANGE_TYPE) {
     allowedTypes.unshift('ConvertTask');
     allowedTypes.push('Discussion');
+    allowedTypes.push('Suggestion')
   } else if ([TODO_TYPE, REPLY_TYPE].includes(comment.comment_type)) {
     allowedTypes.push('ConvertSuggestion');
     allowedTypes.push('Bug');
@@ -114,7 +115,7 @@ function BugDecisionStep (props) {
     if (useType === 'Discussion') {
       return moveToDiscussion;
     }
-    if (useType === 'Job') {
+    if (useType === 'Job' || useType === 'Suggestion') {
       return () => navigate(history,
         `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}`);
     }

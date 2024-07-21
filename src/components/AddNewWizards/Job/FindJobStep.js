@@ -50,7 +50,7 @@ function FindJobStep(props) {
   function onNext() {
     if (moveFromComments) {
       const inv = getInvestible(investiblesState, investibleId);
-      return moveFromComments(inv, formData, updateFormData).then(({link}) => navigate(history, link));
+      return moveFromComments(inv, formData, updateFormData, true).then(({link}) => navigate(history, link));
     }
   }
 

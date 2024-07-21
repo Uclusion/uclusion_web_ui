@@ -100,20 +100,19 @@ export function handleAcceptSuggestion(info) {
   if (isMove) {
     const marketInfo = getMarketInfo(investible, comment.market_id);
     changeInvestibleStageOnCommentClose([marketInfo], investible.investible, investiblesDispatch,
-      comment, marketStagesState);
+      comment.updated_at, marketStagesState);
   }
   addCommentToMarket(comment, commentsState, commentsDispatch);
   removeMessagesForCommentId(comment.id, messagesState, messagesDispatch);
 }
 
-export function changeInvestibleStageOnCommentClose(market_infos, rootInvestible, investibleDispatch, comment,
+export function changeInvestibleStageOnCommentClose(market_infos, rootInvestible, investibleDispatch, updatedAt,
   marketStagesState) {
   const [info] = (market_infos || []);
   const { former_stage_id: formerStageId, assigned, market_id: marketId } = (info || {});
   const nextStageId = getFormerStageId(formerStageId, marketId, marketStagesState);
   const newStage = getFullStage(marketStagesState, marketId, nextStageId);
-  changeInvestibleStage(newStage, assigned, comment.updated_at, info, market_infos, rootInvestible,
-    investibleDispatch);
+  changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos, rootInvestible, investibleDispatch);
 }
 
 export function onCommentsMove(fromCommentIds, messagesState, marketComments, investibleId, commentsDispatch, marketId,

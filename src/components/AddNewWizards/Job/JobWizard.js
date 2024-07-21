@@ -15,7 +15,7 @@ import {
   getCommentThreads,
   getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import ResolveCommentsStep from './ResolveCommentsStep'
 import DecideWhereStep from './DecideWhereStep';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -24,10 +24,18 @@ import FindJobStep from './FindJobStep';
 import JobApproverStep from './JobApproverStep';
 import JobNameStep from './JobNameStep';
 import { moveComments } from '../../../api/comments';
-import { onCommentsMove } from '../../../utils/commentFunctions';
+import {
+  changeInvestibleStageOnCommentClose,
+  changeInvestibleStageOnCommentOpen,
+  onCommentsMove
+} from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { getMarketPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getMarketInfo } from '../../../utils/userFunctions';
 
 function JobWizard(props) {
   const { marketId, groupId, jobType } = props;
@@ -43,12 +51,17 @@ function JobWizard(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [investiblesState, investibleDispatch] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = presences.find((presence) => presence.current_user);
   const isSingleUser = isSingleUserMarket(presences);
   const comments = marketId ? getMarketComments(commentsState, marketId, groupId) : [];
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     comments.find((comment) => comment.id === fromCommentId));
   const isReplyConvert = roots.length > 0 && roots[0].comment_type === REPLY_TYPE;
+  const isAssistanceMove = roots.length > 0 &&
+    [SUGGEST_CHANGE_TYPE, QUESTION_TYPE, ISSUE_TYPE].includes(roots[0].comment_type);
 
   function onFinish(formData) {
     const { link } = formData;
@@ -56,7 +69,7 @@ function JobWizard(props) {
     navigate(history, link);
   }
 
-  function moveFromComments(inv, formData, updateFormData) {
+  function moveFromComments(inv, formData, updateFormData, isExistingToInv=false) {
     const { doResolveId, doTaskId } = formData;
     let myDoTaskId = doTaskId;
     let replyId;
@@ -67,11 +80,25 @@ function JobWizard(props) {
     const { investible } = inv;
     const investibleId = investible.id;
     const movingComments = getCommentThreads(roots, comments);
+    const fromInv = isAssistanceMove && roots[0].investible_id ?
+      getInvestible(investiblesState, roots[0].investible_id) : undefined;
     return moveComments(marketId, investibleId, fromCommentIds, doResolveId ? [doResolveId]: undefined,
       myDoTaskId ? [myDoTaskId] : undefined)
       .then((movedComments) => {
         if (!replyId) {
           setModifiedId(doResolveId || myDoTaskId);
+        }
+        if (isAssistanceMove) {
+          if (fromInv) {
+            const marketInfo = getMarketInfo(fromInv, marketId);
+            changeInvestibleStageOnCommentClose([marketInfo], fromInv.investible, investibleDispatch,
+              movedComments[0].updated_at, marketStagesState);
+          }
+          if (isExistingToInv) {
+            const investibleBlocks = roots[0].comment_type === ISSUE_TYPE;
+            changeInvestibleStageOnCommentOpen(investibleBlocks, !investibleBlocks, marketStagesState,
+              inv.market_infos, inv.investible, investibleDispatch, movedComments[0], myPresence);
+          }
         }
         onCommentsMove(fromCommentIds, messagesState, movingComments, investibleId, commentsDispatch, marketId,
           movedComments, messagesDispatch);

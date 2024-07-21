@@ -111,14 +111,15 @@ function WizardStepButtons (props) {
         )}
       </div>
 
-      <div className={classes.actionContainer}>
-        {showSkip && (
-          <SpinningButton id="OnboardingWizardSkip" className={classes.actionSkip} variant="text"
-                          doSpin={false} onClick={mySkip}>
-            {intl.formatMessage({ id: 'OnboardingWizardSkip' })}
-          </SpinningButton>
-        )}
-      </div>
+      {showSkip && (
+        <div className={classes.actionContainer}>
+            <SpinningButton id="OnboardingWizardSkip" className={classes.actionSkip} variant="text"
+                            doSpin={false} onClick={mySkip}>
+              {intl.formatMessage({ id: 'OnboardingWizardSkip' })}
+            </SpinningButton>
+        </div>
+      )}
+
       <div className={classes.actionContainer}>
         {showTerminate && (
           <SpinningButton id="OnboardingWizardTerminate" className={classes.actionSkip} variant="text"

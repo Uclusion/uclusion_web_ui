@@ -9,7 +9,7 @@ import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../..
 import { useHistory } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { REPLY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
-import { alterComment, updateComment } from '../../../api/comments';
+import { updateComment } from '../../../api/comments';
 import {
   changeInvestibleStageOnCommentOpen,
   handleAcceptSuggestion,
@@ -18,8 +18,7 @@ import {
 import _ from 'lodash';
 import {
   addCommentToMarket,
-  addMarketComments,
-  getMarketComments
+  moveToDiscussion
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { quickNotificationChanges } from '../../Comments/CommentAdd';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -88,23 +87,6 @@ function BugDecisionStep (props) {
       });
   }
 
-  function moveToDiscussion() {
-    return alterComment(marketId, comment.id)
-      .then((response) => {
-        addCommentToMarket(response, commentsState, commentsDispatch);
-        const marketComments = getMarketComments(commentsState, marketId, comment.group_id);
-        const thread = marketComments.filter((aComment) => {
-          return aComment.root_comment_id === comment.id;
-        });
-        const fixedThread = thread.map((aComment) => {
-          return _.omit(aComment, 'investible_id');
-        });
-        addMarketComments(commentsDispatch, marketId, [...fixedThread]);
-        setOperationRunning(false);
-        navigate(history, formCommentLink(marketId, comment.group_id, undefined, comment.id));
-      });
-  }
-
   function getNextFunction() {
     if (useType === 'ConvertTask') {
       return myAccept;
@@ -113,7 +95,7 @@ function BugDecisionStep (props) {
       return myMoveToSuggestion;
     }
     if (useType === 'Discussion') {
-      return moveToDiscussion;
+      return moveToDiscussion(comment, commentsState, commentsDispatch, setOperationRunning, history);
     }
     if (useType === 'Job' || useType === 'Suggestion') {
       return () => navigate(history,

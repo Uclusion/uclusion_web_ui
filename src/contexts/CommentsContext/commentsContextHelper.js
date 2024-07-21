@@ -7,6 +7,8 @@ import {
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages';
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages';
+import { alterComment } from '../../api/comments';
+import { formCommentLink, navigate } from '../../utils/marketIdPathFunctions';
 
 export function getComment(state, marketId, commentId) {
   const marketComments = state[marketId] || [];
@@ -132,4 +134,22 @@ export function addCommentToMarket(comment, state, dispatch) {
 // Only use this method for altering, resolving, etc. where search and ticket index are not relevant
 export function addMarketComments(dispatch, marketId, comments) {
   dispatch(updateComments(marketId, comments));
+}
+
+export function moveToDiscussion(comment, commentsState, commentsDispatch, setOperationRunning, history) {
+  const marketId = comment.market_id;
+  return alterComment(marketId, comment.id)
+    .then((response) => {
+      addCommentToMarket(response, commentsState, commentsDispatch);
+      const marketComments = getMarketComments(commentsState, marketId, comment.group_id);
+      const thread = marketComments.filter((aComment) => {
+        return aComment.root_comment_id === comment.id;
+      });
+      const fixedThread = thread.map((aComment) => {
+        return _.omit(aComment, 'investible_id');
+      });
+      addMarketComments(commentsDispatch, marketId, [...fixedThread]);
+      setOperationRunning(false);
+      navigate(history, formCommentLink(marketId, comment.group_id, undefined, comment.id));
+    });
 }

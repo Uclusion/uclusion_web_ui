@@ -148,7 +148,7 @@ function JobWizard(props) {
         )}
         {fromCommentId && (
           <DecideWhereStep fromCommentIds={fromCommentIds} marketId={marketId} groupId={groupId}
-                           marketComments={comments} />
+                           marketComments={comments} isQuestion={!_.isEmpty(requiresInputId)} />
         )}
         {fromCommentId && (
           <FindJobStep marketId={marketId} groupId={groupId} roots={roots} isConvert={isReplyConvert}

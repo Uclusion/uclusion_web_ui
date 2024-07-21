@@ -5,13 +5,19 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { getCommentThreads } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getCommentThreads, moveToDiscussion } from '../../../contexts/CommentsContext/commentsContextHelper';
 import CondensedTodos from '../../../pages/Investible/Planning/CondensedTodos';
 import _ from 'lodash';
 import { REPLY_TYPE } from '../../../constants/comments';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { useHistory } from 'react-router';
 
 function DecideWhereStep (props) {
-  const { marketId, fromCommentIds, marketComments, updateFormData, formData } = props;
+  const { marketId, fromCommentIds, marketComments, updateFormData, formData, isQuestion } = props;
+  const history = useHistory();
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     marketComments.find((comment) => comment.id === fromCommentId) || {id: 'notFound'});
@@ -62,7 +68,11 @@ function DecideWhereStep (props) {
         showOtherNext
         otherNextLabel="JobWizardExistingJob"
         otherSpinOnClick={false}
-        showTerminate={false}
+        showTerminate={isQuestion}
+        terminateLabel="DiscussionMoveLabel"
+        terminateSpinOnClick
+        onTerminate={() => moveToDiscussion(roots[0], commentsState, commentsDispatch, setOperationRunning,
+          history)}
       />
     </WizardStepContainer>
   );

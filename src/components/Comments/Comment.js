@@ -562,7 +562,8 @@ function Comment(props) {
     return (
       <Options anInlineMarket={anInlineMarket} marketId={marketId} investibleId={investibleId} inArchives={inArchives}
                isEditable={isEditable} isSent={isSent} groupId={groupId} removeActions={removeActions} isInbox={isInbox}
-               selectedInvestibleIdParent={selectedInvestibleIdParent} searchResults={searchResults} />
+               selectedInvestibleIdParent={selectedInvestibleIdParent} searchResults={searchResults}
+               useCompression={useCompression} />
     );
   }
 

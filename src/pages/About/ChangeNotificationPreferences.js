@@ -108,23 +108,26 @@ function ChangeNotificationPreferences (props) {
   const intl = useIntl();
   const classes = useStyles();
   const notificationConfig = user?.notification_configs?.find((config) => config.market_id === marketId);
-  const { emailDelay, emailEnabled, slackEnabled, slackDelay, emailValuesChanged,
+  const { emailDelay, emailDelayYellow, emailEnabled, slackEnabled, slackDelay, emailValuesChanged,
     slackValuesChanged } = marketConfigs[marketId] || {};
   const slackEnabledValue = slackEnabled !== undefined ? slackEnabled :
     (notificationConfig?.slack_enabled !== undefined ? notificationConfig?.slack_enabled : true);
   const emailEnabledValue = emailEnabled !== undefined ? emailEnabled :
     (notificationConfig?.email_enabled !== undefined ? notificationConfig?.email_enabled : true);
   const emailDelayValue = emailDelay !== undefined ? emailDelay :
-    (notificationConfig?.email_delay !== undefined ? notificationConfig?.email_delay : 60);
+    (notificationConfig?.email_delay !== undefined ? notificationConfig?.email_delay : 30);
+  const emailDelayYellowValue = emailDelayYellow !== undefined ? emailDelayYellow :
+    (notificationConfig?.email_delay_yellow !== undefined ? notificationConfig?.email_delay_yellow : 90);
   const slackDelayValue = slackDelay !== undefined ? slackDelay :
     (notificationConfig?.slack_delay !== undefined ? notificationConfig?.slack_delay : 30);
 
   function onSetPreferences() {
     return updateUser({ marketId, emailEnabled: emailEnabledValue, slackEnabled: slackEnabledValue,
-      emailDelay: emailDelayValue, slackDelay: slackDelayValue }).then((user) =>{
-      setOperationRunning(false);
-      userDispatch(accountUserRefresh(user));
-      marketConfigsDispatch({type: 'clearMarketId'});
+      emailDelay: emailDelayValue, emailDelayYellow: emailDelayYellowValue, slackDelay: slackDelayValue })
+      .then((user) =>{
+        setOperationRunning(false);
+        userDispatch(accountUserRefresh(user));
+        marketConfigsDispatch({type: 'clearMarketId'});
     });
   }
 
@@ -231,6 +234,15 @@ function ChangeNotificationPreferences (props) {
                   onChange={(event) => marketConfigsDispatch({type: 'emailDelay', value: event.target.value})}
                   value={emailDelayValue}
                   explanationId="emailDelayExplanation" labelId="emailDelayInputLabel"
+                />
+              </ListItem>
+              <ListItem key="emailDelayYellow" style={{marginTop: '1rem'}}>
+                <NotificationDelay
+                  disabled={!emailEnabledValue}
+                  onChange={(event) =>
+                    marketConfigsDispatch({type: 'emailDelayYellow', value: event.target.value})}
+                  value={emailDelayYellowValue}
+                  explanationId="emailDelayYellowExplanation" labelId="emailDelayYellowInputLabel"
                 />
               </ListItem>
               <ListItem key="slackLink" style={{marginTop: '1rem'}}>

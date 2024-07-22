@@ -71,7 +71,7 @@ function Support(props) {
       <div className={classes.container}>
         <Card>
           <SubSection
-            title="Via Channel"
+            title="Via Workspace"
             padChildren
           >
             <Grid

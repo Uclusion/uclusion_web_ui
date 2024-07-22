@@ -887,8 +887,10 @@ const messages = defineMessages({
   slackEnabledLabel: 'Send notifications via Slack',
   changePreferencesButton: 'Update Preferences',
   slackDelayInputLabel: 'Time between alerts',
-  emailDelayInputLabel: 'Time between emails',
-  emailDelayExplanation: 'Minimum time after an email notification before sending another.',
+  emailDelayInputLabel: 'Time between emails for priority',
+  emailDelayYellowInputLabel: 'Time between emails for not priority',
+  emailDelayExplanation: 'Minimum time after notification before sending another for priority.',
+  emailDelayYellowExplanation: 'Minimum time after notification before sending another for not priority.',
   slackDelayExplanation: 'Minimum time after a Slack notification before sending another.',
   doNotShowAgain: 'Do not show again',
 

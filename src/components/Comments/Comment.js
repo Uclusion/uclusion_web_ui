@@ -52,7 +52,7 @@ import {
 } from '../../constants/markets';
 import { red } from '@material-ui/core/colors';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
-import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { addInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
@@ -696,8 +696,9 @@ function Comment(props) {
   const showMoveButton = isSent !== false
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(commentType)
     && !inArchives && !removeActions && enableActions && marketType === PLANNING_TYPE;
-  const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives && inlineMarketId && !resolved
-    && !removeActions && myPresence === createdBy;
+  const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
+  const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
+    !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && myPresence === createdBy;
   const showResolve = isSent !== false && enableActions && !resolved && !removeActions;
   const showReopen = resolved && !removeActions && enableActions && commentType !== REPORT_TYPE;
   const showAddVoting = commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId

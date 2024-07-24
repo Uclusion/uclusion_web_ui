@@ -9,10 +9,13 @@ import { formInvestibleLink } from '../../../utils/marketIdPathFunctions';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import NameField, { clearNameStoredState, getNameStoredState } from '../../TextFields/NameField';
+import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function JobNameStep(props) {
-  const { marketId, groupId, updateFormData, onFinish, formData, moveFromComments } = props;
+  const { marketId, groupId, updateFormData, onFinish, formData, moveFromComments, isSingleUser } = props;
   const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const classes = useContext(WizardStylesContext);
   const [hasValue, setHasValue] = useState(false);
   const { description, uploadedFiles, jobStage } = formData;
@@ -29,6 +32,9 @@ function JobNameStep(props) {
     }
     if (jobStage === 'READY') {
       addInfo.openForInvestment = true;
+    }
+    if (isSingleUser) {
+      addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
     }
     return addPlanningInvestible(addInfo)
       .then((inv) => {

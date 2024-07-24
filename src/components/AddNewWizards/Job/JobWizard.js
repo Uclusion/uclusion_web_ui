@@ -155,9 +155,10 @@ function JobWizard(props) {
                        moveFromComments={fromCommentIds ? moveFromComments : undefined}/>
         )}
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} roots={roots}
-                            jobType={jobType} moveFromComments={fromCommentIds ? moveFromComments : undefined} />
+                            isSingleUser={isSingleUser} jobType={jobType}
+                            moveFromComments={fromCommentIds ? moveFromComments : undefined} />
         <JobNameStep onFinish={onFinish} marketId={marketId} groupId={groupId} jobType={jobType}
-                     moveFromComments={fromCommentIds ? moveFromComments : undefined} />
+                     isSingleUser={isSingleUser} moveFromComments={fromCommentIds ? moveFromComments : undefined} />
         <JobAssignStep onFinish={onFinish} marketId={marketId} groupId={groupId} roots={roots}
                        isSingleUser={isSingleUser} moveFromComments={fromCommentIds ? moveFromComments : undefined} />
         {!isSingleUser && (

@@ -21,12 +21,15 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { bugRadioStyles } from '../Bug/BugDescriptionStep';
 import { useHistory } from 'react-router';
 import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
+import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, roots, formData, jobType, startOver, nextStep,
-    moveFromComments } = props;
+    moveFromComments, isSingleUser } = props;
   const history = useHistory();
   const intl = useIntl();
+  const [marketStagesState] = useContext(MarketStagesContext);
   const radioClasses = bugRadioStyles();
   const editorName = !_.isEmpty(roots) ? `addJobWizard${roots[0].id}` : `addJobWizard${groupId}`;
   const { newQuantity } = formData;
@@ -93,6 +96,9 @@ function JobDescriptionStep (props) {
     }
     if (readyToStart !== undefined) {
       addInfo.openForInvestment = readyToStart;
+    }
+    if (isSingleUser) {
+      addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
     }
     return addPlanningInvestible(addInfo)
       .then((inv) => {

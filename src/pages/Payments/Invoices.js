@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
+import React, { Suspense, useState } from 'react';
 import _ from 'lodash';
 import { Card, Link, Typography, useTheme } from '@material-ui/core';
 import { useIntl } from 'react-intl';
-import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { getCurrentInvoices } from '../../contexts/AccountContext/accountContextHelper';
 import { makeStyles } from '@material-ui/styles';
 import SubSection from '../../containers/SubSection/SubSection';
+import { suspend } from 'suspend-react';
+import Screen from '../../containers/Screen/Screen';
 
 
 const useStyles = makeStyles((theme) => {
@@ -23,19 +23,18 @@ const useStyles = makeStyles((theme) => {
   };
 });
 
-function Invoices (props) {
-
-  const [accountState] = useContext(AccountContext);
-  const invoices = getCurrentInvoices(accountState);
+function Invoices() {
+  const [invoices, setInvoices] = useState(undefined);
   const intl = useIntl();
   const theme = useTheme();
   const classes = useStyles(theme);
-  if (_.isEmpty(invoices)) {
-    return (
-      <Typography>
-        No invoices have been sent to your account.
-      </Typography>
-    );
+
+  function LoadInvoicesInfo() {
+    suspend(async () => {
+      const invoicesInfo = await getInvoices();
+      setInvoices(invoicesInfo);
+    }, [])
+    return React.Fragment;
   }
 
   function getInvoices () {
@@ -66,32 +65,50 @@ function Invoices (props) {
     });
   }
 
+  if (invoices !== undefined) {
+    if (invoices.length === 0) {
+      return (
+        <Typography>
+          No invoices have been sent to your account.
+        </Typography>
+      );
+    }
+    return (
+      <Card>
+        <SubSection
+          title="Invoices"
+          padChildren
+        >
+          <table className={classes.table}>
+            <thead>
+            <tr className={classes.tr}>
+              <th className={classes.th}>
+                Date
+              </th>
+              <th className={classes.th}>
+                Amount
+              </th>
+              <th className={classes.th}>
+                PDF
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            {getInvoices()}
+            </tbody>
+          </table>
+        </SubSection>
+      </Card>
+    );
+  }
+
   return (
-    <Card>
-      <SubSection
-        title="Invoices"
-        padChildren
-      >
-        <table className={classes.table}>
-          <thead>
-          <tr className={classes.tr}>
-            <th className={classes.th}>
-              Date
-            </th>
-            <th className={classes.th}>
-              Amount
-            </th>
-            <th className={classes.th}>
-              PDF
-            </th>
-          </tr>
-          </thead>
-          <tbody>
-          {getInvoices()}
-          </tbody>
-        </table>
-      </SubSection>
-    </Card>
+    <Suspense fallback={<Screen hidden={false} loading loadingMessageId='invoicesLoadingMessage'
+                                title={intl.formatMessage({ id: 'loadingMessage' })}>
+      <div />
+    </Screen>}>
+      <LoadInvoicesInfo />
+    </Suspense>
   );
 }
 

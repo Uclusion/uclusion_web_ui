@@ -83,12 +83,6 @@ export function validatePromoCode(promoCode) {
     .catch((error) => toastErrorAndThrow(error, 'errorPromoValidateFailed'));
 }
 
-export function startSubscription(paymentId) {
-  return getAccountClient()
-    .then((client) => client.users.startSubscription(paymentId))
-    .catch((error) => toastErrorAndThrow(error, 'errorStartSubFailed'));
-}
-
 export function endSubscription() {
   return getAccountClient()
     .then((client) => client.users.cancelSubscription())
@@ -112,9 +106,9 @@ export function getInvoices() {
     .then((client) => client.users.getInvoices());
 }
 
-export function getPaymentInfo() {
+export function getSubscriptionInfo() {
   return getAccountClient()
-    .then((client) => client.users.getPaymentInfo());
+    .then((client) => client.users.getSubscriptionInfo());
 }
 
 export function addParticipants(marketId, participants) {

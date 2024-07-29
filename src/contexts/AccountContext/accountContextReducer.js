@@ -3,19 +3,10 @@ import { OnboardingState } from './accountUserContextHelper';
 
 const REFRESH_ACCOUNT = 'REFRESH_ACCOUNT';
 const CLEAR_ACCOUNT = 'CLEAR_ACCOUNT';
-const REFRESH_BILLING_INFO = 'REFRESH_BILLING_INFO';
-const REFRESH_INVOICES = 'REFRESH_INVOICES';
 const REFRESH_ACCOUNT_USER = 'REFRESH_ACCOUNT_USER';
 const QUICK_JOIN_ACCOUNT_USER = 'QUICK_JOIN_ACCOUNT_USER';
 const REFRESH_ACCOUNT_AND_USER = 'REFRESH_ACCOUNT_AND_USER';
 export const ACCOUNT_CONTEXT_KEY = 'account_context';
-
-export function billingInfoRefresh(billingInfo) {
-  return {
-    type: REFRESH_BILLING_INFO,
-    billingInfo,
-  }
-}
 
 export function accountAndUserRefresh(account, user) {
   return {
@@ -38,33 +29,8 @@ export function clearAccount() {
   };
 }
 
-export function invoicesRefresh(invoices) {
-  return {
-    type: REFRESH_INVOICES,
-    invoices,
-  };
-}
-
 function doAccountClear(state, action) {
   return {initializing: true};
-}
-
-function doBillingInfoRefresh(state, action) {
-  const { billingInfo } = action;
-  return {
-    ...state,
-    initializing: false,
-    billingInfo,
-  };
-}
-
-function doInvoicesRefresh(state, action) {
-  const { invoices } = action;
-  return {
-    ...state,
-    intializing: false,
-    invoices,
-  };
 }
 
 export function accountUserRefresh(user) {
@@ -149,10 +115,6 @@ export function reducer(state, action) {
         return doAccountRefresh(state, action);
       case CLEAR_ACCOUNT:
         return doAccountClear(state, action);
-      case REFRESH_BILLING_INFO:
-        return doBillingInfoRefresh(state, action);
-      case REFRESH_INVOICES:
-        return doInvoicesRefresh(state, action);
       case REFRESH_ACCOUNT_AND_USER:
         return doAccountAndUserRefresh(state, action);
       case QUICK_JOIN_ACCOUNT_USER:

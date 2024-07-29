@@ -10,12 +10,9 @@ import Grid from '@material-ui/core/Grid';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { makeStyles } from '@material-ui/core/styles';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { getPaymentInfo, updatePaymentInfo } from '../../api/users';
+import { updatePaymentInfo } from '../../api/users';
 import PhoneField from '../../components/TextFields/PhoneField';
-import {
-  updateBilling,
-  updateAccount,
-} from '../../contexts/AccountContext/accountContextHelper';
+import { updateAccount } from '../../contexts/AccountContext/accountContextHelper';
 import clsx from 'clsx';
 import Button from '@material-ui/core/Button';
 import WizardStepButtons from '../../components/InboxWizards/WizardStepButtons';
@@ -83,8 +80,7 @@ const useStyles = makeStyles(theme => ({
 
 const EMPTY_DETAILS = { name: '', email: '', phone: '' };
 
-function CardInputForm (props) {
-
+function CardInputForm(props) {
   const { onUpdate, onSubmit, submitLabelId, onCancel, wizardProps } = props;
 
   const classes = useStyles();
@@ -117,12 +113,9 @@ function CardInputForm (props) {
       return updatePaymentInfo(paymentResult.paymentMethod.id)
         .then((upgradedAccount) => {
           updateAccount(accountDispatch, upgradedAccount);
-          return getPaymentInfo();
-        }).then((info) => {
-          updateBilling(accountDispatch, info);
           resetForm();
           setOperationRunning(false);
-          onUpdate();
+          onUpdate(paymentResult.paymentMethod);
         });
     };
 
@@ -131,7 +124,6 @@ function CardInputForm (props) {
       card: elements.getElement(CardElement),
       billing_details: billingDetails
     })).then((paymentResult) => {
-      // console.log('Payment method creation successful');
       return updateBillingSubmit(paymentResult)
         .then(() => onSubmit());
     }).catch((err) => {

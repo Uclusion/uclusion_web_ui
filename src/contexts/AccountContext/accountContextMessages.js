@@ -2,9 +2,7 @@ import { registerListener } from '../../utils/MessageBusUtils';
 import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { accountAndUserRefresh, clearAccount } from './accountContextReducer'
 import { VERSIONS_EVENT } from '../../api/versionedFetchUtils'
-import { fixDates, updateBilling, updateInvoices } from './accountContextHelper'
-import _ from 'lodash'
-import { getInvoices, getPaymentInfo } from '../../api/users'
+import { fixDates } from './accountContextHelper'
 import { isSignedOut } from '../../utils/userFunctions';
 import { getLogin } from '../../api/homeAccount';
 
@@ -22,18 +20,6 @@ export function poll(dispatch, accountVersion, userVersion) {
           if ((accountVersion === undefined || accountVersion <= founderAccountVersion)
             && (userVersion === undefined || userVersion <= founderUserVersion)) {
             dispatch(accountAndUserRefresh(fixDates(account), user));
-            const { billing_customer_id: customerId } = account;
-            // handle billing
-            if (!_.isEmpty(customerId)) {
-              return getPaymentInfo()
-                .then((paymentInfo) => {
-                  updateBilling(dispatch, paymentInfo);
-                  return getInvoices();
-                })
-                .then((invoices) => {
-                  updateInvoices(dispatch, invoices);
-                });
-            }
           }
         }
       });

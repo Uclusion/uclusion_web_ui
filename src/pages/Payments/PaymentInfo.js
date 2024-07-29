@@ -1,9 +1,7 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import _ from 'lodash';
 import Button from '@material-ui/core/Button';
 import CardInputForm from './CardInputForm';
-import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { getCurrentBillingCardInfo } from '../../contexts/AccountContext/accountContextHelper';
 import StoredCards from './StoredCards';
 import { useIntl } from 'react-intl';
 import SubSection from '../../containers/SubSection/SubSection';
@@ -26,13 +24,13 @@ const useStyles = makeStyles((theme) => {
 });
 
 function PaymentInfo (props) {
+  const { subscriptionInfo, setSubscriptionInfo } = props;
   const [addCardVisible, setAddCardVisible] = useState(false);
   const intl = useIntl();
-  const [accountState] = useContext(AccountContext);
-  const billingInfo = getCurrentBillingCardInfo(accountState);
   const theme = useTheme();
   const classes = useStyles(theme);
-  const addButtonLabel = _.isEmpty(billingInfo) ? 'paymentInfoButtonAdd' : 'paymentInfoButtonUpdate';
+  const { payment_methods: paymentMethods } = subscriptionInfo;
+  const addButtonLabel = _.isEmpty(paymentMethods) ? 'paymentInfoButtonAdd' : 'paymentInfoButtonUpdate';
 
   return (
     <Card>
@@ -41,7 +39,7 @@ function PaymentInfo (props) {
         padChildren
       >
 
-        <StoredCards billingInfo={billingInfo}/>
+        <StoredCards billingInfo={paymentMethods}/>
         {!addCardVisible && (
           <Button
             className={classes.addPaymentButton}
@@ -51,7 +49,9 @@ function PaymentInfo (props) {
           </Button>
         )}
         {addCardVisible && (
-          <CardInputForm onSubmit={() => setAddCardVisible(false)} onCancel={() => setAddCardVisible(false)}/>
+          <CardInputForm onSubmit={() => setAddCardVisible(false)}
+                         onUpdate={() => setSubscriptionInfo(undefined)}
+                         onCancel={() => setAddCardVisible(false)}/>
         )}
 
       </SubSection>

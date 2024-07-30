@@ -42,7 +42,7 @@ function BillingHome (props) {
     return React.Fragment;
   }
 
-  if (subscriptionInfo) {
+  if (subscriptionInfo || hidden) {
     return (
       <Screen
         hidden={hidden}

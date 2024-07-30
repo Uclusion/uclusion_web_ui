@@ -66,7 +66,8 @@ function SubscriptionStatus (props) {
   const { subscription, payment_methods: paymentMethods } = subscriptionInfo;
   const classes = styleClasses();
   // some helpful constants
-  const trialEnd = subscription?.trial_end;
+  const trialEndRaw = subscription?.trial_end;
+  const trialEnd = trialEndRaw ? trialEndRaw*1000 : undefined;
   const onFree = subStatus === SUBSCRIPTION_STATUS_FREE;
   const cancellable = subStatus === SUBSCRIPTION_STATUS_ACTIVE;
   const needsPayment = _.isEmpty(getUnusedFullPromotions(accountState)) && !onFree &&
@@ -80,14 +81,18 @@ function SubscriptionStatus (props) {
       return updateAccount(accountDispatch, cancelledAccount);
     });
   }
-
+console.debug(`trial end is ${trialEnd}`)
   function getSubscriptionMessage () {
     switch (subStatus) {
       case SUBSCRIPTION_STATUS_ACTIVE:
-        if (trialEnd && trialEnd < Date.now()) {
+        if (trialEnd && new Date(trialEnd) > Date.now()) {
           return intl.formatMessage({ id: 'billingSubTrial' }, { date: intl.formatDate(trialEnd) });
         }
-        return intl.formatMessage({ id: 'billingSubActive' });
+        const subscriptionItems = subscription?.items?.data;
+        const subscriptionItem = subscriptionItems?.length > 0 ? subscriptionItems[0] : {};
+        const subscriptionPrice = subscriptionItem?.price || {};
+        const price = `$${subscriptionPrice.unit_amount/100}`;
+        return intl.formatMessage({ id: 'billingSubActive' }, { price });
       case SUBSCRIPTION_STATUS_CANCELED:
         return intl.formatMessage({ id: 'billingSubCanceled' });
       case SUBSCRIPTION_STATUS_UNSUBSCRIBED:
@@ -110,12 +115,12 @@ function SubscriptionStatus (props) {
           {tierMessage}
         </Typography>
         {!onFree && (
-          <Typography>
+          <Typography style={{marginBottom: '1rem'}}>
             <strong>{subMessage}</strong>
           </Typography>
         )}
         {needsPayment && (
-          <Typography className={classes.noPayment}>
+          <Typography className={classes.noPayment} style={{marginBottom: '1rem'}}>
             {intl.formatMessage({ id: 'billingNeedCard' })}
           </Typography>
         )}

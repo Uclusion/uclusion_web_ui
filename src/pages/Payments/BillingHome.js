@@ -33,38 +33,37 @@ function BillingHome (props) {
   const classes = useStyles(theme);
   const [subscriptionInfo, setSubscriptionInfo] = useState(false);
   const title = intl.formatMessage({ id: 'BillingHomeTitle' });
+  const page = <Screen
+    hidden={hidden}
+    title={title}
+    tabTitle={title}
+  >
+    <div className={classes.billingContainer}>
+      <div className={classes.sectionContainer}>
+        <SubscriptionStatus subscriptionInfo={subscriptionInfo}/>
+      </div>
+      <div className={classes.sectionContainer}>
+        <AccountPromos />
+      </div>
+      <div className={classes.sectionContainer}>
+        <PaymentInfo subscriptionInfo={subscriptionInfo} setSubscriptionInfo={setSubscriptionInfo} />
+      </div>
+      <div className={classes.sectionContainer}>
+        <Invoices />
+      </div>
+    </div>
+  </Screen>;
 
   function LoadSubscriptionInfo() {
     suspend(async () => {
       const subscriptionInfo = await getSubscriptionInfo();
       setSubscriptionInfo(subscriptionInfo);
     }, [])
-    return React.Fragment;
+    return page;
   }
 
   if (subscriptionInfo || hidden) {
-    return (
-      <Screen
-        hidden={hidden}
-        title={title}
-        tabTitle={title}
-      >
-        <div className={classes.billingContainer}>
-          <div className={classes.sectionContainer}>
-            <SubscriptionStatus subscriptionInfo={subscriptionInfo}/>
-          </div>
-          <div className={classes.sectionContainer}>
-            <AccountPromos />
-          </div>
-          <div className={classes.sectionContainer}>
-            <PaymentInfo subscriptionInfo={subscriptionInfo} setSubscriptionInfo={setSubscriptionInfo} />
-          </div>
-          <div className={classes.sectionContainer}>
-            <Invoices />
-          </div>
-        </div>
-      </Screen>
-    );
+    return page;
   }
 
   return (

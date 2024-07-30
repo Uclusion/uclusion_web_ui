@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => {
       '&:hover': {
         backgroundColor: '#2D9CDB'
       },
-      textTransform: 'capitalize',
+      textTransform: 'none',
       marginTop: theme.spacing(1),
     },
 

@@ -6,6 +6,7 @@ import { makeStyles } from '@material-ui/styles';
 import SubSection from '../../containers/SubSection/SubSection';
 import { suspend } from 'suspend-react';
 import Screen from '../../containers/Screen/Screen';
+import { getInvoices } from '../../api/users';
 
 
 const useStyles = makeStyles((theme) => {
@@ -37,7 +38,7 @@ function Invoices() {
     return React.Fragment;
   }
 
-  function getInvoices () {
+  function getSortedInvoices () {
     const sortedInvoices = _.sortBy(invoices, 'created').reverse();
     return sortedInvoices.map((invoice) => {
       const { total, created, invoice_pdf } = invoice;
@@ -94,7 +95,7 @@ function Invoices() {
             </tr>
             </thead>
             <tbody>
-            {getInvoices()}
+            {getSortedInvoices()}
             </tbody>
           </table>
         </SubSection>

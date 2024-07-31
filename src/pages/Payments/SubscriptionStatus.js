@@ -69,10 +69,12 @@ function SubscriptionStatus (props) {
   const trialEndRaw = subscription?.trial_end;
   const trialEnd = trialEndRaw ? trialEndRaw*1000 : undefined;
   const onFree = subStatus === SUBSCRIPTION_STATUS_FREE;
-  const cancellable = subStatus === SUBSCRIPTION_STATUS_ACTIVE;
-  const needsPayment = _.isEmpty(getUnusedFullPromotions(accountState)) && !onFree &&
+  const isTrial = trialEnd && new Date(trialEnd) > Date.now();
+  const cancellable = subStatus === SUBSCRIPTION_STATUS_ACTIVE && !isTrial;
+  const needsPayment = _.isEmpty(getUnusedFullPromotions(accountState)) && !onFree && !isTrial &&
     (_.isEmpty(paymentMethods) || invoicePaymentFailed);
-  const tierMessage = intl.formatMessage({ id: 'billingFreeTier' });
+  const tierMessage = onFree ? intl.formatMessage({ id: 'billingFreeTier' }) :
+    intl.formatMessage({ id: 'billingStandardTier' });
   const subMessage = getSubscriptionMessage();
 
   function cancelSubscription () {
@@ -81,17 +83,17 @@ function SubscriptionStatus (props) {
       return updateAccount(accountDispatch, cancelledAccount);
     });
   }
-console.debug(`trial end is ${trialEnd}`)
+
   function getSubscriptionMessage () {
     switch (subStatus) {
       case SUBSCRIPTION_STATUS_ACTIVE:
-        if (trialEnd && new Date(trialEnd) > Date.now()) {
+        if (isTrial) {
           return intl.formatMessage({ id: 'billingSubTrial' }, { date: intl.formatDate(trialEnd) });
         }
         const subscriptionItems = subscription?.items?.data;
         const subscriptionItem = subscriptionItems?.length > 0 ? subscriptionItems[0] : {};
         const subscriptionPrice = subscriptionItem?.price || {};
-        const price = `$${subscriptionPrice.unit_amount/100}`;
+        const price = subscriptionPrice.unit_amount ? `$${subscriptionPrice.unit_amount/100}` : '?';
         return intl.formatMessage({ id: 'billingSubActive' }, { price });
       case SUBSCRIPTION_STATUS_CANCELED:
         return intl.formatMessage({ id: 'billingSubCanceled' });

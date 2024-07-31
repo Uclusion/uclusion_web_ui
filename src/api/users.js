@@ -89,12 +89,6 @@ export function endSubscription() {
     .catch((error) => toastErrorAndThrow(error, 'errorCancelSubFailed'));
 }
 
-export function restartSubscription(paymentId) {
-  return getAccountClient()
-    .then((client) => client.users.restartSubscription(paymentId))
-    .catch((error) => toastErrorAndThrow(error, 'errorRestartSubFailed'));
-}
-
 export function updatePaymentInfo(paymentId) {
   return getAccountClient()
     .then((client) => client.users.updatePaymentInfo(paymentId))

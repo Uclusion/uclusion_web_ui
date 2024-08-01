@@ -163,6 +163,7 @@ const messages = defineMessages({
   marketLoadingMessage: 'Please wait while your workspace invitation is processed...',
   billingLoadingMessage: 'Please wait while your billing information is loading...',
   invoicesLoadingMessage: 'Please wait while your invoices are loading...',
+  promosLoadingMessage: 'Please wait while your promotions are loading...',
   commentLoadingMessage: 'Comment loading',
   commentOptionsLoadingMessage: 'Comment options loading',
   loadingMarket: 'Processing invite',

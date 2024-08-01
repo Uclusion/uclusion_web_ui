@@ -43,7 +43,7 @@ function BillingHome (props) {
         <SubscriptionStatus subscriptionInfo={subscriptionInfo}/>
       </div>
       <div className={classes.sectionContainer}>
-        <AccountPromos />
+        <AccountPromos subscriptionInfo={subscriptionInfo} setSubscriptionInfo={setSubscriptionInfo} />
       </div>
       <div className={classes.sectionContainer}>
         <PaymentInfo subscriptionInfo={subscriptionInfo} setSubscriptionInfo={setSubscriptionInfo} />

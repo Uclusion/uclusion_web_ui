@@ -1,7 +1,5 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import _ from 'lodash';
-import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { getAccount } from '../../contexts/AccountContext/accountContextHelper';
 import { Card, Typography } from '@material-ui/core';
 import SubSection from '../../containers/SubSection/SubSection';
 import PromoCodeInput from './PromoCodeInput';
@@ -17,48 +15,33 @@ const useStyles = makeStyles((theme) => {
 });
 
 function AccountPromos (props) {
-
+  const { subscriptionInfo, setSubscriptionInfo} = props;
   const theme = useTheme();
   const classes = useStyles(theme);
-  const [accountState] = useContext(AccountContext);
-  const account = getAccount(accountState);
-  const {
-    billing_promotions
-  } = account;
-  const safePromotions = billing_promotions || [];
-  if (_.isEmpty(safePromotions)) {
-    return (
-      <Card>
-        <SubSection
-          padChildren
-          title="Promo Codes"
-        >
-          <div>
-            <Typography>
-              You have no promotions active on your account.
-            </Typography>
-          </div>
-          <PromoCodeInput/>
-        </SubSection>
-      </Card>
+  const { subscription, account } = subscriptionInfo || {};
+  const { discounts } = subscription || {};
+  const { billing_promotions: promos } = account || {};
 
-    );
+  function getExpired(code) {
+    const discount = discounts?.find((discount) => discount.promotion_code === code);
+    const discountEnd = discount?.end ? discount.end*1000 : undefined;
+    return discountEnd && new Date(discountEnd) > Date.now();
   }
 
-  function promoExpiry (promo) {
-    const { consumed, application_date, months, usable } = promo;
-    if (!consumed) {
-      return { expired: false };
-    }
-    if (!usable) {
-      return {expired: true}
-    }
-    const usedDate = new Date(application_date);
-    const expiresDate = new Date(usedDate.setMonth(usedDate.getMonth() + months));
-    return { expired: (expiresDate <= Date.now()) };
-  }
-
-  return (
+  return _.isEmpty(promos) ?
+    <Card>
+      <SubSection
+        padChildren
+        title="Promotion Codes"
+      >
+        <div>
+          <Typography>
+            You have no promotions active on your account.
+          </Typography>
+        </div>
+        <PromoCodeInput/>
+      </SubSection>
+    </Card> :
     <Card>
       <SubSection
         title="Promotion Codes"
@@ -66,13 +49,12 @@ function AccountPromos (props) {
       >
         <div>
           <Typography>
-            You have the following promotions active on your account:
+            You have the following promotions on your account:
           </Typography>
           <div className={classes.promoList}>
-            {safePromotions.map((promo) => {
+            {promos.map((promo) => {
               const { code, months, percent_off, consumed } = promo;
-              const expires = promoExpiry(promo);
-              const { expired } = expires;
+              const expired = getExpired(code);
               if (expired) {
                 return (
                   <Typography key={code}>
@@ -88,11 +70,9 @@ function AccountPromos (props) {
             })}
           </div>
         </div>
-        <PromoCodeInput/>
+        <PromoCodeInput setSubscriptionInfo={setSubscriptionInfo}/>
       </SubSection>
-    </Card>
-  );
-
+    </Card>;
 }
 
 export default AccountPromos;

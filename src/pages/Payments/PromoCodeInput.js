@@ -35,7 +35,7 @@ const useStyles = makeStyles((theme) => {
 
 
 function PromoCodeInput(props) {
-  const { wizardProps, onSubmit } = props;
+  const { wizardProps, onSubmit, setSubscriptionInfo } = props;
   const intl = useIntl();
   const [activePromo, setActivePromo] = useState({});
   const [promoBoxValue, setPromoBoxValue] = useState('');
@@ -63,8 +63,10 @@ function PromoCodeInput(props) {
             .then((account) => {
               setActivePromo(promoCheckResult);
               // quick add the account to show the new billing info;
-              updateAccount(accountDispatch, account)
+              updateAccount(accountDispatch, account);
               setOperationRunning(false);
+              // Force refresh from Stripe to pick up discounts if any
+              setSubscriptionInfo(undefined);
             })
             .catch((error) => {
               const { status } = error;

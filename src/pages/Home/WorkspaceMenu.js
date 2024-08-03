@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Button, makeStyles, Menu, Tooltip } from '@material-ui/core';
+import React, { useContext, useState } from 'react';
+import { Button, List, makeStyles, Menu, Tooltip } from '@material-ui/core';
 import { Menu as ProMenu, MenuItem, ProSidebar, SidebarContent, SubMenu } from 'react-pro-sidebar';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
@@ -11,6 +11,10 @@ import AddIcon from '@material-ui/icons/Add';
 import { formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 import { GroupOutlined } from '@material-ui/icons';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { usePlanFormStyles } from '../../components/AgilePlan';
+import GravatarAndName from '../../components/Avatars/GravatarAndName';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -89,6 +93,11 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     },
+  },
+  smallGravatar: {
+    width: '30px',
+    height: '30px',
+    marginTop: '2px'
   }
 }));
 
@@ -96,10 +105,15 @@ function WorkspaceMenu(props) {
   const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup } = props;
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const classes = useStyles();
+  const identityListClasses = usePlanFormStyles();
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const intl = useIntl();
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const history = useHistory();
+  const marketPresences = getMarketPresences(marketPresencesState, defaultMarket.id) || [];
+  const presencesFiltered = marketPresences.filter((presence) => !presence.market_banned);
+
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
       preventDefaultAndProp(event);
@@ -253,6 +267,23 @@ function WorkspaceMenu(props) {
             </SidebarContent>
           </ProSidebar>
         </Menu>
+      )}
+      {_.size(marketPresences) < 10 && (
+        <List
+          dense
+          id="addressBook"
+          style={{marginTop: '0.5rem'}}
+        >
+          {presencesFiltered.map((presence) => <GravatarAndName
+              key={presence.id}
+              email={presence.email}
+              name={presence.name}
+              typographyVariant="caption"
+              typographyClassName={identityListClasses.avatarName}
+              avatarClassName={classes.smallGravatar}
+            />
+          )}
+        </List>
       )}
     </div>
   );

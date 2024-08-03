@@ -326,14 +326,14 @@ function Screen(props) {
                               inactiveGroups={inactiveGroups} chosenGroup={useGroupId}/>,
       navListItemTextArray: !_.isEmpty(defaultMarket) ? [
         {
-          icon: EditOutlinedIcon, text: intl.formatMessage({ id: 'compose' }),
-          isBold: composeChosen, isBlue: composeChosen,
-          target: `/wizard#type=${COMPOSE_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
-        },
-        {
           icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
           isBold: addCollaboratorChosen, isBlue: addCollaboratorChosen,
           target: `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
+        },
+        {
+          icon: EditOutlinedIcon, text: intl.formatMessage({ id: 'compose' }),
+          isBold: composeChosen, isBlue: composeChosen,
+          target: `/wizard#type=${COMPOSE_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
         }
       ] : null}
   ;

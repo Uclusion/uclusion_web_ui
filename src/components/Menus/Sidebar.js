@@ -23,6 +23,7 @@ function processRegularItem(properties) {
     );
   }
   const key = `${index}${textNoSpaces}`;
+  const isLink = isBold && !isBlue;
   const backgroundColor = isBold && !isSubMenu && isBlue ? '#84B1D9' : undefined;
   return (
     <div key={`sidebarMenuHolder${key}`}>
@@ -65,7 +66,10 @@ function processRegularItem(properties) {
                   }
                 }
       >
-        {isBold ? (<span style={{fontWeight: 'bold', fontSize: isLarge ? '1.2rem' : undefined}}>{text}</span>)
+        {isBold ? (<span
+            style={{fontWeight: 'bold', fontSize: isLarge ? '1.2rem' : undefined,
+              textDecoration: isLink ? 'underline' : undefined, color: isLink ? '#36A2EB' : undefined}}>
+            {text}</span>)
           : <span style={{fontSize: isLarge ? '1.2rem' : undefined}}>{text}</span>}
       </MenuItem>
       {!_.isEmpty(openMenuItems) && (

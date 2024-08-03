@@ -200,7 +200,7 @@ function Header (props) {
               <Link href="/" onClick={(event) => {
                 preventDefaultAndProp(event);
                 history.push('/');
-              }} color="inherit">
+              }} color="inherit" style={{fontWeight: 'bold'}}>
                 <svg style={{ width: '130px', verticalAlign: 'middle', transition: 'all 125ms linear' }}
                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
                   <path fill="#fff"
@@ -223,6 +223,7 @@ function Header (props) {
                   <path fill={logoImage}
                         d="M845.69,171.05H154.31A57.38,57.38,0,0,0,97,228.36v80.56A77.06,77.06,0,0,0,174.05,386H805.37l38.78,38.78a14.32,14.32,0,0,0,24.46-10.13V381.17A57.4,57.4,0,0,0,903,328.66V228.36A57.38,57.38,0,0,0,845.69,171.05Zm43,157.61a43,43,0,0,1-34.38,42.12v43.84l-43-43H174.05a62.72,62.72,0,0,1-62.72-62.72V228.36a43,43,0,0,1,43-43H845.69a43,43,0,0,1,43,43Z"/>
                 </svg>
+                {!mobileLayout && intl.formatMessage({ id: 'home' })}
               </Link>
             )}
           </div>

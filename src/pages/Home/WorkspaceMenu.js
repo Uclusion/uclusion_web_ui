@@ -185,7 +185,7 @@ function WorkspaceMenu(props) {
                           key="settingsIconKey" id="settingsIconId"
                           onClick={goTo(`${formMarketEditLink(defaultMarket.id)}`)}
                 >
-                  {intl.formatMessage({ id: 'settings' })}
+                  {intl.formatMessage({ id: 'workspaceSettings' })}
                 </MenuItem>
                 <MenuItem icon={<AddIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
                           key="addGroupKey" id="addGroupId"

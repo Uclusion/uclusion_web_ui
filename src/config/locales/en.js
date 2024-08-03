@@ -12,6 +12,7 @@ const messages = defineMessages({
   blockedNotice: 'Operation Blocked',
   slack_register_failed: 'Slack registration failure.',
   settings: 'Settings',
+  workspaceSettings: 'Workspace settings',
   oneDoneInvestible: 'Assignment',
   language: 'Language',
   theme: 'Theme',
@@ -589,8 +590,8 @@ const messages = defineMessages({
   planningInvestibleOpenLabel: 'Details',
 
   // Home
-  homeAddPlanning: 'Create a workspace',
-  homeAddGroup: 'Create a group',
+  homeAddPlanning: 'New workspace',
+  homeAddGroup: 'New workspace group',
   archiveWarning: 'Muting will unassign any active job. Deactivating stops the group for everyone.',
   new: 'new',
   match: 'match',

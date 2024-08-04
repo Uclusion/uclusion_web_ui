@@ -116,7 +116,7 @@ function JobStageStep (props) {
 
   function doIncrement() {
     if (!isNotDoingStage(fullMoveStage)) {
-      if (_.isEmpty(assigned)&&!isSingleUser) {
+      if (_.isEmpty(assigned)&&(isFurtherWorkStage(fullMoveStage)||!isSingleUser)) {
         // Go to next normal step
         nextStep();
       } else if (isCloseComments) {

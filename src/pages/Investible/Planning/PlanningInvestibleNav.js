@@ -187,7 +187,7 @@ export default function PlanningInvestibleNav(props) {
         <DaysEstimate marketId={marketId} onChange={handleDateChange} value={marketDaysEstimate}
                       isAssigned={isAssigned} />
       )}
-      {market.id && marketInvestible.investible && (
+      {market.id && marketInvestible.investible && (!isSingleUser || !isFurtherWork) && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments

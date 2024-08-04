@@ -302,6 +302,8 @@ function MarketTodos(props) {
           comments={comments}
           allowedTypes={[TODO_TYPE]}
           noAuthor
+          isInbox={isInbox}
+          inboxMessageId={id}
         />
       </div>
       const determinateChecked = determinate[id];

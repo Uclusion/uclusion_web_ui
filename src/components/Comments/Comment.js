@@ -684,7 +684,7 @@ function Comment(props) {
   }
 
   const displayingDiff = myMessage && showDiff && diff;
-  const displayEditing = enableEditing && isEditable;
+  const displayEditing = enableEditing && isEditable && !isInbox;
   if (loading) {
     return (
       <div className={classes.container}>

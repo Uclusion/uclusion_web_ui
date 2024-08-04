@@ -268,7 +268,7 @@ function WorkspaceMenu(props) {
           </ProSidebar>
         </Menu>
       )}
-      {_.size(marketPresences) < 10 && (
+      {_.size(marketPresences) < 10 && _.size(marketPresences) > 1 && (
         <List
           dense
           id="addressBook"

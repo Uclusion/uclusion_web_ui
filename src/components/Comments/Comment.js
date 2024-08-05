@@ -30,7 +30,11 @@ import {
 import { reopenComment, resolveComment, updateComment } from '../../api/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { changeMyPresence, usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  changeMyPresence,
+  isSingleUserMarket,
+  usePresences
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
@@ -477,6 +481,7 @@ function Comment(props) {
   const inlinePresences = usePresences(inlineMarketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
+  const isSingleUser = isSingleUserMarket(presences);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const inlineMarket = getMarket(marketsState, inlineMarketId) || {};
   const market = getMarket(marketsState, marketId) || {};
@@ -702,7 +707,7 @@ function Comment(props) {
   const showResolve = isSent !== false && enableActions && !resolved && !removeActions;
   const showReopen = resolved && !removeActions && enableActions && commentType !== REPORT_TYPE;
   const showAddVoting = commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId
-    && marketType === PLANNING_TYPE && !removeActions;
+    && marketType === PLANNING_TYPE && !removeActions && !isSingleUser;
   const yourVote = myInlinePresence && myInlinePresence.investments &&
     myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&

@@ -271,7 +271,7 @@ function WorkspaceMenu(props) {
       {_.size(presencesFiltered) < 10 && _.size(presencesFiltered) > 1 && (
         <List
           dense
-          id="addressBook"
+          id="addressesOfWorkspace"
           style={{marginTop: '0.5rem'}}
         >
           {presencesFiltered.map((presence) => <GravatarAndName

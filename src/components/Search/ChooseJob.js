@@ -24,10 +24,15 @@ import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import GravatarGroup from '../Avatars/GravatarGroup';
+import {
+  getStages,
+  isInReviewStage,
+  isNotDoingStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 
 function ChooseJob(props) {
   const {
-    marketStages=[],
     excluded=[],
     groupId,
     marketId,
@@ -37,16 +42,22 @@ function ChooseJob(props) {
   const [index] = useContext(SearchIndexContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [searchQuery, setSearchQuery] = useState(undefined);
   const [isAssignedToMe, setIsAssignedToMe] = useState(false);
+  const [isActive, setIsActive] = useState(true);
+  const marketStages = getStages(marketStagesState, marketId);
+  const activeMarketStages = isActive ? marketStages.filter((stage) => {
+    return !isInReviewStage(stage) && !isNotDoingStage(stage);
+  }) : marketStages;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
   const classes = usePlanFormStyles();
-  const marketStageIds = marketStages.map((stage) => stage.id);
+  const marketStageIds = activeMarketStages.map((stage) => stage.id);
   const activeGroupInvestibles = (getMarketInvestibles(investiblesState, marketId) || []).filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId);
     const { investible } = inv;
@@ -80,6 +91,10 @@ function ChooseJob(props) {
 
   function toggleAssignedToMe() {
     setIsAssignedToMe(!isAssignedToMe);
+  }
+
+  function toggleActive() {
+    setIsActive(!isActive);
   }
 
   function renderInvestibleItem(inv) {
@@ -134,6 +149,13 @@ function ChooseJob(props) {
               }}
             />
           </ListItemText>
+        <ListItemText>
+          {intl.formatMessage({ id: 'searchActive' })}
+          <Checkbox
+            checked={isActive}
+            onClick={toggleActive}
+          />
+        </ListItemText>
         <ListItemText>
           {intl.formatMessage({ id: mobileLayout ? 'searchAssignedMobile' : 'searchAssigned' })}
           <Checkbox

@@ -8,12 +8,6 @@ import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPa
 import { useHistory } from 'react-router';
 import _ from 'lodash';
 import ChooseJob from '../../Search/ChooseJob';
-import {
-  getStages,
-  isInReviewStage,
-  isNotDoingStage
-} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -23,15 +17,10 @@ function FindJobStep(props) {
   const { marketId, groupId, updateFormData, formData, startOver, moveFromComments, roots, isConvert } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
   const [groupState] = useContext(MarketGroupsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const { investibleId } = formData;
   const group = getGroup(groupState, marketId, groupId) || {};
-  const marketStages = getStages(marketStagesState, marketId);
-  const activeMarketStages = marketStages.filter((stage) => {
-    return !isInReviewStage(stage) && !isNotDoingStage(stage);
-  });
   const currentInvestibleId = roots[0].investible_id;
 
   function onTerminate() {
@@ -60,13 +49,12 @@ function FindJobStep(props) {
       isLarge
     >
         <Typography className={classes.introText} variant="h6">
-          Which active job in group {group.name}?
+          Which job in group {group.name}?
         </Typography>
         <ChooseJob
           marketId={marketId}
           groupId={groupId}
           formData={formData}
-          marketStages={activeMarketStages}
           excluded={currentInvestibleId && !isConvert ? [currentInvestibleId] : undefined}
           onChange={(id) => {
             updateFormData({ investibleId: id })

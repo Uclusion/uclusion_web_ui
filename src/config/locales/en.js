@@ -809,6 +809,7 @@ const messages = defineMessages({
   everyoneInGroupAddExplanation: 'This group already contains everyone in the workspace.',
   searchAssigned: 'Assigned to me',
   searchAssignedMobile: 'Assigned',
+  searchActive: 'Active',
 
   // Address List
   addressListHeader: 'Addressed to',

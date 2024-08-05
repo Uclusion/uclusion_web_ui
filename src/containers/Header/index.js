@@ -25,6 +25,9 @@ import config from '../../config';
 import Hamburger from '../../components/Menus/Hamburger'
 import SearchBox from '../../components/Search/SearchBox'
 import NavigationChevrons from '../../components/Menus/NavigationChevrons';
+import _ from 'lodash';
+import { OnboardingState } from '../../contexts/AccountContext/accountUserContextHelper';
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -146,12 +149,15 @@ function Header (props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [online] = useContext(OnlineStateContext);
+  const [userState] = useContext(AccountContext);
   const history = useHistory();
   const { toolbarButtons, appEnabled, navMenu, disableSearch } = props;
   const [operationRunning] = useContext(OperationInProgressContext);
   const [logoTimer, setLogoTimer] = useState(undefined);
   const [logoImage, setLogoImage] = useState(NORMAL_LOGO);
   const [pegLogo, setPegLogo] = useState(false);
+  const isDemoLoading = _.isEmpty(userState?.user) ||
+    OnboardingState.NeedsOnboarding === userState.user.onboarding_state;
 
   useEffect(() => {
     if (appEnabled) {
@@ -196,7 +202,7 @@ function Header (props) {
             {mobileLayout && !operationRunning && (
               <Hamburger navMenu={navMenu}/>
             )}
-            {(!mobileLayout || operationRunning) && (
+            {(!mobileLayout || operationRunning) && !isDemoLoading && (
               <Link href="/" onClick={(event) => {
                 preventDefaultAndProp(event);
                 history.push('/');
@@ -235,7 +241,9 @@ function Header (props) {
               </Typography>
             </Paper>
           )}
-          <SearchBox disableSearch={disableSearch}/>
+          {!isDemoLoading && (
+            <SearchBox disableSearch={disableSearch}/>
+          )}
           {!mobileLayout && (
             <div className={classes.grow}/>
           )}
@@ -252,7 +260,9 @@ function Header (props) {
                                onClick={() => openInNewTab(config.helpLink)}/>
             </Tooltip>
           )}
-          <Identity/>
+          {!isDemoLoading && (
+            <Identity/>
+          )}
         </Toolbar>
       </AppBar>
     </div>

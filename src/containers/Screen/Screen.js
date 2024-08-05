@@ -197,6 +197,8 @@ function Screen(props) {
   } = props;
   const usedBanner = banner ?? (userState?.user?.onboarding_state === OnboardingState.DemoCreated ?
     <OnboardingBanner/> : undefined);
+  const isDemoLoading = _.isEmpty(userState?.user) ||
+    OnboardingState.NeedsOnboarding === userState.user.onboarding_state;
   const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
   let pathMarketId = undefined;
   if (action === 'inbox') {
@@ -314,7 +316,7 @@ function Screen(props) {
   const inboxCount = getInboxCount(messagesState);
   const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();
   const addCollaboratorChosen = action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase();
-  const navigationMenu =
+  const navigationMenu = isDemoLoading ? {} :
     {
       headerItemTextArray: [
         {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(),

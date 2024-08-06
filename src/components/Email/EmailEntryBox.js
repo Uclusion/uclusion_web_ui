@@ -31,6 +31,7 @@ class EmailEntryBox extends React.Component{
     this.marketId = props.marketId;
     this.alreadyInList = props.alreadyInList || [];
     this.setIsValid = props.setIsValid;
+    this.placeholder = props.placeholder;
   }
    wizardStyles = {
       editBox: {

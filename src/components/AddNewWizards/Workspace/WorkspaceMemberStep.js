@@ -13,9 +13,12 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { updateMarket } from '../../../api/markets';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
 
 function WorkspaceMembersStep(props) {
   const { formData } = props;
+  const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -43,7 +46,9 @@ function WorkspaceMembersStep(props) {
       true
     ).then(market => {
       addMarketToStorage(marketsDispatch, market);
+      const { link } = formData;
       setOperationRunning(false);
+      navigate(history, link);
     });
   }
 
@@ -56,7 +61,8 @@ function WorkspaceMembersStep(props) {
         Who else needs to be in the workspace?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Single person mode simplifies the UI until a person is added or the mode is turned off in settings.
+        Single person mode removes two person features until a collaborator is added or the mode is turned off in
+        settings.
       </Typography>
       <EmailEntryBox marketId={formData.marketId} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com" />
       <div className={classes.borderBottom} />
@@ -68,6 +74,7 @@ function WorkspaceMembersStep(props) {
         isFinal={false}
         showOtherNext
         otherNextLabel="singlePersonMode"
+        isOtherFinal
         onOtherDoAdvance={false}
         onOtherNext={useSinglePersonMode}
       />

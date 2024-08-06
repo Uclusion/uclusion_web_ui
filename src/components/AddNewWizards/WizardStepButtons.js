@@ -97,10 +97,6 @@ function WizardStepButtons (props) {
         </SpinningButton>
       )}
 
-      {showLink && (
-        <WorkspaceInviteLinker marketToken={marketToken || formData.marketToken}/>
-      )}
-
       <div className={classes.actionContainer}>
         {showOtherNext && (
           <SpinningButton id="OnboardingWizardOtherNext" className={nextOtherClass} disabled={otherDisabled}
@@ -110,6 +106,10 @@ function WizardStepButtons (props) {
           </SpinningButton>
         )}
       </div>
+
+      {showLink && (
+        <WorkspaceInviteLinker marketToken={marketToken || formData.marketToken}/>
+      )}
 
       {showSkip && (
         <div className={classes.actionContainer}>

@@ -17,7 +17,7 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext'
 import _ from 'lodash'
 import ShowInVerifiedStageAge from './ShowInVerifiedStageAge'
-import { makeStyles, Typography } from '@material-ui/core'
+import { Checkbox, makeStyles, Typography } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -29,6 +29,8 @@ import { useHistory } from 'react-router'
 import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions'
 import NameField, { clearNameStoredState, getNameStoredState } from '../../../components/TextFields/NameField'
 import { StartedExpiration } from '../../../components/AgilePlan/StartedExpiration';
+import { getMarketPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -43,6 +45,7 @@ function PlanningMarketEdit() {
   const [marketStagesState, marketStagesDispatch] = useContext(MarketStagesContext);
   const [,setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const intl = useIntl();
   const classes = usePlanFormStyles();
   const myClasses = useStyles();
@@ -50,12 +53,15 @@ function PlanningMarketEdit() {
   const { location } = history;
   const { pathname } = location;
   const { marketId } = decomposeMarketPath(pathname);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId);
+  const isSingleUser = isSingleUserMarket(marketPresences, {market_sub_type: 'SINGLE_PERSON'});
   const marketStages = getStages(marketStagesState, marketId);
   const verifiedStage = marketStages.find(stage => !stage.allows_tasks) || {};
   const [showInvestiblesAge, setShowInvestiblesAge] = useState(undefined);
   const market = getMarket(marketsState, marketId) || {};
   const [investmentExpiration, setInvestmentExpiration] = useState(market.investment_expiration || 14);
   const [startedExpiration, setStartedExpiration] = useState(market.started_expiration || 3);
+  const [singlePersonMode, setSinglePersonMode] = useState(market.market_sub_type === 'SINGLE_PERSON');
   const nameId = `marketEdit${marketId}`;
 
   function clear() {
@@ -67,6 +73,7 @@ function PlanningMarketEdit() {
     setShowInvestiblesAge(undefined);
     setInvestmentExpiration(undefined);
     setStartedExpiration(undefined);
+    setSinglePersonMode(market.market_sub_type === 'SINGLE_PERSON');
   }
 
   function onShowInvestiblesAgeChange(event) {
@@ -88,7 +95,8 @@ function PlanningMarketEdit() {
     return updateMarket(
       marketId,
       name,
-      investmentExpiration ? parseInt(investmentExpiration, 10) : null
+      investmentExpiration ? parseInt(investmentExpiration, 10) : null, null,
+      isSingleUser ? singlePersonMode : null
     ).then(market => {
       addMarketToStorage(marketsDispatch, market);
       if (showInvestiblesAge) {
@@ -137,6 +145,14 @@ function PlanningMarketEdit() {
               onChange={(event) => setStartedExpiration(event.target.value)}
               value={startedExpiration}
             />
+          </Grid>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer} style={{paddingTop: '1rem'}}>
+            <Checkbox
+              checked={singlePersonMode}
+              disabled={!isSingleUser}
+              onClick={() => setSinglePersonMode(!singlePersonMode)}
+            />
+            Use single person mode (only applies to workspaces with one person).
           </Grid>
         </Grid>
       </CardContent>

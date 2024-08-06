@@ -63,7 +63,7 @@ function SubscriptionStatus (props) {
     billing_subscription_status: subStatus,
     invoice_payment_failed: invoicePaymentFailed,
   } = account;
-  const { subscription, payment_methods: paymentMethods } = subscriptionInfo;
+  const { subscription, payment_methods: paymentMethods } = subscriptionInfo || {};
   const classes = styleClasses();
   // some helpful constants
   const trialEndRaw = subscription?.trial_end;

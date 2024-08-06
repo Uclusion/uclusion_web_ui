@@ -29,7 +29,7 @@ function PaymentInfo (props) {
   const intl = useIntl();
   const theme = useTheme();
   const classes = useStyles(theme);
-  const { payment_methods: paymentMethods } = subscriptionInfo;
+  const { payment_methods: paymentMethods } = subscriptionInfo || {};
   const addButtonLabel = _.isEmpty(paymentMethods) ? 'paymentInfoButtonAdd' : 'paymentInfoButtonUpdate';
 
   return (
@@ -50,7 +50,8 @@ function PaymentInfo (props) {
         )}
         {addCardVisible && (
           <CardInputForm onSubmit={() => setAddCardVisible(false)}
-                         onUpdate={() => setSubscriptionInfo(undefined)}
+                         onUpdate={(paymentMethod) => setSubscriptionInfo({...subscriptionInfo,
+                           payment_methods:[paymentMethod.card]})}
                          onCancel={() => setAddCardVisible(false)}/>
         )}
 

@@ -26,14 +26,14 @@ const useStyles = makeStyles((theme) => {
 
 });
 
-function BillingHome (props) {
-  const { hidden } = props;
+function BillingPage(props) {
+  const { hidden, subscriptionInfo, setSubscriptionInfo } = props;
   const intl = useIntl();
   const theme = useTheme();
   const classes = useStyles(theme);
-  const [subscriptionInfo, setSubscriptionInfo] = useState(false);
   const title = intl.formatMessage({ id: 'BillingHomeTitle' });
-  const page = <Screen
+  return(
+  <Screen
     hidden={hidden}
     title={title}
     tabTitle={title}
@@ -52,18 +52,27 @@ function BillingHome (props) {
         <Invoices />
       </div>
     </div>
-  </Screen>;
+  </Screen>
+  );
+}
+
+function BillingHome (props) {
+  const { hidden } = props;
+  const intl = useIntl();
+  const [subscriptionInfo, setSubscriptionInfo] = useState(false);
 
   function LoadSubscriptionInfo() {
-    suspend(async () => {
+    const mySubscriptionInfo = suspend(async () => {
       const subscriptionInfo = await getSubscriptionInfo();
       setSubscriptionInfo(subscriptionInfo);
     }, [])
-    return page;
+    return <BillingPage subscriptionInfo={mySubscriptionInfo} setSubscriptionInfo={setSubscriptionInfo}
+                        hidden={hidden} />;
   }
 
   if (subscriptionInfo || hidden) {
-    return page;
+    return <BillingPage subscriptionInfo={subscriptionInfo} setSubscriptionInfo={setSubscriptionInfo}
+                        hidden={hidden} />;
   }
 
   return (

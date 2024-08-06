@@ -690,6 +690,7 @@ const messages = defineMessages({
   QUESTIONNoConfig: 'Allow approve only one option',
   SUGGESTYesConfig: 'Everyone sees results',
   SUGGESTNoConfig: 'Only you see results',
+  singlePersonMode: 'Single person mode',
 
   // Decision Dialog
   decisionDialogCurrentVotingLabel: 'Approvable Options',

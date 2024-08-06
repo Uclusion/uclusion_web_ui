@@ -43,7 +43,8 @@ export function updateGroup(props) {
     .catch((error) => toastErrorAndThrow(error, 'errorGroupUpdateFailed'))
 }
 
-export function updateMarket(marketId, name = null, investmentExpiration = null, allowMultiVote = null) {
+export function updateMarket(marketId, name = null, investmentExpiration = null, allowMultiVote = null,
+  isSinglePersonMode = null) {
   const updateOptions = {}
   if (name != null) {
     updateOptions.name = name
@@ -53,6 +54,9 @@ export function updateMarket(marketId, name = null, investmentExpiration = null,
   }
   if (allowMultiVote !== null) {
     updateOptions.allow_multi_vote = allowMultiVote
+  }
+  if (isSinglePersonMode !== null) {
+    updateOptions.is_single_person = isSinglePersonMode;
   }
   return getMarketClient(marketId)
     .then((client) => client.markets.updateMarket(updateOptions))

@@ -59,6 +59,8 @@ import DragImage from '../../../components/Dialogs/DragImage';
 import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime';
 import { isInPast } from '../../../utils/timerUtils';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -110,8 +112,9 @@ function PlanningIdeas(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const [marketsState] = useContext(MarketsContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
-  const isSingleUser = isSingleUserMarket(marketPresences);
+  const isSingleUser = isSingleUserMarket(marketPresences, getMarket(marketsState, marketId));
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
 
@@ -595,13 +598,14 @@ function StageInvestible(props) {
   const history = useHistory();
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [messagesState] = useContext(NotificationsContext)
+  const [messagesState] = useContext(NotificationsContext);
+  const [marketsState] = useContext(MarketsContext);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
   const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId, !isVoting);
   const collaboratorsForInvestible = getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible,
     marketPresences, marketPresencesState, isVoting);
-  const isSingleUser = isSingleUserMarket(marketPresences);
+  const isSingleUser = isSingleUserMarket(marketPresences, getMarket(marketsState, marketId));
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
   const isReviewable = isReview || showCompletion;
   let chip = mobileLayout ? undefined :

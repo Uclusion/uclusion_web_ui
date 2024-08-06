@@ -351,7 +351,7 @@ export function getOutboxMessages(props) {
   workspacesData.forEach((workspaceData) => {
     const { market, comments, inVotingInvestibles, questions, issues, suggestions, bugs } = workspaceData;
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
-    if (!isSingleUserMarket(marketPresences)) {
+    if (!isSingleUserMarket(marketPresences, market)) {
       inVotingInvestibles.forEach((investible) => {
         const investibleId = investible.investible.id;
         const notAccepted = investible.notAccepted;

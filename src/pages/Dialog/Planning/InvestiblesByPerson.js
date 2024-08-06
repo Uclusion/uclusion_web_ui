@@ -24,6 +24,8 @@ import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesCont
 import AddIcon from '@material-ui/icons/Add';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -136,10 +138,11 @@ function InvestiblesByPerson(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [searchResults] = useContext(SearchResultsContext);
+  const [marketsState] = useContext(MarketsContext);
   const { search } = searchResults;
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getPresencesForGroup(presences, groupPresencesState, marketId, groupId) || [];
-  const isSingleUser = isSingleUserMarket(presences);
+  const isSingleUser = isSingleUserMarket(presences, getMarket(marketsState, marketId));
   const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;

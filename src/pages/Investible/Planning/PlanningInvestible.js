@@ -387,7 +387,7 @@ function PlanningInvestible(props) {
   const yourVote = yourPresence?.investments?.find((investment) =>
     investment.investible_id === investibleId && !investment.deleted);
   const displayVotingInput = canVote && _.isEmpty(search) && !yourVote;
-  const isSingleUser = isSingleUserMarket(marketPresences);
+  const isSingleUser = isSingleUserMarket(marketPresences, market);
 
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {

@@ -296,7 +296,8 @@ function CommentAdd(props) {
   const info = getMarketInfo(inv, marketId);
   const { assigned, stage: currentStageId } = info || {};
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
-  const isSingleUser = isSingleUserMarket(presences);
+  const ourMarket = getMarket(marketsState, marketId) || {};
+  const isSingleUser = isSingleUserMarket(presences, ourMarket);
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
   const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId);
@@ -308,7 +309,6 @@ function CommentAdd(props) {
     && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id;
   const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
-  const ourMarket = getMarket(marketsState, marketId) || {};
 
   useEffect(() => {
     // If didn't focus to begin with then focus when type is changed

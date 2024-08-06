@@ -75,7 +75,7 @@ function JobDescriptionStatusStep(props) {
   const millisBeforeMove = startedExpiration*86400000 - millisStalled;
   const alreadyMoved = linkType === 'INVESTIBLE_STAGE';
   const { useCompression } = formData;
-  const isSingleUser = isSingleUserMarket(marketPresences);
+  const isSingleUser = isSingleUserMarket(marketPresences, market);
 
   function myTerminate() {
     if (isHighlighted || alreadyMoved) {

@@ -481,10 +481,10 @@ function Comment(props) {
   const inlinePresences = usePresences(inlineMarketId);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
-  const isSingleUser = isSingleUserMarket(presences);
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const inlineMarket = getMarket(marketsState, inlineMarketId) || {};
   const market = getMarket(marketsState, marketId) || {};
+  const isSingleUser = isSingleUserMarket(presences, market);
   const { market_stage: marketStage, market_type: marketType } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const myPresence = presences.find((presence) => presence.current_user) || {};

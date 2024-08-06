@@ -36,6 +36,8 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function JobWizard(props) {
   const { marketId, groupId, jobType } = props;
@@ -53,9 +55,10 @@ function JobWizard(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState, investibleDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [marketsState] = useContext(MarketsContext);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const myPresence = presences.find((presence) => presence.current_user);
-  const isSingleUser = isSingleUserMarket(presences);
+  const isSingleUser = isSingleUserMarket(presences, getMarket(marketsState, marketId));
   const comments = marketId ? getMarketComments(commentsState, marketId, groupId) : [];
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     comments.find((comment) => comment.id === fromCommentId));

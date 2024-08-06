@@ -78,9 +78,9 @@ export function usePresences(marketId) {
   return getMarketPresences(presencesState, marketId) || [];
 }
 
-export function isSingleUserMarket(presences) {
+export function isSingleUserMarket(presences, market) {
   const presencesFiltered = presences?.filter((presence) => !presence.market_banned);
-  return presencesFiltered?.length === 1;
+  return presencesFiltered?.length === 1 && market?.market_sub_type === 'SINGLE_PERSON';
 }
 
 export function getMarketPresence(state, marketId, userId) {

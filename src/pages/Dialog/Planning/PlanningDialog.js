@@ -250,7 +250,7 @@ function PlanningDialog(props) {
 
   function onDropJob(id, isAssigned) {
     if (isAssigned) {
-      if (isSingleUserMarket(marketPresences)) {
+      if (isSingleUserMarket(marketPresences, market)) {
         const presence = marketPresences.find((presence) => !presence.market_banned);
         const inv = getInvestible(investibleState, id);
         const marketInfo = getMarketInfo(inv, marketId) || {};

@@ -10,15 +10,19 @@ import { addMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { inviteParticipants } from '../../../api/users'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { updateMarket } from '../../../api/markets';
+import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function WorkspaceMembersStep(props) {
   const { formData } = props;
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [, marketsDispatch] = useContext(MarketsContext);
+  const { marketId: addToMarketId } = formData;
 
   const myOnFinish = () => {
-    const { marketId: addToMarketId } = formData;
     const emails = getEmailList(addToMarketId);
     if (!_.isEmpty(emails)) {
       return inviteParticipants(addToMarketId, emails).then((result) => {
@@ -30,6 +34,19 @@ function WorkspaceMembersStep(props) {
     setOperationRunning(false);
   }
 
+  function useSinglePersonMode() {
+    return updateMarket(
+      addToMarketId,
+      null,
+      null,
+      null,
+      true
+    ).then(market => {
+      addMarketToStorage(marketsDispatch, market);
+      setOperationRunning(false);
+    });
+  }
+
   return (
     <WizardStepContainer
       {...props}
@@ -38,9 +55,22 @@ function WorkspaceMembersStep(props) {
       <Typography className={classes.introText} variant="h6">
         Who else needs to be in the workspace?
       </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Single person mode simplifies the UI until a person is added or the mode is turned off in settings.
+      </Typography>
       <EmailEntryBox marketId={formData.marketId} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com" />
       <div className={classes.borderBottom} />
-      <WizardStepButtons {...props} showSkip={false} showLink={true} onNext={myOnFinish} isFinal={false} />
+      <WizardStepButtons
+        {...props}
+        showSkip={false}
+        showLink={true}
+        onNext={myOnFinish}
+        isFinal={false}
+        showOtherNext
+        otherNextLabel="singlePersonMode"
+        onOtherDoAdvance={false}
+        onOtherNext={useSinglePersonMode}
+      />
     </div>
     </WizardStepContainer>
   );

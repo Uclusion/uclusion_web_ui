@@ -53,7 +53,7 @@ function OnboardingBanner() {
         <div className={classes.bannerBox}>
           <div className={classes.bannerBoxStuff}>
             <Typography>
-              <b>Welcome to support!</b> Clicking this message put you in the support workspace.
+              <b>Welcome to support!</b> Going to this message put you in the support workspace.
             </Typography>
           </div>
         </div>

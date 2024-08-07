@@ -323,6 +323,8 @@ function PlanningDialog(props) {
   const groupIsEveryone = isEveryoneGroup(groupId, marketId);
   const tabName = groupIsEveryone ? market?.name : groupName;
   const tabTitle = `${tabName} ${intl.formatMessage({id: 'tabGroupAppend'})}`;
+  const swimlaneEmptyPreText = _.isEmpty(blockedOrRequiresInputInvestibles) ? 'There are no assigned jobs.' :
+  'All assigned jobs require assistance.';
   return (
     <Screen
       title={groupName}
@@ -455,25 +457,23 @@ function PlanningDialog(props) {
               pageState={pageState} updatePageState={updatePageState}
             />
             <DismissableText textId="notificationHelp"
-                             display={_.isEmpty(blockedOrRequiresInputInvestibles)&&_.isEmpty(swimlaneInvestibles)}
+                             display={_.isEmpty(swimlaneInvestibles)}
                              text={
                               groupIsEveryone ? (market?.market_sub_type === 'SUPPORT' ?
                                    <div>
-                                     There are no assigned jobs. Use the "Add job" button above and support will be
-                                     notified.
+                                     {swimlaneEmptyPreText} Use the "Add job" button above to assign a new job to
+                                     support.
                                    </div>
                                    :
                                    <div>
-                                     There are no assigned jobs. Use the "Add job" button above
-                                     and <Link href="https://documentation.uclusion.com/groups/#everyone"
-                                               target="_blank">everyone</Link> will
-                                     be notified.
+                                     {swimlaneEmptyPreText} The "Add job" button above creates a job and
+                                     notifies <Link href="https://documentation.uclusion.com/groups/#everyone"
+                                               target="_blank">everyone</Link>.
                                    </div>) :
                                  <div>
-                                   There are no assigned jobs. Use the "Add job" button above
-                                   and <Link href="https://documentation.uclusion.com/notifications"
-                                             target="_blank">notifications</Link> are
-                                   sent to this group backed by instructional wizards.
+                                   {swimlaneEmptyPreText} The "Add job" button above creates a job
+                                   and sends <Link href="https://documentation.uclusion.com/notifications"
+                                             target="_blank">notifications</Link> to this group.
                                  </div>
                              }/>
           </div>

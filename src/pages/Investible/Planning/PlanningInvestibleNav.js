@@ -182,7 +182,7 @@ export default function PlanningInvestibleNav(props) {
           {name}
         </div>
       )}
-      <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} />
+      <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} flushLeft />
       {isInAccepted && (
         <DaysEstimate marketId={marketId} onChange={handleDateChange} value={marketDaysEstimate}
                       isAssigned={isAssigned} />

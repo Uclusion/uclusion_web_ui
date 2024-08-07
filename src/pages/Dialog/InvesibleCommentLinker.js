@@ -41,7 +41,8 @@ function InvesibleCommentLinker(props) {
     hidden,
     investibleId,
     commentId,
-    marketId
+    marketId,
+    flushLeft
   } = props;
   const classes = useStyles();
   const [investiblesState] = useContext(InvestiblesContext);
@@ -73,7 +74,8 @@ function InvesibleCommentLinker(props) {
       }
                placement="top">
         <Button
-          style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap'}} disableRipple={true}
+          style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap',
+            paddingLeft: flushLeft ? 0 : undefined}} disableRipple={true}
                 onClick={() => {
                   navigator.clipboard.writeText(link);
                   setCopiedToClipboard(true);

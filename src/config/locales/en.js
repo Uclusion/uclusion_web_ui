@@ -349,7 +349,7 @@ const messages = defineMessages({
   rowExpandComment: 'Click this comment to expand.',
   notificationSummary: 'Summary',
   viewInGroup: 'Group views',
-  viewInGroupTip: 'The primary views for displaying and creating data.',
+  viewInGroupTip: 'Displays job status, backlog, bugs, and discussion for each group.',
   inactiveGroups: 'Inactive groups',
 
   // Address list

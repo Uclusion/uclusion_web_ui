@@ -26,7 +26,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, roots, formData, jobType, startOver, nextStep,
-    moveFromComments, isSingleUser } = props;
+    moveFromComments, isSingleUser, myPresenceId } = props;
   const history = useHistory();
   const intl = useIntl();
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -99,6 +99,7 @@ function JobDescriptionStep (props) {
     }
     if (isSingleUser) {
       addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
+      addInfo.assignments = [myPresenceId];
     }
     return addPlanningInvestible(addInfo)
       .then((inv) => {
@@ -114,6 +115,9 @@ function JobDescriptionStep (props) {
         });
         if (moveFromComments) {
           return moveFromComments(inv, formData, updateFormData);
+        }
+        if (isSingleUser) {
+          return onFinish({ link });
         }
         return {link};
       })
@@ -137,7 +141,7 @@ function JobDescriptionStep (props) {
   function doIncrement(resolved) {
     if (resolved?.isMissingName) {
       nextStep();
-    } else if (currentValue === 'IMMEDIATE') {
+    } else if (currentValue === 'IMMEDIATE' && !isSingleUser) {
       nextStep(2);
     }
   }
@@ -212,7 +216,7 @@ function JobDescriptionStep (props) {
         nextLabel="jobCreate"
         onNext={onNext}
         onIncrement={doIncrement}
-        isFinal={currentValue !== 'IMMEDIATE'}
+        isFinal={currentValue !== 'IMMEDIATE' || isSingleUser}
         showTerminate={hasFromComments}
         onTerminate={onTerminate}
         terminateLabel='JobWizardStartOver'

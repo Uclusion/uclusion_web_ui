@@ -17,7 +17,6 @@ import { useIntl } from 'react-intl';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import {
-  getAcceptedStage,
   getFullStage,
   getFurtherWorkStage,
   getInCurrentVotingStage,
@@ -28,8 +27,7 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function JobAssignStep (props) {
-  const { marketId, updateFormData, formData, onFinish, assigneeId, groupId, moveFromComments, roots,
-    isSingleUser } = props;
+  const { marketId, updateFormData, formData, onFinish, assigneeId, groupId, moveFromComments, roots } = props;
   const history = useHistory();
   const value = formData.wasSet ? (formData.assigned || []) : (assigneeId ? [assigneeId] : []);
   const validForm = !_.isEmpty(value);
@@ -62,9 +60,6 @@ function JobAssignStep (props) {
       marketId,
       assignments: value
     }
-    if (isSingleUser) {
-      addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
-    }
     return addPlanningInvestible(addInfo)
       .then((inv) => {
         refreshInvestibles(investiblesDispatch, () => {}, [inv]);
@@ -86,8 +81,8 @@ function JobAssignStep (props) {
       const isBacklogAlready = isFurtherWorkStage(fullCurrentStage);
       if ((_.isEmpty(value) && !isBacklogAlready) || (!_.isEmpty(value) && isBacklogAlready)) {
         // if assignments changing from none to some or vice versa need to use stageChangeInvestible instead
-        const fullMoveStage = isBacklogAlready ? (isSingleUser ? getAcceptedStage(marketStagesState, marketId) :
-            getInCurrentVotingStage(marketStagesState, marketId)): getFurtherWorkStage(marketStagesState, marketId);
+        const fullMoveStage = isBacklogAlready ? getInCurrentVotingStage(marketStagesState, marketId) :
+          getFurtherWorkStage(marketStagesState, marketId);
         const moveInfo = {
           marketId,
           investibleId,
@@ -108,7 +103,7 @@ function JobAssignStep (props) {
         const updateInfo = {
           marketId,
           investibleId,
-          assignments: value
+          assignments: value,
         };
         return updateInvestible(updateInfo).then((fullInvestible) => {
           refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
@@ -143,11 +138,11 @@ function JobAssignStep (props) {
           finish={onFinish}
           validForm={validForm}
           showNext
-          onNextSkipStep={!isSingleUser}
+          onNextSkipStep
           showTerminate
           onNext={investibleId ? assignJob : createJob}
-          isFinal={isSingleUser}
-          showOtherNext={!isSingleUser}
+          isFinal={false}
+          showOtherNext
           otherNextLabel="addApproversLabel"
           onTerminate={() => navigate(history, formData.link)}
           terminateLabel="JobWizardGotoJob"

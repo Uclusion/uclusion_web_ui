@@ -13,7 +13,7 @@ import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketSt
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function JobNameStep(props) {
-  const { marketId, groupId, updateFormData, onFinish, formData, moveFromComments, isSingleUser } = props;
+  const { marketId, groupId, updateFormData, onFinish, formData, moveFromComments, isSingleUser, myPresenceId } = props;
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const classes = useContext(WizardStylesContext);
@@ -34,7 +34,8 @@ function JobNameStep(props) {
       addInfo.openForInvestment = true;
     }
     if (isSingleUser) {
-      addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
+      addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id
+      addInfo.assignments = [myPresenceId];
     }
     return addPlanningInvestible(addInfo)
       .then((inv) => {

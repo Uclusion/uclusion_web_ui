@@ -933,11 +933,11 @@ const messages = defineMessages({
 
   //upgradeMenu
   billingMenuItem: 'Billing plan',
-  billingFreeTier: 'You are currently on the Free plan.',
-  billingStandardTier: 'You are currently on the Team plan.',
+  billingFreeTier: 'You are currently on a free plan.',
+  billingStandardTier: 'You are currently on a paid plan.',
   billingSubCanceled: 'Your subscription was canceled.',
   billingSubUnsubscribed: 'You have not subscribed to any plan.',
-  billingSubTrial: 'Your free trial ends on {date}.',
+  billingSubTrial: 'Your free trial ends on {date}. Afterwards the charge is {price} monthly.',
   billingSubActive: 'Your subscription is active and charges {price} monthly.',
   billingNeedCard: 'Please add a card or use a promo code.',
   billingSubFree: 'If you add a second user free ends, but a free trial period will begin.',

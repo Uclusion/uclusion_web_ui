@@ -87,13 +87,14 @@ function SubscriptionStatus (props) {
   function getSubscriptionMessage () {
     switch (subStatus) {
       case SUBSCRIPTION_STATUS_ACTIVE:
-        if (isTrial) {
-          return intl.formatMessage({ id: 'billingSubTrial' }, { date: intl.formatDate(trialEnd) });
-        }
         const subscriptionItems = subscription?.items?.data;
         const subscriptionItem = subscriptionItems?.length > 0 ? subscriptionItems[0] : {};
         const subscriptionPrice = subscriptionItem?.price || {};
         const price = subscriptionPrice.unit_amount ? `$${subscriptionPrice.unit_amount/100}` : '?';
+        if (isTrial) {
+          return intl.formatMessage({ id: 'billingSubTrial' },
+            { date: intl.formatDate(trialEnd), price });
+        }
         return intl.formatMessage({ id: 'billingSubActive' }, { price });
       case SUBSCRIPTION_STATUS_CANCELED:
         return intl.formatMessage({ id: 'billingSubCanceled' });

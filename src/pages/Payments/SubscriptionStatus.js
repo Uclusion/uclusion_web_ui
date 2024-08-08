@@ -69,7 +69,7 @@ function SubscriptionStatus (props) {
   const trialEndRaw = subscription?.trial_end;
   const trialEnd = trialEndRaw ? trialEndRaw*1000 : undefined;
   const onFree = subStatus === SUBSCRIPTION_STATUS_FREE;
-  const isTrial = trialEnd && new Date(trialEnd) > Date.now();
+  const isTrial = subscription?.status === 'trialing';
   const cancellable = subStatus === SUBSCRIPTION_STATUS_ACTIVE && !isTrial;
   const needsPayment = _.isEmpty(getUnusedFullPromotions(accountState)) && !onFree && !isTrial &&
     (_.isEmpty(paymentMethods) || invoicePaymentFailed);
@@ -85,24 +85,22 @@ function SubscriptionStatus (props) {
   }
 
   function getSubscriptionMessage () {
-    switch (subStatus) {
-      case SUBSCRIPTION_STATUS_ACTIVE:
+      if (isTrial || subStatus === SUBSCRIPTION_STATUS_ACTIVE) {
         const subscriptionItems = subscription?.items?.data;
         const subscriptionItem = subscriptionItems?.length > 0 ? subscriptionItems[0] : {};
         const subscriptionPrice = subscriptionItem?.price || {};
-        const price = subscriptionPrice.unit_amount ? `$${subscriptionPrice.unit_amount/100}` : '?';
+        const price = subscriptionPrice.unit_amount >= 0 ? `$${subscriptionPrice.unit_amount / 100}` : '?';
         if (isTrial) {
           return intl.formatMessage({ id: 'billingSubTrial' },
             { date: intl.formatDate(trialEnd), price });
         }
         return intl.formatMessage({ id: 'billingSubActive' }, { price });
-      case SUBSCRIPTION_STATUS_CANCELED:
+      }
+      if (subStatus === SUBSCRIPTION_STATUS_CANCELED)
         return intl.formatMessage({ id: 'billingSubCanceled' });
-      case SUBSCRIPTION_STATUS_UNSUBSCRIBED:
+      if (subStatus === SUBSCRIPTION_STATUS_UNSUBSCRIBED)
         return intl.formatMessage({ id: 'billingSubUnsubscribed' });
-      default:
-        return intl.formatMessage({ id: 'billingSubFree' });
-    }
+      return intl.formatMessage({ id: 'billingSubFree' });
   }
 
   return (
@@ -117,11 +115,9 @@ function SubscriptionStatus (props) {
         <Typography>
           {tierMessage}
         </Typography>
-        {!onFree && (
-          <Typography style={{marginBottom: '1rem'}}>
-            <strong>{subMessage}</strong>
-          </Typography>
-        )}
+        <Typography style={{marginBottom: '1rem'}}>
+          <strong>{subMessage}</strong>
+        </Typography>
         {needsPayment && (
           <Typography className={classes.noPayment} style={{marginBottom: '1rem'}}>
             {intl.formatMessage({ id: 'billingNeedCard' })}

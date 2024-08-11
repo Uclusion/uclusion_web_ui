@@ -43,6 +43,7 @@ import PlanningMarketLoad from '../../pages/Dialog/Planning/PlanningMarketLoad';
 import DemoMarketLoad from '../../pages/Dialog/Planning/DemoMarketLoad';
 import { getFirstWorkspace } from '../../utils/redirectUtils';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 
 const useStyles = makeStyles({
   body: {
@@ -215,7 +216,7 @@ function Root() {
       const loadedMarket = getMarket(marketsState, decoded.market_id);
       if (!_.isEmpty(loadedMarket)) {
         // Try to remove the market token from the URL to avoid book marking it or other weirdness
-        window.history.replaceState(null, '', formMarketLink(loadedMarket.id, loadedMarket.id));
+        window.history.replaceState(null, '', `${getInboxTarget()}/UNREAD_GROUP_${loadedMarket.id}`);
       }
     }
     return () => {}

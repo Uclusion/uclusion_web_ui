@@ -110,6 +110,12 @@ function doUpdateMessages (state, action) {
   const { messages: existingMessages } = state;
   if (!_.isEmpty(existingMessages)) {
     const deletedMessages = existingMessages.filter((message) => message.deleted);
+    // Keep around the quick added welcome group message till overwritten by real one
+    const preservedMessages = existingMessages.filter((message) => message.is_quick_add &&
+      _.isEmpty(messages.find((aMessage) => aMessage.type_object_id === message.type_object_id)));
+    if (!_.isEmpty(preservedMessages)) {
+      messages.concat(preservedMessages);
+    }
     if (!_.isEmpty(deletedMessages)) {
       messages.forEach((message) => {
         if (!_.isEmpty(deletedMessages.find((deletedMessage) => deletedMessage.type_object_id === message.type_object_id

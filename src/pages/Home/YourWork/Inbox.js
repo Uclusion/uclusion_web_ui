@@ -37,6 +37,7 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import Link from '@material-ui/core/Link';
+import PropTypes from 'prop-types';
 
 function createWorkspaceGroupHeader(market, group, history) {
   const link = formMarketLink(market.id, group.id);
@@ -72,11 +73,13 @@ function Inbox(props) {
   const unreadCount = _.isEmpty(search) ? getInboxCount(messagesState) : 0;
   const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex, workItemId);
   useEffect(() => {
-    // If the last item on a page is deleted then must go down
-    if ((page - 1)*PAGE_SIZE + 1 > _.size(unpaginatedItems)) {
-      if (page > 1) {
-        const lastAvailablePage = Math.ceil(_.size(unpaginatedItems)/PAGE_SIZE);
-        inboxDispatch(setPage(lastAvailablePage > 0 ? lastAvailablePage : 1));
+    if (page) {
+      // If the last item on a page is deleted then must go down
+      if ((page - 1)*PAGE_SIZE + 1 > _.size(unpaginatedItems)) {
+        if (page > 1) {
+          const lastAvailablePage = Math.ceil(_.size(unpaginatedItems)/PAGE_SIZE);
+          inboxDispatch(setPage(lastAvailablePage > 0 ? lastAvailablePage : 1));
+        }
       }
     }
   }, [unpaginatedItems, page, inboxDispatch]);
@@ -231,7 +234,7 @@ function Inbox(props) {
           )}
           <div style={{flexGrow: 1}}/>
           <Box fontSize={14} color="text.secondary">
-            {isOnWorkItem && (
+            {isOnWorkItem && current && (
               `${current} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
             )}
             {!isOnWorkItem && (
@@ -291,5 +294,19 @@ function Inbox(props) {
     </>
   );
 }
+
+Inbox.propTypes = {
+  inboxState: PropTypes.object,
+  inboxDispatch: PropTypes.func,
+  messagesHash: PropTypes.object,
+  searchResults: PropTypes.object
+}
+
+Inbox.defaultProps = {
+  inboxState: {},
+  inboxDispatch: () => {},
+  messagesHash: {},
+  searchResults: {}
+};
 
 export default Inbox;

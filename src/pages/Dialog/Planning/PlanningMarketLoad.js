@@ -6,7 +6,6 @@ import { useHistory } from 'react-router';
 import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions';
 import { suspend } from 'suspend-react';
 import { getMarketFromInvite } from '../../../api/marketLogin';
-import Market from '../Dialog';
 import { updateMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
@@ -26,6 +25,7 @@ import {
 } from '../../../contexts/MarketsContext/marketsContextMessages';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { accountUserJoinedMarket } from '../../../contexts/AccountContext/accountContextReducer';
+import Inbox from '../../Home/YourWork/Inbox';
 
 function PlanningMarketLoad() {
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -42,7 +42,7 @@ function PlanningMarketLoad() {
   const { marketId: marketToken } = decomposeMarketPath(pathname);
 
   function LoadMarket({ marketToken }) {
-    const loadedMarketId = suspend(async () => {
+    const loadedProperties = suspend(async () => {
       const result = await getMarketFromInvite(marketToken);
       console.log('Quick adding market after invite load');
       // The user below is not home user so just fabricate the onboarding state if necessary
@@ -50,6 +50,7 @@ function PlanningMarketLoad() {
       const { market, user, stages, uclusion_token: token, investible, notifications } = result;
       const { id } = market;
       if (notifications) {
+        // Should at least have the welcome notification
         messagesDispatch(updateMessages(notifications));
       }
       addPresenceToMarket(marketPresencesDispatch, id, user);
@@ -62,10 +63,20 @@ function PlanningMarketLoad() {
       // Now try load the rest - comments etc. ahead of waiting for web socket push
       pushMessage(LOAD_MARKET_CHANNEL, { event: INVITE_MARKET_EVENT, marketId: id });
       addMarketToStorage(marketsDispatch, market);
-      return id;
-    }, [marketToken])
+      return {id, notifications};
+    }, [marketToken]);
+    const { id, notifications } = loadedProperties;
     return (
-      <Market hidden={false} loadedMarketId={loadedMarketId}/>
+      <Screen
+        title={intl.formatMessage({id: 'inbox'})}
+        tabTitle={intl.formatMessage({id: 'inbox'})}
+        hidden={false}
+        isInbox
+        disableSearch
+      >
+        <Inbox hidden={false} messagesFull={notifications} loadedMarketId={id} workItemId={`UNREAD_GROUP_${id}`}
+               messagesHash={{inboxMessagesOrdered: notifications}}/>
+      </Screen>
     )
   }
 

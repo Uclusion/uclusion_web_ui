@@ -20,10 +20,6 @@ import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
 import queryString from 'query-string'
 import { clearRedirect, getAndClearEmail, getRedirect } from '../../utils/redirectUtils';
-import {
-  loadMarketFromPromise
-} from '../../contexts/MarketsContext/marketsContextMessages';
-import { getMarketFromInvite } from '../../api/marketLogin';
 import { clearSignedOut } from '../../utils/userFunctions';
 import { poll } from '../../contexts/AccountContext/accountContextMessages';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
@@ -76,14 +72,8 @@ function AppWithAuth() {
         const redirect = getRedirect();
         clearRedirect();
         if (!_.isEmpty(redirect) && redirect !== '/') {
-          const urlParts = new URL(`${window.location.protocol}//${window.location.host}${redirect}`);
-          const { marketId: marketToken, action } = decomposeMarketPath(urlParts.pathname);
-          if (action === 'invite') {
-            loadMarketFromPromise(getMarketFromInvite(marketToken));
-          } else {
-            console.log(`Redirecting on sign in to ${redirect}`);
-            window.location.replace(redirect);
-          }
+          console.log(`Redirecting on sign in to ${redirect}`);
+          window.location.replace(redirect);
         }
         break;
       default:

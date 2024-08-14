@@ -58,6 +58,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#efefef',
     textTransform: 'Capitalize',
     borderRadius: '8px',
+    minWidth: '82px',
     '& .MuiButton-label': {
       lineHeight: '.7'
     },

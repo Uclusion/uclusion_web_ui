@@ -44,6 +44,8 @@ import DemoMarketLoad from '../../pages/Dialog/Planning/DemoMarketLoad';
 import { getFirstWorkspace } from '../../utils/redirectUtils';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
+import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 
 const useStyles = makeStyles({
   body: {
@@ -80,6 +82,7 @@ function Root() {
   const [ticketState] = useContext(TicketIndexContext);
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const { marketDetails } = marketsState;
   const supportMarket = marketDetails?.find((market) => market.market_sub_type === 'SUPPORT') || {};
   const marketLink = supportMarket.id ? formMarketLink(supportMarket.id, supportMarket.id) : undefined;
@@ -94,8 +97,11 @@ function Root() {
     markets = _.sortBy(filtered, (market) => market.market_sub_type === SUPPORT_SUB_TYPE, 'name');
   }
   const defaultMarket = getFirstWorkspace(markets, marketId);
-  const defaultMarketLink = defaultMarket?.id ? formMarketLink(defaultMarket.id, defaultMarket.id) :
-    undefined;
+  const workspaceMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${defaultMarket?.id}`,
+    messagesState);
+  const workspaceMessagePath = `${getInboxTarget()}/UNREAD_GROUP_${defaultMarket?.id}`;
+  const defaultMarketLink = defaultMarket?.id ? (workspaceMessage ? workspaceMessagePath :
+    formMarketLink(defaultMarket.id, defaultMarket.id)) : undefined;
   const isDemoUser = [OnboardingState.DemoCreated, OnboardingState.NeedsOnboarding]
     .includes(userState?.user?.onboarding_state);
   const demoCreatedUser = userState?.user?.onboarding_state === OnboardingState.DemoCreated;
@@ -199,7 +205,7 @@ function Root() {
       if (demoCreatedUser) {
         if (!_.isEmpty(demo)) {
           // Should be loading market already so just need url correct
-          window.history.replaceState(null, '', formMarketLink(demo.id, demo.id));
+          window.history.replaceState(null, '', defaultMarketLink);
         }
       } else if (firstMarketJoinedUser) {
         if (!_.isEmpty(defaultMarketLink)) {
@@ -308,7 +314,8 @@ function Root() {
               <PlanningMarketLoad />
             )}
             {!hideDemoLoad() && (
-              <DemoMarketLoad onboardingState={userState?.user?.onboarding_state} demo={demo} />
+              <DemoMarketLoad onboardingState={userState?.user?.onboarding_state} demo={demo}
+                              demoMessage={workspaceMessage} />
             )}
             {!hideGroupSettings() && (
               <GroupEdit />

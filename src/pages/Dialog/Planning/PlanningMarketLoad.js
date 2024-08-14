@@ -26,6 +26,7 @@ import {
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { accountUserJoinedMarket } from '../../../contexts/AccountContext/accountContextReducer';
 import Inbox from '../../Home/YourWork/Inbox';
+import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function PlanningMarketLoad() {
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -52,6 +53,9 @@ function PlanningMarketLoad() {
       if (notifications) {
         // Should at least have the welcome notification
         messagesDispatch(updateMessages(notifications));
+        const workspaceMessage = notifications.find((message) =>
+          message.type_object_id === `UNREAD_GROUP_${id}`);
+        dehighlightMessage(workspaceMessage, messagesDispatch);
       }
       addPresenceToMarket(marketPresencesDispatch, id, user);
       stagesDispatch(updateMarketStagesFromNetwork({[id]: stages }));
@@ -73,6 +77,7 @@ function PlanningMarketLoad() {
         hidden={false}
         isInbox
         disableSearch
+        groupLoadId={id}
       >
         <Inbox hidden={false} messagesFull={notifications} loadedMarketId={id} workItemId={`UNREAD_GROUP_${id}`}
                messagesHash={{inboxMessagesOrdered: notifications}}/>

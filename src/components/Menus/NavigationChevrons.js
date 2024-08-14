@@ -6,14 +6,14 @@ import {
 } from '@material-ui/icons';
 import {
   formInboxItemLink,
-  formInvestibleLink,
+  formInvestibleLink, formMarketLink,
   navigate
 } from '../../utils/marketIdPathFunctions';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { useHistory, useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
-  dehighlightMessage,
+  dehighlightMessage, getInboxTarget,
   isInInbox
 } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { addNavigation, removeNavigation } from '../../contexts/NotificationsContext/notificationsContextReducer';
@@ -32,6 +32,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { addWorkspaceGroupAttribute } from '../../pages/Home/YourWork/InboxContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
+import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: isOutbox ? formInboxItemLink(investible.investible.id)  :
@@ -48,7 +49,8 @@ function getCommentCandidate(comment, market, navigations) {
   return candidate;
 }
 
-export default function NavigationChevrons() {
+export default function NavigationChevrons(props) {
+  const { groupLoadId } = props;
   const history = useHistory();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
@@ -106,6 +108,13 @@ export default function NavigationChevrons() {
   const isOnExistingUrl = allExistingUrls.includes(resource);
 
   function computeNext() {
+    if (groupLoadId || resource.startsWith(`${getInboxTarget()}/UNREAD_GROUP_`)) {
+      // Next from a new group message is that groups swimlanes
+      const [, ,groupIdFromSep] = resource.split('_');
+      const groupId = groupLoadId || groupIdFromSep;
+      const groupMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${groupId}`, messagesState);
+      return {url: formMarketLink(groupMessage?.market_id, groupId), message: groupMessage};
+    }
     const highlighted = highlightedMessages?.filter((message) =>
       formInboxItemLink(message.type_object_id) !== resource) || [];
     const highlightedMapped = addWorkspaceGroupAttribute(highlighted, groupsState);

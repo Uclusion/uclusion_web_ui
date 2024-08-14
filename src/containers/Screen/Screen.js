@@ -260,7 +260,8 @@ function Screen(props) {
     navigationOptions,
     showBanner,
     disableSearch,
-    loadingMessageId
+    loadingMessageId,
+    groupLoadId
   } = props;
   const usedBanner = banner ?? (userState?.user?.onboarding_state === OnboardingState.DemoCreated ?
     <OnboardingBanner/> : undefined);
@@ -312,7 +313,7 @@ function Screen(props) {
 
   const useGroupId = groupId ? groupId : (investibleId ?
     getGroupForInvestibleId(investibleId, defaultMarket.id, investiblesState) :
-    (pathname === '/' ? defaultMarket.id : undefined));
+    (pathname === '/' && !isInbox ? defaultMarket.id : undefined));
   const navListItemTextArray = [];
   const inactiveGroups = [];
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
@@ -328,7 +329,7 @@ function Screen(props) {
     {
       headerItemTextArray: [
         {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(),
-          isBold: action?.includes('inbox'), isBlue: pathname === getInboxTarget(),
+          isBold: action?.includes('inbox') || isInbox, isBlue: pathname === getInboxTarget(),
           iconColor: inboxCount > 0 ? '#E85757' : undefined,
           num: _.isEmpty(search) ? inboxCount : undefined}
       ],
@@ -365,6 +366,7 @@ function Screen(props) {
           appEnabled={appEnabled}
           navMenu={sideNavigationContents}
           disableSearch={disableSearch}
+          groupLoadId={groupLoadId}
         />
       )}
       {!mobileLayout && !hidden && (

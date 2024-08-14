@@ -104,7 +104,7 @@ function OnboardingBanner() {
       {isInbox && typeObjectId && !typeObjectId.includes('_') && (
           <Typography><Link href="https://documentation.uclusion.com/flows/#job-approval" target="_blank">Job approval</Link> for your assignment. Poke if no response.</Typography>
       )}
-      {!mobileLayout && (
+      {!mobileLayout && !typeObjectId?.startsWith('UNREAD_GROUP') && (
         <DemoCreateWorkspaceButton/>
       )}
       </div>

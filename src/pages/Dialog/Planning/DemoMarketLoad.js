@@ -3,7 +3,6 @@ import { useIntl } from 'react-intl';
 import Screen from '../../../containers/Screen/Screen';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { suspend } from 'suspend-react';
-import Market from '../Dialog';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -20,9 +19,11 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { TicketIndexContext } from '../../../contexts/TicketContext/TicketIndexContext';
 import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
+import Inbox from '../../Home/YourWork/Inbox';
+import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function DemoMarketLoad(props) {
-  const { onboardingState, demo } = props;
+  const { onboardingState, demo, demoMessage } = props;
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
@@ -43,9 +44,10 @@ function DemoMarketLoad(props) {
   </Screen>;
 
   function LoadDemo() {
-    const loadedMarketId = suspend(async () => {
+    const loadedInfo = suspend(async () => {
       const result = await getDemo();
       if (!result) {
+        console.warn('No result demo market');
         // Called more than once somehow so give up and hope demo market already loaded or loads the slow way
         return undefined;
       }
@@ -55,18 +57,45 @@ function DemoMarketLoad(props) {
         investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch
       }
       const { demo, user } = result;
+      const { notifications } = demo || {};
       const id = await handleMarketData(demo, dispatchers);
       userDispatch(accountUserRefresh(user));
-      return id;
-    }, [])
-    return loadedMarketId === undefined ? loadingScreen : <Market hidden={false} loadedMarketId={loadedMarketId}/>;
+      const workspaceMessage = notifications?.find((message) =>
+        message.type_object_id === `UNREAD_GROUP_${id}`);
+      dehighlightMessage(workspaceMessage, messagesDispatch);
+      return {id, notifications: [workspaceMessage]};
+    }, []);
+    return loadedInfo === undefined ? loadingScreen :
+      <Screen
+        title={intl.formatMessage({id: 'inbox'})}
+        tabTitle={intl.formatMessage({id: 'inbox'})}
+        hidden={false}
+        isInbox
+        groupLoadId={loadedInfo.id}
+        disableSearch
+      >
+      <Inbox hidden={false} messagesFull={loadedInfo.notifications} loadedMarketId={loadedInfo.id}
+             workItemId={`UNREAD_GROUP_${loadedInfo.id}`}
+             messagesHash={{inboxMessagesOrdered: loadedInfo.notifications}}/>
+      </Screen>;
   }
 
   if (onboardingState !== OnboardingState.NeedsOnboarding || !_.isEmpty(demo)) {
-    if (_.isEmpty(demo)) {
+    if (_.isEmpty(demo)||_.isEmpty(demoMessage)) {
       return loadingScreen;
     }
-    return <Market hidden={false} loadedMarketId={demo.id}/>;
+    const notifications = [demoMessage];
+    return <Screen
+      title={intl.formatMessage({id: 'inbox'})}
+      tabTitle={intl.formatMessage({id: 'inbox'})}
+      hidden={false}
+      isInbox
+      disableSearch
+      groupLoadId={demo.id}
+    >
+      <Inbox hidden={false} messagesFull={notifications} loadedMarketId={demo.id}
+                  workItemId={`UNREAD_GROUP_${demo.id}`} messagesHash={{inboxMessagesOrdered: notifications}}/>
+    </Screen>;
   }
 
   return (

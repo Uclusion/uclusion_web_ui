@@ -156,6 +156,73 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+export function getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
+  history, marketId, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
+  onGroupClick, pathname, resetFunction) {
+  const itemsSorted = _.sortBy(groupsState[marketId], 'name');
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+  const itemsRaw = itemsSorted.map((group) => {
+    const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
+      group.id) || [];
+    const isChosen = group.id === useGroupId;
+    if (_.isEmpty(groupPresences)) {
+      inactiveGroups.push(group);
+      if (!isChosen) {
+        return {};
+      }
+    }
+    const myIcon = groupPresences.find((presence) => presence.id === myPresence.id) ?
+      Group : GroupOutlined;
+    const outsetAvailable = isChosen && useHoverFunctions;
+    let num = undefined;
+    if (!_.isEmpty(search)) {
+      num = (results || []).filter((item) => item.groupId === group.id);
+    }
+    return {icon: myIcon, endIcon: outsetAvailable ? MoreVert : undefined, text: group.name, num,
+      isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
+      isBlue: groupId === group.id || pathname === '/',
+      resetFunction: isChosen ? resetFunction : undefined,
+      onClickFunc: (event) => {
+        preventDefaultAndProp(event);
+        if (onGroupClick) {
+          onGroupClick();
+        }
+        if (outsetAvailable) {
+          const dialogOutset = document.getElementById(`dialogOutset`);
+          if (dialogOutset) {
+            if (DIALOG_OUTSET_STATE_HACK.timerId) {
+              clearTimeout(DIALOG_OUTSET_STATE_HACK.timerId);
+              DIALOG_OUTSET_STATE_HACK.timerId = undefined;
+            }
+            dialogOutset.style.display = 'block';
+          }
+        } else {
+          navigate(history, formMarketLink(marketId, group.id));
+        }
+      },
+      onLeaveFunc: () => {
+        if (isChosen && useHoverFunctions) {
+          const dialogOutset = document.getElementById(`dialogOutset`);
+          if (dialogOutset) {
+            DIALOG_OUTSET_STATE_HACK.timerId = setTimeout(function () {
+              if (DIALOG_OUTSET_STATE_HACK.open !== 1) {
+                dialogOutset.style.display = 'none';
+              }
+            }, 2000);
+          }
+        }
+      }
+    }
+  });
+  const items = itemsRaw.filter((item) => !_.isEmpty(item));
+  navListItemTextArray.push({
+    text: intl.formatMessage({ id: 'viewInGroup' }),
+    tipText: intl.formatMessage({ id: 'viewInGroupTip' })
+  });
+  navListItemTextArray.push(...items);
+}
+
 function Screen(props) {
   const classes = useStyles();
   const theme = useTheme();
@@ -250,68 +317,9 @@ function Screen(props) {
   const inactiveGroups = [];
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const { onGroupClick, useHoverFunctions, resetFunction } = navigationOptions || {};
-    const itemsSorted = _.sortBy(groupsState[defaultMarket.id], 'name');
-    const marketPresences = getMarketPresences(marketPresencesState, defaultMarket.id) || [];
-    const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-    const itemsRaw = itemsSorted.map((group) => {
-      const groupPresences = getGroupPresences(marketPresences, groupPresencesState, defaultMarket.id,
-        group.id) || [];
-      const isChosen = group.id === useGroupId;
-      if (_.isEmpty(groupPresences)) {
-        inactiveGroups.push(group);
-        if (!isChosen) {
-          return {};
-        }
-      }
-      const myIcon = groupPresences.find((presence) => presence.id === myPresence.id) ?
-        Group : GroupOutlined;
-      const outsetAvailable = isChosen && useHoverFunctions;
-      let num = undefined;
-      if (!_.isEmpty(search)) {
-        num = (results || []).filter((item) => item.groupId === group.id);
-      }
-      return {icon: myIcon, endIcon: outsetAvailable ? MoreVert : undefined, text: group.name, num,
-        isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
-        isBlue: groupId === group.id || pathname === '/',
-        resetFunction: isChosen ? resetFunction : undefined,
-        onClickFunc: (event) => {
-          preventDefaultAndProp(event);
-          if (onGroupClick) {
-            onGroupClick();
-          }
-          if (outsetAvailable) {
-            const dialogOutset = document.getElementById(`dialogOutset`);
-            if (dialogOutset) {
-              if (DIALOG_OUTSET_STATE_HACK.timerId) {
-                clearTimeout(DIALOG_OUTSET_STATE_HACK.timerId);
-                DIALOG_OUTSET_STATE_HACK.timerId = undefined;
-              }
-              dialogOutset.style.display = 'block';
-            }
-          } else {
-            navigate(history, formMarketLink(defaultMarket.id, group.id));
-          }
-        },
-        onLeaveFunc: () => {
-          if (isChosen && useHoverFunctions) {
-            const dialogOutset = document.getElementById(`dialogOutset`);
-            if (dialogOutset) {
-              DIALOG_OUTSET_STATE_HACK.timerId = setTimeout(function () {
-                if (DIALOG_OUTSET_STATE_HACK.open !== 1) {
-                  dialogOutset.style.display = 'none';
-                }
-              }, 2000);
-            }
-          }
-        }
-      }
-    });
-    const items = itemsRaw.filter((item) => !_.isEmpty(item));
-    navListItemTextArray.push({
-      text: intl.formatMessage({ id: 'viewInGroup' }),
-      tipText: intl.formatMessage({ id: 'viewInGroupTip' })
-    });
-    navListItemTextArray.push(...items);
+    getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
+      history, defaultMarket.id, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
+      onGroupClick, pathname, resetFunction);
   }
   const inboxCount = getInboxCount(messagesState);
   const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();
@@ -344,8 +352,7 @@ function Screen(props) {
   }
   const myContainerClass = !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
   const contentClass = mobileLayout ? classes.contentNoStyle : classes.content;
-  const sideNavigationContents = <Sidebar navigationOptions={navigationMenu} search={search} title={title}
-                                          classes={classes} />;
+  const sideNavigationContents = <Sidebar navigationOptions={navigationMenu} />;
   const renderBanner = showBanner && usedBanner && !hidden;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">
@@ -362,7 +369,7 @@ function Screen(props) {
       )}
       {!mobileLayout && !hidden && (
         <div className={classes.paper}>
-          <Sidebar navigationOptions={navigationMenu} search={search} title={title} classes={classes} />
+          <Sidebar navigationOptions={navigationMenu} />
         </div>
       )}
 

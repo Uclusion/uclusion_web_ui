@@ -241,7 +241,7 @@ function MarketTodos(props) {
         }
         removeHash(history);
       }
-      if (foundCommentId || hash.includes('Todos')) {
+      if (foundCommentId || hash.includes(MARKET_TODOS_HASH)) {
         if (!sectionOpen) {
           setSectionOpen();
         }

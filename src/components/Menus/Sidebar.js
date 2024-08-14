@@ -7,8 +7,8 @@ import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader } from 'react
 import { IconButton, Tooltip, Typography } from '@material-ui/core';
 
 function processRegularItem(properties) {
-  const {classes, history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue,
-    index, search, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon,
+  const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue,
+    index, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon,
     resetFunction, tipText} = properties;
   if (!text) {
     return React.Fragment
@@ -76,8 +76,8 @@ function processRegularItem(properties) {
         <div style={{paddingLeft: '1rem'}} key="openMenuItems">
           {openMenuItems.map((subItem, index) => {
             const { text, target, num, icon: Icon, onClickFunc, isBold } = subItem
-            return processRegularItem({classes, history, text, target, num, Icon, onClickFunc,
-              isBold, index, search, isSubMenu: true})
+            return processRegularItem({history, text, target, num, Icon, onClickFunc,
+              isBold, index, isSubMenu: true})
           })}
         </div>
       )}
@@ -87,7 +87,7 @@ function processRegularItem(properties) {
 
 export default function Sidebar(props) {
   const history = useHistory();
-  const { navigationOptions, search, classes } = props;
+  const { navigationOptions } = props;
   const { navListItemTextArray, navMenu, listOnClick, headerItemTextArray } = navigationOptions || {};
   return (
     <ProSidebar width="16rem">
@@ -97,8 +97,8 @@ export default function Sidebar(props) {
             {headerItemTextArray.map((navItem, topIndex) => {
               const { text, target, num, icon: Icon, onClickFunc, isBold, isBlue, openMenuItems,
                 iconColor } = navItem;
-              return processRegularItem({classes, history, text, target, num, Icon, iconColor, onClickFunc,
-                isBold, isBlue, index: topIndex, search, openMenuItems, isLarge: true})
+              return processRegularItem({history, text, target, num, Icon, iconColor, onClickFunc,
+                isBold, isBlue, index: topIndex, openMenuItems, isLarge: true})
             })}
           </Menu>
         )}
@@ -110,8 +110,8 @@ export default function Sidebar(props) {
           {navListItemTextArray.map((navItem, topIndex) => {
             const { text, target, num, icon: Icon, onClickFunc, isBold, isBlue, openMenuItems,
               onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText } = navItem;
-            return processRegularItem({classes, history, text, target, num, Icon, onClickFunc, isBold, isBlue,
-              index: topIndex, search, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText})
+            return processRegularItem({history, text, target, num, Icon, onClickFunc, isBold, isBlue,
+              index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText})
           })}
         </Menu>
       )}

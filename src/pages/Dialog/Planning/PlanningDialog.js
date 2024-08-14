@@ -43,6 +43,8 @@ import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
 import SubSection from '../../../containers/SubSection/SubSection';
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import {
+  ASSIGNED_HASH,
+  BACKLOG_HASH,
   DISCUSSION_HASH,
   formArchiveCommentLink,
   formGroupArchiveLink,
@@ -167,6 +169,10 @@ function PlanningDialog(props) {
       if (!element) {
         if (hash.includes('option')||hash.includes(DISCUSSION_HASH)) {
           updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
+        } else if (hash.includes(ASSIGNED_HASH)) {
+          updatePageState({ sectionOpen: 'storiesSection', tabIndex: 0 });
+        } else if (hash.includes(BACKLOG_HASH)) {
+          updatePageState({ sectionOpen: 'backlogSection', tabIndex: 1 });
         } else {
           const found = comments.find((comment) => hash.includes(comment.id));
           if (!_.isEmpty(found)) {

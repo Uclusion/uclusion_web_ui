@@ -69,6 +69,9 @@ function IntroduceWorkspaceStep(props) {
         }
       }>{market.name}</Link>?
       </Typography>
+      Besides tracking task management stages like Not Doing, Not Ready, Ready to Start, Assigned, Approved,
+      Tasks Complete, and Assistance Needed, a workspace holds all the work related communication that would
+      otherwise be done in chat or meetings.
       <div style={{paddingBottom: '1rem', paddingTop: '1rem'}}>
         <Typography variant='body2' style={{paddingBottom: '1.5rem'}}>
           {checkMark}Use the navigation chevrons:
@@ -99,7 +102,7 @@ function IntroduceWorkspaceStep(props) {
         }}>backlog</Link> or <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, formatGroupLinkWithSuffix(ASSIGNED_HASH, marketId, marketId));
-        }}>assigned</Link> job. Jobs hold assignments, tasks, questions, suggestions,
+        }}>assigned</Link> job. Jobs can be assigned and hold tasks, questions, suggestions,
           blockers, and status.
         </Typography>
         <Typography variant='body2' style={{paddingBottom: '1.5rem'}}>

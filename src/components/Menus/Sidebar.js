@@ -9,7 +9,7 @@ import { IconButton, Tooltip, Typography } from '@material-ui/core';
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue,
     index, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon,
-    resetFunction, tipText, idPrepend} = properties;
+    resetFunction, tipText, idPrepend=''} = properties;
   if (!text) {
     return React.Fragment
   }

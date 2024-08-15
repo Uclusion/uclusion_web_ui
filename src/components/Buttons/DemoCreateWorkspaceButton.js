@@ -37,7 +37,7 @@ function DemoCreateWorkspaceButton() {
   const demoGroups = groupsState[demo.id] || [];
   const demoGroupCreated = demoGroups.find((group) => group.updated_by === myPresence.id);
 
-  if (totalCount > 9 && _.isEmpty(demoCommentCreated) && _.isEmpty(demoInvestibleCreated)
+  if (totalCount > 10 && _.isEmpty(demoCommentCreated) && _.isEmpty(demoInvestibleCreated)
     && _.isEmpty(demoGroupCreated)) {
     return (
       <Button

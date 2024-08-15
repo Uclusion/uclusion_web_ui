@@ -9,7 +9,7 @@ import { IconButton, Tooltip, Typography } from '@material-ui/core';
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue,
     index, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon,
-    resetFunction, tipText} = properties;
+    resetFunction, tipText, idPrepend} = properties;
   if (!text) {
     return React.Fragment
   }
@@ -30,7 +30,7 @@ function processRegularItem(properties) {
       <MenuItem icon={<Icon style={{fontSize: '1.3rem', paddingBottom: isLarge ? undefined :'2px'}} htmlColor={iconColor} />}
                 style={{backgroundColor, borderRadius: 22, width: '97%',
                 marginLeft: 'auto', marginRight: 'auto'}}
-                key={key} id={textNoSpaces}
+                key={key} id={`${idPrepend}${textNoSpaces}`}
                 suffix={num > 0 ?
                   <Typography style={{ fontWeight: 'bold', paddingRight: '0.25rem' }} >{num}</Typography>
                   : (EndIcon ? <IconButton size="small" onClick={(event) => onClickFunc(event)}>
@@ -87,7 +87,7 @@ function processRegularItem(properties) {
 
 export default function Sidebar(props) {
   const history = useHistory();
-  const { navigationOptions } = props;
+  const { navigationOptions, idPrepend='' } = props;
   const { navListItemTextArray, navMenu, listOnClick, headerItemTextArray } = navigationOptions || {};
   return (
     <ProSidebar width="16rem">
@@ -111,7 +111,7 @@ export default function Sidebar(props) {
             const { text, target, num, icon: Icon, onClickFunc, isBold, isBlue, openMenuItems,
               onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText } = navItem;
             return processRegularItem({history, text, target, num, Icon, onClickFunc, isBold, isBlue,
-              index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText})
+              index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, idPrepend})
           })}
         </Menu>
       )}

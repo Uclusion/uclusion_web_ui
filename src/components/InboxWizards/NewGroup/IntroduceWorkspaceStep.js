@@ -83,7 +83,7 @@ function IntroduceWorkspaceStep(props) {
           {checkMark}Groups hold all the work of a set of participants. Go to a group view by clicking a name in the
           left side panel:
           <div style={{backgroundColor: '#DFF0F2', width: '16rem'}}>
-            <Sidebar navigationOptions={{navListItemTextArray}} />
+            <Sidebar navigationOptions={{navListItemTextArray}} idPrepend="intro" />
           </div>
           The underlined group above is special and always has all workspace participants in it. The avatars of
           the participants in this workspace are also on the left side panel.

@@ -954,6 +954,7 @@ const messages = defineMessages({
   WizardPromoInfo: 'Apply promotion code',
   DecidePayTitle: 'Will you pay?',
   GroupWelcome: 'Welcome to a new group',
+  WorkspaceWelcome: 'Welcome to the workspace',
   ApplyPromoCode: 'Apply promo code',
 
   // upgrade form

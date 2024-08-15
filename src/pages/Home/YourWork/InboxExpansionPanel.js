@@ -64,13 +64,13 @@ export function calculateTitleExpansionPanel(props) {
   const { message, isAssigned } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted,
-    decision_investible_id: decisionInvestibleId } = message;
+    decision_investible_id: decisionInvestibleId, group_id: groupId } = message;
   if (messageType === 'USER_POKED') {
     setItem(item, openExpansion, <UpgradeWizard message={message} />,
       'DecidePayTitle', intl);
   } else if (messageType === 'UNREAD_GROUP') {
     setItem(item, openExpansion, <NewGroupWizard message={message} />,
-      'GroupWelcome', intl);
+      marketId === groupId ? 'WorkspaceWelcome' : 'GroupWelcome', intl);
   }
   else if (isOutboxAccepted) {
     setItem(item, openExpansion, <AssignToOtherWizard investibleId={message.id} marketId={message.marketId}

@@ -1,15 +1,15 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever'
 import { deleteInvestible } from '../../../api/investibles'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
 import SpinningTooltipIconButton from '../../../components/SpinBlocking/SpinningTooltipIconButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import NotificationDeletion from '../../Home/YourWork/NotificationDeletion';
 
 function DeleteInvestibleActionButton(props) {
   const { investibleId, marketId, groupId } = props;
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
 
   function deleteInvestibleAction() {
@@ -23,7 +23,7 @@ function DeleteInvestibleActionButton(props) {
   return (
     <SpinningTooltipIconButton
       id='investibleDelete'
-      icon={<DeleteForeverIcon />}
+      icon={<NotificationDeletion isRed={operationRunning === false} />}
       translationId="investibleDeleteExplanationLabel"
       onClick={deleteInvestibleAction}
     />

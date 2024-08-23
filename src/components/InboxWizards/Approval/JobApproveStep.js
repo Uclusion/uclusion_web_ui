@@ -22,7 +22,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import _ from 'lodash';
 import {
   formInvestibleAddCommentLink,
-  formInvestibleLink,
+  formInvestibleLink, formWizardLink,
   navigate,
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions';
@@ -34,7 +34,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useHistory } from 'react-router';
-import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { JOB_COMMENT_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import { TODO_TYPE } from '../../../constants/comments';
 import { useIntl } from 'react-intl';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
@@ -42,8 +42,6 @@ import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import Link from '@material-ui/core/Link';
-import { stageChangeInvestible } from '../../../api/investibles';
-import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
@@ -57,7 +55,7 @@ function JobApproveStep(props) {
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
-  const [investiblesState, invDispatch] = useContext(InvestiblesContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const market = getMarket(marketsState, marketId) || {};
@@ -68,7 +66,7 @@ function JobApproveStep(props) {
   const wasDeleted = yourVote?.deleted;
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { group_id: groupId, stage: currentStageId } = marketInfo;
+  const { group_id: groupId } = marketInfo;
   const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
   const todos = marketComments.filter((comment) => comment.comment_type === TODO_TYPE &&
     comment.investible_id === investibleId);
@@ -128,23 +126,8 @@ function JobApproveStep(props) {
 
   function moveToBacklog() {
     const backlogStage = getFurtherWorkStage(marketStagesState, marketId)
-    const moveInfo = {
-      marketId,
-      investibleId,
-      stageInfo: {
-        current_stage_id: currentStageId,
-        stage_id: backlogStage.id,
-        open_for_investment: true
-      },
-    };
-    return stageChangeInvestible(moveInfo)
-      .then((newInv) => {
-        onInvestibleStageChange(backlogStage.id, newInv, investibleId, marketId, commentsState, commentsDispatch,
-          invDispatch, () => {}, marketStagesState, undefined, backlogStage,
-          marketPresencesDispatch);
-        setOperationRunning(false);
-        navigate(history, `${formInvestibleLink(marketId, investibleId)}#approve`);
-      });
+    navigate(history,
+      `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${backlogStage.id}&typeObjectId=${message.type_object_id}&isAssign=false`);
   }
 
   const {approveQuantity} = formData;

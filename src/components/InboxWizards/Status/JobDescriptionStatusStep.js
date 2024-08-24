@@ -92,7 +92,6 @@ function JobDescriptionStatusStep(props) {
       `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${backlogStage.id}&typeObjectId=${typeObjectId}&isAssign=false`);
   }
 
-  const stageName = isSingleUser ? 'Backlog' : 'Assigned';
   const noOtherOptions = alreadyMoved || isSingleUser;
   return (
     <WizardStepContainer
@@ -103,20 +102,20 @@ function JobDescriptionStatusStep(props) {
       </Typography>
       {alreadyMoved && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          This job was moved back to {stageName} after {startedExpiration} days with no estimate or progress
+          This job was moved back to Assigned after {startedExpiration} days with no estimate or progress
           report.
         </Typography>
       )}
-      {!alreadyMoved && millisBeforeMove > 0 && (
+      {!alreadyMoved && millisBeforeMove > 0 && !isSingleUser && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Without an estimated date or progress report this job moves to {stageName} <UsefulRelativeTime
+          Without an estimated date or progress report this job moves to Assigned <UsefulRelativeTime
           milliSecondsGiven={millisBeforeMove}/>.
           Reporting progress also gets feedback.
         </Typography>
       )}
-      {!alreadyMoved && millisBeforeMove <= 0 && (
+      {!alreadyMoved && millisBeforeMove <= 0 && !isSingleUser && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Without an estimated date or progress report this job will move to {stageName}. Reporting progress also
+          Without an estimated date or progress report this job will move to Assigned. Reporting progress also
           gets feedback.
         </Typography>
       )}

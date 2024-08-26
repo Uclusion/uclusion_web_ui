@@ -30,7 +30,7 @@
     "jwt-decode": "^2.2.0",
     "localforage": "^1.7.3",
     "lodash": "^4.17.21",
-    "logrocket": "^2.2.0",
+    "logrocket": "^8.1.2",
     "material-ui-popup-state": "^1.5.4",
     "moment": "^2.25.3",
     "parchment": "^2.0.0-dev.2",

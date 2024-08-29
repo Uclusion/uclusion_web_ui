@@ -14,8 +14,10 @@ const useStyles = makeStyles((theme) => {
   return {
     bannerBox: {
       marginLeft: '10rem',
+      marginTop: '0.5rem',
       [theme.breakpoints.down('sm')]: {
-        marginLeft: 'unset'
+        marginLeft: 'unset',
+        marginBottom: '1rem'
       }
     },
     bannerBoxStuff: {
@@ -80,7 +82,7 @@ function OnboardingBanner() {
       {isInbox && typeObjectId?.startsWith('REPLY_MENTION') && (
         <>
           <Typography style={{marginRight: '0.2rem'}}><Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">Job assistance</Link>.</Typography>
-          <Typography style={{marginBottom: mobileLayout ? '1rem' : undefined}}>You are mentioned so can't dismiss.</Typography>
+          <Typography>You are mentioned so can't dismiss.</Typography>
         </>
       )}
       {isInbox && typeObjectId?.startsWith('UNASSIGNED') && (

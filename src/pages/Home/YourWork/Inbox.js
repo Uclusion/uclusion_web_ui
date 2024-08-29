@@ -161,7 +161,7 @@ function Inbox(props) {
         </GmailTabs>
       )}
       <div style={{paddingBottom: tabIndex > 0 ? '0.25rem' : undefined, backgroundColor: 'white'}}>
-        <div style={{display: 'flex', width: '80%'}}>
+        <div style={{display: 'flex', width: '80%', marginBottom: mobileLayout && workItemId ? '1rem': undefined}}>
           {!mobileLayout && !isOnWorkItem && (
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                       checked={0 === tabIndex ? checkAll : checkAllOutbox}

@@ -78,8 +78,10 @@ function OnboardingBanner() {
             Goes away if not needed.</Typography>
       )}
       {isInbox && typeObjectId?.startsWith('REPLY_MENTION') && (
-          <Typography><Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">Job assistance</Link>.
-            No dismiss when mentioned.</Typography>
+        <>
+          <Typography style={{marginRight: '0.2rem'}}><Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">Job assistance</Link>.</Typography>
+          <Typography style={{marginBottom: mobileLayout ? '1rem' : undefined}}>You are mentioned so can't dismiss.</Typography>
+        </>
       )}
       {isInbox && typeObjectId?.startsWith('UNASSIGNED') && (
           <Typography><Link href="https://documentation.uclusion.com/flows/#self-assigning-bugs" target="_blank">Self assigning bugs</Link>.

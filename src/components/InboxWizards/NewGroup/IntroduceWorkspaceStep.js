@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { Typography } from '@material-ui/core';
+import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
@@ -34,6 +34,8 @@ function IntroduceWorkspaceStep(props) {
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const { market_id: marketId } = message;
   const classes = wizardStyles();
   const history = useHistory();
@@ -61,7 +63,7 @@ function IntroduceWorkspaceStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        <p>What can you do in the workspace</p>
+        <p>What can you do in {!mobileLayout && ('the workspace')}</p>
         <Link href={link} onClick={
           (event) => {
             preventDefaultAndProp(event);
@@ -69,26 +71,42 @@ function IntroduceWorkspaceStep(props) {
         }
       }>{market.name}</Link>?
       </Typography>
-      Besides tracking task management stages like Not Doing, Not Ready, Ready to Start, Assigned, Approved,
-      Tasks Complete, and Assistance Needed, a workspace holds all the work related communication that would
-      otherwise be done in chat or meetings.
+      {!mobileLayout && (
+        <div>
+          Besides tracking task management stages like Not Doing, Not Ready, Ready to Start, Assigned, Approved,
+          Tasks Complete, and Assistance Needed, a workspace holds all the work related communication that would
+          otherwise be done in chat or meetings.
+        </div>
+      )}
       <div style={{paddingBottom: '1rem', paddingTop: '1rem'}}>
         <Typography variant='body2' style={{paddingBottom: '1.5rem'}}>
           {checkMark}Use the navigation chevrons:
           <div style={{backgroundColor: '#8ABABF', width: '8rem', height: '60px'}}>
             <NavigationChevrons/></div>
-          in header to jump to things that require attention.
+          {!mobileLayout && (
+            <div>
+              in header to jump to things that require attention.
+            </div>
+          )}
         </Typography>
         <Typography variant='body2' style={{paddingBottom: '1.5rem'}}>
-          {checkMark}Groups hold all the work of a set of participants. Go to a group view by clicking a name in the
-          left side panel:
+          {checkMark}{!mobileLayout && ('Groups hold all the work of a set of participants. ')} Go to a group view by
+          clicking a name in the left side panel:
           <div style={{backgroundColor: '#DFF0F2', width: '16rem'}}>
             <Sidebar navigationOptions={{navListItemTextArray}} idPrepend="intro" />
           </div>
-          The underlined group above is special and always has all workspace participants in it. The avatars of
-          the participants in this workspace are also on the left side panel.
+          {!mobileLayout && (
+            <div>
+              The underlined group above is special and always has all workspace participants in it. The avatars of
+              the participants in this workspace are also on the left side panel.
+            </div>
+          )}
         </Typography>
-        After you go to a group you can do more things:
+        {!mobileLayout && (
+          <div>
+            After you go to a group you can do more things:
+          </div>
+        )}
         <Typography variant='body2' style={{paddingTop: '0.3rem', paddingBottom: '0.5rem'}}>
           {checkMark}Open a <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
@@ -111,9 +129,6 @@ function IntroduceWorkspaceStep(props) {
           navigate(history, formatGroupLinkWithSuffix(DISCUSSION_HASH, marketId, marketId));
         }}>discussion</Link> where questions have vote-able options and suggestions can be voted for or
           against.
-        </Typography>
-        <Typography variant='body2' style={{paddingBottom: '1.5rem'}}>
-          Since you didn't create this workspace someone else is being billed for it - enjoy!
         </Typography>
       </div>
       <WizardStepButtons

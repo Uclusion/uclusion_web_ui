@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useMediaQuery, useTheme } from '@material-ui/core';
+import { IconButton, useMediaQuery, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
@@ -16,9 +16,6 @@ const Div = styled("div")`
   display: flex;
   align-items: center;
   box-shadow: inset 0 -1px 0 0 rgba(100, 121, 143, 0.122);
-  &.MailListItem-read {
-    background-color: rgba(60, 64, 67, 0.3);
-  }
   &:hover {
     box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0,
       0 1px 2px 0 rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
@@ -43,12 +40,12 @@ const Title = styled(Text)`
   flex-shrink: 0;
   flex-grow: 0;
   color: black;
-  margin-left: 0.75rem;
+  margin-left: 0.5rem;
   & > *:not(:first-child) {
     font-size: 12px;
   };
   @media (max-width: 768px) {
-    max-width: 325px;
+    max-width: 200px;
   }
 `;
 
@@ -78,8 +75,7 @@ function OptionListItem(props) {
     id,
     expansionPanel,
     expansionOpen,
-    questionResolved,
-    isNotSynced = false
+    questionResolved
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -107,17 +103,17 @@ function OptionListItem(props) {
     <>
       <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable={!questionResolved}>
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
-          <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }} id={`link${id}`} key={`link${id}`}
+          <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
                onClick={
             (event) => {
-              if (isNotSynced || !expandOrContract) {
+              if (!expandOrContract) {
                 return;
               }
               preventDefaultAndProp(event);
               expandOrContract();
             }
           }>
-            <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>
+            <Div key={`actions${id}`}>
               {!mobileLayout || _.isEmpty(people) ? React.Fragment :
                 <GravatarGroup users={people}  />
               }
@@ -131,7 +127,14 @@ function OptionListItem(props) {
               {mobileLayout || _.isEmpty(people) ? React.Fragment :
                 <GravatarGroup users={people}  />
               }
-              {!isNotSynced && expandOrContract && (
+              {expandOrContract && mobileLayout && (
+                <div style={{paddingLeft: '0.5rem', paddingRight: '0.5rem'}}>
+                  <IconButton size="small" noPadding>
+                    {expansionOpen ? <ExpandLess htmlColor='black' /> : <ExpandMoreIcon htmlColor='black' />}
+                  </IconButton>
+                </div>
+              )}
+              {expandOrContract && !mobileLayout && (
                 <DateLabel>
                   {expansionOpen ? <TooltipIconButton
                       icon={<ExpandLess />}

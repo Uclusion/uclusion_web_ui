@@ -118,7 +118,7 @@ function Wizard(props) {
         <WorkspaceWizard />
       )}
       {createType === JOB_WIZARD_TYPE.toLowerCase() && (
-        <JobWizard marketId={marketId} groupId={groupId} jobType={jobType} />
+        <JobWizard marketId={marketId} groupId={groupId} jobType={jobType} useType={commentType} />
       )}
       {createType === OPTION_WIZARD_TYPE.toLowerCase() && (
         <OptionWizard marketId={marketId} />

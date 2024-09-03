@@ -14,6 +14,7 @@ import {
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import _ from 'lodash';
 import TaskToBugStep from './TaskToBugStep';
+import WhereDecisionStep from './WhereDecisionStep';
 
 function BugWizard(props) {
   const { marketId, groupId, commentType, typeObjectId } = props;
@@ -26,13 +27,20 @@ function BugWizard(props) {
   const comments = !_.isEmpty(comment) ? getCommentThreads([comment],
     getMarketComments(commentsState, marketId, comment.group_id)) : [];
 
+  if (fromCommentId && _.isEmpty(comment)) {
+    return React.Fragment;
+  }
+
   return (
     <WizardStylesProvider>
       <FormdataWizard name="bug_wizard" defaultFormData={{useCompression: true}} useLocalStorage={false}>
-        {!_.isEmpty(comment) && (
+        {fromCommentId && (
           <BugDecisionStep marketId={marketId} comment={comment} comments={comments} typeObjectId={typeObjectId} />
         )}
-        {!_.isEmpty(comment) && (
+        {fromCommentId && (
+          <WhereDecisionStep marketId={marketId} comment={comment} comments={comments} typeObjectId={typeObjectId} />
+        )}
+        {fromCommentId && (
           <TaskToBugStep marketId={marketId} comment={comment} comments={comments} />
         )}
         {!fromCommentId && (

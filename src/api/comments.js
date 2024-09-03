@@ -55,9 +55,10 @@ export function removeComment(marketId, commentId) {
     .catch((error) => toastErrorAndThrow(error, 'errorCommentDeleteFailed'));
 }
 
-export function moveComments(marketId, investibleId, commentIds, resolveCommentIds, taskCommentIds) {
+export function moveComments(marketId, investibleId, commentIds, resolveCommentIds, taskCommentIds, suggestCommentIds) {
   return getMarketClient(marketId)
-    .then((client) => client.investibles.moveComments(investibleId, commentIds, resolveCommentIds, taskCommentIds))
+    .then((client) => client.investibles.moveComments(investibleId, commentIds, resolveCommentIds, taskCommentIds,
+      suggestCommentIds))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentMoveFailed'));
 }
 

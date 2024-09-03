@@ -15,7 +15,7 @@ import {
   getCommentThreads,
   getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import ResolveCommentsStep from './ResolveCommentsStep'
 import DecideWhereStep from './DecideWhereStep';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -40,7 +40,7 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function JobWizard(props) {
-  const { marketId, groupId, jobType } = props;
+  const { marketId, groupId, jobType, useType } = props;
   const [modifiedId, setModifiedId] = useState(undefined);
   const location = useLocation();
   const history = useHistory();
@@ -63,6 +63,8 @@ function JobWizard(props) {
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     comments.find((comment) => comment.id === fromCommentId));
   const isReplyConvert = roots.length > 0 && roots[0].comment_type === REPLY_TYPE;
+  const isConvert = isReplyConvert || (roots.length > 0 && ((roots[0].comment_type === TODO_TYPE &&
+    useType === 'Suggestion')||(roots[0].comment_type === SUGGEST_CHANGE_TYPE && useType === 'Task')));
   const isAssistanceMove = roots.length > 0 &&
     [SUGGEST_CHANGE_TYPE, QUESTION_TYPE, ISSUE_TYPE].includes(roots[0].comment_type);
 
@@ -76,19 +78,21 @@ function JobWizard(props) {
     const { doResolveId, doTaskId } = formData;
     let myDoTaskId = doTaskId;
     let replyId;
-    if (isReplyConvert) {
+    if (isConvert) {
       myDoTaskId = roots[0].id;
       replyId = roots[0].reply_id;
     }
+    const isSuggestion = useType === 'Suggestion';
     const { investible } = inv;
     const investibleId = investible.id;
     const movingComments = getCommentThreads(roots, comments);
     const fromInv = isAssistanceMove && roots[0].investible_id ?
       getInvestible(investiblesState, roots[0].investible_id) : undefined;
     return moveComments(marketId, investibleId, fromCommentIds, doResolveId ? [doResolveId]: undefined,
-      myDoTaskId ? [myDoTaskId] : undefined)
+      myDoTaskId && !isSuggestion ? [myDoTaskId] : undefined,
+      isSuggestion && myDoTaskId ? [myDoTaskId] : undefined)
       .then((movedComments) => {
-        if (!replyId) {
+        if (!isConvert) {
           setModifiedId(doResolveId || myDoTaskId);
         }
         if (isAssistanceMove) {
@@ -122,6 +126,10 @@ function JobWizard(props) {
   }
 
   function getOpenQuestionSuggestionId() {
+    if (isConvert) {
+      // They are already converting something - don't ask again
+      return undefined;
+    }
     // For now only supporting one since no UI to get more than one
     if (modifiedId) {
       return modifiedId;
@@ -154,7 +162,7 @@ function JobWizard(props) {
                            marketComments={comments} isQuestion={!_.isEmpty(requiresInputId)} />
         )}
         {fromCommentId && (
-          <FindJobStep marketId={marketId} groupId={groupId} roots={roots} isConvert={isReplyConvert}
+          <FindJobStep marketId={marketId} groupId={groupId} roots={roots} isConvert={isConvert}
                        moveFromComments={fromCommentIds ? moveFromComments : undefined}/>
         )}
         <JobDescriptionStep onFinish={onFinish} marketId={marketId} groupId={groupId} roots={roots}

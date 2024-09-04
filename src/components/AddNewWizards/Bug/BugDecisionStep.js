@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { REPLY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
@@ -28,7 +28,13 @@ function BugDecisionStep (props) {
   }
   allowedTypes.push('Bug');
   const { useCompression, useType } = formData;
-
+  function doesTypeMatch(checkType) {
+    return comment.comment_type === TODO_TYPE ? checkType === 'Task' :
+      (comment.comment_type === SUGGEST_CHANGE_TYPE && checkType === 'Suggestion');
+  }
+  const isSameType = doesTypeMatch(useType);
+  const sendToOther = () => navigate(history,
+    `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}&commentType=${useType}`);
   return (
     <WizardStepContainer
       {...props}
@@ -67,7 +73,8 @@ function BugDecisionStep (props) {
                 /* prevent clicking the label stealing focus */
                 onMouseDown={e => e.preventDefault()}
                 control={<Radio color="primary"/>}
-                label={<FormattedMessage id={`${objectType}Label`}/>}
+                label={<FormattedMessage id={doesTypeMatch(objectType) ? `${objectType}OtherMoveLabel`
+                  : `${objectType}Label`}/>}
                 labelPlacement="end"
                 value={objectType}
               />
@@ -79,7 +86,9 @@ function BugDecisionStep (props) {
       <WizardStepButtons
         {...props}
         validForm={!_.isEmpty(useType)}
-        isFinal={false}
+        onNext={isSameType ? sendToOther : undefined}
+        isFinal={isSameType}
+        onNextDoAdvance={!isSameType}
         onNextSkipStep={useType === 'Bug'}
         spinOnClick={false}
         showTerminate={_.isEmpty(typeObjectId)}

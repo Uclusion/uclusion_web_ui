@@ -14,7 +14,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 
 function FindJobStep(props) {
-  const { marketId, groupId, updateFormData, formData, startOver, moveFromComments, roots, isConvert } = props;
+  const { marketId, groupId, updateFormData, formData, startOver, moveFromComments, roots, isConvert, useType } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [groupState] = useContext(MarketGroupsContext);
@@ -51,6 +51,11 @@ function FindJobStep(props) {
         <Typography className={classes.introText} variant="h6">
           Which job in group {group.name}?
         </Typography>
+        {useType && (
+          <Typography className={classes.introSubText} variant="subtitle1">
+            You are converting to a {useType}.
+          </Typography>
+        )}
         <ChooseJob
           marketId={marketId}
           groupId={groupId}

@@ -14,7 +14,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { useHistory } from 'react-router';
 
 function DecideWhereStep (props) {
-  const { marketId, fromCommentIds, marketComments, updateFormData, formData, isQuestion } = props;
+  const { marketId, fromCommentIds, marketComments, updateFormData, formData, isQuestion, useType } = props;
   const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -36,6 +36,11 @@ function DecideWhereStep (props) {
       <Typography className={classes.introText}>
         Where do you want to move?
       </Typography>
+      {useType && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          You are converting to a {useType}.
+        </Typography>
+      )}
       {_.size(roots) > 1 && (
         <CondensedTodos comments={roots} investibleComments={comments} isInbox marketId={marketId} hideTabs
                         isDefaultOpen />

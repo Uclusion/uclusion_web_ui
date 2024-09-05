@@ -31,7 +31,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 function WhereDecisionStep (props) {
-  const { marketId, comment, comments, updateFormData, formData, typeObjectId } = props;
+  const { marketId, comment, comments, updateFormData, formData } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const presences = usePresences(marketId);
@@ -166,10 +166,6 @@ function WhereDecisionStep (props) {
         isFinal
         spinOnClick={(useType === 'Task' && destination === 'Local')||
           (useType === 'Suggestion' && ['Local', 'Discussion'].includes(destination))}
-        showTerminate={_.isEmpty(typeObjectId)}
-        terminateLabel="OnboardingWizardGoBack"
-        onTerminate={() => navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id,
-          comment.id))}
       />
     </WizardStepContainer>
   );

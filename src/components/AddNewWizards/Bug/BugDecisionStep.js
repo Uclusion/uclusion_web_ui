@@ -5,14 +5,14 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { formCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { REPLY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import _ from 'lodash';
 
 function BugDecisionStep (props) {
-  const { marketId, comment, comments, updateFormData, formData, typeObjectId } = props;
+  const { marketId, comment, comments, updateFormData, formData } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const allowedTypes = [];
@@ -91,10 +91,6 @@ function BugDecisionStep (props) {
         onNextDoAdvance={!isSameType}
         onNextSkipStep={useType === 'Bug'}
         spinOnClick={false}
-        showTerminate={_.isEmpty(typeObjectId)}
-        terminateLabel="OnboardingWizardGoBack"
-        onTerminate={() => navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id,
-          comment.id))}
       />
     </WizardStepContainer>
   );

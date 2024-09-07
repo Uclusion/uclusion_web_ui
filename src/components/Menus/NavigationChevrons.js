@@ -33,6 +33,7 @@ import { addWorkspaceGroupAttribute } from '../../pages/Home/YourWork/InboxConte
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
+import { getOpenInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: isOutbox ? formInboxItemLink(investible.investible.id)  :
@@ -77,9 +78,13 @@ export default function NavigationChevrons(props) {
   const approvedCandidates = [];
   const outboxCandidates = [];
   workspacesData.forEach((workspaceData) => {
-    const { market, approvedInvestibles, inVotingInvestibles, questions, issues, suggestions, bugs } = workspaceData;
+    const { market, approvedInvestibles, inVotingInvestibles, questions, issues, suggestions, bugs,
+      comments } = workspaceData;
     approvedInvestibles?.forEach((investible) => {
+      const investibleComments = getOpenInvestibleComments(investible.investible.id, comments);
+      const numInProgress = (investibleComments.filter((comment) => comment.in_progress)).length;
       const candidate = getInvestibleCandidate(investible, market, navigations);
+      candidate.numInProgress = numInProgress;
       approvedCandidates.push(candidate);
     });
     inVotingInvestibles?.forEach((investible) => {
@@ -129,7 +134,8 @@ export default function NavigationChevrons(props) {
       (!isOnExistingUrl || _.size(approvedCandidates) > 1 ||
         (_.isEmpty(outboxCandidates)&&_.isEmpty(notHighlightedMessages)))) {
       // Time as a long gets larger so smallest would be oldest
-      const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['asc']);
+      const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['numInProgress','time'],
+        ['desc','asc']);
       const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource &&
         candidate.url !== previous?.url);
       if (approvedNext) {

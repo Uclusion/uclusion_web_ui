@@ -82,7 +82,12 @@ export function getInvestibleComments(investibleId, marketId, state) {
 
 export function getUnresolvedInvestibleComments(investibleId, marketId, state) {
   const comments = getMarketComments(state, marketId);
-  return comments.filter(comment => comment.investible_id === investibleId && !comment.resolved) || [];
+  return getOpenInvestibleComments(investibleId, comments);
+}
+
+export function getOpenInvestibleComments(investibleId, marketComments) {
+  return marketComments.filter(comment => comment.investible_id === investibleId &&
+      !comment.resolved && !comment.deleted) || [];
 }
 
 export function reopenAutoclosedInvestibleComments(investibleId, marketId, state, dispatch) {

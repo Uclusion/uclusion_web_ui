@@ -114,7 +114,12 @@ function JobDescriptionStep (props) {
           link,
         });
         if (moveFromComments) {
-          return moveFromComments(inv, formData, updateFormData);
+          return moveFromComments(inv, formData, updateFormData).then(() => {
+            if (isSingleUser) {
+              return onFinish({ link });
+            }
+            return {link};
+          });
         }
         if (isSingleUser) {
           return onFinish({ link });

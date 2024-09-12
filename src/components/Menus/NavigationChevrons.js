@@ -34,6 +34,7 @@ import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGr
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import { getOpenInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import { getMarketPresences, isSingleUserMarket } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: isOutbox ? formInboxItemLink(investible.investible.id)  :
@@ -91,11 +92,14 @@ export default function NavigationChevrons(props) {
       const candidate = getInvestibleCandidate(investible, market, navigations, true);
       outboxCandidates.push(candidate);
     });
-    const openPlanningComments = questions?.concat(issues).concat(suggestions).concat(bugs);
-    openPlanningComments?.forEach((comment) => {
-      const candidate = getCommentCandidate(comment, market, navigations);
-      outboxCandidates.push(candidate);
-    });
+    const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
+    if (!isSingleUserMarket(marketPresences, market)) {
+      const openPlanningComments = questions?.concat(issues).concat(suggestions).concat(bugs);
+      openPlanningComments?.forEach((comment) => {
+        const candidate = getCommentCandidate(comment, market, navigations);
+        outboxCandidates.push(candidate);
+      });
+    }
   });
   decisionDetails.forEach((market) => {
     const { questions, issues, suggestions } = getDecisionData(market, marketPresencesState, commentsState);

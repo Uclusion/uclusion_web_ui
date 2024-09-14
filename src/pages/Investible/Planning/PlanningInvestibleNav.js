@@ -215,7 +215,9 @@ export default function PlanningInvestibleNav(props) {
                   id={`readyToStartCheckbox${investibleId}`}
                   value={openForInvestment}
                   className={styles.myCheckbox}
-                  style={{color: 'white', backgroundColor: readyToStartChecked ? 'black' : 'white',
+                  style={{color: mobileLayout ? 'black' : 'white',
+                    backgroundColor: mobileLayout ? (readyToStartChecked ? 'white' : 'lightgrey') :
+                      (readyToStartChecked ? 'black' : 'white'),
                     padding: 0, borderRadius: 0}}
                   disabled={operationRunning !== false || isBlockedStage(fullStage)}
                   checked={readyToStartChecked}

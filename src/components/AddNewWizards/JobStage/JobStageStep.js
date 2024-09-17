@@ -115,17 +115,19 @@ function JobStageStep (props) {
   }
 
   function doIncrement() {
-    if (!isNotDoingStage(fullMoveStage)) {
-      if (_.isEmpty(assigned)&&(isFurtherWorkStage(fullMoveStage)||!isSingleUser)) {
-        // Go to next normal step
-        nextStep();
-      } else if (isCloseComments) {
-        nextStep(2);
-      } else if (requiresAction(fullMoveStage)) {
-        nextStep(3);
-      }
+    if (isNotDoingStage(fullMoveStage)) {
+      // Get a comment on why not doing
+      nextStep(3);
+    } else if (_.isEmpty(assigned)&&(isFurtherWorkStage(fullMoveStage)||!isSingleUser)) {
+      // Go to next normal step
+      nextStep();
+    } else if (isCloseComments) {
+      nextStep(2);
+    } else if (requiresAction(fullMoveStage)) {
+      nextStep(3);
     }
   }
+
   return (
     <WizardStepContainer
       {...props}

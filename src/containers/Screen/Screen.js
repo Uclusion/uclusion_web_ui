@@ -236,7 +236,8 @@ function Screen(props) {
   const values = queryString.parse(querySearch);
   const { groupId, marketId: searchMarketId, investibleId: searchInvestibleId} = values || {};
   const hashValues = queryString.parse(hash);
-  const { marketId: hashMarketId, investibleId: hashInvestibleId, type } = hashValues || {};
+  const { marketId: hashMarketId, investibleId: hashInvestibleId, type,
+    groupId: hashGroupId } = hashValues || {};
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -334,7 +335,8 @@ function Screen(props) {
           num: _.isEmpty(search) ? inboxCount : undefined}
       ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
-                              inactiveGroups={inactiveGroups} chosenGroup={useGroupId}/>,
+                              inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId}
+                              pathMarketIdRaw={pathMarketIdRaw} pathInvestibleId={pathInvestibleId} action={action} />,
       navListItemTextArray: !_.isEmpty(defaultMarket) ? [
         {
           icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),

@@ -275,6 +275,8 @@ const messages = defineMessages({
   labels: 'Labels',
   previousNavigation: 'Go to previous navigation',
   nextNavigation: 'Go to the next most likely thing that needs doing',
+  upNavigation: 'Go up one level',
+  up: 'Up',
 
   //Inbox notification titles
   unfinished: 'Unfinished',

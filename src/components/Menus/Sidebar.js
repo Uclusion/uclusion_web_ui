@@ -91,7 +91,7 @@ export default function Sidebar(props) {
   const { navListItemTextArray, navMenu, listOnClick, headerItemTextArray } = navigationOptions || {};
   return (
     <ProSidebar width="16rem">
-      <SidebarHeader>
+      <SidebarHeader style={{borderBottom: 'unset'}}>
         {!_.isEmpty(headerItemTextArray) && (
           <Menu onClick={listOnClick} iconShape="circle">
             {headerItemTextArray.map((navItem, topIndex) => {

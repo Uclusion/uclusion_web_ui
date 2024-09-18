@@ -15,6 +15,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { usePlanFormStyles } from '../../components/AgilePlan';
 import GravatarAndName from '../../components/Avatars/GravatarAndName';
+import ReturnTop from './ReturnTop';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -102,7 +103,8 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function WorkspaceMenu(props) {
-  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup } = props;
+  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup, action,
+    pathInvestibleId, pathMarketIdRaw} = props;
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const classes = useStyles();
   const identityListClasses = usePlanFormStyles();
@@ -150,7 +152,9 @@ function WorkspaceMenu(props) {
   }
 
   return (
-    <div style={{paddingTop: '1rem', marginLeft: '15px'}}>
+    <div style={{marginLeft: '15px'}}>
+      <ReturnTop action={action} pathInvestibleId={pathInvestibleId} marketId={defaultMarket.id}
+                 groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw}/>
       <Button
         onClick={recordPositionToggle}
         endIcon={<ExpandMoreIcon style={{fontSize: '1rem', marginLeft: 0, marginRight: '10px'}} htmlColor="black"/>}

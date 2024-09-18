@@ -359,7 +359,7 @@ function Signup(props) {
       </Container>
     );
   }
-
+  const hideNonEmailInput = _.isEmpty(userState.email) && !code;
   const noEmailInput = _.isEmpty(qryEmail) && _.isEmpty(email) && _.isEmpty(name);
   const formInvalid = !terms || _.isEmpty(name) || (_.isEmpty(email) && _.isEmpty(code)) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
@@ -496,20 +496,22 @@ function Signup(props) {
               onSubmit={onSignUp}
             >
               <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    value={userState.name}
-                    autoComplete="name"
-                    name="name"
-                    variant="outlined"
-                    required
-                    fullWidth
-                    id="name"
-                    autoFocus
-                    label={intl.formatMessage({ id: 'signupNameLabel' })}
-                    onChange={handleChange('name')}
-                  />
-                </Grid>
+                {!hideNonEmailInput && (
+                  <Grid item xs={12}>
+                    <TextField
+                      value={userState.name}
+                      autoComplete="name"
+                      name="name"
+                      variant="outlined"
+                      required
+                      fullWidth
+                      id="name"
+                      autoFocus
+                      label={intl.formatMessage({ id: 'signupNameLabel' })}
+                      onChange={handleChange('name')}
+                    />
+                  </Grid>
+                )}
                 {!code && (
                   <Grid item xs={12}>
                     <TextField
@@ -526,67 +528,71 @@ function Signup(props) {
                     />
                   </Grid>
                 )}
-                <Grid item xs={12}>
-                  <TextField
-                    value={userState.password}
-                    variant="outlined"
-                    required
-                    fullWidth
-                    name="password"
-                    type={showPassWord1 ? 'text' : 'password'}
-                    id="password"
-                    helperText={password.length < 6 ? intl.formatMessage({ id: 'signupPasswordHelper' }) : ''}
-                    onBlur={onPasswordBlurred}
-                    error={wasBlurred && password.length < 6}
-                    autoComplete="new-password"
-                    label={intl.formatMessage({ id: 'signupPasswordLabel' })}
-                    onChange={handleChange('password')}
-                    InputProps={{
-                      minLength: 6,
-                      endAdornment:
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={() => setShowPassWord1(!showPassWord1)}
-                            onMouseDown={(event) => event.preventDefault()}
-                          >
-                            {showPassWord1 ? <Visibility /> : <VisibilityOff />}
-                          </IconButton>
-                        </InputAdornment>,
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    value={userState.repeat}
-                    id="repeat"
-                    name="repeat"
-                    type={showPassWord2 ? 'text' : 'password'}
-                    variant="outlined"
-                    autoComplete="new-password"
-                    error={!!repeat && password !== repeat}
-                    helperText={repeat !== password ? intl.formatMessage({ id: 'signupPasswordRepeatHelper' }) : ''}
-                    InputProps={{
-                      minLength: 6,
-                      endAdornment:
-                        <InputAdornment position="end">
-                          <IconButton
-                            aria-label="toggle password visibility"
-                            onClick={() => setShowPassWord2(!showPassWord2)}
-                            onMouseDown={(event) => event.preventDefault()}
-                          >
-                            {showPassWord2 ? <Visibility /> : <VisibilityOff />}
-                          </IconButton>
-                        </InputAdornment>,
-                    }}
-                    label={intl.formatMessage({
-                      id: 'signupPasswordRepeatLabel',
-                    })}
-                    onChange={handleChange('repeat')}
-                    fullWidth
-                    required
-                  />
-                </Grid>
+                {!hideNonEmailInput && (
+                  <Grid item xs={12}>
+                    <TextField
+                      value={userState.password}
+                      variant="outlined"
+                      required
+                      fullWidth
+                      name="password"
+                      type={showPassWord1 ? 'text' : 'password'}
+                      id="password"
+                      helperText={password.length < 6 ? intl.formatMessage({ id: 'signupPasswordHelper' }) : ''}
+                      onBlur={onPasswordBlurred}
+                      error={wasBlurred && password.length < 6}
+                      autoComplete="new-password"
+                      label={intl.formatMessage({ id: 'signupPasswordLabel' })}
+                      onChange={handleChange('password')}
+                      InputProps={{
+                        minLength: 6,
+                        endAdornment:
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassWord1(!showPassWord1)}
+                              onMouseDown={(event) => event.preventDefault()}
+                            >
+                              {showPassWord1 ? <Visibility /> : <VisibilityOff />}
+                            </IconButton>
+                          </InputAdornment>,
+                      }}
+                    />
+                  </Grid>
+                )}
+                {!hideNonEmailInput && (
+                  <Grid item xs={12}>
+                    <TextField
+                      value={userState.repeat}
+                      id="repeat"
+                      name="repeat"
+                      type={showPassWord2 ? 'text' : 'password'}
+                      variant="outlined"
+                      autoComplete="new-password"
+                      error={!!repeat && password !== repeat}
+                      helperText={repeat !== password ? intl.formatMessage({ id: 'signupPasswordRepeatHelper' }) : ''}
+                      InputProps={{
+                        minLength: 6,
+                        endAdornment:
+                          <InputAdornment position="end">
+                            <IconButton
+                              aria-label="toggle password visibility"
+                              onClick={() => setShowPassWord2(!showPassWord2)}
+                              onMouseDown={(event) => event.preventDefault()}
+                            >
+                              {showPassWord2 ? <Visibility /> : <VisibilityOff />}
+                            </IconButton>
+                          </InputAdornment>,
+                      }}
+                      label={intl.formatMessage({
+                        id: 'signupPasswordRepeatLabel',
+                      })}
+                      onChange={handleChange('repeat')}
+                      fullWidth
+                      required
+                    />
+                  </Grid>
+                )}
                 <Grid item xs={12}>
                   <div style={{ display: 'inline-flex', alignItems: 'center' }}>
                     <GreenCheckbox

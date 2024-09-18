@@ -92,7 +92,7 @@ function JobApproveStep(props) {
       reasonNeedsUpdate,
       uploadedFiles: filteredUploads
     };
-    if (!reasonNeedsUpdate) {
+    if (!reasonNeedsUpdate && yourVote) {
       updateInfo.currentReasonId = yourVote.comment_id;
     }
     return updateInvestment(updateInfo).then((result) => {

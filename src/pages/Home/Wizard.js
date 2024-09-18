@@ -23,7 +23,7 @@ import {
   OPTION_WIZARD_TYPE,
   REPLY_WIZARD_TYPE,
   COMPOSE_WIZARD_TYPE,
-  SIGN_OUT_WIZARD_TYPE, JOB_EDIT_WIZARD_TYPE, OPTION_EDIT_WIZARD_TYPE, DELETE_COMMENT_TYPE
+  SIGN_OUT_WIZARD_TYPE, JOB_EDIT_WIZARD_TYPE, OPTION_EDIT_WIZARD_TYPE, DELETE_COMMENT_TYPE, ARCHIVE_COMMENT_TYPE
 } from '../../constants/markets';
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
@@ -55,6 +55,7 @@ import AddWizardOnboardingBanner from '../../components/Banners/AddWizardOnboard
 import { getMarket, marketIsDemo } from '../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import DeleteWizard from '../../components/AddNewWizards/Delete/DeleteWizard';
+import ArchiveCommentWizard from '../../components/AddNewWizards/CommentArchive/ArchiveCommentWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -171,6 +172,9 @@ function Wizard(props) {
       )}
       {createType === DELETE_COMMENT_TYPE.toLowerCase() && (
         <DeleteWizard marketId={marketId} commentId={commentId} isInbox={isInbox} />
+      )}
+      {createType === ARCHIVE_COMMENT_TYPE.toLowerCase() && (
+        <ArchiveCommentWizard marketId={marketId} commentId={commentId} isInbox={isInbox} typeObjectId={typeObjectId} />
       )}
     </Screen>
   );

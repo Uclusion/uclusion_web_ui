@@ -45,7 +45,7 @@ import {
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import {
-  ACTIVE_STAGE,
+  ACTIVE_STAGE, ARCHIVE_COMMENT_TYPE,
   BUG_WIZARD_TYPE, DELETE_COMMENT_TYPE,
   INITIATIVE_TYPE,
   JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
@@ -617,6 +617,14 @@ function Comment(props) {
   }
 
   function resolve() {
+    if (!investibleId) {
+      if (typeObjectId) {
+        return navigate(history, `${formWizardLink(ARCHIVE_COMMENT_TYPE, marketId, undefined,
+          undefined, id)}&isInbox=${isInbox === true}&typeObjectId=${typeObjectId}`);
+      }
+      return navigate(history, `${formWizardLink(ARCHIVE_COMMENT_TYPE, marketId, undefined, 
+        undefined, id)}&isInbox=${isInbox === true}`);
+    }
     return resolveComment(marketId, id)
       .then((response) => {
         const comment = commentType === REPORT_TYPE ? response['comment'] : response;
@@ -854,19 +862,18 @@ function Comment(props) {
                 />
               </SpinningIconLabelButton>
             )}
-            {((resolved && showReopen) || (!resolved && showResolve)) && (
+            {((resolved && showReopen) || (!resolved && showResolve)) && mobileLayout && (
               <SpinningIconLabelButton
-                doSpin={resolved || commentType !== REPORT_TYPE}
+                doSpin={(investibleId || resolved) && (resolved || commentType !== REPORT_TYPE)}
                 onClick={resolved ? reopen : (commentType === REPORT_TYPE ? () => navigate(history,
                   `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                     REPORT_TYPE)}&resolveId=${id}`) : resolve)}
                 icon={resolved ? SettingsBackupRestore : Done}
                 id={`commentResolveReopenButton${id}`}
-                iconOnly={mobileLayout && !resolved}
+                iconOnly={!resolved}
               >
-                {(!mobileLayout || resolved) && intl.formatMessage({
-                  id: resolved ? 'commentReopenLabel' : 'commentResolveLabel'
-                })}
+                {resolved && intl.formatMessage({ id: resolved ? 'commentReopenLabel' :
+                    'commentResolveLabel' })}
               </SpinningIconLabelButton>
             )}
             {isSent !== false && enableEditing && !removeActions && (
@@ -955,6 +962,18 @@ function Comment(props) {
                   undefined, undefined, id, typeObjectId))}
                 doSpin={false} icon={SettingsIcon} iconOnly={mobileLayout}>
                 {!mobileLayout && intl.formatMessage({ id: 'configureVoting' })}
+              </SpinningIconLabelButton>
+            )}
+            {((resolved && showReopen) || (!resolved && showResolve)) && !mobileLayout && (
+              <SpinningIconLabelButton
+                doSpin={(investibleId || resolved) && (resolved || commentType !== REPORT_TYPE)}
+                onClick={resolved ? reopen : (commentType === REPORT_TYPE ? () => navigate(history,
+                  `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                    REPORT_TYPE)}&resolveId=${id}`) : resolve)}
+                icon={resolved ? SettingsBackupRestore : Done}
+                id={`commentResolveReopenButton${id}`}
+              >
+                {intl.formatMessage({ id: resolved ? 'commentReopenLabel' : 'commentResolveLabel' })}
               </SpinningIconLabelButton>
             )}
             {showMoveButton && !mobileLayout && (

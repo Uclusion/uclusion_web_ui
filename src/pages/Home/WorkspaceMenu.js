@@ -16,6 +16,7 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { usePlanFormStyles } from '../../components/AgilePlan';
 import GravatarAndName from '../../components/Avatars/GravatarAndName';
 import ReturnTop from './ReturnTop';
+import { PLACEHOLDER } from '../../constants/global';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -283,7 +284,8 @@ function WorkspaceMenu(props) {
               email={presence.email}
               name={presence.name}
               typographyVariant="caption"
-              typographyClassName={identityListClasses.avatarName}
+              typographyClassName={presence.placeholder_type === PLACEHOLDER ? identityListClasses.avatarNameYellow :
+                identityListClasses.avatarName}
               avatarClassName={classes.smallGravatar}
             />
           )}

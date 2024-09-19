@@ -92,7 +92,13 @@ export const usePlanFormStyles = makeStyles(
     avatarName: {
       fontSize: '15px',
       overflowWrap: 'break-word',
-      cursor: 'pointer'
+      cursor: 'not-allowed'
+    },
+    avatarNameYellow: {
+      fontSize: '15px',
+      overflowWrap: 'break-word',
+      cursor: 'not-allowed',
+      color: '#ffC000'
     },
     actionPrimary: {
       backgroundColor: "#2D9CDB",

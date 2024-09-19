@@ -496,22 +496,6 @@ function Signup(props) {
               onSubmit={onSignUp}
             >
               <Grid container spacing={2}>
-                {!hideNonEmailInput && (
-                  <Grid item xs={12}>
-                    <TextField
-                      value={userState.name}
-                      autoComplete="name"
-                      name="name"
-                      variant="outlined"
-                      required
-                      fullWidth
-                      id="name"
-                      autoFocus
-                      label={intl.formatMessage({ id: 'signupNameLabel' })}
-                      onChange={handleChange('name')}
-                    />
-                  </Grid>
-                )}
                 {!code && (
                   <Grid item xs={12}>
                     <TextField
@@ -525,6 +509,21 @@ function Signup(props) {
                       autoComplete="email"
                       label={intl.formatMessage({ id: 'signupEmailLabel' })}
                       onChange={handleChange('email')}
+                    />
+                  </Grid>
+                )}
+                {!hideNonEmailInput && (
+                  <Grid item xs={12}>
+                    <TextField
+                      value={userState.name}
+                      autoComplete="name"
+                      name="name"
+                      variant="outlined"
+                      required
+                      fullWidth
+                      id="name"
+                      label={intl.formatMessage({ id: 'signupNameLabel' })}
+                      onChange={handleChange('name')}
                     />
                   </Grid>
                 )}

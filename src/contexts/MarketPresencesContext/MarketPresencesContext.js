@@ -10,6 +10,10 @@ const MARKET_PRESENCES_CONTEXT_NAMESPACE = 'market_presences';
 const EMPTY_STATE = {initializing: true};
 const MarketPresencesContext = React.createContext(EMPTY_STATE);
 
+// Mentions require presences, and we are caching Quill Editors so safest to hack as with others
+let marketPresencesContextHack;
+export { marketPresencesContextHack };
+
 function MarketPresencesProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, setChannel] = useState(undefined);
@@ -46,6 +50,7 @@ function MarketPresencesProvider(props) {
     return () => {};
   }, []);
 
+  marketPresencesContextHack = state;
   return (
     <MarketPresencesContext.Provider value={[state, dispatch]}>
       {props.children}

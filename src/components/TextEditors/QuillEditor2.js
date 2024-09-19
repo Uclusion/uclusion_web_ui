@@ -74,7 +74,6 @@ function QuillEditor2 (props) {
     uploadDisabled,
     noToolbar,
     simple,
-    participants,
     marketId,
     mentionsAllowed,
     placeholder,
@@ -199,7 +198,6 @@ function QuillEditor2 (props) {
         setLinkDialogOpen,
         simple,
         uploadDisabled,
-        participants,
         mentionsAllowed,
         boundsId,
         placeholder,
@@ -210,9 +208,8 @@ function QuillEditor2 (props) {
     // This is probably a bad idea, but the create should be fine
     // due to the checks above (missing createEditor dep)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mobileLayout, noToolbar, onS3Upload, setUploadInProgress, setVideoDialogOpen,
-    setLinkDialogOpen, simple, uploadDisabled, participants, mentionsAllowed, boundsId, boxRef, marketId,
-    containerRef, placeholder, value
+  }, [mobileLayout, noToolbar, onS3Upload, setUploadInProgress, setVideoDialogOpen, setLinkDialogOpen, simple,
+    uploadDisabled, mentionsAllowed, boundsId, boxRef, marketId, containerRef, placeholder, value
   ]);
 
   useEffect(() => {
@@ -270,7 +267,6 @@ QuillEditor2.propTypes = {
   noToolbar: PropTypes.bool,
   id: PropTypes.string.isRequired,
   simple: PropTypes.bool,
-  participants: PropTypes.arrayOf(PropTypes.object),
   mentionsAllowed: PropTypes.bool,
   dontManageState: PropTypes.bool
 };
@@ -283,8 +279,7 @@ QuillEditor2.defaultProps = {
   uploadDisabled: false,
   noToolbar: false,
   simple: false,
-  participants: [],
-  mentionsAllowed: true,
+  mentionsAllowed: false,
 };
 
 export default React.memo(QuillEditor2);

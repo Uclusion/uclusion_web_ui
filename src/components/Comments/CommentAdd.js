@@ -337,7 +337,6 @@ function CommentAdd(props) {
   const editorSpec = {
     value: useBody,
     autoFocus,
-    participants: presences.filter((presence) => !presence.market_banned),
     marketId,
     placeholder,
     onUpload: (files) => updateCommentAddState({uploadedFiles: files}),

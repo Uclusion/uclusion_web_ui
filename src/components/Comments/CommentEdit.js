@@ -223,7 +223,7 @@ function CommentEdit(props) {
     },
     value: getQuillStoredState(editorName) || initialBody,
     onUpload: (files) => updateEditState({uploadedFiles: files}),
-    participants: presences.filter((presence) => !presence.market_banned),
+    mentionsAllowed: true,
     marketId,
     autoFocus: true
   }

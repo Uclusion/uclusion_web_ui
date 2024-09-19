@@ -6,6 +6,7 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import config from '../../../config';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
+import Link from '@material-ui/core/Link';
 
 function WorkspaceIntegrationsStep(props) {
   const { formData } = props;
@@ -22,7 +23,9 @@ function WorkspaceIntegrationsStep(props) {
         Do you want this workspace integrated with Slack?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Use Add to Slack below to allow the /uclusion command to associate a channel with groups in this workspace.
+        Use Add to Slack button below
+        to <Link href="https://documentation.uclusion.com/notifications/slack" target="_blank">integrate this workspace</Link>.
+        Hit the next button when done or to skip integration.
       </Typography>
       <a
         href={`${config.add_to_slack_url}&state=${user?.id}_${formData.marketId}`}
@@ -37,7 +40,7 @@ function WorkspaceIntegrationsStep(props) {
         />
       </a>
       <div className={classes.borderBottom} />
-      <WizardStepButtons {...props} showNext={false} showSkip />
+      <WizardStepButtons {...props} showNext />
     </div>
     </WizardStepContainer>
   );

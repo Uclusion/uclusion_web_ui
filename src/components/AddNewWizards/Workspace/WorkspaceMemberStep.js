@@ -1,41 +1,24 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
-import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import EmailEntryBox, { getEmailList, setEmailList } from '../../Email/EmailEntryBox';
 import WizardStepButtons from '../WizardStepButtons';
-import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
-import { inviteParticipants } from '../../../api/users'
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { updateMarket } from '../../../api/markets';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
+import { ADD_COLLABORATOR_WIZARD_TYPE } from '../../../constants/markets';
 
 function WorkspaceMembersStep(props) {
   const { formData } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
   const { marketId: addToMarketId } = formData;
-
-  const myOnFinish = () => {
-    const emails = getEmailList(addToMarketId);
-    if (!_.isEmpty(emails)) {
-      return inviteParticipants(addToMarketId, emails).then((result) => {
-        setEmailList([], addToMarketId);
-        setOperationRunning(false);
-        marketPresencesDispatch(addMarketPresences(addToMarketId, result));
-      });
-    }
-    setOperationRunning(false);
-  }
 
   function useSinglePersonMode() {
     return updateMarket(
@@ -58,20 +41,21 @@ function WorkspaceMembersStep(props) {
     >
     <div>
       <Typography className={classes.introText} variant="h6">
-        Who else needs to be in the workspace?
+        Invite people to this workspace?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Single person mode removes two person features until a collaborator is added or the mode is turned off in
+        Single person mode removes collaboration features until a collaborator is added or the mode is turned off in
         settings.
       </Typography>
-      <EmailEntryBox marketId={formData.marketId} placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com" />
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
-        showSkip={false}
-        showLink={true}
-        onNext={myOnFinish}
-        isFinal={false}
+        showSkip
+        onNext={() => navigate(history,
+          `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${addToMarketId}`)}
+        nextLabel="addMoreCollaborators"
+        onNextDoAdvance={false}
+        isFinal
         showOtherNext
         otherNextLabel="singlePersonMode"
         isOtherFinal

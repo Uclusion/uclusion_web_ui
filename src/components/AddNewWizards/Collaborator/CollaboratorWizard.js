@@ -6,11 +6,12 @@ import { extractUsersList } from '../../../utils/userFunctions';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { navigate } from '../../../utils/marketIdPathFunctions';
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import _ from 'lodash'
 import FromOtherWorkspacesStep from './FromOtherWorkspacesStep';
 import InviteByEmailStep from './InviteByEmailStep';
+import InviteByEmailConfirmationStep from './InviteByEmailConfirmationStep';
 
 function CollaboratorWizard (props) {
   const { marketId } = props;
@@ -21,19 +22,17 @@ function CollaboratorWizard (props) {
   const participants = Object.values(extractUsersList(marketPresencesState, marketState, marketPresences));
 
   const onFinish = () => {
-    navigate(history);
+    navigate(history, formMarketLink(marketId, marketId));
   }
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard
-        name="collaborator_wizard"
-        onFinish={onFinish}
-      >
+      <FormdataWizard name="collaborator_wizard" onFinish={onFinish} useLocalStorage={false}>
         {!_.isEmpty(participants) && (
           <FromOtherWorkspacesStep marketId={marketId} participants={participants}/>
         )}
         <InviteByEmailStep marketId={marketId}/>
+        <InviteByEmailConfirmationStep marketId={marketId}/>
       </FormdataWizard>
     </WizardStylesProvider>
   )

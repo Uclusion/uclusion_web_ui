@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import EmailEntryBox, { getEmailList, setEmailList } from '../../Email/EmailEntryBox';
+import EmailEntryBox, { getEmailList } from '../../Email/EmailEntryBox';
 import WizardStepButtons from '../WizardStepButtons';
 import { addMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer'
 import { inviteParticipants } from '../../../api/users'
@@ -31,11 +31,10 @@ function InviteByEmailStep(props) {
       return inviteParticipants(marketId, emails).then((result) => {
         setOperationRunning(false);
         marketPresencesDispatch(addMarketPresences(marketId, result));
-        setEmailList([], marketId);
-        finish();
       });
     }
     setOperationRunning(false);
+    finish();
   }
 
   return (
@@ -55,7 +54,7 @@ function InviteByEmailStep(props) {
         showSkip={false}
         showLink={true}
         validForm={isValid === true}
-        finish={myOnFinish}
+        onNext={myOnFinish}
         formData={formData}
         marketToken={market.invite_capability}
       />

@@ -26,8 +26,8 @@ function WorkspaceWizard() {
         onFinish={myOnFinish}
       >
         <WorkspaceNameStep />
-        <WorkspaceMembersStep />
         <WorkspaceIntegrationsStep />
+        <WorkspaceMembersStep />
       </FormdataWizard>
     </WizardStylesProvider>
   )

@@ -51,9 +51,9 @@ function InviteByEmailStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="OnboardingWizardFinish"
+        onNextDoAdvance={isValid === true}
         showSkip={false}
         showLink={true}
-        validForm={isValid === true}
         onNext={myOnFinish}
         formData={formData}
         marketToken={market.invite_capability}

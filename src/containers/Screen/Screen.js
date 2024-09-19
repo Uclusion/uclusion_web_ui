@@ -336,7 +336,8 @@ function Screen(props) {
       ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
                               inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId}
-                              pathMarketIdRaw={pathMarketIdRaw} pathInvestibleId={pathInvestibleId} action={action} />,
+                              hashInvestibleId={hashInvestibleId} pathMarketIdRaw={pathMarketIdRaw}
+                              pathInvestibleId={pathInvestibleId} action={action} />,
       navListItemTextArray: !_.isEmpty(defaultMarket) ? [
         {
           icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),

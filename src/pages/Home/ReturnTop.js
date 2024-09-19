@@ -1,14 +1,14 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
-import { formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { ArrowBack } from '@material-ui/icons';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import _ from 'lodash';
 
 function ReturnTop(props) {
-  const { action, pathInvestibleId, marketId, groupId, pathMarketIdRaw } = props;
+  const { action, pathInvestibleId, marketId, groupId, pathMarketIdRaw, hashInvestibleId } = props;
   const intl = useIntl();
   const history = useHistory();
   const downLevel = action === 'inbox' ? !_.isEmpty(pathMarketIdRaw) :
@@ -17,7 +17,9 @@ function ReturnTop(props) {
   const upDisabled = !downLevel || !['dialog', 'inbox', 'wizard', 'marketEdit'].includes(action);
 
   function goUp(){
-    if (action === 'marketEdit' || (action === 'wizard' && marketId && !groupId)) {
+    if (action === 'wizard' && hashInvestibleId) {
+      navigate(history, formInvestibleLink(marketId, hashInvestibleId));
+    } else if (action === 'marketEdit' || (action === 'wizard' && marketId && !groupId)) {
       navigate(history, formMarketLink(marketId, marketId));
     } else if (groupId) {
       navigate(history, formMarketLink(marketId, groupId));

@@ -104,7 +104,7 @@ const useStyles = makeStyles((theme) => ({
 
 function WorkspaceMenu(props) {
   const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup, action,
-    pathInvestibleId, pathMarketIdRaw} = props;
+    pathInvestibleId, pathMarketIdRaw, hashInvestibleId } = props;
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const classes = useStyles();
   const identityListClasses = usePlanFormStyles();
@@ -154,7 +154,7 @@ function WorkspaceMenu(props) {
   return (
     <div style={{marginLeft: '15px'}}>
       <ReturnTop action={action} pathInvestibleId={pathInvestibleId} marketId={defaultMarket.id}
-                 groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw}/>
+                 groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>
       <Button
         onClick={recordPositionToggle}
         endIcon={<ExpandMoreIcon style={{fontSize: '1rem', marginLeft: 0, marginRight: '10px'}} htmlColor="black"/>}

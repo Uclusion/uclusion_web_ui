@@ -433,9 +433,8 @@ export function generateEditorOptions (id, config) {
       ['bold', 'italic', 'link', { header: [1, 2, false] }, 'image', 'video', 'clean'],
     ]
   }
-  const presences = getMarketPresences(marketPresencesContextHack, marketId) || [];
-  const participants = presences.filter((presence) => !presence.market_banned);
-  if (!_.isEmpty(participants) && mentionsAllowed) {
+
+  if (mentionsAllowed) {
     /* Note, due to lifecycles if they edit a comment begin creating a mention
       and hit save before selecting one (or clicking off to not do so), then
       the mention menu will stick open. Fixing this would require fairly
@@ -452,6 +451,8 @@ export function generateEditorOptions (id, config) {
         return ReactDOMServer.renderToString(<MentionListItem mentionResult={item}/>);
       },
       source: function (searchTerm, renderList) {
+        const presences = getMarketPresences(marketPresencesContextHack, marketId) || [];
+        const participants = presences.filter((presence) => !presence.market_banned);
         if (searchTerm.length === 0) {
           renderList(participants.map((presence) => {
             const { name, id, email, external_id } = presence;

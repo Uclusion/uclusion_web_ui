@@ -16,7 +16,6 @@ import { FormattedMessage, useIntl } from 'react-intl'
 import { openInNewTab } from '../../utils/marketIdPathFunctions';
 import { CognitoUserContext } from '../../contexts/CognitoUserContext/CongitoUserContext';
 import config from '../../config';
-import { isFederated } from '../../contexts/CognitoUserContext/cognitoUserContextHelper';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline'
 import Gravatar from '../../components/Avatars/Gravatar';
 import Grid from '@material-ui/core/Grid'
@@ -106,7 +105,6 @@ function Identity () {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const user = useContext(CognitoUserContext);
-  const canChangeUserValues = !isFederated(user);
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [online] = useContext(OnlineStateContext);
@@ -194,23 +192,21 @@ function Identity () {
             <Typography variant="caption" style={{color: 'grey'}}>{email}</Typography>
           </div>
           <Grid container alignItems="center">
-            <Grid item xs={canChangeUserValues ? 4 : 5} />
+            <Grid item xs={4} />
             <Grid item xs={1} style={{marginRight: '10px'}}>
-              <Tooltip title={intl.formatMessage({ id: 'changePreferencesHeader' })}>
-                <IconButton onClick={goTo('/notificationPreferences')} size="small" className={classes.chip}>
+              <Tooltip title={intl.formatMessage({ id: 'userPreferencesHeader' })}>
+                <IconButton onClick={goTo('/userPreferences')} size="small" className={classes.chip}>
                   <PermIdentity style={{fontSize: 'medium'}} />
                 </IconButton>
               </Tooltip>
             </Grid>
-            {canChangeUserValues && (
-              <Grid item xs={1} style={{marginRight: '10px'}}>
-                <Tooltip title={intl.formatMessage({ id: 'changePasswordHeader' })}>
-                  <IconButton onClick={goTo('/changePassword')} size="small" className={classes.chip}>
-                    <VpnKey style={{fontSize: 'medium'}} />
-                  </IconButton>
-                </Tooltip>
-              </Grid>
-            )}
+            <Grid item xs={1} style={{marginRight: '10px'}}>
+              <Tooltip title={intl.formatMessage({ id: 'integrationPreferencesHeader' })}>
+                <IconButton onClick={goTo('/integrationPreferences')} size="small" className={classes.chip}>
+                  <VpnKey style={{fontSize: 'medium'}} />
+                </IconButton>
+              </Tooltip>
+            </Grid>
             <Grid item xs={1}>
               <Tooltip title={intl.formatMessage({ id: 'billingMenuItem' })}>
                 <IconButton onClick={goTo('/billing')} size="small" className={classes.chip}>

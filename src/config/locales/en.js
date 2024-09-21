@@ -883,6 +883,7 @@ const messages = defineMessages({
 
   // Change Password
   errorChangePasswordFailed: 'Change password failed. Please try again.',
+  userPreferencesHeader: 'Manage account',
   changePasswordHeader: 'Change password',
   changePasswordNewLabel: 'New password',
   changePasswordRepeatLabel: 'Repeat new password',
@@ -894,8 +895,8 @@ const messages = defineMessages({
   errorSignOutFailed: 'Sign out failed. Please try again.',
 
   // Change Preferences
-  changePreferencesHeader: 'Integration preferences',
-  changePreferences: 'Email and Slack by workspace',
+  integrationPreferencesHeader: 'Integrations',
+  changePreferences: 'Email and Slack notification preferences by workspace',
   emailEnabledLabel: 'Send notifications via email',
   slackEnabledLabel: 'Send notifications via Slack',
   changePreferencesButton: 'Update Preferences',

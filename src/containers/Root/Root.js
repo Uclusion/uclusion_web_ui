@@ -15,8 +15,8 @@ import {
 import Investible from '../../pages/Investible/Investible';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 import SlackInvite from '../../pages/Invites/SlackInvite';
-import ChangePassword from '../../pages/Authentication/ChangePassword';
-import ChangeNotificationPreferences from '../../pages/About/ChangeNotificationPreferences';
+import AccountPreferences from '../../pages/Authentication/AccountPreferences';
+import IntegrationPreferences from '../../pages/About/IntegrationPreferences';
 import BillingHome from '../../pages/Payments/BillingHome';
 import { registerMarketTokenListeners } from '../../authorization/tokenUtils';
 import Wizard from '../../pages/Home/Wizard';
@@ -120,12 +120,12 @@ function Root() {
     return action !== 'support';
   }
 
-  function hideChangePassword() {
-    return action !== 'changePassword';
+  function hideAccountPreferences() {
+    return action !== 'userPreferences';
   }
 
-  function hideChangeNotification() {
-    return action !== 'notificationPreferences';
+  function hideIntegrationPreferences() {
+    return action !== 'integrationPreferences';
   }
 
   function hideMarket() {
@@ -177,8 +177,8 @@ function Root() {
 
   // Page Not Found
   const hidePNF = isRootPath || !(hideMarket() && hideSupport() && hideInvestible() && hideWorkspaceWizard() &&
-    hideInbox() && hideSlackInvite() && hideChangePassword() && hideMarketEdit() && hideGroupSettings() &&
-    hideMarketLoad() && hideGroupArchive() && hideChangeNotification() && hideBillingHome() && hideTodoAdd() &&
+    hideInbox() && hideSlackInvite() && hideAccountPreferences() && hideMarketEdit() && hideGroupSettings() &&
+    hideMarketLoad() && hideGroupArchive() && hideIntegrationPreferences() && hideBillingHome() && hideTodoAdd() &&
     hideCommentReplyEdit() && hideDemoLoad() && !isTicketPath(pathname));
 
   const isUserLoaded = userIsLoaded(userState);
@@ -305,8 +305,8 @@ function Root() {
             <Investible hidden={hideInvestible()}/>
             <CommentReplyEdit hidden={hideCommentReplyEdit()} />
             <SlackInvite hidden={hideSlackInvite()}/>
-            <ChangePassword hidden={hideChangePassword()}/>
-            <ChangeNotificationPreferences hidden={hideChangeNotification()}/>
+            <AccountPreferences hidden={hideAccountPreferences()}/>
+            <IntegrationPreferences hidden={hideIntegrationPreferences()}/>
             {!hideMarketEdit() && (
               <PlanningMarketEdit />
             )}

@@ -71,7 +71,6 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('sm')]: {
       padding: '0px 12px 0px 12px',
     },
-    willChange: 'scroll-position',
   },
   containerAllLeftPad: {
     padding: '10px 20px 0px 24px',
@@ -81,7 +80,6 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down('md')]: {
       padding: '24px 12px 156px',
     },
-    willChange: 'scroll-position',
   },
   bannerContainer: {
     position: 'sticky',

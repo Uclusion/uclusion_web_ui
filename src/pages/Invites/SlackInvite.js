@@ -54,7 +54,7 @@ function SlackInvite(props) {
           .then((client) => client.users.register(nonce))
           .then((user) => {
             userDispatch(accountUserRefresh(user));
-            return setTimeout(() => {navigate(history, '/notificationPreferences');}, 1000);
+            return setTimeout(() => {navigate(history, '/userPreferences');}, 1000);
           }).catch((error) => {
             setMyLoading(false);
             console.error(error);

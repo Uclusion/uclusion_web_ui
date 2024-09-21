@@ -11,13 +11,18 @@ function ReturnTop(props) {
   const { action, pathInvestibleId, marketId, groupId, pathMarketIdRaw, hashInvestibleId } = props;
   const intl = useIntl();
   const history = useHistory();
+  const isConfigScreen = ['userPreferences', 'integrationPreferences', 'billing'].includes(action);
+  const upFromConfigPossible = isConfigScreen && marketId;
   const downLevel = action === 'inbox' ? !_.isEmpty(pathMarketIdRaw) :
     (action === 'wizard' ? !_.isEmpty(groupId || marketId) :
       (action === 'marketEdit' ? marketId : !_.isEmpty(pathInvestibleId)));
-  const upDisabled = !downLevel || !['dialog', 'inbox', 'wizard', 'marketEdit'].includes(action);
+  const upDisabled = (!downLevel || !['dialog', 'inbox', 'wizard', 'marketEdit'].includes(action))&&
+    !upFromConfigPossible;
 
   function goUp(){
-    if (action === 'wizard' && hashInvestibleId) {
+    if (upFromConfigPossible) {
+      navigate(history, formMarketLink(marketId, marketId));
+    } else if (action === 'wizard' && hashInvestibleId) {
       navigate(history, formInvestibleLink(marketId, hashInvestibleId));
     } else if (action === 'marketEdit' || (action === 'wizard' && marketId && !groupId)) {
       navigate(history, formMarketLink(marketId, marketId));

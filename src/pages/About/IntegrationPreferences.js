@@ -124,7 +124,7 @@ function IntegrationPreferences (props) {
       <div className={classes.container} style={{marginTop: '3rem', marginBottom: '1rem'}}>
         <Card>
           <SubSection
-            title={intl.formatMessage({ id: 'changePreferences' })}
+            title={intl.formatMessage({ id: 'slackIntegration' })}
             padChildren
           >
             {markets.map((market) => {
@@ -140,17 +140,10 @@ function IntegrationPreferences (props) {
                 alignItems="baseline"
                 style={{ paddingBottom: '0' }}
               >
-                <ListItem key="workspace">
-                  <FormControl variant="filled">
-                    <InputLabel id="markets">
-                      {intl.formatMessage({ id: 'switchWorkspace' })}
-                    </InputLabel>
-                    <Typography>
-                      {intl.formatMessage({ id: 'notificationMarketSettingsExplanation' })}
-                    </Typography>
-                  </FormControl>
-                </ListItem>
-                <ListItem key="slackLink" style={{marginTop: '1rem'}}>
+                <ListItem key={`slackLink${marketId}`}>
+                  <Typography style={{paddingRight: '2rem'}}>
+                    Workspace <b>{market.name}</b>
+                  </Typography>
                   <a
                     href={`${config.add_to_slack_url}&state=${user?.id}_${marketId}`}
                     rel="noopener noreferrer"

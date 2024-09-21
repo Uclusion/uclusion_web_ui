@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Card, FormControl, Grid, ListItem, makeStyles, Typography, } from '@material-ui/core';
+import { Card, Grid, ListItem, makeStyles, Typography, } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import config from '../../config';
@@ -14,7 +14,6 @@ import { PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
 import _ from 'lodash';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import InputLabel from '@material-ui/core/InputLabel';
 
 const useStyles = makeStyles((theme) => ({
   disabled: {

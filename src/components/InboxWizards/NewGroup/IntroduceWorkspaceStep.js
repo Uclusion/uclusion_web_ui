@@ -73,15 +73,13 @@ function IntroduceWorkspaceStep(props) {
       </Typography>
       {!mobileLayout && (
         <div>
-          Besides tracking task management stages like Not Doing, Not Ready, Ready to Start, Assigned, Approved,
-          Tasks Complete, and Assistance Needed, a workspace holds all the work related communication that would
-          otherwise be done in chat or meetings.
+          Workspaces are a security boundary; people you invite to one workspace cannot see your other workspaces.
         </div>
       )}
-      <div style={{paddingBottom: '1rem', paddingTop: '1rem'}}>
-        <Typography variant='body2' style={{paddingBottom: '1.5rem'}}>
+      <div style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
+        <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
           {checkMark}Use the navigation chevrons:
-          <div style={{backgroundColor: '#8ABABF', width: '8rem', height: '60px'}}>
+          <div style={{ backgroundColor: '#8ABABF', width: '8rem', height: '60px' }}>
             <NavigationChevrons/></div>
           {!mobileLayout && (
             <div>
@@ -89,11 +87,11 @@ function IntroduceWorkspaceStep(props) {
             </div>
           )}
         </Typography>
-        <Typography variant='body2' style={{paddingBottom: '1.5rem'}}>
+        <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
           {checkMark}{!mobileLayout && ('Groups hold all the work of a set of participants. ')} Go to a group view by
           clicking a name in the left side panel:
-          <div style={{backgroundColor: '#DFF0F2', width: '16rem'}}>
-            <Sidebar navigationOptions={{navListItemTextArray}} idPrepend="intro" />
+          <div style={{ backgroundColor: '#DFF0F2', width: '16rem' }}>
+            <Sidebar navigationOptions={{ navListItemTextArray }} idPrepend="intro"/>
           </div>
           {!mobileLayout && (
             <div>
@@ -107,13 +105,13 @@ function IntroduceWorkspaceStep(props) {
             After you go to a group you can do more things:
           </div>
         )}
-        <Typography variant='body2' style={{paddingTop: '0.3rem', paddingBottom: '0.5rem'}}>
+        <Typography variant="body2" style={{ paddingTop: '0.3rem', paddingBottom: '0.5rem' }}>
           {checkMark}Open a <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, pathToBugs);
         }}>bug</Link> with a priority that controls it's notifications.
         </Typography>
-        <Typography variant='body2' style={{paddingBottom: '0.5rem'}}>
+        <Typography variant="body2" style={{ paddingBottom: '0.5rem' }}>
           {checkMark}Create a <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, formatGroupLinkWithSuffix(BACKLOG_HASH, marketId, marketId));
@@ -123,13 +121,19 @@ function IntroduceWorkspaceStep(props) {
         }}>assigned</Link> job. Jobs can be assigned and hold tasks, questions, suggestions,
           blockers, and status.
         </Typography>
-        <Typography variant='body2' style={{paddingBottom: '1.5rem'}}>
+        <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
           {checkMark}Start a <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, formatGroupLinkWithSuffix(DISCUSSION_HASH, marketId, marketId));
         }}>discussion</Link> where questions have vote-able options and suggestions can be voted for or
           against.
         </Typography>
+        {!mobileLayout && (
+          <img style={{ width: '100%' }}
+               src={`/images/UclusionMap.png`}
+               alt="Uclusion map"
+          />
+        )}
       </div>
       <WizardStepButtons
         {...props}

@@ -361,6 +361,7 @@ function Signup(props) {
   }
   const hideNonEmailInput = _.isEmpty(userState.email) && !code;
   const noEmailInput = _.isEmpty(qryEmail) && _.isEmpty(email) && _.isEmpty(name);
+  const hideNonNameInput = noEmailInput && code && _.isEmpty(name);
   const formInvalid = !terms || _.isEmpty(name) || (_.isEmpty(email) && _.isEmpty(code)) || _.isEmpty(password) || _.isEmpty(repeat) || password !== repeat || password.length < 6;
   return (
     <Container component="main" maxWidth="xs">
@@ -527,7 +528,7 @@ function Signup(props) {
                     />
                   </Grid>
                 )}
-                {!hideNonEmailInput && (
+                {!hideNonEmailInput && !hideNonNameInput && (
                   <Grid item xs={12}>
                     <TextField
                       value={userState.password}
@@ -559,7 +560,7 @@ function Signup(props) {
                     />
                   </Grid>
                 )}
-                {!hideNonEmailInput && (
+                {!hideNonEmailInput && !hideNonNameInput && (
                   <Grid item xs={12}>
                     <TextField
                       value={userState.repeat}

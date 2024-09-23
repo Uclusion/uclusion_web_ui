@@ -218,7 +218,7 @@ export function findMessageOfTypeAndId(notificationId, state, subtype) {
 
 export function getPaginatedItems(items, page=1, pageSize, workItemId) {
   const offset = (page - 1) * pageSize;
-  const workItem = workItemId ? items.filter((item) => item.id === workItemId
+  const workItem = workItemId && items ? items.filter((item) => item.id === workItemId
     || item.type_object_id === workItemId) : undefined;
   const hasWorkItem = !_.isEmpty(workItem);
   const data = hasWorkItem ? workItem : _.drop(items, offset).slice(0, pageSize);

@@ -743,6 +743,31 @@ function Comment(props) {
   );
   const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,
     undefined, id);
+  const dateInfo = <>
+    {mobileLayout && (
+      <Typography className={classes.timeElapsed} variant="body2">
+        {intl.formatDate(comment.updated_at)}
+      </Typography>
+    )}
+    {!mobileLayout && (
+      <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '1rem'}}>
+        Created <UsefulRelativeTime value={comment.created_at}/>
+        {noAuthor &&
+          `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
+        {comment.created_at < comment.updated_at && !resolved && (
+          <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
+        )}
+        {resolved && (
+          <> Resolved <UsefulRelativeTime value={comment.updated_at}/></>
+        )}
+        {comment.created_at < comment.updated_at && !displayUpdatedBy && (
+          <>.</>
+        )}
+        {displayUpdatedBy &&
+          `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
+      </Typography>
+    )}
+  </>;
   const commentCard = <Card elevation={3}
                             style={{overflow: 'unset', marginTop: isSent === false || usePadding === false ? 0
       : '1rem', width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
@@ -755,33 +780,7 @@ function Comment(props) {
       <Box display="flex">
         {cardTypeDisplay}
         <div style={{flexGrow: 1}}/>
-        {(beingEdited || ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)) && (
-          <>
-            {mobileLayout && (
-              <Typography className={classes.timeElapsed} variant="body2">
-                {intl.formatDate(comment.updated_at)}
-              </Typography>
-            )}
-            {!mobileLayout && (
-              <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '1rem'}}>
-                Created <UsefulRelativeTime value={comment.created_at}/>
-                {noAuthor &&
-                  `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
-                {comment.created_at < comment.updated_at && !resolved && (
-                  <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
-                )}
-                {resolved && (
-                  <> Resolved <UsefulRelativeTime value={comment.updated_at}/></>
-                )}
-                {comment.created_at < comment.updated_at && !displayUpdatedBy && (
-                  <>.</>
-                )}
-                {displayUpdatedBy &&
-                  `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
-              </Typography>
-            )}
-          </>
-        )}
+        {(beingEdited || ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)) && dateInfo}
         {displayEditing && isReallyMobileLayout && !beingEdited && (
           <TooltipIconButton
             onClick={toggleEdit}
@@ -999,14 +998,18 @@ function Comment(props) {
         </CardActions>
       )}
     </div>
-  </Card>;
+  </Card>
+  let strippedBody = stripHTML(body);
+  if (_.isEmpty(strippedBody)) {
+    strippedBody = dateInfo;
+  }
   const compressedCommentCard = <Card elevation={3} style={{ display: 'flex', paddingBottom: '1rem',
     height: '100%',
     cursor: 'pointer', width: 'fit-content', maxWidth: '98%', marginTop: isSent === false || usePadding === false ? 0
       : '1rem' }} onClick={toggleCompression}>
     {cardTypeDisplay}
     <div className={classes.compressedComment}>
-      {stripHTML(body)}</div>
+      {strippedBody}</div>
     <div style={{ flexGrow: 1 }}/>
     <div style={{ marginRight: '1rem', marginTop: '0.5rem' }}>
       <TooltipIconButton

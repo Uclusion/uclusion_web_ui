@@ -114,7 +114,6 @@ export default function NavigationChevrons(props) {
   allExistingUrls = allExistingUrls.concat(outboxCandidates.map((candidate) => candidate.url));
   const previous = _.find(orderedNavigations, (navigation) =>
     allExistingUrls.includes(navigation.url) && navigation.url !== resource);
-  const isOnExistingUrl = allExistingUrls.includes(resource);
 
   function computeNext() {
     if (groupLoadId || resource.startsWith(`${getInboxTarget()}/UNREAD_GROUP_`)) {

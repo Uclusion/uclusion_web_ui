@@ -134,24 +134,24 @@ export default function NavigationChevrons(props) {
       return {url: formInboxItemLink(message.type_object_id), message};
     }
     const notHighlightedMessages = allMessages.filter((message) => !message.is_highlighted);
-    if (!_.isEmpty(approvedCandidates)&&
-      (!isOnExistingUrl || _.size(approvedCandidates) > 1 ||
-        (_.isEmpty(outboxCandidates)&&_.isEmpty(notHighlightedMessages)))) {
+    if (!_.isEmpty(approvedCandidates)) {
       // Time as a long gets larger so smallest would be oldest
       const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['numInProgress','time'],
         ['desc','asc']);
-      const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource &&
-        candidate.url !== previous?.url);
+      // Allowed to go to previous here so can cycle through in progress assignments
+      const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource);
       if (approvedNext) {
         return {url: approvedNext.url};
       }
     }
+    // It's okay not reaching here when have multiple approved investibles - when only one will reach
     if (!_.isEmpty(outboxCandidates)) {
       let candidates = outboxCandidates;
       if (!_.isEmpty(approvedCandidates)) {
         candidates = candidates.concat(approvedCandidates);
       }
       const orderedCandidates = _.orderBy(candidates, ['time'], ['asc']);
+      // Not allowed to go to previous here so can break out of looking at outbox
       const candidateNext = _.find(orderedCandidates, (candidate) => candidate.url !== resource &&
         candidate.url !== previous?.url);
       if (candidateNext) {

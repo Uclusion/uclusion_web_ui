@@ -58,7 +58,7 @@ import { red } from '@material-ui/core/colors';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import { addInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFurtherWorkStage, getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   decomposeMarketPath,
@@ -516,6 +516,8 @@ function Comment(props) {
   const myMessage = findMessageForCommentId(id, messagesState);
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inReviewStageId = inReviewStage.id;
+  const inBacklogStage = getFurtherWorkStage(marketStagesState, marketId) || {};
+  const inBacklog = currentStageId === inBacklogStage.id;
   const createdInReview = currentStageId === inReviewStageId;
   const loading = !hasUser || !myPresence || !marketType || !marketTokenLoaded(marketId, tokensHash)
     || (inlineMarketId && _.isEmpty(inlineMarket));
@@ -927,7 +929,7 @@ function Comment(props) {
                 {!mobileLayout && intl.formatMessage({ id: 'commentUnmuteLabel' })}
               </SpinningIconLabelButton>
             )}
-            {commentType === TODO_TYPE && investibleId && !removeActions && enableEditing && (
+            {commentType === TODO_TYPE && investibleId && !removeActions && enableEditing && !inBacklog && (
               <FormControlLabel
                 id='inProgressCheckbox'
                 style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem'}}

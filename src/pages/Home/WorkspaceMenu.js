@@ -116,6 +116,7 @@ function WorkspaceMenu(props) {
   const history = useHistory();
   const marketPresences = getMarketPresences(marketPresencesState, defaultMarket.id) || [];
   const presencesFiltered = marketPresences.filter((presence) => !presence.market_banned);
+  const presencesOrdered =  _.orderBy(presencesFiltered, ['name'], ['asc']);
 
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
@@ -279,7 +280,7 @@ function WorkspaceMenu(props) {
           id="addressesOfWorkspace"
           style={{marginTop: '0.5rem'}}
         >
-          {presencesFiltered.map((presence) => <GravatarAndName
+          {presencesOrdered.map((presence) => <GravatarAndName
               key={presence.id}
               email={presence.email}
               name={presence.name}

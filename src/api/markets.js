@@ -43,6 +43,15 @@ export function updateGroup(props) {
     .catch((error) => toastErrorAndThrow(error, 'errorGroupUpdateFailed'))
 }
 
+export function activateInactiveMarket(marketId, isActive) {
+  const updateOptions = {
+    market_stage: isActive ? 'Active' : 'Inactive'
+  }
+  return getMarketClient(marketId)
+    .then((client) => client.markets.updateMarket(updateOptions))
+    .catch((error) => toastErrorAndThrow(error, 'errorMarketUpdateFailed'))
+}
+
 export function updateMarket(marketId, name = null, investmentExpiration = null, allowMultiVote = null,
   isSinglePersonMode = null) {
   const updateOptions = {}

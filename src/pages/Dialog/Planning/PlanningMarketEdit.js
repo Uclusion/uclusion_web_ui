@@ -31,6 +31,8 @@ import NameField, { clearNameStoredState, getNameStoredState } from '../../../co
 import { StartedExpiration } from '../../../components/AgilePlan/StartedExpiration';
 import { getMarketPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import ArchiveMarketButton from './ArchiveMarketButton';
+import ActivateMarketButton from './ActivateMarketButton';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -63,6 +65,7 @@ function PlanningMarketEdit() {
   const [startedExpiration, setStartedExpiration] = useState(market.started_expiration || 3);
   const [singlePersonMode, setSinglePersonMode] = useState(market.market_sub_type === 'SINGLE_PERSON');
   const nameId = `marketEdit${marketId}`;
+  const isArchived = market.market_stage !== 'Active';
 
   function clear() {
     clearNameStoredState(nameId);
@@ -119,6 +122,22 @@ function PlanningMarketEdit() {
           <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
             <ManageMarketUsers market={market}/>
           </Grid>
+          {!isArchived && (
+            <Grid item md={5} xs={12} className={classes.fieldsetContainer} style={{paddingTop: '4rem'}}>
+              Archiving a workspace removes its groups from the UI and its unique users from billing.
+              <Typography variant="h6" style={{marginTop: '1rem'}}>
+                {intl.formatMessage({ id: 'archiveWorkspace' })} <ArchiveMarketButton marketId={market.id} />
+              </Typography>
+            </Grid>
+          )}
+          {isArchived && (
+            <Grid item md={5} xs={12} className={classes.fieldsetContainer} style={{paddingTop: '4rem'}}>
+              This workspace is archived and its users do not contribute to billing.
+              <Typography variant="h6" style={{marginTop: '1rem'}}>
+                {intl.formatMessage({ id: 'activateWorkspace' })} <ActivateMarketButton marketId={market.id} />
+              </Typography>
+            </Grid>
+          )}
         </Grid>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
               style={{paddingTop: "2rem"}}>

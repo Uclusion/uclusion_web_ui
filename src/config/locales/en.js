@@ -1201,6 +1201,9 @@ const messages = defineMessages({
   existingUsersUnBanUser: 'Readmit collaborator',
   banUserWarning: 'Removing a collaborator will prevent them from seeing any future updates',
   unbanUserWarning: 'Readmitting a collaborator will allow them to see any future updates',
+  archiveMarketWarning: 'Archiving the workspace removes all notifications.',
+  archiveWorkspace: 'Archive workspace',
+  activateWorkspace: 'Activate workspace',
 
   // Notifications
   notificationDismiss: 'Dismiss',

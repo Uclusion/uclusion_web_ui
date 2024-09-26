@@ -265,8 +265,9 @@ function getMessageForComment(comment, market, type, Icon, intl, investibleState
   return message;
 }
 
-export function getWorkspaceData(planningDetails, marketPresencesState, investiblesState, commentsState,
+export function getWorkspaceData(planningDetailsRaw, marketPresencesState, investiblesState, commentsState,
   marketStagesState) {
+  const planningDetails = planningDetailsRaw.filter((market) => market.market_stage === 'Active');
   return planningDetails.map((market) => {
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
     const myPresence = marketPresences.find((presence) => presence.current_user) || {};

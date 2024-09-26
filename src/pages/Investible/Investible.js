@@ -49,6 +49,7 @@ function Investible(props) {
     || _.isEmpty(realMarket) || !marketTokenLoaded(marketId, tokensHash);
   const isAdmin = myPresence && myPresence.is_admin;
 
+
   useEffect(() => {
     if (!hidden && !hash.includes('option')) {
       if (parentInvestibleId) {

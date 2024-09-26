@@ -8,7 +8,7 @@ import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import _ from 'lodash';
 
 function ReturnTop(props) {
-  const { action, pathInvestibleId, marketId, groupId, pathMarketIdRaw, hashInvestibleId } = props;
+  const { action, pathInvestibleId, marketId, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace } = props;
   const intl = useIntl();
   const history = useHistory();
   const isConfigScreen = ['userPreferences', 'integrationPreferences', 'billing'].includes(action);
@@ -16,8 +16,8 @@ function ReturnTop(props) {
   const downLevel = action === 'inbox' ? !_.isEmpty(pathMarketIdRaw) :
     (action === 'wizard' ? !_.isEmpty(groupId || marketId) :
       (action === 'marketEdit' ? marketId : !_.isEmpty(pathInvestibleId)));
-  const upDisabled = (!downLevel || !['dialog', 'inbox', 'wizard', 'marketEdit'].includes(action))&&
-    !upFromConfigPossible;
+  const upDisabled = ((!downLevel || !['dialog', 'inbox', 'wizard', 'marketEdit'].includes(action))&&
+    !upFromConfigPossible)||isArchivedWorkspace;
 
   function goUp(){
     if (upFromConfigPossible) {

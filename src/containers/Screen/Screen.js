@@ -324,6 +324,7 @@ function Screen(props) {
   const inboxCount = getInboxCount(messagesState);
   const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();
   const addCollaboratorChosen = action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase();
+  const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
   const navigationMenu = isDemoLoading ? {} :
     {
       headerItemTextArray: [
@@ -336,7 +337,7 @@ function Screen(props) {
                               inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId}
                               hashInvestibleId={hashInvestibleId} pathMarketIdRaw={pathMarketIdRaw}
                               pathInvestibleId={pathInvestibleId} action={action} />,
-      navListItemTextArray: !_.isEmpty(defaultMarket) ? [
+      navListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [
         {
           icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
           isBold: addCollaboratorChosen, isBlue: addCollaboratorChosen,
@@ -349,7 +350,7 @@ function Screen(props) {
         }
       ] : null}
   ;
-  if (navigationMenu.navListItemTextArray) {
+  if (navigationMenu.navListItemTextArray && !isArchivedWorkspace) {
     navigationMenu.navListItemTextArray = navigationMenu.navListItemTextArray.concat(navListItemTextArray);
   }
   const myContainerClass = !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;

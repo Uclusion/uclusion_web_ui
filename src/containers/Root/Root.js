@@ -107,6 +107,7 @@ function Root() {
   const demoCreatedUser = userState?.user?.onboarding_state === OnboardingState.DemoCreated;
   const firstMarketJoinedUser = userState?.user?.onboarding_state === OnboardingState.FirstMarketJoined;
   const isRootPath = pathname === '/';
+  const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
 
   function hideInbox() {
     return action !== 'inbox';
@@ -299,7 +300,7 @@ function Root() {
           <div className={classes.content}>
             <Wizard hidden={hideWorkspaceWizard()} />
             <InboxFull hidden={hideInbox()} />
-            <Market hidden={hideMarket()}/>
+            <Market hidden={hideMarket()||isArchivedWorkspace}/>
             <Support hidden={hideSupport()}/>
             <BillingHome hidden={hideBillingHome()}/>
             <Investible hidden={hideInvestible()}/>
@@ -307,7 +308,7 @@ function Root() {
             <SlackInvite hidden={hideSlackInvite()}/>
             <AccountPreferences hidden={hideAccountPreferences()}/>
             <IntegrationPreferences hidden={hideIntegrationPreferences()}/>
-            {!hideMarketEdit() && (
+            {(!hideMarketEdit()||(isArchivedWorkspace && !hideMarket())) && (
               <PlanningMarketEdit />
             )}
             {!hideMarketLoad() && (

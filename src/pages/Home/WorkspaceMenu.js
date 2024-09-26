@@ -152,10 +152,11 @@ function WorkspaceMenu(props) {
       </ProSidebar>
     );
   }
-
+  const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
   return (
     <div style={{marginLeft: '15px'}}>
       <ReturnTop action={action} pathInvestibleId={pathInvestibleId} marketId={defaultMarket.id}
+                 isArchivedWorkspace={isArchivedWorkspace}
                  groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>
       <Button
         onClick={recordPositionToggle}

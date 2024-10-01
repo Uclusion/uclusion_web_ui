@@ -597,7 +597,7 @@ const messages = defineMessages({
 
   // Home
   homeAddPlanning: 'New workspace',
-  homeAddGroup: 'New workspace group',
+  homeAddGroup: 'New group',
   archiveWarning: 'Muting will unassign any active job. Deactivating stops the group for everyone.',
   new: 'new',
   match: 'match',

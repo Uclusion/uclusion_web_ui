@@ -79,6 +79,7 @@ function Options(props) {
     selectedStageTab === 1 ? selectedInvestibleId : undefined);
   const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
+  const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
   const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
   const useTabIndex = selectedStageTab || tabIndex;
   const foundInv = (inlineInvestibles || []).find((inv) => hash?.includes(inv.investible.id));
@@ -124,7 +125,9 @@ function Options(props) {
   }
 
   function onDropApprovable(event) {
-    return onDrop(event, proposedStage, underConsiderationStage);
+    if (myInlinePresence.is_admin) {
+      return onDrop(event, proposedStage, underConsiderationStage);
+    }
   }
 
   function onDropProposed(event) {

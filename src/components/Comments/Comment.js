@@ -1022,7 +1022,7 @@ function Comment(props) {
       />
     </div>
   </Card>;
-  if (useCompression && inboxMessageId && (compressAll || inboxMessageId !== id)) {
+  if (useCompression && (compressAll || inboxMessageId !== id)) {
     const numInThread = _.size(comments.filter((aComment) => aComment.root_comment_id === id));
     return (
     <>

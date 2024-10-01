@@ -7,11 +7,11 @@ import { useHistory, useLocation } from 'react-router'
 import Header from '../Header'
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import {
-  decomposeMarketPath,
+  decomposeMarketPath, formCommentLink,
   formMarketLink,
   navigate,
   preventDefaultAndProp
-} from '../../utils/marketIdPathFunctions'
+} from '../../utils/marketIdPathFunctions';
 import LoadingDisplay from '../../components/LoadingDisplay';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import { getInboxCount, getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
@@ -35,7 +35,7 @@ import {
   PLANNING_TYPE,
   SUPPORT_SUB_TYPE
 } from '../../constants/markets';
-import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getMarket, getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
 import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';
@@ -44,6 +44,8 @@ import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPres
 import OnboardingBanner from '../../components/Banners/OnboardingBanner';
 import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
+import { getComment } from '../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -243,6 +245,7 @@ function Screen(props) {
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [marketsState] = useContext(MarketsContext);
+  const [commentsState] = useContext(CommentsContext);
   const { results, search } = searchResults;
   const {
     hidden,
@@ -275,8 +278,15 @@ function Screen(props) {
   } else if (action === 'dialog') {
     pathMarketId = pathMarketIdRaw;
   }
-  const marketId = pathMarketId || searchMarketId || hashMarketId ||
+  let marketId = pathMarketId || searchMarketId || hashMarketId ||
     getPlanningMarketId(investibleId, marketsState, investiblesState);
+  const aMarket = getMarket(marketsState, marketId);
+  let useLink;
+  if (aMarket && aMarket.market_type !== PLANNING_TYPE) {
+    marketId = aMarket.parent_comment_market_id;
+    const parentComment = getComment(commentsState, marketId, aMarket.parent_comment_id);
+    useLink = formCommentLink(marketId, parentComment.group_id, parentComment.investible_id, parentComment.id);
+  }
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
       const calcPend = getInboxCount(messagesState);
@@ -335,6 +345,7 @@ function Screen(props) {
       ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
                               inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId}
+                              useLink={useLink}
                               hashInvestibleId={hashInvestibleId} pathMarketIdRaw={pathMarketIdRaw}
                               pathInvestibleId={pathInvestibleId} action={action} />,
       navListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [

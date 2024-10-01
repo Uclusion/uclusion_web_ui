@@ -8,7 +8,8 @@ import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import _ from 'lodash';
 
 function ReturnTop(props) {
-  const { action, pathInvestibleId, marketId, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace } = props;
+  const { action, pathInvestibleId, marketId, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
+    useLink } = props;
   const intl = useIntl();
   const history = useHistory();
   const isConfigScreen = ['userPreferences', 'integrationPreferences', 'billing'].includes(action);
@@ -20,7 +21,9 @@ function ReturnTop(props) {
     !upFromConfigPossible)||isArchivedWorkspace;
 
   function goUp(){
-    if (upFromConfigPossible) {
+    if (useLink) {
+      navigate(history, useLink);
+    }else if (upFromConfigPossible) {
       navigate(history, formMarketLink(marketId, marketId));
     } else if (action === 'wizard' && hashInvestibleId) {
       navigate(history, formInvestibleLink(marketId, hashInvestibleId));

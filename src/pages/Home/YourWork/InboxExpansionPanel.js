@@ -118,7 +118,7 @@ export function calculateTitleExpansionPanel(props) {
         setItem(item, openExpansion, <ReplyResolveWizard commentId={commentId} marketId={marketId} message={message}/>,
           'DecideIdeaTitle', intl);
       }
-    } else if ('INLINE_STORY_COMMENT' === linkType) {
+    } else if (['INLINE_STORY_COMMENT', 'INLINE_WORKSPACE_COMMENT'].includes(linkType)) {
       setItem(item, openExpansion, <RespondInOptionWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                  message={message} />,
         'DecideResponseTitle', intl);

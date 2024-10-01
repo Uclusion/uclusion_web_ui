@@ -18,7 +18,7 @@ function WorkspaceMembersStep(props) {
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, marketsDispatch] = useContext(MarketsContext);
-  const { marketId: addToMarketId } = formData;
+  const { marketId: addToMarketId, link } = formData;
 
   function useSinglePersonMode() {
     return updateMarket(
@@ -29,7 +29,6 @@ function WorkspaceMembersStep(props) {
       true
     ).then(market => {
       addMarketToStorage(marketsDispatch, market);
-      const { link } = formData;
       setOperationRunning(false);
       navigate(history, link);
     });
@@ -51,6 +50,7 @@ function WorkspaceMembersStep(props) {
       <WizardStepButtons
         {...props}
         showSkip
+        onSkip={() => navigate(history, link)}
         onNext={() => navigate(history,
           `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${addToMarketId}`)}
         nextLabel="addMoreCollaborators"

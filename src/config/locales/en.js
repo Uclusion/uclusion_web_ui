@@ -457,6 +457,7 @@ const messages = defineMessages({
   reassignToMove: 'Assigning moves to the swimlanes.',
   marketLinksSection: 'links',
   attachedFilesSection: 'Attach Files',
+  attachededFilesSection: 'Attached Files',
   parentLinkSection: 'Parent',
   dialogNotParticipating: 'Click to become a collaborator',
   lockedBy: 'Locked by {x}',

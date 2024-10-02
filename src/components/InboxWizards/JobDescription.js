@@ -99,7 +99,7 @@ function JobDescription(props) {
         {showAttachments && (
           <>
             <div className={attachedStyles.sectionTitle}>
-              <FormattedMessage id="attachedFilesSection"/>
+              <FormattedMessage id="attachededFilesSection"/>
             </div>
             <div>
               {displayLinksList(attachedFiles, fileBaseUrl, undefined, undefined,

@@ -10,6 +10,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { useIntl } from 'react-intl';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
+import _ from 'lodash';
 
 function ReviewEditStep(props) {
   const { marketId, investibleId, message } = props;
@@ -20,6 +21,7 @@ function ReviewEditStep(props) {
   const { edit_list: notificationTypes, investible_name: previousName } = message;
   const isDescriptionEdited = notificationTypes.includes('UNREAD_DESCRIPTION');
   const isAttachmentsEdited = notificationTypes.includes('UNREAD_ATTACHMENT');
+  const isNameEdited = notificationTypes.includes('UNREAD_NAME');
 
   return (
     <WizardStepContainer
@@ -28,7 +30,7 @@ function ReviewEditStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({ id: 'unreadJobEdit' })}
       </Typography>
-      {previousName && (
+      {isNameEdited && !_.isEmpty(previousName) && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Previous name was {previousName}.
         </Typography>

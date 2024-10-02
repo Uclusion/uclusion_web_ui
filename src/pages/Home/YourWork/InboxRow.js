@@ -38,11 +38,15 @@ import { NOT_FULLY_VOTED_TYPE, POKED, UNREAD_JOB_APPROVAL_REQUEST } from '../../
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import _ from 'lodash';
 import Approval from '../../../components/CustomChip/Approval';
+import EditNote from '../../../components/CustomChip/EditNote';
 
 function getPriorityIcon(message, isAssigned, isMentioned) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
     market_type: marketType, alert_type: alertType, poked_list: pokedList } = message;
   let Icon = Quiz;
+  if (!_.isEmpty(message.edit_list)) {
+    Icon = EditNote;
+  }
   if (message.type === 'UNREAD_VOTE') {
     Icon = Done;
   }

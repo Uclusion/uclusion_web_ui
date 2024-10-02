@@ -40,7 +40,7 @@ export function displayLinksList(filesList, fileBaseUrl, downloadFile, onDeleteC
     const {original_name, path} = file;
     const linkToFile = `${fileBaseUrl}/${path}`;
     return (
-      <div style={{width: '40%'}}>
+      <div>
         <Link
           href={linkToFile}
           variant="inherit"

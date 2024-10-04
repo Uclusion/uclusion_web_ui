@@ -60,7 +60,7 @@ export function getMarketComments(state, marketId, groupId) {
 export function getThreadAboveIds(commentId, marketComments) {
   const threadIds = [commentId];
   const comment = marketComments.find((aComment) => aComment.id === commentId);
-  if (!comment.reply_id) {
+  if (!comment?.reply_id) {
     return threadIds;
   }
   return threadIds.concat(getThreadAboveIds(comment.reply_id, marketComments));

@@ -28,7 +28,7 @@ function DecidePromoteStep(props) {
         Drag and drop to allow voting on an option or leave a comment explaining why it should not be promoted.
       </Typography>
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                      showVoting
+                      showVoting commentMarketId={commentMarketId}
                       selectedInvestibleIdParent={investibleId}
       />
     </WizardStepContainer>

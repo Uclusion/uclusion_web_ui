@@ -27,7 +27,7 @@ import { isLargeDisplay } from '../../utils/stringFunctions';
 function JobDescription(props) {
   const { investibleId, marketId, comments, showAssigned=true, inboxMessageId, showRequiredApprovers = false,
     removeActions, showVoting, selectedInvestibleIdParent, preserveOrder, showAttachments, toggleCompression,
-    useCompression, isSingleTaskDisplay = false, showCreatedBy = false,
+    useCompression, isSingleTaskDisplay = false, showCreatedBy = false, commentMarketId,
     showDiff = false } = props;
   const history = useHistory();
   const theme = useTheme();
@@ -55,6 +55,7 @@ function JobDescription(props) {
   const nonTodoCommentsRoots = nonTodoComments?.filter((comment) => comment.comment_type !== REPLY_TYPE);
   const normalDescriptionDisplay = showDiff || !isLargeDisplay(description);
   const fullDescription = <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} />;
+  const planningMarketId = commentMarketId || marketId;
 
   return (
     <>
@@ -62,10 +63,10 @@ function JobDescription(props) {
         {investibleId && (
           <div
             style={{ display: mobileLayout ? undefined : 'flex', paddingBottom: mobileLayout ? '1.5rem' : undefined }}>
-            <Link href={formInvestibleLink(marketId, investibleId)} variant="h6"
+            <Link href={formInvestibleLink(planningMarketId, investibleId)} variant="h6"
                   onClick={(event) => {
                     preventDefaultAndProp(event);
-                    navigate(history, formInvestibleLink(marketId, investibleId));
+                    navigate(history, formInvestibleLink(planningMarketId, investibleId));
                   }}>
               {name}
             </Link>
@@ -118,7 +119,7 @@ function JobDescription(props) {
             <CommentBox
               comments={isSingleTaskDisplay ? comments : nonTodoComments}
               preserveOrder={preserveOrder}
-              marketId={marketId}
+              marketId={planningMarketId}
               allowedTypes={[]}
               fullStage={getFullStage(marketStagesState, marketId, marketInfo.stage) || {}}
               investible={inv}

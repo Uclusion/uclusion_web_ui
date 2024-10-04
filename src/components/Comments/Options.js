@@ -131,7 +131,9 @@ function Options(props) {
   }
 
   function onDropProposed(event) {
-    return onDrop(event, underConsiderationStage, proposedStage);
+    if (myInlinePresence.is_admin) {
+      return onDrop(event, underConsiderationStage, proposedStage);
+    }
   }
 
   if (_.isEmpty(inlineInvestibles)) {

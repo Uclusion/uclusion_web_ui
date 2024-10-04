@@ -9,7 +9,10 @@ import Voting from './Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getProposedOptionsStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getInCurrentVotingStage,
+  getProposedOptionsStage,
+} from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import {
   ACTIVE_STAGE,
   APPROVAL_WIZARD_TYPE,
@@ -19,16 +22,20 @@ import {
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { addInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import CardActions from '@material-ui/core/CardActions';
 import clsx from 'clsx';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
 import { useMetaDataStyles } from '../Planning/PlanningInvestibleNav';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { attachFilesToInvestible, deleteAttachedFilesFromInvestible } from '../../../api/investibles';
+import {
+  attachFilesToInvestible,
+  deleteAttachedFilesFromInvestible,
+  moveInvestibleToCurrentVoting
+} from '../../../api/investibles';
 import { invalidEditEvent } from '../../../utils/windowUtils';
 import EditMarketButton from '../../Dialog/EditMarketButton';
-import { ExpandLess } from '@material-ui/icons';
+import { ArrowDownward, ArrowUpward, ExpandLess } from '@material-ui/icons';
 import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
@@ -195,8 +202,8 @@ function DecisionInvestible(props) {
   const { group_id: groupId, stage } = marketInfo;
   const allowDelete = marketPresences && marketPresences.length < 2;
   const [marketStagesState] = useContext(MarketStagesContext);
-  const inProposedStage = getProposedOptionsStage(marketStagesState, marketId);
-  const inProposed = inProposedStage && stage === inProposedStage.id;
+  const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
+  const inProposed = proposedStage && stage === proposedStage.id;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
   const yourVote = yourPresence.investments?.find((investment) => investment.investible_id === investibleId
@@ -212,6 +219,7 @@ function DecisionInvestible(props) {
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
+  const underConsiderationStage = getInCurrentVotingStage(marketStagesState, marketId);
 
   function isEditableByUser() {
     return !removeActions && !inArchives && (isAdmin || (inProposed && createdBy === userId));
@@ -223,6 +231,24 @@ function DecisionInvestible(props) {
       const { name } = lockedByPresence
       lockedByName = name
     }
+  }
+
+  function changeStage() {
+    const fromStage = inProposed ? proposedStage : underConsiderationStage;
+    const toStage = inProposed ? underConsiderationStage : proposedStage;
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: fromStage.id,
+        stage_id: toStage.id,
+      },
+    };
+    return moveInvestibleToCurrentVoting(moveInfo)
+      .then((inv) => {
+        refreshInvestibles(investiblesDispatch, () => {}, [inv]);
+        setOperationRunning(false);
+      });
   }
 
   function toggleDiffShow() {
@@ -256,6 +282,15 @@ function DecisionInvestible(props) {
           marketId={marketId}
           groupId={groupId}
         />
+      )}
+      {yourPresence?.is_admin && (
+        <>
+          <div style={{paddingTop: '1rem'}} />
+          <SpinningIconLabelButton icon={inProposed ? ArrowUpward : ArrowDownward} id='optionStageChange'
+                                   onClick={changeStage}>
+            <FormattedMessage id={inProposed ? 'promoteOption' : 'demoteOption'} />
+          </SpinningIconLabelButton>
+        </>
       )}
     </dl>
     );

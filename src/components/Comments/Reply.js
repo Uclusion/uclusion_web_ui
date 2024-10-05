@@ -32,6 +32,8 @@ import Gravatar from '../Avatars/Gravatar';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import { BUG_WIZARD_TYPE, DELETE_COMMENT_TYPE, REPLY_WIZARD_TYPE } from '../../constants/markets';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
+import EditIcon from '@material-ui/icons/Edit';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -336,7 +338,7 @@ function Reply(props) {
             }}
             variant="text"
           >
-            {intl.formatMessage({ id: "issueReplyLabel" })}
+            {intl.formatMessage({ id: "issueReplyLabel" })} {hasReply(comment) && <EditIcon style={{fontSize: '1rem'}} fontSize='small' />}
           </Button>
         )}
         {enableEditing && isEditable && mobileLayout && (

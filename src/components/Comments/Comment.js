@@ -118,6 +118,8 @@ import styled from 'styled-components';
 import { NOT_FULLY_VOTED_TYPE, RED_LEVEL } from '../../constants/notifications';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import EditIcon from '@material-ui/icons/Edit';
+import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -886,7 +888,7 @@ function Comment(props) {
                 id={`commentReplyButton${id}`}
                 doSpin={false}
               >
-                {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })}
+                {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })} {hasReply(comment) && <EditIcon />}
               </SpinningIconLabelButton>
             )}
             {showAddVoting && (

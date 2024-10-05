@@ -4,7 +4,7 @@ import { FormControl, FormControlLabel, FormLabel, makeStyles, Radio, RadioGroup
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { TODO_TYPE } from '../../../constants/comments';
-import CommentAdd from '../../Comments/CommentAdd';
+import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
@@ -29,6 +29,11 @@ export const bugRadioStyles = makeStyles(
   },
   { name: "VoteAdd" }
 );
+
+export function hasBug(marketId) {
+  return hasCommentValue(marketId, undefined, 'CommentAddBug', undefined,
+    'addBug');
+}
 
 function BugDescriptionStep (props) {
   const { marketId, groupId, updateFormData, formData, commentType } = props;

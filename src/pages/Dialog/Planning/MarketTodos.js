@@ -61,6 +61,8 @@ import {
 } from '../../../contexts/NotificationsContext/notificationsContextMessages';
 import { pushMessage } from '../../../utils/MessageBusUtils';
 import { dehighlightCriticalMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer';
+import EditIcon from '@material-ui/icons/Edit';
+import { hasBug } from '../../../components/AddNewWizards/Bug/BugDescriptionStep';
 
 export const todoClasses = makeStyles(
   theme => {
@@ -394,7 +396,7 @@ function MarketTodos(props) {
                         className={wizardClasses.actionNext}
                         style={{marginBottom: '1rem', marginTop: '1rem'}}
                         variant="text" doSpin={false}
-                        icon={AddIcon} iconColor="black"
+                        icon={hasBug(marketId) ? EditIcon : AddIcon} iconColor="black"
                         onClick={() => navigate(history,
                           formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, tabIndex))}>
           <FormattedMessage id='createBug'/>

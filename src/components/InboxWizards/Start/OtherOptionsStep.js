@@ -15,6 +15,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { resolveComment } from '../../../api/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function OtherOptionsStep(props) {
   const { marketId, commentId, message, updateFormData, formData } = props;
@@ -67,6 +68,7 @@ function OtherOptionsStep(props) {
         otherSpinOnClick={false}
         onOtherNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
           undefined, undefined, commentId, message.type_object_id))}
+        otherNextShowEdit={hasReply(getComment(commentState, marketId, commentId))}
         onOtherNextDoAdvance={false}
         otherNextLabel="issueReplyLabel"
         terminateLabel="issueResolveLabel"

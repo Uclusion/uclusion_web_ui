@@ -21,6 +21,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import _ from 'lodash';
+import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideReviewStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -72,6 +73,7 @@ function DecideReviewStep(props) {
         nextLabel="DecideAddReview"
         onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
           undefined, undefined, commentId, message.type_object_id))}
+        nextShowEdit={hasReply(getComment(commentsState, marketId, commentId))}
         spinOnClick={false}
         showOtherNext={!isNotDoing}
         otherSpinOnClick={false}

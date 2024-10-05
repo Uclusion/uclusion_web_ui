@@ -16,6 +16,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
+import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideResponseStep(props) {
   const { marketId, commentId, message } = props;
@@ -69,6 +70,7 @@ function DecideResponseStep(props) {
         nextLabel="issueReplyLabel"
         onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
           undefined, undefined, commentId, message.type_object_id))}
+        nextShowEdit={hasReply(getComment(commentState, marketId, commentId))}
         spinOnClick={false}
         onFinish={myOnFinish}
         showTerminate={true}

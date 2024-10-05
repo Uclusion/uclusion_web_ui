@@ -270,6 +270,14 @@ export function quickNotificationChanges(apiType, investibleId, messagesState, m
   }
 }
 
+export function hasCommentValue(marketId, parent, nameKey, fromInvestibleId, nameDifferentiator='') {
+  const usedParent = parent || {};
+  const { investible_id: parentInvestible, id: parentId } = usedParent;
+  const investibleId = fromInvestibleId || parentInvestible;
+  const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
+  return !editorEmpty(getQuillStoredState(editorName));
+}
+
 function CommentAdd(props) {
   const {
     marketId, groupId, onSave, type, parent, nameKey, fromInvestibleId, mentionsAllowed, commentAddState,

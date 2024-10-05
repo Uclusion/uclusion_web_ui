@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -23,6 +23,7 @@ import { useHistory } from 'react-router';
 import { formInvestibleLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
+import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideUnblockStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -90,6 +91,7 @@ function DecideUnblockStep(props) {
         nextLabel="UnblockReplyLabel"
         onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
           undefined, undefined, commentId, message.type_object_id))}
+        nextShowEdit={hasReply(getComment(commentState, marketId, commentId))}
         spinOnClick={false}
         showOtherNext
         otherNextLabel="DecideMoveToBacklog"

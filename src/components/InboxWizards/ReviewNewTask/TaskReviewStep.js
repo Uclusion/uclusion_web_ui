@@ -20,6 +20,7 @@ import { updateComment } from '../../../api/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
+import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function TaskReviewStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -62,6 +63,7 @@ function TaskReviewStep(props) {
         nextLabel="issueReplyLabel"
         onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
           undefined, undefined, commentId, message.type_object_id))}
+        nextShowEdit={hasReply(getComment(commentsState, marketId, commentId))}
         spinOnClick={false}
         showOtherNext
         onOtherNext={markInProgress}

@@ -6,6 +6,7 @@ import { wizardStyles } from './WizardStylesContext'
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { scrollToElement } from '../../contexts/ScrollContext';
 import { ChevronRight } from '@material-ui/icons';
+import EditIcon from '@material-ui/icons/Edit';
 
 function WizardStepButtons(props) {
   const {
@@ -35,7 +36,9 @@ function WizardStepButtons(props) {
     isFinal,
     isOtherFinal,
     skipNextStep,
-    onOtherNextSkipStep
+    onOtherNextSkipStep,
+    nextShowEdit,
+    otherNextShowEdit
   } = props;
   const intl = useIntl();
   const classes = wizardStyles();
@@ -98,7 +101,9 @@ function WizardStepButtons(props) {
     <div className={classes.buttonContainer}>
       {showNext && (
         <SpinningButton id="OnboardingWizardNext" className={nextClass} disabled={nextIsDisabled} onClick={myNext}
-                        endIcon={isNextNext ? ChevronRight : undefined} iconColor="black" doSpin={spinOnClick}>
+                        endIcon={nextShowEdit ? EditIcon : (isNextNext ? ChevronRight : undefined)}
+                        iconColor={isNextNext ? 'black' : 'white'}
+                        doSpin={spinOnClick}>
           {intl.formatMessage({ id: nextLabel })}
         </SpinningButton>
       )}
@@ -106,7 +111,8 @@ function WizardStepButtons(props) {
       <div className={classes.actionContainer}>
         {showOtherNext && (
           <SpinningButton id="OnboardingWizardOtherNext" className={nextOtherClass} disabled={otherDisabled}
-                          endIcon={isOtherNextNext ? ChevronRight : undefined} iconColor="black"
+                          endIcon={otherNextShowEdit ? EditIcon : (isOtherNextNext ? ChevronRight : undefined)}
+                          iconColor={isOtherNextNext ? 'black' : 'white'}
                           doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
           </SpinningButton>

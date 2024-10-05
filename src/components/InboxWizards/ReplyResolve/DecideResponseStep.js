@@ -4,7 +4,11 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { addCommentToMarket, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import {
+  addCommentToMarket,
+  getComment,
+  getCommentRoot
+} from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
@@ -22,6 +26,7 @@ import {
   navigate
 } from '../../../utils/marketIdPathFunctions';
 import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
+import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideResponseStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -88,6 +93,7 @@ function DecideResponseStep(props) {
         otherNextLabel="UnblockReplyLabel"
         onOtherNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
           commentRoot.investible_id, commentRoot.group_id, commentId, message.type_object_id))}
+        otherNextShowEdit={hasReply(getComment(commentState, marketId, commentId))}
         isOtherFinal
         onFinish={myTerminate}
         showTerminate={getShowTerminate(message)}

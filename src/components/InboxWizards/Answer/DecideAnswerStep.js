@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
@@ -16,6 +16,7 @@ import JobDescription from '../JobDescription';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { OPTION_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
+import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideAnswerStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -61,6 +62,7 @@ function DecideAnswerStep(props) {
           nextLabel="issueReplyLabel"
           onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
             undefined, undefined, commentId, message.type_object_id))}
+          nextShowEdit={hasReply(getComment(commentState, marketId, commentId))}
           spinOnClick={false}
           showOtherNext
           otherNextLabel={isQuestionCreator ? 'inlineAddLabel' : 'inlineProposeLabel'}

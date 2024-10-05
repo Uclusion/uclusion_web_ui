@@ -25,8 +25,13 @@ import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '.
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { REPLY_TYPE } from '../../../constants/comments';
-import CommentAdd from '../../Comments/CommentAdd';
+import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
+
+export function hasReply(comment) {
+  return hasCommentValue(comment.market_id, comment, 'CommentAddReply', undefined,
+    'reply');
+}
 
 function ReplyStep(props) {
   const { marketId, commentId, updateFormData, formData } = props;

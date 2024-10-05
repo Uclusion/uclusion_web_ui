@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import {
-  addCommentToMarket,
+  addCommentToMarket, getComment,
   getCommentRoot,
   getInvestibleComments,
   getMarketComments,
@@ -36,6 +36,7 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formMarketAddInvestibleLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { BUG_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../../constants/markets';
+import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideReplyStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -150,6 +151,7 @@ function DecideReplyStep(props) {
         nextLabel="issueReplyLabel"
         onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
           undefined, undefined, commentId, message.type_object_id))}
+        nextShowEdit={hasReply(getComment(commentState, marketId, commentId))}
         spinOnClick={false}
         onNextDoAdvance={false}
         showOtherNext={isMySuggestion || canResolve}

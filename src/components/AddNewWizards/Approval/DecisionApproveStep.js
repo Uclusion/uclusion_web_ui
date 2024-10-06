@@ -20,6 +20,7 @@ import { commonQuick } from './ApprovalWizard';
 import JobDescription from '../../InboxWizards/JobDescription';
 import { DECISION_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { ISSUE_TYPE } from '../../../constants/comments';
+import { hasDecisionComment } from '../DecisionComment/AddCommentStep';
 
 function DecisionApproveStep(props) {
   const { market, updateFormData, formData, investibleId, hasOtherVote, currentReasonId } = props;
@@ -131,6 +132,7 @@ function DecisionApproveStep(props) {
         otherSpinOnClick={false}
         onOtherNext={() => navigate(history,
           formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, undefined, ISSUE_TYPE))}
+        otherNextShowEdit={hasDecisionComment(marketId, ISSUE_TYPE, investibleId)}
       />
     </WizardStepContainer>
   )

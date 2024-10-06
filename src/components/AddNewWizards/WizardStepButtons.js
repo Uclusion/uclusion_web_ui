@@ -6,6 +6,7 @@ import { WizardStylesContext } from './WizardStylesContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import WorkspaceInviteLinker from '../../pages/Home/WorkspaceInviteLinker'
 import { ChevronRight } from '@material-ui/icons';
+import EditIcon from '@material-ui/icons/Edit';
 
 function WizardStepButtons (props) {
   const {
@@ -38,7 +39,8 @@ function WizardStepButtons (props) {
     onNextSkipStep,
     isFinal,
     isOtherFinal,
-    otherNextValid
+    otherNextValid,
+    otherNextShowEdit
   } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -100,7 +102,8 @@ function WizardStepButtons (props) {
       <div className={classes.actionContainer}>
         {showOtherNext && (
           <SpinningButton id="OnboardingWizardOtherNext" className={nextOtherClass} disabled={otherDisabled}
-                          endIcon={isOtherNextNext ? ChevronRight : undefined} iconColor="black"
+                          endIcon={otherNextShowEdit ? EditIcon : (isOtherNextNext ? ChevronRight : undefined)}
+                          iconColor={isOtherNextNext ? 'black' : 'white'}
                           doSpin={otherSpinOnClick} onClick={myOtherNext}>
             {intl.formatMessage({ id: otherNextLabel })}
           </SpinningButton>

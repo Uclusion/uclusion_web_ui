@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { useIntl } from 'react-intl';
 import { formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
-import CommentAdd from '../../Comments/CommentAdd';
+import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { useHistory } from 'react-router';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
@@ -13,6 +13,11 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import JobDescription from '../../InboxWizards/JobDescription';
+
+export function hasDecisionComment(marketId, commentType, investibleId) {
+  return hasCommentValue(marketId, undefined, 'DecisionCommentAdd', investibleId,
+    `decisionComment${commentType}`);
+}
 
 function AddCommentStep (props) {
   const { investibleId, commentType, marketId, groupId, formData, updateFormData } = props;
@@ -65,7 +70,7 @@ function AddCommentStep (props) {
         groupId={groupId}
         fromInvestibleId={investibleId}
         onSave={onFinish}
-        nameDifferentiator="decisionComment"
+        nameDifferentiator={`decisionComment${commentType}`}
       />
     </WizardStepContainer>
   );

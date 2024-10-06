@@ -61,6 +61,8 @@ import {
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
+import EditIcon from '@material-ui/icons/Edit';
+import { hasDecisionComment } from '../../../components/AddNewWizards/DecisionComment/AddCommentStep';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -350,7 +352,9 @@ function DecisionInvestible(props) {
             {allowedCommentTypes.map((allowedCommentType) => {
               return (
                 <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
-                                icon={AddIcon} iconColor="black"
+                                icon={hasDecisionComment(marketId, allowedCommentType, investibleId) ? EditIcon :
+                                  AddIcon}
+                                iconColor="black"
                                 style={{
                                   display: "flex",
                                   marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'

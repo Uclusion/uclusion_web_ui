@@ -17,7 +17,7 @@ import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useHistory } from 'react-router';
 import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
 import { hasJobComment } from '../../AddNewWizards/JobComment/AddCommentStep';
 
 function EstimateChangeViewStep(props) {

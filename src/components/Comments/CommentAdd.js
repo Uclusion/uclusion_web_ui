@@ -270,11 +270,11 @@ export function quickNotificationChanges(apiType, investibleId, messagesState, m
   }
 }
 
-export function hasCommentValue(marketId, parent, nameKey, fromInvestibleId, nameDifferentiator='') {
+export function hasCommentValue(groupId, parent, nameKey, fromInvestibleId, nameDifferentiator='') {
   const usedParent = parent || {};
   const { investible_id: parentInvestible, id: parentId } = usedParent;
   const investibleId = fromInvestibleId || parentInvestible;
-  const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
+  const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : groupId}-comment-add-editor`;
   return !editorEmpty(getQuillStoredState(editorName));
 }
 
@@ -315,7 +315,7 @@ function CommentAdd(props) {
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const investibleRequiresInput = (type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE) && creatorIsAssigned
     && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id;
-  const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : marketId}-comment-add-editor`;
+  const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : groupId}-comment-add-editor`;
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
 
   useEffect(() => {

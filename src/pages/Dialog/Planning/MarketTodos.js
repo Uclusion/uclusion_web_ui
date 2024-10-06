@@ -396,7 +396,7 @@ function MarketTodos(props) {
                         className={wizardClasses.actionNext}
                         style={{marginBottom: '1rem', marginTop: '1rem'}}
                         variant="text" doSpin={false}
-                        icon={hasBug(marketId) ? EditIcon : AddIcon} iconColor="black"
+                        icon={hasBug(groupId) ? EditIcon : AddIcon} iconColor="black"
                         onClick={() => navigate(history,
                           formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, tabIndex))}>
           <FormattedMessage id='createBug'/>

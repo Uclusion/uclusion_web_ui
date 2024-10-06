@@ -30,8 +30,8 @@ export const bugRadioStyles = makeStyles(
   { name: "VoteAdd" }
 );
 
-export function hasBug(marketId) {
-  return hasCommentValue(marketId, undefined, 'CommentAddBug', undefined,
+export function hasBug(groupId) {
+  return hasCommentValue(groupId, undefined, 'CommentAddBug', undefined,
     'addBug');
 }
 

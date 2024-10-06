@@ -383,7 +383,7 @@ function PlanningDialog(props) {
                 <>
                   <div style={{display: 'flex', marginBottom: '1.5rem', marginLeft: '0.5rem'}}>
                     <SpinningButton id="newMarketQuestion"
-                                    icon={hasDiscussionComment(marketId, QUESTION_TYPE) ? EditIcon : AddIcon}
+                                    icon={hasDiscussionComment(groupId, QUESTION_TYPE) ? EditIcon : AddIcon}
                                     iconColor="black"
                                     className={wizardClasses.actionNext}
                                     style={{display: "flex", marginTop: '1rem',
@@ -395,7 +395,7 @@ function PlanningDialog(props) {
                       <FormattedMessage id='createQuestion'/>
                     </SpinningButton>
                     <SpinningButton id="createSuggestion"
-                                    icon={hasDiscussionComment(marketId, SUGGEST_CHANGE_TYPE) ? EditIcon : AddIcon}
+                                    icon={hasDiscussionComment(groupId, SUGGEST_CHANGE_TYPE) ? EditIcon : AddIcon}
                                     iconColor="black"
                                     className={wizardClasses.actionNext}
                                     style={{display: "flex", marginTop: '1rem'}}

@@ -12,8 +12,8 @@ import { useInvestibleEditStyles } from '../../../pages/Investible/InvestibleBod
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 
-export function hasDiscussionComment(marketId, commentType) {
-  return hasCommentValue(marketId, undefined, 'DiscussionCommentAdd', undefined,
+export function hasDiscussionComment(groupId, commentType) {
+  return hasCommentValue(groupId, undefined, 'DiscussionCommentAdd', undefined,
     `marketComment${commentType}`);
 }
 

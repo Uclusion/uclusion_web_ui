@@ -14,8 +14,8 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import JobDescription from '../../InboxWizards/JobDescription';
 
-export function hasDecisionComment(marketId, commentType, investibleId) {
-  return hasCommentValue(marketId, undefined, 'DecisionCommentAdd', investibleId,
+export function hasDecisionComment(groupId, commentType, investibleId) {
+  return hasCommentValue(groupId, undefined, 'DecisionCommentAdd', investibleId,
     `decisionComment${commentType}`);
 }
 

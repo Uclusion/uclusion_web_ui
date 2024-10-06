@@ -29,7 +29,7 @@ import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 
 export function hasReply(comment) {
-  return hasCommentValue(comment.market_id, comment, 'CommentAddReply', undefined,
+  return hasCommentValue(comment.group_id, comment, 'CommentAddReply', undefined,
     'reply');
 }
 

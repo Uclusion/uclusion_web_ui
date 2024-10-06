@@ -35,7 +35,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useHistory } from 'react-router';
 import { JOB_COMMENT_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
-import { TODO_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { useIntl } from 'react-intl';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { useInvestibleVoters } from '../../../utils/votingUtils';
@@ -44,6 +44,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import Link from '@material-ui/core/Link';
 import { getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { hasJobComment } from '../../AddNewWizards/JobComment/AddCommentStep';
 
 export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
@@ -196,6 +197,9 @@ function JobApproveStep(props) {
         onOtherNext={wasDeleted ? moveToBacklog : () => navigate(history,
           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, undefined,
             message.type_object_id))}
+        otherNextShowEdit={hasJobComment(groupId, investibleId, QUESTION_TYPE)||
+          hasJobComment(groupId, investibleId, SUGGEST_CHANGE_TYPE)||
+          hasJobComment(groupId, investibleId, ISSUE_TYPE)}
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}
       />

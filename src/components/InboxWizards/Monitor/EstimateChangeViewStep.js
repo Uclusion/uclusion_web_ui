@@ -17,7 +17,8 @@ import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useHistory } from 'react-router';
 import { formInvestibleAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
-import { ISSUE_TYPE, QUESTION_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { hasJobComment } from '../../AddNewWizards/JobComment/AddCommentStep';
 
 function EstimateChangeViewStep(props) {
   const { marketId, investibleId, message } = props;
@@ -29,7 +30,8 @@ function EstimateChangeViewStep(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const marketInvestible = getInvestible(investiblesState, investibleId) || {};
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-  const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
+  const groupId = marketInfo.group_id;
+  const marketComments = getMarketComments(commentsState, marketId, groupId);
   const comments = getCommentsSortedByType(marketComments, investibleId, true, true);
   const { completion_estimate: daysEstimate } = marketInfo;
 
@@ -52,12 +54,14 @@ function EstimateChangeViewStep(props) {
         onNext={() => navigate(history,
           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE,
             message.type_object_id))}
+        nextShowEdit={hasJobComment(groupId, investibleId, QUESTION_TYPE)}
         spinOnClick={false}
         showOtherNext
         otherNextLabel="createNewISSUE"
         onOtherNext={() => navigate(history,
           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,
             message.type_object_id))}
+        otherNextShowEdit={hasJobComment(groupId, investibleId, ISSUE_TYPE)}
         otherSpinOnClick={false}
         onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
         terminateLabel="notificationDelete"

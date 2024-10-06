@@ -70,6 +70,8 @@ import { setUclusionLocalStorageItem } from '../../../components/localStorageUti
 import DismissableText from '../../../components/Notifications/DismissableText';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import EditIcon from '@material-ui/icons/Edit';
+import { hasJobComment } from '../../../components/AddNewWizards/JobComment/AddCommentStep';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -782,7 +784,8 @@ function PlanningInvestible(props) {
                 </h2>
                 {showCommentAdd && isAssigned && (
                   <SpinningButton id="newReport" className={wizardClasses.actionNext}
-                                  icon={AddIcon} iconColor="black"
+                                  icon={hasJobComment(groupId, investibleId, REPORT_TYPE) ? EditIcon : AddIcon}
+                                  iconColor="black"
                                   variant="text" doSpin={false}
                                   style={{ display: 'flex', marginTop: '0.75rem', marginBottom: '0.75rem' }}
                                   onClick={() => navigate(history,
@@ -824,7 +827,9 @@ function PlanningInvestible(props) {
                   {allowedCommentTypes.map((allowedCommentType) => {
                     return (
                       <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
-                                      icon={AddIcon} iconColor="black"
+                                      icon={hasJobComment(groupId, investibleId, allowedCommentType) ? EditIcon :
+                                        AddIcon}
+                                      iconColor="black"
                                       style={{
                                         display: 'flex', marginTop: '0.75rem',
                                         marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'

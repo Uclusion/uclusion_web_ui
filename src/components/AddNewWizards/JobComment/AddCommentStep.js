@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { useIntl } from 'react-intl';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
-import CommentAdd from '../../Comments/CommentAdd';
+import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { useHistory } from 'react-router';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -32,6 +32,11 @@ import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+
+export function hasJobComment(groupId, investibleId, commentType) {
+  return hasCommentValue(groupId, undefined, 'JobCommentAdd', investibleId,
+    `jobComment${commentType}`);
+}
 
 function AddCommentStep (props) {
   const { investibleId, marketId, useType, updateFormData, formData, resolveId, groupId, currentStageId,
@@ -135,7 +140,7 @@ function AddCommentStep (props) {
         groupId={groupId}
         fromInvestibleId={investibleId}
         onSave={onSave}
-        nameDifferentiator="jobComment"
+        nameDifferentiator={`jobComment${useType}`}
       />
     </WizardStepContainer>
   );

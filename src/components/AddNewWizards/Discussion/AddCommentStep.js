@@ -4,13 +4,18 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { useIntl } from 'react-intl';
-import CommentAdd from '../../Comments/CommentAdd';
+import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { formCommentLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { useInvestibleEditStyles } from '../../../pages/Investible/InvestibleBodyEdit';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+
+export function hasDiscussionComment(marketId, commentType) {
+  return hasCommentValue(marketId, undefined, 'DiscussionCommentAdd', undefined,
+    `marketComment${commentType}`);
+}
 
 function AddCommentStep (props) {
   const { marketId, groupId, updateFormData, useType } = props;
@@ -56,7 +61,7 @@ function AddCommentStep (props) {
         marketId={marketId}
         groupId={groupId}
         onSave={onSave}
-        nameDifferentiator="marketComment"
+        nameDifferentiator={`marketComment${useType}`}
       />
     </WizardStepContainer>
   );

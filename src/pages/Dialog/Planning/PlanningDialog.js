@@ -70,6 +70,8 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import SwimlanesOnboardingBanner from '../../../components/Banners/SwimlanesOnboardingBanner';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarket, marketIsDemo } from '../../../contexts/MarketsContext/marketsContextHelper';
+import EditIcon from '@material-ui/icons/Edit';
+import { hasDiscussionComment } from '../../../components/AddNewWizards/Discussion/AddCommentStep';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -381,7 +383,8 @@ function PlanningDialog(props) {
                 <>
                   <div style={{display: 'flex', marginBottom: '1.5rem', marginLeft: '0.5rem'}}>
                     <SpinningButton id="newMarketQuestion"
-                                    icon={AddIcon} iconColor="black"
+                                    icon={hasDiscussionComment(marketId, QUESTION_TYPE) ? EditIcon : AddIcon}
+                                    iconColor="black"
                                     className={wizardClasses.actionNext}
                                     style={{display: "flex", marginTop: '1rem',
                                       marginRight: mobileLayout ? undefined : '2rem'}}
@@ -392,7 +395,8 @@ function PlanningDialog(props) {
                       <FormattedMessage id='createQuestion'/>
                     </SpinningButton>
                     <SpinningButton id="createSuggestion"
-                                    icon={AddIcon} iconColor="black"
+                                    icon={hasDiscussionComment(marketId, SUGGEST_CHANGE_TYPE) ? EditIcon : AddIcon}
+                                    iconColor="black"
                                     className={wizardClasses.actionNext}
                                     style={{display: "flex", marginTop: '1rem'}}
                                     variant="text" doSpin={false}

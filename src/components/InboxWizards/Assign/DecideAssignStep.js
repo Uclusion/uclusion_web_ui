@@ -19,8 +19,9 @@ import { APPROVAL_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE } from '../../../constant
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
-import { TODO_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { hasJobComment } from '../../AddNewWizards/JobComment/AddCommentStep';
 
 function DecideAssignStep(props) {
   const { marketId, investibleId, message } = props;
@@ -34,7 +35,8 @@ function DecideAssignStep(props) {
   const intl = useIntl();
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
+  const groupId = marketInfo.group_id
+  const marketComments = getMarketComments(commentsState, marketId, groupId);
   const todos = marketComments.filter((comment) => comment.comment_type === TODO_TYPE &&
     comment.investible_id === investibleId);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
@@ -80,6 +82,9 @@ function DecideAssignStep(props) {
         onOtherNext={() => navigate(history,
           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, undefined,
             message.type_object_id))}
+        otherNextShowEdit={hasJobComment(groupId, investibleId, QUESTION_TYPE)||
+          hasJobComment(groupId, investibleId, SUGGEST_CHANGE_TYPE)||
+          hasJobComment(groupId, investibleId, ISSUE_TYPE)}
         terminateLabel={message.type_object_id.startsWith('UNREAD') ? 'notificationDismiss' : 'markRead'}
         showTerminate={true}
         onFinish={myTerminate}

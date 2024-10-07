@@ -13,7 +13,7 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import {
   decomposeMarketPath,
-  formCommentLink,
+  formCommentLink, formInboxItemLink,
   formMarketAddInvestibleLink,
   formWizardLink,
   navigate,
@@ -206,7 +206,8 @@ function Reply(props) {
     return React.useContext(LocalCommentsContext).idPrepend;
   }
 
-  function handleEditClick() {
+  function handleEditClick(event) {
+    preventDefaultAndProp(event);
     const id = comment.id;
     if (replyEditId) {
       navigate(history, formCommentLink(marketId, groupId, investibleId, id));
@@ -216,11 +217,11 @@ function Reply(props) {
     }
   }
 
-  function setBeingEdited(value, event) {
+  function setBeingEdited(event) {
     if (mobileLayout || invalidEditEvent(event, history)) {
       return;
     }
-    handleEditClick();
+    handleEditClick(event);
   }
 
   function setReplyOpen() {
@@ -246,8 +247,7 @@ function Reply(props) {
     if (isLinkedTo) {
       return classes.containerHashYellow;
     }
-    return !isHighlighted ? classes.container : (myMessage.level === 'RED' ? classes.containerRed :
-      classes.containerYellow);
+    return !isHighlighted ? classes.container : classes.containerBlueLink;
   }
 
   if (!marketId) {
@@ -277,6 +277,8 @@ function Reply(props) {
     <div onClick={() => {
       if (replyBeingEdited || isInbox) {
         navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
+      } else if (myMessage) {
+        navigate(history, formInboxItemLink(myMessage.type_object_id));
       }
     }}>
       <CardContent className={classes.cardContent}>
@@ -291,8 +293,14 @@ function Reply(props) {
         {(myPresence.is_admin || isEditable) && enableEditing && (
           <TooltipIconButton
             disabled={operationRunning !== false}
-            onClick={isInbox ? () => navigate(history, `${deleteWizardBaseLink}&isInbox=${isInbox}`) :
-              () => navigate(history, deleteWizardBaseLink)}
+            onClick={(event) => {
+                preventDefaultAndProp(event);
+                if (isInbox) {
+                  navigate(history, `${deleteWizardBaseLink}&isInbox=${isInbox}`);
+                } else {
+                  navigate(history, deleteWizardBaseLink);
+                }
+              }}
             icon={<NotificationDeletion height={22} width={22} isRed />}
             size='small'
             translationId="commentRemoveLabel"
@@ -302,9 +310,12 @@ function Reply(props) {
         {showConvert && (
           <TooltipIconButton
             disabled={operationRunning !== false}
-            onClick={() => navigate(history,
-              `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
-                BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}`)}
+            onClick={(event) => {
+              preventDefaultAndProp(event);
+              navigate(history,
+                `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
+                  BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}`)
+            }}
             icon={<ListAltIcon fontSize='small' />}
             size='small'
             translationId="wizardAcceptLabel"

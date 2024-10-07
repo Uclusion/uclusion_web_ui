@@ -9,6 +9,7 @@ import { getInvestible } from '../../contexts/InvestibesContext/investiblesConte
 import LinkIcon from '@material-ui/icons/Link'
 import { getComment } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
+import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles(() => ({
   hidden: {
@@ -76,7 +77,8 @@ function InvesibleCommentLinker(props) {
         <Button
           style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap',
             paddingLeft: flushLeft ? 0 : undefined}} disableRipple={true}
-                onClick={() => {
+                onClick={(event) => {
+                  preventDefaultAndProp(event);
                   navigator.clipboard.writeText(link);
                   setCopiedToClipboard(true);
                 }} onMouseLeave={() => {

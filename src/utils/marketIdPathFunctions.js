@@ -49,8 +49,10 @@ export function broadcastView(marketId, investibleId, isEntry, action, to) {
 }
 
 export function preventDefaultAndProp(event) {
-  event.stopPropagation();
-  event.preventDefault();
+  if (event) {
+    event.stopPropagation();
+    event.preventDefault();
+  }
 }
 
 export function navigate(history, to, insideUseEffect, doNotAddToHistory) {

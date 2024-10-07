@@ -164,7 +164,7 @@ function Voting(props) {
           const reason = investmentReasons.find((comment) => comment.id === commentId);
           const voteId = `cv${userId}`;
 
-          function setBeingEdited(value, event) {
+          function setBeingEdited(event) {
             if (!invalidEditEvent(event, history)) {
               navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, market.id, investibleId, groupId));
             }
@@ -256,7 +256,7 @@ function Voting(props) {
                   <CardContent className={classes.cardContent}>
                     <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable}
                                          id={isInbox ? `inboxReason${reason.id}` : reason.id}
-                                         setBeingEdited={(event) => setBeingEdited(true, event)}
+                                         setBeingEdited={setBeingEdited}
                     />
                   </CardContent>
                 )}

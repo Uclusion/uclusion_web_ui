@@ -62,7 +62,7 @@ import { getFurtherWorkStage, getInReviewStage } from '../../contexts/MarketStag
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   decomposeMarketPath,
-  formCommentLink,
+  formCommentLink, formInboxItemLink,
   formInvestibleAddCommentLink,
   formMarketAddInvestibleLink,
   formWizardLink,
@@ -546,7 +546,8 @@ function Comment(props) {
     updateEditState({showDiff: !showDiff});
   }
 
-  function toggleEdit() {
+  function toggleEdit(event) {
+    preventDefaultAndProp(event);
     if (replyEditId) {
       setNoHighlightId(undefined);
       navigate(history, formCommentLink(marketId, groupId, investibleId, id));
@@ -556,11 +557,11 @@ function Comment(props) {
     }
   }
 
-  function setBeingEdited(value, event) {
+  function setBeingEdited(event) {
     if (isReallyMobileLayout || invalidEditEvent(event, history)) {
       return;
     }
-    toggleEdit();
+    toggleEdit(event);
   }
 
   const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId && !isMove;
@@ -675,7 +676,9 @@ function Comment(props) {
   }
 
   const diff = getDiff(diffState, id);
-  const { level: myHighlightedLevel, is_highlighted: isHighlighted } = myMessage || {};
+  const { level: myHighlightedLevel } = myMessage || {};
+  // For some reason can't stop propagation on clicking edit so just turn off in that case
+  const isNavigateToInbox = myHighlightedLevel && !isEditable;
   const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> :
     (commentType === REPLY_TYPE ? <FormattedMessage id="issueReplyLabel" /> : undefined);
   const color = isMarketTodo ? myNotificationType : undefined;
@@ -688,11 +691,8 @@ function Comment(props) {
       }
       return classes.containerLink;
     }
-    if (myHighlightedLevel && isHighlighted) {
-      if (myHighlightedLevel === "YELLOW" || myHighlightedLevel === "BLUE") {
-        return classes.containerYellow;
-      }
-      return classes.containerRed;
+    if (isNavigateToInbox) {
+      return classes.containerBlueLink;
     }
     if (noHighlightId !== id && hashFragment?.includes(id)) {
       return classes.containerHashYellow;
@@ -777,8 +777,12 @@ function Comment(props) {
       : '1rem', width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
                             ref={editBox}>
     <div onClick={(event) => {
-      if (isInbox && !invalidEditEvent(event, history)) {
-        navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+      if (isInbox) {
+        if (!invalidEditEvent(event, history)) {
+          navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+        }
+      } else if (isNavigateToInbox) {
+        navigate(history, formInboxItemLink(myMessage.type_object_id));
       }
     }}>
       <Box display="flex">

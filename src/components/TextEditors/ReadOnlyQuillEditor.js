@@ -45,7 +45,7 @@ function ReadOnlyQuillEditor(props) {
     <div className={clsx(classes.root, isEditable ? classes.editable : classes.notEditable)}
          onClick={(event) => {
            if (isEditable) {
-             setBeingEdited(true, event);
+             setBeingEdited(event);
            }
          }}>
       {!_.isEmpty(value) && (

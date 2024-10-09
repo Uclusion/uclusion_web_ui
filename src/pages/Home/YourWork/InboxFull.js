@@ -49,7 +49,7 @@ function InboxFull(props) {
     investiblesState, marketStagesState, commentsState, intl});
   const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesFull,
     searchResults, workItemId, groupsState);
-  const [inboxState, inboxDispatch] = useReducer(getReducer(messagesHash),
+  const [inboxState, inboxDispatch] = useReducer(getReducer(),
     {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let loading = marketsState.initializing || messagesState.initializing;
@@ -81,6 +81,7 @@ function InboxFull(props) {
       isInbox
       disableSearch={!_.isEmpty(workItemId)}
       showBanner
+      outBoxMessages={allOutBoxMessagesOrdered}
     >
       <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} workItemId={workItemId} messagesHash={messagesHash}
              messagesFull={messagesFull} searchResults={searchResults} hidden={hidden}

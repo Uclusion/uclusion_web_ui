@@ -22,6 +22,7 @@ import Sidebar from '../../components/Menus/Sidebar'
 import AddIcon from '@material-ui/icons/Add'
 import { Group, GroupOutlined, Inbox, MoreVert } from '@material-ui/icons';
 import {
+  getCurrentWorkspace,
   getFirstWorkspace,
   getGroupForInvestibleId, getPlanningMarketId,
   setCurrentWorkspace
@@ -263,8 +264,22 @@ function Screen(props) {
     showBanner,
     disableSearch,
     loadingMessageId,
-    groupLoadId
+    groupLoadId,
+    outBoxMessages
   } = props;
+  useEffect(() => {
+    if (!hidden && !_.isEmpty(tabTitle)) {
+      const calcPend = getInboxCount(messagesState);
+      if (calcPend > 0) {
+        document.title = `(${calcPend}) ${tabTitle}`;
+      } else {
+        document.title = `${tabTitle}`;
+      }
+    }
+  }, [hidden, messagesState, tabTitle]);
+  if (hidden && !isInbox) {
+    return <React.Fragment/>
+  }
   const usedBanner = banner ?? (userState?.user?.onboarding_state === OnboardingState.DemoCreated ?
     <OnboardingBanner/> : undefined);
   const isDemoLoading = _.isEmpty(userState?.user) ||
@@ -274,8 +289,14 @@ function Screen(props) {
   if (action === 'inbox') {
     const message = messagesState?.messages?.find((message) => message.type_object_id === pathMarketIdRaw &&
       !message.deleted);
-    pathMarketId = message?.market_id;
-  } else if (action === 'dialog') {
+    if (message) {
+      pathMarketId = message.market_id;
+    } else {
+      // Outbox
+      const outboxMessage = outBoxMessages?.find((message) => message.id === pathMarketIdRaw);
+      pathMarketId = outboxMessage?.marketId;
+    }
+  } else if (['comment', 'dialog'].includes(action)) {
     pathMarketId = pathMarketIdRaw;
   }
   let marketId = pathMarketId || searchMarketId || hashMarketId ||
@@ -287,26 +308,17 @@ function Screen(props) {
     const parentComment = getComment(commentsState, marketId, aMarket.parent_comment_id);
     useLink = formCommentLink(marketId, parentComment.group_id, parentComment.investible_id, parentComment.id);
   }
-  useEffect(() => {
-    if (!hidden && !_.isEmpty(tabTitle)) {
-      const calcPend = getInboxCount(messagesState);
-      if (calcPend > 0) {
-        document.title = `(${calcPend}) ${tabTitle}`;
-      } else {
-        document.title = `${tabTitle}`;
-      }
-    }
-  }, [hidden, messagesState, tabTitle]);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
   if (myNotHiddenMarketsState.marketDetails) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) =>
       market.market_type === PLANNING_TYPE);
-    markets = _.sortBy(filtered, (market) => market.market_sub_type === SUPPORT_SUB_TYPE, 'name');
+    markets = _.sortBy(filtered, (market) => market.market_stage !== 'Active',
+      (market) => market.market_sub_type === SUPPORT_SUB_TYPE, 'name');
   }
   const defaultMarket = getFirstWorkspace(markets, marketId) || {};
   const reallyAmLoading = !hidden && appEnabled && (loading || !userIsLoaded(userState));
-  if ((hidden && !isInbox)||(marketId && _.isEmpty(defaultMarket))) {
+  if (marketId && _.isEmpty(defaultMarket)) {
     return <React.Fragment/>
   }
 
@@ -314,10 +326,13 @@ function Screen(props) {
     setCurrentWorkspace(newMarketId);
     navigate(history, formMarketLink(newMarketId, newMarketId));
   }
-
-  if (action === 'dialog' && marketId && defaultMarket.id !== marketId) {
-    // Handle they are on banned market
-    setMarketIdFull(defaultMarket.id);
+  if (marketId && !hidden) {
+    if (action === 'dialog' && defaultMarket.id !== marketId) {
+      // Handle they are on banned market
+      setMarketIdFull(defaultMarket.id);
+    } else if (getCurrentWorkspace() !== marketId) {
+      setCurrentWorkspace(marketId);
+    }
   }
 
   const useGroupId = groupId ? groupId : (investibleId ?

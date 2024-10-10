@@ -101,8 +101,8 @@ const useVoteStyles = makeStyles(
  * @constructor
  */
 function Voting(props) {
-  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, votingAllowed,
-    yourPresence, market, isInbox, groupId, useCompression, showEmptyText, toggleCompression=() => {}} = props;
+  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, yourPresence, market,
+    isInbox, groupId, useCompression, showEmptyText, toggleCompression=() => {}} = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -169,7 +169,7 @@ function Voting(props) {
               navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, market.id, investibleId, groupId));
             }
           }
-          const isEditable = isYourVote && votingAllowed && !useCompression;
+          const isEditable = isYourVote && !useCompression;
           const myUseCompression = useCompression && isLargeDisplay(reason?.body);
           const hasContent = !editorEmpty(reason?.body);
           return (

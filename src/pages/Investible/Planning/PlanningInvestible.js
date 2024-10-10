@@ -771,7 +771,6 @@ function PlanningInvestible(props) {
                     investmentReasons={investmentReasonsSearched}
                     showExpiration={fullStage.has_expiration}
                     expirationMinutes={market.investment_expiration * 1440}
-                    votingAllowed={canVote}
                     yourPresence={yourPresence}
                     showEmptyText={!displayVotingInput}
                     market={market}

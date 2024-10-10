@@ -91,7 +91,6 @@ function DoneVotingStep(props) {
         investmentReasons={investmentReasons}
         showExpiration={true}
         expirationMinutes={market.investment_expiration * 1440}
-        votingAllowed={false}
         yourPresence={marketPresences.find((presence) => presence.current_user)}
         market={market}
         isInbox

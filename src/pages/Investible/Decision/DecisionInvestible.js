@@ -335,7 +335,6 @@ function DecisionInvestible(props) {
         investmentReasons={investmentReasons}
         market={market}
         groupId={marketId}
-        votingAllowed={votingAllowed}
         yourPresence={yourPresence}
         toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
         useCompression={useCompression}

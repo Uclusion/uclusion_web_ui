@@ -21,9 +21,7 @@ import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext
 import { Typography } from '@material-ui/core';
 
 function InlineInitiativeBox(props) {
-  const {
-    anInlineMarket, inArchives, removeActions, isTaskDisplay, typeObjectId
-  } = props;
+  const { anInlineMarket, removeActions, isTaskDisplay, typeObjectId } = props;
   const history = useHistory();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState] =
@@ -96,7 +94,6 @@ function InlineInitiativeBox(props) {
         useCompression={useCompressionFor}
         market={anInlineMarket}
         groupId={anInlineMarket.id}
-        votingAllowed={!inArchives}
         yourPresence={myInlinePresence}
       />
       <h2 style={{marginTop: '1.75rem', marginBottom: '0.5rem'}}>
@@ -125,7 +122,6 @@ function InlineInitiativeBox(props) {
         useCompression={useCompressionAgainst}
         market={anInlineMarket}
         groupId={anInlineMarket.id}
-        votingAllowed={!inArchives}
         yourPresence={myInlinePresence}
       />
       {!_.isEmpty(abstaining) && (

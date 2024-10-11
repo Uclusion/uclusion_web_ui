@@ -25,6 +25,7 @@ function JobCommentWizard(props) {
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [wasMovedToApproval, setWasMovedToApproval] = useState(false);
+  const [wasJustCreated, setWasJustCreated] = useState(false);
   const [useCommentType, setUseCommentType] = useState(commentType);
   const presences = usePresences(marketId);
   const isQuestion = useCommentType === QUESTION_TYPE;
@@ -64,9 +65,10 @@ function JobCommentWizard(props) {
         )}
         {!hasDraft && (
           <AddCommentStep investibleId={investibleId} marketId={marketId} useType={useCommentType} resolveId={resolveId}
+                          onFinishCreation={() => setWasJustCreated(true)}
                           currentStageId={stage} groupId={groupId} assigned={assigned} />
         )}
-        {hasDraft && (
+        {hasDraft && !wasJustCreated && (
           <CommentEdit
             marketId={marketId}
             comment={savedQuestion}

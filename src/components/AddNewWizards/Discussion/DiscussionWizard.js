@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
@@ -15,6 +15,7 @@ function DiscussionWizard(props) {
   const { marketId, groupId, commentType } = props;
   const [commentsState] = useContext(CommentsContext);
   const presences = usePresences(marketId);
+  const [wasJustCreated, setWasJustCreated] = useState(false);
   const isQuestion = commentType === QUESTION_TYPE;
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const savedQuestion = (commentsState[marketId]||[]).find((comment) => {
@@ -33,9 +34,10 @@ function DiscussionWizard(props) {
       <FormdataWizard name="discussion_wizard" defaultFormData={hasDraft ? draftData : undefined}
                       useLocalStorage={false}>
         {!hasDraft && (
-          <AddCommentStep marketId={marketId} groupId={groupId} useType={commentType}  />
+          <AddCommentStep marketId={marketId} groupId={groupId} useType={commentType}
+                          onFinishCreation={() => setWasJustCreated(true)}  />
         )}
-        {hasDraft && (
+        {hasDraft && !wasJustCreated && (
           <CommentEdit
             marketId={marketId}
             comment={savedQuestion}

@@ -40,7 +40,7 @@ export function hasJobComment(groupId, investibleId, commentType) {
 
 function AddCommentStep (props) {
   const { investibleId, marketId, useType, updateFormData, formData, resolveId, groupId, currentStageId,
-    assigned } = props;
+    assigned, onFinishCreation } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -70,6 +70,7 @@ function AddCommentStep (props) {
     if (comment.is_sent) {
       navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
     } else {
+      onFinishCreation();
       updateFormData({inlineMarketId: comment.inline_market_id, commentId: comment.id, marketId, investibleId,
         groupId});
     }

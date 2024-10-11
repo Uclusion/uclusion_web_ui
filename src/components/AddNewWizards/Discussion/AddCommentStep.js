@@ -18,7 +18,7 @@ export function hasDiscussionComment(groupId, commentType) {
 }
 
 function AddCommentStep (props) {
-  const { marketId, groupId, updateFormData, useType } = props;
+  const { marketId, groupId, updateFormData, useType, onFinishCreation } = props;
   const intl = useIntl();
   const history = useHistory();
   const [groupState] = useContext(MarketGroupsContext);
@@ -34,6 +34,7 @@ function AddCommentStep (props) {
     if (comment.is_sent) {
       navigate(history, formCommentLink(marketId, groupId, undefined, comment.id));
     } else {
+      onFinishCreation();
       updateFormData({ inlineMarketId: comment.inline_market_id, commentId: comment.id, marketId, groupId });
     }
   }

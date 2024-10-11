@@ -33,7 +33,7 @@ function DiscussionWizard(props) {
     <WizardStylesProvider>
       <FormdataWizard name="discussion_wizard" defaultFormData={hasDraft ? draftData : undefined}
                       useLocalStorage={false}>
-        {!hasDraft && (
+        {(!hasDraft || wasJustCreated) && (
           <AddCommentStep marketId={marketId} groupId={groupId} useType={commentType}
                           onFinishCreation={() => setWasJustCreated(true)}  />
         )}

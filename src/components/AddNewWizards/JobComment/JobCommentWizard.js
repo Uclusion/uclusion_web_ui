@@ -63,7 +63,7 @@ function JobCommentWizard(props) {
           <DoneWithApprovalStep investibleId={investibleId} marketId={marketId} currentStageId={stage}
                                 onFinishMove={() => setWasMovedToApproval(true)} />
         )}
-        {!hasDraft && (
+        {(!hasDraft || wasJustCreated) && (
           <AddCommentStep investibleId={investibleId} marketId={marketId} useType={useCommentType} resolveId={resolveId}
                           onFinishCreation={() => setWasJustCreated(true)}
                           currentStageId={stage} groupId={groupId} assigned={assigned} />

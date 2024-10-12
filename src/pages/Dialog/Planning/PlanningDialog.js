@@ -418,7 +418,7 @@ function PlanningDialog(props) {
               <CommentBox
                 comments={notTodoComments.filter((comment) =>
                   [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPLY_TYPE].includes(comment.comment_type))}
-                marketId={marketId} allowedTypes={[QUESTION_TYPE]}/>
+                marketId={marketId} />
             </Grid>
           </div>
         )}

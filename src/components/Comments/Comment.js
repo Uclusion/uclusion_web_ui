@@ -430,8 +430,8 @@ function calculateNumberHidden(comment, inboxMessageId, comments, parent) {
 
 function findParentInDescendants(useComment, inboxMessageId, comments) {
   const notifiedComment = comments.find((comment) => comment.id === inboxMessageId);
-  const notifiedParentId = notifiedComment.reply_id;
-  if (notifiedParentId === notifiedComment.root_comment_id) {
+  const notifiedParentId = notifiedComment?.reply_id;
+  if (notifiedParentId === notifiedComment?.root_comment_id) {
     if (useComment.id === inboxMessageId) {
       // If this is a reply to the root then return it
       return notifiedComment;
@@ -441,7 +441,7 @@ function findParentInDescendants(useComment, inboxMessageId, comments) {
   const notifiedParent = comments.find((comment) => comment.id === notifiedParentId);
   let found = false;
   let commentPointer = notifiedParent;
-  while(commentPointer.reply_id) {
+  while(commentPointer?.reply_id) {
     if (useComment.id === commentPointer.id) {
       found = true;
       break;

@@ -596,7 +596,8 @@ function PlanningInvestible(props) {
         return useCompression;
       }
     }
-    return true;
+    // Default compression to off as tasks are not compressed except on overview and that page is fine
+    return false;
   }
 
   function toggleUseCompression(commentId) {

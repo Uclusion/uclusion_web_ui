@@ -107,6 +107,9 @@ function WorkspaceMenu(props) {
   const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup, action,
     pathInvestibleId, pathMarketIdRaw, hashInvestibleId, useLink } = props;
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
+  const notCurrentMarkets = markets.filter((market) => market.id !== defaultMarket?.id);
+  const activeMarkets = notCurrentMarkets.filter((market) => market.market_stage === 'Active');
+  const archivedMarkets = notCurrentMarkets.filter((market) => market.market_stage !== 'Active');
   const classes = useStyles();
   const identityListClasses = usePlanFormStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -245,11 +248,11 @@ function WorkspaceMenu(props) {
                     </div>
                   </Tooltip>
                 </MenuItem>
-                {_.size(markets) > 1 && (
+                {!_.isEmpty(notCurrentMarkets) && (
                   <SubMenu title={intl.formatMessage({ id: 'switchWorkspace' })}
                            onClick={(event) => event.stopPropagation() }
                            key="switchWorkspace" style={{paddingLeft: '0.7rem'}}>
-                    {markets.map((market) => {
+                    {activeMarkets.map((market) => {
                       const key = `market${market.id}`;
 
                       if (market.id === defaultMarket.id) {
@@ -268,6 +271,31 @@ function WorkspaceMenu(props) {
                         {market.name}
                       </MenuItem>
                     })}
+                    {!_.isEmpty(archivedMarkets) && (
+                    <SubMenu title={intl.formatMessage({ id: 'archivedWorkspace' })}
+                             onClick={(event) => event.stopPropagation() }
+                             style={{paddingLeft: '-15px', marginLeft: '-15px'}}
+                             key="archivedWorkspaces">
+                      {archivedMarkets.map((market) => {
+                        const key = `market${market.id}`;
+
+                        if (market.id === defaultMarket.id) {
+                          return <React.Fragment key={key}/>;
+                        }
+                        return <MenuItem icon={<AgilePlanIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}}
+                                                              htmlColor="black" fontSize='small' />}
+                                         id={key}
+                                         key={key}
+                                         style={{paddingLeft: '-15px', marginLeft: '-15px'}}
+                                         onClick={() => {
+                                           recordPositionToggle();
+                                           setChosenMarketId(market.id);
+                                         }}
+                        >
+                          {market.name}
+                        </MenuItem>
+                      })}
+                    </SubMenu>)}
                   </SubMenu>
                 )}
               </ProMenu>

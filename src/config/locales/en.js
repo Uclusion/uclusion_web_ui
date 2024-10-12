@@ -577,6 +577,7 @@ const messages = defineMessages({
   signupInvite: 'invites you to collaborate in',
   signupRedirectLogin: 'Create account will redirect you to login.',
   switchWorkspace: 'Switch workspaces',
+  archivedWorkspace: 'Archived',
   editWorkspace: 'Edit workspace',
   notificationMarketSettingsExplanation: 'Change notification settings of the chosen workspace',
 

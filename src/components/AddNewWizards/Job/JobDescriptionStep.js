@@ -164,7 +164,9 @@ function JobDescriptionStep (props) {
   const onNext = currentValue === 'NOT_READY' ? onNotReady : (currentValue === 'READY' ?
     () => createJob(true).then(({link}) => {
     onFinish({ link });
-  }) : createJob);
+  }) : (isSingleUser ? () => createJob().then(({link}) => {
+      onFinish({ link });
+    }) : createJob));
   return (
     <WizardStepContainer
       {...props}

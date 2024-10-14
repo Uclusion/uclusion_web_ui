@@ -178,7 +178,7 @@ export default function PlanningInvestibleNav(props) {
   return (
     <>
       {!mobileLayout && (
-        <div style={{ maxWidth: '11rem', width: '100%' }}>
+        <div style={{ maxWidth: '11rem', width: '100%', wordWrap: 'break-word' }}>
           {name}
         </div>
       )}

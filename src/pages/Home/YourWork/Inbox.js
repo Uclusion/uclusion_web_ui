@@ -169,7 +169,7 @@ function Inbox(props) {
           {!mobileLayout && !isOnWorkItem && (
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                       checked={0 === tabIndex ? checkAll : checkAllOutbox}
-                      disabled={tabIndex === 0 ? !hasCheckAbleInboxItems : !_.isEmpty(outBoxMessagesOrdered)}
+                      disabled={tabIndex === 0 ? !hasCheckAbleInboxItems : _.isEmpty(outBoxMessagesOrdered)}
                       indeterminate={0 === tabIndex ? indeterminate : indeterminateOutbox}
                       onChange={() => 0 === tabIndex ? determinateDispatch({type: 'toggle'}) :
                         determinateDispatchOutbox({type: 'toggle'})}

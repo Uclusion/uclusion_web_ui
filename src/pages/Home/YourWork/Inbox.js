@@ -124,7 +124,7 @@ function Inbox(props) {
       if (group) {
         const market = getMarket(marketsState, group.market_id);
         if (market) {
-          inboxRows.push(createWorkspaceGroupHeader(market, group));
+          inboxRows.push(createWorkspaceGroupHeader(market, group, history));
         }
       }
     }

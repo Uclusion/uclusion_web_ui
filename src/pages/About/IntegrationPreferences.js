@@ -9,9 +9,8 @@ import { Face } from '@material-ui/icons';
 import Link from '@material-ui/core/Link';
 import Gravatar from '../../components/Avatars/Gravatar';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
-import { PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
-import _ from 'lodash';
+import { getNotHiddenMarketDetailsForUser, getSortedMarkets } from '../../contexts/MarketsContext/marketsContextHelper';
+import { PLANNING_TYPE } from '../../constants/markets';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 
@@ -69,7 +68,7 @@ function IntegrationPreferences (props) {
   if (myNotHiddenMarketsState.marketDetails) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) =>
       market.market_type === PLANNING_TYPE);
-    markets = _.sortBy(filtered, (market) => market.market_sub_type === SUPPORT_SUB_TYPE, 'name');
+    markets = getSortedMarkets(filtered);
   }
 
 

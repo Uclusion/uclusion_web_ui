@@ -2,9 +2,10 @@ import { addPresenceToMarket, getMarketPresences } from '../MarketPresencesConte
 import { updateMarketDetails, versionsUpdateDetails } from './marketsContextReducer'
 import { fixupItemForStorage } from '../ContextUtils'
 import { pushMessage } from '../../utils/MessageBusUtils'
-import { ACTIVE_STAGE } from '../../constants/markets';
+import { ACTIVE_STAGE, SUPPORT_SUB_TYPE } from '../../constants/markets';
 import { ADD_PRESENCE } from '../MarketPresencesContext/marketPresencesMessages'
 import { PUSH_PRESENCE_CHANNEL, PUSH_STAGE_CHANNEL, VERSIONS_EVENT } from '../../api/versionedFetchUtils'
+import _ from 'lodash';
 
 export function getMarket(state, marketId) {
   const { marketDetails } = state;
@@ -74,6 +75,11 @@ export function addMarketToStorage(dispatch, marketDetails) {
 
 export function addMarketsToStorage(dispatch, marketDetails) {
   dispatch(versionsUpdateDetails(marketDetails));
+}
+
+export function getSortedMarkets(filtered) {
+  return _.sortBy(filtered, (market) => market.market_stage !== 'Active',
+    (market) => market.market_sub_type === SUPPORT_SUB_TYPE, 'name');
 }
 
 export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {

@@ -28,12 +28,13 @@ export function redirectFromHistory(history) {
   return redirect;
 }
 
-export function getFirstWorkspace(markets, marketId) {
+export function getFirstWorkspace(markets, marketId, allowArchived=true) {
   if (_.isEmpty(markets)) {
     return undefined;
   }
   const lastActive = marketId || getCurrentWorkspace();
-  const lastMarket = markets.find((workspace) => workspace.id === lastActive);
+  const lastMarket = markets.find((workspace) => workspace.id === lastActive &&
+    (allowArchived || workspace.market_stage === 'Active'));
   return lastMarket || markets[0];
 }
 

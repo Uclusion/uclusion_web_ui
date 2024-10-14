@@ -35,10 +35,14 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import Screen from '../Screen/Screen';
 import { useIntl } from 'react-intl';
-import { DEMO_TYPE, PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
+import { DEMO_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import _ from 'lodash';
 import jwt_decode from 'jwt-decode';
-import { getMarket, getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
+import {
+  getMarket,
+  getNotHiddenMarketDetailsForUser,
+  getSortedMarkets
+} from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningMarketLoad from '../../pages/Dialog/Planning/PlanningMarketLoad';
 import DemoMarketLoad from '../../pages/Dialog/Planning/DemoMarketLoad';
 import { getFirstWorkspace } from '../../utils/redirectUtils';
@@ -94,9 +98,10 @@ function Root() {
   if (myNotHiddenMarketsState.marketDetails) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) =>
       market.market_type === PLANNING_TYPE);
-    markets = _.sortBy(filtered, (market) => market.market_sub_type === SUPPORT_SUB_TYPE, 'name');
+    markets = getSortedMarkets(filtered);
   }
-  const defaultMarket = getFirstWorkspace(markets, marketId);
+  const isRootPath = pathname === '/';
+  const defaultMarket = getFirstWorkspace(markets, marketId, !isRootPath);
   const workspaceMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${defaultMarket?.id}`,
     messagesState);
   const workspaceMessagePath = `${getInboxTarget()}/UNREAD_GROUP_${defaultMarket?.id}`;
@@ -106,7 +111,6 @@ function Root() {
     .includes(userState?.user?.onboarding_state);
   const demoCreatedUser = userState?.user?.onboarding_state === OnboardingState.DemoCreated;
   const firstMarketJoinedUser = userState?.user?.onboarding_state === OnboardingState.FirstMarketJoined;
-  const isRootPath = pathname === '/';
   const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
 
   function hideInbox() {

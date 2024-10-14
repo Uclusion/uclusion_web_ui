@@ -33,10 +33,13 @@ import WorkspaceMenu from '../../pages/Home/WorkspaceMenu'
 import {
   ADD_COLLABORATOR_WIZARD_TYPE,
   COMPOSE_WIZARD_TYPE,
-  PLANNING_TYPE,
-  SUPPORT_SUB_TYPE
+  PLANNING_TYPE
 } from '../../constants/markets';
-import { getMarket, getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
+import {
+  getMarket,
+  getNotHiddenMarketDetailsForUser,
+  getSortedMarkets
+} from '../../contexts/MarketsContext/marketsContextHelper';
 import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';
@@ -313,8 +316,7 @@ function Screen(props) {
   if (myNotHiddenMarketsState.marketDetails) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) =>
       market.market_type === PLANNING_TYPE);
-    markets = _.sortBy(filtered, (market) => market.market_stage !== 'Active',
-      (market) => market.market_sub_type === SUPPORT_SUB_TYPE, 'name');
+    markets = getSortedMarkets(filtered);
   }
   const defaultMarket = getFirstWorkspace(markets, marketId) || {};
   const reallyAmLoading = !hidden && appEnabled && (loading || !userIsLoaded(userState));

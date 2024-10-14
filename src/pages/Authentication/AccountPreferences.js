@@ -28,8 +28,8 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import { getFirstWorkspace } from '../../utils/redirectUtils';
 import { updateUser } from '../../api/users';
 import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer';
-import { PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
-import { getNotHiddenMarketDetailsForUser } from '../../contexts/MarketsContext/marketsContextHelper';
+import { PLANNING_TYPE } from '../../constants/markets';
+import { getNotHiddenMarketDetailsForUser, getSortedMarkets } from '../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -77,7 +77,7 @@ function AccountPreferences(props) {
   if (myNotHiddenMarketsState.marketDetails) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) =>
       market.market_type === PLANNING_TYPE);
-    markets = _.sortBy(filtered, (market) => market.market_sub_type === SUPPORT_SUB_TYPE, 'name');
+    markets = getSortedMarkets(filtered);
   }
   const defaultMarket = getFirstWorkspace(markets, chosenMarketId);
   const marketId = defaultMarket?.id;

@@ -113,6 +113,7 @@ function Inbox(props) {
   const { outBoxMessagesOrdered, inboxMessagesOrdered } = messagesHash;
   const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   const inboxRows = [];
+  let hasCheckAbleInboxItems = false;
   let currentWorkSpaceGroupId = undefined;
   data.forEach((message) => {
     if (message.isOutboxType || !message.type_object_id) {
@@ -129,6 +130,9 @@ function Inbox(props) {
       }
     }
     const isDeletable =  message.type_object_id.startsWith('UNREAD');
+    if (isDeletable) {
+      hasCheckAbleInboxItems = true;
+    }
     const determinateChecked = determinate[message.type_object_id];
     const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
     inboxRows.push(<InboxRow message={message} key={message.type_object_id}
@@ -165,6 +169,7 @@ function Inbox(props) {
           {!mobileLayout && !isOnWorkItem && (
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                       checked={0 === tabIndex ? checkAll : checkAllOutbox}
+                      disabled={tabIndex === 0 ? !hasCheckAbleInboxItems : !_.isEmpty(outBoxMessagesOrdered)}
                       indeterminate={0 === tabIndex ? indeterminate : indeterminateOutbox}
                       onChange={() => 0 === tabIndex ? determinateDispatch({type: 'toggle'}) :
                         determinateDispatchOutbox({type: 'toggle'})}

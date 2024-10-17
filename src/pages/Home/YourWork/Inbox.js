@@ -113,32 +113,62 @@ function Inbox(props) {
   const { outBoxMessagesOrdered, inboxMessagesOrdered } = messagesHash;
   const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   const inboxRows = [];
+  const outboxRows = [];
   let hasCheckAbleInboxItems = false;
   let currentWorkSpaceGroupId = undefined;
   data.forEach((message) => {
-    if (message.isOutboxType || !message.type_object_id) {
-      return React.Fragment;
-    }
+    const isOutbox = message.isOutboxType || !message.type_object_id;
     if (currentWorkSpaceGroupId !== message.groupAttr && !isOnWorkItem) {
       currentWorkSpaceGroupId = message.groupAttr;
       const group = getGroup(groupsState, undefined, message.group_id);
       if (group) {
         const market = getMarket(marketsState, group.market_id);
         if (market) {
-          inboxRows.push(createWorkspaceGroupHeader(market, group, history));
+          const rows = isOutbox ? outboxRows : inboxRows;
+          rows.push(createWorkspaceGroupHeader(market, group, history));
         }
       }
     }
-    const isDeletable =  message.type_object_id.startsWith('UNREAD');
-    if (isDeletable) {
-      hasCheckAbleInboxItems = true;
+    if (isOutbox) {
+        const { id, investible, updatedAt, title, icon, comment, debtors, expansionPanel } = message;
+        const item = {
+          title,
+          read: true,
+          isDeletable: false,
+          people: debtors,
+          date: intl.formatDate(updatedAt),
+          expansionPanel,
+          icon,
+          message
+        };
+
+        if (investible) {
+          item.investible = investible;
+        }
+        if (comment) {
+          const commentName = stripHTML(comment);
+          if (commentName) {
+            item.comment = commentName;
+          }
+        }
+        const expansionOpen = isOnWorkItem && workItemId === id;
+        calculateTitleExpansionPanel({ item, intl, openExpansion: expansionOpen });
+        const determinateChecked = determinateOutbox[message.id];
+        const checked = determinateChecked !== undefined ? determinateChecked : checkAllOutbox;
+        outboxRows.push(<WorkListItem id={id} useSelect {...item} key={id} expansionOpen={expansionOpen}
+                                      determinateDispatch={determinateDispatchOutbox} checked={checked} />);
+    } else {
+      const isDeletable = message.type_object_id.startsWith('UNREAD');
+      if (isDeletable) {
+        hasCheckAbleInboxItems = true;
+      }
+      const determinateChecked = determinate[message.type_object_id];
+      const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
+      inboxRows.push(<InboxRow message={message} key={message.type_object_id}
+                               determinateDispatch={determinateDispatch}
+                               expansionOpen={isOnWorkItem && workItemId === message.type_object_id}
+                               isDeletable={isDeletable} checked={checked}/>);
     }
-    const determinateChecked = determinate[message.type_object_id];
-    const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-    inboxRows.push(<InboxRow message={message} key={message.type_object_id}
-                     determinateDispatch={determinateDispatch}
-                     expansionOpen={isOnWorkItem && workItemId === message.type_object_id}
-                     isDeletable={isDeletable} checked={checked} />);
   });
   return (
     <>
@@ -261,40 +291,7 @@ function Inbox(props) {
       {!mobileLayout && defaultRow}
       {mobileLayout && <div style={{paddingLeft: '1rem'}}>{defaultRow}</div>}
       { inboxRows }
-      {
-        data.map((message) => {
-          if (!message.isOutboxType) {
-            return React.Fragment;
-          }
-          const { id, investible, updatedAt, title, icon, comment, debtors, expansionPanel } = message;
-          const item = {
-            title,
-            read: true,
-            isDeletable: false,
-            people: debtors,
-            date: intl.formatDate(updatedAt),
-            expansionPanel,
-            icon,
-            message
-          }
-
-          if (investible) {
-            item.investible = investible;
-          }
-          if (comment) {
-            const commentName = stripHTML(comment);
-            if (commentName) {
-              item.comment = commentName;
-            }
-          }
-          const expansionOpen = isOnWorkItem && workItemId === id;
-          calculateTitleExpansionPanel({ item, intl, openExpansion: expansionOpen });
-          const determinateChecked = determinateOutbox[message.id];
-          const checked = determinateChecked !== undefined ? determinateChecked : checkAllOutbox;
-          return <WorkListItem id={id} useSelect {...item} key={id} expansionOpen={expansionOpen}
-                               determinateDispatch={determinateDispatchOutbox} checked={checked} />;
-        })
-      }
+      { outboxRows }
     </div>
     </>
   );

@@ -199,7 +199,9 @@ export function createDefaultInboxRow(messagesOrdered, tabIndex) {
 }
 
 function getMessageForInvestible(investible, market, labelId, Icon, intl) {
-  const investibleId = investible.investible.id
+  const investibleId = investible.investible.id;
+  const marketInfo = getMarketInfo(investible, market.id) || {};
+  const groupId = marketInfo.group_id;
   return {
     id: investibleId,
     marketId: market.id,
@@ -211,13 +213,16 @@ function getMessageForInvestible(investible, market, labelId, Icon, intl) {
     link: formInvestibleLink(market.id, investibleId),
     isOutboxAccepted: investible.notAccepted,
     isOutboxType: true,
-    isInvestibleType: true
+    isInvestibleType: true,
+    group_id: groupId,
+    groupAttr: `${market.id}_${groupId}`
   };
 }
 
 function getMessageForComment(comment, market, type, Icon, intl, investibleState, marketStagesState,
   comments, marketPresences) {
-  const commentId = comment.id
+  const commentId = comment.id;
+  const groupId = comment.group_id;
   const message = {
     id: commentId,
     marketType: market.market_type,
@@ -228,10 +233,12 @@ function getMessageForComment(comment, market, type, Icon, intl, investibleState
         ${type === QUESTION_TYPE ? ' question' : (type === SUGGEST_CHANGE_TYPE ? ' suggestion' : 
       (type === TODO_TYPE ? ' bug' : ' issue'))}?`,
     updatedAt: comment.updated_at,
-    link: formCommentLink(market.id, comment.group_id, comment.investible_id, commentId),
+    link: formCommentLink(market.id, groupId, comment.investible_id, commentId),
     inFurtherWork: false,
     isOutboxType: true,
-    isCommentType: true
+    isCommentType: true,
+    group_id: groupId,
+    groupAttr: `${market.id}_${groupId}`
   }
   if (comment.investible_id) {
     const investible = getInvestible(investibleState, comment.investible_id)

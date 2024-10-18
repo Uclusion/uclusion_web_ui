@@ -50,6 +50,7 @@ import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/acc
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { getComment } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import jwt_decode from 'jwt-decode';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -301,6 +302,9 @@ function Screen(props) {
     }
   } else if (['comment', 'dialog'].includes(action)) {
     pathMarketId = pathMarketIdRaw;
+  } else if (action === 'invite') {
+    const decoded = jwt_decode(pathMarketIdRaw);
+    pathMarketId = decoded.id;
   }
   let marketId = pathMarketId || searchMarketId || hashMarketId ||
     getPlanningMarketId(investibleId, marketsState, investiblesState);

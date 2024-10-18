@@ -73,8 +73,6 @@ function PlanningMarketLoad() {
         const tokenStorageManager = new TokenStorageManager();
         await tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token);
         addMarketToStorage(marketsDispatch, market);
-        // Remove invite from URL to keep from book marking etc.
-        window.history.replaceState(null, '', `${getInboxTarget()}/UNREAD_GROUP_${id}`);
         const marketsStruct = {};
         // Have to load the rest here otherwise even the welcome message is wrong - no groups etc.
         return updateMarkets([id], marketsStruct, 1, {})
@@ -94,9 +92,13 @@ function PlanningMarketLoad() {
               return updateMarkets(inlineMarketIds, inlineMarketsStruct, 1, {})
                 .then(() => {
                   sendMarketsStruct(inlineMarketsStruct);
+                  // Remove invite from URL to keep from book marking etc.
+                  window.history.replaceState(null, '', `${getInboxTarget()}/UNREAD_GROUP_${id}`);
                   return { id, notifications };
                 });
             }
+            // Remove invite from URL to keep from book marking etc.
+            window.history.replaceState(null, '', `${getInboxTarget()}/UNREAD_GROUP_${id}`);
             return { id, notifications };
           });
       } catch (error) {

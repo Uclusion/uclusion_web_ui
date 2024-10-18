@@ -20,7 +20,6 @@ import _ from 'lodash'
 import { ADD_EVENT } from '../NotificationsContext/notificationsContextMessages';
 
 export const LOAD_MARKET_CHANNEL = 'LoadMarketChannel';
-export const INVITE_MARKET_EVENT = 'InviteMarketEvent';
 export const GUEST_MARKET_EVENT = 'GuestMarketEvent';
 export const LOAD_TOKENS_CHANNEL = 'LoadTokensChannel';
 export const LOAD_EVENT = 'LoadEvent';
@@ -102,13 +101,6 @@ function beginListening(dispatch, setTokensHash) {
     const { payload: { event, marketId } } = data;
     console.info(`Responding to event ${event}`);
     switch (event) {
-      case INVITE_MARKET_EVENT:
-        const marketsStruct = {};
-        getStorageStates().then((storageStates) => {
-          updateMarkets([marketId], marketsStruct, 1, storageStates)
-            .then(() => sendMarketsStruct(marketsStruct));
-        });
-        break;
       case GUEST_MARKET_EVENT:
         if (!loadingMarketHack.includes(marketId)) {
           loadingMarketHack.push(marketId);

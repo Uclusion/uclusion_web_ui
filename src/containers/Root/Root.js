@@ -37,9 +37,7 @@ import Screen from '../Screen/Screen';
 import { useIntl } from 'react-intl';
 import { DEMO_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import _ from 'lodash';
-import jwt_decode from 'jwt-decode';
 import {
-  getMarket,
   getNotHiddenMarketDetailsForUser,
   getSortedMarkets
 } from '../../contexts/MarketsContext/marketsContextHelper';
@@ -219,19 +217,6 @@ function Root() {
       }
     }
   },  [demo, history, isRootPath, demoCreatedUser, defaultMarketLink, firstMarketJoinedUser]);
-
-  useEffect(() => {
-    if (action === 'invite') {
-      // In this case the marketId is a token
-      const decoded = jwt_decode(marketId);
-      const loadedMarket = getMarket(marketsState, decoded.market_id);
-      if (!_.isEmpty(loadedMarket)) {
-        // Try to remove the market token from the URL to avoid book marking it or other weirdness
-        window.history.replaceState(null, '', `${getInboxTarget()}/UNREAD_GROUP_${loadedMarket.id}`);
-      }
-    }
-    return () => {}
-  }, [action, history, marketId, marketsState]);
 
   useEffect(() => {
     function handleViewChange(isEntry) {

@@ -88,6 +88,7 @@ function PlanningMarketLoad() {
               }
             });
             if (!_.isEmpty(inlineMarketIds)) {
+              console.log('Quick adding inline markets on invite load');
               const inlineMarketsStruct = {}
               return updateMarkets(inlineMarketIds, inlineMarketsStruct, 1, {})
                 .then(() => {

@@ -100,11 +100,12 @@ function Root() {
   }
   const isRootPath = pathname === '/';
   const defaultMarket = getFirstWorkspace(markets, marketId, !isRootPath);
-  const workspaceMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${defaultMarket?.id}`,
+  const defaultMarketId = defaultMarket?.id;
+  const workspaceMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${defaultMarketId}`,
     messagesState);
-  const workspaceMessagePath = `${getInboxTarget()}/UNREAD_GROUP_${defaultMarket?.id}`;
-  const defaultMarketLink = defaultMarket?.id ? (workspaceMessage ? workspaceMessagePath :
-    formMarketLink(defaultMarket.id, defaultMarket.id)) : undefined;
+  const workspaceMessagePath = `${getInboxTarget()}/UNREAD_GROUP_${defaultMarketId}`;
+  const defaultMarketLink = defaultMarketId ? (workspaceMessage ? workspaceMessagePath :
+    formMarketLink(defaultMarketId, defaultMarketId)) : undefined;
   const isDemoUser = [OnboardingState.DemoCreated, OnboardingState.NeedsOnboarding]
     .includes(userState?.user?.onboarding_state);
   const demoCreatedUser = userState?.user?.onboarding_state === OnboardingState.DemoCreated;
@@ -223,8 +224,8 @@ function Root() {
       const currentPath = window.location.pathname;
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);
       broadcastView(marketId, investibleId, isEntry, action);
-      if (isEntry) {
-        // refresh our versions if we're entering
+      if (isEntry && marketId && marketId === defaultMarketId) {
+        // refresh our versions if we're entering, on a market, and not busy loading it
         refreshVersions().catch(() => console.warn('Error refreshing'));
       }
     }
@@ -265,7 +266,7 @@ function Root() {
     //  window.onanimationiteration = console.debug;
       registerMarketTokenListeners();
     }
-  },  [history, setOnline, location, isUserLoaded]);
+  },  [history, setOnline, location, isUserLoaded, defaultMarketId]);
 
   if (action === 'supportWorkspace' || (isRootPath && firstMarketJoinedUser && _.isEmpty(defaultMarketLink))) {
     return (

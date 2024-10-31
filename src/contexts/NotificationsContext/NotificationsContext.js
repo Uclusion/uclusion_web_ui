@@ -7,7 +7,6 @@ import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 export const EMPTY_STATE = {
-  initializing: true,
   messages: [],
   navigations: [],
 };
@@ -18,6 +17,7 @@ const NOTIFICATIONS_CHANNEL = 'notifications';
 function NotificationsProvider(props) {
   const { children } = props;
   const [, setChannel] = useState(undefined);
+  const [initialized, setInitialized] = useState(undefined);
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ function NotificationsProvider(props) {
 
   useEffect(() => {
     console.info('Beginning listening in notifications provider');
-    beginListening(dispatch);
+    beginListening(dispatch, setInitialized);
     return () => {};
   }, []);
 
@@ -62,7 +62,7 @@ function NotificationsProvider(props) {
   }, []);
 
   return (
-    <NotificationsContext.Provider value={[state, dispatch]}>
+    <NotificationsContext.Provider value={[state, dispatch, initialized]}>
       {children}
     </NotificationsContext.Provider>
   );

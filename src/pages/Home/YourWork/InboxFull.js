@@ -35,7 +35,7 @@ function InboxFull(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, , notificationsInitialized] = useContext(NotificationsContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { messages: messagesUnsafe } = messagesState;
@@ -52,7 +52,7 @@ function InboxFull(props) {
   const [inboxState, inboxDispatch] = useReducer(getReducer(),
     {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
-  let loading = marketsState.initializing || messagesState.initializing;
+  let loading = marketsState.initializing || !notificationsInitialized;
   if (!loading && myNotHiddenMarketsState.marketDetails) {
     myNotHiddenMarketsState.marketDetails.forEach((market) => {
       if (!marketTokenLoaded(market.id, tokensHash)) {

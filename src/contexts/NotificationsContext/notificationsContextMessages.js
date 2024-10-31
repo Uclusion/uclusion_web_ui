@@ -20,14 +20,13 @@ export const MODIFY_NOTIFICATIONS_CHANNEL = 'delete_notifications';
 export const STAGE_CHANGE_EVENT = 'stage_change_event';
 
 
-function beginListening(dispatch) {
+function beginListening(dispatch, setInitialized) {
   registerListener(NOTIFICATIONS_HUB_CHANNEL, 'notificationsStart', (data) => {
     const { payload: { event, notifications } } = data;
-    // // console.debug(`Notifications context responding to push event ${event}`);
-
     switch (event) {
       case VERSIONS_EVENT:
         getMessages().then((messages) => {
+          setInitialized(true);
           dispatch(updateMessages(messages));
         }).catch(() => console.warn('Error getting messages'));
         break;

@@ -24,6 +24,17 @@ function decode(str) {
   return txt.documentElement.textContent;
 }
 
+function stripHTMLNoTrim(foundSubstring) {
+  if (foundSubstring) {
+    const processedSubstring = foundSubstring.replace("</p><p>", "</p> <p>");
+    const htmlRemoved = decode(processedSubstring);
+    if (htmlRemoved) {
+      return htmlRemoved;
+    }
+  }
+  return undefined;
+}
+
 export function stripHTML(foundSubstring) {
   if (foundSubstring) {
     const processedSubstring = foundSubstring.replace("</p><p>", "</p> <p>");
@@ -75,10 +86,11 @@ function processForName(htmlElementNames, description) {
           if (!fullElement.endsWith(entryEndElement)) {
             fullElement += entryEndElement;
           }
-          let strippedElement = stripHTML(fullElement);
-          if (!_.isEmpty(strippedElement)) {
-            const hasInteriorHtml = strippedElement.length <
+          let strippedElementFull = stripHTMLNoTrim(fullElement);
+          if (!_.isEmpty(strippedElementFull)) {
+            const hasInteriorHtml = strippedElementFull.length <
               fullElement.length - entryBeginElement.length - entryEndElement.length;
+            const strippedElement = strippedElementFull.trim();
             elements.push({ strippedElement, fullElement, hasInteriorHtml });
           }
         }

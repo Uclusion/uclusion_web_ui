@@ -1324,7 +1324,7 @@ const messages = defineMessages({
   QUESTIONComposeLabel: 'Question - can have approvable options and movable to a job',
   SUGGESTComposeLabel: 'Suggestion - voted for or against and movable to a job as suggestion or task',
   TODOComposeLabel: 'Bug - movable to a job as a task',
-  GROUPComposeLabel: 'Group - for notification addressing and views of other types',
+  GROUPComposeLabel: 'Group - for notification addressing and a separate status view',
   compose: 'Compose',
 
 

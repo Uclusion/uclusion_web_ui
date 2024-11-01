@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/styles';
 import { isEveryoneGroup } from '../../contexts/GroupMembersContext/groupMembersHelper';
 import DemoCreateWorkspaceButton from '../Buttons/DemoCreateWorkspaceButton';
 import Link from '@material-ui/core/Link';
+import DismissableText from '../Notifications/DismissableText';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -28,7 +29,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 function SwimlanesOnboardingBanner(props) {
-  const { group, sectionOpen } = props;
+  const { group, sectionOpen, isDemo } = props;
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -40,47 +41,57 @@ function SwimlanesOnboardingBanner(props) {
       <div className={classes.bannerBox}>
           <div style={{marginTop: '0.8rem'}} id='swimlanesDemoBannerText'>
             {isOpeningScreen && (
-              <>
-                <Typography><b>Welcome to the demo!</b></Typography>
-                <Typography className={classes.ctaSub}>
-                  Here is group 'Everyone' status at a glance.
-                </Typography>
-              </>
+              <DismissableText textId="everyoneStatusHelp" text={
+                <div>
+                   <Typography><b>Here is group 'Everyone' status at a glance.</b></Typography>
+                   <Typography className={classes.ctaSub}>
+                     Structured comments mean we can populate the Assistance Needed section.
+                   </Typography>
+                 </div>
+               }/>
             )}
             {(!sectionOpen || sectionOpen === 'storiesSection') && !isEveryoneGroup(group?.id, group?.market_id) && (
-              <>
-                <Typography><b>Bonus demo!</b> This group split off to discuss marketing.</Typography>
-                <Typography className={classes.ctaSub}>
-                  Since you're not in this group, you only receive it's notifications if mentioned.
-                </Typography>
-              </>
+              <DismissableText textId="notEveryoneStatusHelp" text={
+                <div>
+                  <Typography><b>This group split off to have its own status.</b></Typography>
+                  <Typography className={classes.ctaSub}>
+                    If you're not in this group, you only receive notifications if mentioned.
+                  </Typography>
+                </div>
+              }/>
             )}
             {sectionOpen === 'marketTodos' && (
-              <>
-                <Typography><b>More demo!</b> - <Link href="https://documentation.uclusion.com/flows/#self-assigning-bugs" target="_blank">self assigning bugs</Link> flow.</Typography>
-                <Typography className={classes.ctaSub}>
-                  Bugs can be quickly created and later moved to tasks in a job.
-                </Typography>
-              </>
+              <DismissableText textId="bugsHelp" text={
+                <div>
+                  <Typography>See <Link href="https://documentation.uclusion.com/flows/#self-assigning-bugs" target="_blank">self assigning bugs</Link> flow.</Typography>
+                  <Typography className={classes.ctaSub}>
+                    Bugs can be quickly created and later moved to tasks in a job.
+                  </Typography>
+                </div>
+              }/>
             )}
             {sectionOpen === 'backlogSection' && (
-              <>
-                <Typography><b>More demo!</b> - <Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">self assigning jobs</Link> flow.</Typography>
-                <Typography className={classes.ctaSub}>
-                  Ready to start jobs send notifications to the group for assignment.
-                </Typography>
-              </>
+              <DismissableText textId="backlogHelp" text={
+                <div>
+                  <Typography>See <Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">self assigning jobs</Link> flow.</Typography>
+                  <Typography className={classes.ctaSub}>
+                    Creating a "Not Ready" job does not send a notification.
+                  </Typography>
+                </div>
+              }/>
             )}
             {sectionOpen === 'discussionSection' && (
-              <>
-                <Typography><b>Bonus demo!</b></Typography>
-                <Typography className={classes.ctaSub}>
-                  Use questions and suggestions at the group level and move them later to a job.
-                </Typography>
-              </>
+              <DismissableText textId="discussionHelp" text={
+                <div>
+                  <Typography><b>Vote here on new ideas and question options.</b></Typography>
+                  <Typography className={classes.ctaSub}>
+                    Suggestions can be converted to tasks in a job.
+                  </Typography>
+                </div>
+              }/>
             )}
           </div>
-        {!mobileLayout && (
+        {!mobileLayout && isDemo && (
           <div style={{ marginTop: '0.8rem' }}>
             <DemoCreateWorkspaceButton/>
           </div>

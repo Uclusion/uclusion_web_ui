@@ -25,7 +25,7 @@ function DemoCreateWorkspaceButton() {
   const [groupsState] = useContext(MarketGroupsContext);
   const { marketDetails } = marketsState;
   const demo = marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
-    market.object_type === DEMO_TYPE);
+    market.object_type === DEMO_TYPE) || {};
   const totalCount = getInboxCount(messagesState, demo.id, groupsState, true);
   const presences = usePresences(demo.id);
   const myPresence = presences.find((presence) => presence.current_user) || {};
@@ -47,7 +47,7 @@ function DemoCreateWorkspaceButton() {
         className={wizardClasses.actionNext}
         id="composeFromDemoBanner"
       >
-        Add in the demo
+        Create something
       </Button>
     );
   }

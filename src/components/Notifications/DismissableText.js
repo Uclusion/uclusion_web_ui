@@ -7,9 +7,10 @@ import CancelRoundedIcon from '@material-ui/icons/CancelRounded';
 import { makeStyles } from '@material-ui/styles';
 import { getUiPreferences, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper'
 import { updateUiPreferences } from '../../api/homeAccount';
-import { Checkbox, Typography } from '@material-ui/core'
+import { Checkbox, CircularProgress, Typography } from '@material-ui/core';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { accountUserRefresh } from '../../contexts/AccountContext/accountContextReducer'
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -81,6 +82,7 @@ function DismissableText(props) {
   const intl = useIntl();
   const [checkBoxValue, setCheckBoxValue] = useState(false);
   const [userState, userDispatch] = useContext(AccountContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const hasUser = userIsLoaded(userState)
   const userPreferences = getUiPreferences(userState) || {};
   const previouslyDismissed = userPreferences.dismissedText || [];
@@ -92,9 +94,10 @@ function DismissableText(props) {
       ...userPreferences,
       dismissedText: newDismissed
     };
+    setOperationRunning(textId);
     return updateUiPreferences(newPreferences)
-      .then((result) => {
-        const { user } = result;
+      .then((user) => {
+        setOperationRunning(false);
         userDispatch(accountUserRefresh(user));
       });
   }
@@ -131,24 +134,30 @@ function DismissableText(props) {
     )
   }
 
+  if (display === undefined) {
+    return (
+      <div style={{display: 'flex'}}>
+        {text}
+        <dl className={classes.rightMost}>
+          <dd className={classes.dismissText}>
+              <span role="button" onClick={storeDismissedInBackend} className={classes.pointer}>
+                <IconButton className={classes.hoverState} disableRipple>
+                  {operationRunning === textId ? <CircularProgress /> : <CancelRoundedIcon/>}
+                </IconButton>
+              </span>
+          </dd>
+        </dl>
+      </div>
+    );
+  }
+
   return (
     <dl key={textId} className={isLeft ? classes.isLeft :
-      (display === true ? (noPad ? classes.rootEmptyNoPadding : classes.rootEmpty) : classes.root)} >
+      (display === true ? (noPad ? classes.rootEmptyNoPadding : classes.rootEmpty) : classes.root)}>
       <dl className={display === true ? classes.center : classes.leftMost}>
         <LiveHelpTwoToneIcon htmlColor="#4ce6a5" fontSize="medium" className={classes.help}/>
         {text}
       </dl>
-      {display === undefined && (
-        <dl className={classes.rightMost}>
-          <dd className={classes.dismissText}>
-          <span role="button" onClick={storeDismissedInBackend} className={classes.pointer}>
-            <IconButton className={classes.hoverState} disableRipple>
-              <CancelRoundedIcon />
-            </IconButton>
-          </span>
-          </dd>
-        </dl>
-      )}
     </dl>
   );
 }

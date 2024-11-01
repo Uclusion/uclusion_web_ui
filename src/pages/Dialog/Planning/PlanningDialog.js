@@ -344,9 +344,7 @@ function PlanningDialog(props) {
       navigationOptions={{useHoverFunctions: !mobileLayout, resetFunction: () => resetFunction(0)}}
     >
       <div style={{ paddingBottom: '0.25rem', paddingLeft: 0, marginLeft: '-0.5rem' }}>
-        {isDemo && (
-          <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen}/>
-        )}
+        <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen} isDemo={isDemo}/>
         <GmailTabs
           value={tabIndex}
           id='dialog-header'

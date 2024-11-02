@@ -422,21 +422,28 @@ function PlanningDialog(props) {
         )}
         {isSectionOpen('storiesSection') && (
           <div id="storiesSection" style={{overflowX: 'hidden', marginTop: '0.5rem'}}>
-            {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
-              <>
-                <SubSection
-                  type={SECTION_TYPE_SECONDARY_WARNING}
-                  bolder
-                  titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
-                    <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR,
-                      borderRadius: 22, paddingLeft: '5px', paddingRight: '6px', paddingTop: '1px', fontSize: 12,
-                      marginRight: '1rem', maxHeight: '20px', color: 'white'}}>
-                      {blockedOrRequiresInputInvestibles.length} total
-                    </span> : undefined}
-                  title={intl.formatMessage({ id: 'blockedHeader' })}
-                  helpLink='https://documentation.uclusion.com/groups/jobs/stages/#assistance'
-                  id="blocked"
-                >
+              <SubSection
+                type={SECTION_TYPE_SECONDARY_WARNING}
+                bolder
+                titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
+                  <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR,
+                    borderRadius: 22, paddingLeft: '5px', paddingRight: '6px', paddingTop: '1px', fontSize: 12,
+                    marginRight: '1rem', maxHeight: '20px', color: 'white'}}>
+                    {blockedOrRequiresInputInvestibles.length} total
+                  </span> : undefined}
+                title={intl.formatMessage({ id: 'blockedHeader' })}
+                helpLink='https://documentation.uclusion.com/groups/jobs/stages/#assistance'
+                id="blocked"
+              >
+                <DismissableText textId="assistanceHelp"
+                                 display={_.isEmpty(blockedOrRequiresInputInvestibles)}
+                                 text={
+                                       <div>
+                                         When there is a blocker or an assignee creates a question or suggestion the
+                                         job moves here.
+                                       </div>
+                                 }/>
+                {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
                   <ArchiveInvestbiles
                     comments={comments}
                     elevation={0}
@@ -446,10 +453,9 @@ function PlanningDialog(props) {
                     presenceId={myPresence.id}
                     allowDragDrop
                   />
-                </SubSection>
-                <div style={{ paddingBottom: '2rem' }}/>
-              </>
-            )}
+                )}
+              </SubSection>
+              <div style={{ paddingBottom: '2rem' }}/>
             <InvestiblesByPerson
               comments={comments}
               investibles={investibles}

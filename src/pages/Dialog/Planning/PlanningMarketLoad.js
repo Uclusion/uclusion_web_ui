@@ -79,7 +79,7 @@ function PlanningMarketLoad() {
           .then(() => {
             sendMarketsStruct(marketsStruct);
             const commentStructs = marketsStruct['comments'] || {};
-            const comments = commentStructs[id];
+            const comments = commentStructs[id] || [];
             const inlineMarketIds = [];
             comments.forEach((comment) => {
               const inlineMarketId = comment.inline_market_id;

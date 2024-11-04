@@ -24,6 +24,7 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import { isNewComment } from '../../../components/Comments/Options';
 import { todoClasses } from '../../Dialog/Planning/MarketTodos';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { sortInProgress } from '../../../containers/CommentBox/CommentBox';
 
 function CondensedTodos(props) {
   const {
@@ -56,7 +57,7 @@ function CondensedTodos(props) {
   const openComments = comments.filter((comment) => !comment.resolved);
   const resolvedComments = comments.filter((comment) => comment.resolved);
   const tabCommentsRaw = showOpen ? openComments : resolvedComments;
-  const tabComments = _.orderBy(tabCommentsRaw, ['updated_at'], ['desc']);
+  const tabComments = sortInProgress(_.orderBy(tabCommentsRaw, ['updated_at'], ['desc']));
 
   function getRows() {
     if (!sectionOpen) {

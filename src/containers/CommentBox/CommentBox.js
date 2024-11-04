@@ -75,7 +75,7 @@ export function getSortedRoots(allComments, searchResults, preserveOrder, isInbo
   return fullOrdered;
 }
 
-function sortInProgress(roots) {
+export function sortInProgress(roots) {
   const sorted = [];
   const inProgressSorted = [];
   roots.forEach((comment) => {

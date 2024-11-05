@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Grid, IconButton, makeStyles, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { Grid, IconButton, Link, makeStyles, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Voting from '../Decision/Voting';
@@ -787,15 +787,22 @@ function PlanningInvestible(props) {
                                   icon={hasJobComment(groupId, investibleId, REPORT_TYPE) ? EditIcon : AddIcon}
                                   iconColor="black"
                                   variant="text" doSpin={false}
-                                  style={{ display: 'flex', marginTop: '0.75rem', marginBottom: '0.75rem' }}
+                                  style={{ display: 'flex', marginTop: '0.75rem', marginBottom:
+                                      _.isEmpty(reportsCommentsSearched) ? '1.75rem' : '0.75rem' }}
                                   onClick={() => navigate(history,
                                     formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                       REPORT_TYPE))}>
                     <FormattedMessage id="createNewStatus"/>
                   </SpinningButton>
                 )}
+                <DismissableText textId="progressReportCommentHelp"
+                                 display={isAssigned && _.isEmpty(reportsCommentsSearched)} isLeft
+                                 text={<div>
+                                          Your report asks the group to review progress on this job.
+                                       </div>
+                }/>
                 {(!showCommentAdd || !isAssigned) && _.isEmpty(reportsCommentsSearched) && (
-                  <Typography style={{ marginTop: '1rem', marginLeft: 'auto', marginRight: 'auto' }}
+                  <Typography style={{ marginLeft: 'auto', marginRight: 'auto' }}
                               variant="body1">
                     No progress reports.
                   </Typography>

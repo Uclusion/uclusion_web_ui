@@ -20,6 +20,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import OptionListItem from '../../Comments/OptionListItem';
+import { DECISION_TYPE } from '../../../constants/markets';
 
 function AddOptionStep(props) {
   const { formData } = props;
@@ -80,7 +81,7 @@ function AddOptionStep(props) {
   }
 
   function myOnFinish(){
-    return sendComment(marketId, commentId).then((response) => {
+    return sendComment(marketId, commentId, undefined, DECISION_TYPE).then((response) => {
       addCommentToMarket(response, commentState, commentDispatch);
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, groupId, undefined, commentId));

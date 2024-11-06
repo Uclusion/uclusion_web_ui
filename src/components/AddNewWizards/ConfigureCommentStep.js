@@ -25,7 +25,7 @@ import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '.
 import { useHistory } from 'react-router';
 import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils';
 import { processTextAndFilesForSave } from '../../api/files';
-import { INITIATIVE_TYPE } from '../../constants/markets';
+import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
 import TokenStorageManager from '../../authorization/TokenStorageManager';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 import { TOKEN_TYPE_MARKET } from '../../api/tokenConstants';
@@ -127,7 +127,7 @@ function ConfigureCommentStep(props) {
               quickAddComment(comment);
             });
         } else {
-          sendComment(marketId, commentId).then((response) => {
+          sendComment(marketId, commentId, undefined, DECISION_TYPE).then((response) => {
             quickAddComment(response);
           });
         }

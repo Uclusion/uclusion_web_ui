@@ -30,6 +30,7 @@ import { usePresences } from '../../../contexts/MarketPresencesContext/marketPre
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import OptionListItem from '../../Comments/OptionListItem';
+import { DECISION_TYPE } from '../../../constants/markets';
 
 function AddOptionStep(props) {
   const { formData, marketId, investibleId } = props;
@@ -100,7 +101,7 @@ function AddOptionStep(props) {
   }
 
   function myOnFinish() {
-    return sendComment(marketId, commentId).then((response) => {
+    return sendComment(marketId, commentId, undefined, DECISION_TYPE).then((response) => {
       let comment = response;
       changeInvestibleStageOnCommentOpen(false,
         creatorIsAssigned && currentStageId !== requiresInputStage.id, marketStagesState,

@@ -19,10 +19,11 @@ export function saveComment(marketId, groupId, investibleId, replyId, body, comm
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 
-export function sendComment(marketId, commentId, label) {
+export function sendComment(marketId, commentId, label, marketType) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.updateComment(commentId, undefined, undefined,
-      undefined, undefined, undefined, undefined, true, label))
+      undefined, undefined, undefined, undefined, true, label,
+      undefined, undefined, undefined, marketType))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 

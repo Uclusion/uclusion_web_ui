@@ -989,6 +989,7 @@ function Comment(props) {
                   `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
                     investibleId && [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) ?
                       BUG_WIZARD_TYPE : undefined)}&fromCommentId=${id}`)}
+                id={`moveComment${id}`}
                 doSpin={false}
                 icon={Eject}
               >

@@ -23,7 +23,7 @@ function SpinningButton(props) {
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const theme = useTheme();
   const mySpinning = operationRunning === id || (!onClick && spinning);
-  const spinningDisabled = doSpin && ((operationRunning !== false)||(!onClick && spinning));
+  const spinningDisabled = (operationRunning !== false)||(!onClick && spinning);
   function myOnClick() {
     if (onClick) {
       if (doSpin) {

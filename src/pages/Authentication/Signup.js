@@ -67,6 +67,18 @@ const useStyles = makeStyles(theme => ({
     alignItems: 'end',
     cursor: 'pointer'
   },
+  googleButtonDisabled: {
+    marginTop: '2rem',
+    width: '100%',
+    height: '46px',
+    backgroundColor: '#EBEBE4',
+    border: 'none',
+    color: '#fff',
+    lineHeight: '46px',
+    display: 'flex',
+    alignItems: 'end',
+    cursor: 'not-allowed'
+  },
   googleText: {
     lineHeight: '46px',
     display: 'inline-block',
@@ -297,6 +309,16 @@ function Signup(props) {
     );
   }
 
+  function doFederate(provider) {
+    if (terms) {
+      const aRedirect = getRedirect();
+      if (aRedirect !== '/') {
+        setRedirect(aRedirect);
+      }
+      Auth.federatedSignIn({ provider });
+    }
+  }
+
   const { name, email, password, repeat, terms } = userState;
 
   if (authState !== 'signUp' || !_.isEmpty(signUpWith)) {
@@ -438,7 +460,26 @@ function Signup(props) {
             </span>
             }
           </div>
-          {noEmailInput && (
+          <Grid item xs={12}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', marginTop: '2rem' }}>
+              <GreenCheckbox
+                id="terms"
+                name="terms"
+                required
+                checked={terms}
+                onChange={handleCheckedChange('terms')}
+              />
+              <Typography>
+                {intl.formatMessage({ id: 'signupAgreeTermsOfUse' })}
+                <Link
+                  href={config.termsOfUseLink}
+                  target="_blank"
+                >
+                  {intl.formatMessage({ id: 'signupTermsOfUse' })}</Link>
+              </Typography>
+            </div>
+          </Grid>
+          {noEmailInput && terms && (
             <GithubLoginButton
               style={{
                 lineHeight: '46px',
@@ -451,27 +492,37 @@ function Signup(props) {
                 paddingRight: '0px'
               }}
               align="center"
-              onClick={() => {
-                const aRedirect = getRedirect();
-                if (aRedirect !== '/') {
-                  setRedirect(aRedirect);
-                }
-                Auth.federatedSignIn({provider: 'GithubLogin'});
-              }}>
+              onClick={() => doFederate('GithubLogin')}>
+              <div className={classes.textWrapper}>
+                {intl.formatMessage({ id: 'signupGithubSignup' })}
+              </div>
+            </GithubLoginButton>
+          )}
+          {noEmailInput && !terms && (
+            <GithubLoginButton
+              style={{
+                lineHeight: '46px',
+                display: 'inline-block',
+                width: '100%',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                fontSize: '1rem',
+                marginTop: '2rem',
+                paddingRight: '0px',
+                backgroundColor: '#EBEBE4',
+                cursor: 'not-allowed'
+              }}
+              preventActiveStyles
+              align="center"
+              onClick={() => doFederate('GithubLogin')}>
               <div className={classes.textWrapper}>
                 {intl.formatMessage({ id: 'signupGithubSignup' })}
               </div>
             </GithubLoginButton>
           )}
           {noEmailInput && (
-            <div className={classes.googleButton} id="googleSignupDiv" onClick={() => {
-              // Must come back to this device so go ahead and set in local storage
-              const aRedirect = getRedirect();
-              if (aRedirect !== '/') {
-                setRedirect(aRedirect);
-              }
-              Auth.federatedSignIn({ provider: 'Google' });
-            }}>
+            <div className={terms ? classes.googleButton : classes.googleButtonDisabled} id="googleSignupDiv"
+                 onClick={() => doFederate('Google')}>
               <img className={classes.googleImg} alt="Sign in with Google"
                    src={`/images/btn_google_dark_normal_ios.svg`}/>
               <div className={classes.googleTextWrapper}>
@@ -593,25 +644,6 @@ function Signup(props) {
                     />
                   </Grid>
                 )}
-                <Grid item xs={12}>
-                  <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-                    <GreenCheckbox
-                      id="terms"
-                      name="terms"
-                      required
-                      checked={terms}
-                      onChange={handleCheckedChange('terms')}
-                    />
-                    <Typography>
-                      {intl.formatMessage({ id: 'signupAgreeTermsOfUse' })}
-                      <Link
-                        href={config.termsOfUseLink}
-                        target="_blank"
-                      >
-                        {intl.formatMessage({ id: 'signupTermsOfUse' })}</Link>
-                    </Typography>
-                  </div>
-                </Grid>
                 {code && (
                   <Grid item xs={12}>
                     <div style={{ display: 'inline-flex', alignItems: 'center' }}>

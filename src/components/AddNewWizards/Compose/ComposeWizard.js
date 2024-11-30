@@ -9,6 +9,9 @@ import ChooseGroupStep from './ChooseGroupStep';
 import { formMarketAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { BUG_WIZARD_TYPE, DISCUSSION_WIZARD_TYPE, JOB_WIZARD_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 export function goToChosenWizard(useType, marketId, groupId, history) {
   switch(useType) {
@@ -32,7 +35,15 @@ export function goToChosenWizard(useType, marketId, groupId, history) {
 function ComposeWizard(props) {
   const { marketId } = props;
   const [groupsState] = useContext(MarketGroupsContext);
-  const groups = groupsState[marketId];
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const groupsRaw = groupsState[marketId] || [];
+  const groups = groupsRaw.filter((group) => {
+    const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
+      group.id) || [];
+    return !_.isEmpty(groupPresences);
+  });
   const groupId = _.size(groups) === 1 ? marketId : undefined;
 
   if (_.isEmpty(groups)) {

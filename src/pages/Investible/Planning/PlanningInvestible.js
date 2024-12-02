@@ -597,7 +597,8 @@ function PlanningInvestible(props) {
       }
     }
     // Default compression to off as tasks are not compressed except on overview and that page is fine
-    return false;
+    // Use find so button not there when no replies
+    return investibleComments.find(comment => comment.reply_id === commentId) ? false : undefined;
   }
 
   function toggleUseCompression(commentId) {

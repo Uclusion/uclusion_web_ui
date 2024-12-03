@@ -41,7 +41,7 @@ function JobStageWizard(props) {
   const [marketsState] = useContext(MarketsContext);
   const inv = getInvestible(investibleState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { stage, group_id: groupId } = marketInfo;
+  const { stage, group_id: groupId, assigned } = marketInfo;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence?.investments?.find((investment) =>
@@ -94,7 +94,7 @@ function JobStageWizard(props) {
                       defaultFormData={{approveQuantity: Math.abs(approveQuantity), originalQuantity: approveQuantity,
                         wasDeleted: yourVote?.deleted, userId: yourPresence?.id, approveReason: originalReason,
                         originalReason, stage: useStageId ? useStageId : undefined, stageWasSet: !!useStageId,
-                        useCompression: true}}>
+                        useCompression: true, originalAssigned: assigned}}>
         {!stageId && (
           <JobStageStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
                         requiresAction={requiresAction} isSingleUser={isSingleUser} />
@@ -108,7 +108,7 @@ function JobStageWizard(props) {
                              isAssign={isAssign} requiresAction={requiresAction} />
         )}
         <StageActionStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                         currentReasonId={yourReason?.id} groupId={groupId} />
+                         currentReasonId={yourReason?.id} groupId={groupId} isSingleUser={isSingleUser} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

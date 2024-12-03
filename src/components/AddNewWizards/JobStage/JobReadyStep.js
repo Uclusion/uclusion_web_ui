@@ -15,7 +15,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import JobDescription from '../../InboxWizards/JobDescription';
 
 function JobReadyStep(props) {
-  const { updateFormData, formData, inv, marketId } = props;
+  const { updateFormData, formData, inv, marketId, isSingleUser } = props;
   const classes = useContext(WizardStylesContext);
   const history = useHistory();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -50,9 +50,11 @@ function JobReadyStep(props) {
       <Typography className={classes.introText}>
         Is this job ready to start?
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Choosing ready will send a one time notification to the group.
-      </Typography>
+      {!isSingleUser && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Choosing ready will send a one time notification to the group.
+        </Typography>
+      )}
       <JobDescription marketId={marketId} investibleId={investibleId}/>
       <div style={{ marginBottom: '2rem' }} />
       <FormControl component="fieldset">

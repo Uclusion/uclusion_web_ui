@@ -80,7 +80,8 @@ function JobStageStep (props) {
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type));
   const hasOpenTodos = !_.isEmpty(openTodos) && isInReviewStage(fullMoveStage);
   const isCloseComments = hasOpenTodos ||
-    (fullCurrentStage.move_on_comment && openAssistance && !fullMoveStage.close_comments_on_entrance);
+    (fullCurrentStage.move_on_comment && openAssistance && !fullMoveStage.close_comments_on_entrance &&
+      !isFurtherWorkStage(fullMoveStage));
   const isFinal = isFurtherWorkStage(fullMoveStage)|| (isSingleUser&&!isCloseComments)||
     !(_.isEmpty(assigned)||isCloseComments||fullMoveStage.close_comments_on_entrance);
   function move() {
@@ -118,8 +119,8 @@ function JobStageStep (props) {
     if (isNotDoingStage(fullMoveStage)) {
       // Get a comment on why not doing
       nextStep(3);
-    } else if (_.isEmpty(assigned)&&(isFurtherWorkStage(fullMoveStage)||!isSingleUser)) {
-      // Go to next normal step
+    } else if (_.isEmpty(formData.originalAssigned)&&!isFurtherWorkStage(fullMoveStage)&&!isSingleUser) {
+      // Go to next normal step which is probably assign
       nextStep();
     } else if (isCloseComments) {
       nextStep(2);

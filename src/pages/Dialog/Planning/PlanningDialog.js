@@ -493,7 +493,7 @@ function PlanningDialog(props) {
           </div>
         )}
         {isSectionOpen('backlogSection') && (
-          <div id="backlogSection" style={{overflowX: 'hidden'}}>
+          <div id="backlogSection" style={{overflowX: 'hidden', paddingBottom: '5rem'}}>
             <Backlog group={group} marketPresences={marketPresences}
                      furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
                      comments={comments} />

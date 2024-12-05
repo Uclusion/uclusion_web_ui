@@ -20,6 +20,7 @@ function CollaboratorWizard (props) {
   const [marketState] = useContext(MarketsContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const participants = Object.values(extractUsersList(marketPresencesState, marketState, marketPresences));
+  const displayFromOther = !_.isEmpty(participants);
 
   const onFinish = () => {
     navigate(history, formMarketLink(marketId, marketId));
@@ -28,10 +29,10 @@ function CollaboratorWizard (props) {
   return (
     <WizardStylesProvider>
       <FormdataWizard name="collaborator_wizard" onFinish={onFinish} useLocalStorage={false}>
-        {!_.isEmpty(participants) && (
+        <InviteByEmailStep marketId={marketId} displayFromOther={displayFromOther} />
+        {displayFromOther && (
           <FromOtherWorkspacesStep marketId={marketId} participants={participants}/>
         )}
-        <InviteByEmailStep marketId={marketId}/>
         <InviteByEmailConfirmationStep marketId={marketId}/>
       </FormdataWizard>
     </WizardStylesProvider>

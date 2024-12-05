@@ -15,7 +15,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function InviteByEmailStep(props) {
-  const { formData, finish, marketId, updateFormData } = props;
+  const { formData, finish, marketId, updateFormData, displayFromOther } = props;
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -25,16 +25,20 @@ function InviteByEmailStep(props) {
   const inMarketEmailList = marketPresences.map((presence) => presence.email);
   const { isValid } = formData;
 
-  const myOnFinish = () => {
+  function myOnFinish(isOther=false){
     const emails = getEmailList(marketId);
     if (!_.isEmpty(emails)) {
       return inviteParticipants(marketId, emails).then((result) => {
         setOperationRunning(false);
         marketPresencesDispatch(addMarketPresences(marketId, result));
+        if (!isOther) {
+          finish();
+        }
       });
     }
-    setOperationRunning(false);
-    finish();
+    if (!isOther) {
+      finish();
+    }
   }
 
   return (
@@ -44,6 +48,11 @@ function InviteByEmailStep(props) {
       <Typography className={classes.introText} variant="h6">
         Who should be added by email?
       </Typography>
+      {displayFromOther && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Use the middle option to choose participants already in other workspaces.
+        </Typography>
+      )}
       <EmailEntryBox marketId={marketId} alreadyInList={inMarketEmailList}
                      setIsValid={(isValid) => updateFormData({ isValid })}
                      placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
@@ -52,11 +61,17 @@ function InviteByEmailStep(props) {
         {...props}
         nextLabel="OnboardingWizardFinish"
         onNextDoAdvance={isValid === true}
+        spinOnClick={isValid === true}
+        onNextSkipStep={displayFromOther}
         showSkip={false}
         showLink={true}
         onNext={myOnFinish}
         formData={formData}
         marketToken={market.invite_capability}
+        showOtherNext={displayFromOther}
+        otherSpinOnClick={isValid === true}
+        onOtherNext={() => myOnFinish(true)}
+        otherNextLabel="OnboardingWizardAddOther"
       />
     </WizardStepContainer>
   );

@@ -1226,6 +1226,7 @@ const messages = defineMessages({
   OnboardingWizardGoBack: 'Go back',
   OnboardingWizardContinue: 'Next',
   OnboardingWizardFinish: 'Finish',
+  OnboardingWizardAddOther: 'Send + other workspace',
   WorkspaceWizardCopyLink: 'Copy invite link',
   YesReady: 'Yes ready to start',
   NoReady: 'No not ready',

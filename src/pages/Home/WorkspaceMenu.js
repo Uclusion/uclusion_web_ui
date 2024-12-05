@@ -276,7 +276,7 @@ function WorkspaceMenu(props) {
                              onClick={(event) => event.stopPropagation() }
                              style={{paddingLeft: '-15px', marginLeft: '-15px'}}
                              key="archivedWorkspaces">
-                      {archivedMarkets.map((market) => {
+                      {archivedMarkets.map((market, archiveIndex) => {
                         const key = `market${market.id}`;
 
                         if (market.id === defaultMarket.id) {
@@ -286,7 +286,8 @@ function WorkspaceMenu(props) {
                                                               htmlColor="black" fontSize='small' />}
                                          id={key}
                                          key={key}
-                                         style={{paddingLeft: '-15px', marginLeft: '-15px'}}
+                                         style={{paddingLeft: '-15px', marginLeft: '-15px',
+                                           marginBottom: archiveIndex === archivedMarkets.length - 1 ? '15px' : undefined}}
                                          onClick={() => {
                                            recordPositionToggle();
                                            setChosenMarketId(market.id);

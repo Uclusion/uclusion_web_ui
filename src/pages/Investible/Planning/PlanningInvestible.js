@@ -247,7 +247,6 @@ export const usePlanningInvestibleStyles = makeStyles(
     },
     paper: {
       // See https://github.com/mui-org/material-ui/blob/master/packages/material-ui/src/Drawer/Drawer.js
-      overflowY: 'none',
       display: 'flex',
       flexDirection: 'column',
       alignItems: "flex-start",

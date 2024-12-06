@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Grid, IconButton, makeStyles, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { IconButton, makeStyles, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { useHistory } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Voting from '../Decision/Voting';
@@ -825,58 +825,53 @@ function PlanningInvestible(props) {
           </>
         )}
         {sectionOpen !== 'descriptionVotingSection' && (
-          <Grid container spacing={2}>
-            <Grid item xs={12} style={{
-              marginTop: mobileLayout ? undefined : '15px',
-              paddingLeft: mobileLayout ? undefined : '1rem'
-            }}>
-              {showCommentAdd && !_.isEmpty(allowedCommentTypes) && (
-                <div style={{ display: mobileLayout ? undefined : 'flex', marginLeft: '0.5rem' }}>
-                  {allowedCommentTypes.map((allowedCommentType) => {
-                    return (
-                      <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
-                                      icon={hasJobComment(groupId, investibleId, allowedCommentType) ? EditIcon :
-                                        AddIcon}
-                                      iconColor="black"
-                                      style={{
-                                        display: 'flex', marginTop: '0.75rem',
-                                        marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
-                                      }}
-                                      variant="text" doSpin={false}
-                                      onClick={() => navigate(history,
-                                        formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                                          allowedCommentType))}>
-                        <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`}/>
-                      </SpinningButton>
-                    );
-                  })}
-                </div>
-              )}
-              <DismissableText textId="investibleCommentHelp" display={_.isEmpty(sectionComments)} noPad isLeft
-                               text={
-                                 sectionOpen === 'assistanceSection' ? (
-                                   <ul style={{ paddingLeft: 0, marginLeft: '1rem' }}>
-                                     <li>Question - invites others to add voteable options for brainstorming</li>
-                                     <li>Suggestion - others vote on this idea and then can be converted to a task</li>
-                                     <li>Blocking issue - asks for help clearing the blocker</li>
-                                   </ul>) : (<div>Tasks can be moved between jobs or converted to or from bugs.</div>)
-                               }/>
-              <CommentBox
-                comments={sectionComments.concat(replies)}
-                marketId={marketId}
-                isRequiresInput={isRequiresInput}
-                isInBlocking={isInBlocked}
-                fullStage={fullStage}
-                assigned={assigned}
-                formerStageId={formerStageId}
-                marketInfo={marketInfo}
-                investible={marketInvestible}
-                toggleCompression={sectionOpen === 'assistanceSection' ? toggleUseCompression : undefined}
-                useCompression={sectionOpen === 'assistanceSection' ? getUseCompression : undefined}
-                useInProgressSorting={sectionOpen === 'tasksSection'}
-              />
-            </Grid>
-          </Grid>
+          <>
+            {showCommentAdd && !_.isEmpty(allowedCommentTypes) && (
+              <div style={{ display: mobileLayout ? undefined : 'flex', marginLeft: '0.5rem' }}>
+                {allowedCommentTypes.map((allowedCommentType) => {
+                  return (
+                    <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
+                                    icon={hasJobComment(groupId, investibleId, allowedCommentType) ? EditIcon :
+                                      AddIcon}
+                                    iconColor="black"
+                                    style={{
+                                      display: 'flex', marginTop: '0.75rem',
+                                      marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
+                                    }}
+                                    variant="text" doSpin={false}
+                                    onClick={() => navigate(history,
+                                      formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                                        allowedCommentType))}>
+                      <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`}/>
+                    </SpinningButton>
+                  );
+                })}
+              </div>
+            )}
+            <DismissableText textId="investibleCommentHelp" display={_.isEmpty(sectionComments)} noPad isLeft
+                             text={
+                               sectionOpen === 'assistanceSection' ? (
+                                 <ul style={{ paddingLeft: 0, marginLeft: '1rem' }}>
+                                   <li>Question - invites others to add voteable options for brainstorming</li>
+                                   <li>Suggestion - others vote on this idea and then can be converted to a task</li>
+                                   <li>Blocking issue - asks for help clearing the blocker</li>
+                                 </ul>) : (<div>Tasks can be moved between jobs or converted to or from bugs.</div>)
+                             }/>
+            <CommentBox
+              comments={sectionComments.concat(replies)}
+              marketId={marketId}
+              isRequiresInput={isRequiresInput}
+              isInBlocking={isInBlocked}
+              fullStage={fullStage}
+              assigned={assigned}
+              formerStageId={formerStageId}
+              marketInfo={marketInfo}
+              investible={marketInvestible}
+              toggleCompression={sectionOpen === 'assistanceSection' ? toggleUseCompression : undefined}
+              useCompression={sectionOpen === 'assistanceSection' ? getUseCompression : undefined}
+              useInProgressSorting={sectionOpen === 'tasksSection'}
+            />
+          </>
         )}
       </div>
     </Screen>

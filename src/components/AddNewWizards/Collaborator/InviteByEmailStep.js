@@ -31,9 +31,6 @@ function InviteByEmailStep(props) {
       return inviteParticipants(marketId, emails).then((result) => {
         setOperationRunning(false);
         marketPresencesDispatch(addMarketPresences(marketId, result));
-        if (!isOther) {
-          finish();
-        }
       });
     }
     if (!isOther) {

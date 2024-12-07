@@ -59,13 +59,11 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    overflowX: 'hidden',
-    willChange: 'scroll-position',
+    overflowX: 'hidden'
   },
   container: {
     padding: '46px 20px',
-    overflowX: 'hidden',
-    willChange: 'scroll-position',
+    overflowX: 'hidden'
   },
   containerAll: {
     padding: '24px 20px',
@@ -269,7 +267,8 @@ function Screen(props) {
     disableSearch,
     loadingMessageId,
     groupLoadId,
-    outBoxMessages
+    outBoxMessages,
+    leftNavAdjust
   } = props;
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
@@ -409,7 +408,7 @@ function Screen(props) {
         </div>
       )}
 
-      <div className={contentClass}>
+      <div className={contentClass} style={{maxWidth: leftNavAdjust ? `calc(100vw - ${leftNavAdjust}px)` : undefined}}>
         {!reallyAmLoading && (
           <div className={myContainerClass}>
             {renderBanner && (

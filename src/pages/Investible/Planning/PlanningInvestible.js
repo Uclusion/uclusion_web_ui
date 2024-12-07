@@ -257,7 +257,7 @@ export const usePlanningInvestibleStyles = makeStyles(
       flex: '1 0 auto',
       backgroundColor: '#84B1D9',
       height: '100%',
-      zIndex: -1,
+      zIndex: 9,
       position: 'fixed',
       top: '3.8rem',
       paddingLeft: '1rem',
@@ -623,6 +623,7 @@ function PlanningInvestible(props) {
       title={title}
       tabTitle={name}
       hidden={hidden}
+      leftNavAdjust={mobileLayout ? undefined : (leftNavBreak ? 245 : 465)}
     >
       {!mobileLayout && (
         <div className={classes.paper} style={{ paddingTop: mobileLayout ? undefined : '2rem', paddingBottom: '1rem',
@@ -631,7 +632,7 @@ function PlanningInvestible(props) {
           {investibleNav}
         </div>
       )}
-      <div style={{paddingRight: mobileLayout ? undefined : '15rem'}}>
+      <div style={{paddingRight: mobileLayout ? undefined : '1rem'}}>
         <GmailTabs
           value={sections.findIndex((section) => section === sectionOpen)}
           onChange={(event, value) => {

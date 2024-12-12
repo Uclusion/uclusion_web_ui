@@ -34,9 +34,9 @@ function SpinningButton(props) {
       onClick();
     }
   }
-
+  const myDisabled = spinningDisabled || disabled;
   const myButton = <Button
-    disabled={spinningDisabled || disabled}
+    disabled={myDisabled}
     onClick={myOnClick}
     id={id}
     endIcon={EndIcon ? (spinningDisabled || disabled ? <EndIcon color='disabled' /> : <EndIcon htmlColor={iconColor} />)
@@ -55,7 +55,7 @@ function SpinningButton(props) {
     )}
   </Button>;
 
-  if (toolTipId) {
+  if (toolTipId && !myDisabled) {
     return (
       <Tooltip title={
         <h3>

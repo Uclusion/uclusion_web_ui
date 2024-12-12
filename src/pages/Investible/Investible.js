@@ -31,16 +31,16 @@ function Investible(props) {
   const { marketId, investibleId } = decomposeMarketPath(pathname);
   useHotkeys('ctrl+a', () => navigate(history,
     formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE)),
-    [history, investibleId, marketId]);
+    {enabled: !hidden}, [history, investibleId, marketId]);
   useHotkeys('ctrl+q', () => navigate(history,
       formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE)),
-    [history, investibleId, marketId]);
+    {enabled: !hidden},[history, investibleId, marketId]);
   useHotkeys('ctrl+alt+s', () => navigate(history,
       formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, SUGGEST_CHANGE_TYPE)),
-    [history, investibleId, marketId]);
+    {enabled: !hidden},[history, investibleId, marketId]);
   useHotkeys('ctrl+alt+b', () => navigate(history,
       formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE)),
-    [history, investibleId, marketId]);
+    {enabled: !hidden},[history, investibleId, marketId]);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const [marketsState, ,tokensHash] = useContext(MarketsContext);

@@ -273,8 +273,8 @@ const messages = defineMessages({
   closedComments: 'Resolved',
   commentReplyEdit: 'Comment Edit',
   labels: 'Labels',
-  previousNavigation: 'Go to previous navigation',
-  nextNavigation: 'Go to the next most likely thing that needs doing',
+  previousNavigation: 'ctrl+arrowLeft Go to previous navigation',
+  nextNavigation: 'ctrl+arrowRight Go to what most likely needs doing',
   upNavigation: 'Go up one level',
   up: 'Up',
 

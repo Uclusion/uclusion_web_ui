@@ -35,6 +35,7 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import { getOpenInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketPresences, isSingleUserMarket } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: isOutbox ? formInboxItemLink(investible.investible.id)  :
@@ -203,6 +204,11 @@ export default function NavigationChevrons(props) {
     messagesDispatch(addNavigation(nextUrl.url, allExistingUrls));
     navigate(history, nextUrl.url);
   }
+
+  useHotkeys('ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled},
+    [history, nextUrl.message, nextUrl.url]);
+  useHotkeys('ctrl+arrowLeft', doPreviousNavigation, {enabled: !backDisabled},
+    [history, previous?.url]);
 
   if (!_.isEmpty(searchText)) {
     // Otherwise too confusing and think next goes to next item found or something

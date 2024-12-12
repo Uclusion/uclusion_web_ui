@@ -63,6 +63,7 @@ import { pushMessage } from '../../../utils/MessageBusUtils';
 import { dehighlightCriticalMessage } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import EditIcon from '@material-ui/icons/Edit';
 import { hasBug } from '../../../components/AddNewWizards/Bug/BugDescriptionStep';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 export const todoClasses = makeStyles(
   theme => {
@@ -213,6 +214,11 @@ function MarketTodos(props) {
   const page = getRealPage(tabComments, pinned, originalPage, PAGE_SIZE);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabComments, page,
     PAGE_SIZE);
+
+  useHotkeys('ctrl+a', () => navigate(history,
+      formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, tabIndex)),
+    {enabled: !hidden && sectionOpen},
+    [history, groupId, marketId, tabIndex]);
 
   useEffect(() => {
     if (hash && !hidden && !isInbox) {
@@ -396,7 +402,7 @@ function MarketTodos(props) {
                         className={wizardClasses.actionNext}
                         style={{marginBottom: '1rem', marginTop: '1rem'}}
                         variant="text" doSpin={false}
-                        icon={hasBug(groupId) ? EditIcon : AddIcon} iconColor="black"
+                        icon={hasBug(groupId) ? EditIcon : AddIcon} iconColor="black" toolTipId='hotKeyTODO'
                         onClick={() => navigate(history,
                           formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, tabIndex))}>
           <FormattedMessage id='createBug'/>

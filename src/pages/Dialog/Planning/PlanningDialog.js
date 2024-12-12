@@ -8,7 +8,13 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Grid, Link, useMediaQuery, useTheme } from '@material-ui/core';
 import Screen from '../../../containers/Screen/Screen';
-import { QUESTION_TYPE, REPLY_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
+import {
+  QUESTION_TYPE,
+  REPLY_TYPE,
+  REPORT_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE
+} from '../../../constants/comments';
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
@@ -72,6 +78,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { getMarket, marketIsDemo } from '../../../contexts/MarketsContext/marketsContextHelper';
 import EditIcon from '@material-ui/icons/Edit';
 import { hasDiscussionComment } from '../../../components/AddNewWizards/Discussion/AddCommentStep';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -164,6 +171,16 @@ function PlanningDialog(props) {
   function isSectionOpen(section) {
     return sectionOpen === section || (!sectionOpen && section === 'storiesSection');
   }
+
+  useHotkeys('ctrl+a', () => navigate(history, formMarketAddInvestibleLink(marketId, groupId)),
+    {enabled: !hidden && (isSectionOpen('backlogSection')||isSectionOpen('storiesSection'))},
+    [history, groupId, marketId]);
+  useHotkeys('ctrl+q', () => navigate(history,
+      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, QUESTION_TYPE)),
+    {enabled: !hidden}, [history, groupId, marketId]);
+  useHotkeys('ctrl+alt+s', () => navigate(history,
+      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, SUGGEST_CHANGE_TYPE)),
+    {enabled: !hidden}, [history, groupId, marketId]);
 
   useEffect(() => {
     if (hash && !hidden) {
@@ -386,7 +403,7 @@ function PlanningDialog(props) {
                                     className={wizardClasses.actionNext}
                                     style={{display: "flex", marginTop: '1rem',
                                       marginRight: mobileLayout ? undefined : '2rem'}}
-                                    variant="text" doSpin={false}
+                                    variant="text" doSpin={false} toolTipId='hotKeyQUESTION'
                                     onClick={() => navigate(history,
                                       formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
                                         QUESTION_TYPE))}>
@@ -397,7 +414,7 @@ function PlanningDialog(props) {
                                     iconColor="black"
                                     className={wizardClasses.actionNext}
                                     style={{display: "flex", marginTop: '1rem'}}
-                                    variant="text" doSpin={false}
+                                    variant="text" doSpin={false} toolTipId='hotKeySUGGEST'
                                     onClick={() => navigate(history,
                                       formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
                                         SUGGEST_CHANGE_TYPE))}>

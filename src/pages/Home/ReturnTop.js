@@ -6,6 +6,7 @@ import { ArrowBack } from '@material-ui/icons';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import _ from 'lodash';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 function ReturnTop(props) {
   const { action, pathInvestibleId, marketId, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
@@ -35,6 +36,9 @@ function ReturnTop(props) {
       navigate(history, getInboxTarget());
     }
   }
+
+  useHotkeys('ctrl+arrowUp', goUp, {enabled: !upDisabled, enableOnContentEditable: true},
+    [history, useLink, upFromConfigPossible, marketId, action, hashInvestibleId, groupId]);
 
   return (
     <div style={{marginBottom: '1rem'}}>

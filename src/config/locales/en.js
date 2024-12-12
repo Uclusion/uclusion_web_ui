@@ -275,7 +275,7 @@ const messages = defineMessages({
   labels: 'Labels',
   previousNavigation: 'ctrl+arrowLeft Go to previous navigation',
   nextNavigation: 'ctrl+arrowRight Go to what most likely needs doing',
-  upNavigation: 'Go up one level',
+  upNavigation: 'ctrl+arrowUp Go up one level',
   up: 'Up',
 
   //Inbox notification titles

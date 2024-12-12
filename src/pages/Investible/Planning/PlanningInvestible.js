@@ -838,6 +838,9 @@ function PlanningInvestible(props) {
                                       display: 'flex', marginTop: '0.75rem',
                                       marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
                                     }}
+                                    toolTipId={
+                      [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(allowedCommentType) ?
+                                      `hotKey${allowedCommentType}`: undefined}
                                     variant="text" doSpin={false}
                                     onClick={() => navigate(history,
                                       formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,

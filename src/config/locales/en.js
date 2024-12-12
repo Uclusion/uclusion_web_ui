@@ -1212,6 +1212,12 @@ const messages = defineMessages({
   notificationDismiss: 'Dismiss',
   notificationDismissThread: 'Dismiss thread',
 
+  //Hot keys
+  hotKeyTODO: 'ctrl+a',
+  hotKeyQUESTION: 'ctrl+q',
+  hotKeySUGGEST: 'ctrl+alt+s',
+  hotKeyISSUE: 'ctrl+alt+b',
+
   // phone field
   phoneFieldErrorText: 'Phone should begin with plus or just be the digits',
 

@@ -4,7 +4,7 @@ import { useHistory, useLocation } from 'react-router';
 import _ from 'lodash'
 import Screen from '../../containers/Screen/Screen'
 import {
-  decomposeMarketPath, formInvestibleLink, formMarketLink, navigate,
+  decomposeMarketPath, formInvestibleAddCommentLink, formInvestibleLink, formMarketLink, navigate,
 } from '../../utils/marketIdPathFunctions';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { getInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
@@ -15,6 +15,9 @@ import { getComment, getMarketComments } from '../../contexts/CommentsContext/co
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import PlanningInvestible from './Planning/PlanningInvestible'
+import { useHotkeys } from 'react-hotkeys-hook'
+import { JOB_COMMENT_WIZARD_TYPE } from '../../constants/markets';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
 
 function createCommentsHash(commentsArray) {
   return _.keyBy(commentsArray, 'id');
@@ -26,6 +29,18 @@ function Investible(props) {
   const history = useHistory();
   const { hash, pathname } = location;
   const { marketId, investibleId } = decomposeMarketPath(pathname);
+  useHotkeys('ctrl+a', () => navigate(history,
+    formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, TODO_TYPE)),
+    [history, investibleId, marketId]);
+  useHotkeys('ctrl+q', () => navigate(history,
+      formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE)),
+    [history, investibleId, marketId]);
+  useHotkeys('ctrl+alt+s', () => navigate(history,
+      formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, SUGGEST_CHANGE_TYPE)),
+    [history, investibleId, marketId]);
+  useHotkeys('ctrl+alt+b', () => navigate(history,
+      formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE)),
+    [history, investibleId, marketId]);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const [marketsState, ,tokensHash] = useContext(MarketsContext);

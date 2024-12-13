@@ -94,6 +94,20 @@ function changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos
   }
 }
 
+export function extractTodosList(body) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(body, "text/html");
+
+  const liElements = doc.querySelectorAll("li");
+  const bodies = [];
+
+  for (const li of liElements) {
+    bodies.unshift(`<p>${li.textContent.trim()}</p>`);
+  }
+
+  return bodies;
+}
+
 export function handleAcceptSuggestion(info) {
   const { isMove, comment, investible, investiblesDispatch, marketStagesState, commentsState,
     commentsDispatch, messagesState, messagesDispatch } = info;

@@ -107,33 +107,41 @@ export function resolveInvestibleComments(investibleId, marketId, state, dispatc
   addMarketComments(dispatch, marketId, resolvedComments);
 }
 
-export function addCommentToMarket(comment, state, dispatch) {
-  const updates = [comment];
-  const { reply_id: replyId, id, market_id: marketId } = comment;
-  const comments = getMarketComments(state, marketId);
-  if (!_.isEmpty(replyId)) {
-    const parent = comments.find((comment) => comment.id === replyId);
-    if (!_.isEmpty(parent)) {
-      const { children } = parent;
-      const newChildren = !_.isEmpty(children)? [...children, id] : [id];
-      const uniqueNewChildren = _.uniq(newChildren);
-      const newParent = {
-        ...parent,
-        children: uniqueNewChildren,
-      };
-      updates.push(newParent)
-    }
-  }
-  pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: updates});
+export function addCommentsToMarket(updates, state, dispatch) {
   const ticketCodeItems = [];
-  const { id: commentId, group_id: groupId, ticket_code: ticketCode, investible_id: investibleId } = comment;
-  if (ticketCode) {
-    ticketCodeItems.push({ ticketCode, marketId, commentId, groupId, investibleId });
-  }
+  let commonMarketId;
+  updates.forEach(comment => {
+    const { reply_id: replyId, id, market_id: marketId } = comment;
+    commonMarketId = marketId;
+    const comments = getMarketComments(state, marketId);
+    if (!_.isEmpty(replyId)) {
+      const parent = comments.find((comment) => comment.id === replyId);
+      if (!_.isEmpty(parent)) {
+        const { children } = parent;
+        const newChildren = !_.isEmpty(children)? [...children, id] : [id];
+        const uniqueNewChildren = _.uniq(newChildren);
+        const newParent = {
+          ...parent,
+          children: uniqueNewChildren,
+        };
+        updates.push(newParent)
+      }
+    }
+    const { id: commentId, group_id: groupId, ticket_code: ticketCode, investible_id: investibleId } = comment;
+    if (ticketCode) {
+      ticketCodeItems.push({ ticketCode, marketId, commentId, groupId, investibleId });
+    }
+  });
+  pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: updates});
   if (!_.isEmpty(ticketCodeItems)) {
     pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
   }
-  addMarketComments(dispatch, marketId, updates);
+  addMarketComments(dispatch, commonMarketId, updates);
+}
+
+export function addCommentToMarket(comment, state, dispatch) {
+  const updates = [comment];
+  addCommentsToMarket(updates, state, dispatch);
 }
 
 // Only use this method for altering, resolving, etc. where search and ticket index are not relevant

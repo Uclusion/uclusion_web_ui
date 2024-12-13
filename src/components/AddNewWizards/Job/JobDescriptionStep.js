@@ -23,6 +23,9 @@ import { useHistory } from 'react-router';
 import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { addCommentsToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { extractTodosList } from '../../../utils/commentFunctions';
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, roots, formData, jobType, startOver, nextStep,
@@ -30,6 +33,7 @@ function JobDescriptionStep (props) {
   const history = useHistory();
   const intl = useIntl();
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentState, commentDispatch] = useContext(CommentsContext);
   const radioClasses = bugRadioStyles();
   const editorName = !_.isEmpty(roots) ? `addJobWizard${roots[0].id}` : `addJobWizard${groupId}`;
   const { newQuantity } = formData;
@@ -72,7 +76,7 @@ function JobDescriptionStep (props) {
 
   const [Editor] = useEditor(editorName, editorSpec);
 
-  function createJob(readyToStart) {
+  function createJob(readyToStart, doCreateTasks) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -85,7 +89,7 @@ function JobDescriptionStep (props) {
         jobStage: currentValue
       });
       resetEditor(editorName);
-      return Promise.resolve({isMissingName: true});
+      return Promise.resolve({isMissingName: true, doCreateTasks});
     }
     const addInfo = {
       name,
@@ -93,6 +97,12 @@ function JobDescriptionStep (props) {
       groupId,
       marketId,
       uploadedFiles: filteredUploads
+    }
+    if (doCreateTasks) {
+      const todos = extractTodosList(tokensRemoved);
+      if (!_.isEmpty(todos)) {
+        addInfo.todos = todos;
+      }
     }
     if (readyToStart !== undefined) {
       addInfo.openForInvestment = readyToStart;
@@ -102,7 +112,13 @@ function JobDescriptionStep (props) {
       addInfo.assignments = [myPresenceId];
     }
     return addPlanningInvestible(addInfo)
-      .then((inv) => {
+      .then((result) => {
+        let inv = result;
+        if (!_.isEmpty(addInfo.todos)) {
+          const { investible, todos } = result;
+          addCommentsToMarket(todos, commentState, commentDispatch);
+          inv = investible;
+        }
         refreshInvestibles(investiblesDispatch, () => {}, [inv]);
         const { id: investibleId } = inv.investible;
         let link = formInvestibleLink(marketId, investibleId);
@@ -122,8 +138,8 @@ function JobDescriptionStep (props) {
       })
   }
 
-  function onNotReady(){
-     createJob()
+  function onNotReady(doCreateTasks){
+     return createJob(false, doCreateTasks)
       .then(({link}) => {
         onFinish({
           link
@@ -161,12 +177,16 @@ function JobDescriptionStep (props) {
 
   const defaultFromPage = jobType === undefined ? 'IMMEDIATE' : (jobType === '0' ? 'READY' : 'NOT_READY');
   const currentValue = newQuantity || defaultFromPage || '';
-  const onNext = currentValue === 'NOT_READY' ? onNotReady : (currentValue === 'READY' ?
-    () => createJob(true).then(({link}) => {
-    onFinish({ link });
-  }) : (isSingleUser ? () => createJob().then(({link}) => {
-      onFinish({ link });
-    }) : createJob));
+
+  function getNext(doCreateTasks=false) {
+    return currentValue === 'NOT_READY' ? () => onNotReady(doCreateTasks) : (currentValue === 'READY' ?
+      () => createJob(true, doCreateTasks).then(({link}) => {
+        onFinish({ link });
+      }) : (isSingleUser ? () => createJob(false, doCreateTasks).then(({link}) => {
+        onFinish({ link });
+      }) : () => createJob(false, doCreateTasks)));
+  }
+
   return (
     <WizardStepContainer
       {...props}
@@ -174,6 +194,13 @@ function JobDescriptionStep (props) {
     >
       <Typography className={classes.introText}>
         How would you describe this job?
+      </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1" style={{marginBottom: 0}}>
+        Use the second button 'Create with tasks' with a list like below or add tasks later.
+        <ul>
+          <li>My first task.</li>
+          <li>My second task.</li>
+        </ul>
       </Typography>
       <FormControl>
         <FormLabel
@@ -214,8 +241,11 @@ function JobDescriptionStep (props) {
       <WizardStepButtons
         {...props}
         validForm={hasValue}
-        nextLabel="jobCreate"
-        onNext={onNext}
+        nextLabel='jobCreate'
+        onNext={getNext()}
+        showOtherNext
+        otherNextLabel='jobCreateWithTasks'
+        onOtherNext={getNext(true)}
         onIncrement={doIncrement}
         isFinal={currentValue !== 'IMMEDIATE' || isSingleUser}
         showTerminate={hasFromComments}

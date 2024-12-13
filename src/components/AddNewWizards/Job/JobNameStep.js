@@ -11,14 +11,19 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import NameField, { clearNameStoredState, getNameStoredState } from '../../TextFields/NameField';
 import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { extractTodosList } from '../../../utils/commentFunctions';
+import _ from 'lodash';
+import { addCommentsToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 
 function JobNameStep(props) {
   const { marketId, groupId, updateFormData, onFinish, formData, moveFromComments, isSingleUser, myPresenceId } = props;
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [commentState, commentDispatch] = useContext(CommentsContext);
   const classes = useContext(WizardStylesContext);
   const [hasValue, setHasValue] = useState(false);
-  const { description, uploadedFiles, jobStage } = formData;
+  const { description, uploadedFiles, jobStage, doCreateTasks } = formData;
   const nameId = `jobNameEdit${groupId}`;
 
   function createJob() {
@@ -30,6 +35,12 @@ function JobNameStep(props) {
       marketId,
       uploadedFiles
     }
+    if (doCreateTasks) {
+      const todos = extractTodosList(description);
+      if (!_.isEmpty(todos)) {
+        addInfo.todos = todos;
+      }
+    }
     if (jobStage === 'READY') {
       addInfo.openForInvestment = true;
     }
@@ -38,7 +49,13 @@ function JobNameStep(props) {
       addInfo.assignments = [myPresenceId];
     }
     return addPlanningInvestible(addInfo)
-      .then((inv) => {
+      .then((result) => {
+        let inv = result;
+        if (!_.isEmpty(addInfo.todos)) {
+          const { investible, todos } = result;
+          addCommentsToMarket(todos, commentState, commentDispatch);
+          inv = investible;
+        }
         clearNameStoredState(nameId);
         refreshInvestibles(investiblesDispatch, () => {}, [inv]);
         const { id: investibleId } = inv.investible;

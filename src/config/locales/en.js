@@ -388,6 +388,7 @@ const messages = defineMessages({
   backlogReadyToStart: 'Backlog - Ready to Start',
   backlogNotReadyToStart: 'Backlog - Not Ready',
   jobCreate: 'Create job',
+  jobCreateWithTasks: 'Create with tasks',
 
   // Investible
   investibleEditLabel: 'Edit',

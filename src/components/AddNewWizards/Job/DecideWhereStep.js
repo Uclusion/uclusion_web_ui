@@ -111,6 +111,7 @@ function DecideWhereStep (props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="JobWizardNewJob"
         isFinal={false}
         spinOnClick={false}

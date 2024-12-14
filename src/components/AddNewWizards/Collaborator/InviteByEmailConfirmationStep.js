@@ -29,6 +29,7 @@ function InviteByEmailConfirmationStep(props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="done"
         spinOnClick={false}
         finish={finish}

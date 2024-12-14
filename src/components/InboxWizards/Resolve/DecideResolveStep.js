@@ -153,6 +153,7 @@ function DecideResolveStep(props) {
       {isOpenSuggestion && (
         <WizardStepButtons
           {...props}
+          focus
           nextLabel={commentRoot.investible_id ? 'moveToTaskLabel' : 'BugWizardMoveToJob'}
           onNextDoAdvance={false}
           onNext={commentRoot.investible_id ? acceptAndMove : () =>
@@ -169,6 +170,7 @@ function DecideResolveStep(props) {
       {isReopen && (
         <WizardStepButtons
           {...props}
+          focus
           nextLabel="commentReopenLabel"
           onNext={() => reopen()}
           showTerminate={true}
@@ -179,6 +181,7 @@ function DecideResolveStep(props) {
       {isMarketQuestion && (
         <WizardStepButtons
           {...props}
+          focus
           nextLabel="BugWizardMoveToJob"
           spinOnClick={false}
           onNextDoAdvance={false}
@@ -197,6 +200,7 @@ function DecideResolveStep(props) {
       {!isOpenSuggestion && !isMarketQuestion && !isReopen && (
         <WizardStepButtons
           {...props}
+          focus
           nextLabel="commentResolveLabel"
           onNext={() => resolve(false)}
           showOtherNext

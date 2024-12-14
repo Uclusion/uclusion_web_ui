@@ -50,6 +50,7 @@ function JobUnlockStep (props) {
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
+          focus
           nextLabel="breakLock"
           onNext={breakLock}
           showTerminate

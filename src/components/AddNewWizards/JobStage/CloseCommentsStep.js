@@ -112,6 +112,7 @@ function CloseCommentsStep(props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
+        focus
         showNext
         isFinal={!requiresAction(fullMoveStage)}
         showTerminate

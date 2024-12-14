@@ -67,6 +67,7 @@ function DecideResolveStep(props) {
       {isSuggestion && (
         <WizardStepButtons
           {...props}
+          focus
           nextLabel="wizardAcceptLabel"
           onNext={() => updateFormData({doTaskId: commentId})}
           showOtherNext

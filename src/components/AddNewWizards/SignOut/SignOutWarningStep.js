@@ -40,6 +40,7 @@ function SignOutWarningStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="signOutButton"
         onNext={myOnSignOut}
         showTerminate

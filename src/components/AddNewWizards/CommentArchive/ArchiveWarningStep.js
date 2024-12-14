@@ -86,6 +86,7 @@ function ArchiveWarningStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="commentResolveLabel"
         onNext={resolve}
         showTerminate

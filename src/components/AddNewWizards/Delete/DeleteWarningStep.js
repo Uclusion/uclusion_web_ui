@@ -82,6 +82,7 @@ function DeleteWarningStep(props) {
       <WizardStepButtons
         {...props}
         nextLabel="commentRemoveLabel"
+        focus
         onNext={remove}
         showTerminate
         onTerminate={() => navigate(history)}

@@ -38,7 +38,8 @@ function WizardStepButtons(props) {
     skipNextStep,
     onOtherNextSkipStep,
     nextShowEdit,
-    otherNextShowEdit
+    otherNextShowEdit,
+    focus
   } = props;
   const intl = useIntl();
   const classes = wizardStyles();
@@ -102,7 +103,7 @@ function WizardStepButtons(props) {
       {showNext && (
         <SpinningButton id="OnboardingWizardNext" className={nextClass} disabled={nextIsDisabled} onClick={myNext}
                         endIcon={nextShowEdit ? EditIcon : (isNextNext ? ChevronRight : undefined)}
-                        iconColor={isNextNext ? 'black' : 'white'}
+                        iconColor={isNextNext ? 'black' : 'white'} focus={focus}
                         doSpin={spinOnClick}>
           {intl.formatMessage({ id: nextLabel })}
         </SpinningButton>

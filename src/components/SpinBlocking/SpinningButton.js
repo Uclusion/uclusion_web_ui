@@ -19,6 +19,7 @@ function SpinningButton(props) {
     endIcon: EndIcon,
     iconColor='white',
     toolTipId,
+    focus,
     ...rest
   } = props;
   const intl = useIntl();
@@ -37,6 +38,7 @@ function SpinningButton(props) {
   const myDisabled = spinningDisabled || disabled;
   const myButton = <Button
     disabled={myDisabled}
+    autoFocus={focus}
     onClick={myOnClick}
     id={id}
     endIcon={EndIcon ? (spinningDisabled || disabled ? <EndIcon color='disabled' /> : <EndIcon htmlColor={iconColor} />)

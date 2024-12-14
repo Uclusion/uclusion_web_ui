@@ -129,7 +129,7 @@ function DecideResolveStep(props) {
     >
       <Typography className={classes.introText}>
         {isReopen ? 'Do you reopen your comment that someone resolved?'
-          : `Can you resolve this ${isSuggestion ? 'suggestion' : 'question'}?`}
+          : `Done with this ${isSuggestion ? 'suggestion' : 'question'}?`}
       </Typography>
       {!isReopen && (
         <Typography className={classes.introSubText} variant="subtitle1">

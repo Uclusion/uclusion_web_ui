@@ -52,7 +52,12 @@ import {
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
-import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  formInvestibleAddCommentLink, formInvestibleLink,
+  formWizardLink,
+  navigate,
+  preventDefaultAndProp
+} from '../../../utils/marketIdPathFunctions';
 import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { getStagesInfo } from '../../../utils/stageUtils';
 import PlanningInvestibleNav, { useMetaDataStyles } from './PlanningInvestibleNav';
@@ -72,6 +77,7 @@ import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLab
 import { isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import EditIcon from '@material-ui/icons/Edit';
 import { hasJobComment } from '../../../components/AddNewWizards/JobComment/AddCommentStep';
+import Link from '@material-ui/core/Link';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -407,6 +413,8 @@ function PlanningInvestible(props) {
             updatePageState({ sectionOpen: 'assistanceSection' });
             // Scroll context should send to the option now
           }
+        } else if (hash.startsWith('#investibleCondensedTodos')) {
+          updatePageState({ sectionOpen: 'descriptionVotingSection' });
         } else {
           const found = investibleComments.find((comment) => hash.includes(comment.id));
           if (!_.isEmpty(found)) {
@@ -849,6 +857,14 @@ function PlanningInvestible(props) {
                     </SpinningButton>
                   );
                 })}
+                {sectionOpen === 'tasksSection' && (
+                  <div style={{marginTop: '1.5rem'}}><Link
+                    href={`${formInvestibleLink(marketId, investibleId)}#investibleCondensedTodos`}
+                    onClick={(event) => {
+                    preventDefaultAndProp(event);
+                    navigate(history, `${formInvestibleLink(marketId, investibleId)}#investibleCondensedTodos`);
+                  }}>Overview of tasks</Link></div>
+                )}
               </div>
             )}
             <DismissableText textId="investibleCommentHelp" display={_.isEmpty(sectionComments)} noPad isLeft

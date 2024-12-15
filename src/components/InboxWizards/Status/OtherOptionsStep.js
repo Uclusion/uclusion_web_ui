@@ -43,6 +43,7 @@ function OtherOptionsStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="StatusWizardReport"
         onNext={() => {
           navigate(history,

@@ -100,6 +100,7 @@ function DoneVotingStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="doneApprovalLabel"
         onNextDoAdvance={false}
         onNext={accept}

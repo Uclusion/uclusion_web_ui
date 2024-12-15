@@ -133,6 +133,7 @@ function DecideAssistanceStep(props) {
       {commentRoot.investible_id && (
         <WizardStepButtons
           {...props}
+          focus
           finish={myOnFinish}
           nextLabel={isSuggest ? 'wizardAcceptLabel' : 'commentResolveLabel'}
           onNext={() => {

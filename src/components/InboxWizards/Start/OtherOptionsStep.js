@@ -61,6 +61,7 @@ function OtherOptionsStep(props) {
       </div>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="DecideStartBugExisting"
         spinOnClick={false}
         isFinal={false}

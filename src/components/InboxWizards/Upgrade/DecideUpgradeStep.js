@@ -32,6 +32,7 @@ function DecideUpgradeStep(props) {
       </Typography>
       <WizardStepButtons
         {...props}
+        focus
         onFinish={myOnFinish}
         nextLabel="WizardPaymentInfo"
         isFinal={false}

@@ -62,6 +62,7 @@ function IntroduceGroupStep(props) {
       </div>
       <WizardStepButtons
         {...props}
+        focus
         showNext={false}
         showTerminate
         onFinish={myOnFinish}

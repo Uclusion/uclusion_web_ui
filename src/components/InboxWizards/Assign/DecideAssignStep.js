@@ -74,6 +74,7 @@ function DecideAssignStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="DecideAssignMe"
         onNext={myAssign}
         showOtherNext

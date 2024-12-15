@@ -81,6 +81,7 @@ function DecideResponseStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         spinOnClick={!!commentRoot.investible_id}
         onNextDoAdvance={!!commentRoot.investible_id}
         nextLabel={commentRoot.investible_id ? 'wizardAcceptLabel' : 'BugWizardMoveToJob'}

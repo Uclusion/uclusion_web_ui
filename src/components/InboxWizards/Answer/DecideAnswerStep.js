@@ -45,10 +45,12 @@ function DecideAnswerStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideAnswerTitle'})}
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Approve an existing option or propose a new option. Use the mute
-        button if you don't want further notifications on this vote.
-      </Typography>
+      {!noOptions && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Approve an existing option or propose a new option. Use the mute
+          button if you don't want further notifications on this vote.
+        </Typography>
+      )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
                       removeActions={noOptions}
                       showVoting
@@ -59,6 +61,7 @@ function DecideAnswerStep(props) {
       {noOptions && (
         <WizardStepButtons
           {...props}
+          focus
           nextLabel="issueReplyLabel"
           onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
             undefined, undefined, commentId, message.type_object_id))}

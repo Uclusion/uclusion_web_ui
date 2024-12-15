@@ -126,6 +126,7 @@ function JobDescriptionStatusStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel={alreadyMoved ? 'StatusWizardEstimateStart' : 'StatusWizardEstimate'}
         isFinal={false}
         spinOnClick={false}

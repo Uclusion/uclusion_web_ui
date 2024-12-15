@@ -60,6 +60,7 @@ function OtherOptionsStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="addApproversLabel"
         spinOnClick={false}
         onNextDoAdvance={false}

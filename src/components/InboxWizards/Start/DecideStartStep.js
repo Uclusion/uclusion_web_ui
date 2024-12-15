@@ -103,6 +103,7 @@ function DecideStartStep(props) {
       </div>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="DecideStartBug"
         onNext={myAccept}
         onNextDoAdvance={false}

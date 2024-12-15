@@ -74,6 +74,7 @@ function DecideAcceptRejectStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         onFinish={myOnFinish}
         nextLabel="wizardAcceptLabel"
         onNext={accept}

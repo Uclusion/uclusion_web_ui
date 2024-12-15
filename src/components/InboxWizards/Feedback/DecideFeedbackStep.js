@@ -65,6 +65,7 @@ function DecideFeedbackStep(props) {
       <div className={classes.marginBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         onFinish={myOnFinish}
         nextLabel="addApproversLabel"
         spinOnClick={false}

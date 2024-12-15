@@ -113,6 +113,7 @@ function OtherOptionsStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="moveReplyToTaskLabel"
         onNext={moveToTask}
         showOtherNext

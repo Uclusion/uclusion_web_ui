@@ -39,6 +39,7 @@ function DecideAssignStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="DecideJobOwner"
         spinOnClick={false}
         isFinal={false}

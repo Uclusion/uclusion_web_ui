@@ -88,6 +88,7 @@ function DecideUnblockStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="UnblockReplyLabel"
         onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
           undefined, undefined, commentId, message.type_object_id))}

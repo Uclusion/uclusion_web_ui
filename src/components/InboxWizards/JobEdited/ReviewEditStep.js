@@ -45,6 +45,7 @@ function ReviewEditStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         showNext={false}
         terminateLabel={getLabelForTerminate(message)}
         showTerminate={getShowTerminate(message)}

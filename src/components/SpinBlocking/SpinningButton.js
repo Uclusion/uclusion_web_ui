@@ -1,11 +1,31 @@
 /** A simple button that when spinning is true, ignores it's children
  * for a circular progress indicator
  */
-import React, { useContext } from 'react'
+import React, { useContext, useLayoutEffect } from 'react';
 import PropTypes from 'prop-types';
 import { CircularProgress, Button, useTheme, Tooltip } from '@material-ui/core';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useIntl } from 'react-intl';
+
+const FocusRippleButton = function FocusRippleButton({ autoFocus, children, ...other }) {
+  const actionRef = React.useRef();
+
+  useLayoutEffect(() => {
+    if (actionRef?.current && autoFocus) {
+      // Otherwise autoFocus only takes affect for keyboard use and ignores mouse users
+      actionRef.current.focusVisible();
+    }
+  }, [autoFocus]);
+
+  return (
+    <Button
+      action={actionRef}
+      {...other}
+    >
+      {children}
+    </Button>
+  );
+}
 
 function SpinningButton(props) {
   const {
@@ -36,7 +56,7 @@ function SpinningButton(props) {
     }
   }
   const myDisabled = spinningDisabled || disabled;
-  const myButton = <Button
+  const myButton = <FocusRippleButton
     disabled={myDisabled}
     autoFocus={focus}
     onClick={myOnClick}
@@ -55,7 +75,7 @@ function SpinningButton(props) {
         style={{position: 'absolute', top: '50%', left: '50%', marginTop: -6, marginLeft: -12}}
       />
     )}
-  </Button>;
+  </FocusRippleButton>;
 
   if (toolTipId && !myDisabled) {
     return (

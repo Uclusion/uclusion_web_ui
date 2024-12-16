@@ -88,11 +88,11 @@ function AddInitialVote(props) {
       myOnChange({target});
     };
   }
-  useHotkeys('ctrl+alt+1', simulateCertainty(5), {}, []);
-  useHotkeys('ctrl+alt+2', simulateCertainty(25), {}, []);
-  useHotkeys('ctrl+alt+3', simulateCertainty(50), {}, []);
-  useHotkeys('ctrl+alt+4', simulateCertainty(75), {}, []);
-  useHotkeys('ctrl+alt+5', simulateCertainty(100), {}, []);
+  useHotkeys('ctrl+alt+1', simulateCertainty(5), {enableOnContentEditable: true}, []);
+  useHotkeys('ctrl+alt+2', simulateCertainty(25), {enableOnContentEditable: true}, []);
+  useHotkeys('ctrl+alt+3', simulateCertainty(50), {enableOnContentEditable: true}, []);
+  useHotkeys('ctrl+alt+4', simulateCertainty(75), {enableOnContentEditable: true}, []);
+  useHotkeys('ctrl+alt+5', simulateCertainty(100), {enableOnContentEditable: true}, []);
   return (
     <div style={{paddingBottom: '0.5rem'}}>
         <FormControl className={classes.certainty}>

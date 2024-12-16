@@ -1,6 +1,15 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, FormLabel, makeStyles, Radio, RadioGroup, Typography } from '@material-ui/core';
+import {
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  makeStyles,
+  Radio,
+  RadioGroup,
+  Tooltip,
+  Typography
+} from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { TODO_TYPE } from '../../../constants/comments';
@@ -8,7 +17,9 @@ import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { focusEditor } from '../../TextEditors/Utilities/CoreUtils';
 
 export const bugRadioStyles = makeStyles(
   theme => {
@@ -37,6 +48,7 @@ export function hasBug(groupId) {
 
 function BugDescriptionStep (props) {
   const { marketId, groupId, updateFormData, formData, commentType } = props;
+  const intl = useIntl();
   const history = useHistory();
   const [commentAddBugStateFull, commentAddBugDispatch] = usePageStateReducer('addBugWizard');
   const [commentAddBugState, updateCommentAddBugState, commentAddStateBugReset] =
@@ -51,8 +63,20 @@ function BugDescriptionStep (props) {
     updateFormData({
       newQuantity: event.target.value
     });
+    const editorName = `addBugCommentAddBug${groupId}-comment-add-editor`;
+    focusEditor(editorName);
   }
   const currentQuantity = newQuantity || defaultFromPage || '';
+
+  function simulatePriority(key) {
+    return () => {
+      const target = {value: key};
+      onChange({target});
+    };
+  }
+  useHotkeys('ctrl+alt+1', simulatePriority('RED'), {enableOnContentEditable: true}, []);
+  useHotkeys('ctrl+alt+2', simulatePriority('YELLOW'), {enableOnContentEditable: true}, []);
+  useHotkeys('ctrl+alt+3', simulatePriority('BLUE'), {enableOnContentEditable: true}, []);
   return (
     <WizardStepContainer
       {...props}
@@ -75,20 +99,24 @@ function BugDescriptionStep (props) {
         >
           {['RED', 'YELLOW', 'BLUE'].map(certainty => {
             return (
-              <FormControlLabel
-                key={certainty}
-                id={`${certainty}`}
-                className={radioClasses.certaintyValue}
-                classes={{
-                  label: radioClasses.certaintyValueLabel
-                }}
-                /* prevent clicking the label stealing focus */
-                onMouseDown={e => e.preventDefault()}
-                control={<Radio />}
-                label={<FormattedMessage id={`notificationLabel${certainty}`} />}
-                labelPlacement="start"
-                value={certainty}
-              />
+              <Tooltip title={<h3>
+                {intl.formatMessage({ id: `certaintyTip${certainty}` })}
+              </h3>} placement="top">
+                <FormControlLabel
+                  key={certainty}
+                  id={`${certainty}`}
+                  className={radioClasses.certaintyValue}
+                  classes={{
+                    label: radioClasses.certaintyValueLabel
+                  }}
+                  /* prevent clicking the label stealing focus */
+                  onMouseDown={e => e.preventDefault()}
+                  control={<Radio />}
+                  label={<FormattedMessage id={`notificationLabel${certainty}`} />}
+                  labelPlacement="start"
+                  value={certainty}
+                />
+              </Tooltip>
             );
           })}
         </RadioGroup>

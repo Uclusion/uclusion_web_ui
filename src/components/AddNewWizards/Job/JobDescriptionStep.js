@@ -1,11 +1,17 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Typography } from '@material-ui/core';
+import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Tooltip, Typography } from '@material-ui/core';
 import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { editorEmpty, getQuillStoredState, resetEditor, storeState } from '../../TextEditors/Utilities/CoreUtils';
+import {
+  editorEmpty,
+  focusEditor,
+  getQuillStoredState,
+  resetEditor,
+  storeState
+} from '../../TextEditors/Utilities/CoreUtils';
 import { useEditor } from '../../TextEditors/quillHooks';
 import { convertDescription } from '../../../utils/stringFunctions';
 import { addPlanningInvestible } from '../../../api/investibles';
@@ -26,6 +32,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { addCommentsToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { extractTodosList } from '../../../utils/commentFunctions';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, roots, formData, jobType, startOver, nextStep,
@@ -151,6 +158,7 @@ function JobDescriptionStep (props) {
     updateFormData({
       newQuantity: event.target.value
     });
+    focusEditor(editorName);
   }
 
   function doIncrement(resolved) {
@@ -187,6 +195,19 @@ function JobDescriptionStep (props) {
       }) : () => createJob(false, doCreateTasks)));
   }
 
+  function simulatePriority(key) {
+    return () => {
+      const target = {value: key};
+      onChange({target});
+    };
+  }
+  useHotkeys('ctrl+alt+1', simulatePriority('IMMEDIATE'), {enableOnContentEditable: true},
+    []);
+  useHotkeys('ctrl+alt+2', simulatePriority('READY'), {enableOnContentEditable: true},
+    []);
+  useHotkeys('ctrl+alt+3', simulatePriority('NOT_READY'), {enableOnContentEditable: true},
+    []);
+
   return (
     <WizardStepContainer
       {...props}
@@ -216,20 +237,24 @@ function JobDescriptionStep (props) {
         >
           {['IMMEDIATE', 'READY', 'NOT_READY'].map(certainty => {
             return (
-              <FormControlLabel
-                key={certainty}
-                id={`${certainty}`}
-                className={radioClasses.certaintyValue}
-                classes={{
-                  label: radioClasses.certaintyValueLabel
-                }}
-                /* prevent clicking the label stealing focus */
-                onMouseDown={e => e.preventDefault()}
-                control={<Radio />}
-                label={<FormattedMessage id={`jobTypeLabel${certainty}`} />}
-                labelPlacement="start"
-                value={certainty}
-              />
+              <Tooltip title={<h3>
+                {intl.formatMessage({ id: `certaintyTip${certainty}` })}
+              </h3>} placement="top">
+                <FormControlLabel
+                  key={certainty}
+                  id={`${certainty}`}
+                  className={radioClasses.certaintyValue}
+                  classes={{
+                    label: radioClasses.certaintyValueLabel
+                  }}
+                  /* prevent clicking the label stealing focus */
+                  onMouseDown={e => e.preventDefault()}
+                  control={<Radio />}
+                  label={<FormattedMessage id={`jobTypeLabel${certainty}`} />}
+                  labelPlacement="start"
+                  value={certainty}
+                />
+              </Tooltip>
             );
           })}
         </RadioGroup>

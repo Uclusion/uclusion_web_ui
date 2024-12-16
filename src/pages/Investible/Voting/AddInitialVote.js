@@ -8,11 +8,12 @@ import {
   MenuItem,
   Radio,
   RadioGroup,
-  Select, useMediaQuery, useTheme
+  Select, Tooltip, useMediaQuery, useTheme
 } from '@material-ui/core';
 import { useEditor } from '../../../components/TextEditors/quillHooks';
 import { focusEditor, getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
 import InputLabel from '@material-ui/core/InputLabel';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const useStyles = makeStyles(
   theme => {
@@ -81,6 +82,17 @@ function AddInitialVote(props) {
     onChange(event);
     focusEditor(editorName);
   }
+  function simulateCertainty(key) {
+    return () => {
+      const target = {value: `${key}`};
+      myOnChange({target});
+    };
+  }
+  useHotkeys('ctrl+alt+1', simulateCertainty(5), {}, []);
+  useHotkeys('ctrl+alt+2', simulateCertainty(25), {}, []);
+  useHotkeys('ctrl+alt+3', simulateCertainty(50), {}, []);
+  useHotkeys('ctrl+alt+4', simulateCertainty(75), {}, []);
+  useHotkeys('ctrl+alt+5', simulateCertainty(100), {}, []);
   return (
     <div style={{paddingBottom: '0.5rem'}}>
         <FormControl className={classes.certainty}>
@@ -115,20 +127,24 @@ function AddInitialVote(props) {
             >
               {certainties.map(certainty => {
                 return (
-                  <FormControlLabel
-                    key={certainty}
-                    id={`${certainty}`}
-                    className={classes.certaintyValue}
-                    classes={{
-                      label: classes.certaintyValueLabel
-                    }}
-                    /* prevent clicking the label stealing focus */
-                    onMouseDown={e => e.preventDefault()}
-                    control={<Radio />}
-                    label={<FormattedMessage id={`certainty${certainty}`} />}
-                    labelPlacement="start"
-                    value={certainty}
-                  />
+                  <Tooltip title={<h3>
+                    {intl.formatMessage({ id: `certaintyTip${certainty}` })}
+                  </h3>} placement="top">
+                    <FormControlLabel
+                      key={certainty}
+                      id={`${certainty}`}
+                      className={classes.certaintyValue}
+                      classes={{
+                        label: classes.certaintyValueLabel
+                      }}
+                      /* prevent clicking the label stealing focus */
+                      onMouseDown={e => e.preventDefault()}
+                      control={<Radio />}
+                      label={<FormattedMessage id={`certainty${certainty}`} />}
+                      labelPlacement="start"
+                      value={certainty}
+                    />
+                  </Tooltip>
                 );
               })}
             </RadioGroup>

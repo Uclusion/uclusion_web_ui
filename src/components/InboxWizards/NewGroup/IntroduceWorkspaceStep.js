@@ -78,12 +78,12 @@ function IntroduceWorkspaceStep(props) {
       )}
       <div style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
         <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
-          {checkMark}Use the navigation chevrons:
+          {checkMark}ctrl+arrowRight to go to what most likely needs doing
           <div style={{ backgroundColor: '#8ABABF', width: '8rem', height: '60px' }}>
             <NavigationChevrons/></div>
           {!mobileLayout && (
             <div>
-              in header to jump to things that require attention.
+              or with mouse use the navigation chevrons in header.
             </div>
           )}
         </Typography>

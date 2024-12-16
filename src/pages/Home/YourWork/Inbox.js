@@ -23,7 +23,7 @@ import { getUnpaginatedItems, PAGE_SIZE, setPage, setTab } from './InboxContext'
 import { stripHTML } from '../../../utils/stringFunctions';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import {
-  formInboxItemLink, formInvestibleAddCommentLink,
+  formInboxItemLink,
   formMarketLink,
   navigate,
   preventDefaultAndProp
@@ -39,8 +39,6 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import Link from '@material-ui/core/Link';
 import PropTypes from 'prop-types';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
-import { TODO_TYPE } from '../../../constants/comments';
 
 function createWorkspaceGroupHeader(market, group, history) {
   const link = formMarketLink(market.id, group.id);

@@ -23,7 +23,7 @@ import { getUnpaginatedItems, PAGE_SIZE, setPage, setTab } from './InboxContext'
 import { stripHTML } from '../../../utils/stringFunctions';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import {
-  formInboxItemLink,
+  formInboxItemLink, formInvestibleAddCommentLink,
   formMarketLink,
   navigate,
   preventDefaultAndProp
@@ -38,6 +38,9 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import Link from '@material-ui/core/Link';
 import PropTypes from 'prop-types';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { TODO_TYPE } from '../../../constants/comments';
 
 function createWorkspaceGroupHeader(market, group, history) {
   const link = formMarketLink(market.id, group.id);
@@ -170,6 +173,12 @@ function Inbox(props) {
                                isDeletable={isDeletable} checked={checked}/>);
     }
   });
+  const goPreviousFunc = () => isOnWorkItem ? goToItem(previousItemId) : changePage(-1);
+  const goNextFunc = () => isOnWorkItem ? goToItem(nextItemId) : changePage(1);
+  useHotkeys('ctrl+shift+arrowLeft', goPreviousFunc, {enabled: hasLess, enableOnContentEditable: true},
+    [history, isOnWorkItem, previousItemId, messagesState, page]);
+  useHotkeys('ctrl+shift+arrowRight', goNextFunc, {enabled: hasMore, enableOnContentEditable: true},
+    [history, isOnWorkItem, nextItemId, messagesState, page]);
   return (
     <>
     <div style={{zIndex: 8, position: 'sticky', width: '100%', marginLeft: isOnWorkItem ? undefined : '-0.5rem'}}
@@ -277,12 +286,10 @@ function Inbox(props) {
             )}
             <TooltipIconButton disabled={!hasLess} icon={<KeyboardArrowLeft
               htmlColor={hasLess ? ACTION_BUTTON_COLOR : 'disabled'} />}
-                               onClick={() => isOnWorkItem ? goToItem(previousItemId) :
-                                 changePage(-1)} translationId="SearchResultsPrevious" />
+                               onClick={goPreviousFunc} translationId="previousInbox" />
             <TooltipIconButton disabled={!hasMore} icon={<KeyboardArrowRight
               htmlColor={hasMore ? ACTION_BUTTON_COLOR : 'disabled'} />}
-                               onClick={() => isOnWorkItem ? goToItem(nextItemId) :
-                                 changePage(1)} translationId="SearchResultsNext" />
+                               onClick={goNextFunc} translationId="nextInbox" />
           </Box>
         </div>
       </div>

@@ -205,10 +205,10 @@ export default function NavigationChevrons(props) {
     navigate(history, nextUrl.url);
   }
 
-  useHotkeys('ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled},
+  useHotkeys('ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled, enableOnContentEditable: true},
     [history, nextUrl.message, nextUrl.url]);
-  useHotkeys('ctrl+arrowLeft', doPreviousNavigation, {enabled: !backDisabled},
-    [history, previous?.url]);
+  useHotkeys('ctrl+arrowLeft', doPreviousNavigation,
+    {enabled: !backDisabled, enableOnContentEditable: true}, [history, previous?.url]);
 
   if (!_.isEmpty(searchText)) {
     // Otherwise too confusing and think next goes to next item found or something

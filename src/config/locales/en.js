@@ -619,7 +619,7 @@ const messages = defineMessages({
   inboxArchive: 'Delete selected',
   inboxCollapseAll: 'Collapse All',
   inboxExpandAll: 'Expand All',
-  backToInbox: 'Back to inbox',
+  backToInbox: 'ctrl+arrowUp Back to inbox',
 
   // Planning Dialog
   planningDialogNavDetailsLabel: 'Details',
@@ -1190,8 +1190,8 @@ const messages = defineMessages({
   // Search
   searchBoxPlaceholder: 'Search',
   searchBoxPlaceholderMobile: ' Search',
-  SearchResultsPrevious: 'Previous',
-  SearchResultsNext: 'Next',
+  previousInbox: 'ctrl+shift+arrowLeft Previous',
+  nextInbox: 'ctrl+shift+arrowRight Next',
   NotificationResultJustify: 'Vote In:',
   MarketSearchResultWorkspace: 'Workspace',
   MarketSearchResultInitiative: 'Initiative',

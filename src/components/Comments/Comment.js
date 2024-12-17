@@ -858,6 +858,7 @@ function Comment(props) {
             {useCompression === false && (
               <SpinningIconLabelButton
                 icon={ExpandLess}
+                toolTipId='commentCloseThreadLabelExplanation'
                 doSpin={false}
                 onClick={(event) => {
                   preventDefaultAndProp(event);

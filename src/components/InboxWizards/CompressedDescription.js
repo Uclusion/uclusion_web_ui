@@ -9,6 +9,7 @@ import { ExpandLess } from '@material-ui/icons';
 import { FormattedMessage } from 'react-intl';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const Div = styled("div")`
   height: 40px;
@@ -53,6 +54,10 @@ function CompressedDescription(props) {
   } = props;
   const [expansionOpen, setExpansionOpen] = useState(false);
   const title = stripHTML(description);
+  useHotkeys('ctrl+alt+e', ()=> setExpansionOpen(true), {enableOnContentEditable: true},
+    []);
+  useHotkeys('ctrl+shift+e', ()=> setExpansionOpen(false),
+    {enableOnContentEditable: true}, []);
   return (
     <>
       <Item style={{display: expansionOpen ? 'none' : undefined}}>
@@ -71,7 +76,7 @@ function CompressedDescription(props) {
                   icon={<ExpandMoreIcon />}
                   size="small"
                   noPadding
-                  translationId="rowExpand"
+                  translationId="rowExpandDescription"
                 />
               </div>
             </Div>
@@ -84,6 +89,7 @@ function CompressedDescription(props) {
         <SpinningIconLabelButton
           style={{marginTop: '0.5rem'}}
           icon={ExpandLess}
+          toolTipId='commentCloseThreadLabelExplanation'
           doSpin={false}
           onClick={(event) => {
             preventDefaultAndProp(event);

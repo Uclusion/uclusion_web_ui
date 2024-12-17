@@ -359,7 +359,8 @@ const messages = defineMessages({
   aboutInbox: 'Get a job approved',
   rowExpand: 'Click this row to expand.',
   rowCollapse: 'Click this row to collapse.',
-  rowExpandComment: 'Click this comment to expand.',
+  rowExpandDescription: 'ctrl+alt+e (shortcut global) Click description to expand',
+  rowExpandComment: 'ctrl+alt+e (shortcut global) Click comment to expand.',
   notificationSummary: 'Summary',
   viewInGroup: 'Group views',
   viewInGroupTip: 'Displays job status, backlog, bugs, and discussion for each group.',
@@ -516,7 +517,7 @@ const messages = defineMessages({
   noType: 'Choose a comment type.',
   proceedNormal: 'Everyone',
   proceedRestricted: 'Just me',
-  removeCompressionExplanation: 'Show all comments.',
+  removeCompressionExplanation: 'ctrl+alt+e (shortcut global) Show all comments.',
 
   // CommentBox
   commentIconRaiseIssueLabel: 'Raise issue',
@@ -543,6 +544,7 @@ const messages = defineMessages({
   pokedBugExplanation: 'This bug was poked by its author to increase urgency.',
   commentRemoveLabel: 'Delete',
   commentCloseThreadLabel: 'Collapse',
+  commentCloseThreadLabelExplanation: 'ctrl+shift+e to globally collapse',
   lastUpdatedBy: ' by',
   comments: 'Comments',
   JobCommentConfigure: 'Create option',

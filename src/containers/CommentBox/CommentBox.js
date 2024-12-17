@@ -8,6 +8,7 @@ import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { getFullStage, isNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getFormerStageId, isSingleAssisted } from '../../utils/commentFunctions';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   let myRootUpdatedAt = rootUpdatedAt;
@@ -107,6 +108,35 @@ function CommentBox(props) {
   const useFullStage = _.isEmpty(fullStage) && stage ? getFullStage(marketStagesState, marketId, stage) : fullStage;
   const resolvedStageId = isSingleAssisted(comments, assigned) ?
     getFormerStageId(formerStageId, marketId, marketStagesState) : undefined;
+
+  function toggleAnyCompressed() {
+    if (rawUseCompression instanceof Function) {
+      sortedRoots.forEach((comment) =>{
+        if (rawUseCompression(comment.id)) {
+          toggleCompression(comment.id);
+        }
+      });
+    }
+    else if (rawUseCompression) {
+      toggleCompression();
+    }
+  }
+  function toggleAnyNotCompressed() {
+    if (rawUseCompression instanceof Function) {
+      sortedRoots.forEach((comment) =>{
+        if (!rawUseCompression(comment.id)) {
+          toggleCompression(comment.id);
+        }
+      });
+    }
+    else if (!rawUseCompression) {
+      toggleCompression();
+    }
+  }
+  useHotkeys('ctrl+alt+e', toggleAnyCompressed, {enableOnContentEditable: true},
+    [rawUseCompression, sortedRoots]);
+  useHotkeys('ctrl+shift+e', toggleAnyNotCompressed, {enableOnContentEditable: true},
+    [rawUseCompression, sortedRoots]);
 
   function getCommentCards() {
     return sortedRoots.map(comment => {

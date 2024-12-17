@@ -460,7 +460,7 @@ function Comment(props) {
   const { comment, marketId, comments, noAuthor, defaultShowDiff, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, toggleCompression: toggleCompressionRaw, useCompression, showVoting, selectedInvestibleIdParent,
-    isMove, idPrepend='c', usePadding=true, compressAll=false } = props;
+    isMove, idPrepend='c', usePadding=true, compressAll=false, focusMove=false } = props;
   const history = useHistory();
   const location = useLocation();
   const editBox = useRef(null);
@@ -993,6 +993,7 @@ function Comment(props) {
                 id={`moveComment${id}`}
                 doSpin={false}
                 icon={Eject}
+                focus={focusMove}
               >
                 {intl.formatMessage({ id: "storyFromComment" })}
               </SpinningIconLabelButton>

@@ -630,8 +630,8 @@ const messages = defineMessages({
   inboxMarkRead: 'Mark selected read',
   outboxMark: 'Poke selected',
   inboxArchive: 'Delete selected',
-  inboxCollapseAll: 'Collapse All',
-  inboxExpandAll: 'Expand All',
+  inboxCollapseAll: 'ctrl+alt+e Collapse All',
+  inboxExpandAll: 'ctrl+shift+e Expand All',
   backToInbox: 'ctrl+arrowUp Back to inbox',
 
   // Planning Dialog

@@ -298,7 +298,7 @@ function MarketTodos(props) {
     if (_.isEmpty(data)) {
       return <div className={classes.grow} key={`todos${tabIndex}empty`}/>
     }
-
+    const numOpen = _.size(data.filter((comment) => !!expansionState[comment.id]));
     return data.map((comment) => {
       const { id, body, updated_at: updatedAt, notification_type: notificationType } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
@@ -312,6 +312,7 @@ function MarketTodos(props) {
           noAuthor
           isInbox={isInbox}
           inboxMessageId={id}
+          focusMove={numOpen === 1}
         />
       </div>
       const determinateChecked = determinate[id];
@@ -394,6 +395,15 @@ function MarketTodos(props) {
   const yellowChip = <Chip color="primary" size='small' className={classes.chipStyleYellow} />;
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
 
+  function doExpandAll(){
+    bugDispatch(expandAll(data));
+    processTabNotifications();
+  }
+
+  useHotkeys('ctrl+alt+e', doExpandAll, {enableOnContentEditable: true}, [data, expansionState]);
+  useHotkeys('ctrl+shift+e', ()=> bugDispatch(contractAll(data)),
+    {enableOnContentEditable: true}, [data, expansionState]);
+
   return (
     <div id="marketTodos" key="marketTodosKey" style={{display: sectionOpen ? 'block' : 'none',
       overflowX: 'hidden', paddingBottom: !(isInbox || isInArchives) ? '5rem' : undefined}}>
@@ -466,10 +476,7 @@ function MarketTodos(props) {
                                  bugDispatch(contractAll(data));
                                }} translationId="inboxCollapseAll" />
             <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
-                               onClick={() => {
-                                 bugDispatch(expandAll(data));
-                                 processTabNotifications();
-                               }} translationId="inboxExpandAll" />
+                               onClick={doExpandAll} translationId="inboxExpandAll" />
             <div style={{flexGrow: 1}}/>
             <Box fontSize={14} color="text.secondary">
               {first} - {last} of {_.size(tabComments)}

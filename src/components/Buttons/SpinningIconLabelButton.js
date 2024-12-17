@@ -3,11 +3,12 @@
  */
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
-import { CircularProgress, Button, useTheme, Tooltip } from '@material-ui/core';
+import { CircularProgress, useTheme, Tooltip } from '@material-ui/core';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { makeStyles } from '@material-ui/styles'
 import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { useIntl } from 'react-intl';
+import FocusRippleButton from './FocusRippleButton';
 
 const useStyles = makeStyles(
   () => {
@@ -76,6 +77,7 @@ function SpinningIconLabelButton(props) {
     iconOnly = false,
     id,
     toolTipId,
+    focus,
     ...rest
   } = props;
   const intl = useIntl();
@@ -98,11 +100,12 @@ function SpinningIconLabelButton(props) {
   const myIcon = spinningDisabled || disabled ?
     <Icon color='disabled' style={{fontSize: iconOnly ? 24 : undefined}} /> :
     <Icon style={{ fontSize: iconOnly ? 24 : undefined }} htmlColor={iconColor} />;
-  const myButton = <Button
+  const myButton = <FocusRippleButton
     disabled={myDisabled}
     variant="outlined"
     size="small"
     id={id}
+    autoFocus={focus}
     onClick={myOnClick}
     style={{whiteSpace: 'nowrap', width: 'fit-content', minWidth: 0}}
     startIcon={iconOnly ? undefined : myIcon}
@@ -119,7 +122,7 @@ function SpinningIconLabelButton(props) {
         style={{position: 'absolute', top: '50%', left: '50%', marginTop: -6, marginLeft: -12}}
       />
     )}
-  </Button>;
+  </FocusRippleButton>;
   if (toolTipId && !myDisabled) {
     return <Tooltip title={
       <h3>

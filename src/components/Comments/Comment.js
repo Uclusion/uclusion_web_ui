@@ -587,7 +587,7 @@ function Comment(props) {
       return React.Fragment;
     }
     if (marketType === INITIATIVE_TYPE) {
-      return <InlineInitiativeBox anInlineMarket={anInlineMarket} removeActions={removeActions}
+      return <InlineInitiativeBox anInlineMarket={anInlineMarket} removeActions={removeActions} isInbox={isInbox}
                                   isTaskDisplay={commentType === TODO_TYPE} typeObjectId={typeObjectId}
                                   inArchives={marketStage !== ACTIVE_STAGE || inArchives || resolved} />;
     }

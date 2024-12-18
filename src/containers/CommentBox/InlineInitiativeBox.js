@@ -21,7 +21,7 @@ import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext
 import { Typography } from '@material-ui/core';
 
 function InlineInitiativeBox(props) {
-  const { anInlineMarket, removeActions, isTaskDisplay, typeObjectId } = props;
+  const { anInlineMarket, removeActions, isTaskDisplay, typeObjectId, isInbox } = props;
   const history = useHistory();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState] =
@@ -73,7 +73,7 @@ function InlineInitiativeBox(props) {
       </h2>
       {showVoteButtons && (
         <SpinningButton icon={AddIcon} doSpin={false} className={wizardClasses.actionNext} iconColor="black"
-                        variant="text"
+                        variant="text" focus={isInbox}
                         id={`voteFor${anInlineMarket.id}`} style={{display: "flex", marginBottom: '1rem'}}
                         onClick={() => navigate(history,
                           `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, inlineInvestibleId, 

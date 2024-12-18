@@ -15,19 +15,20 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
-import { formMarketLink } from '../../../utils/marketIdPathFunctions';
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
-import Link from '@material-ui/core/Link';
 import { DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { updateMarketStagesFromNetwork } from '../../../contexts/MarketStagesContext/marketStagesContextReducer';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { processBanned } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer';
 import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';
+import { useHistory } from 'react-router';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData } = props;
-  //const intl = useIntl();
+  const history = useHistory();
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
@@ -37,6 +38,7 @@ function WorkspaceNameStep (props) {
   const [, userDispatch] = useContext(AccountContext);
   const [, stagesDispatch] = useContext(MarketStagesContext);
   const [userState] = useContext(AccountContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const isDemoOn = userState?.user?.onboarding_state !== OnboardingState.FirstMarketJoined;
 
   function onNameChange (event) {
@@ -46,11 +48,18 @@ function WorkspaceNameStep (props) {
     });
   }
 
-  function onNext () {
+  function onSinglePersonCreate() {
+    return onNext(true);
+  }
+
+  function onNext(isSinglePersonMode = false) {
     const { name } = formData;
     const marketInfo = {
       name,
     };
+    if (isSinglePersonMode) {
+      marketInfo.market_sub_type = 'SINGLE_PERSON';
+    }
     return createPlanning(marketInfo)
       .then((marketDetails) => {
         const {
@@ -77,11 +86,18 @@ function WorkspaceNameStep (props) {
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
           .then(() => {
-            updateFormData({
-              marketId: market.id,
-              link: formMarketLink(market.id, market.id),
-              marketToken: market.invite_capability,
-            });
+            const link = formMarketLink(market.id, market.id);
+            if (isSinglePersonMode) {
+              // Should fix up finish to be invoked but currently is not
+              setOperationRunning(false);
+              navigate(history, link);
+            } else {
+              updateFormData({
+                marketId: market.id,
+                link,
+                marketToken: market.invite_capability,
+              });
+            }
           });
       });
 
@@ -100,9 +116,9 @@ function WorkspaceNameStep (props) {
             <b>Warning</b>: Creating this workspace <i>ends the demo</i> and removes its workspace.
           </Typography>
         )}
-        <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
-          Everyone in a <Link href="https://documentation.uclusion.com/getting-started/#setting-up-a-workspace" target="_blank">workspace</Link> can
-          see everything inside of it.
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Single person mode removes collaboration features until a collaborator is added or the mode is turned off in
+          settings.
         </Typography>
         <OutlinedInput
           id="workspaceName"
@@ -120,7 +136,19 @@ function WorkspaceNameStep (props) {
           }
         />
         <div className={classes.borderBottom}/>
-        <WizardStepButtons {...props} showStartOver={false} onNext={onNext} isFinal={false} validForm={validForm}/>
+        <WizardStepButtons
+          {...props}
+          showStartOver={false}
+          nextLabel="createWorkspaceNormal"
+          onNext={onNext}
+          showOtherNext
+          otherNextLabel="createWorkspaceSingleUser"
+          onOtherNext={onSinglePersonCreate}
+          onOtherDoAdvance={false}
+          isOtherFinal
+          isFinal={false}
+          validForm={validForm}
+        />
       </div>
     </WizardStepContainer>
   );

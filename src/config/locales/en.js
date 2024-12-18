@@ -1261,6 +1261,8 @@ const messages = defineMessages({
   // Workspace wizard
   WorkspaceWizardNameFieldLabel: 'Workspace name',
   WorkspaceWizardTitle: 'Your workspace',
+  createWorkspaceNormal: 'Multi-user mode',
+  createWorkspaceSingleUser: 'Single person mode',
 
   // Job Wizard
   JobWizardGotoJob: 'Skip',

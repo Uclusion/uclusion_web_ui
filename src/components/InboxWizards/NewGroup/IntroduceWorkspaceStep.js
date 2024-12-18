@@ -63,7 +63,7 @@ function IntroduceWorkspaceStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        <p>What can you do in {!mobileLayout && ('the workspace')}</p>
+        <p>How do you navigate {!mobileLayout && ('the workspace')}</p>
         <Link href={link} onClick={
           (event) => {
             preventDefaultAndProp(event);
@@ -73,7 +73,7 @@ function IntroduceWorkspaceStep(props) {
       </Typography>
       {!mobileLayout && (
         <div>
-          Workspaces are a security boundary; people you invite to one workspace cannot see your other workspaces.
+          Workspaces are a security boundary where people you invite to one workspace cannot see your other workspaces.
         </div>
       )}
       <div style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
@@ -88,52 +88,26 @@ function IntroduceWorkspaceStep(props) {
           )}
         </Typography>
         <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
-          {checkMark}{!mobileLayout && ('Groups hold all the work of a set of participants. ')} Go to a group view by
-          clicking a name in the left side panel:
+          {checkMark}Go to a group view by clicking a name in the left side panel:
           <div style={{ backgroundColor: '#DFF0F2', width: '16rem' }}>
             <Sidebar navigationOptions={{ navListItemTextArray }} idPrepend="intro"/>
           </div>
-          {!mobileLayout && (
-            <div>
-              The underlined group above is special and always has all workspace participants in it. The avatars of
-              the participants in this workspace are also on the left side panel.
-            </div>
-          )}
         </Typography>
-        {!mobileLayout && (
-          <div>
-            After you go to a group you can do more things:
-          </div>
-        )}
         <Typography variant="body2" style={{ paddingTop: '0.3rem', paddingBottom: '0.5rem' }}>
-          {checkMark}Open a <Link href={pathToBugs} onClick={(event) => {
+          {checkMark}In group view change tabs to send a <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, pathToBugs);
-        }}>bug</Link> with a priority that controls it's notifications.
-        </Typography>
-        <Typography variant="body2" style={{ paddingBottom: '0.5rem' }}>
-          {checkMark}Create a <Link href={pathToBugs} onClick={(event) => {
+        }}>bug</Link>, <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, formatGroupLinkWithSuffix(BACKLOG_HASH, marketId, marketId));
-        }}>backlog</Link> or <Link href={pathToBugs} onClick={(event) => {
+        }}>backlog</Link> job, <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, formatGroupLinkWithSuffix(ASSIGNED_HASH, marketId, marketId));
-        }}>assigned</Link> job. Jobs can be assigned and hold tasks, questions, suggestions,
-          blockers, and status.
-        </Typography>
-        <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
-          {checkMark}Start a <Link href={pathToBugs} onClick={(event) => {
+        }}>assigned</Link> job, or <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, formatGroupLinkWithSuffix(DISCUSSION_HASH, marketId, marketId));
-        }}>discussion</Link> where questions have vote-able options and suggestions can be voted for or
-          against.
+        }}>question or suggestion</Link> to group members.
         </Typography>
-        {!mobileLayout && (
-          <img style={{ width: '100%' }}
-               src={`/images/UclusionMap.png`}
-               alt="Uclusion map"
-          />
-        )}
       </div>
       <WizardStepButtons
         {...props}

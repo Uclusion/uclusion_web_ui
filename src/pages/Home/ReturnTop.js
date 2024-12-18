@@ -10,7 +10,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 
 function ReturnTop(props) {
   const { action, pathInvestibleId, marketId, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
-    useLink } = props;
+    useLink, typeObjectId } = props;
   const intl = useIntl();
   const history = useHistory();
   const isConfigScreen = ['userPreferences', 'integrationPreferences', 'billing'].includes(action);
@@ -26,6 +26,8 @@ function ReturnTop(props) {
       navigate(history, useLink);
     }else if (upFromConfigPossible) {
       navigate(history, formMarketLink(marketId, marketId));
+    } else if (action === 'wizard' && typeObjectId) {
+      navigate(history, getInboxTarget());
     } else if (action === 'wizard' && hashInvestibleId) {
       navigate(history, formInvestibleLink(marketId, hashInvestibleId));
     } else if (action === 'marketEdit' || (action === 'wizard' && marketId && !groupId)) {

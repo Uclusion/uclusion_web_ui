@@ -240,7 +240,7 @@ function Screen(props) {
   const { groupId, marketId: searchMarketId, investibleId: searchInvestibleId} = values || {};
   const hashValues = queryString.parse(hash);
   const { marketId: hashMarketId, investibleId: hashInvestibleId, type,
-    groupId: hashGroupId } = hashValues || {};
+    groupId: hashGroupId, typeObjectId } = hashValues || {};
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -365,7 +365,7 @@ function Screen(props) {
       ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
                               inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId}
-                              useLink={useLink}
+                              useLink={useLink} typeObjectId={typeObjectId}
                               hashInvestibleId={hashInvestibleId} pathMarketIdRaw={pathMarketIdRaw}
                               pathInvestibleId={pathInvestibleId} action={action} />,
       navListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [

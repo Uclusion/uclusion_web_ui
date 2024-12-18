@@ -105,7 +105,7 @@ const useStyles = makeStyles((theme) => ({
 
 function WorkspaceMenu(props) {
   const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup, action,
-    pathInvestibleId, pathMarketIdRaw, hashInvestibleId, useLink } = props;
+    pathInvestibleId, pathMarketIdRaw, hashInvestibleId, useLink, typeObjectId } = props;
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const notCurrentMarkets = markets.filter((market) => market.id !== defaultMarket?.id);
   const activeMarkets = notCurrentMarkets.filter((market) => market.market_stage === 'Active');
@@ -159,7 +159,7 @@ function WorkspaceMenu(props) {
   return (
     <div style={{marginLeft: '15px'}}>
       <ReturnTop action={action} pathInvestibleId={pathInvestibleId} marketId={defaultMarket.id}
-                 isArchivedWorkspace={isArchivedWorkspace} useLink={useLink}
+                 isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId}
                  groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>
       <Button
         onClick={recordPositionToggle}

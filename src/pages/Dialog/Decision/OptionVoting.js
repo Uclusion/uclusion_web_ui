@@ -11,7 +11,7 @@ import { isNew } from '../../../components/Comments/Options';
 function OptionVoting(props) {
   const [marketsState] = useContext(MarketsContext);
   const { marketPresences, investibles, marketId, comments, isAdmin, inArchives, isSent, removeActions,
-    selectedInvestibleId, setSelectedInvestibleId } = props;
+    selectedInvestibleId, setSelectedInvestibleId, isInbox } = props;
   const [messagesState] = useContext(NotificationsContext);
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
@@ -31,6 +31,7 @@ function OptionVoting(props) {
         isAdmin={isAdmin}
         inArchives={inArchives}
         isSent={isSent}
+        isInbox={isInbox}
         removeActions={removeActions}
       />
     }

@@ -172,7 +172,8 @@ function DecisionInvestible(props) {
     inArchives,
     hidden,
     isSent,
-    removeActions
+    removeActions,
+    isInbox
   } = props;
   const intl = useIntl();
   const history = useHistory();
@@ -321,7 +322,7 @@ function DecisionInvestible(props) {
       </h2>
       {displayVotingInput && investibleId && (
         <SpinningButton id="approvalButton" icon={AddIcon} iconColor="black" className={wizardClasses.actionNext}
-                        variant="text" doSpin={false}
+                        variant="text" doSpin={false} focus={isInbox}
                         style={{ display: 'flex', marginBottom: '1rem' }}
                         onClick={() => navigate(history,
                           formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, undefined,

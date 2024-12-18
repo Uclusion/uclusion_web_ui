@@ -192,6 +192,7 @@ function Options(props) {
         inArchives={inArchives || anInlineMarket.market_stage !== ACTIVE_STAGE}
         isAdmin={isEditable}
         isSent={isSent}
+        isInbox={isInbox}
         removeActions={removeActions}
         selectedInvestibleId={useTabIndex === 0 ? selectedInvestibleIdTabZero : selectedInvestibleIdTabOne}
         setSelectedInvestibleId={useTabIndex === 0 ? setSelectedInvestibleIdTabZero : setSelectedInvestibleIdTabOne}

@@ -362,7 +362,7 @@ function DecisionInvestible(props) {
                                 variant="text" doSpin={false}
                                 onClick={() => navigate(history,
                                   formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                                    allowedCommentType))}>
+                                    allowedCommentType, typeObjectId))}>
                   <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`}/>
                 </SpinningButton>
               );

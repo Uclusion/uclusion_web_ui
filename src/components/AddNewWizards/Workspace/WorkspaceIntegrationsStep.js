@@ -7,12 +7,17 @@ import WizardStepButtons from '../WizardStepButtons';
 import config from '../../../config';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import Link from '@material-ui/core/Link';
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { ADD_COLLABORATOR_WIZARD_TYPE } from '../../../constants/markets';
+import { useHistory } from 'react-router';
 
 function WorkspaceIntegrationsStep(props) {
   const { formData } = props;
+  const history = useHistory();
   const [userState] = useContext(AccountContext) || {};
   const { user } = userState;
   const classes = useContext(WizardStylesContext);
+  const { marketId } = formData;
 
   return (
     <WizardStepContainer
@@ -28,7 +33,7 @@ function WorkspaceIntegrationsStep(props) {
         Hit the next button when done or to skip integration.
       </Typography>
       <a
-        href={`${config.add_to_slack_url}&state=${user?.id}_${formData.marketId}`}
+        href={`${config.add_to_slack_url}&state=${user?.id}_${marketId}`}
         rel="noopener noreferrer"
       >
         <img
@@ -40,7 +45,17 @@ function WorkspaceIntegrationsStep(props) {
         />
       </a>
       <div className={classes.borderBottom} />
-      <WizardStepButtons {...props} showNext />
+      <WizardStepButtons
+        {...props}
+        showNext
+        onNext={() => navigate(history,
+          `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${marketId}`)}
+        nextLabel="addMoreCollaborators"
+        onNextDoAdvance={false}
+        showTerminate
+        terminateLabel="done"
+        onTerminate={() => navigate(history, formMarketLink(marketId, marketId))}
+      />
     </div>
     </WizardStepContainer>
   );

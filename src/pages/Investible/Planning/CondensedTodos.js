@@ -25,6 +25,7 @@ import { isNewComment } from '../../../components/Comments/Options';
 import { todoClasses } from '../../Dialog/Planning/MarketTodos';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { sortInProgress } from '../../../containers/CommentBox/CommentBox';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 function CondensedTodos(props) {
   const {
@@ -143,6 +144,11 @@ function CondensedTodos(props) {
     setSectionOpen(!sectionOpen);
   }
 
+  useHotkeys('ctrl+alt+e', ()=> setSectionOpen(true), {enableOnContentEditable: true},
+    []);
+  useHotkeys('ctrl+shift+e', ()=> setSectionOpen(false),
+    {enableOnContentEditable: true}, []);
+
   return (
     <div className={sectionOpen ? classes.outerBorder : undefined} id="investibleCondensedTodos"
          style={{marginLeft: usePadding ? '1rem' : undefined}}>
@@ -150,7 +156,7 @@ function CondensedTodos(props) {
         <h2 id="tasksOverview" style={{paddingBottom: 0, marginBottom: 0, marginTop: 0, paddingTop: 0}}>
           <FormattedMessage id="taskSection" />
         </h2>
-        <IconButton onClick={() => toggleTodos()} style={{marginBottom: 0,
+        <IconButton onClick={toggleTodos} style={{marginBottom: 0,
           paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
           <Tooltip key='toggleTodos'
                    title={<FormattedMessage id={`${sectionOpen ? 'closeTodos' : 'openTodos'}Tip`} />}>

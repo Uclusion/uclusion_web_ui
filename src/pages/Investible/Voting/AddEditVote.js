@@ -10,7 +10,7 @@ import {
   MenuItem,
   Radio,
   RadioGroup,
-  Select,
+  Select, Tooltip,
   useMediaQuery,
   useTheme
 } from '@material-ui/core';
@@ -25,6 +25,7 @@ import WizardStepButtons from '../../../components/InboxWizards/WizardStepButton
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { commonQuick } from '../../../components/AddNewWizards/Approval/ApprovalWizard';
 import InputLabel from '@material-ui/core/InputLabel';
+import { useHotkeys } from 'react-hotkeys-hook';
 
 const useStyles = makeStyles(
   theme => {
@@ -164,6 +165,19 @@ function AddEditVote(props) {
     focusEditor(editorName);
   }
 
+  function simulateCertainty(key) {
+    return () => {
+      const target = {value: `${key}`};
+      onChange({target});
+    };
+  }
+
+  useHotkeys('ctrl+alt+1', simulateCertainty(5), {enableOnContentEditable: true}, []);
+  useHotkeys('ctrl+alt+2', simulateCertainty(25), {enableOnContentEditable: true}, []);
+  useHotkeys('ctrl+alt+3', simulateCertainty(50), {enableOnContentEditable: true}, []);
+  useHotkeys('ctrl+alt+4', simulateCertainty(75), {enableOnContentEditable: true}, []);
+  useHotkeys('ctrl+alt+5', simulateCertainty(100), {enableOnContentEditable: true}, []);
+
   const voteId = hasVoted ? (multiplier < 0 ? 'keepReject' : 'keepFor') : (multiplier < 0 ? "saveReject" : "saveVote");
   const otherVoteId = multiplier < 0 ? "switchToFor" : "switchToReject";
   const certainties = [5, 25, 50, 75, 100];
@@ -202,20 +216,24 @@ function AddEditVote(props) {
               >
                 {certainties.map(certainty => {
                   return (
-                    <FormControlLabel
-                      key={certainty}
-                      id={`${isInbox ? 'inbox' : ''}${certainty}`}
-                      className={classes.certaintyValue}
-                      classes={{
-                        label: classes.certaintyValueLabel
-                      }}
-                      /* prevent clicking the label stealing focus */
-                      onMouseDown={e => e.preventDefault()}
-                      control={<Radio />}
-                      label={<FormattedMessage id={`certainty${certainty}`} />}
-                      labelPlacement="start"
-                      value={certainty}
-                    />
+                    <Tooltip title={<h3>
+                      {intl.formatMessage({ id: `certaintyTip${certainty}` })}
+                    </h3>} placement="top">
+                      <FormControlLabel
+                        key={certainty}
+                        id={`${isInbox ? 'inbox' : ''}${certainty}`}
+                        className={classes.certaintyValue}
+                        classes={{
+                          label: classes.certaintyValueLabel
+                        }}
+                        /* prevent clicking the label stealing focus */
+                        onMouseDown={e => e.preventDefault()}
+                        control={<Radio />}
+                        label={<FormattedMessage id={`certainty${certainty}`} />}
+                        labelPlacement="start"
+                        value={certainty}
+                      />
+                    </Tooltip>
                   );
                 })}
               </RadioGroup>

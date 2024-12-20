@@ -55,7 +55,9 @@ function IntroduceWorkspaceStep(props) {
     [], [], undefined, undefined, undefined)
 
   function myOnFinish () {
-    removeWorkListItem(message, messagesDispatch, history);
+    removeWorkListItem(message, messagesDispatch);
+    // Go to the workspace when done as that's what was just introduced
+    navigate(history, formMarketLink(marketId, marketId));
   }
 
   return (

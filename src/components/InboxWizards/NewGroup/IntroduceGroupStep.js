@@ -36,7 +36,9 @@ function IntroduceGroupStep(props) {
   const link = formMarketLink(marketId, groupId);
 
   function myOnFinish() {
-    removeWorkListItem(message, messagesDispatch, history);
+    removeWorkListItem(message, messagesDispatch);
+    // Go to the group when done as that's what was just introduced
+    navigate(history, formMarketLink(marketId, groupId));
   }
 
   return (

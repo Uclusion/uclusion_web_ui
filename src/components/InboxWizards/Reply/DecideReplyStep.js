@@ -116,7 +116,7 @@ function DecideReplyStep(props) {
         dismissWorkListItem(message, messagesDispatch, history);
       });
   }
-
+  const showOtherNext = isMySuggestion || canResolve;
   const moveToTask = () => navigate(history,
     `${formMarketAddInvestibleLink(marketId, groupId, undefined, message.type_object_id, 
       BUG_WIZARD_TYPE)}&fromCommentId=${commentId}`);
@@ -134,7 +134,7 @@ function DecideReplyStep(props) {
           Choose other options to move to task, add voting, or resolve.
         </Typography>
       )}
-      {!isMySuggestion && !showTerminate && (
+      {showOtherNext && !showTerminate && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Move to task moves this reply to its own task.
         </Typography>
@@ -162,7 +162,7 @@ function DecideReplyStep(props) {
         otherSpinOnClick={!isMySuggestion && showTerminate}
         isOtherFinal={!isMySuggestion}
         onOtherNextDoAdvance={isMySuggestion}
-        showTerminate={showTerminate || !isMySuggestion}
+        showTerminate={showTerminate || (!isMySuggestion && canResolve)}
         terminateLabel={showTerminate ?
           (hasThreadMessages ? 'notificationDismissThread' : getLabelForTerminate(message)) : 'issueResolveLabel'}
         onFinish={showTerminate ? (hasThreadMessages ? dismissAll : myOnFinish) : resolve}

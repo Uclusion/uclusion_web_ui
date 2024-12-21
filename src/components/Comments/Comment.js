@@ -777,12 +777,12 @@ function Comment(props) {
       : '1rem', width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
                             ref={editBox}>
     <div onClick={(event) => {
-      if (isInbox) {
-        if (!invalidEditEvent(event, history)) {
+      if (!invalidEditEvent(event, history)) {
+        if (isInbox) {
           navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+        } else if (isNavigateToInbox && myMessage.type_object_id) {
+          navigate(history, formInboxItemLink(myMessage.type_object_id));
         }
-      } else if (isNavigateToInbox) {
-        navigate(history, formInboxItemLink(myMessage.type_object_id));
       }
     }}>
       <Box display="flex">

@@ -274,11 +274,13 @@ function Reply(props) {
   const commentCard = <Card className={getHighlightClass()}
                             style={{width: !enableEditing ? 'fit-content' : undefined, paddingRight: '1rem'}}
                             id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
-    <div onClick={() => {
-      if (replyBeingEdited || isInbox) {
-        navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
-      } else if (myMessage) {
-        navigate(history, formInboxItemLink(myMessage.type_object_id));
+    <div onClick={(event) => {
+      if (!invalidEditEvent(event, history)) {
+        if (replyBeingEdited || isInbox) {
+          navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
+        } else if (myMessage && myMessage.type_object_id) {
+          navigate(history, formInboxItemLink(myMessage.type_object_id));
+        }
       }
     }}>
       <CardContent className={classes.cardContent}>

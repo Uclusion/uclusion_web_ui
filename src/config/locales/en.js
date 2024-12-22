@@ -1112,6 +1112,7 @@ const messages = defineMessages({
   DecideAssignmentTitle: 'Take this job?',
 
   // Comments
+  messagePresent: 'Go to notification for this job',
   issuePresent: 'Blocking issue',
   nonBlockIssuePresent: 'Issue',
   questionPresent: 'Assignee has question',

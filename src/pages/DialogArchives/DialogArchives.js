@@ -111,7 +111,6 @@ function DialogArchives() {
           investibles={filteredVerifiedInvestibles}
           presenceMap={presenceMap}
           comments={comments}
-          elevation={0}
         />
       </SubSection>
       <div style={{paddingBottom: '1rem'}} />
@@ -127,7 +126,6 @@ function DialogArchives() {
           marketId={marketId}
           presenceMap={presenceMap}
           investibles={notDoingInvestibles}
-          elevation={0}
         />
       </SubSection>
       <MarketTodos comments={todoComments} marketId={marketId} groupId={groupId} isInArchives sectionOpen={true} />

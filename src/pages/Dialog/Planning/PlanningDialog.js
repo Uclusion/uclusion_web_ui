@@ -463,11 +463,9 @@ function PlanningDialog(props) {
                 {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
                   <ArchiveInvestbiles
                     comments={comments}
-                    elevation={0}
                     marketId={marketId}
                     presenceMap={presenceMap}
                     investibles={blockedOrRequiresInputInvestibles}
-                    presenceId={myPresence.id}
                     allowDragDrop
                   />
                 )}

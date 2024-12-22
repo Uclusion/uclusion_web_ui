@@ -7,9 +7,9 @@ import {
   Card,
   CardActions,
   CardContent,
-  Checkbox,
+  Checkbox, FormControl,
   FormControlLabel,
-  IconButton,
+  IconButton, MenuItem, Select,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -700,6 +700,20 @@ function Comment(props) {
     return classes.container;
   }
 
+  function onNotificationTypeChange(event) {
+    setOperationRunning(true);
+    removeMessagesForCommentId(id, messagesState);
+    const { value: notificationType } = event.target;
+    return updateComment({marketId, commentId: id, notificationType})
+      .then((comment) => {
+        addCommentToMarket(comment, commentsState, commentsDispatch);
+        setOperationRunning(false);
+        navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+      }).finally(() => {
+        setOperationRunning(false);
+      });
+  }
+
   const displayingDiff = myMessage && showDiff && diff;
   const displayEditing = enableEditing && isEditable && !isInbox;
   if (loading) {
@@ -895,6 +909,26 @@ function Comment(props) {
               >
                 {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })} {hasReply(comment) && <EditIcon />}
               </SpinningIconLabelButton>
+            )}
+            {enableEditing && !removeActions && commentType === TODO_TYPE && !investibleId && (
+              <FormControl size='small'>
+                <Select
+                  value={myNotificationType}
+                  onChange={onNotificationTypeChange}
+                  onClick={(event) => event.stopPropagation()}
+                  style={{backgroundColor: 'white'}}
+                >
+                  <MenuItem value='RED'>
+                    {intl.formatMessage({ id: 'immediate' })}
+                  </MenuItem>
+                  <MenuItem value='YELLOW'>
+                    {intl.formatMessage({ id: 'able' })}
+                  </MenuItem>
+                  <MenuItem value='BLUE'>
+                    {intl.formatMessage({ id: 'convenient' })}
+                  </MenuItem>
+                </Select>
+              </FormControl>
             )}
             {showAddVoting && (
               <SpinningIconLabelButton

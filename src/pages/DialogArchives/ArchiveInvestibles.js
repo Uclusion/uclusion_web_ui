@@ -178,12 +178,19 @@ function ArchiveInvestbiles(props) {
                       </Grid>
                     )}
                     {TypeIcon && (
-                      <Grid item xs={1} onClick={(event) => {
-                        if (myMessage) {
-                          preventDefaultAndProp(event);
-                          navigate(history, formInboxItemLink(myMessage.type_object_id));
-                        }
-                      }}>
+                      <Grid item xs={1}
+                            onClick={(event) => {
+                              if (myMessage) {
+                                preventDefaultAndProp(event);
+                                navigate(history, formInboxItemLink(myMessage.type_object_id));
+                              }
+                            }}
+                            onMouseOver={(event) => {
+                              if (myMessage) {
+                                preventDefaultAndProp(event);
+                              }
+                            }}
+                      >
                         <Tooltip title={intl.formatMessage({ id: typeExplanation })}>
                           {TypeIcon}
                         </Tooltip>

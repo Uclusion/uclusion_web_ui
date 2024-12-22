@@ -7,6 +7,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
+  formInboxItemLink,
   formInvestibleLink, formWizardLink,
   navigate,
   preventDefaultAndProp
@@ -61,6 +62,7 @@ import { isInPast } from '../../../utils/timerUtils';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -598,7 +600,7 @@ function StageInvestible(props) {
   const history = useHistory();
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
@@ -613,6 +615,7 @@ function StageInvestible(props) {
       (!isReviewable && numQuestionsSuggestions === 0)||(isReviewable && numRequiredReviews === 0),
       isReviewable ? 'requiredReviewsCountExplanation' : 'inputRequiredCountExplanation');
   const ticketNumber = getTicketNumber(ticketCode);
+  const unreadEstimate = findMessageOfType('UNREAD_ESTIMATE', id, messagesState);
   return (
     <>
       <Grid container>
@@ -632,7 +635,21 @@ function StageInvestible(props) {
             </Tooltip>
           )}
           {hasDaysEstimate && (
-            <div style={{ whiteSpace: 'nowrap' }}>
+            <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? 'red': undefined,
+              cursor: unreadEstimate ? 'pointer' : undefined }}
+                 onClick={(event) => {
+                   if (unreadEstimate) {
+                     preventDefaultAndProp(event);
+                     dehighlightMessage(unreadEstimate, messagesDispatch);
+                     navigate(history, formInboxItemLink(unreadEstimate.type_object_id));
+                   }
+                 }}
+                 onMouseOver={(event) => {
+                   if (unreadEstimate) {
+                     preventDefaultAndProp(event);
+                   }
+                 }}
+            >
               <FormattedMessage id='estimatedCompletionToday' /> <UsefulRelativeTime value={new Date(daysEstimate)}/>
             </div>
           )}

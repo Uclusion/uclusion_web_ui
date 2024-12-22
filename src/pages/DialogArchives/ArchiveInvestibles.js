@@ -31,6 +31,7 @@ import DragImage from '../../components/Dialogs/DragImage';
 import UsefulRelativeTime from '../../components/TextFields/UseRelativeTime';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForInvestibleId } from '../../utils/messageUtils';
+import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -86,7 +87,7 @@ function ArchiveInvestbiles(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
 
   function getInvestibles() {
     const investibleData = investibles.map((inv) => {
@@ -182,6 +183,7 @@ function ArchiveInvestbiles(props) {
                             onClick={(event) => {
                               if (myMessage) {
                                 preventDefaultAndProp(event);
+                                dehighlightMessage(myMessage, messagesDispatch);
                                 navigate(history, formInboxItemLink(myMessage.type_object_id));
                               }
                             }}

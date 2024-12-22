@@ -45,7 +45,7 @@ function SwimlanesOnboardingBanner(props) {
                 <div>
                    <Typography><b>Here is group 'Everyone' status at a glance.</b></Typography>
                    <Typography className={classes.ctaSub}>
-                     Structured comments mean we can populate the Assistance Needed section.
+                     Creating a blocker, question, or suggestion in a job moves it to Assistance Needed.
                    </Typography>
                  </div>
                }/>

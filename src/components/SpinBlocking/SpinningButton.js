@@ -3,7 +3,7 @@
  */
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { CircularProgress, useTheme, Tooltip } from '@material-ui/core';
+import { CircularProgress, useTheme, Tooltip, Button } from '@material-ui/core';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useIntl } from 'react-intl';
 import FocusRippleButton from '../Buttons/FocusRippleButton';
@@ -37,7 +37,8 @@ function SpinningButton(props) {
     }
   }
   const myDisabled = spinningDisabled || disabled;
-  const myButton = <FocusRippleButton
+  const BaseButton = focus ? FocusRippleButton : Button;
+  const myButton = <BaseButton
     disabled={myDisabled}
     autoFocus={focus}
     onClick={myOnClick}
@@ -56,8 +57,7 @@ function SpinningButton(props) {
         style={{position: 'absolute', top: '50%', left: '50%', marginTop: -6, marginLeft: -12}}
       />
     )}
-  </FocusRippleButton>;
-
+  </BaseButton>;
   if (toolTipId && !myDisabled) {
     return (
       <Tooltip title={

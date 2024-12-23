@@ -3,7 +3,7 @@
  */
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
-import { CircularProgress, useTheme, Tooltip } from '@material-ui/core';
+import { CircularProgress, useTheme, Tooltip, Button } from '@material-ui/core';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { makeStyles } from '@material-ui/styles'
 import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
@@ -100,7 +100,8 @@ function SpinningIconLabelButton(props) {
   const myIcon = spinningDisabled || disabled ?
     <Icon color='disabled' style={{fontSize: iconOnly ? 24 : undefined}} /> :
     <Icon style={{ fontSize: iconOnly ? 24 : undefined }} htmlColor={iconColor} />;
-  const myButton = <FocusRippleButton
+  const BaseButton = focus ? FocusRippleButton : Button;
+  const myButton = <BaseButton
     disabled={myDisabled}
     variant="outlined"
     size="small"
@@ -122,7 +123,7 @@ function SpinningIconLabelButton(props) {
         style={{position: 'absolute', top: '50%', left: '50%', marginTop: -6, marginLeft: -12}}
       />
     )}
-  </FocusRippleButton>;
+  </BaseButton>;
   if (toolTipId && !myDisabled) {
     return <Tooltip title={
       <h3>

@@ -130,15 +130,15 @@ function ArchiveInvestbiles(props) {
       const myMessage = !_.isEmpty(messages) ? messages[0] : undefined;
       switch (assistanceType) {
         case 0:
-          TypeIcon = myMessage ? <Block htmlColor='#E85757' /> : <Block />;
+          TypeIcon = myMessage ? <Block htmlColor='#E85757' /> : <Block htmlColor='#F29100' />;
           typeExplanation = 'issuePresent';
           break;
         case 1:
-          TypeIcon = myMessage ? <LightbulbOutlined htmlColor='#E85757' /> : <LightbulbOutlined />;
+          TypeIcon = myMessage ? <LightbulbOutlined htmlColor='#E85757' /> : <LightbulbOutlined htmlColor='#F29100' />;
           typeExplanation = 'suggestPresent';
           break;
         case 2:
-          TypeIcon = myMessage ? <QuestionIcon htmlColor='#E85757' /> : <QuestionIcon />;
+          TypeIcon = myMessage ? <QuestionIcon htmlColor='#E85757' /> : <QuestionIcon htmlColor='#F29100' />;
           typeExplanation = 'questionPresent';
           break;
         default:

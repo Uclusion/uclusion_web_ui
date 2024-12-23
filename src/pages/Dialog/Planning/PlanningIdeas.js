@@ -603,20 +603,22 @@ function StageInvestible(props) {
     const myMessage = !_.isEmpty(messages) ? messages[0] : undefined;
     if (myMessage && !unreadEstimate && !doesRequireStatus) {
       return (
-        <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
-          marginLeft: '1rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '5px',
-          paddingTop: '2px', maxHeight: '20px'}}
-              onClick={(event) => {
-                preventDefaultAndProp(event);
-                dehighlightMessage(myMessage, messagesDispatch);
-                navigate(history, formInboxItemLink(myMessage.type_object_id));
-              }}
-              onMouseOver={(event) => {
-                preventDefaultAndProp(event);
-              }}
-        >
-          {_.size(messages)} {intl.formatMessage({ id: 'notifications' })}
-        </span>
+        <Tooltip title={intl.formatMessage({ id: 'messagePresent' })}>
+          <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
+            marginLeft: '1rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '5px',
+            paddingTop: '2px', maxHeight: '20px'}}
+                onClick={(event) => {
+                  preventDefaultAndProp(event);
+                  dehighlightMessage(myMessage, messagesDispatch);
+                  navigate(history, formInboxItemLink(myMessage.type_object_id));
+                }}
+                onMouseOver={(event) => {
+                  preventDefaultAndProp(event);
+                }}
+          >
+            {_.size(messages)} {intl.formatMessage({ id: 'notifications' })}
+          </span>
+        </Tooltip>
       );
     }
     if (isGreen) {
@@ -624,7 +626,7 @@ function StageInvestible(props) {
     }
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
-        <span className={'MuiTabItem-tag'} style={{backgroundColor: 'black', marginLeft: '1rem', color: 'white',
+        <span className={'MuiTabItem-tag'} style={{backgroundColor: '#F29100', marginLeft: '1rem', color: 'white',
           borderRadius: 22, paddingLeft: '6px', paddingRight: '5px', paddingTop: '2px', maxHeight: '20px'}}>
           {labelNum} {intl.formatMessage({ id: 'open' })}
         </span>
@@ -684,7 +686,7 @@ function StageInvestible(props) {
         {doesRequireStatus && (
           <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
             <span className={'MuiTabItem-tag'} style={{ marginLeft: '1rem', marginTop: '-0.1rem' }}>
-              <Schedule style={{fontSize: 24, color: '#E85757'}}/>
+              <Schedule style={{fontSize: 24, color: '#F29100'}}/>
             </span>
           </Tooltip>
         )}

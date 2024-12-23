@@ -574,7 +574,7 @@ const messages = defineMessages({
   // Notices
   noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
   noticeVersionForceLogout: 'This version of the application requires signout which will happen when you close this message.',
-  notifications: 'notifications',
+  notifications: 'inbox',
   notification: 'notification',
   notificationDelete: 'Dismiss',
   informational: 'Informational',

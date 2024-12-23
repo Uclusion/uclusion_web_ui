@@ -58,7 +58,6 @@ import {
   formMarketAddCommentLink, formMarketAddInvestibleLink, formWizardLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
-import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import { DISCUSSION_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import DialogOutset from './DialogOutset';
@@ -442,12 +441,6 @@ function PlanningDialog(props) {
               <SubSection
                 type={SECTION_TYPE_SECONDARY_WARNING}
                 bolder
-                titleIcon={blockedOrRequiresInputInvestibles.length > 0 ?
-                  <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR,
-                    borderRadius: 22, paddingLeft: '5px', paddingRight: '6px', paddingTop: '1px', fontSize: 12,
-                    marginRight: '1rem', maxHeight: '20px', color: 'white'}}>
-                    {blockedOrRequiresInputInvestibles.length} total
-                  </span> : undefined}
                 title={intl.formatMessage({ id: 'blockedHeader' })}
                 helpLink='https://documentation.uclusion.com/groups/jobs/stages/#assistance'
                 id="blocked"

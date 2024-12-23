@@ -99,7 +99,7 @@ function ArchiveInvestbiles(props) {
     return sortedData.map((inv) => {
       const { investible } = inv;
       const { id, name } = investible;
-      const messages = findMessagesForInvestibleId(id, messagesState)
+      const messages = findMessagesForInvestibleId(id, messagesState);
       const info = getMarketInfo(inv, marketId) || {};
       const { assigned, stage: stageId, ticket_code: ticketCode, last_stage_change_date: lastStageChangeDate } = info;
       const enteredStageAt = new Date(lastStageChangeDate)

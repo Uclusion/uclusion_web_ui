@@ -54,7 +54,7 @@ import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { getTicketNumber } from '../../../utils/stringFunctions'
 import { Schedule } from '@material-ui/icons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils';
+import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../../utils/messageUtils';
 import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import DragImage from '../../../components/Dialogs/DragImage';
 import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime';
@@ -573,28 +573,6 @@ function StageInvestible(props) {
     isVoting
   } = props;
   const intl = useIntl();
-
-  function getChip(labelNum, isGreen, toolTipId) {
-    if (isGreen) {
-      return undefined;
-    }
-    return (
-      <Tooltip title={intl.formatMessage({ id: toolTipId })}>
-        <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, marginLeft: '1rem', color: 'white',
-          borderRadius: 22, paddingLeft: '6px', paddingRight: '5px', paddingTop: '2px', maxHeight: '20px'}}>
-          {labelNum} {intl.formatMessage({ id: 'open' })}
-        </span>
-      </Tooltip>
-    );
-  }
-
-  function requiresStatus(messagesState, id) {
-    if (!_.isEmpty(findMessageOfTypeAndId(id, messagesState, 'REPORT'))) {
-      return true;
-    }
-    return !_.isEmpty(findMessageOfType('REPORT_REQUIRED', id, messagesState));
-  }
-
   const { completion_estimate: daysEstimate, ticket_code: ticketCode } = marketInfo;
   const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
@@ -610,12 +588,55 @@ function StageInvestible(props) {
   const isSingleUser = isSingleUserMarket(marketPresences, getMarket(marketsState, marketId));
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
   const isReviewable = isReview || showCompletion;
+  const unreadEstimate = findMessageOfType('UNREAD_ESTIMATE', id, messagesState);
+  function requiresStatus(id) {
+    if (!_.isEmpty(findMessageOfTypeAndId(id, messagesState, 'REPORT'))) {
+      return true;
+    }
+    return !_.isEmpty(findMessageOfType('REPORT_REQUIRED', id, messagesState));
+  }
+  const doesRequireStatus = requiresStatus(id);
+
+  function getChip(labelNum, isGreen, toolTipId) {
+    const messages = findMessagesForInvestibleId(id, messagesState);
+    // Just go to the first message associated with this investible that needs assistance if user has one
+    const myMessage = !_.isEmpty(messages) ? messages[0] : undefined;
+    if (myMessage && !unreadEstimate && !doesRequireStatus) {
+      return (
+        <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
+          marginLeft: '1rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '5px',
+          paddingTop: '2px', maxHeight: '20px'}}
+              onClick={(event) => {
+                preventDefaultAndProp(event);
+                dehighlightMessage(myMessage, messagesDispatch);
+                navigate(history, formInboxItemLink(myMessage.type_object_id));
+              }}
+              onMouseOver={(event) => {
+                preventDefaultAndProp(event);
+              }}
+        >
+          {_.size(messages)} {intl.formatMessage({ id: 'notifications' })}
+        </span>
+      );
+    }
+    if (isGreen) {
+      return undefined;
+    }
+    return (
+      <Tooltip title={intl.formatMessage({ id: toolTipId })}>
+        <span className={'MuiTabItem-tag'} style={{backgroundColor: 'black', marginLeft: '1rem', color: 'white',
+          borderRadius: 22, paddingLeft: '6px', paddingRight: '5px', paddingTop: '2px', maxHeight: '20px'}}>
+          {labelNum} {intl.formatMessage({ id: 'open' })}
+        </span>
+      </Tooltip>
+    );
+  }
+
   let chip = mobileLayout ? undefined :
     getChip(isReviewable ? numRequiredReviews : numQuestionsSuggestions,
       (!isReviewable && numQuestionsSuggestions === 0)||(isReviewable && numRequiredReviews === 0),
       isReviewable ? 'requiredReviewsCountExplanation' : 'inputRequiredCountExplanation');
   const ticketNumber = getTicketNumber(ticketCode);
-  const unreadEstimate = findMessageOfType('UNREAD_ESTIMATE', id, messagesState);
   return (
     <>
       <Grid container>
@@ -660,7 +681,7 @@ function StageInvestible(props) {
           </Grid>
         )}
         {chip}
-        {requiresStatus(messagesState, id) && (
+        {doesRequireStatus && (
           <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
             <span className={'MuiTabItem-tag'} style={{ marginLeft: '1rem', marginTop: '-0.1rem' }}>
               <Schedule style={{fontSize: 24, color: '#E85757'}}/>

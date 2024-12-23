@@ -323,15 +323,15 @@ function CommentEdit(props) {
         {Editor}
       </CardContent>
       <CardActions className={classes.cardActions}>
-        <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
-          {intl.formatMessage({ id: 'cancel' })}
-        </SpinningIconLabelButton>
         <SpinningIconLabelButton
           icon={Update}
           onClick={() => handleSave(true)}
           id="updateCommentButton"
         >
           {intl.formatMessage({ id: 'update' })}
+        </SpinningIconLabelButton>
+        <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+          {intl.formatMessage({ id: 'cancel' })}
         </SpinningIconLabelButton>
         {!mobileLayout && (
           <Typography className={classes.storageIndicator}>

@@ -184,11 +184,29 @@ export function removeMessagesForCommentId(commentId, state, messagesDispatch) {
   });
 }
 
+export function findMessagesForInvestibleIds(investibleIds, state, isHighlighted) {
+  const { messages } = (state || {});
+  const safeInvestibleIds = investibleIds || [];
+  const safeMessages = messages || [];
+  return safeMessages.filter((message) => (safeInvestibleIds.includes(message.investible_id) ||
+    safeInvestibleIds.includes(message.decision_investible_id)) && !message.deleted &&
+    (isHighlighted === undefined || message.is_highlighted === isHighlighted));
+}
+
 export function findMessagesForInvestibleId(investibleId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
   return safeMessages.filter((message) => (message.investible_id === investibleId ||
     message.decision_investible_id === investibleId) && !message.deleted);
+}
+
+export function findMessagesForCommentIds(commentIds, state, isHighlighted) {
+  const { messages } = (state || {});
+  const safeCommentIds = commentIds || [];
+  const safeMessages = messages || [];
+  return safeMessages.filter((message) => (safeCommentIds.includes(message.comment_id)
+    || !_.isEmpty(_.intersection(safeCommentIds, message.comment_list))) && !message.deleted &&
+    (isHighlighted === undefined || message.is_highlighted === isHighlighted));
 }
 
 export function findMessageForCommentId(commentId, state) {

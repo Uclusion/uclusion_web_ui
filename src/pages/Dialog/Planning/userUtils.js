@@ -2,6 +2,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import _ from 'lodash';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
 
 /**
  * Returns the investibles in the market assigned to the user
@@ -50,7 +51,7 @@ function hasInProgress(investibleId, marketComments) {
     comment.in_progress));
 }
 
-function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments) {
+function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments, messagesState) {
   const stageId = stage.id;
   const isStartedStage = isAcceptedStage(stage);
   const limitInvestibles = !isStartedStage ? (stage || {}).allowed_investibles : undefined;
@@ -77,17 +78,21 @@ function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, market
       const investibleOpenComments = marketComments.filter(comment => comment.investible_id === investibleId &&
         !comment.resolved && !comment.deleted) || [];
       const investibleOverallUpdatedAt = getUpdatedAt(new Date(aMarketInfo.updated_at), investibleOpenComments);
-      return Date.now() - investibleOverallUpdatedAt.getTime() < limitInvestiblesAge*24*60*60*1000;
+      const messages = findMessagesForInvestibleId(investibleId, messagesState);
+      // If an investible has a notification then show it regardless of age
+      return !_.isEmpty(messages)||
+        (Date.now() - investibleOverallUpdatedAt.getTime() < limitInvestiblesAge*24*60*60*1000);
     });
   }
   return stageInvestibles;
 }
 
-export function getUserSwimlaneInvestiblesHash(userInvestibles, stages, marketId, marketComments) {
+export function getUserSwimlaneInvestiblesHash(userInvestibles, stages, marketId, marketComments, messagesState) {
   const stageInvestiblesHash = {};
   (stages || []).forEach((stage) =>{
     const stageId = stage.id;
-    const stageInvestibles = getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments);
+    const stageInvestibles = getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments,
+      messagesState);
     if (!_.isEmpty(stageInvestibles)) {
       stageInvestiblesHash[stageId] = stageInvestibles;
     }

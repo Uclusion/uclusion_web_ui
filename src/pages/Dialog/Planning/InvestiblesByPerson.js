@@ -26,6 +26,7 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 export const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -139,6 +140,7 @@ function InvestiblesByPerson(props) {
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [marketsState] = useContext(MarketsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const { search } = searchResults;
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getPresencesForGroup(presences, groupPresencesState, marketId, groupId) || [];
@@ -190,7 +192,7 @@ function InvestiblesByPerson(props) {
         const showAsPlaceholder = placeholderType === PLACEHOLDER;
         const myInvestibles = getUserInvestibles(id, marketId, investibles);
         const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId,
-          comments);
+          comments, messagesState);
         const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
         const groupPresence = groupPresences.find((groupPresence) => groupPresence.id === presence.id);
         const { mentioned_notifications: mentions, approve_notifications: approvals } = groupPresence || {};

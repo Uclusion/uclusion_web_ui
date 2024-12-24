@@ -62,7 +62,7 @@ import { isInPast } from '../../../utils/timerUtils';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -598,10 +598,14 @@ function StageInvestible(props) {
   const doesRequireStatus = requiresStatus(id);
 
   function getChip(labelNum, isGreen, toolTipId) {
-    const messages = findMessagesForInvestibleId(id, messagesState);
+    const messagesRaw = findMessagesForInvestibleId(id, messagesState);
+    const messages = messagesRaw.filter((message) => isInInbox(message));
+    const newMessages = messages.filter((message) => message.is_highlighted);
     // Just go to the first message associated with this investible that needs assistance if user has one
-    const myMessage = !_.isEmpty(messages) ? messages[0] : undefined;
-    if (myMessage && !unreadEstimate && !doesRequireStatus) {
+    const myMessage = !_.isEmpty(newMessages) ? newMessages[0] : (!_.isEmpty(messages) ? messages[0] : undefined);
+    if (myMessage) {
+      const isHighlighted = myMessage.is_highlighted;
+      const myMessages = isHighlighted ? newMessages : messages;
       return (
         <Tooltip title={intl.formatMessage({ id: 'messagePresent' })}>
           <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
@@ -616,7 +620,7 @@ function StageInvestible(props) {
                   preventDefaultAndProp(event);
                 }}
           >
-            {_.size(messages)} {intl.formatMessage({ id: 'notifications' })}
+            {_.size(myMessages)} {intl.formatMessage({ id: isHighlighted ? 'new' : 'notifications' })}
           </span>
         </Tooltip>
       );

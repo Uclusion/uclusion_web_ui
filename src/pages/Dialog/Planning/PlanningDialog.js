@@ -78,6 +78,9 @@ import { getMarket, marketIsDemo } from '../../../contexts/MarketsContext/market
 import EditIcon from '@material-ui/icons/Edit';
 import { hasDiscussionComment } from '../../../components/AddNewWizards/Discussion/AddCommentStep';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -122,6 +125,7 @@ function PlanningDialog(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [groupState] = useContext(MarketGroupsContext);
   const [marketsState] = useContext(MarketsContext);
+  const [messagesState] = useContext(NotificationsContext);
   const market = getMarket(marketsState, marketId) || {};
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
@@ -349,6 +353,56 @@ function PlanningDialog(props) {
   const tabTitle = `${tabName} ${intl.formatMessage({id: 'tabGroupAppend'})}`;
   const swimlaneEmptyPreText = _.isEmpty(blockedOrRequiresInputInvestibles) ? 'There are no assigned jobs.' :
   'All assigned jobs require assistance.';
+  function getTabCount(tabIndex) {
+    if (!_.isEmpty(search)) {
+      return undefined;
+    }
+    if (tabIndex === 0) {
+      let investibleIds = (blockedOrRequiresInputInvestibles || []).map((investible)=>investible.investible.id);
+      investibleIds = investibleIds.concat((swimlaneInvestibles||[]).map((investible)=>investible.investible.id));
+      const numNewMessagesRaw = findMessagesForInvestibleIds(investibleIds, messagesState, true)||[];
+      const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
+      if (!_.isEmpty(numNewMessages)) {
+        return `${_.size(numNewMessages)}`;
+      }
+    }
+    if (tabIndex === 1) {
+      let investibleIds = (furtherWorkReadyToStart || []).map((investible)=>investible.investible.id);
+      investibleIds = investibleIds.concat((furtherWorkInvestibles||[]).map((investible)=>investible.investible.id));
+      const numNewMessagesRaw = findMessagesForInvestibleIds(investibleIds, messagesState, true)||[];
+      const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
+      if (!_.isEmpty(numNewMessages)) {
+        return `${_.size(numNewMessages)}`;
+      }
+    }
+    if (tabIndex === 2) {
+      const commentIds = (todoComments ||[]).map((comment) => comment.id);
+      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, true);
+      const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
+      if (!_.isEmpty(numNewMessages)) {
+        return `${_.size(numNewMessages)}`;
+      }
+    }
+    if (tabIndex === 3) {
+      const commentIds = (questionSuggestionComments ||[]).map((comment) => comment.id);
+      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, true);
+      const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
+      if (!_.isEmpty(numNewMessages)) {
+        return `${_.size(numNewMessages)}`;
+      }
+    }
+    return undefined;
+  }
+  function getTagLabel(tabCount) {
+    if (tabCount) {
+      return intl.formatMessage({ id: 'new' });
+    }
+    return undefined;
+  }
+  const tabCount0 = getTabCount(0);
+  const tabCount1 = getTabCount(1);
+  const tabCount2 = getTabCount(2);
+  const tabCount3 = getTabCount(3);
   return (
     <Screen
       title={groupName}
@@ -368,20 +422,20 @@ function PlanningDialog(props) {
             resetFunction(value);
           }}
           indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B']}>
-          <GmailTabItem icon={<AssignmentInd />} onDrop={onDropAssigned}
-                        onDragOver={(event)=>event.preventDefault()} toolTipId='assignedJobsToolTip'
+          <GmailTabItem icon={<AssignmentInd />} onDrop={onDropAssigned} tagLabel={getTagLabel(tabCount0)}
+                        onDragOver={(event)=>event.preventDefault()} toolTipId='assignedJobsToolTip' tagColor='#E85757'
                         label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
-                        tag={_.isEmpty(search) || jobsSearchResults === 0 ? undefined : `${jobsSearchResults}`} />
-          <GmailTabItem icon={<AssignmentIcon />} onDrop={onDropBacklog}
-                        onDragOver={(event)=>event.preventDefault()} toolTipId='backlogJobsToolTip'
+                        tag={_.isEmpty(search) || jobsSearchResults === 0 ? tabCount0 : `${jobsSearchResults}`} />
+          <GmailTabItem icon={<AssignmentIcon />} onDrop={onDropBacklog} tagLabel={getTagLabel(tabCount1)}
+                        onDragOver={(event)=>event.preventDefault()} toolTipId='backlogJobsToolTip' tagColor='#E85757'
                         label={intl.formatMessage({id: 'planningDialogBacklog'})}
-                        tag={_.isEmpty(search) || backlogSearchResults === 0 ? undefined : `${backlogSearchResults}`} />
+                        tag={_.isEmpty(search) || backlogSearchResults === 0 ? tabCount1 : `${backlogSearchResults}`} />
           <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
-                        toolTipId='bugsToolTip'
-                        tag={_.isEmpty(search) || _.isEmpty(todoComments) ? undefined : `${_.size(todoComments)}` } />
-          <GmailTabItem icon={<QuestionIcon />} toolTipId='discussionToolTip'
-                        label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})}
-                        tag={_.isEmpty(search) || _.isEmpty(questionSuggestionComments) ? undefined :
+                        toolTipId='bugsToolTip' tagLabel={getTagLabel(tabCount2)} tagColor='#E85757'
+                        tag={_.isEmpty(search) || _.isEmpty(todoComments) ? tabCount2 : `${_.size(todoComments)}` } />
+          <GmailTabItem icon={<QuestionIcon />} toolTipId='discussionToolTip' tagLabel={getTagLabel(tabCount3)}
+                        label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})} tagColor='#E85757'
+                        tag={_.isEmpty(search) || _.isEmpty(questionSuggestionComments) ? tabCount3 :
                           `${_.size(questionSuggestionComments)}`} />
         </GmailTabs>
       </div>

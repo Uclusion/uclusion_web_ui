@@ -84,7 +84,7 @@ function Root() {
   const [ticketState] = useContext(TicketIndexContext);
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, , initialized] = useContext(NotificationsContext);
   const { marketDetails } = marketsState;
   const supportMarket = marketDetails?.find((market) => market.market_sub_type === 'SUPPORT') || {};
   const marketLink = supportMarket.id ? formMarketLink(supportMarket.id, supportMarket.id) : undefined;
@@ -137,7 +137,8 @@ function Root() {
   }
 
   function hideDemoLoad() {
-    return !isDemoUser || !isRootPath;
+    // if notifications are loaded and no demo message then let useEffect redirect
+    return !isDemoUser || !isRootPath || (initialized && !workspaceMessage);
   }
 
   function hideInvestible() {
@@ -208,8 +209,13 @@ function Root() {
     if (isRootPath) {
       if (demoCreatedUser) {
         if (!_.isEmpty(demo)) {
-          // Should be loading market already so just need url correct
-          window.history.replaceState(null, '', defaultMarketLink);
+          if (initialized && !workspaceMessage) {
+            // Workspace intro message gone so just navigate to market normally
+            navigate(history, defaultMarketLink, true);
+          } else {
+            // Should be loading market already so just need url correct
+            window.history.replaceState(null, '', defaultMarketLink);
+          }
         }
       } else if (firstMarketJoinedUser) {
         if (!_.isEmpty(defaultMarketLink)) {
@@ -217,7 +223,8 @@ function Root() {
         }
       }
     }
-  },  [demo, history, isRootPath, demoCreatedUser, defaultMarketLink, firstMarketJoinedUser]);
+  },  [demo, history, isRootPath, demoCreatedUser, defaultMarketLink, firstMarketJoinedUser,
+    initialized, workspaceMessage]);
 
   useEffect(() => {
     function handleViewChange(isEntry) {

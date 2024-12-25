@@ -24,15 +24,15 @@ import {
   getMarketComments
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import {
-  getBlockedStage,
+  getBlockedStage, getProposedOptionsStage,
   getRequiredInputStage
-} from '../../contexts/MarketStagesContext/marketStagesContextHelper'
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
 import { getMarketPresences, isSingleUserMarket } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions'
+import { changeInvestibleStage, changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions';
 import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../utils/messageUtils';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext'
 import { useEditor } from '../TextEditors/quillHooks'
@@ -383,8 +383,20 @@ function CommentAdd(props) {
         commentAddStateReset();
         resetEditor(editorName);
         if (isSent !== false && investibleId) {
-          changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState,
-            inv.market_infos, useRootInvestible, investibleDispatch, comment, myPresence);
+          if (ourMarket.market_type === DECISION_TYPE) {
+            if (type === ISSUE_TYPE) {
+              const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
+              const [info] = (inv.market_infos || []);
+              const { stage } = (info || {});
+              if (proposedStage && stage !== proposedStage.id) {
+                changeInvestibleStage(proposedStage, assigned, comment.updated_at, info, inv.market_infos,
+                  useRootInvestible, investibleDispatch);
+              }
+            }
+          } else {
+            changeInvestibleStageOnCommentOpen(investibleBlocks, investibleRequiresInput, marketStagesState,
+              inv.market_infos, useRootInvestible, investibleDispatch, comment, myPresence);
+          }
         }
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (isSent !== false) {

@@ -68,7 +68,7 @@ export function getThreadIds(parents, comments) {
   return commentIds;
 }
 
-function changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos, rootInvestible, investibleDispatch) {
+export function changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos, rootInvestible, investibleDispatch) {
   if (newStage?.id || _.isEmpty(assigned)) {
     // If in further work just remove ready to start
     const newInfo = {

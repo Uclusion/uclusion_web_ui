@@ -56,9 +56,17 @@ import {
 } from '../../constants/markets';
 import { red } from '@material-ui/core/colors';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
-import { addInvestible, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import {
+  addInvestible,
+  getInvestible,
+  getMarketInvestibles
+} from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { getFurtherWorkStage, getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import {
+  getFurtherWorkStage,
+  getInReviewStage,
+  getProposedOptionsStage
+} from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   decomposeMarketPath,
@@ -71,7 +79,7 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import { useHistory, useLocation } from 'react-router';
 import { marketAbstain } from '../../api/markets';
-import { onCommentOpen } from '../../utils/commentFunctions';
+import { changeInvestibleStage, onCommentOpen } from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
   findMessageForCommentId,
@@ -597,8 +605,21 @@ function Comment(props) {
   function reopen() {
     return reopenComment(marketId, id)
       .then((comment) => {
-        onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
-          commentsState, commentsDispatch, myPresence);
+        if (inlineMarket?.market_type === DECISION_TYPE) {
+          if (commentType === ISSUE_TYPE) {
+            const proposedStage = getProposedOptionsStage(marketStagesState, inlineMarketId);
+            const inv = getInvestible(investiblesState, investibleId) || {};
+            const [info] = (inv.market_infos || []);
+            const { stage } = (info || {});
+            if (proposedStage && stage !== proposedStage.id) {
+              changeInvestibleStage(proposedStage, assigned, comment.updated_at, info, inv.market_infos, inv.investible,
+                investiblesDispatch);
+            }
+          }
+        } else {
+          onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
+            commentsState, commentsDispatch, myPresence);
+        }
         // The only message that will be there is the one telling you the comment was resolved
         removeMessagesForCommentId(id, messagesState);
         setOperationRunning(false);

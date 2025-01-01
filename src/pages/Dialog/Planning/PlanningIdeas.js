@@ -461,6 +461,7 @@ function Stage(props) {
     const numQuestionsSuggestions = countByType(investible, comments,
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
     const numRequiredReviews = countNumRequiredReviews(investible.id, comments, groupPresences);
+    const numOpenTasks = countByType(investible, comments, [TODO_TYPE]);
     return (
       <React.Fragment key={`stageFrag${investible.id}`}>
         <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
@@ -483,6 +484,7 @@ function Stage(props) {
             isVoting={isVoting}
             numQuestionsSuggestions={numQuestionsSuggestions}
             numRequiredReviews={numRequiredReviews}
+            numOpenTasks={numOpenTasks}
             unaccepted={unaccepted}
             showCompletion={showCompletion}
             mobileLayout={mobileLayout}
@@ -567,6 +569,7 @@ function StageInvestible(props) {
     marketPresences,
     numQuestionsSuggestions,
     numRequiredReviews,
+    numOpenTasks,
     mobileLayout,
     unaccepted,
     isReview,
@@ -597,7 +600,7 @@ function StageInvestible(props) {
   }
   const doesRequireStatus = requiresStatus(id);
 
-  function getChip(labelNum, isGreen, toolTipId) {
+  function getChip(labelNum, toolTipId) {
     const messagesRaw = findMessagesForInvestibleId(id, messagesState);
     const messages = messagesRaw.filter((message) => isInInbox(message));
     const newMessages = messages.filter((message) => message.is_highlighted);
@@ -625,7 +628,7 @@ function StageInvestible(props) {
         </Tooltip>
       );
     }
-    if (isGreen) {
+    if (labelNum <= 0) {
       return undefined;
     }
     return (
@@ -637,11 +640,11 @@ function StageInvestible(props) {
       </Tooltip>
     );
   }
-
+  const showNumRequiredReviews = isReviewable && numRequiredReviews > 0;
   let chip = mobileLayout ? undefined :
-    getChip(isReviewable ? numRequiredReviews : numQuestionsSuggestions,
-      (!isReviewable && numQuestionsSuggestions === 0)||(isReviewable && numRequiredReviews === 0),
-      isReviewable ? 'requiredReviewsCountExplanation' : 'inputRequiredCountExplanation');
+    getChip(isVoting ? numQuestionsSuggestions : (showNumRequiredReviews ? numRequiredReviews : numOpenTasks),
+      isVoting ? 'inputRequiredCountExplanation':
+        (showNumRequiredReviews ? 'requiredReviewsCountExplanation' : 'openTasksCountExplanation'));
   const ticketNumber = getTicketNumber(ticketCode);
   return (
     <>

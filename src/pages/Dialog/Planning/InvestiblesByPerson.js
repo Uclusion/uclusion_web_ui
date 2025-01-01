@@ -104,12 +104,12 @@ export function countByType(investible, comments, commentTypes, stageId) {
     return 0;
   }
   const openComments = comments.filter((comment) => {
-    const { investible_id: investibleId, comment_type: commentType, resolved,
+    const { investible_id: investibleId, comment_type: commentType, resolved, deleted,
       creation_stage_id: creationStageId } = comment;
     if (stageId && creationStageId !== stageId ) {
       return false;
     }
-    return !resolved && id === investibleId && commentTypes.includes(commentType);
+    return !resolved && !deleted && id === investibleId && commentTypes.includes(commentType);
   });
   return _.size(openComments);
 }

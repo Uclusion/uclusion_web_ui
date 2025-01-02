@@ -73,7 +73,8 @@ export function clearRedirect() {
 }
 
 export function setCurrentWorkspace(location) {
-  setLoginPersistentItem(WORKSPACE_LOCAL_STORAGE_KEY, location);
+  // There is no good reason for this to persist across logout
+  setUclusionLocalStorageItem(WORKSPACE_LOCAL_STORAGE_KEY, location);
 }
 
 export function setUtm(utm) {
@@ -93,7 +94,7 @@ export function getIsInvited() {
 }
 
 export function getCurrentWorkspace() {
-  return getLoginPersistentItem(WORKSPACE_LOCAL_STORAGE_KEY);
+  return getUclusionLocalStorageItem(WORKSPACE_LOCAL_STORAGE_KEY);
 }
 
 export function getEmail() {

@@ -43,7 +43,7 @@ import {
 } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningMarketLoad from '../../pages/Dialog/Planning/PlanningMarketLoad';
 import DemoMarketLoad from '../../pages/Dialog/Planning/DemoMarketLoad';
-import { getFirstWorkspace } from '../../utils/redirectUtils';
+import { getCurrentWorkspace, getFirstWorkspace } from '../../utils/redirectUtils';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
@@ -99,6 +99,7 @@ function Root() {
     markets = getSortedMarkets(filtered);
   }
   const isRootPath = pathname === '/';
+  const currentWorkspace = getCurrentWorkspace();
   const defaultMarket = getFirstWorkspace(markets, marketId, !isRootPath);
   const defaultMarketId = defaultMarket?.id;
   const workspaceMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${defaultMarketId}`,
@@ -138,7 +139,7 @@ function Root() {
 
   function hideDemoLoad() {
     // if notifications are loaded and no demo message then let useEffect redirect
-    return !isDemoUser || !isRootPath || (initialized && !workspaceMessage);
+    return !isDemoUser || !isRootPath || (initialized && !workspaceMessage)||!_.isEmpty(currentWorkspace);
   }
 
   function hideInvestible() {
@@ -208,8 +209,8 @@ function Root() {
   useEffect(() => {
     if (isRootPath) {
       if (demoCreatedUser) {
-        if (!_.isEmpty(demo)) {
-          if (initialized && !workspaceMessage) {
+        if (!_.isEmpty(demo)&&initialized) {
+          if (!workspaceMessage) {
             // Workspace intro message gone so just navigate to market normally
             navigate(history, defaultMarketLink, true);
           } else {

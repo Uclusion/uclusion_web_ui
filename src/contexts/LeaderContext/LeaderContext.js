@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useReducer } from 'react';
 import { waitForLeadership } from 'tab-election';
 import reducer, { updateLeader } from './leaderContextReducer'
-import { refreshVersions } from '../../api/versionedFetchUtils'
+import { refreshNotifications, refreshVersions } from '../../api/versionedFetchUtils';
 import { AccountContext } from '../AccountContext/AccountContext';
 import { userIsLoaded } from '../AccountContext/accountUserContextHelper';
 
@@ -31,11 +31,16 @@ function LeaderProvider(props) {
   }, [authState, userId]);
 
   useEffect(() => {
-    if (isUserLoaded && isLeader) {
-      console.info('Leadership refreshing versions');
-      return refreshVersions().then(() => {
-        console.info('Refreshed versions from leader init');
-      }).catch(() => console.warn('Error refreshing'));
+    if (isUserLoaded) {
+      if (isLeader) {
+        console.info('Leadership refreshing versions');
+        return refreshVersions().then(() => {
+          console.info('Refreshed versions from leader init');
+        }).catch(() => console.warn('Error refreshing'));
+      } else {
+        // Required to get initialized true in notifications context plus really don't need a leader for notifications
+        refreshNotifications();
+      }
     }
     return () => {};
   }, [isUserLoaded, isLeader]);

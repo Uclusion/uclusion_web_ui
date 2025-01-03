@@ -24,7 +24,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function DecideWhereStep (props) {
-  const { marketId, fromCommentIds, marketComments, updateFormData, formData, isQuestion, useType } = props;
+  const { marketId, fromCommentIds, marketComments, updateFormData, formData, isDiscussion, useType } = props;
   const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -36,6 +36,7 @@ function DecideWhereStep (props) {
   const comments = getCommentThreads(roots, marketComments);
   const { useCompression } = formData;
   const isIssue = _.size(roots) === 1 && roots[0].comment_type === ISSUE_TYPE;
+  const isInJob = _.size(roots) === 1 && roots[0].investible_id;
 
   function fixInvestibleStage(investibleId, updatedAt, commentId) {
     const investibleOpenComments = getOpenInvestibleComments(investibleId, marketComments);
@@ -119,10 +120,10 @@ function DecideWhereStep (props) {
         showOtherNext
         otherNextLabel="JobWizardExistingJob"
         otherSpinOnClick={false}
-        showTerminate={isQuestion||isIssue}
-        terminateLabel={isQuestion ? 'DiscussionMoveLabel' : 'BugMoveLabel'}
+        showTerminate={isInJob&&(isDiscussion||isIssue)}
+        terminateLabel={isDiscussion ? 'DiscussionMoveLabel' : 'BugMoveLabel'}
         terminateSpinOnClick
-        onTerminate={isQuestion ? () => {
+        onTerminate={isDiscussion ? () => {
           const comment = roots[0];
           fixInvestibleStage(comment.investible_id, comment.updated_at, comment.id);
           moveToDiscussion(comment, commentsState, commentsDispatch, setOperationRunning, history);

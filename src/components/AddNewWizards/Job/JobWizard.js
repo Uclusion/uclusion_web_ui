@@ -160,7 +160,7 @@ function JobWizard(props) {
         {fromCommentId && (
           <DecideWhereStep fromCommentIds={fromCommentIds} marketId={marketId} groupId={groupId}
                            useType={isConvert ? useType : undefined}
-                           marketComments={comments} isQuestion={!_.isEmpty(requiresInputId)} />
+                           marketComments={comments} isDiscussion={!_.isEmpty(requiresInputId)} />
         )}
         {fromCommentId && (
           <FindJobStep marketId={marketId} groupId={groupId} roots={roots} isConvert={isConvert}

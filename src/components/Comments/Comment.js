@@ -127,6 +127,7 @@ import { NOT_FULLY_VOTED_TYPE, RED_LEVEL } from '../../constants/notifications';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import EditIcon from '@material-ui/icons/Edit';
+import ListAltIcon from '@material-ui/icons/ListAlt';
 import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
 
 export const useCommentStyles = makeStyles(
@@ -748,6 +749,7 @@ function Comment(props) {
   const showMoveButton = isSent !== false
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(commentType)
     && !inArchives && !removeActions && enableActions && marketType === PLANNING_TYPE;
+  const showMakeTaskButton = showMoveButton && myPresenceIsAssigned && commentType === SUGGEST_CHANGE_TYPE;
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
     !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && myPresence === createdBy;
@@ -1039,6 +1041,19 @@ function Comment(props) {
                 {intl.formatMessage({ id: resolved ? 'commentReopenLabel' : 'commentResolveLabel' })}
               </SpinningIconLabelButton>
             )}
+            {showMakeTaskButton && !mobileLayout && (
+              <SpinningIconLabelButton
+                onClick={() => navigate(history,
+                  `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId, 
+                    BUG_WIZARD_TYPE)}&fromCommentId=${id}&useType=Task`)}
+                id={`makeTask${id}`}
+                doSpin={false}
+                icon={ListAltIcon}
+                focus={focusMove}
+              >
+                {intl.formatMessage({ id: 'makeTask' })}
+              </SpinningIconLabelButton>
+            )}
             {showMoveButton && !mobileLayout && (
               <SpinningIconLabelButton
                 onClick={() => navigate(history,
@@ -1048,7 +1063,7 @@ function Comment(props) {
                 id={`moveComment${id}`}
                 doSpin={false}
                 icon={Eject}
-                focus={focusMove}
+                focus={focusMove && !showMakeTaskButton}
               >
                 {intl.formatMessage({ id: "storyFromComment" })}
               </SpinningIconLabelButton>

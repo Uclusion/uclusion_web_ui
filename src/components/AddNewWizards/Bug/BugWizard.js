@@ -17,7 +17,7 @@ import TaskToBugStep from './TaskToBugStep';
 import WhereDecisionStep from './WhereDecisionStep';
 
 function BugWizard(props) {
-  const { marketId, groupId, commentType, typeObjectId } = props;
+  const { marketId, groupId, commentType, typeObjectId, useType } = props;
   const [commentsState] = useContext(CommentsContext);
   const location = useLocation();
   const { hash } = location;
@@ -33,8 +33,8 @@ function BugWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="bug_wizard" defaultFormData={{useCompression: true}} useLocalStorage={false}>
-        {fromCommentId && (
+      <FormdataWizard name="bug_wizard" defaultFormData={{useCompression: true, useType}} useLocalStorage={false}>
+        {fromCommentId && !useType && (
           <BugDecisionStep marketId={marketId} comment={comment} comments={comments} typeObjectId={typeObjectId} />
         )}
         {fromCommentId && (

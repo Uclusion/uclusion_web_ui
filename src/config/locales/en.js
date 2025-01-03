@@ -707,6 +707,7 @@ const messages = defineMessages({
   jobAssistanceToolTip: 'Questions, suggestions, and blockers for this job.',
   collaboratorsExplanation: 'Active participants in this job show as collaborators',
   storyFromComment: 'Move',
+  makeTask: 'Make task',
   storyFromCommentNav: 'Move and go to job',
   channelOptions: 'Group Options',
   marketOptions: 'Workspace Options',

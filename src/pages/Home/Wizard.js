@@ -64,7 +64,7 @@ function Wizard(props) {
   const values = queryString.parse(hash);
   const { type: createType, marketId, groupId, jobType, investibleId,
     commentId, commentType, voteFor, stageId, isAssign,
-    typeObjectId, resolveId, isInbox } = values;
+    typeObjectId, resolveId, isInbox, useType } = values;
   const intl = useIntl();
   const [messagesState] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
@@ -125,7 +125,8 @@ function Wizard(props) {
         <OptionWizard marketId={marketId} />
       )}
       {createType === BUG_WIZARD_TYPE.toLowerCase() && (
-        <BugWizard marketId={marketId} groupId={groupId} commentType={commentType} typeObjectId={typeObjectId} />
+        <BugWizard marketId={marketId} groupId={groupId} commentType={commentType} useType={useType}
+                   typeObjectId={typeObjectId} />
       )}
       {createType === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase() && (
         <CollaboratorWizard marketId={marketId} />

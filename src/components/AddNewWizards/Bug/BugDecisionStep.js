@@ -10,31 +10,42 @@ import { useHistory } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { REPLY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import _ from 'lodash';
+import { moveToDiscussion } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function BugDecisionStep (props) {
   const { marketId, comment, comments, updateFormData, formData } = props;
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
-  const allowedTypes = [];
+  const allowedTypes = ['Suggestion', 'Discussion'];
   if (comment.comment_type === SUGGEST_CHANGE_TYPE) {
-    allowedTypes.push('Suggestion');
     allowedTypes.push('Task');
   } else if (comment.comment_type === TODO_TYPE) {
-    allowedTypes.push('Task');
-    allowedTypes.push('Suggestion');
+    allowedTypes.unshift('Task');
   } else if (comment.comment_type === REPLY_TYPE) {
-    allowedTypes.push('Task');
-    allowedTypes.push('Suggestion');
+    allowedTypes.unshift('Task');
   }
   allowedTypes.push('Bug');
   const { useCompression, useType } = formData;
   function doesTypeMatch(checkType) {
     return comment.comment_type === TODO_TYPE ? checkType === 'Task' :
-      (comment.comment_type === SUGGEST_CHANGE_TYPE && checkType === 'Suggestion');
+      (comment.comment_type === SUGGEST_CHANGE_TYPE && ['Suggestion', 'Discussion'].includes(checkType));
   }
   const isSameType = doesTypeMatch(useType);
-  const sendToOther = () => navigate(history,
-    `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}&commentType=${useType}`);
+
+  function getNextFunction() {
+    if (!isSameType) {
+      return undefined;
+    }
+    if (useType === 'Discussion') {
+      return () => moveToDiscussion(comment, commentsState, commentsDispatch, setOperationRunning, history);
+    }
+    return () => navigate(history,
+      `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}&commentType=${useType}`);
+  }
   return (
     <WizardStepContainer
       {...props}
@@ -86,7 +97,7 @@ function BugDecisionStep (props) {
       <WizardStepButtons
         {...props}
         validForm={!_.isEmpty(useType)}
-        onNext={isSameType ? sendToOther : undefined}
+        onNext={getNextFunction()}
         isFinal={isSameType}
         onNextDoAdvance={!isSameType}
         onNextSkipStep={useType === 'Bug'}

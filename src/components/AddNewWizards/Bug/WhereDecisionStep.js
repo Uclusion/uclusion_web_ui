@@ -16,10 +16,7 @@ import {
   isSingleAssisted
 } from '../../../utils/commentFunctions';
 import _ from 'lodash';
-import {
-  addCommentToMarket,
-  moveToDiscussion
-} from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { quickNotificationChanges } from '../../Comments/CommentAdd';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
@@ -46,16 +43,12 @@ function WhereDecisionStep (props) {
     if (useType === 'Task') {
       allowedTypes.unshift('Local');
     }
-    allowedTypes.push('Discussion');
   } else if (comment.comment_type === TODO_TYPE) {
     if (useType === 'Suggestion') {
       allowedTypes.unshift('Local');
     }
   } else if (comment.comment_type === REPLY_TYPE) {
     allowedTypes.unshift('Local');
-    if (useType === 'Suggestion') {
-      allowedTypes.push('Discussion');
-    }
   }
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const investible = getInvestible(investiblesState, comment.investible_id);
@@ -95,15 +88,12 @@ function WhereDecisionStep (props) {
   }
 
   function getNextFunction() {
-    if (useType === 'Task' && destination === 'Local') {
-      return myAccept;
-    }
-    if (useType === 'Suggestion') {
-      if (destination === 'Local') {
-        return myMoveToSuggestion;
+    if (destination === 'Local') {
+      if (useType === 'Task') {
+        return myAccept;
       }
-      if (destination === 'Discussion') {
-        return moveToDiscussion(comment, commentsState, commentsDispatch, setOperationRunning, history);
+      if (useType === 'Suggestion') {
+        return myMoveToSuggestion;
       }
     }
     // destination === 'Other'

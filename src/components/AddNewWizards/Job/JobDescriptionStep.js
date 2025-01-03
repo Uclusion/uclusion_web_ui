@@ -42,19 +42,23 @@ function JobDescriptionStep (props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const radioClasses = bugRadioStyles();
-  const editorName = !_.isEmpty(roots) ? `addJobWizard${roots[0].id}` : `addJobWizard${groupId}`;
+  const isMovingTasks = !_.isEmpty(roots);
+  const editorName = isMovingTasks ? `addJobWizard${roots[0].id}` : `addJobWizard${groupId}`;
   const { newQuantity } = formData;
 
   function getDefaultDescription() {
     let defaultDescription = undefined;
-    if (_.isEmpty(getQuillStoredState(editorName))&&!_.isEmpty(roots)) {
+    if (_.isEmpty(getQuillStoredState(editorName))&&isMovingTasks) {
       const isNotBugMove = roots.find((fromComment) => !fromComment?.ticket_code?.startsWith('B'));
       if (isNotBugMove) {
-        const fromComment = roots[0];
-        const { body } = fromComment || {};
-        // No need to clip to 80 here as that will happen when save
-        const { name } = convertDescription(body, 200);
-        defaultDescription = name;
+        // If moving more than one non bug task don't default the description
+        if (_.size(roots) === 1) {
+          const fromComment = roots[0];
+          const { body } = fromComment || {};
+          // No need to clip to 80 here as that will happen when save
+          const { name } = convertDescription(body, 200);
+          defaultDescription = name;
+        }
       } else {
         defaultDescription = createJobNameFromComments(roots, intl);
       }
@@ -216,13 +220,15 @@ function JobDescriptionStep (props) {
       <Typography className={classes.introText}>
         How would you describe this job?
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1" style={{marginBottom: 0}}>
-        Use the second button 'Create with tasks' with a list like below or add tasks later.
-        <ul>
-          <li>My first task.</li>
-          <li>My second task.</li>
-        </ul>
-      </Typography>
+      {!isMovingTasks && (
+        <Typography className={classes.introSubText} variant="subtitle1" style={{marginBottom: 0}}>
+          Use the second button 'Create with tasks' with a list like below or add tasks later.
+          <ul>
+            <li>My first task.</li>
+            <li>My second task.</li>
+          </ul>
+        </Typography>
+      )}
       <FormControl>
         <FormLabel
           className={radioClasses.certaintyLabel}
@@ -268,7 +274,7 @@ function JobDescriptionStep (props) {
         validForm={hasValue}
         nextLabel='jobCreate'
         onNext={getNext()}
-        showOtherNext
+        showOtherNext={!isMovingTasks}
         otherNextLabel='jobCreateWithTasks'
         onOtherNext={getNext(true)}
         onIncrement={doIncrement}

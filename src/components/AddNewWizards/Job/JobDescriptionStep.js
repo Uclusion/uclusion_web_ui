@@ -87,77 +87,6 @@ function JobDescriptionStep (props) {
 
   const [Editor] = useEditor(editorName, editorSpec);
 
-  function createJob(readyToStart, doCreateTasks) {
-    const {
-      uploadedFiles: filteredUploads,
-      text: tokensRemoved,
-    } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
-    const { name, description} = convertDescription(tokensRemoved);
-    if (_.isEmpty(name)) {
-      updateFormData({
-        description,
-        uploadedFiles: filteredUploads,
-        jobStage: currentValue
-      });
-      resetEditor(editorName);
-      return Promise.resolve({isMissingName: true, doCreateTasks});
-    }
-    const addInfo = {
-      name,
-      description,
-      groupId,
-      marketId,
-      uploadedFiles: filteredUploads
-    }
-    if (doCreateTasks) {
-      const todos = extractTodosList(tokensRemoved);
-      if (!_.isEmpty(todos)) {
-        addInfo.todos = todos;
-      }
-    }
-    if (readyToStart !== undefined) {
-      addInfo.openForInvestment = readyToStart;
-    }
-    if (isSingleUser) {
-      addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
-      addInfo.assignments = [myPresenceId];
-    }
-    return addPlanningInvestible(addInfo)
-      .then((result) => {
-        let inv = result;
-        if (!_.isEmpty(addInfo.todos)) {
-          const { investible, todos } = result;
-          addCommentsToMarket(todos, commentState, commentDispatch);
-          inv = investible;
-        }
-        refreshInvestibles(investiblesDispatch, () => {}, [inv]);
-        const { id: investibleId } = inv.investible;
-        let link = formInvestibleLink(marketId, investibleId);
-        // reset the editor box
-        resetEditor(editorName);
-        // update the form data with the saved investible
-        updateFormData({
-          investibleId,
-          link,
-        });
-        if (moveFromComments) {
-          return moveFromComments(inv, formData, updateFormData).then(() => {
-            return {link};
-          });
-        }
-        return {link};
-      })
-  }
-
-  function onNotReady(doCreateTasks){
-     return createJob(false, doCreateTasks)
-      .then(({link}) => {
-        onFinish({
-          link
-        });
-      });
-  }
-
   function onChange(event) {
     updateFormData({
       newQuantity: event.target.value
@@ -190,13 +119,77 @@ function JobDescriptionStep (props) {
   const defaultFromPage = jobType === undefined ? 'IMMEDIATE' : (jobType === '0' ? 'READY' : 'NOT_READY');
   const currentValue = newQuantity || defaultFromPage || '';
 
-  function getNext(doCreateTasks=false) {
-    return currentValue === 'NOT_READY' ? () => onNotReady(doCreateTasks) : (currentValue === 'READY' ?
-      () => createJob(true, doCreateTasks).then(({link}) => {
-        onFinish({ link });
-      }) : (isSingleUser ? () => createJob(false, doCreateTasks).then(({link}) => {
-        onFinish({ link });
-      }) : () => createJob(false, doCreateTasks)));
+  function createJob(doCreateTasks) {
+    const readyToStart = currentValue === 'IMMEDIATE' ? undefined : (currentValue === 'READY');
+    const {
+      uploadedFiles: filteredUploads,
+      text: tokensRemoved,
+    } = processTextAndFilesForSave(uploadedFiles, getQuillStoredState(editorName));
+    const { name, description} = convertDescription(tokensRemoved);
+    if (_.isEmpty(name)) {
+      updateFormData({
+        description,
+        uploadedFiles: filteredUploads,
+        jobStage: currentValue
+      });
+      resetEditor(editorName);
+      return Promise.resolve({isMissingName: true, doCreateTasks});
+    }
+    const addInfo = {
+      name,
+      description,
+      groupId,
+      marketId,
+      uploadedFiles: filteredUploads
+    }
+    if (doCreateTasks) {
+      const todos = extractTodosList(tokensRemoved);
+      if (!_.isEmpty(todos)) {
+        addInfo.todos = todos;
+      }
+    }
+    if (readyToStart !== undefined) {
+      addInfo.openForInvestment = readyToStart;
+    }
+    else if (isSingleUser) {
+      addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
+      addInfo.assignments = [myPresenceId];
+    }
+    return addPlanningInvestible(addInfo)
+      .then((result) => {
+        let inv = result;
+        if (!_.isEmpty(addInfo.todos)) {
+          const { investible, todos } = result;
+          addCommentsToMarket(todos, commentState, commentDispatch);
+          inv = investible;
+        }
+        refreshInvestibles(investiblesDispatch, () => {}, [inv]);
+        const { id: investibleId } = inv.investible;
+        let link = formInvestibleLink(marketId, investibleId);
+        // reset the editor box
+        resetEditor(editorName);
+        // update the form data with the saved investible
+        updateFormData({
+          investibleId,
+          link,
+        });
+        if (moveFromComments) {
+          return moveFromComments(inv, formData, updateFormData).then(() => {
+            if (readyToStart !== undefined || isSingleUser) {
+              return onFinish({
+                link
+              });
+            }
+            return {link};
+          });
+        }
+        if (readyToStart !== undefined || isSingleUser) {
+          return onFinish({
+            link
+          });
+        }
+        return {link};
+      })
   }
 
   function simulatePriority(key) {
@@ -273,10 +266,10 @@ function JobDescriptionStep (props) {
         {...props}
         validForm={hasValue}
         nextLabel='jobCreate'
-        onNext={getNext()}
+        onNext={() => createJob()}
         showOtherNext={!isMovingTasks}
         otherNextLabel='jobCreateWithTasks'
-        onOtherNext={getNext(true)}
+        onOtherNext={() => createJob(true)}
         onIncrement={doIncrement}
         isFinal={currentValue !== 'IMMEDIATE' || isSingleUser}
         showTerminate={hasFromComments}

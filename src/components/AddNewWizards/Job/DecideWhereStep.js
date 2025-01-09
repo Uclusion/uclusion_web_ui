@@ -11,7 +11,7 @@ import {
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import CondensedTodos from '../../../pages/Investible/Planning/CondensedTodos';
 import _ from 'lodash';
-import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, REPLY_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { useHistory } from 'react-router';
@@ -36,6 +36,7 @@ function DecideWhereStep (props) {
   const comments = getCommentThreads(roots, marketComments);
   const { useCompression } = formData;
   const isIssue = _.size(roots) === 1 && roots[0].comment_type === ISSUE_TYPE;
+  const isBug = _.size(roots) === 1 && roots[0].comment_type === TODO_TYPE && _.isEmpty(roots[0].investible_id);
   const isInJob = _.size(roots) === 1 && roots[0].investible_id;
 
   function fixInvestibleStage(investibleId, updatedAt, commentId) {
@@ -73,7 +74,7 @@ function DecideWhereStep (props) {
   if (comments.find((comment) => comment.id === 'notFound')) {
     return React.Fragment;
   }
-
+  const isConvertibleToDiscussion = (isDiscussion&&isInJob) || isBug;
   return (
     <WizardStepContainer
       {...props}
@@ -120,12 +121,14 @@ function DecideWhereStep (props) {
         showOtherNext
         otherNextLabel="JobWizardExistingJob"
         otherSpinOnClick={false}
-        showTerminate={isInJob&&(isDiscussion||isIssue)}
-        terminateLabel={isDiscussion ? 'DiscussionMoveLabel' : 'BugMoveLabel'}
+        showTerminate={isConvertibleToDiscussion||isIssue}
+        terminateLabel={isConvertibleToDiscussion ? 'DiscussionMoveLabel' : 'BugMoveLabel'}
         terminateSpinOnClick
-        onTerminate={isDiscussion ? () => {
+        onTerminate={isConvertibleToDiscussion ? () => {
           const comment = roots[0];
-          fixInvestibleStage(comment.investible_id, comment.updated_at, comment.id);
+          if (comment.investible_id) {
+            fixInvestibleStage(comment.investible_id, comment.updated_at, comment.id);
+          }
           moveToDiscussion(comment, commentsState, commentsDispatch, setOperationRunning, history);
         } : moveToBug}
       />

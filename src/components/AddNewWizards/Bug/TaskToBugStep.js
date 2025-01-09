@@ -126,6 +126,7 @@ function TaskToBugStep (props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
+        validForm={!_.isEmpty(newQuantity)}
         nextLabel="createBug"
         onNext={handleSave}
         showTerminate

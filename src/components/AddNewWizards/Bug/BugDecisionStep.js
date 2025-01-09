@@ -37,15 +37,16 @@ function BugDecisionStep (props) {
   const isSameType = doesTypeMatch(useType);
 
   function getNextFunction() {
-    if (!isSameType) {
-      return undefined;
-    }
     if (useType === 'Discussion') {
       return () => moveToDiscussion(comment, commentsState, commentsDispatch, setOperationRunning, history);
+    }
+    if (!isSameType) {
+      return undefined;
     }
     return () => navigate(history,
       `${formMarketAddInvestibleLink(marketId, comment.group_id)}&fromCommentId=${comment.id}&commentType=${useType}`);
   }
+  const isFinal = isSameType || useType === 'Discussion';
   return (
     <WizardStepContainer
       {...props}
@@ -98,8 +99,8 @@ function BugDecisionStep (props) {
         {...props}
         validForm={!_.isEmpty(useType)}
         onNext={getNextFunction()}
-        isFinal={isSameType}
-        onNextDoAdvance={!isSameType}
+        isFinal={isFinal}
+        onNextDoAdvance={!isFinal}
         onNextSkipStep={useType === 'Bug'}
         spinOnClick={false}
       />

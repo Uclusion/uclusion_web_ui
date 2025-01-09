@@ -133,7 +133,16 @@ export default function NavigationChevrons(props) {
       const message = highlightedOrdered[0];
       return {url: formInboxItemLink(message.type_object_id), message};
     }
-    const notHighlightedMessages = allMessages.filter((message) => !message.is_highlighted);
+    const notHighlightedMessagesCritical = allMessages.filter((message) => !message.is_highlighted &&
+      message.type === 'UNASSIGNED');
+    // special case return any critical bug unhighlighted notification here
+    if (!_.isEmpty(notHighlightedMessagesCritical)) {
+      const criticalNext = _.find(notHighlightedMessagesCritical, (message) =>
+        formInboxItemLink(message.type_object_id) !== resource);
+      if (criticalNext) {
+        return {url: formInboxItemLink(criticalNext.type_object_id)};
+      }
+    }
     if (!_.isEmpty(approvedCandidates)) {
       // Time as a long gets larger so smallest would be oldest
       const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['numInProgress','time'],
@@ -158,6 +167,8 @@ export default function NavigationChevrons(props) {
         return {url: candidateNext.url};
       }
     }
+    const notHighlightedMessages = allMessages.filter((message) => !message.is_highlighted &&
+      message.type !== 'UNASSIGNED');
     const notHighlighted = notHighlightedMessages?.filter((message) =>
       formInboxItemLink(message.type_object_id) !== resource) || [];
     const notHighlightedMapped = notHighlighted.map((message) => {

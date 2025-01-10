@@ -10,6 +10,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { changeBanStatus } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 
 function BanUserButton(props){
   const {
@@ -19,6 +20,7 @@ function BanUserButton(props){
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = useState(false);
   const [state, dispatch] = useContext(MarketPresencesContext);
+  const [commentsState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const handleOpen = () => {
     setOpen(true);
@@ -29,7 +31,7 @@ function BanUserButton(props){
   };
 
   function onSpinStop(result) {
-    changeBanStatus(state, dispatch, marketId, userId, true);
+    changeBanStatus(state, dispatch, marketId, userId, true, commentsState);
   }
 
   function onProceed() {

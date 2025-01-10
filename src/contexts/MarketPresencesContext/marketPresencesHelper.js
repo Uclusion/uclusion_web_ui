@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { isEveryoneGroup } from '../GroupMembersContext/groupMembersHelper'
 import { useContext } from 'react';
 import { MarketPresencesContext } from './MarketPresencesContext';
+import { getMarketComments } from '../CommentsContext/commentsContextHelper';
 
 
 export function addDemoPresencesToMarket(dispatch, marketId, presences) {
@@ -118,13 +119,25 @@ export function changeMyPresence(state, dispatch, marketId, newValues) {
   changePresence(myPresence, dispatch, marketId, newValues);
 }
 
-export function changeBanStatus(state, dispatch, marketId, userId, isBanned) {
+function banStatusForSingleMarket(state, dispatch, marketId, userId, isBanned) {
   const presence = getMarketPresence(state, marketId, userId);
   const newPresence = {
     ...presence,
     market_banned: isBanned,
   };
   dispatch(addMarketPresence(marketId, newPresence));
+}
+
+export function changeBanStatus(state, dispatch, marketId, userId, isBanned, commentsState) {
+  const allMarketIds = [marketId];
+  const comments = getMarketComments(commentsState, marketId);
+  comments.forEach((comment) => {
+    const inlineMarketId = comment.inline_market_id;
+    if (inlineMarketId) {
+      allMarketIds.push(inlineMarketId);
+    }
+  });
+  allMarketIds.forEach((aMarketId) => banStatusForSingleMarket(state, dispatch, aMarketId, userId, isBanned));
 }
 
 /** Used for quick add. Updates our investment with what data we know.

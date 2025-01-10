@@ -11,6 +11,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { Undo } from '@material-ui/icons'
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 
 function UnBanUserButton(props){
   const {
@@ -21,6 +22,7 @@ function UnBanUserButton(props){
   const [open, setOpen] = useState(false);
   const lockedDialogClasses = useLockedDialogStyles();
   const [state, dispatch] = useContext(MarketPresencesContext);
+  const [commentsState] = useContext(CommentsContext);
   const handleOpen = () => {
     setOpen(true);
   };
@@ -30,7 +32,7 @@ function UnBanUserButton(props){
   };
 
   function onSpinStop(result) {
-    changeBanStatus(state, dispatch, marketId, userId, false);
+    changeBanStatus(state, dispatch, marketId, userId, false, commentsState);
   }
 
   function onProceed() {

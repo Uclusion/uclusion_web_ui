@@ -8,7 +8,7 @@ import { createPlanning } from '../../../api/markets';
 import WizardStepButtons from '../WizardStepButtons';
 import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { addGroupsToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
-import { addPresenceToMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { addPresenceToMarket, changeBanStatus } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import TokenStorageManager from '../../../authorization/TokenStorageManager';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -21,10 +21,10 @@ import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
 import { DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { updateMarketStagesFromNetwork } from '../../../contexts/MarketStagesContext/marketStagesContextReducer';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { processBanned } from '../../../contexts/MarketPresencesContext/marketPresencesContextReducer';
 import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData } = props;
@@ -33,11 +33,12 @@ function WorkspaceNameStep (props) {
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
-  const [, presenceDispatch] = useContext(MarketPresencesContext);
+  const [presenceState, presenceDispatch] = useContext(MarketPresencesContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [, userDispatch] = useContext(AccountContext);
   const [, stagesDispatch] = useContext(MarketStagesContext);
   const [userState] = useContext(AccountContext);
+  const [commentsState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const isDemoOn = userState?.user?.onboarding_state !== OnboardingState.FirstMarketJoined;
 
@@ -80,8 +81,8 @@ function WorkspaceNameStep (props) {
         addPresenceToMarket(presenceDispatch, createdMarketId, presence);
         const demo = marketsState?.marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
           market.object_type === DEMO_TYPE);
-        if (!_.isEmpty(demo)){
-          presenceDispatch(processBanned([demo.id]));
+        if (!_.isEmpty(demo) && user){
+          changeBanStatus(presenceState, presenceDispatch, demo.id, user.id, true, commentsState);
         }
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)

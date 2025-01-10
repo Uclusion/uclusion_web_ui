@@ -208,7 +208,7 @@ function BugListItem(props) {
                   </StyledIconButton>
                 )}
                 {mobileLayout && (
-                  <div style={{marginLeft: '0.15rem'}} />
+                  <div style={{marginLeft: '0.25rem'}} />
                 )}
                 {poked && (
                   <Tooltip key='pokedRowKey'

@@ -7,6 +7,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
+  formCommentLink,
   formInboxItemLink,
   formInvestibleLink, formWizardLink,
   navigate,
@@ -51,10 +52,14 @@ import { doRemoveEdit, doShowEdit } from './userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { getCollaboratorsForInvestible, onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
-import { getTicketNumber } from '../../../utils/stringFunctions'
+import { getTicketNumber, stripHTML } from '../../../utils/stringFunctions';
 import { Schedule } from '@material-ui/icons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../../utils/messageUtils';
+import {
+  findMessageOfType,
+  findMessageOfTypeAndId,
+  findMessagesForInvestibleId
+} from '../../../utils/messageUtils';
 import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import DragImage from '../../../components/Dialogs/DragImage';
 import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime';
@@ -63,6 +68,7 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import BugListItem from '../../../components/Comments/BugListItem';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -461,7 +467,10 @@ function Stage(props) {
     const numQuestionsSuggestions = countByType(investible, comments,
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
     const numRequiredReviews = countNumRequiredReviews(investible.id, comments, groupPresences);
+    const inProgressComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
+      && !comment.resolved && comment.comment_type === TODO_TYPE && comment.in_progress);
     const numOpenTasks = countByType(investible, comments, [TODO_TYPE]);
+    const { id: investibleId } = investible;
     return (
       <React.Fragment key={`stageFrag${investible.id}`}>
         <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
@@ -489,6 +498,14 @@ function Stage(props) {
             showCompletion={showCompletion}
             mobileLayout={mobileLayout}
           />
+          {showCompletion && !_.isEmpty(inProgressComments) && (
+            inProgressComments.map((comment) => {
+              const { body, id: commentId } = comment;
+              return <BugListItem id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
+                             useSelect={false} toolTipId='inProgress'
+                             link={formCommentLink(marketId, marketInfo.group_id, investibleId, commentId)} />;
+            })
+          )}
         </div>
         {!mobileLayout && (
           <DragImage id={investible.id} name={investible.name} />

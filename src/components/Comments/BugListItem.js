@@ -7,7 +7,7 @@ import CheckBoxOutlineBlank from '@material-ui/icons/CheckBoxOutlineBlank';
 import { useSizedIconButtonStyles } from '@mui-treasury/styles/iconButton/sized';
 import { useRowGutterStyles } from '@mui-treasury/styles/gutter/row';
 import PropTypes from 'prop-types';
-import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
+import { navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { pushMessage } from '../../utils/MessageBusUtils';
 import {
@@ -24,6 +24,7 @@ import DragImage from '../Dialogs/DragImage';
 import { POKED } from '../../constants/notifications';
 import _ from 'lodash';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
+import { useHistory } from 'react-router';
 
 const Div = styled("div")`
   height: 40px;
@@ -138,11 +139,17 @@ function BugListItem(props) {
     expansionOpen,
     useSelect,
     notificationType,
-    useMinWidth = true
+    useMinWidth = true,
+    useMobileLayout = false,
+    smallFont = false,
+    link,
+    toolTipId
   } = props;
   const theme = useTheme();
   const intl = useIntl();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const history = useHistory();
+  const mediaMobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const mobileLayout = mediaMobileLayout || useMobileLayout;
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const { alert_type: alertType, poked_list: pokedList } = message || {}
@@ -156,12 +163,15 @@ function BugListItem(props) {
     event.dataTransfer.setData('text', event.target.id);
     event.dataTransfer.setData('notificationType', notificationType);
   }
-
+  const titleWithHelp = toolTipId ? <Tooltip key={`inProgressRowKey${id}`} placement='top'
+                                             title={<FormattedMessage id={toolTipId} />}>
+      <Title style={{fontSize: smallFont ? '12px' : undefined}}>{title}</Title></Tooltip> :
+    <Title style={{fontSize: smallFont ? '12px' : undefined}}>{title}</Title>;
   return (
     <React.Fragment key={`fragBugListItem${id}`}>
       <Item key={`listItem${id}`} id={id} style={{minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
             onDragStart={onDragStart} draggable>
-        <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
+        <RaisedCard elevation={smallFont ? 1 : 3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
                onClick={
             (event) => {
@@ -174,7 +184,11 @@ function BugListItem(props) {
                 pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: message.type_object_id,
                   originalMessage: `${message.type}_${id}` });
               }
-              bugListDispatch(expandOrContract(id));
+              if (bugListDispatch) {
+                bugListDispatch(expandOrContract(id));
+              } else {
+                navigate(history, link);
+              }
             }
           }>
             <Div key={`actions${id}`}>
@@ -193,6 +207,9 @@ function BugListItem(props) {
                     {checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />}
                   </StyledIconButton>
                 )}
+                {mobileLayout && (
+                  <div style={{marginLeft: '0.15rem'}} />
+                )}
                 {poked && (
                   <Tooltip key='pokedRowKey'
                            title={<FormattedMessage id='pokedBugExplanation' />}>
@@ -209,10 +226,10 @@ function BugListItem(props) {
                 <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px', marginRight: '15px',
                   backgroundColor: 'white' }}/>
               </Tooltip>: React.Fragment}
-              {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
+              {isNew ? (<TitleB>{title}</TitleB>) : titleWithHelp}
               {mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>) :
                 (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}
-              {mobileLayout && (
+              {mobileLayout && !_.isEmpty(expansionPanel) && (
                 <div style={{paddingRight: '0.25rem'}}>
                   {expansionOpen ? <ExpandLess /> : <ExpandMoreIcon /> }
                 </div>

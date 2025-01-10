@@ -14,6 +14,7 @@ import { getMarketInvestibles } from '../../contexts/InvestibesContext/investibl
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import _ from 'lodash';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { getUclusionLocalStorageItem } from '../localStorageUtils';
 
 function DemoCreateWorkspaceButton() {
   const wizardClasses = wizardStyles();
@@ -36,9 +37,10 @@ function DemoCreateWorkspaceButton() {
     investible.investible.updated_by === myPresence.id);
   const demoGroups = groupsState[demo.id] || [];
   const demoGroupCreated = demoGroups.find((group) => group.updated_by === myPresence.id);
+  const originalDemoNotificationCount = getUclusionLocalStorageItem('originalDemoNotificationCount') || 100;
 
-  if (totalCount >= demo.original_notification_count && _.isEmpty(demoCommentCreated) &&
-    _.isEmpty(demoInvestibleCreated) && _.isEmpty(demoGroupCreated)) {
+  if (totalCount >= originalDemoNotificationCount && _.isEmpty(demoCommentCreated) && _.isEmpty(demoInvestibleCreated)
+    && _.isEmpty(demoGroupCreated)) {
     return (
       <Button
         onClick={() => {

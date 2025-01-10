@@ -20,7 +20,8 @@ import { TicketIndexContext } from '../../../contexts/TicketContext/TicketIndexC
 import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import Inbox from '../../Home/YourWork/Inbox';
-import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 
 function DemoMarketLoad(props) {
   const { onboardingState, demo, demoMessage } = props;
@@ -58,6 +59,11 @@ function DemoMarketLoad(props) {
       }
       const { demo, user } = result;
       const { notifications } = demo || {};
+      if (notifications) {
+        const notificationsFiltered = notifications.filter((msg) => isInInbox(msg));
+        // Only need locally as if they are on another device that is already enough effort
+        setUclusionLocalStorageItem('originalDemoNotificationCount', notificationsFiltered.length);
+      }
       const id = await handleMarketData(demo, dispatchers);
       userDispatch(accountUserRefresh(user));
       const workspaceMessage = notifications?.find((message) =>

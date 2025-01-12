@@ -686,6 +686,7 @@ const messages = defineMessages({
   changeStage: 'Change stage',
   planningMarketActivate: 'Activate group',
   tabGroupAppend: '(Group)',
+  immediateLower: 'critical',
   immediate: 'Critical',
   immediateToolTip: 'Critical bugs remain in the inbox notification until moved or resolved.',
   normalToolTip: 'Normal bugs send a notification that can be dismissed.',

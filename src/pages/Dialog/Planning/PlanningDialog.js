@@ -251,6 +251,7 @@ function PlanningDialog(props) {
     _.size(archiveInvestibles) + _.size(resolvedMarketComments);
   const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
+  const isSingleUser = isSingleUserMarket(marketPresences, market);
   let navListItemTextArray = undefined;
   if (mobileLayout) {
     navListItemTextArray = [
@@ -278,7 +279,7 @@ function PlanningDialog(props) {
 
   function onDropJob(id, isAssigned) {
     if (isAssigned) {
-      if (isSingleUserMarket(marketPresences, market)) {
+      if (isSingleUser) {
         const presence = marketPresences.find((presence) => !presence.market_banned);
         const inv = getInvestible(investibleState, id);
         const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -377,7 +378,7 @@ function PlanningDialog(props) {
     }
     if (tabIndex === 2) {
       const commentIds = (todoComments ||[]).map((comment) => comment.id);
-      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, true);
+      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, !isSingleUser);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {
         return `${_.size(numNewMessages)}`;
@@ -393,8 +394,11 @@ function PlanningDialog(props) {
     }
     return undefined;
   }
-  function getTagLabel(tabCount) {
+  function getTagLabel(tabCount, tabIndex) {
     if (tabCount) {
+      if (isSingleUser && tabIndex === 2) {
+        return intl.formatMessage({ id: 'immediateLower' });
+      }
       return intl.formatMessage({ id: 'new' });
     }
     return undefined;
@@ -431,7 +435,7 @@ function PlanningDialog(props) {
                         label={intl.formatMessage({id: 'planningDialogBacklog'})}
                         tag={_.isEmpty(search) || backlogSearchResults === 0 ? tabCount1 : `${backlogSearchResults}`} />
           <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
-                        toolTipId='bugsToolTip' tagLabel={getTagLabel(tabCount2)} tagColor='#E85757'
+                        toolTipId='bugsToolTip' tagLabel={getTagLabel(tabCount2, 2)} tagColor='#E85757'
                         tag={_.isEmpty(search) || _.isEmpty(todoComments) ? tabCount2 : `${_.size(todoComments)}` } />
           <GmailTabItem icon={<QuestionIcon />} toolTipId='discussionToolTip' tagLabel={getTagLabel(tabCount3)}
                         label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})} tagColor='#E85757'

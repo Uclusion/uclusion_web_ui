@@ -99,6 +99,7 @@ function WorkspaceNameStep (props) {
                 marketToken: market.invite_capability,
               });
             }
+            return link;
           });
       });
 
@@ -149,6 +150,13 @@ function WorkspaceNameStep (props) {
           isOtherFinal
           isFinal={false}
           validForm={validForm}
+          showTerminate
+          onTerminate={() => onNext().then((link) => {
+            setOperationRunning(false);
+            navigate(history, link);
+          })}
+          terminateSpinOnClick
+          terminateLabel='OnboardingWizardFinish'
         />
       </div>
     </WizardStepContainer>

@@ -169,7 +169,8 @@ function BugListItem(props) {
     <Title style={{fontSize: smallFont ? '12px' : undefined}}>{title}</Title>;
   return (
     <React.Fragment key={`fragBugListItem${id}`}>
-      <Item key={`listItem${id}`} id={id} style={{minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
+      <Item key={`listItem${id}`} id={id} style={{maxWidth: '95%',
+        minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
             onDragStart={onDragStart} draggable>
         <RaisedCard elevation={smallFont ? 1 : 3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}

@@ -15,6 +15,7 @@ import clsx from 'clsx';
 import SearchIcon from '@material-ui/icons/Search';
 import GravatarAndName from '../Avatars/GravatarAndName';
 import { usePlanFormStyles } from '../AgilePlan';
+import { fixName } from '../../utils/userFunctions';
 
 function IdentityList (props) {
   const { participants, checked, setChecked } = props;
@@ -55,7 +56,7 @@ function IdentityList (props) {
           <GravatarAndName
             key={id}
             email={email}
-            name={name}
+            name={fixName(name)}
             typographyVariant="caption"
             typographyClassName={classes.avatarName}
           />

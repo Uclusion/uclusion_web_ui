@@ -13,6 +13,10 @@ import AccountStorageManager from '../authorization/AccountStorageManager';
 
 const LOGOUT_MARKER_KEY = 'logout_marker';
 
+export function fixName(name) {
+  return (name || '').replace('@', ' ');
+}
+
 export function extractUsersList(marketPresencesState, marketState, addToMarketPresences) {
   const addToMarketPresencesHash = addToMarketPresences.reduce((acc, presence) => {
     const { external_id } = presence;

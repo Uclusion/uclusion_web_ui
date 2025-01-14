@@ -17,6 +17,7 @@ import { usePlanFormStyles } from '../../components/AgilePlan';
 import GravatarAndName from '../../components/Avatars/GravatarAndName';
 import ReturnTop from './ReturnTop';
 import { PLACEHOLDER } from '../../constants/global';
+import { fixName } from '../../utils/userFunctions';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -313,7 +314,7 @@ function WorkspaceMenu(props) {
           {presencesOrdered.map((presence) => <GravatarAndName
               key={presence.id}
               email={presence.email}
-              name={presence.name}
+              name={fixName(presence.name)}
               typographyVariant="caption"
               typographyClassName={presence.placeholder_type === PLACEHOLDER ? identityListClasses.avatarNameYellow :
                 identityListClasses.avatarName}

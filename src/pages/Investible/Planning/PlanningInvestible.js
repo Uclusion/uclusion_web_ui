@@ -16,7 +16,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments';
 import Screen from '../../../containers/Screen/Screen';
-import { getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions';
+import { fixName, getMarketInfo, getVotesForInvestible } from '../../../utils/userFunctions';
 import {
   getFullStage,
   getFurtherWorkStage,
@@ -983,7 +983,7 @@ export function Assignments(props) {
           const showAsPlaceholder = presence.placeholder_type === PLACEHOLDER;
           const unacccepted = unaccceptedList?.includes(presence.id);
           const myClassName = showAsPlaceholder ? metaClasses.archived : metaClasses.normal;
-          const name = (presence.name || '').replace('@', ' ');
+          const name = fixName(presence.name);
           return (
             <div
               style={{

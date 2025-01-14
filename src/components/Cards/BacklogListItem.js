@@ -120,7 +120,7 @@ function BacklogListItem(props) {
   return (
     <>
       <Item key={`backlogListItem${id}`} id={id} style={{minWidth: '80vw'}} onDragStart={onDragStart} draggable>
-        <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
+        <RaisedCard elevation={3} rowStyle key={`raised${id}`} maxWidth='96%'>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
                onClick={
             (event) => {

@@ -46,7 +46,7 @@ import {
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import {
   ACTIVE_STAGE, ARCHIVE_COMMENT_TYPE,
-  BUG_WIZARD_TYPE, DELETE_COMMENT_TYPE,
+  BUG_WIZARD_TYPE, DELETE_COMMENT_TYPE, IN_PROGRESS_WIZARD_TYPE,
   INITIATIVE_TYPE,
   JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
   JOB_COMMENT_WIZARD_TYPE,
@@ -64,7 +64,7 @@ import {
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import {
   getFurtherWorkStage,
-  getInReviewStage,
+  getInReviewStage, getNotDoingStage,
   getProposedOptionsStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
@@ -129,6 +129,7 @@ import { getInboxTarget } from '../../contexts/NotificationsContext/notification
 import EditIcon from '@material-ui/icons/Edit';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
+import { previousInProgress } from '../AddNewWizards/TaskInProgress/TaskInProgressWizard';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -532,6 +533,10 @@ function Comment(props) {
   const createdInReview = currentStageId === inReviewStageId;
   const loading = !hasUser || !myPresence || !marketType || !marketTokenLoaded(marketId, tokensHash)
     || (inlineMarketId && _.isEmpty(inlineMarket));
+  const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
+  const otherInProgress = previousInProgress(myPresence.id, id, investiblesState, commentsState, marketId,
+    groupId, notDoingStage.id);
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (inlineMarketId && !marketsState.initializing && hasUser && !operationRunning) {
@@ -691,9 +696,13 @@ function Comment(props) {
 
   function handleToggleInProgress() {
     setOperationRunning(`inProgressCheckbox${id}`);
+    const sendToWizard = !inProgress && !_.isEmpty(otherInProgress);
     return updateComment({marketId, commentId: id, inProgress: !inProgress}).then((comment) => {
       setOperationRunning(false);
-      addCommentToMarket(comment, commentsState, commentsDispatch);
+      addCommentToMarket(comment, commentsState, commentsDispatch)
+      if (sendToWizard) {
+        navigate(history, formWizardLink(IN_PROGRESS_WIZARD_TYPE, marketId, undefined, undefined, id));
+      }
     });
   }
 

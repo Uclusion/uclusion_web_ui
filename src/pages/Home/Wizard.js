@@ -23,7 +23,12 @@ import {
   OPTION_WIZARD_TYPE,
   REPLY_WIZARD_TYPE,
   COMPOSE_WIZARD_TYPE,
-  SIGN_OUT_WIZARD_TYPE, JOB_EDIT_WIZARD_TYPE, OPTION_EDIT_WIZARD_TYPE, DELETE_COMMENT_TYPE, ARCHIVE_COMMENT_TYPE
+  SIGN_OUT_WIZARD_TYPE,
+  JOB_EDIT_WIZARD_TYPE,
+  OPTION_EDIT_WIZARD_TYPE,
+  DELETE_COMMENT_TYPE,
+  ARCHIVE_COMMENT_TYPE,
+  IN_PROGRESS_WIZARD_TYPE
 } from '../../constants/markets';
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
 import JobWizard from '../../components/AddNewWizards/Job/JobWizard'
@@ -56,6 +61,7 @@ import { getMarket, marketIsDemo } from '../../contexts/MarketsContext/marketsCo
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import DeleteWizard from '../../components/AddNewWizards/Delete/DeleteWizard';
 import ArchiveCommentWizard from '../../components/AddNewWizards/CommentArchive/ArchiveCommentWizard';
+import TaskInProgressWizard from '../../components/AddNewWizards/TaskInProgress/TaskInProgressWizard';
 
 function Wizard(props) {
   const { hidden } = props;
@@ -114,6 +120,9 @@ function Wizard(props) {
       )}
       {createType === REPLY_WIZARD_TYPE && (
         <ReplyWizard marketId={marketId} commentId={commentId} />
+      )}
+      {createType === IN_PROGRESS_WIZARD_TYPE.toLowerCase() && (
+        <TaskInProgressWizard marketId={marketId} commentId={commentId} />
       )}
       {createType === WORKSPACE_WIZARD_TYPE.toLowerCase() && (
         <WorkspaceWizard />

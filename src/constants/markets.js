@@ -4,6 +4,7 @@ export const JOB_WIZARD_TYPE = 'job';
 export const OPTION_WIZARD_TYPE = 'option';
 export const BUG_WIZARD_TYPE = 'bug';
 export const REPLY_WIZARD_TYPE = 'reply';
+export const IN_PROGRESS_WIZARD_TYPE = 'inProgress';
 export const DISCUSSION_WIZARD_TYPE = 'discussion';
 export const COMPOSE_WIZARD_TYPE = 'compose';
 export const JOB_COMMENT_WIZARD_TYPE = 'jobComment';

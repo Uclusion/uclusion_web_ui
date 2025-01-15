@@ -4,7 +4,7 @@ import { FormControl, FormControlLabel, Radio, RadioGroup, Typography } from '@m
 import WizardStepContainer from './WizardStepContainer';
 import { WizardStylesContext } from './WizardStylesContext';
 import WizardStepButtons from './WizardStepButtons';
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import { FormattedMessage } from 'react-intl';
 import { getMentionsFromText, saveComment, sendComment, updateComment } from '../../api/comments';
 import { allowVotingForSuggestion, changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions';
@@ -132,6 +132,11 @@ function ConfigureCommentStep(props) {
           });
         }
       }
+    } else if (useType === ISSUE_TYPE) {
+      updateComment({marketId, commentId, isSent: true, notificationType: useAnswerBool ? 'RED' : 'BLUE'})
+        .then((comment) => {
+          quickAddComment(comment);
+        });
     } else {
       if (comment) {
         allowVotingForSuggestion(comment.id, setOperationRunning, marketsDispatch, presenceDispatch,
@@ -158,6 +163,11 @@ function ConfigureCommentStep(props) {
       {useType === SUGGEST_CHANGE_TYPE && (
         <Typography className={classes.introText}>
           Will users besides you be able to see the voting?
+        </Typography>
+      )}
+      {useType === ISSUE_TYPE && (
+        <Typography className={classes.introText}>
+          Notify team of this issue?
         </Typography>
       )}
       <FormControl component="fieldset">
@@ -189,9 +199,10 @@ function ConfigureCommentStep(props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="OnboardingWizardFinish"
         onNext={configureComment}
-        spinOnClick={true}
+        spinOnClick
         showTerminate={_.isEmpty(typeObjectId)}
         onTerminate={navigateOnFinish ? onFinish : previousStep}
         terminateLabel="OnboardingWizardGoBack"

@@ -719,6 +719,8 @@ const messages = defineMessages({
   QUESTIONNoConfig: 'Allow approve only one option',
   SUGGESTYesConfig: 'Everyone sees results',
   SUGGESTNoConfig: 'Only you see results',
+  ISSUEYesConfig: 'The team will be notified to help',
+  ISSUENoConfig: 'No notifications',
   singlePersonMode: 'Single person mode',
 
   // Decision Dialog

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
 import AddCommentStep from './AddCommentStep';
-import { QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 import AddOptionStep from './AddOptionStep';
 import ConfigureCommentStep from '../ConfigureCommentStep';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -33,15 +33,15 @@ function JobCommentWizard(props) {
   const investibleComments = (commentsState[marketId]||[]).filter(comment =>
     comment.investible_id === investibleId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
-  const savedQuestion = investibleComments.find((comment) => {
-    return comment.comment_type === QUESTION_TYPE && !comment.resolved && !comment.deleted && !comment.is_sent
-      && comment.created_by === myPresence?.id;
+  const savedDraft = investibleComments.find((comment) => {
+    return comment.comment_type === useCommentType && !comment.resolved && !comment.deleted &&
+      !comment.is_sent && comment.created_by === myPresence?.id;
   });
-  const hasDraft = isQuestion && savedQuestion;
-  const draftData = {inlineMarketId: savedQuestion?.inline_market_id, commentId: savedQuestion?.id, groupId:
-    savedQuestion?.group_id, marketId, investibleId, useCompression: true };
+  const hasDraft = !_.isEmpty(savedDraft);
+  const draftData = {inlineMarketId: savedDraft?.inline_market_id, commentId: savedDraft?.id, groupId:
+    savedDraft?.group_id, marketId, investibleId, useCompression: true };
   const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');
-  const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, savedQuestion?.id);
+  const [editState, updateEditState, editStateReset] = getPageReducerPage(editStateFull, editDispatch, savedDraft?.id);
   const inv = getInvestible(investibleState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, group_id: groupId, assigned } = marketInfo;
@@ -71,7 +71,7 @@ function JobCommentWizard(props) {
         {hasDraft && !wasJustCreated && (
           <CommentEdit
             marketId={marketId}
-            comment={savedQuestion}
+            comment={savedDraft}
             editState={editState}
             updateEditState={updateEditState}
             editStateReset={editStateReset}
@@ -81,7 +81,7 @@ function JobCommentWizard(props) {
         {isQuestion && (
           <AddOptionStep investibleId={investibleId} marketId={marketId} />
         )}
-        {[QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useCommentType) && (
+        {[QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(useCommentType) && (
           <ConfigureCommentStep useType={useCommentType} />
         )}
       </FormdataWizard>

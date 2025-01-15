@@ -285,24 +285,24 @@ function CommentEdit(props) {
     editStateReset();
     onCancel();
   }
-
   if (isWizard) {
+    const isQuestion = commentType === QUESTION_TYPE;
     return (
       <WizardStepContainer
         {...props}
         isLarge
       >
         <Typography className={wizardClasses.introText}>
-          What is your question?
+          What is your {isQuestion ? 'question' : 'blocking issue'}?
         </Typography>
         <Typography className={wizardClasses.introSubText} variant="subtitle1">
-          Pick up where you left off asking this question.
+          Pick up where you left off with this {isQuestion ? 'question' : 'blocking issue'}.
         </Typography>
         {Editor}
         <div className={wizardClasses.borderBottom} />
         <WizardStepButtons
           {...props}
-          nextLabel="JobCommentAddQUESTION"
+          nextLabel={isQuestion ? 'JobCommentAddQUESTION' : 'JobCommentAddISSUE'}
           isFinal={false}
           onNext={() => {
               if (getQuillStoredState(editorName) !== initialBody) {

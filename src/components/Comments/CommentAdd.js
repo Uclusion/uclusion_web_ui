@@ -464,6 +464,7 @@ function CommentAdd(props) {
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}
               {wizardProps.isAddWizard &&
+                (type !== ISSUE_TYPE || isSingleUser || ourMarket.market_type !== PLANNING_TYPE) &&
                 (![SUGGEST_CHANGE_TYPE, QUESTION_TYPE].includes(type) || ourMarket.market_type === DECISION_TYPE) && (
                 <AddWizardStepButtons
                   {...wizardProps}
@@ -546,9 +547,19 @@ function CommentAdd(props) {
                   <AddWizardStepButtons
                     {...wizardProps}
                     validForm={hasValue}
-                    nextLabel={'noVoteSuggestion'}
+                    nextLabel='noVoteSuggestion'
                     onNext={() => handleSave( true, undefined, false)}
                     onNextDoAdvance={false}
+                  />
+                )}
+              {wizardProps.isAddWizard && type === ISSUE_TYPE && ourMarket.market_type === PLANNING_TYPE
+                && !isSingleUser && (
+                  <AddWizardStepButtons
+                    {...wizardProps}
+                    validForm={hasValue}
+                    isFinal={false}
+                    nextLabel={`${nameKey}${type}`}
+                    onNext={() => handleSave(false, undefined, false)}
                   />
                 )}
               {wizardProps.isAddWizard && type === QUESTION_TYPE && ourMarket.market_type === PLANNING_TYPE && (

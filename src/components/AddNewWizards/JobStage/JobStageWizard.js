@@ -32,7 +32,7 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function JobStageWizard(props) {
-  const { marketId, investibleId, stageId, isAssign } = props;
+  const { marketId, investibleId, stageId, isAssign, isBlocked } = props;
   const history = useHistory();
   const [investibleState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -66,7 +66,7 @@ function JobStageWizard(props) {
           return true;
         }
       }
-      if (isFurtherWorkStage(fullMoveStage)) {
+      if (isFurtherWorkStage(fullMoveStage)&&!isBlocked) {
         return true;
       }
     }

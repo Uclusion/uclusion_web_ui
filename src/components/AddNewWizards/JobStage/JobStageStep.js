@@ -116,6 +116,10 @@ function JobStageStep (props) {
   }
 
   function doIncrement() {
+    if (isFurtherWorkStage(fullMoveStage)&&!requiresAction(fullMoveStage)) {
+      // Must go directly to Not ready
+      return;
+    }
     if (isNotDoingStage(fullMoveStage)) {
       // Get a comment on why not doing
       nextStep(3);

@@ -486,7 +486,7 @@ function MarketMetaData(props) {
     }
     updatePageState({showDiff: !showDiff});
   }
-
+  const stageLink = formWizardLink(JOB_STAGE_WIZARD_TYPE, market.id, investibleId);
   return (
     <div>
       <div style={{maxWidth: '15rem', marginRight: '1rem'}}>
@@ -500,7 +500,7 @@ function MarketMetaData(props) {
               whiteBackground
               style={{marginLeft: '1rem', padding: 0, marginBottom: 0, marginTop: '-0.25rem'}}
               onClick={() => navigate(history,
-                formWizardLink(JOB_STAGE_WIZARD_TYPE, market.id, investibleId))}
+                stagesInfo.isInBlocked ? `${stageLink}&isBlocked=true` : stageLink)}
             />
         </div>
           {intl.formatMessage({id: stageLabelId})}

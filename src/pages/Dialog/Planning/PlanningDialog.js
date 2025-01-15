@@ -317,6 +317,7 @@ function PlanningDialog(props) {
             stage_id: furtherWorkStage.id,
           },
         };
+        const isBlocked = marketInfo.stage === inBlockingStage.id;
         setOperationRunning(true);
         return stageChangeInvestible(moveInfo)
           .then((newInv) => {
@@ -324,7 +325,9 @@ function PlanningDialog(props) {
               commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
               getFullStage(marketStagesState, marketId, marketInfo.stage), marketPresencesDispatch);
             setOperationRunning(false);
-            navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}&isAssign=${isAssigned}`);
+            if (!isBlocked) {
+              navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}&isAssign=${isAssigned}`);
+            }
           });
       }
     }

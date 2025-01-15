@@ -86,6 +86,7 @@ function JobReadyStep(props) {
       <div className={classes.borderBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="OnboardingWizardFinish"
         onNext={setReadyToStart}
         spinOnClick={true}

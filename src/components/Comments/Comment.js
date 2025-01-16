@@ -278,7 +278,7 @@ export const useCommentStyles = makeStyles(
       },
       timeElapsed: {
         whiteSpace: 'nowrap',
-        paddingRight: '50px',
+        paddingRight: '10px',
         paddingTop: '5px'
       },
       todoLabelType: {
@@ -831,7 +831,7 @@ function Comment(props) {
         }
       }
     }}>
-      <Box display="flex">
+      <div style={{display: 'flex'}}>
         {cardTypeDisplay}
         <div style={{flexGrow: 1}}/>
         {(beingEdited || ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)) && dateInfo}
@@ -844,7 +844,7 @@ function Comment(props) {
         )}
         {!mobileLayout && !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
           && marketType !== DECISION_TYPE && (
-            <div style={{marginRight: '2rem', marginTop: '-0.25rem'}}>
+            <div style={{marginRight: '1rem', marginTop: '-0.25rem'}}>
               <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
             </div>
           )}
@@ -860,7 +860,7 @@ function Comment(props) {
             />
           </div>
         )}
-      </Box>
+      </div>
       <CardContent className={classes.cardContent}>
         {!noAuthor && mobileLayout && !beingEdited && (
           <GravatarAndName

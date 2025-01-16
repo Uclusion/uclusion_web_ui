@@ -9,7 +9,7 @@ import {
   useTheme
 } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { ExpandLess, SyncAlt, ThumbDown } from '@material-ui/icons';
+import { ExpandLess, SyncAlt, ThumbDown, ThumbUp } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
@@ -40,8 +40,9 @@ import {
 import { addInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import {
+  APPROVAL_WIZARD_TYPE,
   JOB_APPROVERS_WIZARD_TYPE,
   JOB_ASSIGNEE_WIZARD_TYPE,
   JOB_COLLABORATOR_WIZARD_TYPE,
@@ -91,6 +92,8 @@ export default function PlanningInvestibleNav(props) {
   const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
+  const unacceptedAssignment = findMessageOfType('UNREAD_JOB_APPROVAL_REQUEST', investibleId, messagesState);
+  const unaccepted = unacceptedAssignment && isAssigned && !accepted?.includes(userId);
 
   function onDeleteFile(path) {
     return deleteAttachedFilesFromInvestible(market.id, investibleId, [path]).then((investible) => {
@@ -131,6 +134,11 @@ export default function PlanningInvestibleNav(props) {
         fullStage);
       setOperationRunning(false);
     });
+  }
+
+  function myRejectInvestible() {
+    return rejectInvestible(market.id, investibleId, marketInvestible, commentsState, commentsDispatch,
+      investiblesDispatch, diffDispatch, marketStagesState, marketPresencesDispatch);
   }
 
   function handleDateChange(rawDate) {
@@ -203,6 +211,23 @@ export default function PlanningInvestibleNav(props) {
               toolTipId='storyAddParticipantsLabel'
             />
           </div>
+        </div>
+      )}
+      {unaccepted && (
+        <div style={{display: 'flex'}}>
+          <SpinningIconLabelButton
+            doSpin={false}
+            onClick={()=>navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}
+            icon={ThumbUp} id='accept' whiteBackground>
+            {intl.formatMessage({ id: 'accept' })}
+          </SpinningIconLabelButton>
+        </div>
+      )}
+      {unaccepted && (
+        <div style={{display: 'flex'}}>
+          <SpinningIconLabelButton onClick={myRejectInvestible} icon={ThumbDown} id='reject' whiteBackground>
+            {intl.formatMessage({ id: 'reject' })}
+          </SpinningIconLabelButton>
         </div>
       )}
       {market.id && marketInvestible.investible && isFurtherWork && (
@@ -289,12 +314,8 @@ export default function PlanningInvestibleNav(props) {
         stagesInfo={stagesInfo}
         investibleId={investibleId}
         market={market}
-        marketInvestible={marketInvestible}
-        isAssigned={isAssigned}
         pageState={pageState}
         updatePageState={updatePageState}
-        accepted={accepted || []}
-        myUserId={userId}
       />
       <AttachedFilesList
         marketId={market.id}
@@ -459,13 +480,10 @@ export const useMetaDataStyles = makeStyles(
 function MarketMetaData(props) {
   const {
     market,
-    marketInvestible,
     investibleId,
     stagesInfo,
-    isAssigned,
-    accepted,
-    myUserId,
-    pageState, updatePageState
+    pageState,
+    updatePageState
   } = props;
   const intl = useIntl()
   const {
@@ -474,20 +492,9 @@ function MarketMetaData(props) {
   const history = useHistory();
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
-  const [, invDispatch] = useContext(InvestiblesContext);
-  const [marketStagesState] = useContext(MarketStagesContext);
-  const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
-  const unacceptedAssignment = findMessageOfType('UNREAD_JOB_APPROVAL_REQUEST', investibleId, messagesState);
-  const unaccepted = unacceptedAssignment && isAssigned && !accepted.includes(myUserId);
   const stageLabelId = getCurrentStageLabelId(stagesInfo);
-
-  function myRejectInvestible() {
-    return rejectInvestible(market.id, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
-      diffDispatch, marketStagesState, marketPresencesDispatch);
-  }
 
   function toggleDiffShow() {
     if (showDiff) {
@@ -514,13 +521,6 @@ function MarketMetaData(props) {
         </div>
           {intl.formatMessage({id: stageLabelId})}
       </div>
-      {unaccepted && (
-        <div style={{display: 'flex', paddingTop: '1rem', marginBottom: 0}}>
-          <SpinningIconLabelButton onClick={myRejectInvestible} icon={ThumbDown} id='reject' whiteBackground>
-            {intl.formatMessage({ id: 'rejectAssignment' })}
-          </SpinningIconLabelButton>
-        </div>
-      )}
       {myMessageDescription && diff && (
         <>
           <div style={{paddingTop: '0.5rem'}} />
@@ -537,6 +537,4 @@ function MarketMetaData(props) {
 MarketMetaData.propTypes = {
   investibleId: PropTypes.string.isRequired,
   market: PropTypes.object.isRequired,
-  marketInvestible: PropTypes.object.isRequired,
-  stageActions: PropTypes.func,
 }

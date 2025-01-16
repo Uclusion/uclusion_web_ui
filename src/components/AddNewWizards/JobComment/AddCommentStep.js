@@ -19,7 +19,7 @@ import {
   TODO_TYPE
 } from '../../../constants/comments';
 import {
-  getBlockedStage,
+  getBlockedStage, getFurtherWorkStage,
   getRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -51,12 +51,14 @@ function AddCommentStep (props) {
   const presences = usePresences(marketId);
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
+  const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId) || {};
   const history = useHistory();
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
     getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId);
   const isAssistance = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useType);
   const inAssistanceStage = [requiresInputStage.id, blockingStage.id].includes(currentStageId);
+  const inFurtherWorkStage = currentStageId === furtherWorkStage.id;
   const investibleComments = getInvestibleComments(investibleId, marketId, commentState);
   const comments = useType === TODO_TYPE ? investibleComments?.filter((comment) =>
     [TODO_TYPE, REPLY_TYPE].includes(comment.comment_type)) : undefined;
@@ -108,6 +110,17 @@ function AddCommentStep (props) {
           Opening a task prevents moving this job to Tasks Complete stage until resolved.
         </Typography>
       )}
+      {useType === ISSUE_TYPE && !inFurtherWorkStage && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Use @ mentions to send to specific reviewers even if not sending to the team.
+        </Typography>
+      )}
+      {useType === ISSUE_TYPE && inFurtherWorkStage && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Jobs with blocking issues are always not ready to start. Use @ mentions to send to specific reviewers even
+          if not sending to the team.
+        </Typography>
+      )}
       {useType === REPORT_TYPE && !isResolve && (
         <Typography className={classes.introSubText} variant="subtitle1">
           For feedback from whole group explain what needs reviewing. Use @ mentions to require and only notify
@@ -120,7 +133,7 @@ function AddCommentStep (props) {
           'Resolve only' below.
         </Typography>
       )}
-      {![REPORT_TYPE, TODO_TYPE].includes(useType) && !movingJob && (
+      {![REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(useType) && !movingJob && (
         <Typography className={classes.introSubText} variant="subtitle1">
           This {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies whole group unless use
           @ mentions. Add options to start voting on possible answers to this question.

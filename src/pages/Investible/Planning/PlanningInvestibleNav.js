@@ -35,8 +35,7 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { UNASSIGNED_TYPE } from '../../../constants/notifications';
 import {
   getAcceptedStage,
-  getFullStage,
-  isBlockedStage
+  getFullStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -57,6 +56,7 @@ import { getMidnightToday } from '../../../utils/timerUtils';
 import _ from 'lodash';
 import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { DaysEstimate } from '../../../components/AgilePlan/DaysEstimate';
+import { ISSUE_TYPE } from '../../../constants/comments';
 
 const useStyles = makeStyles(
   () => ({
@@ -115,6 +115,8 @@ export default function PlanningInvestibleNav(props) {
     investibleId, market.id);
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
+  const hasBlockingIssue = !_.isEmpty(investibleComments.find((comment) => comment.comment_type === ISSUE_TYPE
+    && !comment.resolved))
 
   function setReadyToStart(isReadyToStart) {
     const updateInfo = {
@@ -205,29 +207,36 @@ export default function PlanningInvestibleNav(props) {
       )}
       {market.id && marketInvestible.investible && isFurtherWork && (
         <div className={classes.assignmentContainer}>
-          <Tooltip key='readyToStartCheckboxKey'
-                   title={<FormattedMessage id='readyToStartExplanation' />}>
-            <FormControlLabel
-              id='readyToStartCheckbox'
-              style={{marginLeft: '0.25rem'}}
-              control={
-                <Checkbox
-                  id={`readyToStartCheckbox${investibleId}`}
-                  value={openForInvestment}
-                  className={styles.myCheckbox}
-                  style={{color: mobileLayout ? 'black' : 'white',
-                    backgroundColor: mobileLayout ? (readyToStartChecked ? 'white' : 'lightgrey') :
-                      (readyToStartChecked ? 'black' : 'white'),
-                    padding: 0, borderRadius: 0}}
-                  disabled={operationRunning !== false || isBlockedStage(fullStage)}
-                  checked={readyToStartChecked}
-                  onClick={() => setReadyToStart(!openForInvestment)}
-                />
-              }
-              label={<Typography variant="body2" style={{marginLeft: '0.8rem'}}>
-                {intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}</Typography>}
-            />
-          </Tooltip>
+          {hasBlockingIssue && (
+            <Typography variant="body2">
+              {intl.formatMessage({ id: 'blockingIssueCheckboxExplanation' })}
+            </Typography>
+          )}
+          {!hasBlockingIssue && (
+            <Tooltip key='readyToStartCheckboxKey'
+                     title={<FormattedMessage id='readyToStartExplanation' />}>
+              <FormControlLabel
+                id='readyToStartCheckbox'
+                style={{marginLeft: '0.25rem'}}
+                control={
+                  <Checkbox
+                    id={`readyToStartCheckbox${investibleId}`}
+                    value={openForInvestment}
+                    className={styles.myCheckbox}
+                    style={{color: mobileLayout ? 'black' : 'white',
+                      backgroundColor: mobileLayout ? (readyToStartChecked ? 'white' : 'lightgrey') :
+                        (readyToStartChecked ? 'black' : 'white'),
+                      padding: 0, borderRadius: 0}}
+                    disabled={operationRunning !== false}
+                    checked={readyToStartChecked}
+                    onClick={() => setReadyToStart(!openForInvestment)}
+                  />
+                }
+                label={<Typography variant="body2" style={{marginLeft: '0.8rem'}}>
+                  {intl.formatMessage({ id: 'readyToStartCheckboxExplanation' })}</Typography>}
+              />
+            </Tooltip>
+          )}
         </div>
       )}
       {!isSingleUser && (

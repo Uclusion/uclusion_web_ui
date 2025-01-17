@@ -14,8 +14,8 @@ import { updateInvestible } from '../../../api/investibles';
 import { getInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
-import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { APPROVAL_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
@@ -77,12 +77,10 @@ function DecideAssignStep(props) {
         focus
         nextLabel="DecideAssignMe"
         onNext={myAssign}
+        onNextDoAdvance={false}
         showOtherNext
         otherSpinOnClick={false}
         otherNextLabel="WizardJobAssistance"
-        onOtherNext={() => navigate(history,
-          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, undefined,
-            message.type_object_id))}
         otherNextShowEdit={hasJobComment(groupId, investibleId, QUESTION_TYPE)||
           hasJobComment(groupId, investibleId, SUGGEST_CHANGE_TYPE)||
           hasJobComment(groupId, investibleId, ISSUE_TYPE)}

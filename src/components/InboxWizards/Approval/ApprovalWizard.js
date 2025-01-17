@@ -4,6 +4,7 @@ import FormdataWizard from 'react-formdata-wizard';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import JobApproveStep from './JobApproveStep';
+import ChooseCommentTypeStep from '../ChooseCommentTypeStep';
 
 function ApprovalWizard(props) {
   const { marketId, investibleId, message, isAssigned } = props;
@@ -18,6 +19,7 @@ function ApprovalWizard(props) {
                     defaultFormData={{parentElementId, approveQuantity: yourVote?.quantity}}>
       <JobApproveStep marketId={marketId} investibleId={investibleId} message={message} yourVote={yourVote}
                       isAssigned={isAssigned}/>
+      <ChooseCommentTypeStep investibleId={investibleId} marketId={marketId} message={message} />
     </FormdataWizard>
   );
 }

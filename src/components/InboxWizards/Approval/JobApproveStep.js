@@ -21,7 +21,6 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import _ from 'lodash';
 import {
-  formInvestibleAddCommentLink,
   formInvestibleLink, formWizardLink,
   navigate,
   preventDefaultAndProp
@@ -34,7 +33,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { useHistory } from 'react-router';
-import { JOB_COMMENT_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
+import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { useIntl } from 'react-intl';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
@@ -190,13 +189,13 @@ function JobApproveStep(props) {
         validForm={validForm}
         nextLabel={isAssigned ? 'ApprovalWizardAccept' : 'ApprovalWizardApprove'}
         onNext={onNext}
+        onNextDoAdvance={false}
         showOtherNext
         otherNextValid
         otherSpinOnClick={false}
         otherNextLabel={wasDeleted ? 'JobAssignBacklog' : 'WizardJobAssistance'}
-        onOtherNext={wasDeleted ? moveToBacklog : () => navigate(history,
-          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, undefined,
-            message.type_object_id))}
+        onOtherNext={wasDeleted ? moveToBacklog : undefined}
+        onOtherNextDoAdvance={!wasDeleted}
         otherNextShowEdit={hasJobComment(groupId, investibleId, QUESTION_TYPE)||
           hasJobComment(groupId, investibleId, SUGGEST_CHANGE_TYPE)||
           hasJobComment(groupId, investibleId, ISSUE_TYPE)}

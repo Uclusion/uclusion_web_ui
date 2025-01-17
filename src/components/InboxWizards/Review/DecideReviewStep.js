@@ -8,10 +8,10 @@ import JobDescription from '../JobDescription';
 import { TODO_TYPE } from '../../../constants/comments';
 import { getComment, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { formInvestibleAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { JOB_COMMENT_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../../constants/markets';
+import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { useIntl } from 'react-intl';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -24,7 +24,7 @@ import _ from 'lodash';
 import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideReviewStep(props) {
-  const { marketId, commentId, message, formData, updateFormData } = props;
+  const { marketId, report, message, formData, updateFormData } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
@@ -32,8 +32,7 @@ function DecideReviewStep(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const report = getComment(commentsState, marketId, commentId) || {};
-  const investibleId = report.investible_id;
+  const { investible_id: investibleId, id: commentId } = report;
   const inv = getInvestible(investibleState, investibleId) || {};
   const info = getMarketInfo(inv, marketId);
   const { stage: currentStageId } = info || {};
@@ -74,15 +73,11 @@ function DecideReviewStep(props) {
         nextLabel="DecideAddReview"
         onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
           undefined, undefined, commentId, message.type_object_id))}
+        onNextDoAdvance={false}
         nextShowEdit={hasReply(getComment(commentsState, marketId, commentId))}
         spinOnClick={false}
         showOtherNext={!isNotDoing}
         otherSpinOnClick={false}
-        isOtherFinal
-        onOtherNext={() => navigate(history,
-          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, undefined,
-            message.type_object_id))}
-        onOtherNextDoAdvance={false}
         otherNextLabel="commentInJob"
         terminateLabel={getLabelForTerminate(message)}
         showTerminate={getShowTerminate(message)}

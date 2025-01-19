@@ -421,7 +421,7 @@ function PlanningDialog(props) {
       navigationOptions={{useHoverFunctions: !mobileLayout, resetFunction: () => resetFunction(0)}}
     >
       <div style={{ paddingBottom: '0.25rem', paddingLeft: 0, marginLeft: '-0.5rem' }}>
-        <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen} isDemo={isDemo}/>
+        <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen} isDemo={isDemo} isSingleUser={isSingleUser}/>
         <GmailTabs
           value={tabIndex}
           id='dialog-header'
@@ -485,7 +485,7 @@ function PlanningDialog(props) {
                                    text={
                     <div>
                       <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
-                      be used at the group level and later moved to a job.
+                      be used at the view level and later moved to a job.
                     </div>
                   }/>
                 </>
@@ -565,7 +565,7 @@ function PlanningDialog(props) {
           <div id="backlogSection" style={{overflowX: 'hidden', paddingBottom: '5rem'}}>
             <Backlog group={group} marketPresences={marketPresences}
                      furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
-                     comments={comments} />
+                     comments={comments} isSingleUser={isSingleUser} />
           </div>
         )}
         <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}

@@ -51,7 +51,7 @@ function IntroduceWorkspaceStep(props) {
   </svg>;
   const navListItemTextArray = [];
   getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
-    history, marketId, marketId, undefined, undefined, undefined, undefined,
+    history, market, marketId, undefined, undefined, undefined, undefined,
     [], [], undefined, undefined, undefined)
 
   function myOnFinish () {

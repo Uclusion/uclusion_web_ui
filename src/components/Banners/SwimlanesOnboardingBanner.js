@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 function SwimlanesOnboardingBanner(props) {
-  const { group, sectionOpen, isDemo } = props;
+  const { group, sectionOpen, isDemo, isSingleUser } = props;
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -43,19 +43,20 @@ function SwimlanesOnboardingBanner(props) {
             {isOpeningScreen && (
               <DismissableText textId="everyoneStatusHelp" text={
                 <div>
-                   <Typography><b>Here is group 'Everyone' status at a glance.</b></Typography>
+                   <Typography><b>Here is status at a glance for this view.</b></Typography>
                    <Typography className={classes.ctaSub}>
                      Click on anything in red to go to an inbox notification.
                    </Typography>
                  </div>
                }/>
             )}
-            {(!sectionOpen || sectionOpen === 'storiesSection') && !isEveryoneGroup(group?.id, group?.market_id) && (
+            {(!sectionOpen || sectionOpen === 'storiesSection') && !isSingleUser &&
+              !isEveryoneGroup(group?.id, group?.market_id) && (
               <DismissableText textId="notEveryoneStatusHelp" text={
                 <div>
-                  <Typography><b>This group split off to have its own status.</b></Typography>
+                  <Typography><b>This view has its own status.</b></Typography>
                   <Typography className={classes.ctaSub}>
-                    If you're not in this group, you only receive notifications if mentioned.
+                    If you're not a member of this view, you only receive notifications if mentioned.
                   </Typography>
                 </div>
               }/>
@@ -70,7 +71,7 @@ function SwimlanesOnboardingBanner(props) {
                 </div>
               }/>
             )}
-            {sectionOpen === 'backlogSection' && (
+            {sectionOpen === 'backlogSection' && !isSingleUser && (
               <DismissableText textId="backlogHelp" text={
                 <div>
                   <Typography>See <Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">self assigning jobs</Link> flow.</Typography>
@@ -80,7 +81,7 @@ function SwimlanesOnboardingBanner(props) {
                 </div>
               }/>
             )}
-            {sectionOpen === 'discussionSection' && (
+            {sectionOpen === 'discussionSection' && !isSingleUser && (
               <DismissableText textId="discussionHelp" text={
                 <div>
                   <Typography><b>Vote here on new ideas and question options.</b></Typography>

@@ -37,7 +37,8 @@ function Backlog(props) {
     furtherWorkReadyToStart,
     furtherWorkInvestibles,
     comments,
-    marketPresences
+    marketPresences,
+    isSingleUser
   } = props;
   const { market_id: marketId, id: groupId} = group || {};
   const intl = useIntl();
@@ -113,7 +114,7 @@ function Backlog(props) {
         <FormattedMessage id='addStoryLabel'/>
       </SpinningButton>
       <DismissableText textId="backlogHelp" noPad={true}
-                       display={isEmptyBacklog}
+                       display={isEmptyBacklog && !isSingleUser}
                        text={market?.market_sub_type === 'SUPPORT' ?
                          <div>
                            Use the "Add job" button above to create backlog. "Ready to Start" sends notifications to
@@ -122,7 +123,7 @@ function Backlog(props) {
                          :
                          <div>
                            Use the "Add job" button above to create backlog. "Ready to Start" sends notifications to
-                           this group.
+                           members of this view.
                          </div>
                        }/>
       <GmailTabs
@@ -172,7 +173,7 @@ function Backlog(props) {
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           {intl.formatMessage({id: 'notReadyToStartHeader'})} is empty.<br/><br/>
-          Jobs that need discussion before assignment display here.
+          Jobs that are not ready for assignment display here.
         </Typography>
       )}
       {data.map((inv) => {

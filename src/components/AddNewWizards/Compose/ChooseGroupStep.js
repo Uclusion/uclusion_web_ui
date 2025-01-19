@@ -19,10 +19,7 @@ function ChooseGroupStep (props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        Create in which group?
-      </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Groups control who gets notified by default.
+        Create in which view?
       </Typography>
       <FormControl component="fieldset">
         <RadioGroup

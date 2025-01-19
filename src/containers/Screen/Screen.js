@@ -44,13 +44,18 @@ import queryString from 'query-string'
 import { AccountContext } from '../../contexts/AccountContext/AccountContext'
 import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOutset';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
-import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getGroupPresences,
+  getMarketPresences,
+  isSingleUserMarket
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import OnboardingBanner from '../../components/Banners/OnboardingBanner';
 import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { getComment } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import jwt_decode from 'jwt-decode';
+import GridView from '../../components/CustomChip/GridView';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -160,10 +165,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
-  history, marketId, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
+  history, market, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
   onGroupClick, pathname, resetFunction) {
+  const marketId = market.id;
   const itemsSorted = _.sortBy(groupsState[marketId], 'name');
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const isSingleModeWorkspace = isSingleUserMarket(marketPresences, market);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const itemsRaw = itemsSorted.map((group) => {
     const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
@@ -175,8 +182,8 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
         return {};
       }
     }
-    const myIcon = groupPresences.find((presence) => presence.id === myPresence.id) ?
-      Group : GroupOutlined;
+    const myIcon = isSingleModeWorkspace ? GridView :
+      (groupPresences.find((presence) => presence.id === myPresence.id) ? Group : GroupOutlined);
     const outsetAvailable = isChosen && useHoverFunctions;
     let num = undefined;
     if (!_.isEmpty(search)) {
@@ -348,7 +355,7 @@ function Screen(props) {
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const { onGroupClick, useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
-      history, defaultMarket.id, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
+      history, defaultMarket, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
       onGroupClick, pathname, resetFunction);
   }
   const inboxCount = getInboxCount(messagesState);

@@ -124,7 +124,7 @@ function PlanningMarketEdit() {
           </Grid>
           {!isArchived && (
             <Grid item md={5} xs={12} className={classes.fieldsetContainer} style={{paddingTop: '4rem'}}>
-              Archiving a workspace removes its groups from the UI and its unique users from billing.
+              Archiving a workspace removes it from the UI and its unique users from billing.
               <Typography variant="h6" style={{marginTop: '1rem'}}>
                 {intl.formatMessage({ id: 'archiveWorkspace' })} <ArchiveMarketButton marketId={market.id} />
               </Typography>

@@ -43,7 +43,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 function createWorkspaceGroupHeader(market, group, history) {
   const link = formMarketLink(market.id, group.id);
   return (<div id={`inboxGroupHeader${group.id}`} key={`inboxGroupHeaderKey${group.id}`} style={{marginTop: '0.3rem'}}>
-    Workspace {market.name} and group <Link href={link} onClick={
+    Workspace {market.name} and view <Link href={link} onClick={
     (event) => {
       preventDefaultAndProp(event);
       navigate(history, link);

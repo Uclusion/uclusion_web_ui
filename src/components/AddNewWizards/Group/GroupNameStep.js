@@ -72,11 +72,11 @@ function GroupNameStep (props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        What do you want to call your group?
+        What do you want to call your view?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
-        A <Link href="https://documentation.uclusion.com/groups" target="_blank">group</Link> in a workspace receives
-        notifications on anything created inside it.
+        A <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> in a workspace allows
+        separate display and notifications.
       </Typography>
       <OutlinedInput
         id="groupName"

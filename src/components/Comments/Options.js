@@ -178,7 +178,7 @@ function Options(props) {
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           {intl.formatMessage({id: 'decisionDialogProposedOptionsLabel'})} is empty.<br/><br/>
-          Options that are rejected or need discussion display here.
+          Options that are rejected or not ready for voting display here.
         </Typography>
       )}
       <OptionVoting

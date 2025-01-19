@@ -68,7 +68,7 @@ function ArchiveWarningStep(props) {
         Are you sure you want to resolve?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Resolving a comment that is not in a job moves it to the <Link href="https://documentation.uclusion.com/groups/archive" target="_blank">group's archive</Link>.
+        Resolving a comment that is not in a job moves it to the <Link href="https://documentation.uclusion.com/views/archive" target="_blank">group's archive</Link>.
       </Typography>
       <CommentBox
         comments={[commentToDelete]}

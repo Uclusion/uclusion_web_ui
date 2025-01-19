@@ -88,7 +88,7 @@ function Support(props) {
               </ListItem>
               <ListItem key="supportFeatureInfoText2">
                 <Typography variant="body2">
-                  Once in the support workspace you can <Link href="https://documentation.uclusion.com/groups/bugs/" target="_blank">open a bug</Link>,
+                  Once in the support workspace you can <Link href="https://documentation.uclusion.com/views/bugs/" target="_blank">open a bug</Link>,
                   make suggestion, ask a question, or even assign a job to Uclusion support and we will respond.
                 </Typography>
               </ListItem>

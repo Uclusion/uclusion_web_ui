@@ -503,7 +503,7 @@ function PlanningDialog(props) {
                 type={SECTION_TYPE_SECONDARY_WARNING}
                 bolder
                 title={intl.formatMessage({ id: 'blockedHeader' })}
-                helpLink='https://documentation.uclusion.com/groups/jobs/stages/#assistance'
+                helpLink='https://documentation.uclusion.com/views/jobs/stages/#assistance'
                 id="blocked"
               >
                 <DismissableText textId="assistanceHelp"
@@ -550,7 +550,7 @@ function PlanningDialog(props) {
                                    :
                                    <div>
                                      {swimlaneEmptyPreText} The "Add job" button above creates a job and
-                                     notifies <Link href="https://documentation.uclusion.com/groups/#everyone"
+                                     notifies <Link href="https://documentation.uclusion.com/views/#everyone"
                                                target="_blank">everyone</Link>.
                                    </div>) :
                                  <div>

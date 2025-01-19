@@ -49,7 +49,7 @@ function TriageStep(props) {
         Critical <Link href={pathToBugs} onClick={(event) => {
         preventDefaultAndProp(event);
         navigate(history, pathToBugs);
-      }}>bugs</Link> for group {groupName}
+      }}>bugs</Link> for view {groupName}
       </h2>
       <MarketTodos comments={comments} marketId={marketId} groupId={groupId} message={message}
                    sectionOpen={true}

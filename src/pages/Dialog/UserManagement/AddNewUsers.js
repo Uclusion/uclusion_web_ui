@@ -21,6 +21,7 @@ import GravatarAndName from '../../../components/Avatars/GravatarAndName';
 import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
+import { fixName } from '../../../utils/userFunctions';
 
 function AddNewUsers(props) {
   const { market, setToAddClean, group } = props;
@@ -115,7 +116,7 @@ function AddNewUsers(props) {
           <GravatarAndName
             key={id}
             email={email}
-            name={name}
+            name={fixName(name)}
             typographyVariant="caption"
             typographyClassName={classes.avatarName}
           />

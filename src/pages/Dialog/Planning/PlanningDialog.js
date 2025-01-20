@@ -384,7 +384,7 @@ function PlanningDialog(props) {
       const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, !isSingleUser);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {
-        return `${_.size(numNewMessages)}`;
+        return isSingleUser ? `${_.size(todoComments)}` : `${_.size(numNewMessages)}`;
       }
     }
     if (tabIndex === 3) {

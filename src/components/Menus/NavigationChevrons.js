@@ -36,6 +36,7 @@ import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import { getOpenInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketPresences, isSingleUserMarket } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: isOutbox ? formInboxItemLink(investible.investible.id)  :
@@ -122,7 +123,8 @@ export default function NavigationChevrons(props) {
       const [, ,groupIdFromSep] = resource.split('_');
       const groupId = groupLoadId || groupIdFromSep;
       const groupMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${groupId}`, messagesState);
-      return {url: formMarketLink(groupMessage?.market_id, groupId), message: groupMessage};
+      return {url: formMarketLink(groupMessage?.market_id, groupId), message: groupMessage,
+        isHighlighted: groupMessage.is_highlighted};
     }
     const highlighted = highlightedMessages?.filter((message) =>
       formInboxItemLink(message.type_object_id) !== resource) || [];
@@ -131,7 +133,7 @@ export default function NavigationChevrons(props) {
       ['asc', 'desc']);
     if (!_.isEmpty(highlightedOrdered)) {
       const message = highlightedOrdered[0];
-      return {url: formInboxItemLink(message.type_object_id), message};
+      return {url: formInboxItemLink(message.type_object_id), message, isHighlighted: true};
     }
     const notHighlightedMessagesCritical = allMessages.filter((message) => !message.is_highlighted &&
       message.type === 'UNASSIGNED');
@@ -195,6 +197,7 @@ export default function NavigationChevrons(props) {
   const nextUrl = computeNext();
   const backDisabled = _.isEmpty(previous);
   const nextDisabled = _.isEmpty(nextUrl);
+  const nextHighlighted = nextUrl?.isHighlighted;
 
   function doPreviousNavigation() {
     const url = previous?.url;
@@ -233,7 +236,8 @@ export default function NavigationChevrons(props) {
                              onClick={doPreviousNavigation} translationId="previousNavigation" />
           <div style={{marginLeft: '0.5rem'}}/>
           <TooltipIconButton disabled={nextDisabled}
-                             icon={<ArrowForward htmlColor={nextDisabled ? 'disabled' : 'white'} />}
+                             icon={<ArrowForward htmlColor={nextDisabled ? 'disabled' :
+                               (nextHighlighted ? WARNING_COLOR : 'white')} />}
                              onClick={doNextNavigation}
                              translationId="nextNavigation" />
         </Toolbar>

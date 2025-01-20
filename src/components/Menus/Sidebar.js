@@ -9,7 +9,7 @@ import { IconButton, Tooltip, Typography } from '@material-ui/core';
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue,
     index, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon,
-    resetFunction, tipText, idPrepend=''} = properties;
+    resetFunction, tipText, idPrepend='', numSuffix=''} = properties;
   if (!text) {
     return React.Fragment
   }
@@ -32,7 +32,7 @@ function processRegularItem(properties) {
                 marginLeft: 'auto', marginRight: 'auto'}}
                 key={key} id={`${idPrepend}${textNoSpaces}`}
                 suffix={num > 0 ?
-                  <Typography style={{ fontWeight: 'bold', paddingRight: '0.25rem' }} >{num}</Typography>
+                  <Typography style={{ fontWeight: 'bold', paddingRight: '0.25rem' }} >{num} {numSuffix}</Typography>
                   : (EndIcon ? <IconButton size="small" onClick={(event) => onClickFunc(event)}>
                       <EndIcon htmlColor="black" fontSize="small" /></IconButton>
                     : undefined)}
@@ -95,10 +95,10 @@ export default function Sidebar(props) {
         {!_.isEmpty(headerItemTextArray) && (
           <Menu onClick={listOnClick} iconShape="circle">
             {headerItemTextArray.map((navItem, topIndex) => {
-              const { text, target, num, icon: Icon, onClickFunc, isBold, isBlue, openMenuItems,
+              const { text, target, num, numSuffix, icon: Icon, onClickFunc, isBold, isBlue, openMenuItems,
                 iconColor } = navItem;
               return processRegularItem({history, text, target, num, Icon, iconColor, onClickFunc,
-                isBold, isBlue, index: topIndex, openMenuItems, isLarge: true})
+                isBold, isBlue, index: topIndex, openMenuItems, isLarge: true, numSuffix})
             })}
           </Menu>
         )}

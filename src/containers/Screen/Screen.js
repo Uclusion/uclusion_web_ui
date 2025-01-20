@@ -56,6 +56,7 @@ import { getComment } from '../../contexts/CommentsContext/commentsContextHelper
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import jwt_decode from 'jwt-decode';
 import GridView from '../../components/CustomChip/GridView';
+import { WARNING_COLOR } from '../../components/Buttons/ButtonConstants';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -359,6 +360,8 @@ function Screen(props) {
       onGroupClick, pathname, resetFunction);
   }
   const inboxCount = getInboxCount(messagesState);
+  const inboxCountTotal = inboxCount > 0 ? undefined :
+    getInboxCount(messagesState, undefined, undefined, true);
   const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();
   const addCollaboratorChosen = action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase();
   const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
@@ -367,8 +370,11 @@ function Screen(props) {
       headerItemTextArray: [
         {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(),
           isBold: action?.includes('inbox') || isInbox, isBlue: pathname === getInboxTarget(),
-          iconColor: inboxCount > 0 ? '#E85757' : undefined,
-          num: _.isEmpty(search) ? inboxCount : undefined}
+          iconColor: inboxCount > 0 ? WARNING_COLOR : undefined,
+          num: _.isEmpty(search) ? (inboxCount > 0 ? inboxCount : (inboxCountTotal > 0 ? inboxCountTotal : undefined))
+            : undefined,
+          numSuffix: _.isEmpty(search) ? (inboxCount > 0 ? 'new' : (inboxCountTotal > 0 ? 'total' : undefined)) :
+            undefined}
       ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
                               inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId}

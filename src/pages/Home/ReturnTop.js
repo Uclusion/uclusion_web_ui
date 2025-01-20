@@ -17,9 +17,9 @@ function ReturnTop(props) {
   const upFromConfigPossible = isConfigScreen && marketId;
   const downLevel = action === 'inbox' ? !_.isEmpty(pathMarketIdRaw) :
     (action === 'wizard' ? !_.isEmpty(groupId || marketId) :
-      (action === 'marketEdit' ? marketId : !_.isEmpty(pathInvestibleId)));
-  const upDisabled = ((!downLevel || !['dialog', 'inbox', 'wizard', 'marketEdit'].includes(action))&&
-    !upFromConfigPossible)||isArchivedWorkspace;
+      (action === 'marketEdit' ? marketId : (action === 'groupEdit' ? groupId : !_.isEmpty(pathInvestibleId))));
+  const upDisabled = ((!downLevel || !['dialog', 'inbox', 'wizard', 'marketEdit', 'groupEdit'].includes(action))
+    &&!upFromConfigPossible)||isArchivedWorkspace;
 
   function goUp(){
     if (useLink) {

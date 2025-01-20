@@ -98,6 +98,7 @@ function GroupNameStep (props) {
         {...props}
         validForm={validForm}
         onNext={isSingleWorkspaceMember ? onTerminate : onNext}
+        onNextDoAdvance={!isSingleWorkspaceMember}
         nextLabel={isSingleWorkspaceMember ? 'GroupWizardGotoGroup' : 'GroupWizardAddMembers'}
         showTerminate={validForm && !isSingleWorkspaceMember}
         onTerminate={onTerminate}

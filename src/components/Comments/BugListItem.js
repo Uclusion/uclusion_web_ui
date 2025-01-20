@@ -255,8 +255,8 @@ function BugListItem(props) {
           </div>
         </RaisedCard>
       </Item>
-      <div id={`bugListItemExpansion${id}`} key={`bugListItemExpansionKey${id}`} style={{display: expansionOpen ? 'block' : 'none',
-        paddingBottom: '0.5rem'}} draggable={false}>
+      <div id={`bugListItemExpansion${id}`} key={`bugListItemExpansionKey${id}`} draggable={false}
+           style={{maxWidth: '96%', display: expansionOpen ? 'block' : 'none', paddingBottom: '0.5rem'}}>
         {expansionPanel || <React.Fragment />}
       </div>
       {!mobileLayout && (

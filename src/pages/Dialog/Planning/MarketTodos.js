@@ -302,8 +302,7 @@ function MarketTodos(props) {
     return data.map((comment) => {
       const { id, body, updated_at: updatedAt, notification_type: notificationType } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
-      const expansionPanel = <div id={`c${id}`} key={`c${id}key`}
-                                  style={{marginBottom: '1rem', marginRight: '1rem', marginLeft: '1rem'}}>
+      const expansionPanel = <div id={`c${id}`} key={`c${id}key`} style={{marginBottom: '1rem'}}>
         <Comment
           marketId={marketId}
           comment={comment}

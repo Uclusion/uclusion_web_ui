@@ -67,8 +67,8 @@ function JobDescriptionStep (props) {
   }
 
   const defaultDescription = getDefaultDescription();
-
-  if (!_.isEmpty(defaultDescription)) {
+  const hasDefaultDescription = !_.isEmpty(defaultDescription);
+  if (hasDefaultDescription) {
     storeState(editorName, `<p>${defaultDescription}</p>`);
   }
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
@@ -80,7 +80,7 @@ function JobDescriptionStep (props) {
     placeholder: "Ex: make magic happen via A, B, C",
     value: getQuillStoredState(editorName),
     marketId,
-    autoFocus: true,
+    autoFocus: !hasDefaultDescription,
     onUpload: setUploadedFiles,
     onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); },
   };
@@ -264,6 +264,7 @@ function JobDescriptionStep (props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
+        focus={hasDefaultDescription}
         validForm={hasValue}
         nextLabel='jobCreate'
         onNext={() => createJob()}

@@ -81,6 +81,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { RED_LEVEL } from '../../../constants/notifications';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -230,6 +231,7 @@ function PlanningDialog(props) {
     return comment.comment_type === TODO_TYPE && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   });
+  const criticalTodoComments = todoComments.filter((comment) => comment.notification_type === RED_LEVEL);
   const archiveInvestibles = investibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
@@ -384,7 +386,7 @@ function PlanningDialog(props) {
       const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, !isSingleUser);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {
-        return isSingleUser ? `${_.size(todoComments)}` : `${_.size(numNewMessages)}`;
+        return isSingleUser ? `${_.size(criticalTodoComments)}` : `${_.size(numNewMessages)}`;
       }
     }
     if (tabIndex === 3) {

@@ -7,7 +7,6 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import {
   editorEmpty,
-  focusEditor,
   getQuillStoredState,
   resetEditor,
   storeState
@@ -72,6 +71,7 @@ function JobDescriptionStep (props) {
     storeState(editorName, `<p>${defaultDescription}</p>`);
   }
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
+  const [buttonHasFocus, setButtonHasFocus] = useState(hasValue);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
@@ -80,9 +80,13 @@ function JobDescriptionStep (props) {
     placeholder: "Ex: make magic happen via A, B, C",
     value: getQuillStoredState(editorName),
     marketId,
-    autoFocus: !hasDefaultDescription,
+    autoFocus: !hasValue,
     onUpload: setUploadedFiles,
-    onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); },
+    onChange: () => {
+      // Not great but all that can do for now as if use onBlur it immediately gets unset
+      setButtonHasFocus(false);
+      setHasValue(!editorEmpty(getQuillStoredState(editorName)));
+    },
   };
 
   const [Editor] = useEditor(editorName, editorSpec);
@@ -91,7 +95,6 @@ function JobDescriptionStep (props) {
     updateFormData({
       newQuantity: event.target.value
     });
-    focusEditor(editorName);
   }
 
   function doIncrement(resolved) {
@@ -264,7 +267,7 @@ function JobDescriptionStep (props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
-        focus={hasDefaultDescription}
+        focus={buttonHasFocus}
         validForm={hasValue}
         nextLabel='jobCreate'
         onNext={() => createJob()}

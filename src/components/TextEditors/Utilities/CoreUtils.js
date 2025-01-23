@@ -232,8 +232,11 @@ export function createEditor (id, editorContents, config, forceCreate) {
   });
   if (isSetEditorContents) {
     editor.clipboard.dangerouslyPasteHTML(convertHTMLString(editorContents));
+    // If don't blur then the paste above will set focus whether wanted to or not
+    editor.blur();
   } else if (isSetDefaultContents) {
     editor.clipboard.dangerouslyPasteHTML((defaultContents));
+    editor.blur();
   }
 
   QuillEditorRegistry.setEditor(id, editor, config);

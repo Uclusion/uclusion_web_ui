@@ -297,15 +297,18 @@ function Screen(props) {
     OnboardingState.NeedsOnboarding === userState.user.onboarding_state;
   const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
   let pathMarketId = undefined;
+  let pathGroupId = undefined
   if (action === 'inbox') {
     const message = messagesState?.messages?.find((message) => message.type_object_id === pathMarketIdRaw &&
       !message.deleted);
     if (message) {
       pathMarketId = message.market_id;
+      pathGroupId = message.group_id;
     } else {
       // Outbox
       const outboxMessage = outBoxMessages?.find((message) => message.id === pathMarketIdRaw);
       pathMarketId = outboxMessage?.marketId;
+      pathGroupId = outboxMessage?.group_id;
     }
   } else if (['comment', 'dialog'].includes(action)) {
     pathMarketId = pathMarketIdRaw;
@@ -356,8 +359,8 @@ function Screen(props) {
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const { onGroupClick, useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
-      history, defaultMarket, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
-      onGroupClick, pathname, resetFunction);
+      history, defaultMarket, useGroupId || pathGroupId, groupId, useHoverFunctions, search, results,
+      openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction);
   }
   const inboxCount = getInboxCount(messagesState);
   const inboxCountTotal = inboxCount > 0 ? undefined :

@@ -123,8 +123,12 @@ export default function NavigationChevrons(props) {
       const [, ,groupIdFromSep] = resource.split('_');
       const groupId = groupLoadId || groupIdFromSep;
       const groupMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${groupId}`, messagesState);
-      return {url: formMarketLink(groupMessage?.market_id, groupId), message: groupMessage,
-        isHighlighted: groupMessage.is_highlighted};
+      if (groupMessage) {
+        return {
+          url: formMarketLink(groupMessage.market_id, groupId), message: groupMessage,
+          isHighlighted: groupMessage.is_highlighted
+        };
+      }
     }
     const highlighted = highlightedMessages?.filter((message) =>
       formInboxItemLink(message.type_object_id) !== resource) || [];

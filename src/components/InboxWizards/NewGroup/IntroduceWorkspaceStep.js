@@ -82,7 +82,7 @@ function IntroduceWorkspaceStep(props) {
         <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
           {checkMark}ctrl+arrowRight to go to what most likely needs doing
           <div style={{ backgroundColor: '#8ABABF', width: '8rem', height: '60px' }}>
-            <NavigationChevrons/></div>
+            <NavigationChevrons groupLoadId={marketId}/></div>
           {!mobileLayout && (
             <div>
               or with mouse use the navigation chevrons in header.

@@ -162,7 +162,7 @@ function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, 
   return { name: `${extracted}...`, description: `<p>...${splitDescription}` };
 }
 
-export function convertDescription(description, maxLength = 80) {
+function convertProcessedDescription(description, maxLength = 80) {
   const nameDescriptionMap = { name: undefined, description };
   if (_.isEmpty(description)) {
     return nameDescriptionMap;
@@ -209,6 +209,29 @@ export function convertDescription(description, maxLength = 80) {
   }
 
   return nameDescriptionMap;
+}
+
+function removeLeadingEmpty(description) {
+  if (!description.startsWith('<p>')) {
+    return { prePend: '', newDescription: description};
+  }
+  const parts = description.split('</p>');
+  if (_.isEmpty(parts)) {
+    return { prePend: '', newDescription: description};
+  }
+  const firstPart = parts[0] + '</p>';
+  const stripped = stripHTML(firstPart);
+  if (!_.isEmpty(stripped)) {
+    return { prePend: '', newDescription: description };
+  }
+  const { prePend, newDescription } = removeLeadingEmpty(description.substring(firstPart.length));
+  return { prePend: firstPart + prePend, newDescription };
+}
+
+export function convertDescription(originalDescription, maxLength = 80) {
+  const { prePend, newDescription } = removeLeadingEmpty(originalDescription);
+  const { name, description } = convertProcessedDescription(newDescription, maxLength);
+  return { name, description: prePend + description };
 }
 
 export function nameFromDescription(description, maxLength = 80) {

@@ -580,6 +580,7 @@ function Comment(props) {
 
   const isMarketTodo = marketType === PLANNING_TYPE && commentType === TODO_TYPE && !investibleId && !isMove;
   const isTask = marketType === PLANNING_TYPE && commentType === TODO_TYPE && investibleId;
+  const isInfo = marketType === DECISION_TYPE && commentType === TODO_TYPE && investibleId;
   const isEditable = comment.created_by === myPresence.id || isMarketTodo || (isTask && myPresenceIsAssigned);
 
   function getDialog(anInlineMarket) {
@@ -711,7 +712,8 @@ function Comment(props) {
   // For some reason can't stop propagation on clicking edit so just turn off in that case
   const isNavigateToInbox = myHighlightedLevel && !isEditable;
   const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> :
-    (commentType === REPLY_TYPE ? <FormattedMessage id="issueReplyLabel" /> : undefined);
+    (commentType === REPLY_TYPE ? <FormattedMessage id="issueReplyLabel" /> :
+      (isInfo ? <FormattedMessage id="todoInfo" /> : undefined ));
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = !replyBeingEdited || replies.length > 0;
@@ -762,7 +764,7 @@ function Comment(props) {
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
     !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && myPresence === createdBy;
-  const showResolve = isSent !== false && enableActions && !resolved && !removeActions;
+  const showResolve = isSent !== false && enableActions && !resolved && !removeActions && !isInfo;
   const showReopen = resolved && !removeActions && enableActions && commentType !== REPORT_TYPE;
   const showAddVoting = commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId
     && marketType === PLANNING_TYPE && !removeActions && !isSingleUser;

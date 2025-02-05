@@ -7,7 +7,14 @@ import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import Voting from './Voting';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { ISSUE_TYPE, JUSTIFY_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, } from '../../../constants/comments';
+import {
+  ISSUE_TYPE,
+  JUSTIFY_TYPE,
+  QUESTION_TYPE,
+  REPLY_TYPE,
+  SUGGEST_CHANGE_TYPE,
+  TODO_TYPE,
+} from '../../../constants/comments';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import {
   getInCurrentVotingStage,
@@ -196,8 +203,11 @@ function DecisionInvestible(props) {
   const {
     showDiff
   } = pageState;
-  const investmentReasonsRemoved = investibleComments.filter((comment) => comment.comment_type !== JUSTIFY_TYPE) || [];
+  const investmentReasonsRemoved = investibleComments.filter((comment) =>
+    ![JUSTIFY_TYPE, TODO_TYPE].includes(comment.comment_type)) || [];
   const investmentReasons = investibleComments.filter((comment) => comment.comment_type === JUSTIFY_TYPE);
+  const info = investibleComments.filter((comment) =>
+    [TODO_TYPE, REPLY_TYPE].includes(comment.comment_type));
   const myIssues = investibleComments.filter((comment) => comment.comment_type === ISSUE_TYPE && !comment.resolved);
   const hasIssue = !_.isEmpty(myIssues);
   const { investible, market_infos: marketInfos } = fullInvestible;
@@ -273,7 +283,7 @@ function DecisionInvestible(props) {
     navigate(history, formWizardLink(OPTION_EDIT_WIZARD_TYPE, marketId, investibleId))
   }
 
-  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE];
+  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, TODO_TYPE];
 
   function getActions() {
     return (
@@ -316,7 +326,9 @@ function DecisionInvestible(props) {
   const displayCommentInput = !removeActions && !inArchives && marketId && !_.isEmpty(investible) && !hidden;
   const editClasses = useInvestibleEditStyles();
   const afterDescription = <>{!inProposed && (
-    <>
+    <div style={{marginTop: '2rem'}}>
+      <CommentBox comments={info} marketId={marketId} allowedTypes={allowedCommentTypes}
+                  isInbox={removeActions} removeActions={removeActions} usePadding={false} />
       <h2 id="approvals" style={{marginTop: '2rem'}}>
         <FormattedMessage id="decisionInvestibleOthersVoting"/>
       </h2>
@@ -340,7 +352,7 @@ function DecisionInvestible(props) {
         toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
         useCompression={useCompression}
       />
-    </>
+    </div>
   )}
     {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (
       <div style={{ paddingBottom: '1rem' }}>
@@ -363,7 +375,8 @@ function DecisionInvestible(props) {
                                 onClick={() => navigate(history,
                                   formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                     allowedCommentType, typeObjectId))}>
-                  <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`}/>
+                  <FormattedMessage id={`createNew${allowedCommentType}${
+                    allowedCommentType === TODO_TYPE ? 'Option' : ''}${mobileLayout ? 'Mobile' : ''}`}/>
                 </SpinningButton>
               );
             })}

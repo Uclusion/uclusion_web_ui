@@ -436,7 +436,8 @@ function CommentAdd(props) {
                   validForm={hasValue}
                   nextLabel="commentAddSendLabel"
                   onNext={() => handleSave( true)}
-                  showOtherNext={rootComment?.comment_type !== REPORT_TYPE}
+                  showOtherNext={rootComment?.comment_type !== REPORT_TYPE &&
+                    (ourMarket.market_type !== DECISION_TYPE || rootComment?.comment_type !== TODO_TYPE)}
                   otherNextLabel="commentAddSendResolve"
                   onOtherNext={() => handleSave( true, undefined, undefined,
                     true).then(() => {

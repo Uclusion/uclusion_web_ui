@@ -13,6 +13,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import JobDescription from '../../InboxWizards/JobDescription';
+import { TODO_TYPE } from '../../../constants/comments';
 
 export function hasDecisionComment(groupId, commentType, investibleId) {
   return hasCommentValue(groupId, undefined, 'DecisionCommentAdd', investibleId,
@@ -50,7 +51,8 @@ function AddCommentStep (props) {
       isLarge
     >
       <Typography className={classes.introText}>
-        What is your {intl.formatMessage({ id: `${commentType.toLowerCase()}Simple` }).toLowerCase()}?
+        What is your {intl.formatMessage({ id: `${commentType.toLowerCase()}Simple${commentType === TODO_TYPE 
+          ? 'Option' : ''}` }).toLowerCase()}?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
         This comment will go to those interested in this option - otherwise use @ mentions for different addressing.

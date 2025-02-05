@@ -30,10 +30,12 @@ import { LocalCommentsContext, useCommentStyles } from './Comment';
 import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
-import { BUG_WIZARD_TYPE, DELETE_COMMENT_TYPE, REPLY_WIZARD_TYPE } from '../../constants/markets';
+import { BUG_WIZARD_TYPE, DECISION_TYPE, DELETE_COMMENT_TYPE, REPLY_WIZARD_TYPE } from '../../constants/markets';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
 import EditIcon from '@material-ui/icons/Edit';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -184,6 +186,7 @@ function Reply(props) {
   const [messagesState] = useContext(NotificationsContext);
   const [commentsState] = useContext(CommentsContext);
   const [operationRunning] = useContext(OperationInProgressContext);
+  const [marketsState] = useContext(MarketsContext);
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
@@ -194,9 +197,10 @@ function Reply(props) {
   const classes = useReplyStyles();
   const commentClasses = useCommentStyles();
   const rootComment = getCommentRoot(commentsState, marketId, comment.id);
+  const market = getMarket(marketsState, marketId);
   const { investible_id: investibleId, group_id: groupId } = comment || {};
   const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(rootComment?.comment_type)
-    && !isInbox;
+    && !isInbox && market?.market_type !== DECISION_TYPE;
 
   function useMarketId() {
     return React.useContext(LocalCommentsContext).marketId;

@@ -5,10 +5,17 @@ import queryString from 'query-string';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { addGroupToStorage, getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
-import { isEveryoneGroup } from '../../contexts/GroupMembersContext/groupMembersHelper';
 import Grid from '@material-ui/core/Grid';
 import clsx from 'clsx';
-import { InputAdornment, makeStyles, OutlinedInput, TextField, Typography, useTheme } from '@material-ui/core';
+import {
+  Checkbox,
+  InputAdornment,
+  makeStyles,
+  OutlinedInput,
+  TextField,
+  Typography,
+  useTheme
+} from '@material-ui/core';
 import ManageExistingUsers from '../Dialog/UserManagement/ManageExistingUsers';
 import DialogManage from '../Dialog/DialogManage';
 import { NAME_MAX_LENGTH } from '../../components/TextFields/NameField';
@@ -20,6 +27,11 @@ import { usePlanFormStyles } from '../../components/AgilePlan';
 import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext';
 import { updateGroup } from '../../api/markets';
 import _ from 'lodash';
+import {
+  getGroupPresences, getMarketPresences
+} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -49,6 +61,10 @@ function GroupEdit() {
   const group = getGroup(groupState, marketId, groupId) || {};
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
   const { id, name, ticket_sub_code: originalCode } = group;
   const intl = useIntl();
   const theme = useTheme();
@@ -56,14 +72,18 @@ function GroupEdit() {
   const wizardClasses = wizardStyles(theme);
   const myClasses = useStyles();
   const [ticketSubCode, setTicketSubCode] = useState(undefined);
+  const [isDirtyTicketSubCode, setIsDirtyTicketSubCode] = useState(false);
   const [groupName, setGroupName] = useState(undefined);
+  const [isDirtyName, setIsDirtyName] = useState(false);
+  const [autonomousMode, setAutonomousMode] = useState(group.group_type === 'AUTONOMOUS');
 
   function handleSave() {
     const groupInfo = {
       marketId,
       groupId: id,
       name,
-      ticketSubCode: originalCode
+      ticketSubCode: originalCode,
+      autonomousMode
     }
     if (!_.isEmpty(groupName)) {
       groupInfo.name = groupName;
@@ -87,21 +107,19 @@ function GroupEdit() {
       tabTitle={`${group.name} Settings`}
     >
       <div className={myClasses.container}>
-        {!isEveryoneGroup(id, marketId) && (
-          <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-            <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
-              <Typography variant="h6">
-                {intl.formatMessage({ id: 'addCollaboratorsMobile' })}
-              </Typography>
-            </Grid>
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <ManageExistingUsers group={group}/>
-            </Grid>
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-              <DialogManage marketId={marketId} group={group} />
-            </Grid>
+        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
+          <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
+            <Typography variant="h6">
+              {intl.formatMessage({ id: 'addCollaboratorsMobile' })}
+            </Typography>
           </Grid>
-        )}
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <ManageExistingUsers group={group}/>
+          </Grid>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <DialogManage marketId={marketId} group={group} />
+          </Grid>
+        </Grid>
       </div>
       <div className={myClasses.myContainer}>
         <Typography variant="h6">
@@ -111,10 +129,13 @@ function GroupEdit() {
           {intl.formatMessage({ id: 'groupNameHelp' })}
         </Typography>
         <OutlinedInput
-          id="workspaceName"
+          id="groupName"
           className={wizardClasses.input}
           value={groupName === undefined ? name : groupName}
-          onChange={(event) => {setGroupName(event.target.value)}}
+          onChange={(event) => {
+            setGroupName(event.target.value);
+            setIsDirtyName(true);
+          }}
           autoFocus
           variant="outlined"
           inputProps={{ maxLength : NAME_MAX_LENGTH }}
@@ -124,6 +145,14 @@ function GroupEdit() {
             </InputAdornment>
           }
         />
+        <div className={classes.fieldsetContainer} style={{paddingTop: '2rem'}}>
+          <Checkbox
+            checked={autonomousMode}
+            disabled={groupPresences?.length > 1 && !autonomousMode}
+            onClick={() => setAutonomousMode(!autonomousMode)}
+          />
+          Use autonomous mode (only applies to views with one assignee).
+        </div>
         <Typography style={{marginTop: '2rem'}}>
           {intl.formatMessage({ id: 'ticketSubCodeHelp' })}
         </Typography>
@@ -131,17 +160,23 @@ function GroupEdit() {
           id="name"
           className={classes.input}
           value={ticketSubCode === undefined ? decodeURI(originalCode) : ticketSubCode}
-          onChange={(event) => {setTicketSubCode(event.target.value)}}
+          onChange={(event) => {
+            setTicketSubCode(event.target.value);
+            setIsDirtyTicketSubCode(true);
+          }}
         />
         <div style={{marginTop: '2rem'}}>
           <SpinningIconLabelButton onClick={() => {
             setGroupName(undefined);
+            setIsDirtyName(false);
             setTicketSubCode(undefined);
+            setIsDirtyTicketSubCode(false);
           }} doSpin={false} icon={Clear}>
             {intl.formatMessage({ id: 'marketEditCancelLabel' })}
           </SpinningIconLabelButton>
           <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore}
-                                   disabled={_.isEmpty(groupName) && _.isEmpty(ticketSubCode)}
+                                   disabled={(_.isEmpty(groupName) && isDirtyName) ||
+                                     (_.isEmpty(ticketSubCode)&&isDirtyTicketSubCode)}
                                    id="planningDialogUpdateButton">
             {intl.formatMessage({ id: 'marketEditSaveLabel' })}
           </SpinningIconLabelButton>

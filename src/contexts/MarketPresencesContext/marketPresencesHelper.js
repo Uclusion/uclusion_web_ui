@@ -1,6 +1,5 @@
 import { addMarketPresence, addMarketPresences, patchInvestment } from './marketPresencesContextReducer';
 import _ from 'lodash'
-import { isEveryoneGroup } from '../GroupMembersContext/groupMembersHelper'
 import { useContext } from 'react';
 import { MarketPresencesContext } from './MarketPresencesContext';
 import { getMarketComments } from '../CommentsContext/commentsContextHelper';
@@ -56,7 +55,7 @@ export function getReasonForVote(vote, marketComments) {
 export function getGroupPresences(presences, groupMembersState, marketId, groupId, includeDeleted=false) {
   const presencesFiltered = presences.filter((presence) => !presence.market_banned);
   const groupCapabilities = groupMembersState[groupId] || [];
-  const groupPresences = (isEveryoneGroup(groupId, marketId) || _.isEmpty(groupId)) ? presencesFiltered
+  const groupPresences = _.isEmpty(groupId) ? presencesFiltered
     : presencesFiltered.filter((presence) => groupCapabilities.find((groupCapability) =>
       (!groupCapability.deleted || includeDeleted) && groupCapability.id === presence.id));
   if (includeDeleted) {
@@ -68,17 +67,16 @@ export function getGroupPresences(presences, groupMembersState, marketId, groupI
   return groupPresences;
 }
 
-export function getPresencesForGroup(presences, groupMembersState, marketId, groupId) {
-  const groupCapabilities = groupMembersState[groupId] || [];
-  return (isEveryoneGroup(groupId, marketId) || _.isEmpty(groupId)) ? presences
-    : groupCapabilities.filter((groupCapability) => !groupCapability.deleted);
-}
-
 export function usePresences(marketId) {
   const [presencesState] = useContext(MarketPresencesContext);
   return getMarketPresences(presencesState, marketId) || [];
 }
 
+export function isAutonomousGroup(groupPresences, group) {
+  return groupPresences?.length === 1 && group?.group_type === 'AUTONOMOUS';
+}
+
+// TODO REMOVE
 export function isSingleUserMarket(presences, market) {
   const presencesFiltered = presences?.filter((presence) => !presence.market_banned);
   return presencesFiltered?.length === 1 && market?.market_sub_type === 'SINGLE_PERSON';

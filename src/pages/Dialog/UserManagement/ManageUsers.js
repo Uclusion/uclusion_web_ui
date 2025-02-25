@@ -52,7 +52,7 @@ function ManageUsers(props) {
         </CardActions>
       )}
       <CardContent>
-        <AddNewUsers market={market} name={name} group={group} isAddToGroup={isAddGroup}
+        <AddNewUsers market={market} name={name} group={group} isAddToGroup={isAddGroup} showAll={false}
                      setToAddClean={(value) => setChecked(value)} />
       </CardContent>
     </>

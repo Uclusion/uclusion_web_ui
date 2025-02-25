@@ -6,8 +6,8 @@ import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestibleN
 import React, { useContext } from 'react';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
-  getMarketPresences,
-  getPresencesForGroup, isSingleUserMarket
+  getGroupPresences,
+  getMarketPresences, isAutonomousGroup
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { PLACEHOLDER } from '../../../constants/global';
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils';
@@ -24,8 +24,6 @@ import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesCont
 import AddIcon from '@material-ui/icons/Add';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
 export const useInvestiblesByPersonStyles = makeStyles(
@@ -139,12 +137,11 @@ function InvestiblesByPerson(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const [marketsState] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
   const { search } = searchResults;
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
-  const groupPresences = getPresencesForGroup(presences, groupPresencesState, marketId, groupId) || [];
-  const isSingleUser = isSingleUserMarket(presences, getMarket(marketsState, marketId));
+  const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
+  const isAutonomous = isAutonomousGroup(groupPresences, group);
   const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
   const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
@@ -164,7 +161,7 @@ function InvestiblesByPerson(props) {
 
       {!mobileLayout && (
         <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
-          {!isSingleUser && (
+          {!isAutonomous && (
             <div>
               <Link href="https://documentation.uclusion.com/views/jobs/stages/#assigned" target="_blank"
                     style={{ color: DARKER_LINK_COLOR }}>

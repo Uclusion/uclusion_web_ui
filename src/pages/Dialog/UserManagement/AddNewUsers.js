@@ -24,7 +24,7 @@ import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 import { fixName } from '../../../utils/userFunctions';
 
 function AddNewUsers(props) {
-  const { market, setToAddClean, group } = props;
+  const { market, setToAddClean, group, showAll=true } = props;
   const { id: addToMarketId } = market || {};
   const { id: groupId } = group || {};
   const classes = usePlanFormStyles();
@@ -37,9 +37,10 @@ function AddNewUsers(props) {
 
   const marketPresences = getMarketPresences(marketPresencesState, addToMarketId) || [];
   const addToMarketPresences = groupId ?
-    getGroupPresences(marketPresences, groupPresencesState, addToMarketId, groupId) :
+    getGroupPresences(marketPresences, groupPresencesState, addToMarketId, groupId, !showAll) :
     (addToMarketId ? marketPresences : [myUser]);
-  const participants = _.difference(marketPresences, addToMarketPresences);
+  console.debug(addToMarketPresences)
+  const participants = _.differenceBy(marketPresences, addToMarketPresences, 'id');
   const [checked, setChecked] = useState([]);
   const [searchValue, setSearchValue] = useState(undefined);
   const [filteredNames, setFilteredNames] = useState(undefined);

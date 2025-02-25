@@ -58,9 +58,6 @@ function WorkspaceNameStep (props) {
     const marketInfo = {
       name,
     };
-    if (isSinglePersonMode) {
-      marketInfo.market_sub_type = 'SINGLE_PERSON';
-    }
     return createPlanning(marketInfo)
       .then((marketDetails) => {
         const {
@@ -69,6 +66,7 @@ function WorkspaceNameStep (props) {
           stages,
           token,
           group,
+          is_autonomous_group: isSinglePersonMode,
           market_creator: user
         } = marketDetails;
         const createdMarketId = market.id;
@@ -119,8 +117,8 @@ function WorkspaceNameStep (props) {
           </Typography>
         )}
         <Typography className={classes.introSubText} variant="subtitle1">
-          Single person mode removes collaboration features until a collaborator is added or the mode is turned off in
-          settings.
+          Autonomous mode removes collaboration features from the default view until a
+          collaborator is added or the mode is turned off in settings.
         </Typography>
         <OutlinedInput
           id="workspaceName"
@@ -144,7 +142,7 @@ function WorkspaceNameStep (props) {
           nextLabel="createWorkspaceNormal"
           onNext={onNext}
           showOtherNext
-          otherNextLabel="createWorkspaceSingleUser"
+          otherNextLabel="createViewSingleUser"
           onOtherNext={onSinglePersonCreate}
           onOtherDoAdvance={false}
           isOtherFinal

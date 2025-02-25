@@ -17,7 +17,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import Link from '@material-ui/core/Link';
 
 function GroupNameStep (props) {
-  const { updateFormData, formData, marketId, isSingleWorkspaceMember } = props;
+  const { updateFormData, formData, marketId } = props;
   const history = useHistory();
   const intl = useIntl();
   const value = formData.name || '';
@@ -35,28 +35,39 @@ function GroupNameStep (props) {
     });
   }
 
-  function onNext(){
-      const dispatchers = {
-        groupsDispatch,
-        diffDispatch,
-        groupMembersDispatch
-      };
+  function createGroup(isAutonomous) {
+    const dispatchers = {
+      groupsDispatch,
+      diffDispatch,
+      groupMembersDispatch
+    };
 
-      const groupData = {
-        ...formData,
-        marketId,
-      };
-      return doCreateGroup(dispatchers, groupData)
-        .then((group) => {
-          setOperationRunning(false);
-          const {id: groupId} = group;
-          const link = formMarketLink(marketId, groupId);
-          updateFormData({
-            link,
-            groupId,
-          });
-          return link;
+    const groupData = {
+      ...formData,
+      marketId,
+      is_autonomous_group: isAutonomous
+    };
+    return doCreateGroup(dispatchers, groupData)
+      .then((group) => {
+        setOperationRunning(false);
+        const {id: groupId} = group;
+        const link = formMarketLink(marketId, groupId);
+        updateFormData({
+          link,
+          groupId,
         });
+        return link;
+      });
+  }
+
+  function onNext(){
+      return createGroup(false);
+  }
+
+  function onOtherNext(){
+    return createGroup(true).then((link) => {
+      navigate(history, link);
+    });
   }
 
   function onTerminate(){
@@ -64,7 +75,7 @@ function GroupNameStep (props) {
       .then((link) => {
         setOperationRunning(false);
         navigate(history, link);
-      })
+      });
   }
 
   return (
@@ -75,8 +86,9 @@ function GroupNameStep (props) {
         What do you want to call your view?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
-        A <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> in a workspace allows
-        separate display and notifications.
+        Autonomous mode removes collaboration features
+        from a <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> until a collaborator
+        is added or the mode is turned off in settings.
       </Typography>
       <OutlinedInput
         id="groupName"
@@ -97,10 +109,13 @@ function GroupNameStep (props) {
       <WizardStepButtons
         {...props}
         validForm={validForm}
-        onNext={isSingleWorkspaceMember ? onTerminate : onNext}
-        onNextDoAdvance={!isSingleWorkspaceMember}
-        nextLabel={isSingleWorkspaceMember ? 'GroupWizardGotoGroup' : 'GroupWizardAddMembers'}
-        showTerminate={validForm && !isSingleWorkspaceMember}
+        onNext={onNext}
+        nextLabel={'GroupWizardAddMembers'}
+        otherNextLabel="createViewSingleUser"
+        showOtherNext
+        onOtherNext={onOtherNext}
+        onOtherDoAdvance={false}
+        showTerminate={validForm}
         onTerminate={onTerminate}
         terminateLabel="GroupWizardGotoGroup"/>
     </WizardStepContainer>

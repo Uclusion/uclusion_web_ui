@@ -171,7 +171,7 @@ function PlanningMarketEdit() {
               disabled={!isSingleUser}
               onClick={() => setSinglePersonMode(!singlePersonMode)}
             />
-            Use single person mode (only applies to workspaces with one person).
+            Use single person mode (only applies to workspaces with one assignee).
           </Grid>
         </Grid>
       </CardContent>

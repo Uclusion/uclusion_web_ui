@@ -33,18 +33,27 @@ import { addCommentsToMarket } from '../../../contexts/CommentsContext/commentsC
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { extractTodosList } from '../../../utils/commentFunctions';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData, onFinish, roots, formData, jobType, startOver, nextStep,
-    moveFromComments, isSingleUser, myPresenceId } = props;
+    moveFromComments, isSingleUser, myPresenceId, presences } = props;
   const history = useHistory();
   const intl = useIntl();
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const radioClasses = bugRadioStyles();
+  const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
+  const myGroupPresence = groupPresences.find((presence) => presence.id === myPresenceId);
   const isMovingTasks = !_.isEmpty(roots);
   const editorName = isMovingTasks ? `addJobWizard${roots[0].id}` : `addJobWizard${groupId}`;
   const { newQuantity } = formData;
+  const jobTypes = ['READY', 'NOT_READY'];
+  if (!_.isEmpty(myGroupPresence)||!isSingleUser) {
+    jobTypes.shift('IMMEDIATE');
+  }
 
   function getDefaultDescription() {
     let defaultDescription = undefined;
@@ -234,7 +243,7 @@ function JobDescriptionStep (props) {
           onChange={onChange}
           value={currentValue}
         >
-          {['IMMEDIATE', 'READY', 'NOT_READY'].map(certainty => {
+          {jobTypes.map(certainty => {
             return (
               <Tooltip title={<h3>
                 {intl.formatMessage({ id: `certaintyTip${certainty}` })}

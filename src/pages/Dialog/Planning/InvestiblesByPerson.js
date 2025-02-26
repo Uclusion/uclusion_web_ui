@@ -141,6 +141,8 @@ function InvestiblesByPerson(props) {
   const { search } = searchResults;
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
+  const myPresence = presences.find((presence) => presence.current_user) || {};
+  const myGroupPresence = groupPresences.find((presence) => presence.id === myPresence.id);
   const isAutonomous = isAutonomousGroup(groupPresences, group);
   const groupPresencesSortedAlmost = _.sortBy(groupPresences, 'name');
   const groupPresencesSorted = _.sortBy(groupPresencesSortedAlmost, function (presence) {
@@ -149,16 +151,17 @@ function InvestiblesByPerson(props) {
 
   return (
     <React.Fragment key="investiblesByPerson">
-      <SpinningButton id="addJob"
-                      className={wizardClasses.actionNext}
-                      icon={AddIcon} iconColor="black"
-                      variant="text" doSpin={false}
-                      style={{marginTop: '1rem', marginBottom: '1rem'}}
-                      toolTipId='hotKeyTODO'
-                      onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
-        <FormattedMessage id='addStoryLabel'/>
-      </SpinningButton>
-
+      {(!isAutonomous || !_.isEmpty(myGroupPresence)) && (
+        <SpinningButton id="addJob"
+                        className={wizardClasses.actionNext}
+                        icon={AddIcon} iconColor="black"
+                        variant="text" doSpin={false}
+                        style={{marginTop: '1rem', marginBottom: '1rem'}}
+                        toolTipId='hotKeyTODO'
+                        onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
+          <FormattedMessage id='addStoryLabel'/>
+        </SpinningButton>
+      )}
       {!mobileLayout && (
         <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
           {!isAutonomous && (

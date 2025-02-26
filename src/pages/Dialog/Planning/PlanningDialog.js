@@ -287,26 +287,30 @@ function PlanningDialog(props) {
     if (isAssigned) {
       if (isAutonomous) {
         const presence = marketPresences.find((presence) => !presence.market_banned);
-        const inv = getInvestible(investibleState, id);
-        const marketInfo = getMarketInfo(inv, marketId) || {};
-        if (marketInfo.stage !== acceptedStage.id) {
-          const moveInfo = {
-            marketId,
-            investibleId: id,
-            stageInfo: {
-              current_stage_id: marketInfo.stage,
-              stage_id: acceptedStage.id,
-              assignments: [presence.id]
-            },
-          };
-          setOperationRunning(true);
-          return stageChangeInvestible(moveInfo)
-            .then((newInv) => {
-              onInvestibleStageChange(furtherWorkStage.id, newInv, id, marketId, commentsState,
-                commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
-                getFullStage(marketStagesState, marketId, marketInfo.stage), marketPresencesDispatch);
-              setOperationRunning(false);
-            });
+        const myGroupPresence = groupPresences.find((presence) => presence.id === myPresence.id);
+        if (!_.isEmpty(myGroupPresence)) {
+          // If autonomous and you are not in the group then this is a no op
+          const inv = getInvestible(investibleState, id);
+          const marketInfo = getMarketInfo(inv, marketId) || {};
+          if (marketInfo.stage !== acceptedStage.id) {
+            const moveInfo = {
+              marketId,
+              investibleId: id,
+              stageInfo: {
+                current_stage_id: marketInfo.stage,
+                stage_id: acceptedStage.id,
+                assignments: [presence.id]
+              },
+            };
+            setOperationRunning(true);
+            return stageChangeInvestible(moveInfo)
+              .then((newInv) => {
+                onInvestibleStageChange(furtherWorkStage.id, newInv, id, marketId, commentsState,
+                  commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+                  getFullStage(marketStagesState, marketId, marketInfo.stage), marketPresencesDispatch);
+                setOperationRunning(false);
+              });
+          }
         }
       } else {
         navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&isAssign=${isAssigned}`);

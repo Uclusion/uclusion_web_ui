@@ -6,7 +6,11 @@ import {
 } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { Assignment, Block, BugReportOutlined, PersonAddOutlined } from '@material-ui/icons';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets';
-import { getMarketPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getGroupPresences,
+  getMarketPresences,
+  isAutonomousGroup
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import {
   getAcceptedStage,
@@ -49,6 +53,7 @@ import { NOT_FULLY_VOTED_TYPE, RED_LEVEL, UNREAD_JOB_APPROVAL_REQUEST } from '..
 import TriageWizard from '../../../components/InboxWizards/Triage/TriageWizard';
 import InvestibleEditedWizard from '../../../components/InboxWizards/JobEdited/InvestibleEditedWizard';
 import Approval from '../../../components/CustomChip/Approval';
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {
@@ -315,8 +320,16 @@ export function getDecisionData(market, marketPresencesState, commentsState) {
   return { questions, issues, suggestions, comments, marketPresences }
 }
 
+function isAutonomousComment(comment, marketPresences, groupPresencesState, marketId, groupsState) {
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
+    comment.group_id) || [];
+  const group = getGroup(groupsState, marketId, comment.group_id);
+  return isAutonomousGroup(groupPresences, group);
+}
+
 export function getOutboxMessages(props) {
-  const { marketsState, marketPresencesState, investiblesState, marketStagesState, commentsState, intl } = props;
+  const { marketsState, marketPresencesState,groupPresencesState, groupsState, investiblesState, marketStagesState,
+    commentsState, intl } = props;
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE,
@@ -359,8 +372,13 @@ export function getOutboxMessages(props) {
   workspacesData.forEach((workspaceData) => {
     const { market, comments, inVotingInvestibles, questions, issues, suggestions, bugs } = workspaceData;
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
-    if (!isSingleUserMarket(marketPresences, market)) {
-      inVotingInvestibles.forEach((investible) => {
+    inVotingInvestibles.forEach((investible) => {
+      const marketInfo = getMarketInfo(investible, market.id);
+      const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id,
+        marketInfo.group_id) || [];
+      const group = getGroup(groupsState, market.id, marketInfo.group_id);
+      const isAutonomous = isAutonomousGroup(groupPresences, group);
+      if (!isAutonomous) {
         const investibleId = investible.investible.id;
         const notAccepted = investible.notAccepted;
         const label = notAccepted ? 'planningUnacceptedLabel' : 'startJobQ';
@@ -370,7 +388,6 @@ export function getOutboxMessages(props) {
         const votersForInvestibleRaw = calculateInvestibleVoters(investibleId, market.id, marketsState,
           investiblesState, marketPresences, true);
         const votersForInvestible = votersForInvestibleRaw.filter((voter) => !voter.isExpired && !voter.deleted);
-        const marketInfo = getMarketInfo(investible, market.id)
         if (!notAccepted) {
           message.isWaitingStart = true;
           message.icon = <Approval style={{ fontSize: 24, color: '#ffc61a', }}/>;
@@ -396,40 +413,48 @@ export function getOutboxMessages(props) {
         }
 
         messages.push(message);
-      });
-      questions.forEach((comment) => {
+      }
+    });
+    questions.forEach((comment) => {
+      if (!isAutonomousComment(comment, marketPresences, groupPresencesState, market.id, groupsState)) {
         const message = getMessageForComment(comment, market, QUESTION_TYPE,
           <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
           comments, marketPresences)
         if (message) {
           messages.push(message);
         }
-      });
-      issues.forEach((comment) => {
+      }
+    });
+    issues.forEach((comment) => {
+      if (!isAutonomousComment(comment, marketPresences, groupPresencesState, market.id, groupsState)) {
         const message = getMessageForComment(comment, market, ISSUE_TYPE,
           <Block style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
           comments, marketPresences)
         if (message) {
           messages.push(message);
         }
-      });
-      suggestions.forEach((comment) => {
+      }
+    });
+    suggestions.forEach((comment) => {
+      if (!isAutonomousComment(comment, marketPresences, groupPresencesState, market.id, groupsState)) {
         const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
           <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
           comments, marketPresences)
         if (message) {
           messages.push(message);
         }
-      });
-      bugs.forEach((comment) => {
+      }
+    });
+    bugs.forEach((comment) => {
+      if (!isAutonomousComment(comment, marketPresences, groupPresencesState, market.id, groupsState)) {
         const message = getMessageForComment(comment, market, TODO_TYPE,
           <BugReportOutlined style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
           comments, marketPresences)
         if (message) {
           messages.push(message);
         }
-      });
-    }
+      }
+    });
   });
 
   return _.orderBy(messages, ['updatedAt'], ['asc']);

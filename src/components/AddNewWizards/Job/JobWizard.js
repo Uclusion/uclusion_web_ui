@@ -30,14 +30,15 @@ import {
   onCommentsMove
 } from '../../../utils/commentFunctions';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { getMarketPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getMarketPresences,
+  useGroupPresences
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function JobWizard(props) {
   const { marketId, groupId, jobType, useType } = props;
@@ -55,10 +56,9 @@ function JobWizard(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState, investibleDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [marketsState] = useContext(MarketsContext);
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const isSingleUser = useGroupPresences(groupId, marketId, presences);
   const myPresence = presences.find((presence) => presence.current_user);
-  const isSingleUser = isSingleUserMarket(presences, getMarket(marketsState, marketId));
   const comments = marketId ? getMarketComments(commentsState, marketId, groupId) : [];
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     comments.find((comment) => comment.id === fromCommentId));

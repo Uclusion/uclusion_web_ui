@@ -18,9 +18,9 @@ import {
 import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
+  getGroupPresences,
   getMarketPresences,
-  getPresenceMap,
-  isSingleUserMarket
+  getPresenceMap, isAutonomousGroup
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import ArchiveInvestbiles from '../../DialogArchives/ArchiveInvestibles';
@@ -82,6 +82,7 @@ import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../.
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { RED_LEVEL } from '../../../constants/notifications';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -127,9 +128,11 @@ function PlanningDialog(props) {
   const [groupState] = useContext(MarketGroupsContext);
   const [marketsState] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const market = getMarket(marketsState, marketId) || {};
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
+
   const isAdmin = myPresence.is_admin;
   const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
   // There is no link to a reply so including them should be okay
@@ -253,7 +256,8 @@ function PlanningDialog(props) {
     _.size(archiveInvestibles) + _.size(resolvedMarketComments);
   const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
-  const isSingleUser = isSingleUserMarket(marketPresences, market);
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
+  const isAutonomous = isAutonomousGroup(groupPresences, group);
   let navListItemTextArray = undefined;
   if (mobileLayout) {
     navListItemTextArray = [
@@ -281,7 +285,7 @@ function PlanningDialog(props) {
 
   function onDropJob(id, isAssigned) {
     if (isAssigned) {
-      if (isSingleUser) {
+      if (isAutonomous) {
         const presence = marketPresences.find((presence) => !presence.market_banned);
         const inv = getInvestible(investibleState, id);
         const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -383,10 +387,10 @@ function PlanningDialog(props) {
     }
     if (tabIndex === 2) {
       const commentIds = (todoComments ||[]).map((comment) => comment.id);
-      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, !isSingleUser);
+      const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, !isAutonomous);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {
-        return isSingleUser ? `${_.size(criticalTodoComments)}` : `${_.size(numNewMessages)}`;
+        return isAutonomous ? `${_.size(criticalTodoComments)}` : `${_.size(numNewMessages)}`;
       }
     }
     if (tabIndex === 3) {
@@ -401,7 +405,7 @@ function PlanningDialog(props) {
   }
   function getTagLabel(tabCount, tabIndex) {
     if (tabCount) {
-      if (isSingleUser && tabIndex === 2) {
+      if (isAutonomous && tabIndex === 2) {
         return intl.formatMessage({ id: 'immediateLower' });
       }
       return intl.formatMessage({ id: 'new' });
@@ -423,7 +427,7 @@ function PlanningDialog(props) {
       navigationOptions={{useHoverFunctions: !mobileLayout, resetFunction: () => resetFunction(0)}}
     >
       <div style={{ paddingBottom: '0.25rem', paddingLeft: 0, marginLeft: '-0.5rem' }}>
-        <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen} isDemo={isDemo} isSingleUser={isSingleUser}/>
+        <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen} isDemo={isDemo} isSingleUser={isAutonomous}/>
         <GmailTabs
           value={tabIndex}
           id='dialog-header'
@@ -567,7 +571,7 @@ function PlanningDialog(props) {
           <div id="backlogSection" style={{overflowX: 'hidden', paddingBottom: '5rem'}}>
             <Backlog group={group} marketPresences={marketPresences}
                      furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
-                     comments={comments} isSingleUser={isSingleUser} />
+                     comments={comments} isSingleUser={isAutonomous} />
           </div>
         )}
         <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}

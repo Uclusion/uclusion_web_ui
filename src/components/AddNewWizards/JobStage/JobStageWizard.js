@@ -20,7 +20,7 @@ import { useHistory } from 'react-router';
 import {
   getMarketPresences,
   getReasonForVote,
-  isSingleUserMarket
+  useGroupPresences
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
@@ -28,8 +28,6 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import StageActionStep from './StageActionStep';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function JobStageWizard(props) {
   const { marketId, investibleId, stageId, isAssign, isBlocked } = props;
@@ -38,7 +36,6 @@ function JobStageWizard(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [marketsState] = useContext(MarketsContext);
   const inv = getInvestible(investibleState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, group_id: groupId, assigned } = marketInfo;
@@ -48,7 +45,7 @@ function JobStageWizard(props) {
     investment.investible_id === investibleId);
   const marketComments = getMarketComments(commentsState, marketId, groupId);
   const yourReason = getReasonForVote(yourVote, marketComments);
-  const isSingleUser = isSingleUserMarket(marketPresences, getMarket(marketsState, marketId));
+  const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
   const useStageId = stageId ? stageId :
     (isAssign === 'true' ? getInCurrentVotingStage(marketStagesState, marketId)?.id : undefined);
 

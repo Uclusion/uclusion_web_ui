@@ -31,9 +31,7 @@ import { reopenComment, resolveComment, updateComment } from '../../api/comments
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
-  changeMyPresence,
-  isSingleUserMarket,
-  usePresences
+  changeMyPresence, useGroupPresences, usePresences
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
@@ -491,12 +489,12 @@ function Comment(props) {
   const thisCommentBeingEdited = beingEdited && !replyBeingEdited;
   const presences = usePresences(marketId);
   const inlinePresences = usePresences(inlineMarketId);
+  const isSingleUser = useGroupPresences(groupId, marketId, presences);
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
   const [marketsState, , tokensHash] = useContext(MarketsContext);
   const inlineMarket = getMarket(marketsState, inlineMarketId) || {};
   const market = getMarket(marketsState, marketId) || {};
-  const isSingleUser = isSingleUserMarket(presences, market);
   const { market_stage: marketStage, market_type: marketType } = market;
   const activeMarket = marketStage === ACTIVE_STAGE;
   const myPresence = presences.find((presence) => presence.current_user) || {};

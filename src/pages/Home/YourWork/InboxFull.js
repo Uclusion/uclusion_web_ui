@@ -22,6 +22,7 @@ import { SearchResultsContext } from '../../../contexts/SearchResultsContext/Sea
 import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions';
 import _ from 'lodash';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 function InboxFull(props) {
   const { hidden } = props;
@@ -37,6 +38,7 @@ function InboxFull(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [messagesState, , notificationsInitialized] = useContext(NotificationsContext);
   const [groupsState] = useContext(MarketGroupsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { messages: messagesUnsafe } = messagesState;
   const messagesMapped = (messagesUnsafe || []).map((message) => {
@@ -46,7 +48,7 @@ function InboxFull(props) {
     return isInInbox(message);
   });
   const allOutBoxMessagesOrdered = getOutboxMessages({messagesState, marketsState, marketPresencesState,
-    investiblesState, marketStagesState, commentsState, intl});
+    investiblesState, marketStagesState, commentsState, groupPresencesState, groupsState, intl});
   const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesFull,
     searchResults, workItemId, groupsState);
   const [inboxState, inboxDispatch] = useReducer(getReducer(),

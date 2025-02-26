@@ -29,7 +29,10 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { getFullStage, getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getMarketPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getMarketPresences,
+  useGroupPresences
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -55,6 +58,7 @@ function JobDescriptionStatusStep(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
+  const isSingleUser = useGroupPresences(marketInfo.group_id, marketId, marketPresences);
   const { completion_estimate: daysEstimate, last_stage_change_date: lastStageChangeDate } = marketInfo;
   let millisSinceDue = null;
   if (daysEstimate) {
@@ -78,7 +82,6 @@ function JobDescriptionStatusStep(props) {
   const millisBeforeMove = startedExpiration*86400000 - millisStalled;
   const alreadyMoved = linkType === 'INVESTIBLE_STAGE';
   const { useCompression } = formData;
-  const isSingleUser = isSingleUserMarket(marketPresences, market);
 
   function myTerminate() {
     if (isHighlighted || alreadyMoved) {

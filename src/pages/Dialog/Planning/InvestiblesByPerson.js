@@ -142,8 +142,8 @@ function InvestiblesByPerson(props) {
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
   const isAutonomous = isAutonomousGroup(groupPresences, group);
-  const marketPresencesSortedAlmost = _.sortBy(presences, 'name');
-  const marketPresencesSorted = _.sortBy(marketPresencesSortedAlmost, function (presence) {
+  const groupPresencesSortedAlmost = _.sortBy(groupPresences, 'name');
+  const groupPresencesSorted = _.sortBy(groupPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
   });
 
@@ -183,7 +183,7 @@ function InvestiblesByPerson(props) {
           </div>
         </dl>
       )}
-      {marketPresencesSorted.map(presence => {
+      {groupPresencesSorted.map(presence => {
         const { id, email, placeholder_type: placeholderType } = presence;
         const name = (presence.name || '').replace('@', ' ');
         const showAsPlaceholder = placeholderType === PLACEHOLDER;
@@ -191,8 +191,7 @@ function InvestiblesByPerson(props) {
         const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId,
           comments, messagesState);
         const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
-        const groupPresence = groupPresences.find((groupPresence) => groupPresence.id === presence.id);
-        const { mentioned_notifications: mentions, approve_notifications: approvals } = groupPresence || {};
+        const { mentioned_notifications: mentions, approve_notifications: approvals } = presence;
         if (_.isEmpty(myInvestiblesStageHash) &&
           ((_.isEmpty(mentions) && _.isEmpty(approvals))||!_.isEmpty(search))) {
           return <React.Fragment key={`investiblesByPerson${id}`}/>
@@ -207,7 +206,7 @@ function InvestiblesByPerson(props) {
                     <Typography variant="body1" className={myClassName}>
                       {name}
                       {!mobileLayout && (
-                        <NotificationCountChips id={id} presence={groupPresence || {}}/>
+                        <NotificationCountChips id={id} presence={presence}/>
                       )}
                     </Typography>
                   </div>}

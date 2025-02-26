@@ -74,7 +74,7 @@ import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { useGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import EditIcon from '@material-ui/icons/Edit';
 import { hasJobComment } from '../../../components/AddNewWizards/JobComment/AddCommentStep';
 import Link from '@material-ui/core/Link';
@@ -394,7 +394,7 @@ function PlanningInvestible(props) {
   const yourVote = yourPresence?.investments?.find((investment) =>
     investment.investible_id === investibleId && !investment.deleted);
   const displayVotingInput = canVote && _.isEmpty(search) && !yourVote;
-  const isSingleUser = isSingleUserMarket(marketPresences, market);
+  const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
 
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {

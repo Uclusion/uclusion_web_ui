@@ -50,7 +50,10 @@ import {
 } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 import InvesibleCommentLinker from '../../Dialog/InvesibleCommentLinker';
-import { getGroupPresences, isSingleUserMarket } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getGroupPresences,
+  useGroupPresences
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { useAddressed } from '../../../utils/votingUtils';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { getMidnightToday } from '../../../utils/timerUtils';
@@ -162,7 +165,7 @@ export default function PlanningInvestibleNav(props) {
   }
   const readyToStartChecked = operationRunning === `readyToStartCheckbox${investibleId}` ?
     !openForInvestment : openForInvestment;
-  const isSingleUser = isSingleUserMarket(marketPresences, market);
+  const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
   const useInVoting = isInVoting && !isSingleUser;
 
   function assignToSingleUser() {

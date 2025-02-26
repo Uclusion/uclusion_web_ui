@@ -18,8 +18,8 @@ import { countByType } from './InvestiblesByPerson'
 import { usePlanFormStyles } from '../../../components/AgilePlan'
 import {
   getGroupPresences,
-  getMarketPresences, isSingleUserMarket,
-  removeInvestibleInvestments
+  getMarketPresences, isAutonomousGroup,
+  removeInvestibleInvestments, useGroupPresences
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import Chip from '@material-ui/core/Chip';
@@ -65,10 +65,10 @@ import DragImage from '../../../components/Dialogs/DragImage';
 import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime';
 import { isInPast } from '../../../utils/timerUtils';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
-import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import BugListItem from '../../../components/Comments/BugListItem';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -120,10 +120,11 @@ function PlanningIdeas(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
-  const [marketsState] = useContext(MarketsContext);
+  const [groupState] = useContext(MarketGroupsContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
-  const isSingleUser = isSingleUserMarket(marketPresences, getMarket(marketsState, marketId));
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
+  const group = getGroup(groupState, marketId, groupId);
+  const isAutonomous = isAutonomousGroup(groupPresences, group);
   const myPresence = (marketPresences || []).find((presence) => presence.current_user) || {};
 
   function isBlockedByTodo(investibleId, currentStageId, targetStageId) {
@@ -250,7 +251,7 @@ function PlanningIdeas(props) {
         // Go to change stage close comment step with divId destination
         return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}`;
       }
-      if (!isSingleUser) {
+      if (!isAutonomous) {
         // Go to change stage add review step with divId destination
         return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=false`;
       }
@@ -263,12 +264,12 @@ function PlanningIdeas(props) {
     event.preventDefault();
   }
 
-  const acceptedInvestibles = isSingleUser ? (myInvestiblesStageHash[acceptedStageId] || [])
+  const acceptedInvestibles = isAutonomous ? (myInvestiblesStageHash[acceptedStageId] || [])
       .concat(myInvestiblesStageHash[inDialogStageId] || []) : myInvestiblesStageHash[acceptedStageId] || [];
 
   return (
     <div className={mobileLayout ? undefined : classes.stages}>
-      {!isSingleUser && (
+      {!isAutonomous && (
         <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
              onDragOver={onDragOverProcess}
         >
@@ -593,19 +594,18 @@ function StageInvestible(props) {
     isVoting
   } = props;
   const intl = useIntl();
-  const { completion_estimate: daysEstimate, ticket_code: ticketCode } = marketInfo;
+  const { completion_estimate: daysEstimate, ticket_code: ticketCode, group_id: groupId } = marketInfo;
   const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [marketsState] = useContext(MarketsContext);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
   const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId, !isVoting);
+  const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
   const collaboratorsForInvestible = getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible,
     marketPresences, marketPresencesState, isVoting);
-  const isSingleUser = isSingleUserMarket(marketPresences, getMarket(marketsState, marketId));
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
   const isReviewable = isReview || showCompletion;
   const unreadEstimate = findMessageOfType('UNREAD_ESTIMATE', id, messagesState);

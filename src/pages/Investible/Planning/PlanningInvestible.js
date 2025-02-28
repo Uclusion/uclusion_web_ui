@@ -742,7 +742,6 @@ function PlanningInvestible(props) {
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
                             usePadding={!mobileLayout}
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen/>
-            {!isSingleUser && (
               <div style={{
                 paddingBottom: mobileLayout ? undefined : '15vh',
                 paddingLeft: mobileLayout ? undefined : '1rem',
@@ -764,7 +763,7 @@ function PlanningInvestible(props) {
                     </Tooltip>
                   </IconButton>
                 </div>
-                {displayVotingInput && investibleId && approvalsOpen && (
+                {displayVotingInput && investibleId && approvalsOpen && !isSingleUser && (
                   <SpinningButton id="newApproval" className={wizardClasses.actionNext}
                                   icon={AddIcon} iconColor="black"
                                   style={{ display: 'flex', marginBottom: '1.5rem', marginTop: '0.5rem' }}
@@ -774,7 +773,7 @@ function PlanningInvestible(props) {
                     <FormattedMessage id="createNewApproval"/>
                   </SpinningButton>
                 )}
-                {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsOpen && (
+                {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsOpen && !isSingleUser && (
                   <Voting
                     investibleId={investibleId}
                     marketPresences={marketPresences}
@@ -829,7 +828,6 @@ function PlanningInvestible(props) {
                   usePadding={false}
                 />
               </div>
-            )}
           </>
         )}
         {sectionOpen !== 'descriptionVotingSection' && (

@@ -108,12 +108,10 @@ function GroupEdit() {
     >
       <div className={myClasses.container}>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-          <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
-            <Typography variant="h6">
-              {intl.formatMessage({ id: 'addCollaboratorsMobile' })}
-            </Typography>
-          </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+            <Typography variant="h6">
+              {intl.formatMessage({ id: 'viewMembers' })}
+            </Typography>
             <ManageExistingUsers group={group}/>
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>

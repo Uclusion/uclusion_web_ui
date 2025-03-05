@@ -24,6 +24,8 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { findMessageOfType } from '../../../utils/messageUtils';
+import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 
 function JobApproveStep(props) {
   const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId } = props;
@@ -47,6 +49,12 @@ function JobApproveStep(props) {
   function doQuick(result) {
     commonQuick(result, commentsDispatch, marketId, commentsState, marketPresencesDispatch, messagesState,
       messagesDispatch, setOperationRunning);
+    if (isAssignedToMe) {
+      const unacceptedAssignment = findMessageOfType('UNREAD_JOB_APPROVAL_REQUEST', investibleId, messagesState);
+      if (unacceptedAssignment) {
+        dismissWorkListItem(unacceptedAssignment, messagesDispatch);
+      }
+    }
   }
 
   function onNext() {

@@ -23,6 +23,10 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import JobDescription from '../JobDescription';
+import { REPORT_TYPE } from '../../../constants/comments';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 
 function EstimateCompletionStep(props) {
   const { marketId, investibleId, message, updateFormData, formData } = props;
@@ -40,8 +44,11 @@ function EstimateCompletionStep(props) {
   const marketInvestible = getInvestible(investiblesState, investibleId) || {};
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const { completion_estimate: daysEstimate, stage: currentStageId } = marketInfo;
-  const { newEstimate } = formData;
+  const { newEstimate, useCompression } = formData;
   const alreadyMoved = linkType === 'INVESTIBLE_STAGE';
+  const marketComments = getMarketComments(commentsState, marketId);
+  const comments = getCommentsSortedByType(marketComments, investibleId, true,
+    true);
 
   function getDate() {
     if (newEstimate) {
@@ -97,13 +104,24 @@ function EstimateCompletionStep(props) {
     });
   }
 
+  let reportId;
+  comments.forEach((comment) => {
+    if (comment.comment_type === REPORT_TYPE) {
+      reportId = comment.id;
+    }
+  })
+
   return (
     <WizardStepContainer
       {...props}
     >
-      <Typography className={classes.introText} style={{marginBottom: 'unset'}}>
+      <Typography className={classes.introText}>
         When is your estimated completion?
       </Typography>
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}
+                      useCompression={useCompression} inboxMessageId={reportId}
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}
+                      removeActions/>
       <div style={{paddingTop: '1rem'}}>
         <DatePicker
           placeholderText={intl.formatMessage({ id: "selectDate" })}

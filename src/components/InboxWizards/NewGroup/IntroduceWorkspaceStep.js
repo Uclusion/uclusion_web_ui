@@ -63,6 +63,7 @@ function IntroduceWorkspaceStep(props) {
   return (
     <WizardStepContainer
       {...props}
+      isLarge
     >
       <Typography className={classes.introText}>
         <p>How do you navigate {!mobileLayout && ('the workspace')}</p>

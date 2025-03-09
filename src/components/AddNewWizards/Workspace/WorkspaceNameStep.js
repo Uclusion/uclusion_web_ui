@@ -57,6 +57,7 @@ function WorkspaceNameStep (props) {
     const { name } = formData;
     const marketInfo = {
       name,
+      is_autonomous_group: isSinglePersonMode
     };
     return createPlanning(marketInfo)
       .then((marketDetails) => {
@@ -66,7 +67,6 @@ function WorkspaceNameStep (props) {
           stages,
           token,
           group,
-          is_autonomous_group: isSinglePersonMode,
           market_creator: user
         } = marketDetails;
         const createdMarketId = market.id;

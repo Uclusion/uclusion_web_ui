@@ -25,6 +25,8 @@ import { OnboardingState } from '../../../contexts/AccountContext/accountUserCon
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { addGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData } = props;
@@ -35,6 +37,7 @@ function WorkspaceNameStep (props) {
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [presenceState, presenceDispatch] = useContext(MarketPresencesContext);
   const [, groupsDispatch] = useContext(MarketGroupsContext);
+  const [, groupMembersDispatch] = useContext(GroupMembersContext);
   const [, userDispatch] = useContext(AccountContext);
   const [, stagesDispatch] = useContext(MarketStagesContext);
   const [userState] = useContext(AccountContext);
@@ -67,7 +70,8 @@ function WorkspaceNameStep (props) {
           stages,
           token,
           group,
-          market_creator: user
+          market_creator: user,
+          default_members: defaultMembers
         } = marketDetails;
         const createdMarketId = market.id;
         if (user) {
@@ -77,6 +81,7 @@ function WorkspaceNameStep (props) {
         addGroupsToStorage(groupsDispatch, () => {}, { [createdMarketId]: [group]});
         stagesDispatch(updateMarketStagesFromNetwork({[createdMarketId]: stages }));
         addPresenceToMarket(presenceDispatch, createdMarketId, presence);
+        groupMembersDispatch(addGroupMembers(createdMarketId, createdMarketId, defaultMembers));
         const demo = marketsState?.marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
           market.object_type === DEMO_TYPE);
         if (!_.isEmpty(demo) && user){

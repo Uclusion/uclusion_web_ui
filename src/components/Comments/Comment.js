@@ -771,6 +771,7 @@ function Comment(props) {
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote && !removeActions && myMessage?.type === NOT_FULLY_VOTED_TYPE;
   const showUnmute = !removeActions && myInlinePresence.abstain && !resolved && enableActions;
+  const showSubTask = commentType === TODO_TYPE && myPresence === createdBy && investibleId;
   const isDeletable = !isInbox && !beingEdited && (commentType === REPORT_TYPE || isEditable || resolved);
   const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>
@@ -939,7 +940,7 @@ function Comment(props) {
                 id={`commentReplyButton${id}`}
                 doSpin={false}
               >
-                {!mobileLayout && intl.formatMessage({ id: "commentReplyLabel" })} {hasReply(comment) && <EditIcon />}
+                {!mobileLayout && intl.formatMessage({ id: showSubTask ? 'commentSubTaskLabel' : 'commentReplyLabel' })} {hasReply(comment) && <EditIcon />}
               </SpinningIconLabelButton>
             )}
             {enableEditing && !removeActions && commentType === TODO_TYPE && !investibleId && (

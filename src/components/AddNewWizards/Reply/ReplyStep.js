@@ -24,9 +24,10 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import { REPLY_TYPE } from '../../../constants/comments';
+import { REPLY_TYPE, TODO_TYPE } from '../../../constants/comments';
 import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
+import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 export function hasReply(comment) {
   return hasCommentValue(comment.group_id, comment, 'CommentAddReply', undefined,
@@ -42,8 +43,12 @@ function ReplyStep(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
+  const presences = usePresences(marketId);
   const comment = getComment(commentState, marketId, commentId) || {};
-  const inv = comment.investible_id ? getInvestible(investibleState, comment.investible_id) : undefined;
+  const { comment_type: commentType, created_by: createdById, investible_id: investibleId } = comment;
+  const myPresence = presences.find((presence) => presence.current_user) || {};
+  const showSubTask = commentType === TODO_TYPE && myPresence.id === createdById && investibleId;
+  const inv = comment.investible_id ? getInvestible(investibleState, investibleId) : undefined;
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, comment?.group_id);
   const [commentAddReplyStateFull, commentAddReplyDispatch] = usePageStateReducer('addReplyWizard');
@@ -104,12 +109,21 @@ function ReplyStep(props) {
       {...props}
       isLarge
     >
-      <Typography className={classes.introText}>
-        What is your reply?
-      </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        For response from more than the author of this comment use @ mentions.
-      </Typography>
+      {!showSubTask && (
+        <Typography className={classes.introText}>
+          What is your reply?
+        </Typography>
+      )}
+      {showSubTask && (
+        <Typography className={classes.introText}>
+          What is your subtask?
+        </Typography>
+      )}
+      {!showSubTask && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          For response from more than the author of this comment use @ mentions.
+        </Typography>
+      )}
       <CommentBox
         comments={comments}
         marketId={marketId}

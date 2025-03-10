@@ -8,7 +8,7 @@ import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import { ISSUE_TYPE, REPORT_TYPE, TODO_TYPE, } from '../../constants/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import {
@@ -36,6 +36,8 @@ import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
 import EditIcon from '@material-ui/icons/Edit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
+import { Done } from '@material-ui/icons';
+import { resolveComment } from '../../api/comments';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -184,8 +186,8 @@ function Reply(props) {
   const commenter = useCommenter(comment, presences) || { name: "unknown", email: "" };
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
   const [messagesState] = useContext(NotificationsContext);
-  const [commentsState] = useContext(CommentsContext);
-  const [operationRunning] = useContext(OperationInProgressContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
@@ -201,6 +203,7 @@ function Reply(props) {
   const { investible_id: investibleId, group_id: groupId } = comment || {};
   const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(rootComment?.comment_type)
     && !isInbox && market?.market_type !== DECISION_TYPE;
+  const isSubTask = rootComment?.comment_type === TODO_TYPE && investibleId;
 
   function useMarketId() {
     return React.useContext(LocalCommentsContext).marketId;
@@ -325,6 +328,24 @@ function Reply(props) {
             icon={<ListAltIcon fontSize='small' />}
             size='small'
             translationId="wizardAcceptLabel"
+            doFloatRight
+          />
+        )}
+        {showConvert && isSubTask && (
+          <TooltipIconButton
+            disabled={operationRunning !== false}
+            onClick={(event) => {
+              preventDefaultAndProp(event);
+              setOperationRunning(true);
+              return resolveComment(marketId, comment.id)
+                .then((comment) => {
+                  addCommentToMarket(comment, commentsState, commentsDispatch);
+                  setOperationRunning(false);
+                });
+            }}
+            icon={<Done fontSize='small' />}
+            size='small'
+            translationId="commentResolveLabel"
             doFloatRight
           />
         )}

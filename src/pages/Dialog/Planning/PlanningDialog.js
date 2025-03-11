@@ -393,7 +393,7 @@ function PlanningDialog(props) {
       const commentIds = (todoComments ||[]).map((comment) => comment.id);
       const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, !isAutonomous);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
-      if (!_.isEmpty(numNewMessages)) {
+      if ((isAutonomous && !_.isEmpty(criticalTodoComments))||!_.isEmpty(numNewMessages)) {
         return isAutonomous ? `${_.size(criticalTodoComments)}` : `${_.size(numNewMessages)}`;
       }
     }

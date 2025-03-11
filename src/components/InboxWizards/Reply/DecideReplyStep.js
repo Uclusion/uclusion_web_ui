@@ -52,7 +52,8 @@ function DecideReplyStep(props) {
   const userId = myPresence?.id;
   const { comment_type: commentType, group_id: groupId } = commentRoot;
   const { type: messageType } = message;
-  const canResolve = commentType !== REPORT_TYPE;
+  const isReplyToReply = commentRoot.id !== commentId;
+  const canResolve = commentType !== REPORT_TYPE || isReplyToReply;
   const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, commentRoot.group_id);
   const comments = marketComments.filter((comment) =>
@@ -129,14 +130,14 @@ function DecideReplyStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({ id: messageType === 'REPLY_MENTION' ? 'unreadMention' : 'unreadReply' })}
       </Typography>
-      {isMySuggestion && (
+      {showOtherNext && isMySuggestion && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Choose other options to move to task, add voting, or resolve.
         </Typography>
       )}
-      {showOtherNext && !showTerminate && (
+      {showOtherNext && !isMySuggestion && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Move to task moves this reply to its own task.
+          Choose move to create a task, bug, or suggestion instead of replying.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
@@ -155,11 +156,11 @@ function DecideReplyStep(props) {
         nextShowEdit={hasReply(getComment(commentState, marketId, commentId))}
         spinOnClick={false}
         onNextDoAdvance={false}
-        showOtherNext={isMySuggestion || canResolve}
-        otherNextLabel={isMySuggestion ? 'otherOptionsLabel' : (showTerminate ? 'issueResolveLabel' :
-          'moveToTaskLabel')}
-        onOtherNext={isMySuggestion ? undefined : (showTerminate ? resolve : moveToTask)}
-        otherSpinOnClick={!isMySuggestion && showTerminate}
+        showOtherNext={showOtherNext}
+        otherNextLabel={isMySuggestion ? 'otherOptionsLabel' : ((showTerminate && !isReplyToReply) ?
+          'issueResolveLabel' : 'move')}
+        onOtherNext={isMySuggestion ? undefined : ((showTerminate && !isReplyToReply) ? resolve : moveToTask)}
+        otherSpinOnClick={!isMySuggestion && !isReplyToReply && showTerminate}
         isOtherFinal={!isMySuggestion}
         onOtherNextDoAdvance={isMySuggestion}
         showTerminate={showTerminate || (!isMySuggestion && canResolve)}

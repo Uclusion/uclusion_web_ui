@@ -437,7 +437,7 @@ const messages = defineMessages({
   planningInvestibleMoveToVerifiedLabel: 'Tasks Complete',
   planningInvestibleMoveToFurtherWorkLabel: 'Backlog',
   planningInvestibleMoveToNotDoingLabel: 'Not Doing',
-  DecideStageMove: 'Move',
+  move: 'Move',
   planningInvestibleNotDoingExplanation: 'Move to Not Doing will unassign and archive the job',
   planningVotingStageLabel: 'Assigned',
   verifiedBlockedStageLabel: 'Verified',

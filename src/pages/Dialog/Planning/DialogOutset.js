@@ -11,6 +11,11 @@ import { useHistory } from 'react-router';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import _ from 'lodash';
+import AddIcon from '@material-ui/icons/Add';
+import { Tooltip } from '@material-ui/core';
+import { changeGroupParticipation } from '../../../api/markets';
+import { modifyGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 export const DIALOG_OUTSET_STATE_HACK = {};
 
@@ -18,11 +23,15 @@ function DialogOutset(props) {
   const { marketPresences, marketId, groupId, hidden, archivedSize } = props;
   const history = useHistory();
   const intl = useIntl();
-  const [groupPresencesState] = useContext(GroupMembersContext);
+  const [groupPresencesState, groupPresencesDispatch] = useContext(GroupMembersContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [searchResults] = useContext(SearchResultsContext);
   const { search } = searchResults;
   const groupCollaborators = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId)
   const classes = usePlanningInvestibleStyles();
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+  const isCurrentUserMember = !_.isEmpty(groupCollaborators.find((presence) =>
+    presence.id === myPresence.id));
 
   const isArchivedSearch = !hidden && !_.isEmpty(search) && archivedSize > 0;
   return (
@@ -77,7 +86,33 @@ function DialogOutset(props) {
           </Menu>
           <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: '1rem'}}>
             <div className={classes.assignmentContainer}>
-              <b><FormattedMessage id="collaborators"/></b>
+              <b><FormattedMessage id="viewMembers"/></b>
+              {!isCurrentUserMember && (
+                <div style={{marginLeft: '-1rem'}}>
+                  <Menu iconShape="circle">
+                    <MenuItem icon={<AddIcon htmlColor="black" />}
+                              key="addMeKey" id="addMeId"
+                              onClick={() => {
+                                setOperationRunning(true);
+                                const addressed = [{user_id: myPresence.id, is_following: true}];
+                                return changeGroupParticipation(marketId, groupId, addressed).then((modifed) => {
+                                  groupPresencesDispatch(modifyGroupMembers(groupId, modifed));
+                                  setTimeout(() => {
+                                    // Give the dispatch time to work
+                                    setOperationRunning(false);
+                                  }, 4000);
+                                });
+                              }}
+                    >
+                      <Tooltip title={intl.formatMessage({ id: 'addMeExplanation' })}>
+                        <div>
+                          {intl.formatMessage({ id: 'addMe' })}
+                        </div>
+                      </Tooltip>
+                    </MenuItem>
+                  </Menu>
+                </div>
+              )}
               <Assignments
                 classes={classes}
                 marketPresences={marketPresences}

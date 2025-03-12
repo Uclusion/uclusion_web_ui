@@ -337,6 +337,8 @@ const messages = defineMessages({
   updateStatus: 'Please update status',
   updateStatusMobile: 'Status',
   addCollaborators: 'Please add collaborators',
+  addMe: 'Add me',
+  addMeExplanation: 'Add yourself to this view to receive notifications from it',
   viewMembers: 'View Members',
   pleaseUpgrade: 'Please upgrade',
   pleaseUpgradeMobile: 'Upgrade',

@@ -33,17 +33,4 @@ const defaultThemeDefinition = {
 
 const defaultTheme = responsiveFontSizes(createTheme(defaultThemeDefinition));
 
-const sidebarTheme = responsiveFontSizes(createTheme({
-  palette: {
-    type: 'dark',
-    ...defaultThemeDefinition.palette,
-    background: {
-      paper: '#3f6b72'
-    },
-
-  },
-}));
-
-
-
-export { defaultTheme, sidebarTheme };
+export { defaultTheme };

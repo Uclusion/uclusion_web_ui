@@ -475,6 +475,7 @@ function Comment(props) {
   const theme = useTheme();
   const isReallyMobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
+  const mediumLayout = useMediaQuery('(min-width:1400px)');
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const intl = useIntl();
   const classes = useCommentStyles();
@@ -805,16 +806,16 @@ function Comment(props) {
         Created <UsefulRelativeTime value={comment.created_at}/>
         {noAuthor &&
           `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
-        {comment.created_at < comment.updated_at && !resolved && (
+        {comment.created_at < comment.updated_at && !resolved && mediumLayout && (
           <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
         )}
-        {resolved && (
+        {resolved && mediumLayout && (
           <> Resolved <UsefulRelativeTime value={comment.updated_at}/></>
         )}
-        {comment.created_at < comment.updated_at && !displayUpdatedBy && (
+        {comment.created_at < comment.updated_at && !displayUpdatedBy && mediumLayout && (
           <>.</>
         )}
-        {displayUpdatedBy &&
+        {displayUpdatedBy && mediumLayout &&
           `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${updatedBy.name}.`}
       </Typography>
     )}

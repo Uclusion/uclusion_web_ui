@@ -170,7 +170,7 @@ function ArchiveInvestbiles(props) {
                   <Grid container>
                     <Grid item xs={8}>
                       <Typography style={{fontSize: '.75rem', flex: 1}}>
-                        Entered stage <UsefulRelativeTime value={enteredStageAt}/>
+                        Entered <UsefulRelativeTime value={enteredStageAt}/>
                       </Typography>
                     </Grid>
                     {ticketNumber && (

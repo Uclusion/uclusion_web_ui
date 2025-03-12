@@ -657,7 +657,7 @@ const messages = defineMessages({
   planningDialogViewArchivesLabel: 'Archive',
   seeArchives: 'See muted',
   removeArchive: 'See less',
-  stageUpdatedAt: 'Entered stage ',
+  stageUpdatedAt: 'Entered ',
   noName: 'Must create a text description for this job.',
   noParticipants: 'Include at least one person to send.',
   nameRequired: 'Choose a name.',

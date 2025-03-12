@@ -803,12 +803,14 @@ function PlanningInvestible(props) {
                     <FormattedMessage id="createNewStatus"/>
                   </SpinningButton>
                 )}
-                <DismissableText textId="progressReportCommentHelp"
-                                 display={isAssigned && _.isEmpty(reportsCommentsSearched)} isLeft
-                                 text={<div>
-                                          Your report asks the group to review progress on this job.
-                                       </div>
-                }/>
+                {!isSingleUser && (
+                  <DismissableText textId="progressReportCommentHelp"
+                                   display={isAssigned && _.isEmpty(reportsCommentsSearched)} isLeft
+                                   text={<div>
+                                     Your report asks the view members to review progress on this job.
+                                   </div>
+                                   }/>
+                )}
                 {(!showCommentAdd || !isAssigned) && _.isEmpty(reportsCommentsSearched) && (
                   <Typography style={{ marginLeft: 'auto', marginRight: 'auto' }}
                               variant="body1">

@@ -113,70 +113,79 @@ function Inbox(props) {
   const defaultRow = createDefaultInboxRow(unpaginatedItems, tabIndex);
   const { outBoxMessagesOrdered, inboxMessagesOrdered } = messagesHash;
   const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
-  const inboxRows = [];
-  const outboxRows = [];
-  let hasCheckAbleInboxItems = false;
-  let currentWorkSpaceGroupId = undefined;
-  data.forEach((message) => {
-    const isOutbox = message.isOutboxType || !message.type_object_id;
-    if (currentWorkSpaceGroupId !== message.groupAttr && !isOnWorkItem) {
-      currentWorkSpaceGroupId = message.groupAttr;
-      const group = getGroup(groupsState, undefined, message.group_id);
-      if (group) {
-        const market = getMarket(marketsState, group.market_id);
-        if (market) {
-          const rows = isOutbox ? outboxRows : inboxRows;
-          rows.push(createWorkspaceGroupHeader(market, group, history));
-        }
-      }
-    }
-    if (isOutbox) {
-        const { id, investible, updatedAt, title, icon, comment, debtors, expansionPanel } = message;
-        const item = {
-          title,
-          read: true,
-          isDeletable: false,
-          people: debtors,
-          date: intl.formatDate(updatedAt),
-          expansionPanel,
-          icon,
-          message
-        };
 
-        if (investible) {
-          item.investible = investible;
-        }
-        if (comment) {
-          const commentName = stripHTML(comment);
-          if (commentName) {
-            item.comment = commentName;
+  function getRows(isInbox) {
+    const rows = [];
+    let currentWorkSpaceGroupId = undefined;
+    data.forEach((message) => {
+      const isOutbox = message.isOutboxType || !message.type_object_id;
+      if (currentWorkSpaceGroupId !== message.groupAttr && !isOnWorkItem) {
+        currentWorkSpaceGroupId = message.groupAttr;
+        const group = getGroup(groupsState, undefined, message.group_id);
+        if (group) {
+          const market = getMarket(marketsState, group.market_id);
+          if (market) {
+            if ((isInbox && !isOutbox)||(!isInbox && isOutbox)) {
+              rows.push(createWorkspaceGroupHeader(market, group, history));
+            }
           }
         }
-        const expansionOpen = isOnWorkItem && workItemId === id;
-        calculateTitleExpansionPanel({ item, intl, openExpansion: expansionOpen });
-        const determinateChecked = determinateOutbox[message.id];
-        const checked = determinateChecked !== undefined ? determinateChecked : checkAllOutbox;
-        outboxRows.push(<WorkListItem id={id} useSelect {...item} key={id} expansionOpen={expansionOpen}
-                                      determinateDispatch={determinateDispatchOutbox} checked={checked} />);
-    } else {
-      const isDeletable = message.type_object_id.startsWith('UNREAD');
-      if (isDeletable) {
-        hasCheckAbleInboxItems = true;
       }
-      const determinateChecked = determinate[message.type_object_id];
-      const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-      inboxRows.push(<InboxRow message={message} key={message.type_object_id}
-                               determinateDispatch={determinateDispatch}
-                               expansionOpen={isOnWorkItem && workItemId === message.type_object_id}
-                               isDeletable={isDeletable} checked={checked}/>);
-    }
-  });
+      if (isOutbox) {
+        if (!isInbox) {
+          const { id, investible, updatedAt, title, icon, comment, debtors, expansionPanel } = message;
+          const item = {
+            title,
+            read: true,
+            isDeletable: false,
+            people: debtors,
+            date: intl.formatDate(updatedAt),
+            expansionPanel,
+            icon,
+            message
+          };
+
+          if (investible) {
+            item.investible = investible;
+          }
+          if (comment) {
+            const commentName = stripHTML(comment);
+            if (commentName) {
+              item.comment = commentName;
+            }
+          }
+          const expansionOpen = isOnWorkItem && workItemId === id;
+          calculateTitleExpansionPanel({ item, intl, openExpansion: expansionOpen });
+          const determinateChecked = determinateOutbox[message.id];
+          const checked = determinateChecked !== undefined ? determinateChecked : checkAllOutbox;
+          rows.push(<WorkListItem id={id} useSelect {...item} key={id} expansionOpen={expansionOpen}
+                                  determinateDispatch={determinateDispatchOutbox} checked={checked}/>);
+        }
+      } else {
+        if (isInbox) {
+          const isDeletable = message.type_object_id.startsWith('UNREAD');
+          const determinateChecked = determinate[message.type_object_id];
+          const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
+          if (!isOnWorkItem || workItemId === message.type_object_id) {
+            rows.push(<InboxRow message={message} key={message.type_object_id}
+                                     determinateDispatch={determinateDispatch}
+                                     expansionOpen={isOnWorkItem}
+                                     isDeletable={isDeletable} checked={checked}/>);
+          }
+        }
+      }
+    });
+    return rows;
+  }
+
   const goPreviousFunc = () => isOnWorkItem ? goToItem(previousItemId) : changePage(-1);
   const goNextFunc = () => isOnWorkItem ? goToItem(nextItemId) : changePage(1);
   useHotkeys('ctrl+shift+arrowLeft', goPreviousFunc, {enabled: hasLess, enableOnContentEditable: true},
     [history, isOnWorkItem, previousItemId, messagesState, page]);
   useHotkeys('ctrl+shift+arrowRight', goNextFunc, {enabled: hasMore, enableOnContentEditable: true},
     [history, isOnWorkItem, nextItemId, messagesState, page]);
+  const hasCheckAbleInboxItems = !_.isEmpty(data.filter((message) =>
+    message.type_object_id?.startsWith('UNREAD')))
   return (
     <>
     <div style={{zIndex: 8, position: 'sticky', width: '100%', marginLeft: isOnWorkItem ? undefined : '-0.5rem'}}
@@ -295,8 +304,7 @@ function Inbox(props) {
     <div id="inbox">
       {!mobileLayout && defaultRow}
       {mobileLayout && <div style={{paddingLeft: '1rem'}}>{defaultRow}</div>}
-      { inboxRows }
-      { outboxRows }
+      { getRows(tabIndex === 0) }
     </div>
     </>
   );

@@ -47,6 +47,7 @@ import { getCurrentWorkspace, getFirstWorkspace } from '../../utils/redirectUtil
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
+import GroupManage from '../../pages/DialogSettings/GroupManage';
 
 const useStyles = makeStyles({
   body: {
@@ -175,6 +176,10 @@ function Root() {
     return action !== 'groupEdit';
   }
 
+  function hideGroupManage() {
+    return action !== 'groupManage';
+  }
+
   function hideGroupArchive() {
     return action !== 'groupArchive';
   }
@@ -183,7 +188,7 @@ function Root() {
   const hidePNF = isRootPath || !(hideMarket() && hideSupport() && hideInvestible() && hideWorkspaceWizard() &&
     hideInbox() && hideSlackInvite() && hideAccountPreferences() && hideMarketEdit() && hideGroupSettings() &&
     hideMarketLoad() && hideGroupArchive() && hideIntegrationPreferences() && hideBillingHome() && hideTodoAdd() &&
-    hideCommentReplyEdit() && hideDemoLoad() && !isTicketPath(pathname));
+    hideCommentReplyEdit() && hideDemoLoad() && hideGroupManage() && !isTicketPath(pathname));
 
   const isUserLoaded = userIsLoaded(userState);
 
@@ -316,6 +321,9 @@ function Root() {
             )}
             {!hideGroupSettings() && (
               <GroupEdit />
+            )}
+            {!hideGroupManage() && (
+              <GroupManage />
             )}
             {!hideGroupArchive() && (
               <DialogArchives />

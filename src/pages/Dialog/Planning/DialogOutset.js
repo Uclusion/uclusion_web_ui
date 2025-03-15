@@ -6,7 +6,12 @@ import { getGroupPresences } from '../../../contexts/MarketPresencesContext/mark
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { Menu, MenuItem, ProSidebar, SidebarContent } from 'react-pro-sidebar';
-import { formGroupArchiveLink, formGroupEditLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  formGroupArchiveLink,
+  formGroupEditLink,
+  formGroupManageLink,
+  navigate
+} from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
@@ -16,6 +21,7 @@ import { Tooltip } from '@material-ui/core';
 import { changeGroupParticipation } from '../../../api/markets';
 import { modifyGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
 export const DIALOG_OUTSET_STATE_HACK = {};
 
@@ -113,6 +119,21 @@ function DialogOutset(props) {
                   </Menu>
                 </div>
               )}
+              <div style={{marginLeft: '-1rem'}}>
+                <Menu iconShape="circle">
+                  <MenuItem icon={<PersonAddIcon htmlColor="black" />}
+                            key="manageMembersKey" id="manageMembersId"
+                            onClick={() => navigate(history, formGroupManageLink(marketId, groupId),
+                                false, true)}
+                  >
+                    <Tooltip title={intl.formatMessage({ id: 'manageMembersExplanation' })}>
+                      <div>
+                        {intl.formatMessage({ id: 'manageMembers' })}
+                      </div>
+                    </Tooltip>
+                  </MenuItem>
+                </Menu>
+              </div>
               <Assignments
                 classes={classes}
                 marketPresences={marketPresences}

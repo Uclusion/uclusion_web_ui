@@ -263,6 +263,10 @@ export function formGroupEditLink(marketId, groupId) {
   return formatGroupLinkWithPrefix('groupEdit', marketId, groupId);
 }
 
+export function formGroupManageLink(marketId, groupId) {
+  return formatGroupLinkWithPrefix('groupManage', marketId, groupId);
+}
+
 export function formGroupArchiveLink(marketId, groupId) {
   return formatGroupLinkWithPrefix('groupArchive', marketId, groupId);
 }

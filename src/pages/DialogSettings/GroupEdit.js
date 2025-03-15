@@ -5,8 +5,6 @@ import queryString from 'query-string';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { addGroupToStorage, getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
-import Grid from '@material-ui/core/Grid';
-import clsx from 'clsx';
 import {
   Checkbox,
   InputAdornment,
@@ -16,8 +14,6 @@ import {
   Typography,
   useTheme
 } from '@material-ui/core';
-import ManageExistingUsers from '../Dialog/UserManagement/ManageExistingUsers';
-import DialogManage from '../Dialog/DialogManage';
 import { NAME_MAX_LENGTH } from '../../components/TextFields/NameField';
 import SpinningIconLabelButton from '../../components/Buttons/SpinningIconLabelButton';
 import { Clear, SettingsBackupRestore } from '@material-ui/icons';
@@ -27,9 +23,7 @@ import { usePlanFormStyles } from '../../components/AgilePlan';
 import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext';
 import { updateGroup } from '../../api/markets';
 import _ from 'lodash';
-import {
-  getGroupPresences, getMarketPresences
-} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 
@@ -37,13 +31,8 @@ const useStyles = makeStyles((theme) => {
   return {
     myContainer: {
       marginLeft: '5rem',
+      marginTop: '3rem',
       maxWidth: '50rem',
-      [theme.breakpoints.down('sm')]: {
-        marginLeft: '0.5rem',
-      },
-    },
-    container: {
-      marginLeft: '5rem',
       [theme.breakpoints.down('sm')]: {
         marginLeft: '0.5rem',
       },
@@ -106,19 +95,6 @@ function GroupEdit() {
       title={`${group.name} Settings`}
       tabTitle={`${group.name} Settings`}
     >
-      <div className={myClasses.container}>
-        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <Typography variant="h6">
-              {intl.formatMessage({ id: 'viewMembers' })}
-            </Typography>
-            <ManageExistingUsers group={group}/>
-          </Grid>
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            <DialogManage marketId={marketId} group={group} />
-          </Grid>
-        </Grid>
-      </div>
       <div className={myClasses.myContainer}>
         <Typography variant="h6">
           {intl.formatMessage({ id: 'channelOptions' })}

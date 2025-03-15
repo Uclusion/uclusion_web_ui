@@ -4,10 +4,11 @@ import FormdataWizard from 'react-formdata-wizard';
 import DecideStartStep from './DecideStartStep';
 import AddToJobStep from './AddToJobStep';
 import OtherOptionsStep from './OtherOptionsStep';
+import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function StartWizard(props) {
   const { marketId, commentId, message } = props;
-  const parentElementId =  message.type_object_id;
+  const parentElementId =  getMessageId(message);
   return (
     <FormdataWizard name={`start_wizard${commentId}`} defaultFormData={{parentElementId, useCompression: true}}>
       <DecideStartStep marketId={marketId} commentId={commentId} message={message}/>

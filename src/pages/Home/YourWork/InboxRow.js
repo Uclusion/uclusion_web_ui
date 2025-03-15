@@ -24,7 +24,7 @@ import { useIntl } from 'react-intl';
 import { useMediaQuery, useTheme } from '@material-ui/core';
 import { getFullStage, } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { messageIsSynced } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { getMessageId, messageIsSynced } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
@@ -197,7 +197,7 @@ function InboxRow(props) {
     item.market = intl.formatMessage({id: 'pleaseUpgrade'});
   }
   calculateTitleExpansionPanel({ item, openExpansion: expansionOpen, intl });
-  return <WorkListItem key={`inboxRow${typeObjectId}`} id={typeObjectId} checked={checked}
+  return <WorkListItem key={`inboxRow${getMessageId(message)}`} id={getMessageId(message)} checked={checked}
                        determinateDispatch={determinateDispatch} useSelect={isDeletable}
                        expansionOpen={expansionOpen} {...item} />;
 }

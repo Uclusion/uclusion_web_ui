@@ -6,6 +6,7 @@ import { quickRemoveMessages, removeMessages } from '../contexts/NotificationsCo
 import { getMarketInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketComments } from '../contexts/CommentsContext/commentsContextHelper';
 import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../constants/notifications';
+import { getMessageId } from '../contexts/NotificationsContext/notificationsContextHelper';
 
 function getMessageTextForId(rawId, isMobile, intl) {
   const id = isMobile ? `${rawId}Mobile` : rawId;
@@ -242,7 +243,7 @@ export function getPaginatedItems(items, page=1, pageSize, workItemId) {
   const data = hasWorkItem ? workItem : _.drop(items, offset).slice(0, pageSize);
   const last = _.size(data) > 0 ? offset + _.size(data) : 1;
   const itemIndex = _.findIndex(items,
-    (item) => item.id === workItemId || item.type_object_id === workItemId);
+    (item) => item.id === workItemId || getMessageId(item) === workItemId);
   let previousItemId = undefined;
   let nextItemId = undefined;
   if (itemIndex >= 0) {

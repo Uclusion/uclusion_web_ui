@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import FormdataWizard from 'react-formdata-wizard';
 import DecideReplyStep from './DecideReplyStep';
 import OtherOptionsStep from './OtherOptionsStep';
+import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function ReplyWizard(props) {
   const { marketId, commentId, message } = props;
-  const  parentElementId = message.type_object_id;
+  const  parentElementId = getMessageId(message);
   return (
     <FormdataWizard name={`reply_wizard${commentId}`} defaultFormData={{parentElementId, useCompression: true}}>
       <DecideReplyStep marketId={marketId} commentId={commentId} message={message}/>

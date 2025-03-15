@@ -5,6 +5,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import JobApproveStep from './JobApproveStep';
 import ChooseCommentTypeStep from '../ChooseCommentTypeStep';
+import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function ApprovalWizard(props) {
   const { marketId, investibleId, message, isAssigned } = props;
@@ -12,7 +13,7 @@ function ApprovalWizard(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const yourVote = yourPresence?.investments?.find((investment) => investment.investible_id === investibleId);
-  const parentElementId =  message.type_object_id;
+  const parentElementId =  getMessageId(message);
 
   return (
     <FormdataWizard name={`approval_wizard${investibleId}`}

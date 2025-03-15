@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import FormdataWizard from 'react-formdata-wizard';
 import DecideAssignStep from './DecideAssignStep';
 import ChooseCommentTypeStep from '../ChooseCommentTypeStep';
+import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function AssignWizard(props) {
   const { marketId, investibleId, message } = props;
-  const parentElementId = message.type_object_id;
+  const parentElementId = getMessageId(message);
   return (
     <FormdataWizard name={`assign_wizard${investibleId}`} defaultFormData={{parentElementId}}>
       <DecideAssignStep marketId={marketId} investibleId={investibleId} message={message}/>

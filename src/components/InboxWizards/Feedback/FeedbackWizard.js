@@ -6,10 +6,11 @@ import RejectStep from '../RejectStep';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
+import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function FeedbackWizard(props) {
   const { marketId, investibleId, message } = props;
-  const parentElementId =  message.type_object_id;
+  const parentElementId =  getMessageId(message);
   const [investiblesState] = useContext(InvestiblesContext);
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};

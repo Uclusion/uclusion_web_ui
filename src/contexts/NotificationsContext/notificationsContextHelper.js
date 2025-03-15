@@ -145,6 +145,10 @@ export function getInboxTarget() {
   return '/inbox';
 }
 
+export function getMessageId(message) {
+  return `${message?.market_id_user_id}_${message?.type_object_id}`
+}
+
 export function getInboxCount(messagesState, groupAttr, groupsState, isRawCount=false) {
   let calcPend = 0;
   if (!_.isEmpty(messagesState)) {

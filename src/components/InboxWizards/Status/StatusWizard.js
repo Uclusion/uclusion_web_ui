@@ -7,12 +7,13 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useHistory } from 'react-router';
 import OtherOptionsStep from './OtherOptionsStep';
+import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function StatusWizard(props) {
   const { marketId, investibleId, message } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
-  const parentElementId = message.type_object_id;
+  const parentElementId = getMessageId(message);
 
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);

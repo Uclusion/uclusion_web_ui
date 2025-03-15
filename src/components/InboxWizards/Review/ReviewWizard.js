@@ -6,11 +6,12 @@ import ChooseCommentTypeStep from '../ChooseCommentTypeStep';
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import _ from 'lodash';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function ReviewWizard(props) {
   const { marketId, commentId, message } = props;
   const [commentsState] = useContext(CommentsContext);
-  const parentElementId = message.type_object_id;
+  const parentElementId = getMessageId(message);
   const report = getComment(commentsState, marketId, commentId) || {};
   const investibleId = report.investible_id;
   if (_.isEmpty(report)) {

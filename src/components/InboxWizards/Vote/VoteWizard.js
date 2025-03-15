@@ -7,6 +7,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { useHistory } from 'react-router';
+import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function VoteWizard(props) {
   const { marketId, commentId, message } = props;
@@ -14,7 +15,7 @@ function VoteWizard(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const parentElementId =  message.type_object_id;
+  const parentElementId =  getMessageId(message);
   function myOnFinish() {
     removeWorkListItem(message, messagesDispatch, history);
   }

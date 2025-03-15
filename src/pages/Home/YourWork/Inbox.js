@@ -12,7 +12,7 @@ import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import {
   dehighlightMessage,
   getInboxCount,
-  getInboxTarget
+  getInboxTarget, getMessageId
 } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import InboxRow from './InboxRow';
 import { getPaginatedItems } from '../../../utils/messageUtils';
@@ -166,8 +166,8 @@ function Inbox(props) {
           const isDeletable = message.type_object_id.startsWith('UNREAD');
           const determinateChecked = determinate[message.type_object_id];
           const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
-          if (!isOnWorkItem || workItemId === message.type_object_id) {
-            rows.push(<InboxRow message={message} key={message.type_object_id}
+          if (!isOnWorkItem || workItemId === getMessageId(message)) {
+            rows.push(<InboxRow message={message} key={getMessageId(message)}
                                      determinateDispatch={determinateDispatch}
                                      expansionOpen={isOnWorkItem}
                                      isDeletable={isDeletable} checked={checked}/>);

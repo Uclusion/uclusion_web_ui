@@ -2,10 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FormdataWizard from 'react-formdata-wizard';
 import EstimateChangeViewStep from './EstimateChangeViewStep';
+import { getMessageId } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function EstimateChangeWizard(props) {
   const { marketId, investibleId, message } = props;
-  const parentElementId = message.type_object_id;
+  const parentElementId = getMessageId(message);
 
   return (
     <FormdataWizard name={`estimate_change_wizard${investibleId}`} defaultFormData={{parentElementId}}>

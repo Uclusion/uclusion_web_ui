@@ -146,7 +146,7 @@ export function getInboxTarget() {
 }
 
 export function getMessageId(message) {
-  if (message?.type_object_id?.includes(message.user_id)) {
+  if (message?.type_object_id?.includes(message?.user_id)) {
     return `${message?.market_id_user_id}_${message?.type_object_id}`;
   }
   // object_id will be unique except if it is the same as the user_id

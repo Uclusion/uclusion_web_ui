@@ -304,7 +304,7 @@ function Inbox(props) {
     <div id="inbox">
       {!mobileLayout && defaultRow}
       {mobileLayout && <div style={{paddingLeft: '1rem'}}>{defaultRow}</div>}
-      { getRows(tabIndex === 0) }
+      { getRows(!tabIndex || tabIndex === 0) }
     </div>
     </>
   );

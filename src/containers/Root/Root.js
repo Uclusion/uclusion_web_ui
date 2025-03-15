@@ -8,7 +8,7 @@ import Support from '../../pages/About/Support';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {
   broadcastView,
-  decomposeMarketPath, formMarketLink,
+  decomposeMarketPath, formInboxItemLink, formMarketLink,
   getUrlForTicketPath,
   navigate,
 } from '../../utils/marketIdPathFunctions';
@@ -45,7 +45,6 @@ import PlanningMarketLoad from '../../pages/Dialog/Planning/PlanningMarketLoad';
 import DemoMarketLoad from '../../pages/Dialog/Planning/DemoMarketLoad';
 import { getCurrentWorkspace, getFirstWorkspace } from '../../utils/redirectUtils';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getInboxTarget, getMessageId } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 
@@ -103,7 +102,7 @@ function Root() {
   const defaultMarket = getFirstWorkspace(markets, marketId, !isRootPath);
   const defaultMarketId = defaultMarket?.id;
   const workspaceMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${defaultMarketId}`, messagesState);
-  const workspaceMessagePath = `${getInboxTarget()}/${getMessageId(workspaceMessage)}`;
+  const workspaceMessagePath = formInboxItemLink(workspaceMessage);
   const defaultMarketLink = defaultMarketId ? (workspaceMessage ? workspaceMessagePath :
     formMarketLink(defaultMarketId, defaultMarketId)) : undefined;
   const isDemoUser = [OnboardingState.DemoCreated, OnboardingState.NeedsOnboarding]

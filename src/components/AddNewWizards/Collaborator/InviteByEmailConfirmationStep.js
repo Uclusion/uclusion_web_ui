@@ -23,7 +23,7 @@ function InviteByEmailConfirmationStep(props) {
       {emails.map((email) => {
         return (
           <div style={{display: 'flex', alignItems: 'center', marginBottom: '0.5rem'}}>
-            <Send htmlColor="green" style={{marginRight: '0.5rem'}}/> {email} invited as collaborator.</div>
+            <Send htmlColor="green" style={{marginRight: '0.5rem'}}/> {email} invited.</div>
         );
       })}
       <div className={classes.borderBottom} />

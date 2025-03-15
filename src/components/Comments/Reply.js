@@ -286,7 +286,7 @@ function Reply(props) {
         if (replyBeingEdited || isInbox) {
           navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
         } else if (myMessage && myMessage.type_object_id) {
-          navigate(history, formInboxItemLink(myMessage.type_object_id));
+          navigate(history, formInboxItemLink(myMessage));
         }
       }
     }}>

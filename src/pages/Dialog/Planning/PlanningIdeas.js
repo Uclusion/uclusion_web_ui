@@ -634,7 +634,7 @@ function StageInvestible(props) {
                 onClick={(event) => {
                   preventDefaultAndProp(event);
                   dehighlightMessage(myMessage, messagesDispatch);
-                  navigate(history, formInboxItemLink(myMessage.type_object_id));
+                  navigate(history, formInboxItemLink(myMessage));
                 }}
                 onMouseOver={(event) => {
                   preventDefaultAndProp(event);
@@ -688,7 +688,7 @@ function StageInvestible(props) {
                    if (unreadEstimate) {
                      preventDefaultAndProp(event);
                      dehighlightMessage(unreadEstimate, messagesDispatch);
-                     navigate(history, formInboxItemLink(unreadEstimate.type_object_id));
+                     navigate(history, formInboxItemLink(unreadEstimate));
                    }
                  }}
                  onMouseOver={(event) => {

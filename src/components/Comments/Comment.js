@@ -829,7 +829,7 @@ function Comment(props) {
         if (isInbox) {
           navigate(history, formCommentLink(marketId, groupId, investibleId, id));
         } else if (isNavigateToInbox && myMessage.type_object_id) {
-          navigate(history, formInboxItemLink(myMessage.type_object_id));
+          navigate(history, formInboxItemLink(myMessage));
         }
       }
     }}>

@@ -7,7 +7,11 @@ import CheckBoxOutlineBlank from '@material-ui/icons/CheckBoxOutlineBlank';
 import { useSizedIconButtonStyles } from '@mui-treasury/styles/iconButton/sized';
 import { useRowGutterStyles } from '@mui-treasury/styles/gutter/row';
 import PropTypes from 'prop-types';
-import { formInboxItemLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
+import {
+  formInboxItemLinkFromId,
+  navigate,
+  preventDefaultAndProp
+} from '../../../utils/marketIdPathFunctions';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import RaisedCard from '../../../components/Cards/RaisedCard';
 import { pushMessage } from '../../../utils/MessageBusUtils';
@@ -225,7 +229,7 @@ function WorkListItem(props) {
             if (isHighlighted) {
               dehighlightMessage(message, messagesDispatch);
             }
-            navigate(history, formInboxItemLink(id));
+            navigate(history, formInboxItemLinkFromId(id));
           }
         }>
           <Div key={`actions${id}`} className={isNotSynced ? 'MailListItem-read' : undefined}>

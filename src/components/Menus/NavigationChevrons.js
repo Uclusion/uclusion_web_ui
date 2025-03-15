@@ -121,14 +121,14 @@ export default function NavigationChevrons(props) {
       outboxCandidates.push(candidate);
     });
   });
-  let allExistingUrls = allMessages.map((message) => formInboxItemLink(message.type_object_id));
+  let allExistingUrls = allMessages.map((message) => formInboxItemLink(message));
   allExistingUrls = allExistingUrls.concat(approvedCandidates.map((candidate) => candidate.url));
   allExistingUrls = allExistingUrls.concat(outboxCandidates.map((candidate) => candidate.url));
   const previous = _.find(orderedNavigations, (navigation) =>
     allExistingUrls.includes(navigation.url) && navigation.url !== resource);
 
   function computeNext() {
-    if (groupLoadId || resource.startsWith(`${getInboxTarget()}/UNREAD_GROUP_`)) {
+    if (groupLoadId || (resource.startsWith(`${getInboxTarget()}`)&&resource.includes('UNREAD_GROUP_'))) {
       // Next from a new group message is that groups swimlanes
       const [, ,groupIdFromSep] = resource.split('_');
       const groupId = groupLoadId || groupIdFromSep;
@@ -141,22 +141,22 @@ export default function NavigationChevrons(props) {
       }
     }
     const highlighted = highlightedMessages?.filter((message) =>
-      formInboxItemLink(message.type_object_id) !== resource) || [];
+      formInboxItemLink(message) !== resource) || [];
     const highlightedMapped = addWorkspaceGroupAttribute(highlighted, groupsState);
     const highlightedOrdered =  _.orderBy(highlightedMapped, ['groupAttr', 'updated_at'],
       ['asc', 'desc']);
     if (!_.isEmpty(highlightedOrdered)) {
       const message = highlightedOrdered[0];
-      return {url: formInboxItemLink(message.type_object_id), message, isHighlighted: true};
+      return {url: formInboxItemLink(message), message, isHighlighted: true};
     }
     const notHighlightedMessagesCritical = allMessages.filter((message) => !message.is_highlighted &&
       message.type === 'UNASSIGNED');
     // special case return any critical bug unhighlighted notification here
     if (!_.isEmpty(notHighlightedMessagesCritical)) {
       const criticalNext = _.find(notHighlightedMessagesCritical, (message) =>
-        formInboxItemLink(message.type_object_id) !== resource);
+        formInboxItemLink(message) !== resource);
       if (criticalNext) {
-        return {url: formInboxItemLink(criticalNext.type_object_id)};
+        return {url: formInboxItemLink(criticalNext)};
       }
     }
     if (!_.isEmpty(approvedCandidates)) {
@@ -186,9 +186,9 @@ export default function NavigationChevrons(props) {
     const notHighlightedMessages = allMessages.filter((message) => !message.is_highlighted &&
       message.type !== 'UNASSIGNED');
     const notHighlighted = notHighlightedMessages?.filter((message) =>
-      formInboxItemLink(message.type_object_id) !== resource) || [];
+      formInboxItemLink(message) !== resource) || [];
     const notHighlightedMapped = notHighlighted.map((message) => {
-      const candidate = {...message, url: formInboxItemLink(message.type_object_id)};
+      const candidate = {...message, url: formInboxItemLink(message)};
       const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
       candidate.time = candidateMeta?.time || 0;
       return candidate;

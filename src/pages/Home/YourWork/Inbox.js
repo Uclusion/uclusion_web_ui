@@ -103,8 +103,8 @@ function Inbox(props) {
     const itemMessage = messages?.find((message) => message.type_object_id === itemId && message.is_highlighted);
     if (itemMessage) {
       dehighlightMessage(itemMessage, messagesDispatch);
+      navigate(history, formInboxItemLink(itemMessage));
     }
-    navigate(history, formInboxItemLink(itemId));
   }
 
   const { first, last, data, hasMore, hasLess, previousItemId, nextItemId, current } =

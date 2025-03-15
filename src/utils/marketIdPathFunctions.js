@@ -14,7 +14,7 @@ import {
   isOptionTicket,
   isTicketPath
 } from '../contexts/TicketContext/ticketIndexContextHelper';
-import { getInboxTarget } from '../contexts/NotificationsContext/notificationsContextHelper';
+import { getInboxTarget, getMessageId } from '../contexts/NotificationsContext/notificationsContextHelper';
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -95,8 +95,12 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
   broadcastView(toMarketId, toInvestibleId, true, toAction, to);
 }
 
-export function formInboxItemLink(id) {
+export function formInboxItemLinkFromId(id) {
   return `${getInboxTarget()}/${id}`;
+}
+
+export function formInboxItemLink(message) {
+  return `${getInboxTarget()}/${getMessageId(message)}`;
 }
 
 export function formInviteLink(marketToken) {

@@ -184,7 +184,7 @@ function ArchiveInvestbiles(props) {
                               if (myMessage) {
                                 preventDefaultAndProp(event);
                                 dehighlightMessage(myMessage, messagesDispatch);
-                                navigate(history, formInboxItemLink(myMessage.type_object_id));
+                                navigate(history, formInboxItemLink(myMessage));
                               }
                             }}
                             onMouseOver={(event) => {

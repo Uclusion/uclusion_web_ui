@@ -75,9 +75,9 @@ function DemoMarketLoad(props) {
       const workspaceMessage = notifications?.find((message) =>
         message.type_object_id === `UNREAD_GROUP_${id}`);
       dehighlightMessage(workspaceMessage, messagesDispatch);
-      return {id, notifications: [workspaceMessage || {}]};
+      return {id, notifications: workspaceMessage ? [workspaceMessage] : undefined};
     }, []);
-    return loadedInfo === undefined ? loadingScreen :
+    return _.isEmpty(loadedInfo?.notifications) ? loadingScreen :
       <Screen
         title={intl.formatMessage({id: 'inbox'})}
         tabTitle={intl.formatMessage({id: 'inbox'})}

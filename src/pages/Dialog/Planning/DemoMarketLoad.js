@@ -20,7 +20,11 @@ import { TicketIndexContext } from '../../../contexts/TicketContext/TicketIndexC
 import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import Inbox from '../../Home/YourWork/Inbox';
-import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import {
+  dehighlightMessage,
+  getMessageId,
+  isInInbox
+} from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import { addGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
 
@@ -71,7 +75,7 @@ function DemoMarketLoad(props) {
       const workspaceMessage = notifications?.find((message) =>
         message.type_object_id === `UNREAD_GROUP_${id}`);
       dehighlightMessage(workspaceMessage, messagesDispatch);
-      return {id, notifications: [workspaceMessage]};
+      return {id, notifications: [workspaceMessage || {}]};
     }, []);
     return loadedInfo === undefined ? loadingScreen :
       <Screen
@@ -83,7 +87,7 @@ function DemoMarketLoad(props) {
         disableSearch
       >
       <Inbox hidden={false} messagesFull={loadedInfo.notifications} loadedMarketId={loadedInfo.id}
-             workItemId={`UNREAD_GROUP_${loadedInfo.id}`}
+             workItemId={getMessageId(loadedInfo.notifications[0])}
              messagesHash={{inboxMessagesOrdered: loadedInfo.notifications}}/>
       </Screen>;
   }
@@ -102,7 +106,7 @@ function DemoMarketLoad(props) {
       groupLoadId={demo.id}
     >
       <Inbox hidden={false} messagesFull={notifications} loadedMarketId={demo.id}
-                  workItemId={`UNREAD_GROUP_${demo.id}`} messagesHash={{inboxMessagesOrdered: notifications}}/>
+                  workItemId={getMessageId(demoMessage)} messagesHash={{inboxMessagesOrdered: notifications}}/>
     </Screen>;
   }
 

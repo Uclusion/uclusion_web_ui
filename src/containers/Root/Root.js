@@ -45,7 +45,7 @@ import PlanningMarketLoad from '../../pages/Dialog/Planning/PlanningMarketLoad';
 import DemoMarketLoad from '../../pages/Dialog/Planning/DemoMarketLoad';
 import { getCurrentWorkspace, getFirstWorkspace } from '../../utils/redirectUtils';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { getInboxTarget, getMessageId } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 
@@ -102,9 +102,8 @@ function Root() {
   const currentWorkspace = getCurrentWorkspace();
   const defaultMarket = getFirstWorkspace(markets, marketId, !isRootPath);
   const defaultMarketId = defaultMarket?.id;
-  const workspaceMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${defaultMarketId}`,
-    messagesState);
-  const workspaceMessagePath = `${getInboxTarget()}/UNREAD_GROUP_${defaultMarketId}`;
+  const workspaceMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${defaultMarketId}`, messagesState);
+  const workspaceMessagePath = `${getInboxTarget()}/${getMessageId(workspaceMessage)}`;
   const defaultMarketLink = defaultMarketId ? (workspaceMessage ? workspaceMessagePath :
     formMarketLink(defaultMarketId, defaultMarketId)) : undefined;
   const isDemoUser = [OnboardingState.DemoCreated, OnboardingState.NeedsOnboarding]

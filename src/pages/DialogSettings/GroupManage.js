@@ -85,7 +85,7 @@ function GroupManage() {
     >
       <div className={myClasses.container}>
         <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-          <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
+          <Grid item md={5} xs={12} className={classes.fieldsetContainer} id='viewMembersList'>
             <Typography variant="h6">
               {intl.formatMessage({ id: 'viewMembers' })}
             </Typography>

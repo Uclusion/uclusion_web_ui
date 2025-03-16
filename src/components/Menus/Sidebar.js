@@ -33,7 +33,7 @@ function processRegularItem(properties) {
                 key={key} id={`${idPrepend}${textNoSpaces}`}
                 suffix={num > 0 ?
                   <Typography style={{ fontWeight: 'bold', paddingRight: '0.25rem' }} >{num} {numSuffix}</Typography>
-                  : (EndIcon ? <IconButton size="small" onClick={(event) => onClickFunc(event)}>
+                  : (EndIcon ? <IconButton id={`end${idPrepend}${textNoSpaces}`} size="small" onClick={(event) => onClickFunc(event)}>
                       <EndIcon htmlColor="black" fontSize="small" /></IconButton>
                     : undefined)}
                 onClick={

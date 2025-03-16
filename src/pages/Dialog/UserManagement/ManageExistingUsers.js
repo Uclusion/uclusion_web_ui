@@ -20,6 +20,7 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { changeGroupParticipation } from '../../../api/markets'
 import { modifyGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer'
+import { fixName } from '../../../utils/userFunctions';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -72,7 +73,7 @@ function ManageExistingUsers(props) {
           </ListItemAvatar>
           <ListItemText
           >
-            {name}
+            {fixName(name)}
           </ListItemText>
           <ListItemSecondaryAction style={{paddingRight: '1rem'}}>
             <Checkbox

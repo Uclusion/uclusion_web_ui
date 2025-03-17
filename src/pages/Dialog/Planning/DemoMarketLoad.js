@@ -31,7 +31,7 @@ import { addGroupMembers } from '../../../contexts/GroupMembersContext/groupMemb
 function DemoMarketLoad(props) {
   const { onboardingState, demo, demoMessage } = props;
   const [, marketsDispatch] = useContext(MarketsContext);
-  const [, messagesDispatch] = useContext(NotificationsContext);
+  const [, messagesDispatch, , setInitialized] = useContext(NotificationsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [, marketStagesDispatch] = useContext(MarketStagesContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -60,7 +60,7 @@ function DemoMarketLoad(props) {
       console.log('Quick adding demo market after load');
       const dispatchers = {
         marketsDispatch, messagesDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch, groupMembersDispatch,
-        investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch
+        investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch, setInitialized
       }
       const { demo, user, default_members: defaultMembers } = result;
       const { notifications } = demo || {};

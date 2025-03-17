@@ -65,9 +65,10 @@ export async function handleMarketData(marketData, dispatchers) {
     stages, presences, token, notifications
   } = marketData;
   const { marketsDispatch, messagesDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch,
-    investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch } = dispatchers;
+    investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch, setInitialized } = dispatchers;
   if (notifications) {
     messagesDispatch(updateMessages(notifications));
+    setInitialized(true);
   }
   addStages(marketStagesDispatch, market, stages);
   addGroup(groupsDispatch, group);

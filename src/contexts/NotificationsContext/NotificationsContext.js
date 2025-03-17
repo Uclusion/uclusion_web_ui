@@ -62,7 +62,7 @@ function NotificationsProvider(props) {
   }, []);
 
   return (
-    <NotificationsContext.Provider value={[state, dispatch, initialized]}>
+    <NotificationsContext.Provider value={[state, dispatch, initialized, setInitialized]}>
       {children}
     </NotificationsContext.Provider>
   );

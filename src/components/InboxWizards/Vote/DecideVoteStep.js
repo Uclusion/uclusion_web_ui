@@ -39,7 +39,7 @@ function DecideVoteStep(props) {
       </Typography>
       {isAssigned && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          You can use the move button to convert this suggestion to a task.
+          You can use the make task button to convert this suggestion to a task in this job.
         </Typography>
       )}
       {!isAssigned && (

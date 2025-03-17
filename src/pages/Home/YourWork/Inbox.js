@@ -100,9 +100,11 @@ function Inbox(props) {
 
   function goToItem(itemId) {
     const { messages } = messagesState || {};
-    const itemMessage = messages?.find((message) => message.type_object_id === itemId && message.is_highlighted);
+    const itemMessage = messages?.find((message) => message.type_object_id === itemId);
     if (itemMessage) {
-      dehighlightMessage(itemMessage, messagesDispatch);
+      if (itemMessage.is_highlighted) {
+        dehighlightMessage(itemMessage, messagesDispatch);
+      }
       navigate(history, formInboxItemLink(itemMessage));
     }
   }
@@ -177,7 +179,7 @@ function Inbox(props) {
     });
     return rows;
   }
-
+console.debug(`next item id is ${nextItemId} is on work item is ${isOnWorkItem}`)
   const goPreviousFunc = () => isOnWorkItem ? goToItem(previousItemId) : changePage(-1);
   const goNextFunc = () => isOnWorkItem ? goToItem(nextItemId) : changePage(1);
   useHotkeys('ctrl+shift+arrowLeft', goPreviousFunc, {enabled: hasLess, enableOnContentEditable: true},

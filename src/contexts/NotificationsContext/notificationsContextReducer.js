@@ -285,7 +285,7 @@ function reducer (state, action) {
       const message = existingMessages?.find((message) => message.type_object_id === rollupTypeObjectId);
       if (message) {
         getMarketClient(message.market_id).then((client) =>
-          client.users.dehighlightNotifications([originalMessage]))
+          client?.users.dehighlightNotifications([originalMessage]))
           .then(() => storeStatePromise(action, computeNewState(state, action)));
       }
     } else {
@@ -312,10 +312,10 @@ function reducer (state, action) {
       }
       Object.keys(allMessages).forEach((key) => {
         if (action.type === REMOVE_MESSAGES) {
-          getMarketClient(key).then((client) => client.users.removeNotifications(allMessages[key])).then(() =>
+          getMarketClient(key).then((client) => client?.users.removeNotifications(allMessages[key])).then(() =>
             storeStatePromise(action, computeNewState(state, action)));
         } else if (!_.isEmpty(allMessages[key])) {
-          getMarketClient(key).then((client) => client.users.dehighlightNotifications(allMessages[key]))
+          getMarketClient(key).then((client) => client?.users.dehighlightNotifications(allMessages[key]))
             .then(() => storeStatePromise(action, computeNewState(state, action)));
         }
       });

@@ -73,6 +73,8 @@ function Options(props) {
   const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
   const selectedStageTab = selectedInvestible ?
     (getMarketInfo(selectedInvestible, anInlineMarket.id).stage === proposedStage.id ? 1 : 0) : undefined;
+  const [investibleIdTabZeroWasSet, setInvestibleIdTabZeroWasSet] = useState(false);
+  const [investibleIdTabOneWasSet, setInvestibleIdTabOneWasSet] = useState(false);
   const [selectedInvestibleIdTabZero, setSelectedInvestibleIdTabZero] = useState(
     selectedStageTab === 0 ? selectedInvestibleId : undefined);
   const [selectedInvestibleIdTabOne, setSelectedInvestibleIdTabOne] = useState(
@@ -140,6 +142,26 @@ function Options(props) {
     return React.Fragment;
   }
 
+  function getSelectedInvestibleId() {
+    if (useTabIndex === 0 && !investibleIdTabZeroWasSet) {
+      return selectedInvestibleId;
+    }
+    if (useTabIndex === 1 && !investibleIdTabOneWasSet) {
+      return selectedInvestibleId;
+    }
+    return useTabIndex === 0 ? selectedInvestibleIdTabZero : selectedInvestibleIdTabOne;
+  }
+
+  function setUseSelectedInvestibleIdTabZero(id) {
+    setInvestibleIdTabZeroWasSet(true);
+    setSelectedInvestibleIdTabZero(id);
+  }
+
+  function setUseSelectedInvestibleIdTabOne(id) {
+    setInvestibleIdTabOneWasSet(true);
+    setSelectedInvestibleIdTabOne(id);
+  }
+
   const proposed = getInlineInvestiblesForStage(proposedStage);
   const unreadCount = _.size(underConsideration.filter((inv) => isNew(inv)));
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
@@ -194,8 +216,9 @@ function Options(props) {
         isSent={isSent}
         isInbox={isInbox}
         removeActions={removeActions}
-        selectedInvestibleId={useTabIndex === 0 ? selectedInvestibleIdTabZero : selectedInvestibleIdTabOne}
-        setSelectedInvestibleId={useTabIndex === 0 ? setSelectedInvestibleIdTabZero : setSelectedInvestibleIdTabOne}
+        selectedInvestibleId={getSelectedInvestibleId()}
+        setSelectedInvestibleId={useTabIndex === 0 ? setUseSelectedInvestibleIdTabZero :
+          setUseSelectedInvestibleIdTabOne}
       />
     </div>
   );

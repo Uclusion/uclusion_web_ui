@@ -1,7 +1,16 @@
 import React, { useContext } from 'react';
 import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { Button, Card, CardActions, CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import {
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Checkbox, FormControlLabel,
+  Typography,
+  useMediaQuery,
+  useTheme
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
 import _ from 'lodash';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
@@ -30,14 +39,24 @@ import { LocalCommentsContext, useCommentStyles } from './Comment';
 import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
-import { BUG_WIZARD_TYPE, DECISION_TYPE, DELETE_COMMENT_TYPE, REPLY_WIZARD_TYPE } from '../../constants/markets';
+import {
+  BUG_WIZARD_TYPE,
+  DECISION_TYPE,
+  DELETE_COMMENT_TYPE,
+  IN_PROGRESS_WIZARD_TYPE,
+  REPLY_WIZARD_TYPE
+} from '../../constants/markets';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
 import EditIcon from '@material-ui/icons/Edit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
 import { Done } from '@material-ui/icons';
-import { resolveComment } from '../../api/comments';
+import { resolveComment, updateComment } from '../../api/comments';
+import { previousInProgress } from '../AddNewWizards/TaskInProgress/TaskInProgressWizard';
+import { getNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -189,6 +208,8 @@ function Reply(props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
@@ -204,6 +225,9 @@ function Reply(props) {
   const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(rootComment?.comment_type)
     && !isInbox && market?.market_type !== DECISION_TYPE;
   const isSubTask = rootComment?.comment_type === TODO_TYPE && investibleId;
+  const isTopLevelSubTask = isSubTask && rootComment?.created_by === comment.created_by;
+  const isMySubTask = isSubTask && rootComment?.created_by === userId;
+  const inProgress = comment.in_progress;
 
   function useMarketId() {
     return React.useContext(LocalCommentsContext).marketId;
@@ -257,6 +281,24 @@ function Reply(props) {
     return !isHighlighted ? classes.container : classes.containerBlueLink;
   }
 
+  function handleToggleInProgress() {
+    setOperationRunning(`inProgressCheckbox${comment.id}`);
+    const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
+    const otherInProgressRaw = previousInProgress(userId, comment.id, investiblesState, commentsState, marketId,
+      groupId, notDoingStage.id);
+    // If they want to have parent in progress also don't bother them with the wizard
+    const otherInProgress = otherInProgressRaw.filter((aComment) => aComment.id !== rootComment?.id);
+    const sendToWizard = !inProgress && !_.isEmpty(otherInProgress);
+    return updateComment({marketId, commentId: comment.id, inProgress: !inProgress}).then((comment) => {
+      setOperationRunning(false);
+      addCommentToMarket(comment, commentsState, commentsDispatch)
+      if (sendToWizard) {
+        navigate(history, formWizardLink(IN_PROGRESS_WIZARD_TYPE, marketId, undefined, undefined,
+          comment.id));
+      }
+    });
+  }
+
   if (!marketId) {
     return React.Fragment;
   }
@@ -291,9 +333,16 @@ function Reply(props) {
       }
     }}>
       <CardContent className={classes.cardContent}>
-        <Typography className={classes.commenter} variant="body2">
-          {commenter.name}
-        </Typography>
+        {isTopLevelSubTask && (
+          <div className={classes.commenter}>
+            <ListAltIcon style={{height: 16, width: 16, transform: 'translateY(3px)'}} />
+          </div>
+        )}
+        {!isTopLevelSubTask && (
+          <Typography className={classes.commenter} variant="body2">
+            {commenter.name}
+          </Typography>
+        )}
         <Typography className={classes.timeElapsed} variant="body2">
           <UsefulRelativeTime
             value={comment.created_at}
@@ -366,7 +415,7 @@ function Reply(props) {
         <Typography className={classes.timePosted} variant="body2">
           <FormattedDate value={comment.created_at} />
         </Typography>
-        {enableEditing && (
+        {enableEditing && !isMySubTask && (
           <Button
             className={classes.action}
             id={`commentReplyButton${comment.id}`}
@@ -378,6 +427,22 @@ function Reply(props) {
           >
             {intl.formatMessage({ id: "issueReplyLabel" })} {hasReply(comment) && <EditIcon style={{fontSize: '1rem'}} fontSize='small' />}
           </Button>
+        )}
+        {enableEditing && isTopLevelSubTask && (inProgress || isMySubTask) && (
+          <FormControlLabel
+            id='inProgressCheckbox'
+            style={{maxHeight: '0.7rem', marginTop: '0.35rem', marginBottom: '0.35rem'}}
+            control={
+              <Checkbox
+                size='small'
+                id={`inProgressCheckbox${comment.id}`}
+                checked={operationRunning === `inProgressCheckbox${comment.id}` ? !inProgress : inProgress}
+                onClick={handleToggleInProgress}
+                disabled={!isMySubTask || operationRunning !== false}
+              />
+            }
+            label={mobileLayout ? undefined : intl.formatMessage({ id: 'inProgress' })}
+          />
         )}
         {enableEditing && isEditable && mobileLayout && (
           <Button

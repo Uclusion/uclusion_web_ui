@@ -55,6 +55,7 @@ function RemoveInProgressStep (props) {
           isInbox
           removeActions
           compressAll
+          displayRepliesAsTop
           toggleCompression={() => updateFormData({ useCompression: !useCompression })}
           useCompression={useCompression}
         />

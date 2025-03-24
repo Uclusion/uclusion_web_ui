@@ -38,7 +38,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import CardType, { BUG, DECISION_TYPE } from '../CardType';
 import {
-  addCommentToMarket,
+  addCommentToMarket, getComment,
   getMarketComments
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
@@ -468,6 +468,11 @@ function sortSubTask(parentCreatedBy) {
   return (aComment) => aComment.created_by !== parentCreatedBy;
 }
 
+function isSubTask(comment, commentsState) {
+  const parent = getComment(commentsState, comment.market_id, comment.reply_id);
+  return parent?.created_by === comment.created_by;
+}
+
 /**
  * A question or issue
  * @param {{comment: Comment, comments: Comment[]}} props
@@ -721,8 +726,8 @@ function Comment(props) {
   // For some reason can't stop propagation on clicking edit so just turn off in that case
   const isNavigateToInbox = myHighlightedLevel && !isEditable;
   const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> :
-    (commentType === REPLY_TYPE ? <FormattedMessage id="issueReplyLabel" /> :
-      (isInfo ? <FormattedMessage id="todoInfo" /> : undefined ));
+    (commentType === REPLY_TYPE ? (isSubTask(comment, commentsState) ? <FormattedMessage id="commentSubTaskLabel" /> :
+        <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> : undefined ));
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = !replyBeingEdited || replies.length > 0;

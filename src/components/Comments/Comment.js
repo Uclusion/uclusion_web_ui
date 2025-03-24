@@ -460,6 +460,14 @@ function findParentInDescendants(useComment, inboxMessageId, comments) {
   return found ? notifiedParent : undefined;
 }
 
+function sortInProgress(aComment) {
+  return !aComment.in_progress;
+}
+
+function sortSubTask(parentCreatedBy) {
+  return (aComment) => aComment.created_by !== parentCreatedBy;
+}
+
 /**
  * A question or issue
  * @param {{comment: Comment, comments: Comment[]}} props
@@ -505,7 +513,9 @@ function Comment(props) {
   const myInlinePresence = inlinePresences.find((presence) => presence.current_user) || {};
   const inArchives = !activeMarket;
   const replies = comments.filter(comment => comment.reply_id === id);
-  const sortedReplies = _.sortBy(replies, "created_at");
+  const sortedReplies = commentType === TODO_TYPE && investibleId
+    ? _.sortBy(replies, sortInProgress, sortSubTask(comment.created_by), "created_at")
+    : _.sortBy(replies, "created_at");
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);

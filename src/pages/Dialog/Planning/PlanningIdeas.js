@@ -19,7 +19,7 @@ import { usePlanFormStyles } from '../../../components/AgilePlan'
 import {
   getGroupPresences,
   getMarketPresences, isAutonomousGroup,
-  removeInvestibleInvestments, useGroupPresences
+  removeInvestibleInvestments
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import Chip from '@material-ui/core/Chip';
@@ -600,12 +600,13 @@ function StageInvestible(props) {
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
   const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId, !isVoting);
-  const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const collaboratorsForInvestible = getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible,
-    marketPresences, marketPresencesState, isVoting);
+    marketPresences, marketPresencesState, isVoting, groupPresences);
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
   const isReviewable = isReview || showCompletion;
   const unreadEstimate = findMessageOfType('UNREAD_ESTIMATE', id, messagesState);
@@ -667,7 +668,7 @@ function StageInvestible(props) {
     <>
       <Grid container>
         <Grid item xs={4}>
-          {!unaccepted && (isVoting || isReview) && !isSingleUser && (
+          {!unaccepted && (isVoting || isReview) && (
             <div>
               <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
             </div>

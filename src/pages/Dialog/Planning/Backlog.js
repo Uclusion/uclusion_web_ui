@@ -30,6 +30,8 @@ import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 function Backlog(props) {
   const {
@@ -51,6 +53,7 @@ function Backlog(props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const classes = todoClasses();
   const [backlogState, backlogDispatch] = useReducer(getReducer(),
     {page: 1, tabIndex: 0, pageState: {}, defaultPage: 1});
@@ -67,6 +70,7 @@ function Backlog(props) {
   const yellowCount = _.size(furtherWorkReadyToStart);
   const unreadYellowCount = _.size(furtherWorkReadyToStart.filter((inv) => isNew(inv, messagesState)));
   const unreadBlueCount = _.size(furtherWorkInvestibles);
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
 
   function onDrop(investibleId) {
     const marketInvestible = data.find((inv) => inv.investible.id === investibleId);
@@ -181,7 +185,7 @@ function Backlog(props) {
         const votersForInvestible = calculateInvestibleVoters(investible.id, marketId, marketsState,
           investiblesState, marketPresences, true);
         const collaboratorsForInvestible = getCollaboratorsForInvestible(investible.id, marketId, comments,
-          votersForInvestible, marketPresences, marketPresencesState);
+          votersForInvestible, marketPresences, marketPresencesState, false, groupPresences);
         return (
           <BacklogListItem id={investible.id} title={investible.name} date={intl.formatDate(investible.created_at)}
                            description={stripHTML(investible.description)}

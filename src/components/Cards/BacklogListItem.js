@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
+import { useMediaQuery, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { formInvestibleLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
@@ -63,34 +63,17 @@ const TitleB
   font-weight: bold;
 `;
 
-const DateLabel = styled(Text)`
-  font-size: 14px;
-  min-width: 10vw;
-  flex-basis: 100px;
-  flex-shrink: 0;
-  padding-right: 2rem;
-  text-align: right;
-  @media (max-width: 768px) {
+const DateLabel = styled("div")`
+    font-size: 14px;
+    padding-left: 1rem;
     padding-right: 1rem;
-  }
+    text-align: right;
 `;
 
 const DateLabelB = styled(DateLabel)`
   color: rgba(0, 0, 0, 0.87);
   font-weight: bold;
 `;
-
-export const workListStyles = makeStyles(() => {
-  return {
-    gravatarStyle: {
-      marginLeft: '0.75rem'
-    },
-    removed: {
-      transform: 'translateX(100vw)',
-      transitionDuration: '2s'
-    }
-  };
-});
 
 function BacklogListItem(props) {
   const {
@@ -105,7 +88,6 @@ function BacklogListItem(props) {
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const classes = workListStyles();
 
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
@@ -130,11 +112,12 @@ function BacklogListItem(props) {
           }>
             <Div key={`actions${id}`}>
               {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
-              {mobileLayout || _.isEmpty(people) ? React.Fragment :
-                <GravatarGroup users={people} className={classes.gravatarStyle}/> }
               {!mobileLayout && (
                 <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{useDescription}</Text>
               )}
+              {mobileLayout || _.isEmpty(people) ? React.Fragment :
+                <GravatarGroup users={people}  />
+              }
               {!date ? React.Fragment : (isNew ? (<DateLabelB>{date}</DateLabelB>) :
                 (<DateLabel>{date}</DateLabel>))}
             </Div>

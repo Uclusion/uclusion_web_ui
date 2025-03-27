@@ -45,7 +45,7 @@ import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContext
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
-  const candidate = {url: isOutbox ? formInboxItemLink(investible.investible.id)  :
+  const candidate = {url: isOutbox ? formInboxItemLink({id: investible.investible.id})  :
       formInvestibleLink(market.id, investible.investible.id)};
   const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
   candidate.time = candidateMeta?.time || 0;

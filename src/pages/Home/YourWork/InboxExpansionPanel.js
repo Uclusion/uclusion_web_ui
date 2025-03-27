@@ -296,6 +296,20 @@ export function getWorkspaceData(planningDetailsRaw, marketPresencesState, inves
     const approvedInvestibles = getUserInvestibles(myPresence.id, market.id, investibles,
       [approvedStage]) || [];
     const comments = getMarketComments(commentsState, market.id);
+    const inProgressTasks = comments.filter((comment) => !comment.resolved && comment.in_progress);
+    investibles.forEach((investible) => {
+      if (!approvedInvestibles.find((anInvestible) =>
+        investible.investible.id === anInvestible.investible.id)) {
+        const marketInfo = getMarketInfo(investible, market.id);
+        const { assigned, stage } = marketInfo;
+        if ([inVotingStage.id, approvedStage.id].includes(stage)&&(assigned || []).includes(myPresence.id)) {
+          if (!_.isEmpty(inProgressTasks.find((aComment) =>
+            aComment.investible_id === investible.investible.id))) {
+            approvedInvestibles.push(investible);
+          }
+        }
+      }
+    });
     const myUnresolvedRoots = comments.filter((comment) => !comment.resolved &&
       comment.created_by === myPresence.id && !comment.reply_id);
     const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);

@@ -51,8 +51,9 @@ function JobDescriptionStep (props) {
   const editorName = isMovingTasks ? `addJobWizard${roots[0].id}` : `addJobWizard${groupId}`;
   const { newQuantity } = formData;
   const jobTypes = ['READY', 'NOT_READY'];
-  if (!_.isEmpty(myGroupPresence)||!isSingleUser) {
-    jobTypes.shift('IMMEDIATE');
+  const showImmediate = !_.isEmpty(myGroupPresence)||!isSingleUser;
+  if (showImmediate) {
+    jobTypes.unshift('IMMEDIATE');
   }
 
   function getDefaultDescription() {
@@ -207,8 +208,8 @@ function JobDescriptionStep (props) {
       onChange({target});
     };
   }
-  useHotkeys('ctrl+alt+1', simulatePriority('IMMEDIATE'), {enableOnContentEditable: true},
-    []);
+  useHotkeys('ctrl+alt+1', simulatePriority('IMMEDIATE'), {enabled: showImmediate,
+      enableOnContentEditable: true}, []);
   useHotkeys('ctrl+alt+2', simulatePriority('READY'), {enableOnContentEditable: true},
     []);
   useHotkeys('ctrl+alt+3', simulatePriority('NOT_READY'), {enableOnContentEditable: true},

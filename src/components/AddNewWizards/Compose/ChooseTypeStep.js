@@ -24,9 +24,9 @@ function ChooseTypeStep (props) {
   const classes = useContext(WizardStylesContext);
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const allowedTypes = ['JOB', QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, 'GROUP'];
+  const allowedTypes = ['JOB', QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, 'GROUP', 'WORKSPACE'];
   const { useType } = formData;
-  const isFinal = !_.isEmpty(groupId) || useType === 'GROUP';
+  const isFinal = !_.isEmpty(groupId) || ['WORKSPACE', 'GROUP'].includes(useType) ;
 
   return (
     <WizardStepContainer
@@ -36,7 +36,7 @@ function ChooseTypeStep (props) {
         What do you want to create?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        These are the types that can be created directly under a workspace.
+        These are the top level types.
       </Typography>
       <FormControl component="fieldset">
         <RadioGroup

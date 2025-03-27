@@ -122,7 +122,7 @@ function WorkspaceNameStep (props) {
           </Typography>
         )}
         <Typography className={classes.introSubText} variant="subtitle1">
-          Autonomous mode removes collaboration features from the default view until a
+          Autonomous mode removes approval and assigning to others from the default view until a
           collaborator is added or the mode is turned off in settings.
         </Typography>
         <OutlinedInput

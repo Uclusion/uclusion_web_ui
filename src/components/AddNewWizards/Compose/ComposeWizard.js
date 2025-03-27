@@ -7,7 +7,13 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import _ from 'lodash';
 import ChooseGroupStep from './ChooseGroupStep';
 import { formMarketAddCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { BUG_WIZARD_TYPE, DISCUSSION_WIZARD_TYPE, JOB_WIZARD_TYPE, PLANNING_TYPE } from '../../../constants/markets';
+import {
+  BUG_WIZARD_TYPE,
+  DISCUSSION_WIZARD_TYPE,
+  JOB_WIZARD_TYPE,
+  PLANNING_TYPE,
+  WORKSPACE_WIZARD_TYPE
+} from '../../../constants/markets';
 import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -26,6 +32,9 @@ export function goToChosenWizard(useType, marketId, groupId, history) {
       break;
     case TODO_TYPE:
       navigate(history, formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, 0));
+      break;
+    case 'WORKSPACE':
+      navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`)
       break;
     default:
       navigate(history, `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${marketId}`)

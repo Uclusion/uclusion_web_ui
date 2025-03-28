@@ -111,7 +111,7 @@ function Backlog(props) {
                       className={wizardClasses.actionNext}
                       icon={AddIcon} iconColor="black"
                       style={{marginBottom: isEmptyBacklog ? undefined : '1rem'}}
-                      variant="text" doSpin={false} toolTipId='hotKeyTODO'
+                      variant="text" doSpin={false} toolTipId='hotKeyJob'
                       onClick={() => {
                         navigate(history, formMarketAddInvestibleLink(marketId, groupId, tabIndex));
                       }}>

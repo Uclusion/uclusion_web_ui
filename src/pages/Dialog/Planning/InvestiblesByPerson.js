@@ -157,7 +157,7 @@ function InvestiblesByPerson(props) {
                         icon={AddIcon} iconColor="black"
                         variant="text" doSpin={false}
                         style={{marginTop: '1rem', marginBottom: '1rem'}}
-                        toolTipId='hotKeyTODO'
+                        toolTipId='hotKeyJob'
                         onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
           <FormattedMessage id='addStoryLabel'/>
         </SpinningButton>

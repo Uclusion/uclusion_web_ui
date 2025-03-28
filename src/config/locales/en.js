@@ -1249,6 +1249,7 @@ const messages = defineMessages({
 
   //Hot keys
   hotKeyTODO: 'ctrl+a',
+  hotKeyJob: 'ctrl+a A job holds tasks and other types.',
   hotKeyQUESTION: 'ctrl+q',
   hotKeySUGGEST: 'ctrl+alt+s',
   hotKeyISSUE: 'ctrl+alt+b',

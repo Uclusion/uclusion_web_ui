@@ -28,6 +28,7 @@ import { pokeComment } from '../../../api/users';
 import Link from '@material-ui/core/Link';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { YELLOW_LEVEL } from '../../../constants/notifications';
+import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function DecideAssistanceStep(props) {
   const { marketId, commentId, formData, updateFormData } = props;
@@ -56,7 +57,12 @@ function DecideAssistanceStep(props) {
   const { useCompression, parentElementId } = formData;
 
   function myOnFinish() {
-    navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentRoot.id));
+    if (commentRoot.investible_id) {
+      navigate(history, formCommentLink(marketId, commentRoot.group_id, commentRoot.investible_id, commentRoot.id));
+    } else {
+      // Never automatically navigate to archive
+      navigate(history, getInboxTarget());
+    }
   }
 
   function accept() {

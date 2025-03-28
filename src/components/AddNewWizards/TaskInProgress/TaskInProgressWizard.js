@@ -20,9 +20,15 @@ export function previousInProgress(userId, currentCommentId, investibleState, co
   const inProgressComments = marketComments.filter((comment) => !comment.resolved && comment.in_progress &&
     comment.id !== currentCommentId);
   return inProgressComments.filter((comment) => {
-    if (comment.root_comment_id === currentCommentId) {
-      // Subtasks do not count as other in progress
-      return false;
+    if (comment.root_comment_id) {
+      if (comment.root_comment_id === currentCommentId) {
+        // Subtasks do not count as other in progress
+        return false;
+      }
+      const parent = getComment(commentsState, marketId, comment.root_comment_id);
+      if (parent?.resolved) {
+        return false;
+      }
     }
     const inv = getInvestible(investibleState, comment.investible_id) || {};
     const marketInfo = getMarketInfo(inv, marketId) || {};

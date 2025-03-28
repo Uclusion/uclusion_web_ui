@@ -156,7 +156,7 @@ class EmailEntryBox extends React.Component{
   onKeyDown = (event) => {
     const { key, target } = event;
     // are we done entering an email?
-    if (['Enter', 'Tab', ',', ';', ' '].includes(key)) {
+    if (['Enter', ',', ';', ' '].includes(key)) {
       event.preventDefault();
       // not actually an input, so don't put it in field
       const onValidEmail = () => {

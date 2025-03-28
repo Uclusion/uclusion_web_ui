@@ -86,10 +86,14 @@ function Inbox(props) {
   }, [unpaginatedItems, page, inboxDispatch]);
 
   useEffect(() => {
-    // If on first tab and trying to return to second tab panel
+    // If on first tab and trying to return to second tab panel or vice versa
     if (!hidden && workItemId) {
-      if (!workItemId.includes('_')&&tabIndex === 0) {
+      const isOutboxItem = !workItemId.includes('_');
+      if (isOutboxItem&&tabIndex === 0) {
         inboxDispatch(setTab(1));
+      }
+      if (!isOutboxItem&&tabIndex === 1) {
+        inboxDispatch(setTab(0));
       }
     }
   }, [hidden, inboxDispatch, tabIndex, workItemId]);

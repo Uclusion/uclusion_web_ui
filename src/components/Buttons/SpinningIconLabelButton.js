@@ -71,7 +71,6 @@ function SpinningIconLabelButton(props) {
     icon: Icon,
     noMargin,
     onClick,
-    allowOtherOperations,
     whiteBackground,
     iconColor='black',
     iconOnly = false,
@@ -85,8 +84,7 @@ function SpinningIconLabelButton(props) {
   const classes = useStyles();
   const theme = useTheme();
   const spinning = operationRunning === id;
-  const spinningDisabled = doSpin &&
-    ((allowOtherOperations && spinning)||(!allowOtherOperations && operationRunning !== false));
+  const spinningDisabled = operationRunning !== false;
   function myOnClick(event) {
     if (onClick) {
       preventDefaultAndProp(event);
@@ -139,13 +137,11 @@ function SpinningIconLabelButton(props) {
 SpinningIconLabelButton.propTypes = {
   disabled: PropTypes.bool,
   doSpin: PropTypes.bool,
-  allowOtherOperations: PropTypes.bool,
   icon: PropTypes.object.isRequired
 };
 
 SpinningIconLabelButton.defaultProps = {
   disabled: false,
-  allowOtherOperations: false,
   doSpin: true
 };
 

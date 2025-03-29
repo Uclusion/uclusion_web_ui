@@ -103,6 +103,8 @@ function Root() {
   const defaultMarket = getFirstWorkspace(markets, marketId, !isRootPath);
   const defaultMarketId = defaultMarket?.id;
   const workspaceMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${defaultMarketId}`, messagesState);
+  // workspace message is dehighlighted at the end of loading
+  const demoIsLoading = workspaceMessage?.is_highlighted;
   const workspaceMessagePath = formInboxItemLink(workspaceMessage);
   const defaultMarketLink = defaultMarketId ? (workspaceMessage ? workspaceMessagePath :
     formMarketLink(defaultMarketId, defaultMarketId)) : undefined;
@@ -138,6 +140,7 @@ function Root() {
 
   function hideDemoLoad() {
     // if notifications are loaded and no demo message then let useEffect redirect
+    // if there is a workspace message then harmlessly go to demo market load
     return !isDemoUser || !isRootPath || (initialized && !workspaceMessage)||!_.isEmpty(currentWorkspace);
   }
 
@@ -213,11 +216,12 @@ function Root() {
     if (isRootPath) {
       if (demoCreatedUser) {
         if (!_.isEmpty(demo)&&initialized) {
-          if (!workspaceMessage) {
-            // Workspace intro message gone so just navigate to market normally
+          if (!demoIsLoading) {
+            // Workspace intro message gone or dehighlighted at end of loading so just navigate to market normally
             navigate(history, defaultMarketLink, true);
           } else {
-            // Should be loading market already so just need url correct
+            // Should be in progress loading market so just need url correct
+            // If replace when someone goes to rootpath and the market is not loading then blank screen
             window.history.replaceState(null, '', defaultMarketLink);
           }
         }
@@ -227,8 +231,8 @@ function Root() {
         }
       }
     }
-  },  [demo, history, isRootPath, demoCreatedUser, defaultMarketLink, firstMarketJoinedUser,
-    initialized, workspaceMessage]);
+  },  [demo, history, isRootPath, demoCreatedUser, defaultMarketLink, firstMarketJoinedUser, initialized,
+    demoIsLoading]);
 
   useEffect(() => {
     function handleViewChange(isEntry) {

@@ -32,6 +32,7 @@ class EmailEntryBox extends React.Component{
     this.alreadyInList = props.alreadyInList || [];
     this.setIsValid = props.setIsValid;
     this.placeholder = props.placeholder;
+    this.inputRef = React.createRef();
   }
    wizardStyles = {
       editBox: {
@@ -155,6 +156,8 @@ class EmailEntryBox extends React.Component{
   // Handles keydown in text entry box
   onKeyDown = (event) => {
     const { key, target } = event;
+    const placeholder = this.getPlaceholder(target);
+    placeholder?.remove();
     // are we done entering an email?
     if (['Enter', ',', ';', ' '].includes(key)) {
       event.preventDefault();
@@ -199,12 +202,6 @@ class EmailEntryBox extends React.Component{
     node?.remove();
   };
 
-  onFocus = (event) => {
-    const { target } = event;
-    const placeholder = this.getPlaceholder(target);
-    placeholder?.remove();
-  };
-
   onPaste = (event) => {
     // the w3 regexp minus the start and end chars
     const matchingRegexp = /([a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)/g;
@@ -220,17 +217,21 @@ class EmailEntryBox extends React.Component{
     }
   }
 
+  // https://github.com/facebook/react/issues/6868 - must implement autofocus ourselves for div
+  componentDidMount() {
+    this.inputRef?.current?.focus();
+  }
+
   render () {
     return (
       <div>
         <div
-          autoFocus={true}
           contentEditable="true"
           id={ENTRY_BOX_ID}
           style={this.wizardStyles.editBox}
           onPaste={this.onPaste}
-          onFocus={this.onFocus}
           onBlur={this.onBlur}
+          ref={this.inputRef}
           suppressContentEditableWarning={true}
           onKeyDown={this.onKeyDown}>
           <span id="placeholder" style={this.wizardStyles.placeholder} contentEditable="false">{this.placeholder}</span>

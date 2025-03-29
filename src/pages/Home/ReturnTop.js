@@ -7,19 +7,22 @@ import { getInboxTarget } from '../../contexts/NotificationsContext/notification
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import _ from 'lodash';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { SUPPORT_SUB_TYPE } from '../../constants/markets';
 
 function ReturnTop(props) {
-  const { action, pathInvestibleId, marketId, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
+  const { action, pathInvestibleId, market, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
     useLink, typeObjectId } = props;
   const intl = useIntl();
   const history = useHistory();
   const isConfigScreen = ['userPreferences', 'integrationPreferences', 'billing'].includes(action);
+  const marketId = market.id;
+  const isSupportMarket = market.market_sub_type === SUPPORT_SUB_TYPE;
   const upFromConfigPossible = isConfigScreen && marketId;
   const downLevel = action === 'inbox' ? !_.isEmpty(pathMarketIdRaw) :
     (action === 'wizard' ? !_.isEmpty(groupId || marketId) :
       (action === 'marketEdit' ? marketId : (action === 'groupEdit' ? groupId : !_.isEmpty(pathInvestibleId))));
   const upDisabled = ((!downLevel || !['dialog', 'inbox', 'wizard', 'marketEdit', 'groupEdit'].includes(action))
-    &&!upFromConfigPossible)||isArchivedWorkspace;
+    &&!upFromConfigPossible&&!isSupportMarket)||isArchivedWorkspace;
 
   function goUp(){
     if (useLink) {
@@ -32,7 +35,7 @@ function ReturnTop(props) {
       navigate(history, formInvestibleLink(marketId, hashInvestibleId));
     } else if (action === 'marketEdit' || (action === 'wizard' && marketId && !groupId)) {
       navigate(history, formMarketLink(marketId, marketId));
-    } else if (groupId) {
+    } else if (groupId && downLevel) {
       navigate(history, formMarketLink(marketId, groupId));
     } else {
       navigate(history, getInboxTarget());

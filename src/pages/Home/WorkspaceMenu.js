@@ -159,7 +159,7 @@ function WorkspaceMenu(props) {
   const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
   return (
     <div style={{marginLeft: '15px'}}>
-      <ReturnTop action={action} pathInvestibleId={pathInvestibleId} marketId={defaultMarket.id}
+      <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket}
                  isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId}
                  groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>
       <Button

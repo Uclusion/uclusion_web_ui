@@ -100,7 +100,8 @@ function Root() {
   }
   const isRootPath = pathname === '/';
   const currentWorkspace = getCurrentWorkspace();
-  const defaultMarket = getFirstWorkspace(markets, marketId, !isRootPath);
+  // Disallow support market when going to root path as it is not "Home"
+  const defaultMarket = getFirstWorkspace(markets, marketId, !isRootPath, !isRootPath);
   const defaultMarketId = defaultMarket?.id;
   const workspaceMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${defaultMarketId}`, messagesState);
   // workspace message is dehighlighted at the end of loading

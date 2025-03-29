@@ -6,7 +6,7 @@ import _ from 'lodash'
 import { getInvestible } from '../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from './userFunctions';
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper';
-import { PLANNING_TYPE } from '../constants/markets';
+import { PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../constants/markets';
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
@@ -28,13 +28,14 @@ export function redirectFromHistory(history) {
   return redirect;
 }
 
-export function getFirstWorkspace(markets, marketId, allowArchived=true) {
+export function getFirstWorkspace(markets, marketId, allowArchived=true, allowSupport = true) {
   if (_.isEmpty(markets)) {
     return undefined;
   }
   const lastActive = marketId || getCurrentWorkspace();
   const lastMarket = markets.find((workspace) => workspace.id === lastActive &&
-    (allowArchived || workspace.market_stage === 'Active'));
+    (allowArchived || workspace.market_stage === 'Active')&&
+    (allowSupport || workspace.market_sub_type !== SUPPORT_SUB_TYPE));
   return lastMarket || markets[0];
 }
 

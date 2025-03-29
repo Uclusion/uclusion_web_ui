@@ -329,7 +329,8 @@ function Screen(props) {
       market.market_type === PLANNING_TYPE);
     markets = getSortedMarkets(filtered);
   }
-  const defaultMarket = getFirstWorkspace(markets, marketId) || {};
+  const isTopLevelInbox = action === 'inbox' && _.isEmpty(pathMarketIdRaw);
+  const defaultMarket = getFirstWorkspace(markets, marketId, !isTopLevelInbox, !isTopLevelInbox) || {};
   const reallyAmLoading = !hidden && appEnabled && (loading || !userIsLoaded(userState));
   if (marketId && _.isEmpty(defaultMarket)) {
     return <React.Fragment/>

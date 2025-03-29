@@ -93,6 +93,8 @@ class EmailEntryBox extends React.Component{
 
   onBlur = (event) => {
     const { target } = event;
+    const placeholder = this.getPlaceholder(target);
+    placeholder?.remove();
     this.emailEntered(target);
     const isValid = !_.isEmpty(this.emailList);
     this.setIsValid(isValid);

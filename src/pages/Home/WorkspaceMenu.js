@@ -117,6 +117,7 @@ function WorkspaceMenu(props) {
   const intl = useIntl();
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [switchWorkspaceOpen, setSwitchWorkspaceOpen] = useState(false);
   const history = useHistory();
   const marketPresences = getMarketPresences(marketPresencesState, defaultMarket.id) || [];
   const presencesFiltered = marketPresences.filter((presence) => !presence.market_banned);
@@ -249,11 +250,12 @@ function WorkspaceMenu(props) {
                     </div>
                   </Tooltip>
                 </MenuItem>
-                {!_.isEmpty(notCurrentMarkets) && (
-                  <SubMenu title={intl.formatMessage({ id: 'switchWorkspace' })}
+                {!_.isEmpty(archivedMarkets) && (
+                  <SubMenu title={intl.formatMessage({ id: 'archivedWorkspace' })}
                            onClick={(event) => event.stopPropagation() }
-                           key="switchWorkspace" style={{paddingLeft: '0.7rem'}}>
-                    {activeMarkets.map((market) => {
+                           style={{paddingLeft: '0.7rem'}}
+                           key="archivedWorkspaces">
+                    {archivedMarkets.map((market, archiveIndex) => {
                       const key = `market${market.id}`;
 
                       if (market.id === defaultMarket.id) {
@@ -272,32 +274,6 @@ function WorkspaceMenu(props) {
                         {market.name}
                       </MenuItem>
                     })}
-                    {!_.isEmpty(archivedMarkets) && (
-                    <SubMenu title={intl.formatMessage({ id: 'archivedWorkspace' })}
-                             onClick={(event) => event.stopPropagation() }
-                             style={{paddingLeft: '-15px', marginLeft: '-15px'}}
-                             key="archivedWorkspaces">
-                      {archivedMarkets.map((market, archiveIndex) => {
-                        const key = `market${market.id}`;
-
-                        if (market.id === defaultMarket.id) {
-                          return <React.Fragment key={key}/>;
-                        }
-                        return <MenuItem icon={<AgilePlanIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}}
-                                                              htmlColor="black" fontSize='small' />}
-                                         id={key}
-                                         key={key}
-                                         style={{paddingLeft: '-15px', marginLeft: '-15px',
-                                           marginBottom: archiveIndex === archivedMarkets.length - 1 ? '15px' : undefined}}
-                                         onClick={() => {
-                                           recordPositionToggle();
-                                           setChosenMarketId(market.id);
-                                         }}
-                        >
-                          {market.name}
-                        </MenuItem>
-                      })}
-                    </SubMenu>)}
                   </SubMenu>
                 )}
               </ProMenu>
@@ -322,6 +298,39 @@ function WorkspaceMenu(props) {
             />
           )}
         </List>
+      )}
+      {!_.isEmpty(activeMarkets) && (
+        <ProSidebar width="14rem" style={{marginTop: '0.5rem'}}>
+          <SidebarContent>
+            <ProMenu iconShape="circle" style={{paddingBottom: 0}}>
+              <SubMenu id='switchWorkspace' title={intl.formatMessage({ id: 'switchWorkspace' })}
+                       onClick={() => setSwitchWorkspaceOpen(!switchWorkspaceOpen)}
+                       key="switchWorkspace" open={switchWorkspaceOpen}>
+                {activeMarkets.map((market) => {
+                  const key = `market${market.id}`;
+
+                  if (market.id === defaultMarket.id) {
+                    return <React.Fragment key={key}/>;
+                  }
+                  return <MenuItem
+                    icon={<AgilePlanIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}}
+                                                        htmlColor="black" fontSize='small' />}
+                    id={key}
+                    key={key}
+                    style={{paddingLeft: '-15px', marginLeft: '-15px'}}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setChosenMarketId(market.id);
+                      setSwitchWorkspaceOpen(false);
+                    }}
+                  >
+                    {market.name}
+                  </MenuItem>
+                })}
+              </SubMenu>
+            </ProMenu>
+          </SidebarContent>
+        </ProSidebar>
       )}
     </div>
   );

@@ -305,7 +305,10 @@ function WorkspaceMenu(props) {
           <SidebarContent>
             <ProMenu iconShape="circle" style={{paddingBottom: 0}}>
               <SubMenu id='switchWorkspace' title={intl.formatMessage({ id: 'switchWorkspace' })}
-                       onClick={() => setSwitchWorkspaceOpen(!switchWorkspaceOpen)}
+                       onClick={(event) => {
+                         event.stopPropagation();
+                         setSwitchWorkspaceOpen(!switchWorkspaceOpen);
+                       }}
                        key="switchWorkspace" open={switchWorkspaceOpen}>
                 {activeMarkets.map((market) => {
                   const key = `market${market.id}`;

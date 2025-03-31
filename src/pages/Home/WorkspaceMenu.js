@@ -188,6 +188,7 @@ function WorkspaceMenu(props) {
           anchorEl={anchorEl}
           disableRestoreFocus
           classes={{ paper: classes.paperMenu }}
+          MenuListProps={{ disablePadding: true }}
         >
           <ProSidebar width="14rem">
             <SidebarContent>
@@ -238,7 +239,7 @@ function WorkspaceMenu(props) {
                 )}
                 <MenuItem icon={<AddIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
                           key="addWorkspace Key" id="addWorkspaceIconId"
-                          style={{marginBottom: '0.5rem'}}
+                          style={{marginBottom: !_.isEmpty(archivedMarkets) ? '0.5rem' : undefined}}
                           onClick={()=> {
                             recordPositionToggle();
                             navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);

@@ -600,7 +600,7 @@ const messages = defineMessages({
   // markets
   signupInvite: 'invites you to collaborate in',
   signupRedirectLogin: 'Create account will redirect you to login.',
-  switchWorkspace: 'Switch workspaces',
+  switchWorkspace: 'Switch workspace',
   archivedWorkspace: 'Archived',
   editWorkspace: 'Edit workspace',
   notificationMarketSettingsExplanation: 'Change notification settings of the chosen workspace',

@@ -6,11 +6,8 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import { useIntl } from 'react-intl';
 import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
-import { formCommentLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { useInvestibleEditStyles } from '../../../pages/Investible/InvestibleBodyEdit';
-import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 
 export function hasDiscussionComment(groupId, commentType) {
   return hasCommentValue(groupId, undefined, 'DiscussionCommentAdd', undefined,
@@ -21,14 +18,10 @@ function AddCommentStep (props) {
   const { marketId, groupId, updateFormData, useType, onFinishCreation } = props;
   const intl = useIntl();
   const history = useHistory();
-  const [groupState] = useContext(MarketGroupsContext);
   const classes = useContext(WizardStylesContext);
-  const investibleEditClasses = useInvestibleEditStyles();
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
   const [commentAddState, updateCommentAddState, commentAddStateReset] =
     getPageReducerPage(commentAddStateFull, commentAddDispatch, groupId);
-  const group = getGroup(groupState, marketId, groupId);
-  const { name: groupName } = group || {};
 
   function onSave(comment) {
     if (comment.is_sent) {
@@ -47,10 +40,8 @@ function AddCommentStep (props) {
       <Typography className={classes.introText}>
         What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Tip` }).toLowerCase()}?
       </Typography>
-      <Typography className={investibleEditClasses.title} variant="h3" component="h1"
-                  style={{cursor: 'pointer', color: 'blue', textDecoration: 'underline'}}
-                  onClick={() => navigate(history, formMarketLink(marketId, groupId))}>
-        Group '{groupName}'
+      <Typography className={classes.introSubText} variant="subtitle1">
+        All view members notified unless use @ mentions.
       </Typography>
       <CommentAdd
         nameKey="DiscussionCommentAdd"

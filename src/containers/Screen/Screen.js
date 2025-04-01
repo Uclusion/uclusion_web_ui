@@ -357,8 +357,8 @@ function Screen(props) {
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
     const { onGroupClick, useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
-      history, defaultMarket, useGroupId || pathGroupId, groupId, useHoverFunctions, search, results,
-      openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction);
+      history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, useHoverFunctions, search,
+      results, openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction);
   }
   const inboxCount = getInboxCount(messagesState);
   const inboxCountTotal = inboxCount > 0 ? undefined :

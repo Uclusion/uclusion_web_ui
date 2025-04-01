@@ -90,9 +90,6 @@ function JobEditStep(props) {
       <NameField id={investibleId} setHasValue={setHasValue}/>
       {Editor}
       <CardActions className={classes.actions}>
-        <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton">
-          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
-        </SpinningIconLabelButton>
         <SpinningIconLabelButton
           icon={SettingsBackupRestore}
           disabled={!hasValue}
@@ -100,6 +97,9 @@ function JobEditStep(props) {
           id="investibleUpdateButton"
         >
           <FormattedMessage id="update" />
+        </SpinningIconLabelButton>
+        <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton">
+          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
       </CardActions>
     </WizardStepContainer>

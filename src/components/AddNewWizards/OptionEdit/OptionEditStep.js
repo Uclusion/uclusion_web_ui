@@ -107,9 +107,6 @@ function OptionEditStep(props) {
       <NameField id={investibleId} setHasValue={setHasValue} placeHolder="optionTitlePlaceholder"/>
       {Editor}
       <CardActions className={classes.actions}>
-        <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton">
-          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
-        </SpinningIconLabelButton>
         <SpinningIconLabelButton
           icon={SettingsBackupRestore}
           disabled={!hasValue}
@@ -117,6 +114,9 @@ function OptionEditStep(props) {
           id="investibleUpdateButton"
         >
           <FormattedMessage id="update"/>
+        </SpinningIconLabelButton>
+        <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton">
+          {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
       </CardActions>
     </WizardStepContainer>

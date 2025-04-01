@@ -54,8 +54,13 @@ function DialogArchives() {
   const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, completeStage.id, marketId);
   const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id, marketId);
   const comments = getMarketComments(commentsState, marketId, groupId) || [];
-  const resolvedMarketComments = comments.filter(comment => !comment.investible_id && comment.resolved) || [];
-  const notTodoComments = resolvedMarketComments.filter(comment => comment.comment_type !== TODO_TYPE);
+  const notTodoComments = comments.filter(comment => {
+    if (comment.comment_type !== TODO_TYPE && comment.comment_type !== REPLY_TYPE) {
+      return !comment.investible_id && comment.resolved;
+    }
+    //Just return all replies also
+    return comment.comment_type === REPLY_TYPE;
+  });
   const todoComments = comments.filter(comment => {
     if (comment.comment_type === TODO_TYPE) {
       return !comment.investible_id && comment.resolved;

@@ -15,22 +15,25 @@ import _ from 'lodash';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import {
-  getFullStage,
-  isInReviewStage
+  getFullStage, isFurtherWorkStage,
+  isInReviewStage, isNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function CloseCommentsStep(props) {
   const { marketId, investibleId, formData, marketInfo, myFinish: finish, isAssign, requiresAction,
-    updateFormData } = props;
+    updateFormData, isSingleUser } = props;
   const classes = useContext(WizardStylesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const { assigned: originalAssigned, group_id: groupId, stage: currentStageId } = marketInfo;
   const marketComments = getMarketComments(commentsState, marketId, groupId);
   const unresolvedComments = marketComments.filter(comment => comment.investible_id === investibleId &&
@@ -47,6 +50,9 @@ function CloseCommentsStep(props) {
   const commentThreads = getCommentThreads(mustResolveComments, marketComments);
   const isMustResolve = fullCurrentStage.move_on_comment ||
     !_.isEmpty(unresolvedComments.filter((comment) => comment.comment_type === TODO_TYPE));
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user);
+  const userId = myPresence?.id;
 
   function move() {
     // Do not rely on async to close the comments cause want this user to be updated by and not auto opened if return
@@ -61,6 +67,8 @@ function CloseCommentsStep(props) {
     };
     if (!_.isEmpty(formData.assigned)) {
       moveInfo.stageInfo.assignments = formData.assigned;
+    } else if (isSingleUser&&_.isEmpty(assigned)&&!isFurtherWorkStage(fullMoveStage)&&!isNotDoingStage(fullMoveStage)) {
+      moveInfo.stageInfo.assignments = [userId];
     }
     return stageChangeInvestible(moveInfo)
       .then((response) => {

@@ -102,7 +102,7 @@ function JobStageWizard(props) {
         )}
         {isAssign !== 'false' && (
           <CloseCommentsStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                             isAssign={isAssign} requiresAction={requiresAction} />
+                             isAssign={isAssign} requiresAction={requiresAction} isSingleUser={isSingleUser} />
         )}
         <StageActionStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
                          currentReasonId={yourReason?.id} groupId={groupId} isSingleUser={isSingleUser} />

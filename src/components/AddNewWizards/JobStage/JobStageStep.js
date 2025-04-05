@@ -103,7 +103,7 @@ function JobStageStep (props) {
         stage_id: fullMoveStage.id,
       },
     };
-    console.debug(`userId ${userId}, single user ${isSingleUser}, empty assigned is ${_.isEmpty(assigned)}, ${isFurtherWorkStage(fullMoveStage)}, ${isNotDoingStage(fullMoveStage)}`)
+    console.info(`userId ${userId}, single user ${isSingleUser}, empty assigned is ${_.isEmpty(assigned)}, ${isFurtherWorkStage(fullMoveStage)}, ${isNotDoingStage(fullMoveStage)}`)
     if (isSingleUser&&_.isEmpty(assigned)&&!isFurtherWorkStage(fullMoveStage)&&!isNotDoingStage(fullMoveStage)) {
       moveInfo.stageInfo.assignments = [userId];
     }

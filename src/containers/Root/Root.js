@@ -246,6 +246,20 @@ function Root() {
       }
     }
 
+    if (!window.myErrorListenerMarker) {
+      window.myErrorListenerMarker = true;
+      window.onerror = function (message, source, lineno, colno,
+        error) {
+        console.error('Global error caught:', message, source, lineno, colno, error);
+        return true; // Prevents the browser's default error handling
+      };
+
+      window.addEventListener('unhandledrejection', function (event) {
+        console.error('Unhandled promise rejection:', event.reason);
+        event.preventDefault(); // Prevents the default error handling
+      });
+    }
+
     if (!window.myListenerMarker && isUserLoaded) {
       window.myListenerMarker = true;
       // console.debug('Adding listeners');

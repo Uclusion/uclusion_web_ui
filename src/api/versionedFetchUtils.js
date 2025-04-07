@@ -124,27 +124,33 @@ export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, stor
 }
 
 export function sendMarketsStruct(marketsStruct) {
-  console.info("Updating with markets struct");
-  console.info(marketsStruct)
+  console.info('Updating with markets struct');
   if (marketsStruct['markets']) {
+    console.info(marketsStruct['markets']);
     pushMessage(PUSH_MARKETS_CHANNEL, { event: VERSIONS_EVENT, marketDetails: marketsStruct['markets'] });
   }
   if (marketsStruct['comments']) {
+    console.info(marketsStruct['comments']);
     pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, commentDetails: marketsStruct['comments'] });
   }
   if (marketsStruct['investibles']) {
+    console.info(marketsStruct['investibles']);
     pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, investibles: marketsStruct['investibles'] });
   }
   if (marketsStruct['users']) {
+    console.info(marketsStruct['users']);
     pushMessage(PUSH_PRESENCE_CHANNEL, { event: VERSIONS_EVENT, userDetails: marketsStruct['users'] });
   }
   if (marketsStruct['stages']) {
+    console.info(marketsStruct['stages']);
     pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: marketsStruct['stages'] });
   }
   if (marketsStruct['group']) {
+    console.info(marketsStruct['group']);
     pushMessage(PUSH_GROUPS_CHANNEL, { event: VERSIONS_EVENT, groupDetails: marketsStruct['group']});
   }
   if (marketsStruct['members']) {
+    console.info(marketsStruct['members']);
     pushMessage(PUSH_MEMBER_CHANNEL, { event: VERSIONS_EVENT, memberDetails: marketsStruct['members']});
   }
 }

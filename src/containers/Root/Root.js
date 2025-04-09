@@ -218,9 +218,11 @@ function Root() {
       if (demoCreatedUser) {
         if (!_.isEmpty(demo)&&initialized) {
           if (!demoIsLoading) {
+            console.info('Navigating to default link');
             // Workspace intro message gone or dehighlighted at end of loading so just navigate to market normally
             navigate(history, defaultMarketLink, true);
           } else {
+            console.info('Replacing state for default link');
             // Should be in progress loading market so just need url correct
             // If replace when someone goes to rootpath and the market is not loading then blank screen
             window.history.replaceState(null, '', defaultMarketLink);
@@ -228,6 +230,7 @@ function Root() {
         }
       } else if (firstMarketJoinedUser) {
         if (!_.isEmpty(defaultMarketLink)) {
+          console.info('Navigating to first joined');
           navigate(history, defaultMarketLink, true);
         }
       }
@@ -241,6 +244,7 @@ function Root() {
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);
       broadcastView(marketId, investibleId, isEntry, action);
       if (isEntry && marketId && marketId === defaultMarketId) {
+        console.info('Refresh versions in view change');
         // refresh our versions if we're entering, on a market, and not busy loading it
         refreshVersions().catch(() => console.warn('Error refreshing'));
       }

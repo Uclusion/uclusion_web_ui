@@ -55,11 +55,11 @@ function IntroduceGroupStep(props) {
       </Typography>
       <div style={{paddingBottom: '1rem', paddingTop: '1rem'}}>
         <Typography variant='body2' style={{paddingBottom: '1.5rem'}}>
-          Now these group members
+          Now these view members
         </Typography>
         <GravatarGroup users={groupPresences} gravatarClassName={classes.smallGravatar} />
         <Typography variant='body2' style={{paddingTop: '1.5rem'}}>
-          will be automatically notified when you create jobs, comments or bugs in this group.
+          will be automatically notified when you create jobs, comments or bugs in this view.
         </Typography>
       </div>
       <WizardStepButtons

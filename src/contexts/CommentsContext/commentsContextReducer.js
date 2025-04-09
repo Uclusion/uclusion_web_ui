@@ -55,12 +55,22 @@ function doAddMarketComments(state, action) {
   return removeInitializing(newState);
 }
 
-function doAddMarketsComments(state, action) {
+function doAddMarketsComments(state, action, isNetworkUpdate=false) {
   const { commentDetails } = action;
   const newState = {...state};
+  const now = Date.now();
   Object.keys(commentDetails).forEach((marketId) => {
     const transformedComments = fixupItemsForStorage(commentDetails[marketId]);
-    const oldComments = state[marketId] || [];
+    const oldCommentsRaw = state[marketId] || [];
+    const oldComments = isNetworkUpdate ? oldCommentsRaw.filter((oldComment) => {
+      const updatedAt = new Date(oldComment.updated_at);
+      if (now - updatedAt.getTime() < 90*86400000) {
+        // Archived algorithm checks if archived 3 months ago before screening out
+        return true;
+      }
+      // If this comment screened because of archiving then remove from disk to conserve memory
+      return !_.isEmpty(transformedComments?.find((newComment) => newComment.id === oldComment.id));
+    }) : oldCommentsRaw;
     newState[marketId] = addByIdAndVersion(transformedComments, oldComments);
   });
   return removeInitializing(newState);
@@ -78,7 +88,7 @@ function computeNewState(state, action) {
     case OVERWRITE_MARKET_COMMENTS:
       return doAddMarketComments(state, action);
     case UPDATE_FROM_VERSIONS:
-      return doAddMarketsComments(state, action);
+      return doAddMarketsComments(state, action, true);
     case INITIALIZE_STATE:
       return action.newState;
     default:

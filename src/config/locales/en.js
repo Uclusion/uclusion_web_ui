@@ -582,7 +582,7 @@ const messages = defineMessages({
   cardTypeAgilePlan: 'view - description',
 
   // Notices
-  noticeNewApplicationVersion: 'A new version of the application is available! Refresh this page to get the latest.',
+  noticeNewApplicationVersion: 'A new version of the application is available! Refresh this page for the latest.',
   noticeVersionForceLogout: 'This version of the application requires signout which will happen when you close this message.',
   notifications: 'inbox',
   notification: 'notification',

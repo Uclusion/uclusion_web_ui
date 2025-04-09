@@ -136,6 +136,10 @@ export function toastError(error, messageKey) {
 export function sendInfoPersistent(i18nMessageDescription, i18nMessageValues, onClose) {
   const message = intl.formatMessage(i18nMessageDescription, i18nMessageValues);
   if (!toast.isActive(message)) {
-    toast.info(message, { autoClose: false, onClose, toastId: message });
+    if (onClose) {
+      toast.info(message, { autoClose: false, onClose, toastId: message });
+    } else {
+      toast.info(message, { autoClose: false, toastId: message });
+    }
   }
 }

@@ -232,8 +232,7 @@ function CommentEdit(props) {
   function handleSave(isSent) {
     const imagesLoaded = allImagesLoaded(editBox?.current, initialUploadedFiles);
     if (!imagesLoaded && !imagesDeleted) {
-      sendInfoPersistent({ id: 'loadImageError' }, {},
-        () =>  window.location.reload(true));
+      sendInfoPersistent({ id: 'loadImageError' }, {});
       return Promise.resolve(false);
     }
     const currentUploadedFiles = uploadedFiles || [];

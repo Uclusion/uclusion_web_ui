@@ -582,7 +582,7 @@ const messages = defineMessages({
   cardTypeAgilePlan: 'view - description',
 
   // Notices
-  noticeNewApplicationVersion: 'A new version of the application is available! It will load when you close this message.',
+  noticeNewApplicationVersion: 'A new version of the application is available! Refresh this page to get the latest.',
   noticeVersionForceLogout: 'This version of the application requires signout which will happen when you close this message.',
   notifications: 'inbox',
   notification: 'notification',
@@ -966,7 +966,7 @@ const messages = defineMessages({
 
   // Spinning
   spinVersionCheckError: 'There was an error. Please retry your operation.',
-  loadImageError: 'Issue saving image. After you click this message, page reloads so you can retry.',
+  loadImageError: 'Issue saving image. Refresh this page so you can retry.',
 
   // subscription page
   BillingHomeTitle: 'Billing Plan',

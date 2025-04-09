@@ -54,11 +54,7 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
     sendInfoPersistent({ id: 'noticeVersionForceLogout' }, {}, reloader);
   } else if (currentVersion !== version && !currentVersion.includes('fake')) {
     console.log(`Refreshing with current version ${currentVersion} and version ${version}`);
-    // deprecated, but the simplest way to ignore cache
-    const reloader = () => {
-      window.location.reload(true);
-    };
-    sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {}, reloader);
+    sendInfoPersistent({ id: 'noticeNewApplicationVersion' }, {});
   }
 }
 

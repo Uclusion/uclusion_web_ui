@@ -131,7 +131,8 @@ export function sendMarketsStruct(marketsStruct) {
   }
   if (marketsStruct['comments']) {
     console.info(marketsStruct['comments']);
-    pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, commentDetails: marketsStruct['comments'] });
+    pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, commentDetails: marketsStruct['comments'],
+      allCommentIds: marketsStruct['allCommentIds'] });
   }
   if (marketsStruct['investibles']) {
     console.info(marketsStruct['investibles']);
@@ -326,6 +327,7 @@ function fetchMarketComments(marketClient, marketId, allComments, marketsStruct)
       // Versions will be correct because they were sent down and consistent read done if not matching
       // Anything not returned is just missing from the DB for now
       addMarketsStructInfo('comments', marketsStruct, comments, marketId);
+      marketsStruct['existingCommentIds'] = allComments.matched?.map((comment) => comment.id);
     });
 }
 

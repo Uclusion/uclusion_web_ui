@@ -26,7 +26,7 @@ function beginListening(dispatch, diffDispatch) {
     }
   });
   registerListener(PUSH_COMMENTS_CHANNEL, 'commentsPushStart', (data) => {
-    const { payload: { event, commentDetails } } = data;
+    const { payload: { event, commentDetails, existingCommentIds } } = data;
     let allComments = [];
     Object.values(commentDetails).forEach((comments) => allComments = allComments.concat(comments));
     const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_COMMENT_TYPE, items: allComments };
@@ -49,7 +49,7 @@ function beginListening(dispatch, diffDispatch) {
           return { id, description, updated_by, updated_by_you };
         });
         diffDispatch(addContents(fixedUpForDiff));
-        dispatch(updateCommentsFromVersions(commentDetails));
+        dispatch(updateCommentsFromVersions(commentDetails, existingCommentIds));
         break;
       default:
         // console.debug(`Ignoring push event ${event}`);

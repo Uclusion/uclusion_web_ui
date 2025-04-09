@@ -21,10 +21,11 @@ export function initializeState(newState) {
   };
 }
 
-export function updateCommentsFromVersions(commentDetails) {
+export function updateCommentsFromVersions(commentDetails, existingCommentIds) {
   return {
     type: UPDATE_FROM_VERSIONS,
-    commentDetails
+    commentDetails,
+    existingCommentIds
   };
 }
 
@@ -55,21 +56,21 @@ function doAddMarketComments(state, action) {
   return removeInitializing(newState);
 }
 
-function doAddMarketsComments(state, action, isNetworkUpdate=false) {
-  const { commentDetails } = action;
+function doAddMarketsComments(state, action) {
+  const { commentDetails, existingCommentIds } = action;
   const newState = {...state};
   const now = Date.now();
   Object.keys(commentDetails).forEach((marketId) => {
     const transformedComments = fixupItemsForStorage(commentDetails[marketId]);
     const oldCommentsRaw = state[marketId] || [];
-    const oldComments = isNetworkUpdate ? oldCommentsRaw.filter((oldComment) => {
+    const oldComments = !_.isEmpty(existingCommentIds) ? oldCommentsRaw.filter((oldComment) => {
       const updatedAt = new Date(oldComment.updated_at);
       if (now - updatedAt.getTime() < 90*86400000) {
         // Archived algorithm checks if archived 3 months ago before screening out
         return true;
       }
       // If this comment screened because of archiving then remove from disk to conserve memory
-      return !_.isEmpty(transformedComments?.find((newComment) => newComment.id === oldComment.id));
+      return !_.isEmpty(existingCommentIds.find((commentId) => commentId === oldComment.id));
     }) : oldCommentsRaw;
     newState[marketId] = addByIdAndVersion(transformedComments, oldComments);
   });
@@ -88,7 +89,7 @@ function computeNewState(state, action) {
     case OVERWRITE_MARKET_COMMENTS:
       return doAddMarketComments(state, action);
     case UPDATE_FROM_VERSIONS:
-      return doAddMarketsComments(state, action, true);
+      return doAddMarketsComments(state, action);
     case INITIALIZE_STATE:
       return action.newState;
     default:

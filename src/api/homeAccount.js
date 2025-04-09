@@ -23,6 +23,7 @@ function getSSOInfo() {
 export async function getLogin(ifAvailable=false, accountVersion=null, userVersion=null) {
   return navigator.locks.request(HOME_ACCOUNT_LOCK_NAME, {ifAvailable},
     async (aLock) => {
+    console.info('Getting login');
     const asm = getAccountStorageManager();
     const accountData = await asm.getValidAccount();
     if (accountData) {
@@ -39,10 +40,11 @@ export async function getLogin(ifAvailable=false, accountVersion=null, userVersi
       // For polling avoid these calls piling up
       return undefined;
     }
-
+    console.info('Getting SSO info');
     //we've expired, time to refresh
     const ssoInfo = await getSSOInfo();
     const { idToken, ssoClient } = ssoInfo;
+    console.info('Getting account login');
     // update our cache
     const responseAccountData = await ssoClient.accountCognitoLogin(idToken, getIsInvited());
     // load the account into storage

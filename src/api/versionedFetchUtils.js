@@ -132,7 +132,7 @@ export function sendMarketsStruct(marketsStruct) {
   if (marketsStruct['comments']) {
     console.info(marketsStruct['comments']);
     pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, commentDetails: marketsStruct['comments'],
-      allCommentIds: marketsStruct['allCommentIds'] });
+      existingCommentIds: marketsStruct['existingCommentIds'] });
   }
   if (marketsStruct['investibles']) {
     console.info(marketsStruct['investibles']);

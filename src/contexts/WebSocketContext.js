@@ -186,11 +186,6 @@ function WebSocketProvider(props) {
   useEffect(() => {
     if (isUserLoaded) {
       createWebSocket(config, leaderDispatch, setState, userId);
-      console.log('Getting app version')
-      getAppVersion().then((version) => {
-        const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
-        notifyNewApplicationVersion(currentVersion, cacheClearVersion);
-      }).catch(() => console.warn('Error checking version'));
     }
     return () => {};
   }, [config, leaderDispatch, userId, isUserLoaded]);

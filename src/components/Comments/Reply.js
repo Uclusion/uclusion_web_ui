@@ -226,8 +226,8 @@ function Reply(props) {
     && !isInbox && market?.market_type !== DECISION_TYPE && !rootComment?.resolved;
   const isSubTask = rootComment?.comment_type === TODO_TYPE && investibleId &&
     comment.created_by === rootComment?.created_by;
-  const isTopLevelSubTask = isSubTask && rootComment?.created_by === comment.created_by;
-  const isMySubTask = isSubTask && rootComment?.created_by === userId;
+  const isTopLevelSubTask = isSubTask && rootComment?.id === comment.reply_id;
+  const isMySubTask = isTopLevelSubTask && rootComment?.created_by === userId;
   const inProgress = comment.in_progress;
 
   function useMarketId() {
@@ -381,7 +381,7 @@ function Reply(props) {
             doFloatRight
           />
         )}
-        {showConvert && isSubTask && (
+        {showConvert && isTopLevelSubTask && (
           <TooltipIconButton
             disabled={operationRunning !== false}
             onClick={(event) => {

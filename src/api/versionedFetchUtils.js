@@ -327,7 +327,7 @@ function fetchMarketComments(marketClient, marketId, allComments, marketsStruct)
       // Versions will be correct because they were sent down and consistent read done if not matching
       // Anything not returned is just missing from the DB for now
       addMarketsStructInfo('comments', marketsStruct, comments, marketId);
-      marketsStruct['existingCommentIds'] = allComments.matched?.map((comment) => comment.id);
+      marketsStruct['existingCommentIds'] = allComments.existingCommentIds;
     });
 }
 

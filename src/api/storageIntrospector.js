@@ -90,7 +90,8 @@ export function satisfyComments(commentSignatures, marketComments) {
         }
       });
     });
-    return { matched, unmatchedSignatures, allMatched: reallyAllMatched };
+    return { matched, unmatchedSignatures, allMatched: reallyAllMatched,
+      existingCommentIds: commentSignatures.map((sig) => sig.object_id_one) };
 }
 
 function satisfyInvestibles(marketId, investibleSignatures, investibleState) {

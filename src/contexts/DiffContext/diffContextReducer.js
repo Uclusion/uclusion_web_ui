@@ -78,6 +78,7 @@ function removeContentsState(state, action) {
 
 function addContentsState(state, action) {
   const { items } = action;
+  console.info('Beginning diff add contents')
   return items.reduce((state, item) => addContentState(state, item), state);
 }
 
@@ -112,6 +113,7 @@ function addContentState(state, item) {
   // ok at this point, you've seen something, and this new stuff
   // is genuinely new to you. Hence we need to calculate the diff
   try {
+    console.info('Attempting a diff');
     const diff = HtmlDiff.execute(lastSeenContent, description || '');
     const newContent = {
       id,

@@ -32,6 +32,14 @@ import { getMarketClient } from './marketLogin';
 import { syncMarketList } from '../components/ContextHacks/ForceMarketSyncProvider';
 import { TOKEN_TYPE_MARKET } from './tokenConstants';
 import TokenStorageManager from '../authorization/TokenStorageManager';
+import { addMarketsToStorage } from '../contexts/MarketsContext/marketsContextHelper';
+import { addCommentsOther } from '../contexts/CommentsContext/commentsContextMessages';
+import { updateCommentsFromVersions } from '../contexts/CommentsContext/commentsContextReducer';
+import { refreshInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper';
+import { versionsUpdateMarketPresences } from '../contexts/MarketPresencesContext/marketPresencesContextReducer';
+import { updateMarketStagesFromNetwork } from '../contexts/MarketStagesContext/marketStagesContextReducer';
+import { addGroupsToStorage } from '../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { versionsUpdateGroupMembers } from '../contexts/GroupMembersContext/groupMembersContextReducer';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -51,11 +59,11 @@ export const BANNED_LIST = 'banned_list';
 export class MatchError extends Error {}
 
 let runner;
-const matchErrorHandlingVersionRefresh = (ignoreIfInProgress=false) => {
+const matchErrorHandlingVersionRefresh = (ignoreIfInProgress=false, dispatchers=undefined) => {
   return navigator.locks.request("REFRESH_LOCK", {ifAvailable: !ignoreIfInProgress},
     async (aLock) => {
     if (aLock || ignoreIfInProgress) {
-      return doVersionRefresh()
+      return doVersionRefresh(dispatchers)
         .catch((error) => {
           console.error(error);
           // we'll log match problems, but raise the rest
@@ -77,13 +85,14 @@ export function startRefreshRunner() {
  * If ignoreIfInProgress is false, then will execute a single version refresh.
  * Otherwise, will start up a refreshRunner or if it's already started do nothing
  * @param ignoreIfInProgress
+ * @param dispatchers
  * @returns {Promise<*>}
  */
-export function refreshVersions (ignoreIfInProgress=false) {
+export function refreshVersions (ignoreIfInProgress=false, dispatchers=undefined) {
   if (isSignedOut()) {
     return Promise.resolve(true); // also do nothing when signed out
   }
-  return matchErrorHandlingVersionRefresh(ignoreIfInProgress).then(() => {
+  return matchErrorHandlingVersionRefresh(ignoreIfInProgress, dispatchers).then(() => {
     // If missing always start a runner so max drift is honored
     if (runner == null){
       return startRefreshRunner();
@@ -123,36 +132,72 @@ export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, stor
     });
 }
 
-export function sendMarketsStruct(marketsStruct) {
+export function sendMarketsStruct(marketsStruct, dispatchers) {
   console.info('Updating with markets struct');
+  const { marketsDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch, groupMembersDispatch,
+    investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch } = dispatchers;
   if (marketsStruct['markets']) {
     console.info(marketsStruct['markets']);
-    pushMessage(PUSH_MARKETS_CHANNEL, { event: VERSIONS_EVENT, marketDetails: marketsStruct['markets'] });
+    if (marketsDispatch) {
+      addMarketsToStorage(marketsDispatch, marketsStruct['markets']);
+    } else {
+      pushMessage(PUSH_MARKETS_CHANNEL, { event: VERSIONS_EVENT, marketDetails: marketsStruct['markets'] });
+    }
   }
   if (marketsStruct['comments']) {
     console.info(marketsStruct['comments']);
-    pushMessage(PUSH_COMMENTS_CHANNEL, { event: VERSIONS_EVENT, commentDetails: marketsStruct['comments'],
-      existingCommentIds: marketsStruct['existingCommentIds'] });
+    if (commentsDispatch) {
+      let allComments = [];
+      Object.values(marketsStruct['comments']).forEach((comments) => allComments = allComments.concat(comments));
+      addCommentsOther(commentsDispatch, diffDispatch, index, ticketsDispatch, allComments);
+      commentsDispatch(updateCommentsFromVersions(marketsStruct['comments'], marketsStruct['existingCommentIds']));
+    } else {
+      pushMessage(PUSH_COMMENTS_CHANNEL, {
+        event: VERSIONS_EVENT, commentDetails: marketsStruct['comments'],
+        existingCommentIds: marketsStruct['existingCommentIds']
+      });
+    }
   }
   if (marketsStruct['investibles']) {
     console.info(marketsStruct['investibles']);
-    pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT, investibles: marketsStruct['investibles'] });
+    if (investiblesDispatch) {
+      refreshInvestibles(investiblesDispatch, diffDispatch, marketsStruct['investibles'], true);
+    } else {
+      pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: VERSIONS_EVENT,
+        investibles: marketsStruct['investibles'] });
+    }
   }
   if (marketsStruct['users']) {
     console.info(marketsStruct['users']);
-    pushMessage(PUSH_PRESENCE_CHANNEL, { event: VERSIONS_EVENT, userDetails: marketsStruct['users'] });
+    if (presenceDispatch) {
+      presenceDispatch(versionsUpdateMarketPresences(marketsStruct['users']));
+    } else {
+      pushMessage(PUSH_PRESENCE_CHANNEL, { event: VERSIONS_EVENT, userDetails: marketsStruct['users'] });
+    }
   }
   if (marketsStruct['stages']) {
     console.info(marketsStruct['stages']);
-    pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: marketsStruct['stages'] });
+    if (marketStagesDispatch) {
+      marketStagesDispatch(updateMarketStagesFromNetwork(marketsStruct['stages']));
+    } else {
+      pushMessage(PUSH_STAGE_CHANNEL, { event: VERSIONS_EVENT, stageDetails: marketsStruct['stages'] });
+    }
   }
   if (marketsStruct['group']) {
     console.info(marketsStruct['group']);
-    pushMessage(PUSH_GROUPS_CHANNEL, { event: VERSIONS_EVENT, groupDetails: marketsStruct['group']});
+    if (groupsDispatch) {
+      addGroupsToStorage(groupsDispatch, marketsStruct['group']);
+    } else {
+      pushMessage(PUSH_GROUPS_CHANNEL, { event: VERSIONS_EVENT, groupDetails: marketsStruct['group'] });
+    }
   }
   if (marketsStruct['members']) {
     console.info(marketsStruct['members']);
-    pushMessage(PUSH_MEMBER_CHANNEL, { event: VERSIONS_EVENT, memberDetails: marketsStruct['members']});
+    if (groupMembersDispatch) {
+      groupMembersDispatch(versionsUpdateGroupMembers(marketsStruct['members']));
+    } else {
+      pushMessage(PUSH_MEMBER_CHANNEL, { event: VERSIONS_EVENT, memberDetails: marketsStruct['members'] });
+    }
   }
 }
 
@@ -214,7 +259,7 @@ export function getStorageStates() {
  * Function that will make exactly one attempt to sync
  * @returns {Promise<*>}
  */
-export async function doVersionRefresh() {
+export async function doVersionRefresh(dispatchers) {
   console.info('Checking for sync');
   const storageStates = await getStorageStates();
   const audits = await getChangedIds();
@@ -252,20 +297,20 @@ export async function doVersionRefresh() {
   // TODO: this is evil. We're using the inlineMarketsStruct as an _output_ parameter that gets mutated
   const inlineMarketsStruct = {};
   await updateMarkets(inlineList, inlineMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates, true)
-  sendMarketsStruct(inlineMarketsStruct);
+  sendMarketsStruct(inlineMarketsStruct, dispatchers);
   const foregroundMarketsStruct = {};
   console.info('Beginning foreground versions update');
   console.info(foregroundList);
   // TODO: Again, this is evil. ForegroundMarketsStruct is an _output_ parameter that gets mutated
   await updateMarkets(foregroundList, foregroundMarketsStruct, MAX_CONCURRENT_API_CALLS, storageStates);
-  sendMarketsStruct(foregroundMarketsStruct);
+  sendMarketsStruct(foregroundMarketsStruct, dispatchers);
   const backgroundMarketsStruct = {};
   console.info('Finished foreground update');
   refreshNotifications();
   console.info('Beginning background versions update');
   console.info(backgroundList);
   await updateMarkets(backgroundList, backgroundMarketsStruct, MAX_CONCURRENT_ARCHIVE_API_CALLS, storageStates);
-  sendMarketsStruct(backgroundMarketsStruct);
+  sendMarketsStruct(backgroundMarketsStruct, dispatchers);
   console.info('Ending versions update');
 }
 

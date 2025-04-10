@@ -1,11 +1,11 @@
-import { removeMarketsComments, updateCommentsFromVersions } from './commentsContextReducer'
+import { removeMarketsComments, updateCommentsFromVersions } from './commentsContextReducer';
 import { pushMessage, registerListener } from '../../utils/MessageBusUtils'
 import { addContents } from '../DiffContext/diffContextReducer'
 import {
   INDEX_COMMENT_TYPE,
   INDEX_UPDATE,
-  SEARCH_INDEX_CHANNEL
-} from '../SearchIndexContext/searchIndexContextMessages'
+  SEARCH_INDEX_CHANNEL, transformItemsToIndexable
+} from '../SearchIndexContext/searchIndexContextMessages';
 import {
   PUSH_COMMENTS_CHANNEL,
   REMOVED_MARKETS_CHANNEL,
@@ -13,6 +13,31 @@ import {
 } from '../../api/versionedFetchUtils';
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 import _ from 'lodash'
+
+export function addCommentsOther(commentsDispatch, diffDispatch, index, ticketDispatch, comments) {
+  const indexable = transformItemsToIndexable(INDEX_COMMENT_TYPE, comments);
+  index.addDocuments(indexable.filter((item) => item.type !== 'DELETED'));
+  const ticketCodeItems = [];
+  let commentsMarketId = undefined;
+  comments.forEach((comment) => {
+    const { market_id: marketId, id: commentId, group_id: groupId, ticket_code: ticketCode,
+      investible_id: investibleId } = comment;
+    if (!commentsMarketId) {
+      commentsMarketId = marketId;
+    }
+    if (ticketCode) {
+      ticketCodeItems.push({ ticketCode, marketId, commentId, groupId, investibleId });
+    }
+  });
+  if (!_.isEmpty(ticketCodeItems)) {
+    ticketDispatch({items: ticketCodeItems});
+  }
+  const fixedUpForDiff = comments.map((comment) => {
+    const { id, body: description, updated_by,  updated_by_you } = comment;
+    return { id, description, updated_by, updated_by_you };
+  });
+  diffDispatch(addContents(fixedUpForDiff));
+}
 
 function beginListening(dispatch, diffDispatch) {
   registerListener(REMOVED_MARKETS_CHANNEL, 'commentsRemovedMarketStart', (data) => {

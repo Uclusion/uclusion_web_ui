@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import reducer, { initializeState } from './marketGroupsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import beginListening from './marketGroupsContextMessages'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { pushIndexItems } from './marketGroupsContextHelper'
-import { DiffContext } from '../DiffContext/DiffContext'
 
 const MARKET_GROUPS_CONTEXT_NAMESPACE = 'market_groups';
 const GROUPS_CHANNEL = 'groups';
@@ -15,7 +14,6 @@ const MarketGroupsContext = React.createContext(EMPTY_STATE);
 
 function MarketGroupsProvider (props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
-  const [, diffDispatch] = useContext(DiffContext);
   const [, setChannel] = useState(undefined);
 
   useEffect(() => {
@@ -51,9 +49,9 @@ function MarketGroupsProvider (props) {
           dispatch(initializeState({}));
         }
       });
-    beginListening(dispatch, diffDispatch);
+    beginListening(dispatch);
     return () => {};
-  }, [diffDispatch]);
+  }, []);
 
   return (
     <MarketGroupsContext.Provider value={[state, dispatch]}>

@@ -78,7 +78,7 @@ function WorkspaceNameStep (props) {
           userDispatch(accountUserRefresh(user));
         }
         addMarketToStorage(marketsDispatch, market);
-        addGroupsToStorage(groupsDispatch, () => {}, { [createdMarketId]: [group]});
+        addGroupsToStorage(groupsDispatch, { [createdMarketId]: [group]});
         stagesDispatch(updateMarketStagesFromNetwork({[createdMarketId]: stages }));
         addPresenceToMarket(presenceDispatch, createdMarketId, presence);
         groupMembersDispatch(addGroupMembers(createdMarketId, createdMarketId, defaultMembers));

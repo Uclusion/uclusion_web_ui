@@ -1,5 +1,4 @@
 import { fixupItemForStorage } from '../ContextUtils'
-import { addContents } from '../DiffContext/diffContextReducer'
 import { pushMessage } from '../../utils/MessageBusUtils'
 import { INDEX_GROUP_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../SearchIndexContext/searchIndexContextMessages'
 import { updateMarketGroups, updateMarketGroupsFromNetwork } from './marketGroupsContextReducer'
@@ -32,10 +31,6 @@ export function addGroupToStorage(dispatch, marketId, groupDetails) {
   dispatch(updateMarketGroups(marketId, [fixed]));
 }
 
-export function addGroupsToStorage(dispatch, diffDispatch, groupDetails) {
-  if (diffDispatch) {
-    diffDispatch(addContents([groupDetails]));
-  }
-  pushIndexItems(groupDetails);
+export function addGroupsToStorage(dispatch, groupDetails) {
   dispatch(updateMarketGroupsFromNetwork(groupDetails));
 }

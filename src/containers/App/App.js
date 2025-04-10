@@ -89,12 +89,12 @@ function App(props) {
   if (authState === 'signedIn' && userId && email) {
     return (
       <CognitoUserProvider authState={authState}>
-        <LeaderProvider authState={authState} userId={userId}>
-          <MarketsProvider>
-            <CommentsProvider>
-              <InvestiblesProvider>
-                <MarketPresencesProvider>
-                  <GroupMembersProvider>
+        <MarketsProvider>
+          <CommentsProvider>
+            <InvestiblesProvider>
+              <MarketPresencesProvider>
+                <GroupMembersProvider>
+                  <LeaderProvider authState={authState} userId={userId}>
                     <OnlineStateProvider>
                       <WebSocketProvider config={config} userId={userId}>
                         <AppConfigProvider appConfig={configs}>
@@ -106,12 +106,12 @@ function App(props) {
                         </AppConfigProvider>
                       </WebSocketProvider>
                     </OnlineStateProvider>
-                  </GroupMembersProvider>
-                </MarketPresencesProvider>
-              </InvestiblesProvider>
-            </CommentsProvider>
-          </MarketsProvider>
-        </LeaderProvider>
+                  </LeaderProvider>
+                </GroupMembersProvider>
+              </MarketPresencesProvider>
+            </InvestiblesProvider>
+          </CommentsProvider>
+        </MarketsProvider>
       </CognitoUserProvider>
     );
   }

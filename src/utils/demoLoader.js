@@ -7,34 +7,8 @@ import { updateMarketStages } from '../contexts/MarketStagesContext/marketStages
 import { addGroupToStorage } from '../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { addDemoPresencesToMarket } from '../contexts/MarketPresencesContext/marketPresencesHelper';
 import { refreshInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper';
-import {
-  INDEX_COMMENT_TYPE,
-  transformItemsToIndexable
-} from '../contexts/SearchIndexContext/searchIndexContextMessages';
-import { addContents } from '../contexts/DiffContext/diffContextReducer';
+import { addCommentsOther } from '../contexts/CommentsContext/commentsContextMessages';
 import { updateComments } from '../contexts/CommentsContext/commentsContextReducer';
-
-function addComments(commentsDispatch, diffDispatch, index, ticketDispatch, market, comments) {
-  const indexable = transformItemsToIndexable(INDEX_COMMENT_TYPE, comments);
-  index.addDocuments(indexable.filter((item) => item.type !== 'DELETED'));
-  const ticketCodeItems = [];
-  comments.forEach((comment) => {
-    const { market_id: marketId, id: commentId, group_id: groupId, ticket_code: ticketCode,
-      investible_id: investibleId } = comment;
-    if (ticketCode) {
-      ticketCodeItems.push({ ticketCode, marketId, commentId, groupId, investibleId });
-    }
-  });
-  if (!_.isEmpty(ticketCodeItems)) {
-    ticketDispatch({items: ticketCodeItems});
-  }
-  const fixedUpForDiff = comments.map((comment) => {
-    const { id, body: description, updated_by,  updated_by_you } = comment;
-    return { id, description, updated_by, updated_by_you };
-  });
-  diffDispatch(addContents(fixedUpForDiff));
-  commentsDispatch(updateComments(market.id, comments));
-}
 
 function addInvestibles(dispatch, diffDispatch, investibles) {
   refreshInvestibles(dispatch, diffDispatch, investibles, false);
@@ -74,7 +48,8 @@ export async function handleMarketData(marketData, dispatchers) {
   addGroup(groupsDispatch, group);
   addPresences(presenceDispatch, market, presences);
   addInvestibles(investiblesDispatch, diffDispatch, investibles);
-  addComments(commentsDispatch, diffDispatch, index, ticketsDispatch, market, comments);
+  addCommentsOther(commentsDispatch, diffDispatch, index, ticketsDispatch, comments);
+  commentsDispatch(updateComments(market.id, comments));
   const tokenStorageManager = new TokenStorageManager();
   await tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token);
   if (!_.isEmpty(childMarkets)) {

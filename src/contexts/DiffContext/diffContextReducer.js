@@ -16,13 +16,6 @@ export function initializeState(newState) {
   };
 }
 
-export function removeContents(items) {
-  return {
-    type: REMOVE_CONTENTS,
-    items,
-  };
-}
-
 export function addContents(items) {
   return {
     type: ADD_CONTENTS,
@@ -118,17 +111,24 @@ function addContentState(state, item) {
   }
   // ok at this point, you've seen something, and this new stuff
   // is genuinely new to you. Hence we need to calculate the diff
-  const diff = HtmlDiff.execute(lastSeenContent, description || '');
-  const newContent = {
-    id,
-    lastSeenContent,
-    diff,
-    diffViewed: false,
-    updatedBy
-  };
-  return {
-    ...state,
-    [id]: newContent,
+  try {
+    const diff = HtmlDiff.execute(lastSeenContent, description || '');
+    const newContent = {
+      id,
+      lastSeenContent,
+      diff,
+      diffViewed: false,
+      updatedBy
+    };
+    return {
+      ...state,
+      [id]: newContent,
+    }
+  } catch(e) {
+    console.warn(`Could not add contents of diff for id: ${id}`);
+    console.warn(e);
+    // Diff does best effort only
+    return state;
   }
 }
 
@@ -142,11 +142,11 @@ function viewDiffState(state, action) {
     ...oldContent,
     diffViewed: true,
   };
-  const newState = {
+
+  return {
     ...state,
     [itemId]: newContent,
   };
-  return newState;
 }
 
 function viewContentState(state, action) {

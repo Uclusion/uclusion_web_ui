@@ -16,7 +16,6 @@ import _ from 'lodash'
 
 export function addCommentsOther(commentsDispatch, diffDispatch, index, ticketDispatch, comments) {
   const indexable = transformItemsToIndexable(INDEX_COMMENT_TYPE, comments);
-  console.info('Adding comment documents')
   index.addDocuments(indexable.filter((item) => item.type !== 'DELETED'));
   const ticketCodeItems = [];
   let commentsMarketId = undefined;
@@ -31,7 +30,6 @@ export function addCommentsOther(commentsDispatch, diffDispatch, index, ticketDi
     }
   });
   if (!_.isEmpty(ticketCodeItems)) {
-    console.info('Dispatching comment tickets')
     ticketDispatch({items: ticketCodeItems});
   }
   const fixedUpForDiff = comments.map((comment) => {

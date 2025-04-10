@@ -34,9 +34,10 @@ function LeaderProvider(props) {
     if (isUserLoaded) {
       if (isLeader) {
         console.info('Leadership refreshing versions');
-        return refreshVersions().then(() => {
+        // Try use set timeout to avoid getting interrupted by navigation etc.
+        setTimeout(() => refreshVersions(true).then(() => {
           console.info('Refreshed versions from leader init');
-        }).catch(() => console.warn('Error refreshing'));
+        }).catch(() => console.warn('Error refreshing')), 0);
       } else {
         // Required to get initialized true in notifications context plus really don't need a leader for notifications
         refreshNotifications();

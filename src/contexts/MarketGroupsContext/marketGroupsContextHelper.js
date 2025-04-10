@@ -1,8 +1,5 @@
 import { fixupItemForStorage } from '../ContextUtils'
-import { pushMessage } from '../../utils/MessageBusUtils'
-import { INDEX_GROUP_TYPE, INDEX_UPDATE, SEARCH_INDEX_CHANNEL } from '../SearchIndexContext/searchIndexContextMessages'
 import { updateMarketGroups, updateMarketGroupsFromNetwork } from './marketGroupsContextReducer'
-import _ from 'lodash'
 
 export function getGroup(state, marketId, groupId) {
   const groupsSafe  = state || {};
@@ -20,14 +17,8 @@ export function getGroup(state, marketId, groupId) {
   return usedGroups.find((group) => group.id === groupId);
 }
 
-export function pushIndexItems(diskState) {
-  const indexMessage = { event: INDEX_UPDATE, itemType: INDEX_GROUP_TYPE, items: _.flatten(Object.values(diskState)) };
-  pushMessage(SEARCH_INDEX_CHANNEL, indexMessage);
-}
-
 export function addGroupToStorage(dispatch, marketId, groupDetails) {
   const fixed = fixupItemForStorage(groupDetails);
-  pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_GROUP_TYPE, items: [fixed]});
   dispatch(updateMarketGroups(marketId, [fixed]));
 }
 

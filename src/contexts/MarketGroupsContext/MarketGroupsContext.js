@@ -4,7 +4,6 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import beginListening from './marketGroupsContextMessages'
 import { BroadcastChannel } from 'broadcast-channel'
 import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
-import { pushIndexItems } from './marketGroupsContextHelper'
 
 const MARKET_GROUPS_CONTEXT_NAMESPACE = 'market_groups';
 const GROUPS_CHANNEL = 'groups';
@@ -24,7 +23,6 @@ function MarketGroupsProvider (props) {
         lfg.getState()
           .then((diskState) => {
             if (diskState) {
-              pushIndexItems(diskState);
               console.info(`Reloading on groups channel message ${msg} with ${broadcastId}`);
               dispatch(initializeState(diskState));
             }
@@ -43,7 +41,6 @@ function MarketGroupsProvider (props) {
     lfg.getState()
       .then((state) => {
         if (state) {
-          pushIndexItems(state);
           dispatch(initializeState(state));
         } else {
           dispatch(initializeState({}));

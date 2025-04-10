@@ -135,7 +135,7 @@ export function updateMarkets(marketIds, marketsStruct, maxConcurrentCount, stor
 export function sendMarketsStruct(marketsStruct, dispatchers) {
   console.info('Updating with markets struct');
   const { marketsDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch, groupMembersDispatch,
-    investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch } = dispatchers;
+    investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch } = dispatchers || {};
   if (marketsStruct['markets']) {
     console.info(marketsStruct['markets']);
     if (marketsDispatch) {

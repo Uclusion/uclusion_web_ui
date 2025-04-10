@@ -5,14 +5,12 @@ export const SEARCH_INDEX_CHANNEL = 'SEARCH_INDEX_CHANNEL';
 export const INDEX_UPDATE = 'INDEX_UPDATE';
 export const INDEX_COMMENT_TYPE = 'COMMENT';
 export const INDEX_INVESTIBLE_TYPE = 'INVESTIBLE';
-export const INDEX_GROUP_TYPE = 'GROUP';
 
 function getBody(itemType, item) {
   switch (itemType) {
     case INDEX_COMMENT_TYPE:
       return item.body;
     case INDEX_INVESTIBLE_TYPE:
-    case INDEX_GROUP_TYPE:
       // add the name and description into the tokenization
       return item.description + " " + item.name;
     default:

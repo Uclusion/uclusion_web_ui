@@ -145,13 +145,15 @@ export function sendMarketsStruct(marketsStruct, dispatchers) {
     }
   }
   if (marketsStruct['comments']) {
-    console.info(marketsStruct['comments']);
     if (commentsDispatch) {
       let allComments = [];
       Object.values(marketsStruct['comments']).forEach((comments) => allComments = allComments.concat(comments));
+      console.info(`Processing comments length ${allComments.length}`);
       addCommentsOther(commentsDispatch, diffDispatch, index, ticketsDispatch, allComments);
+      console.info(`Dispatching comments with existing length ${marketsStruct['existingCommentIds']?.length}`);
       commentsDispatch(updateCommentsFromVersions(marketsStruct['comments'], marketsStruct['existingCommentIds']));
     } else {
+      console.info('Pushing comments struct');
       pushMessage(PUSH_COMMENTS_CHANNEL, {
         event: VERSIONS_EVENT, commentDetails: marketsStruct['comments'],
         existingCommentIds: marketsStruct['existingCommentIds']

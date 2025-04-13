@@ -43,7 +43,8 @@ function InvesibleCommentLinker(props) {
     investibleId,
     commentId,
     marketId,
-    flushLeft
+    flushLeft,
+    flushBottom
   } = props;
   const classes = useStyles();
   const [investiblesState] = useContext(InvestiblesContext);
@@ -66,7 +67,8 @@ function InvesibleCommentLinker(props) {
     }
   }
   return (
-    <div id="inviteLinker" className={hidden ? classes.hidden : undefined}>
+    <div id="inviteLinker" className={hidden ? classes.hidden : undefined}
+         style={{marginBottom: flushBottom ? 0 : undefined}}>
       <Tooltip title={
         <h3>
           {intl.formatMessage({

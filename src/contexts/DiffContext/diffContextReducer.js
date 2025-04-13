@@ -1,12 +1,14 @@
 import HtmlDiff from 'htmldiff-js'
 import { DIFF_CONTEXT_NAMESPACE } from './DiffContext'
 import LocalForageHelper from '../../utils/LocalForageHelper'
+import { commentsContextHack } from '../CommentsContext/CommentsContext';
+import { investibleContextHack } from '../InvestibesContext/InvestiblesContext';
+import { getComment } from '../CommentsContext/commentsContextHelper';
+import { getInvestible } from '../InvestibesContext/investiblesContextHelper';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_CONTENTS = 'REMOVE_CONTENTS';
-
 const ADD_CONTENTS = 'ADD_CONTENTS';
-const VIEW_CONTENT = 'VIEW_CONTENT';
 const VIEW_DIFF = 'VIEW_DIFF';
 
 export function initializeState(newState) {
@@ -16,18 +18,11 @@ export function initializeState(newState) {
   };
 }
 
-export function addContents(items) {
+export function addContents(items, contentType) {
   return {
     type: ADD_CONTENTS,
     items,
-  }
-}
-
-export function viewContent(itemId, content) {
-  return {
-    type: VIEW_CONTENT,
-    itemId,
-    content,
+    contentType
   }
 }
 
@@ -47,11 +42,12 @@ export function viewDiff(itemId) {
 }
  */
 
-function getNotSeenContent(state, content) {
-  const { id, description, updated_by: updatedBy, updated_by_you: updatedByYou } = content;
+function getNotSeenContent(state, content, contentType) {
+  const { id, version, updated_by: updatedBy, updated_by_you: updatedByYou } = content;
   const firstReceived = {
     id,
-    lastSeenContent: description,
+    version,
+    contentType,
     updatedBy,
     updatedByYou
   };
@@ -77,27 +73,23 @@ function removeContentsState(state, action) {
 }
 
 function addContentsState(state, action) {
-  const { items } = action;
+  const { items, contentType } = action;
   console.info('Beginning diff add contents')
-  return items.reduce((state, item) => addContentState(state, item), state);
+  return items.reduce((state, item) => addContentState(state, item, contentType), state);
 }
 
-
-function addContentState(state, item) {
+function addContentState(state, item, contentType) {
   const {
     id,
-    description,
+    version,
     updated_by: updatedBy,
-    updated_by_you: updatedByYou } = item;
+    updated_by_you: updatedByYou,
+    diff_versions: diffVersions } = item;
   // if we've not seen anything yet, the data structure is the same regardless of hoe many
   // times we update it
   const existing = state[id];
   if (!existing) {
-    return getNotSeenContent(state, item);
-  }
-  const { lastSeenContent } = existing;
-  if (!lastSeenContent) {
-    return getNotSeenContent(state, item);
+    return getNotSeenContent(state, item, contentType);
   }
   // if it's updated by you, we can advance to last seen to this,
   // and then discard any previous diff because it's out of date
@@ -105,9 +97,20 @@ function addContentState(state, item) {
   if (updatedByYou) {
     return getNotSeenContent(state, item);
   }
-  // Updates may come in that doesn't update the description
-  // so don't bother updating anything
-  if (lastSeenContent === description ) {
+  const { version: lastSeenVersion } = existing;
+  if (!lastSeenVersion) {
+    return getNotSeenContent(state, item, contentType);
+  }
+  const isDescriptionChanged = diffVersions?.find((diffVersion) =>
+    lastSeenVersion <= diffVersion) > 0;
+  // Updates may come in that doesn't update the description so don't bother updating anything
+  if (!isDescriptionChanged) {
+    return state;
+  }
+  const description = contentType === 'comment' ? item.body : item.description;
+  const lastSeenContent = contentType === 'comment' ? getComment(commentsContextHack, item.market_id, id)?.body
+    : getInvestible(investibleContextHack, id)?.investible?.description;
+  if (!lastSeenContent) {
     return state;
   }
   // ok at this point, you've seen something, and this new stuff
@@ -117,7 +120,8 @@ function addContentState(state, item) {
     const diff = HtmlDiff.execute(lastSeenContent, description || '');
     const newContent = {
       id,
-      lastSeenContent,
+      version,
+      contentType,
       diff,
       diffViewed: false,
       updatedBy
@@ -151,30 +155,6 @@ function viewDiffState(state, action) {
   };
 }
 
-function viewContentState(state, action) {
-  const { itemId, content } = action;
-  const oldData = state[itemId];
-  if (!oldData) {
-    const notSeenContent = {
-      id: itemId,
-      lastSeenContent: content,
-    };
-    return {
-      ...state,
-      [itemId]: notSeenContent,
-    };
-  }
-  const newData = {
-    ...oldData,
-    id: itemId,
-    lastSeenContent: content,
-  };
-  return {
-    ...state,
-    [itemId]: newData,
-  };
-}
-
 function computeNewState(state, action) {
   const { type } = action;
   switch (type) {
@@ -187,8 +167,6 @@ function computeNewState(state, action) {
       return removeContentsState(state, action);
     case ADD_CONTENTS:
       return addContentsState(state, action);
-    case VIEW_CONTENT:
-      return viewContentState(state, action);
     case VIEW_DIFF:
       return viewDiffState(state, action);
     default:

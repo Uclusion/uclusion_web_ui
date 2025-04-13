@@ -32,12 +32,8 @@ export function addCommentsOther(commentsDispatch, diffDispatch, index, ticketDi
   if (!_.isEmpty(ticketCodeItems)) {
     ticketDispatch({items: ticketCodeItems});
   }
-  const fixedUpForDiff = comments.map((comment) => {
-    const { id, body: description, updated_by,  updated_by_you } = comment;
-    return { id, description, updated_by, updated_by_you };
-  });
   console.info('Dispatching comment diff')
-  diffDispatch(addContents(fixedUpForDiff));
+  diffDispatch(addContents(comments, 'comment'));
 }
 
 function beginListening(dispatch, diffDispatch) {
@@ -70,11 +66,7 @@ function beginListening(dispatch, diffDispatch) {
     }
     switch (event) {
       case VERSIONS_EVENT:
-        const fixedUpForDiff = allComments.map((comment) => {
-          const { id, body: description, updated_by,  updated_by_you } = comment;
-          return { id, description, updated_by, updated_by_you };
-        });
-        diffDispatch(addContents(fixedUpForDiff));
+        diffDispatch(addContents(allComments, 'comment'));
         dispatch(updateCommentsFromVersions(commentDetails, existingCommentIds));
         break;
       default:

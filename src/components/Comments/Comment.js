@@ -478,7 +478,7 @@ function isSubTask(comment, commentsState) {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, noAuthor, defaultShowDiff, isReply, wizardProps,
+  const { comment, marketId, comments, noAuthor, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, toggleCompression: toggleCompressionRaw, useCompression, showVoting, selectedInvestibleIdParent,
     isMove, idPrepend='c', usePadding=true, compressAll=false, focusMove=false } = props;
@@ -538,7 +538,7 @@ function Comment(props) {
   const {
     showDiff: storedShowDiff
   } = editState;
-  const showDiff = storedShowDiff || (storedShowDiff === undefined && defaultShowDiff);
+  const showDiff = storedShowDiff || storedShowDiff === undefined;
   const myMessage = findMessageForCommentId(id, messagesState);
   const inReviewStage = getInReviewStage(marketStagesState, marketId) || {};
   const inReviewStageId = inReviewStage.id;
@@ -761,7 +761,7 @@ function Comment(props) {
       });
   }
 
-  const displayingDiff = myMessage && showDiff && diff;
+  const displayingDiff = showDiff && diff;
   const displayEditing = enableEditing && isEditable && !isInbox;
   if (loading) {
     return (
@@ -1094,11 +1094,11 @@ function Comment(props) {
                 {intl.formatMessage({ id: "storyFromComment" })}
               </SpinningIconLabelButton>
             )}
-            {myMessage && diff && !mobileLayout && (
-              <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+            {diff && (
+              <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} iconOnly={mobileLayout}
                                        onClick={(event) => toggleDiffShow(event)}
                                        doSpin={false}>
-                <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+                {!mobileLayout && <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />}
               </SpinningIconLabelButton>
             )}
           </div>

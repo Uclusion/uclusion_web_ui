@@ -90,7 +90,7 @@ export function refreshInvestibles(dispatch, diffDispatch, investibles, fromNetw
     const { investible, updated_by_you } = inv;
     return { ...investible, updated_by_you };
   });
-  diffDispatch(addContents(diffInvestibles));
+  diffDispatch(addContents(diffInvestibles, 'investible'));
   if (fromNetwork) {
     dispatch(versionsUpdateInvestibles(fixed));
   }

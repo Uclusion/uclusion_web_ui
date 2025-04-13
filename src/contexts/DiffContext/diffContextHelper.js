@@ -1,4 +1,4 @@
-import { viewContent, viewDiff } from './diffContextReducer';
+import { viewDiff } from './diffContextReducer';
 
 export function getDiff(state, itemId) {
   const content = state[itemId];
@@ -20,8 +20,4 @@ export function getLastSeenContent(state, itemId) {
   }
   const { lastSeenContent } = content;
   return lastSeenContent;
-}
-
-export function markContentViewed(dispatch, itemId, content){
-  dispatch(viewContent(itemId, content));
 }

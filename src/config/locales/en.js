@@ -812,8 +812,8 @@ const messages = defineMessages({
   quillEditorUploadInProgress: 'Uploading image(s)',
 
   // diff displaydeci
-  diffDisplayDismissLabel: 'Hide Changes',
-  diffDisplayShowLabel: 'Show Recent Changes',
+  diffDisplayDismissLabel: 'Hide change',
+  diffDisplayShowLabel: 'Last change',
 
   // expiration extender
   deadlineExtenderSave: 'Modify',

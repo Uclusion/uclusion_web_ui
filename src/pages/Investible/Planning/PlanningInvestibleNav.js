@@ -191,15 +191,22 @@ export default function PlanningInvestibleNav(props) {
   return (
     <>
       {!mobileLayout && (
-        <div style={{ maxWidth: '11rem', width: '100%', wordWrap: 'break-word' }}>
+        <div style={{ maxWidth: '11rem', width: '100%', wordWrap: 'break-word', marginBottom: 0 }}>
           {name}
         </div>
       )}
-      <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} flushLeft />
+      <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} flushLeft flushBottom />
       {isInAccepted && (
         <DaysEstimate marketId={marketId} onChange={handleDateChange} value={marketDaysEstimate}
                       isAssigned={isAssigned} />
       )}
+      <MarketMetaData
+        stagesInfo={stagesInfo}
+        investibleId={investibleId}
+        market={market}
+        pageState={pageState}
+        updatePageState={updatePageState}
+      />
       {market.id && marketInvestible.investible && (!isSingleUser || !isFurtherWork) && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
@@ -313,13 +320,6 @@ export default function PlanningInvestibleNav(props) {
           </div>
         </div>
       )}
-      <MarketMetaData
-        stagesInfo={stagesInfo}
-        investibleId={investibleId}
-        market={market}
-        pageState={pageState}
-        updatePageState={updatePageState}
-      />
       <AttachedFilesList
         marketId={market.id}
         onUpload={onAttachFiles}
@@ -508,6 +508,15 @@ function MarketMetaData(props) {
   const stageLink = formWizardLink(JOB_STAGE_WIZARD_TYPE, market.id, investibleId);
   return (
     <div>
+      {myMessageDescription && diff && (
+        <>
+          <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                   onClick={toggleDiffShow} doSpin={false}>
+            <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+          </SpinningIconLabelButton>
+          <div style={{paddingTop: '1.2rem'}} />
+        </>
+      )}
       <div style={{maxWidth: '15rem', marginRight: '1rem'}}>
         <div style={{marginBottom: '0.5rem', display: 'flex', flexDirection: 'row'}}>
           <b><FormattedMessage id={'allowedStagesDropdownLabel'}/></b>
@@ -524,15 +533,6 @@ function MarketMetaData(props) {
         </div>
           {intl.formatMessage({id: stageLabelId})}
       </div>
-      {myMessageDescription && diff && (
-        <>
-          <div style={{paddingTop: '0.5rem'}} />
-          <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
-                                   onClick={toggleDiffShow} doSpin={false}>
-            <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
-          </SpinningIconLabelButton>
-        </>
-      )}
     </div>
   );
 }

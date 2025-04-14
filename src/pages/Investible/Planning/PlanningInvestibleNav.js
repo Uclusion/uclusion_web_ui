@@ -21,7 +21,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils';
-import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper';
+import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 import { getCurrentStageLabelId, getStagesInfo } from '../../../utils/stageUtils';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import PropTypes from 'prop-types';
@@ -493,16 +493,13 @@ function MarketMetaData(props) {
     showDiff
   } = pageState
   const history = useHistory();
-  const [diffState, diffDispatch] = useContext(DiffContext);
+  const [diffState] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
   const stageLabelId = getCurrentStageLabelId(stagesInfo);
 
   function toggleDiffShow() {
-    if (showDiff) {
-      markDiffViewed(diffDispatch, investibleId);
-    }
     updatePageState({showDiff: !showDiff});
   }
   const stageLink = formWizardLink(JOB_STAGE_WIZARD_TYPE, market.id, investibleId);

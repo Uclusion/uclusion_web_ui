@@ -103,7 +103,7 @@ import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 import InlineInitiativeBox from '../../containers/CommentBox/InlineInitiativeBox';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { getDiff, markDiffViewed } from '../../contexts/DiffContext/diffContextHelper';
+import { getDiff } from '../../contexts/DiffContext/diffContextHelper';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import DiffDisplay from '../TextEditors/DiffDisplay';
 import LoadingDisplay from '../LoadingDisplay';
@@ -526,7 +526,7 @@ function Comment(props) {
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [diffState, diffDispatch] = useContext(DiffContext);
+  const [diffState] = useContext(DiffContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [userState] = useContext(AccountContext);
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
@@ -568,9 +568,6 @@ function Comment(props) {
 
   function toggleDiffShow(event) {
     preventDefaultAndProp(event)
-    if (showDiff) {
-      markDiffViewed(diffDispatch, id);
-    }
     updateEditState({showDiff: !showDiff});
   }
 

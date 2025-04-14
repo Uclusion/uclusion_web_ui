@@ -9,7 +9,6 @@ import { getInvestible } from '../InvestibesContext/investiblesContextHelper';
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_CONTENTS = 'REMOVE_CONTENTS';
 const ADD_CONTENTS = 'ADD_CONTENTS';
-const VIEW_DIFF = 'VIEW_DIFF';
 
 export function initializeState(newState) {
   return {
@@ -24,13 +23,6 @@ export function addContents(items, contentType) {
     items,
     contentType
   }
-}
-
-export function viewDiff(itemId) {
-  return {
-    type: VIEW_DIFF,
-    itemId,
-  };
 }
 
 function getNotSeenContent(state, id, version) {
@@ -104,8 +96,7 @@ function addContentState(state, item, contentType) {
     const diff = HtmlDiff.execute(lastSeenContent, description || '');
     const newContent = {
       version,
-      diff,
-      diffViewed: false
+      diff
     };
     return {
       ...state,
@@ -117,23 +108,6 @@ function addContentState(state, item, contentType) {
     // Diff does best effort only
     return state;
   }
-}
-
-function viewDiffState(state, action) {
-  const { itemId } = action;
-  const oldContent = state[itemId];
-  if (!oldContent) {
-    return state;
-  }
-  const newContent = {
-    ...oldContent,
-    diffViewed: true,
-  };
-
-  return {
-    ...state,
-    [itemId]: newContent,
-  };
 }
 
 function computeNewState(state, action) {
@@ -148,8 +122,6 @@ function computeNewState(state, action) {
       return removeContentsState(state, action);
     case ADD_CONTENTS:
       return addContentsState(state, action);
-    case VIEW_DIFF:
-      return viewDiffState(state, action);
     default:
       return state;
   }

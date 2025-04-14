@@ -47,7 +47,7 @@ import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { getDiff, markDiffViewed } from '../../../contexts/DiffContext/diffContextHelper';
+import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
 import { findMessageOfTypeAndId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -265,9 +265,6 @@ function DecisionInvestible(props) {
   }
 
   function toggleDiffShow() {
-    if (showDiff) {
-      markDiffViewed(diffDispatch, investibleId);
-    }
     updatePageState({showDiff: !showDiff});
   }
 

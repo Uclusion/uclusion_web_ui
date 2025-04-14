@@ -27,7 +27,10 @@ class LocalForageHelper {
     return localforage.createInstance({ storeName: this.keyspace }).removeItem(this.namespace);
   }
 
-  getState () {
+  getState(existingState) {
+    if (existingState && !existingState.initializing) {
+      return Promise.resolve(existingState);
+    }
     return localforage.createInstance({ storeName: this.keyspace }).getItem(this.namespace)
       .then((state) => {
         return state;

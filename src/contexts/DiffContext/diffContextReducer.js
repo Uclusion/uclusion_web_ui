@@ -25,20 +25,6 @@ export function addContents(items, contentType) {
   }
 }
 
-function getNotSeenContent(state, id, version) {
-  const firstReceived = { version };
-  const { initializing } = state;
-  if (initializing) {
-    return {
-      [id]: firstReceived,
-    };
-  }
-  return {
-    ...state,
-    [id]: firstReceived,
-  };
-}
-
 function removeContentsState(state, action) {
   const { items } = action;
   const newState = { ...state };
@@ -51,15 +37,18 @@ function removeContentsState(state, action) {
 function addContentsState(state, action) {
   const { items, contentType } = action;
   console.info('Beginning diff add contents')
-  let newState = state;
-  items.forEach((item, index) => {
-    console.info(`Add content processing ${index}`);
-    newState = addContentState(newState, item, contentType)
+  const { initializing } = state;
+  const newState = initializing ? {} : {...state};
+  items.forEach((item) => {
+    const contents = getContents(state, item, contentType);
+    if (contents) {
+      newState[item.id] = contents;
+    }
   });
   return newState;
 }
 
-function addContentState(state, item, contentType) {
+function getContents(state, item, contentType) {
   const {
     id,
     version,
@@ -69,49 +58,44 @@ function addContentState(state, item, contentType) {
   // times we update it
   const existing = state[id];
   if (!existing) {
-    return getNotSeenContent(state, id, version);
+    return { version };
   }
-  console.info(`Processing found ${contentType}`);
+  console.info(`Diff processing found ${id}`);
   // if it's updated by you, we can advance to last seen to this,
   // and then discard any previous diff because it's out of date
   // hence it looks a lot like a "haven't ever seen this"
   if (updatedByYou) {
-    return getNotSeenContent(state, id, version);
+    return { version };
   }
   const { version: lastSeenVersion } = existing;
   if (!lastSeenVersion) {
-    return getNotSeenContent(state, id, version);
+    return { version };
   }
   const isDescriptionChanged = diffVersions?.find((diffVersion) =>
     lastSeenVersion <= diffVersion) > 0;
   // Updates may come in that doesn't update the description so don't bother updating anything
   if (!isDescriptionChanged) {
-    return state;
+    return undefined;
   }
   const lastSeenContent = contentType === 'comment' ? getComment(commentsContextHack, item.market_id, id)?.body
     : getInvestible(investibleContextHack, id)?.investible?.description;
   if (!lastSeenContent) {
-    return state;
+    return undefined;
   }
   console.info('Attempting a diff');
   const description = contentType === 'comment' ? item.body : item.description;
-  // ok at this point, you've seen something, and this new stuff
-  // is genuinely new to you. Hence we need to calculate the diff
+  // ok at this point, you've seen something, and this new stuff is genuinely new to you. Hence, calculate the diff
   try {
     const diff = HtmlDiff.execute(lastSeenContent, description || '');
-    const newContent = {
+    return {
       version,
       diff
     };
-    return {
-      ...state,
-      [id]: newContent,
-    }
   } catch(e) {
     console.warn(`Could not add contents of diff for id: ${id}`);
     console.warn(e);
     // Diff does best effort only
-    return state;
+    return undefined;
   }
 }
 

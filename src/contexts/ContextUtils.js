@@ -62,7 +62,8 @@ export function fixupItemForStorage(item) {
  * @param items
  */
 export function fixupItemsForStorage(items) {
-  return items.map((item) => fixupItemForStorage(item));
+  items.forEach((item) => fixupItemForStorage(item));
+  return items;
 }
 
 export function getDeterminateReducer() {

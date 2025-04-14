@@ -18,8 +18,8 @@ import {
   checkSignatureInStorage,
 } from './storageIntrospector';
 import LocalForageHelper from '../utils/LocalForageHelper'
-import { COMMENTS_CONTEXT_NAMESPACE } from '../contexts/CommentsContext/CommentsContext'
-import { INVESTIBLES_CONTEXT_NAMESPACE } from '../contexts/InvestibesContext/InvestiblesContext'
+import { COMMENTS_CONTEXT_NAMESPACE, commentsContextHack } from '../contexts/CommentsContext/CommentsContext';
+import { investibleContextHack, INVESTIBLES_CONTEXT_NAMESPACE } from '../contexts/InvestibesContext/InvestiblesContext';
 import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext'
 import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from '../contexts/MarketPresencesContext/MarketPresencesContext'
 import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext/MarketStagesContext'
@@ -226,11 +226,13 @@ function addMarketsStructInfo(infoType, marketsStruct, details, marketId) {
 
 export function getStorageStates() {
   const storageStates = {};
+  // Reloading comments and investibles from disk will take up too much memory
+  // So local forage helper will use the memory pointer if it is initialized
   const helper = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
-  return helper.getState().then((state) => {
+  return helper.getState(commentsContextHack).then((state) => {
     storageStates.commentsState = state || {};
     const helper = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
-    return helper.getState();
+    return helper.getState(investibleContextHack);
   }).then((state) => {
     storageStates.investiblesState = state || {};
     const helper = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);

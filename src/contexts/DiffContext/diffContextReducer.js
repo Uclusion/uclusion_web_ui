@@ -51,7 +51,12 @@ function removeContentsState(state, action) {
 function addContentsState(state, action) {
   const { items, contentType } = action;
   console.info('Beginning diff add contents')
-  return items.reduce((state, item) => addContentState(state, item, contentType), state);
+  let newState = state;
+  items.forEach((item, index) => {
+    console.info(`Add content processing ${index}`);
+    newState = addContentState(newState, item, contentType)
+  });
+  return newState;
 }
 
 function addContentState(state, item, contentType) {

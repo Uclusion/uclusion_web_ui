@@ -29,7 +29,7 @@ class LocalForageHelper {
 
   getState(existingState) {
     if (existingState && !existingState.initializing) {
-      return existingState;
+      return Promise.resolve(existingState);
     }
     return localforage.createInstance({ storeName: this.keyspace }).getItem(this.namespace)
       .then((state) => {

@@ -33,24 +33,8 @@ export function viewDiff(itemId) {
   };
 }
 
-/* Struct for an individual item
-{
-  id,
-  lastSeenContent
-  diff,
-  updated_by
-}
- */
-
-function getNotSeenContent(state, content, contentType) {
-  const { id, version, updated_by: updatedBy, updated_by_you: updatedByYou } = content;
-  const firstReceived = {
-    id,
-    version,
-    contentType,
-    updatedBy,
-    updatedByYou
-  };
+function getNotSeenContent(state, id, version) {
+  const firstReceived = { version };
   const { initializing } = state;
   if (initializing) {
     return {
@@ -82,24 +66,24 @@ function addContentState(state, item, contentType) {
   const {
     id,
     version,
-    updated_by: updatedBy,
     updated_by_you: updatedByYou,
     diff_versions: diffVersions } = item;
   // if we've not seen anything yet, the data structure is the same regardless of hoe many
   // times we update it
   const existing = state[id];
   if (!existing) {
-    return getNotSeenContent(state, item, contentType);
+    return getNotSeenContent(state, id, version);
   }
+  console.info(`Processing found ${contentType}`);
   // if it's updated by you, we can advance to last seen to this,
   // and then discard any previous diff because it's out of date
   // hence it looks a lot like a "haven't ever seen this"
   if (updatedByYou) {
-    return getNotSeenContent(state, item);
+    return getNotSeenContent(state, id, version);
   }
   const { version: lastSeenVersion } = existing;
   if (!lastSeenVersion) {
-    return getNotSeenContent(state, item, contentType);
+    return getNotSeenContent(state, id, version);
   }
   const isDescriptionChanged = diffVersions?.find((diffVersion) =>
     lastSeenVersion <= diffVersion) > 0;
@@ -107,24 +91,21 @@ function addContentState(state, item, contentType) {
   if (!isDescriptionChanged) {
     return state;
   }
-  const description = contentType === 'comment' ? item.body : item.description;
   const lastSeenContent = contentType === 'comment' ? getComment(commentsContextHack, item.market_id, id)?.body
     : getInvestible(investibleContextHack, id)?.investible?.description;
   if (!lastSeenContent) {
     return state;
   }
+  console.info('Attempting a diff');
+  const description = contentType === 'comment' ? item.body : item.description;
   // ok at this point, you've seen something, and this new stuff
   // is genuinely new to you. Hence we need to calculate the diff
   try {
-    console.info('Attempting a diff');
     const diff = HtmlDiff.execute(lastSeenContent, description || '');
     const newContent = {
-      id,
       version,
-      contentType,
       diff,
-      diffViewed: false,
-      updatedBy
+      diffViewed: false
     };
     return {
       ...state,

@@ -246,7 +246,7 @@ function Root() {
       if (isEntry && marketId && marketId === defaultMarketId) {
         console.info('Refresh versions in view change');
         // refresh our versions if we're entering, on a market, and not busy loading it
-        refreshVersions().catch(() => console.warn('Error refreshing'));
+        refreshVersions(true).catch(() => console.warn('Error refreshing'));
       }
     }
 

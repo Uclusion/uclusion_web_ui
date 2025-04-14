@@ -108,8 +108,8 @@ function reducer(state, action) {
     presencesStoragePromiseChain = presencesStoragePromiseChain.then(() => {
         lfh.setState(newState).then(() => {
           const myChannel = new BroadcastChannel(MEMBERS_CHANNEL);
-          return myChannel.postMessage(broadcastId || 'presence').then(() => myChannel.close())
-            .then(() => console.info('Update presence context sent.'));
+          return myChannel.postMessage(broadcastId || 'members').then(() => myChannel.close())
+            .then(() => console.info('Update members context sent.'));
         });
     });
   }

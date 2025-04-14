@@ -60,7 +60,6 @@ function getContents(state, item, contentType) {
   if (!existing) {
     return { version };
   }
-  console.info(`Diff processing found ${id}`);
   // if it's updated by you, we can advance to last seen to this,
   // and then discard any previous diff because it's out of date
   // hence it looks a lot like a "haven't ever seen this"
@@ -77,6 +76,7 @@ function getContents(state, item, contentType) {
   if (!isDescriptionChanged) {
     return undefined;
   }
+  console.info(`Diff processing found ${id}`);
   const lastSeenContent = contentType === 'comment' ? getComment(commentsContextHack, item.market_id, id)?.body
     : getInvestible(investibleContextHack, id)?.investible?.description;
   if (!lastSeenContent) {

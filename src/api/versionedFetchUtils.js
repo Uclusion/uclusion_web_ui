@@ -41,7 +41,6 @@ import { RepeatingFunction } from '../utils/RepeatingFunction';
 import { MAX_DRIFT_TIME } from '../contexts/WebSocketContext';
 import { isSignedOut } from '../utils/userFunctions';
 import { getMarketClient } from './marketLogin';
-import { syncMarketList } from '../components/ContextHacks/ForceMarketSyncProvider';
 import { TOKEN_TYPE_MARKET } from './tokenConstants';
 import TokenStorageManager from '../authorization/TokenStorageManager';
 import { addMarketsToStorage } from '../contexts/MarketsContext/marketsContextHelper';
@@ -288,8 +287,7 @@ export async function doVersionRefresh(dispatchers) {
   const bannedPromises = [];
   (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
-    const dirtyFromQuickAdd = syncMarketList.includes(id);
-    if (dirtyFromQuickAdd || !checkSignatureInStorage(id, signature, storageStates, true)) {
+    if (!checkSignatureInStorage(id, signature, storageStates, true)) {
       if (banned) {
         bannedList.push(id);
         const tokenStorageManager = new TokenStorageManager();
@@ -300,9 +298,6 @@ export async function doVersionRefresh(dispatchers) {
         foregroundList.push(id);
       } else {
         backgroundList.push(id);
-      }
-      if (dirtyFromQuickAdd) {
-        _.remove(syncMarketList, (value) => value === id);
       }
     }
   });

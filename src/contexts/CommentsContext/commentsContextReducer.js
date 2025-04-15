@@ -3,7 +3,6 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import { COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion, fixupItemsForStorage } from '../ContextUtils'
-import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
@@ -47,7 +46,6 @@ export function removeMarketsComments(marketIds) {
 
 function doAddMarketComments(state, action) {
   const { marketId, comments } = action;
-  syncMarketList.push(marketId);
   const transformedComments = fixupItemsForStorage(comments);
   const oldComments = state[marketId] || [];
   const newState = {...state};

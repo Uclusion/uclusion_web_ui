@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
-import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from './MarketPresencesContext';
@@ -81,7 +80,6 @@ export function removeMarketsPresence(marketIds) {
 
 function doPatchInvestment(state, action) {
   const { investmentPatch, allowMultiVote } = action;
-  syncMarketList.push(investmentPatch.market_id);
   const oldMarketUsers = state[investmentPatch.market_id] || [];
   const oldPresence = oldMarketUsers.find((oldUser) => oldUser.id === investmentPatch.user_id);
   if (_.isEmpty(oldPresence)) {
@@ -106,7 +104,6 @@ function doPatchInvestment(state, action) {
 
 function doAddMarketPresence(state, action) {
   const { marketId, user } = action;
-  syncMarketList.push(marketId);
   const oldUsers = state[marketId] || [];
   const newUsers = _.unionBy([user], oldUsers, 'id');
   return {
@@ -117,7 +114,6 @@ function doAddMarketPresence(state, action) {
 
 function doAddMarketPresences(state, action) {
   const { marketId, users } = action;
-  syncMarketList.push(marketId);
   const oldUsers = state[marketId] || [];
   const newUsers = _.unionBy(users, oldUsers, 'id');
   return {
@@ -138,7 +134,6 @@ function doUpdateMarketPresences(state, action) {
 
 function doRemoveInvestibleInvestments(state, action) {
   const { marketId, investibleId } = action;
-  syncMarketList.push(marketId);
   const oldUsers = state[marketId] || [];
   const transformedUsers = oldUsers.map((user) => {
     const newInvestments = user.investments?.filter((investment) =>

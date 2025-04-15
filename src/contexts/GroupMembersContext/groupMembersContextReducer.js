@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
-import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 import { GROUP_MEMBERS_CONTEXT_NAMESPACE } from './GroupMembersContext';
@@ -45,8 +44,7 @@ export function versionsUpdateGroupMembers(memberDetails) {
 }
 
 function doAddGroupMembers(state, action) {
-  const { marketId, groupId, users } = action;
-  syncMarketList.push(marketId);
+  const { groupId, users } = action;
   const oldUsers = state[groupId] || [];
   const newUsers = _.unionBy(users, oldUsers, 'id');
   return {

@@ -1,7 +1,6 @@
 import { removeInitializing } from '../../components/localStorageUtils'
 import _ from 'lodash'
 import { addByIdAndVersion } from '../ContextUtils';
-import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 import { MARKET_GROUPS_CONTEXT_NAMESPACE } from './MarketGroupsContext';
@@ -38,7 +37,6 @@ export function updateMarketGroupsFromNetwork(groupDetails) {
 
 function doUpdateMarketGroups(state, action) {
   const { marketId, groupsList } = action;
-  syncMarketList.push(marketId);
   const oldGroups = state[marketId] || [];
   const newGroups = _.unionBy(groupsList, oldGroups, 'id');
   return {

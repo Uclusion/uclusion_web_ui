@@ -1,6 +1,5 @@
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
-import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 import { MARKET_CONTEXT_NAMESPACE } from './MarketsContext';
@@ -44,7 +43,6 @@ export function removeMarketDetails(marketIds) {
 function doUpdateMarketDetails(state, action) {
   const { marketDetail } = action;
   const { marketDetails: oldMarketDetails } = state;
-  syncMarketList.push(marketDetail.id);
   const newDetails = addByIdAndVersion([marketDetail], oldMarketDetails)
   return {
     ...removeInitializing(state),

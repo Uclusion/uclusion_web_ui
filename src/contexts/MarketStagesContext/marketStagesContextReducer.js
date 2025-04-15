@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils';
-import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 import LocalForageHelper from '../../utils/LocalForageHelper';
 import { MARKET_STAGES_CONTEXT_NAMESPACE } from './MarketStagesContext';
@@ -46,7 +45,6 @@ export function removeMarketsStageDetails(marketIds) {
 
 function doUpdateMarketStages(state, action) {
   const { marketId, stagesList } = action;
-  syncMarketList.push(marketId);
   return {
     ...removeInitializing(state),
     [marketId]: stagesList,

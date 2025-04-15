@@ -5,7 +5,6 @@ import {
 import _ from 'lodash'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
-import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
 import { leaderContextHack } from '../LeaderContext/LeaderContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
@@ -39,16 +38,8 @@ export function versionsUpdateInvestibles(investibles) {
 /** Reducer functions */
 
 // expects that the investibles are already in a storable state
-function doUpdateInvestibles(state, action, isQuickAdd) {
+function doUpdateInvestibles(state, action) {
   const { investibles } = action;
-  if (isQuickAdd) {
-    investibles.forEach((investible) => {
-      const { market_infos: marketInfos } = investible;
-      marketInfos.forEach((marketInfo) => {
-        syncMarketList.push(marketInfo.market_id);
-      })
-    });
-  }
   const oldInvestibles = Object.values(removeInitializing(state))
   const newInvestibles = addByIdAndVersion(investibles, oldInvestibles, (item) => item.investible.id,
     (item1, item2) => {

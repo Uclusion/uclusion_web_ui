@@ -1,9 +1,7 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useReducer } from 'react'
 import reducer, { initializeState } from './marketGroupsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import beginListening from './marketGroupsContextMessages'
-import { BroadcastChannel } from 'broadcast-channel'
-import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 
 const MARKET_GROUPS_CONTEXT_NAMESPACE = 'market_groups';
 const GROUPS_CHANNEL = 'groups';
@@ -11,27 +9,11 @@ const EMPTY_STATE = { initializing: true };
 
 const MarketGroupsContext = React.createContext(EMPTY_STATE);
 
+let marketGroupsContextHack;
+export { marketGroupsContextHack };
+
 function MarketGroupsProvider (props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
-  const [, setChannel] = useState(undefined);
-
-  useEffect(() => {
-    const myChannel = new BroadcastChannel(GROUPS_CHANNEL);
-    myChannel.onmessage = (msg) => {
-      if (msg !== broadcastId) {
-        const lfg = new LocalForageHelper(MARKET_GROUPS_CONTEXT_NAMESPACE);
-        lfg.getState()
-          .then((diskState) => {
-            if (diskState) {
-              console.info(`Reloading on groups channel message ${msg} with ${broadcastId}`);
-              dispatch(initializeState(diskState));
-            }
-          });
-      }
-    }
-    setChannel(myChannel);
-    return () => {};
-  }, []);
 
   useEffect(() => {
     // set the new state cache to something we control, so that our
@@ -49,7 +31,7 @@ function MarketGroupsProvider (props) {
     beginListening(dispatch);
     return () => {};
   }, []);
-
+  marketGroupsContextHack = state;
   return (
     <MarketGroupsContext.Provider value={[state, dispatch]}>
       {props.children}

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useReducer } from 'react'
 import reducer, { initializeState } from './investiblesContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import beginListening from './investiblesContextMessages'
@@ -9,8 +9,6 @@ import {
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
-import { BroadcastChannel } from 'broadcast-channel'
-import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 
 const INVESTIBLES_CHANNEL = 'investibles';
@@ -44,26 +42,6 @@ export { investibleContextHack };
 function InvestiblesProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [, diffDispatch] = useContext(DiffContext);
-  const [, setChannel] = useState(undefined);
-
-  useEffect(() => {
-    const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
-    myChannel.onmessage = (msg) => {
-      if (msg !== broadcastId) {
-        const lfg = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
-        lfg.getState()
-          .then((diskState) => {
-            if (diskState) {
-              pushIndexItems(diskState);
-              console.info(`Reloading on investibles channel message ${msg} with ${broadcastId}`);
-              dispatch(initializeState(diskState));
-            }
-          });
-      }
-    }
-    setChannel(myChannel);
-    return () => {};
-  }, []);
 
   useEffect(() => {
     beginListening(dispatch, diffDispatch);

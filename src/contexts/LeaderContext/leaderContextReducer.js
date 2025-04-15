@@ -1,6 +1,3 @@
-import { BroadcastChannel } from 'broadcast-channel'
-import { refreshVersions } from '../../api/versionedFetchUtils'
-
 const UPDATE_LEADER = 'update_leader';
 const REFRESH_OR_MESSAGE = 'refresh_or_message';
 
@@ -25,18 +22,6 @@ function reducer(state, action) {
       const { isLeader } = action;
       console.info(`Setting leader to ${isLeader}`);
       return { isLeader };
-    case REFRESH_OR_MESSAGE:
-      const { isLeader: amLeader } = state;
-      const { peg } = action;
-      if (amLeader) {
-        refreshVersions(!peg.includes('visit')).then(() => console.info(`Refreshed versions from ${peg}`))
-          .catch(() => console.warn('Error refreshing'));
-      } else if (amLeader !== undefined && !peg.includes('leaderChannel')) {
-        console.info(`Not leader sending refresh from ${peg}`);
-        const myChannel = new BroadcastChannel(action.leaderChannelId);
-        myChannel.postMessage('refresh').then(() => myChannel.close());
-      }
-      return state;
     default:
       return state;
   }

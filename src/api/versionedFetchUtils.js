@@ -20,11 +20,23 @@ import {
 import LocalForageHelper from '../utils/LocalForageHelper'
 import { COMMENTS_CONTEXT_NAMESPACE, commentsContextHack } from '../contexts/CommentsContext/CommentsContext';
 import { investibleContextHack, INVESTIBLES_CONTEXT_NAMESPACE } from '../contexts/InvestibesContext/InvestiblesContext';
-import { MARKET_CONTEXT_NAMESPACE } from '../contexts/MarketsContext/MarketsContext'
-import { MARKET_PRESENCES_CONTEXT_NAMESPACE } from '../contexts/MarketPresencesContext/MarketPresencesContext'
-import { MARKET_STAGES_CONTEXT_NAMESPACE } from '../contexts/MarketStagesContext/MarketStagesContext'
-import { MARKET_GROUPS_CONTEXT_NAMESPACE } from '../contexts/MarketGroupsContext/MarketGroupsContext';
-import { GROUP_MEMBERS_CONTEXT_NAMESPACE } from '../contexts/GroupMembersContext/GroupMembersContext'
+import { MARKET_CONTEXT_NAMESPACE, marketsContextHack } from '../contexts/MarketsContext/MarketsContext';
+import {
+  MARKET_PRESENCES_CONTEXT_NAMESPACE,
+  marketPresencesContextHack
+} from '../contexts/MarketPresencesContext/MarketPresencesContext';
+import {
+  MARKET_STAGES_CONTEXT_NAMESPACE,
+  marketStagesContextHack
+} from '../contexts/MarketStagesContext/MarketStagesContext';
+import {
+  MARKET_GROUPS_CONTEXT_NAMESPACE,
+  marketGroupsContextHack
+} from '../contexts/MarketGroupsContext/MarketGroupsContext';
+import {
+  GROUP_MEMBERS_CONTEXT_NAMESPACE,
+  groupMembersContextHack
+} from '../contexts/GroupMembersContext/GroupMembersContext';
 import { RepeatingFunction } from '../utils/RepeatingFunction';
 import { MAX_DRIFT_TIME } from '../contexts/WebSocketContext';
 import { isSignedOut } from '../utils/userFunctions';
@@ -40,6 +52,7 @@ import { versionsUpdateMarketPresences } from '../contexts/MarketPresencesContex
 import { updateMarketStagesFromNetwork } from '../contexts/MarketStagesContext/marketStagesContextReducer';
 import { addGroupsToStorage } from '../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { versionsUpdateGroupMembers } from '../contexts/GroupMembersContext/groupMembersContextReducer';
+import { leaderContextHack } from '../contexts/LeaderContext/LeaderContext';
 
 const MAX_RETRIES = 10;
 const MAX_CONCURRENT_API_CALLS = 5;
@@ -84,15 +97,16 @@ export function startRefreshRunner() {
 /**
  * If ignoreIfInProgress is false, then will execute a single version refresh.
  * Otherwise, will start up a refreshRunner or if it's already started do nothing
- * @param ignoreIfInProgress
  * @param dispatchers
  * @returns {Promise<*>}
  */
-export function refreshVersions (ignoreIfInProgress=false, dispatchers=undefined) {
-  if (isSignedOut()) {
+export function refreshVersions (dispatchers=undefined) {
+  const { isLeader } = leaderContextHack;
+  // Do not refresh till know if leader cause won't know if storing to disk or not
+  if (isSignedOut() || isLeader === undefined) {
     return Promise.resolve(true); // also do nothing when signed out
   }
-  return matchErrorHandlingVersionRefresh(ignoreIfInProgress, dispatchers).then(() => {
+  return matchErrorHandlingVersionRefresh(true, dispatchers).then(() => {
     // If missing always start a runner so max drift is honored
     if (runner == null){
       return startRefreshRunner();
@@ -226,7 +240,7 @@ function addMarketsStructInfo(infoType, marketsStruct, details, marketId) {
 
 export function getStorageStates() {
   const storageStates = {};
-  // Reloading comments and investibles from disk will take up too much memory
+  // Reloading comments and investibles from disk will take up too much memory and confuse leader strategy
   // So local forage helper will use the memory pointer if it is initialized
   const helper = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
   return helper.getState(commentsContextHack).then((state) => {
@@ -236,23 +250,23 @@ export function getStorageStates() {
   }).then((state) => {
     storageStates.investiblesState = state || {};
     const helper = new LocalForageHelper(MARKET_CONTEXT_NAMESPACE);
-    return helper.getState();
+    return helper.getState(marketsContextHack);
   }).then((state) => {
     storageStates.marketsState = state || {};
     const helper = new LocalForageHelper(MARKET_PRESENCES_CONTEXT_NAMESPACE);
-    return helper.getState();
+    return helper.getState(marketPresencesContextHack);
   }).then((state) => {
     storageStates.marketPresencesState = state || {};
     const helper = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
-    return helper.getState();
+    return helper.getState(marketStagesContextHack);
   }).then((state) => {
     storageStates.marketStagesState = state || {};
     const helper = new LocalForageHelper(MARKET_GROUPS_CONTEXT_NAMESPACE);
-    return helper.getState();
+    return helper.getState(marketGroupsContextHack);
   }).then((state) => {
     storageStates.marketGroupsState = state ?? {};
     const helper = new LocalForageHelper(GROUP_MEMBERS_CONTEXT_NAMESPACE);
-    return helper.getState();
+    return helper.getState(groupMembersContextHack);
   }).then((state) => {
     storageStates.groupMembersState = state ?? {};
     return storageStates;

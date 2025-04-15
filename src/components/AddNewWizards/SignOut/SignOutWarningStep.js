@@ -6,26 +6,11 @@ import WizardStepButtons from '../WizardStepButtons';
 import { navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { onSignOut } from '../../../utils/userFunctions';
-import { LogoutContext } from '../../../containers/App/App';
 import { WizardStylesContext } from '../WizardStylesContext';
 
 function SignOutWarningStep(props) {
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
-  const logoutChannel = useContext(LogoutContext);
-
-  function myOnSignOut() {
-    if (logoutChannel) {
-      if (logoutChannel.postMessage) {
-        logoutChannel.postMessage('signedOut').then(() => onSignOut()).then(() => {
-          console.info('Reloaded already in onSignOut');
-        });
-      } else {
-        console.warn(logoutChannel);
-        onSignOut();
-      }
-    }
-  }
 
   return (
     <WizardStepContainer
@@ -42,7 +27,7 @@ function SignOutWarningStep(props) {
         {...props}
         focus
         nextLabel="signOutButton"
-        onNext={myOnSignOut}
+        onNext={onSignOut}
         showTerminate
         onTerminate={() => navigate(history)}
         terminateLabel="OnboardingWizardGoBack"

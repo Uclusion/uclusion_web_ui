@@ -71,8 +71,7 @@ export function onSignOut() {
   return clearUclusionLocalStorage(false)
     .then(() => new TokenStorageManager().clearTokenStorage())
     .then(() => new AccountStorageManager().clearAccountStorage())
-    .then(() => Auth.signOut())
-    .then(() => window.location.reload(true));
+    .then(() => Auth.signOut());
 }
 
 export function getVotesForInvestible(marketPresences, investibleId) {

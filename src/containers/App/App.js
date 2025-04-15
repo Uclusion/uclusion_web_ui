@@ -10,8 +10,6 @@ import LogRocket from 'logrocket'
 import { defaultTheme } from '../../config/themes'
 import { ThemeProvider } from '@material-ui/core/styles'
 import { CognitoUserProvider } from '../../contexts/CognitoUserContext/CongitoUserContext'
-import { BroadcastChannel } from 'broadcast-channel'
-import { onSignOut } from '../../utils/userFunctions'
 import { LeaderProvider } from '../../contexts/LeaderContext/LeaderContext'
 import { CommentsProvider } from '../../contexts/CommentsContext/CommentsContext'
 import { InvestiblesProvider } from '../../contexts/InvestibesContext/InvestiblesContext'
@@ -19,24 +17,11 @@ import { MarketPresencesProvider } from '../../contexts/MarketPresencesContext/M
 import { MarketsProvider } from '../../contexts/MarketsContext/MarketsContext'
 import { GroupMembersProvider } from '../../contexts/GroupMembersContext/GroupMembersContext'
 
-export const LogoutContext = React.createContext([]);
 
 function App(props) {
   const { authState } = props;
   const configs = { ...config };
   const [userAttributes, setUserAttributes] = useState({});
-  const [logoutChannel, setLogoutChannel] = useState(undefined);
-
-  useEffect(() => {
-    console.info('Setting up logout channel');
-    const myLogoutChannel = new BroadcastChannel('logout');
-    myLogoutChannel.onmessage = () => {
-      console.info('Logging out from message');
-      onSignOut().then(() => console.info('Done logging out'));
-    };
-    setLogoutChannel(myLogoutChannel);
-    return () => {};
-  }, []);
 
   useEffect(() => {
     function completeLogin (loginInfo) {
@@ -86,7 +71,7 @@ function App(props) {
   }
 
   // only start up the app if we're really sure they're properly logged in and verified
-  if (authState === 'signedIn' && userId && email) {
+  if (userId && email) {
     return (
       <CognitoUserProvider authState={authState}>
         <MarketsProvider>
@@ -99,9 +84,7 @@ function App(props) {
                       <WebSocketProvider config={config} userId={userId}>
                         <AppConfigProvider appConfig={configs}>
                           <ThemeProvider theme={defaultTheme}>
-                            <LogoutContext.Provider value={logoutChannel}>
-                              <Root appConfig={configs}/>
-                            </LogoutContext.Provider>
+                            <Root appConfig={configs} authState={authState}/>
                           </ThemeProvider>
                         </AppConfigProvider>
                       </WebSocketProvider>

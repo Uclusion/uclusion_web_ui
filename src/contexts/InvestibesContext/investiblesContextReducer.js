@@ -1,14 +1,12 @@
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import {
-  INVESTIBLES_CHANNEL,
   INVESTIBLES_CONTEXT_NAMESPACE
 } from './InvestiblesContext'
-import { BroadcastChannel } from 'broadcast-channel'
-import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import _ from 'lodash'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
 import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
+import { leaderContextHack } from '../LeaderContext/LeaderContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_INVESTIBLES = 'UPDATE_INVESTIBLES';
@@ -88,15 +86,16 @@ let investiblesStoragePromiseChain = Promise.resolve(true);
 function reducer(state, action) {
   const newState = computeNewState(state, action);
   if (action.type !== INITIALIZE_STATE) {
-    // Initialize state comes from the disk so do not write it back and risk wiping out another tab
-    const lfh = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
-    investiblesStoragePromiseChain = investiblesStoragePromiseChain.then(() => {
-        lfh.setState(newState).then(() => {
-          const myChannel = new BroadcastChannel(INVESTIBLES_CHANNEL);
-          return myChannel.postMessage(broadcastId || 'investibles').then(() => myChannel.close())
-            .then(() => console.info('Update investibles context sent.'));
+    const { isLeader } = leaderContextHack;
+    if (isLeader) {
+      // Initialize state comes from the disk so do not write it back and risk wiping out another tab
+      const lfh = new LocalForageHelper(INVESTIBLES_CONTEXT_NAMESPACE);
+      investiblesStoragePromiseChain = investiblesStoragePromiseChain.then(() => {
+        return lfh.setState(newState).then(() => {
+          console.info('Updated investibles context storage.');
         });
-    });
+      });
+    }
   }
   return newState;
 }

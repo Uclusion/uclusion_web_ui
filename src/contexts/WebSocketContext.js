@@ -11,7 +11,6 @@ import { pushMessage, registerListener } from '../utils/MessageBusUtils'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
 import { isSignedOut, onSignOut } from '../utils/userFunctions'
 import { LeaderContext } from './LeaderContext/LeaderContext'
-import { BroadcastChannel } from 'broadcast-channel'
 import { refreshOrMessage } from './LeaderContext/leaderContextReducer'
 import { refreshNotifications, VERSIONS_EVENT } from '../api/versionedFetchUtils'
 import { getAppVersion } from '../api/sso'
@@ -71,14 +70,6 @@ function createWebSocket(config, leaderDispatch, setState, leaderChannelId) {
   const newSocket = new WebSocketRunner(sockConfig);
   // this will incidentally subscribe to the identity
   newSocket.connect();
-  const myChannel = new BroadcastChannel(leaderChannelId);
-  myChannel.onmessage = (msg) => {
-    if (msg === 'refresh') {
-      //Each context is setup to tell the other tabs to reload from the memory namespace
-      //so refresh versions just needs to run as normal and changes will propagate
-      leaderDispatch(refreshOrMessage(`leaderChannel${Date.now()}`, leaderChannelId));
-    }
-  }
   // we also want to always be subscribed to new app versions
   newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {
     const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = message;

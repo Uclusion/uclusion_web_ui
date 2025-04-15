@@ -79,7 +79,7 @@ export function toastErrorAndThrow(error, messageKey) {
   }
   if (error?.status === 208) {
     console.info('Api gateway duplicate 208 received');
-    return refreshVersions(true).then(() => {
+    return refreshVersions().then(() => {
       console.warn(error);
       throw error;
     }).catch(() => console.warn('Error refreshing'));

@@ -1,10 +1,8 @@
 import LocalForageHelper from '../../utils/LocalForageHelper'
 import _ from 'lodash'
-import { NOTIFICATIONS_CHANNEL } from './NotificationsContext'
-import { BroadcastChannel } from 'broadcast-channel'
-import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { findMessagesForInvestibleId } from '../../utils/messageUtils'
 import { getMarketClient } from '../../api/marketLogin'
+import { leaderContextHack } from '../LeaderContext/LeaderContext';
 
 export const NOTIFICATIONS_CONTEXT_NAMESPACE = 'notifications';
 const UPDATE_MESSAGES = 'UPDATE_MESSAGES';
@@ -265,14 +263,15 @@ function computeNewState (state, action) {
 
 function storeStatePromise(action, newState) {
   if (action.type !== INITIALIZE_STATE) {
-    const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
-    return lfh.setState(newState).then(() => {
-      // In case the other tabs don't get the message
-      const myChannel = new BroadcastChannel(NOTIFICATIONS_CHANNEL);
-      return myChannel.postMessage(broadcastId || 'notifications').then(() => myChannel.close())
-        .then(() => console.info('Update notifications context sent.'));
-    });
+    const { isLeader } = leaderContextHack;
+    if (isLeader) {
+      const lfh = new LocalForageHelper(NOTIFICATIONS_CONTEXT_NAMESPACE);
+      return lfh.setState(newState).then(() => {
+        console.info('Updated notifications context storage.');
+      });
+    }
   }
+  return Promise.resolve(true);
 }
 
 function reducer (state, action) {

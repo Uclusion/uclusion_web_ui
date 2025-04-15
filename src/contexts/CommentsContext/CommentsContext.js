@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react'
+import React, { useContext, useEffect, useReducer } from 'react'
 import _ from 'lodash'
 import reducer, { initializeState } from './commentsContextReducer'
 import LocalForageHelper from '../../utils/LocalForageHelper'
@@ -9,8 +9,6 @@ import {
   INDEX_UPDATE,
   SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages'
-import { BroadcastChannel } from 'broadcast-channel'
-import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { DiffContext } from '../DiffContext/DiffContext'
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 
@@ -43,26 +41,6 @@ export { commentsContextHack };
 function CommentsProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE, undefined);
   const [, diffDispatch] = useContext(DiffContext);
-  const [, setChannel] = useState(undefined);
-
-  useEffect(() => {
-    const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
-    myChannel.onmessage = (msg) => {
-      if (msg !== broadcastId) {
-        console.info(`Reloading on comments channel message ${msg} with ${broadcastId}`);
-        const lfg = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
-        lfg.getState()
-          .then((diskState) => {
-            if (diskState) {
-              pushIndexItems(diskState);
-              dispatch(initializeState(diskState));
-            }
-          });
-      }
-    }
-    setChannel(myChannel);
-    return () => {};
-  }, []);
 
   useEffect(() => {
     beginListening(dispatch, diffDispatch);

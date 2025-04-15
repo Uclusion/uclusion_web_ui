@@ -72,7 +72,8 @@ const useStyles = makeStyles({
   },
 });
 
-function Root() {
+function Root(props) {
+  const { authState } = props;
   const history = useHistory();
   const location = useLocation();
   const intl = useIntl();
@@ -246,7 +247,7 @@ function Root() {
       if (isEntry && marketId && marketId === defaultMarketId) {
         console.info('Refresh versions in view change');
         // refresh our versions if we're entering, on a market, and not busy loading it
-        refreshVersions(true).catch(() => console.warn('Error refreshing'));
+        refreshVersions().catch(() => console.warn('Error refreshing'));
       }
     }
 
@@ -288,7 +289,7 @@ function Root() {
     }
   },  [history, setOnline, location, isUserLoaded, defaultMarketId]);
 
-  if (action === 'supportWorkspace' || (isRootPath && firstMarketJoinedUser && _.isEmpty(defaultMarketLink))) {
+  if (authState !== 'signedIn' || action === 'supportWorkspace' || (isRootPath && firstMarketJoinedUser && _.isEmpty(defaultMarketLink))) {
     return (
       <Screen
         hidden={false}

@@ -1,5 +1,4 @@
-import React, { useContext, useEffect, useReducer } from 'react';
-import { waitForLeadership } from 'tab-election';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import reducer, { updateLeader } from './leaderContextReducer'
 import { refreshNotifications, refreshVersions } from '../../api/versionedFetchUtils';
 import { AccountContext } from '../AccountContext/AccountContext';
@@ -14,12 +13,17 @@ import { GroupMembersContext } from '../GroupMembersContext/GroupMembersContext'
 import { DiffContext } from '../DiffContext/DiffContext';
 import { TicketIndexContext } from '../TicketContext/TicketIndexContext';
 import { SearchIndexContext } from '../SearchIndexContext/SearchIndexContext';
+import { isSignedOut, onSignOut } from '../../utils/userFunctions';
+import { Tab } from 'tab-election';
 
 const EMPTY_STATE = {
   leader: undefined,
 };
 
 const LeaderContext = React.createContext(EMPTY_STATE);
+
+let leaderContextHack = {};
+export { leaderContextHack };
 
 function LeaderProvider(props) {
   const { children, authState, userId } = props;
@@ -35,20 +39,40 @@ function LeaderProvider(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const [, ticketsDispatch] = useContext(TicketIndexContext);
   const [index] = useContext(SearchIndexContext);
+  const [myTab, setMyTab] = useState(new Tab('uclusion'));
   const isUserLoaded = userIsLoaded(userState);
   const { isLeader } = state;
 
   useEffect(() => {
     if (authState === 'signedIn' && userId) {
-      waitForLeadership(() => {
-        console.info(`Claiming leadership`);
-        // Could use broadcast ID to send message out to others to refresh out of login page
-        // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
-        dispatch(updateLeader(true));
+      myTab.addEventListener('message', (event) => {
+        console.info('Received tab message: ', event.data);
+        // Currently there is only one message can receive
+        onSignOut().then(() => console.info('Done logging out'));
+      });
+      myTab.waitForLeadership(() => {
+        if (isSignedOut()) {
+          console.info('Logging out after seeing leadership change');
+          onSignOut().then(() => console.info('Done logging out'));
+        } else {
+          console.info(`Claiming leadership`);
+          // Could use broadcast ID to send message out to others to refresh out of login page
+          // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
+          dispatch(updateLeader(true));
+        }
       });
     }
     return () => {};
-  }, [authState, userId]);
+  }, [authState, myTab, setMyTab, userId]);
+
+  useEffect(() => {
+    if (authState !== 'signedIn') {
+      console.info('Sending logout');
+      myTab.send('logout');
+      myTab.close();
+      window.location.reload(true);
+    }
+  }, [authState, myTab]);
 
   useEffect(() => {
     if (isUserLoaded) {
@@ -57,7 +81,7 @@ function LeaderProvider(props) {
           groupMembersDispatch, investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch };
         console.info('Leadership refreshing versions');
         // Try use set timeout and dispatchers for stability but my have to move to suspend
-        setTimeout(() => refreshVersions(true, dispatchers).then(() => {
+        setTimeout(() => refreshVersions(dispatchers).then(() => {
           console.info('Refreshed versions from leader init');
         }).catch(() => console.warn('Error refreshing')), 0);
       } else {
@@ -68,7 +92,7 @@ function LeaderProvider(props) {
     return () => {};
   }, [isUserLoaded, isLeader, marketsDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch,
     groupMembersDispatch, investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch]);
-
+  leaderContextHack = state;
   return (
     <LeaderContext.Provider value={[state, dispatch]}>
       {children}

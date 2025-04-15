@@ -1,11 +1,10 @@
 import _ from 'lodash'
 import LocalForageHelper from '../../utils/LocalForageHelper'
-import { COMMENTS_CHANNEL, COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
-import { BroadcastChannel } from 'broadcast-channel'
-import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
+import { COMMENTS_CONTEXT_NAMESPACE } from './CommentsContext'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion, fixupItemsForStorage } from '../ContextUtils'
 import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
+import { leaderContextHack } from '../LeaderContext/LeaderContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const REMOVE_MARKETS_COMMENT = 'REMOVE_MARKETS_COMMENT';
@@ -102,14 +101,15 @@ let commentsStoragePromiseChain = Promise.resolve(true);
 function reducer(state, action) {
   const newState = computeNewState(state, action);
   if (action.type !== INITIALIZE_STATE) {
-    const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
-    commentsStoragePromiseChain = commentsStoragePromiseChain.then(() => {
-        lfh.setState(newState).then(() => {
-          const myChannel = new BroadcastChannel(COMMENTS_CHANNEL);
-          return myChannel.postMessage(broadcastId || 'comments').then(() => myChannel.close())
-            .then(() => console.info('Update comment context sent.'));
+    const { isLeader } = leaderContextHack;
+    if (isLeader) {
+      const lfh = new LocalForageHelper(COMMENTS_CONTEXT_NAMESPACE);
+      commentsStoragePromiseChain = commentsStoragePromiseChain.then(() => {
+        return lfh.setState(newState).then(() => {
+          console.info('Updated comment context storage.')
         });
-    });
+      });
+    }
   }
   return newState;
 }

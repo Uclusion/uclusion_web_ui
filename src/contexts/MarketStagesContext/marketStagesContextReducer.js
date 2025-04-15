@@ -1,11 +1,10 @@
 import _ from 'lodash'
-import LocalForageHelper from '../../utils/LocalForageHelper'
-import { MARKET_STAGES_CONTEXT_NAMESPACE, STAGES_CHANNEL } from './MarketStagesContext'
 import { removeInitializing } from '../../components/localStorageUtils'
-import { BroadcastChannel } from 'broadcast-channel'
-import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { addByIdAndVersion } from '../ContextUtils';
 import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
+import { leaderContextHack } from '../LeaderContext/LeaderContext';
+import LocalForageHelper from '../../utils/LocalForageHelper';
+import { MARKET_STAGES_CONTEXT_NAMESPACE } from './MarketStagesContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const UPDATE_MARKET_STAGES = 'UPDATE_MARKET_STAGES';
@@ -88,14 +87,15 @@ let marketStagesStoragePromiseChain = Promise.resolve(true);
 function reducer(state, action) {
   const newState = computeNewState(state, action);
   if (action.type !== INITIALIZE_STATE) {
-    const lfh = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
-    marketStagesStoragePromiseChain = marketStagesStoragePromiseChain.then(() => {
-      lfh.setState(newState).then(() => {
-        const myChannel = new BroadcastChannel(STAGES_CHANNEL);
-        return myChannel.postMessage(broadcastId || 'stages').then(() => myChannel.close())
-          .then(() => console.info('Update stages context sent.'));
+    const { isLeader } = leaderContextHack;
+    if (isLeader) {
+      const lfh = new LocalForageHelper(MARKET_STAGES_CONTEXT_NAMESPACE);
+      marketStagesStoragePromiseChain = marketStagesStoragePromiseChain.then(() => {
+        return lfh.setState(newState).then(() => {
+          console.info('Updated stages context storage.');
+        });
       });
-    });
+    }
   }
   return newState;
 }

@@ -1,14 +1,10 @@
-import LocalForageHelper from '../../utils/LocalForageHelper'
-import {
-  GROUP_MEMBERS_CONTEXT_NAMESPACE,
-  MEMBERS_CHANNEL
-} from './GroupMembersContext'
 import _ from 'lodash'
-import { BroadcastChannel } from 'broadcast-channel'
-import { broadcastId } from '../../components/ContextHacks/BroadcastIdProvider'
 import { removeInitializing } from '../../components/localStorageUtils'
 import { addByIdAndVersion } from '../ContextUtils'
 import { syncMarketList } from '../../components/ContextHacks/ForceMarketSyncProvider';
+import { leaderContextHack } from '../LeaderContext/LeaderContext';
+import LocalForageHelper from '../../utils/LocalForageHelper';
+import { GROUP_MEMBERS_CONTEXT_NAMESPACE } from './GroupMembersContext';
 
 const INITIALIZE_STATE = 'INITIALIZE_STATE';
 const ADD_GROUP_MEMBERS = 'ADD_GROUP_MEMBERS';
@@ -105,13 +101,14 @@ function reducer(state, action) {
   const newState = computeNewState(state, action);
   if (action.type !== INITIALIZE_STATE) {
     const lfh = new LocalForageHelper(GROUP_MEMBERS_CONTEXT_NAMESPACE);
-    presencesStoragePromiseChain = presencesStoragePromiseChain.then(() => {
-        lfh.setState(newState).then(() => {
-          const myChannel = new BroadcastChannel(MEMBERS_CHANNEL);
-          return myChannel.postMessage(broadcastId || 'members').then(() => myChannel.close())
-            .then(() => console.info('Update members context sent.'));
+    const { isLeader } = leaderContextHack;
+    if (isLeader) {
+      presencesStoragePromiseChain = presencesStoragePromiseChain.then(() => {
+        return lfh.setState(newState).then(() => {
+          console.info('Updated members context storage.');
         });
-    });
+      });
+    }
   }
   return newState;
 }

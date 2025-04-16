@@ -78,6 +78,7 @@ import { useGroupPresences } from '../../../contexts/MarketPresencesContext/mark
 import EditIcon from '@material-ui/icons/Edit';
 import { hasJobComment } from '../../../components/AddNewWizards/JobComment/AddCommentStep';
 import Link from '@material-ui/core/Link';
+import InfoIcon from '@material-ui/icons/Info';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -653,7 +654,7 @@ function PlanningInvestible(props) {
           style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
             paddingTop: mobileLayout ? undefined : '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0,
             marginLeft: '-0.5rem' }}>
-          <GmailTabItem icon={<ThumbsUpDownIcon />} tagLabel={getTagLabel('total')}
+          <GmailTabItem icon={<InfoIcon />} tagLabel={getTagLabel('total')}
                         label={intl.formatMessage({id: 'descriptionVotingLabel'})}
                         toolTipId='jobOverviewToolTip'
                         tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />

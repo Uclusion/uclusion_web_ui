@@ -30,6 +30,7 @@ import {
   isNotDoingStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { getSearchResults } from '../../contexts/SearchIndexContext/searchIndexContextHelper';
 
 function ChooseJob(props) {
   const {
@@ -65,7 +66,7 @@ function ChooseJob(props) {
     return investibleGroupId === groupId && !excluded.includes(investible.id) &&
       marketStageIds.includes(investibleStageId) && (!isAssignedToMe || assigned?.includes(userId));
   });
-  const results = _.isEmpty(searchQuery) ? undefined : (index.search(searchQuery) || []);
+  const results = _.isEmpty(searchQuery) ? undefined : (getSearchResults(index, searchQuery) || []);
   const investiblesRaw = _.isEmpty(searchQuery) ? activeGroupInvestibles : activeGroupInvestibles.filter((inv) => {
     const { investible } = inv;
     return results.find((item) => item.id === investible.id);

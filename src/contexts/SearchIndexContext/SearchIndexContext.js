@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import * as JsSearch from 'js-search'
+import MiniSearch from 'minisearch'
 import { beginListening } from './searchIndexContextMessages'
 
 const EMPTY_STATE = null;
@@ -10,9 +10,16 @@ function SearchIndexProvider(props) {
   const [state, setState] = useState(EMPTY_STATE);
 
   useEffect(() => {
-    const index = new JsSearch.Search('id');
-    index.indexStrategy = new JsSearch.AllSubstringsIndexStrategy();
-    index.addIndex('body');
+    // See https://github.com/lucaong/minisearch/issues/225 - will not do middle of word search to keep space small
+    const index = new MiniSearch({
+      fields: ['title', 'body'],
+      storeFields: ['marketId'],
+      searchOptions: {
+        boost: { title: 2 },
+        fuzzy: 1,
+        prefix: true
+      }
+    });
     setState(index);
     beginListening(index);
     return () => {};

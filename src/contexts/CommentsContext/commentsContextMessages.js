@@ -4,7 +4,7 @@ import { addContents } from '../DiffContext/diffContextReducer'
 import {
   INDEX_COMMENT_TYPE,
   INDEX_UPDATE,
-  SEARCH_INDEX_CHANNEL, transformItemsToIndexable
+  SEARCH_INDEX_CHANNEL
 } from '../SearchIndexContext/searchIndexContextMessages';
 import {
   PUSH_COMMENTS_CHANNEL,
@@ -13,10 +13,10 @@ import {
 } from '../../api/versionedFetchUtils';
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 import _ from 'lodash'
+import { addToIndex } from '../SearchIndexContext/searchIndexContextHelper';
 
 export function addCommentsOther(commentsDispatch, diffDispatch, index, ticketDispatch, comments) {
-  const indexable = transformItemsToIndexable(INDEX_COMMENT_TYPE, comments);
-  index.addDocuments(indexable.filter((item) => item.type !== 'DELETED'));
+  addToIndex(index, INDEX_COMMENT_TYPE, comments);
   const ticketCodeItems = [];
   let commentsMarketId = undefined;
   comments.forEach((comment) => {

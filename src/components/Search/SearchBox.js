@@ -23,6 +23,7 @@ import { getInvestibleName } from '../../contexts/InvestibesContext/investiblesC
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import PropTypes from 'prop-types';
+import { getSearchResults } from '../../contexts/SearchIndexContext/searchIndexContextHelper';
 
 function SearchBox(props) {
   const { disableSearch } = props;
@@ -112,7 +113,7 @@ function SearchBox(props) {
 
   function updateIndex(searchQuery){
     // query the index
-    const rawResults = index.search(searchQuery) || [];
+    const rawResults = getSearchResults(index, searchQuery, marketId) || [];
     // parents in a different hash so they can appear on the page but not be counted as results
     const {parentResults, removed} = getParentResults(rawResults);
     const results = rawResults.filter((result) => !removed.find((item) => item.id === result.id));

@@ -1,20 +1,21 @@
+import _ from 'lodash';
+import { transformItemsToIndexable } from './searchIndexContextMessages';
 
-export function filterCommentsToSearch(results, comments) {
-  if (!results) {
-    return comments;
+export function getSearchResults(index, query, marketId) {
+  let result;
+  if (marketId) {
+    result = index.search(query, {
+      filter: (result) => result.marketId === marketId
+    });
+  } else {
+    result = index.search(query);
   }
-  if (!comments) {
-    return undefined;
-  }
-  const found = [];
-  const resultsHash = {};
-  results.forEach((item) => {
-    resultsHash[item.id] = true;
-  })
-  comments.forEach((comment) => {
-    if (resultsHash[comment.id]) {
-      found.push(comment);
-    }
-  });
-  return found;
+  return result;
+}
+
+export function addToIndex(index, itemType, items) {
+  const indexable = transformItemsToIndexable(itemType, items);
+  const removed = _.remove(indexable, (item) => item.type === 'DELETED');
+  index.addAll(indexable);
+  index.removeAll(removed);
 }

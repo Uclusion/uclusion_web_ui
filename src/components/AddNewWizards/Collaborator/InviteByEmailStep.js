@@ -24,6 +24,7 @@ function InviteByEmailStep(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const inMarketEmailList = marketPresences.map((presence) => presence.email);
   const { isValid } = formData;
+  console.debug(`is valid is ${isValid}`);
 
   function myOnFinish(isOther=false){
     const emails = getEmailList(marketId);
@@ -56,6 +57,7 @@ function InviteByEmailStep(props) {
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
+        validForm={isValid}
         nextLabel="OnboardingWizardFinish"
         onNextDoAdvance={isValid === true}
         spinOnClick={isValid === true}

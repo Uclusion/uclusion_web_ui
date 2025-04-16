@@ -98,9 +98,6 @@ class EmailEntryBox extends React.Component{
     this.emailEntered(target);
     const isValid = !_.isEmpty(this.emailList);
     this.setIsValid(isValid);
-    if (!isValid) {
-      this.setError('No valid or not already present emails entered');
-    }
   }
 
   // gets the placeholder node
@@ -180,9 +177,9 @@ class EmailEntryBox extends React.Component{
       this.emailEntered(target, onValidEmail, onInvalidEmail);
       return;
     }
+    const { text: email } = this.getText(target);
     // are we backspacing and need to delete an email?
     if (['Backspace'].includes(key)) {
-      const { text: email } = this.getText(target);
       if (!email) {
         event.preventDefault();
         const newEmails = [...this.emailList];
@@ -191,8 +188,10 @@ class EmailEntryBox extends React.Component{
         return;
       }
     }
-    // Something has been entered so enable the wizard send button - see Slack handling
-    this.setIsValid(true);
+    const emailValidation = this.validateEmail(email);
+    if (emailValidation.valid) {
+      this.setIsValid(true);
+    }
     this.setError(null);
   };
 

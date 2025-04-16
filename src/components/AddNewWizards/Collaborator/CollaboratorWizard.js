@@ -28,7 +28,8 @@ function CollaboratorWizard (props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="collaborator_wizard" onFinish={onFinish} useLocalStorage={false}>
+      <FormdataWizard name="collaborator_wizard" onFinish={onFinish} useLocalStorage={false}
+                      defaultFormData={{isValid: false}}>
         <InviteByEmailStep marketId={marketId} displayFromOther={displayFromOther} />
         {displayFromOther && (
           <FromOtherWorkspacesStep marketId={marketId} participants={participants}/>

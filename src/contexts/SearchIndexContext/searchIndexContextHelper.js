@@ -18,5 +18,6 @@ export function addToIndex(index, itemType, items) {
   const removedRaw = _.remove(indexable, (item) => item.type === 'DELETED');
   index.addAll(indexable);
   const removed = removedRaw.filter((item) => index.has(item));
-  index.removeAll(removed);
+  // Use discard instead of remove since just id and providing full doc is weird - what if changed?
+  index.discardAll(removed);
 }

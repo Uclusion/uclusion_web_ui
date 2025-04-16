@@ -26,7 +26,6 @@ import {
   isInInbox
 } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
-import { addGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
 
 function DemoMarketLoad(props) {
   const { onboardingState, demo, demoMessage } = props;
@@ -62,7 +61,7 @@ function DemoMarketLoad(props) {
         marketsDispatch, messagesDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch, groupMembersDispatch,
         investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch, setInitialized
       }
-      const { demo, user, default_members: defaultMembers } = result;
+      const { demo, user } = result;
       const { notifications } = demo || {};
       if (notifications) {
         const notificationsFiltered = notifications.filter((msg) => isInInbox(msg));
@@ -71,7 +70,6 @@ function DemoMarketLoad(props) {
       }
       const id = await handleMarketData(demo, dispatchers);
       userDispatch(accountUserRefresh(user));
-      groupMembersDispatch(addGroupMembers(id, id, defaultMembers));
       const workspaceMessage = notifications?.find((message) =>
         message.type_object_id === `UNREAD_GROUP_${id}`);
       dehighlightMessage(workspaceMessage, messagesDispatch);

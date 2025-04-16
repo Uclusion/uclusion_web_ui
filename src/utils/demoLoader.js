@@ -9,6 +9,7 @@ import { addDemoPresencesToMarket } from '../contexts/MarketPresencesContext/mar
 import { refreshInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper';
 import { addCommentsOther } from '../contexts/CommentsContext/commentsContextMessages';
 import { updateComments } from '../contexts/CommentsContext/commentsContextReducer';
+import { addGroupMembers } from '../contexts/GroupMembersContext/groupMembersContextReducer';
 
 function addInvestibles(dispatch, diffDispatch, investibles) {
   refreshInvestibles(dispatch, diffDispatch, investibles, false);
@@ -24,8 +25,8 @@ function addStages(dispatch, market, stageDetails) {
   dispatch(updateMarketStages(marketId, stageDetails));
 }
 
-function addGroup(dispatch, groupDetails) {
-  addGroupToStorage(dispatch, groupDetails.id, groupDetails);
+function addGroup(dispatch, marketId, groupDetails) {
+  addGroupToStorage(dispatch, marketId, groupDetails);
 }
 
 function addMarket(dispatch, market) {
@@ -35,17 +36,22 @@ function addMarket(dispatch, market) {
 export async function handleMarketData(marketData, dispatchers) {
   const {
     market, child_markets: childMarkets,
-    comments, investibles, group,
+    comments, investibles, group_infos: groupInfos,
     stages, presences, token, notifications
   } = marketData;
   const { marketsDispatch, messagesDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch,
-    investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch, setInitialized } = dispatchers;
+    groupMembersDispatch, investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch,
+    setInitialized } = dispatchers;
   if (notifications) {
     messagesDispatch(updateMessages(notifications));
     setInitialized(true);
   }
   addStages(marketStagesDispatch, market, stages);
-  addGroup(groupsDispatch, group);
+  groupInfos?.forEach(groupInfo => {
+    const { group, members } = groupInfo;
+    addGroup(groupsDispatch, market.id, group);
+    groupMembersDispatch(addGroupMembers(market.id, group.id, members));
+  });
   addPresences(presenceDispatch, market, presences);
   addInvestibles(investiblesDispatch, diffDispatch, investibles);
   addCommentsOther(commentsDispatch, diffDispatch, index, ticketsDispatch, comments);

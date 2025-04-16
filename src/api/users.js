@@ -72,7 +72,7 @@ export function applyPromoCode(promoCode) {
       if (status === 409) {
         throw error;
       }else {
-        toastErrorAndThrow(error, 'errorPromoApplyFailed')
+        return toastErrorAndThrow(error, 'errorPromoApplyFailed')
       }
     });
 }

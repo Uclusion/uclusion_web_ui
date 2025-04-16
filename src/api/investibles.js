@@ -79,7 +79,7 @@ export function stageChangeInvestible(acceptInfo, customError) {
     .then((client) => client.investibles.stateChange(investibleId, stageInfo))
     .catch((error) => {
       if (error.status !== 404) {
-        toastErrorAndThrow(error, customError || 'errorInvestibleStageChangeFailed');
+        return toastErrorAndThrow(error, customError || 'errorInvestibleStageChangeFailed');
       } else {
         console.error('Ignoring 404 on stage change as likely double click related');
       }

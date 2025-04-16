@@ -36,7 +36,7 @@ export function uploadFileToS3 (marketId, file) {
           return metadata;
         }); // just want to give back the successful metadata
     }).catch((error) => {
-      toastErrorAndThrow(error, 'errorFileUploadFailed');
+      return toastErrorAndThrow(error, 'errorFileUploadFailed');
     });
 }
 

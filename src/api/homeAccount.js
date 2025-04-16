@@ -84,7 +84,7 @@ export function getDemo(){
     .then((client) => client.markets.getDemo())
     .catch((error) => {
       if (error.status !== 404) {
-        toastErrorAndThrow(error, 'errorDemoLoadFailed');
+        return toastErrorAndThrow(error, 'errorDemoLoadFailed');
       } else {
         console.error('Ignoring 404 on get demo as means demo load was called already');
       }

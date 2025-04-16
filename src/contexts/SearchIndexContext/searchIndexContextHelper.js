@@ -15,7 +15,8 @@ export function getSearchResults(index, query, marketId) {
 
 export function addToIndex(index, itemType, items) {
   const indexable = transformItemsToIndexable(itemType, items);
-  const removed = _.remove(indexable, (item) => item.type === 'DELETED');
+  const removedRaw = _.remove(indexable, (item) => item.type === 'DELETED');
   index.addAll(indexable);
+  const removed = removedRaw.filter((item) => index.has(item));
   index.removeAll(removed);
 }

@@ -1,13 +1,22 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { useMediaQuery, useTheme } from '@material-ui/core';
+import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
-import { formInvestibleLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
+import {
+  formInboxItemLink,
+  formInvestibleLink,
+  navigate,
+  preventDefaultAndProp
+} from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
 import GravatarGroup from '../Avatars/GravatarGroup';
 import DragImage from '../Dialogs/DragImage';
+import { WARNING_COLOR } from '../Buttons/ButtonConstants';
+import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
+import { useIntl } from 'react-intl';
 
 const Item = styled("div")`
   margin-bottom: 1px;
@@ -77,7 +86,7 @@ const DateLabelB = styled(DateLabel)`
 
 function BacklogListItem(props) {
   const {
-    isNew=false,
+    newMessages,
     title = '',
     description = '',
     date,
@@ -85,10 +94,12 @@ function BacklogListItem(props) {
     marketId,
     people
   } = props;
+  const [, messagesDispatch] = useContext(NotificationsContext);
+  const intl = useIntl();
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-
+  const isNew = !_.isEmpty(newMessages);
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
     if (dragImage) {
@@ -118,6 +129,24 @@ function BacklogListItem(props) {
               {mobileLayout || _.isEmpty(people) ? React.Fragment :
                 <GravatarGroup users={people}  />
               }
+              {isNew && (
+                <Tooltip title={intl.formatMessage({ id: 'messagePresent' })}>
+                  <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
+                    marginLeft: '1rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '6px',
+                    paddingTop: '2px', maxHeight: '20px'}}
+                        onClick={(event) => {
+                          preventDefaultAndProp(event);
+                          dehighlightMessage(newMessages[0], messagesDispatch);
+                          navigate(history, formInboxItemLink(newMessages[0]));
+                        }}
+                        onMouseOver={(event) => {
+                          preventDefaultAndProp(event);
+                        }}
+                  >
+                    {_.size(newMessages)}
+                  </span>
+                </Tooltip>
+              )}
               {!date ? React.Fragment : (isNew ? (<DateLabelB>{date}</DateLabelB>) :
                 (<DateLabel>{date}</DateLabel>))}
             </Div>

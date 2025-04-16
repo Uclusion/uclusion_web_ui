@@ -51,7 +51,6 @@ import {
   STOP_OPERATION
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
-import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import {
   formInvestibleAddCommentLink, formInvestibleLink,
   formWizardLink,

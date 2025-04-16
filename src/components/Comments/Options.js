@@ -27,9 +27,13 @@ import { useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 
 export function isNew(inv, messagesState) {
+  return !_.isEmpty(getNewMessages(inv, messagesState));
+}
+
+export function getNewMessages(inv, messagesState) {
   const investibleId = inv.investible.id;
   const myMessages = findMessagesForInvestibleId(investibleId, messagesState);
-  return !_.isEmpty(myMessages.find((message) => message.is_highlighted));
+  return myMessages.filter((message) => message.is_highlighted);
 }
 
 export function isNewComment(comment, messagesState) {

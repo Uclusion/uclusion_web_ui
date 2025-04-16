@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
+import { TODO_TYPE } from '../../../constants/comments';
 
 /**
  * Returns the investibles in the market assigned to the user
@@ -47,8 +48,9 @@ function getUpdatedAt(updatedAt, comments) {
 }
 
 function hasInProgress(investibleId, marketComments) {
+  // Limit to TO-DO type because subtask in progress with parent not doesn't prove anything
   return !_.isEmpty(marketComments.find((comment) => !comment.resolved && comment.investible_id === investibleId &&
-    comment.in_progress));
+    comment.comment_type === TODO_TYPE && comment.in_progress));
 }
 
 function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments, messagesState) {

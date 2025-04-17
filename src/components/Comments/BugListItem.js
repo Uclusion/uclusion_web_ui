@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import cx from 'clsx';
 import styled from 'styled-components';
 import { Box, IconButton, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
@@ -7,12 +7,11 @@ import CheckBoxOutlineBlank from '@material-ui/icons/CheckBoxOutlineBlank';
 import { useSizedIconButtonStyles } from '@mui-treasury/styles/iconButton/sized';
 import { useRowGutterStyles } from '@mui-treasury/styles/gutter/row';
 import PropTypes from 'prop-types';
-import { navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
+import { formInboxItemLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { pushMessage } from '../../utils/MessageBusUtils';
 import {
   DEHIGHLIGHT_CRITICAL_EVENT,
-  DELETE_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../contexts/NotificationsContext/notificationsContextMessages';
 import { ExpandLess, ReportOutlined } from '@material-ui/icons';
@@ -25,6 +24,9 @@ import { POKED } from '../../constants/notifications';
 import _ from 'lodash';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { useHistory } from 'react-router';
+import { WARNING_COLOR } from '../Buttons/ButtonConstants';
+import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 
 const Div = styled("div")`
   height: 40px;
@@ -126,10 +128,9 @@ const Item = styled("div")`
 
 function BugListItem(props) {
   const {
-    isNew,
+    newMessages,
     replyNum,
     title = '',
-    message,
     date,
     checked = false,
     determinateDispatch,
@@ -145,6 +146,7 @@ function BugListItem(props) {
     link,
     toolTipId
   } = props;
+  const [, messagesDispatch] = useContext(NotificationsContext);
   const theme = useTheme();
   const intl = useIntl();
   const history = useHistory();
@@ -152,8 +154,11 @@ function BugListItem(props) {
   const mobileLayout = mediaMobileLayout || useMobileLayout;
   const actionStyles = useSizedIconButtonStyles({ childSize: 22, padding: 10 });
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
-  const { alert_type: alertType, poked_list: pokedList } = message || {}
-  const poked = !_.isEmpty(pokedList) ? pokedList.includes(id) : alertType === POKED;
+  const isNew = !_.isEmpty(newMessages);
+  const poked = !_.isEmpty(newMessages?.find((msg) => {
+    const { alert_type: alertType, poked_list: pokedList } = msg || {};
+    return !_.isEmpty(pokedList) ? pokedList.includes(id) : alertType === POKED;
+  }));
 
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
@@ -177,14 +182,6 @@ function BugListItem(props) {
                onClick={
             (event) => {
               preventDefaultAndProp(event);
-              if (isNew) {
-                let event = DEHIGHLIGHT_CRITICAL_EVENT;
-                if (message.type_object_id.startsWith('UNREAD')) {
-                  event = DELETE_EVENT;
-                }
-                pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: message.type_object_id,
-                  originalMessage: `${message.type}_${id}` });
-              }
               if (bugListDispatch) {
                 bugListDispatch(expandOrContract(id));
               } else {
@@ -228,6 +225,31 @@ function BugListItem(props) {
                   backgroundColor: 'white' }}/>
               </Tooltip>: React.Fragment}
               {isNew ? (<TitleB>{title}</TitleB>) : titleWithHelp}
+              {isNew && (
+                <Tooltip title={intl.formatMessage({ id: 'messagePresent' })}>
+                  <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
+                    marginLeft: '1rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '6px',
+                    paddingTop: '2px', maxHeight: '20px'}}
+                        onClick={(event) => {
+                          preventDefaultAndProp(event);
+                          const message = newMessages[0];
+                          if (message.highlighted_list !== undefined) {
+                            pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { DEHIGHLIGHT_CRITICAL_EVENT,
+                              message: message.type_object_id,
+                              originalMessage: `${message.type}_${id}` });
+                          } else {
+                            dehighlightMessage(message, messagesDispatch);
+                          }
+                          navigate(history, formInboxItemLink(message));
+                        }}
+                        onMouseOver={(event) => {
+                          preventDefaultAndProp(event);
+                        }}
+                  >
+                    {_.size(newMessages)}
+                  </span>
+                </Tooltip>
+              )}
               {mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>) :
                 (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}
               {mobileLayout && !_.isEmpty(expansionPanel) && (

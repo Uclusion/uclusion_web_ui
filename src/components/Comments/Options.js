@@ -17,7 +17,10 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { useIntl } from 'react-intl';
-import { findMessageForCommentId, findMessagesForInvestibleId } from '../../utils/messageUtils';
+import {
+  findMessagesForCommentIds,
+  findMessagesForInvestibleId
+} from '../../utils/messageUtils';
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { moveInvestibleToCurrentVoting } from '../../api/investibles';
@@ -36,12 +39,14 @@ export function getNewMessages(inv, messagesState) {
   return myMessages.filter((message) => message.is_highlighted);
 }
 
-export function isNewComment(comment, messagesState) {
-  const myMessage = findMessageForCommentId(comment.id, messagesState) || {};
-  if (myMessage?.highlighted_list !== undefined) {
-    return myMessage.highlighted_list.includes(comment.id);
-  }
-  return myMessage?.is_highlighted;
+export function getNewBugNotifications(comment, messagesState) {
+  const myMessages = findMessagesForCommentIds([comment.id], messagesState) || [];
+  return myMessages.filter((myMessage) => {
+    if (myMessage?.highlighted_list !== undefined) {
+      return myMessage.highlighted_list.includes(comment.id);
+    }
+    return myMessage?.is_highlighted;
+  });
 }
 
 function Options(props) {

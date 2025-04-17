@@ -11,7 +11,7 @@ import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsCo
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { findMessageForCommentId, removeMessagesForCommentId } from '../../../utils/messageUtils';
+import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { stripHTML } from '../../../utils/stringFunctions';
 import BugListItem from '../../../components/Comments/BugListItem';
@@ -21,7 +21,7 @@ import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { Eject, ExpandLess } from '@material-ui/icons';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
-import { isNewComment } from '../../../components/Comments/Options';
+import { getNewBugNotifications } from '../../../components/Comments/Options';
 import { todoClasses } from '../../Dialog/Planning/MarketTodos';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { sortInProgress } from '../../../containers/CommentBox/CommentBox';
@@ -86,8 +86,8 @@ function CondensedTodos(props) {
       const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
       return (
         <BugListItem id={id} replyNum={replies.length + 1} title={stripHTML(body)} useMinWidth={false}
-                     isNew={isNewComment(comment, messagesState)} date={intl.formatDate(updatedAt)}
-                     message={findMessageForCommentId(id, messagesState)}
+                     newMessages={getNewBugNotifications(comment, messagesState)}
+                     date={intl.formatDate(updatedAt)}
                      useSelect={!isInbox} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}
                      bugListDispatch={todoDispatch} notificationType="todo" />

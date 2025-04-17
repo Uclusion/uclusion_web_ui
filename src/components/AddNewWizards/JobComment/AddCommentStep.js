@@ -31,8 +31,7 @@ import { resolveComment } from '../../../api/comments';
 import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { getGroupPresences, usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import GravatarGroup from '../../Avatars/GravatarGroup';
 
 export function hasJobComment(groupId, investibleId, commentType) {
   return hasCommentValue(groupId, undefined, 'JobCommentAdd', investibleId,
@@ -41,7 +40,7 @@ export function hasJobComment(groupId, investibleId, commentType) {
 
 function AddCommentStep (props) {
   const { investibleId, marketId, useType, updateFormData, formData, resolveId, groupId, currentStageId,
-    assigned, onFinishCreation } = props;
+    assigned, onFinishCreation, subscribed, presences } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -49,9 +48,6 @@ function AddCommentStep (props) {
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
-  const presences = usePresences(marketId);
-  const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId) || {};
@@ -70,8 +66,8 @@ function AddCommentStep (props) {
   const myPresence = presences?.find((presence) => presence.current_user);
   const userId = myPresence?.id;
   const userIsAssigned = assigned?.includes(userId);
-  const groupPresencesNotMe = groupPresences.filter((presence) => presence.id !== userId);
-  const noViewMembersToSendTo = _.isEmpty(groupPresencesNotMe);
+  const subscribedNotMe = subscribed?.filter((presence) => presence.id !== userId);
+  const noSubscribedToSendTo = _.isEmpty(subscribedNotMe);
 
   function onSave(comment) {
     if (comment.is_sent) {
@@ -107,7 +103,9 @@ function AddCommentStep (props) {
       {movingJob && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
-          Assistance Needed. All view members notified unless use @ mentions.
+          Assistance Needed.
+          <GravatarGroup users={subscribedNotMe}/>
+          notified unless use @ mentions.
         </Typography>
       )}
       {useType === TODO_TYPE && (
@@ -115,25 +113,28 @@ function AddCommentStep (props) {
           Opening a task prevents moving this job to Tasks Complete stage until resolved.
         </Typography>
       )}
-      {noViewMembersToSendTo && (
+      {useType === REPORT_TYPE && !isResolve && noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Since this view doesn't have other members, you must use @ mentions to send to specific reviewers.
+          You must use @ mentions for this report to notify anyone.
         </Typography>
       )}
-      {useType === ISSUE_TYPE && !inFurtherWorkStage && !noViewMembersToSendTo && (
+      {useType === ISSUE_TYPE && !inFurtherWorkStage && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Use @ mentions to send to specific reviewers.
+          <GravatarGroup users={subscribedNotMe}/>
+          notified unless use @ mentions to send to specific reviewers.
         </Typography>
       )}
       {useType === ISSUE_TYPE && inFurtherWorkStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Jobs with blocking issues are always not ready to start. Use @ mentions to send to specific reviewers.
+          Jobs with blocking issues are always not ready to start.
+          <GravatarGroup users={subscribedNotMe}/>
+          notified unless use @ mentions to send to specific reviewers.
         </Typography>
       )}
-      {useType === REPORT_TYPE && !isResolve && !noViewMembersToSendTo && (
+      {useType === REPORT_TYPE && !isResolve && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          For feedback from all view members explain what needs reviewing. Use @ mentions to require and only notify
-          specific reviewers.
+          <GravatarGroup users={subscribedNotMe}/>
+          notified unless use @ mentions to require and only notify specific reviewers.
         </Typography>
       )}
       {useType === REPORT_TYPE && isResolve && (
@@ -144,8 +145,9 @@ function AddCommentStep (props) {
       )}
       {![REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(useType) && !movingJob && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          This {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies all view members unless
-          use @ mentions. Add options to start voting on possible answers to this question.
+          This {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies
+          <GravatarGroup users={subscribedNotMe}/>
+          unless use @ mentions. Add options to start voting on possible answers to this question.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}

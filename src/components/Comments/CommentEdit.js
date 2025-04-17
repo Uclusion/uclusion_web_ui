@@ -17,7 +17,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import _ from 'lodash';
 import { onCommentOpen } from '../../utils/commentFunctions';
@@ -41,6 +41,10 @@ import WizardStepContainer from '../AddNewWizards/WizardStepContainer';
 import WizardStepButtons from '../AddNewWizards/WizardStepButtons';
 import { WizardStylesContext } from '../AddNewWizards/WizardStylesContext';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
+import GravatarGroup from '../Avatars/GravatarGroup';
+import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
+import { calculateInvestibleVoters } from '../../utils/votingUtils';
+import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -192,18 +196,21 @@ export function getIcon(commentType) {
 function CommentEdit(props) {
   const {
     marketId, onSave, onCancel, comment, myNotificationType, editState, updateEditState, editStateReset, isWizard,
-    messages
+    messages, subscribed
   } = props;
   const {
     uploadedFiles,
     notificationType
   } = editState;
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const [marketsState] = useContext(MarketsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const intl = useIntl();
   const theme = useTheme();
   const editBox = useRef(null);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, investible_id: investibleId,
-    body: initialBody } = comment;
+    body: initialBody, group_id: groupId } = comment;
   const classes = useStyles();
   const wizardClasses = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -215,6 +222,17 @@ function CommentEdit(props) {
   const myPresence = presences?.find((presence) => presence.current_user) || {};
   const [marketStagesState] = useContext(MarketStagesContext);
   const [imagesDeleted, setImagesDeleted] = useState(false);
+  const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
+  const investedOrAddressed = calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,
+    presences, true, true);
+  const subscribedReal = subscribed ? subscribed : presences.filter((presence) =>{
+    if (groupPresences.find((member) => member.id === presence.id)) {
+      return true;
+    }
+    return investedOrAddressed.find((addressee) => addressee.id === presence.id);
+  });
+  const subscribedNotMe = subscribedReal.filter((presence) => presence.id !== myPresence?.id);
+  const noSubscribedToSendTo = _.isEmpty(subscribedNotMe);
 
   const editorName = `comment-edit-editor${id}`;
   const editorSpec = {
@@ -297,6 +315,12 @@ function CommentEdit(props) {
         <Typography className={wizardClasses.introSubText} variant="subtitle1">
           Pick up where you left off with this {isQuestion ? 'question' : 'blocking issue'}.
         </Typography>
+        {!noSubscribedToSendTo && (
+          <Typography className={classes.introSubText} variant="subtitle1">
+            <GravatarGroup users={subscribedNotMe}/>
+            notified unless use @ mentions.
+          </Typography>
+        )}
         {Editor}
         <div className={wizardClasses.borderBottom} />
         <WizardStepButtons
@@ -317,28 +341,36 @@ function CommentEdit(props) {
   }
 
   return (
-    <Card elevation={0} className={classes.visible} ref={editBox}>
-      <CardContent className={classes.cardContent}>
-        {Editor}
-      </CardContent>
-      <CardActions className={classes.cardActions}>
-        <SpinningIconLabelButton
-          icon={Update}
-          onClick={() => handleSave(true)}
-          id="updateCommentButton"
-        >
-          {intl.formatMessage({ id: 'update' })}
-        </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
-          {intl.formatMessage({ id: 'cancel' })}
-        </SpinningIconLabelButton>
-        {!mobileLayout && (
-          <Typography className={classes.storageIndicator}>
-            {intl.formatMessage({ id: 'edited' })}
-          </Typography>
-        )}
-      </CardActions>
-    </Card>
+    <>
+      {!noSubscribedToSendTo && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          <GravatarGroup users={subscribedNotMe}/>
+          notified unless use @ mentions.
+        </Typography>
+      )}
+      <Card elevation={0} className={classes.visible} ref={editBox}>
+        <CardContent className={classes.cardContent}>
+          {Editor}
+        </CardContent>
+        <CardActions className={classes.cardActions}>
+          <SpinningIconLabelButton
+            icon={Update}
+            onClick={() => handleSave(true)}
+            id="updateCommentButton"
+          >
+            {intl.formatMessage({ id: 'update' })}
+          </SpinningIconLabelButton>
+          <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+            {intl.formatMessage({ id: 'cancel' })}
+          </SpinningIconLabelButton>
+          {!mobileLayout && (
+            <Typography className={classes.storageIndicator}>
+              {intl.formatMessage({ id: 'edited' })}
+            </Typography>
+          )}
+        </CardActions>
+      </Card>
+      </>
   );
 }
 

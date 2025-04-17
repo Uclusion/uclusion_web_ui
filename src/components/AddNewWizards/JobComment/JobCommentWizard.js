@@ -9,7 +9,7 @@ import ConfigureCommentStep from '../ConfigureCommentStep';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import CommentEdit from '../../Comments/CommentEdit';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
-import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getGroupPresences, usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -17,12 +17,18 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { getInCurrentVotingStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import _ from 'lodash';
 import DoneWithApprovalStep from './DoneWithApprovalStep';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { calculateInvestibleVoters } from '../../../utils/votingUtils';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function JobCommentWizard(props) {
   const { investibleId, marketId, commentType, resolveId } = props;
   const [commentsState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const [marketsState] = useContext(MarketsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const [wasMovedToApproval, setWasMovedToApproval] = useState(false);
   const [wasJustCreated, setWasJustCreated] = useState(false);
   const presences = usePresences(marketId);
@@ -44,6 +50,15 @@ function JobCommentWizard(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, group_id: groupId, assigned } = marketInfo;
   const assignedStage = getInCurrentVotingStage(marketStagesState, marketId);
+  const investedOrAddressed = calculateInvestibleVoters(investibleId, marketId, marketsState, investiblesState,
+    presences, true, true);
+  const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
+  const subscribed = presences.filter((presence) =>{
+    if (groupPresences.find((member) => member.id === presence.id)) {
+      return true;
+    }
+    return investedOrAddressed.find((addressee) => addressee.id === presence.id);
+  });
 
   if (!stage || _.isEmpty(assignedStage)) {
     return React.Fragment;
@@ -59,8 +74,8 @@ function JobCommentWizard(props) {
         )}
         {(!hasDraft || wasJustCreated) && (
           <AddCommentStep investibleId={investibleId} marketId={marketId} useType={commentType} resolveId={resolveId}
-                          onFinishCreation={() => setWasJustCreated(true)}
-                          currentStageId={stage} groupId={groupId} assigned={assigned} />
+                          onFinishCreation={() => setWasJustCreated(true)} subscribed={subscribed}
+                          currentStageId={stage} groupId={groupId} assigned={assigned} presences={presences} />
         )}
         {hasDraft && !wasJustCreated && (
           <CommentEdit
@@ -69,6 +84,7 @@ function JobCommentWizard(props) {
             editState={editState}
             updateEditState={updateEditState}
             editStateReset={editStateReset}
+            subscribed={subscribed}
             isWizard
           />
         )}

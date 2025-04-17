@@ -50,7 +50,7 @@ import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import { getNewBugNotifications, isNewComment } from '../../../components/Comments/Options';
+import { getNewBugNotifications } from '../../../components/Comments/Options';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';

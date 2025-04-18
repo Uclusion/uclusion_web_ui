@@ -17,13 +17,13 @@ export function addToIndex(index, itemType, items) {
   const indexable = transformItemsToIndexable(itemType, items);
   const removedRaw = _.remove(indexable, (item) => item.type === 'DELETED');
   indexable.forEach((document) => {
-    if (index.has(document)) {
+    if (index.has(document.id)) {
       index.replace(document);
     } else {
       index.add(document);
     }
   });
-  const removed = removedRaw.filter((item) => index.has(item));
+  const removed = removedRaw.filter((item) => index.has(item.id));
   // Use discard instead of remove since just id and providing full doc is weird - what if changed?
   index.discardAll(removed);
 }

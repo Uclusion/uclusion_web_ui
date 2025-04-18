@@ -237,20 +237,6 @@ function WorkspaceMenu(props) {
                     })}
                   </SubMenu>
                 )}
-                <MenuItem icon={<AddIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
-                          key="addWorkspace Key" id="addWorkspaceIconId"
-                          style={{marginBottom: !_.isEmpty(archivedMarkets) ? '0.5rem' : undefined}}
-                          onClick={()=> {
-                            recordPositionToggle();
-                            navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-                          }}
-                >
-                  <Tooltip title={intl.formatMessage({ id: 'workspaceExplanationTooltip' })}>
-                    <div>
-                      {intl.formatMessage({ id: 'homeAddPlanning' })}
-                    </div>
-                  </Tooltip>
-                </MenuItem>
                 {!_.isEmpty(archivedMarkets) && (
                   <SubMenu title={intl.formatMessage({ id: 'archivedWorkspace' })}
                            onClick={(event) => event.stopPropagation() }
@@ -331,6 +317,19 @@ function WorkspaceMenu(props) {
                     {market.name}
                   </MenuItem>
                 })}
+                <MenuItem icon={<AddIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
+                          key="addWorkspace Key" id="addWorkspaceIconId"
+                          style={{paddingLeft: '-15px', marginLeft: '-15px'}}
+                          onClick={()=> {
+                            navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+                          }}
+                >
+                  <Tooltip title={intl.formatMessage({ id: 'workspaceExplanationTooltip' })}>
+                    <div>
+                      {intl.formatMessage({ id: 'homeAddPlanning' })}
+                    </div>
+                  </Tooltip>
+                </MenuItem>
               </SubMenu>
             </ProMenu>
           </SidebarContent>

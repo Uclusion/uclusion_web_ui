@@ -100,12 +100,18 @@ function AddCommentStep (props) {
       <Typography className={classes.introText}>
         What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?
       </Typography>
-      {movingJob && (
+      {movingJob && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
           Assistance Needed.
           <GravatarGroup users={subscribedNotMe}/>
           notified unless use @ mentions.
+        </Typography>
+      )}
+      {movingJob && noSubscribedToSendTo && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
+          Assistance Needed.
         </Typography>
       )}
       {useType === TODO_TYPE && (
@@ -121,14 +127,19 @@ function AddCommentStep (props) {
       {useType === ISSUE_TYPE && !inFurtherWorkStage && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           <GravatarGroup users={subscribedNotMe}/>
-          notified unless use @ mentions to send to specific reviewers.
+          notified unless use @ mentions.
         </Typography>
       )}
-      {useType === ISSUE_TYPE && inFurtherWorkStage && (
+      {useType === ISSUE_TYPE && inFurtherWorkStage && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Jobs with blocking issues are always not ready to start.
           <GravatarGroup users={subscribedNotMe}/>
-          notified unless use @ mentions to send to specific reviewers.
+          notified unless use @ mentions.
+        </Typography>
+      )}
+      {useType === ISSUE_TYPE && inFurtherWorkStage && noSubscribedToSendTo && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Jobs with blocking issues are always not ready to start.
         </Typography>
       )}
       {useType === REPORT_TYPE && !isResolve && !noSubscribedToSendTo && (
@@ -143,11 +154,16 @@ function AddCommentStep (props) {
           'Resolve only' below.
         </Typography>
       )}
-      {![REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(useType) && !movingJob && (
+      {![REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(useType) && !movingJob && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           This {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies
           <GravatarGroup users={subscribedNotMe}/>
           unless use @ mentions. Add options to start voting on possible answers to this question.
+        </Typography>
+      )}
+      {![REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(useType) && !movingJob && noSubscribedToSendTo && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Add options to start voting on possible answers to this question.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}

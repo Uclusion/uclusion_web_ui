@@ -122,7 +122,7 @@ function WorkspaceNameStep (props) {
           </Typography>
         )}
         <Typography className={classes.introSubText} variant="subtitle1">
-          Configure single removes approval and assigning to others until a
+          Configure for single removes approval and assigning to others until a
           collaborator is added or autonomous mode is turned off in the view settings.
         </Typography>
         <OutlinedInput

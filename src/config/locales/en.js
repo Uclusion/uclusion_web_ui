@@ -1283,8 +1283,8 @@ const messages = defineMessages({
   // Workspace wizard
   WorkspaceWizardNameFieldLabel: 'Workspace name',
   WorkspaceWizardTitle: 'Your workspace',
-  createWorkspaceNormal: 'Configure team',
-  createViewSingleUser: 'Configure single',
+  createWorkspaceNormal: 'Configure for team',
+  createViewSingleUser: 'Configure for single',
   configureLater: 'Configure later',
 
   // Job Wizard

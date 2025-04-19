@@ -10,7 +10,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
 import { formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { GroupOutlined } from '@material-ui/icons';
+import { GroupOutlined, VpnKey } from '@material-ui/icons';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { usePlanFormStyles } from '../../components/AgilePlan';
@@ -18,6 +18,8 @@ import GravatarAndName from '../../components/Avatars/GravatarAndName';
 import ReturnTop from './ReturnTop';
 import { PLACEHOLDER } from '../../constants/global';
 import { fixName } from '../../utils/userFunctions';
+import config from '../../config';
+import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -114,11 +116,16 @@ function WorkspaceMenu(props) {
   const classes = useStyles();
   const identityListClasses = usePlanFormStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [userState] = useContext(AccountContext) || {};
   const intl = useIntl();
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [switchWorkspaceOpen, setSwitchWorkspaceOpen] = useState(false);
   const history = useHistory();
+  const { user } = userState;
+  const notificationConfig = user?.notification_configs?.find((config) =>
+    config.market_id === defaultMarket.id);
+  const slackAddressable = notificationConfig?.is_slack_addressable;
   const marketPresences = getMarketPresences(marketPresencesState, defaultMarket.id) || [];
   const presencesFiltered = marketPresences.filter((presence) => !presence.market_banned);
   const presencesOrdered =  _.orderBy(presencesFiltered, ['name'], ['asc']);
@@ -263,6 +270,36 @@ function WorkspaceMenu(props) {
                     })}
                   </SubMenu>
                 )}
+                {slackAddressable && (
+                  <MenuItem icon={<VpnKey style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
+                            key="integrationKey" id="integrationId"
+                            onClick={() => {
+                              recordPositionToggle();
+                              navigate(history,'/integrationPreferences');
+                            }}
+                  >
+                    <Tooltip title={intl.formatMessage({ id: 'integrationPreferencesHeader' })}>
+                      <div>
+                        {intl.formatMessage({ id: 'slackIntegration' })}
+                      </div>
+                    </Tooltip>
+                  </MenuItem>
+                )}
+                {!slackAddressable && (
+                  <a
+                    href={`${config.add_to_slack_url}&state=${user?.id}_${defaultMarket.id}`}
+                    rel="noopener noreferrer"
+                    style={{paddingLeft: '15px', marginLeft: '15px'}}
+                  >
+                    <img
+                      alt="Add to Slack"
+                      height="40"
+                      width="139"
+                      src="https://platform.slack-edge.com/img/add_to_slack.png"
+                      srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
+                    />
+                  </a>
+                )}
               </ProMenu>
             </SidebarContent>
           </ProSidebar>
@@ -286,55 +323,53 @@ function WorkspaceMenu(props) {
           )}
         </List>
       )}
-      {!_.isEmpty(activeMarkets) && (
-        <ProSidebar width="14rem" style={{marginTop: '0.5rem'}}>
-          <SidebarContent>
-            <ProMenu iconShape="circle" style={{paddingBottom: 0}}>
-              <SubMenu id='switchWorkspace' title={intl.formatMessage({ id: 'switchWorkspace' })}
-                       onClick={(event) => {
-                         event.stopPropagation();
-                         setSwitchWorkspaceOpen(!switchWorkspaceOpen);
-                       }}
-                       key="switchWorkspace" open={switchWorkspaceOpen}>
-                {activeMarkets.map((market) => {
-                  const key = `market${market.id}`;
+      <ProSidebar width="14rem" style={{marginTop: '0.5rem'}}>
+        <SidebarContent>
+          <ProMenu iconShape="circle" style={{paddingBottom: 0}}>
+            <SubMenu id='switchWorkspace' title={intl.formatMessage({ id: 'switchWorkspace' })}
+                     onClick={(event) => {
+                       event.stopPropagation();
+                       setSwitchWorkspaceOpen(!switchWorkspaceOpen);
+                     }}
+                     key="switchWorkspace" open={switchWorkspaceOpen}>
+              {activeMarkets.map((market) => {
+                const key = `market${market.id}`;
 
-                  if (market.id === defaultMarket.id) {
-                    return <React.Fragment key={key}/>;
-                  }
-                  return <MenuItem
-                    icon={<AgilePlanIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}}
-                                                        htmlColor="black" fontSize='small' />}
-                    id={key}
-                    key={key}
-                    style={{paddingLeft: '-15px', marginLeft: '-15px'}}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setChosenMarketId(market.id);
-                      setSwitchWorkspaceOpen(false);
-                    }}
-                  >
-                    {market.name}
-                  </MenuItem>
-                })}
-                <MenuItem icon={<AddIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
-                          key="addWorkspace Key" id="addWorkspaceIconId"
-                          style={{paddingLeft: '-15px', marginLeft: '-15px'}}
-                          onClick={()=> {
-                            navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-                          }}
+                if (market.id === defaultMarket.id) {
+                  return <React.Fragment key={key}/>;
+                }
+                return <MenuItem
+                  icon={<AgilePlanIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}}
+                                                      htmlColor="black" fontSize='small' />}
+                  id={key}
+                  key={key}
+                  style={{paddingLeft: '-15px', marginLeft: '-15px'}}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setChosenMarketId(market.id);
+                    setSwitchWorkspaceOpen(false);
+                  }}
                 >
-                  <Tooltip title={intl.formatMessage({ id: 'workspaceExplanationTooltip' })}>
-                    <div>
-                      {intl.formatMessage({ id: 'homeAddPlanning' })}
-                    </div>
-                  </Tooltip>
+                  {market.name}
                 </MenuItem>
-              </SubMenu>
-            </ProMenu>
-          </SidebarContent>
-        </ProSidebar>
-      )}
+              })}
+              <MenuItem icon={<AddIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
+                        key="addWorkspace Key" id="addWorkspaceIconId"
+                        style={{paddingLeft: '-15px', marginLeft: '-15px'}}
+                        onClick={()=> {
+                          navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+                        }}
+              >
+                <Tooltip title={intl.formatMessage({ id: 'workspaceExplanationTooltip' })}>
+                  <div>
+                    {intl.formatMessage({ id: 'homeAddPlanning' })}
+                  </div>
+                </Tooltip>
+              </MenuItem>
+            </SubMenu>
+          </ProMenu>
+        </SidebarContent>
+      </ProSidebar>
     </div>
   );
 }

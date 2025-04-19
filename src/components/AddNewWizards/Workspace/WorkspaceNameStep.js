@@ -18,7 +18,7 @@ import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
-import { DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
+import { ADD_COLLABORATOR_WIZARD_TYPE, DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { updateMarketStagesFromNetwork } from '../../../contexts/MarketStagesContext/marketStagesContextReducer';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';
@@ -90,18 +90,11 @@ function WorkspaceNameStep (props) {
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
           .then(() => {
-            const link = formMarketLink(market.id, market.id);
-            if (isSinglePersonMode) {
-              // Should fix up finish to be invoked but currently is not
-              setOperationRunning(false);
-              navigate(history, link);
-            } else {
-              updateFormData({
-                marketId: market.id,
-                link,
-                marketToken: market.invite_capability,
-              });
-            }
+            const link = isSinglePersonMode ? formMarketLink(market.id, market.id) :
+              `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${market.id}`;
+            // Should fix up finish to be invoked but currently is not
+            setOperationRunning(false);
+            navigate(history, link);
             return link;
           });
       });
@@ -150,8 +143,6 @@ function WorkspaceNameStep (props) {
           otherNextLabel="createViewSingleUser"
           onOtherNext={onSinglePersonCreate}
           onOtherDoAdvance={false}
-          isOtherFinal
-          isFinal={false}
           validForm={validForm}
           showTerminate
           onTerminate={() => onNext().then((link) => {

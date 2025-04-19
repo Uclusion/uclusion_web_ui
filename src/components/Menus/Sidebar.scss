@@ -47,7 +47,7 @@ $icon-size: 35px;
       text-decoration: none;
       color: $sidebar-color;
       &:before {
-        content: '';
+        content: none;
         position: absolute;
         top: 0;
         right: 0;

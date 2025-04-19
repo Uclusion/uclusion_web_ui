@@ -5,7 +5,6 @@ import FormdataWizard from 'react-formdata-wizard';
 import { navigate } from '../../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { useHistory } from 'react-router';
-import WorkspaceIntegrationsStep from './WorkspaceIntegrationsStep';
 
 function WorkspaceWizard() {
   const history = useHistory();
@@ -25,7 +24,6 @@ function WorkspaceWizard() {
         onFinish={myOnFinish}
       >
         <WorkspaceNameStep />
-        <WorkspaceIntegrationsStep />
       </FormdataWizard>
     </WizardStylesProvider>
   )

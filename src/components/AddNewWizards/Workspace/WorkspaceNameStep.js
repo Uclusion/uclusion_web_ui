@@ -52,11 +52,7 @@ function WorkspaceNameStep (props) {
     });
   }
 
-  function onSinglePersonCreate() {
-    return onNext(true);
-  }
-
-  function onNext(isSinglePersonMode = false) {
+  function onNext(isSinglePersonMode = false, isTerminate = false) {
     const { name } = formData;
     const marketInfo = {
       name,
@@ -90,7 +86,7 @@ function WorkspaceNameStep (props) {
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
           .then(() => {
-            const link = isSinglePersonMode ? formMarketLink(market.id, market.id) :
+            const link = isSinglePersonMode || isTerminate ? formMarketLink(market.id, market.id) :
               `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${market.id}`;
             // Should fix up finish to be invoked but currently is not
             setOperationRunning(false);
@@ -141,14 +137,10 @@ function WorkspaceNameStep (props) {
           onNext={onNext}
           showOtherNext
           otherNextLabel="createViewSingleUser"
-          onOtherNext={onSinglePersonCreate}
-          onOtherDoAdvance={false}
+          onOtherNext={() => onNext(true)}
           validForm={validForm}
           showTerminate
-          onTerminate={() => onNext().then((link) => {
-            setOperationRunning(false);
-            navigate(history, link);
-          })}
+          onTerminate={() => onNext(false, true)}
           terminateSpinOnClick
           terminateLabel='configureLater'
         />

@@ -5,21 +5,32 @@ import { navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarHeader } from 'react-pro-sidebar'
 import { IconButton, Tooltip, Typography } from '@material-ui/core';
+import Link from '@material-ui/core/Link';
 
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue,
-    index, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon,
+    index, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon, linkHref,
     resetFunction, tipText, idPrepend='', numSuffix=''} = properties;
   if (!text) {
     return React.Fragment
   }
-  const textNoSpaces = text.split(' ').join('')
+  const textNoSpaces = text.split(' ').join('');
   if (!target && !onClickFunc) {
+    if (tipText) {
+      return (
+        <Tooltip key={`tip${textNoSpaces}`}
+                 title={tipText}>
+          <span style={{paddingLeft: '3.25rem'}}>{text}</span>
+        </Tooltip>
+      );
+    }
+    if (linkHref) {
+      return (
+        <span style={{paddingLeft: '3.25rem'}}><Link href={linkHref} target="_blank">{text}</Link></span>
+      );
+    }
     return (
-      <Tooltip key={`tip${textNoSpaces}`}
-               title={tipText}>
-        <span style={{paddingLeft: '3.25rem'}}>{text}</span>
-      </Tooltip>
+      <span style={{paddingLeft: '3.25rem'}}>{text}</span>
     );
   }
   const key = `${index}${textNoSpaces}`;
@@ -109,8 +120,8 @@ export default function Sidebar(props) {
         <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {
             const { text, target, num, icon: Icon, onClickFunc, isBold, isBlue, openMenuItems,
-              onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText } = navItem;
-            return processRegularItem({history, text, target, num, Icon, onClickFunc, isBold, isBlue,
+              onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
+            return processRegularItem({history, text, target, num, Icon, onClickFunc, isBold, isBlue, linkHref,
               index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, idPrepend})
           })}
         </Menu>

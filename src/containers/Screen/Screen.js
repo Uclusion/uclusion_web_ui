@@ -226,7 +226,7 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
   const items = itemsRaw.filter((item) => !_.isEmpty(item));
   navListItemTextArray.push({
     text: intl.formatMessage({ id: 'viewInGroup' }),
-    tipText: intl.formatMessage({ id: 'viewInGroupTip' })
+    linkHref: 'https://documentation.uclusion.com/views'
   });
   navListItemTextArray.push(...items);
 }

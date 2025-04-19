@@ -10,7 +10,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
 import { formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { GroupOutlined, VpnKey } from '@material-ui/icons';
+import { GroupOutlined, PermIdentity, VpnKey } from '@material-ui/icons';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { usePlanFormStyles } from '../../components/AgilePlan';
@@ -270,6 +270,19 @@ function WorkspaceMenu(props) {
                     })}
                   </SubMenu>
                 )}
+                <MenuItem icon={<PermIdentity style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
+                          key="userPreferencesKey" id="userPreferencesId"
+                          onClick={() => {
+                            recordPositionToggle();
+                            navigate(history,'/userPreferences');
+                          }}
+                >
+                  <Tooltip title={intl.formatMessage({ id: 'userPreferencesHeader' })}>
+                    <div>
+                      {intl.formatMessage({ id: 'preferences' })}
+                    </div>
+                  </Tooltip>
+                </MenuItem>
                 {slackAddressable && (
                   <MenuItem icon={<VpnKey style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
                             key="integrationKey" id="integrationId"
@@ -289,7 +302,7 @@ function WorkspaceMenu(props) {
                   <a
                     href={`${config.add_to_slack_url}&state=${user?.id}_${defaultMarket.id}`}
                     rel="noopener noreferrer"
-                    style={{paddingLeft: '15px', marginLeft: '15px'}}
+                    style={{paddingLeft: '15px'}}
                   >
                     <img
                       alt="Add to Slack"

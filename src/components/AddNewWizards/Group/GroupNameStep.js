@@ -7,7 +7,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { doCreateGroup } from './groupCreator'
-import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions'
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext'
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext'
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext'
@@ -15,6 +15,8 @@ import { useHistory } from 'react-router'
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import Link from '@material-ui/core/Link';
+import { ADD_COLLABORATOR_WIZARD_TYPE } from '../../../constants/markets';
+import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function GroupNameStep (props) {
   const { updateFormData, formData, marketId } = props;
@@ -27,6 +29,9 @@ function GroupNameStep (props) {
   const [, groupsDispatch] = useContext(MarketGroupsContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [, groupMembersDispatch] = useContext(GroupMembersContext);
+  const presences = usePresences(marketId);
+  const myPresence = presences?.find((presence) => presence.current_user);
+  const hasOthers = !_.isEmpty(_.differenceBy(presences, [myPresence], 'id'));
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -51,12 +56,17 @@ function GroupNameStep (props) {
       .then((group) => {
         setOperationRunning(false);
         const {id: groupId} = group;
-        const link = formMarketLink(marketId, groupId);
+        const link = isAutonomous || hasOthers ? formMarketLink(marketId, groupId) :
+          `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${marketId}`;
         updateFormData({
           link,
           groupId,
         });
-        return link;
+        if (isAutonomous || !hasOthers) {
+          navigate(history, link);
+        } else {
+          return link;
+        }
       });
   }
 
@@ -65,9 +75,7 @@ function GroupNameStep (props) {
   }
 
   function onOtherNext(){
-    return createGroup(true).then((link) => {
-      navigate(history, link);
-    });
+    return createGroup(true);
   }
 
   function onTerminate(){
@@ -86,9 +94,9 @@ function GroupNameStep (props) {
         What do you want to call your view?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
-        Autonomous mode removes collaboration features
-        from a <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> until a collaborator
-        is added or the mode is turned off in settings.
+        A <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> controls the default
+        addressing of notifications. Anyone not in a view must be manually mentioned or subscribed to a job to
+        be notified.
       </Typography>
       <OutlinedInput
         id="groupName"
@@ -110,6 +118,7 @@ function GroupNameStep (props) {
         {...props}
         validForm={validForm}
         onNext={onNext}
+        onNextDoAdvance={hasOthers}
         nextLabel={'GroupWizardAddMembers'}
         otherNextLabel="createViewSingleUser"
         showOtherNext

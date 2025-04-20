@@ -849,6 +849,7 @@ const messages = defineMessages({
   searchAssigned: 'Assigned to me',
   searchAssignedMobile: 'Assigned',
   searchActive: 'Active',
+  nextGroup: 'Next view',
 
   // Address List
   addressListHeader: 'Addressed to',

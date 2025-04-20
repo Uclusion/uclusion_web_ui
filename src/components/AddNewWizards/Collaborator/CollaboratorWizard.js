@@ -11,7 +11,7 @@ import { useHistory } from 'react-router';
 import _ from 'lodash'
 import FromOtherWorkspacesStep from './FromOtherWorkspacesStep';
 import InviteByEmailStep from './InviteByEmailStep';
-import InviteByEmailConfirmationStep from './InviteByEmailConfirmationStep';
+import AssignViewsStep from './AssignViewsStep';
 
 function CollaboratorWizard (props) {
   const { marketId } = props;
@@ -29,12 +29,12 @@ function CollaboratorWizard (props) {
   return (
     <WizardStylesProvider>
       <FormdataWizard name="collaborator_wizard" onFinish={onFinish} useLocalStorage={false}
-                      defaultFormData={{isValid: false}}>
+                      defaultFormData={{isValid: false, groupIdIndex: 0}}>
         <InviteByEmailStep marketId={marketId} displayFromOther={displayFromOther} />
         {displayFromOther && (
           <FromOtherWorkspacesStep marketId={marketId} participants={participants}/>
         )}
-        <InviteByEmailConfirmationStep marketId={marketId}/>
+        <AssignViewsStep marketId={marketId} marketPresences={marketPresences}/>
       </FormdataWizard>
     </WizardStylesProvider>
   )

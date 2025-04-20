@@ -58,11 +58,8 @@ function InviteByEmailStep(props) {
       <WizardStepButtons
         {...props}
         validForm={isValid}
-        nextLabel="OnboardingWizardFinish"
-        onNextDoAdvance={isValid === true}
         spinOnClick={isValid === true}
         onNextSkipStep={displayFromOther}
-        showSkip={false}
         showLink={true}
         onNext={myOnFinish}
         formData={formData}

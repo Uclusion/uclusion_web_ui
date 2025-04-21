@@ -64,7 +64,8 @@ function DemoMarketLoad(props) {
       const { demo, user } = result;
       const { notifications } = demo || {};
       if (notifications) {
-        const notificationsFiltered = notifications.filter((msg) => isInInbox(msg));
+        // Screen out support notifications here and in inbox to avoid race conditions
+        const notificationsFiltered = notifications.filter((msg) => isInInbox(msg) && msg.market_id === demo.market.id);
         // Only need locally as if they are on another device that is already enough effort
         setUclusionLocalStorageItem('originalDemoNotificationCount', notificationsFiltered.length);
       }

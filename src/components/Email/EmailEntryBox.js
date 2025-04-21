@@ -96,7 +96,7 @@ class EmailEntryBox extends React.Component{
     const placeholder = this.getPlaceholder(target);
     placeholder?.remove();
     this.emailEntered(target);
-    const isValid = !_.isEmpty(this.emailList);
+    const isValid = !_.isEmpty(this.emailList, undefined, (error) => this.setError(error));
     this.setIsValid(isValid);
   }
 
@@ -120,7 +120,7 @@ class EmailEntryBox extends React.Component{
     // regexp from w3 spec
     const w3regexp = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
     if (!email.match(w3regexp)) {
-      return { valid: false, error: `'${email}' is not a valid email.` };
+      return { valid: false };
     }
     return { valid: true };
   };
@@ -171,7 +171,7 @@ class EmailEntryBox extends React.Component{
         // give us a blinking cursor
         target.appendChild(document.createTextNode('\u200b'));
       };
-      const onInvalidEmail = (error, email) => {
+      const onInvalidEmail = (error) => {
         this.setError(error);
       }
       this.emailEntered(target, onValidEmail, onInvalidEmail);
@@ -192,7 +192,11 @@ class EmailEntryBox extends React.Component{
     if (emailValidation.valid) {
       this.setIsValid(true);
     }
-    this.setError(null);
+    if (emailValidation.error) {
+      this.setError(emailValidation.error);
+    } else {
+      this.setError(null);
+    }
   };
 
   doDelete = (email) => {

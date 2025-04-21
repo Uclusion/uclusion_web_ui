@@ -139,7 +139,7 @@ function WorkspaceNameStep (props) {
           otherNextLabel="createViewSingleUser"
           onOtherNext={() => onNext(true)}
           validForm={validForm}
-          showTerminate
+          showTerminate={validForm}
           onTerminate={() => onNext(false, true)}
           terminateSpinOnClick
           terminateLabel='configureLater'

@@ -68,6 +68,7 @@ function InboxFull(props) {
       <Screen
         hidden={hidden}
         loading={loading}
+        loadingMessageId='loadingMessage'
         title={intl.formatMessage({ id: 'loadingMessage' })}
       >
         <div />

@@ -207,20 +207,6 @@ function WorkspaceMenu(props) {
                 >
                   {intl.formatMessage({ id: 'workspaceSettings' })}
                 </MenuItem>
-                <MenuItem icon={<AddIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
-                          key="addGroupKey" id="addGroupId"
-                          onClick={() => {
-                            recordPositionToggle();
-                            navigate(history,
-                              `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`);
-                          }}
-                >
-                  <Tooltip title={intl.formatMessage({ id: 'groupExplanationTooltip' })}>
-                    <div>
-                      {intl.formatMessage({ id: 'homeAddGroup' })}
-                    </div>
-                  </Tooltip>
-                </MenuItem>
                 {!_.isEmpty(inactiveGroups) && (
                   <SubMenu title={intl.formatMessage({ id: 'inactiveGroups' })}
                            onClick={(event) => event.stopPropagation() }

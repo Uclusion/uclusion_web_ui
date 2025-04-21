@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import _ from 'lodash'
 import PropTypes from 'prop-types'
-import { useMediaQuery, useTheme } from '@material-ui/core'
+import { useMediaQuery, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles'
 import { useHistory, useLocation } from 'react-router'
 import Header from '../Header'
@@ -165,7 +165,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
   history, market, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
-  onGroupClick, pathname, resetFunction) {
+  onGroupClick, pathname, resetFunction, action, type) {
   const marketId = market.id;
   const itemsSorted = _.sortBy(groupsState[marketId], 'name');
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -224,6 +224,10 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
     }
   });
   const items = itemsRaw.filter((item) => !_.isEmpty(item));
+  const addViewChosen = action === 'wizard' && type === PLANNING_TYPE.toLowerCase();
+  items.push({icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }), isBold: addViewChosen,
+    isBlue: addViewChosen,
+    target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${market.id}`})
   navListItemTextArray.push({
     text: intl.formatMessage({ id: 'viewInGroup' }),
     linkHref: 'https://documentation.uclusion.com/views'
@@ -358,7 +362,7 @@ function Screen(props) {
     const { onGroupClick, useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, useHoverFunctions, search,
-      results, openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction);
+      results, openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction, action, type);
   }
   const inboxCount = getInboxCount(messagesState);
   const inboxCountTotal = inboxCount > 0 ? undefined :

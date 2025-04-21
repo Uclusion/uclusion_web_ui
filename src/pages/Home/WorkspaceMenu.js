@@ -9,7 +9,7 @@ import { useIntl } from 'react-intl';
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
 import { formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
-import { PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
+import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 import { GroupOutlined, PermIdentity, VpnKey } from '@material-ui/icons';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';

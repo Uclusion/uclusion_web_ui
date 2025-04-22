@@ -52,7 +52,7 @@ function WorkspaceNameStep (props) {
     });
   }
 
-  function onNext(isSinglePersonMode = false, isTerminate = false) {
+  function onNext(isSinglePersonMode = true) {
     const { name } = formData;
     const marketInfo = {
       name,
@@ -86,8 +86,7 @@ function WorkspaceNameStep (props) {
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
           .then(() => {
-            const link = isSinglePersonMode || isTerminate ? formMarketLink(market.id, market.id) :
-              `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${market.id}`;
+            const link = formMarketLink(market.id, market.id);
             // Should fix up finish to be invoked but currently is not
             setOperationRunning(false);
             navigate(history, link);
@@ -110,10 +109,6 @@ function WorkspaceNameStep (props) {
             <b>Warning</b>: Creating this workspace <i>ends the demo</i> and removes its workspace.
           </Typography>
         )}
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Configure for single removes approval and assigning to others until a
-          collaborator is added or autonomous mode is turned off in the view settings.
-        </Typography>
         <OutlinedInput
           id="workspaceName"
           className={classes.input}
@@ -132,17 +127,11 @@ function WorkspaceNameStep (props) {
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
-          showStartOver={false}
-          nextLabel="createWorkspaceNormal"
           onNext={onNext}
-          showOtherNext
-          otherNextLabel="createViewSingleUser"
-          onOtherNext={() => onNext(true)}
           validForm={validForm}
           showTerminate={validForm}
-          onTerminate={() => onNext(false, true)}
-          terminateSpinOnClick
-          terminateLabel='configureLater'
+          onTerminate={() => navigate(history)}
+          terminateLabel='OnboardingWizardGoBack'
         />
       </div>
     </WizardStepContainer>

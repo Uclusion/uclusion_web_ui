@@ -1,18 +1,9 @@
 const UPDATE_LEADER = 'update_leader';
-const REFRESH_OR_MESSAGE = 'refresh_or_message';
 
 export function updateLeader(isLeader) {
   return {
     type: UPDATE_LEADER,
     isLeader
-  };
-}
-
-export function refreshOrMessage(peg, leaderChannelId) {
-  return {
-    type: REFRESH_OR_MESSAGE,
-    leaderChannelId,
-    peg
   };
 }
 

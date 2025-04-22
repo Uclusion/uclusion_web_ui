@@ -10,9 +10,7 @@ import { sendInfoPersistent, toastError } from '../utils/userMessage'
 import { pushMessage, registerListener } from '../utils/MessageBusUtils'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
 import { isSignedOut, onSignOut } from '../utils/userFunctions'
-import { LeaderContext } from './LeaderContext/LeaderContext'
-import { refreshOrMessage } from './LeaderContext/leaderContextReducer'
-import { refreshNotifications, VERSIONS_EVENT } from '../api/versionedFetchUtils'
+import { refreshNotifications, refreshVersions, VERSIONS_EVENT } from '../api/versionedFetchUtils';
 import { getAppVersion } from '../api/sso'
 import { PUSH_ACCOUNT_CHANNEL, PUSH_HOME_USER_CHANNEL } from './AccountContext/accountContextMessages'
 import { AccountContext } from './AccountContext/AccountContext';
@@ -62,7 +60,7 @@ function sendPing(socket) {
   socket.send(actionString);
 }
 
-function createWebSocket(config, leaderDispatch, setState, leaderChannelId) {
+function createWebSocket(config, setState) {
   console.info('Creating new websocket');
   pongTracker.failureCount = 0;
   const { webSockets } = config;
@@ -88,39 +86,39 @@ function createWebSocket(config, leaderDispatch, setState, leaderChannelId) {
     pushMessage(PUSH_ACCOUNT_CHANNEL, { event: VERSIONS_EVENT, version });
   });
   newSocket.registerHandler('market', () => {
-    leaderDispatch(refreshOrMessage(`market${Date.now()}`, leaderChannelId));
+    refreshVersions().then(() => console.info('Refreshed versions from market push'));
   });
   newSocket.registerHandler('group', () => {
-    leaderDispatch(refreshOrMessage(`group${Date.now()}`, leaderChannelId));
+    refreshVersions().then(() => console.info('Refreshed versions from group push'));
   });
   newSocket.registerHandler('group_capability', () => {
-    leaderDispatch(refreshOrMessage(`group_capability${Date.now()}`, leaderChannelId));
+    refreshVersions().then(() => console.info('Refreshed versions from group presence push'));
   });
   newSocket.registerHandler('investible', () => {
-    leaderDispatch(refreshOrMessage(`investible${Date.now()}`, leaderChannelId));
+    refreshVersions().then(() => console.info('Refreshed versions from investible push'));
   });
   newSocket.registerHandler('market_investible', () => {
-    leaderDispatch(refreshOrMessage(`marketInvestible${Date.now()}`, leaderChannelId));
+    refreshVersions().then(() => console.info('Refreshed versions from market investible push'));
   });
   newSocket.registerHandler('comment', () => {
-    leaderDispatch(refreshOrMessage(`comment${Date.now()}`, leaderChannelId));
+    refreshVersions().then(() => console.info('Refreshed versions from comment push'));
   });
   newSocket.registerHandler('stage', () => {
-    leaderDispatch(refreshOrMessage(`stage${Date.now()}`, leaderChannelId));
+    refreshVersions().then(() => console.info('Refreshed versions from stage push'));
   });
   newSocket.registerHandler('market_capability', () => {
-    leaderDispatch(refreshOrMessage(`marketCapability${Date.now()}`, leaderChannelId));
+    refreshVersions().then(() => console.info('Refreshed versions from market presence push'));
   });
   newSocket.registerHandler('investment', () => {
-    leaderDispatch(refreshOrMessage(`investment${Date.now()}`, leaderChannelId));
+    refreshVersions().then(() => console.info('Refreshed versions from investment push'));
   });
   newSocket.registerHandler('addressed', () => {
-    leaderDispatch(refreshOrMessage(`addressed${Date.now()}`, leaderChannelId));
+    refreshVersions().then(() => console.info('Refreshed versions from addressed push'));
   });
 
   newSocket.registerHandler('notification', () => {
     // Try to be up to date before we push the notification out (which might need new data)
-    leaderDispatch(refreshOrMessage(`notification${Date.now()}`, leaderChannelId));
+    refreshVersions().then(() => console.info('Refreshed versions from notifications push'));
     refreshNotifications();
   });
 
@@ -130,7 +128,6 @@ function createWebSocket(config, leaderDispatch, setState, leaderChannelId) {
 
 function WebSocketProvider(props) {
   const { children, config, userId } = props;
-  const [, leaderDispatch] = useContext(LeaderContext);
   const [userState] = useContext(AccountContext);
   const [state, setState] = useState();
   const isUserLoaded = userIsLoaded(userState);
@@ -164,22 +161,22 @@ function WebSocketProvider(props) {
           }).catch(() => console.warn('Error checking version'));
         }
       }, MAX_DRIFT_TIME, pongTracker, state, () => {
-        leaderDispatch(refreshOrMessage(`visit${Date.now()}`, userId));
-      }, () => createWebSocket(config, leaderDispatch, setState, userId));
+        refreshVersions().then(() => console.info('Refreshed versions from max drift'));
+      }, () => createWebSocket(config, setState));
     }
     return () => {
       if (interval) {
         clearInterval(interval);
       }
     };
-  }, [config, leaderDispatch, state, userId, isUserLoaded]);
+  }, [config, state, userId, isUserLoaded]);
 
   useEffect(() => {
     if (isUserLoaded) {
-      createWebSocket(config, leaderDispatch, setState, userId);
+      createWebSocket(config, setState);
     }
     return () => {};
-  }, [config, leaderDispatch, userId, isUserLoaded]);
+  }, [config, isUserLoaded]);
 
   if (isUserLoaded) {
     registerListener(AUTH_HUB_CHANNEL, 'webSocketsAuth', (data) => {

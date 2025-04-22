@@ -20,7 +20,7 @@ function NewGroupWizard(props) {
   const { group_id: groupId, market_id: marketId } = message;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
-  const market = getMarket(marketsState, marketId);
+  const market = getMarket(marketsState, marketId) || {};
   const isDemo = market.market_type === PLANNING_TYPE && market.object_type === DEMO_TYPE;
   // If this is demo, or you are a pure observer introduce the workspace
   // If not demo, and you are a member of some group then introduce the group as

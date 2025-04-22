@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import { getEmailList, setEmailList } from '../../Email/EmailEntryBox';
+import { setEmailList } from '../../Email/EmailEntryBox';
 import WizardStepButtons from '../WizardStepButtons';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import _ from 'lodash';
@@ -20,7 +20,7 @@ function AssignViewsStep(props) {
   const [, groupPresencesDispatch] = useContext(GroupMembersContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
-  const [emails] = useState(getEmailList(marketId));
+  const [emails] = useState(formData.emails);
   const [checked, setChecked] = useState([]);
   const { groupIdIndex } = formData;
   // Clean up from the previous step
@@ -31,7 +31,7 @@ function AssignViewsStep(props) {
     return React.Fragment;
   }
   const group = groupsSorted[groupIdIndex];
-  const presences = marketPresences.filter((presence) => emails.includes(presence.email));
+  const presences = marketPresences.filter((presence) => emails?.includes(presence.email));
   const hasMoreGroups = groupIdIndex + 1 < groupsSorted.length;
 
   function onAssignmentChange(users) {
@@ -39,7 +39,6 @@ function AssignViewsStep(props) {
   }
 
   function next() {
-    setOperationRunning(true);
     if (!_.isEmpty(checked)) {
       const newChecked = checked.map((presence) => {
         return {user_id: presence.id, is_following: true}
@@ -79,7 +78,7 @@ function AssignViewsStep(props) {
         nextLabel={hasMoreGroups ? 'nextGroup' : 'done'}
         spinOnClick={!_.isEmpty(checked)}
         finish={finish}
-        showSkip
+        showSkip={hasMoreGroups}
         onSkip={finish}
       />
     </WizardStepContainer>

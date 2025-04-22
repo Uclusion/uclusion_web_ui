@@ -13,7 +13,7 @@ import IdentityList from '../../Email/IdentityList';
 import { getEmailList } from '../../Email/EmailEntryBox';
 
 function FromOtherWorkspacesStep (props) {
-  const { participants, marketId, finish, startOver } = props;
+  const { participants, marketId, finish, formData, updateFormData } = props;
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const wizardClasses = useContext(WizardStylesContext);
@@ -24,19 +24,12 @@ function FromOtherWorkspacesStep (props) {
     const addUsers = checked.map((participant) => {
       return { external_id: participant.external_id, account_id: participant.account_id };
     });
-    if (_.isEmpty(addUsers)) {
-      setOperationRunning(false);
-      if (!hasSentEmails) {
-        finish();
-      }
-      return Promise.resolve(true);
-    }
     return addParticipants(marketId, addUsers).then((result) => {
       setOperationRunning(false);
       marketPresencesDispatch(addMarketPresences(marketId, result));
-      if (!hasSentEmails) {
-        finish();
-      }
+      const newEmails = checked.map((participant) => participant.email);
+      const emails = !_.isEmpty(formData.emails) ? newEmails.concat(formData.emails) : newEmails;
+      updateFormData({ emails });
     });
   }
   return (
@@ -48,11 +41,15 @@ function FromOtherWorkspacesStep (props) {
         </Typography>
         <IdentityList participants={participants} setChecked={setChecked} checked={checked} />
         <div className={wizardClasses.borderBottom}/>
-        <WizardStepButtons {...props} showSkip={hasSentEmails} onNext={onNext} isFinal={false}
-                           showTerminate={!hasSentEmails}
-                           terminateLabel="addMoreCollaborators"
-                           onTerminate={startOver}
-                           onNextDoAdvance={hasSentEmails} validForm={!_.isEmpty(checked)}/>
+        <WizardStepButtons
+          {...props}
+          showSkip={hasSentEmails}
+          onNext={onNext}
+          showTerminate={!hasSentEmails}
+          terminateLabel="cancel"
+          onTerminate={finish}
+          validForm={!_.isEmpty(checked)}
+        />
     </WizardStepContainer>
   );
 }

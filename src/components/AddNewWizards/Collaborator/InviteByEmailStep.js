@@ -24,18 +24,15 @@ function InviteByEmailStep(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const inMarketEmailList = marketPresences.map((presence) => presence.email);
   const { isValid } = formData;
-  console.debug(`is valid is ${isValid}`);
 
-  function myOnFinish(isOther=false){
+  function myOnFinish(){
     const emails = getEmailList(marketId);
     if (!_.isEmpty(emails)) {
       return inviteParticipants(marketId, emails).then((result) => {
         setOperationRunning(false);
         marketPresencesDispatch(addMarketPresences(marketId, result));
+        updateFormData({ emails });
       });
-    }
-    if (!isOther) {
-      finish();
     }
   }
 
@@ -46,28 +43,21 @@ function InviteByEmailStep(props) {
       <Typography className={classes.introText} variant="h6">
         Who should be added by email?
       </Typography>
-      {displayFromOther && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Use the middle option to choose participants already in other workspaces.
-        </Typography>
-      )}
+      <div style={{ marginBottom: '2rem' }} />
       <EmailEntryBox marketId={marketId} alreadyInList={inMarketEmailList}
                      setIsValid={(isValid) => updateFormData({ isValid })}
                      placeholder="Ex: bfollis@uclusion.com, disrael@uclusion.com"/>
-      <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}
-        validForm={isValid}
+        validForm={isValid === true || (isValid === undefined && displayFromOther)}
         spinOnClick={isValid === true}
-        onNextSkipStep={displayFromOther}
-        showLink={true}
+        showLink
         onNext={myOnFinish}
         formData={formData}
         marketToken={market.invite_capability}
-        showOtherNext={displayFromOther}
-        otherSpinOnClick={isValid === true}
-        onOtherNext={() => myOnFinish(true)}
-        otherNextLabel="OnboardingWizardAddOther"
+        showTerminate
+        onTerminate={finish}
+        terminateLabel='cancel'
       />
     </WizardStepContainer>
   );

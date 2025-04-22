@@ -80,14 +80,16 @@ class EmailEntryBox extends React.Component{
 
   emailEntered = (entryBoxNode, onValidEmail, onInvalidEmail) => {
     const { text: email, node: textNode } = this.getText(entryBoxNode);
-    const emailValidation = this.validateEmail(email);
-    if (emailValidation.valid) {
-      this.setValidEmail(email, entryBoxNode);
-      //zero out the text
-      textNode.remove();
-      onValidEmail?.(email);
-    } else {
-      onInvalidEmail?.(emailValidation.error, email);
+    if (!_.isEmpty(email)) {
+      const emailValidation = this.validateEmail(email);
+      if (emailValidation.valid) {
+        this.setValidEmail(email, entryBoxNode);
+        //zero out the text
+        textNode.remove();
+        onValidEmail?.(email);
+      } else {
+        onInvalidEmail?.(emailValidation.error, email);
+      }
     }
   }
 
@@ -95,9 +97,11 @@ class EmailEntryBox extends React.Component{
     const { target } = event;
     const placeholder = this.getPlaceholder(target);
     placeholder?.remove();
-    this.emailEntered(target);
-    const isValid = !_.isEmpty(this.emailList, undefined, (error) => this.setError(error));
-    this.setIsValid(isValid);
+    // Try to leave valid undefined if nothing entered
+    this.emailEntered(target, () => this.setIsValid(true), (error) => {
+      this.setIsValid(false);
+      this.setError(error);
+    });
   }
 
   // gets the placeholder node
@@ -193,6 +197,7 @@ class EmailEntryBox extends React.Component{
       this.setIsValid(true);
     }
     if (emailValidation.error) {
+      this.setIsValid(false);
       this.setError(emailValidation.error);
     } else {
       this.setError(null);
@@ -202,6 +207,9 @@ class EmailEntryBox extends React.Component{
   doDelete = (email) => {
     this.emailList = this.emailList.filter((candidate) => email !== candidate);
     setEmailList(this.emailList, this.marketId);
+    if (_.isEmpty(this.emailList)) {
+      this.setIsValid(undefined);
+    }
     const hash = this.hashEmail(email);
     const node = document.getElementById(hash);
     node?.remove();

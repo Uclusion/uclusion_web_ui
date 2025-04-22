@@ -244,9 +244,9 @@ function Root(props) {
       const currentPath = window.location.pathname;
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);
       broadcastView(marketId, investibleId, isEntry, action);
-      if (isEntry && marketId && marketId === defaultMarketId) {
+      if (isEntry && ((marketId && marketId === defaultMarketId)||action === 'inbox')) {
         console.info('Refresh versions in view change');
-        // refresh our versions if we're entering, on a market, and not busy loading it
+        // refresh if entering and on a page that requires market refresh and not busy loading a market
         refreshVersions().catch(() => console.warn('Error refreshing'));
       }
     }

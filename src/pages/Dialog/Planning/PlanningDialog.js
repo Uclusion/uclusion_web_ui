@@ -146,9 +146,12 @@ function PlanningDialog(props) {
     sectionOpen,
     tabIndex
   } = pageState;
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
+  const isAutonomous = isAutonomousGroup(groupPresences, group);
   const investibles = marketInvestibles.filter((investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
-    return marketInfo.group_id === groupId;
+    return marketInfo.group_id === groupId || (isAutonomous && marketInfo.assigned?.includes(groupPresences[0].id));
   });
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
@@ -171,7 +174,6 @@ function PlanningDialog(props) {
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
     return stage && stage.appears_in_context && stage.allows_tasks;
   });
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const presenceMap = getPresenceMap(marketPresences);
   const isDemo = marketIsDemo(market);
 
@@ -256,8 +258,6 @@ function PlanningDialog(props) {
     _.size(archiveInvestibles) + _.size(resolvedMarketComments);
   const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
-  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
-  const isAutonomous = isAutonomousGroup(groupPresences, group);
   let navListItemTextArray = undefined;
   if (mobileLayout) {
     navListItemTextArray = [

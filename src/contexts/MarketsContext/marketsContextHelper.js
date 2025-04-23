@@ -89,8 +89,7 @@ export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
         return false;
       }
       const marketPresences = getMarketPresences(marketPresencesState, market?.id);
-      const myPresence = marketPresences?.find((presence) => presence.current_user);
-      return !myPresence?.market_banned;
+      return !_.isEmpty(marketPresences?.find((presence) => presence.current_user));
     });
     return { marketDetails: newMarketDetails };
   }

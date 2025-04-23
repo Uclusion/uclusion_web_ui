@@ -127,8 +127,7 @@ function WorkspaceMenu(props) {
     config.market_id === defaultMarket.id);
   const slackAddressable = notificationConfig?.is_slack_addressable;
   const marketPresences = getMarketPresences(marketPresencesState, defaultMarket.id) || [];
-  const presencesFiltered = marketPresences.filter((presence) => !presence.market_banned);
-  const presencesOrdered =  _.orderBy(presencesFiltered, ['name'], ['asc']);
+  const presencesOrdered =  _.orderBy(marketPresences, ['name'], ['asc']);
 
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {

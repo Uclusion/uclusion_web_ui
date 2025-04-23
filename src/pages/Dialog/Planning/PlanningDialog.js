@@ -286,7 +286,6 @@ function PlanningDialog(props) {
   function onDropJob(id, isAssigned) {
     if (isAssigned) {
       if (isAutonomous) {
-        const presence = marketPresences.find((presence) => !presence.market_banned);
         const myGroupPresence = groupPresences.find((presence) => presence.id === myPresence.id);
         if (!_.isEmpty(myGroupPresence)) {
           // If autonomous and you are not in the group then this is a no op
@@ -299,7 +298,7 @@ function PlanningDialog(props) {
               stageInfo: {
                 current_stage_id: marketInfo.stage,
                 stage_id: acceptedStage.id,
-                assignments: [presence.id]
+                assignments: [myGroupPresence.id]
               },
             };
             setOperationRunning(true);

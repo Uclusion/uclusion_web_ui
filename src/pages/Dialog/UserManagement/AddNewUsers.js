@@ -35,8 +35,7 @@ function AddNewUsers(props) {
   const { user: unsafeUser } = userState || {};
   const myUser = unsafeUser || {};
 
-  const marketPresencesRaw = getMarketPresences(marketPresencesState, addToMarketId) || [];
-  const marketPresences = marketPresencesRaw.filter((presence) => !presence.market_banned);
+  const marketPresences = getMarketPresences(marketPresencesState, addToMarketId) || [];
   const addToMarketPresences = groupId ?
     getGroupPresences(marketPresences, groupPresencesState, addToMarketId, groupId, !showAll) :
     (addToMarketId ? marketPresences : [myUser]);

@@ -38,8 +38,9 @@ export function removeInvestibleInvestments(state, dispatch, marketId, investibl
   });
 }
 
-export function getMarketPresences(state, marketId, excludeExpired) {
-  const presences = state[marketId] || []
+export function getMarketPresences(state, marketId, excludeExpired, excludeBanned=true) {
+  const presencesRaw = state[marketId] || []
+  const presences = excludeBanned ? presencesRaw.filter((presence) => !presence.market_banned) : presencesRaw;
   return presences.map((presence) => {
     const { investments, current_user: isCurrentUser } = presence;
     if (isCurrentUser && !excludeExpired) {

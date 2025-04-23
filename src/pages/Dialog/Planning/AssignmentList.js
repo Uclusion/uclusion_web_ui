@@ -25,9 +25,8 @@ function AssignmentList(props) {
   const [checked, setChecked] = useState(fullMarketPresences.filter((presence) =>
     previouslyAssigned.includes(presence.id)));
   const intl = useIntl();
-  const marketPresencesRaw = fullMarketPresences.filter((presence) => !presence.market_banned);
-  const marketPresences = groupOnly ? getGroupPresences(marketPresencesRaw, groupPresencesState, marketId, groupId)
-    || [] : marketPresencesRaw;
+  const marketPresences = groupOnly ? getGroupPresences(fullMarketPresences, groupPresencesState, marketId, groupId)
+    || [] : fullMarketPresences;
 
   function getSortedPresenceWithAssignable() {
     const assignable = _.isEmpty(cannotBeAssigned) ? marketPresences : marketPresences.filter((presence) =>

@@ -452,8 +452,7 @@ export function generateEditorOptions (id, config) {
         return ReactDOMServer.renderToString(<MentionListItem mentionResult={item}/>);
       },
       source: function (searchTerm, renderList) {
-        const presences = getMarketPresences(marketPresencesContextHack, marketId) || [];
-        const participants = presences.filter((presence) => !presence.market_banned);
+        const participants = getMarketPresences(marketPresencesContextHack, marketId) || [];
         if (searchTerm.length === 0) {
           renderList(participants.map((presence) => {
             const { name, id, email, external_id } = presence;

@@ -44,7 +44,8 @@ function ManageMarketUsers(props) {
   const classes = useStyles();
   const intl = useIntl();
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const marketPresences = getMarketPresences(marketPresencesState, marketId, false,
+    false) || [];
   const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
   const { is_admin: isAdmin } = yourPresence;
 

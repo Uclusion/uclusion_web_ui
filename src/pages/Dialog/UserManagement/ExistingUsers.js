@@ -36,7 +36,8 @@ function ExistingUsers (props) {
   } = market;
   const classes = useStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const marketPresences = getMarketPresences(marketPresencesState, marketId, false,
+    false) || [];
   const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
   const withoutYou = marketPresences.filter((presence) => !presence.current_user);
   const { is_admin: isAdmin } = yourPresence;

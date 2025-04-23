@@ -17,6 +17,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import Link from '@material-ui/core/Link';
 import { ADD_COLLABORATOR_WIZARD_TYPE } from '../../../constants/markets';
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { fixName } from '../../../utils/userFunctions';
 
 function GroupNameStep (props) {
   const { updateFormData, formData, marketId } = props;
@@ -52,6 +53,9 @@ function GroupNameStep (props) {
       marketId,
       is_autonomous_group: isAutonomous
     };
+    if (isAutonomous && _.isEmpty(groupData.name)) {
+      groupData.name = fixName(myPresence.name).slice(0, 80);
+    }
     return doCreateGroup(dispatchers, groupData)
       .then((group) => {
         setOperationRunning(false);
@@ -121,6 +125,7 @@ function GroupNameStep (props) {
         onNextDoAdvance={hasOthers}
         nextLabel={'GroupWizardAddMembers'}
         otherNextLabel="createViewSingleUser"
+        otherNextValid
         showOtherNext
         onOtherNext={onOtherNext}
         onOtherDoAdvance={false}

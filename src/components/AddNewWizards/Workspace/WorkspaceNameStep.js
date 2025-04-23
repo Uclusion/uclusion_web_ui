@@ -27,6 +27,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { addGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { fixName } from '../../../utils/userFunctions';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData } = props;
@@ -58,6 +59,9 @@ function WorkspaceNameStep (props) {
       name,
       is_autonomous_group: isSinglePersonMode
     };
+    if (isSinglePersonMode) {
+      marketInfo.group_name = fixName(userState.user.name).slice(0, 80);
+    }
     return createPlanning(marketInfo)
       .then((marketDetails) => {
         const {

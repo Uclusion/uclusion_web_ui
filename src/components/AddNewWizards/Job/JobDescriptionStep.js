@@ -52,6 +52,7 @@ function JobDescriptionStep (props) {
   const { newQuantity } = formData;
   const jobTypes = ['READY', 'NOT_READY'];
   const showImmediate = !_.isEmpty(myGroupPresence)||!isSingleUser;
+  const marketHasOthers = _.size(presences) > 1;
   if (showImmediate) {
     jobTypes.unshift('IMMEDIATE');
   }
@@ -107,7 +108,7 @@ function JobDescriptionStep (props) {
   function doIncrement(resolved) {
     if (resolved?.isMissingName) {
       nextStep();
-    } else if (currentValue === 'IMMEDIATE' && !isSingleUser) {
+    } else if (currentValue === 'IMMEDIATE' && (resolved?.useApprovals || !isSingleUser)) {
       nextStep(2);
     }
   }
@@ -129,7 +130,7 @@ function JobDescriptionStep (props) {
   const defaultFromPage = jobType === undefined ? 'IMMEDIATE' : (jobType === '0' ? 'READY' : 'NOT_READY');
   const currentValue = newQuantity || defaultFromPage || '';
 
-  function createJob(doCreateTasks) {
+  function createJob(useApprovals) {
     const readyToStart = currentValue === 'IMMEDIATE' ? undefined : (currentValue === 'READY');
     const {
       uploadedFiles: filteredUploads,
@@ -143,7 +144,7 @@ function JobDescriptionStep (props) {
         jobStage: currentValue
       });
       resetEditor(editorName);
-      return Promise.resolve({isMissingName: true, doCreateTasks});
+      return Promise.resolve({isMissingName: true, useApprovals});
     }
     const addInfo = {
       name,
@@ -152,7 +153,7 @@ function JobDescriptionStep (props) {
       marketId,
       uploadedFiles: filteredUploads
     }
-    if (doCreateTasks) {
+    if (!isMovingTasks) {
       const todos = extractTodosList(tokensRemoved);
       if (!_.isEmpty(todos)) {
         addInfo.todos = todos;
@@ -162,7 +163,9 @@ function JobDescriptionStep (props) {
       addInfo.openForInvestment = readyToStart;
     }
     else if (isSingleUser) {
-      addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
+      if (!useApprovals) {
+        addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
+      }
       addInfo.assignments = [myPresenceId];
     }
     return addPlanningInvestible(addInfo)
@@ -181,24 +184,24 @@ function JobDescriptionStep (props) {
         // update the form data with the saved investible
         updateFormData({
           investibleId,
-          link,
+          link
         });
         if (moveFromComments) {
           return moveFromComments(inv, formData, updateFormData).then(() => {
-            if (readyToStart !== undefined || isSingleUser) {
+            if (readyToStart !== undefined || (isSingleUser && !useApprovals)) {
               return onFinish({
                 link
               });
             }
-            return {link};
+            return {link, useApprovals};
           });
         }
-        if (readyToStart !== undefined || isSingleUser) {
+        if (readyToStart !== undefined || (isSingleUser && !useApprovals)) {
           return onFinish({
             link
           });
         }
-        return {link};
+        return {link, useApprovals};
       })
   }
 
@@ -225,7 +228,7 @@ function JobDescriptionStep (props) {
       </Typography>
       {!isMovingTasks && (
         <Typography className={classes.introSubText} variant="subtitle1" style={{marginBottom: 0}}>
-          Use the second button 'Create with tasks' with a list like below or add tasks later.
+          Use a bullet list like below or add tasks later.
           <ul>
             <li>My first task.</li>
             <li>My second task.</li>
@@ -276,12 +279,11 @@ function JobDescriptionStep (props) {
         {...props}
         validForm={hasValue}
         nextLabel='jobCreate'
-        onNext={() => createJob()}
-        showOtherNext={!isMovingTasks}
-        otherNextLabel='jobCreateWithTasks'
+        onNext={createJob}
+        showOtherNext={isSingleUser && marketHasOthers}
+        otherNextLabel='useApprovals'
         onOtherNext={() => createJob(true)}
         onIncrement={doIncrement}
-        isFinal={currentValue !== 'IMMEDIATE' || isSingleUser}
         showTerminate={hasFromComments}
         onTerminate={onTerminate}
         terminateLabel='JobWizardStartOver'

@@ -264,12 +264,11 @@ function PlanningIdeas(props) {
     event.preventDefault();
   }
 
-  const acceptedInvestibles = isAutonomous ? (myInvestiblesStageHash[acceptedStageId] || [])
-      .concat(myInvestiblesStageHash[inDialogStageId] || []) : myInvestiblesStageHash[acceptedStageId] || [];
+  const acceptedInvestibles = myInvestiblesStageHash[acceptedStageId] || [];
 
   return (
     <div className={mobileLayout ? undefined : classes.stages}>
-      {!isAutonomous && (
+      {(!isAutonomous || !_.isEmpty(myInvestiblesStageHash[inDialogStageId])) && (
         <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
              onDragOver={onDragOverProcess}
         >

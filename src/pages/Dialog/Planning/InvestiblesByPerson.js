@@ -148,7 +148,10 @@ function InvestiblesByPerson(props) {
   const groupPresencesSorted = _.sortBy(groupPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
   });
-
+  const autoInvestibles = isAutonomous ? getUserInvestibles(groupPresences[0].id, marketId, investibles)
+    : undefined;
+  const autoInvestiblesStageHash = isAutonomous ? getUserSwimlaneInvestiblesHash(autoInvestibles,
+    visibleStages, marketId, comments, messagesState) : undefined;
   return (
     <React.Fragment key="investiblesByPerson">
       {(!isAutonomous || !_.isEmpty(myGroupPresence)) && (
@@ -164,7 +167,7 @@ function InvestiblesByPerson(props) {
       )}
       {!mobileLayout && (
         <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
-          {!isAutonomous && (
+          {(!isAutonomous || (inDialogStage && !_.isEmpty(autoInvestiblesStageHash[inDialogStage.id]))) && (
             <div>
               <Link href="https://documentation.uclusion.com/views/jobs/stages/#assigned" target="_blank"
                     style={{ color: DARKER_LINK_COLOR }}>

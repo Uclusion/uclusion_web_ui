@@ -107,7 +107,7 @@ function JobApproverStep(props) {
         marketId,
         investibleId,
         assignments,
-        required_approvers: value,
+        requiredApprovers: value,
       };
       return updateInvestible(updateInfo).then((fullInvestible) => {
         setOperationRunning(false);
@@ -136,6 +136,7 @@ function JobApproverStep(props) {
         cannotBeAssigned={cannotBeAssigned}
         groupId={groupId}
         marketId={marketId}
+        showAllOnly
       />
       <div className={classes.borderBottom}/>
       <WizardStepButtons

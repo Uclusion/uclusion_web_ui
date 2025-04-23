@@ -74,6 +74,7 @@ function JobApproverStep (props) {
           listHeader="requiredApprovers"
           groupId={groupId}
           marketId={marketId}
+          showAllOnly
         />
 
         <div className={classes.borderBottom}/>

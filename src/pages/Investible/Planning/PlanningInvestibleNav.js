@@ -166,7 +166,7 @@ export default function PlanningInvestibleNav(props) {
   const readyToStartChecked = operationRunning === `readyToStartCheckbox${investibleId}` ?
     !openForInvestment : openForInvestment;
   const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
-  const useInVoting = isInVoting && !isSingleUser;
+  const useInVoting = isInVoting;
 
   function assignToSingleUser() {
     const fullMoveStage = getAcceptedStage(marketStagesState, marketId);
@@ -207,7 +207,7 @@ export default function PlanningInvestibleNav(props) {
         pageState={pageState}
         updatePageState={updatePageState}
       />
-      {market.id && marketInvestible.investible && (!isSingleUser || !isFurtherWork) && (
+      {market.id && marketInvestible.investible && (!isSingleUser || isFurtherWork) && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments
@@ -274,7 +274,7 @@ export default function PlanningInvestibleNav(props) {
           )}
         </div>
       )}
-      {!isSingleUser && (
+      {!_.isEmpty(investibleCollaborators.filter((collaboratorId) => !assigned?.includes(collaboratorId))) && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Tooltip

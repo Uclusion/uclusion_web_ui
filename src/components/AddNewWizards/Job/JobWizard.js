@@ -177,13 +177,9 @@ function JobWizard(props) {
           <JobAssignStep onFinish={onFinish} marketId={marketId} groupId={groupId} roots={roots}
                          moveFromComments={fromCommentIds ? moveFromComments : undefined} />
         )}
-        {!isSingleUser && (
-          <JobApproverStep marketId={marketId} groupId={groupId} roots={roots}
-                           moveFromComments={fromCommentIds ? moveFromComments : undefined} />
-        )}
-        {!isSingleUser && (
-          <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId} />
-        )}
+        <JobApproverStep marketId={marketId} groupId={groupId} roots={roots}
+                         moveFromComments={fromCommentIds ? moveFromComments : undefined} />
+        <JobApproveStep onFinish={onFinish} marketId={marketId} groupId={groupId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

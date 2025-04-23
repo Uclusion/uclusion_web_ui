@@ -23,7 +23,7 @@ function JobNameStep(props) {
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const classes = useContext(WizardStylesContext);
   const [hasValue, setHasValue] = useState(false);
-  const { description, uploadedFiles, jobStage, doCreateTasks } = formData;
+  const { description, uploadedFiles, jobStage, doCreateTasks, useApprovals } = formData;
   const nameId = `jobNameEdit${groupId}`;
 
   function createJob() {
@@ -45,7 +45,9 @@ function JobNameStep(props) {
       addInfo.openForInvestment = true;
     }
     if (isSingleUser) {
-      addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id
+      if (!useApprovals) {
+        addInfo.stageId = getAcceptedStage(marketStagesState, marketId).id;
+      }
       addInfo.assignments = [myPresenceId];
     }
     return addPlanningInvestible(addInfo)
@@ -90,7 +92,7 @@ function JobNameStep(props) {
         validForm={hasValue}
         nextLabel="jobCreate"
         onNext={createJob}
-        onNextDoAdvance={jobStage === 'IMMEDIATE'}
+        onNextDoAdvance={jobStage === 'IMMEDIATE' && (!isSingleUser || useApprovals)}
         isFinal={jobStage !== 'IMMEDIATE'}
       />
     </WizardStepContainer>

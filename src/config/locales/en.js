@@ -856,6 +856,7 @@ const messages = defineMessages({
   todoAddressListHeader: 'Assign to',
   addressListMakeObserver: 'Make Yourself an Observer',
   addressListMakeParticipant: 'Make Yourself a Participant',
+  work: 'work',
 
   // Dialog Archives
   dialogArchivesNotDoingHeader: 'Not Doing',

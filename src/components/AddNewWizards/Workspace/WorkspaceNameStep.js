@@ -18,7 +18,7 @@ import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
-import { ADD_COLLABORATOR_WIZARD_TYPE, DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
+import { DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { updateMarketStagesFromNetwork } from '../../../contexts/MarketStagesContext/marketStagesContextReducer';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';

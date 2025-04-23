@@ -46,7 +46,7 @@ import { DIALOG_OUTSET_STATE_HACK } from '../../pages/Dialog/Planning/DialogOuts
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import {
   getGroupPresences,
-  getMarketPresences
+  getMarketPresences, isAutonomousGroup
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import OnboardingBanner from '../../components/Banners/OnboardingBanner';
 import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
@@ -55,6 +55,8 @@ import { getComment } from '../../contexts/CommentsContext/commentsContextHelper
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import jwt_decode from 'jwt-decode';
 import { WARNING_COLOR } from '../../components/Buttons/ButtonConstants';
+import { fixName } from '../../utils/userFunctions';
+import Gravatar from '../../components/Avatars/Gravatar';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -158,6 +160,11 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.disabled,
     textDecoration: 'underline'
   },
+  smallGravatar: {
+    width: '30px',
+    height: '30px',
+    marginTop: '2px'
+  },
   elevated: {
     zIndex: 99,
   },
@@ -165,7 +172,7 @@ const useStyles = makeStyles((theme) => ({
 
 export function getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
   history, market, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
-  onGroupClick, pathname, resetFunction, action, type) {
+  onGroupClick, pathname, resetFunction, action, type, classes) {
   const marketId = market.id;
   const itemsSorted = _.sortBy(groupsState[marketId], 'name');
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -180,14 +187,18 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
         return {};
       }
     }
-    const myIcon = groupPresences.find((presence) => presence.id === myPresence.id) ? Group
-      : GroupOutlined;
+    const isGravatarDisplay = isAutonomousGroup(groupPresences, group);
+    const singlePresence = isGravatarDisplay ? groupPresences[0] : undefined;
+    const myIcon = isGravatarDisplay ?
+      <Gravatar name={fixName(singlePresence.name)} email={singlePresence.email}  className={classes.smallGravatar}/>
+       : groupPresences.find((presence) => presence.id === myPresence.id) ? Group : GroupOutlined;
     const outsetAvailable = isChosen && useHoverFunctions;
     let num = undefined;
     if (!_.isEmpty(search)) {
       num = (results || []).filter((item) => item.groupId === group.id);
     }
-    return {icon: myIcon, endIcon: outsetAvailable ? MoreVert : undefined, text: group.name, num,
+    return {icon: myIcon, complexIcon: isGravatarDisplay, endIcon: outsetAvailable ? MoreVert : undefined,
+      text: isGravatarDisplay? intl.formatMessage({ id: 'work' }) : group.name, num,
       isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
       isBlue: groupId === group.id || pathname === '/',
       resetFunction: isChosen ? resetFunction : undefined,
@@ -362,7 +373,7 @@ function Screen(props) {
     const { onGroupClick, useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, useHoverFunctions, search,
-      results, openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction, action, type);
+      results, openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction, action, type, classes);
   }
   const inboxCount = getInboxCount(messagesState);
   const inboxCountTotal = inboxCount > 0 ? undefined :

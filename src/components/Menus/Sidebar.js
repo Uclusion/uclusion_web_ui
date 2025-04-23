@@ -8,7 +8,7 @@ import { IconButton, Tooltip, Typography } from '@material-ui/core';
 import Link from '@material-ui/core/Link';
 
 function processRegularItem(properties) {
-  const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue,
+  const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
     index, openMenuItems, isLarge, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon, linkHref,
     resetFunction, tipText, idPrepend='', numSuffix=''} = properties;
   if (!text) {
@@ -36,9 +36,17 @@ function processRegularItem(properties) {
   const key = `${index}${textNoSpaces}`;
   const isLink = isBold && !isBlue;
   const backgroundColor = isBold && !isSubMenu && isBlue ? '#84B1D9' : undefined;
+  const textRepresentation = isBold ? (<span
+      style={{fontWeight: 'bold', fontSize: isLarge ? '1.2rem' : undefined,
+        marginLeft: complexIcon ? '0.5rem' : undefined,
+        textDecoration: isLink ? 'underline' : undefined, color: isLink ? '#36A2EB' : undefined}}>
+            {text}</span>)
+    : <span style={{fontSize: isLarge ? '1.2rem' : undefined, marginLeft: complexIcon ? '0.5rem' : undefined,}}>
+      {text}</span>;
   return (
     <div key={`sidebarMenuHolder${key}`}>
-      <MenuItem icon={<Icon style={{fontSize: '1.3rem', paddingBottom: isLarge ? undefined :'2px'}} htmlColor={iconColor} />}
+      <MenuItem icon={complexIcon ? <div /> :<Icon style={{fontSize: '1.3rem', paddingBottom: isLarge ? undefined :'2px'}}
+                                                htmlColor={iconColor} />}
                 style={{backgroundColor, borderRadius: 22, width: '97%',
                 marginLeft: 'auto', marginRight: 'auto'}}
                 key={key} id={`${idPrepend}${textNoSpaces}`}
@@ -77,11 +85,12 @@ function processRegularItem(properties) {
                   }
                 }
       >
-        {isBold ? (<span
-            style={{fontWeight: 'bold', fontSize: isLarge ? '1.2rem' : undefined,
-              textDecoration: isLink ? 'underline' : undefined, color: isLink ? '#36A2EB' : undefined}}>
-            {text}</span>)
-          : <span style={{fontSize: isLarge ? '1.2rem' : undefined}}>{text}</span>}
+        {complexIcon && (
+          <div style={{display: 'flex', alignItems: 'center'}}>
+            {Icon} {textRepresentation}
+          </div>
+        )}
+        {!complexIcon && textRepresentation}
       </MenuItem>
       {!_.isEmpty(openMenuItems) && (
         <div style={{paddingLeft: '1rem'}} key="openMenuItems">
@@ -119,10 +128,11 @@ export default function Sidebar(props) {
       {!_.isEmpty(navListItemTextArray) && (
         <Menu onClick={listOnClick} iconShape="circle">
           {navListItemTextArray.map((navItem, topIndex) => {
-            const { text, target, num, icon: Icon, onClickFunc, isBold, isBlue, openMenuItems,
+            const { text, target, num, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
               onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
-            return processRegularItem({history, text, target, num, Icon, onClickFunc, isBold, isBlue, linkHref,
-              index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, idPrepend})
+            return processRegularItem({history, text, target, num, Icon, complexIcon, onClickFunc, isBold,
+              isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
+              tipText, idPrepend})
           })}
         </Menu>
       )}

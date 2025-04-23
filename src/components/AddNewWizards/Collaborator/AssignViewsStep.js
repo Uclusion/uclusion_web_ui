@@ -20,9 +20,8 @@ function AssignViewsStep(props) {
   const [, groupPresencesDispatch] = useContext(GroupMembersContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
-  const [emails] = useState(formData.emails);
   const [checked, setChecked] = useState([]);
-  const { groupIdIndex } = formData;
+  const { groupIdIndex, emails } = formData;
   // Clean up from the previous step
   setEmailList([], marketId);
   // Active and inactive treated the same - inactive so rare anyway

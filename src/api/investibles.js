@@ -11,7 +11,8 @@ export function updateInvestible(updateInfo) {
     assignments,
     daysEstimate,
     requiredApprovers,
-    openForInvestment
+    openForInvestment,
+    groupId
   } = updateInfo;
   if (assignments) {
     return getMarketClient(marketId)
@@ -25,7 +26,7 @@ export function updateInvestible(updateInfo) {
   }
   return getMarketClient(marketId)
     .then((client) => client.investibles.update(investibleId, name, description, undefined, uploadedFiles,
-      daysEstimate, requiredApprovers))
+      daysEstimate, requiredApprovers, undefined, groupId))
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
 }
 

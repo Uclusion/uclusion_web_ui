@@ -58,7 +58,6 @@ import {
   formMarketAddCommentLink, formMarketAddInvestibleLink, formWizardLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
-import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import { DISCUSSION_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import DialogOutset from './DialogOutset';
 import SettingsIcon from '@material-ui/icons/Settings';
@@ -361,9 +360,8 @@ function PlanningDialog(props) {
       onDropJob(id, false);
     }
   }
-  const groupIsEveryone = isEveryoneGroup(groupId, marketId);
-  const tabName = groupIsEveryone ? market?.name : groupName;
-  const tabTitle = `${tabName} ${intl.formatMessage({id: 'tabGroupAppend'})}`;
+
+  const tabTitle = `${groupName} ${intl.formatMessage({id: 'tabGroupAppend'})}`;
   const swimlaneEmptyPreText = _.isEmpty(blockedOrRequiresInputInvestibles) ? 'There are no assigned jobs.' :
   'All assigned jobs require assistance.';
   function getTabCount(tabIndex) {

@@ -11,7 +11,6 @@ import {
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { ExpandLess, SyncAlt, ThumbDown, ThumbUp } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { isEveryoneGroup } from '../../../contexts/GroupMembersContext/groupMembersHelper';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
 import React, { useContext } from 'react';
 import { Assignments, rejectInvestible, useCollaborators } from './PlanningInvestible';
@@ -305,7 +304,7 @@ export default function PlanningInvestibleNav(props) {
           </div>
         </div>
       )}
-      {!isEveryoneGroup(groupId, marketId) && (
+      {_.size(marketPresences) > 1 && _.size(marketPresences) > _.size(groupPresences) && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments

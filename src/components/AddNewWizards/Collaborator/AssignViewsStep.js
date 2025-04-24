@@ -13,19 +13,25 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import IdentityList from '../../Email/IdentityList';
 import Link from '@material-ui/core/Link';
+import { getGroupPresences, isAutonomousGroup } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function AssignViewsStep(props) {
   const { finish, marketId, marketPresences, updateFormData, formData } = props;
   const [groupsState] = useContext(MarketGroupsContext);
-  const [, groupPresencesDispatch] = useContext(GroupMembersContext);
+  const [groupMembersState, groupPresencesDispatch] = useContext(GroupMembersContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
   const [checked, setChecked] = useState([]);
   const { groupIdIndex, emails } = formData;
   // Clean up from the previous step
   setEmailList([], marketId);
+  // Screen out autonomous as don't encourage adding to them
+  const groupsFiltered = groupsState[marketId].filter((group) => {
+    const groupPresences = getGroupPresences(marketPresences, groupMembersState, marketId, group.id);
+    return !isAutonomousGroup(groupPresences, group);
+  });
   // Active and inactive treated the same - inactive so rare anyway
-  const groupsSorted = _.sortBy(groupsState[marketId], 'name');
+  const groupsSorted = _.sortBy(groupsFiltered, 'name');
   if (_.isEmpty(groupsSorted)) {
     return React.Fragment;
   }
@@ -42,8 +48,8 @@ function AssignViewsStep(props) {
       const newChecked = checked.map((presence) => {
         return {user_id: presence.id, is_following: true}
       });
-      return changeGroupParticipation(marketId, group.id, newChecked).then((modifed) => {
-        groupPresencesDispatch(modifyGroupMembers(group.id, modifed));
+      return changeGroupParticipation(marketId, group.id, newChecked).then((modified) => {
+        groupPresencesDispatch(modifyGroupMembers(group.id, modified));
         setOperationRunning(false);
         if (hasMoreGroups) {
           setChecked([]);

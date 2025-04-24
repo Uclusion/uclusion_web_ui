@@ -291,6 +291,9 @@ export const usePlanningInvestibleStyles = makeStyles(
         marginLeft: 0
       },
     },
+    sectionTitle: {
+      fontWeight: 700
+    },
     largeGravatar: {
       width: '45px',
       height: '45px',

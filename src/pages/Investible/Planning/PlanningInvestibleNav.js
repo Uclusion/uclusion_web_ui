@@ -1,8 +1,8 @@
 import clsx from 'clsx';
 import {
-  Checkbox,
+  Checkbox, FormControl,
   FormControlLabel,
-  makeStyles,
+  makeStyles, MenuItem, Select,
   Tooltip,
   Typography,
   useMediaQuery,
@@ -60,6 +60,8 @@ import _ from 'lodash';
 import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { DaysEstimate } from '../../../components/AgilePlan/DaysEstimate';
 import { ISSUE_TYPE } from '../../../constants/comments';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { addMarketComments, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 const useStyles = makeStyles(
   () => ({
@@ -85,6 +87,7 @@ export default function PlanningInvestibleNav(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [groupsState] = useContext(MarketGroupsContext);
   const styles = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -183,6 +186,25 @@ export default function PlanningInvestibleNav(props) {
         onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
           commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
           fullStage, marketPresencesDispatch);
+        setOperationRunning(false);
+      });
+  }
+
+  function changeInvestibleView(newGroupId) {
+    setOperationRunning(true);
+    const updateInfo = {
+      marketId,
+      investibleId,
+      groupId: newGroupId,
+    };
+    return updateInvestible(updateInfo)
+      .then((fullInvestible) => {
+        const investibleComments = getInvestibleComments(investibleId, marketId, commentsState);
+        const investibleCommentsMoved = investibleComments.map((comment) => {
+          return {...comment, group_id: newGroupId}
+        });
+        addMarketComments(commentsDispatch, marketId, investibleCommentsMoved);
+        refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
         setOperationRunning(false);
       });
   }
@@ -318,6 +340,21 @@ export default function PlanningInvestibleNav(props) {
             />
           </div>
         </div>
+      )}
+      {_.size(groupsState[marketId]) > 1 && groupId && (
+        <FormControl>
+          <div className={classes.sectionTitle}>
+            <FormattedMessage id="switchGroup"/>
+          </div>
+            <Select
+              value={groupId}
+              onChange={(event) => changeInvestibleView(event.target.value)}
+            >
+              {groupsState[marketId].map((group) => {
+                return <MenuItem key={`key${group.id}`} value={group.id}>{group.name}</MenuItem>
+              })}
+            </Select>
+        </FormControl>
       )}
       <AttachedFilesList
         marketId={market.id}

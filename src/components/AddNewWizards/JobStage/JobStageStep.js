@@ -55,7 +55,7 @@ function JobStageStep (props) {
   const fullMoveStage = getFullStage(marketStagesState, marketId, value) || {};
   const marketComments = getMarketComments(commentsState, marketId, groupId) || [];
   const comments = getCommentsSortedByType(marketComments, investibleId, false) || [];
-  const fullStagesFiltered = isSingleUser ?
+  const fullStagesFiltered = isSingleUser && _.size(marketPresences) < 2 ?
     fullStagesRaw?.filter((aStage) => !aStage.allows_investment &&
       (!_.isEmpty(myGroupPresence) || !isAcceptedStage(aStage))) : fullStagesRaw;
   const fullStages = _.orderBy(fullStagesFiltered, (aStage) => {

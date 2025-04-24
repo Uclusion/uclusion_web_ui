@@ -549,22 +549,23 @@ function PlanningDialog(props) {
             <DismissableText textId="notificationHelp"
                              display={_.isEmpty(swimlaneInvestibles)}
                              text={
-                              groupIsEveryone ? (market?.market_sub_type === 'SUPPORT' ?
+                              isAutonomous ?
                                    <div>
-                                     {swimlaneEmptyPreText} Use the "Add job" button above to assign a new job to
-                                     support.
+                                     {swimlaneEmptyPreText} Use the "Add job" button above to assign a new job.
                                    </div>
-                                   :
-                                   <div>
-                                     {swimlaneEmptyPreText} The "Add job" button above creates a job and
-                                     notifies <Link href="https://documentation.uclusion.com/views/#everyone"
-                                               target="_blank">everyone</Link>.
-                                   </div>) :
+                                : (market?.market_sub_type === 'SUPPORT' ?
+                                  <div>
+                                    {swimlaneEmptyPreText} The "Add job" button above creates a job
+                                    and sends a <Link href="https://documentation.uclusion.com/notifications"
+                                                    target="_blank">notification</Link> to Uclusion support.
+                                  </div>
+                                  :
                                  <div>
                                    {swimlaneEmptyPreText} The "Add job" button above creates a job
                                    and sends <Link href="https://documentation.uclusion.com/notifications"
-                                             target="_blank">notifications</Link> to this group.
+                                             target="_blank">notifications</Link> to members of this view.
                                  </div>
+                              )
                              }/>
           </div>
         )}

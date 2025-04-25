@@ -21,7 +21,7 @@ import {
 import Link from '@material-ui/core/Link';
 import NavigationChevrons from '../../Menus/NavigationChevrons';
 import Sidebar from '../../Menus/Sidebar';
-import { getSidebarGroups } from '../../../containers/Screen/Screen';
+import { getSidebarGroups, screenStyles } from '../../../containers/Screen/Screen';
 import { useIntl } from 'react-intl';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
@@ -38,6 +38,7 @@ function IntroduceWorkspaceStep(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const { market_id: marketId } = message;
   const classes = wizardStyles();
+  const screenClasses = screenStyles();
   const history = useHistory();
   const intl = useIntl();
   const market = getMarket(marketsState, marketId) || {};
@@ -52,7 +53,8 @@ function IntroduceWorkspaceStep(props) {
   const navListItemTextArray = [];
   getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
     history, market, marketId, undefined, undefined, undefined, undefined,
-    [], [], undefined, undefined, undefined)
+    [], [], undefined, undefined, undefined,
+    undefined, undefined, screenClasses);
 
   function myOnFinish () {
     removeWorkListItem(message, messagesDispatch);

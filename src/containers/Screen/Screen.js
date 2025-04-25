@@ -58,7 +58,7 @@ import { WARNING_COLOR } from '../../components/Buttons/ButtonConstants';
 import { fixName } from '../../utils/userFunctions';
 import Gravatar from '../../components/Avatars/Gravatar';
 
-const useStyles = makeStyles((theme) => ({
+export const screenStyles = makeStyles((theme) => ({
   hidden: {
     display: 'none',
   },
@@ -247,7 +247,7 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
 }
 
 function Screen(props) {
-  const classes = useStyles();
+  const classes = screenStyles();
   const theme = useTheme();
   const intl = useIntl();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));

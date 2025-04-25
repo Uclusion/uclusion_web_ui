@@ -101,7 +101,7 @@ function ArchiveInvestbiles(props) {
       const { id, name } = investible;
       const messages = findMessagesForInvestibleId(id, messagesState);
       const info = getMarketInfo(inv, marketId) || {};
-      const { assigned, stage: stageId, ticket_code: ticketCode, last_stage_change_date: lastStageChangeDate } = info;
+      const { assigned, stage: stageId, last_stage_change_date: lastStageChangeDate } = info;
       const enteredStageAt = new Date(lastStageChangeDate)
       const stage = getFullStage(marketStagesState, marketId, stageId);
       const usedAssignees = assigned || [];
@@ -148,7 +148,6 @@ function ArchiveInvestbiles(props) {
       if (myMessage) {
         typeExplanation = 'messagePresent';
       }
-      const ticketNumber = ticketCode ? ticketCode.substring(ticketCode.lastIndexOf('-')+1) : undefined;
       return (
         <React.Fragment key={`frag${id}`}>
           <Grid
@@ -173,11 +172,6 @@ function ArchiveInvestbiles(props) {
                         Entered <UsefulRelativeTime value={enteredStageAt}/>
                       </Typography>
                     </Grid>
-                    {ticketNumber && (
-                      <Grid item xs={2} style={{ paddingBottom: '0.2rem' }}>
-                        <Typography variant="subtitle2">U-{ticketNumber}</Typography>
-                      </Grid>
-                    )}
                     {TypeIcon && (
                       <Grid item xs={1}
                             onClick={(event) => {

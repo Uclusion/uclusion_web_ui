@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
-import { Grid, Link, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core'
+import { Link, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -292,6 +292,8 @@ function PlanningIdeas(props) {
             marketPresences={marketPresences}
             comments={comments}
             myPresence={myPresence}
+            isAutonomous={isAutonomous}
+            viewGroupId={groupId}
           />
         </div>
       )}
@@ -312,6 +314,8 @@ function PlanningIdeas(props) {
           groupPresences={groupPresences}
           marketPresences={marketPresences}
           comments={comments}
+          isAutonomous={isAutonomous}
+          viewGroupId={groupId}
         />
       </div>
       <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview} style={{ flex: '2 1 50%' }}
@@ -331,6 +335,8 @@ function PlanningIdeas(props) {
           comments={comments}
           groupPresences={groupPresences}
           marketPresences={marketPresences}
+          isAutonomous={isAutonomous}
+          viewGroupId={groupId}
         />
       </div>
     </div>
@@ -420,7 +426,9 @@ function Stage(props) {
     showCompletion,
     marketPresences,
     groupPresences,
-    presenceId
+    presenceId,
+    isAutonomous,
+    viewGroupId
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -497,6 +505,8 @@ function Stage(props) {
             unaccepted={unaccepted}
             showCompletion={showCompletion}
             mobileLayout={mobileLayout}
+            isAutonomous={isAutonomous}
+            viewGroupId={viewGroupId}
           />
           {showCompletion && !_.isEmpty(inProgressComments) && (
             inProgressComments.map((comment) => {
@@ -590,7 +600,9 @@ function StageInvestible(props) {
     mobileLayout,
     unaccepted,
     isReview,
-    isVoting
+    isVoting,
+    isAutonomous,
+    viewGroupId
   } = props;
   const intl = useIntl();
   const { completion_estimate: daysEstimate, ticket_code: ticketCode, group_id: groupId } = marketInfo;
@@ -600,6 +612,7 @@ function StageInvestible(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const [groupState] = useContext(MarketGroupsContext);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
   const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId, !isVoting);
@@ -616,6 +629,7 @@ function StageInvestible(props) {
     return !_.isEmpty(findMessageOfType('REPORT_REQUIRED', id, messagesState));
   }
   const doesRequireStatus = requiresStatus(id);
+  const group = getGroup(groupState, marketId, viewGroupId) || {};
 
   function getChip(labelNum, toolTipId) {
     const messagesRaw = findMessagesForInvestibleId(id, messagesState);
@@ -662,49 +676,47 @@ function StageInvestible(props) {
     getChip(isVoting ? numQuestionsSuggestions : (showNumRequiredReviews ? numRequiredReviews : numOpenTasks),
       isVoting ? 'inputRequiredCountExplanation':
         (showNumRequiredReviews ? 'requiredReviewsCountExplanation' : 'openTasksCountExplanation'));
-  const ticketNumber = getTicketNumber(ticketCode);
+  const ticketNumber = getTicketNumber(ticketCode, isAutonomous, group?.name);
   return (
     <>
-      <Grid container>
-        <Grid item xs={4}>
-          {!unaccepted && (isVoting || isReview) && (
-            <div>
-              <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
+      <div style={{display: 'flex', marginBottom: '0.35rem'}}>
+        {!unaccepted && (isVoting || isReview) && (
+          <div>
+            <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
+          </div>
+        )}
+        {unaccepted && (
+          <Tooltip
+            title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
+          >
+            <div className={planClasses.daysEstimation} style={{wordWrap: 'normal'}}>
+              <FormattedMessage id='planningUnacceptedLabel' />
             </div>
-          )}
-          {unaccepted && (
-            <Tooltip
-              title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
-            >
-              <div className={planClasses.daysEstimation} style={{wordWrap: 'normal'}}>
-                <FormattedMessage id='planningUnacceptedLabel' />
-              </div>
-            </Tooltip>
-          )}
-          {hasDaysEstimate && (
-            <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? 'red': undefined,
-              cursor: unreadEstimate ? 'pointer' : undefined }}
-                 onClick={(event) => {
-                   if (unreadEstimate) {
-                     preventDefaultAndProp(event);
-                     dehighlightMessage(unreadEstimate, messagesDispatch);
-                     navigate(history, formInboxItemLink(unreadEstimate));
-                   }
-                 }}
-                 onMouseOver={(event) => {
-                   if (unreadEstimate) {
-                     preventDefaultAndProp(event);
-                   }
-                 }}
-            >
-              <FormattedMessage id='estimatedCompletionToday' /> <UsefulRelativeTime value={new Date(daysEstimate)}/>
-            </div>
-          )}
-        </Grid>
+          </Tooltip>
+        )}
+        {hasDaysEstimate && (
+          <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? 'red': undefined, marginTop: '0.2rem',
+            cursor: unreadEstimate ? 'pointer' : undefined }}
+               onClick={(event) => {
+                 if (unreadEstimate) {
+                   preventDefaultAndProp(event);
+                   dehighlightMessage(unreadEstimate, messagesDispatch);
+                   navigate(history, formInboxItemLink(unreadEstimate));
+                 }
+               }}
+               onMouseOver={(event) => {
+                 if (unreadEstimate) {
+                   preventDefaultAndProp(event);
+                 }
+               }}
+          >
+            <FormattedMessage id='estimatedCompletionToday' /> <UsefulRelativeTime value={new Date(daysEstimate)}/>
+          </div>
+        )}
         {ticketNumber && (
-          <Grid item xs={1} style={{ marginLeft: '1rem', paddingBottom: '0.2rem' }}>
-            <Typography variant="subtitle2" style={{whiteSpace: 'nowrap'}}>J-{ticketNumber}</Typography>
-          </Grid>
+          <Typography variant="subtitle2" style={{whiteSpace: 'nowrap', marginLeft: '1rem'}}>
+            {ticketNumber}
+          </Typography>
         )}
         {chip}
         {doesRequireStatus && (
@@ -714,11 +726,8 @@ function StageInvestible(props) {
             </span>
           </Tooltip>
         )}
-        <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
-          <EditOutlinedIcon style={{maxHeight: '1.25rem', marginLeft: '4rem'}} />
-        </Grid>
-      </Grid>
-      <div id={`planningIdea${id}`} style={{paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
+      </div>
+      <div id={`planningIdea${id}`} style={{display: 'flex', paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
         <StageLink
           href={to}
           id={id}
@@ -729,15 +738,18 @@ function StageInvestible(props) {
             navigate(history, to);
           }}
         >
-          <Typography color='initial' variant="subtitle2">{name}</Typography>
-          {!_.isEmpty(labelList) && labelList.map((label) =>
-            <div key={label} style={{paddingTop: '0.5rem'}}>
-              <Chip size="small" label={label} className={classes.chipClass}
-                    style={{maxWidth: '90%', backgroundColor: '#73B76C', color: 'white'}}/>
-            </div>
-          )}
-        </StageLink>
-      </div>
+            <Typography color='initial' variant="subtitle2">{name}</Typography>
+            {!_.isEmpty(labelList) && labelList.map((label) =>
+              <div key={label} style={{paddingTop: '0.5rem'}}>
+                <Chip size="small" label={label} className={classes.chipClass}
+                      style={{maxWidth: '90%', backgroundColor: '#73B76C', color: 'white'}}/>
+              </div>
+            )}
+          </StageLink>
+          <div id={`showEdit0${id}`} style={{display: 'none', pointerEvents: 'none'}}>
+            <EditOutlinedIcon style={{maxHeight: '1.25rem', marginTop: '-0.2rem'}} />
+          </div>
+        </div>
     </>
   );
 }
@@ -748,7 +760,7 @@ const useStageLinkStyles = makeStyles(() => {
       color: 'inherit',
       display: 'block',
       height: '100%',
-      width: '100%'
+      width: '95%'
     }
   };
 });

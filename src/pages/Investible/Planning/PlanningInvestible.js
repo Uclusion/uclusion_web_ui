@@ -306,12 +306,17 @@ export const usePlanningInvestibleStyles = makeStyles(
   { name: "PlanningInvestible" }
 );
 
-export function useCollaborators(marketPresences, investibleComments, marketPresencesState, investibleId, marketId) {
+export function useCollaborators(marketPresences, investibleComments, marketPresencesState, investibleId, marketId,
+  returnPresences=false) {
   const investibleCommentorPresences = getCommenterPresences(marketPresences, investibleComments,
     marketPresencesState);
   const voters = useInvestibleVoters(marketPresences, investibleId, marketId, true);
   const concated = [...voters, ...investibleCommentorPresences];
-  return _.uniq((concated || []).map((presence) => presence.id));
+  const presences = _.uniq(concated || []);
+  if (returnPresences) {
+    return presences;
+  }
+  return presences.map((presence) => presence.id);
 }
 
 export function countUnresolved(comments, search) {

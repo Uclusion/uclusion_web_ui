@@ -47,10 +47,9 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
-import { useInvestibleVoters } from '../../../utils/votingUtils';
 import { doRemoveEdit, doShowEdit } from './userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
-import { getCollaboratorsForInvestible, onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { getTicketNumber, stripHTML } from '../../../utils/stringFunctions';
 import { Schedule } from '@material-ui/icons';
@@ -69,6 +68,7 @@ import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsCo
 import BugListItem from '../../../components/Comments/BugListItem';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { useCollaborators } from '../../Investible/Planning/PlanningInvestible';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -605,20 +605,17 @@ function StageInvestible(props) {
     viewGroupId
   } = props;
   const intl = useIntl();
-  const { completion_estimate: daysEstimate, ticket_code: ticketCode, group_id: groupId } = marketInfo;
+  const { completion_estimate: daysEstimate, ticket_code: ticketCode, assigned } = marketInfo;
   const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
   const [groupState] = useContext(MarketGroupsContext);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
-  const votersForInvestible = useInvestibleVoters(marketPresences, id, marketId, !isVoting);
-  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
-  const collaboratorsForInvestible = getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible,
-    marketPresences, marketPresencesState, isVoting, groupPresences);
+  const collaboratorsForInvestible = useCollaborators(marketPresences, comments, marketPresencesState,
+    id, marketId, true);
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
   const isReviewable = isReview || showCompletion;
   const unreadEstimate = findMessageOfType('UNREAD_ESTIMATE', id, messagesState);
@@ -680,7 +677,8 @@ function StageInvestible(props) {
   return (
     <>
       <div style={{display: 'flex', marginBottom: '0.35rem'}}>
-        {!unaccepted && (isVoting || isReview) && (
+        {!unaccepted && (isVoting || isReview) &&
+          !_.isEmpty(collaboratorsForInvestible.filter((collaboratorId) => !assigned?.includes(collaboratorId))) && (
           <div>
             <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
           </div>

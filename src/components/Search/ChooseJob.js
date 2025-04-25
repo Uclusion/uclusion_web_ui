@@ -19,7 +19,6 @@ import { getMarketInfo } from '../../utils/userFunctions';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import clsx from 'clsx';
-import { getTicketNumber } from '../../utils/stringFunctions';
 import { useIntl } from 'react-intl';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -78,10 +77,7 @@ function ChooseJob(props) {
       return 1;
     }
     return 0;
-  }, (investible) => {
-    const marketInfo = getMarketInfo(investible, marketId);
-    return parseInt(getTicketNumber(marketInfo.ticket_code), 10);
-  }], ['desc', 'desc']);
+  }, (investible) => investible.investible.name], ['desc', 'asc']);
 
   const { investibleId } = formData;
 
@@ -103,9 +99,8 @@ function ChooseJob(props) {
     const myInvestibleId = investible.id;
     const isChecked = investibleId === myInvestibleId;
     const marketInfo = getMarketInfo(inv, marketId);
-    const { ticket_code: ticketCode, assigned } = marketInfo;
-    const ticketNumber = getTicketNumber(ticketCode);
-    const displayName = ticketNumber ? `J-${ticketNumber} ${investible.name}` : investible.name;
+    const { assigned } = marketInfo;
+    const displayName = investible.name;
     const assignedPeople = marketPresences.filter((presence) => (assigned || []).includes(presence.id));
     return (
       <ListItem

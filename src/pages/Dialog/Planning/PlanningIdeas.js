@@ -614,7 +614,8 @@ function StageInvestible(props) {
   const [groupState] = useContext(MarketGroupsContext);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
-  const collaboratorsForInvestible = useCollaborators(marketPresences, comments, marketPresencesState,
+  const investibleComments = comments.filter((comment) => comment.investible_id === id) || [];
+  const collaboratorsForInvestible = useCollaborators(marketPresences, investibleComments, marketPresencesState,
     id, marketId, true);
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
   const isReviewable = isReview || showCompletion;
@@ -678,7 +679,7 @@ function StageInvestible(props) {
     <>
       <div style={{display: 'flex', marginBottom: '0.35rem'}}>
         {!unaccepted && (isVoting || isReview) &&
-          !_.isEmpty(collaboratorsForInvestible.filter((collaboratorId) => !assigned?.includes(collaboratorId))) && (
+          !_.isEmpty(collaboratorsForInvestible.filter((collaborator) => !assigned?.includes(collaborator.id))) && (
           <div>
             <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
           </div>

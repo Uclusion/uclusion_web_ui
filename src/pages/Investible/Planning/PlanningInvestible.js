@@ -312,7 +312,7 @@ export function useCollaborators(marketPresences, investibleComments, marketPres
     marketPresencesState);
   const voters = useInvestibleVoters(marketPresences, investibleId, marketId, true);
   const concated = [...voters, ...investibleCommentorPresences];
-  const presences = _.uniq(concated || []);
+  const presences = _.uniqBy(concated || [], 'id');
   if (returnPresences) {
     return presences;
   }

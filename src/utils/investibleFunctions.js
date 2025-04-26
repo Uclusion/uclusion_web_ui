@@ -11,8 +11,6 @@ import {
   STAGE_CHANGE_EVENT
 } from '../contexts/NotificationsContext/notificationsContextMessages';
 import { removeInvestments } from '../contexts/MarketPresencesContext/marketPresencesContextReducer';
-import { getCommenterPresences } from '../pages/Dialog/Planning/userUtils';
-import _ from 'lodash';
 
 export function onInvestibleStageChange(targetStageId, newInv, investibleId, marketId, commentsState, commentsDispatch,
   invDispatch, diffDispatch, marketStagesState, removeTypes, fullStage, marketPresencesDispatch) {
@@ -34,21 +32,4 @@ export function onInvestibleStageChange(targetStageId, newInv, investibleId, mar
     useRemoveTypes = [NOT_FULLY_VOTED_TYPE, REPORT_REQUIRED, UNREAD_JOB_APPROVAL_REQUEST];
   }
   pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event: STAGE_CHANGE_EVENT, investibleId, useRemoveTypes });
-}
-
-export function getCollaboratorsForInvestible(id, marketId, comments, votersForInvestible, marketPresences,
-  marketPresencesState, isVoting, groupPresences) {
-  const commentsForInvestible = comments.filter((comment) => comment.investible_id === id);
-  const commenterPresences = getCommenterPresences(marketPresences, commentsForInvestible, marketPresencesState);
-  const concated = isVoting ? votersForInvestible : commenterPresences;
-  const collaborators = _.uniqBy(concated, 'id');
-  if (_.isEmpty(groupPresences) || _.size(groupPresences) > 1) {
-    return collaborators;
-  }
-  const groupPresence = groupPresences[0];
-  // If only one person subscribed to the group, and he is the only collaborator then just don't mention
-  if (_.isEmpty(collaborators.filter((collaborator) => collaborator.id !== groupPresence.id))) {
-    return [];
-  }
-  return collaborators;
 }

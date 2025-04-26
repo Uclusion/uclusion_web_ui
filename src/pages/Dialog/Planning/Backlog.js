@@ -6,8 +6,7 @@ import _ from 'lodash';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import BacklogListItem from '../../../components/Cards/BacklogListItem';
 import { stripHTML } from '../../../utils/stringFunctions';
-import { calculateInvestibleVoters } from '../../../utils/votingUtils';
-import { getCollaboratorsForInvestible, onInvestibleStageChange } from '../../../utils/investibleFunctions';
+import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -30,8 +29,7 @@ import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { useCollaborators } from '../../Investible/Planning/PlanningInvestible';
 
 function Backlog(props) {
   const {
@@ -46,14 +44,11 @@ function Backlog(props) {
   const intl = useIntl();
   const wizardClasses = wizardStyles();
   const history = useHistory();
-  const [investiblesState] = useContext(InvestiblesContext);
   const [marketsState] = useContext(MarketsContext);
-  const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
   const classes = todoClasses();
   const [backlogState, backlogDispatch] = useReducer(getReducer(),
     {page: 1, tabIndex: 0, pageState: {}, defaultPage: 1});
@@ -70,7 +65,6 @@ function Backlog(props) {
   const yellowCount = _.size(furtherWorkReadyToStart);
   const unreadYellowCount = _.size(furtherWorkReadyToStart.filter((inv) => isNew(inv, messagesState)));
   const unreadBlueCount = _.size(furtherWorkInvestibles);
-  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
 
   function onDrop(investibleId) {
     const marketInvestible = data.find((inv) => inv.investible.id === investibleId);
@@ -181,20 +175,29 @@ function Backlog(props) {
         </Typography>
       )}
       {data.map((inv) => {
-        const { investible } = inv;
-        const votersForInvestible = calculateInvestibleVoters(investible.id, marketId, marketsState,
-          investiblesState, marketPresences, true);
-        const collaboratorsForInvestible = getCollaboratorsForInvestible(investible.id, marketId, comments,
-          votersForInvestible, marketPresences, marketPresencesState, false, groupPresences);
         return (
-          <BacklogListItem id={investible.id} title={investible.name} date={intl.formatDate(investible.created_at)}
-                           description={stripHTML(investible.description)}
-                           newMessages={getNewMessages(inv, messagesState)}
-                           marketId={marketId} people={collaboratorsForInvestible} />
+          <BacklogItem inv={inv} comments={comments} marketPresences={marketPresences} marketId={marketId}/>
         );
       })}
     </>
   )
+}
+
+function BacklogItem(props) {
+  const { inv, comments, marketPresences, marketId } = props;
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [messagesState] = useContext(NotificationsContext);
+  const intl = useIntl();
+  const { investible } = inv;
+  const investibleComments = comments.filter((comment) => comment.investible_id === investible.id) || [];
+  const collaboratorsForInvestible = useCollaborators(marketPresences, investibleComments, marketPresencesState,
+    investible.id, marketId, true);
+  return (
+    <BacklogListItem id={investible.id} title={investible.name} date={intl.formatDate(investible.created_at)}
+                     description={stripHTML(investible.description)}
+                     newMessages={getNewMessages(inv, messagesState)}
+                     marketId={marketId} people={collaboratorsForInvestible} />
+  );
 }
 
 export default Backlog;

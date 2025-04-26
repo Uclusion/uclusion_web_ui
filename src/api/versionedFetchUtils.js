@@ -77,12 +77,14 @@ const matchErrorHandlingVersionRefresh = (ignoreIfInProgress=false, dispatchers=
     if (aLock || ignoreIfInProgress) {
       return doVersionRefresh(dispatchers)
         .catch((error) => {
-          console.error(error);
-          // we'll log match problems, but raise the rest
           if (error instanceof MatchError) {
+            // just log match problems
             console.info('Ignoring match error');
+            console.info(error);
           } else {
-            throw (error);
+            // Nowhere to raise this to so just put out as error
+            console.info('doVersionRefresh error');
+            console.error(error);
           }
         });
       }

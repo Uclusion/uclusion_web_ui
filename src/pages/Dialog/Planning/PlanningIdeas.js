@@ -694,7 +694,7 @@ function StageInvestible(props) {
           </Tooltip>
         )}
         {hasDaysEstimate && (
-          <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? 'red': undefined, marginTop: '0.2rem',
+          <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? '#F29100': undefined, marginTop: '0.2rem',
             cursor: unreadEstimate ? 'pointer' : undefined }}
                onClick={(event) => {
                  if (unreadEstimate) {

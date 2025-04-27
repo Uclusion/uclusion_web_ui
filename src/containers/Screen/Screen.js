@@ -170,12 +170,19 @@ export const screenStyles = makeStyles((theme) => ({
   },
 }));
 
+function isAutonomousGroupCheck(group, marketId, marketPresences, groupPresencesState) {
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
+    group.id) || [];
+  return isAutonomousGroup(groupPresences, group);
+}
+
 export function getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
   history, market, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
   onGroupClick, pathname, resetFunction, action, type, classes) {
   const marketId = market.id;
-  const itemsSorted = _.sortBy(groupsState[marketId], 'name');
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const itemsSorted = _.sortBy(groupsState[marketId],
+    (group) => isAutonomousGroupCheck(group, marketId, marketPresences, groupPresencesState), 'name');
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const itemsRaw = itemsSorted.map((group) => {
     const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,

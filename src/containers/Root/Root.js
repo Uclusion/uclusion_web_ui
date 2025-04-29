@@ -253,34 +253,26 @@ function Root(props) {
 
     if (!window.myListenerMarker && isUserLoaded) {
       window.myListenerMarker = true;
-      // console.debug('Adding listeners');
+
       window.addEventListener('load', () => {
-        // console.debug('Load listener');
+        console.info('Load listener');
         handleViewChange(true)
       }, { passive: true })
       window.addEventListener('focus', () => {
-        // console.debug('Focus listener');
+        console.info('Focus listener');
         handleViewChange(true)
       }, { passive: true })
-      // window.addEventListener('blur', () => {
-      //   console.debug('Blur listener');
-      //   handleViewChange(false);
-      // });
       window.addEventListener('online', () => {
-        // console.debug('Back Online listener');
+        console.info('Online listener');
         setOnline(true)
         setOperationInProgress(false)
       }, { passive: true })
       window.addEventListener('offline', () => {
-        // console.debug('Offline listener');
+        console.info('Offline listener');
         setOnline(false)
       }, { passive: true })
-      // window.addEventListener('popstate', () => {
-      //   console.debug('Popstate');
-      //   handleViewChange(true);
-      // });
       document.addEventListener('visibilitychange', () => {
-        // console.debug('Visibility change listener');
+        console.info('Visibility change listener');
         const isEntry = document.visibilityState === 'visible'
         handleViewChange(isEntry)
       }, { passive: true })

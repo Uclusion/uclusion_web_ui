@@ -145,17 +145,10 @@ function JobStageStep (props) {
       <Typography className={classes.introText} variant="h6">
         Where will you move this job?
       </Typography>
-      {!isSingleUser && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Moving to backlog will remove assignment and
-          approvals. {isAssigned ? '' : 'You must be assigned to move to Approved.'}
-        </Typography>
-      )}
-      {isSingleUser && _.isEmpty(myGroupPresence) && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          In autonomous mode only a member of this view can assign.
-        </Typography>
-      )}
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Moving to backlog will remove assignment and
+        approvals. {isAssigned ? '' : 'You must be assigned to move to Approved.'}
+      </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId}/>
       <div style={{ marginBottom: '2rem' }}/>
       <FormControl component="fieldset">

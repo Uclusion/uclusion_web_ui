@@ -402,7 +402,7 @@ function PlanningInvestible(props) {
   const yourVote = yourPresence?.investments?.find((investment) =>
     investment.investible_id === investibleId && !investment.deleted);
   const displayVotingInput = canVote && _.isEmpty(search) && !yourVote;
-  const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
+  const isAutonomous = useGroupPresences(groupId, marketId, marketPresences);
 
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {
@@ -771,7 +771,7 @@ function PlanningInvestible(props) {
                     </Tooltip>
                   </IconButton>
                 </div>
-                {displayVotingInput && investibleId && approvalsOpen && !isSingleUser && (
+                {displayVotingInput && investibleId && approvalsOpen && (
                   <SpinningButton id="newApproval" className={wizardClasses.actionNext}
                                   icon={AddIcon} iconColor="black"
                                   style={{ display: 'flex', marginBottom: '1.5rem', marginTop: '0.5rem' }}
@@ -781,7 +781,7 @@ function PlanningInvestible(props) {
                     <FormattedMessage id="createNewApproval"/>
                   </SpinningButton>
                 )}
-                {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsOpen && !isSingleUser && (
+                {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsOpen && (
                   <Voting
                     investibleId={investibleId}
                     marketPresences={marketPresences}
@@ -811,7 +811,7 @@ function PlanningInvestible(props) {
                     <FormattedMessage id="createNewStatus"/>
                   </SpinningButton>
                 )}
-                {!isSingleUser && (
+                {!isAutonomous && (
                   <DismissableText textId="progressReportCommentHelp"
                                    display={isAssigned && _.isEmpty(reportsCommentsSearched)} isLeft
                                    text={<div>

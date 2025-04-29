@@ -308,7 +308,8 @@ function CommentAdd(props) {
   const { assigned, stage: currentStageId } = info || {};
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const ourMarket = getMarket(marketsState, marketId) || {};
-  const isSingleUser = useGroupPresences(groupId, marketId, presences);
+  const isAutonomous = useGroupPresences(groupId, marketId, presences);
+  const isSingleUser = isAutonomous && _.size(presences) < 2;
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
   const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId);

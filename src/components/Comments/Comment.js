@@ -503,7 +503,8 @@ function Comment(props) {
   const thisCommentBeingEdited = beingEdited && !replyBeingEdited;
   const presences = usePresences(marketId);
   const inlinePresences = usePresences(inlineMarketId);
-  const isSingleUser = useGroupPresences(groupId, marketId, presences);
+  const isAutonomous = useGroupPresences(groupId, marketId, presences);
+  const isSingleUser = isAutonomous && _.size(presences) < 2;
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
   const [marketsState, , tokensHash] = useContext(MarketsContext);

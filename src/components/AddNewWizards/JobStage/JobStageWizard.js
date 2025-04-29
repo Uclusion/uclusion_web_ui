@@ -55,6 +55,7 @@ function JobStageWizard(props) {
 
   function requiresAction(fullMoveStage) {
     if (!_.isEmpty(fullMoveStage)&&!isNotDoingStage(fullMoveStage)) {
+      // Not prompting for review if autonomous mode
       if (fullMoveStage.close_comments_on_entrance && !isSingleUser) {
         return true;
       }
@@ -105,7 +106,7 @@ function JobStageWizard(props) {
                              isAssign={isAssign} requiresAction={requiresAction} isSingleUser={isSingleUser} />
         )}
         <StageActionStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                         currentReasonId={yourReason?.id} groupId={groupId} isSingleUser={isSingleUser} />
+                         currentReasonId={yourReason?.id} groupId={groupId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

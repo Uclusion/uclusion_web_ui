@@ -18,7 +18,7 @@ import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
-import { DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
+import { ADD_COLLABORATOR_WIZARD_TYPE, DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { updateMarketStagesFromNetwork } from '../../../contexts/MarketStagesContext/marketStagesContextReducer';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';
@@ -28,10 +28,12 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { addGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { fixName } from '../../../utils/userFunctions';
+import { useIntl } from 'react-intl';
 
 function WorkspaceNameStep (props) {
   const { updateFormData, formData } = props;
   const history = useHistory();
+  const intl = useIntl();
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
@@ -53,7 +55,7 @@ function WorkspaceNameStep (props) {
     });
   }
 
-  function onNext(isSinglePersonMode = true) {
+  function onNext(isSinglePersonMode = true, isTerminate = false, groupNameId) {
     const { name } = formData;
     const marketInfo = {
       name,
@@ -61,6 +63,8 @@ function WorkspaceNameStep (props) {
     };
     if (isSinglePersonMode) {
       marketInfo.group_name = fixName(userState.user.name).slice(0, 80);
+    } else {
+      marketInfo.group_name = intl.formatMessage({id: groupNameId});
     }
     return createPlanning(marketInfo)
       .then((marketDetails) => {
@@ -90,7 +94,8 @@ function WorkspaceNameStep (props) {
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
           .then(() => {
-            const link = formMarketLink(market.id, market.id);
+            const link = isTerminate || !isSinglePersonMode ? formMarketLink(market.id, market.id) :
+              `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${market.id}`;
             // Should fix up finish to be invoked but currently is not
             setOperationRunning(false);
             navigate(history, link);
@@ -132,10 +137,15 @@ function WorkspaceNameStep (props) {
         <WizardStepButtons
           {...props}
           onNext={onNext}
+          nextLabel='addPeers'
           validForm={validForm}
+          showOtherNext
+          otherNextLabel='configCustomerFeedback'
+          onOtherNext={() => onNext(false, false,
+            'customerFeedbackView')}
           showTerminate={validForm}
-          onTerminate={() => navigate(history)}
-          terminateLabel='OnboardingWizardGoBack'
+          onTerminate={() => onNext(true, true)}
+          terminateLabel='justMeForNow'
         />
       </div>
     </WizardStepContainer>

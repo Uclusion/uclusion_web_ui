@@ -125,7 +125,7 @@ function GroupEdit() {
             disabled={groupPresences?.length > 1 && !autonomousMode}
             onClick={() => setAutonomousMode(!autonomousMode)}
           />
-          Use autonomous mode (only applies to views with one assignee).
+          My work (only applies to views with one assignee).
         </div>
         <Typography style={{marginTop: '2rem'}}>
           {intl.formatMessage({ id: 'ticketSubCodeHelp' })}

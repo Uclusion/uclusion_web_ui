@@ -43,16 +43,17 @@ function processRegularItem(properties) {
             {text}</span>)
     : <span style={{fontSize: isLarge ? '1.2rem' : undefined, marginLeft: complexIcon ? '0.5rem' : undefined,}}>
       {text}</span>;
+  const useIdPrepend =  complexIcon ? idPrepend + index : idPrepend;
   return (
     <div key={`sidebarMenuHolder${key}`}>
       <MenuItem icon={complexIcon ? <div /> :<Icon style={{fontSize: '1.3rem', paddingBottom: isLarge ? undefined :'2px'}}
                                                 htmlColor={iconColor} />}
                 style={{backgroundColor, borderRadius: 22, width: '97%',
                 marginLeft: 'auto', marginRight: 'auto'}}
-                key={key} id={`${idPrepend}${textNoSpaces}`}
+                key={key} id={`${useIdPrepend}${textNoSpaces}`}
                 suffix={num > 0 ?
                   <Typography style={{ fontWeight: 'bold', paddingRight: '0.25rem' }} >{num} {numSuffix}</Typography>
-                  : (EndIcon ? <IconButton id={`end${idPrepend}${textNoSpaces}`} size="small" onClick={(event) => onClickFunc(event)}>
+                  : (EndIcon ? <IconButton id={`end${useIdPrepend}${textNoSpaces}`} size="small" onClick={(event) => onClickFunc(event)}>
                       <EndIcon htmlColor="black" fontSize="small" /></IconButton>
                     : undefined)}
                 onClick={

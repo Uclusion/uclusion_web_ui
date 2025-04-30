@@ -143,8 +143,11 @@ export default function NavigationChevrons(props) {
     const highlighted = highlightedMessages?.filter((message) =>
       formInboxItemLink(message) !== resource) || [];
     const highlightedMapped = addWorkspaceGroupAttribute(highlighted, groupsState);
-    const highlightedOrdered =  _.orderBy(highlightedMapped, ['groupAttr', 'updated_at'],
-      ['asc', 'desc']);
+    const highlightedOrdered =  _.orderBy(highlightedMapped,
+      [function isGroupInvite(msg) {
+        return msg.type_object_id.includes('UNREAD_GROUP_');
+      }, 'groupAttr', 'updated_at'],
+      ['desc', 'asc', 'desc']);
     if (!_.isEmpty(highlightedOrdered)) {
       const message = highlightedOrdered[0];
       return {url: formInboxItemLink(message), message, isHighlighted: true};

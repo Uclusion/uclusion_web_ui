@@ -29,11 +29,11 @@ const useStyles = makeStyles((theme) => {
 });
 
 function SwimlanesOnboardingBanner(props) {
-  const { group, sectionOpen, isDemo, isSingleUser } = props;
+  const { group, sectionOpen, isDemo, isAutonomous } = props;
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const isOpeningScreen = (!sectionOpen || sectionOpen === 'storiesSection') &&
+  const isOpeningScreen = isDemo && (!sectionOpen || sectionOpen === 'storiesSection') &&
     isEveryoneGroup(group?.id, group?.market_id);
 
   return (
@@ -50,7 +50,18 @@ function SwimlanesOnboardingBanner(props) {
                  </div>
                }/>
             )}
-            {(!sectionOpen || sectionOpen === 'storiesSection') && !isSingleUser &&
+            {!isDemo && isAutonomous && (
+              <DismissableText textId="everyoneStatusHelp" text={
+                <div>
+                  <Typography>This <Link href="https://documentation.uclusion.com/views/mywork/" target="_blank">My work</Link> view
+                  displays all assigned</Typography>
+                  <Typography className={classes.ctaSub}>
+                    to you even if from another view.
+                  </Typography>
+                </div>
+              }/>
+            )}
+            {(!sectionOpen || sectionOpen === 'storiesSection') && !isAutonomous && isDemo &&
               !isEveryoneGroup(group?.id, group?.market_id) && (
               <DismissableText textId="notEveryoneStatusHelp" text={
                 <div>
@@ -71,7 +82,7 @@ function SwimlanesOnboardingBanner(props) {
                 </div>
               }/>
             )}
-            {sectionOpen === 'backlogSection' && !isSingleUser && (
+            {sectionOpen === 'backlogSection' && !isAutonomous && (
               <DismissableText textId="backlogHelp" text={
                 <div>
                   <Typography>See <Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">self assigning jobs</Link> flow.</Typography>
@@ -81,7 +92,7 @@ function SwimlanesOnboardingBanner(props) {
                 </div>
               }/>
             )}
-            {sectionOpen === 'discussionSection' && !isSingleUser && (
+            {sectionOpen === 'discussionSection' && !isAutonomous && (
               <DismissableText textId="discussionHelp" text={
                 <div>
                   <Typography><b>Vote here on new ideas and question options.</b></Typography>

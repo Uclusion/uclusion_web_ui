@@ -611,7 +611,6 @@ function StageInvestible(props) {
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
-  const [groupState] = useContext(MarketGroupsContext);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
   const investibleComments = comments.filter((comment) => comment.investible_id === id) || [];
@@ -627,7 +626,6 @@ function StageInvestible(props) {
     return !_.isEmpty(findMessageOfType('REPORT_REQUIRED', id, messagesState));
   }
   const doesRequireStatus = requiresStatus(id);
-  const group = getGroup(groupState, marketId, viewGroupId) || {};
 
   function getChip(labelNum, toolTipId) {
     const messagesRaw = findMessagesForInvestibleId(id, messagesState);

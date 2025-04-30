@@ -15,12 +15,11 @@ export function nameToAvatarText(name) {
   return firstLetters.toUpperCase();
 }
 
-export function getTicketNumber(ticketCode, isAutonomous=false, groupName) {
+export function getTicketNumber(ticketCode, isAutonomous=false, isSameGroup) {
   if (isAutonomous && ticketCode) {
-    const decodedCode = decodeURI(ticketCode);
-    if (!decodedCode.includes(groupName)) {
+    if (!isSameGroup) {
       const removeOne = ticketCode.substring(ticketCode.indexOf('-')+1);
-      return removeOne.substring(0, removeOne.indexOf('-'));
+      return decodeURI(removeOne.substring(0, removeOne.indexOf('-')));
     }
   }
   return undefined;

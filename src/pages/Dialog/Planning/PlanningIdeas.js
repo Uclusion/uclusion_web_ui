@@ -605,7 +605,7 @@ function StageInvestible(props) {
     viewGroupId
   } = props;
   const intl = useIntl();
-  const { completion_estimate: daysEstimate, ticket_code: ticketCode, assigned } = marketInfo;
+  const { completion_estimate: daysEstimate, ticket_code: ticketCode, assigned, group_id: groupId } = marketInfo;
   const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
@@ -674,7 +674,7 @@ function StageInvestible(props) {
     getChip(isVoting ? numQuestionsSuggestions : (showNumRequiredReviews ? numRequiredReviews : numOpenTasks),
       isVoting ? 'inputRequiredCountExplanation':
         (showNumRequiredReviews ? 'requiredReviewsCountExplanation' : 'openTasksCountExplanation'));
-  const ticketNumber = getTicketNumber(ticketCode, isAutonomous, group?.name);
+  const ticketNumber = getTicketNumber(ticketCode, isAutonomous, groupId === viewGroupId);
   return (
     <>
       <div style={{display: 'flex', marginBottom: '0.35rem'}}>

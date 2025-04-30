@@ -1,7 +1,6 @@
 import React from 'react';
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/styles';
-import { isEveryoneGroup } from '../../contexts/GroupMembersContext/groupMembersHelper';
 import DemoCreateWorkspaceButton from '../Buttons/DemoCreateWorkspaceButton';
 import Link from '@material-ui/core/Link';
 import DismissableText from '../Notifications/DismissableText';
@@ -33,14 +32,14 @@ function SwimlanesOnboardingBanner(props) {
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const isOpeningScreen = isDemo && (!sectionOpen || sectionOpen === 'storiesSection') &&
-    isEveryoneGroup(group?.id, group?.market_id);
+  const isDemoEngineeringScreen = isDemo && (!sectionOpen || sectionOpen === 'storiesSection') &&
+    group?.name === 'Engineering';
 
   return (
     <div className={classes.bannerBackground} id='bannerId'>
       <div className={classes.bannerBox}>
           <div style={{marginTop: '0.8rem'}} id='swimlanesDemoBannerText'>
-            {isOpeningScreen && (
+            {isDemoEngineeringScreen && (
               <DismissableText textId="everyoneStatusHelp" text={
                 <div>
                    <Typography><b>Here is status at a glance for this view.</b></Typography>
@@ -62,7 +61,7 @@ function SwimlanesOnboardingBanner(props) {
               }/>
             )}
             {(!sectionOpen || sectionOpen === 'storiesSection') && !isAutonomous && isDemo &&
-              !isEveryoneGroup(group?.id, group?.market_id) && (
+              group?.name === 'Marketing' && (
               <DismissableText textId="notEveryoneStatusHelp" text={
                 <div>
                   <Typography><b>This view has its own status.</b></Typography>

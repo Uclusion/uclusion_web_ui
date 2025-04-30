@@ -244,9 +244,11 @@ function Root(props) {
       const currentPath = window.location.pathname;
       const { action, marketId, investibleId } = decomposeMarketPath(currentPath);
       broadcastView(marketId, investibleId, isEntry, action);
-      if (isEntry && ((marketId && marketId === defaultMarketId)||action === 'inbox')) {
+      if (isEntry) {
         console.info('Refresh versions in view change');
-        // refresh if entering and on a page that requires market refresh and not busy loading a market
+        // refresh if entering - lock will prevent concurrent refresh
+        // Concurrent market load is something already happening potentially from leader context
+        // However, should not be anything to get until invite or demo api called
         refreshVersions().catch(() => console.warn('Error refreshing'));
       }
     }

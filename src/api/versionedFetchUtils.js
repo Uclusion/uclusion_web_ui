@@ -71,10 +71,10 @@ export const BANNED_LIST = 'banned_list';
 export class MatchError extends Error {}
 
 let runner;
-const matchErrorHandlingVersionRefresh = (ignoreIfInProgress=false, dispatchers=undefined) => {
-  return navigator.locks.request("REFRESH_LOCK", {ifAvailable: !ignoreIfInProgress},
+const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
+  return navigator.locks.request("REFRESH_LOCK", {ifAvailable: true},
     async (aLock) => {
-    if (aLock || ignoreIfInProgress) {
+    if (aLock) {
       return doVersionRefresh(dispatchers)
         .catch((error) => {
           if (error instanceof MatchError) {

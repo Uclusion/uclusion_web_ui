@@ -281,7 +281,7 @@ function Root(props) {
     //  window.onanimationiteration = console.debug;
       registerMarketTokenListeners();
     }
-  },  [history, setOnline, location, isUserLoaded, defaultMarketId]);
+  },  [history, setOnline, location, isUserLoaded]);
 
   if (authState !== 'signedIn' || action === 'supportWorkspace' || (isRootPath && firstMarketJoinedUser && _.isEmpty(defaultMarketLink))) {
     return (

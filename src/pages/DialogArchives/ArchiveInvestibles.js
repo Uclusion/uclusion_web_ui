@@ -163,36 +163,37 @@ function ArchiveInvestbiles(props) {
             <RaisedCard draggable={allowDragDrop} onDragStart={onDragStart}>
               <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
                 <div className={classes.outlined}>
-                  <Grid container>
-                    <Grid item xs={8}>
+                    <div>
                       <Typography style={{fontSize: '.75rem', flex: 1}}>
                         Entered <UsefulRelativeTime value={enteredStageAt}/>
                       </Typography>
-                    </Grid>
-                    {TypeIcon && (
-                      <Grid item xs={1}
-                            onClick={(event) => {
-                              if (myMessage) {
-                                preventDefaultAndProp(event);
-                                dehighlightMessage(myMessage, messagesDispatch);
-                                navigate(history, formInboxItemLink(myMessage));
-                              }
-                            }}
-                            onMouseOver={(event) => {
-                              if (myMessage) {
-                                preventDefaultAndProp(event);
-                              }
-                            }}
-                      >
-                        <Tooltip title={intl.formatMessage({ id: typeExplanation })}>
-                          {TypeIcon}
-                        </Tooltip>
-                      </Grid>
-                    )}
-                    <Grid id={`showEdit0${id}`} item xs={1} style={{pointerEvents: 'none', visibility: 'hidden'}}>
-                      <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
-                    </Grid>
-                    <Grid id={`showEdit1${id}`} item xs={12} style={{paddingTop: '0.5rem'}}>
+                    </div>
+                    <div style={{display: 'flex'}}>
+                      {TypeIcon && (
+                        <div
+                          onClick={(event) => {
+                            if (myMessage) {
+                              preventDefaultAndProp(event);
+                              dehighlightMessage(myMessage, messagesDispatch);
+                              navigate(history, formInboxItemLink(myMessage));
+                            }
+                          }}
+                          onMouseOver={(event) => {
+                            if (myMessage) {
+                              preventDefaultAndProp(event);
+                            }
+                          }}
+                        >
+                          <Tooltip title={intl.formatMessage({ id: typeExplanation })}>
+                            {TypeIcon}
+                          </Tooltip>
+                        </div>
+                      )}
+                      <div id={`showEdit0${id}`} style={{pointerEvents: 'none', display: 'none'}}>
+                        <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
+                      </div>
+                    </div>
+                    <div id={`showEdit1${id}`} style={{paddingTop: '0.5rem'}}>
                       <Typography style={{flex: 2}}>
                         {name}
                       </Typography>
@@ -200,8 +201,7 @@ function ArchiveInvestbiles(props) {
                         style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}}
                         key={name}>Assignee: {name}
                       </Typography>))}
-                    </Grid>
-                  </Grid>
+                    </div>
                 </div>
               </Link>
             </RaisedCard>

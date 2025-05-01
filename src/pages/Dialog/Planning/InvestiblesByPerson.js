@@ -1,7 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
 import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router';
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestibleNav';
 import React, { useContext } from 'react';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -11,7 +10,6 @@ import {
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { PLACEHOLDER } from '../../../constants/global';
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils';
-import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import { Link, Typography, useTheme } from '@material-ui/core';
@@ -19,9 +17,6 @@ import NotificationCountChips from '../NotificationCountChips';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import CardContent from '@material-ui/core/CardContent';
 import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas';
-import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
-import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
-import AddIcon from '@material-ui/icons/Add';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -128,11 +123,9 @@ function InvestiblesByPerson(props) {
     mobileLayout
   } = props;
   const theme = useTheme();
-  const history = useHistory();
   const metaClasses = useMetaDataStyles();
   const classes = useInvestiblesByPersonStyles();
   const swimClasses = usePlanningIdStyles();
-  const wizardClasses = wizardStyles();
   const { market_id: marketId, id: groupId } = group || {};
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
@@ -141,8 +134,6 @@ function InvestiblesByPerson(props) {
   const { search } = searchResults;
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
-  const myPresence = presences.find((presence) => presence.current_user) || {};
-  const myGroupPresence = groupPresences.find((presence) => presence.id === myPresence.id);
   const isAutonomous = isAutonomousGroup(groupPresences, group);
   const groupPresencesSortedAlmost = _.sortBy(groupPresences, 'name');
   const groupPresencesSorted = _.sortBy(groupPresencesSortedAlmost, function (presence) {
@@ -154,17 +145,6 @@ function InvestiblesByPerson(props) {
     visibleStages, marketId, comments, messagesState) : undefined;
   return (
     <React.Fragment key="investiblesByPerson">
-      {(!isAutonomous || !_.isEmpty(myGroupPresence)) && (
-        <SpinningButton id="addJob"
-                        className={wizardClasses.actionNext}
-                        icon={AddIcon} iconColor="black"
-                        variant="text" doSpin={false}
-                        style={{marginTop: '1rem', marginBottom: '1rem'}}
-                        toolTipId='hotKeyJob'
-                        onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
-          <FormattedMessage id='addStoryLabel'/>
-        </SpinningButton>
-      )}
       {!mobileLayout && (
         <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
           {(!isAutonomous || (inDialogStage && !_.isEmpty(autoInvestiblesStageHash[inDialogStage.id]))) && (

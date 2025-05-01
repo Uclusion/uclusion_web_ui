@@ -505,32 +505,45 @@ function PlanningDialog(props) {
           </div>
         )}
         {isSectionOpen('storiesSection') && (
-          <div id="storiesSection" style={{overflowX: 'hidden', marginTop: '0.5rem'}}>
-              <SubSection
-                type={SECTION_TYPE_SECONDARY_WARNING}
-                bolder
-                title={intl.formatMessage({ id: 'blockedHeader' })}
-                helpLink='https://documentation.uclusion.com/views/jobs/stages/#assistance'
-                id="blocked"
-              >
-                <DismissableText textId="assistanceHelp"
-                                 display={_.isEmpty(blockedOrRequiresInputInvestibles)}
-                                 text={
-                                       <div>
-                                         When there is a blocker or an assignee creates a question or suggestion the
-                                         job moves here.
-                                       </div>
-                                 }/>
-                {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
-                  <ArchiveInvestbiles
-                    comments={comments}
-                    marketId={marketId}
-                    presenceMap={presenceMap}
-                    investibles={blockedOrRequiresInputInvestibles}
-                    allowDragDrop
-                  />
-                )}
-              </SubSection>
+          <div id="storiesSection" style={{overflowX: 'hidden'}}>
+            <div style={{display: mobileLayout ? undefined : 'flex'}}>
+              <SpinningButton id="addJob"
+                              className={wizardClasses.actionNext}
+                              icon={AddIcon} iconColor="black"
+                              variant="text" doSpin={false}
+                              style={{marginTop: '1rem', marginBottom: '1rem'}}
+                              toolTipId='hotKeyJob'
+                              onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
+                <FormattedMessage id='addStoryLabel'/>
+              </SpinningButton>
+              <div style={{width: '100%'}}>
+                <SubSection
+                  type={SECTION_TYPE_SECONDARY_WARNING}
+                  bolder
+                  title={intl.formatMessage({ id: 'blockedHeader' })}
+                  helpLink='https://documentation.uclusion.com/views/jobs/stages/#assistance'
+                  id="blocked"
+                >
+                  <DismissableText textId="assistanceHelp"
+                                   display={_.isEmpty(blockedOrRequiresInputInvestibles)}
+                                   text={
+                                     <div>
+                                       When there is a blocker or an assignee creates a question or suggestion the
+                                       job moves here.
+                                     </div>
+                                   }/>
+                  {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
+                    <ArchiveInvestbiles
+                      comments={comments}
+                      marketId={marketId}
+                      presenceMap={presenceMap}
+                      investibles={blockedOrRequiresInputInvestibles}
+                      allowDragDrop
+                    />
+                  )}
+                </SubSection>
+              </div>
+            </div>
               <div style={{ paddingBottom: '2rem' }}/>
             <InvestiblesByPerson
               comments={comments}

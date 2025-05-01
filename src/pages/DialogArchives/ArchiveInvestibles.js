@@ -150,12 +150,9 @@ function ArchiveInvestbiles(props) {
       }
       return (
         <React.Fragment key={`frag${id}`}>
-          <Grid
+          <div
             id={id}
             key={id}
-            item
-            md={3}
-            xs={12}
             style={{overflowWrap: "break-word"}}
             onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
             onClick={(event) => {
@@ -208,7 +205,7 @@ function ArchiveInvestbiles(props) {
                 </div>
               </Link>
             </RaisedCard>
-          </Grid>
+          </div>
           {!mobileLayout && (
             <DragImage id={id} name={name} />
           )}

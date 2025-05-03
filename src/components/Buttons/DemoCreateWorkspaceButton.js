@@ -28,7 +28,7 @@ function DemoCreateWorkspaceButton() {
   const demo = marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
     market.object_type === DEMO_TYPE) || {};
   const totalCount = _.size(messagesState.messages?.filter((msg) => isInInbox(msg) &&
-    msg.market_id === demo.market.id));
+    msg.market_id === demo.id));
   const presences = usePresences(demo.id);
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const demoMarketComments = getMarketComments(commentsState, demo.id) || [];

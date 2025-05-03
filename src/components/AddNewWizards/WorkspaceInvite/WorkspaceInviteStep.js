@@ -92,13 +92,13 @@ function WorkspaceInviteStep (props) {
           )}
         </Typography>
         <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
-          {checkMark}Go to a group view by clicking a name in the left side panel:
+          {checkMark}Go to a view by clicking a name in the left side panel:
           <div style={{ backgroundColor: '#DFF0F2', width: '16rem' }}>
             <Sidebar navigationOptions={{ navListItemTextArray }} idPrepend="intro"/>
           </div>
         </Typography>
         <Typography variant="body2" style={{ paddingTop: '0.3rem', paddingBottom: '0.5rem' }}>
-          {checkMark}In group view change tabs to send a <Link href={pathToBugs} onClick={(event) => {
+          {checkMark}In a view change tabs to send a <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, pathToBugs);
         }}>bug</Link>, <Link href={pathToBugs} onClick={(event) => {

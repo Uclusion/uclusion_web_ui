@@ -62,6 +62,7 @@ export function getPlanningMarketId(investibleId, marketsState, investiblesState
 }
 
 export function setRedirect(location) {
+  console.info(`Setting redirect to ${location}`);
   // The redirect and is_invited are not valid after a logout
   setUclusionLocalStorageItem(REDIRECT_LOCAL_STORAGE_KEY, location);
   if (location.includes('invite')) {

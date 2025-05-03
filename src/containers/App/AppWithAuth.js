@@ -23,6 +23,7 @@ import { clearRedirect, getAndClearEmail, getRedirect } from '../../utils/redire
 import { clearSignedOut } from '../../utils/userFunctions';
 import { poll } from '../../contexts/AccountContext/accountContextMessages';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import { OnboardingState } from '../../contexts/AccountContext/accountUserContextHelper';
 
 Amplify.configure(awsconfig);
 
@@ -68,9 +69,12 @@ function AppWithAuth() {
       case 'signIn':
         console.log('Starting poll after sign in');
         clearSignedOut();
-        await poll(dispatch);
-        const redirect = getRedirect();
+        const user = await poll(dispatch);
+        let redirect = getRedirect();
         clearRedirect();
+        if ((_.isEmpty(redirect) || redirect === '/')&&(user?.onboarding_state === OnboardingState.NeedsOnboarding)) {
+          redirect = '/demo';
+        }
         if (!_.isEmpty(redirect) && redirect !== '/') {
           console.log(`Redirecting on sign in to ${redirect}`);
           window.location.replace(redirect);

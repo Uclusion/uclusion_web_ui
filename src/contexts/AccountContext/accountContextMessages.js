@@ -21,6 +21,7 @@ export function poll(dispatch, accountVersion, userVersion) {
             && (userVersion === undefined || userVersion <= founderUserVersion)) {
             dispatch(accountAndUserRefresh(fixDates(account), user));
           }
+          return user;
         }
       });
 }

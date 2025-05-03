@@ -289,11 +289,7 @@ function Signup(props) {
       if (response === 'ACCOUNT_CREATED') {
         const { email } = user;
         setEmail(email);
-        // Account was created, and we were not going to an existing market so create demo
-        if (redirect === '/') {
-          setRedirect('/demo');
-        }
-        window.location.replace('/demo');
+        window.location.replace('/');
       } else {
         setPostSignUp(response);
         setCallActive(false);
@@ -319,8 +315,6 @@ function Signup(props) {
       const aRedirect = getRedirect();
       if (aRedirect !== '/') {
         setRedirect(aRedirect);
-      } else {
-        setRedirect('/demo');
       }
       Auth.federatedSignIn({ provider });
     }

@@ -19,16 +19,12 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { TicketIndexContext } from '../../../contexts/TicketContext/TicketIndexContext';
 import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
-import Inbox from '../../Home/YourWork/Inbox';
-import {
-  dehighlightMessage,
-  getMessageId,
-  isInInbox
-} from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
+import WorkspaceInviteWizard from '../../../components/AddNewWizards/WorkspaceInvite/WorkspaceInviteWizard';
 
 function DemoMarketLoad(props) {
-  const { onboardingState, demo, demoMessage } = props;
+  const { onboardingState, demo } = props;
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, messagesDispatch, , setInitialized] = useContext(NotificationsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
@@ -71,41 +67,30 @@ function DemoMarketLoad(props) {
       }
       const id = await handleMarketData(demo, dispatchers);
       userDispatch(accountUserRefresh(user));
-      const workspaceMessage = notifications?.find((message) =>
-        message.type_object_id === `UNREAD_GROUP_${id}`);
-      dehighlightMessage(workspaceMessage, messagesDispatch);
-      return {id, notifications: workspaceMessage ? [workspaceMessage] : undefined};
+      return {id};
     }, []);
-    return _.isEmpty(loadedInfo?.notifications) ? loadingScreen :
+    return _.isEmpty(loadedInfo?.id) ? loadingScreen :
       <Screen
-        title={intl.formatMessage({id: 'inbox'})}
-        tabTitle={intl.formatMessage({id: 'inbox'})}
+        title={intl.formatMessage({id: 'DemoWelcome'})}
+        tabTitle={intl.formatMessage({id: 'DemoWelcome'})}
         hidden={false}
-        isInbox
-        groupLoadId={loadedInfo.id}
         disableSearch
       >
-      <Inbox hidden={false} messagesFull={loadedInfo.notifications} loadedMarketId={loadedInfo.id}
-             workItemId={getMessageId(loadedInfo.notifications[0])}
-             messagesHash={{inboxMessagesOrdered: loadedInfo.notifications}}/>
+        <WorkspaceInviteWizard marketId={demo.id} />
       </Screen>;
   }
 
   if (onboardingState !== OnboardingState.NeedsOnboarding || !_.isEmpty(demo)) {
-    if (_.isEmpty(demo)||_.isEmpty(demoMessage)) {
+    if (_.isEmpty(demo)) {
       return loadingScreen;
     }
-    const notifications = [demoMessage];
     return <Screen
-      title={intl.formatMessage({id: 'inbox'})}
-      tabTitle={intl.formatMessage({id: 'inbox'})}
+      title={intl.formatMessage({id: 'DemoWelcome'})}
+      tabTitle={intl.formatMessage({id: 'DemoWelcome'})}
       hidden={false}
-      isInbox
       disableSearch
-      groupLoadId={demo.id}
     >
-      <Inbox hidden={false} messagesFull={notifications} loadedMarketId={demo.id}
-                  workItemId={getMessageId(demoMessage)} messagesHash={{inboxMessagesOrdered: notifications}}/>
+      <WorkspaceInviteWizard marketId={demo.id} />
     </Screen>;
   }
 

@@ -8,7 +8,8 @@ import Support from '../../pages/About/Support';
 import PageNotFound from '../../pages/PageNotFound/PageNotFound';
 import {
   broadcastView,
-  decomposeMarketPath, formInboxItemLink, formMarketLink,
+  decomposeMarketPath,
+  formMarketLink,
   getUrlForTicketPath,
   navigate,
 } from '../../utils/marketIdPathFunctions';
@@ -37,16 +38,11 @@ import Screen from '../Screen/Screen';
 import { useIntl } from 'react-intl';
 import { DEMO_TYPE, PLANNING_TYPE } from '../../constants/markets';
 import _ from 'lodash';
-import {
-  getNotHiddenMarketDetailsForUser,
-  getSortedMarkets
-} from '../../contexts/MarketsContext/marketsContextHelper';
+import { getNotHiddenMarketDetailsForUser, getSortedMarkets } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningMarketLoad from '../../pages/Dialog/Planning/PlanningMarketLoad';
 import DemoMarketLoad from '../../pages/Dialog/Planning/DemoMarketLoad';
-import { getCurrentWorkspace, getFirstWorkspace } from '../../utils/redirectUtils';
+import { getFirstWorkspace } from '../../utils/redirectUtils';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import GroupManage from '../../pages/DialogSettings/GroupManage';
 
 const useStyles = makeStyles({
@@ -85,7 +81,6 @@ function Root(props) {
   const [ticketState] = useContext(TicketIndexContext);
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
-  const [messagesState, , initialized] = useContext(NotificationsContext);
   const { marketDetails } = marketsState;
   const supportMarket = marketDetails?.find((market) => market.market_sub_type === 'SUPPORT') || {};
   const marketLink = supportMarket.id ? formMarketLink(supportMarket.id, supportMarket.id) : undefined;
@@ -100,19 +95,11 @@ function Root(props) {
     markets = getSortedMarkets(filtered);
   }
   const isRootPath = pathname === '/';
-  const currentWorkspace = getCurrentWorkspace();
   // Disallow support market when going to root path as it is not "Home"
   const defaultMarket = getFirstWorkspace(markets, marketId, !isRootPath, !isRootPath);
   const defaultMarketId = defaultMarket?.id;
-  const workspaceMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${defaultMarketId}`, messagesState);
-  // workspace message is dehighlighted at the end of loading
-  const demoIsLoading = workspaceMessage?.is_highlighted;
-  const workspaceMessagePath = formInboxItemLink(workspaceMessage);
-  const defaultMarketLink = defaultMarketId ? (workspaceMessage ? workspaceMessagePath :
-    formMarketLink(defaultMarketId, defaultMarketId)) : undefined;
-  const isDemoUser = [OnboardingState.DemoCreated, OnboardingState.NeedsOnboarding]
-    .includes(userState?.user?.onboarding_state);
-  const demoCreatedUser = userState?.user?.onboarding_state === OnboardingState.DemoCreated;
+  const defaultMarketLink = defaultMarketId ? formMarketLink(defaultMarketId, defaultMarketId) :
+    undefined;
   const firstMarketJoinedUser = userState?.user?.onboarding_state === OnboardingState.FirstMarketJoined;
   const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
 
@@ -141,9 +128,7 @@ function Root(props) {
   }
 
   function hideDemoLoad() {
-    // if notifications are loaded and no demo message then let useEffect redirect
-    // if there is a workspace message then harmlessly go to demo market load
-    return !isDemoUser || !isRootPath || (initialized && !workspaceMessage)||!_.isEmpty(currentWorkspace);
+    return action !== 'demo';
   }
 
   function hideInvestible() {
@@ -215,29 +200,11 @@ function Root(props) {
   },  [action, history, marketLink]);
 
   useEffect(() => {
-    if (isRootPath) {
-      if (demoCreatedUser) {
-        if (!_.isEmpty(demo)&&initialized) {
-          if (!demoIsLoading) {
-            console.info('Navigating to default link');
-            // Workspace intro message gone or dehighlighted at end of loading so just navigate to market normally
-            navigate(history, defaultMarketLink, true);
-          } else {
-            console.info('Replacing state for default link');
-            // Should be in progress loading market so just need url correct
-            // If replace when someone goes to rootpath and the market is not loading then blank screen
-            window.history.replaceState(null, '', defaultMarketLink);
-          }
-        }
-      } else if (firstMarketJoinedUser) {
-        if (!_.isEmpty(defaultMarketLink)) {
-          console.info('Navigating to first joined');
-          navigate(history, defaultMarketLink, true);
-        }
-      }
+    if (isRootPath && !_.isEmpty(defaultMarketLink)) {
+      console.info('Navigating on root path to default market');
+      navigate(history, defaultMarketLink, true);
     }
-  },  [demo, history, isRootPath, demoCreatedUser, defaultMarketLink, firstMarketJoinedUser, initialized,
-    demoIsLoading]);
+  },  [history, isRootPath, defaultMarketLink]);
 
   useEffect(() => {
     function handleViewChange(isEntry) {
@@ -320,8 +287,7 @@ function Root(props) {
               <PlanningMarketLoad />
             )}
             {!hideDemoLoad() && (
-              <DemoMarketLoad onboardingState={userState?.user?.onboarding_state} demo={demo}
-                              demoMessage={workspaceMessage} />
+              <DemoMarketLoad onboardingState={userState?.user?.onboarding_state} demo={demo} />
             )}
             {!hideGroupSettings() && (
               <GroupEdit />

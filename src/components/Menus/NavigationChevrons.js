@@ -59,8 +59,7 @@ function getCommentCandidate(comment, market, navigations) {
   return candidate;
 }
 
-export default function NavigationChevrons(props) {
-  const { groupLoadId } = props;
+export default function NavigationChevrons() {
   const history = useHistory();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
@@ -128,10 +127,9 @@ export default function NavigationChevrons(props) {
     allExistingUrls.includes(navigation.url) && navigation.url !== resource);
 
   function computeNext() {
-    if (groupLoadId || (resource.startsWith(`${getInboxTarget()}`)&&resource.includes('UNREAD_GROUP_'))) {
+    if (resource.startsWith(`${getInboxTarget()}`)&&resource.includes('UNREAD_GROUP_')) {
       // Next from a new group message is that groups swimlanes
-      const [, ,groupIdFromSep] = resource.split('_');
-      const groupId = groupLoadId || groupIdFromSep;
+      const [, ,groupId] = resource.split('_');
       const groupMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${groupId}`, messagesState);
       if (groupMessage) {
         return {

@@ -151,7 +151,7 @@ function Header (props) {
   const [online] = useContext(OnlineStateContext);
   const [userState] = useContext(AccountContext);
   const history = useHistory();
-  const { toolbarButtons, appEnabled, navMenu, disableSearch, groupLoadId } = props;
+  const { toolbarButtons, appEnabled, navMenu, disableSearch } = props;
   const [operationRunning] = useContext(OperationInProgressContext);
   const [logoTimer, setLogoTimer] = useState(undefined);
   const [logoImage, setLogoImage] = useState(NORMAL_LOGO);
@@ -247,7 +247,7 @@ function Header (props) {
           {!mobileLayout && (
             <div className={classes.grow}/>
           )}
-          <NavigationChevrons groupLoadId={groupLoadId}/>
+          <NavigationChevrons />
           {!mobileLayout && (
             <div className={classes.grow}/>
           )}

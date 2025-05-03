@@ -177,7 +177,8 @@ function Signup(props) {
   const { location } = history;
   const { search } = location;
   const values = queryString.parse(search || '');
-  const { signUpWith, email: qryEmail, utm_campaign: utm, error_description } = values || {};
+  const { signUpWith, email: qryEmail, utm_campaign: utm,
+    error_description: errorDescription } = values || {};
   const empty = {
     name: '',
     email: qryEmail ? qryEmail : '',
@@ -196,9 +197,8 @@ function Signup(props) {
   const [myMarket, setMyMarket] = useState(undefined);
   const SIGNUP_LOGO = 'Uclusion_Logo_White_Micro.png';
   const LOGO_COLOR = '#3F6B72';
-  const errorDescriptionSafe = error_description || '';
-  const doRetry = errorDescriptionSafe.includes('Already');
-  const retryGoogle = doRetry && errorDescriptionSafe.includes('Google');
+  const doRetry = errorDescription?.includes('Already');
+  const retryGoogle = doRetry && errorDescription?.includes('Google');
   const retryGithub = doRetry && !retryGoogle;
 
   useEffect(() => {
@@ -219,6 +219,7 @@ function Signup(props) {
       // This might run more than once but that is okay and need to make sure it is set before Auth leaves the page
       setUtm(utm);
     }
+    // Redirect was already set on the first try
     if (signUpWith === 'google' || retryGoogle) {
       Auth.federatedSignIn({provider: 'Google'});
     } else if (signUpWith === 'github' || retryGithub) {
@@ -288,7 +289,11 @@ function Signup(props) {
       if (response === 'ACCOUNT_CREATED') {
         const { email } = user;
         setEmail(email);
-        window.location.replace('/');
+        // Account was created, and we were not going to an existing market so create demo
+        if (redirect === '/') {
+          setRedirect('/demo');
+        }
+        window.location.replace('/demo');
       } else {
         setPostSignUp(response);
         setCallActive(false);
@@ -314,6 +319,8 @@ function Signup(props) {
       const aRedirect = getRedirect();
       if (aRedirect !== '/') {
         setRedirect(aRedirect);
+      } else {
+        setRedirect('/demo');
       }
       Auth.federatedSignIn({ provider });
     }

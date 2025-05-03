@@ -19,17 +19,14 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import TokenStorageManager from '../../../authorization/TokenStorageManager';
 import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
 import { pushMessage } from '../../../utils/MessageBusUtils';
-import {
-  GUEST_MARKET_EVENT,
-  LOAD_MARKET_CHANNEL
-} from '../../../contexts/MarketsContext/marketsContextMessages';
+import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { accountUserJoinedMarket } from '../../../contexts/AccountContext/accountContextReducer';
-import Inbox from '../../Home/YourWork/Inbox';
-import { dehighlightMessage, getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import jwt_decode from 'jwt-decode';
 import { sendMarketsStruct, updateMarkets } from '../../../api/versionedFetchUtils';
 import _ from 'lodash';
+import WorkspaceInviteWizard from '../../../components/AddNewWizards/WorkspaceInvite/WorkspaceInviteWizard';
 
 function PlanningMarketLoad() {
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -74,7 +71,7 @@ function PlanningMarketLoad() {
         await tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, id, token);
         addMarketToStorage(marketsDispatch, market);
         const marketsStruct = {};
-        // Have to load the rest here otherwise even the welcome message is wrong - no groups etc.
+        // Have to load the rest here otherwise even the welcome is wrong - no groups etc.
         return updateMarkets([id], marketsStruct, 1, {})
           .then(() => {
             sendMarketsStruct(marketsStruct);
@@ -93,14 +90,10 @@ function PlanningMarketLoad() {
               return updateMarkets(inlineMarketIds, inlineMarketsStruct, 1, {})
                 .then(() => {
                   sendMarketsStruct(inlineMarketsStruct);
-                  // Remove invite from URL to keep from book marking etc.
-                  window.history.replaceState(null, '', `${getInboxTarget()}/UNREAD_GROUP_${id}`);
-                  return { id, notifications };
+                  return { id };
                 });
             }
-            // Remove invite from URL to keep from book marking etc.
-            window.history.replaceState(null, '', `${getInboxTarget()}/UNREAD_GROUP_${id}`);
-            return { id, notifications };
+            return { id };
           });
       } catch (error) {
         console.error('Quick adding market failed load');
@@ -110,19 +103,16 @@ function PlanningMarketLoad() {
         return {};
       }
     }, [marketToken]);
-    const { id, notifications } = loadedProperties;
+    const { id } = loadedProperties;
     if (id) {
       return (
         <Screen
-          title={intl.formatMessage({ id: 'inbox' })}
-          tabTitle={intl.formatMessage({ id: 'inbox' })}
+          title={intl.formatMessage({id: 'WorkspaceWelcome'})}
+          tabTitle={intl.formatMessage({id: 'WorkspaceWelcome'})}
           hidden={false}
-          isInbox
           disableSearch
-          groupLoadId={id}
         >
-          <Inbox hidden={false} messagesFull={notifications} loadedMarketId={id} workItemId={`UNREAD_GROUP_${id}`}
-                 messagesHash={{ inboxMessagesOrdered: notifications }}/>
+          <WorkspaceInviteWizard marketId={id} />
         </Screen>
       );
     }

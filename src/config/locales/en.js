@@ -1000,6 +1000,7 @@ const messages = defineMessages({
   DecidePayTitle: 'Will you pay?',
   GroupWelcome: 'Welcome to a new view',
   WorkspaceWelcome: 'Welcome to the workspace',
+  DemoWelcome: 'Welcome to the demo',
   ApplyPromoCode: 'Apply promo code',
 
   // upgrade form

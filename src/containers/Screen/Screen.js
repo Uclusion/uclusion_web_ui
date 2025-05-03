@@ -293,7 +293,6 @@ function Screen(props) {
     showBanner,
     disableSearch,
     loadingMessageId,
-    groupLoadId,
     outBoxMessages,
     leftNavAdjust
   } = props;
@@ -435,7 +434,6 @@ function Screen(props) {
           appEnabled={appEnabled}
           navMenu={sideNavigationContents}
           disableSearch={disableSearch}
-          groupLoadId={groupLoadId}
         />
       )}
       {!mobileLayout && !hidden && (

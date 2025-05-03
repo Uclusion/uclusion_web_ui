@@ -2,22 +2,22 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
-import { wizardStyles } from '../WizardStylesContext';
-import WizardStepButtons from '../WizardStepButtons';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { WizardStylesContext } from '../WizardStylesContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { useHistory } from 'react-router';
+import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import {
   ASSIGNED_HASH,
   BACKLOG_HASH,
   DISCUSSION_HASH,
   formatGroupLinkWithSuffix,
-  formMarketLink, MARKET_TODOS_HASH,
+  formMarketLink,
+  MARKET_TODOS_HASH,
   navigate,
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions';
+import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';
+import { useHistory } from 'react-router';
 import Link from '@material-ui/core/Link';
 import NavigationChevrons from '../../Menus/NavigationChevrons';
 import Sidebar from '../../Menus/Sidebar';
@@ -27,20 +27,20 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
-function IntroduceWorkspaceStep(props) {
-  const { message } = props;
-  const [, messagesDispatch] = useContext(NotificationsContext);
+function WorkspaceInviteStep (props) {
+  const { marketId } = props;
+  const history = useHistory();
+  const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
+  const classes = useContext(WizardStylesContext);
+  const screenClasses = screenStyles();
+  const [userState] = useContext(AccountContext);
   const [marketsState] = useContext(MarketsContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
-  const { market_id: marketId } = message;
-  const classes = wizardStyles();
-  const screenClasses = screenStyles();
-  const history = useHistory();
-  const intl = useIntl();
+  const isDemoOn = userState?.user?.onboarding_state !== OnboardingState.FirstMarketJoined;
   const market = getMarket(marketsState, marketId) || {};
   const link = formMarketLink(marketId, marketId);
   const pathToBugs = formatGroupLinkWithSuffix(MARKET_TODOS_HASH, marketId, marketId);
@@ -56,12 +56,6 @@ function IntroduceWorkspaceStep(props) {
     [], [], undefined, undefined, undefined,
     undefined, undefined, screenClasses);
 
-  function myOnFinish () {
-    removeWorkListItem(message, messagesDispatch);
-    // Go to the workspace when done as that's what was just introduced
-    navigate(history, formMarketLink(marketId, marketId));
-  }
-
   return (
     <WizardStepContainer
       {...props}
@@ -72,13 +66,18 @@ function IntroduceWorkspaceStep(props) {
         <Link href={link} onClick={
           (event) => {
             preventDefaultAndProp(event);
-          navigate(history, link);
-        }
-      }>{market.name}</Link>?
+            navigate(history, link);
+          }
+        }>{market.name}</Link>?
       </Typography>
-      {!mobileLayout && (
+      {!mobileLayout && isDemoOn && (
         <div>
-          Workspaces are a security boundary where people you invite to one workspace cannot see your other workspaces.
+          Welcome to the demo!
+        </div>
+      )}
+      {!mobileLayout && !isDemoOn && (
+        <div>
+          People in this workspace do not see your other workspaces unless invited.
         </div>
       )}
       <div style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
@@ -114,26 +113,18 @@ function IntroduceWorkspaceStep(props) {
         }}>question or suggestion</Link> to group members.
         </Typography>
       </div>
-      <WizardStepButtons
-        {...props}
-        focus
-        showNext={false}
-        showTerminate
-        onFinish={myOnFinish}
-        terminateLabel="notificationDelete"
-      />
     </WizardStepContainer>
   );
 }
 
-IntroduceWorkspaceStep.propTypes = {
+WorkspaceInviteStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
 };
 
-IntroduceWorkspaceStep.defaultProps = {
+WorkspaceInviteStep.defaultProps = {
   updateFormData: () => {},
   formData: {}
 };
 
-export default IntroduceWorkspaceStep;
+export default WorkspaceInviteStep;

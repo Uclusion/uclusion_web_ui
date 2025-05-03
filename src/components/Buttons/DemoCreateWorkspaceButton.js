@@ -5,7 +5,7 @@ import { COMPOSE_WIZARD_TYPE, DEMO_TYPE, PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } 
 import { wizardStyles } from '../InboxWizards/WizardStylesContext';
 import { useHistory } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import { getInboxCount } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { isInInbox } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
@@ -27,7 +27,8 @@ function DemoCreateWorkspaceButton() {
   const { marketDetails } = marketsState;
   const demo = marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
     market.object_type === DEMO_TYPE) || {};
-  const totalCount = getInboxCount(messagesState, demo.id, groupsState, true);
+  const totalCount = _.size(messagesState.messages?.filter((msg) => isInInbox(msg) &&
+    msg.market_id === demo.market.id));
   const presences = usePresences(demo.id);
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const demoMarketComments = getMarketComments(commentsState, demo.id) || [];

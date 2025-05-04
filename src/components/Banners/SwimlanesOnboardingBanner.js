@@ -32,8 +32,8 @@ function SwimlanesOnboardingBanner(props) {
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const isDemoEngineeringScreen = isDemo && (!sectionOpen || sectionOpen === 'storiesSection') &&
-    group?.name === 'Engineering';
+  const isSwimlanes = !sectionOpen || sectionOpen === 'storiesSection';
+  const isDemoEngineeringScreen = isDemo && isSwimlanes && group?.name === 'Engineering';
 
   return (
     <div className={classes.bannerBackground} id='bannerId'>
@@ -49,10 +49,10 @@ function SwimlanesOnboardingBanner(props) {
                  </div>
                }/>
             )}
-            {!isDemo && isAutonomous && (
+            {!isDemo && isAutonomous && isSwimlanes && (
               <DismissableText textId="everyoneStatusHelp" text={
                 <div>
-                  <Typography>This <Link href="https://documentation.uclusion.com/views/mywork/" target="_blank">My work</Link> view
+                  <Typography>This <Link href="https://documentation.uclusion.com/views/mywork/" target="_blank">My Work</Link> view
                   displays all assigned</Typography>
                   <Typography className={classes.ctaSub}>
                     to you even if from another view.

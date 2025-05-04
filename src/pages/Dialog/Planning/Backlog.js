@@ -38,7 +38,8 @@ function Backlog(props) {
     furtherWorkInvestibles,
     comments,
     marketPresences,
-    isSingleUser
+    isSingleUser,
+    singleUser
   } = props;
   const { market_id: marketId, id: groupId} = group || {};
   const intl = useIntl();
@@ -176,7 +177,8 @@ function Backlog(props) {
       )}
       {data.map((inv) => {
         return (
-          <BacklogItem inv={inv} comments={comments} marketPresences={marketPresences} marketId={marketId}/>
+          <BacklogItem inv={inv} comments={comments} marketPresences={marketPresences} marketId={marketId}
+                       singleUser={singleUser}/>
         );
       })}
     </>
@@ -184,14 +186,17 @@ function Backlog(props) {
 }
 
 function BacklogItem(props) {
-  const { inv, comments, marketPresences, marketId } = props;
+  const { inv, comments, marketPresences, marketId, singleUser } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const intl = useIntl();
   const { investible } = inv;
   const investibleComments = comments.filter((comment) => comment.investible_id === investible.id) || [];
-  const collaboratorsForInvestible = useCollaborators(marketPresences, investibleComments, marketPresencesState,
+  const collaboratorsForInvestibleRaw = useCollaborators(marketPresences, investibleComments, marketPresencesState,
     investible.id, marketId, true);
+  const collaboratorsForInvestible = singleUser && _.size(collaboratorsForInvestibleRaw) === 1 ?
+    collaboratorsForInvestibleRaw.filter((collaborator) => collaborator.id !== singleUser.id) :
+    collaboratorsForInvestibleRaw;
   return (
     <BacklogListItem id={investible.id} title={investible.name} date={intl.formatDate(investible.created_at)}
                      description={stripHTML(investible.description)}

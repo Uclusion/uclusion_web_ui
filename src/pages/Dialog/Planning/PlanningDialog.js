@@ -586,7 +586,8 @@ function PlanningDialog(props) {
           <div id="backlogSection" style={{overflowX: 'hidden', paddingBottom: '5rem'}}>
             <Backlog group={group} marketPresences={marketPresences}
                      furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
-                     comments={comments} isSingleUser={isAutonomous} />
+                     comments={comments} isSingleUser={isAutonomous}
+                     singleUser={isAutonomous ? groupPresences[0] : undefined} />
           </div>
         )}
         <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}

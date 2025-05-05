@@ -215,13 +215,15 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
           onGroupClick();
         }
         if (outsetAvailable) {
-          const dialogOutset = document.getElementById(`dialogOutset`);
-          if (dialogOutset) {
+          const dialogOutset = document.getElementById('dialogOutset');
+          const dialogOutsetBuffer = document.getElementById('dialogOutsetBuffer');
+          if (dialogOutset && dialogOutsetBuffer) {
             if (DIALOG_OUTSET_STATE_HACK.timerId) {
               clearTimeout(DIALOG_OUTSET_STATE_HACK.timerId);
               DIALOG_OUTSET_STATE_HACK.timerId = undefined;
             }
             dialogOutset.style.display = 'block';
+            dialogOutsetBuffer.style.display = 'block';
           }
         } else {
           navigate(history, formMarketLink(marketId, group.id));
@@ -230,10 +232,12 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
       onLeaveFunc: () => {
         if (isChosen && useHoverFunctions) {
           const dialogOutset = document.getElementById(`dialogOutset`);
-          if (dialogOutset) {
+          const dialogOutsetBuffer = document.getElementById('dialogOutsetBuffer');
+          if (dialogOutset && dialogOutsetBuffer) {
             DIALOG_OUTSET_STATE_HACK.timerId = setTimeout(function () {
               if (DIALOG_OUTSET_STATE_HACK.open !== 1) {
                 dialogOutset.style.display = 'none';
+                dialogOutsetBuffer.style.display = 'none';
               }
             }, 2000);
           }

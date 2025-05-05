@@ -41,110 +41,114 @@ function DialogOutset(props) {
 
   const isArchivedSearch = !hidden && !_.isEmpty(search) && archivedSize > 0;
   return (
-    <div id="dialogOutset" style={{
-      marginRight: '1rem',
-      overflowY: 'none',
-      zIndex: 3,
-      boxShadow: "2px 2px 2px lightgrey",
-      display: isArchivedSearch ? 'block' : 'none'
-    }}
-         onMouseEnter={() => {
-           const dialogOutset = document.getElementById(`dialogOutset`);
-           if (dialogOutset) {
-             DIALOG_OUTSET_STATE_HACK.open = 1;
-             dialogOutset.style.display = 'block';
-           }
-         }}
-         onMouseLeave={() => {
-           const dialogOutset = document.getElementById(`dialogOutset`);
-           if (dialogOutset && !isArchivedSearch) {
-             DIALOG_OUTSET_STATE_HACK.open = 0;
-             dialogOutset.style.display = 'none';
-           }
-         }}
-    >
-      <ProSidebar width="12rem">
-        <SidebarContent>
-          <Menu iconShape="circle">
-            <MenuItem icon={<SettingsIcon htmlColor="black"/>} key={`groupSettings${groupId}`}
-                      onClick={
-                        () => navigate(history, formGroupEditLink(marketId, groupId),
-                          false, true)
-                      }
-            >
-              {intl.formatMessage({id: 'settings'})}
-            </MenuItem>
-            <MenuItem icon={<MenuBookIcon htmlColor="black"/>} key={`groupArchive${groupId}`}
-                      onClick={
-                        () => navigate(history, formGroupArchiveLink(marketId, groupId),
-                          false, true)
-                      }
-                      suffix={isArchivedSearch ?
-                        <span style={{backgroundColor: '#055099', borderRadius: 22, paddingLeft: '5px',
-                                paddingRight: '5px', color: 'white',
-                                padding: '1px 4px', fontSize: '0.75rem', lineHeight: '16px',
-                                marginLeft: '8px', whiteSpace: 'nowrap'}}>
-                          {archivedSize} {intl.formatMessage({ id: 'total' })}
-                        </span> : undefined}
-            >
-              {intl.formatMessage({id: 'planningDialogViewArchivesLabel'})}
-            </MenuItem>
-          </Menu>
-          <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: '1rem'}}>
-            <div className={classes.assignmentContainer}>
-              <b><FormattedMessage id="viewMembers"/></b>
-              {!isCurrentUserMember && (
+    <>
+      <div id="dialogOutsetBuffer" style={{width: '16rem', display: isArchivedSearch ? 'block' : 'none'}} />
+      <div id="dialogOutset" style={{
+        marginRight: '1rem',
+        overflowY: 'none',
+        zIndex: 3,
+        position: 'absolute',
+        boxShadow: "2px 2px 2px lightgrey",
+        display: isArchivedSearch ? 'block' : 'none'
+      }}
+           onMouseEnter={() => {
+             const dialogOutset = document.getElementById(`dialogOutset`);
+             if (dialogOutset) {
+               DIALOG_OUTSET_STATE_HACK.open = 1;
+               dialogOutset.style.display = 'block';
+             }
+           }}
+           onMouseLeave={() => {
+             const dialogOutset = document.getElementById(`dialogOutset`);
+             if (dialogOutset && !isArchivedSearch) {
+               DIALOG_OUTSET_STATE_HACK.open = 0;
+               dialogOutset.style.display = 'none';
+             }
+           }}
+      >
+        <ProSidebar width="12rem">
+          <SidebarContent>
+            <Menu iconShape="circle">
+              <MenuItem icon={<SettingsIcon htmlColor="black"/>} key={`groupSettings${groupId}`}
+                        onClick={
+                          () => navigate(history, formGroupEditLink(marketId, groupId),
+                            false, true)
+                        }
+              >
+                {intl.formatMessage({id: 'settings'})}
+              </MenuItem>
+              <MenuItem icon={<MenuBookIcon htmlColor="black"/>} key={`groupArchive${groupId}`}
+                        onClick={
+                          () => navigate(history, formGroupArchiveLink(marketId, groupId),
+                            false, true)
+                        }
+                        suffix={isArchivedSearch ?
+                          <span style={{backgroundColor: '#055099', borderRadius: 22, paddingLeft: '5px',
+                                  paddingRight: '5px', color: 'white',
+                                  padding: '1px 4px', fontSize: '0.75rem', lineHeight: '16px',
+                                  marginLeft: '8px', whiteSpace: 'nowrap'}}>
+                            {archivedSize} {intl.formatMessage({ id: 'total' })}
+                          </span> : undefined}
+              >
+                {intl.formatMessage({id: 'planningDialogViewArchivesLabel'})}
+              </MenuItem>
+            </Menu>
+            <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: '1rem'}}>
+              <div className={classes.assignmentContainer}>
+                <b><FormattedMessage id="viewMembers"/></b>
+                {!isCurrentUserMember && (
+                  <div style={{marginLeft: '-1rem'}}>
+                    <Menu iconShape="circle">
+                      <MenuItem icon={<AddIcon htmlColor="black" />}
+                                key="addMeKey" id="addMeId"
+                                onClick={() => {
+                                  setOperationRunning(true);
+                                  const addressed = [{user_id: myPresence.id, is_following: true}];
+                                  return changeGroupParticipation(marketId, groupId, addressed).then((modifed) => {
+                                    groupPresencesDispatch(modifyGroupMembers(groupId, modifed));
+                                    setTimeout(() => {
+                                      // Give the dispatch time to work
+                                      setOperationRunning(false);
+                                    }, 4000);
+                                  });
+                                }}
+                      >
+                        <Tooltip title={intl.formatMessage({ id: 'addMeExplanation' })}>
+                          <div>
+                            {intl.formatMessage({ id: 'addMe' })}
+                          </div>
+                        </Tooltip>
+                      </MenuItem>
+                    </Menu>
+                  </div>
+                )}
                 <div style={{marginLeft: '-1rem'}}>
                   <Menu iconShape="circle">
-                    <MenuItem icon={<AddIcon htmlColor="black" />}
-                              key="addMeKey" id="addMeId"
-                              onClick={() => {
-                                setOperationRunning(true);
-                                const addressed = [{user_id: myPresence.id, is_following: true}];
-                                return changeGroupParticipation(marketId, groupId, addressed).then((modifed) => {
-                                  groupPresencesDispatch(modifyGroupMembers(groupId, modifed));
-                                  setTimeout(() => {
-                                    // Give the dispatch time to work
-                                    setOperationRunning(false);
-                                  }, 4000);
-                                });
-                              }}
+                    <MenuItem icon={<PersonAddIcon htmlColor="black" />}
+                              key="manageMembersKey" id="manageMembersId"
+                              onClick={() => navigate(history, formGroupManageLink(marketId, groupId),
+                                  false, true)}
                     >
-                      <Tooltip title={intl.formatMessage({ id: 'addMeExplanation' })}>
+                      <Tooltip title={intl.formatMessage({ id: 'manageMembersExplanation' })}>
                         <div>
-                          {intl.formatMessage({ id: 'addMe' })}
+                          {intl.formatMessage({ id: 'manageMembers' })}
                         </div>
                       </Tooltip>
                     </MenuItem>
                   </Menu>
                 </div>
-              )}
-              <div style={{marginLeft: '-1rem'}}>
-                <Menu iconShape="circle">
-                  <MenuItem icon={<PersonAddIcon htmlColor="black" />}
-                            key="manageMembersKey" id="manageMembersId"
-                            onClick={() => navigate(history, formGroupManageLink(marketId, groupId),
-                                false, true)}
-                  >
-                    <Tooltip title={intl.formatMessage({ id: 'manageMembersExplanation' })}>
-                      <div>
-                        {intl.formatMessage({ id: 'manageMembers' })}
-                      </div>
-                    </Tooltip>
-                  </MenuItem>
-                </Menu>
+                <Assignments
+                  classes={classes}
+                  marketPresences={marketPresences}
+                  assigned={groupCollaborators.map((presence) => presence.id)}
+                  toolTipId="collaborators"
+                />
               </div>
-              <Assignments
-                classes={classes}
-                marketPresences={marketPresences}
-                assigned={groupCollaborators.map((presence) => presence.id)}
-                toolTipId="collaborators"
-              />
             </div>
-          </div>
-        </SidebarContent>
-      </ProSidebar>
-    </div>
+          </SidebarContent>
+        </ProSidebar>
+      </div>
+    </>
   );
 }
 

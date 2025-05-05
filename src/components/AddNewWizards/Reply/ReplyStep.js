@@ -61,6 +61,7 @@ function ReplyStep(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const message = findMessageForCommentId(commentId, messagesState);
   const { useCompression } = formData;
+  const parentIsTopLevel = _.isEmpty(comment.reply_id);
 
   function onSave(createdComment) {
     if (message) {
@@ -144,7 +145,8 @@ function ReplyStep(props) {
         nameKey="CommentAddReply"
         type={REPLY_TYPE}
         parent={comment}
-        wizardProps={{...props, isReply: true, onResolve: showSubTask ? () => {} : resolve, showSubTask}}
+        wizardProps={{...props, isReply: true, onResolve: showSubTask ? () => {} : resolve, showSubTask,
+          parentIsTopLevel}}
         commentAddState={commentAddReplyState}
         updateCommentAddState={updateCommentAddReplyState}
         commentAddStateReset={commentAddStateReplyReset}

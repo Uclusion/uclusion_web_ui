@@ -438,11 +438,11 @@ function CommentAdd(props) {
                 <AddWizardStepButtons
                   {...wizardProps}
                   validForm={hasValue}
-                  nextLabel="commentAddSendLabel"
+                  nextLabel={wizardProps.showSubTask ? 'JobCommentAddTODO' : 'commentAddSendLabel'}
                   onNext={() => handleSave( true)}
-                  showOtherNext={rootComment?.comment_type !== REPORT_TYPE &&
+                  showOtherNext={rootComment?.comment_type !== REPORT_TYPE && wizardProps.parentIsTopLevel &&
                     (ourMarket.market_type !== DECISION_TYPE || rootComment?.comment_type !== TODO_TYPE)}
-                  otherNextLabel={wizardProps.showSubTask ? 'commentAddSendAnother' : 'commentAddSendResolve'}
+                  otherNextLabel={wizardProps.showSubTask ? 'addAnother' : 'commentAddSendResolve'}
                   onOtherNext={() => handleSave( true, undefined, undefined,
                     true).then(() => {
                     wizardProps.onResolve();

@@ -144,7 +144,7 @@ function ReplyStep(props) {
         nameKey="CommentAddReply"
         type={REPLY_TYPE}
         parent={comment}
-        wizardProps={{...props, isReply: true, onResolve: resolve}}
+        wizardProps={{...props, isReply: true, onResolve: showSubTask ? () => {} : resolve, showSubTask}}
         commentAddState={commentAddReplyState}
         updateCommentAddState={updateCommentAddReplyState}
         commentAddStateReset={commentAddStateReplyReset}

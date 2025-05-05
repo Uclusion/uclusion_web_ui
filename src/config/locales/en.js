@@ -520,6 +520,7 @@ const messages = defineMessages({
   commentAddSaveLabel: 'Save',
   commentAddSendLabel: 'Send',
   commentAddSendResolve: 'Send and resolve',
+  commentAddSendAnother: 'Send and another',
   commentAddCancelLabel: 'Clear',
   commentAddSelectIssueLabel: 'Please select a type',
   issueWarning: 'Opening an issue will halt voting on this dialog.',

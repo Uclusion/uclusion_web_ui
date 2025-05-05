@@ -331,7 +331,7 @@ function CommentAdd(props) {
   }, [autoFocus, editorName, type]);
 
   function clearMe() {
-    resetEditor(editorName);
+    resetEditor(editorName, undefined, undefined, true);
     commentAddStateReset();
   }
 
@@ -442,11 +442,15 @@ function CommentAdd(props) {
                   onNext={() => handleSave( true)}
                   showOtherNext={rootComment?.comment_type !== REPORT_TYPE &&
                     (ourMarket.market_type !== DECISION_TYPE || rootComment?.comment_type !== TODO_TYPE)}
-                  otherNextLabel="commentAddSendResolve"
+                  otherNextLabel={wizardProps.showSubTask ? 'commentAddSendAnother' : 'commentAddSendResolve'}
                   onOtherNext={() => handleSave( true, undefined, undefined,
                     true).then(() => {
                     wizardProps.onResolve();
+                    if (wizardProps.showSubTask) {
+                      focusEditor(editorName);
+                    }
                   })}
+                  onOtherDoAdvance={!wizardProps.showSubTask}
                   showTerminate={!_.isEmpty(wizardProps.terminateLabel)}
                   terminateLabel={wizardProps.terminateLabel}
                 />

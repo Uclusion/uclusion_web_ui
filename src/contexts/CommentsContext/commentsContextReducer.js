@@ -54,21 +54,11 @@ function doAddMarketComments(state, action) {
 }
 
 function doAddMarketsComments(state, action) {
-  const { commentDetails, existingCommentIds } = action;
+  const { commentDetails } = action;
   const newState = {...state};
-  const now = Date.now();
   Object.keys(commentDetails).forEach((marketId) => {
     const transformedComments = fixupItemsForStorage(commentDetails[marketId]);
-    const oldCommentsRaw = state[marketId] || [];
-    const oldComments = !_.isEmpty(existingCommentIds) ? oldCommentsRaw.filter((oldComment) => {
-      const updatedAt = new Date(oldComment.updated_at);
-      if (now - updatedAt.getTime() < 90*86400000) {
-        // Archived algorithm checks if archived 3 months ago before screening out
-        return true;
-      }
-      // If this comment screened because of archiving then remove from disk to conserve memory
-      return !_.isEmpty(existingCommentIds.find((commentId) => commentId === oldComment.id));
-    }) : oldCommentsRaw;
+    const oldComments = state[marketId] || []
     newState[marketId] = addByIdAndVersion(transformedComments, oldComments);
   });
   return removeInitializing(newState);

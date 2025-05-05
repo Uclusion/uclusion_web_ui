@@ -54,7 +54,7 @@ import {
   DISCUSSION_HASH,
   formArchiveCommentLink,
   formGroupArchiveLink,
-  formGroupEditLink,
+  formGroupEditLink, formGroupManageLink,
   formMarketAddCommentLink, formMarketAddInvestibleLink, formWizardLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
@@ -82,6 +82,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { RED_LEVEL } from '../../../constants/notifications';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import PersonAddIcon from '@material-ui/icons/PersonAdd';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -263,7 +264,9 @@ function PlanningDialog(props) {
       {icon: SettingsIcon, text: intl.formatMessage({id: 'settings'}),
         target: formGroupEditLink(marketId, groupId), num: 0, isBold: false},
       {icon: MenuBookIcon, text: intl.formatMessage({id: 'planningDialogViewArchivesLabel'}),
-        target: formGroupArchiveLink(marketId, groupId), num: archivedSize, isBold: false}
+        target: formGroupArchiveLink(marketId, groupId), num: archivedSize, isBold: false},
+      {icon: PersonAddIcon, text: intl.formatMessage({id: 'manageMembers'}),
+        target: formGroupManageLink(marketId, groupId), num: 0, isBold: false}
     ];
   }
 

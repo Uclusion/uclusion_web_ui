@@ -32,8 +32,11 @@ class LocalForageHelper {
       return Promise.resolve(existingState);
     }
     return localforage.createInstance({ storeName: this.keyspace }).getItem(this.namespace)
-      .then((state) => {
-        return state;
+      .catch((error) => {
+        console.error('Error reading local forage');
+        console.error(error);
+        // https://github.com/ionic-team/cordova-plugin-ionic-webview/issues/354
+        window.location.reload();
       });
   }
 }

@@ -29,12 +29,7 @@ class AccountStorageManager {
    * <i>regardless if it is valid</i>
    */
   getAccount() {
-    return new LocalForageHelper(this.getKeyNamespace(), STORAGE_KEYSPACE)
-      .getState()
-      .catch((error) => {
-        console.error('Got error getting account');
-        console.error(error);
-      });
+    return new LocalForageHelper(this.getKeyNamespace(), STORAGE_KEYSPACE).getState();
   }
 
   /**

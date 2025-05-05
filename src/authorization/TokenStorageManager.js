@@ -32,12 +32,7 @@ export default class TokenStorageManager {
    * @param itemId the id of the item we want
    */
   getToken (tokenType, itemId) {
-    return new LocalForageHelper(this.getKeyNamespace(tokenType, itemId), TOKEN_STORAGE_KEYSPACE)
-      .getState()
-      .catch((error) => {
-        console.error('Got error getting token');
-        console.error(error);
-      });
+    return new LocalForageHelper(this.getKeyNamespace(tokenType, itemId), TOKEN_STORAGE_KEYSPACE).getState();
   }
 
   /**

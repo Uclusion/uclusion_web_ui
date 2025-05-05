@@ -144,12 +144,14 @@ class EmailEntryBox extends React.Component{
     const icon = <Send/>;
     node.id = hash;
     node.setAttribute("contentEditable", false);
+    node.setAttribute("tabindex", -1)
     node.setAttribute("style", "display:inline-block; margin: 0.25rem");
     const element = (
         <Chip
           icon={icon}
           size="small"
           label={email}
+          tabIndex={-1}
           onDelete={() => this.doDelete(email)}
         />
     );

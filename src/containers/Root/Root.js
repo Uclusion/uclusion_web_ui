@@ -100,7 +100,7 @@ function Root(props) {
   const defaultMarketId = defaultMarket?.id;
   const defaultMarketLink = defaultMarketId ? formMarketLink(defaultMarketId, defaultMarketId) :
     undefined;
-  const firstMarketJoinedUser = userState?.user?.onboarding_state === OnboardingState.FirstMarketJoined;
+  const marketJoinedUser = userState?.user?.onboarding_state !== OnboardingState.NeedsOnboarding;
   const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
 
   function hideInbox() {
@@ -250,7 +250,8 @@ function Root(props) {
     }
   },  [history, setOnline, location, isUserLoaded]);
 
-  if (authState !== 'signedIn' || action === 'supportWorkspace' || (isRootPath && firstMarketJoinedUser && _.isEmpty(defaultMarketLink))) {
+  if (authState !== 'signedIn' || action === 'supportWorkspace' || (isRootPath && marketJoinedUser
+    && _.isEmpty(defaultMarketLink))) {
     return (
       <Screen
         hidden={false}

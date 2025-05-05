@@ -40,6 +40,7 @@ const Div = styled("div")`
 
 const Text = styled("div")`
   -webkit-font-smoothing: antialiased;
+  min-width: 15vw;
   font-size: 18px;
   color: #5f6368;
   white-space: nowrap;
@@ -74,6 +75,8 @@ const TitleB
 
 const DateLabel = styled("div")`
     font-size: 14px;
+    flex-basis: 120px;
+    flex-shrink: 0;
     padding-left: 1rem;
     padding-right: 1rem;
     text-align: right;

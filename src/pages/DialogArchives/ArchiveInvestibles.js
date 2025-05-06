@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash';
@@ -32,6 +32,7 @@ import UsefulRelativeTime from '../../components/TextFields/UseRelativeTime';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForInvestibleId } from '../../utils/messageUtils';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import PlanningJobMenu from '../Dialog/Planning/PlanningJobMenu';
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -73,6 +74,93 @@ export const myArchiveClasses = makeStyles(
   { name: "Archive" }
 );
 
+function ArchiveInvestible(props) {
+  const { name, id, stageId, marketId, myMessage, allowDragDrop, onDragStart, enteredStageAt, typeExplanation,
+    TypeIcon, assignedNames, classes } = props;
+  const [, messagesDispatch] = useContext(NotificationsContext);
+  const intl = useIntl();
+  const history = useHistory();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const [anchorEl, setAnchorEl] = useState(null);
+  const recordPositionToggle = (event) => {
+    if (anchorEl === null) {
+      preventDefaultAndProp(event);
+      setAnchorEl(event.currentTarget);
+    } else {
+      setAnchorEl(null);
+    }
+  };
+  return (
+    <React.Fragment key={`frag${id}`}>
+      {anchorEl && (
+        <PlanningJobMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle}
+                         stageId={stageId} marketId={marketId} investibleId={id} />
+      )}
+      <div
+        id={id}
+        key={id}
+        style={{overflowWrap: "break-word"}}
+        onContextMenu={recordPositionToggle}
+        onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
+        onClick={(event) => {
+          preventDefaultAndProp(event);
+          getInvestibleOnClick(id, marketId, history);
+        }}
+      >
+        <RaisedCard draggable={allowDragDrop} onDragStart={onDragStart}>
+          <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
+            <div className={classes.outlined}>
+              <div>
+                <Typography style={{fontSize: '.75rem', flex: 1}}>
+                  Entered <UsefulRelativeTime value={enteredStageAt}/>
+                </Typography>
+              </div>
+              <div style={{display: 'flex'}}>
+                {TypeIcon && (
+                  <div
+                    onClick={(event) => {
+                      if (myMessage) {
+                        preventDefaultAndProp(event);
+                        dehighlightMessage(myMessage, messagesDispatch);
+                        navigate(history, formInboxItemLink(myMessage));
+                      }
+                    }}
+                    onMouseOver={(event) => {
+                      if (myMessage) {
+                        preventDefaultAndProp(event);
+                      }
+                    }}
+                  >
+                    <Tooltip title={intl.formatMessage({ id: typeExplanation })}>
+                      {TypeIcon}
+                    </Tooltip>
+                  </div>
+                )}
+                <div id={`showEdit0${id}`} style={{pointerEvents: 'none', display: 'none'}}>
+                  <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
+                </div>
+              </div>
+              <div id={`showEdit1${id}`} style={{paddingTop: '0.5rem'}}>
+                <Typography style={{flex: 2}}>
+                  {name}
+                </Typography>
+                {assignedNames.map((name) => (<Typography
+                  style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}}
+                  key={name}>Assignee: {name}
+                </Typography>))}
+              </div>
+            </div>
+          </Link>
+        </RaisedCard>
+      </div>
+      {!mobileLayout && (
+        <DragImage id={id} name={name} />
+      )}
+    </React.Fragment>
+  );
+}
+
 function ArchiveInvestbiles(props) {
   const {
     investibles,
@@ -82,13 +170,9 @@ function ArchiveInvestbiles(props) {
     allowDragDrop
   } = props;
   const classes = myArchiveClasses();
-  const intl = useIntl();
-  const history = useHistory();
-  const theme = useTheme();
-  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [messagesState] = useContext(NotificationsContext);
 
   function getInvestibles() {
     const investibleData = investibles.map((inv) => {
@@ -149,69 +233,10 @@ function ArchiveInvestbiles(props) {
       if (myMessage) {
         typeExplanation = 'messagePresent';
       }
-      return (
-        <React.Fragment key={`frag${id}`}>
-          <div
-            id={id}
-            key={id}
-            style={{overflowWrap: "break-word"}}
-            onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
-            onClick={(event) => {
-              preventDefaultAndProp(event);
-              getInvestibleOnClick(id, marketId, history);
-            }}
-          >
-            <RaisedCard draggable={allowDragDrop} onDragStart={onDragStart}>
-              <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
-                <div className={classes.outlined}>
-                    <div>
-                      <Typography style={{fontSize: '.75rem', flex: 1}}>
-                        Entered <UsefulRelativeTime value={enteredStageAt}/>
-                      </Typography>
-                    </div>
-                    <div style={{display: 'flex'}}>
-                      {TypeIcon && (
-                        <div
-                          onClick={(event) => {
-                            if (myMessage) {
-                              preventDefaultAndProp(event);
-                              dehighlightMessage(myMessage, messagesDispatch);
-                              navigate(history, formInboxItemLink(myMessage));
-                            }
-                          }}
-                          onMouseOver={(event) => {
-                            if (myMessage) {
-                              preventDefaultAndProp(event);
-                            }
-                          }}
-                        >
-                          <Tooltip title={intl.formatMessage({ id: typeExplanation })}>
-                            {TypeIcon}
-                          </Tooltip>
-                        </div>
-                      )}
-                      <div id={`showEdit0${id}`} style={{pointerEvents: 'none', display: 'none'}}>
-                        <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
-                      </div>
-                    </div>
-                    <div id={`showEdit1${id}`} style={{paddingTop: '0.5rem'}}>
-                      <Typography style={{flex: 2}}>
-                        {name}
-                      </Typography>
-                      {assignedNames.map((name) => (<Typography
-                        style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}}
-                        key={name}>Assignee: {name}
-                      </Typography>))}
-                    </div>
-                </div>
-              </Link>
-            </RaisedCard>
-          </div>
-          {!mobileLayout && (
-            <DragImage id={id} name={name} />
-          )}
-        </React.Fragment>
-      );
+      return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId} myMessage={myMessage}
+                                allowDragDrop={allowDragDrop} onDragStart={onDragStart} enteredStageAt={enteredStageAt}
+                                typeExplanation={typeExplanation} TypeIcon={TypeIcon} assignedNames={assignedNames}
+                                classes={classes} />;
     });
   }
 

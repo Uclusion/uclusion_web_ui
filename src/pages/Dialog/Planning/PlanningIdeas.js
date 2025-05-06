@@ -1,10 +1,9 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { useHistory } from 'react-router';
 import { Link, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles';
-import { yellow } from '@material-ui/core/colors';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   formCommentLink,
@@ -69,6 +68,7 @@ import BugListItem from '../../../components/Comments/BugListItem';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { useCollaborators } from '../../Investible/Planning/PlanningInvestible';
+import PlanningJobMenu from './PlanningJobMenu';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -359,62 +359,6 @@ PlanningIdeas.defaultProps = {
   comments: []
 };
 
-const useStageClasses = makeStyles(
-  theme => {
-    return {
-      fallbackRoot: {
-        fontSize: '.8em',
-        color: '#F29100',
-        margin: theme.spacing(1, 0),
-        padding: theme.spacing(1, 2),
-        overflowWrap: 'break-word'
-      },
-      verifiedOverflow: {
-        overflowY: 'auto',
-        maxHeight: '15rem'
-      },
-      root: {
-        border: `1px solid ${theme.palette.grey['400']}`,
-        borderRadius: theme.spacing(1),
-        fontSize: '.8em',
-        marginLeft: theme.spacing(1),
-        padding: theme.spacing(1, 2),
-        overflowWrap: 'break-word'
-      },
-      rootWarnAccepted: {
-        border: `1px solid ${theme.palette.grey['400']}`,
-        borderRadius: theme.spacing(1),
-        fontSize: '.8em',
-        margin: theme.spacing(0.5, 0),
-        padding: theme.spacing(1, 2),
-        backgroundColor: yellow['100'],
-        overflowWrap: 'break-word',
-        overflowX: 'hidden'
-      },
-      outlinedAccepted: {
-        border: `1px solid ${theme.palette.grey['400']}`,
-        borderRadius: theme.spacing(1),
-        fontSize: '.8em',
-        margin: theme.spacing(0.5, 0),
-        padding: theme.spacing(1, 2),
-        overflowWrap: 'break-word',
-        overflowX: 'hidden'
-      },
-      regularAccepted: {
-        marginLeft: theme.spacing(1),
-        overflowWrap: 'break-word',
-        overflowX: 'hidden'
-      },
-      list: {
-        listStyle: 'none',
-        margin: 0,
-        padding: 0
-      }
-    };
-  },
-  { name: 'Stage' }
-);
-
 function Stage(props) {
   const {
     comments,
@@ -437,8 +381,6 @@ function Stage(props) {
     const bMarketInfo = getMarketInfo(b, marketId);
     return new Date(bMarketInfo.updated_at) - new Date(aMarketInfo.updated_at);
   });
-  const classes = useStageClasses(props);
-  const history = useHistory();
 
   function investibleOnDragStart (event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
@@ -475,48 +417,28 @@ function Stage(props) {
     const numQuestionsSuggestions = countByType(investible, comments,
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
     const numRequiredReviews = countNumRequiredReviews(investible.id, comments, groupPresences);
-    const inProgressComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
-      && !comment.resolved && comment.comment_type === TODO_TYPE && comment.in_progress);
     const numOpenTasks = countByType(investible, comments, [TODO_TYPE]);
-    const { id: investibleId } = investible;
+
     return (
       <React.Fragment key={`stageFrag${investible.id}`}>
-        <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
-             className={classes.outlinedAccepted}
-             style={{minWidth: isReview ? '45%' : undefined}}
-             onMouseOver={() => doShowEdit(investible.id)}
-             onMouseOut={() => doRemoveEdit(investible.id)}
-             onClick={event => {
-               preventDefaultAndProp(event);
-               navigate(history, `${formInvestibleLink(marketId, investible.id)}#investible-header`);
-             }}
-        >
-          <StageInvestible
-            marketPresences={marketPresences || []}
-            comments={comments || []}
-            investible={investible}
-            marketId={marketId}
-            marketInfo={marketInfo}
-            isReview={isReview}
-            isVoting={isVoting}
-            numQuestionsSuggestions={numQuestionsSuggestions}
-            numRequiredReviews={numRequiredReviews}
-            numOpenTasks={numOpenTasks}
-            unaccepted={unaccepted}
-            showCompletion={showCompletion}
-            mobileLayout={mobileLayout}
-            isAutonomous={isAutonomous}
-            viewGroupId={viewGroupId}
-          />
-          {showCompletion && !_.isEmpty(inProgressComments) && (
-            inProgressComments.map((comment) => {
-              const { body, id: commentId } = comment;
-              return <BugListItem id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
-                             useSelect={false} toolTipId='inProgress'
-                             link={formCommentLink(marketId, marketInfo.group_id, investibleId, commentId)} />;
-            })
-          )}
-        </div>
+        <StageInvestible
+          marketPresences={marketPresences || []}
+          comments={comments || []}
+          investible={investible}
+          marketId={marketId}
+          marketInfo={marketInfo}
+          isReview={isReview}
+          isVoting={isVoting}
+          numQuestionsSuggestions={numQuestionsSuggestions}
+          numRequiredReviews={numRequiredReviews}
+          numOpenTasks={numOpenTasks}
+          unaccepted={unaccepted}
+          showCompletion={showCompletion}
+          mobileLayout={mobileLayout}
+          isAutonomous={isAutonomous}
+          viewGroupId={viewGroupId}
+          investibleOnDragStart={investibleOnDragStart}
+        />
         {!mobileLayout && (
           <DragImage id={investible.id} name={investible.name} />
         )}
@@ -565,7 +487,7 @@ function ReviewStage (props) {
   );
 }
 
-const generalStageStyles = makeStyles(() => {
+const generalStageStyles = makeStyles((theme) => {
   return {
     chipClass: {
       fontSize: 10,
@@ -581,7 +503,16 @@ const generalStageStyles = makeStyles(() => {
     smallGravatar: {
       width: '24px',
       height: '24px',
-    }
+    },
+    outlinedAccepted: {
+      border: `1px solid ${theme.palette.grey['400']}`,
+      borderRadius: theme.spacing(1),
+      fontSize: '.8em',
+      margin: theme.spacing(0.5, 0),
+      padding: theme.spacing(1, 2),
+      overflowWrap: 'break-word',
+      overflowX: 'hidden'
+    },
   };
 });
 
@@ -602,15 +533,18 @@ function StageInvestible(props) {
     isReview,
     isVoting,
     isAutonomous,
-    viewGroupId
+    viewGroupId,
+    investibleOnDragStart
   } = props;
   const intl = useIntl();
-  const { completion_estimate: daysEstimate, ticket_code: ticketCode, assigned, group_id: groupId } = marketInfo;
+  const { completion_estimate: daysEstimate, ticket_code: ticketCode, assigned, group_id: groupId,
+    stage: stageId } = marketInfo;
   const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [anchorEl, setAnchorEl] = useState(null);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
   const investibleComments = comments.filter((comment) => comment.investible_id === id) || [];
@@ -667,74 +601,99 @@ function StageInvestible(props) {
       </Tooltip>
     );
   }
+  const recordPositionToggle = (event) => {
+    if (anchorEl === null) {
+      preventDefaultAndProp(event);
+      setAnchorEl(event.currentTarget);
+    } else {
+      setAnchorEl(null);
+    }
+  };
   const showNumRequiredReviews = isReviewable && numRequiredReviews > 0;
   let chip = mobileLayout ? undefined :
     getChip(isVoting ? numQuestionsSuggestions : (showNumRequiredReviews ? numRequiredReviews : numOpenTasks),
       isVoting ? 'inputRequiredCountExplanation':
         (showNumRequiredReviews ? 'requiredReviewsCountExplanation' : 'openTasksCountExplanation'));
   const ticketNumber = getTicketNumber(ticketCode, isAutonomous, groupId === viewGroupId);
+  const inProgressComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
+    && !comment.resolved && comment.comment_type === TODO_TYPE && comment.in_progress);
   return (
     <>
-      <div style={{display: 'flex', marginBottom: '0.35rem'}}>
-        {!unaccepted && (isVoting || isReview) &&
-          !_.isEmpty(collaboratorsForInvestible.filter((collaborator) => !assigned?.includes(collaborator.id))) && (
-          <div>
-            <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
-          </div>
-        )}
-        {unaccepted && (
-          <Tooltip
-            title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
-          >
-            <div className={planClasses.daysEstimation} style={{wordWrap: 'normal'}}>
-              <FormattedMessage id='planningUnacceptedLabel' />
+      {anchorEl && (
+        <PlanningJobMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} stageId={stageId}
+                         marketId={marketId} investibleId={investible.id} />
+      )}
+      <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
+           className={classes.outlinedAccepted}
+           onContextMenu={recordPositionToggle}
+           style={{minWidth: isReview ? '45%' : undefined}}
+           onMouseOver={() => doShowEdit(investible.id)}
+           onMouseOut={() => doRemoveEdit(investible.id)}
+           onClick={event => {
+             preventDefaultAndProp(event);
+             navigate(history, `${formInvestibleLink(marketId, investible.id)}#investible-header`);
+           }}
+      >
+        <div style={{display: 'flex', marginBottom: '0.35rem'}}>
+          {!unaccepted && (isVoting || isReview) &&
+            !_.isEmpty(collaboratorsForInvestible.filter((collaborator) => !assigned?.includes(collaborator.id))) && (
+              <div>
+                <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
+              </div>
+            )}
+          {unaccepted && (
+            <Tooltip
+              title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
+            >
+              <div className={planClasses.daysEstimation} style={{wordWrap: 'normal'}}>
+                <FormattedMessage id='planningUnacceptedLabel' />
+              </div>
+            </Tooltip>
+          )}
+          {hasDaysEstimate && (
+            <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? '#F29100': undefined, marginTop: '0.2rem',
+              cursor: unreadEstimate ? 'pointer' : undefined }}
+                 onClick={(event) => {
+                   if (unreadEstimate) {
+                     preventDefaultAndProp(event);
+                     dehighlightMessage(unreadEstimate, messagesDispatch);
+                     navigate(history, formInboxItemLink(unreadEstimate));
+                   }
+                 }}
+                 onMouseOver={(event) => {
+                   if (unreadEstimate) {
+                     preventDefaultAndProp(event);
+                   }
+                 }}
+            >
+              <FormattedMessage id='estimatedCompletionToday' /> <UsefulRelativeTime value={new Date(daysEstimate)}/>
             </div>
-          </Tooltip>
-        )}
-        {hasDaysEstimate && (
-          <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? '#F29100': undefined, marginTop: '0.2rem',
-            cursor: unreadEstimate ? 'pointer' : undefined }}
-               onClick={(event) => {
-                 if (unreadEstimate) {
-                   preventDefaultAndProp(event);
-                   dehighlightMessage(unreadEstimate, messagesDispatch);
-                   navigate(history, formInboxItemLink(unreadEstimate));
-                 }
-               }}
-               onMouseOver={(event) => {
-                 if (unreadEstimate) {
-                   preventDefaultAndProp(event);
-                 }
-               }}
-          >
-            <FormattedMessage id='estimatedCompletionToday' /> <UsefulRelativeTime value={new Date(daysEstimate)}/>
-          </div>
-        )}
-        {ticketNumber && (
-          <Typography variant="subtitle2" style={{whiteSpace: 'nowrap', marginLeft: '1rem'}}>
-            {ticketNumber}
-          </Typography>
-        )}
-        {chip}
-        {doesRequireStatus && (
-          <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
+          )}
+          {ticketNumber && (
+            <Typography variant="subtitle2" style={{whiteSpace: 'nowrap', marginLeft: '1rem'}}>
+              {ticketNumber}
+            </Typography>
+          )}
+          {chip}
+          {doesRequireStatus && (
+            <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
             <span className={'MuiTabItem-tag'} style={{ marginLeft: '1rem', marginTop: '-0.1rem' }}>
               <Schedule style={{fontSize: 24, color: '#F29100'}}/>
             </span>
-          </Tooltip>
-        )}
-      </div>
-      <div id={`planningIdea${id}`} style={{display: 'flex', paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
-        <StageLink
-          href={to}
-          id={id}
-          draggable="false"
-          onClick={event => {
-            event.stopPropagation();
-            event.preventDefault();
-            navigate(history, to);
-          }}
-        >
+            </Tooltip>
+          )}
+        </div>
+        <div id={`planningIdea${id}`} style={{display: 'flex', paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
+          <StageLink
+            href={to}
+            id={id}
+            draggable="false"
+            onClick={event => {
+              event.stopPropagation();
+              event.preventDefault();
+              navigate(history, to);
+            }}
+          >
             <Typography color='initial' variant="subtitle2">{name}</Typography>
             {!_.isEmpty(labelList) && labelList.map((label) =>
               <div key={label} style={{paddingTop: '0.5rem'}}>
@@ -747,6 +706,15 @@ function StageInvestible(props) {
             <EditOutlinedIcon style={{maxHeight: '1.25rem', marginTop: '-0.2rem'}} />
           </div>
         </div>
+        {showCompletion && !_.isEmpty(inProgressComments) && (
+          inProgressComments.map((comment) => {
+            const { body, id: commentId } = comment;
+            return <BugListItem id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
+                                useSelect={false} toolTipId='inProgress'
+                                link={formCommentLink(marketId, marketInfo.group_id, id, commentId)} />;
+          })
+        )}
+      </div>
     </>
   );
 }

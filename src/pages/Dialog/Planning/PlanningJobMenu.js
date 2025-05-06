@@ -16,7 +16,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   paperMenu: {
     border: '0.5px solid grey',
   },
@@ -104,19 +104,21 @@ function PlanningJobMenu(props) {
             </div>
           </Tooltip>
         </MenuItem>
-        <MenuItem key="dialogArchivesNotDoingHeaderKey" id="dialogArchivesNotDoingHeaderId"
-                  onClick={(event) => {
-                    preventDefaultAndProp(event);
-                    recordPositionToggle();
-                    return stageChange(notDoingStageId).then(() => recordPositionToggle());
-                  }}
-        >
-          <Tooltip placement='top' title={intl.formatMessage({ id: 'planningInvestibleNotDoingExplanation' })}>
-            <div>
-              {intl.formatMessage({ id: 'dialogArchivesNotDoingHeader' })}
-            </div>
-          </Tooltip>
-        </MenuItem>
+        {stageId !== notDoingStageId && (
+          <MenuItem key="dialogArchivesNotDoingHeaderKey" id="dialogArchivesNotDoingHeaderId"
+                    onClick={(event) => {
+                      preventDefaultAndProp(event);
+                      recordPositionToggle();
+                      return stageChange(notDoingStageId).then(() => recordPositionToggle());
+                    }}
+          >
+            <Tooltip placement='top' title={intl.formatMessage({ id: 'planningInvestibleNotDoingExplanation' })}>
+              <div>
+                {intl.formatMessage({ id: 'dialogArchivesNotDoingHeader' })}
+              </div>
+            </Tooltip>
+          </MenuItem>
+        )}
       </Menu>
   );
 }

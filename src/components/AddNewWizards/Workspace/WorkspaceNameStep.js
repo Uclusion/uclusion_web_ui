@@ -55,6 +55,17 @@ function WorkspaceNameStep (props) {
     });
   }
 
+  function getInitials(name) {
+    const words = name.split(' ');
+    let initials = '';
+    for (const word of words) {
+      if (word.length > 0) {
+        initials += word[0].toUpperCase();
+      }
+    }
+    return initials;
+  }
+
   function onNext(isSinglePersonMode = true, isTerminate = false, groupNameId) {
     const { name } = formData;
     const marketInfo = {
@@ -62,7 +73,9 @@ function WorkspaceNameStep (props) {
       is_autonomous_group: isSinglePersonMode
     };
     if (isSinglePersonMode) {
-      marketInfo.group_name = fixName(userState.user.name).slice(0, 80);
+      const userName = fixName(userState.user.name);
+      marketInfo.group_name = userName.slice(0, 80);
+      marketInfo.ticket_sub_code = getInitials(userName);
     } else {
       marketInfo.group_name = intl.formatMessage({id: groupNameId});
     }

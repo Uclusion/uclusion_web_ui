@@ -12,7 +12,6 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { makeStyles } from '@material-ui/core/styles';
-import { yellow } from '@material-ui/core/colors';
 import { QUESTION_TYPE } from '../../constants/comments';
 import {
   getFullStage,
@@ -39,32 +38,19 @@ function getInvestibleOnClick(id, marketId, history) {
   navigate(history, link);
 }
 
-export const myArchiveClasses = makeStyles(
+const myArchiveClasses = makeStyles(
   theme => {
     return {
-      warn: {
-        border: `1px solid ${theme.palette.grey["400"]}`,
-        borderRadius: theme.spacing(1),
-        padding: theme.spacing(1, 2),
-        backgroundColor: yellow["100"],
-      },
       outlined: {
         border: `1px solid ${theme.palette.grey["400"]}`,
         borderRadius: theme.spacing(1),
-        padding: theme.spacing(1, 2),
-        maxWidth: '18rem'
+        padding: theme.spacing(1, 2)
       },
       white: {
         backgroundColor: "white",
         padding: 0,
         margin: 0,
       },
-      containerGreen: {
-        borderColor: 'green',
-        borderStyle: 'dashed',
-        borderWidth: '3px'
-      },
-      containerEmpty: {},
       grow: {
         padding: '30px',
         flexGrow: 1,
@@ -100,7 +86,6 @@ function ArchiveInvestible(props) {
       <div
         id={id}
         key={id}
-        style={{overflowWrap: "break-word"}}
         onContextMenu={recordPositionToggle}
         onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
         onClick={(event) => {
@@ -112,7 +97,7 @@ function ArchiveInvestible(props) {
           <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
             <div className={classes.outlined}>
               <div>
-                <Typography style={{fontSize: '.75rem', flex: 1}}>
+                <Typography style={{fontSize: '.75rem'}}>
                   Entered <UsefulRelativeTime value={enteredStageAt}/>
                 </Typography>
               </div>
@@ -141,15 +126,13 @@ function ArchiveInvestible(props) {
                   <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
                 </div>
               </div>
-              <div id={`showEdit1${id}`} style={{paddingTop: '0.5rem'}}>
-                <Typography style={{flex: 2}}>
-                  {name}
-                </Typography>
-                {assignedNames.map((name) => (<Typography
-                  style={{fontStyle: 'italic', fontSize: '.75rem', flex: 1}}
-                  key={name}>Assignee: {name}
-                </Typography>))}
-              </div>
+              <p style={{paddingTop: '0.5rem', maxWidth: '16rem',  wordBreak: 'break-all'}}>
+                {name}
+              </p>
+              {assignedNames.map((name) => (<Typography
+                style={{fontStyle: 'italic', fontSize: '.75rem'}}
+                key={name}>Assignee: {name}
+              </Typography>))}
             </div>
           </Link>
         </RaisedCard>

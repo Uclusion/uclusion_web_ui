@@ -538,7 +538,7 @@ function StageInvestible(props) {
   } = props;
   const intl = useIntl();
   const { completion_estimate: daysEstimate, ticket_code: ticketCode, assigned, group_id: groupId,
-    stage: stageId } = marketInfo;
+    stage: stageId, open_for_investment: openForInvestment } = marketInfo;
   const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
@@ -621,7 +621,7 @@ function StageInvestible(props) {
     <>
       {anchorEl && (
         <PlanningJobMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} stageId={stageId}
-                         marketId={marketId} investibleId={investible.id} />
+                         marketId={marketId} investibleId={investible.id} openForInvestment={openForInvestment} />
       )}
       <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
            className={classes.outlinedAccepted}

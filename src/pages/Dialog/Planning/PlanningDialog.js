@@ -168,7 +168,8 @@ function PlanningDialog(props) {
   });
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id, marketId);
   const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id, marketId);
-  const blockedOrRequiresInputInvestibles = blockedInvestibles.concat(requiresInputInvestibles);
+  const blockedOrRequiresInputOrReadyInvestibles = blockedInvestibles.concat(requiresInputInvestibles)
+    .concat(furtherWorkReadyToStart);
   const swimlaneInvestibles = investibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
@@ -365,14 +366,14 @@ function PlanningDialog(props) {
   }
 
   const tabTitle = `${groupName} ${intl.formatMessage({id: 'tabGroupAppend'})}`;
-  const swimlaneEmptyPreText = _.isEmpty(blockedOrRequiresInputInvestibles) ? 'There are no assigned jobs.' :
-  'All assigned jobs require assistance.';
+  const swimlaneEmptyPreText = 'There are no in progress jobs.';
   function getTabCount(tabIndex) {
     if (!_.isEmpty(search)) {
       return undefined;
     }
     if (tabIndex === 0) {
-      let investibleIds = (blockedOrRequiresInputInvestibles || []).map((investible)=>investible.investible.id);
+      let investibleIds = (blockedOrRequiresInputOrReadyInvestibles || []).map((investible) =>
+        investible.investible.id);
       investibleIds = investibleIds.concat((swimlaneInvestibles||[]).map((investible)=>investible.investible.id));
       const numNewMessagesRaw = findMessagesForInvestibleIds(investibleIds, messagesState, true)||[];
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
@@ -528,19 +529,18 @@ function PlanningDialog(props) {
                   id="blocked"
                 >
                   <DismissableText textId="assistanceHelp"
-                                   display={_.isEmpty(blockedOrRequiresInputInvestibles)}
+                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestibles)}
                                    text={
                                      <div>
-                                       When there is a blocker or an assignee creates a question or suggestion the
-                                       job moves here.
+                                       This section shows all jobs needing assignment or help.
                                      </div>
                                    }/>
-                  {!_.isEmpty(blockedOrRequiresInputInvestibles) && (
+                  {!_.isEmpty(blockedOrRequiresInputOrReadyInvestibles) && (
                     <ArchiveInvestbiles
                       comments={comments}
                       marketId={marketId}
                       presenceMap={presenceMap}
-                      investibles={blockedOrRequiresInputInvestibles}
+                      investibles={blockedOrRequiresInputOrReadyInvestibles}
                       allowDragDrop
                     />
                   )}
@@ -567,7 +567,7 @@ function PlanningDialog(props) {
                              text={
                               isAutonomous ?
                                    <div>
-                                     {swimlaneEmptyPreText} Use the "Add job" button above to assign a new job.
+                                     {swimlaneEmptyPreText} Use the "Add job" button above to start a new job.
                                    </div>
                                 : (market?.market_sub_type === 'SUPPORT' ?
                                   <div>

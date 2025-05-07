@@ -1211,6 +1211,7 @@ const messages = defineMessages({
   readyToStartCheckboxExplanation: 'Ready to start',
   blockingIssueCheckboxExplanation: 'Not ready - issue',
   readyToStartExplanation: 'Ready to start jobs send a notification for assignment.',
+  readyToStartDisplay: 'This job is ready for assignment',
   viewTodo: 'View',
   editTodo: 'Edit',
   markRead: 'Mark read',

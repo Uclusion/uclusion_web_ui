@@ -15,7 +15,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { QUESTION_TYPE } from '../../constants/comments';
 import {
   getFullStage,
-  isBlockedStage,
+  isBlockedStage, isFurtherWorkStage,
   isRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import Link from '@material-ui/core/Link';
@@ -32,6 +32,7 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import { findMessagesForInvestibleId } from '../../utils/messageUtils';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import PlanningJobMenu from '../Dialog/Planning/PlanningJobMenu';
+import PersonSearch from '../../components/CustomChip/PersonSearch';
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -62,7 +63,7 @@ const myArchiveClasses = makeStyles(
 
 function ArchiveInvestible(props) {
   const { name, id, stageId, marketId, myMessage, allowDragDrop, onDragStart, enteredStageAt, typeExplanation,
-    TypeIcon, assignedNames, classes } = props;
+    TypeIcon, assignedNames, classes, openForInvestment } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const intl = useIntl();
   const history = useHistory();
@@ -81,7 +82,8 @@ function ArchiveInvestible(props) {
     <React.Fragment key={`frag${id}`}>
       {anchorEl && (
         <PlanningJobMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle}
-                         stageId={stageId} marketId={marketId} investibleId={id} />
+                         openForInvestment={openForInvestment}  stageId={stageId} marketId={marketId}
+                         investibleId={id} />
       )}
       <div
         id={id}
@@ -169,7 +171,8 @@ function ArchiveInvestbiles(props) {
       const { id, name } = investible;
       const messages = findMessagesForInvestibleId(id, messagesState);
       const info = getMarketInfo(inv, marketId) || {};
-      const { assigned, stage: stageId, last_stage_change_date: lastStageChangeDate } = info;
+      const { assigned, stage: stageId, last_stage_change_date: lastStageChangeDate,
+        open_for_investment: openForInvestment } = info;
       const enteredStageAt = new Date(lastStageChangeDate)
       const stage = getFullStage(marketStagesState, marketId, stageId);
       const usedAssignees = assigned || [];
@@ -191,7 +194,8 @@ function ArchiveInvestbiles(props) {
         event.dataTransfer.setData("stageId", stageId);
       }
       const assistanceType = isBlockedStage(stage) ? 0 : (isRequiredInputStage(stage) ?
-        (_.isEmpty(questionComments) ? 1 : 2) : -1);
+        (_.isEmpty(questionComments) ? 1 : 2) : (isFurtherWorkStage(stage) ? (openForInvestment ? 3 :
+          (_.isEmpty(questionComments) ? 1 : 2)) : -1));
       let TypeIcon;
       let typeExplanation;
       // Just go to the first message associated with this investible that needs assistance if user has one
@@ -209,6 +213,10 @@ function ArchiveInvestbiles(props) {
           TypeIcon = myMessage ? <QuestionIcon htmlColor='#E85757' /> : <QuestionIcon htmlColor='#F29100' />;
           typeExplanation = 'questionPresent';
           break;
+        case 3:
+          TypeIcon = myMessage ? <PersonSearch htmlColor='#E85757' /> : <PersonSearch htmlColor='#F29100' />;
+          typeExplanation = 'readyToStartDisplay';
+          break;
         default:
           TypeIcon = undefined;
           typeExplanation = undefined;
@@ -219,7 +227,7 @@ function ArchiveInvestbiles(props) {
       return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId} myMessage={myMessage}
                                 allowDragDrop={allowDragDrop} onDragStart={onDragStart} enteredStageAt={enteredStageAt}
                                 typeExplanation={typeExplanation} TypeIcon={TypeIcon} assignedNames={assignedNames}
-                                classes={classes} />;
+                                classes={classes} openForInvestment={openForInvestment} />;
     });
   }
 

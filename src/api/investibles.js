@@ -36,12 +36,6 @@ export function addressInvestible(marketId, investibleId, addressed) {
     .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
 }
 
-export function changeLabels(marketId, investibleId, labelList) {
-  return getMarketClient(marketId)
-    .then((client) => client.investibles.update(investibleId, undefined, undefined, labelList))
-    .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
-}
-
 export function attachFilesToInvestible(marketId, investibleId, metadatas) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.addAttachments(investibleId, metadatas))

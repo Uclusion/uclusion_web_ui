@@ -132,14 +132,14 @@ function AddCommentStep (props) {
       )}
       {useType === ISSUE_TYPE && inFurtherWorkStage && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Jobs with blocking issues are always not ready to start.
+          Jobs with blocking issues are always not ready.
           <GravatarGroup users={subscribedNotMe}/>
           notified unless use @ mentions.
         </Typography>
       )}
       {useType === ISSUE_TYPE && inFurtherWorkStage && noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Jobs with blocking issues are always not ready to start.
+          Jobs with blocking issues are always not ready.
         </Typography>
       )}
       {useType === REPORT_TYPE && !isResolve && !noSubscribedToSendTo && (

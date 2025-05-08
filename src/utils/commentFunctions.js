@@ -70,7 +70,7 @@ export function getThreadIds(parents, comments) {
 
 export function changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos, rootInvestible, investibleDispatch) {
   if (newStage?.id || _.isEmpty(assigned)) {
-    // If in further work just remove ready to start
+    // If in further work just remove ready to assign
     const newInfo = {
       ...info,
       open_for_investment: false,

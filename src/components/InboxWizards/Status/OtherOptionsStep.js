@@ -35,7 +35,7 @@ function OtherOptionsStep(props) {
         {intl.formatMessage({ id: message?.type === 'REPORT_REQUIRED' ? 'JobStatusTitle' : 'JobMovedTitle' })}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Reporting progress also gets feedback. Moving to ready to start unassigns the job.
+        Reporting progress also gets feedback. Moving to ready to assign unassigns the job.
       </Typography>
       <JobDescription marketId={marketId} investibleId={investibleId} useCompression={useCompression}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}

@@ -48,7 +48,7 @@ function JobReadyStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        Is this job ready to start?
+        Is this job ready to assign?
       </Typography>
       {!isSingleUser && (
         <Typography className={classes.introSubText} variant="subtitle1">

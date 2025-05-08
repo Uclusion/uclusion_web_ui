@@ -116,12 +116,12 @@ function Backlog(props) {
                        display={isEmptyBacklog && !isSingleUser}
                        text={market?.market_sub_type === 'SUPPORT' ?
                          <div>
-                           Use the "Add job" button above to create backlog. "Ready to Start" sends notifications to
+                           Use the "Add job" button above to create backlog. "Ready to Assign" sends notifications to
                            support.
                          </div>
                          :
                          <div>
-                           Use the "Add job" button above to create backlog. "Ready to Start" sends notifications to
+                           Use the "Add job" button above to create backlog. "Ready to Assign" sends notifications to
                            members of this view.
                          </div>
                        }/>

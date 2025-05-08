@@ -53,7 +53,7 @@ function JobAssignStep (props) {
 
   function createJob() {
     const name = createJobNameFromComments(roots, intl);
-    // Coming from existing comments usually ready to start - bugs are and voted questions or suggestion should be
+    // Coming from existing comments usually ready to assign - bugs are and voted questions or suggestion should be
     const addInfo = {
       name,
       groupId,

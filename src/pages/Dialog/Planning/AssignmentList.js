@@ -18,7 +18,8 @@ function AssignmentList(props) {
     requiresInput,
     groupId,
     marketId,
-    showAllOnly
+    showAllOnly,
+    onlyThisGroup
   } = props;
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [groupOnly, setGroupOnly] = useState(!showAllOnly);
@@ -56,6 +57,7 @@ function AssignmentList(props) {
           <Checkbox
             checked={groupOnly}
             onClick={() => setGroupOnly(!groupOnly)}
+            disabled={onlyThisGroup}
           />
         </div>
       </div>
@@ -78,7 +80,8 @@ AssignmentList.propTypes = {
   requiresInput: PropTypes.bool,
   groupId: PropTypes.string.isRequired,
   marketId: PropTypes.string.isRequired,
-  showAllOnly: PropTypes.bool
+  showAllOnly: PropTypes.bool,
+  onlyThisGroup: PropTypes.bool
 };
 
 AssignmentList.defaultProps = {
@@ -87,7 +90,8 @@ AssignmentList.defaultProps = {
   previouslyAssigned: [],
   cannotBeAssigned: [],
   requiresInput: false,
-  showAllOnly: false
+  showAllOnly: false,
+  onlyThisGroup: false
 };
 
 export default AssignmentList;

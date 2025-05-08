@@ -103,6 +103,7 @@ function JobAssignStep (props) {
           onChange={onAssignmentChange}
           groupId={groupId}
           marketId={marketId}
+          onlyThisGroup
         />
         <div className={classes.borderBottom}/>
         <WizardStepButtons

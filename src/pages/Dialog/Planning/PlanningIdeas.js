@@ -268,35 +268,33 @@ function PlanningIdeas(props) {
 
   return (
     <div className={mobileLayout ? undefined : classes.stages}>
-      {(!isAutonomous || !_.isEmpty(myInvestiblesStageHash[inDialogStageId])) && (
-        <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
-             onDragOver={onDragOverProcess}
-        >
-          {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inDialogStageId]) && (
-            <div style={{ marginTop: '0.5rem', marginLeft: '0.5rem' }}>
-              <b><FormattedMessage id="planningVotingStageLabel"/></b>
-            </div>
-          )}
-          {_.isEmpty(myInvestiblesStageHash) && (
-            <Typography style={{ marginTop: '1rem', marginLeft: 'auto', marginRight: 'auto' }}
-                        variant="body1">
-              No assigned, unassisted jobs.
-            </Typography>
-          )}
-          <VotingStage
-            id={inDialogStageId}
-            investibles={myInvestiblesStageHash[inDialogStageId] || []}
-            marketId={marketId}
-            groupId={groupId}
-            presenceId={presenceId}
-            marketPresences={marketPresences}
-            comments={comments}
-            myPresence={myPresence}
-            isAutonomous={isAutonomous}
-            viewGroupId={groupId}
-          />
-        </div>
-      )}
+      <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
+           onDragOver={onDragOverProcess}
+      >
+        {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inDialogStageId]) && (
+          <div style={{ marginTop: '0.5rem', marginLeft: '0.5rem' }}>
+            <b><FormattedMessage id="planningVotingStageLabel"/></b>
+          </div>
+        )}
+        {_.isEmpty(myInvestiblesStageHash) && (
+          <Typography style={{ marginTop: '1rem', marginLeft: 'auto', marginRight: 'auto' }}
+                      variant="body1">
+            No waiting or in approval jobs.
+          </Typography>
+        )}
+        <VotingStage
+          id={inDialogStageId}
+          investibles={myInvestiblesStageHash[inDialogStageId] || []}
+          marketId={marketId}
+          groupId={groupId}
+          presenceId={presenceId}
+          marketPresences={marketPresences}
+          comments={comments}
+          myPresence={myPresence}
+          isAutonomous={isAutonomous}
+          viewGroupId={groupId}
+        />
+      </div>
       <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted}
            onDragOver={onDragOverProcess}
       >

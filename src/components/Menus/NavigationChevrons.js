@@ -106,7 +106,7 @@ export default function NavigationChevrons() {
       const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id, comment.group_id) || [];
       const group = getGroup(groupsState, market.id, comment.group_id);
       const isAutonomous = isAutonomousGroup(groupPresences, group);
-      if (!isAutonomous) {
+      if (!isAutonomous || !_.isEmpty(comment.mentions)) {
         const candidate = getCommentCandidate(comment, market, navigations);
         outboxCandidates.push(candidate);
       }

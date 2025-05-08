@@ -337,7 +337,7 @@ function isAutonomousComment(comment, marketPresences, groupPresencesState, mark
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
     comment.group_id) || [];
   const group = getGroup(groupsState, marketId, comment.group_id);
-  return isAutonomousGroup(groupPresences, group);
+  return isAutonomousGroup(groupPresences, group) && _.isEmpty(comment.mentions);
 }
 
 export function getOutboxMessages(props) {

@@ -6,7 +6,7 @@ import React, { useContext } from 'react';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
   getGroupPresences,
-  getMarketPresences, isAutonomousGroup
+  getMarketPresences
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { PLACEHOLDER } from '../../../constants/global';
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils';
@@ -134,27 +134,20 @@ function InvestiblesByPerson(props) {
   const { search } = searchResults;
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
-  const isAutonomous = isAutonomousGroup(groupPresences, group);
   const groupPresencesSortedAlmost = _.sortBy(groupPresences, 'name');
   const groupPresencesSorted = _.sortBy(groupPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
   });
-  const autoInvestibles = isAutonomous ? getUserInvestibles(groupPresences[0].id, marketId, investibles)
-    : undefined;
-  const autoInvestiblesStageHash = isAutonomous ? getUserSwimlaneInvestiblesHash(autoInvestibles,
-    visibleStages, marketId, comments, messagesState) : undefined;
   return (
     <React.Fragment key="investiblesByPerson">
       {!mobileLayout && (
         <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
-          {(!isAutonomous || (inDialogStage && !_.isEmpty(autoInvestiblesStageHash[inDialogStage.id]))) && (
-            <div>
-              <Link href="https://documentation.uclusion.com/views/jobs/stages/#assigned" target="_blank"
-                    style={{ color: DARKER_LINK_COLOR }}>
-                <b><FormattedMessage id="planningVotingStageLabel"/></b>
-              </Link>
-            </div>
-          )}
+          <div>
+            <Link href="https://documentation.uclusion.com/views/jobs/stages/#assigned" target="_blank"
+                  style={{ color: DARKER_LINK_COLOR }}>
+              <b><FormattedMessage id="planningVotingStageLabel"/></b>
+            </Link>
+          </div>
           <div>
             <Link href="https://documentation.uclusion.com/views/jobs/stages/#approved"
                   target="_blank" style={{ color: DARKER_LINK_COLOR }}>

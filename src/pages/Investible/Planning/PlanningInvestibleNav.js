@@ -125,6 +125,13 @@ export default function PlanningInvestibleNav(props) {
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const hasBlockingIssue = !_.isEmpty(investibleComments.find((comment) => comment.comment_type === ISSUE_TYPE
     && !comment.resolved))
+  const allowableGroups = groupsState[marketId].filter((group) => {
+    if (_.isEmpty(assigned)) {
+      return true;
+    }
+    const thisGroupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, group.id) || [];
+    return !_.isEmpty(thisGroupPresences.filter((presence) => assigned.includes(presence.id)));
+  });
 
   function setReadyToStart(isReadyToStart) {
     const updateInfo = {
@@ -341,7 +348,7 @@ export default function PlanningInvestibleNav(props) {
           </div>
         </div>
       )}
-      {_.size(groupsState[marketId]) > 1 && groupId && (
+      {_.size(allowableGroups) > 1 && groupId && (
         <FormControl>
           <div className={classes.sectionTitle}>
             <FormattedMessage id="switchGroup"/>
@@ -350,7 +357,7 @@ export default function PlanningInvestibleNav(props) {
               value={groupId}
               onChange={(event) => changeInvestibleView(event.target.value)}
             >
-              {groupsState[marketId].map((group) => {
+              {allowableGroups.map((group) => {
                 return <MenuItem key={`key${group.id}`} value={group.id}>{group.name}</MenuItem>
               })}
             </Select>

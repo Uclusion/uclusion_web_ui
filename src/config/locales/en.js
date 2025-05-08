@@ -649,7 +649,7 @@ const messages = defineMessages({
 
   // Planning Dialog
   planningDialogNavDetailsLabel: 'Details',
-  planningDialogNavStoriesLabel: 'Assigned Jobs',
+  planningDialogNavStoriesLabel: 'Job Status',
   planningDialogBacklog: 'Job Backlog',
   planningDialogNavDiscussionLabel: 'Discussion',
   planningDialogManageParticipantsLabel: 'Manage collaborators',
@@ -703,7 +703,7 @@ const messages = defineMessages({
   minorToolTip: 'Minor bugs do not send notifications.',
   readyToStartToolTip: 'Ready to Assign jobs send a notification.',
   notReadyToolTip: 'Not Ready jobs do not send notifications.',
-  assignedJobsToolTip: 'Assigned jobs automatically send approval notifications.',
+  assignedJobsToolTip: 'Ready to assign jobs automatically send approval notifications.',
   backlogJobsToolTip: 'Use backlog jobs to find an assignee or discuss a job that is not ready for assignment.',
   bugsToolTip: 'Open a bug so it can be prioritized while waiting to be moved to a job.',
   discussionToolTip: 'Discuss suggestions and questions and create jobs from them when necessary.',
@@ -839,7 +839,6 @@ const messages = defineMessages({
   reviewListHeader: 'Required reviewers (X to remove)',
   approveListHeader: 'Required approvers (X to remove)',
   followingListHeader: 'Following (X to remove)',
-  cannotUnassignExplanation: 'Collaborators assigned jobs cannot be unchecked.',
   removeExplanation: 'Remove takes away all access to this workspace',
   groupRemoveExplanation: 'Unchecking removes this user from this view',
   groupRemoveAction: 'Active',

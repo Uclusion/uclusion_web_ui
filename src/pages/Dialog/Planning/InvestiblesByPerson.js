@@ -143,13 +143,13 @@ function InvestiblesByPerson(props) {
       {!mobileLayout && (
         <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
           <div>
-            <Link href="https://documentation.uclusion.com/views/jobs/stages/#assigned" target="_blank"
+            <Link href="https://documentation.uclusion.com/views/jobs/stages/#waiting--approval" target="_blank"
                   style={{ color: DARKER_LINK_COLOR }}>
               <b><FormattedMessage id="planningVotingStageLabel"/></b>
             </Link>
           </div>
           <div>
-            <Link href="https://documentation.uclusion.com/views/jobs/stages/#approved"
+            <Link href="https://documentation.uclusion.com/views/jobs/stages/#work-ready"
                   target="_blank" style={{ color: DARKER_LINK_COLOR }}>
               <b><FormattedMessage id="planningAcceptedStageLabel"/></b>
             </Link>

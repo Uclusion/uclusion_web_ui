@@ -525,7 +525,7 @@ function PlanningDialog(props) {
                   type={SECTION_TYPE_SECONDARY_WARNING}
                   bolder
                   title={intl.formatMessage({ id: 'blockedHeader' })}
-                  helpLink='https://documentation.uclusion.com/views/jobs/stages/#assistance'
+                  helpLink='https://documentation.uclusion.com/views/jobs/stages/#assistance-needed'
                   id="blocked"
                 >
                   <DismissableText textId="assistanceHelp"

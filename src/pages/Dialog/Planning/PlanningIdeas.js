@@ -276,7 +276,7 @@ function PlanningIdeas(props) {
             <b><FormattedMessage id="planningVotingStageLabel"/></b>
           </div>
         )}
-        {_.isEmpty(myInvestiblesStageHash) && (
+        {_.isEmpty(myInvestiblesStageHash[inDialogStageId]) && (
           <Typography style={{ marginTop: '1rem', marginLeft: 'auto', marginRight: 'auto' }}
                       variant="body1">
             No waiting or in approval jobs.

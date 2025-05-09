@@ -49,13 +49,13 @@ function SwimlanesOnboardingBanner(props) {
                  </div>
                }/>
             )}
-            {!isDemo && isAutonomous && isSwimlanes && (
+            {isAutonomous && isSwimlanes && (
               <DismissableText textId="everyoneStatusHelp" text={
                 <div>
                   <Typography>This <Link href="https://documentation.uclusion.com/views/mywork/" target="_blank">My Work</Link> view
                   displays all assigned</Typography>
                   <Typography className={classes.ctaSub}>
-                    to you even if from another view.
+                    or ready for assignment even if from another view.
                   </Typography>
                 </div>
               }/>

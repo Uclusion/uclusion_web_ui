@@ -45,7 +45,7 @@ function DecideResolveStep(props) {
         </Typography>
       )}
       <Typography className={classes.introSubText} variant="subtitle1">
-        Jobs with open {isSuggestion ? 'suggestions' : 'questions'} move to Assistance Needed.
+        Jobs with open {isSuggestion ? 'suggestions' : 'questions'} move to Next / Assistance.
       </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox

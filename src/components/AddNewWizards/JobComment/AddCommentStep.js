@@ -103,7 +103,7 @@ function AddCommentStep (props) {
       {movingJob && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
-          Assistance Needed.
+          Next / Assistance.
           <GravatarGroup users={subscribedNotMe}/>
           notified unless use @ mentions.
         </Typography>
@@ -111,7 +111,7 @@ function AddCommentStep (props) {
       {movingJob && noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
-          Assistance Needed.
+          Next / Assistance.
         </Typography>
       )}
       {useType === TODO_TYPE && (

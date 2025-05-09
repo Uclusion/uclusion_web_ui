@@ -870,8 +870,7 @@ const messages = defineMessages({
   backlogReadyToStartHeader: 'Backlog - Ready to Assign',
   backlogNotReadyToStartHeader: 'Backlog - Not Ready',
   createFurtherWorkExplanation: 'Create a new job that sends a notification demanding assignment.',
-  requiresInputHeader: 'Assistance Needed',
-  blockedHeader: 'Assistance Needed',
+  blockedHeader: 'Next / Assistance',
 
   // SignIn
   signInEmailLabel: 'Email',

@@ -33,6 +33,7 @@ import { findMessagesForInvestibleId } from '../../utils/messageUtils';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import PlanningJobMenu from '../Dialog/Planning/PlanningJobMenu';
 import PersonSearch from '../../components/CustomChip/PersonSearch';
+import { getTicketNumber } from '../../utils/stringFunctions';
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -63,7 +64,7 @@ const myArchiveClasses = makeStyles(
 
 function ArchiveInvestible(props) {
   const { name, id, stageId, marketId, myMessage, allowDragDrop, onDragStart, enteredStageAt, typeExplanation,
-    TypeIcon, assignedNames, classes, openForInvestment } = props;
+    TypeIcon, assignedNames, classes, openForInvestment, viewIndicator='' } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const intl = useIntl();
   const history = useHistory();
@@ -103,7 +104,7 @@ function ArchiveInvestible(props) {
                   Entered <UsefulRelativeTime value={enteredStageAt}/>
                 </Typography>
               </div>
-              <div style={{display: 'flex'}}>
+              <div style={{display: 'flex', alignItems: 'center'}}>
                 {TypeIcon && (
                   <div
                     onClick={(event) => {
@@ -122,6 +123,11 @@ function ArchiveInvestible(props) {
                     <Tooltip title={intl.formatMessage({ id: typeExplanation })}>
                       {TypeIcon}
                     </Tooltip>
+                  </div>
+                )}
+                {viewIndicator && (
+                  <div style={{marginLeft: '0.5rem'}}>
+                    {viewIndicator}
                   </div>
                 )}
                 <div id={`showEdit0${id}`} style={{pointerEvents: 'none', display: 'none'}}>
@@ -152,7 +158,9 @@ function ArchiveInvestbiles(props) {
     comments,
     marketId,
     presenceMap,
-    allowDragDrop
+    allowDragDrop,
+    viewGroupId,
+    isAutonomous
   } = props;
   const classes = myArchiveClasses();
   const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
@@ -172,7 +180,7 @@ function ArchiveInvestbiles(props) {
       const messages = findMessagesForInvestibleId(id, messagesState);
       const info = getMarketInfo(inv, marketId) || {};
       const { assigned, stage: stageId, last_stage_change_date: lastStageChangeDate,
-        open_for_investment: openForInvestment } = info;
+        open_for_investment: openForInvestment, ticket_code: ticketCode, group_id: groupId } = info;
       const enteredStageAt = new Date(lastStageChangeDate)
       const stage = getFullStage(marketStagesState, marketId, stageId);
       const usedAssignees = assigned || [];
@@ -224,10 +232,11 @@ function ArchiveInvestbiles(props) {
       if (myMessage) {
         typeExplanation = 'messagePresent';
       }
+      const ticketNumber = getTicketNumber(ticketCode, isAutonomous, groupId === viewGroupId);
       return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId} myMessage={myMessage}
                                 allowDragDrop={allowDragDrop} onDragStart={onDragStart} enteredStageAt={enteredStageAt}
                                 typeExplanation={typeExplanation} TypeIcon={TypeIcon} assignedNames={assignedNames}
-                                classes={classes} openForInvestment={openForInvestment} />;
+                                classes={classes} openForInvestment={openForInvestment} viewIndicator={ticketNumber} />;
     });
   }
 

@@ -15,7 +15,7 @@ export function nameToAvatarText(name) {
   return firstLetters.toUpperCase();
 }
 
-export function getTicketNumber(ticketCode, isAutonomous=false, isSameGroup) {
+export function getTicketNumber(ticketCode, isAutonomous=false, isSameGroup = true) {
   if (isAutonomous && ticketCode) {
     if (!isSameGroup) {
       const removeOne = ticketCode.substring(ticketCode.indexOf('-')+1);

@@ -151,16 +151,17 @@ function PlanningDialog(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const isAutonomous = isAutonomousGroup(groupPresences, group);
+  const furtherWorkStage = marketStages.find((stage) => isFurtherWorkStage(stage)) || {};
   const investibles = marketInvestibles.filter((investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
-    return marketInfo.group_id === groupId || (isAutonomous && marketInfo.assigned?.includes(groupPresences[0].id));
+    return marketInfo.group_id === groupId || (isAutonomous && marketInfo.assigned?.includes(groupPresences[0].id))
+      || (isAutonomous && marketInfo.stage === furtherWorkStage.id);
   });
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
   const inReviewStage = marketStages.find(stage => isInReviewStage(stage)) || {};
   const inBlockingStage = marketStages.find(stage => isBlockedStage(stage)) || {};
   const visibleStages = marketStages.filter((stage) => stage.appears_in_context) || [];
-  const furtherWorkStage = marketStages.find((stage) => isFurtherWorkStage(stage)) || {};
   const requiresInputStage = marketStages.find((stage) => isRequiredInputStage(stage)) || {};
   const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id, marketId) || [];
   const furtherWorkReadyToStart = _.remove(furtherWorkInvestibles, (investible) => {
@@ -580,6 +581,8 @@ function PlanningDialog(props) {
                       presenceMap={presenceMap}
                       investibles={blockedOrRequiresInputOrReadyInvestibles}
                       allowDragDrop
+                      isAutonomous={isAutonomous}
+                      viewGroupId={groupId}
                     />
                   )}
                 </SubSection>

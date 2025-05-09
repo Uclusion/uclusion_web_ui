@@ -28,7 +28,7 @@ import { getInvestible, getInvestiblesInStage } from '../../../contexts/Investib
 import { getMarketInfo } from '../../../utils/userFunctions';
 import MarketTodos from './MarketTodos';
 import {
-  getFullStage,
+  getFullStage, getFurtherWorkStage,
   isAcceptedStage,
   isBlockedStage,
   isFurtherWorkStage,
@@ -83,6 +83,7 @@ import { isInInbox } from '../../../contexts/NotificationsContext/notificationsC
 import { RED_LEVEL } from '../../../constants/notifications';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
+import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -124,11 +125,12 @@ function PlanningDialog(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [groupState] = useContext(MarketGroupsContext);
   const [marketsState] = useContext(MarketsContext);
   const [messagesState] = useContext(NotificationsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const [, diffDispatch] = useContext(DiffContext);
   const market = getMarket(marketsState, marketId) || {};
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
@@ -421,6 +423,42 @@ function PlanningDialog(props) {
   const tabCount1 = getTabCount(1);
   const tabCount2 = getTabCount(2);
   const tabCount3 = getTabCount(3);
+
+  function onDragOverNext(event) {
+    event.dataTransfer.dropEffect = 'move';
+    event.preventDefault();
+  }
+
+  function onDropNext(event) {
+    const currentStageId = event.dataTransfer.getData('stageId');
+    const fullStage = getFullStage(marketStagesState, marketId, currentStageId);
+    if (isBlockedStage(fullStage) || isRequiredInputStage(fullStage)||isFurtherWorkStage(fullStage)) {
+      // No op - already in this stage
+      return;
+    }
+    const investibleId = event.dataTransfer.getData('text');
+    if (!operationRunning) {
+      const targetStageId = getFurtherWorkStage(marketStagesState, marketId)?.id;
+      const moveInfo = {
+        marketId,
+        investibleId,
+        stageInfo: {
+          current_stage_id: currentStageId,
+          stage_id: targetStageId,
+          open_for_investment: true
+        },
+      };
+      setOperationRunning(true);
+      return stageChangeInvestible(moveInfo)
+        .then((inv) => {
+          onInvestibleStageChange(targetStageId, inv, investibleId, marketId, commentsState, commentsDispatch,
+            investiblesDispatch, diffDispatch, marketStagesState, undefined, fullStage,
+            marketPresencesDispatch);
+        }).finally(() => {
+          setOperationRunning(false);
+        });
+    }
+  }
   return (
     <Screen
       title={groupName}
@@ -520,7 +558,7 @@ function PlanningDialog(props) {
                               onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
                 <FormattedMessage id='addStoryLabel'/>
               </SpinningButton>
-              <div style={{width: '100%'}}>
+              <div style={{width: '100%'}} onDrop={onDropNext} onDragOver={onDragOverNext}>
                 <SubSection
                   type={SECTION_TYPE_SECONDARY_WARNING}
                   bolder

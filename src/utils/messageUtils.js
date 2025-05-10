@@ -121,9 +121,6 @@ export function messageText(message, isMobile, intl) {
       if (linkType === 'MARKET_TODO') {
         return getMessageTextForId('assignTodo', isMobile, intl);
       }
-      if (linkType === 'INVESTIBLE_REVIEW') {
-        return getMessageTextForId('pleaseReview', isMobile, intl);
-      }
       if (linkType === 'INVESTIBLE_COMMENT') {
         return getMessageTextForId('resolveTodo', isMobile, intl);
       }

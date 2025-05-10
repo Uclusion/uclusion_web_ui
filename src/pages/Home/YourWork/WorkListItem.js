@@ -193,7 +193,7 @@ function WorkListItem(props) {
   const gutterStyles = useRowGutterStyles({ size: -10, before: -8 });
   const { link_type: linkType, type: messageType, is_highlighted: isHighlighted } = message || {};
   let fullText =  comment || investible || market;
-  if (['UNREAD_REVIEWABLE', 'REVIEW_REQUIRED'].includes(messageType) && linkType === 'INVESTIBLE_REVIEW') {
+  if ('REVIEW_REQUIRED' === messageType && linkType === 'INVESTIBLE_REVIEW') {
     fullText = investible;
   }
 

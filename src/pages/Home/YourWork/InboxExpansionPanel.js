@@ -33,7 +33,6 @@ import VoteWizard from '../../../components/InboxWizards/Vote/VoteWizard';
 import AcceptRejectWizard from '../../../components/InboxWizards/AcceptReject/AcceptRejectWizard';
 import StartWizard from '../../../components/InboxWizards/Start/StartWizard';
 import ResolveWizard from '../../../components/InboxWizards/Resolve/ResolveWizard';
-import AssignWizard from '../../../components/InboxWizards/Assign/AssignWizard';
 import ReviewWizard from '../../../components/InboxWizards/Review/ReviewWizard';
 import BlockedWizard from '../../../components/InboxWizards/Unblock/BlockedWizard';
 import StageWizard from '../../../components/InboxWizards/Stage/StageWizard';
@@ -163,9 +162,6 @@ export function calculateTitleExpansionPanel(props) {
     } else if (linkType === 'INVESTIBLE_REVIEW') {
       setItem(item, openExpansion, <ReviewWizard commentId={commentId} marketId={marketId} message={message} />,
         'DecideReviewTitle', intl);
-    } else {
-      setItem(item, openExpansion, <AssignWizard investibleId={investibleId} marketId={marketId} message={message} />,
-        'DecideAssignmentTitle', intl);
     }
   } else if (messageType === 'UNREAD_ESTIMATE') {
     setItem(item, openExpansion,

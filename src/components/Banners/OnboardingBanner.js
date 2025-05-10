@@ -97,10 +97,6 @@ function OnboardingBanner() {
           <Typography><Link href="https://documentation.uclusion.com/flows/#job-estimation" target="_blank">Job estimation</Link>.
             Updated estimates available without meetings.</Typography>
       )}
-      {isInbox && typeObjectId?.startsWith('UNREAD_REVIEWABLE') && (
-          <Typography><Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">Self assigning jobs</Link>.
-            Take this assignment to help.</Typography>
-      )}
       {isInbox && typeObjectId?.startsWith('UNREAD_JOB_APPROVAL_REQUEST') && (
           <Typography><Link href="https://documentation.uclusion.com/flows/#job-approval" target="_blank">Job approval</Link>.
             Help decide what work is done.</Typography>

@@ -60,7 +60,7 @@ function getPriorityIcon(message, isAssigned, isMentioned) {
     Icon = Schedule;
   }
   if (['UNASSIGNED', 'UNREAD_GROUP'].includes(message.type) || (message.type === 'UNREAD_REVIEWABLE'
-      && ['INVESTIBLE', 'MARKET_TODO'].includes(linkType))) {
+      && 'MARKET_TODO' === linkType)) {
     Icon = PersonAddOutlined;
   }
   if (message.type === 'INVESTIBLE_SUBMITTED') {

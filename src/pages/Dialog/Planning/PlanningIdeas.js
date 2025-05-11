@@ -170,10 +170,19 @@ function PlanningIdeas(props) {
     }
   }
 
+  function removeDroppableById(stageId) {
+    const dropSource = document.getElementById(`${stageId}_${presenceId}`);
+    if (dropSource) {
+      dropSource.classList.remove(classes.containerDroppable);
+    }
+  }
+
   function onDropVoting (event) {
     const currentStageId = event.dataTransfer.getData('stageId');
     const investibleId = event.dataTransfer.getData('text');
     const fullStage = getFullStage(marketStagesState, marketId, currentStageId);
+    removeDroppableById(currentStageId);
+    removeDroppableById(inDialogStageId);
     if (isBlockedStage(fullStage) || isRequiredInputStage(fullStage)) {
       // Need to close comment(s) to move here
       navigate(history,
@@ -223,6 +232,8 @@ function PlanningIdeas(props) {
       // If you try to drop into someone else's accepted just route to their voting instead
       onDropVoting(event);
     } else {
+      removeDroppableById(stageId);
+      removeDroppableById(acceptedStageId);
       const { assigned, link} = getDropDestination(acceptedStageId, id, stageId);
       if (link) {
         navigate(history, link);
@@ -236,6 +247,8 @@ function PlanningIdeas(props) {
     const id = event.dataTransfer.getData('text');
     const stageId = event.dataTransfer.getData('stageId');
     const { assigned, link} = getDropDestination(inReviewStageId, id, stageId);
+    removeDroppableById(stageId);
+    removeDroppableById(inReviewStageId);
     if (link) {
       navigate(history, link);
     } else {
@@ -274,7 +287,7 @@ function PlanningIdeas(props) {
   }
 
   function onDragEnterProcess(event) {
-    if (event.currentTarget.contains(event.relatedTarget)) return;
+    if (!event.target.id || !event.target.id.endsWith(presenceId)) return;
     event.target.classList.add(classes.containerDroppable);
     event.preventDefault();
   }
@@ -285,6 +298,7 @@ function PlanningIdeas(props) {
   }
 
   function onDragLeaveProcess(event) {
+    if (!event.target.id || !event.target.id.endsWith(presenceId)) return;
     if (event.currentTarget.contains(event.relatedTarget)) return;
     removeDroppable(event);
   }

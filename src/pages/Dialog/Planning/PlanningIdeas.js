@@ -135,7 +135,7 @@ function PlanningIdeas(props) {
     return targetStageId === inReviewStageId && !_.isEmpty(todoComments);
   }
 
-  function stageChange (event, targetStageId) {
+  function stageChange (event, targetStageId, assigned) {
     event.preventDefault();
     const investibleId = event.dataTransfer.getData('text');
     const currentStageId = event.dataTransfer.getData('stageId');
@@ -151,6 +151,9 @@ function PlanningIdeas(props) {
           stage_id: targetStageId,
         },
       };
+      if (_.isEmpty(assigned)) {
+        moveInfo.stageInfo.assignments = [presenceId];
+      }
       setOperationRunning(true);
       return stageChangeInvestible(moveInfo)
         .then((inv) => {
@@ -164,14 +167,6 @@ function PlanningIdeas(props) {
     }
   }
 
-  function isAssignedInvestible(event, assignedToId) {
-    const investibleId = event.dataTransfer.getData('text');
-    const investible = getInvestible(invState, investibleId);
-    const marketInfo = getMarketInfo(investible, marketId);
-    const { assigned } = marketInfo;
-    return (assigned || []).includes(assignedToId);
-  }
-
   function onDropVoting (event) {
     const currentStageId = event.dataTransfer.getData('stageId');
     const investibleId = event.dataTransfer.getData('text');
@@ -181,9 +176,14 @@ function PlanningIdeas(props) {
       navigate(history,
         `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${inDialogStageId}`);
     } else {
-      if (isAssignedInvestible(event, presenceId)) {
-        stageChange(event, inDialogStageId);
-      } else if (!operationRunning && !isAssignedInvestible(event, presenceId)) {
+      const investibleId = event.dataTransfer.getData('text');
+      const investible = getInvestible(invState, investibleId);
+      const marketInfo = getMarketInfo(investible, marketId);
+      const { assigned } = marketInfo;
+      const isAssigned = (assigned || []).includes(presenceId);
+      if (isAssigned) {
+        stageChange(event, inDialogStageId, assigned);
+      } else if (!operationRunning && !isAssigned) {
         // Assignment can be changed at any time to anyone not already assigned when moving into voting
         const assignments = [presenceId];
         const updateInfo = {
@@ -216,22 +216,27 @@ function PlanningIdeas(props) {
   function onDropAccepted(event) {
     const id = event.dataTransfer.getData('text');
     const stageId = event.dataTransfer.getData('stageId');
-    const link = getDropDestination(acceptedStageId, id, stageId);
-    if (link) {
-      navigate(history, link);
+    if (myPresence.id !== presenceId) {
+      // If you try to drop into someone else's accepted just route to their voting instead
+      onDropVoting(event);
     } else {
-      stageChange(event, acceptedStageId);
+      const { assigned, link} = getDropDestination(acceptedStageId, id, stageId);
+      if (link) {
+        navigate(history, link);
+      } else {
+        stageChange(event, acceptedStageId, assigned);
+      }
     }
   }
 
   function onDropReview (event) {
     const id = event.dataTransfer.getData('text');
     const stageId = event.dataTransfer.getData('stageId');
-    const link = getDropDestination(inReviewStageId, id, stageId);
+    const { assigned, link} = getDropDestination(inReviewStageId, id, stageId);
     if (link) {
       navigate(history, link);
     } else {
-      stageChange(event, inReviewStageId);
+      stageChange(event, inReviewStageId, assigned);
     }
   }
 
@@ -241,22 +246,23 @@ function PlanningIdeas(props) {
     const { assigned } = marketInfo;
     const draggerIsAssigned = (assigned || []).includes(myPresence.id);
     const fullCurrentStage = getFullStage(marketStagesState, marketId, stageId);
-    if (divId === acceptedStageId && !draggerIsAssigned) {
+    let link = undefined;
+    if (divId === acceptedStageId && !draggerIsAssigned && !_.isEmpty(assigned)) {
       // Go to change stage assign step with acceptedStageId destination
-      return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=true`;
+      link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=true`;
     }
     if (divId === inReviewStageId || isBlockedStage(fullCurrentStage) || isRequiredInputStage(fullCurrentStage)) {
       const isBlocked = isBlockedByTodo(id, stageId, divId);
       if (isBlocked || divId !== inReviewStageId) {
         // Go to change stage close comment step with divId destination
-        return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}`;
+        link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}`;
       }
       if (!isAutonomous) {
         // Go to change stage add review step with divId destination
-        return `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=false`;
+        link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=false`;
       }
     }
-    return undefined;
+    return {assigned,  link };
   }
 
   function onDragOverProcess(event) {

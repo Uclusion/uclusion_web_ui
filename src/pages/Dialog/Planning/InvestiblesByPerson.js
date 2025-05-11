@@ -21,11 +21,11 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 
-export const useInvestiblesByPersonStyles = makeStyles(
+const useInvestiblesByPersonStyles = makeStyles(
   theme => {
     return {
       root: {
-        margin: theme.spacing(1, 0)
+        margin: theme.spacing(1, 0),
       },
       content: {
         padding: 0,
@@ -41,6 +41,7 @@ export const useInvestiblesByPersonStyles = makeStyles(
         paddingLeft: theme.spacing(1),
         paddingBottom: 0,
         paddingTop: 0,
+        borderBottom: '1px solid #ecf0f1'
       },
       menuButton: {
         width: '100%',
@@ -176,7 +177,8 @@ function InvestiblesByPerson(props) {
           return <React.Fragment key={`investiblesByPerson${id}`}/>
         }
         return (
-            <Card id={`sl${id}`} key={id} className={classes.root} elevation={3} style={{marginBottom: '1rem'}}>
+            <Card id={`sl${id}`} key={id} className={classes.root} elevation={3}
+                  style={{marginBottom: '1rem', clipPath: 'inset(0px -10px -10px -10px)'}}>
               <CardHeader
                 className={classes.header}
                 id={`u${id}`}

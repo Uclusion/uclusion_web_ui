@@ -391,8 +391,8 @@ const messages = defineMessages({
   newStory: 'New Job',
   DecideAssignMe: 'Assign to me',
   jobTypeLabelIMMEDIATE: 'Immediate - assign now',
-  jobTypeLabelREADY: 'Ready to assign - notify in backlog',
-  jobTypeLabelNOT_READY: 'Not ready - backlog no notification',
+  jobTypeLabelREADY: 'Ready to assign - also in status',
+  jobTypeLabelNOT_READY: 'Not ready - only in backlog',
   TaskLocalMoveLabel: 'Convert to task in current job',
   TaskOtherMoveLabel: 'Move to task in other job',
   SuggestionLocalMoveLabel: 'Convert to suggestion in current job',
@@ -701,7 +701,7 @@ const messages = defineMessages({
   immediateToolTip: 'Critical bugs remain in the inbox notification until moved or resolved.',
   normalToolTip: 'Normal bugs send a dismissable notification.',
   minorToolTip: 'Minor bugs do not send notifications.',
-  notReadyToolTip: 'Not Ready jobs do not send notifications.',
+  notReadyToolTip: 'Not Ready jobs do not display on job status.',
   assignReadyJobsToolTip: 'Ready to assign jobs also display on the job status page.',
   statusJobsToolTip: 'This page shows all assignments and jobs needing help',
   backlogJobsToolTip: 'Use backlog jobs to find an assignee or discuss a job that is not ready for assignment.',
@@ -869,7 +869,6 @@ const messages = defineMessages({
   notReadyToStartHeader: 'Not Ready',
   backlogReadyToStartHeader: 'Backlog - Ready to Assign',
   backlogNotReadyToStartHeader: 'Backlog - Not Ready',
-  createFurtherWorkExplanation: 'Create a new job that sends a notification demanding assignment.',
   blockedHeader: 'Next / Assistance',
 
   // SignIn

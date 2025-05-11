@@ -90,6 +90,9 @@ export const usePlanningIdStyles = makeStyles(
       },
       stageLabel: {},
       containerEmpty: {},
+      containerDroppable: {
+        backgroundColor: '#efefef'
+      }
     };
   },
   { name: 'PlanningIdea' }
@@ -270,12 +273,28 @@ function PlanningIdeas(props) {
     event.preventDefault();
   }
 
+  function onDragEnterProcess(event) {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+    event.target.classList.add(classes.containerDroppable);
+    event.preventDefault();
+  }
+
+  function removeDroppable(event) {
+    event.target.classList.remove(classes.containerDroppable);
+    event.preventDefault();
+  }
+
+  function onDragLeaveProcess(event) {
+    if (event.currentTarget.contains(event.relatedTarget)) return;
+    removeDroppable(event);
+  }
+
   const acceptedInvestibles = myInvestiblesStageHash[acceptedStageId] || [];
 
   return (
     <div className={mobileLayout ? undefined : classes.stages}>
-      <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting}
-           onDragOver={onDragOverProcess}
+      <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting} onDragEnd={removeDroppable}
+           onDragOver={onDragOverProcess} onDragEnter={onDragEnterProcess} onDragLeave={onDragLeaveProcess}
       >
         {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inDialogStageId]) && (
           <div style={{ marginTop: '0.5rem', marginLeft: '0.5rem' }}>
@@ -301,8 +320,8 @@ function PlanningIdeas(props) {
           viewGroupId={groupId}
         />
       </div>
-      <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted}
-           onDragOver={onDragOverProcess}
+      <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted} onDragEnd={removeDroppable}
+           onDragOver={onDragOverProcess} onDragEnter={onDragEnterProcess} onDragLeave={onDragLeaveProcess}
       >
         {mobileLayout && !_.isEmpty(myInvestiblesStageHash[acceptedStageId]) && (
           <div style={{ marginTop: '0.5rem', marginLeft: '0.5rem' }}>
@@ -323,7 +342,8 @@ function PlanningIdeas(props) {
         />
       </div>
       <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview} style={{ flex: '2 1 50%' }}
-           onDragOver={onDragOverProcess}
+           onDragEnd={removeDroppable} onDragOver={onDragOverProcess} onDragEnter={onDragEnterProcess}
+           onDragLeave={onDragLeaveProcess}
       >
         {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inReviewStageId]) && (
           <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>

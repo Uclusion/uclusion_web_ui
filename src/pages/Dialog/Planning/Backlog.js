@@ -116,13 +116,12 @@ function Backlog(props) {
                        display={isEmptyBacklog && !isSingleUser}
                        text={market?.market_sub_type === 'SUPPORT' ?
                          <div>
-                           Use the "Add job" button above to create backlog. "Ready to Assign" sends notifications to
-                           support.
+                           No need for backlog - just assign the job to support.
                          </div>
                          :
                          <div>
-                           Use the "Add job" button above to create backlog. "Ready to Assign" sends notifications to
-                           members of this view.
+                           Use the "Add job" button above to create backlog. "Ready to Assign" also displays on the
+                           job status page.
                          </div>
                        }/>
       <GmailTabs
@@ -137,7 +136,7 @@ function Backlog(props) {
                       tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
                         (yellowCount > 0 ? `${yellowCount}` : undefined)}
                       tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                      onDrop={onDropAble} toolTipId='readyToStartToolTip'
+                      onDrop={onDropAble} toolTipId='assignReadyJobsToolTip'
                       onDragOver={(event)=>event.preventDefault()} />
         <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'notReadyToStartHeader'})}
                       color='black'

@@ -480,7 +480,7 @@ function PlanningDialog(props) {
           }}
           indicatorColors={['#00008B', '#00008B', '#00008B', '#00008B']}>
           <GmailTabItem icon={<AssignmentInd />} onDrop={onDropAssigned} tagLabel={getTagLabel(tabCount0)}
-                        onDragOver={(event)=>event.preventDefault()} toolTipId='assignedJobsToolTip' tagColor='#E85757'
+                        onDragOver={(event)=>event.preventDefault()} toolTipId='statusJobsToolTip' tagColor='#E85757'
                         label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
                         tag={_.isEmpty(search) || jobsSearchResults === 0 ? tabCount0 : `${jobsSearchResults}`} />
           <GmailTabItem icon={<AssignmentIcon />} onDrop={onDropBacklog} tagLabel={getTagLabel(tabCount1)}

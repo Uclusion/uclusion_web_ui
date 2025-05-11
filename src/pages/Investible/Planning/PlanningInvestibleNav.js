@@ -277,7 +277,7 @@ export default function PlanningInvestibleNav(props) {
           )}
           {!hasBlockingIssue && (
             <Tooltip key='readyToStartCheckboxKey'
-                     title={<FormattedMessage id='readyToStartExplanation' />}>
+                     title={<FormattedMessage id='assignReadyJobsToolTip' />}>
               <FormControlLabel
                 id='readyToStartCheckbox'
                 style={{marginLeft: '0.25rem'}}

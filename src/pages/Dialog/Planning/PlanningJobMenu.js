@@ -106,7 +106,7 @@ function PlanningJobMenu(props) {
                       return stageChange(backlogStageId, true).then(() => recordPositionToggle());
                     }}
           >
-            <Tooltip placement='top' title={intl.formatMessage({ id: 'readyToStartToolTip' })}>
+            <Tooltip placement='top' title={intl.formatMessage({ id: 'assignReadyJobsToolTip' })}>
               <div>
                 {intl.formatMessage({ id: 'backlogReadyToStartHeader' })}
               </div>

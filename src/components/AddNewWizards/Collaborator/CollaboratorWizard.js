@@ -31,7 +31,7 @@ function CollaboratorWizard (props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const participants = Object.values(extractUsersList(marketPresencesState, marketState, marketPresences));
   const displayFromOther = !_.isEmpty(participants);
-  const teamGroups = groupsState[marketId].filter((group) => {
+  const teamGroups = groupsState[marketId]?.filter((group) => {
     const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
       group.id) || [];
     return !_.isEmpty(groupPresences) && !isAutonomousGroup(groupPresences, group);

@@ -26,7 +26,7 @@ function AssignViewsStep(props) {
   // Clean up from the previous step
   setEmailList([], marketId);
   // Screen out autonomous as don't encourage adding to them
-  const groupsFiltered = groupsState[marketId].filter((group) => {
+  const groupsFiltered = groupsState[marketId]?.filter((group) => {
     const groupPresences = getGroupPresences(marketPresences, groupMembersState, marketId, group.id);
     return !isAutonomousGroup(groupPresences, group);
   });

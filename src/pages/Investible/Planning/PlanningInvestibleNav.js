@@ -125,7 +125,7 @@ export default function PlanningInvestibleNav(props) {
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const hasBlockingIssue = !_.isEmpty(investibleComments.find((comment) => comment.comment_type === ISSUE_TYPE
     && !comment.resolved))
-  const allowableGroups = groupsState[marketId].filter((group) => {
+  const allowableGroups = groupsState[marketId]?.filter((group) => {
     if (_.isEmpty(assigned)) {
       return true;
     }

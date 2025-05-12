@@ -785,7 +785,7 @@ function Comment(props) {
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote && !removeActions && myMessage?.type === NOT_FULLY_VOTED_TYPE;
   const showUnmute = !removeActions && myInlinePresence.abstain && !resolved && enableActions;
-  const showSubTask = commentType === TODO_TYPE && myPresence === createdBy && investibleId;
+  const showSubTask = isTask && myPresence === createdBy;
   const isDeletable = !isInbox && !beingEdited && (commentType === REPORT_TYPE || isEditable || resolved);
   const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>

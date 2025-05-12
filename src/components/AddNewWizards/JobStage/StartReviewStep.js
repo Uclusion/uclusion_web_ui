@@ -22,7 +22,7 @@ import CondensedTodos from '../../../pages/Investible/Planning/CondensedTodos';
 import { getCommentThreads, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function StartReviewStep(props) {
-  const { marketId, investibleId, groupId, formData } = props;
+  const { marketId, investibleId, groupId, formData, assignId } = props;
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -53,6 +53,9 @@ function StartReviewStep(props) {
         stage_id: fullMoveStage.id,
       },
     };
+    if (assignId) {
+      moveInfo.stageInfo.assignments = [assignId];
+    }
     const fullCurrentStage = getFullStage(marketStagesState, marketId, info.stage)
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {

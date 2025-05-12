@@ -30,7 +30,7 @@ import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function JobStageWizard(props) {
-  const { marketId, investibleId, stageId, isAssign, isBlocked } = props;
+  const { marketId, investibleId, stageId, isAssign, isBlocked, assignId } = props;
   const history = useHistory();
   const [investibleState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -103,10 +103,11 @@ function JobStageWizard(props) {
         )}
         {isAssign !== 'false' && (
           <CloseCommentsStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                             isAssign={isAssign} requiresAction={requiresAction} isSingleUser={isSingleUser} />
+                             isAssign={isAssign} requiresAction={requiresAction} isSingleUser={isSingleUser}
+                             assignId={assignId}/>
         )}
         <StageActionStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                         currentReasonId={yourReason?.id} groupId={groupId} />
+                         currentReasonId={yourReason?.id} groupId={groupId} assignId={assignId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

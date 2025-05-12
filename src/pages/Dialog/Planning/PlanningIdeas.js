@@ -266,15 +266,30 @@ function PlanningIdeas(props) {
       // Go to change stage assign step with acceptedStageId destination
       link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=true`;
     }
-    if (divId === inReviewStageId || isBlockedStage(fullCurrentStage) || isRequiredInputStage(fullCurrentStage)) {
-      const isBlocked = isBlockedByTodo(id, stageId, divId);
-      if (isBlocked || divId !== inReviewStageId) {
+    if (divId === inReviewStageId) {
+      const isTodoBlocked = isBlockedByTodo(id, stageId, divId);
+      if (isTodoBlocked || isBlockedStage(fullCurrentStage) || isRequiredInputStage(fullCurrentStage)) {
+        if (isAutonomous || !_.isEmpty(assigned)) {
+          // Go to change stage close comment step with divId destination
+          link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}`;
+        } else {
+          link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&assignId=${presenceId}`;
+        }
+      } else if (!isAutonomous) {
+        if (_.isEmpty(assigned)) {
+          // Go to change stage add review step with divId destination
+          link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=false&assignId=${presenceId}`;
+        } else {
+          // Go to change stage add review step with divId destination
+          link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=false`;
+        }
+      }
+    } else if (isBlockedStage(fullCurrentStage) || isRequiredInputStage(fullCurrentStage)) {
+      if (isAutonomous || (!_.isEmpty(assigned)&&assigned.includes(presenceId))) {
         // Go to change stage close comment step with divId destination
         link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}`;
-      }
-      if (!isAutonomous) {
-        // Go to change stage add review step with divId destination
-        link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=false`;
+      } else {
+        link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&assignId=${presenceId}`;
       }
     }
     return {assigned,  link };

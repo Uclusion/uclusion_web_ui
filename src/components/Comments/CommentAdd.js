@@ -490,8 +490,11 @@ function CommentAdd(props) {
                   isOtherFinal={false}
                   otherNextValid={wizardProps.isResolve ? true : undefined}
                   onOtherNext={wizardProps.isResolve ? wizardProps.onResolve : () => {
-                      handleSave(true, undefined, false, true );
-                      resetEditor(editorName, '', {placeholder});
+                      handleSave(true, undefined, false, true )
+                        .then(() => {
+                          resetEditor(editorName, '', {placeholder});
+                          focusEditor(editorName);
+                        });
                     }
                   }
                   showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : !investibleId}

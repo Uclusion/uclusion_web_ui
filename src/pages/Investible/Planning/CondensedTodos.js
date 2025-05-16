@@ -38,7 +38,8 @@ function CondensedTodos(props) {
     hideTabs,
     usePadding = true,
     isDefaultOpen = false,
-    defaultToOpenComments = true
+    defaultToOpenComments = true,
+    removeActions = true
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -77,8 +78,8 @@ function CondensedTodos(props) {
           marketInfo={marketInfo}
           noAuthor
           isInbox={isInbox}
-          removeActions={isInbox}
-          stagePreventsActions={isInbox}
+          removeActions={isInbox && removeActions}
+          stagePreventsActions={isInbox && removeActions}
           idPrepend='condensed'
         />
       </div>

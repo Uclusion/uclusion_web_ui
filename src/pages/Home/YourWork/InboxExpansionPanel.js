@@ -130,8 +130,7 @@ export function calculateTitleExpansionPanel(props) {
                                                  message={message} />,
         'DecideAnswerTitle', intl);
     } else if ('INVESTIBLE_REVIEW' === linkType) {
-      setItem(item, openExpansion, <TaskedWizard marketId={marketId} commentId={commentId} message={message} />,
-        'NewTaskTitle', intl);
+      setItem(item, openExpansion, <TaskedWizard marketId={marketId} message={message} />, 'NewTaskTitle', intl);
     } else {
       setItem(item, openExpansion, <BlockedWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                   message={message} />,

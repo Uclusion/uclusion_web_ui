@@ -28,7 +28,7 @@ function JobDescription(props) {
   const { investibleId, marketId, comments, showAssigned=true, inboxMessageId, showRequiredApprovers = false,
     removeActions, showVoting, selectedInvestibleIdParent, preserveOrder, showAttachments, toggleCompression,
     useCompression, isSingleTaskDisplay = false, showCreatedBy = false, commentMarketId,
-    showDiff = false } = props;
+    showDiff = false, tasksDefaultOpen=false } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -138,7 +138,8 @@ function JobDescription(props) {
         )}
         {!_.isEmpty(todoComments) && !isSingleTaskDisplay && (
           <CondensedTodos comments={todoComments} investibleComments={comments} isInbox marketId={marketId}
-                          marketInfo={marketInfo} usePadding={false}/>
+                          marketInfo={marketInfo} usePadding={false} isDefaultOpen={tasksDefaultOpen}
+                          removeActions={removeActions} />
         )}
       </div>
     </>

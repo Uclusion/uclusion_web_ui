@@ -1124,6 +1124,7 @@ const messages = defineMessages({
   DecideAcceptRejectTitle: 'Follow this suggestion?',
   DecideUnblockTitle: 'Help unblock?',
   NewTaskTitle: 'Questions on this task?',
+  NewTasksTitle: 'Questions on these tasks?',
   DecideResolveReopenTitle: 'Do you reopen?',
   DecideResolveTitle: 'Can you resolve?',
   DecideStartTitle: 'Can you start this bug?',

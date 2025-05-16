@@ -21,21 +21,26 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { formCommentLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
+import _ from 'lodash';
 
 function TaskReviewStep(props) {
-  const { marketId, commentId, message, formData, updateFormData } = props;
+  const { marketId, message, formData, updateFormData } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const commentList = _.isEmpty(message.comment_list) ? [message.comment_id] :
+    [message.comment_id].concat(message.comment_list);
+  const commentId = commentList[0];
   const comment = getComment(commentsState, marketId, commentId);
   const investibleComments = getInvestibleComments(comment.investible_id, marketId, commentsState);
-  const orderedTasks = investibleComments.filter((aComment) => {
-    return aComment.id === commentId || aComment.root_comment_id === commentId;
+  const tasksAndChildren = investibleComments.filter((aComment) => {
+    return commentList.includes(aComment.id) || commentList.includes(aComment.root_comment_id);
   }) || [];
   const { useCompression } = formData;
+  const isSingleTaskDisplay = _.size(commentList) === 1;
 
   function markInProgress() {
     return updateComment({marketId, commentId, inProgress: true}).then((comment) => {
@@ -51,30 +56,46 @@ function TaskReviewStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({ id: 'NewTaskTitle' })}
+        {intl.formatMessage({ id: isSingleTaskDisplay ? 'NewTaskTitle' : 'NewTasksTitle' })}
       </Typography>
-      <JobDescription marketId={marketId} investibleId={comment.investible_id} comments={orderedTasks}
-                      useCompression={useCompression} inboxMessageId={commentId}
+      {!isSingleTaskDisplay && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Click on a row below to expand and reply or take other actions.
+        </Typography>
+      )}
+      <JobDescription marketId={marketId} investibleId={comment.investible_id} comments={tasksAndChildren}
+                      useCompression={useCompression} inboxMessageId={isSingleTaskDisplay ? commentId : undefined}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}
-                      removeActions preserveOrder isSingleTaskDisplay/>
+                      tasksDefaultOpen removeActions={isSingleTaskDisplay} isSingleTaskDisplay={isSingleTaskDisplay}/>
       <div className={classes.borderBottom}/>
-      <WizardStepButtons
-        {...props}
-        focus
-        nextLabel="issueReplyLabel"
-        onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
-          undefined, undefined, commentId, message.type_object_id))}
-        nextShowEdit={hasReply(getComment(commentsState, marketId, commentId))}
-        spinOnClick={false}
-        showOtherNext
-        onOtherNext={markInProgress}
-        otherNextLabel="markInProgress"
-        isOtherFinal
-        onOtherNextDoAdvance={false}
-        terminateLabel={getLabelForTerminate(message)}
-        showTerminate={getShowTerminate(message)}
-        onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
-      />
+      {isSingleTaskDisplay && (
+        <WizardStepButtons
+          {...props}
+          focus
+          nextLabel="issueReplyLabel"
+          onNext={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+            undefined, undefined, commentId, message.type_object_id))}
+          nextShowEdit={hasReply(getComment(commentsState, marketId, commentId))}
+          spinOnClick={false}
+          showOtherNext
+          onOtherNext={markInProgress}
+          otherNextLabel="markInProgress"
+          isOtherFinal
+          onOtherNextDoAdvance={false}
+          terminateLabel={getLabelForTerminate(message)}
+          showTerminate={getShowTerminate(message)}
+          onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
+        />
+      )}
+      {!isSingleTaskDisplay && (
+        <WizardStepButtons
+          {...props}
+          showNext={false}
+          terminateLabel={getLabelForTerminate(message)}
+          showTerminate={getShowTerminate(message)}
+          onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
+        />
+      )}
     </WizardStepContainer>
   );
 }

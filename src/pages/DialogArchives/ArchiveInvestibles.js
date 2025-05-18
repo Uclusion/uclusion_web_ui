@@ -35,6 +35,7 @@ import { dehighlightMessage } from '../../contexts/NotificationsContext/notifica
 import PlanningJobMenu from '../Dialog/Planning/PlanningJobMenu';
 import PersonSearch from '../../components/CustomChip/PersonSearch';
 import { getTicketNumber } from '../../utils/stringFunctions';
+import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -265,12 +266,26 @@ function ArchiveInvestbiles(props) {
         }
         if (!_.isEmpty(questionComments)) {
           const item = getIcon(2);
-          item.myLink = formCommentLink(marketId, groupId, id, questionComments[0].id);
+          const question = questionComments[0];
+          const myMessage = messages.filter((message) => message.market_type === DECISION_TYPE &&
+            message.comment_id === question.id);
+          if (myMessage) {
+            item.myMessage = myMessage;
+          } else {
+            item.myLink = formCommentLink(marketId, groupId, id, question.id);
+          }
           TypeIconList.push(item);
         }
         if (!_.isEmpty(suggestionComments)) {
           const item = getIcon(1);
-          item.myLink = formCommentLink(marketId, groupId, id, questionComments[0].id);
+          const suggestion = suggestionComments[0];
+          const myMessage = messages.filter((message) => message.market_type === INITIATIVE_TYPE &&
+            message.comment_id === suggestion.id);
+          if (myMessage) {
+            item.myMessage = myMessage;
+          } else {
+            item.myLink = formCommentLink(marketId, groupId, id, suggestion.id);
+          }
           TypeIconList.push(item);
         }
       }

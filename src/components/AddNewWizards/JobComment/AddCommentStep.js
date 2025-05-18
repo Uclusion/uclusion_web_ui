@@ -67,7 +67,7 @@ function AddCommentStep (props) {
   const userId = myPresence?.id;
   const userIsAssigned = assigned?.includes(userId);
   const subscribedNotMe = subscribed?.filter((presence) => presence.id !== userId);
-  const noSubscribedToSendTo = _.isEmpty(subscribedNotMe);
+  const noSubscribedToSendTo = _.isEmpty(subscribedNotMe) || inFurtherWorkStage;
 
   function onSave(comment) {
     if (comment.is_sent) {
@@ -137,9 +137,14 @@ function AddCommentStep (props) {
           notified unless use @ mentions.
         </Typography>
       )}
-      {useType === ISSUE_TYPE && inFurtherWorkStage && noSubscribedToSendTo && (
+      {useType === ISSUE_TYPE && inFurtherWorkStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Jobs with blocking issues are always not ready.
+          Jobs with blocking issues are always not ready. Use @ mentions to send notifications.
+        </Typography>
+      )}
+      {[QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useType) && inFurtherWorkStage && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Use @ mentions to send notifications.
         </Typography>
       )}
       {useType === REPORT_TYPE && !isResolve && !noSubscribedToSendTo && (
@@ -154,14 +159,21 @@ function AddCommentStep (props) {
           'Resolve only' below.
         </Typography>
       )}
-      {![REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(useType) && !movingJob && !noSubscribedToSendTo && (
+      {useType === QUESTION_TYPE && !movingJob && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          This {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} notifies
+          This question notifies
           <GravatarGroup users={subscribedNotMe}/>
           unless use @ mentions. Add options to start voting on possible answers to this question.
         </Typography>
       )}
-      {![REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(useType) && !movingJob && noSubscribedToSendTo && (
+      {useType === SUGGEST_CHANGE_TYPE && !movingJob && !noSubscribedToSendTo && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          This suggestion notifies
+          <GravatarGroup users={subscribedNotMe}/>
+          unless use @ mentions.
+        </Typography>
+      )}
+      {useType === QUESTION_TYPE && !movingJob && noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Add options to start voting on possible answers to this question.
         </Typography>

@@ -274,7 +274,7 @@ function ArchiveInvestbiles(props) {
           TypeIconList.push(item);
         }
       }
-;
+
       const ticketNumber = getTicketNumber(ticketCode, isAutonomous, groupId === viewGroupId);
       return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId}
                                 allowDragDrop={allowDragDrop} onDragStart={onDragStart} enteredStageAt={enteredStageAt}

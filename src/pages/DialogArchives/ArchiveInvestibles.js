@@ -115,8 +115,7 @@ function ArchiveInvestible(props) {
                       preventDefaultAndProp(event);
                       dehighlightMessage(myMessage, messagesDispatch);
                       navigate(history, formInboxItemLink(myMessage));
-                    }
-                    if (myLink) {
+                    } else if (myLink) {
                       preventDefaultAndProp(event);
                       navigate(history, myLink);
                     }
@@ -266,25 +265,23 @@ function ArchiveInvestbiles(props) {
         }
         if (!_.isEmpty(questionComments)) {
           const item = getIcon(2);
-          const question = questionComments[0];
           const myMessage = messages.filter((message) => message.market_type === DECISION_TYPE &&
-            message.comment_id === question.id);
+            !_.isEmpty(questionComments.find((question) => message.comment_id === question.id)));
           if (myMessage) {
             item.myMessage = myMessage;
           } else {
-            item.myLink = formCommentLink(marketId, groupId, id, question.id);
+            item.myLink = formCommentLink(marketId, groupId, id, questionComments[0].id);
           }
           TypeIconList.push(item);
         }
         if (!_.isEmpty(suggestionComments)) {
           const item = getIcon(1);
-          const suggestion = suggestionComments[0];
           const myMessage = messages.filter((message) => message.market_type === INITIATIVE_TYPE &&
-            message.comment_id === suggestion.id);
+            !_.isEmpty(questionComments.find((suggestion) => message.comment_id === suggestion.id)));
           if (myMessage) {
             item.myMessage = myMessage;
           } else {
-            item.myLink = formCommentLink(marketId, groupId, id, suggestion.id);
+            item.myLink = formCommentLink(marketId, groupId, id, suggestionComments[0].id);
           }
           TypeIconList.push(item);
         }

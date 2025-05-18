@@ -144,7 +144,7 @@ function AddCommentStep (props) {
       )}
       {[QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(useType) && inFurtherWorkStage && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Use @ mentions to send notifications.
+          Use @ mentions or options / voting to send notifications from backlog.
         </Typography>
       )}
       {useType === REPORT_TYPE && !isResolve && !noSubscribedToSendTo && (

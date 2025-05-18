@@ -5,6 +5,7 @@ import _ from 'lodash';
 import RaisedCard from '../../components/Cards/RaisedCard';
 import { useIntl } from 'react-intl';
 import {
+  formCommentLink,
   formInboxItemLink,
   formInvestibleLink,
   navigate,
@@ -12,7 +13,7 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { makeStyles } from '@material-ui/core/styles';
-import { QUESTION_TYPE } from '../../constants/comments';
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import {
   getFullStage,
   isBlockedStage, isFurtherWorkStage,
@@ -63,8 +64,8 @@ const myArchiveClasses = makeStyles(
 );
 
 function ArchiveInvestible(props) {
-  const { name, id, stageId, marketId, myMessage, allowDragDrop, onDragStart, enteredStageAt, typeExplanation,
-    TypeIcon, assignedNames, classes, openForInvestment, viewIndicator='' } = props;
+  const { name, id, stageId, marketId, allowDragDrop, onDragStart, enteredStageAt, TypeIconList, assignedNames,
+    classes, openForInvestment, viewIndicator='' } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const intl = useIntl();
   const history = useHistory();
@@ -105,26 +106,31 @@ function ArchiveInvestible(props) {
                 </Typography>
               </div>
               <div style={{display: 'flex', alignItems: 'center'}}>
-                {TypeIcon && (
-                  <div
-                    onClick={(event) => {
-                      if (myMessage) {
-                        preventDefaultAndProp(event);
-                        dehighlightMessage(myMessage, messagesDispatch);
-                        navigate(history, formInboxItemLink(myMessage));
-                      }
-                    }}
-                    onMouseOver={(event) => {
-                      if (myMessage) {
-                        preventDefaultAndProp(event);
-                      }
-                    }}
-                  >
-                    <Tooltip title={intl.formatMessage({ id: typeExplanation })}>
-                      {TypeIcon}
-                    </Tooltip>
-                  </div>
-                )}
+                {TypeIconList.map((item) => {
+                  const { TypeIcon, typeExplanation, myMessage, myLink } = item;
+                  return (<div
+                  onClick={(event) => {
+                    if (myMessage) {
+                      preventDefaultAndProp(event);
+                      dehighlightMessage(myMessage, messagesDispatch);
+                      navigate(history, formInboxItemLink(myMessage));
+                    }
+                    if (myLink) {
+                      preventDefaultAndProp(event);
+                      navigate(history, myLink);
+                    }
+                  }}
+                  onMouseOver={(event) => {
+                    if (myMessage || myLink) {
+                      preventDefaultAndProp(event);
+                    }
+                  }}
+                >
+                  <Tooltip title={intl.formatMessage({ id: typeExplanation })}>
+                    {TypeIcon}
+                  </Tooltip>
+                </div>);
+                })}
                 {viewIndicator && (
                   <div style={{marginLeft: '0.5rem'}}>
                     {viewIndicator}
@@ -167,6 +173,38 @@ function ArchiveInvestbiles(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState] = useContext(NotificationsContext);
 
+  function getIcon(assistanceType, messages) {
+    // Just go to the first message associated with this investible - further work questions do not have one
+    const myMessage = !_.isEmpty(messages) ? messages[0] : undefined;
+    let TypeIcon;
+    let typeExplanation;
+    switch (assistanceType) {
+      case 0:
+        TypeIcon = myMessage ? <Block htmlColor='#E85757' /> : <Block htmlColor='#F29100' />;
+        typeExplanation = 'issuePresent';
+        break;
+      case 1:
+        TypeIcon = myMessage ? <LightbulbOutlined htmlColor='#E85757' /> : <LightbulbOutlined htmlColor='#F29100' />;
+        typeExplanation = 'suggestPresent';
+        break;
+      case 2:
+        TypeIcon = myMessage ? <QuestionIcon htmlColor='#E85757' /> : <QuestionIcon htmlColor='#F29100' />;
+        typeExplanation = 'questionPresent';
+        break;
+      case 3:
+        TypeIcon = myMessage ? <PersonSearch htmlColor='#E85757' /> : <PersonSearch htmlColor='#F29100' />;
+        typeExplanation = 'readyToStartDisplay';
+        break;
+      default:
+        TypeIcon = undefined;
+        typeExplanation = undefined;
+    }
+    if (myMessage) {
+      typeExplanation = 'messagePresent';
+    }
+    return {TypeIcon, typeExplanation, myMessage};
+  }
+
   function getInvestibles() {
     const investibleData = investibles.map((inv) => {
       const aMarketInfo = getMarketInfo(inv, marketId);
@@ -186,7 +224,11 @@ function ArchiveInvestbiles(props) {
       const usedAssignees = assigned || [];
       const questionComments = (unResolvedMarketComments || []).filter((comment) => {
         return (comment.comment_type === QUESTION_TYPE) && (comment.investible_id === id) &&
-          usedAssignees.includes(comment.created_by);
+          (usedAssignees.includes(comment.created_by)||isFurtherWorkStage(stage));
+      });
+      const suggestionComments = (unResolvedMarketComments || []).filter((comment) => {
+        return (comment.comment_type === SUGGEST_CHANGE_TYPE) && (comment.investible_id === id) &&
+          (usedAssignees.includes(comment.created_by)||isFurtherWorkStage(stage));
       });
       const assignedNames = usedAssignees.map((element) => {
         const presence = presenceMap[element];
@@ -201,41 +243,42 @@ function ArchiveInvestbiles(props) {
         event.dataTransfer.setData("text", id);
         event.dataTransfer.setData("stageId", stageId);
       }
-      const assistanceType = isBlockedStage(stage) ? 0 : (isRequiredInputStage(stage) ?
-        (_.isEmpty(questionComments) ? 1 : 2) : (isFurtherWorkStage(stage) ? (openForInvestment ? 3 :
-          (_.isEmpty(questionComments) ? 1 : 2)) : -1));
-      let TypeIcon;
-      let typeExplanation;
-      // Just go to the first message associated with this investible that needs assistance if user has one
-      const myMessage = !_.isEmpty(messages) ? messages[0] : undefined;
-      switch (assistanceType) {
-        case 0:
-          TypeIcon = myMessage ? <Block htmlColor='#E85757' /> : <Block htmlColor='#F29100' />;
-          typeExplanation = 'issuePresent';
-          break;
-        case 1:
-          TypeIcon = myMessage ? <LightbulbOutlined htmlColor='#E85757' /> : <LightbulbOutlined htmlColor='#F29100' />;
-          typeExplanation = 'suggestPresent';
-          break;
-        case 2:
-          TypeIcon = myMessage ? <QuestionIcon htmlColor='#E85757' /> : <QuestionIcon htmlColor='#F29100' />;
-          typeExplanation = 'questionPresent';
-          break;
-        case 3:
-          TypeIcon = myMessage ? <PersonSearch htmlColor='#E85757' /> : <PersonSearch htmlColor='#F29100' />;
-          typeExplanation = 'readyToStartDisplay';
-          break;
-        default:
-          TypeIcon = undefined;
-          typeExplanation = undefined;
+      const TypeIconList = [];
+      if (isBlockedStage(stage)) {
+        TypeIconList.push(getIcon(0, messages));
       }
-      if (myMessage) {
-        typeExplanation = 'messagePresent';
+      if (isRequiredInputStage(stage)) {
+        if (!_.isEmpty(questionComments)) {
+          const item = getIcon(2, messages);
+          item.myLink = formCommentLink(marketId, groupId, id, questionComments[0].id);
+          TypeIconList.push(item);
+        }
+        if (!_.isEmpty(suggestionComments)) {
+          const item = getIcon(1, messages);
+          item.myLink = formCommentLink(marketId, groupId, id, questionComments[0].id);
+          TypeIconList.push(item);
+        }
       }
+      if (isFurtherWorkStage(stage)) {
+        if (openForInvestment) {
+          TypeIconList.push(getIcon(3, messages));
+        }
+        if (!_.isEmpty(questionComments)) {
+          const item = getIcon(2);
+          item.myLink = formCommentLink(marketId, groupId, id, questionComments[0].id);
+          TypeIconList.push(item);
+        }
+        if (!_.isEmpty(suggestionComments)) {
+          const item = getIcon(1);
+          item.myLink = formCommentLink(marketId, groupId, id, questionComments[0].id);
+          TypeIconList.push(item);
+        }
+      }
+;
       const ticketNumber = getTicketNumber(ticketCode, isAutonomous, groupId === viewGroupId);
-      return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId} myMessage={myMessage}
+      return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId}
                                 allowDragDrop={allowDragDrop} onDragStart={onDragStart} enteredStageAt={enteredStageAt}
-                                typeExplanation={typeExplanation} TypeIcon={TypeIcon} assignedNames={assignedNames}
+                                TypeIconList={TypeIconList} assignedNames={assignedNames}
                                 classes={classes} openForInvestment={openForInvestment} viewIndicator={ticketNumber} />;
     });
   }

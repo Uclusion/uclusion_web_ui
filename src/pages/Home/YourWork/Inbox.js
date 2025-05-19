@@ -283,7 +283,7 @@ function Inbox(props) {
                   });
               }} translationId="outboxMark" />
           )}
-          {isOnWorkItem && (
+          {isOnWorkItem && mobileLayout && (
             <TooltipIconButton icon={<ArrowBack style={{marginLeft: '0.5rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
                                onClick={() => {
                                  navigate(history, getInboxTarget());

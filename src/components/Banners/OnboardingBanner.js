@@ -85,7 +85,7 @@ function OnboardingBanner() {
           <Typography>You are mentioned so can't dismiss.</Typography>
         </>
       )}
-      {isInbox && typeObjectId?.startsWith('UNASSIGNED') && (
+      {isInbox && (typeObjectId?.startsWith('UNASSIGNED')||typeObjectId.startsWith('UNREAD_REVIEWABLE')) && (
           <Typography><Link href="https://documentation.uclusion.com/flows/#self-assigning-bugs" target="_blank">Self assigning bugs</Link>.
             Take this bug to help.</Typography>
       )}

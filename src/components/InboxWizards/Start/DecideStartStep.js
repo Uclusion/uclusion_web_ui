@@ -88,6 +88,9 @@ function DecideStartStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideStartTitle'})}
       </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Normal bugs send a dismissable notification. Choose other options to move to an existing job, reply, or resolve.
+      </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}

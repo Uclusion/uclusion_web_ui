@@ -46,6 +46,9 @@ function OtherOptionsStep(props) {
       <Typography className={classes.introText}>
         {intl.formatMessage({id: 'DecideStartTitle'})}
       </Typography>
+      <Typography className={classes.introSubText} variant="subtitle1">
+        Click through this bug for any other action.
+      </Typography>
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={comments}

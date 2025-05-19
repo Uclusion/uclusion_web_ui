@@ -40,14 +40,12 @@ function SwimlanesOnboardingBanner(props) {
       <div className={classes.bannerBox}>
           <div style={{marginTop: '0.8rem'}} id='swimlanesDemoBannerText'>
             {isDemoEngineeringScreen && (
-              <DismissableText textId="everyoneStatusHelp" text={
-                <div>
-                   <Typography><b>Here is status at a glance for this view.</b></Typography>
-                   <Typography className={classes.ctaSub}>
-                     Click on anything in red to go to an inbox notification.
-                   </Typography>
-                 </div>
-               }/>
+              <div>
+                 <Typography><b>This is status at a glance for this view.</b></Typography>
+                 <Typography className={classes.ctaSub}>
+                   Click on anything in red to go to an inbox notification.
+                 </Typography>
+               </div>
             )}
             {isAutonomous && isSwimlanes && (
               <DismissableText textId="everyoneStatusHelp" text={
@@ -86,7 +84,7 @@ function SwimlanesOnboardingBanner(props) {
                 <div>
                   <Typography>See <Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">self assigning jobs</Link> flow.</Typography>
                   <Typography className={classes.ctaSub}>
-                    Creating a "Not Ready" job does not send a notification.
+                    Only "Ready to Assign" jobs send notifications.
                   </Typography>
                 </div>
               }/>

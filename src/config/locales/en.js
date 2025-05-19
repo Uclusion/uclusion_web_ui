@@ -1222,7 +1222,7 @@ const messages = defineMessages({
   startJob: 'Accept job',
   assignStartJob: 'Accept and skip voting',
   DecideMove: 'Reduce priority',
-  DecideStartBug: 'Create job in Approved',
+  DecideStartBug: 'Create job in Work Ready',
   DecideStartBugExisting: 'Find existing job',
   GotoBugs: 'Go to bugs',
   DecideAddReview: 'Reply to report',

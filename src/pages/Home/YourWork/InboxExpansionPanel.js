@@ -68,7 +68,7 @@ export function calculateTitleExpansionPanel(props) {
   const { message, isAssigned } = item;
   const { type: messageType, market_id: marketId, comment_id: commentId, comment_market_id: commentMarketId,
     link_type: linkType, investible_id: investibleId, market_type: marketType, isOutboxAccepted,
-    decision_investible_id: decisionInvestibleId } = message;
+    decision_investible_id: decisionInvestibleId, comment_list: commentList } = message;
   if (messageType === 'USER_POKED') {
     setItem(item, openExpansion, <UpgradeWizard message={message} />,
       'DecidePayTitle', intl);
@@ -130,7 +130,9 @@ export function calculateTitleExpansionPanel(props) {
                                                  message={message} />,
         'DecideAnswerTitle', intl);
     } else if ('INVESTIBLE_REVIEW' === linkType) {
-      setItem(item, openExpansion, <TaskedWizard marketId={marketId} message={message} />, 'NewTaskTitle', intl);
+      const isMultiple = !_.isEmpty(commentList);
+      setItem(item, openExpansion, <TaskedWizard marketId={marketId} message={message} />,
+        isMultiple ? 'NewTasksTitle' : 'NewTaskTitle', intl);
     } else {
       setItem(item, openExpansion, <BlockedWizard marketId={commentMarketId || marketId} commentId={commentId}
                                                   message={message} />,

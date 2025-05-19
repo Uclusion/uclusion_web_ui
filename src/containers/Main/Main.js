@@ -23,7 +23,7 @@ import { TicketIndexProvider } from '../../contexts/TicketContext/TicketIndexCon
 import { MarketGroupsProvider } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 
 function Main () {
-  const stripePromise = loadStripe(config.payments.stripeKey);
+  const stripePromise = loadStripe(config.payments.stripeKey).catch((error)=>console.warn(error))
   return (
     <div>
       <AccountProvider>

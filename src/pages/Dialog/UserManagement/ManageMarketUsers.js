@@ -46,8 +46,6 @@ function ManageMarketUsers(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId, false,
     false) || [];
-  const yourPresence = marketPresences.find((presence) => presence.current_user) || {};
-  const { is_admin: isAdmin } = yourPresence;
 
   function getUsers () {
     return marketPresences.map((presence) => {
@@ -87,7 +85,7 @@ function ManageMarketUsers(props) {
     });
   }
 
-  if (_.isEmpty(marketPresences) || !isAdmin){
+  if (_.isEmpty(marketPresences)){
     return <React.Fragment/>
   }
 

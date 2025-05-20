@@ -255,7 +255,7 @@ function ArchiveInvestbiles(props) {
         }
         if (!_.isEmpty(suggestionComments)) {
           const item = getIcon(1, messages);
-          item.myLink = formCommentLink(marketId, groupId, id, questionComments[0].id);
+          item.myLink = formCommentLink(marketId, groupId, id, suggestionComments[0].id);
           TypeIconList.push(item);
         }
       }

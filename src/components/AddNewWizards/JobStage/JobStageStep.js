@@ -26,8 +26,7 @@ import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import JobDescription from '../../InboxWizards/JobDescription';
-import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function JobStageStep (props) {
   const { marketId, updateFormData, formData, nextStep, investibleId, marketInfo, myFinish: finish,
@@ -38,26 +37,20 @@ function JobStageStep (props) {
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketPresencesState,marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const [groupPresencesState] = useContext(GroupMembersContext);
   const classes = useContext(WizardStylesContext);
   const { stage, assigned, group_id: groupId } = marketInfo;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
-  const myGroupPresence = groupPresences.find((presence) => presence.id === userId);
   const value = formData.stageWasSet ? formData.stage : stage;
   const validForm = !_.isEqual(value, stage);
   const isAssigned = (assigned || []).includes(userId);
-  const fullStagesRaw = getStages(marketStagesState, marketId).filter((fullStage) => !fullStage.move_on_comment &&
+  const fullStagesFiltered = getStages(marketStagesState, marketId).filter((fullStage) => !fullStage.move_on_comment &&
     (isAssigned || _.isEmpty(assigned) || !isAcceptedStage(fullStage)));
   const fullCurrentStage = getFullStage(marketStagesState, marketId, stage) || {};
   const fullMoveStage = getFullStage(marketStagesState, marketId, value) || {};
   const marketComments = getMarketComments(commentsState, marketId, groupId) || [];
   const comments = getCommentsSortedByType(marketComments, investibleId, false) || [];
-  const fullStagesFiltered = isSingleUser && _.size(marketPresences) < 2 ?
-    fullStagesRaw?.filter((aStage) => !aStage.allows_investment &&
-      (!_.isEmpty(myGroupPresence) || !isAcceptedStage(aStage))) : fullStagesRaw;
   const fullStages = _.orderBy(fullStagesFiltered, (aStage) => {
     if (isFurtherWorkStage(aStage)) {
       return 0;

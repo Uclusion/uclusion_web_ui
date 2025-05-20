@@ -722,7 +722,7 @@ function Comment(props) {
   const diff = getDiff(diffState, id);
   const { level: myHighlightedLevel } = myMessage || {};
   // For some reason can't stop propagation on clicking edit so just turn off in that case
-  const isNavigateToInbox = myHighlightedLevel && !isEditable;
+  const isNavigateToInbox = myHighlightedLevel && !isEditable && !replyEditId;
   const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> :
     (commentType === REPLY_TYPE ? (isSubTask(comment, commentsState) ? <FormattedMessage id="commentSubTaskLabel" /> :
         <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> : undefined ));

@@ -23,7 +23,6 @@ import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import {
   decomposeMarketPath,
   formCommentLink, formInboxItemLink,
-  formMarketAddInvestibleLink,
   formWizardLink,
   navigate,
   preventDefaultAndProp
@@ -40,7 +39,6 @@ import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import {
-  BUG_WIZARD_TYPE,
   DECISION_TYPE,
   DELETE_COMMENT_TYPE,
   IN_PROGRESS_WIZARD_TYPE,
@@ -282,6 +280,15 @@ function Reply(props) {
     return !isHighlighted ? classes.container : classes.containerBlueLink;
   }
 
+  function moveToTask() {
+    setOperationRunning(true);
+    return updateComment({marketId, commentId: comment.id, commentType: TODO_TYPE}).then((taskComment) => {
+      addCommentToMarket(taskComment, commentsState, commentsDispatch);
+      setOperationRunning(false);
+      navigate(history, formCommentLink(marketId, taskComment.group_id, taskComment.investible_id, taskComment.id));
+    });
+  }
+
   function handleToggleInProgress() {
     setOperationRunning(`inProgressCheckbox${comment.id}`);
     const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
@@ -371,9 +378,7 @@ function Reply(props) {
             disabled={operationRunning !== false}
             onClick={(event) => {
               preventDefaultAndProp(event);
-              navigate(history,
-                `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
-                  BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}`)
+              return moveToTask();
             }}
             icon={<ListAltIcon fontSize='small' />}
             size='small'

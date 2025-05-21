@@ -40,7 +40,7 @@ import {
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import {
   getFullStage,
-  isBlockedStage,
+  isBlockedStage, isFurtherWorkStage,
   isRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -180,16 +180,20 @@ function PlanningIdeas(props) {
   }
 
   function onDropVoting (event) {
-    const currentStageId = event.dataTransfer.getData('stageId');
     const investibleId = event.dataTransfer.getData('text');
-    const fullStage = getFullStage(marketStagesState, marketId, currentStageId);
     removeDroppableById();
-    if (isBlockedStage(fullStage) || isRequiredInputStage(fullStage)) {
+    const investibleComments = comments.filter((comment) => comment.investible_id === investibleId
+      && !comment.resolved) || [];
+    const blockingComments = investibleComments.filter(comment => comment.comment_type === ISSUE_TYPE);
+    const assignedInputComments = investibleComments.filter(
+      comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
+        && presenceId === comment.created_by
+    );
+    if (!_.isEmpty(blockingComments) || !_.isEmpty(assignedInputComments)) {
       // Need to close comment(s) to move here
       navigate(history,
-        `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${inDialogStageId}`);
+        `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${inDialogStageId}&assignId=${presenceId}`);
     } else {
-      const investibleId = event.dataTransfer.getData('text');
       const investible = getInvestible(invState, investibleId);
       const marketInfo = getMarketInfo(investible, marketId);
       const { assigned } = marketInfo;
@@ -207,17 +211,6 @@ function PlanningIdeas(props) {
         setOperationRunning(true);
         updateInvestible(updateInfo)
           .then((fullInvestible) => {
-            const { market_infos: marketInfos } = fullInvestible;
-            const marketInfo = marketInfos.find(info => info.market_id === marketId);
-            const investibleComments = comments.filter((comment) => comment.investible_id === investibleId
-              && !comment.resolved) || [];
-            const blockingComments = investibleComments.filter(comment => comment.comment_type === ISSUE_TYPE);
-            const assignedInputComments = investibleComments.filter(
-              comment => (comment.comment_type === QUESTION_TYPE || comment.comment_type === SUGGEST_CHANGE_TYPE)
-                && marketInfo.assigned.includes(comment.created_by)
-            );
-            marketInfo.stage = !_.isEmpty(blockingComments) ? inBlockingStageId :
-              _.isEmpty(assignedInputComments) ? inDialogStageId : inRequiresInputStageId;
             refreshInvestibles(invDispatch, diffDispatch, [fullInvestible]);
             removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
             setOperationRunning(false);

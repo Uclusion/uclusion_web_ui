@@ -48,7 +48,7 @@ function CloseCommentsStep(props) {
     (comment.comment_type === ISSUE_TYPE)||
     (isInReviewStage(fullMoveStage) && comment.comment_type === TODO_TYPE)||
       ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
-      (assigned || []).includes(comment.created_by)));
+      (assignId ? [assignId] : (assigned || [])).includes(comment.created_by)));
   const commentThreads = getCommentThreads(mustResolveComments, marketComments);
   const isMustResolve = fullCurrentStage.move_on_comment ||
     !_.isEmpty(unresolvedComments.filter((comment) => comment.comment_type === TODO_TYPE));
@@ -64,8 +64,8 @@ function CloseCommentsStep(props) {
         resolve_comment_ids: mustResolveComments.map((comment) => comment.id)
       },
     };
-    if (!_.isEmpty(formData.assigned)) {
-      moveInfo.stageInfo.assignments = formData.assigned;
+    if (!_.isEmpty(newAssigned)) {
+      moveInfo.stageInfo.assignments = newAssigned;
     } else if (((isSingleUser&&_.isEmpty(assigned))||assignId)&&!isFurtherWorkStage(fullMoveStage)
       &&!isNotDoingStage(fullMoveStage)) {
       const presences = getMarketPresences(marketPresencesState, marketId) || [];

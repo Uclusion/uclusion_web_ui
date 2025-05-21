@@ -59,7 +59,8 @@ function JobStageWizard(props) {
       if (fullMoveStage.close_comments_on_entrance && !isSingleUser) {
         return true;
       }
-      if (fullMoveStage.allows_investment) {
+      // Not prompting for certainty if autonomous mode
+      if (fullMoveStage.allows_investment && !isSingleUser) {
         if (!yourVote || yourVote.deleted) {
           return true;
         }

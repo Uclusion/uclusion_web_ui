@@ -13,7 +13,7 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { makeStyles } from '@material-ui/core/styles';
-import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import {
   getFullStage,
   isBlockedStage, isFurtherWorkStage,
@@ -230,6 +230,10 @@ function ArchiveInvestbiles(props) {
         return (comment.comment_type === SUGGEST_CHANGE_TYPE) && (comment.investible_id === id) &&
           (usedAssignees.includes(comment.created_by)||isFurtherWorkStage(stage));
       });
+      const blockedComments = (unResolvedMarketComments || []).filter((comment) => {
+        return (comment.comment_type === ISSUE_TYPE) && (comment.investible_id === id) &&
+          (usedAssignees.includes(comment.created_by)||isFurtherWorkStage(stage));
+      });
       const assignedNames = usedAssignees.map((element) => {
         const presence = presenceMap[element];
         return presence ? presence.name : '';
@@ -262,6 +266,11 @@ function ArchiveInvestbiles(props) {
       if (isFurtherWorkStage(stage)) {
         if (openForInvestment) {
           TypeIconList.push(getIcon(3, messages));
+        }
+        if (!_.isEmpty(blockedComments)) {
+          const item = getIcon(0);
+          item.myLink = formCommentLink(marketId, groupId, id, blockedComments[0].id);
+          TypeIconList.push(item);
         }
         if (!_.isEmpty(questionComments)) {
           const item = getIcon(2);

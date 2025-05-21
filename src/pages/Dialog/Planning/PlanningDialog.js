@@ -9,6 +9,7 @@ import _ from 'lodash';
 import { Grid, Link, useMediaQuery, useTheme } from '@material-ui/core';
 import Screen from '../../../containers/Screen/Screen';
 import {
+  ISSUE_TYPE,
   QUESTION_TYPE,
   REPLY_TYPE,
   REPORT_TYPE,
@@ -47,7 +48,7 @@ import Backlog from './Backlog';
 import InvestiblesByPerson from './InvestiblesByPerson';
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
 import SubSection from '../../../containers/SubSection/SubSection';
-import { filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { filterToRoot, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import {
   ASSIGNED_HASH,
   BACKLOG_HASH,
@@ -169,10 +170,15 @@ function PlanningDialog(props) {
     const { open_for_investment: openForInvestment } = marketInfo;
     return openForInvestment;
   });
+  const furtherWorkNotReadyAssistance = furtherWorkInvestibles.filter((investible) => {
+    const investibleComments = getInvestibleComments(investible.investible.id, marketId, commentsState);
+    return !_.isEmpty(investibleComments.find((comment) => !comment.resolved &&
+      [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type)));
+  });
   const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id, marketId);
   const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id, marketId);
   const blockedOrRequiresInputOrReadyInvestibles = blockedInvestibles.concat(requiresInputInvestibles)
-    .concat(furtherWorkReadyToStart);
+    .concat(furtherWorkReadyToStart).concat(furtherWorkNotReadyAssistance);
   const swimlaneInvestibles = investibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);

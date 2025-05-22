@@ -74,7 +74,7 @@ function JobStageWizard(props) {
 
   function finish(fullMoveStage, isTerminate=false) {
     if (isTerminate || !requiresAction((fullMoveStage))) {
-      if (fullMoveStage && (isNotDoingStage(fullMoveStage) || isInReviewStage(fullMoveStage))) {
+      if (!isTerminate && fullMoveStage && (isNotDoingStage(fullMoveStage) || isInReviewStage(fullMoveStage))) {
         navigate(history, formMarketLink(marketId, groupId));
       } else {
         if (fullMoveStage && isAcceptedStage(fullMoveStage)) {

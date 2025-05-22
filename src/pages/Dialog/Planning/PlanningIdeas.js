@@ -40,7 +40,7 @@ import {
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import {
   getFullStage,
-  isBlockedStage, isFurtherWorkStage,
+  isBlockedStage,
   isRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -105,8 +105,6 @@ function PlanningIdeas(props) {
     acceptedStage,
     inDialogStageId,
     inReviewStageId,
-    inBlockingStageId,
-    inRequiresInputStageId,
     presenceId,
     groupId,
     comments

@@ -33,6 +33,12 @@ export function alterComment(marketId, commentId, notificationType) {
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 
+export function alterComments(marketId, commentIds, notificationType) {
+  return getMarketClient(marketId)
+    .then((client) => client.investibles.alterComments(commentIds, notificationType))
+    .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
+}
+
 export function updateComment(values) {
   const { marketId, commentId, body, commentType, uploadedFiles, mentions, notificationType,
     isSent, investibleLabel, allowMulti, isRestricted, inProgress } = values;

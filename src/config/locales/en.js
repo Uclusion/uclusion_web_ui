@@ -1188,6 +1188,8 @@ const messages = defineMessages({
   createNewStatus: 'Add progress report',
   createNewApproval: 'Add approval',
   createNewVote: 'Add vote',
+  allDoneButton: 'All done',
+  allDone: 'Move to Tasks Complete',
   addVoting: 'Add voting',
   createBug: 'Add bug',
   createComment: 'Add comment',

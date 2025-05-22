@@ -20,7 +20,7 @@ import { fixName, getMarketInfo, getVotesForInvestible } from '../../../utils/us
 import {
   getFullStage,
   getFurtherWorkStage,
-  getInCurrentVotingStage
+  getInCurrentVotingStage, getInReviewStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import EditMarketButton from '../../Dialog/EditMarketButton';
@@ -44,7 +44,7 @@ import {
   ACTIVE_STAGE,
   APPROVAL_WIZARD_TYPE,
   JOB_COMMENT_WIZARD_TYPE,
-  JOB_EDIT_WIZARD_TYPE
+  JOB_EDIT_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE
 } from '../../../constants/markets';
 import {
   OPERATION_HUB_CHANNEL,
@@ -66,7 +66,7 @@ import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
 import CondensedTodos from './CondensedTodos';
-import { ExpandLess } from '@material-ui/icons';
+import { DoneAll, ExpandLess } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
@@ -78,6 +78,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import { hasJobComment } from '../../../components/AddNewWizards/JobComment/AddCommentStep';
 import Link from '@material-ui/core/Link';
 import InfoIcon from '@material-ui/icons/Info';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -360,6 +362,8 @@ function PlanningInvestible(props) {
   const editClasses = useInvestibleEditStyles();
   const wizardClasses = wizardStyles();
   const [searchResults] = useContext(SearchResultsContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { results, parentResults, search } = searchResults;
   const { id: marketId, market_stage: marketStage } = market;
   const inArchives = marketStage !== ACTIVE_STAGE;
@@ -517,6 +521,11 @@ function PlanningInvestible(props) {
   function canOpenBlocking() {
     return _.isEmpty(questionSuggestionsByAssignedComments) && !isInVerified && !isInNotDoing;
   }
+  const unresolvedComments = investibleComments.filter(comment => !comment.resolved);
+  const mustResolveComments = unresolvedComments.filter((comment) =>
+    [ISSUE_TYPE, TODO_TYPE].includes(comment.comment_type)||
+    ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
+      (assigned || []).includes(comment.created_by)));
   const todoCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === TODO_TYPE
   );
@@ -865,6 +874,39 @@ function PlanningInvestible(props) {
                     </SpinningButton>
                   );
                 })}
+                {sectionOpen === 'tasksSection' && !_.isEmpty(assigned) && showCommentAdd && !isInReview && (
+                  <SpinningButton id='allDone' className={wizardClasses.actionNext} iconColor="black"
+                                  toolTipId='allDone' icon={DoneAll} doSpin={_.isEmpty(mustResolveComments)}
+                                  onClick={() => {
+                                    const inReviewStageId = getInReviewStage(marketStagesState, marketId).id;
+                                    if (_.isEmpty(mustResolveComments)) {
+                                      const moveInfo = {
+                                        marketId,
+                                        investibleId,
+                                        stageInfo: {
+                                          current_stage_id: stage,
+                                          stage_id: inReviewStageId
+                                        },
+                                      };
+                                      return stageChangeInvestible(moveInfo)
+                                        .then((response) => {
+                                          const { full_investible: newInv } = response;
+                                          onInvestibleStageChange(stage, newInv, investibleId, marketId,
+                                            undefined, undefined, investiblesDispatch,
+                                            () => {}, marketStagesState, undefined, fullStage);
+                                          setOperationRunning(false);
+                                        });
+                                    }
+                                    navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, 
+                                      investibleId)}&stageId=${inReviewStageId}`);
+                                  }}
+                                  style={{
+                                    display: 'flex', marginTop: '0.75rem',
+                                    marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
+                                  }}>
+                    <FormattedMessage id='allDoneButton'/>
+                  </SpinningButton>
+                )}
                 {sectionOpen === 'tasksSection' && (
                   <div style={{marginTop: '1.5rem'}}><Link
                     href={`${formInvestibleLink(marketId, investibleId)}#investibleCondensedTodos`}

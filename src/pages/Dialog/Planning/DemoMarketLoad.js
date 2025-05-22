@@ -84,13 +84,14 @@ function DemoMarketLoad(props) {
     if (_.isEmpty(demo)) {
       return loadingScreen;
     }
+
     return <Screen
       title={intl.formatMessage({id: 'DemoWelcome'})}
       tabTitle={intl.formatMessage({id: 'DemoWelcome'})}
       hidden={false}
       disableSearch
     >
-      <WorkspaceInviteWizard marketId={demo.id} />
+      <WorkspaceInviteWizard marketId={demo.id} isDemo />
     </Screen>;
   }
 

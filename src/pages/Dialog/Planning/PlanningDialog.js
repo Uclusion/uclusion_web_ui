@@ -48,7 +48,11 @@ import Backlog from './Backlog';
 import InvestiblesByPerson from './InvestiblesByPerson';
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
 import SubSection from '../../../containers/SubSection/SubSection';
-import { filterToRoot, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import {
+  filterToRoot,
+  getInvestibleComments,
+  getMarketComments
+} from '../../../contexts/CommentsContext/commentsContextHelper';
 import {
   ASSIGNED_HASH,
   BACKLOG_HASH,
@@ -105,7 +109,6 @@ function PlanningDialog(props) {
   const {
     marketInvestibles,
     marketStages,
-    comments,
     hidden,
     myPresence,
     banner,
@@ -135,11 +138,12 @@ function PlanningDialog(props) {
   const market = getMarket(marketsState, marketId) || {};
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
-
+  const marketComments = getMarketComments(commentsState, marketId) || [];
   const isAdmin = myPresence.is_admin;
-  const unResolvedMarketComments = comments.filter(comment => !comment.investible_id && !comment.resolved) || [];
+  const unResolvedGroupComments = marketComments.filter(comment => !comment.investible_id &&
+    !comment.resolved && comment.group_id === groupId) || [];
   // There is no link to a reply so including them should be okay
-  const notTodoComments = unResolvedMarketComments.filter(comment =>
+  const notTodoGroupComments = unResolvedGroupComments.filter(comment =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [pageStateFull, pageDispatch] = usePageStateReducer('group');
@@ -212,6 +216,7 @@ function PlanningDialog(props) {
         } else if (hash.includes(BACKLOG_HASH)) {
           updatePageState({ sectionOpen: 'backlogSection', tabIndex: 1 });
         } else {
+          const comments = getMarketComments(commentsState, marketId) || [];
           const found = comments.find((comment) => hash.includes(comment.id));
           if (!_.isEmpty(found)) {
             const rootComment = filterToRoot(comments, found.id);
@@ -230,23 +235,23 @@ function PlanningDialog(props) {
         }
       }
     }
-  }, [comments, groupId, hash, hidden, history, marketId, updatePageState]);
+  }, [commentsState, groupId, hash, hidden, history, marketId, updatePageState]);
 
   function openSubSection(subSection) {
     updatePageState({sectionOpen: subSection});
   }
 
-  const sortedRoots = getSortedRoots(notTodoComments, searchResults);
-  const questionSuggestionComments = sortedRoots.filter((comment) =>
+  const sortedGroupRoots = getSortedRoots(notTodoGroupComments, searchResults);
+  const questionSuggestionGroupComments = sortedGroupRoots.filter((comment) =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
-  const todoComments = unResolvedMarketComments.filter((comment) => {
+  const todoGroupComments = unResolvedGroupComments.filter((comment) => {
     if (_.isEmpty(search)) {
       return comment.comment_type === TODO_TYPE;
     }
     return comment.comment_type === TODO_TYPE && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   });
-  const criticalTodoComments = todoComments.filter((comment) => comment.notification_type === RED_LEVEL);
+  const criticalTodoGroupComments = todoGroupComments.filter((comment) => comment.notification_type === RED_LEVEL);
   const archiveInvestibles = investibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
@@ -257,7 +262,10 @@ function PlanningDialog(props) {
     return archived && (results.find((item) => item.id === inv.investible.id)
       || parentResults.find((id) => id === inv.investible.id));
   });
-  const resolvedMarketComments = comments.filter((comment) => {
+  const resolvedGroupComments = marketComments.filter((comment) => {
+    if (comment.group_id !== groupId) {
+      return false;
+    }
     if (_.isEmpty(search)) {
       return !comment.investible_id && comment.resolved;
     }
@@ -265,7 +273,7 @@ function PlanningDialog(props) {
       || parentResults.find((id) => id === comment.id));
   });
   const archivedSize = _.isEmpty(search) ? undefined :
-    _.size(archiveInvestibles) + _.size(resolvedMarketComments);
+    _.size(archiveInvestibles) + _.size(resolvedGroupComments);
   const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
   let navListItemTextArray = undefined;
@@ -400,15 +408,15 @@ function PlanningDialog(props) {
       }
     }
     if (tabIndex === 2) {
-      const commentIds = (todoComments ||[]).map((comment) => comment.id);
+      const commentIds = (todoGroupComments || []).map((comment) => comment.id);
       const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, !isAutonomous);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
-      if ((isAutonomous && !_.isEmpty(criticalTodoComments))||!_.isEmpty(numNewMessages)) {
-        return isAutonomous ? `${_.size(criticalTodoComments)}` : `${_.size(numNewMessages)}`;
+      if ((isAutonomous && !_.isEmpty(criticalTodoGroupComments))||!_.isEmpty(numNewMessages)) {
+        return isAutonomous ? `${_.size(criticalTodoGroupComments)}` : `${_.size(numNewMessages)}`;
       }
     }
     if (tabIndex === 3) {
-      const commentIds = (questionSuggestionComments ||[]).map((comment) => comment.id);
+      const commentIds = (questionSuggestionGroupComments || []).map((comment) => comment.id);
       const numNewMessagesRaw = findMessagesForCommentIds(commentIds, messagesState, true);
       const numNewMessages = numNewMessagesRaw.filter((message) => isInInbox(message));
       if (!_.isEmpty(numNewMessages)) {
@@ -495,11 +503,11 @@ function PlanningDialog(props) {
                         tag={_.isEmpty(search) || backlogSearchResults === 0 ? tabCount1 : `${backlogSearchResults}`} />
           <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
                         toolTipId='bugsToolTip' tagLabel={getTagLabel(tabCount2, 2)} tagColor='#E85757'
-                        tag={_.isEmpty(search) || _.isEmpty(todoComments) ? tabCount2 : `${_.size(todoComments)}` } />
+                        tag={_.isEmpty(search) || _.isEmpty(todoGroupComments) ? tabCount2 : `${_.size(todoGroupComments)}` } />
           <GmailTabItem icon={<QuestionIcon />} toolTipId='discussionToolTip' tagLabel={getTagLabel(tabCount3)}
                         label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})} tagColor='#E85757'
-                        tag={_.isEmpty(search) || _.isEmpty(questionSuggestionComments) ? tabCount3 :
-                          `${_.size(questionSuggestionComments)}`} />
+                        tag={_.isEmpty(search) || _.isEmpty(questionSuggestionGroupComments) ? tabCount3 :
+                          `${_.size(questionSuggestionGroupComments)}`} />
         </GmailTabs>
       </div>
       <div style={{display: 'flex', overflow: 'hidden'}}>
@@ -537,8 +545,8 @@ function PlanningDialog(props) {
                       <FormattedMessage id='createSuggestion'/>
                     </SpinningButton>
                   </div>
-                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionComments)} noPad
-                                   text={
+                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionGroupComments)}
+                                   noPad text={
                     <div>
                       <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
                       be used at the view level and later moved to a job.
@@ -547,7 +555,7 @@ function PlanningDialog(props) {
                 </>
               )}
               <CommentBox
-                comments={notTodoComments.filter((comment) =>
+                comments={notTodoGroupComments.filter((comment) =>
                   [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPLY_TYPE].includes(comment.comment_type))}
                 marketId={marketId} />
             </Grid>
@@ -582,7 +590,7 @@ function PlanningDialog(props) {
                                    }/>
                   {!_.isEmpty(blockedOrRequiresInputOrReadyInvestibles) && (
                     <ArchiveInvestbiles
-                      comments={comments}
+                      comments={marketComments}
                       marketId={marketId}
                       presenceMap={presenceMap}
                       investibles={blockedOrRequiresInputOrReadyInvestibles}
@@ -596,7 +604,7 @@ function PlanningDialog(props) {
             </div>
               <div style={{ paddingBottom: '2rem' }}/>
             <InvestiblesByPerson
-              comments={comments}
+              comments={marketComments}
               investibles={investibles}
               visibleStages={visibleStages}
               acceptedStage={acceptedStage}
@@ -636,11 +644,11 @@ function PlanningDialog(props) {
           <div id="backlogSection" style={{overflowX: 'hidden', paddingBottom: '5rem'}}>
             <Backlog group={group} marketPresences={marketPresences}
                      furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
-                     comments={comments} isSingleUser={isAutonomous}
+                     comments={marketComments} isSingleUser={isAutonomous}
                      singleUser={isAutonomous ? groupPresences[0] : undefined} />
           </div>
         )}
-        <MarketTodos comments={unResolvedMarketComments} marketId={marketId} groupId={groupId}
+        <MarketTodos comments={unResolvedGroupComments} marketId={marketId} groupId={groupId}
                      sectionOpen={isSectionOpen('marketTodos')}
                      hidden={hidden}
                      setSectionOpen={() => {

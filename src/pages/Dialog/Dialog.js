@@ -48,7 +48,6 @@ function Dialog(props) {
   const marketId = loadedMarketId || marketEntity;
   const groupId = proposedGroupId || marketId;
   const allInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
-  const comments = getMarketComments(commentsState, marketId, groupId) || [];
   const investibles = _.isEmpty(search) ? allInvestibles : allInvestibles.filter((inv) => {
     const { investible } = inv;
     return results.find((item) => item.id === investible.id)
@@ -107,7 +106,6 @@ function Dialog(props) {
       setAddInvestibleMode={setAddInvestibleMode}
       marketId={marketId}
       marketInvestibles={investibles}
-      comments={comments}
       marketStages={marketStages}
       marketPresences={marketPresences}
       myPresence={myPresence}

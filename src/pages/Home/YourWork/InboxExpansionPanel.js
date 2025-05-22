@@ -130,7 +130,7 @@ export function calculateTitleExpansionPanel(props) {
                                                  message={message} />,
         'DecideAnswerTitle', intl);
     } else if ('INVESTIBLE_REVIEW' === linkType) {
-      const isMultiple = !_.isEmpty(commentList);
+      const isMultiple = !_.isEmpty(commentList?.find((aCommentId) => aCommentId !== commentId));
       setItem(item, openExpansion, <TaskedWizard marketId={marketId} message={message} />,
         isMultiple ? 'NewTasksTitle' : 'NewTaskTitle', intl);
     } else {

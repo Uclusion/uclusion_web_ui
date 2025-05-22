@@ -32,7 +32,7 @@ function TaskReviewStep(props) {
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const commentList = _.isEmpty(message.comment_list) ? [message.comment_id] :
-    [message.comment_id].concat(message.comment_list);
+    _.uniq([message.comment_id].concat(message.comment_list));
   const commentId = commentList[0];
   const comment = getComment(commentsState, marketId, commentId);
   const investibleComments = getInvestibleComments(comment.investible_id, marketId, commentsState);

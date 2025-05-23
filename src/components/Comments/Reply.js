@@ -6,7 +6,7 @@ import {
   Card,
   CardActions,
   CardContent,
-  Checkbox, FormControlLabel,
+  Checkbox, FormControlLabel, Tooltip,
   Typography,
   useMediaQuery,
   useTheme
@@ -342,9 +342,12 @@ function Reply(props) {
     }}>
       <CardContent className={classes.cardContent}>
         {isTopLevelSubTask && (
-          <div className={classes.commenter}>
-            <ListAltIcon style={{height: 16, width: 16, transform: 'translateY(3px)'}} />
-          </div>
+          <Tooltip key='subTaskTipKey'
+                   title={<FormattedMessage id='commentSubTaskLabel' />}>
+            <div className={classes.commenter}>
+              <ListAltIcon style={{height: 16, width: 16, transform: 'translateY(3px)'}} />
+            </div>
+          </Tooltip>
         )}
         {!isTopLevelSubTask && (
           <Typography className={classes.commenter} variant="body2">

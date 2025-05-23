@@ -582,10 +582,17 @@ function PlanningDialog(props) {
                   id="blocked"
                 >
                   <DismissableText textId="assistanceHelp"
-                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestibles)}
+                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestibles)&&!isAutonomous}
                                    text={
                                      <div>
-                                       This section shows all jobs needing assignment or help.
+                                       This section shows all jobs in this view needing assignment or help.
+                                     </div>
+                                   }/>
+                  <DismissableText textId="autonomousAssistanceHelp"
+                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestibles)&&isAutonomous}
+                                   text={
+                                     <div>
+                                       This section shows jobs in all views you are a member of that need assignment or help.
                                      </div>
                                    }/>
                   {!_.isEmpty(blockedOrRequiresInputOrReadyInvestibles) && (

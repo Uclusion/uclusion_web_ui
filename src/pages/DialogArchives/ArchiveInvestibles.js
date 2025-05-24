@@ -307,7 +307,8 @@ function ArchiveInvestbiles(props) {
 
       const ticketNumber = getTicketNumber(ticketCode, isAutonomous, groupId === viewGroupId);
       return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId}
-                                allowDragDrop={allowDragDrop} onDragStart={onDragStart} enteredStageAt={enteredStageAt}
+                                allowDragDrop={allowDragDrop&&isMember} onDragStart={onDragStart}
+                                enteredStageAt={enteredStageAt}
                                 TypeIconList={TypeIconList} assignedNames={assignedNames}
                                 classes={classes} openForInvestment={openForInvestment} viewIndicator={ticketNumber} />;
     });

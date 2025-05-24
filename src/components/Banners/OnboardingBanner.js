@@ -75,6 +75,10 @@ function OnboardingBanner() {
           <Typography><Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">Job assistance</Link>.
             Help the demo team by voting.</Typography>
       )}
+      {isInbox && typeObjectId?.startsWith('UNREAD_VOTE') && (
+        <Typography><Link href="https://documentation.uclusion.com/structured-comments/#questions" target="_blank">Questions</Link>.
+          Voting on options reduces long meetings.</Typography>
+      )}
       {isInbox && typeObjectId?.startsWith('UNREAD_COMMENT') && (
           <Typography><Link href="https://documentation.uclusion.com/flows/#job-assistance" target="_blank">Job assistance</Link>.
             Goes away if not needed.</Typography>

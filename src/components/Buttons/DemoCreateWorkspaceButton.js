@@ -28,14 +28,16 @@ function DemoCreateWorkspaceButton() {
   const demo = marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
     market.object_type === DEMO_TYPE) || {};
   const totalCount = _.size(messagesState.messages?.filter((msg) => isInInbox(msg) &&
-    msg.market_id === demo.id));
+    (msg.market_id === demo.id || msg.comment_market_id === demo.id)));
   const presences = usePresences(demo.id);
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const demoMarketComments = getMarketComments(commentsState, demo.id) || [];
-  const demoCommentCreated = demoMarketComments.find((comment) => comment.updated_by === myPresence.id);
+  const demoFreedAt = demo ? new Date(demo.demo_freed_at) : undefined;
+  const demoCommentCreated = demoMarketComments.find((comment) => comment.updated_by === myPresence.id &&
+    comment.updated_at > demoFreedAt);
   const demoMarketInvestibles = getMarketInvestibles(investiblesState, demo.id);
   const demoInvestibleCreated = demoMarketInvestibles.find((investible) =>
-    investible.investible.updated_by === myPresence.id);
+    investible.investible.updated_by === myPresence.id && investible.investible.updated_at > demoFreedAt);
   const demoGroups = groupsState[demo.id] || [];
   const demoGroupCreated = demoGroups.find((group) => group.updated_by === myPresence.id);
   const originalDemoNotificationCount = getUclusionLocalStorageItem('originalDemoNotificationCount') || 100;

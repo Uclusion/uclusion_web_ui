@@ -23,7 +23,7 @@ import { getUnpaginatedItems, PAGE_SIZE, setPage, setTab } from './InboxContext'
 import { stripHTML } from '../../../utils/stringFunctions';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import {
-  formInboxItemLink,
+  formInboxItemLink, formInboxItemLinkFromId,
   formMarketLink,
   navigate,
   preventDefaultAndProp
@@ -104,12 +104,13 @@ function Inbox(props) {
 
   function goToItem(itemId) {
     const { messages } = messagesState || {};
+    const isOutboxItem = !itemId.includes('_');
     const itemMessage = messages?.find((message) => message.type_object_id === itemId);
-    if (itemMessage) {
-      if (itemMessage.is_highlighted) {
+    if (itemMessage || isOutboxItem) {
+      if (itemMessage?.is_highlighted) {
         dehighlightMessage(itemMessage, messagesDispatch);
       }
-      navigate(history, formInboxItemLink(itemMessage));
+      navigate(history, itemMessage ? formInboxItemLink(itemMessage) : formInboxItemLinkFromId(itemId));
     }
   }
 

@@ -52,7 +52,7 @@ import {
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import {
-  formInvestibleAddCommentLink, formInvestibleLink,
+  formInvestibleAddCommentLink, formInvestibleLink, formMarketLink,
   formWizardLink,
   navigate,
   preventDefaultAndProp
@@ -876,10 +876,12 @@ function PlanningInvestible(props) {
                 })}
                 {sectionOpen === 'tasksSection' && !_.isEmpty(assigned) && showCommentAdd && !isInReview && (
                   <SpinningButton id='allDone' className={wizardClasses.actionNext} iconColor="black"
-                                  toolTipId='allDone' icon={DoneAll} doSpin={_.isEmpty(mustResolveComments)}
+                                  toolTipId='allDone' icon={DoneAll}
+                                  doSpin={_.isEmpty(mustResolveComments)&&isAutonomous}
                                   onClick={() => {
                                     const inReviewStageId = getInReviewStage(marketStagesState, marketId).id;
-                                    if (_.isEmpty(mustResolveComments)) {
+                                    // If not autonomous then need wizard anyway for starting a review
+                                    if (_.isEmpty(mustResolveComments)&&isAutonomous) {
                                       const moveInfo = {
                                         marketId,
                                         investibleId,
@@ -895,10 +897,16 @@ function PlanningInvestible(props) {
                                             undefined, undefined, investiblesDispatch,
                                             () => {}, marketStagesState, undefined, fullStage);
                                           setOperationRunning(false);
+                                          navigate(history, formMarketLink(marketId, groupId));
                                         });
                                     }
-                                    navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, 
-                                      investibleId)}&stageId=${inReviewStageId}`);
+                                    if (_.isEmpty(mustResolveComments)) {
+                                      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
+                                        investibleId)}&stageId=${inReviewStageId}&isAssign=false`);
+                                    } else {
+                                      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId,
+                                        investibleId)}&stageId=${inReviewStageId}`);
+                                    }
                                   }}
                                   style={{
                                     display: 'flex', marginTop: '0.75rem',

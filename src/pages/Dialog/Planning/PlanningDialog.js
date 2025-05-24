@@ -363,7 +363,8 @@ function PlanningDialog(props) {
     } else {
       const inv = getInvestible(investibleState, id);
       const marketInfo = getMarketInfo(inv, marketId) || {};
-      if (marketInfo.stage !== furtherWorkStage.id) {
+      // For now do nothing silently if dragging another view's job to an autonomous backlog
+      if (marketInfo.stage !== furtherWorkStage.id && marketInfo.group_id === groupId) {
         const moveInfo = {
           marketId,
           investibleId: id,

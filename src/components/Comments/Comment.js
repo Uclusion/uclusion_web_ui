@@ -402,7 +402,7 @@ function getCompressionButton(numberHidden, inboxMessageId, toggleCompression, i
 
 function InitialReply(props) {
   const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps,
-    numberHidden = 0, useCompression, toggleCompression } = props;
+    numberHidden = 0, useCompression, toggleCompression, myPresenceIsAssigned } = props;
   const intl = useIntl();
   if (numberHidden > 0) {
     return (
@@ -410,12 +410,14 @@ function InitialReply(props) {
         {getCompressionButton(numberHidden, inboxMessageId, toggleCompression, intl)}
         <Reply comment={comment} enableEditing={enableEditing} replyEditId={replyEditId}
                useCompression={useCompression} toggleCompression={toggleCompression}
+               myPresenceIsAssigned={myPresenceIsAssigned}
                inboxMessageId={inboxMessageId} isInbox={isInbox} wizardProps={wizardProps}/>
       </>
     );
   }
   return <Reply comment={comment} enableEditing={enableEditing} replyEditId={replyEditId}
                 useCompression={useCompression} toggleCompression={toggleCompression}
+                myPresenceIsAssigned={myPresenceIsAssigned}
                 inboxMessageId={inboxMessageId} isInbox={isInbox} wizardProps={wizardProps}/>;
 }
 
@@ -1153,6 +1155,7 @@ function Comment(props) {
                   toggleCompression={toggleCompression}
                   numberHidden={numberHidden}
                   isInbox={isInbox}
+                  myPresenceIsAssigned={myPresenceIsAssigned}
                   wizardProps={wizardProps}
                 />
               </>
@@ -1196,6 +1199,7 @@ function Comment(props) {
                   replyEditId={replyEditId}
                   inboxMessageId={inboxMessageId}
                   isInbox={isInbox}
+                  myPresenceIsAssigned={myPresenceIsAssigned}
                   wizardProps={wizardProps}
                 />
               );

@@ -22,7 +22,7 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import {
   decomposeMarketPath,
-  formCommentLink, formInboxItemLink,
+  formCommentLink, formInboxItemLink, formMarketAddInvestibleLink,
   formWizardLink,
   navigate,
   preventDefaultAndProp
@@ -39,6 +39,7 @@ import { stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import {
+  BUG_WIZARD_TYPE,
   DECISION_TYPE,
   DELETE_COMMENT_TYPE,
   IN_PROGRESS_WIZARD_TYPE,
@@ -49,7 +50,7 @@ import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
 import EditIcon from '@material-ui/icons/Edit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { Done } from '@material-ui/icons';
+import { Done, Eject } from '@material-ui/icons';
 import { resolveComment, updateComment } from '../../api/comments';
 import { previousInProgress } from '../AddNewWizards/TaskInProgress/TaskInProgressWizard';
 import { getNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -191,7 +192,7 @@ const useReplyStyles = makeStyles(
 
 function Reply(props) {
   const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps, useCompression,
-    toggleCompression } = props;
+    toggleCompression, myPresenceIsAssigned } = props;
   const history = useHistory();
   const location = useLocation();
   const replyBeingEdited = replyEditId === comment.id && isInbox;
@@ -381,11 +382,16 @@ function Reply(props) {
             disabled={operationRunning !== false}
             onClick={(event) => {
               preventDefaultAndProp(event);
-              return moveToTask();
+              if (myPresenceIsAssigned) {
+                return moveToTask();
+              }
+              navigate(history,
+                `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
+                  BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}`)
             }}
-            icon={<ListAltIcon fontSize='small' />}
+            icon={myPresenceIsAssigned ? <ListAltIcon fontSize='small' /> : <Eject fontSize='small' /> }
             size='small'
-            translationId="wizardAcceptLabel"
+            translationId={myPresenceIsAssigned ? 'wizardAcceptLabel' : 'storyFromComment'}
             doFloatRight
           />
         )}

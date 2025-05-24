@@ -89,6 +89,7 @@ import { RED_LEVEL } from '../../../constants/notifications';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
+import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -157,10 +158,23 @@ function PlanningDialog(props) {
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const isAutonomous = isAutonomousGroup(groupPresences, group);
   const furtherWorkStage = marketStages.find((stage) => isFurtherWorkStage(stage)) || {};
-  const investibles = marketInvestibles.filter((investible) => {
+  const investiblesFullAssist = marketInvestibles.filter((investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
-    return marketInfo.group_id === groupId || (isAutonomous && marketInfo.assigned?.includes(groupPresences[0].id))
-      || (isAutonomous && marketInfo.stage === furtherWorkStage.id);
+    const { group_id: otherGroupId, investible_id: investibleId } = marketInfo;
+    const otherGroupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, otherGroupId) || [];
+    const thisGroupPresenceId = isAutonomous ? groupPresences[0].id : undefined;
+    const isGroupMember = !_.isEmpty(otherGroupPresences.find((aPresence) =>
+      aPresence.id === thisGroupPresenceId));
+    const investedOrAddressed = calculateInvestibleVoters(investibleId, marketId, marketsState, investibleState,
+      marketPresences, true, true);
+    const isSubscribed = !_.isEmpty(investedOrAddressed.find((investor) => !investor.abstain &&
+      investor.id === thisGroupPresenceId));
+    return otherGroupId === groupId || (isAutonomous && marketInfo.assigned?.includes(thisGroupPresenceId))
+      || (isAutonomous && marketInfo.stage === furtherWorkStage.id && (isGroupMember || isSubscribed));
+  });
+  const investiblesViewOnly = marketInvestibles.filter((investible) => {
+    const marketInfo = getMarketInfo(investible, marketId);
+    return marketInfo.group_id === groupId;
   });
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
@@ -168,22 +182,25 @@ function PlanningDialog(props) {
   const inBlockingStage = marketStages.find(stage => isBlockedStage(stage)) || {};
   const visibleStages = marketStages.filter((stage) => stage.appears_in_context) || [];
   const requiresInputStage = marketStages.find((stage) => isRequiredInputStage(stage)) || {};
-  const furtherWorkInvestibles = getInvestiblesInStage(investibles, furtherWorkStage.id, marketId) || [];
-  const furtherWorkReadyToStart = _.remove(furtherWorkInvestibles, (investible) => {
+  const furtherWorkInvestiblesFullAssist = getInvestiblesInStage(investiblesFullAssist, furtherWorkStage.id,
+    marketId) || [];
+  const furtherWorkReadyToStartFullAssist = _.remove(furtherWorkInvestiblesFullAssist, (investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
     const { open_for_investment: openForInvestment } = marketInfo;
     return openForInvestment;
   });
-  const furtherWorkNotReadyAssistance = furtherWorkInvestibles.filter((investible) => {
+  const furtherWorkNotReadyFullAssist = furtherWorkInvestiblesFullAssist.filter((investible) => {
     const investibleComments = getInvestibleComments(investible.investible.id, marketId, commentsState);
     return !_.isEmpty(investibleComments.find((comment) => !comment.resolved &&
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type)));
   });
-  const requiresInputInvestibles = getInvestiblesInStage(investibles, requiresInputStage.id, marketId);
-  const blockedInvestibles = getInvestiblesInStage(investibles, inBlockingStage.id, marketId);
-  const blockedOrRequiresInputOrReadyInvestibles = blockedInvestibles.concat(requiresInputInvestibles)
-    .concat(furtherWorkReadyToStart).concat(furtherWorkNotReadyAssistance);
-  const swimlaneInvestibles = investibles.filter((inv) => {
+  const requiresInputInvestiblesFullAssist = getInvestiblesInStage(investiblesFullAssist, requiresInputStage.id,
+    marketId);
+  const blockedInvestiblesFullAssist = getInvestiblesInStage(investiblesFullAssist, inBlockingStage.id, marketId);
+  const blockedOrRequiresInputOrReadyInvestiblesFullAssist = blockedInvestiblesFullAssist
+    .concat(requiresInputInvestiblesFullAssist).concat(furtherWorkReadyToStartFullAssist)
+    .concat(furtherWorkNotReadyFullAssist);
+  const swimlaneInvestibles = investiblesFullAssist.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
     return stage && stage.appears_in_context && stage.allows_tasks;
@@ -251,8 +268,9 @@ function PlanningDialog(props) {
     return comment.comment_type === TODO_TYPE && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   });
-  const criticalTodoGroupComments = todoGroupComments.filter((comment) => comment.notification_type === RED_LEVEL);
-  const archiveInvestibles = investibles.filter((inv) => {
+  const criticalTodoGroupComments = todoGroupComments.filter((comment) =>
+    comment.notification_type === RED_LEVEL);
+  const archiveInvestibles = investiblesViewOnly.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
     const archived = stage && stage.close_comments_on_entrance;
@@ -274,7 +292,15 @@ function PlanningDialog(props) {
   });
   const archivedSize = _.isEmpty(search) ? undefined :
     _.size(archiveInvestibles) + _.size(resolvedGroupComments);
-  const jobsSearchResults = _.size(requiresInputInvestibles) + _.size(blockedInvestibles) + _.size(swimlaneInvestibles);
+  const jobsSearchResults = _.size(requiresInputInvestiblesFullAssist) + _.size(blockedInvestiblesFullAssist)
+    + _.size(swimlaneInvestibles);
+  const furtherWorkInvestibles = getInvestiblesInStage(investiblesViewOnly, furtherWorkStage.id,
+    marketId) || [];
+  const furtherWorkReadyToStart = _.remove(furtherWorkInvestibles, (investible) => {
+    const marketInfo = getMarketInfo(investible, marketId);
+    const { open_for_investment: openForInvestment } = marketInfo;
+    return openForInvestment;
+  });
   const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
   let navListItemTextArray = undefined;
   if (mobileLayout) {
@@ -389,7 +415,7 @@ function PlanningDialog(props) {
       return undefined;
     }
     if (tabIndex === 0) {
-      let investibleIds = (blockedOrRequiresInputOrReadyInvestibles || []).map((investible) =>
+      let investibleIds = (blockedOrRequiresInputOrReadyInvestiblesFullAssist || []).map((investible) =>
         investible.investible.id);
       investibleIds = investibleIds.concat((swimlaneInvestibles||[]).map((investible)=>investible.investible.id));
       const numNewMessagesRaw = findMessagesForInvestibleIds(investibleIds, messagesState, true)||[];
@@ -582,25 +608,25 @@ function PlanningDialog(props) {
                   id="blocked"
                 >
                   <DismissableText textId="assistanceHelp"
-                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestibles)&&!isAutonomous}
+                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist)&&!isAutonomous}
                                    text={
                                      <div>
                                        This section shows all jobs in this view needing assignment or help.
                                      </div>
                                    }/>
                   <DismissableText textId="autonomousAssistanceHelp"
-                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestibles)&&isAutonomous}
+                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist)&&isAutonomous}
                                    text={
                                      <div>
                                        This section shows jobs in all views you are a member of that need assignment or help.
                                      </div>
                                    }/>
-                  {!_.isEmpty(blockedOrRequiresInputOrReadyInvestibles) && (
+                  {!_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) && (
                     <ArchiveInvestbiles
                       comments={marketComments}
                       marketId={marketId}
                       presenceMap={presenceMap}
-                      investibles={blockedOrRequiresInputOrReadyInvestibles}
+                      investibles={blockedOrRequiresInputOrReadyInvestiblesFullAssist}
                       allowDragDrop
                       isAutonomous={isAutonomous}
                       viewGroupId={groupId}
@@ -612,7 +638,7 @@ function PlanningDialog(props) {
               <div style={{ paddingBottom: '2rem' }}/>
             <InvestiblesByPerson
               comments={marketComments}
-              investibles={investibles}
+              investibles={investiblesFullAssist}
               visibleStages={visibleStages}
               acceptedStage={acceptedStage}
               inDialogStage={inDialogStage}

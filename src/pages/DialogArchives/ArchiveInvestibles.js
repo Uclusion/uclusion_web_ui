@@ -36,6 +36,8 @@ import PlanningJobMenu from '../Dialog/Planning/PlanningJobMenu';
 import PersonSearch from '../../components/CustomChip/PersonSearch';
 import { getTicketNumber } from '../../utils/stringFunctions';
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
+import { getGroupPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -172,6 +174,7 @@ function ArchiveInvestbiles(props) {
   const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
 
   function getIcon(assistanceType, messages) {
     // Just go to the first message associated with this investible - further work questions do not have one
@@ -211,7 +214,10 @@ function ArchiveInvestbiles(props) {
       return { ...inv, enteredStageAt: new Date(aMarketInfo.last_stage_change_date) };
     });
     const sortedData = _.sortBy(investibleData, 'enteredStageAt', 'name').reverse();
-
+    const marketPresences = Object.values(presenceMap);
+    const viewGroupMembers = getGroupPresences(marketPresences, groupPresencesState, marketId, viewGroupId);
+    const viewGroupMemberId = isAutonomous && !_.isEmpty(viewGroupMembers) ?
+      viewGroupMembers[0].id : undefined;
     return sortedData.map((inv) => {
       const { investible } = inv;
       const { id, name } = investible;
@@ -222,6 +228,7 @@ function ArchiveInvestbiles(props) {
       const enteredStageAt = new Date(lastStageChangeDate)
       const stage = getFullStage(marketStagesState, marketId, stageId);
       const usedAssignees = assigned || [];
+      const groupMembers = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
       const questionComments = (unResolvedMarketComments || []).filter((comment) => {
         return (comment.comment_type === QUESTION_TYPE) && (comment.investible_id === id) &&
           (usedAssignees.includes(comment.created_by)||isFurtherWorkStage(stage));
@@ -263,8 +270,10 @@ function ArchiveInvestbiles(props) {
           TypeIconList.push(item);
         }
       }
+      const isMember = !isAutonomous || !_.isEmpty(groupMembers.find((member) =>
+        member.id === viewGroupMemberId))
       if (isFurtherWorkStage(stage)) {
-        if (openForInvestment) {
+        if (openForInvestment&&isMember) {
           TypeIconList.push(getIcon(3, messages));
         }
         if (!_.isEmpty(blockedComments)) {
@@ -274,7 +283,7 @@ function ArchiveInvestbiles(props) {
         }
         if (!_.isEmpty(questionComments)) {
           const item = getIcon(2);
-          const myMessage = messages.filter((message) => message.market_type === DECISION_TYPE &&
+          const myMessage = messages.find((message) => message.market_type === DECISION_TYPE &&
             !_.isEmpty(questionComments.find((question) => message.comment_id === question.id)));
           if (myMessage) {
             item.myMessage = myMessage;
@@ -285,7 +294,7 @@ function ArchiveInvestbiles(props) {
         }
         if (!_.isEmpty(suggestionComments)) {
           const item = getIcon(1);
-          const myMessage = messages.filter((message) => message.market_type === INITIATIVE_TYPE &&
+          const myMessage = messages.find((message) => message.market_type === INITIATIVE_TYPE &&
             !_.isEmpty(questionComments.find((suggestion) => message.comment_id === suggestion.id)));
           if (myMessage) {
             item.myMessage = myMessage;

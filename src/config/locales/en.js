@@ -1322,6 +1322,7 @@ const messages = defineMessages({
   GroupWizardAddMembers: 'Add people',
   ApprovalRestrictNo: 'Assignees can approve their own jobs.',
   ApprovalRestrictYes: 'Assignees need approval from others.',
+  createMyWorkView: 'My work view',
 
   // Decision comment wizard
   DecisionCommmentWizardTerminate: 'Back to option',

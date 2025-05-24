@@ -16,7 +16,11 @@ import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import Link from '@material-ui/core/Link';
 import { ADD_COLLABORATOR_WIZARD_TYPE } from '../../../constants/markets';
-import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import {
+  getGroupPresences,
+  isAutonomousGroup,
+  usePresences
+} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { fixName } from '../../../utils/userFunctions';
 
 function GroupNameStep (props) {
@@ -27,12 +31,18 @@ function GroupNameStep (props) {
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [, groupsDispatch] = useContext(MarketGroupsContext);
+  const [groupsState, groupsDispatch] = useContext(MarketGroupsContext);
   const [, diffDispatch] = useContext(DiffContext);
-  const [, groupMembersDispatch] = useContext(GroupMembersContext);
+  const [groupPresencesState, groupMembersDispatch] = useContext(GroupMembersContext);
   const presences = usePresences(marketId);
   const myPresence = presences?.find((presence) => presence.current_user);
   const hasOthers = !_.isEmpty(_.differenceBy(presences, [myPresence], 'id'));
+  const myAutonomousGroups = groupsState[marketId]?.filter((group) => {
+    const groupPresences = getGroupPresences(presences, groupPresencesState, marketId,
+      group.id) || [];
+    return !_.isEmpty(groupPresences.find((presence) => presence.id === myPresence?.id))
+      && isAutonomousGroup(groupPresences, group);
+  });
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -93,14 +103,15 @@ function GroupNameStep (props) {
   return (
     <WizardStepContainer
       {...props}
+      isLarge
     >
       <Typography className={classes.introText}>
         What do you want to call your view?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
-        A <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> controls the default
-        addressing of notifications. Anyone not in a view must be manually mentioned or subscribed to a job to
-        be notified.
+        A <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> controls the
+        addressing of notifications unless using mentioned or are subscribed to a
+        job. {_.isEmpty(myAutonomousGroups) && 'A My work view has only you and shows your work across views.'}
       </Typography>
       <OutlinedInput
         id="groupName"
@@ -124,9 +135,9 @@ function GroupNameStep (props) {
         onNext={onNext}
         onNextDoAdvance={hasOthers}
         nextLabel={'GroupWizardAddMembers'}
-        otherNextLabel="createViewSingleUser"
+        otherNextLabel="createMyWorkView"
         otherNextValid
-        showOtherNext
+        showOtherNext={_.isEmpty(myAutonomousGroups)}
         onOtherNext={onOtherNext}
         onOtherDoAdvance={false}
         showTerminate={validForm}

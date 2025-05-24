@@ -27,7 +27,9 @@ function ReturnTop(props) {
     &&!upFromConfigPossible&&!isSupportMarket)||isArchivedWorkspace;
 
   function goUp(){
-    if (useLink) {
+    if (action === 'inbox') {
+      navigate(history, getInboxTarget());
+    } else if (useLink) {
       navigate(history, useLink);
     }else if (upFromConfigPossible) {
       navigate(history, formMarketLink(marketId, marketId));

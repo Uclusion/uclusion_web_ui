@@ -329,6 +329,26 @@ function PlanningDialog(props) {
     navigate(history, bugBaseUrl);
   }
 
+  function changeInvestibleReady(id, stage, openForInvestment) {
+    const moveInfo = {
+      marketId,
+      investibleId: id,
+      stageInfo: {
+        current_stage_id: stage,
+        stage_id: furtherWorkStage.id,
+        open_for_investment: openForInvestment
+      },
+    };
+    setOperationRunning(true);
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        onInvestibleStageChange(furtherWorkStage.id, newInv, id, marketId, commentsState,
+          commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+          getFullStage(marketStagesState, marketId, stage), marketPresencesDispatch);
+        setOperationRunning(false);
+      });
+  }
+
   function onDropJob(id, isAssigned) {
     if (isAssigned) {
       if (isAutonomous) {
@@ -364,27 +384,42 @@ function PlanningDialog(props) {
       const inv = getInvestible(investibleState, id);
       const marketInfo = getMarketInfo(inv, marketId) || {};
       // For now do nothing silently if dragging another view's job to an autonomous backlog
-      if (marketInfo.stage !== furtherWorkStage.id && marketInfo.group_id === groupId) {
-        const moveInfo = {
-          marketId,
-          investibleId: id,
-          stageInfo: {
-            current_stage_id: marketInfo.stage,
-            stage_id: furtherWorkStage.id,
-          },
-        };
-        const isBlocked = marketInfo.stage === inBlockingStage.id;
-        setOperationRunning(true);
-        return stageChangeInvestible(moveInfo)
-          .then((newInv) => {
-            onInvestibleStageChange(furtherWorkStage.id, newInv, id, marketId, commentsState,
-              commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
-              getFullStage(marketStagesState, marketId, marketInfo.stage), marketPresencesDispatch);
-            setOperationRunning(false);
-            if (!isBlocked) {
-              navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}&isAssign=${isAssigned}`);
+      if (marketInfo.group_id === groupId) {
+        if (marketInfo.stage !== furtherWorkStage.id) {
+          const moveInfo = {
+            marketId,
+            investibleId: id,
+            stageInfo: {
+              current_stage_id: marketInfo.stage,
+              stage_id: furtherWorkStage.id,
+            },
+          };
+          const isBlocked = marketInfo.stage === inBlockingStage.id;
+          setOperationRunning(true);
+          return stageChangeInvestible(moveInfo)
+            .then((newInv) => {
+              onInvestibleStageChange(furtherWorkStage.id, newInv, id, marketId, commentsState,
+                commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
+                getFullStage(marketStagesState, marketId, marketInfo.stage), marketPresencesDispatch);
+              setOperationRunning(false);
+              if (!isBlocked) {
+                navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}&isAssign=${isAssigned}`);
+              }
+            });
+        } else {
+          const { open_for_investment: openForInvestment, stage } = marketInfo;
+          if (openForInvestment) {
+            return changeInvestibleReady(id, stage, false);
+          } else {
+            const invComments = getInvestibleComments(id, marketId, commentsState);
+            const isBlocked = invComments.find((comment) => !comment.resolved && comment.comment_type === ISSUE_TYPE);
+            if (isBlocked) {
+              navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}`);
+            } else {
+              return changeInvestibleReady(id, stage, true);
             }
-          });
+          }
+        }
       }
     }
   }

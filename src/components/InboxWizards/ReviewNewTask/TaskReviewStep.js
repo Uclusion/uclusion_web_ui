@@ -35,7 +35,8 @@ function TaskReviewStep(props) {
     _.uniq([message.comment_id].concat(message.comment_list));
   const commentId = commentList[0];
   const comment = getComment(commentsState, marketId, commentId);
-  const investibleComments = getInvestibleComments(comment.investible_id, marketId, commentsState);
+  const investibleId = comment?.investible_id;
+  const investibleComments = getInvestibleComments(investibleId, marketId, commentsState);
   const tasksAndChildren = investibleComments.filter((aComment) => {
     return commentList.includes(aComment.id) || commentList.includes(aComment.root_comment_id);
   }) || [];
@@ -63,7 +64,7 @@ function TaskReviewStep(props) {
           Click on a row below to expand and reply or take other actions.
         </Typography>
       )}
-      <JobDescription marketId={marketId} investibleId={comment.investible_id} comments={tasksAndChildren}
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={tasksAndChildren}
                       useCompression={useCompression} inboxMessageId={isSingleTaskDisplay ? commentId : undefined}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}
                       tasksDefaultOpen removeActions={isSingleTaskDisplay} isSingleTaskDisplay={isSingleTaskDisplay}/>

@@ -123,7 +123,7 @@ import Gravatar from '../Avatars/Gravatar';
 import styled from 'styled-components';
 import { NOT_FULLY_VOTED_TYPE, RED_LEVEL } from '../../constants/notifications';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
-import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { dehighlightMessage, getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import EditIcon from '@material-ui/icons/Edit';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
@@ -844,6 +844,7 @@ function Comment(props) {
         if (isInbox) {
           navigate(history, formCommentLink(marketId, groupId, investibleId, id));
         } else if (isNavigateToInbox && myMessage.type_object_id) {
+          dehighlightMessage(myMessage, messagesDispatch);
           navigate(history, formInboxItemLink(myMessage));
         }
       }

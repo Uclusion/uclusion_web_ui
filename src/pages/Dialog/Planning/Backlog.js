@@ -39,7 +39,8 @@ function Backlog(props) {
     comments,
     marketPresences,
     isSingleUser,
-    singleUser
+    singleUser,
+    hidden
   } = props;
   const { market_id: marketId, id: groupId} = group || {};
   const intl = useIntl();
@@ -99,9 +100,12 @@ function Backlog(props) {
     backlogDispatch(setPage(page + byNum));
   }
 
+  if (hidden) {
+    return <React.Fragment/>
+  }
+
   return (
-    <>
-    <div style={{paddingTop: '1rem'}} />
+    <div style={{paddingTop: '1rem', paddingBottom: '5rem'}}>
       <SpinningButton id="addBacklogJob"
                       className={wizardClasses.actionNext}
                       icon={AddIcon} iconColor="black"
@@ -180,7 +184,7 @@ function Backlog(props) {
                        singleUser={singleUser}/>
         );
       })}
-    </>
+    </div>
   )
 }
 

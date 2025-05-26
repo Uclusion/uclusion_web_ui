@@ -542,6 +542,7 @@ function PlanningDialog(props) {
       hidden={hidden}
       tabTitle={tabTitle}
       banner={banner}
+      isKeptInMemory
       showBanner={banner != null}
       openMenuItems={navListItemTextArray}
       navigationOptions={{useHoverFunctions: !mobileLayout, resetFunction: () => resetFunction(0)}}
@@ -709,14 +710,12 @@ function PlanningDialog(props) {
                              }/>
           </div>
         )}
-        {isSectionOpen('backlogSection') && (
-          <div id="backlogSection" style={{overflowX: 'hidden', paddingBottom: '5rem'}}>
-            <Backlog group={group} marketPresences={marketPresences}
-                     furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
-                     comments={marketComments} isSingleUser={isAutonomous}
-                     singleUser={isAutonomous ? groupPresences[0] : undefined} />
-          </div>
-        )}
+        <div id="backlogSection" style={{overflowX: 'hidden'}}>
+          <Backlog group={group} marketPresences={marketPresences} hidden={!isSectionOpen('backlogSection')}
+                   furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
+                   comments={marketComments} isSingleUser={isAutonomous}
+                   singleUser={isAutonomous ? groupPresences[0] : undefined} />
+        </div>
         <MarketTodos comments={unResolvedGroupComments} marketId={marketId} groupId={groupId}
                      sectionOpen={isSectionOpen('marketTodos')}
                      hidden={hidden}

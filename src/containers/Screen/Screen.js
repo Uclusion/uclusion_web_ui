@@ -292,6 +292,7 @@ function Screen(props) {
     appEnabled,
     banner,
     isInbox,
+    isKeptInMemory,
     openMenuItems,
     navigationOptions,
     showBanner,
@@ -310,7 +311,7 @@ function Screen(props) {
       }
     }
   }, [hidden, messagesState, tabTitle]);
-  if (hidden && !isInbox) {
+  if (hidden && !isKeptInMemory) {
     return <React.Fragment/>
   }
   const usedBanner = banner ?? (userState?.user?.onboarding_state === OnboardingState.DemoCreated ?

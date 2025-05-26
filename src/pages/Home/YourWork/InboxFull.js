@@ -82,6 +82,7 @@ function InboxFull(props) {
       tabTitle={intl.formatMessage({id: 'inbox'})}
       hidden={hidden}
       isInbox
+      isKeptInMemory
       disableSearch={!_.isEmpty(workItemId)}
       showBanner
       outBoxMessages={allOutBoxMessagesOrdered}

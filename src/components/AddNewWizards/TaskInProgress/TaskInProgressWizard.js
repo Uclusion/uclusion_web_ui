@@ -14,21 +14,23 @@ import { getComment, getMarketComments } from '../../../contexts/CommentsContext
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { REPLY_TYPE } from '../../../constants/comments';
 
-export function previousInProgress(userId, currentCommentId, investibleState, commentsState, marketId, groupId,
-  notDoingStageId) {
-  const marketComments = getMarketComments(commentsState, marketId, groupId);
+export function previousInProgress(userId, currentComment, investibleState, commentsState, notDoingStageId) {
+  const currentCommentId = currentComment?.id;
+  const marketId = currentComment.market_id;
+  const marketComments = getMarketComments(commentsState, marketId, currentComment.group_id);
   const inProgressComments = marketComments.filter((comment) => !comment.resolved && comment.in_progress &&
     comment.id !== currentCommentId);
   return inProgressComments.filter((comment) => {
-    if (comment.root_comment_id) {
-      if (comment.root_comment_id === currentCommentId) {
-        // Subtasks do not count as other in progress
+    if (comment.comment_type === REPLY_TYPE) {
+      // Subtasks do not count as other in progress unless current comment is a subtask on the same parent
+      if (currentComment?.comment_type !== REPLY_TYPE || currentComment.root_comment_id !== comment.root_comment_id) {
         return false;
       }
-      const parent = getComment(commentsState, marketId, comment.root_comment_id);
-      if (parent?.resolved) {
-        return false;
-      }
+    }
+    // Resolved do not count as subtasks
+    const parent = getComment(commentsState, marketId, comment.root_comment_id || comment.id);
+    if (parent?.resolved) {
+      return false;
     }
     const inv = getInvestible(investibleState, comment.investible_id) || {};
     const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -49,8 +51,8 @@ function TaskInProgressWizard(props) {
   const comment = getComment(commentsState, marketId, commentId);
   const myPresence = presences.find((presence) => presence.current_user);
   const notDoingStage = getNotDoingStage(marketStagesState, marketId)
-  const otherInProgressRaw = previousInProgress(myPresence?.id, commentId, investibleState, commentsState, marketId,
-    comment?.group_id, notDoingStage?.id);
+  const otherInProgressRaw = previousInProgress(myPresence?.id, comment, investibleState, commentsState
+    , notDoingStage?.id);
   // For subtasks don't encourage taking the root task out of progress
   const otherInProgress = comment?.comment_type === REPLY_TYPE ?
     otherInProgressRaw.filter((aComment) => aComment.id !== comment?.root_comment_id) : otherInProgressRaw;

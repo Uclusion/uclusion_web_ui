@@ -293,11 +293,11 @@ function Reply(props) {
   function handleToggleInProgress() {
     setOperationRunning(`inProgressCheckbox${comment.id}`);
     const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
-    const otherInProgressRaw = previousInProgress(userId, comment.id, investiblesState, commentsState, marketId,
-      groupId, notDoingStage.id);
+    const otherInProgressRaw = previousInProgress(userId, comment, investiblesState, commentsState, notDoingStage.id);
     // If they want to have parent in progress also don't bother them with the wizard
     const otherInProgress = otherInProgressRaw.filter((aComment) => aComment.id !== rootComment?.id);
-    const sendToWizard = !inProgress && !_.isEmpty(otherInProgress);
+    // If child of parent that is not in progress then ignore setting in progress
+    const sendToWizard = !inProgress && !_.isEmpty(otherInProgress) && rootComment?.in_progress;
     return updateComment({marketId, commentId: comment.id, inProgress: !inProgress}).then((comment) => {
       setOperationRunning(false);
       addCommentToMarket(comment, commentsState, commentsDispatch)

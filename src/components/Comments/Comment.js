@@ -551,8 +551,7 @@ function Comment(props) {
   const loading = !hasUser || !myPresence || !marketType || !marketTokenLoaded(marketId, tokensHash)
     || (inlineMarketId && _.isEmpty(inlineMarket));
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
-  const otherInProgress = previousInProgress(myPresence.id, id, investiblesState, commentsState, marketId,
-    groupId, notDoingStage.id);
+  const otherInProgress = previousInProgress(myPresence.id, comment, investiblesState, commentsState, notDoingStage.id);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {

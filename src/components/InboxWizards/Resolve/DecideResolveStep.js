@@ -123,6 +123,7 @@ function DecideResolveStep(props) {
   }
   const isOpenSuggestion = isSuggestion && !isReopen;
   const isMarketQuestion = !isSuggestion && !inv && !isReopen;
+  const isInvestibleQuestion = !isOpenSuggestion && !isMarketQuestion && !isReopen;
   return (
     <WizardStepContainer
       {...props}
@@ -142,7 +143,7 @@ function DecideResolveStep(props) {
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                      removeActions
+                      removeActions={!isInvestibleQuestion}
                       showVoting
                       isSingleTaskDisplay={commentRoot.comment_type === TODO_TYPE}
                       inboxMessageId={commentId}
@@ -197,16 +198,10 @@ function DecideResolveStep(props) {
           terminateLabel="notificationDismiss"
         />
       )}
-      {!isOpenSuggestion && !isMarketQuestion && !isReopen && (
+      {isInvestibleQuestion && (
         <WizardStepButtons
           {...props}
-          focus
-          nextLabel="commentResolveLabel"
-          onNext={() => resolve(false)}
-          showOtherNext
-          otherNextLabel="DecideResolveAndGoJob"
-          onOtherNext={() => resolve(true)}
-          otherSpinOnClick
+          showNext={false}
           showTerminate={true}
           onFinish={() => myTerminate()}
           terminateLabel="notificationDismiss"

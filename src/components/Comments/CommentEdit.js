@@ -233,6 +233,7 @@ function CommentEdit(props) {
   });
   const subscribedNotMe = subscribedReal.filter((presence) => presence.id !== myPresence?.id);
   const noSubscribedToSendTo = _.isEmpty(subscribedNotMe);
+  const isTask = investibleId && commentType === TODO_TYPE;
 
   const editorName = `comment-edit-editor${id}`;
   const editorSpec = {
@@ -315,7 +316,7 @@ function CommentEdit(props) {
         <Typography className={wizardClasses.introSubText} variant="subtitle1">
           Pick up where you left off with this {isQuestion ? 'question' : 'blocking issue'}.
         </Typography>
-        {!noSubscribedToSendTo && (
+        {!noSubscribedToSendTo && !isTask && (
           <Typography className={classes.introSubText} variant="subtitle1">
             <GravatarGroup users={subscribedNotMe}/>
             notified unless use @ mentions.

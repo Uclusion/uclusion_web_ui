@@ -5,6 +5,7 @@ import {
   ArrowForward
 } from '@material-ui/icons';
 import {
+  formCommentLink,
   formInboxItemLink,
   formInvestibleLink, formMarketLink,
   navigate
@@ -91,9 +92,12 @@ export default function NavigationChevrons() {
       comments } = workspaceData;
     approvedInvestibles?.forEach((investible) => {
       const investibleComments = getOpenInvestibleComments(investible.investible.id, comments);
-      const numInProgress = (investibleComments.filter((comment) => comment.in_progress)).length;
+      const inProgress = investibleComments.find((comment) => comment.in_progress);
       const candidate = getInvestibleCandidate(investible, market, navigations);
-      candidate.numInProgress = numInProgress;
+      if (inProgress) {
+        candidate.url = formCommentLink(market.id, inProgress.group_id, inProgress.investible_id, inProgress.id);
+      }
+      candidate.numInProgress = _.isEmpty(inProgress) ? 0 : 1;
       approvedCandidates.push(candidate);
     });
     inVotingInvestibles?.forEach((investible) => {

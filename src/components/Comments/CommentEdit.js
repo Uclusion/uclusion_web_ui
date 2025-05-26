@@ -343,7 +343,7 @@ function CommentEdit(props) {
 
   return (
     <>
-      {!noSubscribedToSendTo && (
+      {!noSubscribedToSendTo && !isTask && (
         <Typography className={classes.introSubText} variant="subtitle1">
           <GravatarGroup users={subscribedNotMe}/>
           notified unless use @ mentions.

@@ -24,7 +24,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function PlanningJobMenu(props) {
-  const { anchorEl, recordPositionToggle, marketId, investibleId, stageId, openForInvestment } = props;
+  const { anchorEl, recordPositionToggle, marketId, investibleId, stageId, openForInvestment, isBlocked } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, invDispatch] = useContext(InvestiblesContext);
@@ -96,7 +96,7 @@ function PlanningJobMenu(props) {
         classes={{ paper: classes.paperMenu }}
         style={{padding: '1rem'}}
       >
-        {(stageId !== backlogStageId || !openForInvestment) && (
+        {(stageId !== backlogStageId || !openForInvestment) && !isBlocked && (
           <MenuItem key="backlogReadyToStartKey" id="backlogReadyToStartId"
                     onClick={(event) => {
                       preventDefaultAndProp(event);

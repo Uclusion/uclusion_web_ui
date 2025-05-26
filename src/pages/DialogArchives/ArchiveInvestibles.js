@@ -68,7 +68,7 @@ const myArchiveClasses = makeStyles(
 
 function ArchiveInvestible(props) {
   const { name, id, stageId, marketId, allowDragDrop, onDragStart, enteredStageAt, TypeIconList, assignedNames,
-    classes, openForInvestment, viewIndicator='' } = props;
+    classes, openForInvestment, viewIndicator='', isBlocked } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const intl = useIntl();
   const history = useHistory();
@@ -86,7 +86,7 @@ function ArchiveInvestible(props) {
   return (
     <React.Fragment key={`frag${id}`}>
       {anchorEl && (
-        <PlanningJobMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle}
+        <PlanningJobMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} isBlocked={isBlocked}
                          openForInvestment={openForInvestment}  stageId={stageId} marketId={marketId}
                          investibleId={id} />
       )}
@@ -307,6 +307,7 @@ function ArchiveInvestbiles(props) {
 
       const ticketNumber = getTicketNumber(ticketCode, isAutonomous, groupId === viewGroupId);
       return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId}
+                                isBlocked={!_.isEmpty(blockedComments)}
                                 allowDragDrop={allowDragDrop&&isMember} onDragStart={onDragStart}
                                 enteredStageAt={enteredStageAt}
                                 TypeIconList={TypeIconList} assignedNames={assignedNames}

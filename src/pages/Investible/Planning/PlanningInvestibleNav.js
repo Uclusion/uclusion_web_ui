@@ -97,8 +97,7 @@ export default function PlanningInvestibleNav(props) {
   const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
-  const unacceptedAssignment = findMessageOfType('UNREAD_JOB_APPROVAL_REQUEST', investibleId, messagesState);
-  const unaccepted = unacceptedAssignment && isAssigned && !accepted?.includes(userId);
+  const unaccepted = isAssigned && !accepted?.includes(userId);
 
   function onDeleteFile(path) {
     return deleteAttachedFilesFromInvestible(market.id, investibleId, [path]).then((investible) => {

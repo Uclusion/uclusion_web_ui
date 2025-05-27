@@ -18,15 +18,11 @@ import { usePlanFormStyles } from '../../../components/AgilePlan'
 import {
   getGroupPresences,
   getMarketPresences, isAutonomousGroup,
-  removeInvestibleInvestments
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import Chip from '@material-ui/core/Chip';
-import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
-import {
-  getInvestible,
-  refreshInvestibles
-} from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { stageChangeInvestible } from '../../../api/investibles';
+import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { getMarketInfo } from '../../../utils/userFunctions'
@@ -195,25 +191,7 @@ function PlanningIdeas(props) {
       const investible = getInvestible(invState, investibleId);
       const marketInfo = getMarketInfo(investible, marketId);
       const { assigned } = marketInfo;
-      const isAssigned = (assigned || []).includes(presenceId);
-      if (isAssigned) {
-        stageChange(event, inDialogStageId, assigned);
-      } else if (!operationRunning && !isAssigned) {
-        // Assignment can be changed at any time to anyone not already assigned when moving into voting
-        const assignments = [presenceId];
-        const updateInfo = {
-          marketId,
-          investibleId,
-          assignments,
-        };
-        setOperationRunning(true);
-        updateInvestible(updateInfo)
-          .then((fullInvestible) => {
-            refreshInvestibles(invDispatch, diffDispatch, [fullInvestible]);
-            removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
-            setOperationRunning(false);
-          });
-      }
+      return stageChange(event, inDialogStageId, assigned);
     }
   }
 

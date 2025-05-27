@@ -132,7 +132,7 @@ function ChooseJob(props) {
           <ListItemText style={{width: '80%'}}>
             <TextField
               className={classes.search}
-              placeholder="Search in this group"
+              placeholder="Search in this view"
               onChange={onSearchChange}
               InputProps={{
                 startAdornment: (

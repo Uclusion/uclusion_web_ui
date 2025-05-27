@@ -15,8 +15,6 @@ import { wizardStyles } from '../WizardStylesContext';
 import { wizardFinish } from '../InboxWizardUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
-import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { onCommentsMove } from '../../../utils/commentFunctions';
 
 function FindJobStep(props) {
@@ -26,13 +24,11 @@ function FindJobStep(props) {
   const [commentState, commentsDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [groupState] = useContext(MarketGroupsContext);
   const { investibleId } = formData;
   const commentRoot = getComment(commentState, marketId, commentId) || {id: 'fake'};
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const groupId = commentRoot.group_id;
-  const group = getGroup(groupState, marketId, groupId) || {};
 
   function myTerminate() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -60,7 +56,7 @@ function FindJobStep(props) {
       isLarge
     >
         <Typography className={classes.introText} variant="h6">
-          Which job in group {group.name}?
+          Move to which job?
         </Typography>
         <ChooseJob
           marketId={marketId}

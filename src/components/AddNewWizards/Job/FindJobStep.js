@@ -8,8 +8,6 @@ import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPa
 import { useHistory } from 'react-router';
 import _ from 'lodash';
 import ChooseJob from '../../Search/ChooseJob';
-import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 
@@ -17,10 +15,8 @@ function FindJobStep(props) {
   const { marketId, groupId, updateFormData, formData, startOver, moveFromComments, roots, isConvert, useType } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
-  const [groupState] = useContext(MarketGroupsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const { investibleId } = formData;
-  const group = getGroup(groupState, marketId, groupId) || {};
   const currentInvestibleId = roots[0].investible_id;
 
   function onTerminate() {
@@ -49,7 +45,7 @@ function FindJobStep(props) {
       isLarge
     >
         <Typography className={classes.introText} variant="h6">
-          Which job in group {group.name}?
+          Move to which job?
         </Typography>
         {useType && (
           <Typography className={classes.introSubText} variant="subtitle1">

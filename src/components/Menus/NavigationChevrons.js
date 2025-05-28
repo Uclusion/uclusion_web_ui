@@ -95,7 +95,7 @@ export default function NavigationChevrons() {
       const inProgress = investibleComments.find((comment) => comment.in_progress);
       const candidate = getInvestibleCandidate(investible, market, navigations);
       if (inProgress) {
-        candidate.url = formCommentLink(market.id, inProgress.group_id, inProgress.investible_id, inProgress.id);
+        candidate.useUrl = formCommentLink(market.id, inProgress.group_id, inProgress.investible_id, inProgress.id);
       }
       candidate.numInProgress = _.isEmpty(inProgress) ? 0 : 1;
       approvedCandidates.push(candidate);
@@ -171,7 +171,7 @@ export default function NavigationChevrons() {
       // Allowed to go to previous here so can cycle through in progress assignments
       const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource);
       if (approvedNext) {
-        return {url: approvedNext.url};
+        return {url: approvedNext.url, useUrl: approvedNext.useUrl};
       }
     }
     // It's okay not reaching here when have multiple approved investibles - when only one will reach
@@ -235,7 +235,7 @@ export default function NavigationChevrons() {
       dehighlightMessage(nextUrl.message, messagesDispatch);
     }
     messagesDispatch(addNavigation(nextUrl.url, allExistingUrls));
-    navigate(history, nextUrl.url);
+    navigate(history, nextUrl.useUrl || nextUrl.url);
   }
 
   useHotkeys('ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled, enableOnContentEditable: true},

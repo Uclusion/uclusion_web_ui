@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import { makeStyles, Menu, MenuItem, Tooltip } from '@material-ui/core';
 import { useIntl } from 'react-intl';
-import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
+import { formWizardLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import {
+  getAcceptedStage,
   getFullStage,
-  getFurtherWorkStage,
+  getFurtherWorkStage, getInCurrentVotingStage, getInReviewStage,
   getNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
@@ -16,6 +17,8 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { UNASSIGNED_TYPE } from '../../../constants/notifications';
+import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -24,7 +27,8 @@ const useStyles = makeStyles(() => ({
 }));
 
 function PlanningJobMenu(props) {
-  const { anchorEl, recordPositionToggle, marketId, investibleId, stageId, openForInvestment, isBlocked } = props;
+  const { anchorEl, recordPositionToggle, marketId, investibleId, stageId, openForInvestment, isBlocked,
+    needsAssist } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, invDispatch] = useContext(InvestiblesContext);
@@ -33,9 +37,13 @@ function PlanningJobMenu(props) {
   const [, diffDispatch] = useContext(DiffContext);
   const classes = useStyles();
   const intl = useIntl();
+  const history = useHistory();
   const backlogStage = getFurtherWorkStage(marketStagesState, marketId);
   const backlogStageId = backlogStage?.id;
   const notDoingStageId = getNotDoingStage(marketStagesState, marketId)?.id;
+  const acceptedStageId = getAcceptedStage(marketStagesState, marketId)?.id;
+  const invotingStageId = getInCurrentVotingStage(marketStagesState, marketId)?.id;
+  const tasksCompleteStageId = getInReviewStage(marketStagesState, marketId)?.id;
 
   function stageChange(targetStageId, readyToStart) {
     if (!operationRunning) {
@@ -126,6 +134,56 @@ function PlanningJobMenu(props) {
             <Tooltip placement='top' title={intl.formatMessage({ id: 'notReadyToolTip' })}>
               <div>
                 {intl.formatMessage({ id: 'backlogNotReadyToStartHeader' })}
+              </div>
+            </Tooltip>
+          </MenuItem>
+        )}
+        {stageId === backlogStageId && (
+          <MenuItem key="planningInvestibleNextStageAcceptedKey" id="planningInvestibleNextStageAcceptedId"
+                    onClick={(event) => {
+                      preventDefaultAndProp(event);
+                      if (isBlocked || needsAssist) {
+                        return navigate(history,
+                          `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${acceptedStageId}`);
+                      }
+                      return stageChange(acceptedStageId).then(() => recordPositionToggle());
+                    }}
+          >
+            <Tooltip placement='top' title={intl.formatMessage({ id: 'JobAssignStart' })}>
+              <div>
+                {intl.formatMessage({ id: 'planningInvestibleNextStageAcceptedLabel' })}
+              </div>
+            </Tooltip>
+          </MenuItem>
+        )}
+        {stageId === backlogStageId && (
+          <MenuItem key="planningInvestibleToVotingKey" id="planningInvestibleToVotingId"
+                    onClick={(event) => {
+                      preventDefaultAndProp(event);
+                      if (isBlocked || needsAssist) {
+                        return navigate(history,
+                          `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${invotingStageId}`);
+                      }
+                      return stageChange(invotingStageId).then(() => recordPositionToggle());
+                    }}
+          >
+            <Tooltip placement='top' title={intl.formatMessage({ id: 'JobAssignWaiting' })}>
+              <div>
+                {intl.formatMessage({ id: 'planningInvestibleToVotingLabel' })}
+              </div>
+            </Tooltip>
+          </MenuItem>
+        )}
+        {stageId === backlogStageId && (
+          <MenuItem key="planningInvestibleMoveToVerifiedKey" id="planningInvestibleMoveToVerifiedId"
+                    onClick={(event) => {
+                      preventDefaultAndProp(event);
+                      return stageChange(tasksCompleteStageId).then(() => recordPositionToggle());
+                    }}
+          >
+            <Tooltip placement='top' title={intl.formatMessage({ id: 'allDone' })}>
+              <div>
+                {intl.formatMessage({ id: 'planningInvestibleMoveToVerifiedLabel' })}
               </div>
             </Tooltip>
           </MenuItem>

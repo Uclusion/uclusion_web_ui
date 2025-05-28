@@ -44,6 +44,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
+import { getMarketInfo } from '../../utils/userFunctions';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: isOutbox ? formInboxItemLink({id: investible.investible.id})  :
@@ -100,11 +101,19 @@ export default function NavigationChevrons() {
       candidate.numInProgress = _.isEmpty(inProgress) ? 0 : 1;
       approvedCandidates.push(candidate);
     });
-    inVotingInvestibles?.forEach((investible) => {
-      const candidate = getInvestibleCandidate(investible, market, navigations, true);
-      outboxCandidates.push(candidate);
-    });
     const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
+    inVotingInvestibles?.forEach((investible) => {
+      const marketInfo = getMarketInfo(investible,  market.id);
+      const { group_id: invGroupId, required_approvers: requiredApprovers } = marketInfo;
+      const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id, invGroupId) || [];
+      const group = getGroup(groupsState, market.id, invGroupId);
+      const isAutonomous = isAutonomousGroup(groupPresences, group);
+      // Here and in getOutboxMessages should be checking for
+      if (!isAutonomous || !_.isEmpty(requiredApprovers)) {
+        const candidate = getInvestibleCandidate(investible, market, navigations, true);
+        outboxCandidates.push(candidate);
+      }
+    });
     const openPlanningComments = questions?.concat(issues).concat(suggestions).concat(bugs);
     openPlanningComments?.forEach((comment) => {
       const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id, comment.group_id) || [];

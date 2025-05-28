@@ -388,7 +388,7 @@ export function getOutboxMessages(props) {
         marketInfo.group_id) || [];
       const group = getGroup(groupsState, market.id, marketInfo.group_id);
       const isAutonomous = isAutonomousGroup(groupPresences, group);
-      if (!isAutonomous) {
+      if (!isAutonomous || !_.isEmpty(marketInfo.required_approvers)) {
         const investibleId = investible.investible.id;
         const notAccepted = investible.notAccepted;
         const label = notAccepted ? 'planningUnacceptedLabel' : 'startJobQ';

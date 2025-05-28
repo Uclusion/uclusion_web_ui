@@ -383,31 +383,23 @@ function PlanningDialog(props) {
     } else {
       const inv = getInvestible(investibleState, id);
       const marketInfo = getMarketInfo(inv, marketId) || {};
+      const { stage, group_id: currentGroupId } = marketInfo;
       // For now do nothing silently if dragging another view's job to an autonomous backlog
-      if (marketInfo.group_id === groupId) {
-        if (marketInfo.stage !== furtherWorkStage.id) {
-          const moveInfo = {
-            marketId,
-            investibleId: id,
-            stageInfo: {
-              current_stage_id: marketInfo.stage,
-              stage_id: furtherWorkStage.id,
-            },
-          };
-          const isBlocked = marketInfo.stage === inBlockingStage.id;
-          setOperationRunning(true);
-          return stageChangeInvestible(moveInfo)
-            .then((newInv) => {
-              onInvestibleStageChange(furtherWorkStage.id, newInv, id, marketId, commentsState,
-                commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
-                getFullStage(marketStagesState, marketId, marketInfo.stage), marketPresencesDispatch);
-              setOperationRunning(false);
+      if (currentGroupId === groupId) {
+        if (stage !== furtherWorkStage.id) {
+          const isBlocked = stage === inBlockingStage.id;
+          if (isBlocked || stage === requiresInputStage.id) {
+            return changeInvestibleReady(id, stage, false).then(() => {
               if (!isBlocked) {
                 navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}&isAssign=${isAssigned}`);
               }
             });
+          } else {
+            // A job dragged from swimlanes to backlog is Not Ready, or it would be dragged to Next instead
+            return changeInvestibleReady(id, stage, false);
+          }
         } else {
-          const { open_for_investment: openForInvestment, stage } = marketInfo;
+          const { open_for_investment: openForInvestment } = marketInfo;
           if (openForInvestment) {
             return changeInvestibleReady(id, stage, false);
           } else {

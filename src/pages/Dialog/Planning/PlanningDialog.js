@@ -49,6 +49,7 @@ import InvestiblesByPerson from './InvestiblesByPerson';
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
 import SubSection from '../../../containers/SubSection/SubSection';
 import {
+  addMarketComments,
   filterToRoot,
   getInvestibleComments,
   getMarketComments
@@ -329,7 +330,7 @@ function PlanningDialog(props) {
     navigate(history, bugBaseUrl);
   }
 
-  function changeInvestibleReady(id, stage, openForInvestment) {
+  function changeInvestibleReady(id, stage, openForInvestment, resolveCommentIds) {
     const moveInfo = {
       marketId,
       investibleId: id,
@@ -339,14 +340,34 @@ function PlanningDialog(props) {
         open_for_investment: openForInvestment
       },
     };
+    if (resolveCommentIds) {
+      moveInfo.stageInfo.resolve_comment_ids = resolveCommentIds;
+    }
     setOperationRunning(true);
     return stageChangeInvestible(moveInfo)
-      .then((newInv) => {
+      .then((response) => {
+        let newInv;
+        if (resolveCommentIds) {
+          const {full_investible: fullInvestible, comments: resolvedComments } = response;
+          newInv = fullInvestible;
+          addMarketComments(commentsDispatch, marketId, resolvedComments);
+        } else {
+          newInv = response;
+        }
         onInvestibleStageChange(furtherWorkStage.id, newInv, id, marketId, commentsState,
           commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
           getFullStage(marketStagesState, marketId, stage), marketPresencesDispatch);
         setOperationRunning(false);
       });
+  }
+
+  function getAssistCommentIds(investibleId) {
+    const allAssistComments = marketComments.filter((comment) => comment.investible_id === investibleId
+      && !comment.resolved && [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
+    if (_.isEmpty(allAssistComments)) {
+      return undefined;
+    }
+    return allAssistComments.map((comment) => comment.id);
   }
 
   function onDropJob(id, isAssigned) {
@@ -387,29 +408,18 @@ function PlanningDialog(props) {
       // For now do nothing silently if dragging another view's job to an autonomous backlog
       if (currentGroupId === groupId) {
         if (stage !== furtherWorkStage.id) {
-          const isBlocked = stage === inBlockingStage.id;
-          if (isBlocked || stage === requiresInputStage.id) {
-            return changeInvestibleReady(id, stage, false).then(() => {
-              if (!isBlocked) {
-                navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}&isAssign=${isAssigned}`);
-              }
-            });
-          } else {
-            // A job dragged from swimlanes to backlog is Not Ready, or it would be dragged to Next instead
-            return changeInvestibleReady(id, stage, false);
-          }
+          // A job dragged from swimlanes to backlog is Not Ready, or it would be dragged to Next instead
+          // A job in Next / Assist and dragged to backlog means the user doesn't want it in Next / Assist anymore
+          // Silently resolve any comments that keep it in assist cause otherwise the job stays and is too confusing
+          return changeInvestibleReady(id, stage, false, getAssistCommentIds(id));
         } else {
           const { open_for_investment: openForInvestment } = marketInfo;
           if (openForInvestment) {
-            return changeInvestibleReady(id, stage, false);
+            // Same thing here need to close anything that would keep it in assist
+            return changeInvestibleReady(id, stage, false, getAssistCommentIds(id));
           } else {
-            const invComments = getInvestibleComments(id, marketId, commentsState);
-            const isBlocked = invComments.find((comment) => !comment.resolved && comment.comment_type === ISSUE_TYPE);
-            if (isBlocked) {
-              navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}`);
-            } else {
-              return changeInvestibleReady(id, stage, true);
-            }
+            // We can't say for certain what is desired here so just go to wizard
+            navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${furtherWorkStage.id}`);
           }
         }
       }

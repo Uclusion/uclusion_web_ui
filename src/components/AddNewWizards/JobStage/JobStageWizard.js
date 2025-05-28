@@ -76,12 +76,9 @@ function JobStageWizard(props) {
     if (isTerminate || !requiresAction((fullMoveStage))) {
       if (!isTerminate && fullMoveStage && (isNotDoingStage(fullMoveStage) || isInReviewStage(fullMoveStage))) {
         navigate(history, formMarketLink(marketId, groupId));
-      } else {
-        if (fullMoveStage && isAcceptedStage(fullMoveStage)) {
-          navigate(history, `${formInvestibleLink(marketId, investibleId)}#start`);
-        } else {
-          navigate(history, formInvestibleLink(marketId, investibleId));
-        }
+      } else if (fullMoveStage && isAcceptedStage(fullMoveStage)) {
+        // if not starting the job then just stay on whatever page you are on
+        navigate(history, `${formInvestibleLink(marketId, investibleId)}#start`);
       }
     }
   }

@@ -45,6 +45,7 @@ import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { getMarketInfo } from '../../utils/userFunctions';
+import { REPLY_TYPE } from '../../constants/comments';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: isOutbox ? formInboxItemLink({id: investible.investible.id})  :
@@ -93,7 +94,8 @@ export default function NavigationChevrons() {
       comments } = workspaceData;
     approvedInvestibles?.forEach((investible) => {
       const investibleComments = getOpenInvestibleComments(investible.investible.id, comments);
-      const inProgress = investibleComments.find((comment) => comment.in_progress);
+      const inProgress = investibleComments.find((comment) => comment.in_progress &&
+        comment.comment_type !== REPLY_TYPE && !comment.resolved);
       const candidate = getInvestibleCandidate(investible, market, navigations);
       if (inProgress) {
         candidate.useUrl = formCommentLink(market.id, inProgress.group_id, inProgress.investible_id, inProgress.id);

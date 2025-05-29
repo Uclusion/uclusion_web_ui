@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import cx from 'clsx';
 import styled from 'styled-components';
 import { Box, IconButton, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
@@ -27,6 +27,7 @@ import { useHistory } from 'react-router';
 import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
+import BugMenu from './BugMenu';
 
 const Div = styled("div")`
   height: 40px;
@@ -136,6 +137,7 @@ function BugListItem(props) {
     determinateDispatch,
     bugListDispatch,
     id,
+    marketId,
     expansionPanel,
     expansionOpen,
     useSelect,
@@ -147,6 +149,9 @@ function BugListItem(props) {
     toolTipId
   } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mouseX, setMouseX] = useState();
+  const [mouseY, setMouseY] = useState();
   const theme = useTheme();
   const intl = useIntl();
   const history = useHistory();
@@ -159,6 +164,17 @@ function BugListItem(props) {
     const { alert_type: alertType, poked_list: pokedList } = msg || {};
     return !_.isEmpty(pokedList) ? pokedList.includes(id) : alertType === POKED;
   }));
+
+  const recordPositionToggle = (event) => {
+    if (anchorEl === null) {
+      preventDefaultAndProp(event);
+      setAnchorEl(event.currentTarget);
+      setMouseX(event.clientX);
+      setMouseY(event.clientY);
+    } else {
+      setAnchorEl(null);
+    }
+  };
 
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
@@ -173,7 +189,11 @@ function BugListItem(props) {
       <Title style={{fontSize: smallFont ? '12px' : undefined}}>{title}</Title></Tooltip> :
     <Title style={{fontSize: smallFont ? '12px' : undefined}}>{title}</Title>;
   return (
-    <React.Fragment key={`fragBugListItem${id}`}>
+    <div key={`fragBugListItem${id}`} onContextMenu={recordPositionToggle}>
+      {anchorEl && marketId && (
+        <BugMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} marketId={marketId}
+                 commentId={id} notificationType={notificationType} mouseX={mouseX} mouseY={mouseY} />
+      )}
       <Item key={`listItem${id}`} id={id} style={{maxWidth: '95%',
         minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
             onDragStart={onDragStart} draggable>
@@ -284,7 +304,7 @@ function BugListItem(props) {
       {!mobileLayout && (
         <DragImage id={id} name={title} />
       )}
-    </React.Fragment>
+    </div>
   );
 }
 

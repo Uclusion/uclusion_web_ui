@@ -1,7 +1,11 @@
 import React, { useContext } from 'react';
-import { ListSubheader, makeStyles, Menu, MenuItem, Tooltip } from '@material-ui/core';
+import { ListItemIcon, ListItemText, ListSubheader, makeStyles, Menu, MenuItem, Tooltip } from '@material-ui/core';
 import { useIntl } from 'react-intl';
-import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
+import {
+  formMarketAddInvestibleLink,
+  navigate,
+  preventDefaultAndProp
+} from '../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
@@ -9,6 +13,8 @@ import { removeMessagesForCommentId } from '../../utils/messageUtils';
 import { updateComment } from '../../api/comments';
 import { addCommentToMarket } from '../../contexts/CommentsContext/commentsContextHelper';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
+import AddIcon from '@material-ui/icons/Add';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -20,12 +26,13 @@ const useStyles = makeStyles(() => ({
 }));
 
 function BugMenu(props) {
-  const { anchorEl, recordPositionToggle, marketId, commentId, notificationType, mouseX, mouseY } = props;
+  const { anchorEl, recordPositionToggle, marketId, commentId, groupId, notificationType, mouseX, mouseY } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [messagesState] = useContext(NotificationsContext);
   const classes = useStyles();
   const intl = useIntl();
+  const history = useHistory();
   const isCritical = notificationType === RED_LEVEL;
   const isNormal = notificationType === YELLOW_LEVEL;
   const isMinor = notificationType === BLUE_LEVEL;
@@ -101,6 +108,20 @@ function BugMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
+        <MenuItem key="newJobKey" id="newJobId"
+                  onClick={(event) => {
+                    preventDefaultAndProp(event);
+                    recordPositionToggle();
+                    return navigate(history, `${formMarketAddInvestibleLink(marketId, groupId)}&fromCommentId=${commentId}&isNewJob=true`);
+                  }}
+        >
+          <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><AddIcon fontSize="small" /></ListItemIcon>
+          <Tooltip placement='top' title={intl.formatMessage({ id: 'moveNewJob' })}>
+            <ListItemText>
+              {intl.formatMessage({ id: 'JobWizardNewJob' })}
+            </ListItemText>
+          </Tooltip>
+        </MenuItem>
       </Menu>
   );
 }

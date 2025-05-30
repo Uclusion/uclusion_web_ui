@@ -1220,6 +1220,7 @@ const messages = defineMessages({
   moveTodoRed: 'Move to critical bug',
   moveTodoYellow: 'Move to normal bug',
   moveTodoBlue: 'Move to minor bug',
+  moveNewJob: 'Move to new job',
   startTodo: 'Start bug',
   startJob: 'Accept job',
   assignStartJob: 'Accept and skip voting',

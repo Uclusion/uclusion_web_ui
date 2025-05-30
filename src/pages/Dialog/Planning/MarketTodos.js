@@ -319,7 +319,7 @@ function MarketTodos(props) {
       return (
         <BugListItem id={id} key={id} replyNum={replies.length + 1} title={stripHTML(body)}
                      newMessages={getNewBugNotifications(comment, messagesState)}
-                     date={intl.formatDate(updatedAt)} marketId={marketId}
+                     date={intl.formatDate(updatedAt)} marketId={marketId} groupId={groupId}
                      useSelect={!isInArchives} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}
                      bugListDispatch={bugDispatch} notificationType={notificationType} />

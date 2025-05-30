@@ -41,7 +41,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 
 function JobWizard(props) {
-  const { marketId, groupId, jobType, useType } = props;
+  const { marketId, groupId, jobType, useType, isNewJob } = props;
   const [modifiedId, setModifiedId] = useState(undefined);
   const location = useLocation();
   const history = useHistory();
@@ -62,11 +62,11 @@ function JobWizard(props) {
   const comments = marketId ? getMarketComments(commentsState, marketId, groupId) : [];
   const roots = (fromCommentIds || []).map((fromCommentId) =>
     comments.find((comment) => comment.id === fromCommentId));
-  const isReplyConvert = roots.length > 0 && roots[0].comment_type === REPLY_TYPE;
-  const isConvert = isReplyConvert || (roots.length > 0 && ((roots[0].comment_type === TODO_TYPE &&
-    useType === 'Suggestion')||(roots[0].comment_type === SUGGEST_CHANGE_TYPE && useType === 'Task')));
+  const isReplyConvert = roots.length > 0 && roots[0]?.comment_type === REPLY_TYPE;
+  const isConvert = isReplyConvert || (roots.length > 0 && ((roots[0]?.comment_type === TODO_TYPE &&
+    useType === 'Suggestion')||(roots[0]?.comment_type === SUGGEST_CHANGE_TYPE && useType === 'Task')));
   const isAssistanceMove = roots.length > 0 &&
-    [SUGGEST_CHANGE_TYPE, QUESTION_TYPE, ISSUE_TYPE].includes(roots[0].comment_type);
+    [SUGGEST_CHANGE_TYPE, QUESTION_TYPE, ISSUE_TYPE].includes(roots[0]?.comment_type);
 
   function onFinish(formData) {
     const { link } = formData;
@@ -79,15 +79,15 @@ function JobWizard(props) {
     let myDoTaskId = doTaskId;
     let replyId;
     if (isConvert) {
-      myDoTaskId = roots[0].id;
-      replyId = roots[0].reply_id;
+      myDoTaskId = roots[0]?.id;
+      replyId = roots[0]?.reply_id;
     }
     const isSuggestion = useType === 'Suggestion';
     const { investible } = inv;
     const investibleId = investible.id;
     const movingComments = getCommentThreads(roots, comments);
-    const fromInv = isAssistanceMove && roots[0].investible_id ?
-      getInvestible(investiblesState, roots[0].investible_id) : undefined;
+    const fromInv = isAssistanceMove && roots[0]?.investible_id ?
+      getInvestible(investiblesState, roots[0]?.investible_id) : undefined;
     return moveComments(marketId, investibleId, fromCommentIds, doResolveId ? [doResolveId]: undefined,
       myDoTaskId && !isSuggestion ? [myDoTaskId] : undefined,
       isSuggestion && myDoTaskId ? [myDoTaskId] : undefined)
@@ -102,7 +102,7 @@ function JobWizard(props) {
               movedComments[0].updated_at, marketStagesState);
           }
           if (isExistingToInv) {
-            const investibleBlocks = roots[0].comment_type === ISSUE_TYPE;
+            const investibleBlocks = roots[0]?.comment_type === ISSUE_TYPE;
             changeInvestibleStageOnCommentOpen(investibleBlocks, !investibleBlocks, marketStagesState,
               inv.market_infos, inv.investible, investibleDispatch, movedComments[0], myPresence);
           }
@@ -157,12 +157,12 @@ function JobWizard(props) {
         {requiresInputId && (
           <ResolveCommentsStep marketId={marketId} commentId={requiresInputId} marketComments={comments} />
         )}
-        {fromCommentId && (
+        {fromCommentId && isNewJob === undefined && (
           <DecideWhereStep fromCommentIds={fromCommentIds} marketId={marketId} groupId={groupId}
                            useType={isConvert ? useType : undefined}
                            marketComments={comments} isDiscussion={!_.isEmpty(requiresInputId)} />
         )}
-        {fromCommentId && (
+        {fromCommentId && isNewJob !== 'true' && (
           <FindJobStep marketId={marketId} groupId={groupId} roots={roots} isConvert={isConvert}
                        useType={isConvert ? useType : undefined}
                        moveFromComments={fromCommentIds ? moveFromComments : undefined}/>

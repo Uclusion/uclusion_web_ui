@@ -138,6 +138,7 @@ function BugListItem(props) {
     bugListDispatch,
     id,
     marketId,
+    groupId,
     expansionPanel,
     expansionOpen,
     useSelect,
@@ -191,7 +192,7 @@ function BugListItem(props) {
   return (
     <div key={`fragBugListItem${id}`} onContextMenu={recordPositionToggle}>
       {anchorEl && marketId && (
-        <BugMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} marketId={marketId}
+        <BugMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} marketId={marketId} groupId={groupId}
                  commentId={id} notificationType={notificationType} mouseX={mouseX} mouseY={mouseY} />
       )}
       <Item key={`listItem${id}`} id={id} style={{maxWidth: '95%',

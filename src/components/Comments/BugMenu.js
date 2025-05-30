@@ -14,6 +14,9 @@ const useStyles = makeStyles(() => ({
   paperMenu: {
     border: '0.5px solid grey',
   },
+  listSubHeaderRoot: {
+    lineHeight: '30px',
+  }
 }));
 
 function BugMenu(props) {
@@ -30,7 +33,7 @@ function BugMenu(props) {
   function moveToComment(newNotificationType) {
     setOperationRunning(true);
     removeMessagesForCommentId(commentId, messagesState);
-    return updateComment({marketId, commentId, newNotificationType})
+    return updateComment({marketId, commentId, notificationType: newNotificationType})
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
         return comment;
@@ -41,7 +44,7 @@ function BugMenu(props) {
 
   return (
       <Menu
-        id="job-menu"
+        id="bug-menu"
         open
         onClose={recordPositionToggle}
         getContentAnchorEl={null}
@@ -54,9 +57,22 @@ function BugMenu(props) {
         anchorEl={anchorEl}
         disableRestoreFocus
         classes={{ paper: classes.paperMenu }}
-        style={{padding: '1rem'}}
       >
-        <ListSubheader>Move to</ListSubheader>
+        <ListSubheader classes={{root:classes.listSubHeaderRoot}}>Move to</ListSubheader>
+        {!isCritical && (
+          <MenuItem key="moveTodoRedKey" id="moveTodoRedId"
+                    onClick={(event) => {
+                      preventDefaultAndProp(event);
+                      return moveToComment(RED_LEVEL).then(() => recordPositionToggle());
+                    }}
+          >
+            <Tooltip placement='top' title={intl.formatMessage({ id: 'moveTodoRed' })}>
+              <div>
+                {intl.formatMessage({ id: 'immediate' })}
+              </div>
+            </Tooltip>
+          </MenuItem>
+        )}
         {!isNormal && (
           <MenuItem key="moveTodoYellowKey" id="moveTodoYellowId"
                     onClick={(event) => {
@@ -81,20 +97,6 @@ function BugMenu(props) {
             <Tooltip placement='top' title={intl.formatMessage({ id: 'moveTodoBlue' })}>
               <div>
                 {intl.formatMessage({ id: 'convenient' })}
-              </div>
-            </Tooltip>
-          </MenuItem>
-        )}
-        {!isCritical && (
-          <MenuItem key="moveTodoRedKey" id="moveTodoRedId"
-                    onClick={(event) => {
-                      preventDefaultAndProp(event);
-                      return moveToComment(RED_LEVEL).then(() => recordPositionToggle());
-                    }}
-          >
-            <Tooltip placement='top' title={intl.formatMessage({ id: 'moveTodoRed' })}>
-              <div>
-                {intl.formatMessage({ id: 'immediate' })}
               </div>
             </Tooltip>
           </MenuItem>

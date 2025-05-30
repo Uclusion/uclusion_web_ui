@@ -1317,6 +1317,8 @@ const messages = defineMessages({
   JobAssignBacklog: 'Move to Backlog',
   JobAssignWaiting: 'Move to Waiting / Approval',
   JobWizardReady: 'Backlog ready to assign',
+  moveToReady: 'Move to ready to assign',
+  moveToNotReady: 'Move to not ready',
   JobWizardNoAssign: 'Backlog not ready',
   skipAllApprovals: 'Skip all approvals',
   useApprovals: 'Use approvals',

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
@@ -17,6 +17,7 @@ import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
+import BacklogMenu from './BacklogMenu';
 
 const Item = styled("div")`
   margin-bottom: 1px;
@@ -95,14 +96,30 @@ function BacklogListItem(props) {
     date,
     id,
     marketId,
-    people
+    people,
+    openForInvestment
   } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mouseX, setMouseX] = useState();
+  const [mouseY, setMouseY] = useState();
   const intl = useIntl();
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const isNew = !_.isEmpty(newMessages);
+
+  const recordPositionToggle = (event) => {
+    if (anchorEl === null) {
+      preventDefaultAndProp(event);
+      setAnchorEl(event.currentTarget);
+      setMouseX(event.clientX);
+      setMouseY(event.clientY);
+    } else {
+      setAnchorEl(null);
+    }
+  };
+
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
     if (dragImage) {
@@ -115,7 +132,12 @@ function BacklogListItem(props) {
 
   return (
     <>
-      <Item key={`backlogListItem${id}`} id={id} style={{minWidth: '80vw'}} onDragStart={onDragStart} draggable>
+      <Item key={`backlogListItem${id}`} id={id} style={{minWidth: '80vw'}} onDragStart={onDragStart} draggable
+            onContextMenu={recordPositionToggle}>
+        {anchorEl && marketId && (
+          <BacklogMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} marketId={marketId}
+                       investibleId={id} openForInvestment={openForInvestment} mouseX={mouseX} mouseY={mouseY} />
+        )}
         <RaisedCard elevation={3} rowStyle key={`raised${id}`} maxWidth='96%'>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
                onClick={

@@ -200,9 +200,11 @@ function BacklogItem(props) {
   const collaboratorsForInvestible = singleUser && _.size(collaboratorsForInvestibleRaw) === 1 ?
     collaboratorsForInvestibleRaw.filter((collaborator) => collaborator.id !== singleUser.id) :
     collaboratorsForInvestibleRaw;
+  const marketInfo = getMarketInfo(inv, marketId);
+  const { open_for_investment: openForInvestment } = marketInfo || {}
   return (
     <BacklogListItem id={investible.id} title={investible.name} date={intl.formatDate(investible.created_at)}
-                     description={stripHTML(investible.description)}
+                     description={stripHTML(investible.description)} openForInvestment={openForInvestment}
                      newMessages={getNewMessages(inv, messagesState)}
                      marketId={marketId} people={collaboratorsForInvestible} />
   );

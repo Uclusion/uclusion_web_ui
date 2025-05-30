@@ -20,6 +20,7 @@ import { NotificationsContext } from '../../contexts/NotificationsContext/Notifi
 import AddIcon from '@material-ui/icons/Add';
 import { useHistory } from 'react-router';
 import { onCommentsMove } from '../../utils/commentFunctions';
+import SearchIcon from '@material-ui/icons/Search';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -151,6 +152,20 @@ function BugMenu(props) {
             </MenuItem>
           );
         })}
+        <MenuItem key="jobOtherKey" id="jobOtherId"
+                  onClick={(event) => {
+                    preventDefaultAndProp(event);
+                    recordPositionToggle();
+                    return navigate(history, `${formMarketAddInvestibleLink(marketId, groupId)}&fromCommentId=${commentId}&isNewJob=false`);
+                  }}
+        >
+          <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><SearchIcon fontSize="small" /></ListItemIcon>
+          <Tooltip placement='top' title={intl.formatMessage({ id: 'otherJob' })}>
+            <ListItemText>
+              {intl.formatMessage({ id: 'otherJob' })}
+            </ListItemText>
+          </Tooltip>
+        </MenuItem>
       </Menu>
   );
 }

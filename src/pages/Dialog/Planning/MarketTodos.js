@@ -173,7 +173,8 @@ function MarketTodos(props) {
     hidden,
     isInbox=false,
     openDefaultId,
-    message
+    message,
+    activeInvestibles
   } = props
   const classes = todoClasses();
   const wizardClasses = wizardStyles();
@@ -322,7 +323,8 @@ function MarketTodos(props) {
                      date={intl.formatDate(updatedAt)} marketId={marketId} groupId={groupId}
                      useSelect={!isInArchives} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}
-                     bugListDispatch={bugDispatch} notificationType={notificationType} />
+                     bugListDispatch={bugDispatch} notificationType={notificationType}
+                     activeInvestibles={activeInvestibles}/>
       );
     });
   }

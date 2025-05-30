@@ -206,6 +206,10 @@ function PlanningDialog(props) {
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
     return stage && stage.appears_in_context && stage.allows_tasks;
   });
+  const activeInvestibles = swimlaneInvestibles.filter((inv) => {
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    return marketInfo.assigned?.includes(myPresence.id);
+  });
   const presenceMap = getPresenceMap(marketPresences);
   const isDemo = marketIsDemo(market);
 
@@ -720,7 +724,7 @@ function PlanningDialog(props) {
         </div>
         <MarketTodos comments={unResolvedGroupComments} marketId={marketId} groupId={groupId}
                      sectionOpen={isSectionOpen('marketTodos')}
-                     hidden={hidden}
+                     hidden={hidden} activeInvestibles={activeInvestibles}
                      setSectionOpen={() => {
                        updatePageState({sectionOpen: 'marketTodos', tabIndex: 2});
                      }} group={group} />

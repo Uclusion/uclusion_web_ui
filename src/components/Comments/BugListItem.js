@@ -147,7 +147,8 @@ function BugListItem(props) {
     useMobileLayout = false,
     smallFont = false,
     link,
-    toolTipId
+    toolTipId,
+    activeInvestibles
   } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -193,7 +194,8 @@ function BugListItem(props) {
     <div key={`fragBugListItem${id}`} onContextMenu={recordPositionToggle}>
       {anchorEl && marketId && (
         <BugMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} marketId={marketId} groupId={groupId}
-                 commentId={id} notificationType={notificationType} mouseX={mouseX} mouseY={mouseY} />
+                 commentId={id} notificationType={notificationType} mouseX={mouseX} mouseY={mouseY}
+                 activeInvestibles={activeInvestibles} />
       )}
       <Item key={`listItem${id}`} id={id} style={{maxWidth: '95%',
         minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}

@@ -1,11 +1,14 @@
 import React, { useContext } from 'react';
 import { ListSubheader, makeStyles, Menu, MenuItem, Tooltip } from '@material-ui/core';
 import { useIntl } from 'react-intl';
-import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
+import { formWizardLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { updateInvestible } from '../../api/investibles';
+import { stageChangeInvestible, updateInvestible } from '../../api/investibles';
 import { refreshInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import _ from 'lodash';
+import { JOB_STAGE_WIZARD_TYPE } from '../../constants/markets';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -17,11 +20,13 @@ const useStyles = makeStyles(() => ({
 }));
 
 function BacklogMenu(props) {
-  const { anchorEl, recordPositionToggle, marketId, investibleId, openForInvestment, mouseX, mouseY } = props;
+  const { anchorEl, recordPositionToggle, marketId, investibleId, openForInvestment, mouseX, mouseY,
+    myGroupPresence, isAutonomous, acceptedStageId, stage, inDialogStageId } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useStyles();
   const intl = useIntl();
+  const history = useHistory();
 
   function toggleOpenForInvestment() {
     const updateInfo = {
@@ -34,6 +39,28 @@ function BacklogMenu(props) {
       refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
       setOperationRunning(false);
     });
+  }
+
+  function assignJob() {
+    if (isAutonomous) {
+      const moveInfo = {
+        marketId,
+        investibleId,
+        stageInfo: {
+          current_stage_id: stage,
+          stage_id: !_.isEmpty(myGroupPresence) ? acceptedStageId : inDialogStageId,
+          assignments: [myGroupPresence.id]
+        },
+      };
+      setOperationRunning(true);
+      return stageChangeInvestible(moveInfo)
+        .then((newInv) => {
+          refreshInvestibles(investiblesDispatch, () => {}, [newInv]);
+          setOperationRunning(false);
+        });
+    } else {
+      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&isAssign=true`);
+    }
   }
 
   return (
@@ -81,6 +108,18 @@ function BacklogMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
+        <MenuItem key="assignJobKey" id="assignJobId"
+                  onClick={(event) => {
+                    preventDefaultAndProp(event);
+                    return assignJob().then(() => recordPositionToggle());
+                  }}
+        >
+          <Tooltip placement='top' title={intl.formatMessage({ id: 'moveAssigned' })}>
+            <div>
+              {intl.formatMessage({ id: 'planningInvestibleAssignments' })}
+            </div>
+          </Tooltip>
+        </MenuItem>
       </Menu>
   );
 }

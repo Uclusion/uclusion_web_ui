@@ -1221,6 +1221,7 @@ const messages = defineMessages({
   moveTodoYellow: 'Move to normal bug',
   moveTodoBlue: 'Move to minor bug',
   moveNewJob: 'Move to new job',
+  moveAssigned: 'Move to assigned',
   otherJob: 'Other job',
   moveOtherJob: 'Move to other job',
   startTodo: 'Start bug',

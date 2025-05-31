@@ -40,7 +40,10 @@ function Backlog(props) {
     marketPresences,
     isSingleUser,
     singleUser,
-    hidden
+    hidden,
+    myGroupPresence,
+    acceptedStageId,
+    inDialogStageId
   } = props;
   const { market_id: marketId, id: groupId} = group || {};
   const intl = useIntl();
@@ -181,7 +184,8 @@ function Backlog(props) {
       {data.map((inv) => {
         return (
           <BacklogItem inv={inv} comments={comments} marketPresences={marketPresences} marketId={marketId}
-                       singleUser={singleUser}/>
+                       singleUser={singleUser} myGroupPresence={myGroupPresence} acceptedStageId={acceptedStageId}
+                       inDialogStageId={inDialogStageId} />
         );
       })}
     </div>
@@ -189,7 +193,8 @@ function Backlog(props) {
 }
 
 function BacklogItem(props) {
-  const { inv, comments, marketPresences, marketId, singleUser } = props;
+  const { inv, comments, marketPresences, marketId, singleUser, myGroupPresence, acceptedStageId,
+    inDialogStageId } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const intl = useIntl();
@@ -201,12 +206,13 @@ function BacklogItem(props) {
     collaboratorsForInvestibleRaw.filter((collaborator) => collaborator.id !== singleUser.id) :
     collaboratorsForInvestibleRaw;
   const marketInfo = getMarketInfo(inv, marketId);
-  const { open_for_investment: openForInvestment } = marketInfo || {}
+  const { open_for_investment: openForInvestment, stage } = marketInfo || {}
   return (
     <BacklogListItem id={investible.id} title={investible.name} date={intl.formatDate(investible.created_at)}
                      description={stripHTML(investible.description)} openForInvestment={openForInvestment}
-                     newMessages={getNewMessages(inv, messagesState)}
-                     marketId={marketId} people={collaboratorsForInvestible} />
+                     newMessages={getNewMessages(inv, messagesState)} stage={stage} myGroupPresence={myGroupPresence}
+                     acceptedStageId={acceptedStageId} inDialogStageId={inDialogStageId}
+                     isAutonomous={!_.isEmpty(singleUser)} marketId={marketId} people={collaboratorsForInvestible} />
   );
 }
 

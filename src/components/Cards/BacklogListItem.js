@@ -97,7 +97,12 @@ function BacklogListItem(props) {
     id,
     marketId,
     people,
-    openForInvestment
+    openForInvestment,
+    myGroupPresence,
+    isAutonomous,
+    acceptedStageId,
+    stage,
+    inDialogStageId
   } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -134,9 +139,11 @@ function BacklogListItem(props) {
     <>
       <Item key={`backlogListItem${id}`} id={id} style={{minWidth: '80vw'}} onDragStart={onDragStart} draggable
             onContextMenu={recordPositionToggle}>
-        {anchorEl && marketId && (
+        {anchorEl && (
           <BacklogMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} marketId={marketId}
-                       investibleId={id} openForInvestment={openForInvestment} mouseX={mouseX} mouseY={mouseY} />
+                       myGroupPresence={myGroupPresence} isAutonomous={isAutonomous} acceptedStageId={acceptedStageId}
+                       stage={stage} inDialogStageId={inDialogStageId} investibleId={id}
+                       openForInvestment={openForInvestment} mouseX={mouseX} mouseY={mouseY} />
         )}
         <RaisedCard elevation={3} rowStyle key={`raised${id}`} maxWidth='96%'>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}

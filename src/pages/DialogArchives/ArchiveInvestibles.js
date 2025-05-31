@@ -68,7 +68,7 @@ const myArchiveClasses = makeStyles(
 
 function ArchiveInvestible(props) {
   const { name, id, stageId, marketId, allowDragDrop, onDragStart, enteredStageAt, TypeIconList, assignedNames,
-    classes, openForInvestment, viewIndicator='', isBlocked, needsAssist } = props;
+    classes, openForInvestment, viewIndicator='', isBlocked, needsAssist, groupId, marketPresences } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const intl = useIntl();
   const history = useHistory();
@@ -87,8 +87,8 @@ function ArchiveInvestible(props) {
     <React.Fragment key={`frag${id}`}>
       {anchorEl && (
         <PlanningJobMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} isBlocked={isBlocked}
-                         openForInvestment={openForInvestment}  stageId={stageId} marketId={marketId}
-                         needsAssist={needsAssist} investibleId={id} />
+                         openForInvestment={openForInvestment}  stageId={stageId} marketId={marketId} investibleId={id}
+                         needsAssist={needsAssist} groupId={groupId} marketPresences={marketPresences} />
       )}
       <div
         id={id}
@@ -308,10 +308,10 @@ function ArchiveInvestbiles(props) {
 
       const ticketNumber = getTicketNumber(ticketCode, isAutonomous, groupId === viewGroupId);
       return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId}
-                                isBlocked={!_.isEmpty(blockedComments)}
+                                isBlocked={!_.isEmpty(blockedComments)} groupId={groupId}
                                 needsAssist={!_.isEmpty(suggestionComments)||!_.isEmpty(questionComments)}
                                 allowDragDrop={allowDragDrop&&isMember} onDragStart={onDragStart}
-                                enteredStageAt={enteredStageAt}
+                                enteredStageAt={enteredStageAt} marketPresences={marketPresences}
                                 TypeIconList={TypeIconList} assignedNames={assignedNames}
                                 classes={classes} openForInvestment={openForInvestment} viewIndicator={ticketNumber} />;
     });

@@ -19,6 +19,8 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { UNASSIGNED_TYPE } from '../../../constants/notifications';
 import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -28,13 +30,14 @@ const useStyles = makeStyles(() => ({
 
 function PlanningJobMenu(props) {
   const { anchorEl, recordPositionToggle, marketId, investibleId, stageId, openForInvestment, isBlocked,
-    needsAssist } = props;
+    needsAssist, groupId, marketPresences } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, invDispatch] = useContext(InvestiblesContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, diffDispatch] = useContext(DiffContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
@@ -44,8 +47,11 @@ function PlanningJobMenu(props) {
   const acceptedStageId = getAcceptedStage(marketStagesState, marketId)?.id;
   const invotingStageId = getInCurrentVotingStage(marketStagesState, marketId)?.id;
   const tasksCompleteStageId = getInReviewStage(marketStagesState, marketId)?.id;
+  const groupMembers = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+  const isMember = groupMembers.find((member) => member.id === myPresence.id);
 
-  function stageChange(targetStageId, readyToStart) {
+  function stageChange(targetStageId, readyToStart, assignments) {
     if (!operationRunning) {
       const moveInfo = {
         marketId,
@@ -57,6 +63,9 @@ function PlanningJobMenu(props) {
       };
       if (readyToStart !== undefined) {
         moveInfo.stageInfo.open_for_investment = readyToStart;
+      }
+      if (assignments !== undefined) {
+        moveInfo.stageInfo.assignments = assignments;
       }
       setOperationRunning(true);
       return stageChangeInvestible(moveInfo)
@@ -138,15 +147,17 @@ function PlanningJobMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
-        {stageId === backlogStageId && (
+        {stageId === backlogStageId && isMember && (
           <MenuItem key="planningInvestibleNextStageAcceptedKey" id="planningInvestibleNextStageAcceptedId"
                     onClick={(event) => {
                       preventDefaultAndProp(event);
+                      // Must assign to current user as cannot move to accepted for someone else
                       if (isBlocked || needsAssist) {
                         return navigate(history,
-                          `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${acceptedStageId}`);
+                          `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${acceptedStageId}&assignId=${myPresence.id}`);
                       }
-                      return stageChange(acceptedStageId).then(() => recordPositionToggle());
+                      return stageChange(acceptedStageId, undefined, [myPresence.id])
+                        .then(() => recordPositionToggle());
                     }}
           >
             <Tooltip placement='top' title={intl.formatMessage({ id: 'JobAssignStart' })}>
@@ -162,7 +173,7 @@ function PlanningJobMenu(props) {
                       preventDefaultAndProp(event);
                       if (isBlocked || needsAssist) {
                         return navigate(history,
-                          `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${invotingStageId}`);
+                          `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${invotingStageId}&isAssign=true`);
                       }
                       return stageChange(invotingStageId).then(() => recordPositionToggle());
                     }}

@@ -176,7 +176,7 @@ function ArchiveInvestbiles(props) {
   const [messagesState] = useContext(NotificationsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
 
-  function getIcon(assistanceType, messages) {
+  function getIcon(assistanceType, messages, isAssigned) {
     // Just go to the first message associated with this investible - further work questions do not have one
     const myMessage = !_.isEmpty(messages) ? messages[0] : undefined;
     let TypeIcon;
@@ -188,11 +188,11 @@ function ArchiveInvestbiles(props) {
         break;
       case 1:
         TypeIcon = myMessage ? <LightbulbOutlined htmlColor='#E85757' /> : <LightbulbOutlined htmlColor='#F29100' />;
-        typeExplanation = 'suggestPresent';
+        typeExplanation = isAssigned ? 'suggestPresent' : 'suggestPresentBacklog';
         break;
       case 2:
         TypeIcon = myMessage ? <QuestionIcon htmlColor='#E85757' /> : <QuestionIcon htmlColor='#F29100' />;
-        typeExplanation = 'questionPresent';
+        typeExplanation = isAssigned ? 'questionPresent' : 'questionPresentBacklog';
         break;
       case 3:
         TypeIcon = myMessage ? <PersonSearch htmlColor='#E85757' /> : <PersonSearch htmlColor='#F29100' />;
@@ -225,6 +225,7 @@ function ArchiveInvestbiles(props) {
       const info = getMarketInfo(inv, marketId) || {};
       const { assigned, stage: stageId, last_stage_change_date: lastStageChangeDate,
         open_for_investment: openForInvestment, ticket_code: ticketCode, group_id: groupId } = info;
+      const isAssigned = !_.isEmpty(assigned);
       const enteredStageAt = new Date(lastStageChangeDate)
       const stage = getFullStage(marketStagesState, marketId, stageId);
       const usedAssignees = assigned || [];
@@ -260,12 +261,12 @@ function ArchiveInvestbiles(props) {
       }
       if (isRequiredInputStage(stage)) {
         if (!_.isEmpty(questionComments)) {
-          const item = getIcon(2, messages);
+          const item = getIcon(2, messages, isAssigned);
           item.myLink = formCommentLink(marketId, groupId, id, questionComments[0].id);
           TypeIconList.push(item);
         }
         if (!_.isEmpty(suggestionComments)) {
-          const item = getIcon(1, messages);
+          const item = getIcon(1, messages, isAssigned);
           item.myLink = formCommentLink(marketId, groupId, id, suggestionComments[0].id);
           TypeIconList.push(item);
         }
@@ -282,7 +283,7 @@ function ArchiveInvestbiles(props) {
           TypeIconList.push(item);
         }
         if (!_.isEmpty(questionComments)) {
-          const item = getIcon(2);
+          const item = getIcon(2, undefined, isAssigned);
           const myMessage = messages.find((message) => message.market_type === DECISION_TYPE &&
             !_.isEmpty(questionComments.find((question) => message.comment_id === question.id)));
           if (myMessage) {
@@ -293,7 +294,7 @@ function ArchiveInvestbiles(props) {
           TypeIconList.push(item);
         }
         if (!_.isEmpty(suggestionComments)) {
-          const item = getIcon(1);
+          const item = getIcon(1, undefined, isAssigned);
           const myMessage = messages.find((message) => message.market_type === INITIATIVE_TYPE &&
             !_.isEmpty(questionComments.find((suggestion) => message.comment_id === suggestion.id)));
           if (myMessage) {

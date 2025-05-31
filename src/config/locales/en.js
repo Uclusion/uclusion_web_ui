@@ -1138,6 +1138,8 @@ const messages = defineMessages({
   nonBlockIssuePresent: 'Issue',
   questionPresent: 'Assignee has question',
   suggestPresent: 'Assignee has suggestion',
+  suggestPresentBacklog: 'Open suggestion',
+  questionPresentBacklog: 'Open question',
   reportPresent: 'Progress Report',
   reviewReportPresent: 'Review Report',
   issueCompose: 'Blocking issue - asks for help clearing the blocker',

@@ -48,10 +48,12 @@ function CloseCommentsStep(props) {
     (comment.comment_type === ISSUE_TYPE)||
     (isInReviewStage(fullMoveStage) && comment.comment_type === TODO_TYPE)||
       ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type) &&
-      (assignId ? [assignId] : (assigned || [])).includes(comment.created_by)));
+        ((!assignId && _.isEmpty(assigned))||(assignId ? [assignId] : assigned).includes(comment.created_by))));
   const commentThreads = getCommentThreads(mustResolveComments, marketComments);
   const isMustResolve = fullCurrentStage.move_on_comment ||
     !_.isEmpty(unresolvedComments.filter((comment) => comment.comment_type === TODO_TYPE));
+  const isSingleSuggest = _.size(mustResolveComments) === 1 &&
+    mustResolveComments[0].comment_type === SUGGEST_CHANGE_TYPE;
 
   function move() {
     // Do not rely on async to close the comments cause want this user to be updated by and not auto opened if return
@@ -82,6 +84,10 @@ function CloseCommentsStep(props) {
         setOperationRunning(false);
         finish(fullMoveStage);
       });
+  }
+
+  function convert() {
+
   }
 
   if (_.isEmpty(mustResolveComments)) {
@@ -124,9 +130,13 @@ function CloseCommentsStep(props) {
         {...props}
         focus
         showNext
+        nextLabel={isSingleSuggest ? 'issueResolveLabel' : undefined}
         isFinal={!requiresAction(fullMoveStage)}
+        showOtherNext={isSingleSuggest}
         showTerminate
         onNext={move}
+        onOtherNext={convert}
+        otherNextLabel='wizardAcceptLabel'
         onTerminate={() => finish(fullMoveStage, true)}
         terminateLabel={isMustResolve && _.isEmpty(isAssign) ? 'JobWizardBacktoJob' : 'JobWizardGotoJob'}
       />

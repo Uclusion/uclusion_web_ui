@@ -55,17 +55,22 @@ function CloseCommentsStep(props) {
   const isSingleSuggest = _.size(mustResolveComments) === 1 &&
     mustResolveComments[0].comment_type === SUGGEST_CHANGE_TYPE;
 
-  function move() {
+  function move(isResolve=true) {
     // Do not rely on async to close the comments cause want this user to be updated by and not auto opened if return
     const moveInfo = {
       marketId,
       investibleId,
       stageInfo: {
         current_stage_id: currentStageId,
-        stage_id: stage,
-        resolve_comment_ids: mustResolveComments.map((comment) => comment.id)
+        stage_id: stage
       },
     };
+    const mustResolveCommentIds = mustResolveComments.map((comment) => comment.id);
+    if (isResolve) {
+      moveInfo.stageInfo.resolve_comment_ids = mustResolveCommentIds;
+    } else {
+      moveInfo.stageInfo.task_comment_ids = mustResolveCommentIds;
+    }
     if (!_.isEmpty(newAssigned)) {
       moveInfo.stageInfo.assignments = newAssigned;
     } else if (((isSingleUser&&_.isEmpty(assigned))||assignId)&&!isFurtherWorkStage(fullMoveStage)
@@ -87,7 +92,7 @@ function CloseCommentsStep(props) {
   }
 
   function convert() {
-
+    return move(false);
   }
 
   if (_.isEmpty(mustResolveComments)) {

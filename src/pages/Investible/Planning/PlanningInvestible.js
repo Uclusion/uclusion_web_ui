@@ -689,7 +689,7 @@ function PlanningInvestible(props) {
         <div style={{paddingBottom: '0.5rem'}} ref={refToTop}></div>
         {sectionOpen === 'descriptionVotingSection' && (
           <>
-            <div style={{display: 'flex'}}>
+            <div style={{display: 'flex', marginRight: mobileLayout ? undefined : '2rem'}}>
               <CardType
                 isInAccepted={isInAccepted}
                 isAssigned={isAssigned}

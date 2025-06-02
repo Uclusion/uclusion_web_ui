@@ -648,6 +648,7 @@ function PlanningInvestible(props) {
       title={title}
       tabTitle={name}
       hidden={hidden}
+      noPadDesktop
       leftNavAdjust={mobileLayout ? undefined : (leftNavBreak ? 245 : 465)}
     >
       {!mobileLayout && (
@@ -657,33 +658,34 @@ function PlanningInvestible(props) {
           {investibleNav}
         </div>
       )}
-      <div style={{paddingRight: mobileLayout ? undefined : '1rem'}}>
-        <GmailTabs
-          value={sections.findIndex((section) => section === sectionOpen)}
-          onChange={(event, value) => {
-            openSubSection(sections[value]);
-            // Previous scroll position no longer relevant
-            refToTop.current?.scrollIntoView({ block: "end" });
-          }}
-          id='investible-header'
-          indicatorColors={['#00008B', '#00008B', '#00008B']}
-          style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
-            paddingTop: mobileLayout ? undefined : '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0,
-            marginLeft: '-0.5rem' }}>
-          <GmailTabItem icon={<InfoIcon />} tagLabel={getTagLabel('total')}
-                        label={intl.formatMessage({id: 'descriptionVotingLabel'})}
-                        toolTipId='jobOverviewToolTip'
-                        tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />
-          <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
-                        toolTipId='jobTasksToolTip'
-                        tag={countUnresolved(todoCommentsSearched, search)} tagLabel={getTagLabel('open')} />
-          {displayAssistanceSection && (
-            <GmailTabItem icon={getIcon(QUESTION_TYPE)} toolTipId='jobAssistanceToolTip'
-                          label={intl.formatMessage({id: 'requiresInputStageLabel'})}
-                          tag={countUnresolved(assistanceCommentsSearched, search)}
-                          tagLabel={getTagLabel('open')} />
-          )}
-        </GmailTabs>
+      <GmailTabs
+        value={sections.findIndex((section) => section === sectionOpen)}
+        addPaddingLeft='2rem'
+        onChange={(event, value) => {
+          openSubSection(sections[value]);
+          // Previous scroll position no longer relevant
+          refToTop.current?.scrollIntoView({ block: "end" });
+        }}
+        id='investible-header'
+        indicatorColors={['#00008B', '#00008B', '#00008B']}
+        style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
+          paddingTop: mobileLayout ? undefined : '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0,
+          marginLeft: '-0.5rem' }}>
+        <GmailTabItem icon={<InfoIcon />} tagLabel={getTagLabel('total')}
+                      label={intl.formatMessage({id: 'descriptionVotingLabel'})}
+                      toolTipId='jobOverviewToolTip'
+                      tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />
+        <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
+                      toolTipId='jobTasksToolTip'
+                      tag={countUnresolved(todoCommentsSearched, search)} tagLabel={getTagLabel('open')} />
+        {displayAssistanceSection && (
+          <GmailTabItem icon={getIcon(QUESTION_TYPE)} toolTipId='jobAssistanceToolTip'
+                        label={intl.formatMessage({id: 'requiresInputStageLabel'})}
+                        tag={countUnresolved(assistanceCommentsSearched, search)}
+                        tagLabel={getTagLabel('open')} />
+        )}
+      </GmailTabs>
+      <div style={{paddingLeft: mobileLayout ? undefined : '2rem', paddingRight: mobileLayout ? undefined : '1rem'}}>
         <div style={{paddingBottom: '0.5rem'}} ref={refToTop}></div>
         {sectionOpen === 'descriptionVotingSection' && (
           <>
@@ -757,7 +759,7 @@ function PlanningInvestible(props) {
               </div>
             )}
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
-                            usePadding={!mobileLayout}
+                            usePadding={!mobileLayout} useColor
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen/>
               <div style={{
                 paddingBottom: mobileLayout ? undefined : '15vh',

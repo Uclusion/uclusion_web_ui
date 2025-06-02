@@ -40,7 +40,8 @@ function CondensedTodos(props) {
     usePadding = true,
     isDefaultOpen = false,
     defaultToOpenComments = true,
-    removeActions = true
+    removeActions = true,
+    useColor = false
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -185,6 +186,7 @@ function CondensedTodos(props) {
       {!hideTabs && sectionOpen && (
         <GmailTabs
           removeBoxShadow
+          useColor={useColor}
           value={showOpen ? 0 : 1}
           onChange={(event, value) => {
             setShowOpen(value === 0);
@@ -205,7 +207,7 @@ function CondensedTodos(props) {
         </GmailTabs>
       )}
       {!_.isEmpty(tabComments) && sectionOpen && (
-        <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
+        <div style={{paddingBottom: '0.25rem'}}>
           <div style={{display: 'flex', width: '80%'}}>
             {!mobileLayout && !isInbox && (
               <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}

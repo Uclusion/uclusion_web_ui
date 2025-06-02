@@ -40,6 +40,21 @@ export function onCommentOpen(investibleState, investibleId, marketStagesState, 
   addCommentToMarket(comment, commentsState, commentsDispatch);
 }
 
+export function getGroupMentionsApprovals(groupId, myPresence, isAutonomous, comments) {
+  const { mentioned_notifications: mentionsAll, approve_notifications: approvalsAll } = myPresence;
+  let mentions, approvals;
+  if (isAutonomous) {
+    mentions = mentionsAll;
+    approvals = approvalsAll;
+  } else {
+    const groupComments = (comments || []).filter((comment) => comment.group_id === groupId);
+    const groupCommentIds =  groupComments.map((comment) => comment.id);
+    mentions = (mentionsAll || []).filter((mentionId) => groupCommentIds.includes(mentionId));
+    approvals = (approvalsAll || []).filter((mentionId) => groupCommentIds.includes(mentionId));
+  }
+  return { mentions, approvals };
+}
+
 export function getThreads(parents, comments) {
   const thread = [];
   parents?.forEach((comment) => {

@@ -689,6 +689,7 @@ function PlanningDialog(props) {
               inReviewStage={inReviewStage}
               requiresInputStage={requiresInputStage}
               group={group}
+              isAutonomous={isAutonomous}
               isAdmin={isAdmin}
               mobileLayout={mobileLayout}
               pageState={pageState} updatePageState={updatePageState}

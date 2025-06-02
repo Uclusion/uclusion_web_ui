@@ -22,11 +22,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function NotificationCountChips(props) {
-  const {
-    id,
-    presence
-  } = props;
-  const { mentioned_notifications: mentions, approve_notifications: approvals } = presence;
+  const { id, mentions, approvals } = props;
   const classes = useStyles();
   const intl = useIntl();
 

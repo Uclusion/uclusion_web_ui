@@ -325,7 +325,6 @@ function PlanningIdeas(props) {
           marketId={marketId}
           presenceId={presenceId}
           myPresence={myPresence}
-          groupPresences={groupPresences}
           marketPresences={marketPresences}
           comments={comments}
           isAutonomous={isAutonomous}
@@ -348,7 +347,6 @@ function PlanningIdeas(props) {
           myPresence={myPresence}
           presenceId={presenceId}
           comments={comments}
-          groupPresences={groupPresences}
           marketPresences={marketPresences}
           isAutonomous={isAutonomous}
           viewGroupId={groupId}
@@ -384,10 +382,10 @@ function Stage(props) {
     isVoting,
     showCompletion,
     marketPresences,
-    groupPresences,
     presenceId,
     isAutonomous,
-    viewGroupId
+    viewGroupId,
+    myPresence
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -407,21 +405,18 @@ function Stage(props) {
     event.dataTransfer.setData('stageId', id);
   }
 
-  function countNumRequiredReviews(investibleId, marketComments, groupPresences) {
-    const review = marketComments.find((comment) => {
+  function countNumRequiredReviews(investibleId) {
+    const review = comments.find((comment) => {
       return comment.comment_type === REPORT_TYPE && comment.investible_id === investibleId && !comment.resolved;
     });
     if (_.isEmpty(review)) {
       return 0;
     }
-    let count = 0;
-    groupPresences?.forEach((presence) => {
-      const { mentioned_notifications: mentioned } = presence;
-      if (mentioned?.includes(review.id)) {
-        count++;
-      }
-    });
-    return count;
+    const { mentioned_notifications: mentioned } = myPresence;
+    if (mentioned?.includes(review.id)) {
+      return 1;
+    }
+    return 0;
   }
 
   const investiblesMap = sortedInvestibles.map(inv => {
@@ -431,7 +426,7 @@ function Stage(props) {
       !marketInfo.accepted?.includes(presenceId);
     const numQuestionsSuggestions = countByType(investible, comments,
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
-    const numRequiredReviews = countNumRequiredReviews(investible.id, comments, groupPresences);
+    const numRequiredReviews = countNumRequiredReviews(investible.id);
     const numOpenTasks = countByType(investible, comments, [TODO_TYPE]);
 
     return (

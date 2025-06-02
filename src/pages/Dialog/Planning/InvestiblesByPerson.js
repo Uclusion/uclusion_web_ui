@@ -20,6 +20,7 @@ import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { getGroupMentionsApprovals } from '../../../utils/commentFunctions';
 
 const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -121,7 +122,8 @@ function InvestiblesByPerson(props) {
     inReviewStage,
     requiresInputStage,
     group,
-    mobileLayout
+    mobileLayout,
+    isAutonomous
   } = props;
   const metaClasses = useMetaDataStyles();
   const classes = useInvestiblesByPersonStyles();
@@ -138,6 +140,8 @@ function InvestiblesByPerson(props) {
   const groupPresencesSorted = _.sortBy(groupPresencesSortedAlmost, function (presence) {
     return !presence.current_user;
   });
+  const myPresence = presences.find(presence => presence.current_user) || {};
+
   return (
     <React.Fragment key="investiblesByPerson">
       {!mobileLayout && (
@@ -170,7 +174,7 @@ function InvestiblesByPerson(props) {
         const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId,
           comments, messagesState);
         const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
-        const { mentioned_notifications: mentions, approve_notifications: approvals } = presence;
+        const { mentions, approvals } = getGroupMentionsApprovals(groupId, myPresence, isAutonomous, comments);
         if (_.isEmpty(myInvestiblesStageHash) &&
           ((_.isEmpty(mentions) && _.isEmpty(approvals))||!_.isEmpty(search))) {
           return <React.Fragment key={`investiblesByPerson${id}`}/>
@@ -186,7 +190,7 @@ function InvestiblesByPerson(props) {
                     <Typography variant="body1" className={myClassName}>
                       {name}
                       {!mobileLayout && (
-                        <NotificationCountChips id={id} presence={presence}/>
+                        <NotificationCountChips id={id} mentions={mentions} approvals={approvals} />
                       )}
                     </Typography>
                   </div>}

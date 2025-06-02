@@ -35,13 +35,13 @@ export function GmailTabItem(props) {
 export function GmailTabs(props) {
   const tabsStyles = useGmailTabsStyles({ ...props });
   const tabsProps = {...props};
-  const { removeBoxShadow } = props;
+  const { removeBoxShadow, addPaddingLeft } = props;
   delete tabsProps.indicatorColors;
   return (
     <Tabs
       {...tabsProps}
       classes={tabsStyles}
-      style={{boxShadow: removeBoxShadow ? 'unset' : undefined}}
+      style={{boxShadow: removeBoxShadow ? 'unset' : undefined, paddingLeft: addPaddingLeft }}
       TabIndicatorProps={{
         ...props.TabIndicatorProps,
         children: <div className={`MuiIndicator-${props.value}`} />,

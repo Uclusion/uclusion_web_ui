@@ -1,6 +1,5 @@
 import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
 import { useHistory, useLocation } from 'react-router';
 import Market from '../../pages/Dialog/Dialog';
@@ -45,35 +44,11 @@ import { getFirstWorkspace } from '../../utils/redirectUtils';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import GroupManage from '../../pages/DialogSettings/GroupManage';
 
-const useStyles = makeStyles({
-  body: {
-    height: '100%',
-  },
-  root: {
-    flexGrow: 1,
-    zIndex: 1,
-    overflowY: 'auto',
-    position: 'relative',
-    display: 'flex',
-    width: '100%',
-    overflowX: 'hidden',
-    scrollBehavior: 'smooth'
-  },
-  content: {
-    width: '100%',
-    height: '100%',
-  },
-  hide: {
-    display: 'none',
-  },
-});
-
 function Root(props) {
   const { authState } = props;
   const history = useHistory();
   const location = useLocation();
   const intl = useIntl();
-  const classes = useStyles();
   const { pathname } = location;
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [userState] = useContext(AccountContext);
@@ -268,41 +243,37 @@ function Root(props) {
   return (
     <div>
       <CssBaseline/>
-      <div className={classes.body}>
-        <div className={classes.root}>
-          <div className={classes.content}>
-            <Wizard hidden={hideWorkspaceWizard()} />
-            <InboxFull hidden={hideInbox()} />
-            <Market hidden={hideMarket()||isArchivedWorkspace}/>
-            <Support hidden={hideSupport()}/>
-            <BillingHome hidden={hideBillingHome()}/>
-            <Investible hidden={hideInvestible()}/>
-            <CommentReplyEdit hidden={hideCommentReplyEdit()} />
-            <SlackInvite hidden={hideSlackInvite()}/>
-            <AccountPreferences hidden={hideAccountPreferences()}/>
-            <IntegrationPreferences hidden={hideIntegrationPreferences()}/>
-            {(!hideMarketEdit()||(isArchivedWorkspace && !hideMarket())) && (
-              <PlanningMarketEdit />
-            )}
-            {!hideMarketLoad() && (
-              <PlanningMarketLoad />
-            )}
-            {!hideDemoLoad() && (
-              <DemoMarketLoad onboardingState={userState?.user?.onboarding_state} demo={demo} />
-            )}
-            {!hideGroupSettings() && (
-              <GroupEdit />
-            )}
-            {!hideGroupManage() && (
-              <GroupManage />
-            )}
-            {!hideGroupArchive() && (
-              <DialogArchives />
-            )}
-            <PageNotFound hidden={hidePNF}/>
-          </div>
+        <div style={{ width: '100%', height: '100%', backgroundColor: hideMarket() ? undefined : '#EDF7F8'}}>
+          <Wizard hidden={hideWorkspaceWizard()} />
+          <InboxFull hidden={hideInbox()} />
+          <Market hidden={hideMarket()||isArchivedWorkspace}/>
+          <Support hidden={hideSupport()}/>
+          <BillingHome hidden={hideBillingHome()}/>
+          <Investible hidden={hideInvestible()}/>
+          <CommentReplyEdit hidden={hideCommentReplyEdit()} />
+          <SlackInvite hidden={hideSlackInvite()}/>
+          <AccountPreferences hidden={hideAccountPreferences()}/>
+          <IntegrationPreferences hidden={hideIntegrationPreferences()}/>
+          {(!hideMarketEdit()||(isArchivedWorkspace && !hideMarket())) && (
+            <PlanningMarketEdit />
+          )}
+          {!hideMarketLoad() && (
+            <PlanningMarketLoad />
+          )}
+          {!hideDemoLoad() && (
+            <DemoMarketLoad onboardingState={userState?.user?.onboarding_state} demo={demo} />
+          )}
+          {!hideGroupSettings() && (
+            <GroupEdit />
+          )}
+          {!hideGroupManage() && (
+            <GroupManage />
+          )}
+          {!hideGroupArchive() && (
+            <DialogArchives />
+          )}
+          <PageNotFound hidden={hidePNF}/>
         </div>
-      </div>
     </div>
   );
 }

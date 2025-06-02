@@ -52,8 +52,7 @@ const myArchiveClasses = makeStyles(
         borderRadius: theme.spacing(1),
         padding: theme.spacing(1, 2)
       },
-      white: {
-        backgroundColor: "white",
+      noPadding: {
         padding: 0,
         margin: 0,
       },
@@ -318,7 +317,7 @@ function ArchiveInvestbiles(props) {
   }
 
   return (
-    <Grid id="archiveGrid" key="archiveGrid" container className={classes.white}>
+    <Grid id="archiveGrid" key="archiveGrid" container className={classes.noPadding}>
       {_.isEmpty(investibles) && (
         <div id="grow" key="grow" className={classes.grow} />
       )}

@@ -92,6 +92,11 @@ export const screenStyles = makeStyles((theme) => ({
       padding: '24px 12px 156px',
     },
   },
+  containerAllNoPad: {
+    overflowX: 'hidden',
+    marginTop: '65px',
+    width: '100%',
+  },
   bannerContainer: {
     position: 'sticky',
     top: 0,
@@ -299,7 +304,8 @@ function Screen(props) {
     disableSearch,
     loadingMessageId,
     outBoxMessages,
-    leftNavAdjust
+    leftNavAdjust,
+    noPadDesktop
   } = props;
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
@@ -424,7 +430,8 @@ function Screen(props) {
   if (navigationMenu.navListItemTextArray && !isArchivedWorkspace) {
     navigationMenu.navListItemTextArray = navigationMenu.navListItemTextArray.concat(navListItemTextArray);
   }
-  const myContainerClass = !mobileLayout ? classes.containerAllLeftPad : classes.containerAll;
+  const myContainerClass = !mobileLayout ? (noPadDesktop ? classes.containerAllNoPad : classes.containerAllLeftPad)
+    : classes.containerAll;
   const contentClass = mobileLayout ? classes.contentNoStyle : classes.content;
   const sideNavigationContents = <Sidebar navigationOptions={navigationMenu} />;
   const renderBanner = showBanner && usedBanner && !hidden;

@@ -547,14 +547,16 @@ function PlanningDialog(props) {
       tabTitle={tabTitle}
       banner={banner}
       isKeptInMemory
+      noPadDesktop
       showBanner={banner != null}
       openMenuItems={navListItemTextArray}
       navigationOptions={{useHoverFunctions: !mobileLayout, resetFunction: () => resetFunction(0)}}
     >
-      <div style={{ paddingBottom: '0.25rem', paddingLeft: 0, marginLeft: '-0.5rem' }}>
+      <div style={{ paddingBottom: '0.25rem' }}>
         <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen} isDemo={isDemo} isAutonomous={isAutonomous}/>
         <GmailTabs
           value={tabIndex}
+          addPaddingLeft='2rem'
           id='dialog-header'
           onChange={(event, value) => {
             resetFunction(value);

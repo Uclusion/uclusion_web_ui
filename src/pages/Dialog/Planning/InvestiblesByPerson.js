@@ -12,7 +12,7 @@ import { PLACEHOLDER } from '../../../constants/global';
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
-import { Link, Typography, useTheme } from '@material-ui/core';
+import { Link, Typography } from '@material-ui/core';
 import NotificationCountChips from '../NotificationCountChips';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import CardContent from '@material-ui/core/CardContent';
@@ -123,7 +123,6 @@ function InvestiblesByPerson(props) {
     group,
     mobileLayout
   } = props;
-  const theme = useTheme();
   const metaClasses = useMetaDataStyles();
   const classes = useInvestiblesByPersonStyles();
   const swimClasses = usePlanningIdStyles();
@@ -142,7 +141,7 @@ function InvestiblesByPerson(props) {
   return (
     <React.Fragment key="investiblesByPerson">
       {!mobileLayout && (
-        <dl className={swimClasses.stages} style={{background: theme.palette.grey['100'], marginTop: '0.5rem'}}>
+        <dl className={swimClasses.stages} style={{marginTop: '0.5rem'}}>
           <div>
             <Link href="https://documentation.uclusion.com/views/jobs/stages/#waiting--approval" target="_blank"
                   style={{ color: DARKER_LINK_COLOR }}>

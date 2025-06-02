@@ -143,6 +143,7 @@ export const wizardStyles = makeStyles(
         width: 200,
         border: '2px solid #2D9CDB',
         color: 'black !important',
+        backgroundColor: 'white',
         textTransform: 'unset !important',
         maxHeight: '2.6rem',
         whiteSpace: 'nowrap',

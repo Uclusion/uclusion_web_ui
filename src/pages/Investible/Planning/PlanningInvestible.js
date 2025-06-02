@@ -20,7 +20,7 @@ import { fixName, getMarketInfo, getVotesForInvestible } from '../../../utils/us
 import {
   getFullStage,
   getFurtherWorkStage,
-  getInCurrentVotingStage, getInReviewStage
+  getInCurrentVotingStage, getInReviewStage, isAcceptedStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import EditMarketButton from '../../Dialog/EditMarketButton';
@@ -388,7 +388,8 @@ function PlanningInvestible(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
-    {sectionOpen: fullStage.move_on_comment ? 'assistanceSection' : 'descriptionVotingSection'});
+    {sectionOpen: fullStage.move_on_comment ? 'assistanceSection' :
+        (isAcceptedStage(fullStage) ? 'tasksSection' : 'descriptionVotingSection')});
   const {
     sectionOpen,
     compressionHash,

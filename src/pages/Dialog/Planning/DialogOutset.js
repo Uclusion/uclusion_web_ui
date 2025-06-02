@@ -44,7 +44,9 @@ function DialogOutset(props) {
     <>
       <div id="dialogOutsetBuffer" style={{width: '16rem', display: isArchivedSearch ? 'block' : 'none'}} />
       <div id="dialogOutset" style={{
-        marginRight: '1rem',
+        marginLeft: '1.65rem',
+        paddingLeft: '0.5rem',
+        backgroundColor: 'white',
         overflowY: 'none',
         zIndex: 3,
         position: 'absolute',
@@ -66,7 +68,7 @@ function DialogOutset(props) {
              }
            }}
       >
-        <ProSidebar width="12rem">
+        <ProSidebar width="10rem">
           <SidebarContent>
             <Menu iconShape="circle">
               <MenuItem icon={<SettingsIcon htmlColor="black"/>} key={`groupSettings${groupId}`}

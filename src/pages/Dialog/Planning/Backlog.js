@@ -120,7 +120,7 @@ function Backlog(props) {
         <FormattedMessage id='addStoryLabel'/>
       </SpinningButton>
       <DismissableText textId="backlogHelp" noPad={true}
-                       display={isEmptyBacklog && !isSingleUser}
+                       display={isEmptyBacklog}
                        text={market?.market_sub_type === 'SUPPORT' ?
                          <div>
                            No need for backlog - just assign the job to support.

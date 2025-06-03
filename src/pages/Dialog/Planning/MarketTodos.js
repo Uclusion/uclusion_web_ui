@@ -138,8 +138,7 @@ export const todoClasses = makeStyles(
       },
       grow: {
         padding: '30px',
-        flexGrow: 1,
-        backgroundColor: 'white',
+        flexGrow: 1
       },
       containerEmpty: {},
       containerHidden: {

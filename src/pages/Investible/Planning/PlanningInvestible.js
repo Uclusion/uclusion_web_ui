@@ -655,13 +655,13 @@ function PlanningInvestible(props) {
       {!mobileLayout && (
         <div className={classes.paper} style={{ paddingTop: mobileLayout ? undefined : '2rem', paddingBottom: '1rem',
           transform: mobileLayout ? undefined :
-          (leftNavBreak ? 'translateX(calc(100vw - 270px))' : 'translateX(calc(100vw - 490px))')}}>
+          (leftNavBreak ? 'translateX(calc(100vw - 267px))' : 'translateX(calc(100vw - 480px))')}}>
           {investibleNav}
         </div>
       )}
       <GmailTabs
         value={sections.findIndex((section) => section === sectionOpen)}
-        addPaddingLeft='2rem'
+        addPaddingLeft='2rem' addMarginLeft={leftNavBreak ? '-0.25rem' : undefined}
         onChange={(event, value) => {
           openSubSection(sections[value]);
           // Previous scroll position no longer relevant

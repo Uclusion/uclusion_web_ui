@@ -38,7 +38,6 @@ function Backlog(props) {
     furtherWorkInvestibles,
     comments,
     marketPresences,
-    isSingleUser,
     singleUser,
     hidden,
     myGroupPresence,

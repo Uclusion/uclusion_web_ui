@@ -863,7 +863,7 @@ function PlanningInvestible(props) {
                                       AddIcon}
                                     iconColor="black"
                                     style={{
-                                      display: 'flex', marginTop: '0.75rem',
+                                      display: 'flex', marginTop: '1.75rem',
                                       marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
                                     }}
                                     toolTipId={
@@ -912,14 +912,14 @@ function PlanningInvestible(props) {
                                     }
                                   }}
                                   style={{
-                                    display: 'flex', marginTop: '0.75rem',
+                                    display: 'flex', marginTop: '1.75rem',
                                     marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
                                   }}>
                     <FormattedMessage id='allDoneButton'/>
                   </SpinningButton>
                 )}
                 {sectionOpen === 'tasksSection' && (
-                  <div style={{marginTop: '1.5rem'}}><Link
+                  <div style={{marginTop: '2.25rem'}}><Link
                     href={`${formInvestibleLink(marketId, investibleId)}#investibleCondensedTodos`}
                     onClick={(event) => {
                     preventDefaultAndProp(event);

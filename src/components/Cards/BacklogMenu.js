@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { ListSubheader, makeStyles, Menu, MenuItem, Tooltip } from '@material-ui/core';
+import { ListItemIcon, ListItemText, ListSubheader, makeStyles, Menu, MenuItem, Tooltip } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { formWizardLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -9,6 +9,8 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import _ from 'lodash';
 import { JOB_STAGE_WIZARD_TYPE } from '../../constants/markets';
 import { useHistory } from 'react-router';
+import Chip from '@material-ui/core/Chip';
+import { AssignmentInd } from '@material-ui/icons';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -16,6 +18,16 @@ const useStyles = makeStyles(() => ({
   },
   listSubHeaderRoot: {
     lineHeight: '30px',
+  },
+  chipStyleYellow: {
+    padding: '4px',
+    backgroundColor: '#e6e969',
+    marginRight: '0.5rem'
+  },
+  chipStyleBlue: {
+    padding: '4px',
+    backgroundColor: '#2F80ED',
+    marginRight: '0.5rem'
   }
 }));
 
@@ -87,10 +99,11 @@ function BacklogMenu(props) {
                       return toggleOpenForInvestment().then(() => recordPositionToggle());
                     }}
           >
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Chip color="primary" size='small' className={classes.chipStyleYellow} /></ListItemIcon>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'moveToReady' })}>
-              <div>
+              <ListItemText>
                 {intl.formatMessage({ id: 'readyToStartHeader' })}
-              </div>
+              </ListItemText>
             </Tooltip>
           </MenuItem>
         )}
@@ -101,10 +114,11 @@ function BacklogMenu(props) {
                       return toggleOpenForInvestment().then(() => recordPositionToggle());
                     }}
           >
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Chip color="primary" size='small' className={classes.chipStyleBlue} /></ListItemIcon>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'moveToNotReady' })}>
-              <div>
+              <ListItemText>
                 {intl.formatMessage({ id: 'notReadyToStartHeader' })}
-              </div>
+              </ListItemText>
             </Tooltip>
           </MenuItem>
         )}
@@ -114,10 +128,11 @@ function BacklogMenu(props) {
                     return assignJob().then(() => recordPositionToggle());
                   }}
         >
+          <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><AssignmentInd size='small' style={{marginRight: '0.5rem'}} /></ListItemIcon>
           <Tooltip placement='top' title={intl.formatMessage({ id: 'moveAssigned' })}>
-            <div>
+            <ListItemText>
               {intl.formatMessage({ id: 'planningInvestibleAssignments' })}
-            </div>
+            </ListItemText>
           </Tooltip>
         </MenuItem>
       </Menu>

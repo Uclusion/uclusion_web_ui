@@ -228,6 +228,7 @@ function Reply(props) {
   const isTopLevelSubTask = isSubTask && rootComment?.id === comment.reply_id;
   const isMySubTask = isTopLevelSubTask && rootComment?.created_by === userId;
   const inProgress = comment.in_progress;
+  const parentInProgress = rootComment?.in_progress;
 
   function useMarketId() {
     return React.useContext(LocalCommentsContext).marketId;
@@ -443,7 +444,7 @@ function Reply(props) {
             {intl.formatMessage({ id: "issueReplyLabel" })} {hasReply(comment) && <EditIcon style={{fontSize: '1rem'}} fontSize='small' />}
           </Button>
         )}
-        {enableEditing && isTopLevelSubTask && (inProgress || isMySubTask) && (
+        {enableEditing && isTopLevelSubTask && (
           <FormControlLabel
             id='inProgressCheckbox'
             style={{maxHeight: '0.7rem', marginTop: '0.35rem', marginBottom: '0.35rem'}}
@@ -453,7 +454,7 @@ function Reply(props) {
                 id={`inProgressCheckbox${comment.id}`}
                 checked={operationRunning === `inProgressCheckbox${comment.id}` ? !inProgress : inProgress}
                 onClick={handleToggleInProgress}
-                disabled={!isMySubTask || operationRunning !== false}
+                disabled={!myPresenceIsAssigned || !parentInProgress || operationRunning !== false}
               />
             }
             label={mobileLayout ? undefined : intl.formatMessage({ id: 'inProgress' })}

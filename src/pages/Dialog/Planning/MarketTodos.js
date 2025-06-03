@@ -20,7 +20,7 @@ import {
 } from '../../../utils/marketIdPathFunctions';
 import Chip from '@material-ui/core/Chip';
 import {
-  findMessageForCommentId,
+  findMessageForCommentId, findMessagesForCommentIds,
   getPaginatedItems,
   getRealPage,
   getUnreadCount,
@@ -211,7 +211,9 @@ function MarketTodos(props) {
   const unreadRedCount = getUnreadCount(redComments, messagesState);
   const unreadYellowCount = getUnreadCount(yellowComments, messagesState);
   const unreadBlueCount = getUnreadCount(blueComments, messagesState);
-  const tabComments = _.orderBy(tabCommentsRaw, ['updated_at'], ['desc']);
+  const tabComments = _.orderBy(tabCommentsRaw,
+    [(comment) => _.size(findMessagesForCommentIds(comment.id, messagesState, true)),
+      'updated_at'], ['desc', 'desc']);
   const page = getRealPage(tabComments, pinned, originalPage, PAGE_SIZE);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabComments, page,
     PAGE_SIZE);

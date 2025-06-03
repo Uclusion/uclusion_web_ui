@@ -81,9 +81,9 @@ function SwimlanesOnboardingBanner(props) {
           {sectionOpen === 'backlogSection' && !isAutonomous && (
             <DismissableText textId="backlogHelp" text={
               <div>
-                <Typography>See <Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">self assigning jobs</Link> flow.</Typography>
+                <Typography>Only "Ready to Assign"  <Link href="https://documentation.uclusion.com/flows/#self-assigning-jobs" target="_blank">jobs</Link> show</Typography>
                 <Typography className={classes.ctaSub}>
-                  Only "Ready to Assign" jobs send notifications.
+                  in the Next / Assistance display.
                 </Typography>
               </div>
             }/>
@@ -100,7 +100,7 @@ function SwimlanesOnboardingBanner(props) {
           )}
         </div>
       {!mobileLayout && isDemo && (
-        <div style={{ marginTop: '0.8rem' }}>
+        <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
           <DemoCreateWorkspaceButton/>
         </div>
       )}

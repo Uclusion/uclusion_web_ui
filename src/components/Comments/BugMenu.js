@@ -21,6 +21,7 @@ import AddIcon from '@material-ui/icons/Add';
 import { useHistory } from 'react-router';
 import { onCommentsMove } from '../../utils/commentFunctions';
 import SearchIcon from '@material-ui/icons/Search';
+import Chip from '@material-ui/core/Chip';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -28,6 +29,21 @@ const useStyles = makeStyles(() => ({
   },
   listSubHeaderRoot: {
     lineHeight: '30px',
+  },
+  chipStyleRed: {
+    padding: '4px',
+    backgroundColor: '#E85757',
+    marginRight: '0.5rem'
+  },
+  chipStyleYellow: {
+    padding: '4px',
+    backgroundColor: '#e6e969',
+    marginRight: '0.5rem'
+  },
+  chipStyleBlue: {
+    padding: '4px',
+    backgroundColor: '#2F80ED',
+    marginRight: '0.5rem'
   }
 }));
 
@@ -80,10 +96,11 @@ function BugMenu(props) {
                       return moveToComment(RED_LEVEL).then(() => recordPositionToggle());
                     }}
           >
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Chip color="primary" size='small' className={classes.chipStyleRed} /></ListItemIcon>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'moveTodoRed' })}>
-              <div>
+              <ListItemText>
                 {intl.formatMessage({ id: 'immediate' })}
-              </div>
+              </ListItemText>
             </Tooltip>
           </MenuItem>
         )}
@@ -94,10 +111,11 @@ function BugMenu(props) {
                       return moveToComment(YELLOW_LEVEL).then(() => recordPositionToggle());
                     }}
           >
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Chip color="primary" size='small' className={classes.chipStyleYellow} /></ListItemIcon>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'moveTodoYellow' })}>
-              <div>
+              <ListItemText>
                 {intl.formatMessage({ id: 'able' })}
-              </div>
+              </ListItemText>
             </Tooltip>
           </MenuItem>
         )}
@@ -108,10 +126,11 @@ function BugMenu(props) {
                       return moveToComment(BLUE_LEVEL).then(() => recordPositionToggle());
                     }}
           >
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Chip color="primary" size='small' className={classes.chipStyleBlue} /></ListItemIcon>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'moveTodoBlue' })}>
-              <div>
+              <ListItemText>
                 {intl.formatMessage({ id: 'convenient' })}
-              </div>
+              </ListItemText>
             </Tooltip>
           </MenuItem>
         )}
@@ -147,7 +166,7 @@ function BugMenu(props) {
                       }}
             >
               <ListItemText>
-                {investible.name.length > 25 ? `${investible.name.substring(0, 26)}...` : investible.name}
+                <i>{investible.name.length > 25 ? `${investible.name.substring(0, 26)}...` : investible.name}</i>
               </ListItemText>
             </MenuItem>
           );

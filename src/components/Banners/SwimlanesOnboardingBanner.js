@@ -19,6 +19,7 @@ const useStyles = makeStyles((theme) => {
     },
     ctaSub: {
       fontWeight: 'normal',
+      marginBottom: '1rem'
     }
   };
 });
@@ -67,9 +68,12 @@ function SwimlanesOnboardingBanner(props) {
           {sectionOpen === 'marketTodos' && (
             <DismissableText textId="bugsHelp" text={
               <div>
-                <Typography>See <Link href="https://documentation.uclusion.com/flows/#self-assigning-bugs" target="_blank">self assigning bugs</Link> flow.</Typography>
+                <Typography>
+                  <Link href="https://documentation.uclusion.com/flows/#self-assigning-bugs" target="_blank">Bugs</Link> can
+                  be quickly created
+                </Typography>
                 <Typography className={classes.ctaSub}>
-                  Bugs can be quickly created and later moved to tasks in a job.
+                  and later moved to tasks in a job.
                 </Typography>
               </div>
             }/>

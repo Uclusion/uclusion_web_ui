@@ -48,7 +48,6 @@ function NotificationCountChips(props) {
 
 NotificationCountChips.propTypes = {
   id: PropTypes.string.isRequired,
-  presence: PropTypes.object.isRequired
 };
 
 export default NotificationCountChips;

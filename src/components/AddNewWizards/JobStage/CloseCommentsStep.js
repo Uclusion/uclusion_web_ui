@@ -25,6 +25,8 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { useHistory } from 'react-router';
+import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function CloseCommentsStep(props) {
   const { marketId, investibleId, formData, marketInfo, myFinish: finish, isAssign, requiresAction,
@@ -36,6 +38,7 @@ function CloseCommentsStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const history = useHistory();
   const { assigned: originalAssigned, group_id: groupId, stage: currentStageId } = marketInfo;
   const marketComments = getMarketComments(commentsState, marketId, groupId);
   const unresolvedComments = marketComments.filter(comment => comment.investible_id === investibleId &&
@@ -87,7 +90,12 @@ function CloseCommentsStep(props) {
           undefined, investiblesDispatch, () => {}, marketStagesState, undefined,
           getFullStage(marketStagesState, marketId, marketInfo.stage));
         setOperationRunning(false);
-        finish(fullMoveStage);
+        if (isResolve) {
+          finish(fullMoveStage);
+        } else {
+          // This is a convert
+          navigate(history, formCommentLink(marketId, groupId, investibleId, comments[0].id));
+        }
       });
   }
 

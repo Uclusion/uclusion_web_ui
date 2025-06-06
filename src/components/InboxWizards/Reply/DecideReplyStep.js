@@ -118,9 +118,10 @@ function DecideReplyStep(props) {
       });
   }
   const showOtherNext = isMySuggestion || canResolve;
-  const moveToTask = () => navigate(history,
-    `${formMarketAddInvestibleLink(marketId, groupId, undefined, message.type_object_id, 
-      BUG_WIZARD_TYPE)}&fromCommentId=${commentId}`);
+  const isMention = messageType === 'REPLY_MENTION';
+  const baseMoveUrl = `${formMarketAddInvestibleLink(marketId, groupId, undefined, message.type_object_id,
+    BUG_WIZARD_TYPE)}&fromCommentId=${commentId}`;
+  const moveToTask = () => navigate(history,isMention ? `${baseMoveUrl}&useType=Task` : baseMoveUrl);
 
   const showTerminate = getShowTerminate(message);
   return (
@@ -128,16 +129,21 @@ function DecideReplyStep(props) {
       {...props}
     >
       <Typography className={classes.introText}>
-        {intl.formatMessage({ id: messageType === 'REPLY_MENTION' ? 'unreadMention' : 'unreadReply' })}
+        {intl.formatMessage({ id: isMention ? 'unreadMention' : 'unreadReply' })}
       </Typography>
       {showOtherNext && isMySuggestion && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Choose other options to move to task, add voting, or resolve.
         </Typography>
       )}
-      {showOtherNext && !isMySuggestion && (
+      {showOtherNext && !isMySuggestion && !isMention && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Choose move to create a task, bug, or suggestion instead of replying.
+        </Typography>
+      )}
+      {showOtherNext && isMention && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Click through to move to a bug or suggestion.
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
@@ -158,7 +164,7 @@ function DecideReplyStep(props) {
         onNextDoAdvance={false}
         showOtherNext={showOtherNext}
         otherNextLabel={isMySuggestion ? 'otherOptionsLabel' : ((showTerminate && !isReplyToReply) ?
-          'issueResolveLabel' : 'move')}
+          'issueResolveLabel' : (isMention ? 'TODOApproveWizard' : 'move'))}
         onOtherNext={isMySuggestion ? undefined : ((showTerminate && !isReplyToReply) ? resolve : moveToTask)}
         otherSpinOnClick={!isMySuggestion && !isReplyToReply && showTerminate}
         isOtherFinal={!isMySuggestion}

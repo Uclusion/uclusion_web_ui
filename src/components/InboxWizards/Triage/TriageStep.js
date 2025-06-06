@@ -18,11 +18,21 @@ import {
 } from '../../../utils/marketIdPathFunctions';
 import Link from '@material-ui/core/Link';
 import { useHistory } from 'react-router';
+import { getMarketInfo } from '../../../utils/userFunctions';
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function TriageStep(props) {
   const { marketId, commentId, message } = props;
   const [commentState] = useContext(CommentsContext);
   const [groupState] = useContext(MarketGroupsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const intl = useIntl();
   const history = useHistory();
   const commentRoot = getComment(commentState, marketId, commentId) || {};
@@ -34,6 +44,15 @@ function TriageStep(props) {
     comment.notification_type === RED_LEVEL);
   const classes = wizardStyles();
   const pathToBugs = formatGroupLinkWithSuffix(MARKET_TODOS_HASH, marketId, groupId);
+  const marketInvestibles = getMarketInvestibles(investiblesState, marketId) || [];
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user);
+  const activeInvestibles = marketInvestibles.filter((inv) => {
+    const marketInfo = getMarketInfo(inv, marketId) || {};
+    const { assigned, stage } = marketInfo;
+    const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
+    return assigned?.includes(myPresence.id) && (fullStage.appears_in_context && fullStage.allows_tasks) ;
+  });
 
   return (
     <WizardStepContainer
@@ -52,8 +71,7 @@ function TriageStep(props) {
       }}>bugs</Link> for view {groupName}
       </h2>
       <MarketTodos comments={comments} marketId={marketId} groupId={groupId} message={message}
-                   sectionOpen={true}
-                   hidden={false}
+                   sectionOpen={true} hidden={false} activeInvestibles={activeInvestibles}
                    setSectionOpen={() => {}} group={group} isInbox openDefaultId={commentId} />
     </WizardStepContainer>
   );

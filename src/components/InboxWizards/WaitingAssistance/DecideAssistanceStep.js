@@ -93,6 +93,8 @@ function DecideAssistanceStep(props) {
   function doPokeComment() {
     return pokeComment(marketId, commentId).then(() => {
       setOperationRunning(false);
+      // If just stay on step then no feedback that poke happened
+      navigate(history, getInboxTarget());
     });
   }
   const isQuestion = commentRoot.comment_type === QUESTION_TYPE;

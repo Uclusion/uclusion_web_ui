@@ -191,7 +191,13 @@ function PlanningIdeas(props) {
       const investible = getInvestible(invState, investibleId);
       const marketInfo = getMarketInfo(investible, marketId);
       const { assigned } = marketInfo;
-      return stageChange(event, inDialogStageId, assigned);
+      return stageChange(event, inDialogStageId, assigned).then(() => {
+        if (!isAutonomous) {
+          // Prompt for approval
+          navigate(history,
+            `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${inDialogStageId}&isAssign=false`);
+        }
+      });
     }
   }
 

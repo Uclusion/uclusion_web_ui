@@ -77,7 +77,12 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import { useHistory, useLocation } from 'react-router';
 import { marketAbstain } from '../../api/markets';
-import { changeInvestibleStage, onCommentOpen } from '../../utils/commentFunctions';
+import {
+  changeInvestibleStage,
+  handleAcceptSuggestion,
+  isSingleAssisted,
+  onCommentOpen
+} from '../../utils/commentFunctions';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
   findMessageForCommentId,
@@ -760,6 +765,18 @@ function Comment(props) {
       });
   }
 
+  function moveToTask() {
+    return updateComment({marketId, commentId: id, commentType: TODO_TYPE}).then((taskComment) => {
+      handleAcceptSuggestion({
+        isMove: myPresenceIsAssigned && myPresence.id === comment.created_by &&
+          isSingleAssisted(comments, assigned), comment: taskComment, investible, investiblesDispatch, marketStagesState,
+        commentsState, commentsDispatch, messagesState
+      });
+      setOperationRunning(false);
+      navigate(history, formCommentLink(marketId, taskComment.group_id, taskComment.investible_id, taskComment.id));
+    });
+  }
+
   const displayingDiff = showDiff && diff;
   const displayEditing = enableEditing && isEditable && !isInbox;
   if (loading) {
@@ -1069,11 +1086,15 @@ function Comment(props) {
             )}
             {showMakeTaskButton && !mobileLayout && (
               <SpinningIconLabelButton
-                onClick={() => navigate(history,
-                  `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId, 
-                    BUG_WIZARD_TYPE)}&fromCommentId=${id}&useType=Task`)}
+                onClick={() => {
+                  if (myPresenceIsAssigned) {
+                    return moveToTask();
+                  }
+                  navigate(history, `${formMarketAddInvestibleLink(marketId, groupId, undefined, 
+                    typeObjectId, BUG_WIZARD_TYPE)}&fromCommentId=${id}&useType=Task`);
+                }}
                 id={`makeTask${id}`}
-                doSpin={false}
+                doSpin={myPresenceIsAssigned}
                 icon={ListAltIcon}
                 focus={focusMove}
               >

@@ -18,7 +18,7 @@ import {
   getNotDoingStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getUserInvestibles, getUserPendingAcceptanceInvestibles } from '../../Dialog/Planning/userUtils';
-import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import QuestionIcon from '@material-ui/icons/ContactSupport';
 import { getMarketInfo } from '../../../utils/userFunctions';
@@ -351,32 +351,37 @@ export function getOutboxMessages(props) {
   const messages = [];
 
   decisionDetails.forEach((market) => {
-    const { questions, issues, suggestions, comments, marketPresences } =
-      getDecisionData(market, marketPresencesState, commentsState);
-    questions.forEach((comment) => {
-      const message = getMessageForComment(comment, market, QUESTION_TYPE,
-        <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences)
-      if (message) {
-        messages.push(message);
-      }
-    });
-    issues.forEach((comment) => {
-      const message = getMessageForComment(comment, market, ISSUE_TYPE,
-        <Block style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences)
-      if (message) {
-        messages.push(message);
-      }
-    });
-    suggestions.forEach((comment) => {
-      const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
-        <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
-        comments, marketPresences)
-      if (message) {
-        messages.push(message);
-      }
-    });
+    const comment = getComment(commentsState, market.parent_comment_market_id, market.parent_comment_id);
+    const marketPresences = getMarketPresences(marketPresencesState, market.parent_comment_market_id) || [];
+    if (!isAutonomousComment(comment, marketPresences, groupPresencesState, market.parent_comment_market_id,
+      groupsState)) {
+      const { questions, issues, suggestions, comments, marketPresences } =
+        getDecisionData(market, marketPresencesState, commentsState);
+      questions.forEach((comment) => {
+        const message = getMessageForComment(comment, market, QUESTION_TYPE,
+          <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
+          comments, marketPresences)
+        if (message) {
+          messages.push(message);
+        }
+      });
+      issues.forEach((comment) => {
+        const message = getMessageForComment(comment, market, ISSUE_TYPE,
+          <Block style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
+          comments, marketPresences)
+        if (message) {
+          messages.push(message);
+        }
+      });
+      suggestions.forEach((comment) => {
+        const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
+          <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
+          comments, marketPresences)
+        if (message) {
+          messages.push(message);
+        }
+      });
+    }
   });
 
   workspacesData.forEach((workspaceData) => {

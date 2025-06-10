@@ -790,7 +790,8 @@ function Comment(props) {
   const showMoveButton = isSent !== false
     && [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(commentType)
     && !inArchives && !removeActions && enableActions && marketType === PLANNING_TYPE;
-  const showMakeTaskButton = showMoveButton && myPresenceIsAssigned && commentType === SUGGEST_CHANGE_TYPE;
+  const showMakeTaskButton = showMoveButton && (myPresenceIsAssigned || inBacklog || myPresence === createdBy)
+    && commentType === SUGGEST_CHANGE_TYPE;
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
     !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && myPresence === createdBy;
@@ -802,7 +803,8 @@ function Comment(props) {
     myInlinePresence.investments.find((investment) => !investment.deleted);
   const showAbstain = enableActions && inlineMarketId && myPresence !== createdBy && !resolved &&
     !myInlinePresence.abstain && !yourVote && !removeActions && myMessage?.type === NOT_FULLY_VOTED_TYPE;
-  const showUnmute = !removeActions && myInlinePresence.abstain && !resolved && enableActions;
+  const showUnmute = !removeActions && myInlinePresence.abstain && !resolved && enableActions
+    && ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType));
   const showSubTask = isTask && myPresence === createdBy;
   const isDeletable = !isInbox && !beingEdited && (commentType === REPORT_TYPE || isEditable || resolved);
   const gravatarWithName = useCompression && inboxMessageId ?

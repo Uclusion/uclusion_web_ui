@@ -658,7 +658,7 @@ function Comment(props) {
         const newValues = {
           abstain,
         }
-        changeMyPresence(marketPresencesState, presenceDispatch, marketId, newValues)
+        changeMyPresence(marketPresencesState, presenceDispatch, inlineMarketId, newValues)
         removeMessagesForCommentId(id, messagesState)
         setOperationRunning(false);
         if (isInbox) {

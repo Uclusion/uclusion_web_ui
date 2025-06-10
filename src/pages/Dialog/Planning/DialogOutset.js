@@ -38,8 +38,21 @@ function DialogOutset(props) {
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const isCurrentUserMember = !_.isEmpty(groupCollaborators.find((presence) =>
     presence.id === myPresence.id));
-
   const isArchivedSearch = !hidden && !_.isEmpty(search) && archivedSize > 0;
+
+  function closeOutset() {
+    const dialogOutset = document.getElementById(`dialogOutset`);
+    if (dialogOutset && !isArchivedSearch) {
+      DIALOG_OUTSET_STATE_HACK.open = 0;
+      dialogOutset.style.display = 'none';
+    }
+  }
+
+  function myNavigate(url) {
+    closeOutset();
+    navigate(history, url, false, true);
+  }
+
   return (
     <>
       <div id="dialogOutsetBuffer" style={{width: '16rem', display: isArchivedSearch ? 'block' : 'none'}} />
@@ -60,30 +73,18 @@ function DialogOutset(props) {
                dialogOutset.style.display = 'block';
              }
            }}
-           onMouseLeave={() => {
-             const dialogOutset = document.getElementById(`dialogOutset`);
-             if (dialogOutset && !isArchivedSearch) {
-               DIALOG_OUTSET_STATE_HACK.open = 0;
-               dialogOutset.style.display = 'none';
-             }
-           }}
+           onMouseLeave={closeOutset}
       >
         <ProSidebar width="10rem">
           <SidebarContent>
             <Menu iconShape="circle">
               <MenuItem icon={<SettingsIcon htmlColor="black"/>} key={`groupSettings${groupId}`}
-                        onClick={
-                          () => navigate(history, formGroupEditLink(marketId, groupId),
-                            false, true)
-                        }
+                        onClick={() => myNavigate(formGroupEditLink(marketId, groupId))}
               >
                 {intl.formatMessage({id: 'settings'})}
               </MenuItem>
               <MenuItem icon={<MenuBookIcon htmlColor="black"/>} key={`groupArchive${groupId}`}
-                        onClick={
-                          () => navigate(history, formGroupArchiveLink(marketId, groupId),
-                            false, true)
-                        }
+                        onClick={() => myNavigate(formGroupArchiveLink(marketId, groupId))}
                         suffix={isArchivedSearch ?
                           <span style={{backgroundColor: '#055099', borderRadius: 22, paddingLeft: '5px',
                                   paddingRight: '5px', color: 'white',
@@ -105,6 +106,7 @@ function DialogOutset(props) {
                                 key="addMeKey" id="addMeId"
                                 onClick={() => {
                                   setOperationRunning(true);
+                                  closeOutset();
                                   const addressed = [{user_id: myPresence.id, is_following: true}];
                                   return changeGroupParticipation(marketId, groupId, addressed).then((modifed) => {
                                     groupPresencesDispatch(modifyGroupMembers(groupId, modifed));
@@ -128,8 +130,7 @@ function DialogOutset(props) {
                   <Menu iconShape="circle">
                     <MenuItem icon={<PersonAddIcon htmlColor="black" />}
                               key="manageMembersKey" id="manageMembersId"
-                              onClick={() => navigate(history, formGroupManageLink(marketId, groupId),
-                                  false, true)}
+                              onClick={() => myNavigate(formGroupManageLink(marketId, groupId))}
                     >
                       <Tooltip title={intl.formatMessage({ id: 'manageMembersExplanation' })}>
                         <div>

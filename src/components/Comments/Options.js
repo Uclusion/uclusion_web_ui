@@ -2,8 +2,7 @@ import { getMarketInvestibles, refreshInvestibles } from '../../contexts/Investi
 import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import {
-  getInCurrentVotingStage,
-  getProposedOptionsStage
+  getInCurrentVotingStage, getProposedOptionsStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import _ from 'lodash';
 import { Typography } from '@material-ui/core';
@@ -11,7 +10,7 @@ import GravatarGroup from '../Avatars/GravatarGroup';
 import { GmailTabItem, GmailTabs } from '../../containers/Tab/Inbox';
 import { Block } from '@material-ui/icons';
 import OptionVoting from '../../pages/Dialog/Decision/OptionVoting';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
@@ -28,6 +27,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { ACTIVE_STAGE } from '../../constants/markets';
 import { useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
+import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 
 export function isNew(inv, messagesState) {
   return !_.isEmpty(getNewMessages(inv, messagesState));
@@ -61,7 +61,7 @@ function Options(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [tabIndex, setTabIndex] = useState(0);
+  const [pageStateFull, pageDispatch] = usePageStateReducer('options');
   const underConsiderationStage = getInCurrentVotingStage(marketStagesState, anInlineMarket.id);
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id, searchResults, isInbox)
     || [];
@@ -82,16 +82,16 @@ function Options(props) {
   const proposedStage = getProposedOptionsStage(marketStagesState, anInlineMarket.id);
   const selectedStageTab = selectedInvestible ?
     (getMarketInfo(selectedInvestible, anInlineMarket.id).stage === proposedStage.id ? 1 : 0) : undefined;
-  const [investibleIdTabZeroWasSet, setInvestibleIdTabZeroWasSet] = useState(false);
-  const [investibleIdTabOneWasSet, setInvestibleIdTabOneWasSet] = useState(false);
-  const [selectedInvestibleIdTabZero, setSelectedInvestibleIdTabZero] = useState(
-    selectedStageTab === 0 ? selectedInvestibleId : undefined);
-  const [selectedInvestibleIdTabOne, setSelectedInvestibleIdTabOne] = useState(
-    selectedStageTab === 1 ? selectedInvestibleId : undefined);
+  const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, marketId,
+    {tabIndex: 0, selectedInvestibleIdTabZero: selectedStageTab === 0 ? selectedInvestibleId : undefined,
+      selectedInvestibleIdTabOne: selectedStageTab === 1 ? selectedInvestibleId : undefined,
+      investibleIdTabZeroWasSet: false, investibleIdTabOneWasSet: false});
   const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
   const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
+  const { tabIndex, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne, investibleIdTabZeroWasSet,
+    investibleIdTabOneWasSet } = pageState;
   const useTabIndex = selectedStageTab || tabIndex;
   const foundInv = (inlineInvestibles || []).find((inv) => hash?.includes(inv.investible.id));
 
@@ -101,15 +101,15 @@ function Options(props) {
         (getMarketInfo(foundInv, anInlineMarket?.id)?.stage === proposedStage?.id ? 1 : 0) : undefined;
       if (foundInv) {
         if (foundStageTab === 0) {
-          setSelectedInvestibleIdTabZero(foundInv.investible.id);
+          updatePageState({ selectedInvestibleIdTabZero: foundInv.investible.id });
         } else if (foundStageTab === 1) {
-          setSelectedInvestibleIdTabOne(foundInv.investible.id);
+          updatePageState({ selectedInvestibleIdTabOne: foundInv.investible.id });
         }
-        setTabIndex(foundStageTab);
+        updatePageState({ tabIndex: foundStageTab });
       }
     }
   }, [hash, selectedInvestibleId, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne, anInlineMarket?.id,
-    proposedStage?.id, foundInv]);
+    proposedStage?.id, foundInv, updatePageState]);
 
   const abstained = _.isEmpty(abstaining) ? undefined :
     <div style={{display: 'flex', paddingLeft: '2rem', alignItems: 'center'}}>
@@ -162,13 +162,11 @@ function Options(props) {
   }
 
   function setUseSelectedInvestibleIdTabZero(id) {
-    setInvestibleIdTabZeroWasSet(true);
-    setSelectedInvestibleIdTabZero(id);
+    updatePageState({ selectedInvestibleIdTabZero: id, investibleIdTabZeroWasSet: true });
   }
 
   function setUseSelectedInvestibleIdTabOne(id) {
-    setInvestibleIdTabOneWasSet(true);
-    setSelectedInvestibleIdTabOne(id);
+    updatePageState({ selectedInvestibleIdTabOne: id, investibleIdTabOneWasSet: true });
   }
 
   const proposed = getInlineInvestiblesForStage(proposedStage);
@@ -176,14 +174,14 @@ function Options(props) {
   const htmlColor = _.isEmpty(underConsideration) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
   const tabInvestibles = useTabIndex === 0 ? underConsideration : proposed;
   return (
-    <div style={{marginTop: '0.25rem'}}>
+    <div style={{marginTop: '1rem'}}>
       {abstained}
       <div onDrop={useTabIndex === 0 ? onDropProposed : onDropApprovable}
            onDragOver={(event)=>event.preventDefault()}>
         <GmailTabs
           value={useTabIndex}
           onChange={(event, value) => {
-            setTabIndex(value);
+            updatePageState({ tabIndex: value });
           }}
           indicatorColors={[htmlColor, '#00008B']}
           style={{ paddingBottom: '1rem' }}>

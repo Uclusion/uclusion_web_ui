@@ -934,24 +934,28 @@ function Comment(props) {
           )}
         </Box>
       </CardContent>
+      {!showActions && !thisCommentBeingEdited && useCompression === false && (
+        <CardActions>
+          <div className={classes.actions}>
+            <SpinningIconLabelButton
+              icon={ExpandLess}
+              toolTipId='commentCloseThreadLabelExplanation'
+              doSpin={false}
+              onClick={(event) => {
+                preventDefaultAndProp(event);
+                toggleCompression();
+              }}
+            >
+              <FormattedMessage
+                id="commentCloseThreadLabel"
+              />
+            </SpinningIconLabelButton>
+          </div>
+        </CardActions>
+      )}
       {showActions && !thisCommentBeingEdited && (
         <CardActions>
           <div className={classes.actions}>
-            {useCompression === false && (
-              <SpinningIconLabelButton
-                icon={ExpandLess}
-                toolTipId='commentCloseThreadLabelExplanation'
-                doSpin={false}
-                onClick={(event) => {
-                  preventDefaultAndProp(event);
-                  toggleCompression();
-                }}
-              >
-                <FormattedMessage
-                  id="commentCloseThreadLabel"
-                />
-              </SpinningIconLabelButton>
-            )}
             {((resolved && showReopen) || (!resolved && showResolve)) && mobileLayout && (
               <SpinningIconLabelButton
                 doSpin={(investibleId || resolved) && (resolved || commentType !== REPORT_TYPE)}

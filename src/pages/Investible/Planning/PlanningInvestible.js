@@ -894,9 +894,8 @@ function PlanningInvestible(props) {
                                         },
                                       };
                                       return stageChangeInvestible(moveInfo)
-                                        .then((response) => {
-                                          const { full_investible: newInv } = response;
-                                          onInvestibleStageChange(stage, newInv, investibleId, marketId,
+                                        .then((newInv) => {
+                                          onInvestibleStageChange(inReviewStageId, newInv, investibleId, marketId,
                                             undefined, undefined, investiblesDispatch,
                                             () => {}, marketStagesState, undefined, fullStage);
                                           setOperationRunning(false);

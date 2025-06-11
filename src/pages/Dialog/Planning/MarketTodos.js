@@ -405,6 +405,10 @@ function MarketTodos(props) {
   useHotkeys('ctrl+shift+e', ()=> bugDispatch(contractAll(data)),
     {enableOnContentEditable: true}, [data, expansionState]);
 
+  if (hidden) {
+    return <React.Fragment/>;
+  }
+
   return (
     <div id="marketTodos" key="marketTodosKey" style={{display: sectionOpen ? 'block' : 'none',
       overflowX: 'hidden', paddingBottom: !(isInbox || isInArchives) ? '5rem' : undefined}}>

@@ -88,7 +88,6 @@ function Options(props) {
       investibleIdTabZeroWasSet: false, investibleIdTabOneWasSet: false});
   const anInlineMarketInvestibleComments = getMarketComments(commentsState, anInlineMarket.id) || [];
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
-  const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
   const abstaining = anInlineMarketPresences.filter((presence) => presence.abstain);
   const { tabIndex, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne, investibleIdTabZeroWasSet,
     investibleIdTabOneWasSet } = pageState;

@@ -23,7 +23,7 @@ function OptionVoting(props) {
     const investibleId = inv.investible.id;
     if (expansionOpen) {
       expansionPanel = <DecisionInvestible
-        userId={userId || ''}
+        userId={userId}
         market={market}
         fullInvestible={inv}
         marketPresences={marketPresences}
@@ -41,7 +41,7 @@ function OptionVoting(props) {
     return (
       <OptionListItem id={investibleId} expansionPanel={expansionPanel} isNew={isNew(inv, messagesState)}
                       people={investors} description={description} title={inv.investible.name}
-                      questionResolved={inArchives}
+                      questionResolved={inArchives} isAdmin={isAdmin}
                       expandOrContract={() => {
                         if (expansionOpen) {
                           setSelectedInvestibleId(undefined);

@@ -136,13 +136,13 @@ function Options(props) {
   }
 
   function onDropApprovable(event) {
-    if (myInlinePresence.is_admin) {
+    if (isEditable) {
       return onDrop(event, proposedStage, underConsiderationStage);
     }
   }
 
   function onDropProposed(event) {
-    if (myInlinePresence.is_admin) {
+    if (isEditable) {
       return onDrop(event, underConsiderationStage, proposedStage);
     }
   }

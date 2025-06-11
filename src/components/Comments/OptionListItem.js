@@ -75,7 +75,8 @@ function OptionListItem(props) {
     id,
     expansionPanel,
     expansionOpen,
-    questionResolved
+    questionResolved,
+    isAdmin
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -101,7 +102,7 @@ function OptionListItem(props) {
 
   return (
     <>
-      <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable={!questionResolved}>
+      <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable={!questionResolved && isAdmin}>
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
                onClick={

@@ -293,7 +293,7 @@ function DecisionInvestible(props) {
           groupId={groupId}
         />
       )}
-      {yourPresence?.is_admin && (
+      {isAdmin && (
         <>
           <div style={{paddingTop: '1rem'}} />
           <SpinningIconLabelButton icon={inProposed ? ArrowUpward : ArrowDownward} id='optionStageChange'

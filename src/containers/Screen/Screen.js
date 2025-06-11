@@ -23,7 +23,7 @@ import AddIcon from '@material-ui/icons/Add'
 import { Group, GroupOutlined, Inbox, MoreVert } from '@material-ui/icons';
 import {
   getCurrentWorkspace,
-  getFirstWorkspace,
+  getFirstWorkspace, getGroupForCommentId,
   getGroupForInvestibleId, getPlanningMarketId,
   setCurrentWorkspace
 } from '../../utils/redirectUtils';
@@ -273,10 +273,11 @@ function Screen(props) {
   const { pathname, search: querySearch, hash } = location;
   const { action, marketId: pathMarketIdRaw, investibleId: pathInvestibleId } = decomposeMarketPath(pathname);
   const values = queryString.parse(querySearch);
-  const { groupId, marketId: searchMarketId, investibleId: searchInvestibleId} = values || {};
+  const { groupId, marketId: searchMarketId, investibleId: searchInvestibleId,
+    commentId: searchCommentId } = values || {};
   const hashValues = queryString.parse(hash);
   const { marketId: hashMarketId, investibleId: hashInvestibleId, type,
-    groupId: hashGroupId, typeObjectId } = hashValues || {};
+    groupId: hashGroupId, typeObjectId, commentId: hashCommentId } = hashValues || {};
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -325,6 +326,7 @@ function Screen(props) {
   const isDemoLoading = _.isEmpty(userState?.user) ||
     OnboardingState.NeedsOnboarding === userState.user.onboarding_state;
   const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
+  const commentId = searchCommentId || hashCommentId;
   let pathMarketId = undefined;
   let pathGroupId = undefined
   if (action === 'inbox') {
@@ -383,7 +385,8 @@ function Screen(props) {
 
   const useGroupId = groupId ? groupId : (investibleId ?
     getGroupForInvestibleId(investibleId, defaultMarket.id, investiblesState) :
-    (pathname === '/' && !isInbox ? defaultMarket.id : undefined));
+    (pathname === '/' && !isInbox ? defaultMarket.id :
+      (commentId ? getGroupForCommentId(commentId, defaultMarket.id, commentsState) : undefined)));
   const navListItemTextArray = [];
   const inactiveGroups = [];
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {

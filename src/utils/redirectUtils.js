@@ -7,6 +7,7 @@ import { getInvestible } from '../contexts/InvestibesContext/investiblesContextH
 import { getMarketInfo } from './userFunctions';
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper';
 import { PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../constants/markets';
+import { getComment } from '../contexts/CommentsContext/commentsContextHelper';
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
@@ -43,6 +44,11 @@ export function getGroupForInvestibleId(investibleId, marketId, investiblesState
   const inv = getInvestible(investiblesState, investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
   return marketInfo.group_id;
+}
+
+export function getGroupForCommentId(commentId, marketId, commentState) {
+  const comment = getComment(commentState, marketId, commentId);
+  return comment?.group_id;
 }
 
 export function getPlanningMarketId(investibleId, marketsState, investiblesState) {

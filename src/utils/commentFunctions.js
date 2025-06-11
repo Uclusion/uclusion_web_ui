@@ -87,14 +87,13 @@ export function changeInvestibleStage(newStage, assigned, updatedAt, info, marke
   investibleDispatch) {
   const newInfo = {
     ...info,
-    last_stage_change_date: updatedAt,
+    stage: newStage.id,
+    stage_name: newStage.name,
+    last_stage_change_date: updatedAt
   };
   if (_.isEmpty(assigned)) {
     // If in further work just remove ready to assign
     newInfo.open_for_investment = false;
-  } else {
-    newInfo.stage = newStage.id;
-    newInfo.stage_name = newStage.name;
   }
   const newInfos = _.unionBy([newInfo], market_infos, 'id');
   const newInvestible = {

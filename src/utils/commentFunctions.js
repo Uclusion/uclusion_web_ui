@@ -83,29 +83,29 @@ export function getThreadIds(parents, comments) {
   return commentIds;
 }
 
-export function changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos, rootInvestible, investibleDispatch) {
-  if (newStage?.id || _.isEmpty(assigned)) {
+export function changeInvestibleStage(newStage, assigned, updatedAt, info, market_infos, rootInvestible,
+  investibleDispatch) {
+  const newInfo = {
+    ...info,
+    last_stage_change_date: updatedAt,
+  };
+  if (_.isEmpty(assigned)) {
     // If in further work just remove ready to assign
-    const newInfo = {
-      ...info,
-      open_for_investment: false,
-      last_stage_change_date: updatedAt,
-    };
-    if (!_.isEmpty(assigned)) {
-      newInfo.stage = newStage.id;
-      newInfo.stage_name = newStage.name;
-    }
-    const newInfos = _.unionBy([newInfo], market_infos, 'id');
-    const newInvestible = {
-      investible: rootInvestible,
-      market_infos: newInfos
-    };
-    if (investibleDispatch) {
-      // no diff here, so no diff dispatch
-      addInvestible(investibleDispatch, () => {}, newInvestible);
-    } else {
-      pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [newInvestible] });
-    }
+    newInfo.open_for_investment = false;
+  } else {
+    newInfo.stage = newStage.id;
+    newInfo.stage_name = newStage.name;
+  }
+  const newInfos = _.unionBy([newInfo], market_infos, 'id');
+  const newInvestible = {
+    investible: rootInvestible,
+    market_infos: newInfos
+  };
+  if (investibleDispatch) {
+    // no diff here, so no diff dispatch
+    addInvestible(investibleDispatch, () => {}, newInvestible);
+  } else {
+    pushMessage(PUSH_INVESTIBLES_CHANNEL, { event: LOAD_EVENT, investibles: [newInvestible] });
   }
 }
 

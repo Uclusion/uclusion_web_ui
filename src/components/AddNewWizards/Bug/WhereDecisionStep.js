@@ -26,6 +26,7 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 
 function WhereDecisionStep (props) {
   const { marketId, comment, comments, updateFormData, formData, previousStep } = props;
@@ -53,7 +54,7 @@ function WhereDecisionStep (props) {
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const investible = getInvestible(investiblesState, comment.investible_id);
   const marketInfo = getMarketInfo(investible, marketId);
-  const { assigned: invAssigned } = marketInfo || {};
+  const { assigned: invAssigned, stage: currentStageId } = marketInfo || {};
   const assigned = invAssigned || [];
   const myPresenceIsAssigned = assigned.includes(myPresence.id);
 
@@ -70,14 +71,13 @@ function WhereDecisionStep (props) {
   }
 
   function myMoveToSuggestion () {
+    const isInAssistance = getFullStage(marketStagesState, marketId, currentStageId).move_on_comment;
     return updateComment({ marketId, commentId: comment.id, commentType: SUGGEST_CHANGE_TYPE })
       .then((comment) => {
-        const withNewComment = _.concat(comments, comment);
         addCommentToMarket(comment, commentsState, commentsDispatch);
-        if (myPresenceIsAssigned && myPresence.id === comment.created_by && isSingleAssisted(withNewComment, assigned))
-        {
+        if (myPresenceIsAssigned && myPresence.id === comment.created_by && !isInAssistance) {
           changeInvestibleStageOnCommentOpen(false, true, marketStagesState,
-            [marketInfo], investible, investiblesDispatch, comment, myPresence);
+            [marketInfo], investible.investible, investiblesDispatch, comment, myPresence);
           quickNotificationChanges(comment.comment_type, comment.investible_id, messagesState, messagesDispatch,
             [], comment, undefined, commentsState, commentsDispatch, comment.market_id,
             myPresence);

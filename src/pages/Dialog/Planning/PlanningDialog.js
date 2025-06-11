@@ -141,7 +141,6 @@ function PlanningDialog(props) {
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
   const marketComments = getMarketComments(commentsState, marketId) || [];
-  const isAdmin = myPresence.is_admin;
   const unResolvedGroupComments = marketComments.filter(comment => !comment.investible_id &&
     !comment.resolved && comment.group_id === groupId) || [];
   // There is no link to a reply so including them should be okay
@@ -540,6 +539,7 @@ function PlanningDialog(props) {
         });
     }
   }
+
   return (
     <Screen
       title={groupName}
@@ -690,7 +690,6 @@ function PlanningDialog(props) {
               requiresInputStage={requiresInputStage}
               group={group}
               isAutonomous={isAutonomous}
-              isAdmin={isAdmin}
               mobileLayout={mobileLayout}
               pageState={pageState} updatePageState={updatePageState}
             />

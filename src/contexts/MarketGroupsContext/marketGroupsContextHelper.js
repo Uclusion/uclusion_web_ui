@@ -6,7 +6,7 @@ export function getGroup(state, marketId, groupId) {
   if (!marketId) {
     let group = undefined;
     Object.keys(groupsSafe).forEach((marketId) => {
-      if (groupsSafe[marketId].find) {
+      if (groupsSafe[marketId]?.find) {
         const foundGroup = groupsSafe[marketId].find((group) => group.id === groupId);
         if (foundGroup) {
           group = foundGroup;

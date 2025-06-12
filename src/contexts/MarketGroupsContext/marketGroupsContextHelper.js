@@ -3,17 +3,16 @@ import { updateMarketGroups, updateMarketGroupsFromNetwork } from './marketGroup
 
 export function getGroup(state, marketId, groupId) {
   const groupsSafe  = state || {};
+  const { initializing } = groupsSafe;
+  if (initializing) {
+    return undefined;
+  }
   if (!marketId) {
     let group = undefined;
     Object.keys(groupsSafe).forEach((marketId) => {
-      if (groupsSafe[marketId]?.find) {
-        const foundGroup = groupsSafe[marketId].find((group) => group.id === groupId);
-        if (foundGroup) {
-          group = foundGroup;
-        }
-      } else {
-        console.error(`Incorrect structure for group state and ${marketId}`);
-        console.error(groupsSafe[marketId]);
+      const foundGroup = groupsSafe[marketId].find((group) => group.id === groupId);
+      if (foundGroup) {
+        group = foundGroup;
       }
     });
     return group;

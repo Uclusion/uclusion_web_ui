@@ -4,7 +4,6 @@ import LocalForageHelper from '../../utils/LocalForageHelper'
 import beginListening from './marketGroupsContextMessages'
 
 const MARKET_GROUPS_CONTEXT_NAMESPACE = 'market_groups';
-const GROUPS_CHANNEL = 'groups';
 const EMPTY_STATE = { initializing: true };
 
 const MarketGroupsContext = React.createContext(EMPTY_STATE);
@@ -39,5 +38,5 @@ function MarketGroupsProvider (props) {
   );
 }
 
-export { MarketGroupsProvider, MarketGroupsContext, EMPTY_STATE, MARKET_GROUPS_CONTEXT_NAMESPACE, GROUPS_CHANNEL   };
+export { MarketGroupsProvider, MarketGroupsContext, EMPTY_STATE, MARKET_GROUPS_CONTEXT_NAMESPACE };
 

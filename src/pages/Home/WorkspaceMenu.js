@@ -10,7 +10,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
 import { formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { GroupOutlined, PermIdentity, VpnKey } from '@material-ui/icons';
+import { AddAlert, GroupOutlined, PermIdentity, VpnKey } from '@material-ui/icons';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { usePlanFormStyles } from '../../components/AgilePlan';
@@ -268,15 +268,28 @@ function WorkspaceMenu(props) {
                     </div>
                   </Tooltip>
                 </MenuItem>
+                <MenuItem icon={<VpnKey style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
+                          key="integrationKey" id="integrationId"
+                          onClick={() => {
+                            recordPositionToggle();
+                            navigate(history,`/integrationPreferences/${defaultMarket?.id}?groupId=${chosenGroup}`);
+                          }}
+                >
+                  <Tooltip title={intl.formatMessage({ id: 'integrationPreferencesHeader' })}>
+                    <div>
+                      {intl.formatMessage({ id: 'cliIntegration' })}
+                    </div>
+                  </Tooltip>
+                </MenuItem>
                 {slackAddressable && (
-                  <MenuItem icon={<VpnKey style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
-                            key="integrationKey" id="integrationId"
+                  <MenuItem icon={<AddAlert style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
+                            key="slackIntegrationKey" id="slackIntegrationId"
                             onClick={() => {
                               recordPositionToggle();
                               navigate(history,'/integrationPreferences');
                             }}
                   >
-                    <Tooltip title={intl.formatMessage({ id: 'integrationPreferencesHeader' })}>
+                    <Tooltip title={intl.formatMessage({ id: 'slackIntegrationExplanation' })}>
                       <div>
                         {intl.formatMessage({ id: 'slackIntegration' })}
                       </div>

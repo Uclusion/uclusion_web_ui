@@ -931,7 +931,10 @@ const messages = defineMessages({
 
   // Change Preferences
   integrationPreferencesHeader: 'Integrations',
+  slackIntegrationExplanation: 'Add or remove Slack integration',
   slackIntegration: 'Slack Integration',
+  cliIntegration: 'CLI Integration',
+  cliIntegrationExplanation: 'Sync notes and TODOs with jobs and bugs in Uclusion',
   changePreferences: 'Email and Slack notification preferences by workspace',
   emailEnabledLabel: 'Send notifications via email',
   slackEnabledLabel: 'Send notifications via Slack',

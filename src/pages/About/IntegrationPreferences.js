@@ -13,6 +13,9 @@ import { getNotHiddenMarketDetailsForUser, getSortedMarkets } from '../../contex
 import { PLANNING_TYPE } from '../../constants/markets';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
+import { useLocation } from 'react-router';
+import queryString from 'query-string';
 
 const useStyles = makeStyles((theme) => ({
   disabled: {
@@ -62,15 +65,20 @@ function IntegrationPreferences (props) {
   const [userState] = useContext(AccountContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const location = useLocation();
+  const { pathname, search: querySearch } = location;
+  const { marketId } = decomposeMarketPath(pathname);
+  const values = queryString.parse(querySearch);
+  const { groupId } = values || {};
   const { user } = userState || {};
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
+
   if (myNotHiddenMarketsState.marketDetails) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) =>
       market.market_type === PLANNING_TYPE);
     markets = getSortedMarkets(filtered);
   }
-
 
   return (
     <Screen
@@ -166,6 +174,29 @@ function IntegrationPreferences (props) {
                 </ListItem>
               </Grid>);
             })}
+          </SubSection>
+        </Card>
+      </div>
+      <div className={classes.container} style={{marginTop: '3rem', marginBottom: '1rem'}}>
+        <Card>
+          <SubSection
+            title={intl.formatMessage({ id: 'cliIntegration' })}
+            padChildren
+          >
+            <Typography variant="subtitle1" style={{paddingBottom: '1rem'}}>
+              See documentation for <Link href="https://documentation.uclusion.com/views" target="_blank">CLI setup</Link>.
+              Example uclusion.json for the current workspace and view:
+            </Typography>
+            <p style={{whiteSpace: 'pre-wrap'}}>
+              {"{"}<br/>
+              {'   "workspaceId": '+marketId+','}<br/>
+              {'   "viewId": '+groupId+','}<br/>
+              {'   "sourcesList": ['}<br/>
+              {'     "./src1",'}<br/>
+              {'     "./src2"'}<br/>
+              {"   ]"}<br/>
+              {"}"}
+            </p>
           </SubSection>
         </Card>
       </div>

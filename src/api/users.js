@@ -17,6 +17,11 @@ export function banUser(marketId, userId) {
     .catch((error) => toastErrorAndThrow(error, 'errorBanUserFailed'));
 }
 
+export function getSecret(marketId) {
+  return getMarketClient(marketId).then((client) => client.users.getSecret())
+    .catch((error) => toastErrorAndThrow(error, 'errorSecretFailed'));
+}
+
 export function pokeComment(marketId, commentId) {
   return getMarketClient(marketId)
     .then((client) => client.users.pokeComment(commentId))

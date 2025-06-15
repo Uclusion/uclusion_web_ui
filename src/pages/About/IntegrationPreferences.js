@@ -16,6 +16,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
 import { useLocation } from 'react-router';
 import queryString from 'query-string';
+import CLISecret from './CLISecret';
 
 const useStyles = makeStyles((theme) => ({
   disabled: {
@@ -197,6 +198,7 @@ function IntegrationPreferences (props) {
               {"   ]"}<br/>
               {"}"}
             </p>
+            <CLISecret marketId={marketId} />
           </SubSection>
         </Card>
       </div>

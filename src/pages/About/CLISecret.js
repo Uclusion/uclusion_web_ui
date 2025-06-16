@@ -36,12 +36,12 @@ function CLISecret (props) {
   return (
     <div>
       {!secretUser && (
-        <Typography>
+        <Typography variant="subtitle1">
           Press button to show CLI secret.
         </Typography>
       )}
       {secretUser && (
-        <Typography>
+        <Typography variant="subtitle1">
           Create a .uclusion/credentials file with this:
         </Typography>
       )}

@@ -28,6 +28,12 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 'auto',
     marginRight: 'auto',
   },
+  containerLarge: {
+    maxWidth: '800px',
+    display: 'block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
   action: {
     boxShadow: 'none',
     padding: '4px 16px',
@@ -178,7 +184,7 @@ function IntegrationPreferences (props) {
           </SubSection>
         </Card>
       </div>
-      <div className={classes.container} style={{marginTop: '3rem', marginBottom: '1rem'}}>
+      <div className={classes.containerLarge} style={{marginTop: '3rem', marginBottom: '10rem'}}>
         <Card>
           <SubSection
             title={intl.formatMessage({ id: 'cliIntegration' })}
@@ -186,7 +192,7 @@ function IntegrationPreferences (props) {
           >
             <Typography variant="subtitle1" style={{paddingBottom: '1rem'}}>
               See documentation for <Link href="https://documentation.uclusion.com/views" target="_blank">CLI setup</Link>.
-              Example uclusion.json for the current workspace and view:
+              A uclusion.json for the current workspace and view:
             </Typography>
             <p style={{whiteSpace: 'pre-wrap'}}>
               {"{"}<br/>

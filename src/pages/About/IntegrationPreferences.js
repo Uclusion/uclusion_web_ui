@@ -192,7 +192,7 @@ function IntegrationPreferences (props) {
             padChildren
           >
             <Typography variant="subtitle1" style={{paddingBottom: '1rem'}}>
-              See <Link href="https://documentation.uclusion.com/views" target="_blank">CLI</Link> documentation.
+              See <Link href="https://documentation.uclusion.com/cli" target="_blank">CLI</Link> documentation.
               Example uclusion.json for the current workspace and view:
             </Typography>
             <p style={{whiteSpace: 'pre-wrap'}}>

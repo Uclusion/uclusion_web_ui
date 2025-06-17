@@ -8,6 +8,10 @@ SOURCES_CONFIG_FILE = 'uclusion.json'
 TARGET_FILENAME = 'uclusion.txt'
 
 
+def sync_comment(comment):
+    print(f"  ✅ Processing: '{comment}'")
+
+
 def get_credentials():
     """
     Reads credentials from '~/.uclusion/credentials'.
@@ -47,16 +51,17 @@ def get_credentials():
 
 def process_uclusion_txt(root):
     file_path = os.path.join(root, TARGET_FILENAME)
-
     print(f"  ✅ Processing: '{file_path}'")
-
-    # --- 4. Read and print the file's content ---
     try:
         with open(file_path, 'r', encoding='utf-8') as uclusion_file:
-            content = uclusion_file.read().strip()
-            # Indent content for better readability
-            indented_content = "\n".join([f"     | {line}" for line in content.split('\n')])
-            print(f"     ---\n{indented_content}\n     ---")
+            content = uclusion_file.read()
+            comments = content.split('|')
+            if len(comments) > 1:
+                for comment in comments:
+                    if content.startswith(comment):
+                        # Handle the case that some text before the first |
+                        continue
+                    sync_comment(comment)
     except Exception as e:
         print(f"     -> ❌ Error reading file: {e}")
 
@@ -130,9 +135,12 @@ def process_code_file(root, file, extension):
         with open(file_path, 'r', encoding='utf-8') as code_file:
             for line in code_file:
                 if is_todo(line, extension):
-                    print(f"     ---\n{line}\n     ---")
+                    line_split = line.split('|', 1)
+                    if len(line_split) > 1:
+                        todo, comment = line_split
+                        sync_comment(comment)
     except Exception as e:
-        print(f"     -> ❌ Error reading file: {e}")
+        print(f"     -> ❌ Error reading file {file}: {e}")
 
 
 def process_source_directories():
@@ -202,7 +210,7 @@ def process_source_directories():
                     process_uclusion_txt(root)
                 else:
                     file_name, file_extension = os.path.splitext(file)
-                    if file_extension[1:] in extensions:
+                    if len(file_extension) > 1 and file_extension[1:] in extensions:
                         total_code_files_found += 1
                         process_code_file(root, file, file_extension)
 

@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 
 # Define the names of the configuration file and the target file
@@ -60,8 +61,78 @@ def process_uclusion_txt(root):
         print(f"     -> ❌ Error reading file: {e}")
 
 
-def process_code_file(file):
-    pass
+def is_todo(text: str, extension: str) -> bool:
+    """
+    Checks if a given string is a TO-DO comment in the language associated
+    with the provided file extension.
+
+    This function supports single-line and common multi-line comment
+    starters for a variety of popular programming languages.
+
+    Args:
+        text: The line of text to check.
+        extension: The file extension (e.g., '.py', '.js', '.html') which
+                   determines the comment syntax to look for.
+
+    Returns:
+        True if the string is identified as a TO-DO comment for the specified
+        language, False otherwise.
+    """
+    # Dictionary mapping file extensions to their comment regex patterns.
+    # The patterns look for the start of a line (after optional whitespace),
+    # the comment syntax, and the case-insensitive.
+    comment_patterns = {
+        # Scripting languages using '#'
+        '.py': r'^\s*#\s*TODO',
+        '.rb': r'^\s*#\s*TODO',
+        '.sh': r'^\s*#\s*TODO',
+        '.pl': r'^\s*#\s*TODO',
+
+        # C-style languages using '//'
+        '.js': r'^\s*//\s*TODO',
+        '.ts': r'^\s*//\s*TODO',
+        '.java': r'^\s*//\s*TODO',
+        '.c': r'^\s*(//|/\*)\s*TODO', # Handles // and /*
+        '.cpp': r'^\s*(//|/\*)\s*TODO', # Handles // and /*
+        '.cs': r'^\s*//\s*TODO',
+        '.go': r'^\s*//\s*TODO',
+        '.rs': r'^\s*//\s*TODO',
+        '.swift': r'^\s*//\s*TODO',
+        '.kt': r'^\s*//\s*TODO',
+        '.php': r'^\s*(//|#)\s*TODO', # PHP supports both // and #
+
+        # HTML/XML/CSS
+        '.html': r'^\s*<!--\s*TODO',
+        '.xml': r'^\s*<!--\s*TODO',
+        '.css': r'^\s*/\*\s*TODO',
+        '.scss': r'^\s*(//|/\*)\s*TODO',
+
+        # Lisp-style languages
+        '.lisp': r'^\s*;\s*TODO',
+        '.clj': r'^\s*;\s*TODO',
+    }
+
+    # Get the pattern for the given extension, case-insensitively.
+    pattern = comment_patterns.get(extension.lower())
+
+    # If the extension is not supported in our dictionary, it's not a TO-DO.
+    if not pattern:
+        return False
+
+    # Use re.match to check if the beginning of the stripped string
+    # matches the pattern. re.IGNORECASE makes case-insensitive
+    return bool(re.match(pattern, text.strip(), re.IGNORECASE))
+
+
+def process_code_file(root, file, extension):
+    file_path = os.path.join(root, file)
+    try:
+        with open(file_path, 'r', encoding='utf-8') as code_file:
+            for line in code_file:
+                if is_todo(line, extension):
+                    print(f"     ---\n{line}\n     ---")
+    except Exception as e:
+        print(f"     -> ❌ Error reading file: {e}")
 
 
 def process_source_directories():
@@ -133,7 +204,7 @@ def process_source_directories():
                     file_name, file_extension = os.path.splitext(file)
                     if file_extension[1:] in extensions:
                         total_code_files_found += 1
-                        process_code_file(file)
+                        process_code_file(root, file, file_extension)
 
     print(f"\n🏁 Processed {total_notes_files_found} {TARGET_FILENAME} and {total_code_files_found} code files.")
     return None

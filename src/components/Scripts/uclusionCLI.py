@@ -8,16 +8,55 @@ SOURCES_CONFIG_FILE = 'uclusion.json'
 TARGET_FILENAME = 'uclusion.txt'
 
 
-def process_job(comment):
-    print(f"  ✅ Processing job: '{comment}'")
+def process_waiting(comment_stripped):
+    print(f"  ✅ Processing waiting: '{comment_stripped}'")
 
 
-def process_bug(comment):
-    print(f"  ✅ Processing bug: '{comment}'")
+def process_ready(comment_stripped):
+    print(f"  ✅ Processing ready: '{comment_stripped}'")
+
+
+def process_backlog_ready(comment_stripped):
+    print(f"  ✅ Processing backlog ready: '{comment_stripped}'")
+
+
+def process_backlog_not_ready(comment_stripped):
+    print(f"  ✅ Processing backlog not ready: '{comment_stripped}'")
 
 
 def token_split(token, comment_stripped):
     return comment_stripped[len(token):].strip()
+
+
+def process_job(comment_stripped):
+    comment_stripped_lower = comment_stripped.lower()
+    if comment_stripped_lower.startswith('waiting'):
+        process_waiting(token_split('waiting', comment_stripped))
+    elif comment_stripped_lower.startswith('ready'):
+        process_ready(token_split('ready', comment_stripped))
+    elif comment_stripped_lower.startswith('backlog_ready'):
+        process_backlog_ready(token_split('backlog_ready', comment_stripped))
+    elif comment_stripped_lower.startswith('backlog_not_ready'):
+        process_backlog_not_ready(token_split('backlog_not_ready', comment_stripped))
+    else:
+        process_backlog_not_ready(comment_stripped)
+
+
+def send_bug(notification_type, comment_stripped):
+    print(f"  ✅ Processing {notification_type} bug: '{comment_stripped}'")
+
+
+def process_bug(comment_stripped):
+    comment_stripped_lower = comment_stripped.lower()
+    if comment_stripped_lower.startswith('critical'):
+        send_bug('RED', token_split('critical', comment_stripped))
+    elif comment_stripped_lower.startswith('normal'):
+        send_bug('YELLOW', token_split('normal', comment_stripped))
+    elif comment_stripped_lower.startswith('minor'):
+        send_bug('BLUE', token_split('minor', comment_stripped))
+    else:
+        send_bug('BLUE', comment_stripped)
+
 
 def sync_comment(comment):
     comment_stripped = comment.strip()

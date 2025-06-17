@@ -8,8 +8,35 @@ SOURCES_CONFIG_FILE = 'uclusion.json'
 TARGET_FILENAME = 'uclusion.txt'
 
 
+def process_job(comment):
+    print(f"  ✅ Processing job: '{comment}'")
+
+
+def process_bug(comment):
+    print(f"  ✅ Processing bug: '{comment}'")
+
+
+def token_split(token, comment_stripped):
+    return comment_stripped[len(token):].strip()
+
 def sync_comment(comment):
-    print(f"  ✅ Processing: '{comment}'")
+    comment_stripped = comment.strip()
+    comment_stripped_lower = comment_stripped.lower()
+    if comment_stripped_lower.startswith('job'):
+        process_job(token_split('job', comment_stripped))
+    elif comment_stripped_lower.startswith('waiting'):
+        process_job(comment_stripped)
+    elif comment_stripped_lower.startswith('ready'):
+        process_job(comment_stripped)
+    elif comment_stripped_lower.startswith('backlog_ready'):
+        process_job(comment_stripped)
+    elif comment_stripped_lower.startswith('backlog_not_ready'):
+        process_job(comment_stripped)
+    else:
+        if comment_stripped_lower.startswith('bug'):
+            process_bug(token_split('bug', comment_stripped))
+        else:
+            process_bug(comment_stripped)
 
 
 def get_credentials():

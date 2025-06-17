@@ -193,12 +193,17 @@ function IntegrationPreferences (props) {
           >
             <Typography variant="subtitle1" style={{paddingBottom: '1rem'}}>
               See <Link href="https://documentation.uclusion.com/views" target="_blank">CLI</Link> documentation.
-              A uclusion.json for the current workspace and view:
+              Example uclusion.json for the current workspace and view:
             </Typography>
             <p style={{whiteSpace: 'pre-wrap'}}>
               {"{"}<br/>
               {'   "workspaceId": "'+marketId+'",'}<br/>
               {'   "viewId": "'+groupId+'",'}<br/>
+              {'   "extensionsList": ['}<br/>
+              {'     "java",'}<br/>
+              {'     "js",'}<br/>
+              {'     "py"'}<br/>
+              {"   ],"}<br/>
               {'   "sourcesList": ['}<br/>
               {'     "./src1",'}<br/>
               {'     "./src2"'}<br/>

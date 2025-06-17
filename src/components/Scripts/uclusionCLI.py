@@ -58,6 +58,17 @@ def process_source_directories():
         if not source_dirs:
             print(f"⚠️ Warning: No source directories listed in '{SOURCES_CONFIG_FILE}'.")
             return None
+        extensions = config.get('extensionsList', [])
+        if not extensions:
+            print(f"⚠️ Warning: No extensions listed in '{SOURCES_CONFIG_FILE}'.")
+            return None
+        workspace_id = config.get('workspaceId')
+        view_id = config.get('viewId')
+        if workspace_id is None:
+            print(f"⚠️ Warning: No workspaceId in '{SOURCES_CONFIG_FILE}'.")
+            return None
+        if view_id is None:
+            view_id = workspace_id
     except FileNotFoundError:
         print(f"❌ Error: Configuration file '{SOURCES_CONFIG_FILE}' not found.")
         return None
@@ -106,8 +117,7 @@ def process_source_directories():
                         content = uclusion_file.read().strip()
                         # Indent content for better readability
                         indented_content = "\n".join([f"     | {line}" for line in content.split('\n')])
-                        print(f"     ---\n{secret_key_id}\n     ---")
-                        print(f"     ---\n{secret_key}\n     ---")
+                        print(f"     ---\n{view_id}\n     ---")
                         print(f"     ---\n{indented_content}\n     ---")
                 except Exception as e:
                     print(f"     -> ❌ Error reading file: {e}")

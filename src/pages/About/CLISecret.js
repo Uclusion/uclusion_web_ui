@@ -34,7 +34,7 @@ function CLISecret (props) {
   }
 
   return (
-    <div>
+    <div style={{marginTop: '2rem'}}>
       {!secretUser && (
         <Typography variant="subtitle1">
           Press button to show CLI secret.
@@ -46,7 +46,7 @@ function CLISecret (props) {
         </Typography>
       )}
       {secretUser && (
-        <p style={{whiteSpace: 'pre-wrap'}}>
+        <p style={{whiteSpace: 'pre-wrap', marginTop: '0.5rem'}}>
           {`secret_key_id = ${secretUser.external_id}_${secretUser.account_id}`}<br/>
           {`secret_key = ${secretUser.client_secret}`}<br/>
         </p>

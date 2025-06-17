@@ -197,8 +197,8 @@ function IntegrationPreferences (props) {
             </Typography>
             <p style={{whiteSpace: 'pre-wrap'}}>
               {"{"}<br/>
-              {'   "workspaceId": '+marketId+','}<br/>
-              {'   "viewId": '+groupId+','}<br/>
+              {'   "workspaceId": "'+marketId+'",'}<br/>
+              {'   "viewId": "'+groupId+'",'}<br/>
               {'   "sourcesList": ['}<br/>
               {'     "./src1",'}<br/>
               {'     "./src2"'}<br/>

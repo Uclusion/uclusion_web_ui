@@ -1,26 +1,75 @@
 import json
 import os
 import re
+import sys
+import urllib.request
 
 
 # Define the names of the configuration file and the target file
 SOURCES_CONFIG_FILE = 'uclusion.json'
 TARGET_FILENAME = 'uclusion.txt'
+DEV_API_URL = "dev.api.uclusion.com/v1"
+STAGE_API_URL = "stage.api.uclusion.com/v1"
+PRODUCTION_API_URL = "production.api.uclusion.com/v1"
 
 
-def process_waiting(comment_stripped):
+def send(data, method, my_api_url, auth=None):
+    # Encode the data into JSON format
+    json_data = json.dumps(data)
+    json_data_as_bytes = json_data.encode('utf-8')  # Convert to bytes
+
+    headers = {'Content-Type': 'application/json'}
+    if auth is not None:
+        headers['Authorization'] = auth
+
+    # Create a Request object
+    # The 'data' parameter in Request() is used for POST requests
+    # We also need to set the 'Content-Type' header to 'application/json'
+    req = urllib.request.Request(
+        my_api_url,
+        data=json_data_as_bytes,
+        headers=headers,
+        method=method
+    )
+    print(f"Sending to {my_api_url} and {method}")
+    try:
+        # Send the request and get the response
+        with urllib.request.urlopen(req) as response:
+            # Check the HTTP status code
+            if response.status == 200 or response.status == 201:
+                print(f"Successfully posted data. Status code: {response.status}")
+                # Read and decode the response body
+                response_body = response.read().decode('utf-8')
+                print("Response Body:")
+                print(response_body)
+                # If the response is JSON, you can parse it
+                response_json = json.loads(response_body)
+                print("\nParsed JSON Response:")
+                print(json.dumps(response_json, indent=2))
+                return response_json
+            else:
+                print(f"Failed to post data. Status code: {response.status}")
+                print(f"Response: {response.read().decode('utf-8')}")
+
+    except urllib.request.HTTPError as e:
+        print(f"Error making request: {e.reason}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+
+def process_waiting(comment_stripped, credentials, waiting_stage):
     print(f"  ✅ Processing waiting: '{comment_stripped}'")
 
 
-def process_ready(comment_stripped):
+def process_ready(comment_stripped, credentials, ready_stage):
     print(f"  ✅ Processing ready: '{comment_stripped}'")
 
 
-def process_backlog_ready(comment_stripped):
+def process_backlog_ready(comment_stripped, credentials):
     print(f"  ✅ Processing backlog ready: '{comment_stripped}'")
 
 
-def process_backlog_not_ready(comment_stripped):
+def process_backlog_not_ready(comment_stripped, credentials):
     print(f"  ✅ Processing backlog not ready: '{comment_stripped}'")
 
 
@@ -28,54 +77,76 @@ def token_split(token, comment_stripped):
     return comment_stripped[len(token):].strip()
 
 
-def process_job(comment_stripped):
+def get_waiting_stage(stages):
+    for stage in stages:
+        if stage['allows_investment']:
+            return stage
+    return None
+
+
+def get_ready_stage(stages):
+    for stage in stages:
+        if stage['assignee_enter_only']:
+            return stage
+    return None
+
+
+def process_job(comment_stripped, credentials, stages):
     comment_stripped_lower = comment_stripped.lower()
     if comment_stripped_lower.startswith('waiting'):
-        process_waiting(token_split('waiting', comment_stripped))
+        process_waiting(token_split('waiting', comment_stripped), credentials, get_waiting_stage(stages))
     elif comment_stripped_lower.startswith('ready'):
-        process_ready(token_split('ready', comment_stripped))
+        process_ready(token_split('ready', comment_stripped), credentials, get_ready_stage(stages))
     elif comment_stripped_lower.startswith('backlog_ready'):
-        process_backlog_ready(token_split('backlog_ready', comment_stripped))
+        process_backlog_ready(token_split('backlog_ready', comment_stripped), credentials)
     elif comment_stripped_lower.startswith('backlog_not_ready'):
-        process_backlog_not_ready(token_split('backlog_not_ready', comment_stripped))
+        process_backlog_not_ready(token_split('backlog_not_ready', comment_stripped), credentials)
     else:
-        process_backlog_not_ready(comment_stripped)
+        process_backlog_not_ready(comment_stripped, credentials)
 
 
-def send_bug(notification_type, comment_stripped):
-    print(f"  ✅ Processing {notification_type} bug: '{comment_stripped}'")
+def send_bug(notification_type, comment_stripped, credentials):
+    # TODO this is really send_new_bug - will need counterpart by parsing if a bug id already there
+    create_bug_api_url = 'https://investibles.' + credentials['api_url'] + '/comment'
+    data = {
+        'group_id': credentials['view_id'],
+        'body': comment_stripped,
+        'notification_type': notification_type,
+        'comment_type': 'TODO'
+    }
+    return send(data, 'POST', create_bug_api_url, credentials['api_token'])
 
 
-def process_bug(comment_stripped):
+def process_bug(comment_stripped, credentials):
     comment_stripped_lower = comment_stripped.lower()
     if comment_stripped_lower.startswith('critical'):
-        send_bug('RED', token_split('critical', comment_stripped))
+        send_bug('RED', token_split('critical', comment_stripped), credentials)
     elif comment_stripped_lower.startswith('normal'):
-        send_bug('YELLOW', token_split('normal', comment_stripped))
+        send_bug('YELLOW', token_split('normal', comment_stripped), credentials)
     elif comment_stripped_lower.startswith('minor'):
-        send_bug('BLUE', token_split('minor', comment_stripped))
+        send_bug('BLUE', token_split('minor', comment_stripped), credentials)
     else:
-        send_bug('BLUE', comment_stripped)
+        send_bug('BLUE', comment_stripped, credentials)
 
 
-def sync_comment(comment):
+def sync_comment(comment, credentials, stages):
     comment_stripped = comment.strip()
     comment_stripped_lower = comment_stripped.lower()
     if comment_stripped_lower.startswith('job'):
-        process_job(token_split('job', comment_stripped))
+        process_job(token_split('job', comment_stripped), credentials, stages)
     elif comment_stripped_lower.startswith('waiting'):
-        process_job(comment_stripped)
+        process_job(comment_stripped, credentials, stages)
     elif comment_stripped_lower.startswith('ready'):
-        process_job(comment_stripped)
+        process_job(comment_stripped, credentials, stages)
     elif comment_stripped_lower.startswith('backlog_ready'):
-        process_job(comment_stripped)
+        process_job(comment_stripped, credentials, stages)
     elif comment_stripped_lower.startswith('backlog_not_ready'):
-        process_job(comment_stripped)
+        process_job(comment_stripped, credentials, stages)
     else:
         if comment_stripped_lower.startswith('bug'):
-            process_bug(token_split('bug', comment_stripped))
+            process_bug(token_split('bug', comment_stripped), credentials)
         else:
-            process_bug(comment_stripped)
+            process_bug(comment_stripped, credentials)
 
 
 def get_credentials():
@@ -115,7 +186,7 @@ def get_credentials():
     return credentials
 
 
-def process_uclusion_txt(root):
+def process_uclusion_txt(root, credentials, stages):
     file_path = os.path.join(root, TARGET_FILENAME)
     print(f"  ✅ Processing: '{file_path}'")
     try:
@@ -127,7 +198,7 @@ def process_uclusion_txt(root):
                     if content.startswith(comment):
                         # Handle the case that some text before the first |
                         continue
-                    sync_comment(comment)
+                    sync_comment(comment, credentials, stages)
     except Exception as e:
         print(f"     -> ❌ Error reading file: {e}")
 
@@ -195,7 +266,7 @@ def is_todo(text: str, extension: str) -> bool:
     return bool(re.match(pattern, text.strip(), re.IGNORECASE))
 
 
-def process_code_file(root, file, extension):
+def process_code_file(root, file, extension, credentials, stages):
     file_path = os.path.join(root, file)
     try:
         with open(file_path, 'r', encoding='utf-8') as code_file:
@@ -204,12 +275,22 @@ def process_code_file(root, file, extension):
                     line_split = line.split('|', 1)
                     if len(line_split) > 1:
                         todo, comment = line_split
-                        sync_comment(comment)
+                        sync_comment(comment, credentials, stages)
     except Exception as e:
         print(f"     -> ❌ Error reading file {file}: {e}")
 
 
-def process_source_directories():
+def login(credentials):
+    login_api_url = 'https://sso.' + credentials['api_url'] + '/cli'
+    data = {
+        'market_id': credentials['workspace_id'],
+        'client_secret': credentials['secret_key'],
+        'client_id': credentials['secret_key_id']
+    }
+    return send(data, 'POST', login_api_url)
+
+
+def process_source_directories(api_url):
     """
     Reads source directories from a JSON config, recursively finds all TARGET_FILENAME files
     """
@@ -258,6 +339,14 @@ def process_source_directories():
         print("   -> ❌ Error: 'secret_key_id' not found in credentials file.")
         return None
 
+    credentials['view_id'] = view_id
+    credentials['workspace_id'] = workspace_id
+    credentials['api_url'] = api_url
+
+    response = login(credentials)
+    credentials['api_token'] = response['uclusion_token']
+    stages = response['stages']
+
     # Process each source directory
     total_notes_files_found = 0
     total_code_files_found = 0
@@ -273,16 +362,23 @@ def process_source_directories():
             for file in files:
                 if TARGET_FILENAME == file:
                     total_notes_files_found += 1
-                    process_uclusion_txt(root)
+                    process_uclusion_txt(root, credentials, stages)
                 else:
                     file_name, file_extension = os.path.splitext(file)
                     if len(file_extension) > 1 and file_extension[1:] in extensions:
                         total_code_files_found += 1
-                        process_code_file(root, file, file_extension)
+                        process_code_file(root, file, file_extension, credentials, stages)
 
     print(f"\n🏁 Processed {total_notes_files_found} {TARGET_FILENAME} and {total_code_files_found} code files.")
     return None
 
 
 if __name__ == "__main__":
-    process_source_directories()
+    urlEnv = sys.argv[1]
+    if urlEnv == 'dev':
+        api_url = DEV_API_URL
+    elif urlEnv == 'stage':
+        api_url = STAGE_API_URL
+    else:
+        api_url = PRODUCTION_API_URL
+    process_source_directories(api_url)

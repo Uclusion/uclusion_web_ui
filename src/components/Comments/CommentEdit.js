@@ -210,7 +210,7 @@ function CommentEdit(props) {
   const editBox = useRef(null);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, investible_id: investibleId,
-    body: initialBody, group_id: groupId } = comment;
+    body: initialBody, group_id: groupId, version } = comment;
   const classes = useStyles();
   const wizardClasses = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -270,7 +270,7 @@ function CommentEdit(props) {
       label = nameFromDescription(tokensRemoved);
     }
     return updateComment({marketId, commentId: id, body: tokensRemoved, uploadedFiles: filteredUploads, mentions,
-      notificationType: myActualNotificationType, investibleLabel: label, isSent})
+      notificationType: myActualNotificationType, investibleLabel: label, isSent, version})
       .then((response) => {
         let comment = response;
         if (!_.isEmpty(label)) {

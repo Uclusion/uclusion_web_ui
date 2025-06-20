@@ -30,7 +30,7 @@ function OptionEditStep(props) {
   const classes = useContext(WizardStylesContext);
   const [hasValue, setHasValue] = useState(true);
   const investibleId = investible.id;
-  const { description } = investible || {};
+  const { description, version } = investible || {};
   const { uploadedFiles } = formData;
   const editorName = `body-editor${investibleId}`;
   const useDescription = getQuillStoredState(editorName) || description;
@@ -64,6 +64,7 @@ function OptionEditStep(props) {
       description: tokensRemoved,
       marketId,
       investibleId,
+      version
     };
     return updateInvestible(updateInfo)
       .then((fullInvestible) => {

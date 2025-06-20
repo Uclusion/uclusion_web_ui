@@ -41,10 +41,11 @@ export function alterComments(marketId, commentIds, notificationType) {
 
 export function updateComment(values) {
   const { marketId, commentId, body, commentType, uploadedFiles, mentions, notificationType,
-    isSent, investibleLabel, allowMulti, isRestricted, inProgress } = values;
+    isSent, investibleLabel, allowMulti, isRestricted, inProgress, version } = values;
   return getMarketClient(marketId)
     .then((client) => client.investibles.updateComment(commentId, body, undefined, uploadedFiles, mentions,
-      commentType, notificationType, isSent, investibleLabel, allowMulti, isRestricted, inProgress))
+      commentType, notificationType, isSent, investibleLabel, allowMulti, isRestricted, inProgress, undefined,
+      version))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 

@@ -126,7 +126,7 @@ def send_bug(notification_type, comment_stripped, credentials):
     create_bug_api_url = 'https://investibles.' + credentials['api_url'] + '/comment'
     data = {
         'group_id': credentials['view_id'],
-        'body': comment_stripped,
+        'body': f"<p>{comment_stripped}</p>",
         'notification_type': notification_type,
         'comment_type': 'TODO'
     }
@@ -204,10 +204,12 @@ def get_credentials():
 
 
 def add_bug_url_line(comment, credentials):
+    # /{comment['market_id']}/{comment['ticket_code']} also works
     return f"{credentials['ui_url']}/dialog/{comment['market_id']}?groupId={comment['group_id']}#c{comment['id']}\r\n"
 
 
 def add_job_url_line(full_investible, credentials):
+    # /{credentials['workspace_id']}/{get_ticket_code(full_investible, credentials)} also works
     return f"{credentials['ui_url']}/dialog/{credentials['workspace_id']}/{full_investible['investible']['id']}\r\n"
 
 
@@ -300,16 +302,52 @@ def is_todo(text: str, extension: str) -> bool:
     return bool(re.match(pattern, text.strip(), re.IGNORECASE))
 
 
+def get_ticket_code(content, credentials):
+    if 'ticket_code' in content:
+        return content['ticket_code']
+    for market_info in content['market_infos']:
+        if market_info['market_id'] == credentials['workspace_id']:
+            return market_info['ticket_code']
+    return None
+
+
+def get_description(content):
+    if 'body' in content:
+        return content['body']
+    return content['investible']['description']
+
+
+def get_new_todo_line(context):
+    line = context['line']
+    pipe_index = line.find('|')
+    # replace from | to start of description with ticket_code
+    return line[:pipe_index] + context['ticket_code'] + ' ' + context['description'] + "\r\n"
+
+
 def process_code_file(root, file, extension, credentials, stages):
     file_path = os.path.join(root, file)
     try:
-        with open(file_path, 'r', encoding='utf-8') as code_file:
-            for line in code_file:
+        with open(file_path, 'r+', encoding='utf-8') as code_file:
+            line_contexts = []
+            all_lines = code_file.readlines()
+            line_number = 0
+            for line in all_lines:
                 if is_todo(line, extension):
+                    # TODO J-all-214 this split will not work with multi-line comments
                     line_split = line.split('|', 1)
                     if len(line_split) > 1:
                         todo, comment = line_split
-                        sync_comment(comment, credentials, stages)
+                        new_content = sync_comment(comment, credentials, stages)
+                        description = get_description(new_content)
+                        ticket_code = get_ticket_code(new_content, credentials)
+                        line_context = {'ticket_code': ticket_code, 'description': description[3: -4],
+                                        'line_number': line_number, 'line': line}
+                        line_contexts.append(line_context)
+                line_number += 1
+            code_file.seek(0)
+            for line_context in line_contexts:
+                all_lines[line_context['line_number']] = get_new_todo_line(line_context)
+            code_file.writelines(all_lines)
     except Exception as e:
         print(f"     -> ❌ Error reading file {file}: {e}")
 

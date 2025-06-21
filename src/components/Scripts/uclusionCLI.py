@@ -64,6 +64,12 @@ def send_job(comment_stripped, credentials, is_assign=False, stage=None, is_read
         'description': f"<p>{comment_stripped}</p>",
         'group_id': credentials['view_id']
     }
+    if is_assign:
+        data['assignments'] = [credentials['user_id']]
+    elif is_ready:
+        data['open_for_investment'] = True
+    if stage is not None:
+        data['stage_id'] = stage['id']
     return send(data, 'POST', create_job_api_url, credentials['api_token'])
 
 
@@ -374,6 +380,7 @@ def process_source_directories(api_url):
     response = login(credentials)
     credentials['api_token'] = response['uclusion_token']
     credentials['ui_url'] = response['ui_url']
+    credentials['user_id'] = response['user_id']
     stages = response['stages']
 
     # Process each source directory

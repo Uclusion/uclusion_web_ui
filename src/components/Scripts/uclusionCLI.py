@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import json
 import os
 import re
@@ -31,21 +32,16 @@ def send(data, method, my_api_url, auth=None):
         headers=headers,
         method=method
     )
-    print(f"Sending to {my_api_url} and {method}")
+
     try:
         # Send the request and get the response
         with urllib.request.urlopen(req) as response:
             # Check the HTTP status code
             if response.status == 200 or response.status == 201:
-                print(f"Successfully posted data. Status code: {response.status}")
                 # Read and decode the response body
                 response_body = response.read().decode('utf-8')
-                print("Response Body:")
-                print(response_body)
                 # If the response is JSON, you can parse it
                 response_json = json.loads(response_body)
-                print("\nParsed JSON Response:")
-                print(json.dumps(response_json, indent=2))
                 return response_json
             else:
                 print(f"Failed to post data. Status code: {response.status}")
@@ -110,14 +106,19 @@ def get_ready_stage(stages):
 def process_job(comment_stripped, credentials, stages):
     comment_stripped_lower = comment_stripped.lower()
     if comment_stripped_lower.startswith('waiting'):
+        print(f"  ✅ Creating waiting job")
         job = process_waiting(token_split('waiting', comment_stripped), credentials, get_waiting_stage(stages))
     elif comment_stripped_lower.startswith('ready'):
+        print(f"  ✅ Creating ready job")
         job = process_ready(token_split('ready', comment_stripped), credentials, get_ready_stage(stages))
     elif comment_stripped_lower.startswith('backlog_ready'):
+        print(f"  ✅ Creating backlog ready job")
         job = process_backlog_ready(token_split('backlog_ready', comment_stripped), credentials)
     elif comment_stripped_lower.startswith('backlog_not_ready'):
+        print(f"  ✅ Creating backlog job")
         job = process_backlog_not_ready(token_split('backlog_not_ready', comment_stripped), credentials)
     else:
+        print(f"  ✅ Creating backlog job")
         job = process_backlog_not_ready(comment_stripped, credentials)
     return job
 
@@ -136,12 +137,16 @@ def send_bug(notification_type, comment_stripped, credentials):
 def process_bug(comment_stripped, credentials):
     comment_stripped_lower = comment_stripped.lower()
     if comment_stripped_lower.startswith('critical'):
+        print(f"  ✅ Creating critical bug")
         bug = send_bug('RED', token_split('critical', comment_stripped), credentials)
     elif comment_stripped_lower.startswith('normal'):
+        print(f"  ✅ Creating normal bug")
         bug = send_bug('YELLOW', token_split('normal', comment_stripped), credentials)
     elif comment_stripped_lower.startswith('minor'):
+        print(f"  ✅ Creating minor bug")
         bug = send_bug('BLUE', token_split('minor', comment_stripped), credentials)
     else:
+        print(f"  ✅ Creating minor bug")
         bug = send_bug('BLUE', comment_stripped, credentials)
     return bug
 
@@ -417,6 +422,9 @@ def process_source_directories(api_url):
     credentials['api_url'] = api_url
 
     response = login(credentials)
+    if response is None or 'uclusion_token' not in response:
+        print("   -> ❌ Error: login failed.")
+        return None
     credentials['api_token'] = response['uclusion_token']
     credentials['ui_url'] = response['ui_url']
     credentials['user_id'] = response['user_id']
@@ -449,7 +457,7 @@ def process_source_directories(api_url):
 
 
 if __name__ == "__main__":
-    urlEnv = sys.argv[1]
+    urlEnv = sys.argv[1] if len(sys.argv) > 1 else None
     if urlEnv == 'dev':
         api_url = DEV_API_URL
     elif urlEnv == 'stage':

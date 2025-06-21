@@ -1,0 +1,11 @@
+{
+  "workspaceId": "dd56682c-9920-417b-be46-7a30d41bc905",
+  "viewId": "dd56682c-9920-417b-be46-7a30d41bc905",
+  "extensionsList": [
+    "js",
+    "py"
+  ],
+  "sourcesList": [
+    "./src"
+  ]
+}

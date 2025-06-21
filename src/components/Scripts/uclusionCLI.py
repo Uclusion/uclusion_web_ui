@@ -57,20 +57,30 @@ def send(data, method, my_api_url, auth=None):
         print(f"An unexpected error occurred: {e}")
 
 
+def send_job(comment_stripped, credentials, is_assign=False, stage=None, is_ready=False):
+    create_job_api_url = 'https://investibles.' + credentials['api_url'] + '/create'
+    data = {
+        'name': comment_stripped.splitlines()[0][0:79],
+        'description': f"<p>{comment_stripped}</p>",
+        'group_id': credentials['view_id']
+    }
+    return send(data, 'POST', create_job_api_url, credentials['api_token'])
+
+
 def process_waiting(comment_stripped, credentials, waiting_stage):
-    print(f"  ✅ Processing waiting: '{comment_stripped}'")
+    return send_job(comment_stripped, credentials, True, waiting_stage)
 
 
 def process_ready(comment_stripped, credentials, ready_stage):
-    print(f"  ✅ Processing ready: '{comment_stripped}'")
+    return send_job(comment_stripped, credentials, True, ready_stage)
 
 
 def process_backlog_ready(comment_stripped, credentials):
-    print(f"  ✅ Processing backlog ready: '{comment_stripped}'")
+    return send_job(comment_stripped, credentials, False, None, True)
 
 
 def process_backlog_not_ready(comment_stripped, credentials):
-    print(f"  ✅ Processing backlog not ready: '{comment_stripped}'")
+    return send_job(comment_stripped, credentials, False, None, False)
 
 
 def token_split(token, comment_stripped):
@@ -94,19 +104,19 @@ def get_ready_stage(stages):
 def process_job(comment_stripped, credentials, stages):
     comment_stripped_lower = comment_stripped.lower()
     if comment_stripped_lower.startswith('waiting'):
-        process_waiting(token_split('waiting', comment_stripped), credentials, get_waiting_stage(stages))
+        job = process_waiting(token_split('waiting', comment_stripped), credentials, get_waiting_stage(stages))
     elif comment_stripped_lower.startswith('ready'):
-        process_ready(token_split('ready', comment_stripped), credentials, get_ready_stage(stages))
+        job = process_ready(token_split('ready', comment_stripped), credentials, get_ready_stage(stages))
     elif comment_stripped_lower.startswith('backlog_ready'):
-        process_backlog_ready(token_split('backlog_ready', comment_stripped), credentials)
+        job = process_backlog_ready(token_split('backlog_ready', comment_stripped), credentials)
     elif comment_stripped_lower.startswith('backlog_not_ready'):
-        process_backlog_not_ready(token_split('backlog_not_ready', comment_stripped), credentials)
+        job = process_backlog_not_ready(token_split('backlog_not_ready', comment_stripped), credentials)
     else:
-        process_backlog_not_ready(comment_stripped, credentials)
+        job = process_backlog_not_ready(comment_stripped, credentials)
+    return job
 
 
 def send_bug(notification_type, comment_stripped, credentials):
-    # TODO this is really send_new_bug - will need counterpart by parsing if a bug id already there
     create_bug_api_url = 'https://investibles.' + credentials['api_url'] + '/comment'
     data = {
         'group_id': credentials['view_id'],
@@ -120,33 +130,34 @@ def send_bug(notification_type, comment_stripped, credentials):
 def process_bug(comment_stripped, credentials):
     comment_stripped_lower = comment_stripped.lower()
     if comment_stripped_lower.startswith('critical'):
-        send_bug('RED', token_split('critical', comment_stripped), credentials)
+        bug = send_bug('RED', token_split('critical', comment_stripped), credentials)
     elif comment_stripped_lower.startswith('normal'):
-        send_bug('YELLOW', token_split('normal', comment_stripped), credentials)
+        bug = send_bug('YELLOW', token_split('normal', comment_stripped), credentials)
     elif comment_stripped_lower.startswith('minor'):
-        send_bug('BLUE', token_split('minor', comment_stripped), credentials)
+        bug = send_bug('BLUE', token_split('minor', comment_stripped), credentials)
     else:
-        send_bug('BLUE', comment_stripped, credentials)
+        bug = send_bug('BLUE', comment_stripped, credentials)
+    return bug
 
 
 def sync_comment(comment, credentials, stages):
     comment_stripped = comment.strip()
     comment_stripped_lower = comment_stripped.lower()
     if comment_stripped_lower.startswith('job'):
-        process_job(token_split('job', comment_stripped), credentials, stages)
-    elif comment_stripped_lower.startswith('waiting'):
-        process_job(comment_stripped, credentials, stages)
-    elif comment_stripped_lower.startswith('ready'):
-        process_job(comment_stripped, credentials, stages)
-    elif comment_stripped_lower.startswith('backlog_ready'):
-        process_job(comment_stripped, credentials, stages)
-    elif comment_stripped_lower.startswith('backlog_not_ready'):
-        process_job(comment_stripped, credentials, stages)
+        return process_job(token_split('job', comment_stripped), credentials, stages)
+    if comment_stripped_lower.startswith('waiting'):
+        return process_job(comment_stripped, credentials, stages)
+    if comment_stripped_lower.startswith('ready'):
+        return process_job(comment_stripped, credentials, stages)
+    if comment_stripped_lower.startswith('backlog_ready'):
+        return process_job(comment_stripped, credentials, stages)
+    if comment_stripped_lower.startswith('backlog_not_ready'):
+        return  process_job(comment_stripped, credentials, stages)
+    if comment_stripped_lower.startswith('bug'):
+        bug = process_bug(token_split('bug', comment_stripped), credentials)
     else:
-        if comment_stripped_lower.startswith('bug'):
-            process_bug(token_split('bug', comment_stripped), credentials)
-        else:
-            process_bug(comment_stripped, credentials)
+        bug = process_bug(comment_stripped, credentials)
+    return bug
 
 
 def get_credentials():
@@ -186,21 +197,38 @@ def get_credentials():
     return credentials
 
 
+def add_bug_url_line(comment, credentials):
+    return f"{credentials['ui_url']}/dialog/{comment['market_id']}?groupId={comment['group_id']}#c{comment['id']}\r\n"
+
+
+def add_job_url_line(full_investible, credentials):
+    return f"{credentials['ui_url']}/dialog/{credentials['workspace_id']}/{full_investible['investible']['id']}\r\n"
+
+
 def process_uclusion_txt(root, credentials, stages):
     file_path = os.path.join(root, TARGET_FILENAME)
     print(f"  ✅ Processing: '{file_path}'")
     try:
-        with open(file_path, 'r', encoding='utf-8') as uclusion_file:
+        with open(file_path, 'r+', encoding='utf-8') as uclusion_file:
             content = uclusion_file.read()
+            uclusion_file.seek(0)
             comments = content.split('|')
             if len(comments) > 1:
+                new_file_content_lines = []
                 for comment in comments:
                     if content.startswith(comment):
-                        # Handle the case that some text before the first |
+                        # Handle the case that some text before the first | by just keeping it
+                        new_file_content_lines.append(comment)
                         continue
-                    sync_comment(comment, credentials, stages)
+                    new_content = sync_comment(comment, credentials, stages)
+                    if 'comment_type' in new_content:
+                        new_file_content_lines.append(add_bug_url_line(new_content, credentials))
+                    else:
+                        new_file_content_lines.append(add_job_url_line(new_content, credentials))
+                    uclusion_file.writelines(new_file_content_lines)
+
     except Exception as e:
-        print(f"     -> ❌ Error reading file: {e}")
+        print(f"     -> ❌ Error processing file: {e}")
 
 
 def is_todo(text: str, extension: str) -> bool:
@@ -345,6 +373,7 @@ def process_source_directories(api_url):
 
     response = login(credentials)
     credentials['api_token'] = response['uclusion_token']
+    credentials['ui_url'] = response['ui_url']
     stages = response['stages']
 
     # Process each source directory

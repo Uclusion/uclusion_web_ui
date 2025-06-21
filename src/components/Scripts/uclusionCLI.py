@@ -347,7 +347,8 @@ def process_code_file(root, file, extension, credentials, stages):
             code_file.seek(0)
             for line_context in line_contexts:
                 all_lines[line_context['line_number']] = get_new_todo_line(line_context)
-            code_file.writelines(all_lines)
+            if len(line_contexts) > 0:
+                code_file.writelines(all_lines)
     except Exception as e:
         print(f"     -> ❌ Error reading file {file}: {e}")
 

@@ -215,12 +215,12 @@ def get_credentials(credentials_path):
 
 def add_bug_url_line(comment, credentials):
     # /{comment['market_id']}/{comment['ticket_code']} also works
-    return f"{credentials['ui_url']}/dialog/{comment['market_id']}?groupId={comment['group_id']}#c{comment['id']}\r\n"
+    return f"{credentials['ui_url']}/dialog/{comment['market_id']}?groupId={comment['group_id']}#c{comment['id']}\n"
 
 
 def add_job_url_line(full_investible, credentials):
     # /{credentials['workspace_id']}/{get_ticket_code(full_investible, credentials)} also works
-    return f"{credentials['ui_url']}/dialog/{credentials['workspace_id']}/{full_investible['investible']['id']}\r\n"
+    return f"{credentials['ui_url']}/dialog/{credentials['workspace_id']}/{full_investible['investible']['id']}\n"
 
 
 def process_uclusion_txt(root, credentials, stages):
@@ -331,7 +331,8 @@ def get_new_todo_line(context):
     line = context['line']
     pipe_index = line.find('|')
     # replace from | to start of description with ticket_code
-    return line[:pipe_index] + context['ticket_code'] + ' ' + context['description'] + "\r\n"
+    # Ignore windows \r because it messes up when commit to GitHub
+    return line[:pipe_index] + context['ticket_code'] + ' ' + context['description'] + "\n"
 
 
 def process_code_file(root, file, extension, credentials, stages):

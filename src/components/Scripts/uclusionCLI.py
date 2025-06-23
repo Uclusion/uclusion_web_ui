@@ -8,6 +8,11 @@ import urllib.request
 
 # Define the names of the configuration file and the target file
 SOURCES_CONFIG_FILE = 'uclusion.json'
+DEV_SOURCES_CONFIG_FILE = 'dev_uclusion.json'
+STAGE_SOURCES_CONFIG_FILE = 'stage_uclusion.json'
+CREDENTIALS_FILE = 'credentials'
+DEV_CREDENTIALS_FILE = 'dev_credentials'
+STAGE_CREDENTIALS_FILE = 'stage_credentials'
 TARGET_FILENAME = 'uclusion.txt'
 DEV_API_URL = "dev.api.uclusion.com/v1"
 STAGE_API_URL = "stage.api.uclusion.com/v1"
@@ -171,7 +176,7 @@ def sync_comment(comment, credentials, stages):
     return bug
 
 
-def get_credentials():
+def get_credentials(credentials_path):
     """
     Reads credentials from '~/.uclusion/credentials'.
 
@@ -184,7 +189,7 @@ def get_credentials():
     """
     credentials = {}
     # os.path.expanduser('~') correctly finds the user's home directory
-    cred_path = os.path.join(os.path.expanduser('~'), '.uclusion', 'credentials')
+    cred_path = os.path.join(os.path.expanduser('~'), '.uclusion', credentials_path)
 
     if not os.path.exists(cred_path):
         print("🔐 Error: Credentials file not found.")
@@ -368,7 +373,7 @@ def login(credentials):
     return send(data, 'POST', login_api_url)
 
 
-def process_source_directories(api_url):
+def process_source_directories(api_url, json_path, credentials_path):
     """
     Reads source directories from a JSON config, recursively finds all TARGET_FILENAME files
     """
@@ -376,33 +381,33 @@ def process_source_directories(api_url):
 
     # Read and parse the SOURCES_CONFIG_FILE file
     try:
-        with open(SOURCES_CONFIG_FILE, 'r') as f:
+        with open(json_path, 'r') as f:
             config = json.load(f)
         source_dirs = config.get('sourcesList', [])
         if not source_dirs:
-            print(f"⚠️ Warning: No source directories listed in '{SOURCES_CONFIG_FILE}'.")
+            print(f"⚠️ Warning: No source directories listed in '{json_path}'.")
             return None
         extensions = config.get('extensionsList', [])
         if not extensions:
-            print(f"⚠️ Warning: No extensions listed in '{SOURCES_CONFIG_FILE}'.")
+            print(f"⚠️ Warning: No extensions listed in '{json_path}'.")
             return None
         workspace_id = config.get('workspaceId')
         view_id = config.get('viewId')
         if workspace_id is None:
-            print(f"⚠️ Warning: No workspaceId in '{SOURCES_CONFIG_FILE}'.")
+            print(f"⚠️ Warning: No workspaceId in '{json_path}'.")
             return None
         if view_id is None:
             view_id = workspace_id
             print(f"     ---\n{view_id}\n     ---")
     except FileNotFoundError:
-        print(f"❌ Error: Configuration file '{SOURCES_CONFIG_FILE}' not found.")
+        print(f"❌ Error: Configuration file '{json_path}' not found.")
         return None
     except json.JSONDecodeError as error:
-        print(f"❌ Error:CLISecret Could not parse JSON from '{SOURCES_CONFIG_FILE}':")
+        print(f"❌ Error:CLISecret Could not parse JSON from '{json_path}':")
         print(error)
         return None
 
-    credentials = get_credentials()
+    credentials = get_credentials(credentials_path)
 
     if credentials is None:
         return None
@@ -433,6 +438,11 @@ def process_source_directories(api_url):
     # Process each source directory
     total_notes_files_found = 0
     total_code_files_found = 0
+    try:
+        process_uclusion_txt('.', credentials, stages)
+    except FileNotFoundError:
+        # Ignore - they don't need uclusion.txt here but should work if they have one
+        pass
     for directory in source_dirs:
         print(f"\n📁 Processing directory: '{directory}'")
 
@@ -460,8 +470,14 @@ if __name__ == "__main__":
     urlEnv = sys.argv[1] if len(sys.argv) > 1 else None
     if urlEnv == 'dev':
         api_url = DEV_API_URL
+        json_path = DEV_SOURCES_CONFIG_FILE
+        credentials_path = DEV_CREDENTIALS_FILE
     elif urlEnv == 'stage':
+        json_path = STAGE_SOURCES_CONFIG_FILE
         api_url = STAGE_API_URL
+        credentials_path = STAGE_CREDENTIALS_FILE
     else:
+        json_path = SOURCES_CONFIG_FILE
         api_url = PRODUCTION_API_URL
-    process_source_directories(api_url)
+        credentials_path = CREDENTIALS_FILE
+    process_source_directories(api_url, json_path, credentials_path)

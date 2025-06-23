@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import urllib.request
+import urllib.parse
 
 
 # Define the names of the configuration file and the target file
@@ -106,6 +107,10 @@ def get_ready_stage(stages):
         if stage['assignee_enter_only']:
             return stage
     return None
+
+
+def get_readable_ticket_code(ticket_code):
+    return urllib.parse.unquote(ticket_code)
 
 
 def process_job(comment_stripped, credentials, stages):
@@ -213,14 +218,26 @@ def get_credentials(credentials_path):
     return credentials
 
 
+def get_ticket_code(content, credentials):
+    if 'ticket_code' in content:
+        return content['ticket_code']
+    for market_info in content['market_infos']:
+        if market_info['market_id'] == credentials['workspace_id']:
+            return market_info['ticket_code']
+    return None
+
+
+def get_readable_description(description):
+    # remove <p> </p>
+    return description[3:-4]
+
+
 def add_bug_url_line(comment, credentials):
-    # /{comment['market_id']}/{comment['ticket_code']} also works
-    return f"{credentials['ui_url']}/dialog/{comment['market_id']}?groupId={comment['group_id']}#c{comment['id']}\n"
+    return f"{get_readable_ticket_code(get_ticket_code(comment, credentials))} {get_readable_description(comment['body'])}\n"
 
 
 def add_job_url_line(full_investible, credentials):
-    # /{credentials['workspace_id']}/{get_ticket_code(full_investible, credentials)} also works
-    return f"{credentials['ui_url']}/dialog/{credentials['workspace_id']}/{full_investible['investible']['id']}\n"
+    return f"{get_readable_ticket_code(get_ticket_code(full_investible, credentials))} {get_readable_description(full_investible['investible']['description'])}\n"
 
 
 def process_uclusion_txt(root, credentials, stages):
@@ -312,15 +329,6 @@ def is_todo(text: str, extension: str) -> bool:
     return bool(re.match(pattern, text.strip(), re.IGNORECASE))
 
 
-def get_ticket_code(content, credentials):
-    if 'ticket_code' in content:
-        return content['ticket_code']
-    for market_info in content['market_infos']:
-        if market_info['market_id'] == credentials['workspace_id']:
-            return market_info['ticket_code']
-    return None
-
-
 def get_description(content):
     if 'body' in content:
         return content['body']
@@ -332,7 +340,7 @@ def get_new_todo_line(context):
     pipe_index = line.find('|')
     # replace from | to start of description with ticket_code
     # Ignore windows \r because it messes up when commit to GitHub
-    return line[:pipe_index] + context['ticket_code'] + ' ' + context['description'] + "\n"
+    return line[:pipe_index] + get_readable_ticket_code(context['ticket_code']) + ' ' + context['description'] + "\n"
 
 
 def process_code_file(root, file, extension, credentials, stages):
@@ -441,6 +449,7 @@ def process_source_directories(api_url, json_path, credentials_path):
     total_code_files_found = 0
     try:
         process_uclusion_txt('.', credentials, stages)
+        total_notes_files_found += 1
     except FileNotFoundError:
         # Ignore - they don't need uclusion.txt here but should work if they have one
         pass

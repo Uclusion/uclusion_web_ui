@@ -88,6 +88,8 @@ function IntegrationPreferences (props) {
     markets = getSortedMarkets(filtered);
   }
 
+  // TODO B-all-339 Have drop down for view selection.
+
   return (
     <Screen
       title={intl.formatMessage({ id: 'integrationPreferencesHeader' })}

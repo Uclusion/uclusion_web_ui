@@ -238,7 +238,7 @@ def process_uclusion_txt(root, credentials, stages):
                         new_file_content_lines.append(add_bug_url_line(new_content, credentials))
                     else:
                         new_file_content_lines.append(add_job_url_line(new_content, credentials))
-                    uclusion_file.writelines(new_file_content_lines)
+                uclusion_file.writelines(new_file_content_lines)
 
     except Exception as e:
         print(f"     -> ❌ Error processing file: {e}")

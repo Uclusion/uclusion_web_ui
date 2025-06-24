@@ -79,9 +79,9 @@ export function updateUiPreferences(newPreferences){
     .catch((error) => toastErrorAndThrow(error, 'errorPreferenceUpdateFailed'));
 }
 
-export function getDemo(){
+export function getDemo(isTeam){
   return getAccountClient()
-    .then((client) => client.markets.getDemo())
+    .then((client) => client.markets.getDemo(isTeam))
     .catch((error) => {
       if (error.status !== 404) {
         return toastErrorAndThrow(error, 'errorDemoLoadFailed');

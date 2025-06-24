@@ -46,7 +46,8 @@ function DemoMarketLoad(props) {
 
   function LoadDemo() {
     const loadedInfo = suspend(async () => {
-      const result = await getDemo();
+      // TODO hook up with demo choice - for now just see if solo loads
+      const result = await getDemo(false);
       if (!result) {
         console.warn('No result demo market');
         // Called more than once somehow so give up and hope demo market already loaded or loads the slow way

@@ -1,4 +1,4 @@
-import React, { Suspense, useContext } from 'react';
+import React, { Suspense, useContext, useState } from 'react';
 import { useIntl } from 'react-intl';
 import Screen from '../../../containers/Screen/Screen';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -21,6 +21,8 @@ import { accountUserRefresh } from '../../../contexts/AccountContext/accountCont
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
+import DemoChoiceWizard from '../../../components/AddNewWizards/DemoChoice/DemoChoiceWizard';
+import { getUtm } from '../../../utils/redirectUtils';
 import WorkspaceInviteWizard from '../../../components/AddNewWizards/WorkspaceInvite/WorkspaceInviteWizard';
 
 function DemoMarketLoad(props) {
@@ -37,6 +39,7 @@ function DemoMarketLoad(props) {
   const [, ticketsDispatch] = useContext(TicketIndexContext);
   const [, userDispatch] = useContext(AccountContext);
   const [index] = useContext(SearchIndexContext);
+  const [utm, setUtm] = useState(getUtm());
   const intl = useIntl();
 
   const loadingScreen = <Screen hidden={false} loading loadingMessageId='demoLoadingMessage'
@@ -46,8 +49,7 @@ function DemoMarketLoad(props) {
 
   function LoadDemo() {
     const loadedInfo = suspend(async () => {
-      // TODO hook up with demo choice - for now just see if solo loads
-      const result = await getDemo(false);
+      const result = await getDemo(utm === 'team');
       if (!result) {
         console.warn('No result demo market');
         // Called more than once somehow so give up and hope demo market already loaded or loads the slow way
@@ -78,8 +80,20 @@ function DemoMarketLoad(props) {
         hidden={false}
         disableSearch
       >
-        <WorkspaceInviteWizard marketId={demo.id} />
+        <DemoChoiceWizard marketId={demo.id} />
       </Screen>;
+  }
+
+  if (_.isEmpty(utm)) {
+    return <Screen
+      title={intl.formatMessage({id: 'DemoWelcome'})}
+      tabTitle={intl.formatMessage({id: 'DemoWelcome'})}
+      hidden={false}
+      disableSearch
+      isDemoChoice
+    >
+      <DemoChoiceWizard setUtm={setUtm} />
+    </Screen>;
   }
 
   if (onboardingState !== OnboardingState.NeedsOnboarding || !_.isEmpty(demo)) {

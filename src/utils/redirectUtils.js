@@ -105,6 +105,10 @@ export function getCurrentWorkspace() {
   return getUclusionLocalStorageItem(WORKSPACE_LOCAL_STORAGE_KEY);
 }
 
+export function getUtm() {
+  return getLoginPersistentItem(UTM_LOCAL_STORAGE_KEY);
+}
+
 export function getEmail() {
   return getLoginPersistentItem(EMAIL_LOCAL_STORAGE_KEY);
 }

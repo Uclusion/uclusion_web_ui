@@ -306,7 +306,8 @@ function Screen(props) {
     loadingMessageId,
     outBoxMessages,
     leftNavAdjust,
-    noPadDesktop
+    noPadDesktop,
+    isDemoChoice
   } = props;
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
@@ -365,7 +366,7 @@ function Screen(props) {
   }
   const isTopLevelInbox = action === 'inbox' && _.isEmpty(pathMarketIdRaw);
   const defaultMarket = getFirstWorkspace(markets, marketId, !isTopLevelInbox, !isTopLevelInbox) || {};
-  const reallyAmLoading = !hidden && appEnabled && (loading || !userIsLoaded(userState));
+  const reallyAmLoading = !hidden && !isDemoChoice && appEnabled && (loading || !userIsLoaded(userState));
   if (marketId && _.isEmpty(defaultMarket)) {
     return <React.Fragment/>
   }

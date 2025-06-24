@@ -25,9 +25,11 @@ function DemoChoiceStep (props) {
         {...props}
         nextLabel='createViewSingleUser'
         onNext={() => setUtm('solo')}
+        spinOnClick={false}
         showOtherNext
         otherNextLabel='createWorkspaceNormal'
         onOtherNext={() => setUtm('team')}
+        otherSpinOnClick={false}
       />
     </WizardStepContainer>
   );

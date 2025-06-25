@@ -353,8 +353,8 @@ export function getOutboxMessages(props) {
   decisionDetails.forEach((market) => {
     const comment = getComment(commentsState, market.parent_comment_market_id, market.parent_comment_id);
     const marketPresences = getMarketPresences(marketPresencesState, market.parent_comment_market_id) || [];
-    if (!isAutonomousComment(comment, marketPresences, groupPresencesState, market.parent_comment_market_id,
-      groupsState)) {
+    if (!_.isEmpty(comment) && !isAutonomousComment(comment, marketPresences, groupPresencesState,
+      market.parent_comment_market_id, groupsState)) {
       const { questions, issues, suggestions, comments, marketPresences } =
         getDecisionData(market, marketPresencesState, commentsState);
       questions.forEach((comment) => {

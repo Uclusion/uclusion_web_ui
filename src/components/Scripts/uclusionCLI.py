@@ -59,6 +59,12 @@ def send(data, method, my_api_url, auth=None):
         print(f"An unexpected error occurred: {e}")
 
 
+def get_resolved_ticket_codes(credentials):
+    ticket_code_api_url = 'https://markets.' + credentials['api_url'] + '/list'
+    data = { 'list_type': 'ticket_codes' }
+    return send(data, 'POST', ticket_code_api_url, credentials['api_token'])
+
+
 def send_job(comment_stripped, credentials, is_assign=False, stage=None, is_ready=False):
     create_job_api_url = 'https://investibles.' + credentials['api_url'] + '/create'
     data = {
@@ -343,7 +349,19 @@ def get_new_todo_line(context):
     return line[:pipe_index] + get_readable_ticket_code(context['ticket_code']) + ' ' + context['description'] + "\n"
 
 
-def process_code_file(root, file, extension, credentials, stages):
+def get_done_line(context):
+    line = context['line']
+    todo_index = line.find('TODO')
+    return line[:todo_index] + 'DONE' + line[todo_index + 4:]
+
+
+def get_ticket_code_from_line(line, ticket_type):
+    first_split = line.split(ticket_type, 1)
+    line_split = first_split[1].split()
+    return f"{ticket_type}{line_split[0]}"
+
+
+def process_code_file(root, file, extension, credentials, stages, resolved_ticket_codes):
     file_path = os.path.join(root, file)
     try:
         with open(file_path, 'r+', encoding='utf-8') as code_file:
@@ -362,10 +380,22 @@ def process_code_file(root, file, extension, credentials, stages):
                         line_context = {'ticket_code': ticket_code, 'description': description[3: -4],
                                         'line_number': line_number, 'line': line}
                         line_contexts.append(line_context)
+                    elif 'J-' in line or 'B-' in line:
+                        if 'J-' in line:
+                            ticket_code = get_ticket_code_from_line(line, 'J-')
+                        elif 'B-' in line:
+                            ticket_code = get_ticket_code_from_line(line, 'B-')
+                        if ticket_code in resolved_ticket_codes:
+                            line_context = {'ticket_code': ticket_code, 'is_done': True,
+                                            'line_number': line_number, 'line': line}
+                            line_contexts.append(line_context)
                 line_number += 1
             code_file.seek(0)
             for line_context in line_contexts:
-                all_lines[line_context['line_number']] = get_new_todo_line(line_context)
+                if 'is_done' in line_context:
+                    all_lines[line_context['line_number']] = get_done_line(line_context)
+                else:
+                    all_lines[line_context['line_number']] = get_new_todo_line(line_context)
             if len(line_contexts) > 0:
                 code_file.writelines(all_lines)
     except Exception as e:
@@ -443,6 +473,7 @@ def process_source_directories(api_url, json_path, credentials_path):
     credentials['ui_url'] = response['ui_url']
     credentials['user_id'] = response['user_id']
     stages = response['stages']
+    resolved_ticket_codes = get_resolved_ticket_codes(credentials)
 
     # Process each source directory
     total_notes_files_found = 0
@@ -470,7 +501,7 @@ def process_source_directories(api_url, json_path, credentials_path):
                     file_name, file_extension = os.path.splitext(file)
                     if len(file_extension) > 1 and file_extension[1:] in extensions:
                         total_code_files_found += 1
-                        process_code_file(root, file, file_extension, credentials, stages)
+                        process_code_file(root, file, file_extension, credentials, stages, resolved_ticket_codes)
 
     print(f"\n🏁 Processed {total_notes_files_found} {TARGET_FILENAME} and {total_code_files_found} code files.")
     return None

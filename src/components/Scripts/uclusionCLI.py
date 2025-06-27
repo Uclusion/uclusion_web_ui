@@ -263,10 +263,15 @@ def process_uclusion_txt(root, credentials, stages, resolved_ticket_codes):
             comments = re.split(pattern, content)
             if len(comments) > 1:
                 new_file_content_lines = []
-                for comment in comments:
-                    if content.startswith(comment):
+                for comment_partial in comments:
+                    comment_index = content.find(comment_partial)
+                    if content[comment_index - 1] == '|':
+                        comment = content[comment_index - 2: comment_index] + comment_partial
+                    elif content[comment_index - 1] == '-':
+                        comment = content[comment_index - 2: comment_index] + comment_partial
+                    elif content.startswith(comment_partial):
                         # Handle the case that some text before the first token by just keeping it
-                        new_file_content_lines.append(comment)
+                        new_file_content_lines.append(comment_partial)
                         continue
                     if comment.startswith('B-') or comment.startswith('J-'):
                         if comment.startswith('B-'):
@@ -276,8 +281,10 @@ def process_uclusion_txt(root, credentials, stages, resolved_ticket_codes):
                         if ticket_code in resolved_ticket_codes:
                             print(f"  ✅ Marking {ticket_code} DONE")
                             ticket_code_index = comment.find(ticket_code)
-                            new_file_content_lines.append(comment[:ticket_code_index] + ' DONE ' +
-                                                          comment[ticket_code_index + 4:])
+                            new_file_content_lines.append(ticket_code + ' DONE' +
+                                                          comment[ticket_code_index + len(ticket_code):])
+                        else:
+                            new_file_content_lines.append(comment)
                     else:
                         new_content = sync_comment(comment, credentials, stages)
                         if 'comment_type' in new_content:

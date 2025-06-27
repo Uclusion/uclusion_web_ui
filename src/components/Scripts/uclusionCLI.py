@@ -246,26 +246,44 @@ def add_job_url_line(full_investible, credentials):
     return f"{get_readable_ticket_code(get_ticket_code(full_investible, credentials))} {get_readable_description(full_investible['investible']['description'])}\n"
 
 
-def process_uclusion_txt(root, credentials, stages):
+def get_ticket_code_from_line(line, ticket_type):
+    first_split = line.split(ticket_type, 1)
+    line_split = first_split[1].split()
+    return f"{ticket_type}{line_split[0]}"
+
+
+def process_uclusion_txt(root, credentials, stages, resolved_ticket_codes):
     file_path = os.path.join(root, TARGET_FILENAME)
     print(f"  ✅ Processing: '{file_path}'")
     try:
         with open(file_path, 'r+', encoding='utf-8') as uclusion_file:
             content = uclusion_file.read()
             uclusion_file.seek(0)
-            comments = content.split('|')
+            pattern = r"\||B-|J-"
+            comments = re.split(pattern, content)
             if len(comments) > 1:
                 new_file_content_lines = []
                 for comment in comments:
                     if content.startswith(comment):
-                        # Handle the case that some text before the first | by just keeping it
+                        # Handle the case that some text before the first token by just keeping it
                         new_file_content_lines.append(comment)
                         continue
-                    new_content = sync_comment(comment, credentials, stages)
-                    if 'comment_type' in new_content:
-                        new_file_content_lines.append(add_bug_url_line(new_content, credentials))
+                    if comment.startswith('B-') or comment.startswith('J-'):
+                        if comment.startswith('B-'):
+                            ticket_code = get_ticket_code_from_line(comment, 'B-')
+                        else:
+                            ticket_code = get_ticket_code_from_line(comment, 'J-')
+                        if ticket_code in resolved_ticket_codes:
+                            print(f"  ✅ Marking {ticket_code} DONE")
+                            ticket_code_index = comment.find(ticket_code)
+                            new_file_content_lines.append(comment[:ticket_code_index] + ' DONE ' +
+                                                          comment[ticket_code_index + 4:])
                     else:
-                        new_file_content_lines.append(add_job_url_line(new_content, credentials))
+                        new_content = sync_comment(comment, credentials, stages)
+                        if 'comment_type' in new_content:
+                            new_file_content_lines.append(add_bug_url_line(new_content, credentials))
+                        else:
+                            new_file_content_lines.append(add_job_url_line(new_content, credentials))
                 uclusion_file.writelines(new_file_content_lines)
 
     except Exception as e:
@@ -350,15 +368,10 @@ def get_new_todo_line(context):
 
 
 def get_done_line(context):
+    print(f"  ✅ Marking {context['ticket_code']} DONE")
     line = context['line']
     todo_index = line.find('TODO')
     return line[:todo_index] + 'DONE' + line[todo_index + 4:]
-
-
-def get_ticket_code_from_line(line, ticket_type):
-    first_split = line.split(ticket_type, 1)
-    line_split = first_split[1].split()
-    return f"{ticket_type}{line_split[0]}"
 
 
 def process_code_file(root, file, extension, credentials, stages, resolved_ticket_codes):
@@ -479,7 +492,7 @@ def process_source_directories(api_url, json_path, credentials_path):
     total_notes_files_found = 0
     total_code_files_found = 0
     try:
-        process_uclusion_txt('.', credentials, stages)
+        process_uclusion_txt('.', credentials, stages, resolved_ticket_codes)
         total_notes_files_found += 1
     except FileNotFoundError:
         # Ignore - they don't need uclusion.txt here but should work if they have one
@@ -496,7 +509,7 @@ def process_source_directories(api_url, json_path, credentials_path):
             for file in files:
                 if TARGET_FILENAME == file:
                     total_notes_files_found += 1
-                    process_uclusion_txt(root, credentials, stages)
+                    process_uclusion_txt(root, credentials, stages, resolved_ticket_codes)
                 else:
                     file_name, file_extension = os.path.splitext(file)
                     if len(file_extension) > 1 and file_extension[1:] in extensions:

@@ -65,13 +65,55 @@ def get_resolved_ticket_codes(credentials):
     return send(data, 'POST', ticket_code_api_url, credentials['api_token'])
 
 
+def get_sentence_aware_ampersand_remove_duplicate(stripped_element, max_length=80):
+    description = stripped_element
+    extracted = stripped_element or ''
+    ends_in_sentence = extracted.endswith('.') or extracted.endswith('!') or extracted.endswith('?')
+
+    if len(extracted) <= max_length and ends_in_sentence:
+        return {'name': extracted, 'description': ''}
+
+    # Helper function to find the index or return an 'out of bounds' value
+    def index_of_or_out_of_bounds(text, substring):
+        try:
+            return text.index(substring)
+        except ValueError:
+            return len(text) + 1 # Represents an "out of bounds" position
+
+    period_position = index_of_or_out_of_bounds(extracted, '. ')
+    exclamation_position = index_of_or_out_of_bounds(extracted, '! ')
+    question_position = index_of_or_out_of_bounds(extracted, '? ')
+
+    sentence_position = min(period_position, exclamation_position, question_position)
+
+    if sentence_position < len(extracted):
+        extracted = extracted[:sentence_position + 1]
+
+    if len(extracted) <= max_length:
+        split_description = description[sentence_position + 2:]
+        return {'name': extracted, 'description': split_description}
+
+    last_index = extracted.rfind(' ', 0, max_length - 3)
+    if last_index < 0:
+        last_index = max_length - 3
+
+    extracted = extracted[:last_index]
+    split_description = description[3 + len(extracted):]
+    if split_description.startswith(' '):
+        split_description = split_description[1:]
+
+    return {'name': f'{extracted}...', 'description': split_description}
+
+
 def send_job(comment_stripped, credentials, is_assign=False, stage=None, is_ready=False):
     create_job_api_url = 'https://investibles.' + credentials['api_url'] + '/create'
+    comment_processed = get_sentence_aware_ampersand_remove_duplicate(comment_stripped)
     data = {
-        'name': comment_stripped.splitlines()[0][0:79],
-        'description': f"<p>{comment_stripped}</p>",
+        'name': comment_processed['name'],
         'group_id': credentials['view_id']
     }
+    if len(comment_processed['description']) > 0:
+        data['description'] = f"<p>{comment_processed['description']}</p>"
     if is_assign:
         data['assignments'] = [credentials['user_id']]
     elif is_ready:
@@ -238,12 +280,20 @@ def get_readable_description(description):
     return description[3:-4]
 
 
-def add_bug_url_line(comment, credentials):
+def add_bug_line(comment, credentials):
     return f"{get_readable_ticket_code(get_ticket_code(comment, credentials))} {get_readable_description(comment['body'])}\n"
 
 
-def add_job_url_line(full_investible, credentials):
-    return f"{get_readable_ticket_code(get_ticket_code(full_investible, credentials))} {get_readable_description(full_investible['investible']['description'])}\n"
+def add_job_line(full_investible, credentials):
+    description = full_investible['investible']['description']
+    name = full_investible['investible']['name']
+    if description == '':
+        combined_description = name
+    elif name.endswith('...'):
+        combined_description = f"{name[:-3]} {description}"
+    else:
+        combined_description = f"{name} {description}"
+    return f"{get_readable_ticket_code(get_ticket_code(full_investible, credentials))} {get_readable_description(combined_description)}\n"
 
 
 def get_ticket_code_from_line(line, ticket_type):
@@ -288,9 +338,9 @@ def process_uclusion_txt(root, credentials, stages, resolved_ticket_codes):
                     else:
                         new_content = sync_comment(comment, credentials, stages)
                         if 'comment_type' in new_content:
-                            new_file_content_lines.append(add_bug_url_line(new_content, credentials))
+                            new_file_content_lines.append(add_bug_line(new_content, credentials))
                         else:
-                            new_file_content_lines.append(add_job_url_line(new_content, credentials))
+                            new_file_content_lines.append(add_job_line(new_content, credentials))
                 uclusion_file.writelines(new_file_content_lines)
 
     except Exception as e:

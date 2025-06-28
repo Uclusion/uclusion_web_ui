@@ -328,7 +328,7 @@ def process_uclusion_txt(root, credentials, stages, resolved_ticket_codes):
                             ticket_code = get_ticket_code_from_line(comment, 'B-')
                         else:
                             ticket_code = get_ticket_code_from_line(comment, 'J-')
-                        if ticket_code in resolved_ticket_codes:
+                        if ticket_code in resolved_ticket_codes and not comment.startswith(ticket_code + ' DONE'):
                             print(f"  ✅ Marking {ticket_code} DONE")
                             ticket_code_index = comment.find(ticket_code)
                             new_file_content_lines.append(ticket_code + ' DONE' +

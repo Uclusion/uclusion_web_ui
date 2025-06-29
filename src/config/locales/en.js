@@ -170,6 +170,7 @@ const messages = defineMessages({
   loadingMarket: 'Processing invite',
   loadingSlack: 'Slack integration',
   cliSecret: 'Get CLI secret',
+  invalidateSecret: 'Create new secret',
 
   // Market Add
   marketAddTitleDefault: 'Add a name...',
@@ -1077,6 +1078,7 @@ const messages = defineMessages({
   errorMarketFetchFailed: 'There was an error processing your invite. Please try again.',
   errorBanUserFailed: 'There was a problem removing the collaborator. Please try again.',
   errorSecretFailed: 'There was a problem retrieving the secret. Please try again.',
+  errorNewSecretFailed: 'There was a problem retrieving the new secret. Please try again.',
   errorPokeFailed: 'There was a problem poking. Please try again.',
   errorGuestUserFailed: 'There was a problem changing the collaborator. Please try again.',
   errorCancelSubFailed: 'There was a problem cancelling your subscription. Please try again.',

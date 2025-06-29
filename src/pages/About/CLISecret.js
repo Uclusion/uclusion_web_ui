@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { makeStyles, Typography } from '@material-ui/core';
 import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton';
-import { getSecret } from '../../api/users';
+import { getSecret, newSecret } from '../../api/users';
 import { useIntl } from 'react-intl';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 
@@ -33,11 +33,19 @@ function CLISecret (props) {
     });
   }
 
+  function changeSecret() {
+    return newSecret(marketId).then((user) => {
+      setOperationRunning(false);
+      setSecretUser(user);
+      return user;
+    });
+  }
+
   return (
     <div style={{marginTop: '2rem'}}>
       {!secretUser && (
         <Typography variant="subtitle1">
-          Press button to show CLI secret.
+          Press this button to show your CLI secret.
         </Typography>
       )}
       {secretUser && (
@@ -60,6 +68,16 @@ function CLISecret (props) {
           {intl.formatMessage({ id: 'cliSecret' })}
         </SpinBlockingButton>
       )}
+      <Typography variant="subtitle1" style={{marginTop: '2rem'}}>
+        Press this button to invalidate your current CLI secret and create a new one.
+      </Typography>
+      <SpinBlockingButton
+        className={classes.getSecretButton}
+        onClick={changeSecret}
+        id="secretNewId"
+      >
+        {intl.formatMessage({ id: 'invalidateSecret' })}
+      </SpinBlockingButton>
     </div>
   );
 }

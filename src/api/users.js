@@ -17,6 +17,11 @@ export function banUser(marketId, userId) {
     .catch((error) => toastErrorAndThrow(error, 'errorBanUserFailed'));
 }
 
+export function newSecret(marketId) {
+  return getMarketClient(marketId).then((client) => client.users.newSecret())
+    .catch((error) => toastErrorAndThrow(error, 'errorNewSecretFailed'));
+}
+
 export function getSecret(marketId) {
   return getMarketClient(marketId).then((client) => client.users.getSecret())
     .catch((error) => toastErrorAndThrow(error, 'errorSecretFailed'));

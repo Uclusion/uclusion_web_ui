@@ -38,6 +38,7 @@ import { getTicketNumber } from '../../utils/stringFunctions';
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
 import { getGroupPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -174,6 +175,7 @@ function ArchiveInvestbiles(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState] = useContext(NotificationsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
+  const [groupsState] = useContext(MarketGroupsContext);
 
   function getIcon(assistanceType, messages, isAssigned) {
     // Just go to the first message associated with this investible - further work questions do not have one
@@ -223,7 +225,7 @@ function ArchiveInvestbiles(props) {
       const messages = findMessagesForInvestibleId(id, messagesState);
       const info = getMarketInfo(inv, marketId) || {};
       const { assigned, stage: stageId, last_stage_change_date: lastStageChangeDate,
-        open_for_investment: openForInvestment, ticket_code: ticketCode, group_id: groupId } = info;
+        open_for_investment: openForInvestment, group_id: groupId } = info;
       const isAssigned = !_.isEmpty(assigned);
       const enteredStageAt = new Date(lastStageChangeDate)
       const stage = getFullStage(marketStagesState, marketId, stageId);
@@ -305,7 +307,7 @@ function ArchiveInvestbiles(props) {
         }
       }
 
-      const ticketNumber = getTicketNumber(ticketCode, isAutonomous, groupId === viewGroupId);
+      const ticketNumber = getTicketNumber(groupId, marketId, groupsState, isAutonomous, groupId === viewGroupId);
       return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId}
                                 isBlocked={!_.isEmpty(blockedComments)} groupId={groupId}
                                 needsAssist={!_.isEmpty(suggestionComments)||!_.isEmpty(questionComments)}

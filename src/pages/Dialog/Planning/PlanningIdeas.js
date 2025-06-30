@@ -553,13 +553,14 @@ function StageInvestible(props) {
     investibleOnDragStart
   } = props;
   const intl = useIntl();
-  const { completion_estimate: daysEstimate, ticket_code: ticketCode, assigned, group_id: groupId,
-    stage: stageId, open_for_investment: openForInvestment } = marketInfo;
+  const { completion_estimate: daysEstimate, assigned, group_id: groupId, stage: stageId,
+    open_for_investment: openForInvestment } = marketInfo;
   const { id, name,  label_list: labelList } = investible;
   const history = useHistory();
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
+  const [groupsState] = useContext(MarketGroupsContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
@@ -630,7 +631,7 @@ function StageInvestible(props) {
     getChip(isVoting ? numQuestionsSuggestions : (showNumRequiredReviews ? numRequiredReviews : numOpenTasks),
       isVoting ? 'inputRequiredCountExplanation':
         (showNumRequiredReviews ? 'requiredReviewsCountExplanation' : 'openTasksCountExplanation'));
-  const ticketNumber = getTicketNumber(ticketCode, isAutonomous, groupId === viewGroupId);
+  const ticketNumber = getTicketNumber(groupId, marketId, groupsState, isAutonomous, groupId === viewGroupId);
   const inProgressComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
     && !comment.resolved && comment.comment_type === TODO_TYPE && comment.in_progress);
   return (

@@ -18,8 +18,8 @@ export function nameToAvatarText(name) {
 
 export function getTicketNumber(groupId, marketId, groupsState, isAutonomous=false, isSameGroup = true) {
   if (isAutonomous && !isSameGroup) {
-      const group = getGroup(groupsState, marketId, groupId)
-      return group.name;
+      const group = getGroup(groupsState, marketId, groupId);
+      return group?.name;
   }
   return undefined;
 }

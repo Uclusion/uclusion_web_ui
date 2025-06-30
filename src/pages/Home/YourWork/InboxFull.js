@@ -48,7 +48,7 @@ function InboxFull(props) {
     return isInInbox(message);
   });
   const allOutBoxMessagesOrdered = getOutboxMessages({messagesState, marketsState, marketPresencesState,
-    investiblesState, marketStagesState, commentsState, groupPresencesState, groupsState, intl});
+    investiblesState, marketStagesState, commentsState, groupPresencesState, intl});
   const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesFull,
     searchResults, workItemId, groupsState);
   const [inboxState, inboxDispatch] = useReducer(getReducer(),

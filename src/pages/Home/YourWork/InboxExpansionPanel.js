@@ -330,16 +330,16 @@ export function getDecisionData(market, marketPresencesState, commentsState) {
   return { questions, issues, suggestions, comments, marketPresences }
 }
 
-function isAutonomousComment(comment, marketPresences, groupPresencesState, marketId, groupsState) {
+function isPokableComment(comment, marketPresences, groupPresencesState, marketId) {
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
     comment.group_id) || [];
-  const group = getGroup(groupsState, marketId, comment.group_id);
-  return isAutonomousGroup(groupPresences, group) && _.isEmpty(comment.mentions);
+  // Only process if there is someone to poke
+  return groupPresences?.length === 1 && _.isEmpty(comment.mentions);
 }
 
 export function getOutboxMessages(props) {
-  const { marketsState, marketPresencesState,groupPresencesState, groupsState, investiblesState, marketStagesState,
-    commentsState, intl } = props;
+  const { marketsState, marketPresencesState,groupPresencesState, investiblesState, marketStagesState, commentsState,
+    intl } = props;
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE,
@@ -353,8 +353,8 @@ export function getOutboxMessages(props) {
   decisionDetails.forEach((market) => {
     const comment = getComment(commentsState, market.parent_comment_market_id, market.parent_comment_id);
     const marketPresences = getMarketPresences(marketPresencesState, market.parent_comment_market_id) || [];
-    if (!_.isEmpty(comment) && !isAutonomousComment(comment, marketPresences, groupPresencesState,
-      market.parent_comment_market_id, groupsState)) {
+    if (!_.isEmpty(comment) && !isPokableComment(comment, marketPresences, groupPresencesState,
+      market.parent_comment_market_id)) {
       const { questions, issues, suggestions, comments, marketPresences } =
         getDecisionData(market, marketPresencesState, commentsState);
       questions.forEach((comment) => {
@@ -391,9 +391,9 @@ export function getOutboxMessages(props) {
       const marketInfo = getMarketInfo(investible, market.id);
       const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id,
         marketInfo.group_id) || [];
-      const group = getGroup(groupsState, market.id, marketInfo.group_id);
-      const isAutonomous = isAutonomousGroup(groupPresences, group);
-      if (!isAutonomous || !_.isEmpty(marketInfo.required_approvers)) {
+      const isSingular = groupPresences?.length === 1;
+      // Only process if there is someone to poke
+      if (!isSingular || !_.isEmpty(marketInfo.required_approvers)) {
         const investibleId = investible.investible.id;
         const notAccepted = investible.notAccepted;
         const label = notAccepted ? 'planningUnacceptedLabel' : 'startJobQ';
@@ -431,7 +431,7 @@ export function getOutboxMessages(props) {
       }
     });
     questions.forEach((comment) => {
-      if (!isAutonomousComment(comment, marketPresences, groupPresencesState, market.id, groupsState)) {
+      if (!isPokableComment(comment, marketPresences, groupPresencesState, market.id)) {
         const message = getMessageForComment(comment, market, QUESTION_TYPE,
           <QuestionIcon style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
           comments, marketPresences)
@@ -441,7 +441,7 @@ export function getOutboxMessages(props) {
       }
     });
     issues.forEach((comment) => {
-      if (!isAutonomousComment(comment, marketPresences, groupPresencesState, market.id, groupsState)) {
+      if (!isPokableComment(comment, marketPresences, groupPresencesState, market.id)) {
         const message = getMessageForComment(comment, market, ISSUE_TYPE,
           <Block style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
           comments, marketPresences)
@@ -451,7 +451,7 @@ export function getOutboxMessages(props) {
       }
     });
     suggestions.forEach((comment) => {
-      if (!isAutonomousComment(comment, marketPresences, groupPresencesState, market.id, groupsState)) {
+      if (!isPokableComment(comment, marketPresences, groupPresencesState, market.id)) {
         const message = getMessageForComment(comment, market, SUGGEST_CHANGE_TYPE,
           <LightbulbOutlined style={{ fontSize: 24, color: '#ffc61a', }}/>, intl, investiblesState, marketStagesState,
           comments, marketPresences)
@@ -461,7 +461,7 @@ export function getOutboxMessages(props) {
       }
     });
     bugs.forEach((comment) => {
-      if (!isAutonomousComment(comment, marketPresences, groupPresencesState, market.id, groupsState)) {
+      if (!isPokableComment(comment, marketPresences, groupPresencesState, market.id)) {
         const message = getMessageForComment(comment, market, TODO_TYPE,
           <BugReportOutlined style={{ fontSize: 24, color: '#E85757', }}/>, intl, investiblesState, marketStagesState,
           comments, marketPresences)

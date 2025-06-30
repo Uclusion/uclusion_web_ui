@@ -6,11 +6,7 @@ import {
 } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { Assignment, Block, BugReportOutlined, PersonAddOutlined } from '@material-ui/icons';
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../../constants/markets';
-import {
-  getGroupPresences,
-  getMarketPresences,
-  isAutonomousGroup
-} from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getInvestible, getMarketInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import {
   getAcceptedStage,
@@ -52,7 +48,6 @@ import { NOT_FULLY_VOTED_TYPE, RED_LEVEL, UNREAD_JOB_APPROVAL_REQUEST } from '..
 import TriageWizard from '../../../components/InboxWizards/Triage/TriageWizard';
 import InvestibleEditedWizard from '../../../components/InboxWizards/JobEdited/InvestibleEditedWizard';
 import Approval from '../../../components/CustomChip/Approval';
-import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 
 function setItem(item, isOpen, panel, titleId, intl) {
   if (isOpen) {

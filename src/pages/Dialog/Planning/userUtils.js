@@ -142,14 +142,14 @@ export function doShowEdit(id) {
   // Note pencil doesn't display on mobile because hover events are not available
   const pencilIconHolder = document.getElementById(`showEdit0${id}`);
   if (pencilIconHolder) {
-    pencilIconHolder.style.display = 'block';
+    pencilIconHolder.style.visibility = 'visible';
   }
 }
 
 export function doRemoveEdit(id) {
   const pencilIconHolder = document.getElementById(`showEdit0${id}`);
   if (pencilIconHolder) {
-    pencilIconHolder.style.display = 'none';
+    pencilIconHolder.style.visibility = 'hidden';
   }
 }
 

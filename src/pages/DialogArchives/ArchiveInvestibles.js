@@ -138,7 +138,7 @@ function ArchiveInvestible(props) {
                     {viewIndicator}
                   </div>
                 )}
-                <div id={`showEdit0${id}`} style={{pointerEvents: 'none', display: 'none'}}>
+                <div id={`showEdit0${id}`} style={{pointerEvents: 'none', visibility: 'hidden'}}>
                   <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
                 </div>
               </div>

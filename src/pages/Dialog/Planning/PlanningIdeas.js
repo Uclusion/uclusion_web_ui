@@ -720,7 +720,7 @@ function StageInvestible(props) {
               </div>
             )}
           </StageLink>
-          <div id={`showEdit0${id}`} style={{display: 'none', pointerEvents: 'none'}}>
+          <div id={`showEdit0${id}`} style={{visibility: 'hidden', pointerEvents: 'none'}}>
             <EditOutlinedIcon style={{maxHeight: '1.25rem', marginTop: '-0.2rem'}} />
           </div>
         </div>

@@ -98,15 +98,14 @@ function JobDescription(props) {
             <CompressedDescription description={description} expansionPanel={fullDescription}/> : fullDescription
         )}
         {showAttachments && (
-          <>
+          <div style={{marginTop: '2rem'}}>
             <div className={attachedStyles.sectionTitle}>
               <FormattedMessage id="attachededFilesSection"/>
             </div>
             <div>
-              {displayLinksList(attachedFiles, fileBaseUrl, undefined, undefined,
-                attachedStyles)}
+              {displayLinksList(attachedFiles, fileBaseUrl, marketId, undefined, attachedStyles)}
             </div>
-          </>
+          </div>
         )}
         {(!_.isEmpty(nonTodoCommentsRoots) || isSingleTaskDisplay) && (
           <div style={{

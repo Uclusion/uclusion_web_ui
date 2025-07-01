@@ -407,7 +407,7 @@ function PlanningInvestible(props) {
   const yourVote = yourPresence?.investments?.find((investment) =>
     investment.investible_id === investibleId && !investment.deleted);
   const displayVotingInput = canVote && _.isEmpty(search) && !yourVote;
-  const isAutonomous = useGroupPresences(groupId, marketId, marketPresences);
+  const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
 
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {
@@ -823,7 +823,7 @@ function PlanningInvestible(props) {
                     <FormattedMessage id="createNewStatus"/>
                   </SpinningButton>
                 )}
-                {!isAutonomous && (
+                {!isSingleUser && (
                   <DismissableText textId="progressReportCommentHelp"
                                    display={isAssigned && _.isEmpty(reportsCommentsSearched)} isLeft
                                    text={<div>
@@ -880,11 +880,11 @@ function PlanningInvestible(props) {
                 {sectionOpen === 'tasksSection' && !_.isEmpty(assigned) && showCommentAdd && !isInReview && (
                   <SpinningButton id='allDone' className={wizardClasses.actionNext} iconColor="black"
                                   toolTipId='allDone' icon={DoneAll}
-                                  doSpin={_.isEmpty(mustResolveComments)&&isAutonomous}
+                                  doSpin={_.isEmpty(mustResolveComments)&&isSingleUser}
                                   onClick={() => {
                                     const inReviewStageId = getInReviewStage(marketStagesState, marketId).id;
-                                    // If not autonomous then need wizard anyway for starting a review
-                                    if (_.isEmpty(mustResolveComments)&&isAutonomous) {
+                                    // If not single user then need wizard anyway for starting a review
+                                    if (_.isEmpty(mustResolveComments)&&isSingleUser) {
                                       const moveInfo = {
                                         marketId,
                                         investibleId,

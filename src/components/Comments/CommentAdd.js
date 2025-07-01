@@ -30,10 +30,7 @@ import {
 import { addInvestible, getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import {
-  getMarketPresences,
-  useGroupPresences
-} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { changeInvestibleStage, changeInvestibleStageOnCommentOpen } from '../../utils/commentFunctions';
 import { findMessageOfType, findMessageOfTypeAndId, findMessagesForInvestibleId } from '../../utils/messageUtils';
@@ -308,8 +305,7 @@ function CommentAdd(props) {
   const { assigned, stage: currentStageId } = info || {};
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const ourMarket = getMarket(marketsState, marketId) || {};
-  const isAutonomous = useGroupPresences(groupId, marketId, presences);
-  const isSingleUser = isAutonomous && _.size(presences) < 2;
+  const isSingleUser = _.size(presences) < 2;
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
   const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId);

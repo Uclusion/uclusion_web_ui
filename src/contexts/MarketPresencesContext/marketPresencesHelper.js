@@ -4,8 +4,6 @@ import { useContext } from 'react';
 import { MarketPresencesContext } from './MarketPresencesContext';
 import { getMarketComments } from '../CommentsContext/commentsContextHelper';
 import { GroupMembersContext } from '../GroupMembersContext/GroupMembersContext';
-import { MarketGroupsContext } from '../MarketGroupsContext/MarketGroupsContext';
-import { getGroup } from '../MarketGroupsContext/marketGroupsContextHelper';
 
 
 export function addDemoPresencesToMarket(dispatch, marketId, presences) {
@@ -78,10 +76,8 @@ export function usePresences(marketId) {
 
 export function useGroupPresences(groupId, marketId, presences) {
   const [groupPresencesState] = useContext(GroupMembersContext);
-  const [groupState] = useContext(MarketGroupsContext);
-  const group = getGroup(groupState, marketId, groupId);
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
-  return isAutonomousGroup(groupPresences, group);
+  return groupPresences?.length === 1;
 }
 
 export function isAutonomousGroup(groupPresences, group) {

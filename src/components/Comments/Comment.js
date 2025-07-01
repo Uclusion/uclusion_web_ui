@@ -31,7 +31,7 @@ import { reopenComment, resolveComment, updateComment } from '../../api/comments
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
-  changeMyPresence, useGroupPresences, usePresences
+  changeMyPresence, usePresences
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
@@ -510,8 +510,7 @@ function Comment(props) {
   const thisCommentBeingEdited = beingEdited && !replyBeingEdited;
   const presences = usePresences(marketId);
   const inlinePresences = usePresences(inlineMarketId);
-  const isAutonomous = useGroupPresences(groupId, marketId, presences);
-  const isSingleUser = isAutonomous && _.size(presences) < 2;
+  const isSingleUser = _.size(presences) < 2;
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
   const [marketsState, , tokensHash] = useContext(MarketsContext);

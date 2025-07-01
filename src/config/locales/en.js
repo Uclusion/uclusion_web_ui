@@ -371,6 +371,7 @@ const messages = defineMessages({
   rowExpandComment: 'ctrl+alt+e (shortcut global) Click comment to expand.',
   notificationSummary: 'Summary',
   viewInGroup: 'Views',
+  noViews: 'No views',
   viewInGroupTip: 'Displays job status, backlog, bugs, and discussion for each view.',
   inactiveGroups: 'Inactive views',
 

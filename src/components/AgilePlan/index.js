@@ -94,6 +94,17 @@ export const usePlanFormStyles = makeStyles(
       overflowWrap: 'break-word',
       cursor: 'not-allowed'
     },
+    avatarNameLink: {
+      fontSize: '15px',
+      overflowWrap: 'break-word',
+      cursor: 'pointer'
+    },
+    avatarNameYellowLink: {
+      fontSize: '15px',
+      overflowWrap: 'break-word',
+      color: '#ffC000',
+      cursor: 'pointer'
+    },
     avatarNameYellow: {
       fontSize: '15px',
       overflowWrap: 'break-word',

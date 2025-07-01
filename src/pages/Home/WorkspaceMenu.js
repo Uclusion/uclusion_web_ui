@@ -20,6 +20,8 @@ import { PLACEHOLDER } from '../../constants/global';
 import { fixName } from '../../utils/userFunctions';
 import config from '../../config';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -106,6 +108,23 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+function MemberDisplay(props) {
+  const { presence, index, recordPresenceToggle } = props;
+  const classes = useStyles();
+  const identityListClasses = usePlanFormStyles();
+  return <div id={index} onClick={(event) => recordPresenceToggle(event, presence)} >
+    <GravatarAndName
+      key={presence.id}
+      email={presence.email}
+      name={fixName(presence.name)}
+      typographyVariant="caption"
+      typographyClassName={presence.placeholder_type === PLACEHOLDER ?
+        identityListClasses.avatarNameYellowLink : identityListClasses.avatarNameLink}
+      avatarClassName={classes.smallGravatar}
+    />
+  </div>;
+}
+
 function WorkspaceMenu(props) {
   const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup, action,
     pathInvestibleId, pathMarketIdRaw, hashInvestibleId, useLink, typeObjectId } = props;
@@ -114,20 +133,30 @@ function WorkspaceMenu(props) {
   const activeMarkets = notCurrentMarkets.filter((market) => market.market_stage === 'Active');
   const archivedMarkets = notCurrentMarkets.filter((market) => market.market_stage !== 'Active');
   const classes = useStyles();
-  const identityListClasses = usePlanFormStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [groupsState] = useContext(MarketGroupsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const [userState] = useContext(AccountContext) || {};
   const intl = useIntl();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [presenceAnchor, setPresenceAnchor] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [presenceMenuId, setPresenceMenuId] = useState(undefined);
   const [switchWorkspaceOpen, setSwitchWorkspaceOpen] = useState(false);
   const history = useHistory();
   const { user } = userState;
   const notificationConfig = user?.notification_configs?.find((config) =>
-    config.market_id === defaultMarket.id);
+    config.market_id === defaultMarket?.id);
   const slackAddressable = notificationConfig?.is_slack_addressable;
-  const marketPresences = getMarketPresences(marketPresencesState, defaultMarket.id) || [];
+  const marketPresences = getMarketPresences(marketPresencesState, defaultMarket?.id) || [];
   const presencesOrdered =  _.orderBy(marketPresences, ['name'], ['asc']);
+  const marketGroups = groupsState[defaultMarket?.id] || [];
+  const presenceMenuGroups = marketGroups.filter((group) => {
+    const groupCapabilities = groupPresencesState[group.id] || [];
+    return !_.isEmpty(groupCapabilities.find((groupCapability) => !groupCapability.deleted
+      && groupCapability.id === presenceMenuId));
+  });
+  const presenceMenuGroupsOrdered = _.orderBy(presenceMenuGroups, ['name'], ['asc']);
 
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
@@ -137,6 +166,17 @@ function WorkspaceMenu(props) {
     } else {
       setAnchorEl(null);
       setMenuOpen(false);
+    }
+  };
+
+  const recordPresenceToggle = (event, presence) => {
+    if (presenceAnchor === null) {
+      preventDefaultAndProp(event);
+      setPresenceAnchor(event.currentTarget);
+      setPresenceMenuId(presence.id);
+    } else {
+      setPresenceAnchor(null);
+      setPresenceMenuId(undefined);
     }
   };
 
@@ -163,7 +203,7 @@ function WorkspaceMenu(props) {
       </ProSidebar>
     );
   }
-  const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
+  const isArchivedWorkspace = defaultMarket.market_stage !== 'Active';
   return (
     <div style={{marginLeft: '15px'}}>
       <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket}
@@ -322,17 +362,53 @@ function WorkspaceMenu(props) {
           id="addressesOfWorkspace"
           style={{marginTop: '0.5rem'}}
         >
-          {presencesOrdered.map((presence) => <GravatarAndName
-              key={presence.id}
-              email={presence.email}
-              name={fixName(presence.name)}
-              typographyVariant="caption"
-              typographyClassName={presence.placeholder_type === PLACEHOLDER ? identityListClasses.avatarNameYellow :
-                identityListClasses.avatarName}
-              avatarClassName={classes.smallGravatar}
-            />
-          )}
+          {presencesOrdered.map((presence, index) =>
+            <MemberDisplay presence={presence} index={index} recordPresenceToggle={recordPresenceToggle} />)}
         </List>
+      )}
+      {presenceAnchor && (
+        <Menu
+          id="presence-menu"
+          open={presenceMenuId !== undefined}
+          onClose={recordPresenceToggle}
+          getContentAnchorEl={null}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+          anchorEl={presenceAnchor}
+          disableRestoreFocus
+          classes={{ paper: classes.paperMenu }}
+          MenuListProps={{ disablePadding: true }}
+        >
+          <ProSidebar width="8rem">
+            <SidebarContent>
+              <ProMenu iconShape="circle">
+                {_.isEmpty(presenceMenuGroups) && (
+                  <div style={{marginLeft: '10px'}}>
+                    {intl.formatMessage({ id: 'noViews' })}
+                  </div>
+                )}
+                {presenceMenuGroupsOrdered.map((group, index) => {
+                  return <MenuItem key={`view${index}Key`} id={`view${index}Id`}
+                                   style={{marginTop: index === 0 ? '5px' : undefined,
+                                     marginBottom: index === _.size(presenceMenuGroupsOrdered) - 1 ? '5px' : '15px',
+                                     marginLeft: '5px'}}
+                                   onClick={()=> {
+                                     recordPresenceToggle();
+                                     navigate(history, formMarketLink(defaultMarket.id, group.id));
+                                   }}>
+                    {group.name}
+                  </MenuItem>
+                })}
+              </ProMenu>
+            </SidebarContent>
+          </ProSidebar>
+        </Menu>
       )}
       <ProSidebar width="14rem" style={{marginTop: '0.5rem'}}>
         <SidebarContent>

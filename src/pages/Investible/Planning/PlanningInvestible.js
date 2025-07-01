@@ -387,9 +387,10 @@ function PlanningInvestible(props) {
   const [approvalsOpen, setApprovalsOpen] = useState(true);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
+  const isAssigned = assigned.includes(userId);
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
     {sectionOpen: fullStage.move_on_comment ? 'assistanceSection' :
-        (isAcceptedStage(fullStage) ? 'tasksSection' : 'descriptionVotingSection')});
+        (isAcceptedStage(fullStage) && isAssigned ? 'tasksSection' : 'descriptionVotingSection')});
   const {
     sectionOpen,
     compressionHash,
@@ -400,7 +401,6 @@ function PlanningInvestible(props) {
     marketId
   ) || {}
   const isInVoting = inCurrentVotingStage && stage === inCurrentVotingStage.id;
-  const isAssigned = assigned.includes(userId);
   const canVote = isInVoting && !inArchives;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const createdBy = marketPresences.find((presence) => presence.id === createdById) || {};

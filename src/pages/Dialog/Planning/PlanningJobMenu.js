@@ -50,6 +50,7 @@ function PlanningJobMenu(props) {
   const groupMembers = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const isMember = groupMembers.find((member) => member.id === myPresence.id);
+  const inAssist = stageId === backlogStageId || isBlocked || needsAssist;
 
   function stageChange(targetStageId, readyToStart, assignments) {
     if (!operationRunning) {
@@ -147,14 +148,18 @@ function PlanningJobMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
-        {stageId === backlogStageId && isMember && (
+        {inAssist && isMember && (
           <MenuItem key="planningInvestibleNextStageAcceptedKey" id="planningInvestibleNextStageAcceptedId"
                     onClick={(event) => {
                       preventDefaultAndProp(event);
                       // Must assign to current user as cannot move to accepted for someone else
                       if (isBlocked || needsAssist) {
+                        if (stageId === backlogStageId) {
+                          return navigate(history,
+                            `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${acceptedStageId}&assignId=${myPresence.id}`);
+                        }
                         return navigate(history,
-                          `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${acceptedStageId}&assignId=${myPresence.id}`);
+                          `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${acceptedStageId}`);
                       }
                       return stageChange(acceptedStageId, undefined, [myPresence.id])
                         .then(() => recordPositionToggle());
@@ -167,13 +172,17 @@ function PlanningJobMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
-        {stageId === backlogStageId && (
+        {inAssist && (
           <MenuItem key="planningInvestibleToVotingKey" id="planningInvestibleToVotingId"
                     onClick={(event) => {
                       preventDefaultAndProp(event);
                       if (isBlocked || needsAssist) {
+                        if (stageId === backlogStageId) {
+                          return navigate(history,
+                            `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${invotingStageId}&isAssign=true`);
+                        }
                         return navigate(history,
-                          `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${invotingStageId}&isAssign=true`);
+                          `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${invotingStageId}`);
                       }
                       return stageChange(invotingStageId).then(() => recordPositionToggle());
                     }}

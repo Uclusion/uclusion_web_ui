@@ -91,6 +91,7 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { calculateInvestibleVoters } from '../../../utils/votingUtils';
+import { getSwimlaneInvestiblesForStage } from './userUtils';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -156,6 +157,7 @@ function PlanningDialog(props) {
   } = pageState;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
+  const isSingleUser = groupPresences?.length === 1;
   const isAutonomous = isAutonomousGroup(groupPresences, group);
   const furtherWorkStage = marketStages.find((stage) => isFurtherWorkStage(stage)) || {};
   const investiblesFullAssist = marketInvestibles.filter((investible) => {
@@ -205,6 +207,8 @@ function PlanningDialog(props) {
     const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
     return stage && stage.appears_in_context && stage.allows_tasks;
   });
+  const swimlaneCompleteInvestibles = getSwimlaneInvestiblesForStage(investiblesFullAssist, inReviewStage,
+    marketId, marketComments, messagesState)
   const activeInvestibles = swimlaneInvestibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     return marketInfo.assigned?.includes(myPresence.id);
@@ -694,9 +698,9 @@ function PlanningDialog(props) {
               pageState={pageState} updatePageState={updatePageState}
             />
             <DismissableText textId="notificationHelp"
-                             display={_.isEmpty(swimlaneInvestibles)}
+                             display={_.isEmpty(swimlaneInvestibles)&&_.isEmpty(swimlaneCompleteInvestibles)}
                              text={
-                              isAutonomous ?
+                               isSingleUser ?
                                    <div>
                                      {swimlaneEmptyPreText} Use the "Add job" button above to start a new job.
                                    </div>

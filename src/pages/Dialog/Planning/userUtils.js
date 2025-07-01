@@ -53,7 +53,7 @@ function hasInProgress(investibleId, marketComments) {
     comment.comment_type === TODO_TYPE && comment.in_progress));
 }
 
-function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments, messagesState) {
+export function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments, messagesState) {
   const stageId = stage.id;
   const isStartedStage = isAcceptedStage(stage);
   const limitInvestibles = !isStartedStage ? (stage || {}).allowed_investibles : undefined;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
@@ -10,10 +10,12 @@ import {
   RadioGroup,
   Select, Tooltip, useMediaQuery, useTheme
 } from '@material-ui/core';
-import { useEditor } from '../../../components/TextEditors/quillHooks';
 import { focusEditor, getQuillStoredState } from '../../../components/TextEditors/Utilities/CoreUtils';
 import InputLabel from '@material-ui/core/InputLabel';
 import { useHotkeys } from 'react-hotkeys-hook';
+import QuillEditor2 from '../../../components/TextEditors/QuillEditor2';
+import _ from 'lodash';
+import { registerListener } from '../../../utils/MessageBusUtils';
 
 const useStyles = makeStyles(
   theme => {
@@ -68,17 +70,19 @@ function AddInitialVote(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const [editor, setEditor] = useState(null);
   const classes = useStyles();
-  const editorSpec = {
-    marketId,
-    placeholder: intl.formatMessage({ id: "yourReason" }),
-    value: getQuillStoredState(editorName) || defaultReason,
-    onUpload,
-    onChange: onEditorChange,
-  };
-  const [Editor] = useEditor(editorName, editorSpec);
   const certainties = [5, 25, 50, 75, 100];
   function myOnChange(event) {
+    if (_.isEmpty(newQuantity)) {
+      // Have to do it like this so that they cannot type before choosing a certainty
+      setEditor(<QuillEditor2
+        id={editorName}
+        marketId={marketId}
+        value={getQuillStoredState(editorName) || defaultReason}
+        placeholder={intl.formatMessage({ id: "yourReason" })}
+      />);
+    }
     onChange(event);
     focusEditor(editorName);
   }
@@ -88,6 +92,37 @@ function AddInitialVote(props) {
       myOnChange({target});
     };
   }
+
+  useEffect(() => {
+    // Apparently uploadFormData (which onEditorChange is backed by) is mutating
+    registerListener(`editor-${editorName}`, `${editorName}-controller`, (message) => {
+      const { type, newUploads, contents } = message.payload;
+      switch (type) {
+        case 'uploads':
+          if (onUpload) {
+            return onUpload(newUploads);
+          }
+          break;
+        case 'change':
+          if (onEditorChange) {
+            return onEditorChange(contents);
+          }
+          break;
+        default:
+        // do nothing;
+      }
+    });
+    return () => {};
+  }, [editorName, onEditorChange, onUpload]);
+
+  useEffect(() => {
+    if (editor) {
+      // Run once when the editor first created, but after it is rendered
+      focusEditor(editorName);
+    }
+    return () => {};
+  }, [editor, editorName]);
+
   useHotkeys('ctrl+alt+1', simulateCertainty(5), {enableOnContentEditable: true}, []);
   useHotkeys('ctrl+alt+2', simulateCertainty(25), {enableOnContentEditable: true}, []);
   useHotkeys('ctrl+alt+3', simulateCertainty(50), {enableOnContentEditable: true}, []);
@@ -151,7 +186,7 @@ function AddInitialVote(props) {
           )}
         </FormControl>
         <div style={{paddingRight: isInbox && !mobileLayout ? '12rem' : undefined}}>
-          {Editor}
+          {editor}
         </div>
     </div>
   );

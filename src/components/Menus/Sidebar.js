@@ -26,7 +26,7 @@ function processRegularItem(properties) {
     }
     if (linkHref) {
       return (
-        <span style={{paddingLeft: '2.25rem', fontSize: '1.1rem', fontWeight: 'bold'}}>
+        <span style={{paddingLeft: '1.5rem', fontSize: '1.1rem', fontWeight: 'bold'}}>
           <Link href={linkHref} target="_blank">{text}</Link>
         </span>
       );
@@ -111,7 +111,8 @@ function processRegularItem(properties) {
 export default function Sidebar(props) {
   const history = useHistory();
   const { navigationOptions, idPrepend='' } = props;
-  const { navListItemTextArray, navMenu, listOnClick, headerItemTextArray } = navigationOptions || {};
+  const { navListItemTextArray, navLowerListItemTextArray, navMenu, navLowerMenu,
+    listOnClick, headerItemTextArray } = navigationOptions || {};
   return (
     <ProSidebar width="16rem">
       <SidebarHeader style={{borderBottom: 'unset'}}>
@@ -129,7 +130,7 @@ export default function Sidebar(props) {
       <SidebarContent>
         {navMenu}
       {!_.isEmpty(navListItemTextArray) && (
-        <Menu onClick={listOnClick} iconShape="circle">
+        <Menu onClick={listOnClick} iconShape="circle" style={{paddingTop: '5px'}}>
           {navListItemTextArray.map((navItem, topIndex) => {
             const { text, target, num, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
               onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
@@ -139,6 +140,18 @@ export default function Sidebar(props) {
           })}
         </Menu>
       )}
+        {navLowerMenu}
+        {!_.isEmpty(navLowerListItemTextArray) && (
+          <Menu onClick={listOnClick} iconShape="circle">
+            {navLowerListItemTextArray.map((navItem, topIndex) => {
+              const { text, target, num, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
+                onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
+              return processRegularItem({history, text, target, num, Icon, complexIcon, onClickFunc, isBold,
+                isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
+                tipText, idPrepend})
+            })}
+          </Menu>
+        )}
       </SidebarContent>
     </ProSidebar>
   );

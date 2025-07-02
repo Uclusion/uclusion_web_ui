@@ -57,6 +57,7 @@ import jwt_decode from 'jwt-decode';
 import { WARNING_COLOR } from '../../components/Buttons/ButtonConstants';
 import { fixName } from '../../utils/userFunctions';
 import Gravatar from '../../components/Avatars/Gravatar';
+import SwitchWorkspaceMenu from '../../pages/Home/SwitchWorkspaceMenu';
 
 export const screenStyles = makeStyles((theme) => ({
   hidden: {
@@ -418,19 +419,22 @@ function Screen(props) {
                               useLink={useLink} typeObjectId={typeObjectId}
                               hashInvestibleId={hashInvestibleId} pathMarketIdRaw={pathMarketIdRaw}
                               pathInvestibleId={pathInvestibleId} action={action} />,
-      navListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [
-        {
-          icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
-          isBold: addCollaboratorChosen, isBlue: addCollaboratorChosen,
-          target: `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
-        },
+      navLowerMenu: <SwitchWorkspaceMenu markets={markets} defaultMarket={defaultMarket}
+                                         chosenGroup={useGroupId || hashGroupId} setChosenMarketId={setMarketIdFull} />,
+      navLowerListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [
         {
           icon: EditOutlinedIcon, text: intl.formatMessage({ id: 'compose' }),
           isBold: composeChosen, isBlue: composeChosen,
           target: `/wizard#type=${COMPOSE_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
         }
-      ] : null}
-  ;
+      ] : null,
+      navListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [
+        {
+          icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
+          isBold: addCollaboratorChosen, isBlue: addCollaboratorChosen,
+          target: `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
+        }
+      ] : null};
   if (navigationMenu.navListItemTextArray && !isArchivedWorkspace) {
     navigationMenu.navListItemTextArray = navigationMenu.navListItemTextArray.concat(navListItemTextArray);
   }

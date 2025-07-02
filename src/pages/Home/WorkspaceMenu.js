@@ -10,7 +10,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
 import { formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { AddAlert, GroupOutlined, PermIdentity, VpnKey } from '@material-ui/icons';
+import { GroupOutlined, PermIdentity } from '@material-ui/icons';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { usePlanFormStyles } from '../../components/AgilePlan';
@@ -18,8 +18,6 @@ import GravatarAndName from '../../components/Avatars/GravatarAndName';
 import ReturnTop from './ReturnTop';
 import { PLACEHOLDER } from '../../constants/global';
 import { fixName } from '../../utils/userFunctions';
-import config from '../../config';
-import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 
@@ -130,24 +128,17 @@ function WorkspaceMenu(props) {
     pathInvestibleId, pathMarketIdRaw, hashInvestibleId, useLink, typeObjectId } = props;
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const notCurrentMarkets = markets.filter((market) => market.id !== defaultMarket?.id);
-  const activeMarkets = notCurrentMarkets.filter((market) => market.market_stage === 'Active');
   const archivedMarkets = notCurrentMarkets.filter((market) => market.market_stage !== 'Active');
   const classes = useStyles();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
-  const [userState] = useContext(AccountContext) || {};
   const intl = useIntl();
   const [anchorEl, setAnchorEl] = useState(null);
   const [presenceAnchor, setPresenceAnchor] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [presenceMenuId, setPresenceMenuId] = useState(undefined);
-  const [switchWorkspaceOpen, setSwitchWorkspaceOpen] = useState(false);
   const history = useHistory();
-  const { user } = userState;
-  const notificationConfig = user?.notification_configs?.find((config) =>
-    config.market_id === defaultMarket?.id);
-  const slackAddressable = notificationConfig?.is_slack_addressable;
   const marketPresences = getMarketPresences(marketPresencesState, defaultMarket?.id) || [];
   const presencesOrdered =  _.orderBy(marketPresences, ['name'], ['asc']);
   const marketGroups = groupsState[defaultMarket?.id] || [];
@@ -308,49 +299,6 @@ function WorkspaceMenu(props) {
                     </div>
                   </Tooltip>
                 </MenuItem>
-                <MenuItem icon={<VpnKey style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
-                          key="integrationKey" id="integrationId"
-                          onClick={() => {
-                            recordPositionToggle();
-                            navigate(history,`/integrationPreferences/${defaultMarket?.id}?groupId=${chosenGroup}`);
-                          }}
-                >
-                  <Tooltip title={intl.formatMessage({ id: 'integrationPreferencesHeader' })}>
-                    <div>
-                      {intl.formatMessage({ id: 'cliIntegration' })}
-                    </div>
-                  </Tooltip>
-                </MenuItem>
-                {slackAddressable && (
-                  <MenuItem icon={<AddAlert style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
-                            key="slackIntegrationKey" id="slackIntegrationId"
-                            onClick={() => {
-                              recordPositionToggle();
-                              navigate(history,'/integrationPreferences');
-                            }}
-                  >
-                    <Tooltip title={intl.formatMessage({ id: 'slackIntegrationExplanation' })}>
-                      <div>
-                        {intl.formatMessage({ id: 'slackIntegration' })}
-                      </div>
-                    </Tooltip>
-                  </MenuItem>
-                )}
-                {!slackAddressable && (
-                  <a
-                    href={`${config.add_to_slack_url}&state=${user?.id}_${defaultMarket.id}`}
-                    rel="noopener noreferrer"
-                    style={{paddingLeft: '15px'}}
-                  >
-                    <img
-                      alt="Add to Slack"
-                      height="40"
-                      width="139"
-                      src="https://platform.slack-edge.com/img/add_to_slack.png"
-                      srcSet="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"
-                    />
-                  </a>
-                )}
               </ProMenu>
             </SidebarContent>
           </ProSidebar>
@@ -389,8 +337,13 @@ function WorkspaceMenu(props) {
             <SidebarContent>
               <ProMenu iconShape="circle">
                 {_.isEmpty(presenceMenuGroups) && (
-                  <div style={{marginLeft: '10px'}}>
+                  <div style={{marginLeft: '10px', fontWeight: 'bold'}}>
                     {intl.formatMessage({ id: 'noViews' })}
+                  </div>
+                )}
+                {!_.isEmpty(presenceMenuGroups) && (
+                  <div style={{marginLeft: '10px', fontWeight: 'bold'}}>
+                    {intl.formatMessage({ id: 'viewInGroup' })}
                   </div>
                 )}
                 {presenceMenuGroupsOrdered.map((group, index) => {
@@ -410,53 +363,6 @@ function WorkspaceMenu(props) {
           </ProSidebar>
         </Menu>
       )}
-      <ProSidebar width="14rem" style={{marginTop: '0.5rem'}}>
-        <SidebarContent>
-          <ProMenu iconShape="circle" style={{paddingBottom: 0}}>
-            <SubMenu id='switchWorkspace' title={intl.formatMessage({ id: 'switchWorkspace' })}
-                     onClick={(event) => {
-                       event.stopPropagation();
-                       setSwitchWorkspaceOpen(!switchWorkspaceOpen);
-                     }}
-                     key="switchWorkspace" open={switchWorkspaceOpen}>
-              {activeMarkets.map((market) => {
-                const key = `market${market.id}`;
-
-                if (market.id === defaultMarket.id) {
-                  return <React.Fragment key={key}/>;
-                }
-                return <MenuItem
-                  icon={<AgilePlanIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}}
-                                                      htmlColor="black" fontSize='small' />}
-                  id={key}
-                  key={key}
-                  style={{paddingLeft: '-15px', marginLeft: '-15px'}}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    setChosenMarketId(market.id);
-                    setSwitchWorkspaceOpen(false);
-                  }}
-                >
-                  {market.name}
-                </MenuItem>
-              })}
-              <MenuItem icon={<AddIcon style={{fontSize: '1.3rem', paddingBottom: '2px'}} htmlColor="black" />}
-                        key="addWorkspace Key" id="addWorkspaceIconId"
-                        style={{paddingLeft: '-15px', marginLeft: '-15px'}}
-                        onClick={()=> {
-                          navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-                        }}
-              >
-                <Tooltip title={intl.formatMessage({ id: 'workspaceExplanationTooltip' })}>
-                  <div>
-                    {intl.formatMessage({ id: 'homeAddPlanning' })}
-                  </div>
-                </Tooltip>
-              </MenuItem>
-            </SubMenu>
-          </ProMenu>
-        </SidebarContent>
-      </ProSidebar>
     </div>
   );
 }

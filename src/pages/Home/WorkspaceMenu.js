@@ -337,19 +337,19 @@ function WorkspaceMenu(props) {
             <SidebarContent>
               <ProMenu iconShape="circle">
                 {_.isEmpty(presenceMenuGroups) && (
-                  <div style={{marginLeft: '10px', fontWeight: 'bold'}}>
+                  <div style={{marginLeft: '10px', fontWeight: 'bold', marginTop: '2px'}}>
                     {intl.formatMessage({ id: 'noViews' })}
                   </div>
                 )}
                 {!_.isEmpty(presenceMenuGroups) && (
-                  <div style={{marginLeft: '10px', fontWeight: 'bold'}}>
+                  <div style={{marginLeft: '10px', fontWeight: 'bold', marginTop: '2px'}}>
                     {intl.formatMessage({ id: 'viewInGroup' })}
                   </div>
                 )}
                 {presenceMenuGroupsOrdered.map((group, index) => {
                   return <MenuItem key={`view${index}Key`} id={`view${index}Id`}
-                                   style={{marginTop: index === 0 ? '5px' : undefined,
-                                     marginBottom: index === _.size(presenceMenuGroupsOrdered) - 1 ? '5px' : '15px',
+                                   style={{marginTop: index === 0 ? '8px' : undefined,
+                                     marginBottom: index === _.size(presenceMenuGroupsOrdered) - 1 ? '5px' : '8px',
                                      marginLeft: '5px'}}
                                    onClick={()=> {
                                      recordPresenceToggle();

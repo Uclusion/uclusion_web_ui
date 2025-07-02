@@ -26,7 +26,9 @@ function processRegularItem(properties) {
     }
     if (linkHref) {
       return (
-        <span style={{paddingLeft: '3.25rem'}}><Link href={linkHref} target="_blank">{text}</Link></span>
+        <span style={{paddingLeft: '2.25rem', fontSize: '1.1rem', fontWeight: 'bold'}}>
+          <Link href={linkHref} target="_blank">{text}</Link>
+        </span>
       );
     }
     return (

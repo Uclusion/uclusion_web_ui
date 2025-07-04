@@ -56,7 +56,7 @@ function getInvestibleCandidate(investible, market, navigations, isOutbox=false)
 }
 
 function getCommentCandidate(comment, market, navigations) {
-  const candidate = {url: formInboxItemLink(comment.id)};
+  const candidate = {url: formInboxItemLink({id: comment.id})};
   const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
   candidate.time = candidateMeta?.time || 0;
   return candidate;

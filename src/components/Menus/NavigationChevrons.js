@@ -15,7 +15,7 @@ import { useHistory, useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
   dehighlightMessage, getInboxTarget,
-  isInInbox
+  isInInbox, messageIsSynced
 } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { addNavigation, removeNavigation } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import _ from 'lodash';
@@ -154,7 +154,7 @@ export default function NavigationChevrons() {
       }
     }
     const highlighted = highlightedMessages?.filter((message) =>
-      formInboxItemLink(message) !== resource) || [];
+      formInboxItemLink(message) !== resource && messageIsSynced(message, marketsState, marketPresencesState, commentsState, investiblesState, groupsState)) || [];
     const highlightedMapped = addWorkspaceGroupAttribute(highlighted, groupsState);
     const highlightedOrdered =  _.orderBy(highlightedMapped,
       [function isGroupInvite(msg) {

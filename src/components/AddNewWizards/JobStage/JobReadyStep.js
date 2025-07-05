@@ -13,6 +13,8 @@ import { updateInvestible } from '../../../api/investibles';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import JobDescription from '../../InboxWizards/JobDescription';
+import { getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function JobReadyStep(props) {
   const { updateFormData, formData, inv, marketId } = props;
@@ -20,10 +22,13 @@ function JobReadyStep(props) {
   const history = useHistory();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const { useAnswer } = formData;
   const marketInfo = getMarketInfo(inv, marketId);
-  const { open_for_investment: openForInvestment } = marketInfo;
+  const { open_for_investment: openForInvestment, stage: currentStageId } = marketInfo;
   const investibleId = inv.investible.id;
+  const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);
+  const isAlreadyInFurtherWork = furtherWorkStage?.id === currentStageId;
 
   function onFinish() {
     navigate(history, formInvestibleLink(marketId, investibleId));
@@ -87,7 +92,7 @@ function JobReadyStep(props) {
         spinOnClick={true}
         showTerminate={true}
         onTerminate={onFinish}
-        terminateLabel="OnboardingWizardSkip"
+        terminateLabel={isAlreadyInFurtherWork ? 'OnboardingWizardSkip' : 'cancel'}
       />
     </WizardStepContainer>
 );

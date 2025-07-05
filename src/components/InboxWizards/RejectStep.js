@@ -60,6 +60,7 @@ function RejectStep(props) {
       <div className={classes.marginBottom}/>
       <WizardStepButtons
         {...props}
+        focus
         nextLabel="DecideWizardReassign"
         spinOnClick={false}
         onNext={() => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId,

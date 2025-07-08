@@ -211,7 +211,7 @@ function BacklogItem(props) {
                      description={stripHTML(investible.description)} openForInvestment={openForInvestment}
                      newMessages={getNewMessages(inv, messagesState)} stage={stage} myGroupPresence={myGroupPresence}
                      acceptedStageId={acceptedStageId} inDialogStageId={inDialogStageId}
-                     isAutonomous={!_.isEmpty(singleUser)} marketId={marketId} people={collaboratorsForInvestible} />
+                     isSingleUser={!_.isEmpty(singleUser)} marketId={marketId} people={collaboratorsForInvestible} />
   );
 }
 

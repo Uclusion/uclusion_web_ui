@@ -99,7 +99,7 @@ function BacklogListItem(props) {
     people,
     openForInvestment,
     myGroupPresence,
-    isAutonomous,
+    isSingleUser,
     acceptedStageId,
     stage,
     inDialogStageId
@@ -141,7 +141,7 @@ function BacklogListItem(props) {
             onContextMenu={recordPositionToggle}>
         {anchorEl && (
           <BacklogMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} marketId={marketId}
-                       myGroupPresence={myGroupPresence} isAutonomous={isAutonomous} acceptedStageId={acceptedStageId}
+                       myGroupPresence={myGroupPresence} isSingleUser={isSingleUser} acceptedStageId={acceptedStageId}
                        stage={stage} inDialogStageId={inDialogStageId} investibleId={id}
                        openForInvestment={openForInvestment} mouseX={mouseX} mouseY={mouseY} />
         )}

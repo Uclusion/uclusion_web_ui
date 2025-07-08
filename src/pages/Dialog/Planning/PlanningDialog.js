@@ -723,9 +723,8 @@ function PlanningDialog(props) {
         <div id="backlogSection" style={{overflowX: 'hidden'}}>
           <Backlog group={group} marketPresences={marketPresences} hidden={!isSectionOpen('backlogSection')}
                    furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
-                   comments={marketComments} isSingleUser={isAutonomous} myGroupPresence={myGroupPresence}
-                   inDialogStageId={inDialogStage?.id} acceptedStageId={acceptedStage?.id}
-                   singleUser={isAutonomous ? groupPresences[0] : undefined} />
+                   comments={marketComments} myGroupPresence={myGroupPresence} inDialogStageId={inDialogStage?.id}
+                   acceptedStageId={acceptedStage?.id} singleUser={isSingleUser ? groupPresences[0] : undefined} />
         </div>
         <MarketTodos comments={unResolvedGroupComments} marketId={marketId} groupId={groupId}
                      sectionOpen={isSectionOpen('marketTodos')}

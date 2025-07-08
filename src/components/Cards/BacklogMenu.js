@@ -33,7 +33,7 @@ const useStyles = makeStyles(() => ({
 
 function BacklogMenu(props) {
   const { anchorEl, recordPositionToggle, marketId, investibleId, openForInvestment, mouseX, mouseY,
-    myGroupPresence, isAutonomous, acceptedStageId, stage, inDialogStageId } = props;
+    myGroupPresence, isSingleUser, acceptedStageId, stage, inDialogStageId } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useStyles();
@@ -54,7 +54,7 @@ function BacklogMenu(props) {
   }
 
   function assignJob() {
-    if (isAutonomous) {
+    if (isSingleUser) {
       const moveInfo = {
         marketId,
         investibleId,

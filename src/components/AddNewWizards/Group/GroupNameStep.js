@@ -109,8 +109,8 @@ function GroupNameStep (props) {
         What do you want to call your view?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
-        A <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> controls the
-        addressing of notifications unless using mentioned or are subscribed to a
+        A <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> has its own status and
+        backlog. It also controls the addressing of notifications unless using mentions or a subscription to a
         job. {_.isEmpty(myAutonomousGroups) && 'A My work view has only you and shows your work across views.'}
       </Typography>
       <OutlinedInput

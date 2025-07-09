@@ -29,6 +29,7 @@ const useInvestiblesByPersonStyles = makeStyles(
         margin: theme.spacing(1, 0),
       },
       content: {
+        backgroundColor: '#EDF7F8',
         padding: 0,
         "&:last-child": {
           paddingBottom: "inherit"

@@ -521,6 +521,7 @@ const generalStageStyles = makeStyles((theme) => {
       height: '24px',
     },
     outlinedAccepted: {
+      backgroundColor: 'white',
       border: `1px solid ${theme.palette.grey['400']}`,
       borderRadius: theme.spacing(1),
       fontSize: '.8em',

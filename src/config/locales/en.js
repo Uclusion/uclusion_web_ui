@@ -194,7 +194,7 @@ const messages = defineMessages({
   agilePlanFormDaysEstimateLabel: 'Days estimate',
   agilePlanFormDaysEstimatePlaceholder: 'Very rough number of days to complete',
   agilePlanFormInvestmentExpirationLabel: 'Approval Expiration in days',
-  startedExpirationLabel: 'Accepted expiration in days',
+  startedExpirationLabel: 'Work Ready expiration in days',
   agilePlanFormSaveLabel: 'Save',
 
   // Market Nav
@@ -478,7 +478,7 @@ const messages = defineMessages({
   groupExplanationTooltip: 'A view is a different display and subset of workspace members.',
   workspaceExplanationTooltip: 'Members of a workspace see everything in all views.',
   voteExpirationHelp: "Days before approvals expire. Prevents approvals becoming too old.",
-  startedExpirationHelp: "Days a job can be in Approved without progress report or estimated due date.",
+  startedExpirationHelp: "Days in Work Ready without progress report or estimated due date.",
   reassignToMove: 'Assigning moves to the swimlanes.',
   marketLinksSection: 'links',
   attachedFilesSection: 'Attach Files',

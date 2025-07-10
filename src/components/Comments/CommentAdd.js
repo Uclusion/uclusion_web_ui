@@ -495,7 +495,7 @@ function CommentAdd(props) {
                           focusEditor(editorName);
                         })
                   }
-                  showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : !investibleId}
+                  showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : !investibleId && type !== REPORT_TYPE}
                   terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
               )}
               {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&

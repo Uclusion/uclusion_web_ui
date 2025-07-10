@@ -960,7 +960,7 @@ function Comment(props) {
             {((resolved && showReopen) || (!resolved && showResolve)) && mobileLayout && (
               <SpinningIconLabelButton
                 doSpin={(investibleId || resolved) && (resolved || commentType !== REPORT_TYPE)}
-                onClick={resolved ? reopen : (commentType === REPORT_TYPE ? () => navigate(history,
+                onClick={resolved ? reopen : (commentType === REPORT_TYPE && investibleId ? () => navigate(history,
                   `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                     REPORT_TYPE)}&resolveId=${id}`) : resolve)}
                 icon={resolved ? SettingsBackupRestore : Done}
@@ -1082,7 +1082,7 @@ function Comment(props) {
             {((resolved && showReopen) || (!resolved && showResolve)) && !mobileLayout && (
               <SpinningIconLabelButton
                 doSpin={(investibleId || resolved) && (resolved || commentType !== REPORT_TYPE)}
-                onClick={resolved ? reopen : (commentType === REPORT_TYPE ? () => navigate(history,
+                onClick={resolved ? reopen : (commentType === REPORT_TYPE && investibleId ? () => navigate(history,
                   `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                     REPORT_TYPE)}&resolveId=${id}`) : resolve)}
                 icon={resolved ? SettingsBackupRestore : Done}

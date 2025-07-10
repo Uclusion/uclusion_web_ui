@@ -209,6 +209,21 @@ def process_bug(comment_stripped, credentials):
     return bug
 
 
+def send_note(comment_stripped, credentials):
+    create_note_api_url = 'https://investibles.' + credentials['api_url'] + '/comment'
+    data = {
+        'group_id': credentials['view_id'],
+        'body': f"<p>{comment_stripped}</p>",
+        'comment_type': 'REPORT'
+    }
+    return send(data, 'POST', create_note_api_url, credentials['api_token'])
+
+
+def process_note(comment_stripped, credentials):
+    print(f"  ✅ Creating note")
+    return send_note(comment_stripped, credentials)
+
+
 def sync_comment(comment, credentials, stages):
     comment_stripped = comment.strip()
     comment_stripped_lower = comment_stripped.lower()
@@ -222,6 +237,8 @@ def sync_comment(comment, credentials, stages):
         return process_job(comment_stripped, credentials, stages)
     if comment_stripped_lower.startswith('backlog_not_ready'):
         return  process_job(comment_stripped, credentials, stages)
+    if comment_stripped_lower.startswith('note'):
+        return process_note(token_split('note', comment_stripped), credentials)
     if comment_stripped_lower.startswith('bug'):
         bug = process_bug(token_split('bug', comment_stripped), credentials)
     else:
@@ -280,7 +297,7 @@ def get_readable_description(description):
     return description[3:-4]
 
 
-def add_bug_line(comment, credentials):
+def add_comment_line(comment, credentials):
     return f"{get_readable_ticket_code(get_ticket_code(comment, credentials))} {get_readable_description(comment['body'])}\n"
 
 
@@ -309,23 +326,25 @@ def process_uclusion_txt(root, credentials, stages, resolved_ticket_codes):
         with open(file_path, 'r+', encoding='utf-8') as uclusion_file:
             content = uclusion_file.read()
             uclusion_file.seek(0)
-            pattern = r"\||B-|J-"
+            pattern = r"\||B-|J-|R-"
             comments = re.split(pattern, content)
             if len(comments) > 1:
                 new_file_content_lines = []
                 for comment_partial in comments:
                     comment_index = content.find(comment_partial)
                     if content[comment_index - 1] == '|':
-                        comment = content[comment_index - 2: comment_index] + comment_partial
+                        comment = comment_partial
                     elif content[comment_index - 1] == '-':
                         comment = content[comment_index - 2: comment_index] + comment_partial
                     elif content.startswith(comment_partial):
                         # Handle the case that some text before the first token by just keeping it
                         new_file_content_lines.append(comment_partial)
                         continue
-                    if comment.startswith('B-') or comment.startswith('J-'):
+                    if comment.startswith('B-') or comment.startswith('J-') or comment.startswith('R-'):
                         if comment.startswith('B-'):
                             ticket_code = get_ticket_code_from_line(comment, 'B-')
+                        elif comment.startswith('R-'):
+                            ticket_code = get_ticket_code_from_line(comment, 'R-')
                         else:
                             ticket_code = get_ticket_code_from_line(comment, 'J-')
                         if ticket_code in resolved_ticket_codes and not comment.startswith(ticket_code + ' DONE'):
@@ -337,8 +356,8 @@ def process_uclusion_txt(root, credentials, stages, resolved_ticket_codes):
                             new_file_content_lines.append(comment)
                     else:
                         new_content = sync_comment(comment, credentials, stages)
-                        if 'comment_type' in new_content:
-                            new_file_content_lines.append(add_bug_line(new_content, credentials))
+                        if new_content is not None and 'comment_type' in new_content:
+                            new_file_content_lines.append(add_comment_line(new_content, credentials))
                         else:
                             new_file_content_lines.append(add_job_line(new_content, credentials))
                 uclusion_file.writelines(new_file_content_lines)

@@ -8,6 +8,7 @@ import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
+import { REPORT_TYPE } from '../../../constants/comments';
 
 export function hasDiscussionComment(groupId, commentType) {
   return hasCommentValue(groupId, undefined, 'DiscussionCommentAdd', undefined,
@@ -38,11 +39,18 @@ function AddCommentStep (props) {
       isLarge
     >
       <Typography className={classes.introText}>
-        What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Tip` }).toLowerCase()}?
+        What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Title` })}?
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        All view members notified unless use @ mentions.
-      </Typography>
+      {useType === REPORT_TYPE && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          No notifications sent unless use @ mentions.
+        </Typography>
+      )}
+      {useType !== REPORT_TYPE && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          All view members notified unless use @ mentions.
+        </Typography>
+      )}
       <CommentAdd
         nameKey="DiscussionCommentAdd"
         type={useType}

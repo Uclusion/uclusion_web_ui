@@ -25,20 +25,18 @@ import StarRateIcon from '@material-ui/icons/StarRate'
 import EditIcon from '@material-ui/icons/Edit'
 import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { DECISION_TYPE } from '../constants/markets'
-import AgilePlanIcon from '@material-ui/icons/PlaylistAdd'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import UpdateIcon from '@material-ui/icons/Update'
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import { Block, BugReport } from '@material-ui/icons';
+import { Block, BugReport, Notes } from '@material-ui/icons';
 import LightbulbOutlined from './CustomChip/LightbulbOutlined';
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
 export const VOTING_TYPE = 'VOTING'
 export const STORY_TYPE = 'STORY'
-export const AGILE_PLAN_TYPE = 'AGILE_PLAN'
 export const IN_PROGRESS = 'PROGRESS'
 export const IN_REVIEW = 'REVIEW'
 export const IN_BLOCKED = 'BLOCKED'
@@ -49,6 +47,7 @@ export const IN_VERIFIED = "VERIFIED";
 export const OPTION = "OPTION";
 export const PROPOSED = "PROPOSED";
 export const BUG = 'BUG';
+export const NOTE = 'NOTE';
 export const IN_VOTING= "DELIBERATION";
 export const ASSIGN_TYPE = "ASSIGN";
 export const GENERIC_STORY_TYPE = "GENERIC_STORY"; /// used in search results only
@@ -79,7 +78,6 @@ const useCardTypeStyles = makeStyles(theme => ({
           certainty50: "#FCEC69",
           certainty75: "#A5C86B",
           certainty100: "#73B76C",
-          [AGILE_PLAN_TYPE]: "#9B51E0"
         }[type],
         borderBottomRightRadius: 8,
         color: {
@@ -98,7 +96,6 @@ const useCardTypeStyles = makeStyles(theme => ({
             certainty50: 'black',
             certainty75: 'black',
             certainty100: 'black',
-            [AGILE_PLAN_TYPE]: 'white'
           }[type],
         padding: `4px 8px`,
         whiteSpace: 'nowrap'
@@ -179,6 +176,7 @@ export default function CardType(props) {
     [SUGGEST_CHANGE_TYPE]: LightbulbOutlined,
     [TODO_TYPE]: ListAltIcon,
     [BUG]: BugReport,
+    [NOTE]: Notes,
     [REPORT_TYPE]: UpdateIcon,
     [VOTING_TYPE]: VotingIcon,
     [STORY_TYPE]: EditIcon,
@@ -200,7 +198,6 @@ export default function CardType(props) {
     certainty50: NoIcon,
     certainty75: NoIcon,
     certainty100: NoIcon,
-    [AGILE_PLAN_TYPE]: AgilePlanIcon,
     [GENERIC_STORY_TYPE]: AssignmentIcon,
   }[subtype || type];
 
@@ -248,7 +245,8 @@ CardType.propTypes = {
     ASSIGN_TYPE,
     OPTION,
     PROPOSED,
-    BUG
+    BUG,
+    NOTE
   ]),
   type: PropTypes.oneOf([
     "certainty5",
@@ -265,7 +263,6 @@ CardType.propTypes = {
     VOTING_TYPE,
     STORY_TYPE,
     DECISION_TYPE,
-    GENERIC_STORY_TYPE,
-    AGILE_PLAN_TYPE
+    GENERIC_STORY_TYPE
   ])
 };

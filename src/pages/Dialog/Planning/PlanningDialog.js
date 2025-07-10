@@ -36,7 +36,6 @@ import {
   isInReviewStage,
   isRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import QuestionIcon from '@material-ui/icons/ContactSupport';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
 import AssignmentIcon from '@material-ui/icons/Assignment';
@@ -92,6 +91,7 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { getSwimlaneInvestiblesForStage } from './userUtils';
+import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
 
 function getAnchorId(tabIndex) {
   switch (tabIndex) {
@@ -229,6 +229,9 @@ function PlanningDialog(props) {
     {enabled: !hidden}, [history, groupId, marketId]);
   useHotkeys('ctrl+alt+s', () => navigate(history,
       formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, SUGGEST_CHANGE_TYPE)),
+    {enabled: !hidden}, [history, groupId, marketId]);
+  useHotkeys('ctrl+alt+n', () => navigate(history,
+      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, REPORT_TYPE)),
     {enabled: !hidden}, [history, groupId, marketId]);
 
   useEffect(() => {
@@ -577,7 +580,7 @@ function PlanningDialog(props) {
           <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
                         toolTipId='bugsToolTip' tagLabel={getTagLabel(tabCount2, 2)} tagColor='#E85757'
                         tag={_.isEmpty(search) || _.isEmpty(todoGroupComments) ? tabCount2 : `${_.size(todoGroupComments)}` } />
-          <GmailTabItem icon={<QuestionIcon />} toolTipId='discussionToolTip' tagLabel={getTagLabel(tabCount3)}
+          <GmailTabItem icon={<LightbulbOutlined />} toolTipId='discussionToolTip' tagLabel={getTagLabel(tabCount3)}
                         label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})} tagColor='#E85757'
                         tag={_.isEmpty(search) || _.isEmpty(questionSuggestionGroupComments) ? tabCount3 :
                           `${_.size(questionSuggestionGroupComments)}`} />
@@ -594,6 +597,18 @@ function PlanningDialog(props) {
               {_.isEmpty(search) && marketId && !hidden && (
                 <>
                   <div style={{display: 'flex', marginBottom: '1.5rem', marginLeft: '0.5rem'}}>
+                    <SpinningButton id="newMarketReport"
+                                    icon={hasDiscussionComment(groupId, REPORT_TYPE) ? EditIcon : AddIcon}
+                                    iconColor="black"
+                                    className={wizardClasses.actionNext}
+                                    style={{display: "flex", marginTop: '1rem',
+                                      marginRight: mobileLayout ? undefined : '2rem'}}
+                                    variant="text" doSpin={false} toolTipId='hotKeyREPORT'
+                                    onClick={() => navigate(history,
+                                      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
+                                        REPORT_TYPE))}>
+                      <FormattedMessage id='createNote'/>
+                    </SpinningButton>
                     <SpinningButton id="newMarketQuestion"
                                     icon={hasDiscussionComment(groupId, QUESTION_TYPE) ? EditIcon : AddIcon}
                                     iconColor="black"
@@ -627,10 +642,7 @@ function PlanningDialog(props) {
                   }/>
                 </>
               )}
-              <CommentBox
-                comments={notTodoGroupComments.filter((comment) =>
-                  [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPLY_TYPE].includes(comment.comment_type))}
-                marketId={marketId} />
+              <CommentBox comments={notTodoGroupComments} marketId={marketId} />
             </Grid>
           </div>
         )}

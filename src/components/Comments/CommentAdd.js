@@ -67,7 +67,10 @@ function getPlaceHolderLabelId(type, investibleId) {
     case REPLY_TYPE:
       return 'commentAddReplyDefault';
     case REPORT_TYPE:
-      return 'commentAddReportDefault';
+      if (investibleId) {
+        return 'commentAddReportDefault';
+      }
+      return 'commentAddNoteDefault';
     case TODO_TYPE:
       if (investibleId) {
         return 'commentAddTODODefault';

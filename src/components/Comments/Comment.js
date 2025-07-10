@@ -36,7 +36,7 @@ import {
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
-import CardType, { BUG, DECISION_TYPE } from '../CardType';
+import CardType, { BUG, DECISION_TYPE, NOTE } from '../CardType';
 import {
   addCommentToMarket, getComment,
   getMarketComments
@@ -728,9 +728,11 @@ function Comment(props) {
   const { level: myHighlightedLevel } = myMessage || {};
   // For some reason can't stop propagation on clicking edit so just turn off in that case
   const isNavigateToInbox = myHighlightedLevel && !isEditable && !replyEditId;
+  const isNote = commentType === REPORT_TYPE && _.isEmpty(investibleId);
   const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> :
     (commentType === REPLY_TYPE ? (isSubTask(comment, commentsState) ? <FormattedMessage id="commentSubTaskLabel" /> :
-        <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> : undefined ));
+        <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> :
+      (isNote ? <FormattedMessage id="reportNote" /> : undefined ) ));
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = !replyBeingEdited || replies.length > 0;
@@ -816,7 +818,7 @@ function Comment(props) {
   const cardTypeDisplay = overrideLabel ? (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
               subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : (commentType === REPLY_TYPE ?
-                TODO_TYPE : undefined)}
+                TODO_TYPE : (isNote ? NOTE :undefined))}
               label={overrideLabel} color={color} compressed={useCompression}
               gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
     />

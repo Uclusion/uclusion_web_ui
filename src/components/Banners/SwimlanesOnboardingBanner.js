@@ -32,6 +32,11 @@ function SwimlanesOnboardingBanner(props) {
   const isSwimlanes = !sectionOpen || sectionOpen === 'storiesSection';
   const isDemoEngineeringScreen = isDemo && isSwimlanes && group?.name === 'Engineering';
 
+  if (mobileLayout) {
+    // If there are on mobile the onboarding is over
+    return React.Fragment;
+  }
+
   return (
     <div className={classes.bannerBox}>
         <div style={{marginTop: '0.8rem'}} id='swimlanesDemoBannerText'>
@@ -99,7 +104,7 @@ function SwimlanesOnboardingBanner(props) {
             }/>
           )}
         </div>
-      {!mobileLayout && isDemo && (
+      {isDemo && (
         <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
           <DemoCreateWorkspaceButton/>
         </div>

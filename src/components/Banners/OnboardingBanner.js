@@ -49,6 +49,11 @@ function OnboardingBanner() {
   const message = findMessagesForTypeObjectId(typeObjectId, messagesState);
   const market = getMarket(marketsState, message?.market_id);
 
+  if (mobileLayout) {
+    // If there are on mobile the onboarding is over
+    return React.Fragment;
+  }
+
   if (message && !marketIsDemo(market)) {
     if (market?.market_sub_type === 'SUPPORT' && typeObjectId?.startsWith('UNREAD_COMMENT')) {
       return (
@@ -112,7 +117,7 @@ function OnboardingBanner() {
       {isInbox && typeObjectId && !typeObjectId.includes('_') && (
           <Typography><Link href="https://documentation.uclusion.com/flows/#job-approval" target="_blank">Job approval</Link> for your assignment. Poke if no response.</Typography>
       )}
-      {!mobileLayout && !typeObjectId?.startsWith('UNREAD_GROUP') && (
+      {!typeObjectId?.startsWith('UNREAD_GROUP') && (
         <DemoCreateWorkspaceButton/>
       )}
       </div>

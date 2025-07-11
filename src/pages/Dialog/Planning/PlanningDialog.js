@@ -596,7 +596,7 @@ function PlanningDialog(props) {
             <Grid item id="discussionAddArea" xs={12}>
               {_.isEmpty(search) && marketId && !hidden && (
                 <>
-                  <div style={{display: 'flex', marginBottom: '1.5rem', marginLeft: '0.5rem'}}>
+                  <div style={{display: mobileLayout ? undefined : 'flex', marginBottom: '1.5rem', marginLeft: '0.5rem'}}>
                     <SpinningButton id="newMarketReport"
                                     icon={hasDiscussionComment(groupId, REPORT_TYPE) ? EditIcon : AddIcon}
                                     iconColor="black"
@@ -607,7 +607,7 @@ function PlanningDialog(props) {
                                     onClick={() => navigate(history,
                                       formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
                                         REPORT_TYPE))}>
-                      <FormattedMessage id='createNote'/>
+                      <FormattedMessage id={`createNote${mobileLayout ? 'Mobile' : ''}`}/>
                     </SpinningButton>
                     <SpinningButton id="newMarketQuestion"
                                     icon={hasDiscussionComment(groupId, QUESTION_TYPE) ? EditIcon : AddIcon}
@@ -619,7 +619,7 @@ function PlanningDialog(props) {
                                     onClick={() => navigate(history,
                                       formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
                                         QUESTION_TYPE))}>
-                      <FormattedMessage id='createQuestion'/>
+                      <FormattedMessage id={`createQuestion${mobileLayout ? 'Mobile' : ''}`}/>
                     </SpinningButton>
                     <SpinningButton id="createSuggestion"
                                     icon={hasDiscussionComment(groupId, SUGGEST_CHANGE_TYPE) ? EditIcon : AddIcon}
@@ -630,7 +630,7 @@ function PlanningDialog(props) {
                                     onClick={() => navigate(history,
                                       formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
                                         SUGGEST_CHANGE_TYPE))}>
-                      <FormattedMessage id='createSuggestion'/>
+                      <FormattedMessage id={`createSuggestion${mobileLayout ? 'Mobile' : ''}`}/>
                     </SpinningButton>
                   </div>
                   <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionGroupComments)}

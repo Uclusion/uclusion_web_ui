@@ -19,7 +19,7 @@ export function GmailTabItem(props) {
       disableTouchRipple
       classes={tabItemStyles}
       {...other}
-      id={label.replace(/[ &]/g, '')}
+      id={label.replace(/[ &\/]/g, '')}
       style={{maxWidth: '16rem', width: '12rem'}}
       label={
         <div className={'MuiTabItem-label'}>

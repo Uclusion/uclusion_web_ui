@@ -6,12 +6,13 @@ import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 
 export function GmailTabItem(props) {
-  const { color='#797FF2', label, tag, tagLabel = 'total', tagColor='#797FF2', toolTipId,
+  const { color='#797FF2', label, tag, tagLabel, tagColor='#797FF2', toolTipId,
     ...other } = props;
   const theme = useTheme();
   const intl = useIntl();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const tabItemStyles = useGmailTabItemStyles({ ...props, color });
+  const useTagLabel = mobileLayout ? '' : (tagLabel || 'total');
   const useLabel = mobileLayout ? '' : (toolTipId ? <Tooltip
     title={intl.formatMessage({ id: toolTipId })}><div>{label}</div></Tooltip> : label);
   return (
@@ -25,7 +26,7 @@ export function GmailTabItem(props) {
         <div className={'MuiTabItem-label'}>
           {useLabel} {tag && <span className={'MuiTabItem-tag'} style={{backgroundColor: tagColor,
           borderRadius: 22, paddingLeft: '5px', paddingRight: '5px', marginLeft: mobileLayout ? '-8px' : undefined}}>
-          {tag} {tagLabel}</span>}
+          {tag} {useTagLabel}</span>}
         </div>
       }
     />

@@ -190,9 +190,7 @@ function InvestiblesByPerson(props) {
                   <div style={{ alignItems: "center", display: "flex", flexDirection: 'row' }}>
                     <Typography variant="body1" className={myClassName}>
                       {name}
-                      {!mobileLayout && (
-                        <NotificationCountChips id={id} mentions={mentions} approvals={approvals} />
-                      )}
+                      <NotificationCountChips id={id} mentions={mentions} approvals={approvals} />
                     </Typography>
                   </div>}
                 avatar={<Gravatar className={classes.smallGravatar} email={email} name={name}/>}

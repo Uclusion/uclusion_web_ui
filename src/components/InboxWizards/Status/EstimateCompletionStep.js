@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types'
-import { Typography } from '@material-ui/core'
+import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext'
 import DatePicker from 'react-datepicker';
@@ -33,6 +33,8 @@ function EstimateCompletionStep(props) {
   const classes = wizardStyles();
   const intl = useIntl();
   const history = useHistory();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -122,7 +124,8 @@ function EstimateCompletionStep(props) {
                       useCompression={useCompression} inboxMessageId={reportId}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}
                       removeActions/>
-      <div style={{paddingTop: '1rem'}}>
+      <div style={{paddingTop: '1rem', marginLeft: mobileLayout ? 'auto' : undefined, 
+        marginRight: mobileLayout ? 'auto' : undefined, maxWidth: mobileLayout ? 'fit-content' : undefined}}>
         <DatePicker
           placeholderText={intl.formatMessage({ id: "selectDate" })}
           selected={getDate()}

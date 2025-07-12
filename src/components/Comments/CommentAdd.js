@@ -56,7 +56,7 @@ import { useHistory } from 'react-router';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { TOKEN_TYPE_MARKET } from '../../api/tokenConstants';
 
-function getPlaceHolderLabelId(type, investibleId) {
+function getPlaceHolderLabelId(type, investibleId, showSubTask=false) {
   switch (type) {
     case QUESTION_TYPE:
       return 'commentAddQuestionDefault';
@@ -65,6 +65,9 @@ function getPlaceHolderLabelId(type, investibleId) {
     case ISSUE_TYPE:
       return 'commentAddIssueDefault';
     case REPLY_TYPE:
+      if (showSubTask) {
+        return 'commentAddSubTaskDefault';
+      }
       return 'commentAddReplyDefault';
     case REPORT_TYPE:
       if (investibleId) {
@@ -311,7 +314,7 @@ function CommentAdd(props) {
   const isSingleUser = _.size(presences) < 2;
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
-  const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId);
+  const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId, wizardProps.showSubTask);
   const placeholder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};

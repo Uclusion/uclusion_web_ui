@@ -184,7 +184,7 @@ function isAutonomousGroupCheck(group, marketId, marketPresences, groupPresences
 
 export function getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
   history, market, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
-  onGroupClick, pathname, resetFunction, action, type, classes) {
+  onGroupClick, pathname, resetFunction, action, type, classes, mobileLayout) {
   const marketId = market.id;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const itemsSorted = _.sortBy(groupsState[marketId],
@@ -216,7 +216,9 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
       isBlue: groupId === group.id || pathname === '/',
       resetFunction: isChosen ? resetFunction : undefined,
       onClickFunc: (event) => {
-        preventDefaultAndProp(event);
+        if (!mobileLayout) {
+          preventDefaultAndProp(event);
+        }
         if (onGroupClick) {
           onGroupClick();
         }
@@ -395,7 +397,7 @@ function Screen(props) {
     const { onGroupClick, useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, useHoverFunctions, search,
-      results, openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction, action, type, classes);
+      results, openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction, action, type, classes, mobileLayout);
   }
   const inboxCount = getInboxCount(messagesState);
   const inboxCountTotal = inboxCount > 0 ? undefined :

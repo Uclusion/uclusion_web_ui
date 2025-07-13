@@ -81,7 +81,7 @@ export const screenStyles = makeStyles((theme) => ({
       padding: '24px 12px',
     },
     [theme.breakpoints.down('sm')]: {
-      padding: '0px 12px 0px 12px',
+      padding: '0px 12px 60vh 12px',
     },
   },
   containerAllLeftPad: {

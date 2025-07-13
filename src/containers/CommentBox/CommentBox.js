@@ -144,7 +144,7 @@ function CommentBox(props) {
       return (
         <Grid item key={id} xs={12}>
           <div id={`${isInbox ? 'inbox' : ''}c${id}`}
-               style={{paddingBottom: (wizardProps || isInbox) ? undefined : '1.25rem'}}>
+               style={{paddingBottom: (wizardProps || isInbox) ? undefined : '1.25rem', marginRight: isInbox ? '0.5rem' : undefined}}>
             <Comment
               resolvedStageId={(isRequiresInput && [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commmentType))
               || (isInBlocking && commmentType === ISSUE_TYPE) ? resolvedStageId : undefined}

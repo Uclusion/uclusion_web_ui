@@ -211,7 +211,7 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
     let numSuffix = undefined;
     if (!_.isEmpty(search)) {
       num = (results || []).filter((item) => item.groupId === group.id);
-    } else if (!isChosen) {
+    } else if (!outsetAvailable) {
       let groupMessages = findMessagesForGroupId(group.id, messagesState, true);
       if (_.isEmpty(groupMessages)) {
         groupMessages = findMessagesForGroupId(group.id, messagesState, false);

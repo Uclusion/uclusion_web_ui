@@ -58,6 +58,7 @@ import { WARNING_COLOR } from '../../components/Buttons/ButtonConstants';
 import { fixName } from '../../utils/userFunctions';
 import Gravatar from '../../components/Avatars/Gravatar';
 import SwitchWorkspaceMenu from '../../pages/Home/SwitchWorkspaceMenu';
+import { findMessagesForGroupId } from '../../utils/messageUtils';
 
 export const screenStyles = makeStyles((theme) => ({
   hidden: {
@@ -184,7 +185,7 @@ function isAutonomousGroupCheck(group, marketId, marketPresences, groupPresences
 
 export function getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
   history, market, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
-  onGroupClick, pathname, resetFunction, action, type, classes, mobileLayout) {
+  onGroupClick, pathname, resetFunction, action, type, classes, mobileLayout, messagesState) {
   const marketId = market.id;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const itemsSorted = _.sortBy(groupsState[marketId],
@@ -207,11 +208,23 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
        : groupPresences.find((presence) => presence.id === myPresence.id) ? Group : GroupOutlined;
     const outsetAvailable = isChosen && useHoverFunctions;
     let num = undefined;
+    let numSuffix = undefined;
     if (!_.isEmpty(search)) {
       num = (results || []).filter((item) => item.groupId === group.id);
+    } else if (!isChosen) {
+      let groupMessages = findMessagesForGroupId(group.id, messagesState, true);
+      if (_.isEmpty(groupMessages)) {
+        groupMessages = findMessagesForGroupId(group.id, messagesState, false);
+        numSuffix = 'total';
+      } else {
+        numSuffix = 'new';
+      }
+      if (!_.isEmpty(groupMessages)) {
+        num = groupMessages.length;
+      }
     }
     return {icon: myIcon, complexIcon: isGravatarDisplay, endIcon: outsetAvailable ? MoreVert : undefined,
-      text: isGravatarDisplay? intl.formatMessage({ id: 'work' }) : group.name, num,
+      text: isGravatarDisplay? intl.formatMessage({ id: 'work' }) : group.name, num, numSuffix,
       isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
       isBlue: groupId === group.id || pathname === '/',
       resetFunction: isChosen ? resetFunction : undefined,
@@ -397,7 +410,8 @@ function Screen(props) {
     const { onGroupClick, useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, useHoverFunctions, search,
-      results, openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction, action, type, classes, mobileLayout);
+      results, openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction, action, type, classes, mobileLayout, 
+      messagesState);
   }
   const inboxCount = getInboxCount(messagesState);
   const inboxCountTotal = inboxCount > 0 ? undefined :

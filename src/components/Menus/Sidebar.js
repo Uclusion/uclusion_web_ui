@@ -132,9 +132,9 @@ export default function Sidebar(props) {
       {!_.isEmpty(navListItemTextArray) && (
         <Menu onClick={listOnClick} iconShape="circle" style={{paddingTop: '5px'}}>
           {navListItemTextArray.map((navItem, topIndex) => {
-            const { text, target, num, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
+            const { text, target, num, numSuffix, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
               onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
-            return processRegularItem({history, text, target, num, Icon, complexIcon, onClickFunc, isBold,
+            return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
               isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
               tipText, idPrepend})
           })}

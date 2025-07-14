@@ -149,6 +149,13 @@ export function messageText(message, isMobile, intl) {
   }
 }
 
+export function findMessagesForGroupId(groupId, state, isHighlighted) {
+  const { messages } = (state || {});
+  const safeMessages = messages || [];
+  return safeMessages.filter((message) => message.group_id === groupId && (isHighlighted === undefined || message.is_highlighted === isHighlighted));
+}
+
+
 export function findMessagesForCommentId(commentId, state) {
   const { messages } = (state || {});
   const safeMessages = messages || [];

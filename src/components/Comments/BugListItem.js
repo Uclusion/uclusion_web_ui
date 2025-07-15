@@ -148,7 +148,8 @@ function BugListItem(props) {
     smallFont = false,
     link,
     toolTipId,
-    activeInvestibles
+    activeInvestibles,
+    maxWidth
   } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -197,7 +198,7 @@ function BugListItem(props) {
                  commentId={id} notificationType={notificationType} mouseX={mouseX} mouseY={mouseY}
                  activeInvestibles={activeInvestibles} />
       )}
-      <Item key={`listItem${id}`} id={id} style={{maxWidth: '95%',
+      <Item key={`listItem${id}`} id={id} style={{maxWidth: maxWidth || '95%',
         minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
             onDragStart={onDragStart} draggable>
         <RaisedCard elevation={smallFont ? 1 : 3} rowStyle key={`raised${id}`}>

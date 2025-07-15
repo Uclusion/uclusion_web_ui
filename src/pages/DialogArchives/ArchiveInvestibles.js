@@ -34,11 +34,12 @@ import { findMessagesForInvestibleId } from '../../utils/messageUtils';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import PlanningJobMenu from '../Dialog/Planning/PlanningJobMenu';
 import PersonSearch from '../../components/CustomChip/PersonSearch';
-import { getTicketNumber } from '../../utils/stringFunctions';
+import { getTicketNumber, stripHTML } from '../../utils/stringFunctions';
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
 import { getGroupPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
+import BugListItem from '../../components/Comments/BugListItem';
 
 function getInvestibleOnClick(id, marketId, history) {
   const link = formInvestibleLink(marketId, id);
@@ -67,8 +68,8 @@ const myArchiveClasses = makeStyles(
 );
 
 function ArchiveInvestible(props) {
-  const { name, id, stageId, marketId, allowDragDrop, onDragStart, enteredStageAt, TypeIconList, assignedNames,
-    classes, openForInvestment, viewIndicator='', isBlocked, needsAssist, groupId, marketPresences } = props;
+  const { name, id, stageId, marketId, allowDragDrop, onDragStart, enteredStageAt, TypeIconList, assignedNames, inAssistanceComments,
+    classes, openForInvestment, viewIndicator='', isBlocked, needsAssist, groupId, marketPresences, isSingleUser } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const intl = useIntl();
   const history = useHistory();
@@ -145,10 +146,18 @@ function ArchiveInvestible(props) {
               <p style={{paddingTop: '0.5rem', maxWidth: '16rem',  wordBreak: 'break-all'}}>
                 {name}
               </p>
-              {assignedNames.map((name) => (<Typography
+              {!isSingleUser && assignedNames.map((name) => (<Typography
                 style={{fontStyle: 'italic', fontSize: '.75rem'}}
                 key={name}>Assignee: {name}
               </Typography>))}
+              {!_.isEmpty(inAssistanceComments) && (
+                inAssistanceComments.map((comment) => {
+                  const { body, id: commentId, group_id: groupId } = comment;
+                  return <BugListItem id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
+                                      useSelect={false} toolTipId='WizardJobAssistance' maxWidth='16rem'
+                                      link={formCommentLink(marketId, groupId, id, commentId)} />;
+                })
+              )}
             </div>
           </Link>
         </RaisedCard>
@@ -168,7 +177,8 @@ function ArchiveInvestbiles(props) {
     presenceMap,
     allowDragDrop,
     viewGroupId,
-    isAutonomous
+    isAutonomous,
+    isSingleUser
   } = props;
   const classes = myArchiveClasses();
   const unResolvedMarketComments = comments.filter(comment => !comment.resolved) || [];
@@ -306,10 +316,10 @@ function ArchiveInvestbiles(props) {
           TypeIconList.push(item);
         }
       }
-
+      const inAssistanceComments = blockedComments.concat(questionComments).concat(suggestionComments);
       const ticketNumber = getTicketNumber(groupId, marketId, groupsState, isAutonomous, groupId === viewGroupId);
-      return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId}
-                                isBlocked={!_.isEmpty(blockedComments)} groupId={groupId}
+      return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId} isSingleUser={isSingleUser}
+                                isBlocked={!_.isEmpty(blockedComments)} groupId={groupId} inAssistanceComments={inAssistanceComments}
                                 needsAssist={!_.isEmpty(suggestionComments)||!_.isEmpty(questionComments)}
                                 allowDragDrop={allowDragDrop&&isMember} onDragStart={onDragStart}
                                 enteredStageAt={enteredStageAt} marketPresences={marketPresences}

@@ -688,6 +688,7 @@ function PlanningDialog(props) {
                       investibles={blockedOrRequiresInputOrReadyInvestiblesFullAssist}
                       allowDragDrop
                       isAutonomous={isAutonomous}
+                      isSingleUser={isSingleUser}
                       viewGroupId={groupId}
                     />
                   )}

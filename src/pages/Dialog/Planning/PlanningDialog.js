@@ -273,6 +273,8 @@ function PlanningDialog(props) {
   const sortedGroupRoots = getSortedRoots(notTodoGroupComments, searchResults);
   const questionSuggestionGroupComments = sortedGroupRoots.filter((comment) =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
+  const questionSuggestionNotesGroupComments = sortedGroupRoots.filter((comment) =>
+    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(comment.comment_type));
   const todoGroupComments = unResolvedGroupComments.filter((comment) => {
     if (_.isEmpty(search)) {
       return comment.comment_type === TODO_TYPE;
@@ -633,11 +635,14 @@ function PlanningDialog(props) {
                       <FormattedMessage id={`createSuggestion${mobileLayout ? 'Mobile' : ''}`}/>
                     </SpinningButton>
                   </div>
-                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionGroupComments)}
+                  {_.isEmpty(questionSuggestionNotesGroupComments) && (
+                    <div style={{marginTop: '2.5rem'}} />
+                  )}
+                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionNotesGroupComments)}
                                    noPad text={
                     <div>
                       <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
-                      be used at the view level and later moved to a job.
+                      be used at the view level and later moved to a job. Notes can be resolved to archive.
                     </div>
                   }/>
                 </>

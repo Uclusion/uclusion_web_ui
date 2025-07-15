@@ -96,7 +96,7 @@ function SwimlanesOnboardingBanner(props) {
           {sectionOpen === 'discussionSection' && !isAutonomous && (
             <DismissableText textId="discussionHelp" text={
               <div>
-                <Typography><b>Vote here on new ideas and question options.</b></Typography>
+                <Typography><b>Vote here on new ideas and question options or add notes.</b></Typography>
                 <Typography className={classes.ctaSub}>
                   Suggestions can be converted to tasks in a job.
                 </Typography>

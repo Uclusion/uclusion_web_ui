@@ -7,6 +7,8 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import OptionListItem from '../../../components/Comments/OptionListItem';
 import { stripHTML } from '../../../utils/stringFunctions';
 import { isNew } from '../../../components/Comments/Options';
+import _ from 'lodash';
+import { findMessageByInvestmentUserId } from '../../../utils/messageUtils';
 
 function OptionVoting(props) {
   const [marketsState] = useContext(MarketsContext);
@@ -38,10 +40,12 @@ function OptionVoting(props) {
     const description = stripHTML(inv.investible.description);
     const investors = marketPresences.filter((presence) =>
       presence.investments?.find((investment) => !investment.deleted && investment.investible_id === investibleId));
+    const newlyVoted = investors.filter((investor) => !_.isEmpty(findMessageByInvestmentUserId(investor.id, investibleId, messagesState)));
+    const highlightList = newlyVoted.map((investor) => investor.id);
     return (
       <OptionListItem id={investibleId} expansionPanel={expansionPanel} isNew={isNew(inv, messagesState)}
                       people={investors} description={description} title={inv.investible.name}
-                      questionResolved={inArchives} isAdmin={isAdmin}
+                      questionResolved={inArchives} isAdmin={isAdmin} highlightList={highlightList}
                       expandOrContract={() => {
                         if (expansionOpen) {
                           setSelectedInvestibleId(undefined);

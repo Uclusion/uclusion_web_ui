@@ -50,8 +50,9 @@ export function messageIsSynced(message, marketState, marketPresencesState, comm
     parent_comment_id: parentCommentId, type: messageType, type_object_id: typeObjectId,
     investment_user_id: investmentUserId, comment_market_id: commentMarketId, market_investible_id: marketInvestibleId,
     market_investible_version: marketInvestibleVersion, decision_investible_id: decisionInvestibleId,
-    voted_list: voters, comment_list: commentList } = message;
+    voted_list: votedList, comment_list: commentList } = message;
   const useMarketId = commentMarketId || marketId;
+  const voters = votedList?.map((item) => item.id);
   let checked = commentVersion;
   if (!_.isEmpty(commentList)) {
     const notFoundComment = commentList.find((item) =>

@@ -2,16 +2,32 @@ import React from 'react';
 import { AvatarGroup } from '@material-ui/lab';
 import Gravatar from './Gravatar';
 import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/core';
+
+const gravatarGroupStyles = makeStyles(
+  ( ) => {
+    return {
+      gravatarHighlight: {
+        padding: '6px',
+        backgroundColor: '#e6e969',
+      },
+    };
+  },
+  { name: "GravatarGroup" }
+);
 
 function GravatarGroup(props) {
 
   const {
     gravatarClassName,
+    gravatarHighlightClassName,
     users,
     max,
     spacing,
     className,
+    highlightList=[]
   } = props;
+  const classes = gravatarGroupStyles();
 
   return (
     <AvatarGroup
@@ -22,7 +38,7 @@ function GravatarGroup(props) {
       {users.map((user) => {
         const { name, email, id } = user;
         return <Gravatar
-          className={gravatarClassName}
+          className={highlightList.includes(id) ? (gravatarHighlightClassName || classes.gravatarHighlight) : gravatarClassName}
           key={`grav${id || email}`}
           email={email}
           name={name}

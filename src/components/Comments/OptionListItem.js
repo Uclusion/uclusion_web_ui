@@ -76,7 +76,8 @@ function OptionListItem(props) {
     expansionPanel,
     expansionOpen,
     questionResolved,
-    isAdmin
+    isAdmin,
+    highlightList=[]
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -116,7 +117,7 @@ function OptionListItem(props) {
           }>
             <Div key={`actions${id}`}>
               {!mobileLayout || _.isEmpty(people) ? React.Fragment :
-                <GravatarGroup users={people}  />
+                <GravatarGroup users={people} highlightList={highlightList} />
               }
               {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
               {!mobileLayout && (
@@ -126,7 +127,7 @@ function OptionListItem(props) {
                 <div style={{flexGrow: 1}}/>
               )}
               {mobileLayout || _.isEmpty(people) ? React.Fragment :
-                <GravatarGroup users={people}  />
+                <GravatarGroup users={people} highlightList={highlightList} />
               }
               {expandOrContract && mobileLayout && (
                 <div style={{paddingLeft: '0.5rem', paddingRight: '0.5rem'}}>

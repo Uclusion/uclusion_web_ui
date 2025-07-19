@@ -349,6 +349,7 @@ function DecisionInvestible(props) {
         toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
         useCompression={useCompression}
       />
+      <div style={{marginTop: '2rem'}}/>
     </div>
   )}
     {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (

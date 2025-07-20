@@ -7,10 +7,17 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { useIntl } from 'react-intl';
 import JobDescription from '../JobDescription';
 import _ from 'lodash';
+import WizardStepButtons from '../WizardStepButtons';
+import { getLabelForTerminate } from '../../../utils/messageUtils';
+import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { useHistory } from 'react-router';
 
 function DisplayMarketStep(props) {
   const { marketId, commentId, commentRoot, message, formData, updateFormData } = props;
   const [commentState] = useContext(CommentsContext);
+  const [, messagesDispatch] = useContext(NotificationsContext);
+  const history = useHistory();
   const comments = (commentState[marketId] || []).filter((comment) =>
     comment.root_comment_id === commentRoot?.id || comment.id === commentRoot?.id);
   const classes = wizardStyles();
@@ -33,11 +40,19 @@ function DisplayMarketStep(props) {
         </Typography>
       )}
       <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
-                      removeActions
                       showVoting
                       inboxMessageId={commentId}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})} />
+      <div className={classes.borderBottom}/>
+      <WizardStepButtons
+        {...props}
+        showNext={false}
+        focus
+        showTerminate
+        terminateLabel={getLabelForTerminate(message)}
+        onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
+      />
     </WizardStepContainer>
   );
 }

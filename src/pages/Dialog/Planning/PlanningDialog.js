@@ -673,14 +673,14 @@ function PlanningDialog(props) {
                 createButton={createButton}
                 showCard={false}
               >
-                <DismissableText textId="assistanceHelp"
+                <DismissableText textId="assistanceHelp" isLeft
                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist)&&!isAutonomous}
                                   text={
                                     <div>
                                       This section shows all jobs in this view needing assignment or help.
                                     </div>
                                   }/>
-                <DismissableText textId="autonomousAssistanceHelp"
+                <DismissableText textId="autonomousAssistanceHelp" isLeft
                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist)&&isAutonomous}
                                   text={
                                     <div>

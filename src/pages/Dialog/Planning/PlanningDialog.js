@@ -549,6 +549,16 @@ function PlanningDialog(props) {
     }
   }
 
+  const createButton = <SpinningButton id="addJob"
+  className={mobileLayout ? wizardClasses.actionNextMobile : wizardClasses.actionNext}
+  icon={AddIcon} iconColor="black"
+  variant="text" doSpin={false}
+  style={{marginBottom: '1rem', marginRight: mobileLayout ? undefined : '5rem'}}
+  toolTipId='hotKeyJob'
+  onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
+<FormattedMessage id='addStoryLabel'/>
+</SpinningButton>;
+
   return (
     <Screen
       title={groupName}
@@ -653,54 +663,44 @@ function PlanningDialog(props) {
         )}
         {isSectionOpen('storiesSection') && (
           <div id="storiesSection" style={{overflowX: 'hidden'}}>
-            <div style={{display: mobileLayout ? undefined : 'flex'}}>
-              <SpinningButton id="addJob"
-                              className={wizardClasses.actionNext}
-                              icon={AddIcon} iconColor="black"
-                              variant="text" doSpin={false}
-                              style={{marginTop: '1rem', marginBottom: '1rem'}}
-                              toolTipId='hotKeyJob'
-                              onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
-                <FormattedMessage id='addStoryLabel'/>
-              </SpinningButton>
-              <div style={{width: '100%'}} onDrop={onDropNext} onDragOver={onDragOverNext}>
-                <SubSection
-                  type={SECTION_TYPE_SECONDARY_WARNING}
-                  bolder
-                  title={intl.formatMessage({ id: 'blockedHeader' })}
-                  helpLink='https://documentation.uclusion.com/views/jobs/stages/#next--assistance'
-                  id="blocked"
-                >
-                  <DismissableText textId="assistanceHelp"
-                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist)&&!isAutonomous}
-                                   text={
-                                     <div>
-                                       This section shows all jobs in this view needing assignment or help.
-                                     </div>
-                                   }/>
-                  <DismissableText textId="autonomousAssistanceHelp"
-                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist)&&isAutonomous}
-                                   text={
-                                     <div>
-                                       This section shows jobs in all views you are a member of that need assignment or help.
-                                     </div>
-                                   }/>
-                  {!_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) && (
-                    <ArchiveInvestbiles
-                      comments={marketComments}
-                      marketId={marketId}
-                      presenceMap={presenceMap}
-                      investibles={blockedOrRequiresInputOrReadyInvestiblesFullAssist}
-                      allowDragDrop
-                      isAutonomous={isAutonomous}
-                      isSingleUser={isSingleUser}
-                      viewGroupId={groupId}
-                    />
-                  )}
-                </SubSection>
-              </div>
+            <div style={{width: '100%'}} onDrop={onDropNext} onDragOver={onDragOverNext}>
+              <SubSection
+                type={SECTION_TYPE_SECONDARY_WARNING}
+                bolder
+                title={intl.formatMessage({ id: 'blockedHeader' })}
+                helpLink='https://documentation.uclusion.com/views/jobs/stages/#next--assistance'
+                id="blocked"
+                createButton={createButton}
+              >
+                <DismissableText textId="assistanceHelp"
+                                  display={_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist)&&!isAutonomous}
+                                  text={
+                                    <div>
+                                      This section shows all jobs in this view needing assignment or help.
+                                    </div>
+                                  }/>
+                <DismissableText textId="autonomousAssistanceHelp"
+                                  display={_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist)&&isAutonomous}
+                                  text={
+                                    <div>
+                                      This section shows jobs in all views you are a member of that need assignment or help.
+                                    </div>
+                                  }/>
+                {!_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) && (
+                  <ArchiveInvestbiles
+                    comments={marketComments}
+                    marketId={marketId}
+                    presenceMap={presenceMap}
+                    investibles={blockedOrRequiresInputOrReadyInvestiblesFullAssist}
+                    allowDragDrop
+                    isAutonomous={isAutonomous}
+                    isSingleUser={isSingleUser}
+                    viewGroupId={groupId}
+                  />
+                )}
+              </SubSection>
             </div>
-              <div style={{ paddingBottom: '2rem' }}/>
+            <div style={{ paddingBottom: '2rem' }}/>
             <InvestiblesByPerson
               comments={marketComments}
               investibles={investiblesFullAssist}

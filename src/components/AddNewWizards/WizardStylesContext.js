@@ -167,6 +167,23 @@ export const wizardStyles = makeStyles(
           backgroundColor: '#ecf0f1'
         }
       },
+      actionNextMobile: {
+        border: '2px solid #2D9CDB',
+        color: 'black !important',
+        backgroundColor: 'white',
+        textTransform: 'unset !important',
+        maxHeight: '2.6rem',
+        whiteSpace: 'nowrap',
+        marginRight: '20px',
+        '&:hover': {
+          backgroundColor: '#2D9CDB !important',
+          color: 'white !important'
+        },
+        '&:disabled': {
+          color: 'black',
+          backgroundColor: '#ecf0f1'
+        }
+      },
       actionSecondary: {
         backgroundColor: '#e0e0e0',
         textTransform: 'unset',

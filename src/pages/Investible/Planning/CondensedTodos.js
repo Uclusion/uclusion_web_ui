@@ -15,7 +15,7 @@ import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { stripHTML } from '../../../utils/stringFunctions';
 import BugListItem from '../../../components/Comments/BugListItem';
-import getReducer from '../../../components/Comments/BugListContext';
+import getReducer, { contractAll, expandAll } from '../../../components/Comments/BugListContext';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { BugReport, Eject, ExpandLess } from '@material-ui/icons';
@@ -41,7 +41,8 @@ function CondensedTodos(props) {
     isDefaultOpen = false,
     defaultToOpenComments = true,
     removeActions = true,
-    useColor = false
+    useColor = false,
+    expandTasksNotSection=false
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -52,7 +53,8 @@ function CondensedTodos(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState] = useContext(NotificationsContext);
   const [showOpen, setShowOpen] = useState(defaultToOpenComments);
-  const [sectionOpen, setSectionOpen] = useState(isDefaultOpen);
+  const [sectionOpen, setSectionOpen] = useState(expandTasksNotSection || isDefaultOpen);
+  const [tasksOpen, setTasksOpen] = useState(isDefaultOpen);
   const [todoState, todoDispatch] = useReducer(getReducer(), {expansionState: {}});
   const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
     {determinate: {}, indeterminate: false, checkAll: false});
@@ -92,7 +94,8 @@ function CondensedTodos(props) {
                      newMessages={getNewBugNotifications(comment, messagesState)}
                      date={intl.formatDate(updatedAt)}
                      useSelect={!isInbox} expansionPanel={expansionPanel} checked={checked}
-                     expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}
+                     expansionOpen={!!expansionState[id]} 
+                     determinateDispatch={determinateDispatch}
                      bugListDispatch={todoDispatch} notificationType="todo" />
       );
     });
@@ -158,13 +161,35 @@ function CondensedTodos(props) {
   }
 
   function toggleTodos() {
-    setSectionOpen(!sectionOpen);
+    if (expandTasksNotSection) {
+      if (tasksOpen) {
+        todoDispatch(contractAll(tabComments));
+      } else {
+        todoDispatch(expandAll(tabComments));
+      }
+      setTasksOpen(!tasksOpen);
+    } else {
+      setSectionOpen(!sectionOpen);
+    }
   }
 
-  useHotkeys('ctrl+alt+e', ()=> setSectionOpen(true), {enableOnContentEditable: true},
-    []);
-  useHotkeys('ctrl+shift+e', ()=> setSectionOpen(false),
-    {enableOnContentEditable: true}, []);
+  const myToggleTodosOpen = expandTasksNotSection ? tasksOpen : sectionOpen;
+  useHotkeys('ctrl+alt+e', ()=> {
+    if (expandTasksNotSection) {
+      todoDispatch(expandAll(tabComments));
+      setTasksOpen(true);
+    } else {
+      setSectionOpen(true);
+    }
+  }, {enableOnContentEditable: true}, []);
+  useHotkeys('ctrl+shift+e', ()=> {
+    if (expandTasksNotSection) {
+      todoDispatch(contractAll(tabComments));
+      setTasksOpen(false);
+    } else {
+      setSectionOpen(false);
+    }
+  }, {enableOnContentEditable: true}, []);
 
   return (
     <div className={sectionOpen ? classes.outerBorder : undefined} id="investibleCondensedTodos"
@@ -176,8 +201,8 @@ function CondensedTodos(props) {
         <IconButton onClick={toggleTodos} style={{marginBottom: 0,
           paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
           <Tooltip key='toggleTodos'
-                   title={<FormattedMessage id={`${sectionOpen ? 'closeTodos' : 'openTodos'}Tip`} />}>
-            {sectionOpen ?
+                   title={<FormattedMessage id={`${myToggleTodosOpen ? 'closeTodos' : 'openTodos'}Tip`} />}>
+            {myToggleTodosOpen ?
               <ExpandLess fontSize='large' htmlColor='black' /> :
             <ExpandMoreIcon fontSize='large' htmlColor='black' />}
           </Tooltip>

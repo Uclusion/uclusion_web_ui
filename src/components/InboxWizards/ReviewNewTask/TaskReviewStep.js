@@ -66,8 +66,8 @@ function TaskReviewStep(props) {
       )}
       <JobDescription marketId={marketId} investibleId={investibleId} comments={tasksAndChildren}
                       useCompression={useCompression} inboxMessageId={isSingleTaskDisplay ? commentId : undefined}
-                      toggleCompression={() => updateFormData({ useCompression: !useCompression })}
-                      tasksDefaultOpen removeActions={isSingleTaskDisplay} isSingleTaskDisplay={isSingleTaskDisplay}/>
+                      toggleCompression={() => updateFormData({ useCompression: !useCompression })} hideTabs expandTasksNotSection
+                      removeActions={isSingleTaskDisplay} isSingleTaskDisplay={isSingleTaskDisplay}/>
       <div className={classes.borderBottom}/>
       {isSingleTaskDisplay && (
         <WizardStepButtons

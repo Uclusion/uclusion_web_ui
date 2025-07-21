@@ -663,7 +663,7 @@ function PlanningDialog(props) {
         )}
         {isSectionOpen('storiesSection') && (
           <div id="storiesSection" style={{overflowX: 'hidden'}}>
-            <div style={{width: '100%'}} onDrop={onDropNext} onDragOver={onDragOverNext}>
+            <div onDrop={onDropNext} onDragOver={onDragOverNext}>
               <SubSection
                 type={SECTION_TYPE_SECONDARY_WARNING}
                 bolder
@@ -671,6 +671,7 @@ function PlanningDialog(props) {
                 helpLink='https://documentation.uclusion.com/views/jobs/stages/#next--assistance'
                 id="blocked"
                 createButton={createButton}
+                showCard={false}
               >
                 <DismissableText textId="assistanceHelp"
                                   display={_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist)&&!isAutonomous}

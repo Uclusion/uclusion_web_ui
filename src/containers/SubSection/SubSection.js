@@ -14,8 +14,6 @@ const useStyles = makeStyles((theme) => {
     hide: {
       display: 'none'
     },
-    childContainer: {
-    },
     paddedChildContainer: {
       padding: '1rem',
     },
@@ -97,10 +95,10 @@ function SubSection (props) {
     id,
     helpLink,
     bolder,
-    hideChildren,
     padChildren,
     isBlackText,
-    supportingInformation
+    supportingInformation,
+    showCard
   } = props;
   const classes = useStyles();
 
@@ -138,11 +136,18 @@ function SubSection (props) {
           </div>
         </Toolbar>
       </AppBar>
-      <div className={children && !hideChildren ? classes.toolbar : classes.hide} id={`${id}Children`}>
-        <Card className={padChildren ? classes.paddedChildContainer : classes.childContainer}>
+      {showCard && (
+        <div className={children ? classes.toolbar : classes.hide} id={`${id}Children`}>
+          <Card className={padChildren ? classes.paddedChildContainer : classes.childContainer}>
+            {children}
+          </Card>
+        </div>
+      )}
+      {!showCard && (
+        <div className={padChildren ? classes.paddedChildContainer : undefined} id={`${id}Children`}>
           {children}
-        </Card>
-      </div>
+        </div>
+      )}
     </React.Fragment>
 
   );
@@ -158,20 +163,20 @@ SubSection.propTypes = {
   titleIcon: PropTypes.element,
   id: PropTypes.string,
   bolder: PropTypes.bool,
-  hideChildren: PropTypes.bool,
   padChildren: PropTypes.bool,
+  showCard: PropTypes.bool
 };
 
 SubSection.defaultProps = {
   title: '',
   hidden: false,
-  hideChildren: false,
   children: undefined,
   type: SECTION_TYPE_SECONDARY,
   titleIcon: undefined,
   id: undefined,
   bolder: false,
   padChildren: false,
+  showCard: true
 };
 
 export default SubSection;

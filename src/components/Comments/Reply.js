@@ -14,7 +14,7 @@ import {
 import { makeStyles } from '@material-ui/styles';
 import _ from 'lodash';
 import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
-import { ISSUE_TYPE, REPORT_TYPE, TODO_TYPE, } from '../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, } from '../../constants/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { addCommentToMarket, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
@@ -221,7 +221,7 @@ function Reply(props) {
   const rootComment = getCommentRoot(commentsState, marketId, comment.id);
   const market = getMarket(marketsState, marketId);
   const { investible_id: investibleId, group_id: groupId } = comment || {};
-  const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE, ISSUE_TYPE].includes(rootComment?.comment_type)
+  const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE, ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(rootComment?.comment_type)
     && !isInbox && market?.market_type !== DECISION_TYPE && !rootComment?.resolved;
   const isSubTask = rootComment?.comment_type === TODO_TYPE && investibleId &&
     comment.created_by === rootComment?.created_by;
@@ -361,7 +361,7 @@ function Reply(props) {
             value={comment.created_at}
           />
         </Typography>
-        {(myPresence.is_admin || isEditable) && enableEditing && (
+        {isEditable && enableEditing && (
           <TooltipIconButton
             disabled={operationRunning !== false}
             onClick={(event) => {

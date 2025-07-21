@@ -273,7 +273,7 @@ const messages = defineMessages({
   approvals: 'Approvals',
   pleaseVoteNav: 'Change Approval',
   dialogs: 'Dialogs',
-  home: 'Home',
+  home: 'Get started',
   addNew: 'Add New',
   initiatives: 'Initiatives',
   dialog: 'Dialog',

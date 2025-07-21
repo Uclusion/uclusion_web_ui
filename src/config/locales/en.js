@@ -327,6 +327,7 @@ const messages = defineMessages({
   pleaseApprove: 'Decision',
   pleaseApproveMobile: 'Decision',
   resolveTodo: 'New task',
+  newTodos: 'New Tasks',
   resolveTodoMobile: 'New task',
   removed: 'Removed from workspace',
   removedMobile: 'Removed',

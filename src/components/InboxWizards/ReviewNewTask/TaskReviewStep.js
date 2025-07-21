@@ -64,7 +64,7 @@ function TaskReviewStep(props) {
           Click on a row below to expand and reply or take other actions.
         </Typography>
       )}
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={tasksAndChildren}
+      <JobDescription marketId={marketId} investibleId={investibleId} comments={tasksAndChildren} tasksSectionTitle='newTodos'
                       useCompression={useCompression} inboxMessageId={isSingleTaskDisplay ? commentId : undefined}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })} hideTabs expandTasksNotSection
                       removeActions={isSingleTaskDisplay} isSingleTaskDisplay={isSingleTaskDisplay}/>

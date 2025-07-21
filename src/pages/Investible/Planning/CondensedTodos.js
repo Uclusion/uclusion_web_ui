@@ -42,7 +42,8 @@ function CondensedTodos(props) {
     defaultToOpenComments = true,
     removeActions = true,
     useColor = false,
-    expandTasksNotSection=false
+    expandTasksNotSection=false,
+    sectionTitle
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -196,7 +197,7 @@ function CondensedTodos(props) {
          style={{marginLeft: usePadding ? '1rem' : undefined}}>
       <div style={{display: 'flex', alignItems: 'center', marginTop: isInbox ? '1rem' : undefined}}>
         <h2 id="tasksOverview" style={{paddingBottom: 0, marginBottom: 0, marginTop: 0, paddingTop: 0}}>
-          <FormattedMessage id="taskSection" />
+          <FormattedMessage id={!_.isEmpty(sectionTitle) ? sectionTitle : 'taskSection'} />
         </h2>
         <IconButton onClick={toggleTodos} style={{marginBottom: 0,
           paddingBottom: 0, marginTop: 0, paddingTop: 0}}>

@@ -19,6 +19,7 @@ import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMem
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { usePlanFormStyles } from '../../components/AgilePlan';
 import GravatarAndName from '../../components/Avatars/GravatarAndName';
+import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks';
 
 
 const useStyles = makeStyles(() => ({
@@ -59,9 +60,10 @@ function OtherWorkspaceMenus(props) {
   const notCurrentMarkets = markets.filter((market) => market.id !== defaultMarket?.id);
   const activeMarkets = notCurrentMarkets.filter((market) => market.market_stage === 'Active');
   const intl = useIntl();
-  const [switchWorkspaceOpen, setSwitchWorkspaceOpen] = useState(false);
-  const [integrationsOpen, setIntegrationsOpen] = useState(false);
-  const [collaboratorsOpen, setCollaboratorsOpen] = useState(!mobileLayout);
+  const [pageStateFull, pageDispatch] = usePageStateReducer('otherMenus');
+  const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, 'menuState',
+    {switchWorkspaceOpen: false, integrationsOpen: false, collaboratorsOpen: !mobileLayout});
+  const { switchWorkspaceOpen, integrationsOpen, collaboratorsOpen } = pageState;
   const [presenceAnchor, setPresenceAnchor] = useState(null);
   const [presenceMenuId, setPresenceMenuId] = useState(undefined);
   const history = useHistory();
@@ -102,14 +104,14 @@ function OtherWorkspaceMenus(props) {
           renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem'}} />: <ExpandMore style={{marginTop: '0.3rem'}} />}>
             <SubMenu id='collaborators'
                     label={intl.formatMessage({ id: 'collaborators' })}
-                    onClick={(event) => {
-                      preventDefaultAndProp(event);
-                      setCollaboratorsOpen(!collaboratorsOpen);
-                    }}
                     rootStyles={{
                       '.css-nx2aea': {
-                        backgroundColor: 'unset'
+                        backgroundColor: '#DFF0F2'
                       }
+                    }}
+                    onClick={(event) => {
+                      preventDefaultAndProp(event);
+                      updatePageState({collaboratorsOpen: !collaboratorsOpen});
                     }}
                     key="collaborators" open={collaboratorsOpen}>
                 <List dense id="addressesOfWorkspace">
@@ -170,7 +172,7 @@ function OtherWorkspaceMenus(props) {
                       rootStyles={{
                         '.css-wx7wi4': {
                           marginRight: 0,
-                        },
+                        }
                       }}
                       onClick={(event)=> {
                         preventDefaultAndProp(event);
@@ -188,12 +190,15 @@ function OtherWorkspaceMenus(props) {
                     label={intl.formatMessage({ id: 'integrationPreferencesHeader' })}
                     rootStyles={{
                       '.css-18unl23': {
-                        backgroundColor: 'unset'
+                        backgroundColor: '#DFF0F2'
+                      },
+                      '.css-nx2aea': {
+                        backgroundColor: '#DFF0F2'
                       }
                     }}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
-                      setIntegrationsOpen(!integrationsOpen);
+                      updatePageState({integrationsOpen: !integrationsOpen});
                     }}
                     key="integrations" open={integrationsOpen}>
               <MenuItem icon={<VpnKey htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
@@ -201,7 +206,7 @@ function OtherWorkspaceMenus(props) {
                       rootStyles={{
                         '.css-wx7wi4': {
                           marginRight: 0,
-                        },
+                        }
                       }}
                       onClick={(event) => {
                         preventDefaultAndProp(event);
@@ -252,13 +257,16 @@ function OtherWorkspaceMenus(props) {
           </SubMenu>
           <SubMenu id='switchWorkspace' label={intl.formatMessage({ id: 'switchWorkspace' })}
                     rootStyles={{
-                      '.css-18unl23': {
-                        backgroundColor: 'unset'
+                      '.css-ewdv3l': {
+                        backgroundColor: '#DFF0F2'
+                      },
+                      '.css-nx2aea': {
+                        backgroundColor: '#DFF0F2'
                       }
                     }}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
-                      setSwitchWorkspaceOpen(!switchWorkspaceOpen);
+                      updatePageState({switchWorkspaceOpen: !switchWorkspaceOpen});
                     }}
                     key="switchWorkspace" open={switchWorkspaceOpen}>
             {activeMarkets.map((market) => {

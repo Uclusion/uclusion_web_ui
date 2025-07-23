@@ -112,12 +112,10 @@ function OtherWorkspaceMenus(props) {
                       }
                     }}
                     key="collaborators" open={collaboratorsOpen}>
-                {_.size(marketPresences) < 10 && _.size(marketPresences) > 1 && (
-                  <List dense id="addressesOfWorkspace">
-                    {presencesOrdered.map((presence, index) =>
-                      <MemberDisplay presence={presence} index={index} recordPresenceToggle={recordPresenceToggle} />)}
-                  </List>
-                )}
+                <List dense id="addressesOfWorkspace">
+                  {presencesOrdered.map((presence, index) =>
+                    <MemberDisplay presence={presence} index={index} recordPresenceToggle={recordPresenceToggle} />)}
+                </List>
                 {presenceAnchor && (
                   <Menu
                     id="presence-menu"

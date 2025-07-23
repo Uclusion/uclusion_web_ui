@@ -50,7 +50,7 @@ function MemberDisplay(props) {
 }
 
 function OtherWorkspaceMenus(props) {
-  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, chosenGroup } = props;
+  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, chosenGroup, mobileLayout } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
@@ -61,7 +61,7 @@ function OtherWorkspaceMenus(props) {
   const intl = useIntl();
   const [switchWorkspaceOpen, setSwitchWorkspaceOpen] = useState(false);
   const [integrationsOpen, setIntegrationsOpen] = useState(false);
-  const [collaboratorsOpen, setCollaboratorsOpen] = useState(true);
+  const [collaboratorsOpen, setCollaboratorsOpen] = useState(!mobileLayout);
   const [presenceAnchor, setPresenceAnchor] = useState(null);
   const [presenceMenuId, setPresenceMenuId] = useState(undefined);
   const history = useHistory();

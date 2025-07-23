@@ -433,7 +433,7 @@ function Screen(props) {
                               useLink={useLink} typeObjectId={typeObjectId}
                               hashInvestibleId={hashInvestibleId} pathMarketIdRaw={pathMarketIdRaw}
                               pathInvestibleId={pathInvestibleId} action={action} />,
-      navLowerMenu: <OtherWorkspaceMenus markets={markets} defaultMarket={defaultMarket}
+      navLowerMenu: <OtherWorkspaceMenus markets={markets} defaultMarket={defaultMarket} mobileLayout={mobileLayout}
                                          chosenGroup={useGroupId || hashGroupId} setChosenMarketId={setMarketIdFull} />,
       navLowerListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [
         {

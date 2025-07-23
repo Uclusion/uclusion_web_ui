@@ -10,7 +10,7 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
 import { formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { GroupOutlined, PermIdentity } from '@material-ui/icons';
+import { ExpandLess, ExpandMore, GroupOutlined, PermIdentity } from '@material-ui/icons';
 import ReturnTop from './ReturnTop';
 
 const useStyles = makeStyles((theme) => ({
@@ -178,7 +178,9 @@ function WorkspaceMenu(props) {
           MenuListProps={{ disablePadding: true }}
         >
           <ProSidebar width="14rem">
-            <ProMenu rootStyles={{'.ps-menu-button': {height: 'unset'}}}>
+            <ProMenu 
+            rootStyles={{'.ps-menu-button': {height: 'unset'}}}
+            renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem'}} />: <ExpandMore style={{marginTop: '0.3rem'}} />}>
               <MenuItem icon={<SettingsIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                   rootStyles={{
                     '.css-wx7wi4': {
@@ -191,9 +193,14 @@ function WorkspaceMenu(props) {
                 {intl.formatMessage({ id: 'workspaceSettings' })}
               </MenuItem>
               {!_.isEmpty(inactiveGroups) && (
-                <SubMenu title={intl.formatMessage({ id: 'inactiveGroups' })}
+                <SubMenu label={intl.formatMessage({ id: 'inactiveGroups' })}
                           onClick={(event) => event.stopPropagation() }
-                          key="inactiveGroups" style={{paddingLeft: '0.7rem'}}>
+                          rootStyles={{
+                            '.css-12w9als': {
+                              paddingLeft: '16px'
+                            },
+                          }}
+                          key="inactiveGroups">
                   {inactiveGroups.map((group) => {
                     const key = `group${group.id}`;
 
@@ -218,9 +225,13 @@ function WorkspaceMenu(props) {
                 </SubMenu>
               )}
               {!_.isEmpty(archivedMarkets) && (
-                <SubMenu title={intl.formatMessage({ id: 'archivedWorkspace' })}
+                <SubMenu label={intl.formatMessage({ id: 'archivedWorkspace' })}
                           onClick={(event) => event.stopPropagation() }
-                          style={{paddingLeft: '0.7rem'}}
+                          rootStyles={{
+                            '.css-12w9als': {
+                              paddingLeft: '16px'
+                            },
+                          }}
                           key="archivedWorkspaces">
                   {archivedMarkets.map((market, archiveIndex) => {
                     const key = `market${market.id}`;
@@ -236,7 +247,6 @@ function WorkspaceMenu(props) {
                               }}
                               id={key}
                               key={key}
-                              style={{paddingLeft: '-15px', marginLeft: '-15px'}}
                               onClick={() => {
                                 recordPositionToggle();
                                 setChosenMarketId(market.id);

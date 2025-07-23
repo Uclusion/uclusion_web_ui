@@ -8,9 +8,9 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import { useIntl } from 'react-intl';
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
-import { formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
+import { formManageUsersLink, formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { ExpandLess, ExpandMore, GroupOutlined, PermIdentity } from '@material-ui/icons';
+import { ExpandLess, ExpandMore, GroupOutlined, PermIdentity, Person } from '@material-ui/icons';
 import ReturnTop from './ReturnTop';
 
 const useStyles = makeStyles((theme) => ({
@@ -179,7 +179,7 @@ function WorkspaceMenu(props) {
         >
           <ProSidebar width="14rem">
             <ProMenu 
-            rootStyles={{'.ps-menu-button': {height: 'unset'}}}
+            rootStyles={{'.ps-menu-button': {height: 'unset', paddingLeft: '10px'}}}
             renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem'}} />: <ExpandMore style={{marginTop: '0.3rem'}} />}>
               <MenuItem icon={<SettingsIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                   rootStyles={{
@@ -191,6 +191,17 @@ function WorkspaceMenu(props) {
                   onClick={goTo(`${formMarketEditLink(defaultMarket.id)}`)}
               >
                 {intl.formatMessage({ id: 'workspaceSettings' })}
+              </MenuItem>
+              <MenuItem icon={<Person htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+                  rootStyles={{
+                    '.css-wx7wi4': {
+                      marginRight: 0,
+                    },
+                  }}
+                  key="manageUsersKey" id="managerUsersId"
+                  onClick={goTo(`${formManageUsersLink(defaultMarket.id)}`)}
+              >
+                {intl.formatMessage({ id: 'manage' })}
               </MenuItem>
               {!_.isEmpty(inactiveGroups) && (
                 <SubMenu label={intl.formatMessage({ id: 'inactiveGroups' })}

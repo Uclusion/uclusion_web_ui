@@ -259,6 +259,10 @@ export function formMarketEditLink(marketId) {
   return `/marketEdit/${marketId}`;
 }
 
+export function formManageUsersLink(marketId) {
+  return `/manageUsers/${marketId}`;
+}
+
 export function formGroupEditLink(marketId, groupId) {
   return formatGroupLinkWithPrefix('groupEdit', marketId, groupId);
 }

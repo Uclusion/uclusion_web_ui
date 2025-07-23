@@ -10,7 +10,8 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  ListItemSecondaryAction, ListItemIcon, Tooltip
+  ListItemSecondaryAction, ListItemIcon, Tooltip,
+  Link
 } from '@material-ui/core'
 import BanUserButton from './BanUserButton';
 import UnBanUserButton from './UnBanUserButton';
@@ -18,13 +19,20 @@ import { makeStyles } from '@material-ui/styles';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import Typography from '@material-ui/core/Typography'
 import { useIntl } from 'react-intl'
+import Screen from '../../../containers/Screen/Screen';
+import { ADD_COLLABORATOR_WIZARD_TYPE } from '../../../constants/markets';
+import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 
 const useStyles = makeStyles((theme) => {
   return {
     manage: {
-      width: '75%',
+      width: '40%',
+      marginLeft: '10rem',
+      marginTop: '2rem',
       [theme.breakpoints.down('sm')]: {
-        width: 'unset'
+        width: 'unset',
+        marginLeft: 'unset'
       },
     },
     unbanned: {},
@@ -43,6 +51,7 @@ function ManageMarketUsers(props) {
   } = market;
   const classes = useStyles();
   const intl = useIntl();
+  const history = useHistory();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId, false,
     false) || [];
@@ -88,21 +97,34 @@ function ManageMarketUsers(props) {
   if (_.isEmpty(marketPresences)){
     return <React.Fragment/>
   }
-
+  const pathAddCollaborator = `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${marketId}`;
   return (
-    <List className={classes.manage}
-      subheader={
-      <Typography align="center" variant="h6">
-        {intl.formatMessage({ id: 'manage' })}
-      </Typography>
-    }>
-      <ListItem key='header'><ListItemText />
-        <Tooltip title={intl.formatMessage({ id: 'removeExplanation' })}>
-          <ListItemIcon>Remove</ListItemIcon>
-        </Tooltip>
-      </ListItem>
-      {getUsers()}
-    </List>
+    <Screen
+      title={intl.formatMessage({ id: 'manage' })}
+      tabTitle={intl.formatMessage({ id: 'manage' })}
+      hidden={false}
+      loading={_.isEmpty(market)}
+    >
+      <List className={classes.manage}
+        subheader={
+        <Typography align="center" variant="h6">
+          {intl.formatMessage({ id: 'manage' })}
+        </Typography>
+      }>
+        <ListItem key='header'><ListItemText />
+          <Tooltip title={intl.formatMessage({ id: 'removeExplanation' })}>
+            <ListItemIcon>Remove</ListItemIcon>
+          </Tooltip>
+        </ListItem>
+        {getUsers()}
+      </List>
+      <Typography variant="body2" className={classes.manage} style={{paddingLeft: '2rem'}}>
+          To add collaborators click <Link href={pathAddCollaborator} onClick={(event) => {
+          preventDefaultAndProp(event);
+          navigate(history, pathAddCollaborator);
+        }}>here</Link>.
+        </Typography>
+    </Screen>
   );
 
 }

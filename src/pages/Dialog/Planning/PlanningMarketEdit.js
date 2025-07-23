@@ -23,7 +23,6 @@ import { Clear, SettingsBackupRestore } from '@material-ui/icons'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { addMarketToStorage, getMarket } from '../../../contexts/MarketsContext/marketsContextHelper'
 import Screen from '../../../containers/Screen/Screen'
-import ManageMarketUsers from '../UserManagement/ManageMarketUsers'
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { useHistory } from 'react-router'
 import { decomposeMarketPath } from '../../../utils/marketIdPathFunctions'
@@ -110,12 +109,10 @@ function PlanningMarketEdit() {
     >
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>
-        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}>
-          <Grid item md={6} xs={12} className={classes.fieldsetContainer}>
-            <ManageMarketUsers market={market}/>
-          </Grid>
+        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
+              style={{paddingTop: "2rem"}}>
           {!isArchived && (
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer} style={{paddingTop: '4rem'}}>
+            <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
               Archiving a workspace removes it from the UI and its unique users from billing.
               <Typography variant="h6" style={{marginTop: '1rem'}}>
                 {intl.formatMessage({ id: 'archiveWorkspace' })} <ArchiveMarketButton marketId={market.id} />
@@ -123,21 +120,18 @@ function PlanningMarketEdit() {
             </Grid>
           )}
           {isArchived && (
-            <Grid item md={5} xs={12} className={classes.fieldsetContainer} style={{paddingTop: '4rem'}}>
+            <Grid item md={12} xs={12} className={classes.fieldsetContainer} style={{paddingTop: '4rem'}}>
               This workspace is archived and its users do not contribute to billing.
               <Typography variant="h6" style={{marginTop: '1rem'}}>
                 {intl.formatMessage({ id: 'activateWorkspace' })} <ActivateMarketButton marketId={market.id} />
               </Typography>
             </Grid>
           )}
-        </Grid>
-        <Grid container className={clsx(classes.fieldset, classes.flex, classes.justifySpace)}
-              style={{paddingTop: "2rem"}}>
-          <NameField id={nameId} initialValue={market.name} />
           <Grid item md={12} xs={12} className={classes.fieldsetContainer}>
-              <Typography variant="h6">
+              <Typography variant="h6" style={{marginTop: '2rem', marginBottom: '1rem'}}>
                 {intl.formatMessage({ id: 'marketOptions' })}
               </Typography>
+              <NameField id={nameId} initialValue={market.name} />
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
             <ShowInVerifiedStageAge

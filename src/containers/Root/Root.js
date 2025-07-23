@@ -43,6 +43,7 @@ import DemoMarketLoad from '../../pages/Dialog/Planning/DemoMarketLoad';
 import { getFirstWorkspace } from '../../utils/redirectUtils';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import GroupManage from '../../pages/DialogSettings/GroupManage';
+import ManageMarketUsers from '../../pages/Dialog/UserManagement/ManageMarketUsers';
 
 function Root(props) {
   const { authState } = props;
@@ -133,6 +134,10 @@ function Root(props) {
     return action !== 'marketEdit';
   }
 
+  function hideManageUsers() {
+    return action !== 'manageUsers';
+  }
+
   function hideMarketLoad() {
     return action !== 'invite';
   }
@@ -151,7 +156,7 @@ function Root(props) {
 
   // Page Not Found
   const hidePNF = isRootPath || !(hideMarket() && hideSupport() && hideInvestible() && hideWorkspaceWizard() &&
-    hideInbox() && hideSlackInvite() && hideAccountPreferences() && hideMarketEdit() && hideGroupSettings() &&
+    hideInbox() && hideSlackInvite() && hideAccountPreferences() && hideMarketEdit() && hideManageUsers() && hideGroupSettings() &&
     hideMarketLoad() && hideGroupArchive() && hideIntegrationPreferences() && hideBillingHome() && hideTodoAdd() &&
     hideCommentReplyEdit() && hideDemoLoad() && hideGroupManage() && !isTicketPath(pathname));
 
@@ -257,6 +262,9 @@ function Root(props) {
           <IntegrationPreferences hidden={hideIntegrationPreferences()}/>
           {(!hideMarketEdit()||(isArchivedWorkspace && !hideMarket())) && (
             <PlanningMarketEdit />
+          )}
+          {!hideManageUsers() && !_.isEmpty(defaultMarket) && (
+            <ManageMarketUsers market={defaultMarket}/>
           )}
           {!hideMarketLoad() && (
             <PlanningMarketLoad />

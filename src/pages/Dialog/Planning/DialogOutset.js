@@ -58,8 +58,6 @@ function DialogOutset(props) {
       <div id="dialogOutsetBuffer" style={{width: '16rem', display: isArchivedSearch ? 'block' : 'none'}} />
       <div id="dialogOutset" style={{
         marginLeft: '1.65rem',
-        paddingLeft: '0.5rem',
-        backgroundColor: 'white',
         overflowY: 'none',
         zIndex: 3,
         position: 'absolute',
@@ -76,13 +74,26 @@ function DialogOutset(props) {
            onMouseLeave={closeOutset}
       >
         <ProSidebar width="10rem">
-            <Menu iconShape="circle">
-              <MenuItem icon={<SettingsIcon htmlColor="black"/>} key={`groupSettings${groupId}`}
+          <div style={{paddingTop: '1rem'}} />
+            <Menu rootStyles={{'.ps-menu-button': {paddingLeft: 0, height: 'unset'}}}>
+              <MenuItem icon={<SettingsIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />} 
+                        key={`groupSettings${groupId}`}
+                        rootStyles={{
+                          '.css-wx7wi4': {
+                            marginRight: 0
+                          },
+                        }}
                         onClick={() => myNavigate(formGroupEditLink(marketId, groupId))}
               >
                 {intl.formatMessage({id: 'settings'})}
               </MenuItem>
-              <MenuItem icon={<MenuBookIcon htmlColor="black"/>} key={`groupArchive${groupId}`}
+              <MenuItem icon={<MenuBookIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}}/>} 
+                        key={`groupArchive${groupId}`}
+                        rootStyles={{
+                          '.css-wx7wi4': {
+                            marginRight: 0,
+                          },
+                        }}
                         onClick={() => myNavigate(formGroupArchiveLink(marketId, groupId))}
                         suffix={isArchivedSearch ?
                           <span style={{backgroundColor: '#055099', borderRadius: 22, paddingLeft: '5px',
@@ -95,14 +106,20 @@ function DialogOutset(props) {
                 {intl.formatMessage({id: 'planningDialogViewArchivesLabel'})}
               </MenuItem>
             </Menu>
-            <div className={clsx(classes.group, classes.assignments)} style={{paddingBottom: '1rem'}}>
+            <div className={clsx(classes.group, classes.assignments)} 
+                  style={{paddingBottom: '1rem', paddingTop: '1rem', paddingLeft: '0.5rem'}}>
               <div className={classes.assignmentContainer}>
                 <b><FormattedMessage id="viewMembers"/></b>
                 {!isCurrentUserMember && (
-                  <div style={{marginLeft: '-1rem'}}>
-                    <Menu iconShape="circle">
-                      <MenuItem icon={<AddIcon htmlColor="black" />}
+                  <div>
+                    <Menu rootStyles={{'.ps-menu-button': {paddingLeft: 0, height: 'unset'}}}>
+                      <MenuItem icon={<AddIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                                 key="addMeKey" id="addMeId"
+                                rootStyles={{
+                                  '.css-wx7wi4': {
+                                    marginRight: 0,
+                                  },
+                                }}
                                 onClick={() => {
                                   setOperationRunning(true);
                                   closeOutset();
@@ -125,10 +142,15 @@ function DialogOutset(props) {
                     </Menu>
                   </div>
                 )}
-                <div style={{marginLeft: '-1rem'}}>
-                  <Menu iconShape="circle">
-                    <MenuItem icon={<PersonAddIcon htmlColor="black" />}
+                <div>
+                  <Menu rootStyles={{'.ps-menu-button': {paddingLeft: 0, height: 'unset'}}}>
+                    <MenuItem icon={<PersonAddIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                               key="manageMembersKey" id="manageMembersId"
+                              rootStyles={{
+                                '.css-wx7wi4': {
+                                  marginRight: 0,
+                                },
+                              }}
                               onClick={() => myNavigate(formGroupManageLink(marketId, groupId))}
                     >
                       <Tooltip title={intl.formatMessage({ id: 'manageMembersExplanation' })}>

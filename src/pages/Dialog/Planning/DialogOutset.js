@@ -5,7 +5,7 @@ import { Assignments, usePlanningInvestibleStyles } from '../../Investible/Plann
 import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import SettingsIcon from '@material-ui/icons/Settings';
-import { Menu, MenuItem, ProSidebar, SidebarContent } from 'react-pro-sidebar';
+import { Menu, MenuItem, Sidebar as ProSidebar } from 'react-pro-sidebar';
 import {
   formGroupArchiveLink,
   formGroupEditLink,
@@ -76,7 +76,6 @@ function DialogOutset(props) {
            onMouseLeave={closeOutset}
       >
         <ProSidebar width="10rem">
-          <SidebarContent>
             <Menu iconShape="circle">
               <MenuItem icon={<SettingsIcon htmlColor="black"/>} key={`groupSettings${groupId}`}
                         onClick={() => myNavigate(formGroupEditLink(marketId, groupId))}
@@ -148,7 +147,6 @@ function DialogOutset(props) {
                 />
               </div>
             </div>
-          </SidebarContent>
         </ProSidebar>
       </div>
     </>

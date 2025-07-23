@@ -50,8 +50,8 @@ function ReturnTop(props) {
     [history, useLink, upFromConfigPossible, marketId, action, hashInvestibleId, groupId]);
 
   return (
-    <div style={{marginBottom: '1rem'}}>
-      <TooltipIconButton disabled={upDisabled} icon={<ArrowBack htmlColor={upDisabled ? 'disabled' : 'black'}/>}
+    <div style={{marginBottom: '1.5rem', marginTop: '0.5rem'}}>
+      <TooltipIconButton disabled={upDisabled} icon={<ArrowBack htmlColor={upDisabled ? 'disabled' : 'black'} fontSize='small'/>}
                          onClick={goUp} translationId="upNavigation">
         <span style={{ paddingLeft: '0.5rem', color: 'black' }}>{intl.formatMessage({ id: 'up' })}</span>
       </TooltipIconButton>

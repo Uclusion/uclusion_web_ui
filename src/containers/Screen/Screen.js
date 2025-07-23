@@ -31,7 +31,6 @@ import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGr
 import { useIntl } from 'react-intl'
 import WorkspaceMenu from '../../pages/Home/WorkspaceMenu'
 import {
-  ADD_COLLABORATOR_WIZARD_TYPE,
   COMPOSE_WIZARD_TYPE,
   PLANNING_TYPE
 } from '../../constants/markets';
@@ -57,7 +56,7 @@ import jwt_decode from 'jwt-decode';
 import { WARNING_COLOR } from '../../components/Buttons/ButtonConstants';
 import { fixName } from '../../utils/userFunctions';
 import Gravatar from '../../components/Avatars/Gravatar';
-import SwitchWorkspaceMenu from '../../pages/Home/SwitchWorkspaceMenu';
+import OtherWorkspaceMenus from '../../pages/Home/OtherWorkspaceMenus';
 import { findMessagesForGroupId } from '../../utils/messageUtils';
 
 export const screenStyles = makeStyles((theme) => ({
@@ -406,7 +405,8 @@ function Screen(props) {
       (commentId ? getGroupForCommentId(commentId, defaultMarket.id, commentsState) : undefined)));
   const navListItemTextArray = [];
   const inactiveGroups = [];
-  if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])) {
+  const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
+  if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])&&!isArchivedWorkspace) {
     const { onGroupClick, useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, useHoverFunctions, search,
@@ -417,8 +417,6 @@ function Screen(props) {
   const inboxCountTotal = inboxCount > 0 ? undefined :
     getInboxCount(messagesState, undefined, undefined, true);
   const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();
-  const addCollaboratorChosen = action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase();
-  const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
   const navigationMenu = isDemoLoading ? {} :
     {
       headerItemTextArray: [
@@ -435,7 +433,7 @@ function Screen(props) {
                               useLink={useLink} typeObjectId={typeObjectId}
                               hashInvestibleId={hashInvestibleId} pathMarketIdRaw={pathMarketIdRaw}
                               pathInvestibleId={pathInvestibleId} action={action} />,
-      navLowerMenu: <SwitchWorkspaceMenu markets={markets} defaultMarket={defaultMarket}
+      navLowerMenu: <OtherWorkspaceMenus markets={markets} defaultMarket={defaultMarket}
                                          chosenGroup={useGroupId || hashGroupId} setChosenMarketId={setMarketIdFull} />,
       navLowerListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [
         {
@@ -444,16 +442,8 @@ function Screen(props) {
           target: `/wizard#type=${COMPOSE_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
         }
       ] : null,
-      navListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [
-        {
-          icon: AddIcon, text: intl.formatMessage({ id: 'dialogAddParticipantsLabel' }),
-          isBold: addCollaboratorChosen, isBlue: addCollaboratorChosen,
-          target: `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
-        }
-      ] : null};
-  if (navigationMenu.navListItemTextArray && !isArchivedWorkspace) {
-    navigationMenu.navListItemTextArray = navigationMenu.navListItemTextArray.concat(navListItemTextArray);
-  }
+      navListItemTextArray
+    };
   const myContainerClass = !mobileLayout ? (noPadDesktop ? classes.containerAllNoPad : classes.containerAllLeftPad)
     : classes.containerAll;
   const contentClass = mobileLayout ? classes.contentNoStyle : classes.content;

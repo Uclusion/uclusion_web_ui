@@ -63,6 +63,8 @@ const useStyles = makeStyles((theme) => ({
   },
   paperMenu: {
     border: '0.5px solid grey',
+    paddingTop: '1rem',
+    paddingBottom: '1rem'
   },
   listAction: {
     paddingTop: '1rem',
@@ -131,7 +133,7 @@ function WorkspaceMenu(props) {
   if (_.isEmpty(markets)||_.isEmpty(defaultMarket)) {
     return (
       <ProSidebar width="14rem">
-        <ProMenu iconShape="circle">
+        <ProMenu>
           <MenuItem icon={<AddIcon htmlColor="black" />}
                     key="addWorkspace Key" id="addWorkspaceIconId"
                     onClick={()=> navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`)}

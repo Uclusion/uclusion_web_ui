@@ -244,7 +244,7 @@ function Root(props) {
     <div>
       <CssBaseline/>
         <div style={{ width: '100%', height: '100%',
-          backgroundColor: (hideMarket() && hideInvestible()) ? undefined : '#EDF7F8'}}>
+          backgroundColor: (hideMarket() && hideInvestible() && hideInbox()) ? undefined : '#EDF7F8'}}>
           <Wizard hidden={hideWorkspaceWizard()} />
           <InboxFull hidden={hideInbox()} />
           <Market hidden={hideMarket()||isArchivedWorkspace}/>

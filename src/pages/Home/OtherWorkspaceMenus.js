@@ -168,7 +168,7 @@ function OtherWorkspaceMenus(props) {
                   </Menu>
                 )}
                 <MenuItem icon={<AddIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
-                      key="addCollaboratorsKey" id="addCollaboratorsId"
+                      key="addCollaboratorsKey" id="Addcollaborators"
                       rootStyles={{
                         '.css-wx7wi4': {
                           marginRight: 0,

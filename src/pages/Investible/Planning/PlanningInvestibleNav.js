@@ -604,8 +604,11 @@ function MarketMetaData(props) {
       const requiresClose = requiresCloseComments(fullMoveStage);
       const requiresOtherAction = requiresAction(fullMoveStage, isSingleUser, stagesInfo.isBlocked, yourVote);
       if (requiresClose || requiresOtherAction) {
-        let fullStageLink = stagesInfo.isInBlocked ? `${stageLink}&isBlocked=true` : stageLink;
-        if (requiresClose) {
+        let fullStageLink = `${stageLink}&stageId=${stageMoveId}`;
+        if (stagesInfo.isInBlocked) {
+          fullStageLink = `${fullStageLink}&isBlocked=true`;
+        }
+        if (!requiresClose) {
           fullStageLink += '&isAssign=false';
         }
         navigate(history, fullStageLink);

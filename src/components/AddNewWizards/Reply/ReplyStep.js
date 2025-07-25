@@ -141,6 +141,7 @@ function ReplyStep(props) {
         isReply
         useCompression={useCompression}
       />
+      <div className={classes.borderBottom}/>
       <CommentAdd
         nameKey="CommentAddReply"
         type={REPLY_TYPE}

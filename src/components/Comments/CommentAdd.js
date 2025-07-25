@@ -3,8 +3,7 @@ import { useIntl } from 'react-intl';
 import _ from 'lodash'
 import {
   darken,
-  makeStyles,
-  Paper
+  makeStyles
 } from '@material-ui/core';
 import PropTypes from 'prop-types'
 import { getMentionsFromText, saveComment } from '../../api/comments';

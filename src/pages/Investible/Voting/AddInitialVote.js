@@ -42,6 +42,7 @@ const useStyles = makeStyles(
       },
       certaintyValue: {
         borderRadius: 6,
+        backgroundColor: 'white',
         paddingLeft: theme.spacing(1),
         margin: theme.spacing(0, 2, 2, 0)
       },

@@ -266,7 +266,7 @@ function CommentEdit(props) {
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType :
       (commentType === REPORT_TYPE ? notificationType : undefined);
     let label = undefined;
-    if (commentType === REPORT_TYPE) {
+    if (commentType === REPORT_TYPE && investibleId) {
       label = nameFromDescription(tokensRemoved);
     }
     return updateComment({marketId, commentId: id, body: tokensRemoved, uploadedFiles: filteredUploads, mentions,

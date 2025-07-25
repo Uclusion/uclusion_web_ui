@@ -9,7 +9,7 @@ import {
   useTheme
 } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { ExpandLess, SyncAlt, ThumbDown, ThumbUp } from '@material-ui/icons';
+import { ExpandLess, ThumbDown, ThumbUp } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
 import React, { useContext } from 'react';
@@ -21,7 +21,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { findMessageOfType, findMessageOfTypeAndId } from '../../../utils/messageUtils';
 import { getDiff } from '../../../contexts/DiffContext/diffContextHelper';
-import { getCurrentStageLabelId, getStagesInfo } from '../../../utils/stageUtils';
+import { getStagesInfo } from '../../../utils/stageUtils';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import PropTypes from 'prop-types';
 import {
@@ -34,7 +34,12 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { UNASSIGNED_TYPE } from '../../../constants/notifications';
 import {
   getAcceptedStage,
-  getFullStage
+  getFullStage,
+  getStageNameForId,
+  getStages,
+  isAcceptedStage,
+  isFurtherWorkStage,
+  isInReviewStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -59,9 +64,10 @@ import { getMidnightToday } from '../../../utils/timerUtils';
 import _ from 'lodash';
 import { removeMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 import { DaysEstimate } from '../../../components/AgilePlan/DaysEstimate';
-import { ISSUE_TYPE } from '../../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { addMarketComments, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { requiresAction } from '../../../components/AddNewWizards/JobStage/JobStageWizard';
 
 const useStyles = makeStyles(
   () => ({
@@ -76,7 +82,7 @@ const useStyles = makeStyles(
 export default function PlanningInvestibleNav(props) {
   const { name, market, marketInvestible, classes, userId, isAssigned,
     pageState, marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId,
-    updatePageState, investibleId } = props;
+    updatePageState, investibleId, yourVote } = props;
   const intl = useIntl();
   const history = useHistory();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -131,6 +137,16 @@ export default function PlanningInvestibleNav(props) {
     const thisGroupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, group.id) || [];
     return !_.isEmpty(thisGroupPresences.filter((presence) => assigned.includes(presence.id)));
   });
+
+  function requiresCloseComments(fullMoveStage) {
+    const openTodos = investibleComments.find((comment) => comment.comment_type === TODO_TYPE);
+    const openAssistance = investibleComments.find((comment) =>
+      [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type));
+    const hasOpenTodos = !_.isEmpty(openTodos) && isInReviewStage(fullMoveStage);
+    return hasOpenTodos ||
+      (fullStage.move_on_comment && openAssistance && !fullMoveStage.close_comments_on_entrance &&
+        !isFurtherWorkStage(fullMoveStage));
+  }
 
   function setReadyToStart(isReadyToStart) {
     const updateInfo = {
@@ -233,6 +249,13 @@ export default function PlanningInvestibleNav(props) {
         market={market}
         pageState={pageState}
         updatePageState={updatePageState}
+        requiresCloseComments={requiresCloseComments}
+        stageId={stage}
+        assigned={assigned}
+        isAssigned={isAssigned}
+        isSingleUser={isSingleUser}
+        yourVote={yourVote}
+        userId={userId}
       />
       {market.id && marketInvestible.investible && (!isSingleUser || isFurtherWork) && (
         <div className={clsx(classes.group, classes.assignments)}>
@@ -528,7 +551,14 @@ function MarketMetaData(props) {
     investibleId,
     stagesInfo,
     pageState,
-    updatePageState
+    updatePageState,
+    requiresCloseComments,
+    stageId,
+    assigned,
+    isAssigned,
+    isSingleUser,
+    yourVote,
+    userId
   } = props;
   const intl = useIntl()
   const {
@@ -536,17 +566,74 @@ function MarketMetaData(props) {
   } = pageState
   const history = useHistory();
   const [diffState] = useContext(DiffContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
-  const stageLabelId = getCurrentStageLabelId(stagesInfo);
+  const fullStagesFiltered = getStages(marketStagesState, market.id).filter((fullStage) => fullStage.id === stageId || 
+  (!fullStage.move_on_comment && (isAssigned || _.isEmpty(assigned) || !isAcceptedStage(fullStage))));
+  const allowableStages = _.orderBy(fullStagesFiltered, (aStage) => {
+    if (isFurtherWorkStage(aStage)) {
+      return 0;
+    }
+    if (aStage.allows_investment) {
+      return 1;
+    }
+    if (isAcceptedStage(aStage)) {
+      return 2;
+    }
+    if (isInReviewStage(aStage)) {
+      return 3;
+    }
+    return 4;
+  });
+  
 
   function toggleDiffShow() {
     updatePageState({showDiff: !showDiff});
   }
   const stageLink = formWizardLink(JOB_STAGE_WIZARD_TYPE, market.id, investibleId);
+
+  function changeInvestibleStage(stageMoveId) {
+    if (stageMoveId !== stageId) {
+      const fullMoveStage = getFullStage(marketStagesState, market.id, stageMoveId);
+      const requiresClose = requiresCloseComments(fullMoveStage);
+      const requiresOtherAction = requiresAction(fullMoveStage, isSingleUser, stagesInfo.isBlocked, yourVote);
+      if (requiresClose || requiresOtherAction) {
+        let fullStageLink = stagesInfo.isInBlocked ? `${stageLink}&isBlocked=true` : stageLink;
+        if (requiresClose) {
+          fullStageLink += '&isAssign=false';
+        }
+        navigate(history, fullStageLink);
+      } else {
+        setOperationRunning(true);
+        const moveInfo = {
+          marketId: market.id,
+          investibleId,
+          stageInfo: {
+            current_stage_id: stageId,
+            stage_id: fullMoveStage.id
+          },
+        };
+        if (isSingleUser && !isAssigned && fullMoveStage.allows_assignment) {
+          moveInfo.assignments = [userId];
+        }
+        return stageChangeInvestible(moveInfo)
+          .then((newInv) => {
+            onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, market.id, commentsState,
+              commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined, fullMoveStage, marketPresencesDispatch);
+            setOperationRunning(false);
+          });
+      }
+    }
+  }
+
   return (
-    <div>
+    <div style={{marginBottom: '2rem'}}>
       {myMessageDescription && diff && (
         <>
           <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
@@ -556,22 +643,18 @@ function MarketMetaData(props) {
           <div style={{paddingTop: '1.2rem'}} />
         </>
       )}
-      <div style={{maxWidth: '15rem', marginRight: '1rem'}}>
-        <div style={{marginBottom: '0.5rem', display: 'flex', flexDirection: 'row'}}>
-          <b><FormattedMessage id={'allowedStagesDropdownLabel'}/></b>
-            <SpinningIconLabelButton
-              icon={SyncAlt}
-              iconOnly
-              id="stageButton"
-              doSpin={false}
-              whiteBackground
-              style={{marginLeft: '1rem', padding: 0, marginBottom: 0, marginTop: '-0.25rem'}}
-              onClick={() => navigate(history,
-                stagesInfo.isInBlocked ? `${stageLink}&isBlocked=true` : stageLink)}
-            />
-        </div>
-          {intl.formatMessage({id: stageLabelId})}
-      </div>
+      <FormControl>
+        <b><FormattedMessage id={'allowedStagesDropdownLabel'}/></b>
+        <Select
+          value={stageId}
+          onChange={(event) => changeInvestibleStage(event.target.value)}
+        >
+          {allowableStages.map((stage) => {
+            return <MenuItem key={`key${stage.id}`} value={stage.id}>
+              {getStageNameForId(marketStagesState, market.id, stage.id, intl)}</MenuItem>
+          })}
+        </Select>
+      </FormControl>
     </div>
   );
 }

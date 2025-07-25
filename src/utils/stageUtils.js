@@ -36,34 +36,3 @@ export function getStagesInfo(marketId, marketStagesState, currentStageId){
     isInNotDoing,
   };
 }
-
-
-export function getCurrentStageLabelId(stagesInfo) {
-  if(stagesInfo.isInReview){
-    return 'planningReviewStageLabel'
-  }
-  // TODO, handle full
-  if(stagesInfo.isInAccepted){
-    return 'planningAcceptedStageLabel';
-  }
-  if(stagesInfo.isInBlocked){
-    return 'planningBlockedStageLabel';
-  }
-  if(stagesInfo.isInVerified){
-    return 'planningVerifiedStageLabel';
-  }
-  if(stagesInfo.isFurtherWork){
-    return 'planningFurtherWorkStageLabel';
-  }
-  if(stagesInfo.isRequiresInput){
-    return 'requiresInputStageLabel';
-  }
-  if(stagesInfo.isInNotDoing){
-    return 'planningNotDoingStageLabel';
-  }
-  if(stagesInfo.isInVoting){
-    return 'planningVotingStageLabel';
-  }
-  // just put something that makes vague sense
-  return 'allowedStagesDropdownLabel';
-}

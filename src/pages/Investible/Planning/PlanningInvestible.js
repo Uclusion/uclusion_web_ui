@@ -607,7 +607,7 @@ function PlanningInvestible(props) {
     !_.isEmpty(investible) && !hidden;
   const investibleNav = <PlanningInvestibleNav investibles={investibles} name={name} market={market}
                                                marketInvestible={marketInvestible} classes={classes}
-                                               investibleId={investibleId}
+                                               investibleId={investibleId} yourVote={yourVote}
                                                userId={userId} myPresence={myPresence} isAssigned={isAssigned}
                                                pageState={pageState} marketPresences={marketPresences}
                                                assigned={assigned} isInVoting={isInVoting}

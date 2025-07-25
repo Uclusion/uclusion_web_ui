@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { WizardStylesProvider } from '../WizardStylesContext';
 import FormdataWizard from 'react-formdata-wizard';
-import JobStageStep from './JobStageStep';
 import JobAssignStep from './JobAssignStep';
 import CloseCommentsStep from './CloseCommentsStep';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -29,6 +28,25 @@ import StageActionStep from './StageActionStep';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
+export function requiresAction(fullMoveStage, isSingleUser, isBlocked, yourVote) {
+  if (!_.isEmpty(fullMoveStage)&&!isNotDoingStage(fullMoveStage)) {
+    // Not prompting for review if single user
+    if (fullMoveStage.close_comments_on_entrance && !isSingleUser) {
+      return true;
+    }
+    // Not prompting for certainty if single user
+    if (fullMoveStage.allows_investment && !isSingleUser) {
+      if (!yourVote || yourVote.deleted) {
+        return true;
+      }
+    }
+    if (isFurtherWorkStage(fullMoveStage)&&!isBlocked) {
+      return true;
+    }
+  }
+  return false
+}
+
 function JobStageWizard(props) {
   const { marketId, investibleId, stageId, isAssign, isBlocked, assignId } = props;
   const history = useHistory();
@@ -53,27 +71,12 @@ function JobStageWizard(props) {
     return React.Fragment;
   }
 
-  function requiresAction(fullMoveStage) {
-    if (!_.isEmpty(fullMoveStage)&&!isNotDoingStage(fullMoveStage)) {
-      // Not prompting for review if single user
-      if (fullMoveStage.close_comments_on_entrance && !isSingleUser) {
-        return true;
-      }
-      // Not prompting for certainty if single user
-      if (fullMoveStage.allows_investment && !isSingleUser) {
-        if (!yourVote || yourVote.deleted) {
-          return true;
-        }
-      }
-      if (isFurtherWorkStage(fullMoveStage)&&!isBlocked) {
-        return true;
-      }
-    }
-    return false
+  function myRequiresAction(fullMoveStage) {
+    return requiresAction(fullMoveStage, isSingleUser, isBlocked);
   }
 
   function finish(fullMoveStage, isTerminate=false) {
-    if (isTerminate || !requiresAction((fullMoveStage))) {
+    if (isTerminate || !myRequiresAction(fullMoveStage)) {
       if (!isTerminate && fullMoveStage && (isNotDoingStage(fullMoveStage) || isInReviewStage(fullMoveStage))) {
         navigate(history, formMarketLink(marketId, groupId));
       } else {
@@ -94,17 +97,13 @@ function JobStageWizard(props) {
                         wasDeleted: yourVote?.deleted, userId: yourPresence?.id, approveReason: originalReason,
                         originalReason, stage: useStageId ? useStageId : undefined, stageWasSet: !!useStageId,
                         useCompression: true, originalAssigned: assigned}}>
-        {!stageId && (
-          <JobStageStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                        requiresAction={requiresAction} isSingleUser={isSingleUser} />
-        )}
-        {(!stageId || isAssign === 'true') && (
+        {isAssign === 'true' && (
           <JobAssignStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                         requiresAction={requiresAction} />
+                         requiresAction={myRequiresAction} />
         )}
         {isAssign !== 'false' && (
           <CloseCommentsStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                             isAssign={isAssign} requiresAction={requiresAction} isSingleUser={isSingleUser}
+                             isAssign={isAssign} requiresAction={myRequiresAction} isSingleUser={isSingleUser}
                              assignId={assignId}/>
         )}
         <StageActionStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}

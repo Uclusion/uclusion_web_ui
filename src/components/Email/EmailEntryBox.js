@@ -40,6 +40,7 @@ class EmailEntryBox extends React.Component{
         padding: '0.25rem',
         height: '10rem',
         borderRadius: '6px',
+        backgroundColor: 'white',
         border: '1px dashed grey',
         '&:focus': {
           outline: '2px solid #2D9CDB',

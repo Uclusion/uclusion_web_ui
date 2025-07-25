@@ -78,6 +78,7 @@ function QuillEditor2 (props) {
     mentionsAllowed,
     placeholder,
     noOverflow,
+    backgroundColor,
     buttons = React.Fragment
   } = props;
   const useCssId = cssId || id;
@@ -163,6 +164,7 @@ function QuillEditor2 (props) {
     fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSize,
     overflowX: 'hidden',
+    backgroundColor: backgroundColor || 'white',
     minHeight: noToolbar ? undefined : '8rem'
   };
 

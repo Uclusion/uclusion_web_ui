@@ -52,7 +52,7 @@ function ChooseTypeStep (props) {
                 <FormControlLabel
                   id={`type${objectType}`}
                   key={objectType}
-                  style={{marginBottom: mobileLayout ? '0.5rem' : undefined}}
+                  style={{marginBottom: mobileLayout ? '0.5rem' : undefined, backgroundColor: 'white', paddingRight: '0.5rem'}}
                   /* prevent clicking the label stealing focus */
                   onMouseDown={e => e.preventDefault()}
                   control={<Radio color="primary" />}

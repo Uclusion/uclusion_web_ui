@@ -187,6 +187,7 @@ function ConfigureCommentStep(props) {
                 key={answer}
                 /* prevent clicking the label stealing focus */
                 onMouseDown={e => e.preventDefault()}
+                style={{backgroundColor: 'white', paddingRight: '0.5rem'}}
                 control={<Radio color="primary" />}
                 label={<FormattedMessage id={`${answerId}Config`} />}
                 labelPlacement="end"

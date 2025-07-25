@@ -425,175 +425,166 @@ function CommentAdd(props) {
       });
   }
   return (
-    <>
-      <Paper
-        id={`${nameKey ? nameKey : ''}cabox`}
-        className={classes.add}
-        style={{padding: isWizard ? 0 : undefined}}
-        elevation={0}
-      >
-        <div className={classes.editor} style={{paddingBottom: isWizard ? undefined : '1rem'}}>
-          {Editor}
-          {isWizard && (
-            <div style={{marginTop: '40px'}}>
-              {wizardProps.isReply && (
-                <AddWizardStepButtons
-                  {...wizardProps}
-                  validForm={hasValue}
-                  nextLabel={wizardProps.showSubTask ? 'JobCommentAddTODO' : 'commentAddSendLabel'}
-                  onNext={() => handleSave( true)}
-                  showOtherNext={rootComment?.comment_type !== REPORT_TYPE && wizardProps.parentIsTopLevel &&
-                    (ourMarket.market_type !== DECISION_TYPE || rootComment?.comment_type !== TODO_TYPE)}
-                  otherNextLabel={wizardProps.showSubTask ? 'addAnother' : 'commentAddSendResolve'}
-                  onOtherNext={() => handleSave( true, undefined, undefined,
-                    true).then(() => {
-                    wizardProps.onResolve();
-                    if (wizardProps.showSubTask) {
+    <div className={classes.editor} style={{paddingBottom: isWizard ? undefined : '1rem'}}>
+      {Editor}
+      {isWizard && (
+        <div style={{marginTop: '40px'}}>
+          {wizardProps.isReply && (
+            <AddWizardStepButtons
+              {...wizardProps}
+              validForm={hasValue}
+              nextLabel={wizardProps.showSubTask ? 'JobCommentAddTODO' : 'commentAddSendLabel'}
+              onNext={() => handleSave( true)}
+              showOtherNext={rootComment?.comment_type !== REPORT_TYPE && wizardProps.parentIsTopLevel &&
+                (ourMarket.market_type !== DECISION_TYPE || rootComment?.comment_type !== TODO_TYPE)}
+              otherNextLabel={wizardProps.showSubTask ? 'addAnother' : 'commentAddSendResolve'}
+              onOtherNext={() => handleSave( true, undefined, undefined,
+                true).then(() => {
+                wizardProps.onResolve();
+                if (wizardProps.showSubTask) {
+                  focusEditor(editorName);
+                }
+              })}
+              onOtherDoAdvance={!wizardProps.showSubTask}
+              showTerminate={!_.isEmpty(wizardProps.terminateLabel)}
+              terminateLabel={wizardProps.terminateLabel}
+            />
+          )}
+          {wizardProps.isBug && (
+            <AddWizardStepButtons
+              {...wizardProps}
+              validForm={hasValue && !_.isEmpty(wizardProps.bugType)}
+              nextLabel="createBug"
+              onNext={() => handleSave( true, wizardProps.bugType)} />
+          )}
+          {!wizardProps.isBug && !wizardProps.isAddWizard && !wizardProps.isReply && (
+            <WizardStepButtons
+              {...wizardProps}
+              validForm={hasValue}
+              nextLabel={`${type}ApproveWizard`}
+              onNext={() => handleSave( wizardProps.isSent !== false)}
+              showTerminate
+              onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
+              terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
+          )}
+          {wizardProps.isAddWizard &&
+            (type !== ISSUE_TYPE || isSingleUser || ourMarket.market_type !== PLANNING_TYPE) &&
+            (![SUGGEST_CHANGE_TYPE, QUESTION_TYPE].includes(type) || ourMarket.market_type === DECISION_TYPE) && (
+            <AddWizardStepButtons
+              {...wizardProps}
+              validForm={hasValue}
+              nextLabel={`${nameKey}${type}`}
+              onNext={() => handleSave(true, undefined, false )}
+              onTerminate={wizardProps.saveOnTerminate ? () => {
+                setOperationRunning(true);
+                handleSave();
+              } : (wizardProps.onTerminate ? wizardProps.onTerminate :
+                () => navigate(history, formInvestibleLink(marketId, investibleId)))}
+              showOtherNext={type === TODO_TYPE || wizardProps.isResolve}
+              otherNextLabel={type === TODO_TYPE ? 'addAnother' : 'commentResolveLabelOnly'}
+              isOtherFinal={false}
+              otherNextValid={wizardProps.isResolve ? true : undefined}
+              onOtherNext={wizardProps.isResolve ? wizardProps.onResolve : () =>
+                handleSave(true, undefined, false, true )
+                    .then(() => {
+                      resetEditor(editorName, '', {placeholder});
                       focusEditor(editorName);
-                    }
-                  })}
-                  onOtherDoAdvance={!wizardProps.showSubTask}
-                  showTerminate={!_.isEmpty(wizardProps.terminateLabel)}
-                  terminateLabel={wizardProps.terminateLabel}
-                />
-              )}
-              {wizardProps.isBug && (
-                <AddWizardStepButtons
-                  {...wizardProps}
-                  validForm={hasValue && !_.isEmpty(wizardProps.bugType)}
-                  nextLabel="createBug"
-                  onNext={() => handleSave( true, wizardProps.bugType)} />
-              )}
-              {!wizardProps.isBug && !wizardProps.isAddWizard && !wizardProps.isReply && (
-                <WizardStepButtons
-                  {...wizardProps}
-                  validForm={hasValue}
-                  nextLabel={`${type}ApproveWizard`}
-                  onNext={() => handleSave( wizardProps.isSent !== false)}
-                  showTerminate
-                  onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
-                  terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
-              )}
-              {wizardProps.isAddWizard &&
-                (type !== ISSUE_TYPE || isSingleUser || ourMarket.market_type !== PLANNING_TYPE) &&
-                (![SUGGEST_CHANGE_TYPE, QUESTION_TYPE].includes(type) || ourMarket.market_type === DECISION_TYPE) && (
-                <AddWizardStepButtons
-                  {...wizardProps}
-                  validForm={hasValue}
-                  nextLabel={`${nameKey}${type}`}
-                  onNext={() => handleSave(true, undefined, false )}
-                  onTerminate={wizardProps.saveOnTerminate ? () => {
-                    setOperationRunning(true);
-                    handleSave();
-                  } : (wizardProps.onTerminate ? wizardProps.onTerminate :
-                    () => navigate(history, formInvestibleLink(marketId, investibleId)))}
-                  showOtherNext={type === TODO_TYPE || wizardProps.isResolve}
-                  otherNextLabel={type === TODO_TYPE ? 'addAnother' : 'commentResolveLabelOnly'}
-                  isOtherFinal={false}
-                  otherNextValid={wizardProps.isResolve ? true : undefined}
-                  onOtherNext={wizardProps.isResolve ? wizardProps.onResolve : () =>
-                    handleSave(true, undefined, false, true )
-                        .then(() => {
-                          resetEditor(editorName, '', {placeholder});
-                          focusEditor(editorName);
-                        })
-                  }
-                  showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : !investibleId && type !== REPORT_TYPE}
-                  terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
-              )}
-              {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
-                !investibleId && !isSingleUser && (
-                <AddWizardStepButtons
-                  {...wizardProps}
-                  validForm={hasValue}
-                  nextLabel="voteSuggestion"
-                  onNext={() => handleSave( true, undefined, true)}
-                  onNextDoAdvance={false}
-                  showOtherNext={true}
-                  onOtherNext={() => handleSave( true, undefined, false)}
-                  otherNextLabel="noVoteSuggestion"
-                  onTerminate={() => {
-                    wizardProps.updateFormData({marketId, groupId});
-                    wizardProps.nextStep();
-                  }}
-                  showTerminate={hasValue}
-                  terminateLabel="configureVoting"/>
-              )}
-              {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
-                !investibleId && isSingleUser && (
-                  <AddWizardStepButtons
-                    {...wizardProps}
-                    validForm={hasValue}
-                    nextLabel="noVoteSuggestion"
-                    onNext={() => handleSave( true, undefined, false)}
-                    onNextDoAdvance={false}
-                    onTerminate={() => {
-                      wizardProps.updateFormData({marketId, groupId});
-                      wizardProps.nextStep();
-                    }}
-                    showTerminate={hasValue}
-                    terminateLabel="configureVoting"/>
-                )}
-              {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
-                investibleId && !isSingleUser && (
-                <AddWizardStepButtons
-                  {...wizardProps}
-                  validForm={hasValue}
-                  nextLabel={createInlineInitiative ? 'voteSuggestion' : 'noVoteSuggestion'}
-                  onNext={() => handleSave( true, undefined, createInlineInitiative)}
-                  onNextDoAdvance={false}
-                  isFinal={!createInlineInitiative}
-                  isOtherFinal={createInlineInitiative}
-                  showOtherNext={true}
-                  otherNextLabel={createInlineInitiative ? 'noVoteSuggestion' : 'voteSuggestion'}
-                  onOtherNext={() => handleSave( true, undefined, !createInlineInitiative)}
-                  onTerminate={() => {
-                    wizardProps.updateFormData({marketId, groupId, investibleId});
-                    updateCommentAddState({editorName});
-                    wizardProps.nextStep();
-                  }}
-                  showTerminate={hasValue}
-                  terminateLabel="configureVoting"/>
-              )}
-              {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
-                investibleId && isSingleUser && (
-                  <AddWizardStepButtons
-                    {...wizardProps}
-                    validForm={hasValue}
-                    nextLabel='noVoteSuggestion'
-                    onNext={() => handleSave( true, undefined, false)}
-                    onNextDoAdvance={false}
-                  />
-                )}
-              {wizardProps.isAddWizard && type === ISSUE_TYPE && ourMarket.market_type === PLANNING_TYPE
-                && !isSingleUser && (
-                  <AddWizardStepButtons
-                    {...wizardProps}
-                    validForm={hasValue}
-                    isFinal={false}
-                    nextLabel={`${nameKey}${type}`}
-                    onNext={() => handleSave(false, undefined, false)}
-                  />
-                )}
-              {wizardProps.isAddWizard && type === QUESTION_TYPE && ourMarket.market_type === PLANNING_TYPE && (
-                <AddWizardStepButtons
-                  {...wizardProps}
-                  validForm={hasValue}
-                  nextLabel={`${nameKey}${type}`}
-                  onNext={() => handleSave( false, undefined,false)}
-                  showOtherNext={true}
-                  isFinal={false}
-                  otherNextLabel="createNewQUESTION"
-                  onOtherNext={() => handleSave( true, undefined,false)}
-                  isOtherFinal
-                  showTerminate={false}
-                />
-              )}
-            </div>
+                    })
+              }
+              showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : !investibleId && type !== REPORT_TYPE}
+              terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
+          )}
+          {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
+            !investibleId && !isSingleUser && (
+            <AddWizardStepButtons
+              {...wizardProps}
+              validForm={hasValue}
+              nextLabel="voteSuggestion"
+              onNext={() => handleSave( true, undefined, true)}
+              onNextDoAdvance={false}
+              showOtherNext={true}
+              onOtherNext={() => handleSave( true, undefined, false)}
+              otherNextLabel="noVoteSuggestion"
+              onTerminate={() => {
+                wizardProps.updateFormData({marketId, groupId});
+                wizardProps.nextStep();
+              }}
+              showTerminate={hasValue}
+              terminateLabel="configureVoting"/>
+          )}
+          {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
+            !investibleId && isSingleUser && (
+              <AddWizardStepButtons
+                {...wizardProps}
+                validForm={hasValue}
+                nextLabel="noVoteSuggestion"
+                onNext={() => handleSave( true, undefined, false)}
+                onNextDoAdvance={false}
+                onTerminate={() => {
+                  wizardProps.updateFormData({marketId, groupId});
+                  wizardProps.nextStep();
+                }}
+                showTerminate={hasValue}
+                terminateLabel="configureVoting"/>
+            )}
+          {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
+            investibleId && !isSingleUser && (
+            <AddWizardStepButtons
+              {...wizardProps}
+              validForm={hasValue}
+              nextLabel={createInlineInitiative ? 'voteSuggestion' : 'noVoteSuggestion'}
+              onNext={() => handleSave( true, undefined, createInlineInitiative)}
+              onNextDoAdvance={false}
+              isFinal={!createInlineInitiative}
+              isOtherFinal={createInlineInitiative}
+              showOtherNext={true}
+              otherNextLabel={createInlineInitiative ? 'noVoteSuggestion' : 'voteSuggestion'}
+              onOtherNext={() => handleSave( true, undefined, !createInlineInitiative)}
+              onTerminate={() => {
+                wizardProps.updateFormData({marketId, groupId, investibleId});
+                updateCommentAddState({editorName});
+                wizardProps.nextStep();
+              }}
+              showTerminate={hasValue}
+              terminateLabel="configureVoting"/>
+          )}
+          {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
+            investibleId && isSingleUser && (
+              <AddWizardStepButtons
+                {...wizardProps}
+                validForm={hasValue}
+                nextLabel='noVoteSuggestion'
+                onNext={() => handleSave( true, undefined, false)}
+                onNextDoAdvance={false}
+              />
+            )}
+          {wizardProps.isAddWizard && type === ISSUE_TYPE && ourMarket.market_type === PLANNING_TYPE
+            && !isSingleUser && (
+              <AddWizardStepButtons
+                {...wizardProps}
+                validForm={hasValue}
+                isFinal={false}
+                nextLabel={`${nameKey}${type}`}
+                onNext={() => handleSave(false, undefined, false)}
+              />
+            )}
+          {wizardProps.isAddWizard && type === QUESTION_TYPE && ourMarket.market_type === PLANNING_TYPE && (
+            <AddWizardStepButtons
+              {...wizardProps}
+              validForm={hasValue}
+              nextLabel={`${nameKey}${type}`}
+              onNext={() => handleSave( false, undefined,false)}
+              showOtherNext={true}
+              isFinal={false}
+              otherNextLabel="createNewQUESTION"
+              onOtherNext={() => handleSave( true, undefined,false)}
+              isOtherFinal
+              showTerminate={false}
+            />
           )}
         </div>
-      </Paper>
-    </>
+      )}
+    </div>
   );
 }
 

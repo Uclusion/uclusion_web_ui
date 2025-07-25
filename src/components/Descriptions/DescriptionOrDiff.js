@@ -39,6 +39,7 @@ function DescriptionOrDiff(props) {
         id={`readOnlyDiff${id}`}
         value={description}
         noToolbar
+        backgroundColor='#EDF7F8'
       />
     </div>
   );

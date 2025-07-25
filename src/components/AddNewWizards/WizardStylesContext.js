@@ -65,6 +65,7 @@ export const wizardStyles = makeStyles(
       input: {
         borderRadius: 8,
         padding: '4px',
+        backgroundColor: 'white',
         width: '100%',
         '& > div:before': {
           borderBottom: 0
@@ -146,7 +147,7 @@ export const wizardStyles = makeStyles(
         },
         '&:disabled': {
           color: 'black',
-          backgroundColor: '#ecf0f1'
+          backgroundColor: '#E4E4E4'
         }
       },
       actionNext: {

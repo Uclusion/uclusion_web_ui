@@ -164,7 +164,7 @@ function QuillEditor2 (props) {
     fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSize,
     overflowX: 'hidden',
-    backgroundColor: backgroundColor || 'white',
+    backgroundColor: backgroundColor || (noToolbar ? undefined : 'white'),
     minHeight: noToolbar ? undefined : '8rem'
   };
 

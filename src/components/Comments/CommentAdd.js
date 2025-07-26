@@ -371,7 +371,7 @@ function CommentAdd(props) {
     || doCreateInitiative) ? INITIATIVE_TYPE : (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && type === ISSUE_TYPE) && currentStageId !== blockingStage.id;
     let label = undefined;
-    if (creatorIsAssigned && type === REPORT_TYPE && isSent !== false) {
+    if (creatorIsAssigned && type === REPORT_TYPE && investibleId && isSent !== false) {
       label = nameFromDescription(tokensRemoved);
     }
     return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, type, filteredUploads, mentions,

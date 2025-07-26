@@ -62,7 +62,7 @@ function TriageStep(props) {
         {intl.formatMessage({id: 'CriticalBugTitle'})}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Click on a row to assign with the Move button, resolve, reply, or change from critical.
+        Click or right click on a row to assign, resolve, reply, or change from critical.
       </Typography>
       <h2 id="tasksOverview">
         Critical <Link href={pathToBugs} onClick={(event) => {

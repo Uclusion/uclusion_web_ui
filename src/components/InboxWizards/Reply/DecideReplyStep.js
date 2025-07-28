@@ -52,8 +52,9 @@ function DecideReplyStep(props) {
   const userId = myPresence?.id;
   const { comment_type: commentType, group_id: groupId } = commentRoot;
   const { type: messageType } = message;
-  const isReplyToReply = commentRoot.id !== commentId;
-  const canResolve = commentType !== REPORT_TYPE || isReplyToReply;
+  const comment = getComment(commentState, marketId, commentId)
+  const isDirectReply = commentRoot.id === comment.reply_id;
+  const canResolve = commentType !== REPORT_TYPE;
   const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, commentRoot.group_id);
   const comments = marketComments.filter((comment) =>
@@ -117,13 +118,14 @@ function DecideReplyStep(props) {
         dismissWorkListItem(message, messagesDispatch, history);
       });
   }
-  const showOtherNext = isMySuggestion || canResolve;
+  const showOtherNext = isMySuggestion || isDirectReply;
   const isMention = messageType === 'REPLY_MENTION';
   const baseMoveUrl = `${formMarketAddInvestibleLink(marketId, groupId, undefined, message.type_object_id,
     BUG_WIZARD_TYPE)}&fromCommentId=${commentId}`;
-  const moveToTask = () => navigate(history,isMention ? `${baseMoveUrl}&useType=Task` : baseMoveUrl);
+  const moveToTask = () => navigate(history, `${baseMoveUrl}&useType=Task`);
 
   const showTerminate = getShowTerminate(message);
+  const showResolve = showTerminate && isDirectReply && canResolve;
   return (
     <WizardStepContainer
       {...props}
@@ -136,12 +138,7 @@ function DecideReplyStep(props) {
           Choose other options to move to task, add voting, or resolve.
         </Typography>
       )}
-      {showOtherNext && !isMySuggestion && !isMention && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Choose move to create a task, bug, or suggestion instead of replying.
-        </Typography>
-      )}
-      {showOtherNext && isMention && (
+      {showOtherNext && !isMySuggestion && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Click through to move to a bug or suggestion.
         </Typography>
@@ -162,11 +159,10 @@ function DecideReplyStep(props) {
         nextShowEdit={hasReply(getComment(commentState, marketId, commentId))}
         spinOnClick={false}
         onNextDoAdvance={false}
-        showOtherNext={showOtherNext}
-        otherNextLabel={isMySuggestion ? 'otherOptionsLabel' : ((showTerminate && !isReplyToReply) ?
-          'issueResolveLabel' : (isMention ? 'TODOApproveWizard' : 'move'))}
-        onOtherNext={isMySuggestion ? undefined : ((showTerminate && !isReplyToReply) ? resolve : moveToTask)}
-        otherSpinOnClick={!isMySuggestion && !isReplyToReply && showTerminate}
+        showOtherNext
+        otherNextLabel={isMySuggestion ? 'otherOptionsLabel' : (showResolve ? 'issueResolveLabel' : 'moveToTaskLabel')}
+        onOtherNext={isMySuggestion ? undefined : (showResolve ? resolve : moveToTask)}
+        otherSpinOnClick={!isMySuggestion && showResolve}
         isOtherFinal={!isMySuggestion}
         onOtherNextDoAdvance={isMySuggestion}
         showTerminate={showTerminate || (!isMySuggestion && canResolve)}

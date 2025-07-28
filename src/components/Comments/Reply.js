@@ -383,16 +383,26 @@ function Reply(props) {
             disabled={operationRunning !== false}
             onClick={(event) => {
               preventDefaultAndProp(event);
-              if (myPresenceIsAssigned) {
-                return moveToTask();
-              }
               navigate(history,
                 `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
                   BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}`)
             }}
-            icon={myPresenceIsAssigned ? <ListAltIcon fontSize='small' /> : <Eject fontSize='small' /> }
+            icon={<Eject fontSize='small' /> }
             size='small'
-            translationId={myPresenceIsAssigned ? 'wizardAcceptLabel' : 'storyFromComment'}
+            translationId='storyFromComment'
+            doFloatRight
+          />
+        )}
+        {showConvert && myPresenceIsAssigned && (
+          <TooltipIconButton
+            disabled={operationRunning !== false}
+            onClick={(event) => {
+              preventDefaultAndProp(event);
+              return moveToTask();
+            }}
+            icon={<ListAltIcon fontSize='small' />}
+            size='small'
+            translationId='wizardAcceptLabel'
             doFloatRight
           />
         )}

@@ -86,7 +86,7 @@ export function setCurrentWorkspace(location) {
 }
 
 export function setUtm(utm) {
-  setLoginPersistentItem(UTM_LOCAL_STORAGE_KEY, utm);
+  setUclusionLocalStorageItem(UTM_LOCAL_STORAGE_KEY, utm);
 }
 
 export function setEmail(email) {
@@ -106,7 +106,7 @@ export function getCurrentWorkspace() {
 }
 
 export function getUtm() {
-  return getLoginPersistentItem(UTM_LOCAL_STORAGE_KEY);
+  return getUclusionLocalStorageItem(UTM_LOCAL_STORAGE_KEY);
 }
 
 export function getEmail() {

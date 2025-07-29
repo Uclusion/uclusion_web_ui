@@ -146,6 +146,7 @@ function BugListItem(props) {
     useMinWidth = true,
     useMobileLayout = false,
     smallFont = false,
+    hideRow = false,
     link,
     toolTipId,
     activeInvestibles,
@@ -198,109 +199,111 @@ function BugListItem(props) {
                  commentId={id} notificationType={notificationType} mouseX={mouseX} mouseY={mouseY}
                  activeInvestibles={activeInvestibles} />
       )}
-      <Item key={`listItem${id}`} id={id} style={{maxWidth: maxWidth || '95%',
-        minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
-            onDragStart={onDragStart} draggable>
-        <RaisedCard elevation={smallFont ? 1 : 3} rowStyle key={`raised${id}`}>
-          <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
-               onClick={
-            (event) => {
-              preventDefaultAndProp(event);
-              if (bugListDispatch) {
-                bugListDispatch(expandOrContract(id));
-              } else {
-                navigate(history, link);
+      {!hideRow && (
+        <Item key={`listItem${id}`} id={id} style={{maxWidth: maxWidth || '95%',
+          minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}
+              onDragStart={onDragStart} draggable>
+          <RaisedCard elevation={smallFont ? 1 : 3} rowStyle key={`raised${id}`}>
+            <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
+                 onClick={
+              (event) => {
+                preventDefaultAndProp(event);
+                if (bugListDispatch) {
+                  bugListDispatch(expandOrContract(id));
+                } else {
+                  navigate(history, link);
+                }
               }
-            }
-          }>
-            <Div key={`actions${id}`}>
-              <Box flexShrink={0} className={gutterStyles.parent} key={`box${id}`}>
-                {!mobileLayout && (
-                  <StyledIconButton
-                    className={cx(checked && "MailListItem-checked")}
-                    style={{marginLeft: '0.15rem', visibility: useSelect ? 'visible' : 'hidden'}}
-                    classes={actionStyles}
-                    onClick={(event) => {
-                      preventDefaultAndProp(event);
-                      // We need to record when you unset when check all is on or set when check all is off
-                      determinateDispatch({id});
-                    }}
-                  >
-                    {checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />}
-                  </StyledIconButton>
-                )}
-                {mobileLayout && (
-                  <div style={{marginLeft: '0.25rem'}} />
-                )}
-                {poked && (
-                  <Tooltip key='pokedRowKey'
-                           title={<FormattedMessage id='pokedBugExplanation' />}>
+            }>
+              <Div key={`actions${id}`}>
+                <Box flexShrink={0} className={gutterStyles.parent} key={`box${id}`}>
+                  {!mobileLayout && (
                     <StyledIconButton
+                      className={cx(checked && "MailListItem-checked")}
+                      style={{marginLeft: '0.15rem', visibility: useSelect ? 'visible' : 'hidden'}}
                       classes={actionStyles}
+                      onClick={(event) => {
+                        preventDefaultAndProp(event);
+                        // We need to record when you unset when check all is on or set when check all is off
+                        determinateDispatch({id});
+                      }}
                     >
-                      <ReportOutlined style={{fontSize: 24, color: '#E85757'}}/>
+                      {checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />}
                     </StyledIconButton>
+                  )}
+                  {mobileLayout && (
+                    <div style={{marginLeft: '0.25rem'}} />
+                  )}
+                  {poked && (
+                    <Tooltip key='pokedRowKey'
+                             title={<FormattedMessage id='pokedBugExplanation' />}>
+                      <StyledIconButton
+                        classes={actionStyles}
+                      >
+                        <ReportOutlined style={{fontSize: 24, color: '#E85757'}}/>
+                      </StyledIconButton>
+                    </Tooltip>
+                  )}
+                </Box>
+                {replyNum > 1 ? <Tooltip key={`tipreplies${id}`}
+                                         title={intl.formatMessage({ id: 'numRepliesExplanation' })}>
+                  <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px', marginRight: '15px',
+                    backgroundColor: 'white' }}/>
+                </Tooltip>: React.Fragment}
+                {isNew ? (<TitleB>{title}</TitleB>) : titleWithHelp}
+                {isNew && (
+                  <Tooltip title={intl.formatMessage({ id: 'messagePresent' })}>
+                    <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
+                      marginLeft: '1rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '6px',
+                      paddingTop: '2px', maxHeight: '20px'}}
+                          onClick={(event) => {
+                            preventDefaultAndProp(event);
+                            const message = newMessages[0];
+                            if (message.highlighted_list !== undefined) {
+                              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { DEHIGHLIGHT_CRITICAL_EVENT,
+                                message: message.type_object_id,
+                                originalMessage: `${message.type}_${id}` });
+                            } else {
+                              dehighlightMessage(message, messagesDispatch);
+                            }
+                            navigate(history, formInboxItemLink(message));
+                          }}
+                          onMouseOver={(event) => {
+                            preventDefaultAndProp(event);
+                          }}
+                    >
+                      {_.size(newMessages)}
+                    </span>
                   </Tooltip>
                 )}
-              </Box>
-              {replyNum > 1 ? <Tooltip key={`tipreplies${id}`}
-                                       title={intl.formatMessage({ id: 'numRepliesExplanation' })}>
-                <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px', marginRight: '15px',
-                  backgroundColor: 'white' }}/>
-              </Tooltip>: React.Fragment}
-              {isNew ? (<TitleB>{title}</TitleB>) : titleWithHelp}
-              {isNew && (
-                <Tooltip title={intl.formatMessage({ id: 'messagePresent' })}>
-                  <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
-                    marginLeft: '1rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '6px',
-                    paddingTop: '2px', maxHeight: '20px'}}
-                        onClick={(event) => {
-                          preventDefaultAndProp(event);
-                          const message = newMessages[0];
-                          if (message.highlighted_list !== undefined) {
-                            pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { DEHIGHLIGHT_CRITICAL_EVENT,
-                              message: message.type_object_id,
-                              originalMessage: `${message.type}_${id}` });
-                          } else {
-                            dehighlightMessage(message, messagesDispatch);
-                          }
-                          navigate(history, formInboxItemLink(message));
-                        }}
-                        onMouseOver={(event) => {
-                          preventDefaultAndProp(event);
-                        }}
-                  >
-                    {_.size(newMessages)}
-                  </span>
-                </Tooltip>
-              )}
-              {mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>) :
-                (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}
-              {mobileLayout && !_.isEmpty(expansionPanel) && (
-                <div style={{paddingRight: '0.25rem'}}>
-                  {expansionOpen ? <ExpandLess /> : <ExpandMoreIcon /> }
-                </div>
-              )}
-              {!mobileLayout && (
-                <DateLabelHovered>
-                  {expansionOpen ? <TooltipIconButton
-                      icon={<ExpandLess />}
-                      size="small"
-                      noPadding
-                      translationId="rowCollapse"
-                    />
-                    : <TooltipIconButton
-                      icon={<ExpandMoreIcon />}
-                      size="small"
-                      noPadding
-                      translationId="rowExpand"
-                    />}
-                </DateLabelHovered>
-              )}
-            </Div>
-          </div>
-        </RaisedCard>
-      </Item>
+                {mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>) :
+                  (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}
+                {mobileLayout && !_.isEmpty(expansionPanel) && (
+                  <div style={{paddingRight: '0.25rem'}}>
+                    {expansionOpen ? <ExpandLess /> : <ExpandMoreIcon /> }
+                  </div>
+                )}
+                {!mobileLayout && (
+                  <DateLabelHovered>
+                    {expansionOpen ? <TooltipIconButton
+                        icon={<ExpandLess />}
+                        size="small"
+                        noPadding
+                        translationId="rowCollapse"
+                      />
+                      : <TooltipIconButton
+                        icon={<ExpandMoreIcon />}
+                        size="small"
+                        noPadding
+                        translationId="rowExpand"
+                      />}
+                  </DateLabelHovered>
+                )}
+              </Div>
+            </div>
+          </RaisedCard>
+        </Item>
+      )}
       <div id={`bugListItemExpansion${id}`} key={`bugListItemExpansionKey${id}`} draggable={false}
            style={{maxWidth: '96%', display: expansionOpen ? 'block' : 'none', paddingBottom: '0.5rem'}}>
         {expansionPanel || <React.Fragment />}

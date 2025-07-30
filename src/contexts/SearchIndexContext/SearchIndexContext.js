@@ -13,7 +13,7 @@ function SearchIndexProvider(props) {
     // See https://github.com/lucaong/minisearch/issues/225 - will not do middle of word search to keep space small
     const index = new MiniSearch({
       fields: ['title', 'body'],
-      storeFields: ['marketId'],
+      storeFields: ['marketId', 'type'],
       searchOptions: {
         boost: { title: 2 },
         fuzzy: 1,

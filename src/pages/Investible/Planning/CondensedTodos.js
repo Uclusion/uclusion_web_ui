@@ -64,7 +64,7 @@ function CondensedTodos(props) {
   const openComments = comments.filter((comment) => !comment.resolved);
   const resolvedComments = comments.filter((comment) => comment.resolved);
   const tabCommentsRaw = showOpen ? openComments : resolvedComments;
-  const tabComments = sortInProgress(_.orderBy(tabCommentsRaw, ['updated_at'], ['desc']));
+  const tabComments = sortInProgress(_.orderBy(tabCommentsRaw, ['updated_at', 'body'], ['desc', 'asc']));
 
   function getRows() {
     if (!sectionOpen) {
@@ -92,7 +92,7 @@ function CondensedTodos(props) {
       const checked = determinateChecked !== undefined ? determinateChecked : checkAll;
       return (
         <BugListItem id={id} replyNum={replies.length + 1} title={stripHTML(body)} useMinWidth={false}
-                     newMessages={getNewBugNotifications(comment, messagesState)}
+                     newMessages={isInbox ? undefined : getNewBugNotifications(comment, messagesState)}
                      date={intl.formatDate(updatedAt)}
                      useSelect={!isInbox} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} 

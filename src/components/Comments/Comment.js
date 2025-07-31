@@ -133,6 +133,9 @@ import EditIcon from '@material-ui/icons/Edit';
 import ListAltIcon from '@material-ui/icons/ListAlt';
 import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
 import { previousInProgress } from '../AddNewWizards/TaskInProgress/TaskInProgressWizard';
+import { getMarketClient } from '../../api/marketLogin';
+import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPanel';
+import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -497,6 +500,7 @@ function Comment(props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const mediumLayout = useMediaQuery('(min-width:1400px)');
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const intl = useIntl();
   const classes = useCommentStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
@@ -885,6 +889,20 @@ function Comment(props) {
               <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
             </div>
           )}
+        {isMyPokableComment(comment, presences, groupPresencesState, marketId) && (
+          <TooltipIconButton
+            disabled={operationRunning !== false}
+            onClick={(event) => {
+              preventDefaultAndProp(event);
+              setOperationRunning(true);
+              return getMarketClient(marketId).then((client) => client.users.pokeComment(comment.id).then(() => setOperationRunning(false)));
+            }}
+            icon={<NotificationsActive fontSize='small' /> }
+            size='small'
+            translationId='poke'
+            doFloatRight
+          />
+        )}
         {(myPresence.is_admin || isEditable) && enableActions && isDeletable && (
           <div style={{marginRight: '2rem'}}>
             <TooltipIconButton

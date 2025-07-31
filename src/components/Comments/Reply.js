@@ -50,12 +50,15 @@ import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
 import EditIcon from '@material-ui/icons/Edit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { Done, Eject } from '@material-ui/icons';
+import { Done, Eject, NotificationsActive } from '@material-ui/icons';
 import { resolveComment, updateComment } from '../../api/comments';
 import { previousInProgress } from '../AddNewWizards/TaskInProgress/TaskInProgressWizard';
 import { getNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
+import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
+import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPanel';
+import { getMarketClient } from '../../api/marketLogin';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -209,6 +212,7 @@ function Reply(props) {
   const [marketsState] = useContext(MarketsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
@@ -375,6 +379,20 @@ function Reply(props) {
             icon={<NotificationDeletion height={22} width={22} isRed />}
             size='small'
             translationId="commentRemoveLabel"
+            doFloatRight
+          />
+        )}
+        {isMyPokableComment(comment, presences, groupPresencesState, marketId) && (
+          <TooltipIconButton
+            disabled={operationRunning !== false}
+            onClick={(event) => {
+              preventDefaultAndProp(event);
+              setOperationRunning(true);
+              return getMarketClient(marketId).then((client) => client.users.pokeComment(comment.id).then(() => setOperationRunning(false)));
+            }}
+            icon={<NotificationsActive fontSize='small' /> }
+            size='small'
+            translationId='poke'
             doFloatRight
           />
         )}

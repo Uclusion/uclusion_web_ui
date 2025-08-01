@@ -66,6 +66,7 @@ export const screenStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
+    height: '100vh',
     overflowX: 'hidden'
   },
   container: {

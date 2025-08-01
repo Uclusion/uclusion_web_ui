@@ -190,7 +190,7 @@ export default function PlanningInvestibleNav(props) {
   const readyToStartChecked = operationRunning === `readyToStartCheckbox${investibleId}` ?
     !openForInvestment : openForInvestment;
   const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
-  const useInVoting = isInVoting;
+  const useInVoting = isInVoting && !isSingleUser;
 
   function assignToSingleUser() {
     const fullMoveStage = getAcceptedStage(marketStagesState, marketId);

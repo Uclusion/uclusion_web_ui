@@ -101,4 +101,5 @@ export function getStageNameForId(state, marketId, stageId, intl) {
   if (fullStage.allows_investment) {
     return intl.formatMessage({ id: 'planningInvestibleToVotingLabel' });
   }
+  return intl.formatMessage({id: 'blockedHeader'});
 }

@@ -623,7 +623,7 @@ function MarketMetaData(props) {
           },
         };
         if (isSingleUser && !isAssigned && fullMoveStage.allows_assignment) {
-          moveInfo.assignments = [userId];
+          moveInfo.stageInfo.assignments = [userId];
         }
         return stageChangeInvestible(moveInfo)
           .then((newInv) => {

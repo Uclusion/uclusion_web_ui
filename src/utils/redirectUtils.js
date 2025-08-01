@@ -11,6 +11,7 @@ import { getComment } from '../contexts/CommentsContext/commentsContextHelper';
 
 const REDIRECT_LOCAL_STORAGE_KEY = 'redirection';
 const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
+const GROUP_LOCAL_STORAGE_KEY = 'current_group';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
 const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
 const IS_INVITED = 'is_invited';
@@ -85,6 +86,11 @@ export function setCurrentWorkspace(location) {
   setUclusionLocalStorageItem(WORKSPACE_LOCAL_STORAGE_KEY, location);
 }
 
+export function setCurrentGroup(location) {
+  // There is no good reason for this to persist across logout
+  setUclusionLocalStorageItem(GROUP_LOCAL_STORAGE_KEY, location);
+}
+
 export function setUtm(utm) {
   setUclusionLocalStorageItem(UTM_LOCAL_STORAGE_KEY, utm);
 }
@@ -103,6 +109,10 @@ export function getIsInvited() {
 
 export function getCurrentWorkspace() {
   return getUclusionLocalStorageItem(WORKSPACE_LOCAL_STORAGE_KEY);
+}
+
+export function getCurrentGroup() {
+  return getUclusionLocalStorageItem(GROUP_LOCAL_STORAGE_KEY);
 }
 
 export function getUtm() {

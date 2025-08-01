@@ -22,9 +22,11 @@ import Sidebar from '../../components/Menus/Sidebar'
 import AddIcon from '@material-ui/icons/Add'
 import { Group, GroupOutlined, Inbox, MoreVert } from '@material-ui/icons';
 import {
+  getCurrentGroup,
   getCurrentWorkspace,
   getFirstWorkspace, getGroupForCommentId,
   getGroupForInvestibleId, getPlanningMarketId,
+  setCurrentGroup,
   setCurrentWorkspace
 } from '../../utils/redirectUtils';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext'
@@ -54,10 +56,12 @@ import { getComment } from '../../contexts/CommentsContext/commentsContextHelper
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import jwt_decode from 'jwt-decode';
 import { WARNING_COLOR } from '../../components/Buttons/ButtonConstants';
-import { fixName } from '../../utils/userFunctions';
+import { fixName, getMarketInfo } from '../../utils/userFunctions';
 import Gravatar from '../../components/Avatars/Gravatar';
 import OtherWorkspaceMenus from '../../pages/Home/OtherWorkspaceMenus';
 import { findMessagesForGroupId } from '../../utils/messageUtils';
+import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 
 export const screenStyles = makeStyles((theme) => ({
   hidden: {
@@ -179,22 +183,48 @@ export const screenStyles = makeStyles((theme) => ({
 
 function isAutonomousGroupCheck(group, marketId, marketPresences, groupPresencesState) {
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
-    group.id) || [];
+    group?.id) || [];
   return isAutonomousGroup(groupPresences, group);
 }
 
+export function getActiveGroupId(myPresence, groupsState, marketId, marketPresences, groupPresencesState, useGroupId, investibleId, 
+  investiblesState) {
+  let activeGroupId = useGroupId;
+  // This is to correct to an autonomous group - not generate a group ID where there is none
+  if (useGroupId) {
+    const clickedGroupId = getCurrentGroup();
+    if (clickedGroupId && investibleId && clickedGroupId !== useGroupId) {
+      const clickedGroup = getGroup(groupsState, marketId, clickedGroupId);
+      const clickedGroupIsAutonomous = isAutonomousGroupCheck(clickedGroup, marketId, marketPresences, groupPresencesState);
+      if (clickedGroupIsAutonomous) {
+        const investible = getInvestible(investiblesState, investibleId);
+        const marketInfo = getMarketInfo(investible, marketId) || {};
+        const { assigned } = marketInfo;
+        const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, useGroupId) || [];
+        if (assigned?.includes(myPresence.id)) {
+          activeGroupId = clickedGroupId;
+        } else if (_.isEmpty(assigned) && !_.isEmpty(groupPresences.find((presence) => presence.id === myPresence.id))) {
+          activeGroupId = clickedGroupId;
+        }
+      }
+    }
+  }
+  return activeGroupId;
+}
+
 export function getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
-  history, market, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups,
-  onGroupClick, pathname, resetFunction, action, type, classes, mobileLayout, messagesState) {
+  history, market, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups, pathname, resetFunction, action, 
+  type, classes, mobileLayout, messagesState, investiblesState, investibleId) {
   const marketId = market.id;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const itemsSorted = _.sortBy(groupsState[marketId],
     (group) => isAutonomousGroupCheck(group, marketId, marketPresences, groupPresencesState), 'name');
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const itemsRaw = itemsSorted.map((group) => {
-    const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
-      group.id) || [];
-    const isChosen = group.id === useGroupId;
+    const activeGroupId = getActiveGroupId(myPresence, groupsState, marketId, marketPresences, groupPresencesState, useGroupId, investibleId, 
+      investiblesState);
+    const isChosen = group.id === activeGroupId;
+    const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, group.id) || [];
     if (_.isEmpty(groupPresences)) {
       inactiveGroups.push(group);
       if (!isChosen) {
@@ -231,10 +261,7 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
       onClickFunc: (event) => {
         if (!mobileLayout) {
           preventDefaultAndProp(event);
-        }
-        if (onGroupClick) {
-          onGroupClick();
-        }
+        } 
         if (outsetAvailable) {
           const dialogOutset = document.getElementById('dialogOutset');
           const dialogOutsetBuffer = document.getElementById('dialogOutsetBuffer');
@@ -247,6 +274,7 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
             dialogOutsetBuffer.style.display = 'block';
           }
         } else {
+          setCurrentGroup(group.id);
           navigate(history, formMarketLink(marketId, group.id));
         }
       },
@@ -408,11 +436,11 @@ function Screen(props) {
   const inactiveGroups = [];
   const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])&&!isArchivedWorkspace) {
-    const { onGroupClick, useHoverFunctions, resetFunction } = navigationOptions || {};
+    const { useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, useHoverFunctions, search,
-      results, openMenuItems, inactiveGroups, onGroupClick, pathname, resetFunction, action, type, classes, mobileLayout, 
-      messagesState);
+      results, openMenuItems, inactiveGroups, pathname, resetFunction, action, type, classes, mobileLayout, messagesState, 
+      investiblesState, investibleId);
   }
   const inboxCount = getInboxCount(messagesState);
   const inboxCountTotal = inboxCount > 0 ? undefined :

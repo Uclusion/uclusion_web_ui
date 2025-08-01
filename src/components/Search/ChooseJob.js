@@ -70,7 +70,6 @@ function ChooseJob(props) {
     const { investible } = inv;
     return results.find((item) => item.id === investible.id);
   });
-  // TODO THIS IS STUPID order by date and then name
   const investibles = _.orderBy(investiblesRaw, [(investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned } = marketInfo;

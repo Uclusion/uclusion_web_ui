@@ -106,6 +106,9 @@ function JobWizard(props) {
             changeInvestibleStageOnCommentOpen(investibleBlocks, !investibleBlocks, marketStagesState,
               inv.market_infos, inv.investible, investibleDispatch, movedComments[0], myPresence);
           }
+        } else if (isExistingToInv) {
+          changeInvestibleStageOnCommentOpen(false, false, marketStagesState, inv.market_infos, inv.investible, investibleDispatch, 
+            movedComments[0], myPresence);
         }
         onCommentsMove(fromCommentIds, messagesState, movingComments, investibleId, commentsDispatch, marketId,
           movedComments, messagesDispatch);

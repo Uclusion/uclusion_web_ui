@@ -70,6 +70,7 @@ function ChooseJob(props) {
     const { investible } = inv;
     return results.find((item) => item.id === investible.id);
   });
+  // TODO THIS IS STUPID order by date and then name
   const investibles = _.orderBy(investiblesRaw, [(investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned } = marketInfo;
@@ -77,7 +78,11 @@ function ChooseJob(props) {
       return 1;
     }
     return 0;
-  }, (investible) => investible.investible.name], ['desc', 'asc']);
+  }, (investible) => {
+    const marketInfo = getMarketInfo(investible, marketId);
+    const { last_stage_change_date: lastStageChangeDate } = marketInfo;
+    return new Date(lastStageChangeDate);
+  }, (investible) => investible.investible.name], ['desc', 'desc', 'asc']);
 
   const { investibleId } = formData;
 

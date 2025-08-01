@@ -20,7 +20,8 @@ export function useEditor (name, spec) {
     onChange,
     onImageDeletion,
     buttons,
-    autoFocus
+    autoFocus,
+    maxHeight
   } = spec;
 
   useEffect(() => {
@@ -74,6 +75,7 @@ export function useEditor (name, spec) {
       simple={simple}
       noToolbar={noToolbar}
       buttons={buttons}
+      maxHeight={maxHeight}
     />
   );
   return [editor, resetBinder(name)];

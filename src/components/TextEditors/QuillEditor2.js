@@ -78,6 +78,7 @@ function QuillEditor2 (props) {
     mentionsAllowed,
     placeholder,
     noOverflow,
+    maxHeight,
     backgroundColor,
     buttons = React.Fragment
   } = props;
@@ -229,7 +230,7 @@ function QuillEditor2 (props) {
     <div
       id={`${useCssId}scroll`}
       style={{
-        maxHeight: noOverflow ? undefined : '50vh',
+        maxHeight: maxHeight || (noOverflow ? undefined : '50vh'),
         overflowY: noOverflow ? undefined : 'auto',
       }}
     >

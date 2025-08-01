@@ -92,6 +92,7 @@ function JobDescriptionStep (props) {
     value: getQuillStoredState(editorName),
     marketId,
     autoFocus: true,
+    maxHeight: '300px',
     onUpload: setUploadedFiles,
     onChange: () => { setHasValue(!editorEmpty(getQuillStoredState(editorName))); },
   };
@@ -271,9 +272,7 @@ function JobDescriptionStep (props) {
           })}
         </RadioGroup>
       </FormControl>
-      <div style={{maxHeight: '300px', overflowY: 'auto', overflowX: 'hidden'}}>
-        {Editor}
-      </div>
+      {Editor}
       <div className={classes.borderBottom} />
       <WizardStepButtons
         {...props}

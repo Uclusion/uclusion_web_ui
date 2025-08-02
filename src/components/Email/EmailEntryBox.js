@@ -250,10 +250,7 @@ class EmailEntryBox extends React.Component{
           ref={this.inputRef}
           suppressContentEditableWarning={true}
           onKeyDown={this.onKeyDown}
-          onClick={(event) => {
-            const placeholder = this.getPlaceholder(event.target);
-            placeholder?.remove();
-          }}>
+        >
           <span id="placeholder" style={this.wizardStyles.placeholder} contentEditable="false">{this.placeholder}</span>
         </div>
         <div id={ENTRY_BOX_ERROR_ID} style={{height: '1rem', color:'#E85757'}}/>

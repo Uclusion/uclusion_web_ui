@@ -889,7 +889,7 @@ function Comment(props) {
               <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
             </div>
           )}
-        {isMyPokableComment(comment, presences, groupPresencesState, marketId) && (
+        {isMyPokableComment(comment, presences, groupPresencesState, marketId) && enableActions && isEditable && !beingEdited && (
           <TooltipIconButton
             disabled={operationRunning !== false}
             onClick={(event) => {

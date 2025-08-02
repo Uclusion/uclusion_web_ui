@@ -382,7 +382,7 @@ function Reply(props) {
             doFloatRight
           />
         )}
-        {isMyPokableComment(comment, presences, groupPresencesState, marketId) && (
+        {isMyPokableComment(comment, presences, groupPresencesState, marketId) && enableEditing && isEditable && !isSubTask && (
           <TooltipIconButton
             disabled={operationRunning !== false}
             onClick={(event) => {

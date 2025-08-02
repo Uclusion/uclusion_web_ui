@@ -49,6 +49,7 @@ function ChooseJob(props) {
   const [searchQuery, setSearchQuery] = useState(undefined);
   const [isAssignedToMe, setIsAssignedToMe] = useState(false);
   const [isActive, setIsActive] = useState(true);
+  const [isSameView, setIsSameView] = useState(true);
   const marketStages = getStages(marketStagesState, marketId);
   const activeMarketStages = isActive ? marketStages.filter((stage) => {
     return !isInReviewStage(stage) && !isNotDoingStage(stage);
@@ -62,7 +63,7 @@ function ChooseJob(props) {
     const marketInfo = getMarketInfo(inv, marketId);
     const { investible } = inv;
     const { group_id: investibleGroupId, stage: investibleStageId, assigned } = marketInfo || {};
-    return investibleGroupId === groupId && !excluded.includes(investible.id) &&
+    return (investibleGroupId === groupId || !isSameView) && !excluded.includes(investible.id) &&
       marketStageIds.includes(investibleStageId) && (!isAssignedToMe || assigned?.includes(userId));
   });
   const results = _.isEmpty(searchQuery) ? undefined : (getSearchResults(index, searchQuery) || []);
@@ -96,6 +97,10 @@ function ChooseJob(props) {
 
   function toggleActive() {
     setIsActive(!isActive);
+  }
+
+  function toggleIsSameView() {
+    setIsSameView(!isSameView);
   }
 
   function renderInvestibleItem(inv) {
@@ -161,6 +166,13 @@ function ChooseJob(props) {
           <Checkbox
             checked={isAssignedToMe}
             onClick={toggleAssignedToMe}
+          />
+        </ListItemText>
+        <ListItemText>
+          {intl.formatMessage({ id: 'sameView' })}
+          <Checkbox
+            checked={isSameView}
+            onClick={toggleIsSameView}
           />
         </ListItemText>
       </ListItem>

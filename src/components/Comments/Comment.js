@@ -739,7 +739,7 @@ function Comment(props) {
       (isNote ? <FormattedMessage id="reportNote" /> : undefined ) ));
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
-  const showActions = !replyBeingEdited || replies.length > 0;
+  const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;
   function getCommentHighlightStyle() {
     if (isInbox) {
       if (!inboxMessageId || inboxMessageId === id) {

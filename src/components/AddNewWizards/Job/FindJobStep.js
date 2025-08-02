@@ -17,7 +17,7 @@ function FindJobStep(props) {
   const classes = useContext(WizardStylesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const { investibleId } = formData;
-  const currentInvestibleId = roots[0].investible_id;
+  const currentInvestibleId = roots[0]?.investible_id;
 
   function onTerminate() {
     let checkedString;

@@ -39,8 +39,9 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import _ from 'lodash';
 import Approval from '../../../components/CustomChip/Approval';
 import EditNote from '../../../components/CustomChip/EditNote';
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 
-function getPriorityIcon(message, isAssigned, isMentioned) {
+function getPriorityIcon(message, isAssigned, isMentioned, originalComment) {
   const { level, link_type: linkType, is_highlighted: isHighlighted, decision_investible_id: decisionInvestibleId,
     market_type: marketType, alert_type: alertType, poked_list: pokedList } = message;
   let Icon = Quiz;
@@ -76,9 +77,9 @@ function getPriorityIcon(message, isAssigned, isMentioned) {
     }
   }
   if (['ISSUE', 'UNREAD_COMMENT'].includes(message.type)) {
-    if (linkType.includes('QUESTION')) {
+    if (linkType.includes('QUESTION')||originalComment?.comment_type === QUESTION_TYPE) {
       Icon = QuestionIcon;
-    } else if (linkType.includes('SUGGEST')) {
+    } else if (linkType.includes('SUGGEST')||originalComment?.comment_type === SUGGEST_CHANGE_TYPE) {
       Icon = LightbulbOutlined;
     } else if ('INVESTIBLE_REVIEW' === linkType) {
       Icon = ListAltIcon;
@@ -183,7 +184,7 @@ function InboxRow(props) {
     }
   }
   const isMentioned = originalComment?.mentions?.find((mention) => mention.user_id === userId);
-  item.icon = getPriorityIcon(message, isAssigned, isMentioned);
+  item.icon = getPriorityIcon(message, isAssigned, isMentioned, originalComment);
 
   if (rootComment?.resolved && !typeObjectId?.includes('UNREAD_RESOLVED') && !typeObjectId?.includes('UNREAD_REPLY')) {
     console.warn('Notification out of date with a resolved comment')

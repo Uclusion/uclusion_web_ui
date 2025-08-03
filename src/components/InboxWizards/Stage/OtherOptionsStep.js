@@ -49,7 +49,7 @@ function OtherOptionsStep(props) {
         investibleId={investibleId}
         marketPresences={marketPresences}
         investmentReasons={investmentReasons}
-        showExpiration={true}
+        showExpiration
         expirationMinutes={market.investment_expiration * 1440}
         yourPresence={marketPresences.find((presence) => presence.current_user)}
         market={market}

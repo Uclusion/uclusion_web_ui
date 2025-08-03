@@ -101,7 +101,7 @@ const useVoteStyles = makeStyles(
  * @constructor
  */
 function Voting(props) {
-  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, yourPresence, market,
+  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, yourPresence, market, showDeleted,
     isInbox, groupId, useCompression, showEmptyText, toggleCompression=() => {}} = props;
   const history = useHistory();
   const theme = useTheme();
@@ -112,7 +112,7 @@ function Voting(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useVoteStyles();
-  const voters = useInvestibleVoters(marketPresences, investibleId, market.id, !showExpiration);
+  const voters = useInvestibleVoters(marketPresences, investibleId, market.id, showDeleted);
   const sortedVoters = _.sortBy(voters, 'quantity', 'updatedAt');
 
   function remove(event) {

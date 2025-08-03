@@ -10,9 +10,9 @@ import { usePresences } from '../../../contexts/MarketPresencesContext/marketPre
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { getNotDoingStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { getComment, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getInvestibleComments, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { REPLY_TYPE } from '../../../constants/comments';
+import { REPLY_TYPE, TODO_TYPE } from '../../../constants/comments';
 
 export function previousInProgress(userId, currentComment, investibleState, commentsState, notDoingStageId) {
   const currentCommentId = currentComment?.id;
@@ -43,21 +43,24 @@ export function previousInProgress(userId, currentComment, investibleState, comm
 }
 
 function TaskInProgressWizard(props) {
-  const { marketId, commentId } = props;
+  const { marketId, commentId, investibleId } = props;
   const [investibleState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const presences = usePresences(marketId);
-  const comment = getComment(commentsState, marketId, commentId);
+  const comment = commentId ? getComment(commentsState, marketId, commentId) : undefined;
   const myPresence = presences.find((presence) => presence.current_user);
   const notDoingStage = getNotDoingStage(marketStagesState, marketId)
-  const otherInProgressRaw = previousInProgress(myPresence?.id, comment, investibleState, commentsState
-    , notDoingStage?.id);
+  const otherInProgressRaw = commentId ? previousInProgress(myPresence?.id, comment, investibleState, commentsState
+    , notDoingStage?.id) : undefined;
   // For subtasks don't encourage taking the root task out of progress
-  const otherInProgress = comment?.comment_type === REPLY_TYPE ?
-    otherInProgressRaw.filter((aComment) => aComment.id !== comment?.root_comment_id) : otherInProgressRaw;
+  const otherInProgress = commentId ? (comment?.comment_type === REPLY_TYPE ?
+    otherInProgressRaw.filter((aComment) => aComment.id !== comment?.root_comment_id) : otherInProgressRaw) : undefined;
+  const investibleComments = investibleId ? getInvestibleComments(investibleId, marketId, commentsState) : undefined;
+  const tasksInProgress = investibleComments?.filter((comment) => !comment.resolved && !comment.deleted && 
+    comment.comment_type === TODO_TYPE && comment.in_progress);
 
-  if (_.isEmpty(otherInProgress)) {
+  if (_.isEmpty(otherInProgress||tasksInProgress)) {
     return React.Fragment;
   }
 
@@ -65,7 +68,7 @@ function TaskInProgressWizard(props) {
     <WizardStylesProvider>
       <FormdataWizard name={`task_in_progress_wizard${comment?.investible_id}`}
                       defaultFormData={{useCompression: true}} useLocalStorage={false}>
-          <RemoveInProgressStep otherInProgress={otherInProgress} comment={comment} />
+          <RemoveInProgressStep otherInProgress={otherInProgress || tasksInProgress} comment={comment} marketId={marketId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

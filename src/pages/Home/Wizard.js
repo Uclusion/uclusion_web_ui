@@ -124,7 +124,7 @@ function Wizard(props) {
         <ReplyWizard marketId={marketId} commentId={commentId} />
       )}
       {createType === IN_PROGRESS_WIZARD_TYPE.toLowerCase() && (
-        <TaskInProgressWizard marketId={marketId} commentId={commentId} />
+        <TaskInProgressWizard marketId={marketId} commentId={commentId} investibleId={investibleId} />
       )}
       {createType === WORKSPACE_WIZARD_TYPE.toLowerCase() && (
         <WorkspaceWizard />

@@ -11,9 +11,10 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { updateComment } from '../../../api/comments';
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import _ from 'lodash';
 
 function RemoveInProgressStep (props) {
-  const { otherInProgress, comment, formData, updateFormData } = props;
+  const { otherInProgress, comment, formData, updateFormData, marketId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
@@ -29,10 +30,15 @@ function RemoveInProgressStep (props) {
         addCommentToMarket(modifiedComment, commentsState, commentsDispatch);
       });
       promises.push(promise);
-    })
+    });
     return Promise.all(promises).then(() => {
       setOperationRunning(false);
-      navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
+      if (_.isEmpty(comment)) {
+        // Just go back where came from
+        navigate(history);
+      } else {
+        navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
+      }
     });
   }
 
@@ -41,16 +47,25 @@ function RemoveInProgressStep (props) {
       {...props}
       isLarge
     >
-      <Typography className={classes.introText} variant="h6">
-        Remove others from in progress?
-      </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        If the task just put in progress is the only one active, then turn off in progress for the rest.
-      </Typography>
+      {_.isEmpty(comment) && (
+        <Typography className={classes.introText} variant="h6">
+         Remove tasks in progress?
+       </Typography>
+      )}
+      {!_.isEmpty(comment) && (
+        <Typography className={classes.introText} variant="h6">
+         Remove others from in progress?
+       </Typography>
+      )}
+      {!_.isEmpty(comment) && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          If the task just put in progress is the only one active, then turn off in progress for the rest.
+        </Typography>
+      )}
       <div className={classes.wizardCommentBoxDiv}>
         <CommentBox
           comments={otherInProgress}
-          marketId={comment.market_id}
+          marketId={marketId}
           allowedTypes={[]}
           isInbox
           removeActions
@@ -66,8 +81,14 @@ function RemoveInProgressStep (props) {
         nextLabel='removeInProgress'
         onNext={removeInProgress}
         showTerminate
-        onTerminate={() => navigate(history, formCommentLink(comment.market_id, comment.group_id,
-          comment.investible_id, comment.id))}
+        onTerminate={() => {
+          if (_.isEmpty(comment)) {
+            // Just go back where came from
+            navigate(history);
+          } else {
+            navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
+          }
+        }}
         terminateLabel="OnboardingWizardGoBack"
       />
     </WizardStepContainer>

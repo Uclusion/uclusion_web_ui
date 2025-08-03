@@ -47,6 +47,7 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import {
   APPROVAL_WIZARD_TYPE,
+  IN_PROGRESS_WIZARD_TYPE,
   JOB_APPROVERS_WIZARD_TYPE,
   JOB_ASSIGNEE_WIZARD_TYPE,
   JOB_COLLABORATOR_WIZARD_TYPE,
@@ -129,7 +130,9 @@ export default function PlanningInvestibleNav(props) {
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const hasBlockingIssue = !_.isEmpty(investibleComments.find((comment) => comment.comment_type === ISSUE_TYPE
-    && !comment.resolved))
+    && !comment.resolved && !comment.deleted))
+  const tasksInProgress = investibleComments.find((comment) => !comment.resolved && !comment.deleted && 
+    comment.comment_type === TODO_TYPE && comment.in_progress);
   const allowableGroups = groupsState[marketId]?.filter((group) => {
     if (_.isEmpty(assigned)) {
       return true;
@@ -256,6 +259,7 @@ export default function PlanningInvestibleNav(props) {
         isSingleUser={isSingleUser}
         yourVote={yourVote}
         userId={userId}
+        tasksInProgress={tasksInProgress}
       />
       {market.id && marketInvestible.investible && (!isSingleUser || isFurtherWork) && (
         <div className={clsx(classes.group, classes.assignments)}>
@@ -558,7 +562,8 @@ function MarketMetaData(props) {
     isAssigned,
     isSingleUser,
     yourVote,
-    userId
+    userId,
+    tasksInProgress
   } = props;
   const intl = useIntl()
   const {
@@ -630,6 +635,9 @@ function MarketMetaData(props) {
             onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, market.id, commentsState,
               commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined, fullMoveStage, marketPresencesDispatch);
             setOperationRunning(false);
+            if (!_.isEmpty(tasksInProgress) && fullMoveStage.allows_investment) {
+              navigate(history, formWizardLink(IN_PROGRESS_WIZARD_TYPE, market.id, investibleId));
+            }
           });
       }
     }

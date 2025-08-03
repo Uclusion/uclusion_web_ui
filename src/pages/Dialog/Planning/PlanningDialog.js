@@ -385,17 +385,18 @@ function PlanningDialog(props) {
 
   function onDropJob(id, isAssigned) {
     if (isAssigned) {
-      if (isAutonomous) {
+      if (isSingleUser) {
         // If autonomous and you are not in the group then this is a no op
         const inv = getInvestible(investibleState, id);
         const marketInfo = getMarketInfo(inv, marketId) || {};
         if (marketInfo.stage !== acceptedStage.id) {
+          const fullMoveStage = !_.isEmpty(myGroupPresence) ? acceptedStage : inDialogStage;
           const moveInfo = {
             marketId,
             investibleId: id,
             stageInfo: {
               current_stage_id: marketInfo.stage,
-              stage_id: !_.isEmpty(myGroupPresence) ? acceptedStage.id : inDialogStage.id,
+              stage_id: fullMoveStage.id,
               assignments: [myGroupPresence.id]
             },
           };

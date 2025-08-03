@@ -54,7 +54,7 @@ import {
   findMessageOfTypeAndId,
   findMessagesForInvestibleId
 } from '../../../utils/messageUtils';
-import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
+import { IN_PROGRESS_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import DragImage from '../../../components/Dialogs/DragImage';
 import UsefulRelativeTime from '../../../components/TextFields/UseRelativeTime';
 import { isInPast } from '../../../utils/timerUtils';
@@ -65,6 +65,7 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { useCollaborators } from '../../Investible/Planning/PlanningInvestible';
 import PlanningJobMenu from './PlanningJobMenu';
+import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -196,6 +197,13 @@ function PlanningIdeas(props) {
           // Prompt for approval
           navigate(history,
             `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${inDialogStageId}&isAssign=false`);
+        } else {
+          const investibleComments = getInvestibleComments(investibleId, marketId, commentsState);
+          const tasksInProgress = investibleComments.find((comment) => !comment.resolved && !comment.deleted && 
+                comment.comment_type === TODO_TYPE && comment.in_progress);
+          if (!_.isEmpty(tasksInProgress)) {
+            navigate(history, formWizardLink(IN_PROGRESS_WIZARD_TYPE, marketId, investibleId));
+          }
         }
       });
     }

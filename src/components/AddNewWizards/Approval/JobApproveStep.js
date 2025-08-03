@@ -42,7 +42,7 @@ function JobApproveStep(props) {
   const { required_approvers: requiredApprovers, assigned, stage } = marketInfo;
   const editorName = getJobApproveEditorName(investibleId);
   const {approveUploadedFiles, approveReason, approveQuantity, originalQuantity, wasDeleted, userId,
-    originalReason} = formData;
+    originalReason, approveReasonVersion} = formData;
   const validForm = approveQuantity > 0;
   const isAssignedToMe = assigned?.includes(userId);
 
@@ -74,7 +74,8 @@ function JobApproveStep(props) {
       newReasonText: tokensRemoved,
       currentReasonId,
       reasonNeedsUpdate,
-      uploadedFiles: filteredUploads
+      uploadedFiles: filteredUploads,
+      version: approveReasonVersion
     };
     return updateInvestment(updateInfo).then((result) => {
       doQuick(result);

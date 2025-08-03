@@ -46,7 +46,7 @@ function StageActionStep(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { required_approvers: requiredApprovers, assigned } = marketInfo;
   const {approveUploadedFiles, approveReason, approveQuantity, stage, wasDeleted,
-    originalReason, originalQuantity, userId } = formData;
+    originalReason, originalQuantity, userId, approveReasonVersion } = formData;
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage);
   const validForm = approveQuantity > 0;
   const isAssignedToMe = assigned?.includes(userId);
@@ -89,7 +89,8 @@ function StageActionStep(props) {
       newReasonText: tokensRemoved,
       currentReasonId,
       reasonNeedsUpdate,
-      uploadedFiles: filteredUploads
+      uploadedFiles: filteredUploads,
+      version: approveReasonVersion
     };
     return updateInvestment(updateInfo).then((result) => {
       doQuick(result);

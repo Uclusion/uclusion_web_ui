@@ -90,7 +90,8 @@ function JobApproveStep(props) {
       currentQuantity: yourVote && !wasDeleted ? yourVote.quantity : 0,
       newReasonText: tokensRemoved,
       reasonNeedsUpdate,
-      uploadedFiles: filteredUploads
+      uploadedFiles: filteredUploads,
+      version: yourReason?.version
     };
     if (!reasonNeedsUpdate && yourVote) {
       updateInfo.currentReasonId = yourVote.comment_id;

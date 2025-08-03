@@ -109,7 +109,8 @@ function AddEditVote(props) {
     approveQuantity,
     uploadedFiles,
     originalQuantity,
-    originalReason
+    originalReason,
+    approveReasonVersion
   } = formData;
   const intl = useIntl();
   const classes = useStyles();
@@ -149,7 +150,8 @@ function AddEditVote(props) {
       newReasonText: reasonText,
       currentReasonId,
       reasonNeedsUpdate,
-      uploadedFiles: filteredUploads
+      uploadedFiles: filteredUploads,
+      verson: approveReasonVersion
     };
 
     return updateInvestment(updateInfo).then(result => {

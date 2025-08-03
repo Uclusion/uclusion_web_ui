@@ -96,7 +96,7 @@ function JobStageWizard(props) {
                       defaultFormData={{approveQuantity: Math.abs(approveQuantity), originalQuantity: approveQuantity,
                         wasDeleted: yourVote?.deleted, userId: yourPresence?.id, approveReason: originalReason,
                         originalReason, stage: useStageId ? useStageId : undefined, stageWasSet: !!useStageId,
-                        useCompression: true, originalAssigned: assigned}}>
+                        useCompression: true, originalAssigned: assigned, approveReasonVersion: yourReason?.version}}>
         {isAssign === 'true' && (
           <JobAssignStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
                          requiresAction={myRequiresAction} />

@@ -32,7 +32,7 @@ function DecisionApproveStep(props) {
   const classes = useContext(WizardStylesContext);
   const editorName = getJobApproveEditorName(investibleId);
   const marketId = market.id;
-  const {approveUploadedFiles, approveReason, approveQuantity, originalQuantity, wasDeleted, originalReason} = formData;
+  const {approveUploadedFiles, approveReason, approveReasonVersion, approveQuantity, originalQuantity, wasDeleted, originalReason} = formData;
   const validForm = approveQuantity > 0;
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId,
     allow_multi_vote: allowsMultiple } = market;
@@ -61,7 +61,8 @@ function DecisionApproveStep(props) {
       newReasonText: tokensRemoved,
       currentReasonId,
       reasonNeedsUpdate,
-      uploadedFiles: filteredUploads
+      uploadedFiles: filteredUploads,
+      version: approveReasonVersion
     };
     return updateInvestment(updateInfo).then((result) => {
       doQuick(result);

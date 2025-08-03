@@ -47,7 +47,8 @@ export function updateInvestment(updateInfo) {
     newReasonText,
     newMentions,
     reasonNeedsUpdate,
-    uploadedFiles
+    uploadedFiles,
+    version
   } = updateInfo;
   let globalClient;
   return getMarketClient(marketId)
@@ -61,8 +62,8 @@ export function updateInvestment(updateInfo) {
                 return { commentAction: 'DELETED', comment }
               });
           }
-          return client.investibles.updateComment(currentReasonId, newReasonText, false, uploadedFiles)
-            .then((comment) => {
+          return client.investibles.updateComment(currentReasonId, newReasonText, false, uploadedFiles, undefined, undefined, undefined, undefined,
+            undefined, undefined, undefined, undefined, undefined, version).then((comment) => {
               return {
                 commentAction: 'UPDATED',
                 comment,

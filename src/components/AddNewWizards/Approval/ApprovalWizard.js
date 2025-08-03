@@ -61,7 +61,7 @@ function ApprovalWizard(props) {
   const hasOtherVote = yourPresence?.investments?.find((investment) => investment.investible_id !== investibleId);
   const yourReason = getReasonForVote(yourVote, marketComments);
   const wasDeleted = yourVote?.deleted;
-  const { body } = yourReason || {};
+  const { body, version } = yourReason || {};
   const approveQuantity = yourVote?.quantity || 0;
   if (!marketType) {
     return React.Fragment;
@@ -72,7 +72,7 @@ function ApprovalWizard(props) {
       <FormdataWizard name={`approval_wizard${investibleId}`} useLocalStorage={false}
                       defaultFormData={{approveQuantity: Math.abs(approveQuantity),
                         originalQuantity: approveQuantity, wasDeleted, useCompression: true,
-                        userId: yourPresence?.id, approveReason: originalReason, originalReason}}>
+                        userId: yourPresence?.id, approveReason: originalReason, approveReasonVersion: version,  originalReason}}>
         {marketType === PLANNING_TYPE && (
           <JobApproveStep marketId={marketId} groupId={groupId} investibleId={investibleId}
                           currentReasonId={yourReason?.id} />

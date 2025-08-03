@@ -71,18 +71,19 @@ function AddInitialVote(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const [editor, setEditor] = useState(null);
+  const myEditor = <QuillEditor2
+  id={editorName}
+  marketId={marketId}
+  value={getQuillStoredState(editorName) || defaultReason}
+  placeholder={intl.formatMessage({ id: "yourReason" })}
+/>;
+  const [editor, setEditor] = useState(newQuantity > 0 ? myEditor : null);
   const classes = useStyles();
   const certainties = [5, 25, 50, 75, 100];
   function myOnChange(event) {
-    if (_.isEmpty(newQuantity)) {
+    if (_.isEmpty(editor)) {
       // Have to do it like this so that they cannot type before choosing a certainty
-      setEditor(<QuillEditor2
-        id={editorName}
-        marketId={marketId}
-        value={getQuillStoredState(editorName) || defaultReason}
-        placeholder={intl.formatMessage({ id: "yourReason" })}
-      />);
+      setEditor(myEditor);
     }
     onChange(event);
     focusEditor(editorName);

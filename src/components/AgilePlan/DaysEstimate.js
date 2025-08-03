@@ -26,6 +26,7 @@ export function DaysEstimate(props) {
 
   const datePickerOpen = Boolean(anchorEl);
   const dueDate = value ? new Date(value) : undefined;
+  const overDue = dueDate && new Date() > dueDate;
 
   function getDueText () {
     if (_.isEmpty(value)) {
@@ -36,7 +37,7 @@ export function DaysEstimate(props) {
       );
     }
     return (
-      <Typography style={{marginRight: '0.5rem'}}>
+      <Typography style={{marginRight: '0.5rem', color: overDue ? 'red': undefined}}>
         {intl.formatMessage({ id: 'estimatedCompletionToday' })} <UsefulRelativeTime value={dueDate}/>
       </Typography>
     );

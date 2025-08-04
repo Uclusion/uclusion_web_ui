@@ -49,8 +49,7 @@ function DemoInviteStep (props) {
   const navListItemTextArray = [];
   const isSolo = market.name?.includes('solo');
   getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
-    history, market, marketId, undefined, undefined, undefined, undefined,
-    [], [], undefined, undefined, undefined,
+    history, market, marketId, marketId, undefined, undefined, undefined, undefined, [], [], undefined, undefined, undefined,
     undefined, undefined, screenClasses);
 
   return (

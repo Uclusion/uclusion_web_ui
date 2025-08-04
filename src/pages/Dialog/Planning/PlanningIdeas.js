@@ -579,13 +579,14 @@ function StageInvestible(props) {
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
   const isReviewable = isReview || showCompletion;
   const unreadEstimate = findMessageOfType('UNREAD_ESTIMATE', id, messagesState);
-  function requiresStatus(id) {
-    if (!_.isEmpty(findMessageOfTypeAndId(id, messagesState, 'REPORT'))) {
-      return true;
+  function requiresStatusMessage(id) {
+    const message = findMessageOfTypeAndId(id, messagesState, 'REPORT');
+    if (!_.isEmpty(message)) {
+      return message;
     }
-    return !_.isEmpty(findMessageOfType('REPORT_REQUIRED', id, messagesState));
+    return findMessageOfType('REPORT_REQUIRED', id, messagesState);
   }
-  const doesRequireStatus = requiresStatus(id);
+  const doesRequireStatusMessage = requiresStatusMessage(id);
 
   function getChip(labelNum, toolTipId) {
     const messagesRaw = findMessagesForInvestibleId(id, messagesState);
@@ -702,9 +703,16 @@ function StageInvestible(props) {
             </Typography>
           )}
           {chip}
-          {doesRequireStatus && (
+          {!_.isEmpty(doesRequireStatusMessage) && (
             <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
-            <span className={'MuiTabItem-tag'} style={{ marginLeft: '1rem', marginTop: '-0.1rem' }}>
+            <span className={'MuiTabItem-tag'} style={{ marginLeft: '1rem', marginTop: '-0.1rem' }} onClick={(event) => {
+                   if (isInInbox(doesRequireStatusMessage)) {
+                     preventDefaultAndProp(event);
+                     dehighlightMessage(doesRequireStatusMessage, messagesDispatch);
+                     navigate(history, formInboxItemLink(doesRequireStatusMessage));
+                   }
+                 }}
+            >
               <Schedule style={{fontSize: 24, color: '#F29100'}}/>
             </span>
             </Tooltip>

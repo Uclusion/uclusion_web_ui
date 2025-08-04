@@ -478,7 +478,10 @@ function sortSubTask(parentCreatedBy) {
   return (aComment) => aComment.created_by !== parentCreatedBy;
 }
 
-function isSubTask(comment, commentsState) {
+function isSubTask(comment, commentsState, isTask) {
+  if (!isTask) {
+    return false;
+  }
   const parent = getComment(commentsState, comment.market_id, comment.reply_id);
   return parent?.created_by === comment.created_by;
 }
@@ -734,7 +737,7 @@ function Comment(props) {
   const isNavigateToInbox = myHighlightedLevel && !isEditable && !replyEditId;
   const isNote = commentType === REPORT_TYPE && _.isEmpty(investibleId);
   const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> :
-    (commentType === REPLY_TYPE ? (isSubTask(comment, commentsState) ? <FormattedMessage id="commentSubTaskLabel" /> :
+    (commentType === REPLY_TYPE ? (isSubTask(comment, commentsState, isTask) ? <FormattedMessage id="commentSubTaskLabel" /> :
         <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> :
       (isNote ? <FormattedMessage id="reportNote" /> : undefined ) ));
   const color = isMarketTodo ? myNotificationType : undefined;

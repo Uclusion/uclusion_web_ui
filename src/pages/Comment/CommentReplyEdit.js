@@ -2,7 +2,7 @@ import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import React, { useContext, useState } from 'react';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
+import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import Screen from '../../containers/Screen/Screen';
 import { useLocation } from 'react-router';
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
@@ -10,6 +10,7 @@ import CommentBox from '../../containers/CommentBox/CommentBox';
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { getComment, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
+import { PLANNING_TYPE } from '../../constants/markets';
 
 function CommentReplyEdit(props) {
   const { hidden } = props;
@@ -23,8 +24,10 @@ function CommentReplyEdit(props) {
   const comment = getComment(commentsState, marketId, commentId) || {};
   const comments = [comment];
   const rootComment = getCommentRoot(commentsState, marketId, commentId);
+  const market = getMarket(marketsState, marketId);
+  const isPlanning = market?.market_type === PLANNING_TYPE;
   const isSubTask = rootComment?.id !== commentId && rootComment?.comment_type === TODO_TYPE && rootComment?.investible_id 
-  && comment.created_by === rootComment?.created_by;
+  && comment.created_by === rootComment?.created_by && isPlanning;
   const loading = !marketId || marketsState.initializing || !marketTokenLoaded(marketId, tokensHash);
   if (loading) {
     // Cannot allow Quill to try to display a picture without a market token

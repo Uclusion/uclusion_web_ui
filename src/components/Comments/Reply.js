@@ -43,6 +43,7 @@ import {
   DECISION_TYPE,
   DELETE_COMMENT_TYPE,
   IN_PROGRESS_WIZARD_TYPE,
+  PLANNING_TYPE,
   REPLY_WIZARD_TYPE
 } from '../../constants/markets';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -227,7 +228,7 @@ function Reply(props) {
   const { investible_id: investibleId, group_id: groupId } = comment || {};
   const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE, ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(rootComment?.comment_type)
     && !isInbox && market?.market_type !== DECISION_TYPE && !rootComment?.resolved;
-  const isSubTask = rootComment?.comment_type === TODO_TYPE && investibleId &&
+  const isSubTask = market?.market_type === PLANNING_TYPE && rootComment?.comment_type === TODO_TYPE && investibleId &&
     comment.created_by === rootComment?.created_by;
   const isTopLevelSubTask = isSubTask && rootComment?.id === comment.reply_id;
   const isMySubTask = isTopLevelSubTask && rootComment?.created_by === userId;

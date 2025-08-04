@@ -28,6 +28,9 @@ import { REPLY_TYPE, TODO_TYPE } from '../../../constants/comments';
 import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { PLANNING_TYPE } from '../../../constants/markets';
 
 export function hasReply(comment) {
   return hasCommentValue(comment.group_id, comment, 'CommentAddReply', undefined,
@@ -42,12 +45,14 @@ function ReplyStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [marketsState] = useContext(MarketsContext);
   const classes = useContext(WizardStylesContext);
   const presences = usePresences(marketId);
   const comment = getComment(commentState, marketId, commentId) || {};
   const { comment_type: commentType, created_by: createdById, investible_id: investibleId } = comment;
   const myPresence = presences.find((presence) => presence.current_user) || {};
-  const showSubTask = commentType === TODO_TYPE && myPresence.id === createdById && investibleId;
+  const market = getMarket(marketsState, marketId)
+  const showSubTask = market?.market_type === PLANNING_TYPE && commentType === TODO_TYPE && myPresence.id === createdById && investibleId;
   const inv = comment.investible_id ? getInvestible(investibleState, investibleId) : undefined;
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, comment?.group_id);

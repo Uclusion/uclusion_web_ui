@@ -55,7 +55,8 @@ function ReplyStep(props) {
   const [commentAddReplyState, updateCommentAddReplyState, commentAddStateReplyReset] =
     getPageReducerPage(commentAddReplyStateFull, commentAddReplyDispatch, commentId);
   const threadAboveIds = getThreadAboveIds(commentId, marketComments);
-  const comments = marketComments.filter((aComment) => threadAboveIds.includes(aComment.id));
+  const comments = showSubTask ? investibleComments.filter((aComment) => (aComment.reply_id === commentId || aComment.id === commentId) && 
+    myPresence.id === aComment.created_by) : marketComments.filter((aComment) => threadAboveIds.includes(aComment.id));
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};

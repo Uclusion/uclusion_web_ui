@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -37,7 +37,7 @@ function DecideUnblockStep(props) {
   const intl = useIntl();
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const comments = (commentState[marketId] || []).filter((comment) =>
+  const comments = getMarketComments(commentState, marketId).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const inv = commentRoot.investible_id ? getInvestible(investibleState, commentRoot.investible_id) : undefined;

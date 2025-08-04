@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
@@ -28,7 +28,7 @@ function DecideResponseStep(props) {
   const market = getMarket(marketsState, marketId) || {};
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
   const optionCommentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const optionComments = (commentState[marketId] || []).filter((comment) =>
+  const optionComments = getMarketComments(commentState, marketId).filter((comment) =>
     comment.root_comment_id === optionCommentRoot.id || comment.id === optionCommentRoot.id);
   const parentCommentRoot = getComment(commentState, parentMarketId, parentCommentId);
   const classes = wizardStyles();

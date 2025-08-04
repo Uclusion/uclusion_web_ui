@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { addCommentToMarket, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket, getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { dismissWorkListItem, removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
@@ -30,7 +30,7 @@ function DecideAcceptRejectStep(props) {
   const [marketStagesState] = useContext(MarketStagesContext);
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const comments = (commentState[marketId] || []).filter((comment) =>
+  const comments = getMarketComments(commentState, marketId).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const { useCompression } = formData;

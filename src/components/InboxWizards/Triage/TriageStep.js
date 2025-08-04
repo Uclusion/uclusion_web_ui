@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
-import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { useIntl } from 'react-intl';
 import { RED_LEVEL } from '../../../constants/notifications';
@@ -39,9 +39,8 @@ function TriageStep(props) {
   const { group_id: groupId } = commentRoot;
   const group = getGroup(groupState, marketId, groupId) || {};
   const { name: groupName } = group;
-  const comments = (commentState[marketId] || []).filter((comment) =>
-    comment.group_id === groupId && !comment.resolved && !comment.deleted && !comment.investible_id &&
-    comment.notification_type === RED_LEVEL);
+  const comments = getMarketComments(commentState, marketId, groupId).filter((comment) =>
+     !comment.resolved && !comment.investible_id && comment.notification_type === RED_LEVEL);
   const classes = wizardStyles();
   const pathToBugs = formatGroupLinkWithSuffix(MARKET_TODOS_HASH, marketId, groupId);
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId) || [];

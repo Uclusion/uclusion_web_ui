@@ -7,7 +7,8 @@ import WizardStepButtons from '../WizardStepButtons';
 import {
   addCommentToMarket,
   getComment,
-  getCommentRoot
+  getCommentRoot,
+  getMarketComments
 } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
@@ -36,7 +37,7 @@ function DecideResponseStep(props) {
   const intl = useIntl();
   const history = useHistory();
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const comments = (commentState[marketId] || []).filter((comment) =>
+  const comments = getMarketComments(commentState, marketId).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const { useCompression } = formData;

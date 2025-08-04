@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
-import { addCommentToMarket, getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket, getComment, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { useHistory } from 'react-router';
 import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -25,7 +25,7 @@ function OtherOptionsStep(props) {
   const intl = useIntl();
   const history = useHistory();
   const commentRoot = getComment(commentState, marketId, commentId) || {id: 'fake'};
-  const comments = (commentState[marketId] || []).filter((comment) =>
+  const comments = getMarketComments(commentState, marketId).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const { useCompression } = formData;

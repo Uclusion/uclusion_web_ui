@@ -11,13 +11,14 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function DecideVoteStep(props) {
   const { marketId, commentRoot, formData, updateFormData } = props;
   const [commentState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const comments = (commentState[marketId] || []).filter((comment) =>
+  const comments = getMarketComments(commentState, marketId).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const intl = useIntl();

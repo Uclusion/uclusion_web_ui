@@ -12,13 +12,14 @@ import { getLabelForTerminate } from '../../../utils/messageUtils';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useHistory } from 'react-router';
+import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function DisplayMarketStep(props) {
   const { marketId, commentId, commentRoot, message, formData, updateFormData } = props;
   const [commentState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
-  const comments = (commentState[marketId] || []).filter((comment) =>
+  const comments = getMarketComments(commentState, marketId).filter((comment) =>
     comment.root_comment_id === commentRoot?.id || comment.id === commentRoot?.id);
   const classes = wizardStyles();
   const intl = useIntl();

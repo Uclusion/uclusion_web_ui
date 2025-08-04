@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import WizardStepButtons from '../WizardStepButtons';
 import { formCommentLink } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import _ from 'lodash';
 import { moveComments } from '../../../api/comments';
@@ -26,7 +26,7 @@ function FindJobStep(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { investibleId } = formData;
   const commentRoot = getComment(commentState, marketId, commentId) || {id: 'fake'};
-  const comments = (commentState[marketId] || []).filter((comment) =>
+  const comments = getMarketComments(commentState, marketId).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const groupId = commentRoot.group_id;
 

@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -35,7 +35,7 @@ function DecideStartStep(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const commentRoot = getComment(commentState, marketId, commentId) || {id: 'fake'};
-  const comments = (commentState[marketId] || []).filter((comment) =>
+  const comments = getMarketComments(commentState, marketId).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const marketInvestibles = getMarketInvestibles(investiblesState, marketId) || [];

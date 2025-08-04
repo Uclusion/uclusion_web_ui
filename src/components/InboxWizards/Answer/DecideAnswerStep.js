@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { getComment, getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
@@ -25,7 +25,7 @@ function DecideAnswerStep(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const comments = (commentState[marketId] || []).filter((comment) =>
+  const comments = getMarketComments(commentState, marketId).filter((comment) => 
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const intl = useIntl();

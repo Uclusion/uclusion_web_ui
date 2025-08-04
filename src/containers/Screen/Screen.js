@@ -213,8 +213,8 @@ export function getActiveGroupId(myPresence, groupsState, marketId, marketPresen
 }
 
 export function getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
-  history, market, useGroupId, groupId, useHoverFunctions, search, results, openMenuItems, inactiveGroups, pathname, resetFunction, action, 
-  type, classes, mobileLayout, messagesState, investiblesState, investibleId) {
+  history, market, useGroupId, groupId, classes, useHoverFunctions, search, results, openMenuItems=[], inactiveGroups=[], pathname, resetFunction, action, 
+  type, mobileLayout, messagesState, investiblesState, investibleId) {
   const marketId = market.id;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const itemsSorted = _.sortBy(groupsState[marketId],
@@ -438,8 +438,8 @@ function Screen(props) {
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])&&!isArchivedWorkspace) {
     const { useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
-      history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, useHoverFunctions, search,
-      results, openMenuItems, inactiveGroups, pathname, resetFunction, action, type, classes, mobileLayout, messagesState, 
+      history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, classes, useHoverFunctions, search,
+      results, openMenuItems, inactiveGroups, pathname, resetFunction, action, type, mobileLayout, messagesState, 
       investiblesState, investibleId);
   }
   const inboxCount = getInboxCount(messagesState);

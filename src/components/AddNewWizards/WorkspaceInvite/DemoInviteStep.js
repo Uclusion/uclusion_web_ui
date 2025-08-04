@@ -48,9 +48,8 @@ function DemoInviteStep (props) {
   </svg>;
   const navListItemTextArray = [];
   const isSolo = market.name?.includes('solo');
-  getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
-    history, market, marketId, marketId, undefined, undefined, undefined, undefined, [], [], undefined, undefined, undefined,
-    undefined, undefined, screenClasses);
+  getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState, history, market, marketId, marketId, 
+    screenClasses);
 
   return (
     <WizardStepContainer

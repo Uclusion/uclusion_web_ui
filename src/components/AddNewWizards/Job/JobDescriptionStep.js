@@ -154,11 +154,9 @@ function JobDescriptionStep (props) {
       marketId,
       uploadedFiles: filteredUploads
     }
-    if (!isMovingTasks) {
-      const todos = extractTodosList(tokensRemoved);
-      if (!_.isEmpty(todos)) {
-        addInfo.todos = todos;
-      }
+    const todos = extractTodosList(tokensRemoved);
+    if (!_.isEmpty(todos)) {
+      addInfo.todos = todos;
     }
     if (readyToStart !== undefined) {
       addInfo.openForInvestment = readyToStart;
@@ -227,15 +225,13 @@ function JobDescriptionStep (props) {
       <Typography className={classes.introText}>
         How would you describe this job?
       </Typography>
-      {!isMovingTasks && (
-        <Typography className={classes.introSubText} variant="subtitle1" style={{marginBottom: 0}}>
-          Use a bullet list like below or add tasks later.
-          <ul>
-            <li>My first task.</li>
-            <li>My second task.</li>
-          </ul>
-        </Typography>
-      )}
+      <Typography className={classes.introSubText} variant="subtitle1" style={{marginBottom: 0}}>
+        Use a bullet list like below or add {isMovingTasks && 'additional'} tasks later.
+        <ul>
+          <li>My first task.</li>
+          <li>My second task.</li>
+        </ul>
+      </Typography>
       <FormControl>
         <FormLabel
           className={radioClasses.certaintyLabel}

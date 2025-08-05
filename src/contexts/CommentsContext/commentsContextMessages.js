@@ -15,7 +15,7 @@ import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessage
 import _ from 'lodash'
 import { addToIndex } from '../SearchIndexContext/searchIndexContextHelper';
 
-export function addCommentsOther(commentsDispatch, diffDispatch, index, ticketDispatch, comments) {
+export function addCommentsOther(diffDispatch, index, ticketDispatch, comments) {
   addToIndex(index, INDEX_COMMENT_TYPE, comments);
   const ticketCodeItems = [];
   let commentsMarketId = undefined;

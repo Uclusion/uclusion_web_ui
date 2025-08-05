@@ -54,7 +54,7 @@ export async function handleMarketData(marketData, dispatchers) {
   });
   addPresences(presenceDispatch, market, presences);
   addInvestibles(investiblesDispatch, diffDispatch, investibles);
-  addCommentsOther(commentsDispatch, diffDispatch, index, ticketsDispatch, comments);
+  addCommentsOther(diffDispatch, index, ticketsDispatch, comments);
   commentsDispatch(updateComments(market.id, comments));
   const tokenStorageManager = new TokenStorageManager();
   await tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token);

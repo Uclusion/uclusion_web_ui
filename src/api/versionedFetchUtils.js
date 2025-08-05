@@ -165,7 +165,7 @@ export function sendMarketsStruct(marketsStruct, dispatchers) {
       let allComments = [];
       Object.values(marketsStruct['comments']).forEach((comments) => allComments = allComments.concat(comments));
       console.info(`Processing comments length ${allComments.length}`);
-      addCommentsOther(commentsDispatch, diffDispatch, index, ticketsDispatch, allComments);
+      addCommentsOther(diffDispatch, index, ticketsDispatch, allComments);
       console.info(`Dispatching comments with existing length ${marketsStruct['existingCommentIds']?.length}`);
       commentsDispatch(updateCommentsFromVersions(marketsStruct['comments'], marketsStruct['existingCommentIds']));
     } else {

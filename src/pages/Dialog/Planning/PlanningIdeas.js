@@ -133,7 +133,7 @@ function PlanningIdeas(props) {
     return targetStageId === inReviewStageId && !_.isEmpty(todoComments);
   }
 
-  function stageChange (event, targetStageId, assigned) {
+  function stageChange(event, targetStageId) {
     event.preventDefault();
     const investibleId = event.dataTransfer.getData('text');
     const currentStageId = event.dataTransfer.getData('stageId');
@@ -149,8 +149,14 @@ function PlanningIdeas(props) {
           stage_id: targetStageId,
         },
       };
-      if (_.isEmpty(assigned)) {
+      const investible = getInvestible(invState, investibleId);
+      const marketInfo = getMarketInfo(investible, marketId);
+      const { assigned } = marketInfo;
+      // When moving to a row can't end up on a different row but can be on multiple rows
+      if (!assigned?.includes(presenceId)) {
         moveInfo.stageInfo.assignments = [presenceId];
+      } else {
+        moveInfo.stageInfo.assignments = assigned;
       }
       setOperationRunning(true);
       return stageChangeInvestible(moveInfo)
@@ -189,10 +195,7 @@ function PlanningIdeas(props) {
       navigate(history,
         `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${inDialogStageId}&assignId=${presenceId}`);
     } else {
-      const investible = getInvestible(invState, investibleId);
-      const marketInfo = getMarketInfo(investible, marketId);
-      const { assigned } = marketInfo;
-      return stageChange(event, inDialogStageId, assigned).then(() => {
+      return stageChange(event, inDialogStageId).then(() => {
         if (!isAutonomous) {
           // Prompt for approval
           navigate(history,
@@ -217,11 +220,11 @@ function PlanningIdeas(props) {
       onDropVoting(event);
     } else {
       removeDroppableById();
-      const { assigned, link} = getDropDestination(acceptedStageId, id, stageId);
+      const link = getDropDestination(acceptedStageId, id, stageId);
       if (link) {
         navigate(history, link);
       } else {
-        stageChange(event, acceptedStageId, assigned);
+        return stageChange(event, acceptedStageId);
       }
     }
   }
@@ -229,12 +232,12 @@ function PlanningIdeas(props) {
   function onDropReview (event) {
     const id = event.dataTransfer.getData('text');
     const stageId = event.dataTransfer.getData('stageId');
-    const { assigned, link} = getDropDestination(inReviewStageId, id, stageId);
+    const link = getDropDestination(inReviewStageId, id, stageId);
     removeDroppableById();
     if (link) {
       navigate(history, link);
     } else {
-      stageChange(event, inReviewStageId, assigned);
+      return stageChange(event, inReviewStageId);
     }
   }
 
@@ -275,7 +278,7 @@ function PlanningIdeas(props) {
         link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&assignId=${presenceId}`;
       }
     }
-    return {assigned,  link };
+    return link;
   }
 
   function onDragOverProcess(event) {

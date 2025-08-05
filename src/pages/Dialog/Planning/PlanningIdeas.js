@@ -439,8 +439,10 @@ function Stage(props) {
   const investiblesMap = sortedInvestibles.map(inv => {
     const { investible } = inv;
     const marketInfo = getMarketInfo(inv, marketId) || {};
+    const yourVote = myPresence.investments?.find((investment) => investment.investible_id === investible.id);
+    // No quick add from your vote so have to check that as well
     const unaccepted = isVoting && marketInfo.assigned?.includes(presenceId) &&
-      !marketInfo.accepted?.includes(presenceId);
+      !marketInfo.accepted?.includes(presenceId) && (!marketInfo.assigned?.includes(myPresence.id) || _.isEmpty(yourVote));
     const numQuestionsSuggestions = countByType(investible, comments,
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
     const numRequiredReviews = countNumRequiredReviews(investible.id);

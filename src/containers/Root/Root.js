@@ -245,7 +245,8 @@ function Root(props) {
 
   // Home - no content to prepare and we don't want its useEffects even around when not hidden
   // PlanningMarketEdit - if preserve state then when come back can have stale data
-  // BillingHome - need removed from memory when not in use or else Stripe does stuff and also potentially leaks memory
+  // BillingHome - try remove from memory when not in use but Stripe does stuff with own Javascript VM anyway
+  // InboxFull and Market - reduce churn by keeping out of existance until first market loaded
   return (
     <div>
       <CssBaseline/>
@@ -253,8 +254,12 @@ function Root(props) {
           backgroundColor: (hideMarket() && hideInvestible() && hideInbox() && hideDemoLoad() && hideMarketLoad() && hideWorkspaceWizard() 
           && hideCommentReplyEdit()) ? undefined : '#EDF7F8'}}>
           <Wizard hidden={hideWorkspaceWizard()} />
-          <InboxFull hidden={hideInbox()} />
-          <Market hidden={hideMarket()||isArchivedWorkspace}/>
+          {marketJoinedUser && (
+            <InboxFull hidden={hideInbox()} />
+          )}
+          {marketJoinedUser && (
+            <Market hidden={hideMarket()||isArchivedWorkspace}/>
+          )}
           <Support hidden={hideSupport()}/>
           {!hideBillingHome() && (
             <BillingHome />

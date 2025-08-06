@@ -245,6 +245,7 @@ function Root(props) {
 
   // Home - no content to prepare and we don't want its useEffects even around when not hidden
   // PlanningMarketEdit - if preserve state then when come back can have stale data
+  // BillingHome - need removed from memory when not in use or else Stripe does stuff and also potentially leaks memory
   return (
     <div>
       <CssBaseline/>
@@ -255,7 +256,9 @@ function Root(props) {
           <InboxFull hidden={hideInbox()} />
           <Market hidden={hideMarket()||isArchivedWorkspace}/>
           <Support hidden={hideSupport()}/>
-          <BillingHome hidden={hideBillingHome()}/>
+          {!hideBillingHome() && (
+            <BillingHome />
+          )}
           <Investible hidden={hideInvestible()}/>
           <CommentReplyEdit hidden={hideCommentReplyEdit()} />
           <SlackInvite hidden={hideSlackInvite()}/>

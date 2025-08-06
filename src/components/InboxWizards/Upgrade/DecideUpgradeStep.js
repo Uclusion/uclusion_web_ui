@@ -1,24 +1,14 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { wizardStyles } from '../WizardStylesContext';
-import WizardStepButtons from '../WizardStepButtons';
-import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
-import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
-import { useHistory } from 'react-router';
+import BillingHome from '../../../pages/Payments/BillingHome';
 
 function DecideUpgradeStep(props) {
-  const { message, updateFormData } = props;
   const intl = useIntl();
-  const [, messagesDispatch] = useContext(NotificationsContext);
   const classes = wizardStyles();
-  const history = useHistory();
-
-  function myOnFinish() {
-    removeWorkListItem(message, messagesDispatch, history);
-  }
 
   return (
     <WizardStepContainer
@@ -28,19 +18,9 @@ function DecideUpgradeStep(props) {
         {intl.formatMessage({id: 'DecidePayTitle'})}
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1">
-        Uclusion will be read only until your account is upgraded.
+        Uclusion functionality will be reduced until a card or promo code is entered.
       </Typography>
-      <WizardStepButtons
-        {...props}
-        focus
-        onFinish={myOnFinish}
-        nextLabel="WizardPaymentInfo"
-        isFinal={false}
-        onNext={() => updateFormData({ isCard: true })}
-        showOtherNext
-        otherNextLabel="WizardPromoInfo"
-        onOtherNext={() => updateFormData({ isCard: false })}
-      />
+      <BillingHome isInbox />
     </WizardStepContainer>
   );
 }

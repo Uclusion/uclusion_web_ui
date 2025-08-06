@@ -3,7 +3,7 @@
 import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
+import { useElements, CardElement } from '@stripe/react-stripe-js';
 import { TextField, Typography } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import Grid from '@material-ui/core/Grid';
@@ -81,10 +81,9 @@ const useStyles = makeStyles(theme => ({
 const EMPTY_DETAILS = { name: '', email: '', phone: '' };
 
 function CardInputForm(props) {
-  const { onUpdate, onSubmit, submitLabelId, onCancel, wizardProps } = props;
+  const { onUpdate, onSubmit, submitLabelId, onCancel, wizardProps, stripe } = props;
 
   const classes = useStyles();
-  const stripe = useStripe();
   const elements = useElements();
   const intl = useIntl();
 

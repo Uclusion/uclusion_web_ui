@@ -1,5 +1,4 @@
 import React from 'react';
-import config from '../../config';
 import '@formatjs/intl-relativetimeformat/polyfill';
 import '@formatjs/intl-relativetimeformat/polyfill-locales';
 import { withA2HS } from 'a2hs';
@@ -14,8 +13,6 @@ import { OperationInProgressProvider } from '../../contexts/OperationInProgressC
 import OperationInProgressGlobalProvider from '../../components/ContextHacks/OperationInProgressGlobalProvider';
 import { DiffProvider } from '../../contexts/DiffContext/DiffContext';
 import { AccountProvider } from '../../contexts/AccountContext/AccountContext';
-import { Elements } from '@stripe/react-stripe-js';
-import { loadStripe } from '@stripe/stripe-js';
 import { SearchIndexProvider } from '../../contexts/SearchIndexContext/SearchIndexContext';
 import { SearchResultsProvider } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { ScrollProvider } from '../../contexts/ScrollContext';
@@ -23,7 +20,7 @@ import { TicketIndexProvider } from '../../contexts/TicketContext/TicketIndexCon
 import { MarketGroupsProvider } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 
 function Main () {
-  const stripePromise = loadStripe(config.payments.stripeKey).catch((error)=>console.warn(error))
+  
   return (
     <div>
       <AccountProvider>
@@ -39,9 +36,7 @@ function Main () {
                           <MarketGroupsProvider>
                             <LocaleProvider>
                               <ToastContainer position="top-center" pauseOnFocusLoss={false}/>
-                              <Elements stripe={stripePromise}>
-                                <AppWithAuth/>
-                              </Elements>
+                              <AppWithAuth/>
                             </LocaleProvider>
                           </MarketGroupsProvider>
                         </MarketStagesProvider>

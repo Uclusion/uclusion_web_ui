@@ -7,6 +7,7 @@ import { useIntl } from 'react-intl';
 import SubSection from '../../containers/SubSection/SubSection';
 import { Card } from '@material-ui/core';
 import { makeStyles, useTheme } from '@material-ui/styles';
+import { Elements } from '@stripe/react-stripe-js';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -24,7 +25,7 @@ const useStyles = makeStyles((theme) => {
 });
 
 function PaymentInfo (props) {
-  const { subscriptionInfo, setSubscriptionInfo } = props;
+  const { subscriptionInfo, setSubscriptionInfo, stripe } = props;
   const [addCardVisible, setAddCardVisible] = useState(false);
   const intl = useIntl();
   const theme = useTheme();
@@ -33,30 +34,32 @@ function PaymentInfo (props) {
   const addButtonLabel = _.isEmpty(paymentMethods) ? 'paymentInfoButtonAdd' : 'paymentInfoButtonUpdate';
 
   return (
-    <Card>
-      <SubSection
-        title="Payment Cards"
-        padChildren
-      >
+    <Elements stripe={stripe}>
+      <Card>
+        <SubSection
+          title="Payment Cards"
+          padChildren
+        >
 
-        <StoredCards billingInfo={paymentMethods}/>
-        {!addCardVisible && (
-          <Button
-            className={classes.addPaymentButton}
-            onClick={() => setAddCardVisible(true)}
-          >
-            {intl.formatMessage({ id: addButtonLabel })}
-          </Button>
-        )}
-        {addCardVisible && (
-          <CardInputForm onSubmit={() => setAddCardVisible(false)}
-                         onUpdate={(paymentMethod) => setSubscriptionInfo({...subscriptionInfo,
-                           payment_methods:[paymentMethod.card]})}
-                         onCancel={() => setAddCardVisible(false)}/>
-        )}
+          <StoredCards billingInfo={paymentMethods}/>
+          {!addCardVisible && (
+            <Button
+              className={classes.addPaymentButton}
+              onClick={() => setAddCardVisible(true)}
+            >
+              {intl.formatMessage({ id: addButtonLabel })}
+            </Button>
+          )}
+          {addCardVisible && (
+            <CardInputForm stripe={stripe} onSubmit={() => setAddCardVisible(false)}
+                          onUpdate={(paymentMethod) => setSubscriptionInfo({...subscriptionInfo,
+                            payment_methods:[paymentMethod.card]})}
+                          onCancel={() => setAddCardVisible(false)}/>
+          )}
 
-      </SubSection>
-    </Card>
+        </SubSection>
+      </Card>
+    </Elements>
   );
 }
 

@@ -37,7 +37,7 @@ function MemberDisplay(props) {
   const { presence, index, recordPresenceToggle } = props;
   const classes = useStyles();
   const identityListClasses = usePlanFormStyles();
-  return <div style={{marginLeft: '1.4rem'}} id={index} onClick={(event) => recordPresenceToggle(event, presence)} >
+  return <div style={{marginLeft: '0.65rem'}} id={index} onClick={(event) => recordPresenceToggle(event, presence)} >
     <GravatarAndName
       key={presence.id}
       email={presence.email}

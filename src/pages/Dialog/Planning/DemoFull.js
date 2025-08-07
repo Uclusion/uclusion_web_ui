@@ -1,6 +1,8 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import Screen from '../../../containers/Screen/Screen';
+import { wizardStyles } from '../../../components/InboxWizards/WizardStylesContext';
+import { Typography } from '@material-ui/core';
 
 
 function DemoFull(props) {

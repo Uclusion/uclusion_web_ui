@@ -93,10 +93,10 @@ function DemoMarketLoad(props) {
 
   useEffect(() => {
     const calculatedUtm = calculateUTM(teamDemo, soloDemo);
-    if (calculatedUtm) {
+    if (_.isEmpty(utm) && calculatedUtm) {
       navigate(history, `/demo?utm_campaign=${calculatedUtm}`, true);
     }
-  },  [history, teamDemo, soloDemo]);
+  },  [history, utm, teamDemo, soloDemo]);
 
 
   if (_.isEmpty(utm)&&_.isEmpty(calculateUTM(teamDemo, soloDemo))) {

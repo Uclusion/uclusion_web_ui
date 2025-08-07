@@ -28,9 +28,6 @@ function calculateUTM(teamDemo, soloDemo) {
   if (_.isEmpty(teamDemo)&&_.isEmpty(soloDemo)) {
     return undefined;
   }
-  if (!_.isEmpty(teamDemo)&&!_.isEmpty(soloDemo)) {
-    return undefined;
-  }
   if (_.isEmpty(soloDemo)) {
     return 'solo';
   }

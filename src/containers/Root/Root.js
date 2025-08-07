@@ -44,6 +44,7 @@ import { getFirstWorkspace } from '../../utils/redirectUtils';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import GroupManage from '../../pages/DialogSettings/GroupManage';
 import ManageMarketUsers from '../../pages/Dialog/UserManagement/ManageMarketUsers';
+import DemoFull from '../../pages/Dialog/Planning/DemoFull';
 
 function Root(props) {
   const { authState } = props;
@@ -106,7 +107,11 @@ function Root(props) {
   }
 
   function hideDemoLoad() {
-    return action !== 'demo';
+    return action !== 'demo' || (!_.isEmpty(teamDemo)&&!_.isEmpty(soloDemo));
+  }
+
+  function hideDemosFull() {
+    return action !== 'demo' || _.isEmpty(teamDemo) || _.isEmpty(soloDemo);
   }
 
   function hideInvestible() {
@@ -157,7 +162,7 @@ function Root(props) {
   }
 
   // Page Not Found
-  const hidePNF = isRootPath || !(hideMarket() && hideSupport() && hideInvestible() && hideWorkspaceWizard() &&
+  const hidePNF = isRootPath || !(hideMarket() && hideSupport() && hideInvestible() && hideWorkspaceWizard() && hideDemosFull() &&
     hideInbox() && hideSlackInvite() && hideAccountPreferences() && hideMarketEdit() && hideManageUsers() && hideGroupSettings() &&
     hideMarketLoad() && hideGroupArchive() && hideIntegrationPreferences() && hideBillingHome() && hideTodoAdd() &&
     hideCommentReplyEdit() && hideDemoLoad() && hideGroupManage() && !isTicketPath(pathname));
@@ -253,9 +258,10 @@ function Root(props) {
     <div>
       <CssBaseline/>
         <div style={{ width: '100%', height: '100%',
-          backgroundColor: (hideMarket() && hideInvestible() && hideInbox() && hideDemoLoad() && hideMarketLoad() && hideWorkspaceWizard() 
+          backgroundColor: (hideMarket() && hideInvestible() && hideInbox() && hideDemoLoad() && hideDemosFull() && hideMarketLoad() && hideWorkspaceWizard() 
           && hideCommentReplyEdit()) ? undefined : '#EDF7F8'}}>
           <Wizard hidden={hideWorkspaceWizard()} />
+          <DemoFull hidden={hideDemosFull()} />
           {marketJoinedUser && (
             <InboxFull hidden={hideInbox()} />
           )}

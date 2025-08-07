@@ -16,7 +16,7 @@ function DemoFull(props) {
       hidden={hidden}
       disableSearch
     >
-    <div className={classes.baseCard} style={{ overflowX: 'hidden', maxWidth: '80rem' }}>
+    <div className={classes.baseCard} style={{ overflowX: 'hidden', maxWidth: '80rem', marginTop: '6rem' }}>
       <Typography className={classes.introText}>
         <p>You already have both a team and solo demo.</p>
       </Typography>

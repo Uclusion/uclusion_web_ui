@@ -110,7 +110,7 @@ function Root(props) {
   }
 
   function hideDemoLoad() {
-    return action !== 'demo' || (!_.isEmpty(teamDemo)&&!_.isEmpty(soloDemo));
+    return action !== 'demo' || (_.isEmpty(utm)&&!_.isEmpty(teamDemo)&&!_.isEmpty(soloDemo));
   }
 
   function hideDemosFull() {

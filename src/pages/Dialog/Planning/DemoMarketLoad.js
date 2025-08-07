@@ -8,7 +8,6 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
-import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';
 import _ from 'lodash';
 import { getDemo } from '../../../api/homeAccount';
 import { SearchIndexContext } from '../../../contexts/SearchIndexContext/SearchIndexContext';
@@ -25,8 +24,21 @@ import DemoChoiceWizard from '../../../components/AddNewWizards/DemoChoice/DemoC
 import { getUtm } from '../../../utils/redirectUtils';
 import WorkspaceInviteWizard from '../../../components/AddNewWizards/WorkspaceInvite/WorkspaceInviteWizard';
 
+function calculateUTM(teamDemo, soloDemo) {
+  if (_.isEmpty(teamDemo)&&_.isEmpty(soloDemo)) {
+    return undefined;
+  }
+  if (!_.isEmpty(teamDemo)&&!_.isEmpty(soloDemo)) {
+    return undefined;
+  }
+  if (_.isEmpty(soloDemo)) {
+    return 'solo';
+  }
+  return 'team';
+}
+
 function DemoMarketLoad(props) {
-  const { onboardingState, demo } = props;
+  const { teamDemo, soloDemo } = props;
   const [, marketsDispatch] = useContext(MarketsContext);
   const [, messagesDispatch, , setInitialized] = useContext(NotificationsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
@@ -39,7 +51,7 @@ function DemoMarketLoad(props) {
   const [, ticketsDispatch] = useContext(TicketIndexContext);
   const [, userDispatch] = useContext(AccountContext);
   const [index] = useContext(SearchIndexContext);
-  const [utm, setUtm] = useState(getUtm());
+  const [utm, setUtm] = useState(getUtm()||calculateUTM(teamDemo, soloDemo));
   const intl = useIntl();
 
   const loadingScreen = <Screen hidden={false} loading loadingMessageId='demoLoadingMessage'
@@ -50,11 +62,6 @@ function DemoMarketLoad(props) {
   function LoadDemo() {
     const loadedInfo = suspend(async () => {
       const result = await getDemo(utm === 'team');
-      if (!result) {
-        console.warn('No result demo market');
-        // Called more than once somehow so give up and hope demo market already loaded or loads the slow way
-        return undefined;
-      }
       console.log('Quick adding demo market after load');
       const dispatchers = {
         marketsDispatch, messagesDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch, groupMembersDispatch,
@@ -73,18 +80,11 @@ function DemoMarketLoad(props) {
       userDispatch(accountUserRefresh(user));
       return {id};
     }, []);
-    return _.isEmpty(loadedInfo?.id) ? loadingScreen :
-      <Screen
-        title={intl.formatMessage({id: 'DemoWelcome'})}
-        tabTitle={intl.formatMessage({id: 'DemoWelcome'})}
-        hidden={false}
-        disableSearch
-      >
-        <DemoChoiceWizard marketId={demo.id} />
-      </Screen>;
+    console.log(`Loaded demo market id = ${loadedInfo.id}`);
+    return loadingScreen;
   }
 
-  if (_.isEmpty(utm)) {
+  if (_.isEmpty(utm)&&_.isEmpty(soloDemo)&&_.isEmpty(teamDemo)) {
     return <Screen
       title={intl.formatMessage({id: 'DemoWelcome'})}
       tabTitle={intl.formatMessage({id: 'DemoWelcome'})}
@@ -96,18 +96,14 @@ function DemoMarketLoad(props) {
     </Screen>;
   }
 
-  if (onboardingState !== OnboardingState.NeedsOnboarding || !_.isEmpty(demo)) {
-    if (_.isEmpty(demo)) {
-      return loadingScreen;
-    }
-
+  if ((utm === 'team' && !_.isEmpty(teamDemo))||(utm === 'solo' && !_.isEmpty(soloDemo))) {
     return <Screen
       title={intl.formatMessage({id: 'DemoWelcome'})}
       tabTitle={intl.formatMessage({id: 'DemoWelcome'})}
       hidden={false}
       disableSearch
     >
-      <WorkspaceInviteWizard marketId={demo.id} isDemo />
+      <WorkspaceInviteWizard marketId={utm === 'team' ? teamDemo.id : soloDemo.id} isDemo />
     </Screen>;
   }
 

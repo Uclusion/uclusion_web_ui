@@ -60,8 +60,10 @@ function Root(props) {
   const { marketDetails } = marketsState;
   const supportMarket = marketDetails?.find((market) => market.market_sub_type === 'SUPPORT') || {};
   const marketLink = supportMarket.id ? formMarketLink(supportMarket.id, supportMarket.id) : undefined;
-  const demo = marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
-    market.object_type === DEMO_TYPE);
+  const teamDemo = marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
+    market.object_type === DEMO_TYPE && market.name.includes('team'));
+  const soloDemo = marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
+    market.object_type === DEMO_TYPE && market.name.includes('solo'));
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
@@ -230,8 +232,8 @@ function Root(props) {
     }
   },  [history, setOnline, location, isUserLoaded]);
 
-  if (authState !== 'signedIn' || action === 'supportWorkspace' || (isRootPath && marketJoinedUser
-    && _.isEmpty(defaultMarketLink))) {
+  if (authState !== 'signedIn' || action === 'supportWorkspace' || (action === 'demo' && marketsState.initializing) || 
+    (isRootPath && marketJoinedUser && _.isEmpty(defaultMarketLink))) {
     return (
       <Screen
         hidden={false}
@@ -279,7 +281,7 @@ function Root(props) {
             <PlanningMarketLoad />
           )}
           {!hideDemoLoad() && (
-            <DemoMarketLoad onboardingState={userState?.user?.onboarding_state} demo={demo} />
+            <DemoMarketLoad soloDemo={soloDemo} teamDemo={teamDemo} />
           )}
           {!hideGroupSettings() && (
             <GroupEdit />

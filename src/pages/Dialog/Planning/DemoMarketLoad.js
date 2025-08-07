@@ -9,6 +9,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import _ from 'lodash';
+import queryString from 'query-string';
 import { getDemo } from '../../../api/homeAccount';
 import { SearchIndexContext } from '../../../contexts/SearchIndexContext/SearchIndexContext';
 import { handleMarketData } from '../../../utils/demoLoader';
@@ -22,6 +23,7 @@ import { isInInbox } from '../../../contexts/NotificationsContext/notificationsC
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import DemoChoiceWizard from '../../../components/AddNewWizards/DemoChoice/DemoChoiceWizard';
 import WorkspaceInviteWizard from '../../../components/AddNewWizards/WorkspaceInvite/WorkspaceInviteWizard';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 
 function calculateUTM(teamDemo, soloDemo) {
   if (_.isEmpty(teamDemo)&&_.isEmpty(soloDemo)) {
@@ -47,6 +49,7 @@ function DemoMarketLoad(props) {
   const [, ticketsDispatch] = useContext(TicketIndexContext);
   const [, userDispatch] = useContext(AccountContext);
   const [index] = useContext(SearchIndexContext);
+  const history = useHistory();
   const { location } = history;
   const { search } = location;
   const values = queryString.parse(search || '') || {};

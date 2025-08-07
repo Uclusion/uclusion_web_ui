@@ -99,10 +99,10 @@ function WorkspaceNameStep (props) {
         stagesDispatch(updateMarketStagesFromNetwork({[createdMarketId]: stages }));
         addPresenceToMarket(presenceDispatch, createdMarketId, presence);
         groupMembersDispatch(addGroupMembers(createdMarketId, createdMarketId, defaultMembers));
-        const demo = marketsState?.marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
+        const demos = marketsState?.marketDetails?.filter((market) => market.market_type === PLANNING_TYPE &&
           market.object_type === DEMO_TYPE);
-        if (!_.isEmpty(demo) && user){
-          changeBanStatus(presenceState, presenceDispatch, demo.id, user.id, true, commentsState);
+        if (!_.isEmpty(demos) && user){
+          demos.forEach((demo) => changeBanStatus(presenceState, presenceDispatch, demo.id, user.id, true, commentsState));
         }
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)

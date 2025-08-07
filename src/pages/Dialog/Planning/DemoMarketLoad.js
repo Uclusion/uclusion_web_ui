@@ -1,4 +1,4 @@
-import React, { Suspense, useContext, useState } from 'react';
+import React, { Suspense, useContext, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import Screen from '../../../containers/Screen/Screen';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
@@ -24,6 +24,7 @@ import { setUclusionLocalStorageItem } from '../../../components/localStorageUti
 import DemoChoiceWizard from '../../../components/AddNewWizards/DemoChoice/DemoChoiceWizard';
 import WorkspaceInviteWizard from '../../../components/AddNewWizards/WorkspaceInvite/WorkspaceInviteWizard';
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function calculateUTM(teamDemo, soloDemo) {
   if (_.isEmpty(teamDemo)&&_.isEmpty(soloDemo)) {
@@ -53,8 +54,7 @@ function DemoMarketLoad(props) {
   const { location } = history;
   const { search } = location;
   const values = queryString.parse(search || '') || {};
-  const { utm_campaign: utmFromSearch } = values;
-  const [utm, setUtm] = useState(utmFromSearch||calculateUTM(teamDemo, soloDemo));
+  const { utm_campaign: utm } = values;
   const intl = useIntl();
 
   const loadingScreen = <Screen hidden={false} loading loadingMessageId='demoLoadingMessage'
@@ -81,13 +81,25 @@ function DemoMarketLoad(props) {
       }
       const id = await handleMarketData(demo, dispatchers);
       userDispatch(accountUserRefresh(user));
+      // If you already have the other market then just navigate to the new id
+      if ((utm === 'team' && !_.isEmpty(soloDemo))||(utm === 'solo' && !_.isEmpty(teamDemo))) {
+        navigate(history, formMarketLink(id, id));
+      }
       return {id};
     }, []);
     console.log(`Loaded demo market id = ${loadedInfo.id}`);
     return loadingScreen;
   }
 
-  if (_.isEmpty(utm)&&_.isEmpty(soloDemo)&&_.isEmpty(teamDemo)) {
+  useEffect(() => {
+    const calculatedUtm = calculateUTM(teamDemo, soloDemo);
+    if (calculatedUtm) {
+      navigate(history, `/demo?utm_campaign=${calculatedUtm}`, true);
+    }
+  },  [history, teamDemo, soloDemo]);
+
+
+  if (_.isEmpty(utm)&&_.isEmpty(calculateUTM(teamDemo, soloDemo))) {
     return <Screen
       title={intl.formatMessage({id: 'DemoWelcome'})}
       tabTitle={intl.formatMessage({id: 'DemoWelcome'})}
@@ -95,7 +107,7 @@ function DemoMarketLoad(props) {
       disableSearch
       isDemoChoice
     >
-      <DemoChoiceWizard setUtm={setUtm} />
+      <DemoChoiceWizard />
     </Screen>;
   }
 
@@ -108,6 +120,10 @@ function DemoMarketLoad(props) {
     >
       <WorkspaceInviteWizard marketId={utm === 'team' ? teamDemo.id : soloDemo.id} isDemo />
     </Screen>;
+  }
+
+  if (_.isEmpty(utm)) {
+    return loadingScreen;
   }
 
   return (

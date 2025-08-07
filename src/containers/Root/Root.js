@@ -36,6 +36,7 @@ import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/acc
 import Screen from '../Screen/Screen';
 import { useIntl } from 'react-intl';
 import { DEMO_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import queryString from 'query-string';
 import _ from 'lodash';
 import { getNotHiddenMarketDetailsForUser, getSortedMarkets } from '../../contexts/MarketsContext/marketsContextHelper';
 import PlanningMarketLoad from '../../pages/Dialog/Planning/PlanningMarketLoad';
@@ -51,13 +52,15 @@ function Root(props) {
   const history = useHistory();
   const location = useLocation();
   const intl = useIntl();
-  const { pathname } = location;
+  const { pathname, search } = location;
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [userState] = useContext(AccountContext);
   const [, setOnline] = useContext(OnlineStateContext);
   const [ticketState] = useContext(TicketIndexContext);
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
+  const values = queryString.parse(search || '') || {};
+  const { utm_campaign: utm } = values;
   const { marketDetails } = marketsState;
   const supportMarket = marketDetails?.find((market) => market.market_sub_type === 'SUPPORT') || {};
   const marketLink = supportMarket.id ? formMarketLink(supportMarket.id, supportMarket.id) : undefined;
@@ -111,7 +114,8 @@ function Root(props) {
   }
 
   function hideDemosFull() {
-    return action !== 'demo' || _.isEmpty(teamDemo) || _.isEmpty(soloDemo);
+    // If there is a utm then will just end up going to intro page for that demo
+    return action !== 'demo' || !_.isEmpty(utm) || _.isEmpty(teamDemo) || _.isEmpty(soloDemo);
   }
 
   function hideInvestible() {

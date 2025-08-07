@@ -4,14 +4,15 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
+import { navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 
-function DemoChoiceStep (props) {
-  const { setUtm } = props;
+function DemoChoiceStep() {
   const classes = useContext(WizardStylesContext);
+  const history = useHistory();
 
   return (
     <WizardStepContainer
-      {...props}
       isLarge
     >
       <Typography className={classes.introText}>
@@ -22,13 +23,12 @@ function DemoChoiceStep (props) {
       </Typography>
       <div className={classes.borderBottom} />
       <WizardStepButtons
-        {...props}
         nextLabel='createViewSingleUser'
-        onNext={() => setUtm('solo')}
+        onNext={() => navigate(history, '/demo?utm_campaign=solo')}
         spinOnClick={false}
         showOtherNext
         otherNextLabel='createWorkspaceNormal'
-        onOtherNext={() => setUtm('team')}
+        onOtherNext={() => navigate(history, '/demo?utm_campaign=team')}
         otherSpinOnClick={false}
       />
     </WizardStepContainer>

@@ -21,7 +21,6 @@ import { AccountContext } from '../../../contexts/AccountContext/AccountContext'
 import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import DemoChoiceWizard from '../../../components/AddNewWizards/DemoChoice/DemoChoiceWizard';
-import { getUtm } from '../../../utils/redirectUtils';
 import WorkspaceInviteWizard from '../../../components/AddNewWizards/WorkspaceInvite/WorkspaceInviteWizard';
 
 function calculateUTM(teamDemo, soloDemo) {
@@ -33,7 +32,7 @@ function calculateUTM(teamDemo, soloDemo) {
   }
   return 'team';
 }
-
+// utm_campaign
 function DemoMarketLoad(props) {
   const { teamDemo, soloDemo } = props;
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -48,7 +47,11 @@ function DemoMarketLoad(props) {
   const [, ticketsDispatch] = useContext(TicketIndexContext);
   const [, userDispatch] = useContext(AccountContext);
   const [index] = useContext(SearchIndexContext);
-  const [utm, setUtm] = useState(getUtm()||calculateUTM(teamDemo, soloDemo));
+  const { location } = history;
+  const { search } = location;
+  const values = queryString.parse(search || '') || {};
+  const { utm_campaign: utmFromSearch } = values;
+  const [utm, setUtm] = useState(utmFromSearch||calculateUTM(teamDemo, soloDemo));
   const intl = useIntl();
 
   const loadingScreen = <Screen hidden={false} loading loadingMessageId='demoLoadingMessage'

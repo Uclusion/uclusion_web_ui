@@ -95,6 +95,10 @@ export function setUtm(utm) {
   setUclusionLocalStorageItem(UTM_LOCAL_STORAGE_KEY, utm);
 }
 
+export function clearUtm() {
+  setUclusionLocalStorageItem(UTM_LOCAL_STORAGE_KEY, undefined);
+}
+
 export function setEmail(email) {
   setLoginPersistentItem(EMAIL_LOCAL_STORAGE_KEY, email);
 }

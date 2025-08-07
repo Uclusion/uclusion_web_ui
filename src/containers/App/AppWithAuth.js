@@ -19,7 +19,7 @@ import { AUTH_HUB_CHANNEL } from '../../contexts/WebSocketContext'
 import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
 import queryString from 'query-string'
-import { clearRedirect, getAndClearEmail, getRedirect } from '../../utils/redirectUtils';
+import { clearRedirect, clearUtm, getAndClearEmail, getRedirect, getUtm } from '../../utils/redirectUtils';
 import { clearSignedOut } from '../../utils/userFunctions';
 import { poll } from '../../contexts/AccountContext/accountContextMessages';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
@@ -72,8 +72,14 @@ function AppWithAuth() {
         const user = await poll(dispatch);
         let redirect = getRedirect();
         clearRedirect();
-        if ((_.isEmpty(redirect) || redirect === '/')&&(user?.onboarding_state === OnboardingState.NeedsOnboarding)) {
-          redirect = '/demo';
+        const utm = getUtm();
+        clearUtm();
+        if ((_.isEmpty(redirect) || redirect === '/')&&(!_.isEmpty(utm) || user?.onboarding_state === OnboardingState.NeedsOnboarding)) {
+          if (!_.isEmpty(utm)) {
+            redirect = `/demo?utm_campaign=${utm}`;
+          } else {
+            redirect = '/demo';
+          }
         }
         if (!_.isEmpty(redirect) && redirect !== '/') {
           console.log(`Redirecting on sign in to ${redirect}`);

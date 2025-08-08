@@ -23,7 +23,7 @@ import { isInInbox } from '../../../contexts/NotificationsContext/notificationsC
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import DemoChoiceWizard from '../../../components/AddNewWizards/DemoChoice/DemoChoiceWizard';
 import WorkspaceInviteWizard from '../../../components/AddNewWizards/WorkspaceInvite/WorkspaceInviteWizard';
-import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
+import { useHistory } from 'react-router';
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function calculateUTM(teamDemo, soloDemo) {

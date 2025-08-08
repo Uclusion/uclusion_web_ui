@@ -14,7 +14,7 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router/cjs/react-router.min';
+import { useHistory } from 'react-router';
 
 function InviteByEmailStep(props) {
   const { formData, finish, marketId, updateFormData, displayFromOther, allAutonomousViews } = props;

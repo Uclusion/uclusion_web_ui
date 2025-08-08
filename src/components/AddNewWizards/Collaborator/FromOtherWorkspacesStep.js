@@ -12,7 +12,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import IdentityList from '../../Email/IdentityList';
 import { getEmailList } from '../../Email/EmailEntryBox';
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router/cjs/react-router.min';
+import { useHistory } from 'react-router';
 
 function FromOtherWorkspacesStep (props) {
   const { participants, marketId, finish, formData, updateFormData, allAutonomousViews } = props;

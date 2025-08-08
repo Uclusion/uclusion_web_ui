@@ -22,7 +22,7 @@ import { useIntl } from 'react-intl'
 import Screen from '../../../containers/Screen/Screen';
 import { ADD_COLLABORATOR_WIZARD_TYPE } from '../../../constants/markets';
 import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
+import { useHistory } from 'react-router';
 
 const useStyles = makeStyles((theme) => {
   return {

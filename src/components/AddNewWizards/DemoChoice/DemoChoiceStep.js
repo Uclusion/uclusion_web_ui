@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { navigate } from '../../../utils/marketIdPathFunctions';
-import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
+import { useHistory } from 'react-router';
 
 function DemoChoiceStep() {
   const classes = useContext(WizardStylesContext);

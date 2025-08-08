@@ -25,6 +25,7 @@ import DemoChoiceWizard from '../../../components/AddNewWizards/DemoChoice/DemoC
 import WorkspaceInviteWizard from '../../../components/AddNewWizards/WorkspaceInvite/WorkspaceInviteWizard';
 import { useHistory } from 'react-router';
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { setCurrentWorkspace } from '../../../utils/redirectUtils';
 
 function calculateUTM(teamDemo, soloDemo) {
   if (_.isEmpty(teamDemo)&&_.isEmpty(soloDemo)) {
@@ -85,6 +86,7 @@ function DemoMarketLoad(props) {
       if ((utm === 'team' && !_.isEmpty(soloDemo))||(utm === 'solo' && !_.isEmpty(teamDemo))) {
         navigate(history, formMarketLink(id, id));
       }
+      setCurrentWorkspace(id);
       return {id};
     }, []);
     console.log(`Loaded demo market id = ${loadedInfo.id}`);

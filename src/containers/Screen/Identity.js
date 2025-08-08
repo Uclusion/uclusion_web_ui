@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Button,
   makeStyles,
@@ -107,23 +107,24 @@ function Identity () {
   const user = useContext(CognitoUserContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [gravatarExists, setGravatarExists] = useState(undefined);
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
   const intl = useIntl();
   const email = user?.email || '';
   const chipLabel = user?.name || '';
 
-  function GravatarExists() {
-    try {
+  useEffect(() => {
+    if (online && gravatarExists === undefined) {
       const url = `https://www.gravatar.com/avatar/${md5(email, { encoding: 'binary' })}?d=404`;
       const http = new XMLHttpRequest();
-      http.open('HEAD', url, false);
+      http.open('HEAD', url, true);
+      http.onload = () => {
+        setGravatarExists(http.status !== 404);
+      };
       http.send();
-      return http.status !== 404;
-    } catch (e) {
-      return false;
     }
-  }
+  }, [email, online, gravatarExists]);
 
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
@@ -141,9 +142,6 @@ function Identity () {
       history.push(to);
     };
   }
-
-  // No need to check when menu closed
-  const gravatarExists = menuOpen && (!online || GravatarExists());
 
   return (
     <div

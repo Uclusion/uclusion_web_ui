@@ -36,6 +36,10 @@ function InviteByEmailStep(props) {
         setOperationRunning(false);
         marketPresencesDispatch(addMarketPresences(marketId, result));
         updateFormData({ emails });
+        if (isLastStep) {
+          // Just go to market or they will see blank page
+          navigate(history, formMarketLink(marketId, marketId));
+        }
       });
     }
     if (isLastStep) {

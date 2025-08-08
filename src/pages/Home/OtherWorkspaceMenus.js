@@ -9,7 +9,7 @@ import AddIcon from '@material-ui/icons/Add';
 import { formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { ADD_COLLABORATOR_WIZARD_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { AddAlert, ExpandLess, ExpandMore, VpnKey } from '@material-ui/icons';
+import { AddAlert, ExpandLess, ExpandMore, Face, VpnKey } from '@material-ui/icons';
 import config from '../../config';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
@@ -201,8 +201,8 @@ function OtherWorkspaceMenus(props) {
                       updatePageState({integrationsOpen: !integrationsOpen});
                     }}
                     key="integrations" open={integrationsOpen}>
-              <MenuItem icon={<VpnKey htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
-                      key="integrationKey" id="integrationId"
+              <MenuItem icon={<Face htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+                      key="gravatarIntegrationKey" id="gravatarIntegrationId"
                       rootStyles={{
                         '.css-wx7wi4': {
                           marginRight: 0,
@@ -210,15 +210,33 @@ function OtherWorkspaceMenus(props) {
                       }}
                       onClick={(event) => {
                         preventDefaultAndProp(event);
-                        navigate(history,`/integrationPreferences/${defaultMarket?.id}?groupId=${chosenGroup}`);
+                        navigate(history,`/integrationPreferences/${defaultMarket?.id}?integrationType=gravatar`);
                       }}
               >
-              <Tooltip title={intl.formatMessage({ id: 'integrationPreferencesHeader' })}>
-                <div>
-                  {intl.formatMessage({ id: 'cliIntegration' })}
-                </div>
-              </Tooltip>
-            </MenuItem>
+                <Tooltip title={intl.formatMessage({ id: 'IdentityChangeAvatar' })}>
+                  <div>
+                    {intl.formatMessage({ id: 'changeAvatarPreferences' })}
+                  </div>
+                </Tooltip>
+              </MenuItem>
+              <MenuItem icon={<VpnKey htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+                      key="cliIntegrationKey" id="cliIntegrationId"
+                      rootStyles={{
+                        '.css-wx7wi4': {
+                          marginRight: 0,
+                        }
+                      }}
+                      onClick={(event) => {
+                        preventDefaultAndProp(event);
+                        navigate(history,`/integrationPreferences/${defaultMarket?.id}?groupId=${chosenGroup}&integrationType=cli`);
+                      }}
+              >
+                <Tooltip title={intl.formatMessage({ id: 'integrationPreferencesHeader' })}>
+                  <div>
+                    {intl.formatMessage({ id: 'cliIntegration' })}
+                  </div>
+                </Tooltip>
+              </MenuItem>
             {slackAddressable && (
               <MenuItem icon={<AddAlert htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                         key="slackIntegrationKey" id="slackIntegrationId"
@@ -229,7 +247,7 @@ function OtherWorkspaceMenus(props) {
                         }}
                         onClick={(event) => {
                           preventDefaultAndProp(event);
-                          navigate(history,'/integrationPreferences');
+                          navigate(history,'/integrationPreferences?integrationType=slack');
                         }}
               >
                 <Tooltip title={intl.formatMessage({ id: 'slackIntegrationExplanation' })}>

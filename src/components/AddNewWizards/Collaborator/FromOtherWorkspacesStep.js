@@ -11,12 +11,15 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import IdentityList from '../../Email/IdentityList';
 import { getEmailList } from '../../Email/EmailEntryBox';
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router/cjs/react-router.min';
 
 function FromOtherWorkspacesStep (props) {
   const { participants, marketId, finish, formData, updateFormData, allAutonomousViews } = props;
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const wizardClasses = useContext(WizardStylesContext);
+  const history = useHistory();
   const [checked, setChecked] = useState([]);
   const hasSentEmails = !_.isEmpty(getEmailList(marketId));
 

@@ -96,7 +96,8 @@ function PlanningMarketLoad() {
             return { id };
           });
       } catch (error) {
-        console.error('Quick adding market failed load');
+        console.error('Quick adding market failed load:');
+        console.error(error);
         const decoded = jwt_decode(marketToken);
         // This won't get the inline but okay as a fallback
         pushMessage(LOAD_MARKET_CHANNEL, { event: GUEST_MARKET_EVENT, marketId: decoded.market_id });
@@ -104,19 +105,17 @@ function PlanningMarketLoad() {
       }
     }, [marketToken]);
     const { id } = loadedProperties;
-    if (id) {
-      return (
-        <Screen
-          title={intl.formatMessage({id: 'WorkspaceWelcome'})}
-          tabTitle={intl.formatMessage({id: 'WorkspaceWelcome'})}
-          hidden={false}
-          disableSearch
-        >
-          <WorkspaceInviteWizard marketId={id} />
-        </Screen>
-      );
-    }
-    return fallBack;
+    const decoded = jwt_decode(marketToken);
+    return (
+      <Screen
+        title={intl.formatMessage({id: 'WorkspaceWelcome'})}
+        tabTitle={intl.formatMessage({id: 'WorkspaceWelcome'})}
+        hidden={false}
+        disableSearch
+      >
+        <WorkspaceInviteWizard marketId={id || decoded.market_id} />
+      </Screen>
+    );
   }
 
   return (

@@ -13,17 +13,21 @@ import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router/cjs/react-router.min';
 
 function InviteByEmailStep(props) {
-  const { formData, finish, marketId, updateFormData, displayFromOther } = props;
+  const { formData, finish, marketId, updateFormData, displayFromOther, allAutonomousViews } = props;
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketsState] = useContext(MarketsContext);
+  const history = useHistory();
   const market = getMarket(marketsState, marketId) || {};
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const inMarketEmailList = marketPresences.map((presence) => presence.email);
   const { isValid } = formData;
+  const isLastStep = !displayFromOther && allAutonomousViews;
 
   function myOnFinish(){
     const emails = getEmailList(marketId);
@@ -33,6 +37,10 @@ function InviteByEmailStep(props) {
         marketPresencesDispatch(addMarketPresences(marketId, result));
         updateFormData({ emails });
       });
+    }
+    if (isLastStep) {
+      // Just go to market or they will see blank page
+      navigate(history, formMarketLink(marketId, marketId));
     }
   }
 
@@ -53,6 +61,7 @@ function InviteByEmailStep(props) {
         spinOnClick={isValid === true}
         showLink
         onNext={myOnFinish}
+        onNextDoAdvance={!isLastStep}
         formData={formData}
         marketToken={market.invite_capability}
         showTerminate

@@ -13,7 +13,7 @@ import IdentityList from '../../Email/IdentityList';
 import { getEmailList } from '../../Email/EmailEntryBox';
 
 function FromOtherWorkspacesStep (props) {
-  const { participants, marketId, finish, formData, updateFormData } = props;
+  const { participants, marketId, finish, formData, updateFormData, allAutonomousViews } = props;
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const wizardClasses = useContext(WizardStylesContext);
@@ -30,6 +30,10 @@ function FromOtherWorkspacesStep (props) {
       const newEmails = checked.map((participant) => participant.email);
       const emails = !_.isEmpty(formData.emails) ? newEmails.concat(formData.emails) : newEmails;
       updateFormData({ emails });
+      if (allAutonomousViews) {
+        // Just go to market or they will see blank page
+        navigate(history, formMarketLink(marketId, marketId));
+      }
     });
   }
   return (
@@ -45,6 +49,7 @@ function FromOtherWorkspacesStep (props) {
           {...props}
           showSkip={hasSentEmails}
           onNext={onNext}
+          onNextDoAdvance={!allAutonomousViews}
           showTerminate={!hasSentEmails}
           terminateLabel="cancel"
           onTerminate={finish}

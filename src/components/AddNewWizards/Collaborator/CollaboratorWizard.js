@@ -42,6 +42,8 @@ function CollaboratorWizard (props) {
     navigate(history, formMarketLink(marketId, marketId));
   }
 
+  // Have to do create team view step first or they won't see that at all if they copy the market link
+
   return (
     <WizardStylesProvider>
       <FormdataWizard name="collaborator_wizard" onFinish={onFinish} useLocalStorage={false}
@@ -49,9 +51,9 @@ function CollaboratorWizard (props) {
         {(allAutonomousViews || viewCreated) && (
           <CreateTeamViewStep marketId={marketId} setViewCreated={setViewCreated} />
         )}
-        <InviteByEmailStep marketId={marketId} displayFromOther={displayFromOther} />
+        <InviteByEmailStep marketId={marketId} displayFromOther={displayFromOther} allAutonomousViews={allAutonomousViews} />
         {displayFromOther && (
-          <FromOtherWorkspacesStep marketId={marketId} participants={participants}/>
+          <FromOtherWorkspacesStep marketId={marketId} participants={participants} allAutonomousViews={allAutonomousViews} />
         )}
         <AssignViewsStep marketId={marketId} marketPresences={marketPresences}/>
       </FormdataWizard>

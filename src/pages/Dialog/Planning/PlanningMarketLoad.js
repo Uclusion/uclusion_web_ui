@@ -27,6 +27,7 @@ import jwt_decode from 'jwt-decode';
 import { sendMarketsStruct, updateMarkets } from '../../../api/versionedFetchUtils';
 import _ from 'lodash';
 import WorkspaceInviteWizard from '../../../components/AddNewWizards/WorkspaceInvite/WorkspaceInviteWizard';
+import { setCurrentWorkspace } from '../../../utils/redirectUtils';
 
 function PlanningMarketLoad() {
   const [, marketsDispatch] = useContext(MarketsContext);
@@ -90,9 +91,11 @@ function PlanningMarketLoad() {
               return updateMarkets(inlineMarketIds, inlineMarketsStruct, 1, {})
                 .then(() => {
                   sendMarketsStruct(inlineMarketsStruct);
+                  setCurrentWorkspace(id);
                   return { id };
                 });
             }
+            setCurrentWorkspace(id);
             return { id };
           });
       } catch (error) {

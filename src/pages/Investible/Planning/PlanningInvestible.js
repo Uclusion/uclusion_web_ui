@@ -30,7 +30,7 @@ import { PLACEHOLDER } from '../../../constants/global';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { allImagesLoaded, invalidEditEvent } from '../../../utils/windowUtils';
 import Gravatar from '../../../components/Avatars/Gravatar';
-import { useInvestibleVoters } from '../../../utils/votingUtils';
+import { calculateInvestibleVoters, useInvestibleVoters } from '../../../utils/votingUtils';
 import { getCommenterPresences } from '../../Dialog/Planning/userUtils';
 import { getPageReducerPage, usePageStateReducer } from '../../../components/PageState/pageStateHooks';
 import { pushMessage } from '../../../utils/MessageBusUtils';
@@ -80,6 +80,7 @@ import Link from '@material-ui/core/Link';
 import InfoIcon from '@material-ui/icons/Info';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -130,7 +131,7 @@ export const usePlanningInvestibleStyles = makeStyles(
       }
     },
     votingCardContent: {
-      margin: theme.spacing(0, 2, 2, 2),
+      margin: theme.spacing(0, 2, 2, 0),
       padding: 0,
       '& img': {
         margin: '.75rem 0',
@@ -362,8 +363,9 @@ function PlanningInvestible(props) {
   const editClasses = useInvestibleEditStyles();
   const wizardClasses = wizardStyles();
   const [searchResults] = useContext(SearchResultsContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [marketsState] = useContext(MarketsContext);
   const { results, parentResults, search } = searchResults;
   const { id: marketId, market_stage: marketStage } = market;
   const inArchives = marketStage !== ACTIVE_STAGE;
@@ -384,7 +386,12 @@ function PlanningInvestible(props) {
   const { name, description, locked_by: lockedBy, created_at: createdAt } = investible;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [approvalsOpen, setApprovalsOpen] = useState(true);
+  const [approvalsOpen, setApprovalsOpen] = useState(!_.isEmpty(calculateInvestibleVoters(investibleId, marketId, marketsState, 
+    investiblesState, marketPresences, false)));
+  const reportsCommentsSearched = investibleCommentsSearched.filter(
+    comment => comment.comment_type === REPORT_TYPE
+  );
+  const [reportsOpen, setReportsOpen] = useState(!_.isEmpty(reportsCommentsSearched));
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const isAssigned = assigned.includes(userId);
@@ -508,9 +515,6 @@ function PlanningInvestible(props) {
   }
   const suggestionComments = investibleComments.filter(
     comment => comment.comment_type === SUGGEST_CHANGE_TYPE
-  );
-  const reportsCommentsSearched = investibleCommentsSearched.filter(
-    comment => comment.comment_type === REPORT_TYPE
   );
   const questionComments = investibleComments.filter(
     comment => comment.comment_type === QUESTION_TYPE
@@ -644,6 +648,10 @@ function PlanningInvestible(props) {
     setApprovalsOpen(!approvalsOpen);
   }
 
+  function toggleReports() {
+    setReportsOpen(!reportsOpen);
+  }
+
   return (
     <Screen
       title={title}
@@ -717,8 +725,8 @@ function PlanningInvestible(props) {
               </div>
             </div>
             <div className={mobileLayout? undefined : classes.votingCardContent}
-                 style={{display: 'flex', paddingLeft: mobileLayout ? '10px' : undefined,
-                   paddingBottom: mobileLayout ? '20px' : undefined}}>
+                 style={{display: 'flex', paddingLeft: mobileLayout ? '10px' : undefined, backgroundColor: 'white',
+                   paddingBottom: mobileLayout ? '20px' : undefined, marginBottom: '2rem'}}>
               <div className={isEditableByUser() ? classes.fullWidthEditable :
                 classes.fullWidth} onClick={(event) =>
                 mySetBeingEdited(event)}>
@@ -728,11 +736,12 @@ function PlanningInvestible(props) {
                   </Typography>
                 )}
                 {marketId && investibleId && (
-                  <div className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}>
+                  <div className={isEditableByUser() ? editClasses.containerEditable : editClasses.container} 
+                    style={{padding: '1rem'}}>
                     <Typography className={editClasses.title} variant="h3" component="h1">
                       {name}
                     </Typography>
-                    <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff}/>
+                    <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} backgroundColor='white' />
                   </div>
                 )}
               </div>
@@ -761,8 +770,9 @@ function PlanningInvestible(props) {
             )}
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
                             usePadding={!mobileLayout} useColor
-                            marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen/>
+                            marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen={!_.isEmpty(todoCommentsSearched)}/>
               <div style={{
+                marginTop: '3rem',
                 paddingBottom: mobileLayout ? undefined : '15vh',
                 paddingLeft: mobileLayout ? undefined : '1rem',
                 paddingRight: mobileLayout ? undefined : '1rem'
@@ -807,10 +817,23 @@ function PlanningInvestible(props) {
                     isAssigned={isAssigned}
                   />
                 )}
-                <h2 id="status" style={{ paddingTop: '1.5rem', paddingBottom: 0, marginBottom: 0 }}>
-                  <FormattedMessage id="reportsSectionLabel"/>
-                </h2>
-                {showCommentAdd && isAssigned && (
+                <div style={{ display: 'flex', alignItems: 'center', marginTop: '3rem' }}>
+                  <h2 id="status" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
+                    <FormattedMessage id="reportsSectionLabel"/>
+                  </h2>
+                  <IconButton onClick={() => toggleReports()} style={{
+                      marginBottom: 0,
+                      paddingBottom: 0, marginTop: 0, paddingTop: 0
+                    }}>
+                    <Tooltip key="toggleReports"
+                             title={<FormattedMessage
+                               id={`${reportsOpen ? 'closeReports' : 'openReports'}Tip`}/>}>
+                      {reportsOpen ? <ExpandLess fontSize="large" htmlColor="black"/> :
+                        <ExpandMoreIcon fontSize="large" htmlColor="black"/>}
+                    </Tooltip>
+                  </IconButton>
+                </div>
+                {showCommentAdd && isAssigned && reportsOpen && (
                   <SpinningButton id="newReport" className={wizardClasses.actionNext}
                                   icon={hasJobComment(groupId, investibleId, REPORT_TYPE) ? EditIcon : AddIcon}
                                   iconColor="black"
@@ -823,7 +846,7 @@ function PlanningInvestible(props) {
                     <FormattedMessage id="createNewStatus"/>
                   </SpinningButton>
                 )}
-                {!isSingleUser && (
+                {!isSingleUser && reportsOpen && (
                   <DismissableText textId="progressReportCommentHelp"
                                    display={isAssigned && _.isEmpty(reportsCommentsSearched)} isLeft
                                    text={<div>
@@ -831,24 +854,26 @@ function PlanningInvestible(props) {
                                    </div>
                                    }/>
                 )}
-                {(!showCommentAdd || !isAssigned) && _.isEmpty(reportsCommentsSearched) && (
-                  <Typography style={{ marginLeft: 'auto', marginRight: 'auto' }}
+                {(!showCommentAdd || !isAssigned) && _.isEmpty(reportsCommentsSearched) && reportsOpen && (
+                  <Typography style={{ marginLeft: 'auto', marginRight: 'auto', marginTop: '0.75rem' }}
                               variant="body1">
                     No progress reports.
                   </Typography>
                 )}
-                <CommentBox
-                  comments={reportsCommentsSearched.concat(replies)}
-                  marketId={marketId}
-                  isRequiresInput={isRequiresInput}
-                  isInBlocking={isInBlocked}
-                  fullStage={fullStage}
-                  assigned={assigned}
-                  formerStageId={formerStageId}
-                  marketInfo={marketInfo}
-                  investible={marketInvestible}
-                  usePadding={false}
-                />
+                {reportsOpen && (
+                  <CommentBox
+                    comments={reportsCommentsSearched.concat(replies)}
+                    marketId={marketId}
+                    isRequiresInput={isRequiresInput}
+                    isInBlocking={isInBlocked}
+                    fullStage={fullStage}
+                    assigned={assigned}
+                    formerStageId={formerStageId}
+                    marketInfo={marketInfo}
+                    investible={marketInvestible}
+                    usePadding={false}
+                  />
+                )}
               </div>
           </>
         )}

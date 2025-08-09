@@ -13,7 +13,8 @@ function DescriptionOrDiff(props) {
   const {
     id,
     description,
-    showDiff
+    showDiff,
+    backgroundColor = '#EDF7F8'
   } = props;
 
   const [messagesState] = useContext(NotificationsContext);
@@ -39,7 +40,7 @@ function DescriptionOrDiff(props) {
         id={`readOnlyDiff${id}`}
         value={description}
         noToolbar
-        backgroundColor='#EDF7F8'
+        backgroundColor={backgroundColor}
       />
     </div>
   );

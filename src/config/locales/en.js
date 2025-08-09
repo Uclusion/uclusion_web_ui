@@ -1225,6 +1225,8 @@ const messages = defineMessages({
   closeTodosTip: 'ctrl+shift+e Collapse tasks',
   openApprovalsTip: 'Expand approvals',
   closeApprovalsTip: 'Collapse approvals',
+  openReportsTip: 'Expand reports',
+  closeReportsTip: 'Collapse reports',
   closeDetailsTip: 'Collapse details',
   openDetailsTip: 'Expand details',
   tasksSection: 'Tasks',

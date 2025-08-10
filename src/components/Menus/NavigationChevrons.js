@@ -80,7 +80,9 @@ export default function NavigationChevrons() {
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
   const { messages, navigations } = messagesState || {};
-  const allMessages = messages?.filter((message) => isInInbox(message)) || [];
+  // Just don't even consider going to a message that's not synced
+  const allMessages = messages?.filter((message) => isInInbox(message) && messageIsSynced(message, marketsState, marketPresencesState, 
+    commentsState, investiblesState, groupsState)) || [];
   const highlightedMessages = allMessages.filter((message) => message.is_highlighted);
   const orderedNavigations = _.orderBy(navigations || [], ['time'], ['desc']);
   const workspacesData = getWorkspaceData(planningDetails, marketPresencesState, investiblesState, commentsState,
@@ -153,8 +155,7 @@ export default function NavigationChevrons() {
         };
       }
     }
-    const highlighted = highlightedMessages?.filter((message) =>
-      formInboxItemLink(message) !== resource && messageIsSynced(message, marketsState, marketPresencesState, commentsState, investiblesState, groupsState)) || [];
+    const highlighted = highlightedMessages?.filter((message) => formInboxItemLink(message) !== resource) || [];
     const highlightedMapped = addWorkspaceGroupAttribute(highlighted, groupsState);
     const highlightedOrdered =  _.orderBy(highlightedMapped,
       [function isGroupInvite(msg) {

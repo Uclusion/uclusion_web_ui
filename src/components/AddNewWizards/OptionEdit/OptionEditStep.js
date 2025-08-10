@@ -112,11 +112,12 @@ function OptionEditStep(props) {
           icon={SettingsBackupRestore}
           disabled={!hasValue}
           onClick={handleSave}
+          whiteBackground
           id="investibleUpdateButton"
         >
           <FormattedMessage id="update"/>
         </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton">
+        <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton" whiteBackground>
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
       </CardActions>

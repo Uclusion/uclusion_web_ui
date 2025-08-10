@@ -64,7 +64,7 @@ function NameField(props) {
   }
 
   return (
-    <FormControl variant="outlined" style={{marginBottom: '10px', width: '100%', maxWidth: '43rem'}}>
+    <FormControl variant="outlined" style={{marginBottom: '10px', width: '100%', maxWidth: '43rem', backgroundColor: 'white'}}>
       <InputLabel htmlFor='display-name'>{intl.formatMessage({ id: label })}</InputLabel>
       <OutlinedInput
         id={id}

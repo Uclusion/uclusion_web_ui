@@ -94,12 +94,13 @@ function JobEditStep(props) {
         <SpinningIconLabelButton
           icon={SettingsBackupRestore}
           disabled={!hasValue}
+          whiteBackground
           onClick={handleSave}
           id="investibleUpdateButton"
         >
           <FormattedMessage id="update" />
         </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton">
+        <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton" whiteBackground>
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}
         </SpinningIconLabelButton>
       </CardActions>

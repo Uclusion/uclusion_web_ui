@@ -458,7 +458,7 @@ function PlanningDialog(props) {
   }
 
   const tabTitle = `${groupName} ${intl.formatMessage({id: 'tabGroupAppend'})}`;
-  const swimlaneEmptyPreText = 'There are no in progress jobs.';
+  const swimlaneEmptyPreText = 'There are no active jobs.';
   function getTabCount(tabIndex) {
     if (!_.isEmpty(search)) {
       return undefined;
@@ -730,12 +730,14 @@ function PlanningDialog(props) {
                                     and sends a <Link href="https://documentation.uclusion.com/notifications"
                                                     target="_blank">notification</Link> to Uclusion support.
                                   </div>
-                                  :
+                                  : (_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) ?
                                  <div>
                                    {swimlaneEmptyPreText} The "Add job" button above creates a job
                                    and sends <Link href="https://documentation.uclusion.com/notifications"
                                              target="_blank">notifications</Link> to members of this view.
-                                 </div>
+                                 </div> : <div>
+                                     {swimlaneEmptyPreText} Drag a job down to start or use the "Add job" button above.
+                                   </div>)
                               )
                              }/>
           </div>

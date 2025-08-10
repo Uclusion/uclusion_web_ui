@@ -781,7 +781,7 @@ function PlanningInvestible(props) {
                   <h2 id="approvals" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
                     <FormattedMessage id="decisionInvestibleOthersVoting"/>
                   </h2>
-                  <IconButton onClick={() => toggleApprovals()} style={{
+                  <IconButton id='approvalsToggleId' onClick={() => toggleApprovals()} style={{
                     marginBottom: 0,
                     paddingBottom: 0, marginTop: 0, paddingTop: 0
                   }}>
@@ -818,10 +818,10 @@ function PlanningInvestible(props) {
                   />
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', marginTop: '3rem' }}>
-                  <h2 id="status" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
+                  <h2 id="progress" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
                     <FormattedMessage id="reportsSectionLabel"/>
                   </h2>
-                  <IconButton onClick={() => toggleReports()} style={{
+                  <IconButton id='reportsToggleId' onClick={() => toggleReports()} style={{
                       marginBottom: 0,
                       paddingBottom: 0, marginTop: 0, paddingTop: 0
                     }}>

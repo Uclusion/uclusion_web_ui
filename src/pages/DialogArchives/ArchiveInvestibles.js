@@ -102,7 +102,7 @@ function ArchiveInvestible(props) {
         }}
       >
         <RaisedCard draggable={allowDragDrop} onDragStart={onDragStart}>
-          <Link href={formInvestibleLink(marketId, id)} color="inherit" draggable="false">
+          <Link href={formInvestibleLink(marketId, id)} color="inherit" style={{cursor: 'grab'}}>
             <div className={classes.outlined}>
               <div>
                 <Typography style={{fontSize: '.75rem'}}>

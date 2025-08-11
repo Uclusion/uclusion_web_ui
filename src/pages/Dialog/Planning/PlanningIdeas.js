@@ -165,7 +165,7 @@ function PlanningIdeas(props) {
           onInvestibleStageChange(targetStageId, inv, investibleId, marketId, commentsState, commentsDispatch,
             invDispatch, diffDispatch, marketStagesState, undefined, fullStage, marketPresencesDispatch);
         }).finally(() => {
-          target.style.cursor = 'pointer';
+          target.style.cursor = 'grab';
           setOperationRunning(false);
         });
     }
@@ -538,6 +538,7 @@ const generalStageStyles = makeStyles((theme) => {
       border: `1px solid ${theme.palette.grey['400']}`,
       borderRadius: theme.spacing(1),
       fontSize: '.8em',
+      cursor: 'grab',
       margin: theme.spacing(0.5, 0),
       padding: theme.spacing(1, 2),
       overflowWrap: 'break-word',
@@ -727,7 +728,6 @@ function StageInvestible(props) {
           <StageLink
             href={to}
             id={id}
-            draggable="false"
             onClick={event => {
               event.stopPropagation();
               event.preventDefault();
@@ -773,7 +773,7 @@ const useStageLinkStyles = makeStyles(() => {
 function StageLink (props) {
   const { className, ...other } = props;
   const classes = useStageLinkStyles();
-  return <Link className={clsx(classes.root, className)} {...other} />;
+  return <Link className={clsx(classes.root, className)} style={{cursor: 'grab'}} {...other} />;
 }
 
 export default PlanningIdeas;

@@ -19,7 +19,7 @@ import { getRequiredInputStage, getStages } from '../../../contexts/MarketStages
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { sendComment } from '../../../api/comments';
 import { changeInvestibleStageOnCommentOpen } from '../../../utils/commentFunctions';
-import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket, getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { quickNotificationChanges } from '../../Comments/CommentAdd';
 import { QUESTION_TYPE } from '../../../constants/comments';
 import { getMarketInfo } from '../../../utils/userFunctions';
@@ -31,12 +31,14 @@ import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 import OptionListItem from '../../Comments/OptionListItem';
 import { DECISION_TYPE } from '../../../constants/markets';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
 
 function AddOptionStep(props) {
   const { formData, marketId, investibleId } = props;
   const { inlineMarketId, commentId, groupId } = formData;
   const editorName = `addOptionWizard${inlineMarketId}`;
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
+  const [useCompression, setUseCompression] = useState(true);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
@@ -56,6 +58,7 @@ function AddOptionStep(props) {
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
+  const parentComment = getComment(commentState, marketId, commentId);
 
   const editorSpec = {
     placeholder: "Your option...",
@@ -122,6 +125,18 @@ function AddOptionStep(props) {
       <Typography className={classes.introText}>
         What are the options?
       </Typography>
+      <CommentBox
+        comments={[parentComment]}
+        marketId={marketId}
+        allowedTypes={[]}
+        removeActions
+        showVoting={false}
+        isInbox
+        compressAll
+        inboxMessageId={parentComment?.id}
+        toggleCompression={() => setUseCompression(!useCompression)}
+        useCompression={useCompression}
+      />
       <div style={{marginBottom: '2rem'}}>
         {allOptions.map((fullInvestible) => getOptionListItem(fullInvestible))}
       </div>

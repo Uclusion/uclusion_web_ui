@@ -62,7 +62,7 @@ function OtherWorkspaceMenus(props) {
   const intl = useIntl();
   const [pageStateFull, pageDispatch] = usePageStateReducer('otherMenus');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, 'menuState',
-    {switchWorkspaceOpen: false, integrationsOpen: false, collaboratorsOpen: !mobileLayout});
+    {switchWorkspaceOpen: true, integrationsOpen: false, collaboratorsOpen: !mobileLayout});
   const { switchWorkspaceOpen, integrationsOpen, collaboratorsOpen } = pageState;
   const [presenceAnchor, setPresenceAnchor] = useState(null);
   const [presenceMenuId, setPresenceMenuId] = useState(undefined);

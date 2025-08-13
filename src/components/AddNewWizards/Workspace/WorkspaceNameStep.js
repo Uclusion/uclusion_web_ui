@@ -121,6 +121,7 @@ function WorkspaceNameStep (props) {
   return (
     <WizardStepContainer
       {...props}
+      isLarge
     >
       <div>
         <Typography className={classes.introText}>
@@ -128,12 +129,13 @@ function WorkspaceNameStep (props) {
         </Typography>
         {isDemoOn && (
           <Typography className={classes.introSubText} variant="subtitle1">
-            <b>Warning</b>: Creating this workspace <i>ends the demo</i> and removes its workspace.
+            <b>Warning</b>: Creating this workspace <i>ends all demos</i> and removes their workspaces.
           </Typography>
         )}
         <OutlinedInput
           id="workspaceName"
           className={classes.input}
+          style={{maxWidth: '25rem'}}
           value={value}
           onChange={onNameChange}
           autoFocus

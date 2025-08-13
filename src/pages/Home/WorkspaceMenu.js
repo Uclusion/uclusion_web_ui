@@ -9,8 +9,8 @@ import { useIntl } from 'react-intl';
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
 import { formManageUsersLink, formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
-import { WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { ExpandLess, ExpandMore, GroupOutlined, PermIdentity, Person } from '@material-ui/icons';
+import { DEMO_TYPE, PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
+import { DoneAll, ExpandLess, ExpandMore, FlagOutlined, GroupOutlined, PermIdentity, Person } from '@material-ui/icons';
 import ReturnTop from './ReturnTop';
 
 const useStyles = makeStyles((theme) => ({
@@ -111,6 +111,7 @@ function WorkspaceMenu(props) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const history = useHistory();
+  const demos = markets.filter((market) => market.market_type === PLANNING_TYPE && market.object_type === DEMO_TYPE);
 
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
@@ -286,6 +287,46 @@ function WorkspaceMenu(props) {
                   </div>
                 </Tooltip>
               </MenuItem>
+              {defaultMarket.object_type === DEMO_TYPE && (
+                <MenuItem icon={<DoneAll htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+                  rootStyles={{
+                    '.css-wx7wi4': {
+                      marginRight: 0,
+                    },
+                  }}
+                  key="leaveDemoKey" id="leaveDemoId"
+                  onClick={() => {
+                    recordPositionToggle();
+                    navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`)
+                  }}
+                >
+                  <Tooltip title={intl.formatMessage({ id: 'endDemoExplanation' })}>
+                    <div>
+                      {intl.formatMessage({ id: 'endDemo' })}
+                    </div>
+                  </Tooltip>
+                </MenuItem>
+              )}
+              {defaultMarket.object_type === DEMO_TYPE && _.size(demos) < 2 && (
+                <MenuItem icon={<FlagOutlined htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+                  rootStyles={{
+                    '.css-wx7wi4': {
+                      marginRight: 0,
+                    },
+                  }}
+                  key="tryOtherDemoKey" id="tryOtherDemoId"
+                  onClick={() => {
+                    recordPositionToggle();
+                    navigate(history, '/demo');
+                  }}
+                >
+                  <Tooltip title={intl.formatMessage({ id: 'otherDemoExplanation' })}>
+                    <div>
+                      {intl.formatMessage({ id: 'otherDemo' })}
+                    </div>
+                  </Tooltip>
+                </MenuItem>
+              )}
             </ProMenu>
           </ProSidebar>
         </Menu>

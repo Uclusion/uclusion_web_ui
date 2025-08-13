@@ -12,7 +12,7 @@ const messages = defineMessages({
   blockedNotice: 'Operation Blocked',
   slack_register_failed: 'Slack registration failure.',
   settings: 'Settings',
-  workspaceSettings: 'Workspace settings',
+  workspaceSettings: 'Workspace Settings',
   oneDoneInvestible: 'Assignment',
   language: 'Language',
   theme: 'Theme',
@@ -161,6 +161,10 @@ const messages = defineMessages({
   creatingDemoMessage: "Hang tight, we're creating a demo just for you",
   loadingMessage: 'Page loading',
   demoLoadingMessage: 'Please wait while your sandbox demo is downloaded - this may take some time...',
+  endDemo: 'End Demo',
+  endDemoExplanation: 'Create a new workspace to end all demos',
+  otherDemo: 'Try Other Demo',
+  otherDemoExplanation: 'Try the other demo',
   marketLoadingMessage: 'Please wait while your workspace invitation is processed...',
   billingLoadingMessage: 'Please wait while your billing information is loading...',
   invoicesLoadingMessage: 'Please wait while your invoices are loading...',
@@ -206,8 +210,8 @@ const messages = defineMessages({
   marketEditCancelLabel: 'Clear',
   marketEditSaveLabel: 'Save',
 
-  editMarketButtonPlan: 'Workspace settings',
-  editMarketButtonDecision: 'Dialog settings',
+  editMarketButtonPlan: 'Workspace Settings',
+  editMarketButtonDecision: 'Dialog Settings',
   editMarketButtonInitiative: 'Edit initiative',
 
   // InvestibleEditButton

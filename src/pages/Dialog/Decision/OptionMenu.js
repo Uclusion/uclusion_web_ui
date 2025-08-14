@@ -29,7 +29,7 @@ const useStyles = makeStyles(() => ({
 }));
 
 function OptionMenu(props) {
-  const { anchorEl, recordPositionToggle, marketId, investibleId, openForInvestment, mouseX, mouseY } = props;
+  const { anchorEl, recordPositionToggle, marketId, investibleId, openForInvestment, mouseX, mouseY, isAdmin } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -84,7 +84,7 @@ function OptionMenu(props) {
         disableRestoreFocus
         classes={{ paper: classes.paperMenu }}
       >
-        {!openForInvestment && (
+        {!openForInvestment && isAdmin && (
           <MenuItem key="moveOptionVotingKey" id="moveOptionVotingId" style={{backgroundColor: 'white'}}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
@@ -99,7 +99,7 @@ function OptionMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
-        {openForInvestment && (
+        {openForInvestment && isAdmin && (
           <MenuItem key="moveOptionNotVotingKey" id="moveOptionNotVotingId" style={{backgroundColor: 'white'}}
                     onClick={(event) => {
                       preventDefaultAndProp(event);

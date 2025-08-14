@@ -124,7 +124,7 @@ function OptionListItem(props) {
         onContextMenu={questionResolved ? undefined : recordPositionToggle}>
         {anchorEl && (
           <OptionMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} openForInvestment={isInVoting} 
-            mouseX={mouseX} mouseY={mouseY} marketId={marketId} investibleId={id} />
+            mouseX={mouseX} mouseY={mouseY} marketId={marketId} investibleId={id} isAdmin={isAdmin} />
         )}
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}

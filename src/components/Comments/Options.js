@@ -94,21 +94,32 @@ function Options(props) {
   const useTabIndex = selectedStageTab || tabIndex;
   const foundInv = (inlineInvestibles || []).find((inv) => hash?.includes(inv.investible.id));
 
+  function setUseSelectedInvestibleIdTabZero(id) {
+    updatePageState({ selectedInvestibleIdTabZero: id, investibleIdTabZeroWasSet: true });
+  }
+
+  function setUseSelectedInvestibleIdTabOne(id) {
+    updatePageState({ selectedInvestibleIdTabOne: id, investibleIdTabOneWasSet: true });
+  }
+
   useEffect(() => {
-    if (hash && !hash.includes(selectedInvestibleIdTabZero) && !hash.includes(selectedInvestibleIdTabOne)) {
+    if (hash && foundInv) {
       const foundStageTab = foundInv ?
         (getMarketInfo(foundInv, anInlineMarket?.id)?.stage === proposedStage?.id ? 1 : 0) : undefined;
-      if (foundInv) {
+      // Only set once to avoid spinning
+      if (!hash.includes(selectedInvestibleIdTabZero) && !hash.includes(selectedInvestibleIdTabOne)) {
         if (foundStageTab === 0) {
-          updatePageState({ selectedInvestibleIdTabZero: foundInv.investible.id });
+          updatePageState({ selectedInvestibleIdTabZero: foundInv.investible.id, investibleIdTabZeroWasSet: true });
         } else if (foundStageTab === 1) {
-          updatePageState({ selectedInvestibleIdTabOne: foundInv.investible.id });
+          updatePageState({ selectedInvestibleIdTabOne: foundInv.investible.id, investibleIdTabOneWasSet: true });
         }
+      }
+      if (tabIndex !== foundStageTab) {
         updatePageState({ tabIndex: foundStageTab });
       }
     }
-  }, [hash, selectedInvestibleId, selectedInvestibleIdTabZero, selectedInvestibleIdTabOne, anInlineMarket?.id,
-    proposedStage?.id, foundInv, updatePageState]);
+  }, [hash, selectedInvestibleId, anInlineMarket?.id, proposedStage?.id, foundInv, updatePageState, selectedInvestibleIdTabZero, 
+    selectedInvestibleIdTabOne, tabIndex]);
 
   const abstained = _.isEmpty(abstaining) ? undefined :
     <div style={{display: 'flex', paddingLeft: '2rem', alignItems: 'center'}}>
@@ -158,14 +169,6 @@ function Options(props) {
       return selectedInvestibleId;
     }
     return useTabIndex === 0 ? selectedInvestibleIdTabZero : selectedInvestibleIdTabOne;
-  }
-
-  function setUseSelectedInvestibleIdTabZero(id) {
-    updatePageState({ selectedInvestibleIdTabZero: id, investibleIdTabZeroWasSet: true });
-  }
-
-  function setUseSelectedInvestibleIdTabOne(id) {
-    updatePageState({ selectedInvestibleIdTabOne: id, investibleIdTabOneWasSet: true });
   }
 
   const proposed = getInlineInvestiblesForStage(proposedStage);

@@ -44,7 +44,8 @@ function AddCommentStep (props) {
         `${formMarketLink(parentMarketId, parentComment.group_id)}#option${investibleId}`);
     }
   }
-
+  const optionUrl = parentComment.investible_id ? `${formInvestibleLink(parentMarketId, parentComment.investible_id)}#option${investibleId}` :
+  `${formMarketLink(parentMarketId, parentComment.group_id)}#option${investibleId}`;
   return (
     <WizardStepContainer
       {...props}
@@ -57,9 +58,16 @@ function AddCommentStep (props) {
       <Typography className={classes.introSubText} variant="subtitle1">
         This comment will go to those interested in this option - otherwise use @ mentions for different addressing.
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId} comments={[]}
-                      useCompression={useCompression}
-                      toggleCompression={() => updateFormData({useCompression: !useCompression})} />
+      {parentComment.investible_id && (
+        <JobDescription marketId={parentMarketId} investibleId={parentComment.investible_id} comments={[]} useCompression={useCompression}
+          toggleCompression={() => updateFormData({useCompression: !useCompression})} />
+      )}
+        <div style={{marginTop: parentComment.investible_id ? '2rem' : undefined}}>
+          <JobDescription marketId={marketId} investibleId={investibleId} useCompression={useCompression} useJobLink={optionUrl}
+            toggleCompression={() => updateFormData({ useCompression: !useCompression })}/>
+        </div>
+      
+      <div className={classes.borderBottom}/>
       <CommentAdd
         nameKey="DecisionCommentAdd"
         type={commentType}

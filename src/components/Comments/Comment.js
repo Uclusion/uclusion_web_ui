@@ -636,7 +636,7 @@ function Comment(props) {
   function reopen() {
     return reopenComment(marketId, id)
       .then((comment) => {
-        if (inlineMarket?.market_type === DECISION_TYPE) {
+        if (inlineMarket?.market_type === DECISION_TYPE && comment.market_id === inlineMarketId) {
           if (commentType === ISSUE_TYPE) {
             const proposedStage = getProposedOptionsStage(marketStagesState, inlineMarketId);
             const inv = getInvestible(investiblesState, investibleId) || {};

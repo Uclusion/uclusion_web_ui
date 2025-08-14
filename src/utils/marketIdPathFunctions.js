@@ -131,16 +131,20 @@ export function getUrlForTicketPath(pathname, ticketState, marketsState, comment
         const market = getMarket(marketsState, marketId) || {};
         const { parent_comment_id: aParentCommentId, parent_comment_market_id: aParentMarketId } = market;
         const parentComment = getComment(commentsState, aParentMarketId, aParentCommentId) || {};
-        const { investible_id: parentInvestibleId, market_id: parentMarketId, group_id: parentGroupId } = parentComment;
-        if (parentInvestibleId) {
-          return `${formInvestibleLink(parentMarketId, parentInvestibleId)}#option${investibleId}`;
+        const { investible_id: parentInvestibleId, group_id: parentGroupId } = parentComment;
+        if (parentGroupId) {
+          if (parentInvestibleId) {
+            return `${formInvestibleLink(aParentMarketId, parentInvestibleId)}#option${investibleId}`;
+          }
+          return `${formMarketLink(aParentMarketId, parentGroupId)}#option${investibleId}`;
         }
-        return `${formMarketLink(parentMarketId, parentGroupId)}#option${investibleId}`;
+      } else {
+        return formInvestibleLink(marketId, investibleId);
       }
-      return formInvestibleLink(marketId, investibleId);
+    } else {
+      const { marketId, commentId, groupId, investibleId } = ticket;
+      return formCommentLink(marketId, groupId, investibleId, commentId);
     }
-    const { marketId, commentId, groupId, investibleId } = ticket;
-    return formCommentLink(marketId, groupId, investibleId, commentId);
   }
   return undefined;
 }

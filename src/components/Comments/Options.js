@@ -221,6 +221,7 @@ function Options(props) {
         isAdmin={isEditable}
         isSent={isSent}
         isInbox={isInbox}
+        isInVoting={useTabIndex === 0}
         removeActions={removeActions}
         selectedInvestibleId={getSelectedInvestibleId()}
         setSelectedInvestibleId={useTabIndex === 0 ? setUseSelectedInvestibleIdTabZero :

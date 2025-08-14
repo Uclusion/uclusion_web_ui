@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { IconButton, useMediaQuery, useTheme } from '@material-ui/core';
 import PropTypes from 'prop-types';
@@ -10,6 +10,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import _ from 'lodash';
 import DragImage from '../Dialogs/DragImage';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
+import OptionMenu from '../../pages/Dialog/Decision/OptionMenu';
 
 const Div = styled("div")`
   height: 45px;
@@ -76,12 +77,16 @@ function OptionListItem(props) {
     expansionPanel,
     expansionOpen,
     questionResolved,
+    isInVoting,
     isAdmin,
+    marketId,
     highlightList=[]
   } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [mouseX, setMouseX] = useState();
+  const [mouseY, setMouseY] = useState();
   const indexOfTitle = description.indexOf(title);
   let useDescription;
   if (indexOfTitle >= 0) {
@@ -93,6 +98,18 @@ function OptionListItem(props) {
   } else {
     useDescription = description?.startsWith('...') ? description.substring(3) : description;
   }
+
+  const recordPositionToggle = (event) => {
+    if (anchorEl === null) {
+      preventDefaultAndProp(event);
+      setAnchorEl(event.currentTarget);
+      setMouseX(event.clientX);
+      setMouseY(event.clientY);
+    } else {
+      setAnchorEl(null);
+    }
+  };
+
   function onDragStart(event) {
     const dragImage = document.getElementById(`dragImage${event.target.id}`);
     if (dragImage) {
@@ -103,7 +120,12 @@ function OptionListItem(props) {
 
   return (
     <>
-      <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable={!questionResolved && isAdmin}>
+      <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable={!questionResolved && isAdmin} 
+        onContextMenu={questionResolved ? undefined : recordPositionToggle}>
+        {anchorEl && (
+          <OptionMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} openForInvestment={isInVoting} 
+            mouseX={mouseX} mouseY={mouseY} marketId={marketId} investibleId={id} />
+        )}
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
                onClick={

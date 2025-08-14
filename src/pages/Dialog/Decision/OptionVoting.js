@@ -13,7 +13,7 @@ import { findMessageByInvestmentUserId } from '../../../utils/messageUtils';
 function OptionVoting(props) {
   const [marketsState] = useContext(MarketsContext);
   const { marketPresences, investibles, marketId, comments, isAdmin, inArchives, isSent, removeActions,
-    selectedInvestibleId, setSelectedInvestibleId, isInbox } = props;
+    selectedInvestibleId, setSelectedInvestibleId, isInbox, isInVoting } = props;
   const [messagesState] = useContext(NotificationsContext);
   const myPresence = marketPresences.find((presence) => presence.current_user);
   const userId = myPresence?.id;
@@ -44,8 +44,8 @@ function OptionVoting(props) {
     const highlightList = newlyVoted.map((investor) => investor.id);
     return (
       <OptionListItem id={investibleId} expansionPanel={expansionPanel} isNew={isNew(inv, messagesState)}
-                      people={investors} description={description} title={inv.investible.name}
-                      questionResolved={inArchives} isAdmin={isAdmin} highlightList={highlightList}
+                      people={investors} description={description} title={inv.investible.name} isInVoting={isInVoting}
+                      questionResolved={inArchives} isAdmin={isAdmin} highlightList={highlightList} marketId={marketId}
                       expandOrContract={() => {
                         if (expansionOpen) {
                           setSelectedInvestibleId(undefined);

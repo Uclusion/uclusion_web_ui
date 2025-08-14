@@ -118,7 +118,6 @@ const useStyles = makeStyles((theme) => ({
     display: "inline-flex"
   },
   upperRightCard: {
-    display: "inline-flex",
     float: "right",
     padding: 0,
     margin: 0,

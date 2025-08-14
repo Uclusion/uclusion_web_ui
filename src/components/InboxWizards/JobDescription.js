@@ -28,7 +28,7 @@ function JobDescription(props) {
   const { investibleId, marketId, comments, showAssigned=true, inboxMessageId, showRequiredApprovers = false,
     removeActions, showVoting, selectedInvestibleIdParent, preserveOrder, showAttachments, toggleCompression,
     useCompression, isSingleTaskDisplay = false, showCreatedBy = false, commentMarketId, expandTasksNotSection=false,
-    showDiff = false, tasksDefaultOpen=false, hideTabs=false, tasksSectionTitle } = props;
+    showDiff = false, tasksDefaultOpen=false, hideTabs=false, tasksSectionTitle, useJobLink } = props;
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -66,7 +66,7 @@ function JobDescription(props) {
             <Link href={formInvestibleLink(planningMarketId, investibleId)} variant="h6"
                   onClick={(event) => {
                     preventDefaultAndProp(event);
-                    navigate(history, formInvestibleLink(planningMarketId, investibleId));
+                    navigate(history, useJobLink || formInvestibleLink(planningMarketId, investibleId));
                   }}>
               {name}
             </Link>

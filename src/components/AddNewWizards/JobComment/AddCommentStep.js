@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { useIntl } from 'react-intl';
-import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { useHistory } from 'react-router';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
@@ -32,6 +32,8 @@ import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import GravatarGroup from '../../Avatars/GravatarGroup';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 export function hasJobComment(groupId, investibleId, commentType) {
   return hasCommentValue(groupId, undefined, 'JobCommentAdd', investibleId,
@@ -40,13 +42,14 @@ export function hasJobComment(groupId, investibleId, commentType) {
 
 function AddCommentStep (props) {
   const { investibleId, marketId, useType, updateFormData, formData, resolveId, groupId, currentStageId,
-    assigned, onFinishCreation, subscribed, presences } = props;
+    assigned, onFinishCreation, subscribed, presences, decisionInvestibleId, decisionMarketId } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [marketsState] = useContext(MarketsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const requiresInputStage = getRequiredInputStage(marketStagesState, marketId) || {};
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
@@ -91,7 +94,18 @@ function AddCommentStep (props) {
       });
   }
 
+  function onCreateTaskQuestionResolve() {
+    const fromDecisionMarket = getMarket(marketsState, decisionMarketId);
+    const { parent_comment_id: parentCommentId } = fromDecisionMarket;
+    return resolveComment(marketId, parentCommentId)
+      .then((comment) => {
+        addCommentToMarket(comment, commentState, commentDispatch);
+        removeMessagesForCommentId(parentCommentId, messagesState, messagesDispatch);
+      });
+  }
+
   const movingJob = isAssistance && !inAssistanceStage && userIsAssigned;
+  const optionUrl = `${formInvestibleLink(marketId, investibleId)}#option${decisionInvestibleId}`;
   return (
     <WizardStepContainer
       {...props}
@@ -114,9 +128,14 @@ function AddCommentStep (props) {
           Next / Assistance.
         </Typography>
       )}
-      {useType === TODO_TYPE && (
+      {useType === TODO_TYPE && !decisionInvestibleId && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening a task prevents moving this job to Tasks Complete stage until resolved.
+        </Typography>
+      )}
+      {useType === TODO_TYPE && decisionInvestibleId && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          The link to the below option is prefilled in this task.
         </Typography>
       )}
       {useType === REPORT_TYPE && !isResolve && noSubscribedToSendTo && (
@@ -181,17 +200,24 @@ function AddCommentStep (props) {
       <JobDescription marketId={marketId} investibleId={investibleId} comments={comments}
                       useCompression={useCompression}
                       toggleCompression={() => updateFormData({ useCompression: !useCompression })}/>
+      {decisionInvestibleId && (
+        <div style={{marginTop: '2rem'}}>
+          <JobDescription marketId={decisionMarketId} investibleId={decisionInvestibleId} useCompression={useCompression} useJobLink={optionUrl}
+            toggleCompression={() => updateFormData({ useCompression: !useCompression })}/>
+        </div>
+      )}
       <div className={classes.borderBottom}/>
       <CommentAdd
         nameKey="JobCommentAdd"
         type={useType}
-        wizardProps={{ ...props, isAddWizard: true, isResolve, onResolve: onReportResolveOnly }}
+        wizardProps={{ ...props, isAddWizard: true, isResolve, onResolve: decisionInvestibleId ? onCreateTaskQuestionResolve : onReportResolveOnly }}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}
         marketId={marketId}
         groupId={groupId}
         fromInvestibleId={investibleId}
+        fromDecisionInvestibleId={decisionInvestibleId}
         onSave={onSave}
         nameDifferentiator={`jobComment${useType}`}
       />

@@ -24,6 +24,7 @@ import {
   ACTIVE_STAGE,
   APPROVAL_WIZARD_TYPE,
   DECISION_COMMENT_WIZARD_TYPE,
+  JOB_COMMENT_WIZARD_TYPE,
   OPTION_EDIT_WIZARD_TYPE
 } from '../../../constants/markets';
 import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
@@ -69,7 +70,10 @@ import { setUclusionLocalStorageItem } from '../../../components/localStorageUti
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import EditIcon from '@material-ui/icons/Edit';
+import ListAltIcon from '@material-ui/icons/ListAlt';
 import { hasDecisionComment } from '../../../components/AddNewWizards/DecisionComment/AddCommentStep';
+import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -191,13 +195,14 @@ function DecisionInvestible(props) {
   const metaClasses = useMetaDataStyles();
   const wizardClasses = wizardStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [commentsState] = useContext(CommentsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const investibleId = fullInvestible?.investible?.id;
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
-  const { id: marketId, market_stage: marketStage } = market;
+  const { id: marketId, market_stage: marketStage, parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, investibleId);
   const {
@@ -264,6 +269,15 @@ function DecisionInvestible(props) {
       });
   }
 
+  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, TODO_TYPE];
+  const parentComment = getComment(commentsState, parentMarketId, parentCommentId) || {};
+  const { investible_id: parentInvestibleId } = parentComment;
+
+  function createTask() {
+    return navigate(history, formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, parentInvestibleId, parentMarketId, TODO_TYPE, 
+      undefined, investibleId, marketId));
+  }
+
   function toggleDiffShow() {
     updatePageState({showDiff: !showDiff});
   }
@@ -279,8 +293,6 @@ function DecisionInvestible(props) {
     setUclusionLocalStorageItem(`name-editor-${investibleId}`, name);
     navigate(history, formWizardLink(OPTION_EDIT_WIZARD_TYPE, marketId, investibleId))
   }
-
-  const allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, TODO_TYPE];
 
   function getActions() {
     return (
@@ -299,6 +311,14 @@ function DecisionInvestible(props) {
           <SpinningIconLabelButton icon={inProposed ? ArrowUpward : ArrowDownward} id='optionStageChange'
                                    onClick={changeStage}>
             <FormattedMessage id={inProposed ? 'promoteOption' : 'demoteOption'} />
+          </SpinningIconLabelButton>
+        </>
+      )}
+      {parentInvestibleId && (
+        <>
+          <div style={{paddingTop: '1rem'}} />
+          <SpinningIconLabelButton icon={ListAltIcon} id='optionCreateTask' onClick={createTask} doSpin={false}>
+            <FormattedMessage id='makeTask' />
           </SpinningIconLabelButton>
         </>
       )}

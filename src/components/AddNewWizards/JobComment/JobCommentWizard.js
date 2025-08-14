@@ -22,7 +22,7 @@ import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function JobCommentWizard(props) {
-  const { investibleId, marketId, commentType, resolveId } = props;
+  const { investibleId, marketId, commentType, resolveId, decisionInvestibleId, decisionMarketId } = props;
   const [commentsState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -73,8 +73,8 @@ function JobCommentWizard(props) {
                                 onFinishMove={() => setWasMovedToApproval(true)} />
         )}
         {(!hasDraft || wasJustCreated) && (
-          <AddCommentStep investibleId={investibleId} marketId={marketId} useType={commentType} resolveId={resolveId}
-                          onFinishCreation={() => setWasJustCreated(true)} subscribed={subscribed}
+          <AddCommentStep investibleId={investibleId} marketId={marketId} useType={commentType} resolveId={resolveId} decisionMarketId={decisionMarketId}
+                          onFinishCreation={() => setWasJustCreated(true)} subscribed={subscribed} decisionInvestibleId={decisionInvestibleId}
                           currentStageId={stage} groupId={groupId} assigned={assigned} presences={presences} />
         )}
         {hasDraft && !wasJustCreated && (

@@ -284,11 +284,8 @@ export function hasCommentValue(groupId, parent, nameKey, fromInvestibleId, name
 }
 
 function CommentAdd(props) {
-  const {
-    marketId, groupId, onSave, type, parent, nameKey, fromInvestibleId, mentionsAllowed, commentAddState,
-    updateCommentAddState, commentAddStateReset, autoFocus=true, threadMessages, nameDifferentiator='',
-    wizardProps
-  } = props;
+  const { marketId, groupId, onSave, type, parent, nameKey, fromInvestibleId, mentionsAllowed, commentAddState, fromDecisionInvestibleId, 
+    updateCommentAddState, commentAddStateReset, autoFocus=true, threadMessages, nameDifferentiator='', wizardProps} = props;
   const {
     uploadedFiles
   } = commentAddState;
@@ -321,7 +318,13 @@ function CommentAdd(props) {
   const investibleRequiresInput = (type === QUESTION_TYPE || type === SUGGEST_CHANGE_TYPE) && creatorIsAssigned
     && currentStageId !== blockingStage.id && currentStageId !== requiresInputStage.id;
   const editorName = `${nameDifferentiator}${nameKey ? nameKey : ''}${parentId ? parentId : investibleId ? investibleId : groupId}-comment-add-editor`;
-  const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
+  const option = getInvestible(investibleState, fromDecisionInvestibleId) || {};
+  const { investible } = option;
+  const optionName = investible?.name;
+  const optionUrl = `${formInvestibleLink(marketId, investibleId)}#option${fromDecisionInvestibleId}`;
+  const optionLinkBody = optionName ? `<p><a target="_self" href="${optionUrl}">${optionName}</a></p>` : undefined;
+  const useBody = getQuillStoredState(editorName) || optionLinkBody;
+  const [hasValue, setHasValue] = useState(!editorEmpty(useBody));
 
   useEffect(() => {
     // If didn't focus to begin with then focus when type is changed
@@ -346,7 +349,7 @@ function CommentAdd(props) {
   const isWizard = !_.isEmpty(wizardProps);
   const createInlineInitiative = (creatorIsAssigned || !investibleId || _.isEmpty(assigned))
     && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE;
-  const useBody = getQuillStoredState(editorName);
+
   const editorSpec = {
     value: useBody,
     autoFocus,
@@ -359,7 +362,8 @@ function CommentAdd(props) {
   const [Editor] = useEditor(editorName, editorSpec);
   function handleSave(isSent, passedNotificationType, doCreateInitiative, isJustClear) {
     const currentUploadedFiles = uploadedFiles || [];
-    const myBodyNow = getQuillStoredState(editorName);
+    // The default was never saved so if they immediately save have to use that instead of stored on disk
+    const myBodyNow = getQuillStoredState(editorName) || useBody;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -423,6 +427,7 @@ function CommentAdd(props) {
         handleSpinStop(comment, isJustClear);
       });
   }
+
   return (
     <div className={classes.editor} style={{paddingBottom: isWizard ? undefined : '1rem'}}>
       {Editor}
@@ -480,15 +485,16 @@ function CommentAdd(props) {
               } : (wizardProps.onTerminate ? wizardProps.onTerminate :
                 () => navigate(history, formInvestibleLink(marketId, investibleId)))}
               showOtherNext={type === TODO_TYPE || wizardProps.isResolve}
-              otherNextLabel={type === TODO_TYPE ? 'addAnother' : 'commentResolveLabelOnly'}
-              isOtherFinal={false}
+              otherNextLabel={type === TODO_TYPE ? (fromDecisionInvestibleId ? 'addResolve' : 'addAnother') : 'commentResolveLabelOnly'}
+              isOtherFinal={!_.isEmpty(fromDecisionInvestibleId)}
               otherNextValid={wizardProps.isResolve ? true : undefined}
-              onOtherNext={wizardProps.isResolve ? wizardProps.onResolve : () =>
+              onOtherNext={wizardProps.isResolve ? wizardProps.onResolve : (fromDecisionInvestibleId ? 
+                () => wizardProps.onResolve().then(() => handleSave()) : () =>
                 handleSave(true, undefined, false, true )
                     .then(() => {
                       resetEditor(editorName, '', {placeholder});
                       focusEditor(editorName);
-                    })
+                    }))
               }
               showTerminate={wizardProps.showTerminate !== undefined ? wizardProps.showTerminate : !investibleId && type !== REPORT_TYPE}
               terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>

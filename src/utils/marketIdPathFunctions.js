@@ -275,7 +275,8 @@ export function formGroupArchiveLink(marketId, groupId) {
   return formatGroupLinkWithPrefix('groupArchive', marketId, groupId);
 }
 
-export function formInvestibleAddCommentLink(wizardType, investibleId, marketId, commentType, typeObjectId) {
+export function formInvestibleAddCommentLink(wizardType, investibleId, marketId, commentType, typeObjectId, decisionInvestibleId, 
+  decisionMarketId) {
   let link = `/wizard#type=${wizardType.toLowerCase()}&investibleId=${investibleId}`;
   if (marketId) {
     link += `&marketId=${marketId}`;
@@ -285,6 +286,9 @@ export function formInvestibleAddCommentLink(wizardType, investibleId, marketId,
   }
   if (typeObjectId) {
     link += `&typeObjectId=${typeObjectId}`
+  }
+  if (decisionInvestibleId) {
+    link += `&decisionInvestibleId=${decisionInvestibleId}&decisionMarketId=${decisionMarketId}`;
   }
   return link;
 }

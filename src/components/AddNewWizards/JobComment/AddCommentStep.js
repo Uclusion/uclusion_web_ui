@@ -9,7 +9,7 @@ import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { useHistory } from 'react-router';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { addInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
@@ -34,6 +34,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import GravatarGroup from '../../Avatars/GravatarGroup';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { getMarketInfo } from '../../../utils/userFunctions';
 
 export function hasJobComment(groupId, investibleId, commentType) {
   return hasCommentValue(groupId, undefined, 'JobCommentAdd', investibleId,
@@ -47,7 +48,7 @@ function AddCommentStep (props) {
   const classes = useContext(WizardStylesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
-  const [, investiblesDispatch] = useContext(InvestiblesContext);
+  const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -100,6 +101,27 @@ function AddCommentStep (props) {
     return resolveComment(marketId, parentCommentId)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
+        const needsAssistanceComments = investibleComments?.filter((aComment) => aComment.id !== comment.id &&
+          [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(aComment.comment_type));
+        if (inAssistanceStage && _.isEmpty(needsAssistanceComments)) {
+          const inv = getInvestible(investiblesState, investibleId);
+          const marketInfo = getMarketInfo(inv, marketId);
+          console.debug(`former stage is ${marketInfo.former_stage_id} and current stage is ${currentStageId} and requires is ${requiresInputStage.id}`)
+          if (marketInfo.former_stage_id && ![requiresInputStage.id, blockingStage.id].includes(marketInfo.former_stage_id)) {
+            const newInfo = {
+              ...marketInfo,
+              stage: marketInfo.former_stage_id,
+              former_stage_id: currentStageId,
+              last_stage_change_date: comment.updated_at,
+            };
+            const newInfos = _.unionBy([newInfo], inv.market_infos, 'id');
+            const newInvestible = {
+              investible: inv.investible,
+              market_infos: newInfos
+            };
+            addInvestible(investiblesDispatch, () => {}, newInvestible);
+          }
+        }
         removeMessagesForCommentId(parentCommentId, messagesState, messagesDispatch);
       });
   }

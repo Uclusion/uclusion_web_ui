@@ -35,7 +35,7 @@ import {
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import CommentEdit from './CommentEdit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
-import { getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
+import { addMarketToStorage, getMarket, marketTokenLoaded } from '../../contexts/MarketsContext/marketsContextHelper';
 import CardType, { BUG, DECISION_TYPE, NOTE } from '../CardType';
 import {
   addCommentToMarket, getComment,
@@ -520,7 +520,7 @@ function Comment(props) {
   const isSingleUser = _.size(presences) < 2;
   const createdBy = useCommenter(comment, presences) || unknownPresence;
   const updatedBy = useUpdatedBy(comment, presences) || unknownPresence;
-  const [marketsState, , tokensHash] = useContext(MarketsContext);
+  const [marketsState, marketDispatch, tokensHash] = useContext(MarketsContext);
   const inlineMarket = getMarket(marketsState, inlineMarketId) || {};
   const market = getMarket(marketsState, marketId) || {};
   const { market_stage: marketStage, market_type: marketType } = market;
@@ -650,6 +650,11 @@ function Comment(props) {
         } else {
           onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
             commentsState, commentsDispatch, myPresence);
+        }
+        if (inlineMarket && inlineMarket.market_stage !== 'Active') {
+          // re-open inline market
+          const newInlineMarket = {...inlineMarket, market_stage: 'Active'};
+          addMarketToStorage(marketDispatch, newInlineMarket);
         }
         // The only message that will be there is the one telling you the comment was resolved
         removeMessagesForCommentId(id, messagesState);

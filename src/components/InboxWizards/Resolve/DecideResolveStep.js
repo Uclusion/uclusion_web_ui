@@ -31,6 +31,8 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import JobDescription from '../JobDescription';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { addMarketToStorage, getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function DecideResolveStep(props) {
   const { marketId, commentId, message, formData, updateFormData } = props;
@@ -40,6 +42,7 @@ function DecideResolveStep(props) {
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketsState, marketDispatch] = useContext(MarketsContext);
   const selectedInvestibleId = message.decision_investible_id || message.investible_id;
   const history = useHistory();
   const presences = getMarketPresences(marketPresencesState, marketId);
@@ -70,6 +73,12 @@ function DecideResolveStep(props) {
       .then((comment) => {
         onCommentOpen(investiblesState, commentRoot.investible_id, marketStagesState, marketId, comment,
           investiblesDispatch, commentState, commentDispatch, myPresence);
+        const inlineMarket = getMarket(marketsState, comment.inline_market_id);
+        if (inlineMarket && inlineMarket.market_stage !== 'Active') {
+          // re-open inline market
+          const newInlineMarket = {...inlineMarket, market_stage: 'Active'};
+          addMarketToStorage(marketDispatch, newInlineMarket);
+        }
         setOperationRunning(false);
         dismissWorkListItem(message, messagesDispatch);
         navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));

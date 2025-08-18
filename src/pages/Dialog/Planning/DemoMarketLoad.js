@@ -65,6 +65,7 @@ function DemoMarketLoad(props) {
 
   function LoadDemo() {
     const loadedInfo = suspend(async () => {
+      console.log(`Calling API to get demo ${utm}`);
       const result = await getDemo(utm === 'team');
       console.log('Quick adding demo market after load');
       const dispatchers = {
@@ -88,7 +89,7 @@ function DemoMarketLoad(props) {
       }
       setCurrentWorkspace(id);
       return {id};
-    }, []);
+    }, [utm]);
     console.log(`Loaded demo market id = ${loadedInfo.id}`);
     return loadingScreen;
   }

@@ -83,10 +83,6 @@ export function getDemo(isTeam){
   return getAccountClient()
     .then((client) => client.markets.getDemo(isTeam))
     .catch((error) => {
-      if (error.status !== 404) {
-        return toastErrorAndThrow(error, 'errorDemoLoadFailed');
-      } else {
-        console.error('Ignoring 404 on get demo as means demo load was called already');
-      }
+      return toastErrorAndThrow(error, 'errorDemoLoadFailed');
     });
 }

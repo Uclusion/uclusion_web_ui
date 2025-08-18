@@ -77,6 +77,7 @@ function JobCollaboratorStep (props) {
           Who outside the group should be collaborating on the job?
         </Typography>
         <JobDescription marketId={marketId} investibleId={investibleId} />
+        <div className={classes.borderBottom}/>
         <AssignmentList
           fullMarketPresences={marketPresences}
           previouslyAssigned={addressedIds}
@@ -87,13 +88,12 @@ function JobCollaboratorStep (props) {
           showAllOnly
           listHeader="collaborators"
         />
-
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
           finish={onFinish}
           validForm={validForm}
-          showNext={true}
+          showNext
           onNext={addressJob}
         />
     </WizardStepContainer>

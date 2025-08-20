@@ -412,7 +412,7 @@ function DecisionInvestible(props) {
     )}
     {marketId && investibleId && userId && (
       <div className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}
-           onClick={(event) => mySetBeingEdited(event)}>
+           onClick={(event) => mySetBeingEdited(event)} style={{minHeight: mobileLayout ? undefined : '6rem'}}>
         <Typography className={editClasses.title} variant="h3" component="h1">
           {name}
         </Typography>

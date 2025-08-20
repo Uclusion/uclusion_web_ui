@@ -107,18 +107,17 @@ function Options(props) {
       const foundStageTab = foundInv ?
         (getMarketInfo(foundInv, anInlineMarket?.id)?.stage === proposedStage?.id ? 1 : 0) : undefined;
       // Only set once to avoid spinning
-      if (!hash.includes(selectedInvestibleIdTabZero) && !hash.includes(selectedInvestibleIdTabOne)) {
-        if (foundStageTab === 0) {
-          updatePageState({ selectedInvestibleIdTabZero: foundInv.investible.id, investibleIdTabZeroWasSet: true });
-        } else if (foundStageTab === 1) {
-          updatePageState({ selectedInvestibleIdTabOne: foundInv.investible.id, investibleIdTabOneWasSet: true });
-        }
+      if (foundStageTab === 0 && !hash.includes(selectedInvestibleIdTabZero)) {
+        updatePageState({ selectedInvestibleIdTabZero: foundInv.investible.id, investibleIdTabZeroWasSet: true });
+      } 
+      if (foundStageTab === 1 && !hash.includes(selectedInvestibleIdTabOne)) {
+        updatePageState({ selectedInvestibleIdTabOne: foundInv.investible.id, investibleIdTabOneWasSet: true });
       }
       if (tabIndex !== foundStageTab) {
         updatePageState({ tabIndex: foundStageTab });
       }
     }
-  }, [hash, selectedInvestibleId, anInlineMarket?.id, proposedStage?.id, foundInv, updatePageState, selectedInvestibleIdTabZero, 
+  }, [hash, selectedInvestibleId, anInlineMarket?.id, proposedStage?.id, foundInv?.investible?.id, updatePageState, selectedInvestibleIdTabZero, 
     selectedInvestibleIdTabOne, tabIndex]);
 
   const abstained = _.isEmpty(abstaining) ? undefined :

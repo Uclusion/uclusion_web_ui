@@ -117,7 +117,7 @@ function Options(props) {
         updatePageState({ tabIndex: foundStageTab });
       }
     }
-  }, [hash, selectedInvestibleId, anInlineMarket?.id, proposedStage?.id, foundInv?.investible?.id, updatePageState, selectedInvestibleIdTabZero, 
+  }, [hash, selectedInvestibleId, anInlineMarket?.id, proposedStage?.id, foundInv, foundInv?.investible?.id, updatePageState, selectedInvestibleIdTabZero, 
     selectedInvestibleIdTabOne, tabIndex]);
 
   const abstained = _.isEmpty(abstaining) ? undefined :

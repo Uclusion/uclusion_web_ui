@@ -399,7 +399,9 @@ function Screen(props) {
   if (aMarket && aMarket.market_type !== PLANNING_TYPE) {
     marketId = aMarket.parent_comment_market_id;
     const parentComment = getComment(commentsState, marketId, aMarket.parent_comment_id);
-    useLink = formCommentLink(marketId, parentComment.group_id, parentComment.investible_id, parentComment.id);
+    if (parentComment) {
+      useLink = formCommentLink(marketId, parentComment.group_id, parentComment.investible_id, parentComment.id);
+    }
   }
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];

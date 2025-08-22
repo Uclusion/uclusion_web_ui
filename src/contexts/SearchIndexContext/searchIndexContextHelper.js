@@ -1,16 +1,8 @@
 import _ from 'lodash';
 import { transformItemsToIndexable } from './searchIndexContextMessages';
 
-export function getSearchResults(index, query, marketId) {
-  let result;
-  if (marketId) {
-    result = index.search(query, {
-      filter: (result) => result.marketId === marketId
-    });
-  } else {
-    result = index.search(query);
-  }
-  return result;
+export function getSearchResults(index, query) {
+  return index.search(query);
 }
 
 export function addToIndex(index, itemType, items) {

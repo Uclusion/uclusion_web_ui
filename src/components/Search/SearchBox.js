@@ -113,7 +113,7 @@ function SearchBox(props) {
 
   function updateIndex(searchQuery){
     // query the index
-    const rawResults = getSearchResults(index, searchQuery, marketId) || [];
+    const rawResults = getSearchResults(index, searchQuery) || [];
     // parents in a different hash so they can appear on the page but not be counted as results
     const {parentResults, removed} = getParentResults(rawResults);
     const results = rawResults.filter((result) => !removed.find((item) => item.id === result.id));

@@ -86,7 +86,7 @@ function Dialog(props) {
     }
   }, [commentsState, hidden, history, marketId, myHashFragment]);
 
-  if (loading && !hidden) {
+  if (loading) {
     return (
       <Screen
         hidden={hidden}

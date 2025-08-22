@@ -6,6 +6,7 @@ import {
   Checkbox,
   IconButton,
   InputAdornment,
+  Link,
   List,
   ListItem,
   ListItemIcon,
@@ -22,9 +23,13 @@ import { getGroupPresences, getMarketPresences } from '../../../contexts/MarketP
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { fixName } from '../../../utils/userFunctions';
+import { navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { ADD_COLLABORATOR_WIZARD_TYPE } from '../../../constants/markets';
 
 function AddNewUsers(props) {
   const { market, setToAddClean, group, showAll=true } = props;
+  const history = useHistory();
   const { id: addToMarketId } = market || {};
   const { id: groupId } = group || {};
   const classes = usePlanFormStyles();
@@ -130,7 +135,8 @@ function AddNewUsers(props) {
     setSearchValue(value)
   }
 
-  const displayNames = filteredNames || participants || []
+  const displayNames = filteredNames || participants || [];
+  const pathAddCollaborator = `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${addToMarketId}`;
   return (
     <>
       {displayNames.length > 0 &&
@@ -173,6 +179,11 @@ function AddNewUsers(props) {
       {displayNames.length === 0 && (
         <Typography variant="body1">
           {intl.formatMessage({ id: 'everyoneInGroupAddExplanation' })}
+          <br/><br/>
+          To add collaborators click <Link href={pathAddCollaborator} onClick={(event) => {
+          preventDefaultAndProp(event);
+          navigate(history, pathAddCollaborator);
+        }}>here</Link>.
         </Typography>
       )}
     </>

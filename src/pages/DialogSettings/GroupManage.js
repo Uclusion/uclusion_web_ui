@@ -70,6 +70,7 @@ function GroupManage() {
     });
     return changeGroupParticipation(marketId, group.id, added).then((newUsers) => {
       setOperationRunning(false);
+      setChecked([]);
       groupPresencesDispatch(addGroupMembers(marketId, group.id, newUsers));
     });
   }

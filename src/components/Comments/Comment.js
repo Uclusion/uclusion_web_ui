@@ -866,6 +866,64 @@ function Comment(props) {
       </Typography>
     )}
   </>;
+  const endActions = <>{showConfigureVotingButton && (
+    <SpinningIconLabelButton
+      onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
+        undefined, undefined, id, typeObjectId))}
+      doSpin={false} icon={SettingsIcon} iconOnly={mobileLayout}>
+      {!mobileLayout && intl.formatMessage({ id: 'configureVoting' })}
+    </SpinningIconLabelButton>
+  )}
+  {((resolved && showReopen) || (!resolved && showResolve)) && !mobileLayout && (
+    <SpinningIconLabelButton
+      doSpin={(investibleId || resolved) && (resolved || commentType !== REPORT_TYPE)}
+      onClick={resolved ? reopen : (commentType === REPORT_TYPE && investibleId ? () => navigate(history,
+        `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+          REPORT_TYPE)}&resolveId=${id}`) : resolve)}
+      icon={resolved ? SettingsBackupRestore : Done}
+      id={`commentResolveReopenButton${id}`}
+    >
+      {intl.formatMessage({ id: resolved ? 'commentReopenLabel' : 'commentResolveLabel' })}
+    </SpinningIconLabelButton>
+  )}
+  {showMakeTaskButton && !mobileLayout && (
+    <SpinningIconLabelButton
+      onClick={() => {
+        if (myPresenceIsAssigned) {
+          return moveToTask();
+        }
+        navigate(history, `${formMarketAddInvestibleLink(marketId, groupId, undefined, 
+          typeObjectId, BUG_WIZARD_TYPE)}&fromCommentId=${id}&useType=Task`);
+      }}
+      id={`makeTask${id}`}
+      doSpin={myPresenceIsAssigned}
+      icon={ListAltIcon}
+      focus={focusMove}
+    >
+      {intl.formatMessage({ id: 'makeTask' })}
+    </SpinningIconLabelButton>
+  )}
+  {showMoveButton && !mobileLayout && (
+    <SpinningIconLabelButton
+      onClick={() => navigate(history,
+        `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
+          investibleId && [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) ?
+            BUG_WIZARD_TYPE : undefined)}&fromCommentId=${id}`)}
+      id={`moveComment${id}`}
+      doSpin={false}
+      icon={Eject}
+      focus={focusMove && !showMakeTaskButton}
+    >
+      {intl.formatMessage({ id: "storyFromComment" })}
+    </SpinningIconLabelButton>
+  )}
+  {diff && (
+    <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} iconOnly={mobileLayout}
+                             onClick={(event) => toggleDiffShow(event)}
+                             doSpin={false}>
+      {!mobileLayout && <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />}
+    </SpinningIconLabelButton>
+  )}</>;
   const commentCard = <Card elevation={3}
                             style={{overflow: 'unset', marginTop: isSent === false || usePadding === false ? 0
       : '1rem', width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
@@ -1095,67 +1153,13 @@ function Comment(props) {
                 icon={Eject}
               />
             )}
+            {mobileLayout && endActions}
           </div>
-          <div className={mobileLayout ? classes.actions : classes.actionsEnd}>
-            {showConfigureVotingButton && (
-              <SpinningIconLabelButton
-                onClick={() => navigate(history, formWizardLink(JOB_COMMENT_CONFIGURE_WIZARD_TYPE, marketId,
-                  undefined, undefined, id, typeObjectId))}
-                doSpin={false} icon={SettingsIcon} iconOnly={mobileLayout}>
-                {!mobileLayout && intl.formatMessage({ id: 'configureVoting' })}
-              </SpinningIconLabelButton>
-            )}
-            {((resolved && showReopen) || (!resolved && showResolve)) && !mobileLayout && (
-              <SpinningIconLabelButton
-                doSpin={(investibleId || resolved) && (resolved || commentType !== REPORT_TYPE)}
-                onClick={resolved ? reopen : (commentType === REPORT_TYPE && investibleId ? () => navigate(history,
-                  `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                    REPORT_TYPE)}&resolveId=${id}`) : resolve)}
-                icon={resolved ? SettingsBackupRestore : Done}
-                id={`commentResolveReopenButton${id}`}
-              >
-                {intl.formatMessage({ id: resolved ? 'commentReopenLabel' : 'commentResolveLabel' })}
-              </SpinningIconLabelButton>
-            )}
-            {showMakeTaskButton && !mobileLayout && (
-              <SpinningIconLabelButton
-                onClick={() => {
-                  if (myPresenceIsAssigned) {
-                    return moveToTask();
-                  }
-                  navigate(history, `${formMarketAddInvestibleLink(marketId, groupId, undefined, 
-                    typeObjectId, BUG_WIZARD_TYPE)}&fromCommentId=${id}&useType=Task`);
-                }}
-                id={`makeTask${id}`}
-                doSpin={myPresenceIsAssigned}
-                icon={ListAltIcon}
-                focus={focusMove}
-              >
-                {intl.formatMessage({ id: 'makeTask' })}
-              </SpinningIconLabelButton>
-            )}
-            {showMoveButton && !mobileLayout && (
-              <SpinningIconLabelButton
-                onClick={() => navigate(history,
-                  `${formMarketAddInvestibleLink(marketId, groupId, undefined, typeObjectId,
-                    investibleId && [TODO_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType) ?
-                      BUG_WIZARD_TYPE : undefined)}&fromCommentId=${id}`)}
-                id={`moveComment${id}`}
-                doSpin={false}
-                icon={Eject}
-                focus={focusMove && !showMakeTaskButton}
-              >
-                {intl.formatMessage({ id: "storyFromComment" })}
-              </SpinningIconLabelButton>
-            )}
-            {diff && (
-              <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} iconOnly={mobileLayout}
-                                       onClick={(event) => toggleDiffShow(event)}
-                                       doSpin={false}>
-                {!mobileLayout && <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />}
-              </SpinningIconLabelButton>
-            )}
-          </div>
+          {!mobileLayout && (
+            <div className={classes.actionsEnd}>
+              {endActions}
+            </div>
+          )}
         </CardActions>
       )}
     </div>

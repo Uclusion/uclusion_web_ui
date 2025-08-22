@@ -240,7 +240,8 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
     let num = undefined;
     let numSuffix = undefined;
     if (!_.isEmpty(search)) {
-      num = (results || []).filter((item) => item.groupId === group.id);
+      num = _.size((results || []).filter((item) => item.groupId === group.id));
+      numSuffix = 'total';
     } else if (!outsetAvailable) {
       let groupMessages = findMessagesForGroupId(group.id, messagesState, true);
       if (_.isEmpty(groupMessages)) {

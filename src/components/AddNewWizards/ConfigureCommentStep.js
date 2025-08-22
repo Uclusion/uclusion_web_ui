@@ -30,6 +30,7 @@ import TokenStorageManager from '../../authorization/TokenStorageManager';
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks';
 import { TOKEN_TYPE_MARKET } from '../../api/tokenConstants';
 import _ from 'lodash';
+import { getFullStage, isFurtherWorkStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 
 function ConfigureCommentStep(props) {
   const { updateFormData, formData, useType, comment, allowMulti, previousStep, navigateOnFinish,
@@ -70,7 +71,9 @@ function ConfigureCommentStep(props) {
       const { investible } = inv;
       const marketInfo = getMarketInfo(inv, comment.market_id) || {};
       const myPresence = presences.find((presence) => presence.current_user) || {};
-      changeInvestibleStageOnCommentOpen(false, true, marketStagesState,
+      const creatorIsAssigned = (marketInfo.assigned || []).includes(myPresence.id);
+      const fullStage = getFullStage(marketStagesState, comment.market_id, marketInfo.stage);
+      changeInvestibleStageOnCommentOpen(false, creatorIsAssigned && !isFurtherWorkStage(fullStage), marketStagesState,
         [marketInfo], investible, investiblesDispatch, comment, myPresence);
       quickNotificationChanges(comment.comment_type, comment.investible_id, messagesState, messagesDispatch,
         [], comment, undefined, commentState, commentDispatch, comment.market_id, myPresence);

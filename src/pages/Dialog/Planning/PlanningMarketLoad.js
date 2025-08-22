@@ -57,11 +57,7 @@ function PlanningMarketLoad() {
         const { market, user, stages, uclusion_token: token, investible, notifications } = result;
         const { id } = market;
         if (notifications) {
-          // Should at least have the welcome notification
           messagesDispatch(updateMessages(notifications));
-          const workspaceMessage = notifications.find((message) =>
-            message.type_object_id === `UNREAD_GROUP_${id}`);
-          dehighlightMessage(workspaceMessage, messagesDispatch);
         }
         addPresenceToMarket(marketPresencesDispatch, id, user);
         stagesDispatch(updateMarketStagesFromNetwork({ [id]: stages }));

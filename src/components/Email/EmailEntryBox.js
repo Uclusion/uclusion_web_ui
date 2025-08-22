@@ -228,8 +228,11 @@ class EmailEntryBox extends React.Component{
       event.preventDefault();
       const toBeAdded = emails.filter((email) => !this.emailList.includes(email));
       toBeAdded.forEach((email) => {
-        this.setValidEmail(email, target)
-      })
+        this.setValidEmail(email, target);
+      });
+      if (!_.isEmpty(toBeAdded)) {
+        this.setIsValid(true);
+      }
     }
   }
 

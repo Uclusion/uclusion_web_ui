@@ -127,6 +127,10 @@ function WorkspaceNameStep (props) {
         <Typography className={classes.introText}>
           What do you want to call your workspace?
         </Typography>
+        <Typography className={classes.introSubText} variant="subtitle1">
+            Choosing customer feedback config creates a workspace with a view called "Feedback". Setup 
+            the created workspace first with jobs, bugs, or discussion and then invite a customer.
+          </Typography>
         {isDemoOn && (
           <Typography className={classes.introSubText} variant="subtitle1">
             <b>Warning</b>: Creating this workspace <i>ends all demos</i> and removes their workspaces.

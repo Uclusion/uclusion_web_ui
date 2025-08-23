@@ -290,12 +290,12 @@ export async function doVersionRefresh(dispatchers) {
   const bannedPromises = [];
   (audits || []).forEach((audit) => {
     const { signature, inline, active, banned, id } = audit;
-    if (!checkSignatureInStorage(id, signature, storageStates, true)) {
-      if (banned) {
-        bannedList.push(id);
-        const tokenStorageManager = new TokenStorageManager();
-        bannedPromises.push(tokenStorageManager.deleteToken(TOKEN_TYPE_MARKET, id));
-      }else if (inline) {
+    if (banned) {
+      bannedList.push(id);
+      const tokenStorageManager = new TokenStorageManager();
+      bannedPromises.push(tokenStorageManager.deleteToken(TOKEN_TYPE_MARKET, id));
+    } else if (!checkSignatureInStorage(id, signature, storageStates, true)) {
+      if (inline) {
         inlineList.push(id);
       } else if (active) {
         foregroundList.push(id);

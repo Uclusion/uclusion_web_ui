@@ -22,7 +22,6 @@ import { pushMessage } from '../../../utils/MessageBusUtils';
 import { GUEST_MARKET_EVENT, LOAD_MARKET_CHANNEL } from '../../../contexts/MarketsContext/marketsContextMessages';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
 import { accountUserJoinedMarket } from '../../../contexts/AccountContext/accountContextReducer';
-import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import jwt_decode from 'jwt-decode';
 import { sendMarketsStruct, updateMarkets } from '../../../api/versionedFetchUtils';
 import _ from 'lodash';

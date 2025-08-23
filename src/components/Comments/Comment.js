@@ -1139,7 +1139,7 @@ function Comment(props) {
                     disabled={!myPresenceIsAssigned || removeActions || operationRunning !== false}
                   />
                 }
-                label={mobileLayout ? undefined : intl.formatMessage({ id: 'inProgress' })}
+                label={intl.formatMessage({ id: 'inProgress' })}
               />
             )}
             {showMoveButton && mobileLayout && (

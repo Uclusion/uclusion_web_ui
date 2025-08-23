@@ -51,7 +51,7 @@ import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
 import EditIcon from '@material-ui/icons/Edit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { Done, Eject, NotificationsActive } from '@material-ui/icons';
+import { Done, Edit, Eject, NotificationsActive } from '@material-ui/icons';
 import { resolveComment, updateComment } from '../../api/comments';
 import { previousInProgress } from '../AddNewWizards/TaskInProgress/TaskInProgressWizard';
 import { getNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -397,6 +397,15 @@ function Reply(props) {
             doFloatRight
           />
         )}
+        {enableEditing && isEditable && mobileLayout && (
+          <TooltipIconButton
+            onClick={handleEditClick}
+            icon={<Edit fontSize='small' />}
+            size='small'
+            translationId="edit"
+            doFloatRight
+          />
+        )}
         {showConvert && (
           <TooltipIconButton
             disabled={operationRunning !== false}
@@ -412,7 +421,7 @@ function Reply(props) {
             doFloatRight
           />
         )}
-        {showConvert && myPresenceIsAssigned && (
+        {showConvert && myPresenceIsAssigned && !mobileLayout && (
           <TooltipIconButton
             disabled={operationRunning !== false}
             onClick={(event) => {
@@ -489,13 +498,16 @@ function Reply(props) {
             label={mobileLayout ? undefined : intl.formatMessage({ id: 'inProgress' })}
           />
         )}
-        {enableEditing && isEditable && mobileLayout && (
+        {showConvert && myPresenceIsAssigned  && mobileLayout && (
           <Button
             className={classes.action}
-            onClick={handleEditClick}
+            onClick={(event) => {
+              preventDefaultAndProp(event);
+              return moveToTask();
+            }}
             variant="text"
           >
-            <FormattedMessage id="commentEditLabel" />
+            <FormattedMessage id="makeTask" />
           </Button>
         )}
       </CardActions>

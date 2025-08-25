@@ -19,6 +19,8 @@ import AssignViewsStep from './AssignViewsStep';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import CreateTeamViewStep from './CreateTeamViewStep';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { DEMO_TYPE } from '../../../constants/markets';
 
 function CollaboratorWizard (props) {
   const { marketId } = props;
@@ -31,6 +33,8 @@ function CollaboratorWizard (props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const participants = Object.values(extractUsersList(marketPresencesState, marketState, marketPresences));
   const displayFromOther = !_.isEmpty(participants);
+  const market = getMarket(marketState, marketId) || {};
+  const isDemoMarket = market.object_type === DEMO_TYPE;
   const teamGroups = groupsState[marketId]?.filter((group) => {
     const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
       group.id) || [];
@@ -51,7 +55,7 @@ function CollaboratorWizard (props) {
         {(allAutonomousViews || viewCreated) && (
           <CreateTeamViewStep marketId={marketId} setViewCreated={setViewCreated} />
         )}
-        <InviteByEmailStep marketId={marketId} displayFromOther={displayFromOther} allAutonomousViews={allAutonomousViews} />
+        <InviteByEmailStep marketId={marketId} displayFromOther={displayFromOther} allAutonomousViews={allAutonomousViews} isDemoMarket={isDemoMarket} />
         {displayFromOther && (
           <FromOtherWorkspacesStep marketId={marketId} participants={participants} allAutonomousViews={allAutonomousViews} />
         )}

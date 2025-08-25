@@ -17,7 +17,7 @@ import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 
 function InviteByEmailStep(props) {
-  const { formData, finish, marketId, updateFormData, displayFromOther, allAutonomousViews } = props;
+  const { formData, finish, marketId, updateFormData, displayFromOther, allAutonomousViews, isDemoMarket } = props;
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -55,6 +55,11 @@ function InviteByEmailStep(props) {
       <Typography className={classes.introText} variant="h6">
         Who should be added by email?
       </Typography>
+      {isDemoMarket && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          <b>Warning</b>: This is a demo workspace and will go away once you start a real one.
+        </Typography>
+      )}
       <div style={{ marginBottom: '2rem' }} />
       <EmailEntryBox marketId={marketId} alreadyInList={inMarketEmailList}
                      setIsValid={(isValid) => updateFormData({ isValid })}

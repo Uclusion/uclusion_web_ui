@@ -120,10 +120,14 @@ function indexOfOrOutofBounds(extracted, aChar) {
   return extracted.indexOf(aChar) > 0 ? extracted.indexOf(aChar) : extracted.length;
 }
 
+function isSentence(extracted) {
+  return extracted.endsWith('.') || extracted.endsWith('!') || extracted.endsWith('?');
+}
+
 function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, maxLength, fullElement,
   isFallbackFullDescription) {
   let extracted = strippedElement || '';
-  const endsInSentence = extracted.endsWith('.') || extracted.endsWith('!') || extracted.endsWith('?');
+  const endsInSentence = isSentence(extracted);
   if (extracted.length <= maxLength && (endsInSentence || isFallbackFullDescription)) {
     if (fullElement) {
       return { name: extracted, description: removePrefix(fullElement, description) };
@@ -140,7 +144,8 @@ function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, 
     extracted = extracted.substring(0, sentencePosition + 1);
   }
   if (extracted.length <= maxLength) {
-    if (isFallbackFullDescription) {
+    // If description includes extracted then extracted does not contain stripped elements
+    if (isFallbackFullDescription && (!isSentence(extracted) || !description.includes(extracted))) {
       if (description.includes(extractedNotTrimmed)) {
         return { name: extracted, description: description.replace(extractedNotTrimmed, '') };
       }
@@ -152,12 +157,13 @@ function addSentenceAwareAmpersandRemoveDuplicate(strippedElement, description, 
     }
     return { name: extracted, description: `<p>${splitDescription}` };
   }
+  const preSplitExtracted = extracted;
   let lastIndex = extracted.lastIndexOf(' ', maxLength - 3);
   if (lastIndex < 0) {
     lastIndex = maxLength - 3;
   }
   extracted = extracted.substring(0, lastIndex);
-  if (isFallbackFullDescription) {
+  if (isFallbackFullDescription && (!isSentence(preSplitExtracted) || !description.includes(preSplitExtracted))) {
     return { name: `${extracted}...`, description };
   }
   let splitDescription = description.substring(3 + extracted.length);

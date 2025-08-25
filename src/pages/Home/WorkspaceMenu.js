@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Button, makeStyles, Menu, Tooltip } from '@material-ui/core';
 import { Menu as ProMenu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar';
 import { useHistory } from 'react-router';
@@ -12,6 +12,11 @@ import { formManageUsersLink, formMarketEditLink, formMarketLink, navigate, prev
 import { DEMO_TYPE, PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 import { DoneAll, ExpandLess, ExpandMore, FlagOutlined, GroupOutlined, PermIdentity, Person } from '@material-ui/icons';
 import ReturnTop from './ReturnTop';
+import { banUser } from '../../api/users';
+import { changeBanStatus, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -103,6 +108,11 @@ const useStyles = makeStyles((theme) => ({
 function WorkspaceMenu(props) {
   const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup, action,
     pathInvestibleId, pathMarketIdRaw, hashInvestibleId, useLink, typeObjectId } = props;
+  const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [commentsState] = useContext(CommentsContext);
+  const marketPresences = getMarketPresences(marketPresencesState, defaultMarket?.id) || [];
+  const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const notCurrentMarkets = markets.filter((market) => market.id !== defaultMarket?.id);
   const archivedMarkets = notCurrentMarkets.filter((market) => market.market_stage !== 'Active');
@@ -111,7 +121,8 @@ function WorkspaceMenu(props) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const history = useHistory();
-  const demos = markets.filter((market) => market.market_type === PLANNING_TYPE && market.object_type === DEMO_TYPE);
+  const demos = markets.filter((market) => market.object_type === DEMO_TYPE);
+  const nonSupportMarkets = markets.filter((market) => market.market_sub_type !== 'SUPPORT');
 
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
@@ -297,7 +308,16 @@ function WorkspaceMenu(props) {
                   key="leaveDemoKey" id="leaveDemoId"
                   onClick={() => {
                     recordPositionToggle();
-                    navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`)
+                    if (_.size(nonSupportMarkets) > _.size(demos)) {
+                      setOperationRunning(true);
+                      // User already has a non demo market so don't ask him to create another one
+                      return banUser(defaultMarket.id, myPresence.id).then(() => {
+                              setOperationRunning(false);
+                              changeBanStatus(marketPresencesState, marketPresencesDispatch, defaultMarket.id, myPresence.id, true, commentsState);
+                              // navigate to another market handled by code in Screen
+                            });
+                    }
+                    navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
                   }}
                 >
                   <Tooltip title={intl.formatMessage({ id: 'endDemoExplanation' })}>

@@ -94,7 +94,7 @@ function DemoMarketLoad(props) {
                           hidden={false}
                           disableSearch
                         >
-                          <WorkspaceInviteWizard marketId={utm === 'team' ? teamDemo.id : soloDemo.id} isDemo />
+                          <WorkspaceInviteWizard marketId={utm === 'team' ? teamDemo?.id : soloDemo?.id} isDemo />
                         </Screen>;
   const inviteScreenReady = (utm === 'team' && !_.isEmpty(teamDemo))||(utm === 'solo' && !_.isEmpty(soloDemo));
 

@@ -6,6 +6,9 @@ import DemoInviteStep from './DemoInviteStep';
 
 function WorkspaceInviteWizard(props) {
   const { marketId, isDemo } = props;
+  if (!marketId) {
+    return React.Fragment;
+  }
   return (
     <WizardStylesProvider>
       <FormdataWizard useLocalStorage={false} name="workspace_invite_wizard">

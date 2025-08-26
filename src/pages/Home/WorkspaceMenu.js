@@ -9,7 +9,7 @@ import { useIntl } from 'react-intl';
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
 import { formManageUsersLink, formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
-import { DEMO_TYPE, PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
+import { DEMO_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 import { DoneAll, ExpandLess, ExpandMore, FlagOutlined, GroupOutlined, PermIdentity, Person } from '@material-ui/icons';
 import ReturnTop from './ReturnTop';
 import { banUser } from '../../api/users';

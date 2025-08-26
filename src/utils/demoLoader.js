@@ -33,7 +33,7 @@ function addMarket(dispatch, market) {
   addMarketToStorage(dispatch, market);
 }
 
-export async function handleMarketData(marketData, dispatchers) {
+export function handleMarketData(marketData, dispatchers) {
   const {
     market, child_markets: childMarkets,
     comments, investibles, group_infos: groupInfos,
@@ -57,13 +57,17 @@ export async function handleMarketData(marketData, dispatchers) {
   addCommentsOther(diffDispatch, index, ticketsDispatch, comments);
   commentsDispatch(updateComments(market.id, comments));
   const tokenStorageManager = new TokenStorageManager();
-  await tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token);
-  if (!_.isEmpty(childMarkets)) {
-    for (const child of childMarkets) {
-      await handleMarketData(child, dispatchers);
+  return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, market.id, token).then(() => {
+    if (!_.isEmpty(childMarkets)) {
+      for (const child of childMarkets) {
+        return handleMarketData(child, dispatchers).then(() => {
+          // Add market last so that root doesn't navigate away before data loaded
+          addMarket(marketsDispatch, market);
+          return market.id;
+        });
+      }
     }
-  }
-  // Add market last so that root doesn't navigate away before data loaded
-  addMarket(marketsDispatch, market);
-  return market.id;
+    addMarket(marketsDispatch, market);
+    return market.id;
+  });
 }

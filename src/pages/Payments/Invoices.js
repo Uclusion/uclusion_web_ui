@@ -4,12 +4,11 @@ import { Card, Link, Typography, useTheme } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 import { makeStyles } from '@material-ui/styles';
 import SubSection from '../../containers/SubSection/SubSection';
-import { suspend } from 'suspend-react';
-import Screen from '../../containers/Screen/Screen';
 import { getInvoices } from '../../api/users';
+import { AwaitComponent, useAsyncLoader } from '../../utils/PromiseUtils';
 
 
-const useStyles = makeStyles((theme) => {
+const useStyles = makeStyles(() => {
   return {
     table: {
       border: '1px solid',
@@ -25,17 +24,55 @@ const useStyles = makeStyles((theme) => {
 });
 
 function Invoices() {
+  const { loader } = useAsyncLoader(getInvoices);
   const [invoices, setInvoices] = useState(undefined);
   const intl = useIntl();
   const theme = useTheme();
   const classes = useStyles(theme);
 
-  function LoadInvoicesInfo() {
-    suspend(async () => {
-      const invoicesInfo = await getInvoices();
+  const fallBack = <div />;
+
+  function LoadInvoicesInfo(invoicesInfo) {
+    if (invoicesInfo) {
       setInvoices(invoicesInfo);
-    }, [])
-    return React.Fragment;
+    }
+    if (invoices !== undefined) {
+      if (invoices.length === 0) {
+        return (
+          <Typography>
+            No invoices have been sent to your account.
+          </Typography>
+        );
+      }
+      return (
+        <Card>
+          <SubSection
+            title="Invoices"
+            padChildren
+          >
+            <table className={classes.table}>
+              <thead>
+              <tr className={classes.tr}>
+                <th className={classes.th}>
+                  Date
+                </th>
+                <th className={classes.th}>
+                  Amount
+                </th>
+                <th className={classes.th}>
+                  PDF
+                </th>
+              </tr>
+              </thead>
+              <tbody>
+              {getSortedInvoices()}
+              </tbody>
+            </table>
+          </SubSection>
+        </Card>
+      );
+    }
+    return fallBack;
   }
 
   function getSortedInvoices () {
@@ -66,49 +103,12 @@ function Invoices() {
     });
   }
 
-  if (invoices !== undefined) {
-    if (invoices.length === 0) {
-      return (
-        <Typography>
-          No invoices have been sent to your account.
-        </Typography>
-      );
-    }
-    return (
-      <Card>
-        <SubSection
-          title="Invoices"
-          padChildren
-        >
-          <table className={classes.table}>
-            <thead>
-            <tr className={classes.tr}>
-              <th className={classes.th}>
-                Date
-              </th>
-              <th className={classes.th}>
-                Amount
-              </th>
-              <th className={classes.th}>
-                PDF
-              </th>
-            </tr>
-            </thead>
-            <tbody>
-            {getSortedInvoices()}
-            </tbody>
-          </table>
-        </SubSection>
-      </Card>
-    );
-  }
-
   return (
-    <Suspense fallback={<Screen hidden={false} loading loadingMessageId='invoicesLoadingMessage'
-                                title={intl.formatMessage({ id: 'loadingMessage' })}>
-      <div />
-    </Screen>}>
-      <LoadInvoicesInfo />
+    <Suspense fallback={fallBack}>
+      <AwaitComponent 
+        loader={loader}
+        render={LoadInvoicesInfo}
+      />
     </Suspense>
   );
 }

@@ -6,10 +6,10 @@ import AccountPromos from './AccountPromos';
 import PaymentInfo from './PaymentInfo';
 import Invoices from './Invoices';
 import { makeStyles, useTheme } from '@material-ui/styles';
-import { suspend } from 'suspend-react';
 import { getSubscriptionInfo } from '../../api/users';
 import { loadStripe } from '@stripe/stripe-js';
 import config from '../../config';
+import { AwaitComponent, useAsyncLoader } from '../../utils/PromiseUtils';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -66,30 +66,36 @@ function BillingPage(props) {
 function BillingHome(props) {
   const { isInbox } = props;
   const intl = useIntl();
-  const [subscriptionInfo, setSubscriptionInfo] = useState(false);
+  const { loader } = useAsyncLoader(() => getSubscriptionInfo().then((result) => loadStripe(config.payments.stripeKey).then((stripe) => {
+    return {myStripe: stripe, mySubscriptionInfo: result};
+  })));
+  const [subscriptionInfo, setSubscriptionInfo] = useState(undefined);
   const [stripe, setStripe] = useState(undefined);
 
+  const fallBack = <Screen hidden={false} loading loadingMessageId='billingLoadingMessage' title={intl.formatMessage({ id: 'loadingMessage' })}>
+                      <div />
+                  </Screen>;
 
-  function LoadSubscriptionInfo() {
-    const mySubscriptionInfo = suspend(async () => {
-      const subscriptionInfo = await getSubscriptionInfo();
-      setSubscriptionInfo(subscriptionInfo);
-      const stripe = await loadStripe(config.payments.stripeKey);
-      setStripe(stripe);
-    }, [])
-    return <BillingPage subscriptionInfo={mySubscriptionInfo} setSubscriptionInfo={setSubscriptionInfo} isInbox={isInbox} />;
-  }
-
-  if (subscriptionInfo && stripe) {
-    return <BillingPage subscriptionInfo={subscriptionInfo} setSubscriptionInfo={setSubscriptionInfo} stripe={stripe} isInbox={isInbox} />;
+  function LoadSubscriptionInfo(loaded) {
+    const { myStripe, mySubscriptionInfo } = loaded;
+    if (mySubscriptionInfo) {
+      setSubscriptionInfo(mySubscriptionInfo);
+    }
+    if (myStripe) {
+      setStripe(myStripe);
+    }
+    if (subscriptionInfo && stripe) {
+      return <BillingPage subscriptionInfo={subscriptionInfo} setSubscriptionInfo={setSubscriptionInfo} stripe={stripe} isInbox={isInbox} />;
+    }
+    return fallBack;
   }
 
   return (
-    <Suspense fallback={<Screen hidden={false} loading loadingMessageId='billingLoadingMessage'
-                                title={intl.formatMessage({ id: 'loadingMessage' })}>
-      <div />
-    </Screen>}>
-      <LoadSubscriptionInfo />
+    <Suspense fallback={fallBack}>
+      <AwaitComponent 
+        loader={loader}
+        render={LoadSubscriptionInfo}
+      />
     </Suspense>
   );
 }

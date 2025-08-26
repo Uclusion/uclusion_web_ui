@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { useRef } from 'react';
 
 /**
  Like Promise.all, but each promise executes sequentially instead of in parallel
@@ -47,3 +48,37 @@ export function LimitedParallelMap(sources, promiseGenerator, parallelThreads) {
   return Promise.all(promises)
     .then((results) => _.flatten(promises));
 }
+
+export const useAsyncLoader = (asyncMethod) => {
+  const storage = useRef({ resolved: false, rejected: false });
+
+  return {
+    loader: (loaderVal) => {
+      if (storage.current.rejected) return; 
+
+      if (storage.current.resolved) return storage.current.result;
+
+      if (storage.current.promise) throw storage.current.promise;
+
+      storage.current.promise = asyncMethod(loaderVal)
+        .then((res) => {
+          storage.current.promise = undefined;
+          storage.current.resolved = true;
+          storage.current.result = res;
+          return res;
+        })
+        .catch(() => {
+          storage.current.promise = undefined;
+          storage.current.rejected = true;
+        });
+
+      throw storage.current.promise;
+    },
+  };
+};
+
+export const AwaitComponent = ({ loader, render, loaderVal }) => {
+  const result = loader(loaderVal);
+
+  return render(result);
+};

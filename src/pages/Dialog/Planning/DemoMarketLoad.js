@@ -2,7 +2,6 @@ import React, { Suspense, useContext, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import Screen from '../../../containers/Screen/Screen';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { suspend } from 'suspend-react';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -26,6 +25,7 @@ import WorkspaceInviteWizard from '../../../components/AddNewWizards/WorkspaceIn
 import { useHistory } from 'react-router';
 import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { setCurrentWorkspace } from '../../../utils/redirectUtils';
+import { AwaitComponent, useAsyncLoader } from '../../../utils/PromiseUtils';
 
 function calculateUTM(teamDemo, soloDemo) {
   if (_.isEmpty(teamDemo)&&_.isEmpty(soloDemo)) {
@@ -52,6 +52,31 @@ function DemoMarketLoad(props) {
   const [, userDispatch] = useContext(AccountContext);
   const [index] = useContext(SearchIndexContext);
   const history = useHistory();
+  const { loader } = useAsyncLoader((myUtm) => getDemo(myUtm === 'team').then((result) => {
+    console.log('Quick adding demo market after load');
+    const dispatchers = {
+      marketsDispatch, messagesDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch, groupMembersDispatch,
+      investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch, setInitialized
+    }
+    const { demo, user } = result;
+    const { notifications } = demo || {};
+    if (notifications) {
+      // Screen out support notifications here and in inbox to avoid race conditions
+      const notificationsFiltered = notifications.filter((msg) => isInInbox(msg) &&
+        (msg.market_id === demo.market.id || msg.comment_market_id === demo.market.id));
+      // Only need locally as if they are on another device that is already enough effort
+      setUclusionLocalStorageItem('originalDemoNotificationCount', notificationsFiltered.length);
+    }
+    return handleMarketData(demo, dispatchers).then((id) => {
+      userDispatch(accountUserRefresh(user));
+      // If you already have the other market then just navigate to the new id
+      if ((myUtm === 'team' && !_.isEmpty(soloDemo))||(myUtm === 'solo' && !_.isEmpty(teamDemo))) {
+        navigate(history, formMarketLink(id, id));
+      }
+      setCurrentWorkspace(id);
+      return id;
+    });
+  }));
   const { location } = history;
   const { search } = location;
   const values = queryString.parse(search || '') || {};
@@ -63,34 +88,20 @@ function DemoMarketLoad(props) {
     <div />
   </Screen>;
 
-  function LoadDemo() {
-    const loadedInfo = suspend(async () => {
-      console.log(`Calling API to get demo ${utm}`);
-      const result = await getDemo(utm === 'team');
-      console.log('Quick adding demo market after load');
-      const dispatchers = {
-        marketsDispatch, messagesDispatch, marketStagesDispatch, groupsDispatch, presenceDispatch, groupMembersDispatch,
-        investiblesDispatch, commentsDispatch, diffDispatch, index, ticketsDispatch, setInitialized
-      }
-      const { demo, user } = result;
-      const { notifications } = demo || {};
-      if (notifications) {
-        // Screen out support notifications here and in inbox to avoid race conditions
-        const notificationsFiltered = notifications.filter((msg) => isInInbox(msg) &&
-          (msg.market_id === demo.market.id || msg.comment_market_id === demo.market.id));
-        // Only need locally as if they are on another device that is already enough effort
-        setUclusionLocalStorageItem('originalDemoNotificationCount', notificationsFiltered.length);
-      }
-      const id = await handleMarketData(demo, dispatchers);
-      userDispatch(accountUserRefresh(user));
-      // If you already have the other market then just navigate to the new id
-      if ((utm === 'team' && !_.isEmpty(soloDemo))||(utm === 'solo' && !_.isEmpty(teamDemo))) {
-        navigate(history, formMarketLink(id, id));
-      }
-      setCurrentWorkspace(id);
-      return {id};
-    }, [utm]);
-    console.log(`Loaded demo market id = ${loadedInfo.id}`);
+  const inviteScreen = <Screen
+                          title={intl.formatMessage({id: 'DemoWelcome'})}
+                          tabTitle={intl.formatMessage({id: 'DemoWelcome'})}
+                          hidden={false}
+                          disableSearch
+                        >
+                          <WorkspaceInviteWizard marketId={utm === 'team' ? teamDemo.id : soloDemo.id} isDemo />
+                        </Screen>;
+  const inviteScreenReady = (utm === 'team' && !_.isEmpty(teamDemo))||(utm === 'solo' && !_.isEmpty(soloDemo));
+
+  function DemoInvite() {
+    if (inviteScreenReady) {
+      return inviteScreen;
+    }
     return loadingScreen;
   }
 
@@ -114,24 +125,21 @@ function DemoMarketLoad(props) {
     </Screen>;
   }
 
-  if ((utm === 'team' && !_.isEmpty(teamDemo))||(utm === 'solo' && !_.isEmpty(soloDemo))) {
-    return <Screen
-      title={intl.formatMessage({id: 'DemoWelcome'})}
-      tabTitle={intl.formatMessage({id: 'DemoWelcome'})}
-      hidden={false}
-      disableSearch
-    >
-      <WorkspaceInviteWizard marketId={utm === 'team' ? teamDemo.id : soloDemo.id} isDemo />
-    </Screen>;
-  }
-
   if (_.isEmpty(utm)) {
     return loadingScreen;
   }
 
+  if (inviteScreenReady) {
+    return inviteScreen;
+  }
+
   return (
     <Suspense fallback={loadingScreen}>
-      <LoadDemo />
+      <AwaitComponent 
+        loader={loader}
+        loaderVal={utm}
+        render={DemoInvite}
+      />
     </Suspense>
   );
 }

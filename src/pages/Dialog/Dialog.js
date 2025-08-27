@@ -62,7 +62,7 @@ function Dialog(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId);
   const myPresence = marketPresences && marketPresences.find((presence) => presence.current_user);
   const [userState] = useContext(AccountContext);
-  const hasUser = userIsLoaded(userState);
+  const hasUser = userIsLoaded(userState, marketsState);
   const loading = !hasUser || isInitialization || !myPresence || !marketType ||
     !marketTokenLoaded(marketId, tokensHash);
   const createEnabled = canCreate(userState);

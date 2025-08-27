@@ -14,7 +14,6 @@ const WORKSPACE_LOCAL_STORAGE_KEY = 'current_workspace';
 const GROUP_LOCAL_STORAGE_KEY = 'current_group';
 const UTM_LOCAL_STORAGE_KEY = 'utm';
 const EMAIL_LOCAL_STORAGE_KEY = 'email_storage';
-const IS_INVITED = 'is_invited';
 
 export function redirectFromHistory(history) {
   const { location } = history;
@@ -70,11 +69,8 @@ export function getPlanningMarketId(investibleId, marketsState, investiblesState
 
 export function setRedirect(location) {
   console.info(`Setting redirect to ${location}`);
-  // The redirect and is_invited are not valid after a logout
+  // The redirect is not valid after a logout
   setUclusionLocalStorageItem(REDIRECT_LOCAL_STORAGE_KEY, location);
-  if (location.includes('invite')) {
-    setUclusionLocalStorageItem(IS_INVITED, true);
-  }
 }
 
 export function clearRedirect() {
@@ -105,10 +101,6 @@ export function setEmail(email) {
 
 export function getRedirect() {
   return getUclusionLocalStorageItem(REDIRECT_LOCAL_STORAGE_KEY);
-}
-
-export function getIsInvited() {
-  return getUclusionLocalStorageItem(IS_INVITED);
 }
 
 export function getCurrentWorkspace() {

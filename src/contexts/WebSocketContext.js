@@ -15,6 +15,7 @@ import { getAppVersion } from '../api/sso'
 import { PUSH_ACCOUNT_CHANNEL, PUSH_HOME_USER_CHANNEL } from './AccountContext/accountContextMessages'
 import { AccountContext } from './AccountContext/AccountContext';
 import { userIsLoaded } from './AccountContext/accountUserContextHelper';
+import { MarketsContext } from './MarketsContext/MarketsContext'
 
 export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
 export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
@@ -129,8 +130,9 @@ function createWebSocket(config, setState) {
 function WebSocketProvider(props) {
   const { children, config, userId } = props;
   const [userState] = useContext(AccountContext);
+  const [marketsState] = useContext(MarketsContext);
   const [state, setState] = useState();
-  const isUserLoaded = userIsLoaded(userState);
+  const isUserLoaded = userIsLoaded(userState, marketsState);
 
   useEffect(() => {
     let interval;

@@ -35,7 +35,7 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import Screen from '../Screen/Screen';
 import { useIntl } from 'react-intl';
-import { DEMO_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import { DEMO_TYPE, PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
 import queryString from 'query-string';
 import _ from 'lodash';
 import { getNotHiddenMarketDetailsForUser, getSortedMarkets } from '../../contexts/MarketsContext/marketsContextHelper';
@@ -62,7 +62,7 @@ function Root(props) {
   const values = queryString.parse(search || '') || {};
   const { utm_campaign: utm } = values;
   const { marketDetails } = marketsState;
-  const supportMarket = marketDetails?.find((market) => market.market_sub_type === 'SUPPORT') || {};
+  const supportMarket = marketDetails?.find((market) => market.market_sub_type === SUPPORT_SUB_TYPE) || {};
   const marketLink = supportMarket.id ? formMarketLink(supportMarket.id, supportMarket.id) : undefined;
   const teamDemo = marketDetails?.find((market) => market.market_type === PLANNING_TYPE &&
     market.object_type === DEMO_TYPE && market.name.includes('team'));
@@ -171,7 +171,7 @@ function Root(props) {
     hideMarketLoad() && hideGroupArchive() && hideIntegrationPreferences() && hideBillingHome() && hideTodoAdd() &&
     hideCommentReplyEdit() && hideDemoLoad() && hideGroupManage() && !isTicketPath(pathname));
 
-  const isUserLoaded = userIsLoaded(userState);
+  const isUserLoaded = userIsLoaded(userState, marketsState);
 
   useEffect(() => {
     if (isTicketPath(pathname)) {

@@ -1,4 +1,3 @@
-import { getIsInvited } from '../utils/redirectUtils';
 import { getAccountStorageManager } from './singletons';
 import AmpifyIdentitySource from '../authorization/AmplifyIdentityTokenRefresher';
 import uclusion from 'uclusion_sdk';
@@ -46,7 +45,7 @@ export async function getLogin(ifAvailable=false, accountVersion=null, userVersi
     const { idToken, ssoClient } = ssoInfo;
     console.info('Getting account login');
     // update our cache
-    const responseAccountData = await ssoClient.accountCognitoLogin(idToken, getIsInvited());
+    const responseAccountData = await ssoClient.accountCognitoLogin(idToken);
     // load the account into storage
     await asm.storeAccountData(responseAccountData);
     return responseAccountData;

@@ -29,7 +29,7 @@ function LeaderProvider(props) {
   const { children, authState, userId } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
   const [userState] = useContext(AccountContext);
-  const [, marketsDispatch] = useContext(MarketsContext);
+  const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [, marketStagesDispatch] = useContext(MarketStagesContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -40,7 +40,7 @@ function LeaderProvider(props) {
   const [, ticketsDispatch] = useContext(TicketIndexContext);
   const [index] = useContext(SearchIndexContext);
   const [myTab, setMyTab] = useState(new Tab('uclusion'));
-  const isUserLoaded = userIsLoaded(userState);
+  const isUserLoaded = userIsLoaded(userState, marketsState);
   const { isLeader } = state;
 
   useEffect(() => {

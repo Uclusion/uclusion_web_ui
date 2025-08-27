@@ -544,7 +544,7 @@ function Comment(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const [userState] = useContext(AccountContext);
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
-  const hasUser = userIsLoaded(userState);
+  const hasUser = userIsLoaded(userState, marketsState);
   const enableActions = !inArchives && !stagePreventsActions;
   const enableEditing = enableActions && !resolved; //resolved comments or those in archive aren't editable
   const [editStateFull, editDispatch] = usePageStateReducer('commentEdit');

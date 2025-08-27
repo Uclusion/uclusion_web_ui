@@ -1,5 +1,5 @@
 import React, { useContext, useReducer } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
@@ -116,7 +116,7 @@ function Backlog(props) {
                       onClick={() => {
                         navigate(history, formMarketAddInvestibleLink(marketId, groupId, tabIndex));
                       }}>
-        <FormattedMessage id='addStoryLabel'/>
+        {intl.formatMessage({ id: 'addStoryLabel'})}
       </SpinningButton>
       <DismissableText textId="backlogHelp" noPad={true}
                        display={isEmptyBacklog}

@@ -627,7 +627,7 @@ function Comment(props) {
     }
     if (marketType === INITIATIVE_TYPE) {
       return <InlineInitiativeBox anInlineMarket={anInlineMarket} removeActions={removeActions} isInbox={isInbox}
-                                  isTaskDisplay={commentType === TODO_TYPE} typeObjectId={typeObjectId}
+                                  isTaskDisplay={commentType === TODO_TYPE} typeObjectId={typeObjectId} createdBy={createdBy}
                                   inArchives={marketStage !== ACTIVE_STAGE || inArchives || resolved} />;
     }
     return getDialog(anInlineMarket);
@@ -921,7 +921,7 @@ function Comment(props) {
     <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon} iconOnly={mobileLayout}
                              onClick={(event) => toggleDiffShow(event)}
                              doSpin={false}>
-      {!mobileLayout && <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />}
+      {!mobileLayout && intl.formatMessage({ id: showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'})}
     </SpinningIconLabelButton>
   )}</>;
   const commentCard = <Card elevation={3}
@@ -1031,9 +1031,7 @@ function Comment(props) {
                 toggleCompression();
               }}
             >
-              <FormattedMessage
-                id="commentCloseThreadLabel"
-              />
+              {intl.formatMessage({ id: 'commentCloseThreadLabel'})}
             </SpinningIconLabelButton>
           </div>
         </CardActions>

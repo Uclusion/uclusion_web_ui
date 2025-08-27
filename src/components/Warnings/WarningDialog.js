@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dialog } from '../Dialogs';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Clear } from '@material-ui/icons'
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton'
@@ -8,6 +8,7 @@ import WarningIcon from '@material-ui/icons/Warning'
 
 function WarningDialog(props) {
   const { actions, classes, open, onClose, issueWarningId } = props;
+  const intl = useIntl();
   const autoFocusRef = React.useRef(null);
 
   return (
@@ -25,7 +26,7 @@ function WarningDialog(props) {
       actions={
         <React.Fragment>
           <SpinningIconLabelButton onClick={onClose} doSpin={false} icon={Clear} ref={autoFocusRef}>
-            <FormattedMessage id="lockDialogCancel" />
+            {intl.formatMessage({ id: 'lockDialogCancel' })}
           </SpinningIconLabelButton>
           {actions}
         </React.Fragment>

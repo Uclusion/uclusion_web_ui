@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import BlockIcon from '@material-ui/icons/Block';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import WarningDialog from '../../../components/Warnings/WarningDialog';
-import { FormattedMessage } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { useLockedDialogStyles } from '../LockedDialog';
 import { banUser } from '../../../api/users';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -18,6 +18,7 @@ function BanUserButton(props){
     userId,
   } = props;
   const lockedDialogClasses = useLockedDialogStyles();
+  const intl = useIntl();
   const [open, setOpen] = useState(false);
   const [state, dispatch] = useContext(MarketPresencesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -57,7 +58,7 @@ function BanUserButton(props){
         /* slots */
         actions={
           <SpinningIconLabelButton icon={BlockIcon} onClick={onProceed} id="banUserProceedButton">
-            <FormattedMessage id="issueProceed" />
+            {intl.formatMessage({ id: 'issueProceed' })}
           </SpinningIconLabelButton>
         }
       />

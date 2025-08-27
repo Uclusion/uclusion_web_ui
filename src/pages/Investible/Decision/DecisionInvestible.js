@@ -309,7 +309,7 @@ function DecisionInvestible(props) {
           <div style={{paddingTop: '1rem'}} />
           <SpinningIconLabelButton icon={inProposed ? ArrowUpward : ArrowDownward} id='optionStageChange'
                                    onClick={changeStage}>
-            <FormattedMessage id={inProposed ? 'promoteOption' : 'demoteOption'} />
+            {intl.formatMessage({ id: inProposed ? 'promoteOption' : 'demoteOption'})}
           </SpinningIconLabelButton>
         </>
       )}
@@ -317,7 +317,7 @@ function DecisionInvestible(props) {
         <>
           <div style={{paddingTop: '1rem'}} />
           <SpinningIconLabelButton icon={ListAltIcon} id='optionCreateTask' onClick={createTask} doSpin={false}>
-            <FormattedMessage id='makeTask' />
+            {intl.formatMessage({ id: 'makeTask'})}
           </SpinningIconLabelButton>
         </>
       )}
@@ -355,7 +355,7 @@ function DecisionInvestible(props) {
                         onClick={() => navigate(history,
                           formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, undefined,
                             undefined, typeObjectId))}>
-          <FormattedMessage id="createNewApproval"/>
+          {intl.formatMessage({ id: 'createNewApproval'})}
         </SpinningButton>
       )}
       <Voting
@@ -392,8 +392,8 @@ function DecisionInvestible(props) {
                                 onClick={() => navigate(history,
                                   formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                     allowedCommentType, typeObjectId))}>
-                  <FormattedMessage id={`createNew${allowedCommentType}${
-                    allowedCommentType === TODO_TYPE ? 'Option' : ''}${mobileLayout ? 'Mobile' : ''}`}/>
+                  {intl.formatMessage({ id: `createNew${allowedCommentType}${
+                    allowedCommentType === TODO_TYPE ? 'Option' : ''}${mobileLayout ? 'Mobile' : ''}`})}
                 </SpinningButton>
               );
             })}
@@ -443,7 +443,7 @@ function DecisionInvestible(props) {
           <div style={{paddingTop: '0.5rem'}} />
           <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
                                    onClick={toggleDiffShow} doSpin={false}>
-            <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+            {intl.formatMessage({ id: showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'})}
           </SpinningIconLabelButton>
         </>
       )}

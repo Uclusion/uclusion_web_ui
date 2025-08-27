@@ -620,7 +620,7 @@ function PlanningDialog(props) {
                                     onClick={() => navigate(history,
                                       formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
                                         REPORT_TYPE))}>
-                      <FormattedMessage id={`createNote${mobileLayout ? 'Mobile' : ''}`}/>
+                      {intl.formatMessage({ id: `createNote${mobileLayout ? 'Mobile' : ''}`})}
                     </SpinningButton>
                     <SpinningButton id="newMarketQuestion"
                                     icon={hasDiscussionComment(groupId, QUESTION_TYPE) ? EditIcon : AddIcon}
@@ -632,7 +632,7 @@ function PlanningDialog(props) {
                                     onClick={() => navigate(history,
                                       formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
                                         QUESTION_TYPE))}>
-                      <FormattedMessage id={`createQuestion${mobileLayout ? 'Mobile' : ''}`}/>
+                      {intl.formatMessage({ id: `createQuestion${mobileLayout ? 'Mobile' : ''}`})}
                     </SpinningButton>
                     <SpinningButton id="createSuggestion"
                                     icon={hasDiscussionComment(groupId, SUGGEST_CHANGE_TYPE) ? EditIcon : AddIcon}
@@ -643,7 +643,7 @@ function PlanningDialog(props) {
                                     onClick={() => navigate(history,
                                       formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
                                         SUGGEST_CHANGE_TYPE))}>
-                      <FormattedMessage id={`createSuggestion${mobileLayout ? 'Mobile' : ''}`}/>
+                      {intl.formatMessage({ id: `createSuggestion${mobileLayout ? 'Mobile' : ''}`})}
                     </SpinningButton>
                   </div>
                   {_.isEmpty(questionSuggestionNotesGroupComments) && (

@@ -27,7 +27,7 @@ import { isLargeDisplay, stripHTML } from '../../../utils/stringFunctions';
 import NotificationDeletion from '../../Home/YourWork/NotificationDeletion';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { FormattedMessage } from 'react-intl';
+import { useIntl } from 'react-intl';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -105,6 +105,7 @@ function Voting(props) {
     isInbox, groupId, useCompression, showEmptyText, toggleCompression=() => {}} = props;
   const history = useHistory();
   const theme = useTheme();
+  const intl = useIntl();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const midLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -152,9 +153,7 @@ function Voting(props) {
           }}
           style={{marginTop: '1rem'}}
         >
-          <FormattedMessage
-            id="commentCloseThreadLabel"
-          />
+          {intl.formatMessage({ id: 'commentCloseThreadLabel'})}
         </SpinningIconLabelButton>
       )}
         {sortedVoters.map((voter) => {

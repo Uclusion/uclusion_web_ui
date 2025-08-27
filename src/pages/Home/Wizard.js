@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import PropTypes from 'prop-types'
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import Screen from '../../containers/Screen/Screen'
 import GroupWizard from '../../components/AddNewWizards/Group/GroupWizard'
 import queryString from 'query-string'
@@ -114,7 +114,7 @@ function Wizard(props) {
                         style={{marginTop: '1rem', marginLeft: '2rem'}}
                         variant="text" doSpin={false}
                         onClick={() => navigate(history, formInboxItemLink(message))}>
-          <FormattedMessage id='backToInboxWizard'/>
+          {intl.formatMessage({ id: 'backToInboxWizard'})}
         </SpinningButton>
       )}
       {createType === PLANNING_TYPE.toLowerCase() && (

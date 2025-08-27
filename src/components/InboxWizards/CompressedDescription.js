@@ -6,7 +6,7 @@ import RaisedCard from '../../components/Cards/RaisedCard';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { stripHTML } from '../../utils/stringFunctions';
 import { ExpandLess } from '@material-ui/icons';
-import { FormattedMessage } from 'react-intl';
+import { useIntl } from 'react-intl';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -52,6 +52,7 @@ function CompressedDescription(props) {
     description = '',
     expansionPanel
   } = props;
+  const intl = useIntl();
   const [expansionOpen, setExpansionOpen] = useState(false);
   const title = stripHTML(description);
   useHotkeys('ctrl+alt+e', ()=> setExpansionOpen(true), {enableOnContentEditable: true},
@@ -96,9 +97,7 @@ function CompressedDescription(props) {
             setExpansionOpen(false);
           }}
         >
-          <FormattedMessage
-            id="commentCloseThreadLabel"
-          />
+          {intl.formatMessage({ id: 'commentCloseThreadLabel' })}
         </SpinningIconLabelButton>
       </div>
     </>

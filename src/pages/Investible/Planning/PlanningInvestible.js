@@ -800,7 +800,7 @@ function PlanningInvestible(props) {
                                   variant="text" doSpin={false}
                                   onClick={() => navigate(history,
                                     formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}>
-                    <FormattedMessage id="createNewApproval"/>
+                    {intl.formatMessage({ id: 'createNewApproval'})}
                   </SpinningButton>
                 )}
                 {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsOpen && (
@@ -843,7 +843,7 @@ function PlanningInvestible(props) {
                                   onClick={() => navigate(history,
                                     formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                       REPORT_TYPE))}>
-                    <FormattedMessage id="createNewStatus"/>
+                    {intl.formatMessage({ id: 'createNewStatus'})}
                   </SpinningButton>
                 )}
                 {!isSingleUser && reportsOpen && (
@@ -898,7 +898,7 @@ function PlanningInvestible(props) {
                                     onClick={() => navigate(history,
                                       formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                                         allowedCommentType))}>
-                      <FormattedMessage id={`createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`}/>
+                      {intl.formatMessage({ id: `createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`})}
                     </SpinningButton>
                   );
                 })}
@@ -939,7 +939,7 @@ function PlanningInvestible(props) {
                                     display: 'flex', marginTop: '1.75rem',
                                     marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
                                   }}>
-                    <FormattedMessage id='allDoneButton'/>
+                    {intl.formatMessage({ id: 'allDoneButton'})}
                   </SpinningButton>
                 )}
                 {sectionOpen === 'tasksSection' && (

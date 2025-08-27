@@ -4,7 +4,7 @@ import SyncIcon from '@material-ui/icons/Sync'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton'
 import { unbanUser } from '../../../api/users'
 import WarningDialog from '../../../components/Warnings/WarningDialog'
-import { FormattedMessage } from 'react-intl'
+import { useIntl } from 'react-intl'
 import { useLockedDialogStyles } from '../LockedDialog'
 import { changeBanStatus } from '../../../contexts/MarketPresencesContext/marketPresencesHelper'
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext'
@@ -18,6 +18,7 @@ function UnBanUserButton(props){
     marketId,
     userId,
   } = props;
+  const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [open, setOpen] = useState(false);
   const lockedDialogClasses = useLockedDialogStyles();
@@ -58,7 +59,7 @@ function UnBanUserButton(props){
         /* slots */
         actions={
           <SpinningIconLabelButton icon={Undo} onClick={onProceed} id="undoBanUserButton">
-            <FormattedMessage id="issueProceed" />
+            {intl.formatMessage({ id: 'issueProceed' })}
           </SpinningIconLabelButton>
         }
       />

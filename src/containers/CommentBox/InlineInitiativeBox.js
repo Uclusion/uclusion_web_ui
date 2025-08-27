@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage, useIntl } from 'react-intl'
 import { JUSTIFY_TYPE } from '../../constants/comments'
 import Voting from '../../pages/Investible/Decision/Voting'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -21,8 +21,9 @@ import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext
 import { Typography } from '@material-ui/core';
 
 function InlineInitiativeBox(props) {
-  const { anInlineMarket, removeActions, isTaskDisplay, typeObjectId, isInbox } = props;
+  const { anInlineMarket, removeActions, isTaskDisplay, typeObjectId, isInbox, createdBy } = props;
   const history = useHistory();
+  const intl = useIntl();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState] =
     getPageReducerPage(votingPageStateFull, votingPageDispatch, anInlineMarket.id,
@@ -35,7 +36,6 @@ function InlineInitiativeBox(props) {
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
-  const { created_by: createdBy } = anInlineMarket;
   const isCreator = myInlinePresence.id === createdBy;
   const [fullInlineInvestible] = inlineInvestibles;
   const inlineInvestibleId = fullInlineInvestible ? fullInlineInvestible.investible.id : undefined;
@@ -78,7 +78,7 @@ function InlineInitiativeBox(props) {
                         onClick={() => navigate(history,
                           `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, inlineInvestibleId, 
                             undefined, undefined, typeObjectId)}&voteFor=true`)}>
-          <FormattedMessage id="voteFor" />
+          {intl.formatMessage({ id: 'voteFor'})}
         </SpinningButton>
       )}
       {!showVoteButtons && _.isEmpty(positiveVoters) && (
@@ -106,7 +106,7 @@ function InlineInitiativeBox(props) {
                         onClick={() => navigate(history,
                           `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, inlineInvestibleId,
                             undefined, undefined, typeObjectId)}&voteFor=false`)}>
-          <FormattedMessage id="voteAgainst" />
+          {intl.formatMessage({ id: 'voteAgainst'})}
         </SpinningButton>
       )}
       {!showVoteButtons && _.isEmpty(negativeVoters) && (

@@ -12,7 +12,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import NameField, { clearNameStoredState, getNameStoredState } from '../../TextFields/NameField';
 import SpinningIconLabelButton from '../../Buttons/SpinningIconLabelButton';
 import { Clear, SettingsBackupRestore } from '@material-ui/icons';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { useEditor } from '../../TextEditors/quillHooks';
 import { realeaseInvestibleEditLock, updateInvestible } from '../../../api/investibles';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
@@ -98,7 +98,7 @@ function JobEditStep(props) {
           onClick={handleSave}
           id="investibleUpdateButton"
         >
-          <FormattedMessage id="update" />
+          {intl.formatMessage({ id: 'update'})}
         </SpinningIconLabelButton>
         <SpinningIconLabelButton onClick={onCancel} icon={Clear} id="marketAddCancelButton" whiteBackground>
           {intl.formatMessage({ id: 'marketAddCancelLabel' })}

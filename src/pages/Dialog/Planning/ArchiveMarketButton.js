@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import BlockIcon from '@material-ui/icons/Block';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import WarningDialog from '../../../components/Warnings/WarningDialog';
-import { FormattedMessage } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { useLockedDialogStyles } from '../LockedDialog';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext'
@@ -13,6 +13,7 @@ import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsCont
 
 function ArchiveMarketButton(props){
   const { marketId } = props;
+  const intl = useIntl();
   const lockedDialogClasses = useLockedDialogStyles();
   const [open, setOpen] = useState(false);
   const [, dispatch] = useContext(MarketsContext);
@@ -47,7 +48,7 @@ function ArchiveMarketButton(props){
         /* slots */
         actions={
           <SpinningIconLabelButton icon={BlockIcon} onClick={onProceed} id="archiveWorkspaceProceedButton">
-            <FormattedMessage id="issueProceed" />
+            {intl.formatMessage({ id: 'issueProceed' })}
           </SpinningIconLabelButton>
         }
       />

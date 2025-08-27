@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Checkbox, IconButton, Link, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { useHistory, useLocation } from 'react-router';
 import { darken, makeStyles } from '@material-ui/core/styles';
 import { yellow } from '@material-ui/core/colors';
@@ -420,7 +420,7 @@ function MarketTodos(props) {
                         icon={hasBug(groupId) ? EditIcon : AddIcon} iconColor="black" toolTipId='hotKeyTODO'
                         onClick={() => navigate(history,
                           formMarketAddCommentLink(BUG_WIZARD_TYPE, marketId, groupId, tabIndex))}>
-          <FormattedMessage id='createBug'/>
+          {intl.formatMessage({ id: 'createBug'})}
         </SpinningButton>
       )}
       <DismissableText textId="todosHelp" noPad display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}

@@ -650,7 +650,7 @@ function MarketMetaData(props) {
         <>
           <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
                                    onClick={toggleDiffShow} doSpin={false}>
-            <FormattedMessage id={showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'} />
+            {intl.formatMessage({ id: showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'})}
           </SpinningIconLabelButton>
           <div style={{paddingTop: '1.2rem'}} />
         </>

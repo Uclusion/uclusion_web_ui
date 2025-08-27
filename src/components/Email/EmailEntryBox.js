@@ -6,7 +6,7 @@ import React from 'react';
 import { Send } from '@material-ui/icons';
 import Chip from '@material-ui/core/Chip';
 import PropTypes from 'prop-types'
-import * as ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 import { getUclusionLocalStorageItem, setUclusionLocalStorageItem } from '../localStorageUtils';
 
@@ -147,6 +147,7 @@ class EmailEntryBox extends React.Component{
     node.setAttribute("contentEditable", false);
     node.setAttribute("tabindex", -1)
     node.setAttribute("style", "display:inline-block; margin: 0.25rem");
+    const nodeRoot = createRoot(node);
     const element = (
         <Chip
           icon={icon}
@@ -156,7 +157,7 @@ class EmailEntryBox extends React.Component{
           onDelete={() => this.doDelete(email)}
         />
     );
-    ReactDOM.render(element, node);
+    nodeRoot.render(element);
     return node;
   }
   // Handles keydown in text entry box

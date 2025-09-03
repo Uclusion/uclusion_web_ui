@@ -35,7 +35,7 @@ import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import Screen from '../Screen/Screen';
 import { useIntl } from 'react-intl';
-import { DEMO_TYPE, PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
+import { DEMO_TYPE, PLANNING_TYPE, SUPPORT_SUB_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 import queryString from 'query-string';
 import _ from 'lodash';
 import { getNotHiddenMarketDetailsForUser, getSortedMarkets } from '../../contexts/MarketsContext/marketsContextHelper';
@@ -84,6 +84,7 @@ function Root(props) {
     undefined;
   const marketJoinedUser = userState?.user?.onboarding_state !== OnboardingState.NeedsOnboarding;
   const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
+  const isDemoWorkspace = defaultMarket?.market_type === PLANNING_TYPE && defaultMarket?.object_type === DEMO_TYPE;
 
   function hideInbox() {
     return action !== 'inbox';
@@ -191,11 +192,16 @@ function Root(props) {
   },  [action, history, marketLink]);
 
   useEffect(() => {
-    if (isRootPath && !_.isEmpty(defaultMarketLink)) {
-      console.info('Navigating on root path to default market');
-      navigate(history, defaultMarketLink, true);
+    if (isRootPath) {
+      if (isDemoWorkspace) {
+        console.info('Navigating to create workspace with default demo market');
+        navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+      } else if (!_.isEmpty(defaultMarketLink)) {
+        console.info('Navigating on root path to default market');
+        navigate(history, defaultMarketLink, true);
+      }
     }
-  },  [history, isRootPath, defaultMarketLink]);
+  },  [history, isRootPath, defaultMarketLink, isDemoWorkspace]);
 
   useEffect(() => {
     function handleViewChange(isEntry) {

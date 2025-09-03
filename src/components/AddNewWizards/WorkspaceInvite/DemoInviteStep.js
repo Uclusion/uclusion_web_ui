@@ -6,12 +6,7 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import {
-  ASSIGNED_HASH,
-  BACKLOG_HASH,
-  DISCUSSION_HASH,
-  formatGroupLinkWithSuffix,
   formMarketLink,
-  MARKET_TODOS_HASH,
   navigate,
   preventDefaultAndProp
 } from '../../../utils/marketIdPathFunctions';
@@ -24,6 +19,7 @@ import { useIntl } from 'react-intl';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { WORKSPACE_WIZARD_TYPE } from '../../../constants/markets';
 
 function DemoInviteStep (props) {
   const { marketId } = props;
@@ -39,7 +35,6 @@ function DemoInviteStep (props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const market = getMarket(marketsState, marketId) || {};
   const link = formMarketLink(marketId, marketId);
-  const pathToBugs = formatGroupLinkWithSuffix(MARKET_TODOS_HASH, marketId, marketId);
   const checkMark = <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill='#3f6b72'
                          style={{ width: 18, height: 18, marginRight: 4, marginBottom: -2 }}
                          viewBox="0 0 20 20">
@@ -48,6 +43,7 @@ function DemoInviteStep (props) {
   </svg>;
   const navListItemTextArray = [];
   const isSolo = market.name?.includes('solo');
+  const pathToCreateWorkspace = `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`;
   getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState, history, market, marketId, marketId, 
     screenClasses);
 
@@ -67,7 +63,7 @@ function DemoInviteStep (props) {
       </Typography>
       {isSolo && (
         <Typography className={classes.introSubText} variant="subtitle1">
-          Here you work alone but this workspace includes a fake participant if you want to try collaboration.
+          This demo solo workspace also includes a fake participant if you want to try collaboration.
           Play around and when you are ready create your own workspace and this demo will be removed.
         </Typography>
       )}
@@ -80,7 +76,7 @@ function DemoInviteStep (props) {
       <h2 style={{marginTop: '1.75rem', marginBottom: 0}}>
         Navigation
       </h2>
-      <div style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
+      <div style={{ paddingTop: '1rem' }}>
         <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
           {checkMark}ctrl+arrowRight to go to what most likely needs doing
           <div style={{ backgroundColor: '#8ABABF', width: '8rem', height: '60px' }}>
@@ -97,21 +93,17 @@ function DemoInviteStep (props) {
             <Sidebar navigationOptions={{ navListItemTextArray }} idPrepend="intro"/>
           </div>
         </Typography>
-        <Typography variant="body2" style={{ paddingTop: '0.3rem', paddingBottom: '0.5rem' }}>
-          {checkMark}In a view change tabs to send a <Link href={pathToBugs} onClick={(event) => {
-          preventDefaultAndProp(event);
-          navigate(history, pathToBugs);
-        }}>bug</Link>, <Link href={pathToBugs} onClick={(event) => {
-          preventDefaultAndProp(event);
-          navigate(history, formatGroupLinkWithSuffix(BACKLOG_HASH, marketId, marketId));
-        }}>backlog</Link> job, <Link href={pathToBugs} onClick={(event) => {
-          preventDefaultAndProp(event);
-          navigate(history, formatGroupLinkWithSuffix(ASSIGNED_HASH, marketId, marketId));
-        }}>assigned</Link> job, or <Link href={pathToBugs} onClick={(event) => {
-          preventDefaultAndProp(event);
-          navigate(history, formatGroupLinkWithSuffix(DISCUSSION_HASH, marketId, marketId));
-        }}>question or suggestion</Link> to group members.
-        </Typography>
+      </div>
+      <h2 style={{marginTop: '1.75rem', marginBottom: 0}}>
+        To create a workspace and end the demo
+      </h2>
+      <div style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
+        Skip the demo by clicking 'Get started' in the header, New workspace under Switch workspace on the left side panel, or <Link href={pathToCreateWorkspace} onClick={
+          (event) => {
+            preventDefaultAndProp(event);
+            navigate(history, pathToCreateWorkspace);
+          }
+        }>here</Link>.
       </div>
     </WizardStepContainer>
   );

@@ -76,7 +76,7 @@ export const usePlanningIdStyles = makeStyles(
         flexWrap: 'wrap',
         margin: 0,
         '& > *': {
-          borderRight: `1px solid ${theme.palette.grey['300']}`,
+          borderRight: `1px solid ${theme.palette.primary.dark}`,
           flex: '1 1 25%',
           minWidth: '15ch',
           padding: theme.spacing(1),

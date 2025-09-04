@@ -576,6 +576,7 @@ function PlanningDialog(props) {
         <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen} isDemo={isDemo} isAutonomous={isAutonomous}/>
         <GmailTabs
           value={tabIndex}
+          useColor
           addPaddingLeft='2rem'
           id='dialog-header'
           onChange={(event, value) => {
@@ -668,8 +669,6 @@ function PlanningDialog(props) {
               <SubSection
                 type={SECTION_TYPE_SECONDARY_WARNING}
                 bolder
-                title={intl.formatMessage({ id: 'blockedHeader' })}
-                helpLink='https://documentation.uclusion.com/views/jobs/stages/#next--assistance'
                 id="blocked"
                 createButton={createButton}
                 showCard={false}

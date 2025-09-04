@@ -675,6 +675,7 @@ function PlanningInvestible(props) {
           // Previous scroll position no longer relevant
           refToTop.current?.scrollIntoView({ block: "end" });
         }}
+        useColor
         id='investible-header'
         indicatorColors={['#00008B', '#00008B', '#00008B']}
         style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',

@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Grid, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash';
-import RaisedCard from '../../components/Cards/RaisedCard';
 import { useIntl } from 'react-intl';
 import {
   formCommentLink,
@@ -52,7 +51,8 @@ const myArchiveClasses = makeStyles(
       outlined: {
         border: `1px solid ${theme.palette.grey["400"]}`,
         borderRadius: theme.spacing(1),
-        padding: theme.spacing(1, 2)
+        padding: theme.spacing(1, 2),
+        backgroundColor: 'white'
       },
       noPadding: {
         padding: 0,
@@ -84,6 +84,7 @@ function ArchiveInvestible(props) {
       setAnchorEl(null);
     }
   };
+  const inArchives = !isBlocked && !needsAssist;
   return (
     <React.Fragment key={`frag${id}`}>
       {anchorEl && (
@@ -96,19 +97,22 @@ function ArchiveInvestible(props) {
         key={id}
         onContextMenu={recordPositionToggle}
         onMouseOver={() => doShowEdit(id)} onMouseOut={() => doRemoveEdit(id)}
+        style={{margin: '0.5rem'}}
         onClick={(event) => {
           preventDefaultAndProp(event);
           getInvestibleOnClick(id, marketId, history);
         }}
       >
-        <RaisedCard draggable={allowDragDrop} onDragStart={onDragStart}>
-          <Link href={formInvestibleLink(marketId, id)} color="inherit" style={{cursor: 'grab'}}>
+        <div draggable={allowDragDrop} onDragStart={onDragStart}>
+          <Link href={formInvestibleLink(marketId, id)} color="inherit" style={{cursor: inArchives ? 'pointer' : 'grab'}}>
             <div className={classes.outlined}>
-              <div>
-                <Typography style={{fontSize: '.75rem'}}>
-                  Entered <UsefulRelativeTime value={enteredStageAt}/>
-                </Typography>
-              </div>
+              {!inArchives && (
+                <div>
+                  <Typography style={{fontSize: '.75rem'}}>
+                    Assistance <UsefulRelativeTime value={enteredStageAt}/>
+                  </Typography>
+                </div>
+              )}
               <div style={{display: 'flex', alignItems: 'center'}}>
                 {TypeIconList.map((item) => {
                   const { TypeIcon, typeExplanation, myMessage, myLink } = item;
@@ -139,9 +143,11 @@ function ArchiveInvestible(props) {
                     {viewIndicator}
                   </div>
                 )}
-                <div id={`showEdit0${id}`} style={{pointerEvents: 'none', visibility: 'hidden'}}>
-                  <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
-                </div>
+                {!inArchives && (
+                  <div id={`showEdit0${id}`} style={{pointerEvents: 'none', visibility: 'hidden'}}>
+                    <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
+                  </div>
+                )}
               </div>
               <p style={{paddingTop: '0.5rem', maxWidth: '16rem',  wordBreak: 'break-all'}}>
                 {name}
@@ -160,7 +166,7 @@ function ArchiveInvestible(props) {
               )}
             </div>
           </Link>
-        </RaisedCard>
+        </div>
       </div>
       {!mobileLayout && (
         <DragImage id={id} name={name} />

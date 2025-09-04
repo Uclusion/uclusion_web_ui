@@ -116,22 +116,22 @@ function SubSection (props) {
       >
         <Toolbar variant="dense" style={{minHeight: '30px'}}>
           {titleIcon}
-          {helpLink && (
+          {helpLink && title && (
             <Typography className={bolder ? classes.headerTitleBolder : classes.headerTitle}>
               <Link href={helpLink} target="_blank" style={{color: DARKER_LINK_COLOR}}>
                 {title}
               </Link>
             </Typography>
           )}
-          {!helpLink && (
+          {!helpLink && title && (
             <Typography className={bolder ? classes.headerTitleBolder : classes.headerTitle}>
               {title}
             </Typography>
           )}
+          {createButton}
           {supportingInformation}
           <div className={classes.grow}/>
           <div className={classes.searchContainer}>
-            {createButton}
             {actionButton}
           </div>
         </Toolbar>

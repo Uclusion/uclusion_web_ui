@@ -1,6 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
-import { FormattedMessage } from 'react-intl';
 import { useMetaDataStyles } from '../../Investible/Planning/PlanningInvestibleNav';
 import React, { useContext } from 'react';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -10,13 +9,12 @@ import {
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { PLACEHOLDER } from '../../../constants/global';
 import { getUserInvestibles, getUserSwimlaneInvestiblesHash } from './userUtils';
-import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
-import { Link, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import NotificationCountChips from '../NotificationCountChips';
 import Gravatar from '../../../components/Avatars/Gravatar';
 import CardContent from '@material-ui/core/CardContent';
-import PlanningIdeas, { usePlanningIdStyles } from './PlanningIdeas';
+import PlanningIdeas from './PlanningIdeas';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -41,6 +39,7 @@ const useInvestiblesByPersonStyles = makeStyles(
       },
       header: {
         paddingLeft: theme.spacing(1),
+        backgroundColor: '#EDF7F8',
         paddingBottom: 0,
         paddingTop: 0,
         borderBottom: '1px solid #ecf0f1'
@@ -123,12 +122,10 @@ function InvestiblesByPerson(props) {
     inReviewStage,
     requiresInputStage,
     group,
-    mobileLayout,
     isAutonomous
   } = props;
   const metaClasses = useMetaDataStyles();
   const classes = useInvestiblesByPersonStyles();
-  const swimClasses = usePlanningIdStyles();
   const { market_id: marketId, id: groupId } = group || {};
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
@@ -145,28 +142,6 @@ function InvestiblesByPerson(props) {
 
   return (
     <React.Fragment key="investiblesByPerson">
-      {!mobileLayout && (
-        <dl className={swimClasses.stages} style={{marginTop: '0.5rem'}}>
-          <div>
-            <Link href="https://documentation.uclusion.com/views/jobs/stages/#waiting--approval" target="_blank"
-                  style={{ color: DARKER_LINK_COLOR }}>
-              <b><FormattedMessage id="planningVotingStageLabel"/></b>
-            </Link>
-          </div>
-          <div>
-            <Link href="https://documentation.uclusion.com/views/jobs/stages/#work-ready"
-                  target="_blank" style={{ color: DARKER_LINK_COLOR }}>
-              <b><FormattedMessage id="planningAcceptedStageLabel"/></b>
-            </Link>
-          </div>
-          <div style={{ flex: '2 1 50%' }}>
-            <Link href="https://documentation.uclusion.com/views/jobs/stages/#tasks-complete"
-                  target="_blank" style={{color: DARKER_LINK_COLOR}}>
-              <b><FormattedMessage id="planningReviewStageLabel"/></b>
-            </Link>
-          </div>
-        </dl>
-      )}
       {groupPresencesSorted.map(presence => {
         const { id, email, placeholder_type: placeholderType } = presence;
         const name = (presence.name || '').replace('@', ' ');
@@ -181,7 +156,7 @@ function InvestiblesByPerson(props) {
           return <React.Fragment key={`investiblesByPerson${id}`}/>
         }
         return (
-            <Card id={`sl${id}`} key={id} className={classes.root} elevation={3}
+            <div id={`sl${id}`} key={id} className={classes.root}
                   style={{marginBottom: '1rem', clipPath: 'inset(0px -10px -10px -10px)'}}>
               <CardHeader
                 className={classes.header}
@@ -216,7 +191,7 @@ function InvestiblesByPerson(props) {
                     />
                   )}
               </CardContent>
-            </Card>
+            </div>
         );
       })
     }

@@ -36,7 +36,7 @@ export function GmailTabItem(props) {
 export function GmailTabs(props) {
   const tabsStyles = useGmailTabsStyles({ ...props });
   const tabsProps = {...props};
-  const { removeBoxShadow, addPaddingLeft, addMarginLeft, useColor } = props;
+  const { removeBoxShadow, addPaddingLeft, addMarginLeft, useColor=true } = props;
   delete tabsProps.indicatorColors;
   return (
     <Tabs

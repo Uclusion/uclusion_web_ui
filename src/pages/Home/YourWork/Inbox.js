@@ -42,7 +42,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 
 function createWorkspaceGroupHeader(market, group, history) {
   const link = formMarketLink(market.id, group.id);
-  return (<div id={`inboxGroupHeader${group.id}`} key={`inboxGroupHeaderKey${group.id}`} style={{marginTop: '0.3rem'}}>
+return (<div id={`inboxGroupHeader${group.id}`} key={`inboxGroupHeaderKey${group.id}`} style={{marginTop: '1rem'}}>
     Workspace {market.name} and view <Link href={link} onClick={
     (event) => {
       preventDefaultAndProp(event);
@@ -217,7 +217,7 @@ function Inbox(props) {
                         tag={_.size(outBoxMessagesOrdered) > 0 ? `${_.size(outBoxMessagesOrdered)}` : undefined} />
         </GmailTabs>
       )}
-      <div style={{paddingBottom: tabIndex > 0 ? '0.25rem' : undefined, backgroundColor: 'white'}}>
+      <div style={{paddingBottom: tabIndex > 0 ? '0.25rem' : undefined}}>
         <div style={{display: 'flex', width: '80%', marginBottom: mobileLayout && workItemId ? '1rem': undefined}}>
           {!mobileLayout && !isOnWorkItem && (
             <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}

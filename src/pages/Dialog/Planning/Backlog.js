@@ -151,7 +151,7 @@ function Backlog(props) {
                       onDragOver={(event)=>event.preventDefault()} />
       </GmailTabs>
       {!_.isEmpty(data) && (
-        <div style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
+        <div style={{paddingBottom: '0.25rem'}}>
           <div style={{display: 'flex', width: '80%'}}>
             <div style={{flexGrow: 1}}/>
             <Box fontSize={14} color="text.secondary">

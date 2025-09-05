@@ -462,7 +462,7 @@ function MarketTodos(props) {
         </GmailTabs>
       )}
       {!_.isEmpty(tabComments) && (
-        <div key="todoComments" style={{paddingBottom: '0.25rem', backgroundColor: 'white'}}>
+        <div key="todoComments" style={{paddingBottom: '0.25rem'}}>
           <div style={{display: 'flex', width: '80%'}}>
             {!mobileLayout && !isInArchives && (
               <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}

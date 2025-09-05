@@ -41,7 +41,7 @@ import {
   isAutonomousGroup
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { WARNING_COLOR } from '../Buttons/ButtonConstants';
+import { ACTION_BUTTON_COLOR, WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { getMarketInfo } from '../../utils/userFunctions';
@@ -263,12 +263,12 @@ export default function NavigationChevrons() {
   return (
         <Toolbar>
           <TooltipIconButton disabled={backDisabled}
-                             icon={<ArrowBack htmlColor={backDisabled ? 'disabled' : 'white'} />}
+                             icon={<ArrowBack htmlColor={backDisabled ? 'disabled' : ACTION_BUTTON_COLOR} />}
                              onClick={doPreviousNavigation} translationId="previousNavigation" />
           <div style={{marginLeft: '0.5rem'}}/>
           <TooltipIconButton disabled={nextDisabled}
                              icon={<ArrowForward htmlColor={nextDisabled ? 'disabled' :
-                               (nextHighlighted ? WARNING_COLOR : 'white')} />}
+                               (nextHighlighted ? WARNING_COLOR : ACTION_BUTTON_COLOR)} />}
                              onClick={doNextNavigation}
                              translationId="nextNavigation" />
         </Toolbar>

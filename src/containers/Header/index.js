@@ -28,6 +28,7 @@ import NavigationChevrons from '../../components/Menus/NavigationChevrons';
 import _ from 'lodash';
 import { OnboardingState } from '../../contexts/AccountContext/accountUserContextHelper';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
+import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -68,7 +69,7 @@ export const headerStyles = makeStyles((theme) => {
       flexGrow: 1,
     },
     appBar: {
-      background: '#8ABABF',
+      background: '#DFF0F2',
       height: '60px',
     },
     appBarNoSidebar: {
@@ -194,6 +195,7 @@ function Header (props) {
     <div id="app-header-control">
       <AppBar
         position="fixed"
+        elevation={0}
         id="app-header"
         className={classes.appBar}
       >
@@ -206,7 +208,7 @@ function Header (props) {
               <Link href="/" onClick={(event) => {
                 preventDefaultAndProp(event);
                 history.push('/');
-              }} color="inherit" style={{fontWeight: 'bold'}}>
+              }} color="primary" style={{fontWeight: 'bold'}}>
                 <svg style={{ width: '130px', verticalAlign: 'middle', transition: 'all 125ms linear' }}
                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
                   <path fill="#fff"
@@ -256,7 +258,7 @@ function Header (props) {
           )}
           {!mobileLayout && (
             <Tooltip title={<FormattedMessage id="help"/>}>
-              <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: 'white' }} id="helpIcon"
+              <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: ACTION_BUTTON_COLOR }} id="helpIcon"
                                onClick={() => openInNewTab(config.helpLink)}/>
             </Tooltip>
           )}

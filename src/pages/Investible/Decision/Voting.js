@@ -175,11 +175,10 @@ function Voting(props) {
             <div className={myMessage && classes.highlighted}
                  style={{width: 'fit-content', cursor: myUseCompression ? 'pointer' : undefined,
                    maxWidth: myUseCompression ? '98%' : undefined}} key={userId}>
-              <Card
+              <div
                 key={userId}
                 className={clsx(classes.cardPadded, isEditable ? classes.editable : classes.notEditable)}
                 id={voteId}
-                elevation={3}
                 style={{paddingBottom: hasContent && !myUseCompression ? undefined : '1rem'}}
                 onClick={(event) => {
                   if (isEditable) {
@@ -259,7 +258,7 @@ function Voting(props) {
                     />
                   </CardContent>
                 )}
-              </Card>
+              </div>
             </div>
           );
         })}

@@ -268,7 +268,7 @@ export const usePlanningInvestibleStyles = makeStyles(
       height: '100%',
       zIndex: 9,
       position: 'fixed',
-      top: '3.8rem',
+      top: '3.5rem',
       paddingLeft: '1rem',
       minWidth: '15rem',
       textOverflow: 'ellipsis',

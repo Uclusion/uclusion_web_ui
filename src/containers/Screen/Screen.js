@@ -136,7 +136,7 @@ export const screenStyles = makeStyles((theme) => ({
     height: '100%',
     zIndex: 8,
     position: 'fixed',
-    top: '4rem',
+    top: '3.5rem',
     minWidth: '16rem',
     textOverflow: 'ellipsis'
   },

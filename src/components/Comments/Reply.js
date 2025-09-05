@@ -3,7 +3,6 @@ import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
   Button,
-  Card,
   CardActions,
   CardContent,
   Checkbox, FormControlLabel, Tooltip,
@@ -318,9 +317,9 @@ function Reply(props) {
     return React.Fragment;
   }
 
-  const compressedCommentCard = <Card elevation={3} style={{
-    display: 'flex', paddingBottom: '0.25rem', paddingLeft: '0.5rem',
-    paddingTop: '1rem', paddingRight: '0.5rem', cursor: 'pointer'
+  const compressedCommentCard = <div style={{
+    display: 'flex', paddingBottom: '0.5rem', paddingLeft: '0.5rem',
+    paddingTop: '0.5rem', paddingRight: '0.5rem', cursor: 'pointer', backgroundColor: 'white'
   }} onClick={toggleCompression}>
     <Gravatar name={commenter.name} email={commenter.email} className={commentClasses.smallGravatar}/>
     <div className={commentClasses.compressedComment}>{stripHTML(comment.body)}</div>
@@ -333,10 +332,10 @@ function Reply(props) {
         translationId="rowExpandComment"
       />
     </div>
-  </Card>;
+  </div>;
 
-  const commentCard = <Card className={getHighlightClass()}
-                            style={{width: !enableEditing ? 'fit-content' : undefined, paddingRight: '1rem'}}
+  const commentCard = <div className={getHighlightClass()}
+                            style={{width: !enableEditing ? 'fit-content' : undefined, paddingRight: '1rem', backgroundColor: 'white'}}
                             id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
     <div onClick={(event) => {
       if (!invalidEditEvent(event, history)) {
@@ -512,7 +511,7 @@ function Reply(props) {
         )}
       </CardActions>
     </div>
-  </Card>;
+  </div>;
 
   if (useCompression && comment.id !== inboxMessageId) {
     return (

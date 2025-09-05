@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import {
   Badge,
   Box,
-  Card,
   CardActions,
   CardContent,
   Checkbox, FormControl,
@@ -924,8 +923,7 @@ function Comment(props) {
       {!mobileLayout && intl.formatMessage({ id: showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'})}
     </SpinningIconLabelButton>
   )}</>;
-  const commentCard = <Card elevation={3}
-                            style={{overflow: 'unset', marginTop: isSent === false || usePadding === false ? 0
+  const commentCard = <div style={{overflow: 'unset', backgroundColor: 'white', marginTop: isSent === false || usePadding === false ? 0
       : '1rem', width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
                             ref={editBox}>
     <div onClick={(event) => {
@@ -1161,12 +1159,12 @@ function Comment(props) {
         </CardActions>
       )}
     </div>
-  </Card>
+  </div>
   let strippedBody = stripHTML(body);
   if (_.isEmpty(strippedBody)) {
     strippedBody = dateInfo;
   }
-  const compressedCommentCard = <Card elevation={3} style={{ display: 'flex', paddingBottom: '1rem',
+  const compressedCommentCard = <div style={{ display: 'flex', paddingBottom: '1rem', backgroundColor: 'white',
     height: '100%',
     cursor: 'pointer', width: 'fit-content', maxWidth: '98%', marginTop: isSent === false || usePadding === false ? 0
       : '1rem' }} onClick={toggleCompression}>
@@ -1182,7 +1180,7 @@ function Comment(props) {
         translationId="rowExpandComment"
       />
     </div>
-  </Card>;
+  </div>;
   if (useCompression && (compressAll || inboxMessageId !== id)) {
     const numInThread = _.size(comments.filter((aComment) => aComment.root_comment_id === id));
     return (

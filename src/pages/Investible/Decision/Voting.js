@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Card, CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core';
+import { CardContent, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import ReadOnlyQuillEditor from '../../../components/TextEditors/ReadOnlyQuillEditor';
 import { makeStyles } from '@material-ui/styles';
 import CardType from '../../../components/CardType';

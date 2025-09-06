@@ -1,10 +1,13 @@
 import _ from 'lodash'
 import React from 'react'
-import { navigate } from '../../utils/marketIdPathFunctions'
+import { navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
-import { Menu, MenuItem, Sidebar as ProSidebar } from 'react-pro-sidebar'
+import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar'
 import { IconButton, Tooltip, Typography } from '@material-ui/core';
 import Link from '@material-ui/core/Link';
+import { ExpandLess, ExpandMore } from '@material-ui/icons'
+import { useIntl } from 'react-intl'
+import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks'
 
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
@@ -111,7 +114,12 @@ function processRegularItem(properties) {
 
 export default function Sidebar(props) {
   const history = useHistory();
+  const intl = useIntl();
   const { navigationOptions, idPrepend='' } = props;
+  const [pageStateFull, pageDispatch] = usePageStateReducer('sidebarMenus');
+  const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, 'sidebarState',
+    {viewsOpen: true});
+  const { viewsOpen } = pageState;
   const { navListItemTextArray, navLowerListItemTextArray, navMenu, navLowerMenu,
     listOnClick, headerItemTextArray } = navigationOptions || {};
   return (
@@ -129,19 +137,30 @@ export default function Sidebar(props) {
           </Menu>
         )}
         {navMenu}
-      {!_.isEmpty(navListItemTextArray) && (
-        <Menu onClick={listOnClick} style={{paddingTop: '5px'}}
-          rootStyles={{'.ps-menu-button': {height: 'unset', paddingLeft: '12px'}}}
-        >
-          {navListItemTextArray.map((navItem, topIndex) => {
-            const { text, target, num, numSuffix, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
-              onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
-            return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
-              isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-              tipText, idPrepend})
-          })}
+        <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '25px', height: '40px'}}}
+          renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem', marginRight: '1.05rem'}} />: 
+          <ExpandMore style={{marginTop: '0.3rem', marginRight: '1.05rem'}} />}>
+          <SubMenu id='views'
+                  label={intl.formatMessage({ id: 'viewInGroup' })}
+                  rootStyles={{
+                    '.ps-menuitem-root': {
+                      backgroundColor: '#DFF0F2'
+                    }
+                  }}
+                  onClick={(event) => {
+                    preventDefaultAndProp(event);
+                    updatePageState({viewsOpen: !viewsOpen});
+                  }}
+                    key="collaborators" open={viewsOpen}>
+                    {navListItemTextArray.map((navItem, topIndex) => {
+                      const { text, target, num, numSuffix, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
+                        onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
+                      return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
+                        isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
+                        tipText, idPrepend})
+                    })}
+            </SubMenu>
         </Menu>
-      )}
         {navLowerMenu}
         {!_.isEmpty(navLowerListItemTextArray) && (
           <Menu 

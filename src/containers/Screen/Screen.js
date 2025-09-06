@@ -299,11 +299,7 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
   const addViewChosen = action === 'wizard' && type === PLANNING_TYPE.toLowerCase();
   items.push({icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }), isBold: addViewChosen,
     isBlue: addViewChosen,
-    target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${market.id}`})
-  navListItemTextArray.push({
-    text: intl.formatMessage({ id: 'viewInGroup' }),
-    linkHref: 'https://documentation.uclusion.com/views'
-  });
+    target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${market.id}`});
   navListItemTextArray.push(...items);
 }
 

@@ -13,7 +13,6 @@ import {
 import { useHistory } from 'react-router';
 import Link from '@material-ui/core/Link';
 import NavigationChevrons from '../../Menus/NavigationChevrons';
-import Sidebar from '../../Menus/Sidebar';
 import { getSidebarGroups, screenStyles } from '../../../containers/Screen/Screen';
 import { useIntl } from 'react-intl';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
@@ -86,12 +85,6 @@ function DemoInviteStep (props) {
               or with mouse use the navigation chevrons in header.
             </div>
           )}
-        </Typography>
-        <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
-          {checkMark}Go to a view by clicking a name in the left side panel:
-          <div style={{ backgroundColor: '#DFF0F2', width: '16rem' }}>
-            <Sidebar navigationOptions={{ navListItemTextArray }} idPrepend="intro"/>
-          </div>
         </Typography>
       </div>
       <h2 style={{marginTop: '1.75rem', marginBottom: 0}}>

@@ -20,7 +20,6 @@ import { OnboardingState } from '../../../contexts/AccountContext/accountUserCon
 import { useHistory } from 'react-router';
 import Link from '@material-ui/core/Link';
 import NavigationChevrons from '../../Menus/NavigationChevrons';
-import Sidebar from '../../Menus/Sidebar';
 import { getSidebarGroups, screenStyles } from '../../../containers/Screen/Screen';
 import { useIntl } from 'react-intl';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
@@ -89,12 +88,6 @@ function WorkspaceInviteStep (props) {
             </div>
           )}
         </Typography>
-        <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
-          {checkMark}Go to a view by clicking a name in the left side panel:
-          <div style={{ backgroundColor: '#DFF0F2', width: '16rem' }}>
-            <Sidebar navigationOptions={{ navListItemTextArray }} idPrepend="intro"/>
-          </div>
-        </Typography>
         <Typography variant="body2" style={{ paddingTop: '0.3rem', paddingBottom: '0.5rem' }}>
           {checkMark}In a view change tabs to send a <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
@@ -108,7 +101,7 @@ function WorkspaceInviteStep (props) {
         }}>assigned</Link> job, or <Link href={pathToBugs} onClick={(event) => {
           preventDefaultAndProp(event);
           navigate(history, formatGroupLinkWithSuffix(DISCUSSION_HASH, marketId, marketId));
-        }}>question or suggestion</Link> to group members.
+        }}>question or suggestion</Link> to view members.
         </Typography>
       </div>
     </WizardStepContainer>

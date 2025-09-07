@@ -255,9 +255,6 @@ function MarketTodos(props) {
         if (!sectionOpen) {
           setSectionOpen();
         }
-        if (hash.includes(MARKET_TODOS_HASH)) {
-          removeHash(history);
-        }
       }
     }
     return () => {};

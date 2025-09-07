@@ -239,11 +239,17 @@ function PlanningDialog(props) {
       const element = document.getElementById(hash.substring(1, hash.length));
       if (!element) {
         if (hash.includes('option')||hash.includes(DISCUSSION_HASH)) {
+          if (sectionOpen !== 'discussionSection') {
           updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
+          }
         } else if (hash.includes(ASSIGNED_HASH)) {
-          updatePageState({ sectionOpen: 'storiesSection', tabIndex: 0 });
+          if (sectionOpen !== 'storiesSection') {
+            updatePageState({ sectionOpen: 'storiesSection', tabIndex: 0 });
+          }
         } else if (hash.includes(BACKLOG_HASH)) {
-          updatePageState({ sectionOpen: 'backlogSection', tabIndex: 1 });
+          if (sectionOpen !== 'backlogSection') {
+            updatePageState({ sectionOpen: 'backlogSection', tabIndex: 1 });
+          }
         } else {
           const comments = getMarketComments(commentsState, marketId) || [];
           const found = comments.find((comment) => hash.includes(comment.id));
@@ -253,7 +259,9 @@ function PlanningDialog(props) {
               if (!rootComment.resolved) {
                 if (rootComment.comment_type !== TODO_TYPE) {
                   // TO DO TYPE handled by MarketTodos so is no op here
-                  updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
+                  if (sectionOpen !== 'discussionSection') {
+                    updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
+                  }
                 }
               } else {
                 // send over to the archives
@@ -264,7 +272,7 @@ function PlanningDialog(props) {
         }
       }
     }
-  }, [commentsState, groupId, hash, hidden, history, marketId, updatePageState]);
+  }, [commentsState, groupId, hash, hidden, history, marketId, updatePageState, sectionOpen]);
 
   function openSubSection(subSection) {
     updatePageState({sectionOpen: subSection});

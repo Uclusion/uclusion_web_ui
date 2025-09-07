@@ -107,7 +107,7 @@ function Backlog(props) {
   }
 
   return (
-    <div style={{paddingTop: '1rem', paddingBottom: '5rem'}}>
+    <div id="insideBacklogSection" style={{paddingTop: '1rem', paddingBottom: '5rem'}}>
       <SpinningButton id="addBacklogJob"
                       className={wizardClasses.actionNext}
                       icon={AddIcon} iconColor="black"

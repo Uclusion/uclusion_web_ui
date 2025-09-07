@@ -5,6 +5,8 @@ import {
   ArrowForward
 } from '@material-ui/icons';
 import {
+  ASSIGNED_HASH,
+  formatGroupLinkWithSuffix,
   formCommentLink,
   formInboxItemLink,
   formInvestibleLink, formMarketLink,
@@ -23,10 +25,10 @@ import {
   getMarketDetailsForType,
   getNotHiddenMarketDetailsForUser
 } from '../../contexts/MarketsContext/marketsContextHelper';
-import { DECISION_TYPE, PLANNING_TYPE } from '../../constants/markets';
+import { PLANNING_TYPE, SUPPORT_SUB_TYPE } from '../../constants/markets';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { getDecisionData, getWorkspaceData } from '../../pages/Home/YourWork/InboxExpansionPanel';
+import { getWorkspaceData } from '../../pages/Home/YourWork/InboxExpansionPanel';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
@@ -35,28 +37,21 @@ import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGr
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import { getOpenInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
-import {
-  getGroupPresences,
-  getMarketPresences,
-  isAutonomousGroup
-} from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { ACTION_BUTTON_COLOR, WARNING_COLOR } from '../Buttons/ButtonConstants';
-import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
-import { getMarketInfo } from '../../utils/userFunctions';
 import { REPLY_TYPE } from '../../constants/comments';
+import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
-  const candidate = {url: isOutbox ? formInboxItemLink({id: investible.investible.id})  :
-      formInvestibleLink(market.id, investible.investible.id)};
+  const candidate = {url: formInvestibleLink(market.id, investible.investible.id)};
   const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
   candidate.time = candidateMeta?.time || 0;
   return candidate;
 }
 
-function getCommentCandidate(comment, market, navigations) {
-  const candidate = {url: formInboxItemLink({id: comment.id})};
+function getGroupCandidate(group, market, navigations) {
+  const candidate = {url: formatGroupLinkWithSuffix(ASSIGNED_HASH, market.id, group.id)};
   const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
   candidate.time = candidateMeta?.time || 0;
   return candidate;
@@ -87,59 +82,36 @@ export default function NavigationChevrons() {
   const orderedNavigations = _.orderBy(navigations || [], ['time'], ['desc']);
   const workspacesData = getWorkspaceData(planningDetails, marketPresencesState, investiblesState, commentsState,
     marketStagesState);
-  const decisionDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, DECISION_TYPE,
-    true);
   const approvedCandidates = [];
-  const outboxCandidates = [];
+  // Don't need outbox or read inbox as have poke button on comments and notification icons in swimlanes
   workspacesData.forEach((workspaceData) => {
-    const { market, approvedInvestibles, inVotingInvestibles, questions, issues, suggestions, bugs,
-      comments } = workspaceData;
+    const { market, approvedInvestibles, comments } = workspaceData;
+    if (market.market_sub_type !== SUPPORT_SUB_TYPE) {
+      const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
+      const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+      const groups = groupsState[market.id].filter((group) => {
+        const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id, group.id) || [];
+        return !_.isEmpty(groupPresences.find((presence) => presence.id === myPresence.id));
+      });
+      groups?.forEach((group) => {
+        const candidate = getGroupCandidate(group, market, navigations);
+        approvedCandidates.push(candidate);
+    });
+    }
     approvedInvestibles?.forEach((investible) => {
-      const investibleComments = getOpenInvestibleComments(investible.investible.id, comments);
-      const inProgress = investibleComments.find((comment) => comment.in_progress &&
-        comment.comment_type !== REPLY_TYPE && !comment.resolved);
+      const openInvestibleComments = getOpenInvestibleComments(investible.investible.id, comments);
+      const inProgress = openInvestibleComments.find((comment) => comment.in_progress &&
+        comment.comment_type !== REPLY_TYPE);
       const candidate = getInvestibleCandidate(investible, market, navigations);
+      // Only interested in in progress because if want not in progress choose it from swimlanes
       if (inProgress) {
         candidate.useUrl = formCommentLink(market.id, inProgress.group_id, inProgress.investible_id, inProgress.id);
+        approvedCandidates.push(candidate);
       }
-      candidate.numInProgress = _.isEmpty(inProgress) ? 0 : 1;
-      approvedCandidates.push(candidate);
-    });
-    const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
-    inVotingInvestibles?.forEach((investible) => {
-      const marketInfo = getMarketInfo(investible,  market.id);
-      const { group_id: invGroupId, required_approvers: requiredApprovers } = marketInfo;
-      const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id, invGroupId) || [];
-      const group = getGroup(groupsState, market.id, invGroupId);
-      const isAutonomous = isAutonomousGroup(groupPresences, group);
-      // Here and in getOutboxMessages should be checking for
-      if (!isAutonomous || !_.isEmpty(requiredApprovers)) {
-        const candidate = getInvestibleCandidate(investible, market, navigations, true);
-        outboxCandidates.push(candidate);
-      }
-    });
-    const openPlanningComments = questions?.concat(issues).concat(suggestions).concat(bugs);
-    openPlanningComments?.forEach((comment) => {
-      const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id, comment.group_id) || [];
-      const group = getGroup(groupsState, market.id, comment.group_id);
-      const isAutonomous = isAutonomousGroup(groupPresences, group);
-      if (!isAutonomous || !_.isEmpty(comment.mentions)) {
-        const candidate = getCommentCandidate(comment, market, navigations);
-        outboxCandidates.push(candidate);
-      }
-    });
-  });
-  decisionDetails.forEach((market) => {
-    const { questions, issues, suggestions } = getDecisionData(market, marketPresencesState, commentsState);
-    const openDecisionComments = questions?.concat(issues).concat(suggestions);
-    openDecisionComments?.forEach((comment) => {
-      const candidate = getCommentCandidate(comment, market, navigations);
-      outboxCandidates.push(candidate);
     });
   });
   let allExistingUrls = allMessages.map((message) => formInboxItemLink(message));
   allExistingUrls = allExistingUrls.concat(approvedCandidates.map((candidate) => candidate.url));
-  allExistingUrls = allExistingUrls.concat(outboxCandidates.map((candidate) => candidate.url));
   const previous = _.find(orderedNavigations, (navigation) =>
     allExistingUrls.includes(navigation.url) && navigation.url !== resource);
 
@@ -166,6 +138,7 @@ export default function NavigationChevrons() {
       const message = highlightedOrdered[0];
       return {url: formInboxItemLink(message), message, isHighlighted: true};
     }
+
     const notHighlightedMessagesCritical = allMessages.filter((message) => !message.is_highlighted &&
       message.type === 'UNASSIGNED');
     // special case return any critical bug unhighlighted notification here
@@ -173,53 +146,19 @@ export default function NavigationChevrons() {
       const criticalNext = _.find(notHighlightedMessagesCritical, (message) =>
         formInboxItemLink(message) !== resource);
       if (criticalNext) {
-        return {url: formInboxItemLink(criticalNext)};
+        const criticalNextCandidate = {url: formInboxItemLink(criticalNext)};
+        const candidateMeta = navigations?.find((navigation) => navigation.url === criticalNextCandidate.url);
+        criticalNextCandidate.time = candidateMeta?.time || 0;
+        approvedCandidates.push(criticalNextCandidate);
       }
     }
     if (!_.isEmpty(approvedCandidates)) {
       // Time as a long gets larger so smallest would be oldest
-      const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['numInProgress','time'],
-        ['desc','asc']);
+      const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['asc']);
       // Allowed to go to previous here so can cycle through in progress assignments
       const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource);
       if (approvedNext) {
         return {url: approvedNext.url, useUrl: approvedNext.useUrl};
-      }
-    }
-    // It's okay not reaching here when have multiple approved investibles - when only one will reach
-    if (!_.isEmpty(outboxCandidates)) {
-      let candidates = outboxCandidates;
-      if (!_.isEmpty(approvedCandidates)) {
-        candidates = candidates.concat(approvedCandidates);
-      }
-      const orderedCandidates = _.orderBy(candidates, ['time'], ['asc']);
-      // Not allowed to go to previous here so can break out of looking at outbox
-      const candidateNext = _.find(orderedCandidates, (candidate) => candidate.url !== resource &&
-        candidate.url !== previous?.url);
-      if (candidateNext) {
-        return {url: candidateNext.url};
-      }
-    }
-    const notHighlightedMessages = allMessages.filter((message) => !message.is_highlighted &&
-      message.type !== 'UNASSIGNED');
-    const notHighlighted = notHighlightedMessages?.filter((message) =>
-      formInboxItemLink(message) !== resource) || [];
-    const notHighlightedMapped = notHighlighted.map((message) => {
-      const candidate = {...message, url: formInboxItemLink(message)};
-      const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
-      candidate.time = candidateMeta?.time || 0;
-      return candidate;
-    });
-    if (!_.isEmpty(notHighlightedMapped)) {
-      let candidates = notHighlightedMapped;
-      if (!_.isEmpty(approvedCandidates)) {
-        candidates = candidates.concat(approvedCandidates);
-      }
-      const candidatesOrdered = _.orderBy(candidates, ['time'], ['asc']);
-      const candidateNext = _.find(candidatesOrdered, (candidate) =>
-        candidate.url !== resource && candidate.url !== previous?.url);
-      if (candidateNext) {
-        return {url: candidateNext.url};
       }
     }
     return {};

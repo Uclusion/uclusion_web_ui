@@ -169,6 +169,7 @@ function PlanningIdeas(props) {
           setOperationRunning(false);
         });
     }
+    return Promise.resolve();
   }
 
   function removeDroppableById() {
@@ -182,6 +183,7 @@ function PlanningIdeas(props) {
 
   function onDropVoting (event) {
     const investibleId = event.dataTransfer.getData('text');
+    if (!investibleId) return;
     removeDroppableById();
     const investibleComments = comments.filter((comment) => comment.investible_id === investibleId
       && !comment.resolved) || [];

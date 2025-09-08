@@ -15,6 +15,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../constants/comments';
 import {
   getFullStage,
+  getFurtherWorkStage,
   isBlockedStage, isFurtherWorkStage,
   isRequiredInputStage
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -71,11 +72,13 @@ function ArchiveInvestible(props) {
   const { name, id, stageId, marketId, allowDragDrop, onDragStart, enteredStageAt, TypeIconList, assignedNames, inAssistanceComments,
     classes, openForInvestment, viewIndicator='', isBlocked, needsAssist, groupId, marketPresences, isSingleUser } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const intl = useIntl();
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState(null);
+  const backlogStage = getFurtherWorkStage(marketStagesState, marketId);
   const recordPositionToggle = (event) => {
     if (anchorEl === null) {
       preventDefaultAndProp(event);
@@ -84,7 +87,8 @@ function ArchiveInvestible(props) {
       setAnchorEl(null);
     }
   };
-  const inArchives = !isBlocked && !needsAssist;
+  const inAssist = stageId === backlogStage?.id || isBlocked || needsAssist;
+  const inArchives = !inAssist;
   return (
     <React.Fragment key={`frag${id}`}>
       {anchorEl && (
@@ -106,13 +110,7 @@ function ArchiveInvestible(props) {
         <div draggable={allowDragDrop} onDragStart={onDragStart}>
           <Link href={formInvestibleLink(marketId, id)} color="inherit" style={{cursor: inArchives ? 'pointer' : 'grab'}}>
             <div className={classes.outlined}>
-              {!inArchives && (
-                <div>
-                  <Typography style={{fontSize: '.75rem'}}>
-                    Assistance <UsefulRelativeTime value={enteredStageAt}/>
-                  </Typography>
-                </div>
-              )}
+              {viewIndicator}
               <div style={{display: 'flex', alignItems: 'center'}}>
                 {TypeIconList.map((item) => {
                   const { TypeIcon, typeExplanation, myMessage, myLink } = item;
@@ -138,12 +136,14 @@ function ArchiveInvestible(props) {
                   </Tooltip>
                 </div>);
                 })}
-                {viewIndicator && (
-                  <div style={{marginLeft: '0.5rem'}}>
-                    {viewIndicator}
+                {inAssist && (
+                  <div>
+                    <Typography style={{fontSize: '.75rem'}}>
+                      Assistance <UsefulRelativeTime value={enteredStageAt}/>
+                    </Typography>
                   </div>
                 )}
-                {!inArchives && (
+                {inAssist && (
                   <div id={`showEdit0${id}`} style={{pointerEvents: 'none', visibility: 'hidden'}}>
                     <EditOutlinedIcon style={{maxHeight: '1.25rem'}} />
                   </div>
@@ -256,8 +256,7 @@ function ArchiveInvestbiles(props) {
           (usedAssignees.includes(comment.created_by)||isFurtherWorkStage(stage));
       });
       const blockedComments = (unResolvedMarketComments || []).filter((comment) => {
-        return (comment.comment_type === ISSUE_TYPE) && (comment.investible_id === id) &&
-          (usedAssignees.includes(comment.created_by)||isFurtherWorkStage(stage));
+        return comment.comment_type === ISSUE_TYPE && comment.investible_id === id;
       });
       const assignedNames = usedAssignees.map((element) => {
         const presence = presenceMap[element];

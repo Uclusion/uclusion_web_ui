@@ -10,6 +10,7 @@ function Gravatar (props) {
     name,
     useBlank,
     className,
+    onClick
   } = props;
 
   const blankCode = useBlank ? 'blank' : '404';
@@ -26,6 +27,7 @@ function Gravatar (props) {
             className={className}
             key={email}
             src={url}
+            onClick={onClick}
           >
             {nameToAvatarText(name)}
           </Avatar>
@@ -39,6 +41,7 @@ function Gravatar (props) {
           className={className}
           key={email}
           src={url}
+          onClick={onClick}
         />
     </Tooltip>
   );
@@ -48,12 +51,13 @@ Gravatar.propTypes = {
   email: PropTypes.string,
   name: PropTypes.string,
   useBlank: PropTypes.bool,
+  onClick: PropTypes.func
 };
 
 Gravatar.defaultProps = {
   name: '',
   email: '',
-  useBlank: false,
+  useBlank: false
 };
 
 export default Gravatar;

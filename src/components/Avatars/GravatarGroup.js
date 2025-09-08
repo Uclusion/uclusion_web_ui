@@ -25,7 +25,8 @@ function GravatarGroup(props) {
     max,
     spacing,
     className,
-    highlightList=[]
+    highlightList=[],
+    onClick
   } = props;
   const classes = gravatarGroupStyles();
 
@@ -42,6 +43,7 @@ function GravatarGroup(props) {
           key={`grav${id || email}`}
           email={email}
           name={name}
+          onClick={(event) => onClick(event, user)}
         />
       })
       }
@@ -55,6 +57,7 @@ GravatarGroup.propTypes = {
   max: PropTypes.number,
   spacing: PropTypes.string,
   className: PropTypes.string,
+  onClick: PropTypes.func
 };
 // max set extremely high for now to avoid https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/T-all-1463
 GravatarGroup.defaultProps = {
@@ -63,6 +66,7 @@ GravatarGroup.defaultProps = {
   className: '',
   max: 10,
   spacing: 'medium',
+  onClick: () => {}
 }
 
 export default GravatarGroup;

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { List, makeStyles, Menu, Tooltip } from '@material-ui/core';
+import { makeStyles, Menu, Tooltip } from '@material-ui/core';
 import { Menu as ProMenu, MenuItem, Sidebar, SubMenu } from 'react-pro-sidebar';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
@@ -13,14 +13,11 @@ import { AddAlert, ExpandLess, ExpandMore, Face, VpnKey } from '@material-ui/ico
 import config from '../../config';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
-import { PLACEHOLDER } from '../../constants/global';
-import { fixName } from '../../utils/userFunctions';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { usePlanFormStyles } from '../../components/AgilePlan';
-import GravatarAndName from '../../components/Avatars/GravatarAndName';
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks';
 import { hideShowExpandIcon } from '../../utils/windowUtils';
+import GravatarGroup from '../../components/Avatars/GravatarGroup';
 
 
 const useStyles = makeStyles(() => ({
@@ -30,26 +27,10 @@ const useStyles = makeStyles(() => ({
   smallGravatar: {
     width: '30px',
     height: '30px',
-    marginTop: '2px'
+    marginTop: '2px',
+    cursor: 'pointer'
   }
 }));
-
-function MemberDisplay(props) {
-  const { presence, index, recordPresenceToggle } = props;
-  const classes = useStyles();
-  const identityListClasses = usePlanFormStyles();
-  return <div style={{marginLeft: '0.65rem'}} id={index} onClick={(event) => recordPresenceToggle(event, presence)} >
-    <GravatarAndName
-      key={presence.id}
-      email={presence.email}
-      name={fixName(presence.name)}
-      typographyVariant="caption"
-      typographyClassName={presence.placeholder_type === PLACEHOLDER ?
-        identityListClasses.avatarNameYellowLink : identityListClasses.avatarNameLink}
-      avatarClassName={classes.smallGravatar}
-    />
-  </div>;
-}
 
 function OtherWorkspaceMenus(props) {
   const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, chosenGroup, mobileLayout } = props;
@@ -119,10 +100,10 @@ function OtherWorkspaceMenus(props) {
                       updatePageState({collaboratorsOpen: !collaboratorsOpen});
                     }}
                     key="collaborators" open={collaboratorsOpen}>
-                <List dense id="addressesOfWorkspace">
-                  {presencesOrdered.map((presence, index) =>
-                    <MemberDisplay presence={presence} index={index} recordPresenceToggle={recordPresenceToggle} />)}
-                </List>
+                <div style={{marginLeft: '1rem'}}>
+                  <GravatarGroup users={presencesOrdered} gravatarClassName={classes.smallGravatar} 
+                    onClick={(event, presence) => recordPresenceToggle(event, presence)}/>
+                </div>
                 {presenceAnchor && (
                   <Menu
                     id="presence-menu"

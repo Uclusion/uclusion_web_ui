@@ -68,6 +68,7 @@ import PlanningJobMenu from './PlanningJobMenu';
 import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import DismissableText from '../../../components/Notifications/DismissableText';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -477,8 +478,26 @@ function Stage(props) {
         )}
       </React.Fragment>
     )});
+
   if (!isReview) {
+    if (_.isEmpty(sortedInvestibles)) {
+      return (
+        <DismissableText textId={isVoting ? 'votingStageHelp' : 'acceptedStageHelp'} showIcon={false}
+                             display={_.isEmpty(sortedInvestibles)}
+                             text={<div>
+                             <FormattedMessage id={isVoting ? 'planningVotingStageLabel' : 'planningAcceptedStageLabel'}/>
+                           </div>}
+        />
+      );
+    }
     return investiblesMap;
+  }
+  if (_.isEmpty(sortedInvestibles)) {
+    return (
+      <dl style={{marginLeft: '2rem', display: "flex", alignItems: 'center', paddingTop: '1rem'}}>
+        <FormattedMessage id="planningReviewStageLabel"/>
+      </dl>
+    );
   }
   return (
     <div style={{display: 'flex', flexFlow: 'row wrap', gap: '0px 5px'}}>

@@ -212,7 +212,9 @@ function PlanningDialog(props) {
   const activeInvestibles = swimlaneInvestibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     return marketInfo.assigned?.includes(myPresence.id);
-  });
+  });<div style={{ marginTop: '0.5rem', marginLeft: '0.5rem' }}>
+  <b><FormattedMessage id="planningVotingStageLabel"/></b>
+</div>
   const presenceMap = getPresenceMap(marketPresences);
   const isDemo = marketIsDemo(market);
   const myGroupPresence = groupPresences.find((presence) => presence.id === myPresence.id);
@@ -466,7 +468,7 @@ function PlanningDialog(props) {
   }
 
   const tabTitle = `${groupName} ${intl.formatMessage({id: 'tabGroupAppend'})}`;
-  const swimlaneEmptyPreText = 'There are no active jobs.';
+  const swimlaneEmptyPreText = 'There are no assigned jobs.';
   function getTabCount(tabIndex) {
     if (!_.isEmpty(search)) {
       return undefined;
@@ -696,21 +698,7 @@ function PlanningDialog(props) {
               </SubSection>
             </div>
             <div style={{ paddingBottom: '2rem' }}/>
-            <InvestiblesByPerson
-              comments={marketComments}
-              investibles={investiblesFullAssist}
-              visibleStages={visibleStages}
-              acceptedStage={acceptedStage}
-              inDialogStage={inDialogStage}
-              inBlockingStage={inBlockingStage}
-              inReviewStage={inReviewStage}
-              requiresInputStage={requiresInputStage}
-              group={group}
-              isAutonomous={isAutonomous}
-              mobileLayout={mobileLayout}
-              pageState={pageState} updatePageState={updatePageState}
-            />
-            <DismissableText textId="notificationHelp"
+            <DismissableText textId="notificationHelp" isLeft
                              display={_.isEmpty(swimlaneInvestibles)&&_.isEmpty(swimlaneCompleteInvestibles)}
                              text={
                                isSingleUser ?
@@ -732,7 +720,22 @@ function PlanningDialog(props) {
                                      {swimlaneEmptyPreText} Drag a job down to start or use the "Add job" button above.
                                    </div>)
                               )
-                             }/>
+              }/>
+            <div style={{ paddingBottom: '2rem' }}/>
+            <InvestiblesByPerson
+              comments={marketComments}
+              investibles={investiblesFullAssist}
+              visibleStages={visibleStages}
+              acceptedStage={acceptedStage}
+              inDialogStage={inDialogStage}
+              inBlockingStage={inBlockingStage}
+              inReviewStage={inReviewStage}
+              requiresInputStage={requiresInputStage}
+              group={group}
+              isAutonomous={isAutonomous}
+              mobileLayout={mobileLayout}
+              pageState={pageState} updatePageState={updatePageState}
+            />
           </div>
         )}
         <div id="backlogSection" style={{overflowX: 'hidden'}}>

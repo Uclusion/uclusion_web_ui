@@ -76,7 +76,7 @@ const useStyles = makeStyles(theme => ({
 
 function DismissableText(props) {
   const {
-    text, checkBoxFunc, textId, display, noPad, isLeft
+    text, checkBoxFunc, textId, display, noPad, isLeft, showIcon = true
   } = props;
   const classes = useStyles();
   const intl = useIntl();
@@ -155,7 +155,7 @@ function DismissableText(props) {
     <dl key={textId} className={isLeft ? classes.isLeft :
       (display === true ? (noPad ? classes.rootEmptyNoPadding : classes.rootEmpty) : classes.root)}>
       <dl className={display === true ? classes.center : classes.leftMost}>
-        <LiveHelpTwoToneIcon htmlColor="#4ce6a5" fontSize="medium" className={classes.help}/>
+        {showIcon && <LiveHelpTwoToneIcon htmlColor="#4ce6a5" fontSize="medium" className={classes.help}/>}
         {text}
       </dl>
     </dl>

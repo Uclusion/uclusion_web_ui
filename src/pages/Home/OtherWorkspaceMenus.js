@@ -83,7 +83,7 @@ function OtherWorkspaceMenus(props) {
     <div style={{marginLeft: '15px', marginTop: '1rem', marginBottom: '10px'}}>
       <Sidebar width="14rem" backgroundColor="#DFF0F2">
         <ProMenu 
-          rootStyles={{'.ps-menu-button': {paddingLeft: '10px', height: '30px'}}}
+          rootStyles={{'.ps-menu-button': {paddingLeft: '10px', height: '30px', overflow: 'hidden'}}}
           renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem', display: 'none'}} />
             : <ExpandMore style={{marginTop: '0.3rem', display: 'none'}} />}>
             <SubMenu id='collaborators'

@@ -20,6 +20,7 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { usePlanFormStyles } from '../../components/AgilePlan';
 import GravatarAndName from '../../components/Avatars/GravatarAndName';
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks';
+import { hideShowExpandIcon } from '../../utils/windowUtils';
 
 
 const useStyles = makeStyles(() => ({
@@ -96,14 +97,18 @@ function OtherWorkspaceMenus(props) {
   if (_.isEmpty(markets)||_.isEmpty(defaultMarket)) {
     return React.Fragment;
   }
+
   return (
     <div style={{marginLeft: '15px', marginTop: '1rem'}}>
       <Sidebar width="14rem" backgroundColor="#DFF0F2">
         <ProMenu 
           rootStyles={{'.ps-menu-button': {paddingLeft: '10px', height: '40px'}}}
-          renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem'}} />: <ExpandMore style={{marginTop: '0.3rem'}} />}>
+          renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem', display: 'none'}} />
+            : <ExpandMore style={{marginTop: '0.3rem', display: 'none'}} />}>
             <SubMenu id='collaborators'
                     label={intl.formatMessage({ id: 'collaborators' })}
+                    onMouseOver={hideShowExpandIcon('collaborators', true)}
+                    onMouseOut={hideShowExpandIcon('collaborators', false)}
                     rootStyles={{
                       '.css-nx2aea': {
                         backgroundColor: '#DFF0F2'
@@ -188,6 +193,8 @@ function OtherWorkspaceMenus(props) {
             </SubMenu>
             <SubMenu id='integrations'
                     label={intl.formatMessage({ id: 'integrationPreferencesHeader' })}
+                    onMouseOver={hideShowExpandIcon('integrations', true)}
+                    onMouseOut={hideShowExpandIcon('integrations', false)}
                     rootStyles={{
                       '.css-18unl23': {
                         backgroundColor: '#DFF0F2'
@@ -282,6 +289,8 @@ function OtherWorkspaceMenus(props) {
                         backgroundColor: '#DFF0F2'
                       }
                     }}
+                    onMouseOver={hideShowExpandIcon('switchWorkspace', true)}
+                    onMouseOut={hideShowExpandIcon('switchWorkspace', false)}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
                       updatePageState({switchWorkspaceOpen: !switchWorkspaceOpen});

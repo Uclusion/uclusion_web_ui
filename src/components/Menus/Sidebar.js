@@ -8,6 +8,7 @@ import Link from '@material-ui/core/Link';
 import { ExpandLess, ExpandMore } from '@material-ui/icons'
 import { useIntl } from 'react-intl'
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks'
+import { hideShowExpandIcon } from '../../utils/windowUtils'
 
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
@@ -138,8 +139,8 @@ export default function Sidebar(props) {
         )}
         {navMenu}
         <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '25px', height: '40px'}}}
-          renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem', marginRight: '1.05rem'}} />: 
-          <ExpandMore style={{marginTop: '0.3rem', marginRight: '1.05rem'}} />}>
+          renderExpandIcon={({ open }) => open ? <ExpandLess style={{display: 'none', marginTop: '0.3rem', marginRight: '1.05rem'}} />: 
+          <ExpandMore style={{display: 'none', marginTop: '0.3rem', marginRight: '1.05rem'}} />}>
           <SubMenu id='views'
                   label={intl.formatMessage({ id: 'viewInGroup' })}
                   rootStyles={{
@@ -147,6 +148,8 @@ export default function Sidebar(props) {
                       backgroundColor: '#DFF0F2'
                     }
                   }}
+                  onMouseOver={hideShowExpandIcon('views', true)}
+                  onMouseOut={hideShowExpandIcon('views', false)}
                   onClick={(event) => {
                     preventDefaultAndProp(event);
                     updatePageState({viewsOpen: !viewsOpen});

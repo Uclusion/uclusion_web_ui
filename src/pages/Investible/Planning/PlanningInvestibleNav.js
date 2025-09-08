@@ -69,6 +69,7 @@ import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../..
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { addMarketComments, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { requiresAction } from '../../../components/AddNewWizards/JobStage/JobStageWizard';
+import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 
 const useStyles = makeStyles(
   () => ({
@@ -127,7 +128,7 @@ export default function PlanningInvestibleNav(props) {
   const addressedIds = (addressed || []).filter((address) => !address.abstain)
     .map((address) => address.id);
   const investibleCollaborators = useCollaborators(marketPresences, investibleComments, marketPresencesState,
-    investibleId, market.id);
+    investibleId, market.id, true);
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const hasBlockingIssue = !_.isEmpty(investibleComments.find((comment) => comment.comment_type === ISSUE_TYPE
@@ -329,19 +330,14 @@ export default function PlanningInvestibleNav(props) {
           )}
         </div>
       )}
-      {!_.isEmpty(investibleCollaborators.filter((collaboratorId) => !assigned?.includes(collaboratorId))) && (
+      {!_.isEmpty(investibleCollaborators.filter((collaborator) => !assigned?.includes(collaborator.id))) && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Tooltip
               title={intl.formatMessage({ id: 'collaboratorsExplanation' })}>
               <b><FormattedMessage id="collaborators"/></b>
             </Tooltip>
-            <Assignments
-              classes={classes}
-              marketPresences={marketPresences}
-              assigned={investibleCollaborators}
-              toolTipId="collaborators"
-            />
+            <GravatarGroup users={investibleCollaborators} gravatarClassName={classes.smallGravatar} />
           </div>
         </div>
       )}

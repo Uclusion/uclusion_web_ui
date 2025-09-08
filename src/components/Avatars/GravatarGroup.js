@@ -11,6 +11,11 @@ const gravatarGroupStyles = makeStyles(
         padding: '6px',
         backgroundColor: '#e6e969',
       },
+      customAvatarStyle: {
+        '& .MuiAvatarGroup-avatar': {
+          border: 'none',
+        },
+      },
     };
   },
   { name: "GravatarGroup" }
@@ -34,7 +39,7 @@ function GravatarGroup(props) {
     <AvatarGroup
       max={max}
       spacing={spacing}
-      className={className}
+      className={className || classes.customAvatarStyle}
     >
       {users.map((user) => {
         const { name, email, id } = user;

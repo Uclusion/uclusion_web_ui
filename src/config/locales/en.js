@@ -220,7 +220,6 @@ const messages = defineMessages({
 
   // CurrentVoting
   removeNotifications: 'Mark all read',
-  numVoting: '{x} approvals',
   certainty100: 'Very Certain',
   certainty75: 'Certain',
   certainty50: 'Somewhat Certain',
@@ -275,6 +274,7 @@ const messages = defineMessages({
   workspace: 'Workspace',
   story: 'Job',
   approvals: 'Approvals',
+  approvalsLower: 'approvals',
   pleaseVoteNav: 'Change Approval',
   dialogs: 'Dialogs',
   home: 'Get started',

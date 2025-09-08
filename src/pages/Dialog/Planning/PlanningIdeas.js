@@ -66,6 +66,8 @@ import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsCont
 import { useCollaborators } from '../../Investible/Planning/PlanningInvestible';
 import PlanningJobMenu from './PlanningJobMenu';
 import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { calculateInvestibleVoters } from '../../../utils/votingUtils';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 export const usePlanningIdStyles = makeStyles(
   theme => {
@@ -578,9 +580,14 @@ function StageInvestible(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [groupsState] = useContext(MarketGroupsContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const [marketsState] = useContext(MarketsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const classes = generalStageStyles();
   const planClasses = usePlanFormStyles();
+  const investors =calculateInvestibleVoters(id, marketId, marketsState, investiblesState,
+    marketPresences, false, false)
   const investibleComments = comments.filter((comment) => comment.investible_id === id) || [];
   const collaboratorsForInvestible = useCollaborators(marketPresences, investibleComments, marketPresencesState,
     id, marketId, true);
@@ -649,7 +656,10 @@ function StageInvestible(props) {
     getChip(isVoting ? numQuestionsSuggestions : (showNumRequiredReviews ? numRequiredReviews : numOpenTasks),
       isVoting ? 'inputRequiredCountExplanation':
         (showNumRequiredReviews ? 'requiredReviewsCountExplanation' : 'openTasksCountExplanation'));
-  const ticketNumber = getTicketNumber(groupId, marketId, groupsState, isAutonomous, groupId === viewGroupId);
+  const isSameGroup = groupId === viewGroupId;
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
+  const otherVoter = groupPresences.find((presence) => !assigned.includes(presence.id));
+  const ticketNumber = getTicketNumber(groupId, marketId, groupsState, isAutonomous, isSameGroup);
   const inProgressComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
     && !comment.resolved && comment.comment_type === TODO_TYPE && comment.in_progress);
   return (
@@ -677,6 +687,20 @@ function StageInvestible(props) {
                 <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
               </div>
             )}
+          {!unaccepted && ((isVoting && _.isEmpty(otherVoter)) || isReview) && (
+            <div>
+              <Typography style={{fontSize: '.75rem', marginLeft: '0.5rem'}}>
+                {isVoting ? 'Paused' : 'Complete'} <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/>
+              </Typography>
+            </div>
+          )}
+          {!unaccepted && isVoting && !_.isEmpty(otherVoter) && (
+            <div>
+              <Typography style={{fontSize: '.75rem', marginLeft: '0.5rem'}}>
+                {_.size(investors)} {intl.formatMessage({ id: 'approvalsLower' })}
+              </Typography>
+            </div>
+          )}
           {unaccepted && (
             <Tooltip
               title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
@@ -706,9 +730,9 @@ function StageInvestible(props) {
             </div>
           )}
           {ticketNumber && (
-            <Typography variant="subtitle2" style={{whiteSpace: 'nowrap', marginLeft: '1rem'}}>
+            <div style={{whiteSpace: 'nowrap', fontSize: '.75rem', marginLeft: '0.5rem'}}>
               {ticketNumber}
-            </Typography>
+            </div>
           )}
           {chip}
           {!_.isEmpty(doesRequireStatusMessage) && (

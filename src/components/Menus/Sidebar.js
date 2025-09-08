@@ -138,7 +138,7 @@ export default function Sidebar(props) {
           </Menu>
         )}
         {navMenu}
-        <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '25px', height: '40px'}}}
+        <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '25px', height: '30px'}}}
           renderExpandIcon={({ open }) => open ? <ExpandLess style={{display: 'none', marginTop: '0.3rem', marginRight: '1.05rem'}} />: 
           <ExpandMore style={{display: 'none', marginTop: '0.3rem', marginRight: '1.05rem'}} />}>
           <SubMenu id='views'

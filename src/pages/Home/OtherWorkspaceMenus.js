@@ -99,10 +99,10 @@ function OtherWorkspaceMenus(props) {
   }
 
   return (
-    <div style={{marginLeft: '15px', marginTop: '1rem'}}>
+    <div style={{marginLeft: '15px', marginTop: '1rem', marginBottom: '10px'}}>
       <Sidebar width="14rem" backgroundColor="#DFF0F2">
         <ProMenu 
-          rootStyles={{'.ps-menu-button': {paddingLeft: '10px', height: '40px'}}}
+          rootStyles={{'.ps-menu-button': {paddingLeft: '10px', height: '30px'}}}
           renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem', display: 'none'}} />
             : <ExpandMore style={{marginTop: '0.3rem', display: 'none'}} />}>
             <SubMenu id='collaborators'
@@ -191,6 +191,7 @@ function OtherWorkspaceMenus(props) {
                   </Tooltip>
                 </MenuItem>
             </SubMenu>
+            <div style={{height: '10px'}} />
             <SubMenu id='integrations'
                     label={intl.formatMessage({ id: 'integrationPreferencesHeader' })}
                     onMouseOver={hideShowExpandIcon('integrations', true)}
@@ -280,6 +281,7 @@ function OtherWorkspaceMenus(props) {
               </a>
             )}
           </SubMenu>
+          <div style={{height: '10px'}} />
           <SubMenu id='switchWorkspace' label={intl.formatMessage({ id: 'switchWorkspace' })}
                     rootStyles={{
                       '.css-ewdv3l': {

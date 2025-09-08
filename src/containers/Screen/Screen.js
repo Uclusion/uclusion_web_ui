@@ -173,8 +173,8 @@ export const screenStyles = makeStyles((theme) => ({
     textDecoration: 'underline'
   },
   smallGravatar: {
-    width: '30px',
-    height: '30px',
+    width: '20px',
+    height: '20px',
     marginTop: '2px'
   },
   elevated: {

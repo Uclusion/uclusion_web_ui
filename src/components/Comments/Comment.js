@@ -1069,7 +1069,7 @@ function Comment(props) {
                   value={myNotificationType}
                   onChange={onNotificationTypeChange}
                   onClick={(event) => event.stopPropagation()}
-                  style={{backgroundColor: 'white'}}
+                  style={{backgroundColor: 'white', marginRight: '1rem', marginTop: '0.35rem'}}
                 >
                   <MenuItem value='RED'>
                     {intl.formatMessage({ id: 'immediate' })}

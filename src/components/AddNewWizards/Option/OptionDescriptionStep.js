@@ -87,7 +87,7 @@ function OptionDescriptionStep (props) {
     const investibleId = inv.investible.id;
     const description = stripHTML(inv.investible.description);
     return (
-      <OptionListItem id={investibleId} description={description} title={inv.investible.name} />
+      <OptionListItem id={investibleId} description={description} title={inv.investible.name} removeActions />
     )
   }
 

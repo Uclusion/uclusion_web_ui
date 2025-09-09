@@ -90,7 +90,6 @@ function OptionListItem(props) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mouseX, setMouseX] = useState();
   const [mouseY, setMouseY] = useState();
-  const [isHovering, setIsHovering] = useState(false);
   const indexOfTitle = description.indexOf(title);
   let useDescription;
   if (indexOfTitle >= 0) {
@@ -122,14 +121,10 @@ function OptionListItem(props) {
     event.dataTransfer.setData('text', event.target.id);
   }
 
-  // TODO FIRST put everything on the OptionMenu then just have it display two ways - all the actions and icons are shared
-  // When OptionMenu isRow it returns div and IconButtons like expand example below
-
   return (
     <>
       <Item key={`optionListItem${id}`} id={id} onDragStart={onDragStart} draggable={!questionResolved && isAdmin} 
-        onContextMenu={questionResolved ? undefined : recordPositionToggle} 
-        onMouseOver={() => setIsHovering(true)} onMouseOut={() => setIsHovering(false)}>
+        onContextMenu={(questionResolved || removeActions) ? undefined : recordPositionToggle}>
         {anchorEl && (
           <OptionMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} openForInvestment={isInVoting} 
             mouseX={mouseX} mouseY={mouseY} marketId={marketId} investibleId={id} isAdmin={isAdmin} 
@@ -186,7 +181,7 @@ function OptionListItem(props) {
               {!expandOrContract && (
                 <div style={{marginRight: '1rem'}} />
               )}
-              {isHovering && !removeActions && !inArchives && (
+              {expansionOpen && !removeActions && !inArchives && !questionResolved && (
                 <OptionMenu openForInvestment={isInVoting} marketId={marketId} investibleId={id} isAdmin={isAdmin} 
                   marketPresences={marketPresences} />
               )}

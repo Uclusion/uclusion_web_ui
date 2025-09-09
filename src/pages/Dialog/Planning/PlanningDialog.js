@@ -721,7 +721,8 @@ function PlanningDialog(props) {
                                    </div>)
                               )
               }/>
-            <div style={{ paddingBottom: '2rem' }}/>
+           {_.isEmpty(swimlaneInvestibles)&&_.isEmpty(swimlaneCompleteInvestibles) && <div style={{ paddingBottom: '2rem' }}/>}
+            
             <InvestiblesByPerson
               comments={marketComments}
               investibles={investiblesFullAssist}

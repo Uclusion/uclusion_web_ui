@@ -873,18 +873,6 @@ function Comment(props) {
       {!mobileLayout && intl.formatMessage({ id: 'configureVoting' })}
     </SpinningIconLabelButton>
   )}
-  {((resolved && showReopen) || (!resolved && showResolve)) && !mobileLayout && (
-    <SpinningIconLabelButton
-      doSpin={(investibleId || resolved) && (resolved || commentType !== REPORT_TYPE)}
-      onClick={resolved ? reopen : (commentType === REPORT_TYPE && investibleId ? () => navigate(history,
-        `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
-          REPORT_TYPE)}&resolveId=${id}`) : resolve)}
-      icon={resolved ? SettingsBackupRestore : Done}
-      id={`commentResolveReopenButton${id}`}
-    >
-      {intl.formatMessage({ id: resolved ? 'commentReopenLabel' : 'commentResolveLabel' })}
-    </SpinningIconLabelButton>
-  )}
   {showMakeTaskButton && !mobileLayout && (
     <SpinningIconLabelButton
       onClick={() => {
@@ -914,6 +902,18 @@ function Comment(props) {
       focus={focusMove && !showMakeTaskButton}
     >
       {intl.formatMessage({ id: "storyFromComment" })}
+    </SpinningIconLabelButton>
+  )}
+  {((resolved && showReopen) || (!resolved && showResolve)) && !mobileLayout && (
+    <SpinningIconLabelButton
+      doSpin={(investibleId || resolved) && (resolved || commentType !== REPORT_TYPE)}
+      onClick={resolved ? reopen : (commentType === REPORT_TYPE && investibleId ? () => navigate(history,
+        `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
+          REPORT_TYPE)}&resolveId=${id}`) : resolve)}
+      icon={resolved ? SettingsBackupRestore : Done}
+      id={`commentResolveReopenButton${id}`}
+    >
+      {intl.formatMessage({ id: resolved ? 'commentReopenLabel' : 'commentResolveLabel' })}
     </SpinningIconLabelButton>
   )}
   {diff && (
@@ -1149,13 +1149,8 @@ function Comment(props) {
                 icon={Eject}
               />
             )}
-            {mobileLayout && endActions}
+            {endActions}
           </div>
-          {!mobileLayout && (
-            <div className={classes.actionsEnd}>
-              {endActions}
-            </div>
-          )}
         </CardActions>
       )}
     </div>

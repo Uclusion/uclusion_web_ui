@@ -155,7 +155,7 @@ export default function Sidebar(props) {
                     updatePageState({viewsOpen: !viewsOpen});
                   }}
                     key="collaborators" open={viewsOpen}>
-                    {navListItemTextArray.map((navItem, topIndex) => {
+                    {navListItemTextArray?.map((navItem, topIndex) => {
                       const { text, target, num, numSuffix, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
                         onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
                       return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,

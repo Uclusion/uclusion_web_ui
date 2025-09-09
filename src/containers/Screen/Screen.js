@@ -49,7 +49,6 @@ import {
   getGroupPresences,
   getMarketPresences, isAutonomousGroup
 } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import OnboardingBanner from '../../components/Banners/OnboardingBanner';
 import { OnboardingState, userIsLoaded } from '../../contexts/AccountContext/accountUserContextHelper';
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { getComment } from '../../contexts/CommentsContext/commentsContextHelper';
@@ -364,8 +363,6 @@ function Screen(props) {
   if (hidden && !isKeptInMemory) {
     return <React.Fragment/>
   }
-  const usedBanner = banner ?? (userState?.user?.onboarding_state === OnboardingState.DemoCreated ?
-    <OnboardingBanner/> : undefined);
   const isDemoLoading = _.isEmpty(userState?.user) ||
     OnboardingState.NeedsOnboarding === userState.user.onboarding_state;
   const investibleId = pathInvestibleId || searchInvestibleId || hashInvestibleId;
@@ -477,7 +474,7 @@ function Screen(props) {
     : classes.containerAll;
   const contentClass = mobileLayout ? classes.contentNoStyle : classes.content;
   const sideNavigationContents = <Sidebar navigationOptions={navigationMenu} />;
-  const renderBanner = showBanner && usedBanner && !hidden;
+  const renderBanner = showBanner && banner && !hidden;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">
       {!hidden && (
@@ -502,7 +499,7 @@ function Screen(props) {
           <div className={myContainerClass}>
             {renderBanner && (
               <div className={classes.bannerContainer}>
-                {usedBanner}
+                {banner}
               </div>
             )}
             <div>

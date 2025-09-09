@@ -76,9 +76,8 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import SwimlanesOnboardingBanner from '../../../components/Banners/SwimlanesOnboardingBanner';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { getMarket, marketIsDemo } from '../../../contexts/MarketsContext/marketsContextHelper';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import EditIcon from '@material-ui/icons/Edit';
 import { hasDiscussionComment } from '../../../components/AddNewWizards/Discussion/AddCommentStep';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -216,7 +215,6 @@ function PlanningDialog(props) {
   <b><FormattedMessage id="planningVotingStageLabel"/></b>
 </div>
   const presenceMap = getPresenceMap(marketPresences);
-  const isDemo = marketIsDemo(market);
   const myGroupPresence = groupPresences.find((presence) => presence.id === myPresence.id);
 
   function isSectionOpen(section) {
@@ -583,7 +581,6 @@ function PlanningDialog(props) {
       navigationOptions={{useHoverFunctions: !mobileLayout, resetFunction: () => resetFunction(0)}}
     >
       <div style={{ paddingBottom: '0.25rem' }}>
-        <SwimlanesOnboardingBanner group={group} sectionOpen={sectionOpen} isDemo={isDemo} isAutonomous={isAutonomous}/>
         <GmailTabs
           value={tabIndex}
           useColor

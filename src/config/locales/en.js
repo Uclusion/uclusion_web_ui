@@ -1430,7 +1430,7 @@ const messages = defineMessages({
   SUGGESTComposeLabel: 'Suggestion - voted for or against and movable to a job as suggestion or task',
   TODOComposeLabel: 'Bug - movable to a job as a task',
   GROUPComposeLabel: 'View - for notification addressing and a separate status view',
-  WORKSPACEComposeLabel: 'Workspace - security boundary and root of all object types',
+  WORKSPACEComposeLabel: 'Workspace - everyone in a workspace can see all contents',
   compose: 'Compose',
 
 

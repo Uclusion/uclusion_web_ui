@@ -43,7 +43,8 @@ function OptionVoting(props) {
     const newlyVoted = investors.filter((investor) => !_.isEmpty(findMessageByInvestmentUserId(investor.id, investibleId, messagesState)));
     const highlightList = newlyVoted.map((investor) => investor.id);
     return (
-      <OptionListItem id={investibleId} expansionPanel={expansionPanel} isNew={isNew(inv, messagesState)}
+      <OptionListItem id={investibleId} expansionPanel={expansionPanel} isNew={isNew(inv, messagesState)} 
+                      removeActions={removeActions} inArchives={inArchives}
                       people={investors} description={description} title={inv.investible.name} isInVoting={isInVoting}
                       questionResolved={inArchives} isAdmin={isAdmin} highlightList={highlightList} marketId={marketId}
                       expandOrContract={() => {

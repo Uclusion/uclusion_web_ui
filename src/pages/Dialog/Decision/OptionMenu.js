@@ -1,22 +1,27 @@
 import React, { useContext } from 'react';
-import { ListItemIcon, ListItemText, makeStyles, Menu, MenuItem, Tooltip } from '@material-ui/core';
+import { IconButton, ListItemIcon, ListItemText, makeStyles, Menu, MenuItem, Tooltip } from '@material-ui/core';
 import ListAltIcon from '@material-ui/icons/ListAlt';
+import QuestionIcon from '@material-ui/icons/ContactSupport';
+import { Block, Notes } from '@material-ui/icons';
+import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import { useIntl } from 'react-intl';
-import { navigate, preventDefaultAndProp, formInvestibleAddCommentLink } from '../../../utils/marketIdPathFunctions';
+import { navigate, preventDefaultAndProp, formInvestibleAddCommentLink, decomposeMarketPath, formWizardLink } from '../../../utils/marketIdPathFunctions';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { useHistory } from 'react-router';
-import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { useHistory, useLocation } from 'react-router';
+import { APPROVAL_WIZARD_TYPE, DECISION_COMMENT_WIZARD_TYPE, JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 import { ArrowDownward, ArrowUpward } from '@material-ui/icons';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getInCurrentVotingStage, getProposedOptionsStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
-import { TODO_TYPE } from '../../../constants/comments';
+import { QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { moveInvestibleToCurrentVoting } from '../../../api/investibles';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
+import { ISSUE_TYPE } from '../../../constants/notifications';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -38,8 +43,12 @@ function OptionMenu(props) {
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
+  const location = useLocation();
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const underConsiderationStage = getInCurrentVotingStage(marketStagesState, marketId);
+  const { pathname } = location;
+  const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
+  const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
   const market = getMarket(marketsState, marketId) || {};
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
   const comment = getComment(commentsState, parentMarketId, parentCommentId) || {};
@@ -66,6 +75,114 @@ function OptionMenu(props) {
         refreshInvestibles(investiblesDispatch, () => {}, [inv]);
         setOperationRunning(false);
       });
+  }
+
+  if (!anchorEl) {
+    return (
+      <>
+        {!openForInvestment && isAdmin && (
+          <div onClick={(event) => {
+            preventDefaultAndProp(event);
+            setOperationRunning(true);
+            return changeStage();
+          }}>
+            <Tooltip placement='top' title={intl.formatMessage({ id: 'promoteOption' })}>
+              <IconButton size="small" noPadding>
+                <ArrowUpward htmlColor='black' />
+              </IconButton>
+            </Tooltip>
+          </div>
+        )}
+        {openForInvestment && isAdmin && (
+          <div onClick={(event) => {
+            preventDefaultAndProp(event);
+            setOperationRunning(true);
+            return changeStage();
+          }}>
+            <Tooltip placement='top' title={intl.formatMessage({ id: 'demoteOption' })}>
+              <IconButton size="small" noPadding>
+                <ArrowDownward htmlColor='black' />
+              </IconButton>
+            </Tooltip>
+          </div>
+        )}
+        {parentInvestibleId && (
+          <div onClick={(event) => {
+            preventDefaultAndProp(event);
+            setOperationRunning(true);
+            return createTask();
+          }}>
+            <Tooltip placement='top' title={intl.formatMessage({ id: 'makeTask' })}>
+              <IconButton size="small" noPadding>
+                <ListAltIcon htmlColor='black' />
+              </IconButton>
+            </Tooltip>
+          </div>
+        )}
+        {openForInvestment && (
+          <div onClick={(event) => {
+            preventDefaultAndProp(event);
+            return navigate(history,
+              formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, undefined,
+                undefined, typeObjectId));
+          }}>
+            <Tooltip placement='top' title={intl.formatMessage({ id: `createNewApproval` })}>
+              <IconButton size="small" noPadding>
+                <ThumbsUpDownIcon htmlColor='black' />
+              </IconButton>
+            </Tooltip>
+          </div>
+        )}
+        <div onClick={(event) => {
+            preventDefaultAndProp(event);
+            return navigate(history,
+              formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                TODO_TYPE, typeObjectId));
+          }}>
+            <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${TODO_TYPE}Option` })}>
+              <IconButton size="small" noPadding>
+                <Notes htmlColor='black' />
+              </IconButton>
+            </Tooltip>
+        </div>
+        <div onClick={(event) => {
+            preventDefaultAndProp(event);
+            return navigate(history,
+              formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                ISSUE_TYPE, typeObjectId));
+          }}>
+            <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${ISSUE_TYPE}` })}>
+              <IconButton size="small" noPadding>
+                <Block htmlColor='black' />
+              </IconButton>
+            </Tooltip>
+        </div>
+        <div onClick={(event) => {
+            preventDefaultAndProp(event);
+            return navigate(history,
+              formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                SUGGEST_CHANGE_TYPE, typeObjectId));
+          }}>
+            <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${SUGGEST_CHANGE_TYPE}` })}>
+              <IconButton size="small" noPadding>
+                <LightbulbOutlined htmlColor='black' />
+              </IconButton>
+            </Tooltip>
+        </div>
+        <div style={{paddingRight: '0.5rem'}}  onClick={(event) => {
+            preventDefaultAndProp(event);
+            return navigate(history,
+              formInvestibleAddCommentLink(DECISION_COMMENT_WIZARD_TYPE, investibleId, marketId,
+                QUESTION_TYPE, typeObjectId));
+          }}>
+            <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${QUESTION_TYPE}` })}>
+              <IconButton size="small" noPadding>
+                <QuestionIcon htmlColor='black' />
+              </IconButton>
+            </Tooltip>
+        </div>
+      </>
+    );
   }
 
   return (

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { useHistory, useLocation } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Grid, Typography, useMediaQuery, useTheme } from '@material-ui/core';
@@ -27,14 +27,10 @@ import {
   JOB_COMMENT_WIZARD_TYPE,
   OPTION_EDIT_WIZARD_TYPE
 } from '../../../constants/markets';
-import DeleteInvestibleActionButton from './DeleteInvestibleActionButton';
 import CardType, { OPTION, PROPOSED, VOTING_TYPE } from '../../../components/CardType';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { addInvestible, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
-import CardActions from '@material-ui/core/CardActions';
-import clsx from 'clsx';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
-import { useMetaDataStyles } from '../Planning/PlanningInvestibleNav';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import {
   attachFilesToInvestible,
@@ -180,7 +176,6 @@ function DecisionInvestible(props) {
     fullInvestible,
     isAdmin,
     inArchives,
-    hidden,
     isSent,
     removeActions,
     isInbox
@@ -191,7 +186,6 @@ function DecisionInvestible(props) {
   const classes = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const metaClasses = useMetaDataStyles();
   const wizardClasses = wizardStyles();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
@@ -216,8 +210,7 @@ function DecisionInvestible(props) {
   const hasIssue = !_.isEmpty(myIssues);
   const { investible, market_infos: marketInfos } = fullInvestible;
   const marketInfo = marketInfos.find((info) => info.market_id === marketId) || {};
-  const { group_id: groupId, stage } = marketInfo;
-  const allowDelete = marketPresences && marketPresences.length < 2;
+  const { stage } = marketInfo;
   const [marketStagesState] = useContext(MarketStagesContext);
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const inProposed = proposedStage && stage === proposedStage.id;
@@ -295,15 +288,7 @@ function DecisionInvestible(props) {
 
   function getActions() {
     return (
-    <dl className={classes.upperRightCard}>
-      {allowDelete && (
-        <DeleteInvestibleActionButton
-          key="delete"
-          investibleId={investibleId}
-          marketId={marketId}
-          groupId={groupId}
-        />
-      )}
+    <>
       {isAdmin && (
         <>
           <div style={{paddingTop: '1rem'}} />
@@ -321,7 +306,7 @@ function DecisionInvestible(props) {
           </SpinningIconLabelButton>
         </>
       )}
-    </dl>
+    </>
     );
   }
 
@@ -339,16 +324,18 @@ function DecisionInvestible(props) {
 
   const votingAllowed = !inProposed && !inArchives && !hasIssue && activeMarket;
   const displayVotingInput = !removeActions && votingAllowed && !yourVote;
-  const displayCommentInput = !removeActions && !inArchives && marketId && !_.isEmpty(investible) && !hidden;
+  const displayCommentInput = !removeActions && !inArchives && marketId && !_.isEmpty(investible);
   const editClasses = useInvestibleEditStyles();
+  const allowedCommentTypesFiltered = mobileLayout ? allowedCommentTypes : allowedCommentTypes.filter((allowedCommentType) =>
+    hasDecisionComment(marketId, allowedCommentType, investibleId));
   const afterDescription = <>{!inProposed && (
-    <div style={{marginTop: '2rem'}}>
+    <div style={{marginTop: '1rem'}}>
       <CommentBox comments={info} marketId={marketId} allowedTypes={allowedCommentTypes}
                   isInbox={removeActions} removeActions={removeActions} usePadding={false} />
-      <h2 id="approvals" style={{marginTop: '2rem'}}>
+      <h2 id="approvals" style={{marginTop: '1rem'}}>
         <FormattedMessage id="decisionInvestibleOthersVoting"/>
       </h2>
-      {displayVotingInput && investibleId && (
+      {displayVotingInput && investibleId && mobileLayout && (
         <SpinningButton id="approvalButton" icon={AddIcon} iconColor="black" className={wizardClasses.actionNext}
                         variant="text" doSpin={false} focus={isInbox}
                         style={{ display: 'flex', marginBottom: '1rem' }}
@@ -368,17 +355,17 @@ function DecisionInvestible(props) {
         toggleCompression={() => updateVotingPageState({ useCompression: !useCompression })}
         useCompression={useCompression}
       />
-      <div style={{marginTop: '2rem'}}/>
+      <div style={{marginTop: '1rem'}}/>
     </div>
   )}
     {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (
       <div style={{ paddingBottom: '1rem' }}>
-        <h2 id="approvals" style={{ marginTop: '2rem' }}>
+        <h2 id="comments" style={{ marginTop: 0 }}>
           <FormattedMessage id="comments"/>
         </h2>
-        {displayCommentInput && (
+        {displayCommentInput && !isEmpty(allowedCommentTypesFiltered) && (
           <div style={{display: mobileLayout ? undefined : 'flex'}}>
-            {allowedCommentTypes.map((allowedCommentType) => {
+            {allowedCommentTypesFiltered.map((allowedCommentType) => {
               return (
                 <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
                                 icon={hasDecisionComment(marketId, allowedCommentType, investibleId) ? EditIcon :
@@ -430,9 +417,9 @@ function DecisionInvestible(props) {
     )}
     {afterDescription}
   </div>;
-  const actions = <CardActions className={mobileLayout ? undefined : classes.actions}>
-    <div className={mobileLayout ? undefined : clsx(metaClasses.root, classes.flexCenter)}>
-      {!removeActions && activeMarket && (
+  const actions = 
+    <div>
+      {!removeActions && activeMarket && mobileLayout && (
         getActions()
       )}
       {isSent && (
@@ -459,8 +446,7 @@ function DecisionInvestible(props) {
           attachedFiles={attachedFiles}
           onUpload={onAttachFiles} />
       )}
-    </div>
-  </CardActions>;
+    </div>;
 
   return (
     <div style={{ marginLeft: !mobileLayout ? '2rem' : undefined, marginRight: !mobileLayout ? '2rem' : undefined }}
@@ -510,7 +496,6 @@ DecisionInvestible.propTypes = {
   toggleEdit: PropTypes.func,
   isAdmin: PropTypes.bool,
   inArchives: PropTypes.bool,
-  hidden: PropTypes.bool,
   removeActions: PropTypes.bool
 };
 
@@ -520,7 +505,6 @@ DecisionInvestible.defaultProps = {
   comments: [],
   isAdmin: false,
   inArchives: false,
-  hidden: false,
   removeActions: false
 };
 

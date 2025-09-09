@@ -44,7 +44,7 @@ function OptionVoting(props) {
     const highlightList = newlyVoted.map((investor) => investor.id);
     return (
       <OptionListItem id={investibleId} expansionPanel={expansionPanel} isNew={isNew(inv, messagesState)} 
-                      removeActions={removeActions} inArchives={inArchives}
+                      removeActions={removeActions} inArchives={inArchives} marketPresences={marketPresences}
                       people={investors} description={description} title={inv.investible.name} isInVoting={isInVoting}
                       questionResolved={inArchives} isAdmin={isAdmin} highlightList={highlightList} marketId={marketId}
                       expandOrContract={() => {

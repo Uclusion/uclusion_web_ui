@@ -82,6 +82,7 @@ function OptionListItem(props) {
     marketId,
     removeActions,
     inArchives,
+    marketPresences,
     highlightList=[]
   } = props;
   const theme = useTheme();
@@ -131,7 +132,8 @@ function OptionListItem(props) {
         onMouseOver={() => setIsHovering(true)} onMouseOut={() => setIsHovering(false)}>
         {anchorEl && (
           <OptionMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} openForInvestment={isInVoting} 
-            mouseX={mouseX} mouseY={mouseY} marketId={marketId} investibleId={id} isAdmin={isAdmin} />
+            mouseX={mouseX} mouseY={mouseY} marketId={marketId} investibleId={id} isAdmin={isAdmin} 
+            marketPresences={marketPresences} />
         )}
         <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
           <div style={{ width: '100%', cursor: 'pointer' }} id={`link${id}`} key={`link${id}`}
@@ -185,7 +187,8 @@ function OptionListItem(props) {
                 <div style={{marginRight: '1rem'}} />
               )}
               {isHovering && !removeActions && !inArchives && (
-                <OptionMenu openForInvestment={isInVoting} marketId={marketId} investibleId={id} isAdmin={isAdmin} />
+                <OptionMenu openForInvestment={isInVoting} marketId={marketId} investibleId={id} isAdmin={isAdmin} 
+                  marketPresences={marketPresences} />
               )}
             </Div>
           </div>

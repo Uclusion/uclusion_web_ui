@@ -29,7 +29,6 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
-  REPORT_TYPE,
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
 } from '../../../constants/comments';
@@ -427,20 +426,6 @@ function Stage(props) {
     event.dataTransfer.setData('stageId', id);
   }
 
-  function countNumRequiredReviews(investibleId) {
-    const review = comments.find((comment) => {
-      return comment.comment_type === REPORT_TYPE && comment.investible_id === investibleId && !comment.resolved;
-    });
-    if (_.isEmpty(review)) {
-      return 0;
-    }
-    const { mentioned_notifications: mentioned } = myPresence;
-    if (mentioned?.includes(review.id)) {
-      return 1;
-    }
-    return 0;
-  }
-
   const investiblesMap = sortedInvestibles.map(inv => {
     const { investible } = inv;
     const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -450,7 +435,6 @@ function Stage(props) {
       !marketInfo.accepted?.includes(presenceId) && (!marketInfo.assigned?.includes(myPresence.id) || _.isEmpty(yourVote));
     const numQuestionsSuggestions = countByType(investible, comments,
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE]);
-    const numRequiredReviews = countNumRequiredReviews(investible.id);
     const numOpenTasks = countByType(investible, comments, [TODO_TYPE]);
 
     return (
@@ -464,7 +448,6 @@ function Stage(props) {
           isReview={isReview}
           isVoting={isVoting}
           numQuestionsSuggestions={numQuestionsSuggestions}
-          numRequiredReviews={numRequiredReviews}
           numOpenTasks={numOpenTasks}
           unaccepted={unaccepted}
           showCompletion={showCompletion}
@@ -580,7 +563,6 @@ function StageInvestible(props) {
     comments,
     marketPresences,
     numQuestionsSuggestions,
-    numRequiredReviews,
     numOpenTasks,
     mobileLayout,
     unaccepted,
@@ -611,7 +593,6 @@ function StageInvestible(props) {
   const collaboratorsForInvestible = useCollaborators(marketPresences, investibleComments, marketPresencesState,
     id, marketId, true);
   const hasDaysEstimate = showCompletion && daysEstimate && !isInPast(new Date(daysEstimate));
-  const isReviewable = isReview || showCompletion;
   const unreadEstimate = findMessageOfType('UNREAD_ESTIMATE', id, messagesState);
   function requiresStatusMessage(id) {
     const message = findMessageOfTypeAndId(id, messagesState, 'REPORT');
@@ -622,7 +603,7 @@ function StageInvestible(props) {
   }
   const doesRequireStatusMessage = requiresStatusMessage(id);
 
-  function getChip(labelNum, toolTipId) {
+  function getMessagesChip() {
     const messagesRaw = findMessagesForInvestibleId(id, messagesState);
     const messages = messagesRaw.filter((message) => isInInbox(message));
     const newMessages = messages.filter((message) => message.is_highlighted);
@@ -650,6 +631,10 @@ function StageInvestible(props) {
         </Tooltip>
       );
     }
+    return undefined;
+  }
+
+  function getCountChip(labelNum, toolTipId) {
     if (labelNum <= 0) {
       return undefined;
     }
@@ -670,11 +655,10 @@ function StageInvestible(props) {
       setAnchorEl(null);
     }
   };
-  const showNumRequiredReviews = isReviewable && numRequiredReviews > 0;
-  let chip = mobileLayout ? undefined :
-    getChip(isVoting ? numQuestionsSuggestions : (showNumRequiredReviews ? numRequiredReviews : numOpenTasks),
-      isVoting ? 'inputRequiredCountExplanation':
-        (showNumRequiredReviews ? 'requiredReviewsCountExplanation' : 'openTasksCountExplanation'));
+  const countChip = mobileLayout ? undefined :
+    getCountChip(isVoting ? numQuestionsSuggestions : numOpenTasks, isVoting ? 'inputRequiredCountExplanation': 
+      'openTasksCountExplanation');
+  const messagesChip = mobileLayout ? undefined : getMessagesChip();
   const isSameGroup = groupId === viewGroupId;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
   const otherVoter = groupPresences.find((presence) => !assigned.includes(presence.id));
@@ -730,7 +714,7 @@ function StageInvestible(props) {
             </Tooltip>
           )}
           {hasDaysEstimate && (
-            <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? '#F29100': undefined, marginTop: '0.2rem',
+            <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? '#F29100': undefined,
               cursor: unreadEstimate ? 'pointer' : undefined }}
                  onClick={(event) => {
                    if (unreadEstimate) {
@@ -753,7 +737,7 @@ function StageInvestible(props) {
               {ticketNumber}
             </div>
           )}
-          {chip}
+          {messagesChip}
           {!_.isEmpty(doesRequireStatusMessage) && (
             <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
             <span className={'MuiTabItem-tag'} style={{ marginLeft: '1rem', marginTop: '-0.1rem' }} onClick={(event) => {
@@ -768,8 +752,16 @@ function StageInvestible(props) {
             </span>
             </Tooltip>
           )}
+          {countChip}
+          {!countChip && showCompletion && (
+            <div>
+              <Typography style={{fontSize: '.75rem', marginLeft: '0.5rem'}}>
+                Approved <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/>
+              </Typography>
+            </div>
+          )}
         </div>
-        <div id={`planningIdea${id}`} style={{display: 'flex', paddingTop: `${chip ? '0rem' : '0.5rem'}`}}>
+        <div id={`planningIdea${id}`} style={{display: 'flex', paddingTop: `${(countChip || messagesChip) ? '0rem' : '0.5rem'}`}}>
           <StageLink
             href={to}
             id={id}

@@ -483,7 +483,8 @@ function Screen(props) {
           appEnabled={appEnabled}
           navMenu={sideNavigationContents}
           disableSearch={disableSearch}
-          action={action} pathInvestibleId={pathInvestibleId} defaultMarket={defaultMarket} chosenGroup={useGroupId || hashGroupId}
+          action={action} pathInvestibleId={pathInvestibleId} defaultMarket={defaultMarket} 
+          chosenGroup={useGroupId || hashGroupId}
           pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId} isArchivedWorkspace={isArchivedWorkspace}
           useLink={useLink} typeObjectId={typeObjectId}
         />

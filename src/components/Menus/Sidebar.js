@@ -9,6 +9,9 @@ import { ExpandLess, ExpandMore } from '@material-ui/icons'
 import { useIntl } from 'react-intl'
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks'
 import { hideShowExpandIcon } from '../../utils/windowUtils'
+import { PLANNING_TYPE } from '../../constants/markets'
+import { ACTION_BUTTON_COLOR } from '../Buttons/ButtonConstants'
+import AddIcon from '@material-ui/icons/Add'
 
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
@@ -116,7 +119,7 @@ function processRegularItem(properties) {
 export default function Sidebar(props) {
   const history = useHistory();
   const intl = useIntl();
-  const { navigationOptions, idPrepend='' } = props;
+  const { marketId, navigationOptions, idPrepend='' } = props;
   const [pageStateFull, pageDispatch] = usePageStateReducer('sidebarMenus');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, 'sidebarState',
     {viewsOpen: true});
@@ -139,8 +142,9 @@ export default function Sidebar(props) {
         )}
         {navMenu}
         <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '25px', height: '30px', overflow: 'hidden'}}}
-          renderExpandIcon={({ open }) => open ? <ExpandLess style={{display: 'none', marginTop: '0.3rem', marginRight: '1.05rem'}} />: 
-          <ExpandMore style={{display: 'none', marginTop: '0.3rem', marginRight: '1.05rem'}} />}>
+          renderExpandIcon={({ open }) => open ? <ExpandLess style={{visibility: 'hidden', marginTop: '0.3rem', 
+            marginRight: '1.05rem'}} />: 
+          <ExpandMore style={{visibility: 'hidden', marginTop: '0.3rem', marginRight: '1.05rem'}} />}>
           <SubMenu id='views'
                   label={intl.formatMessage({ id: 'viewInGroup' })}
                   rootStyles={{
@@ -148,13 +152,23 @@ export default function Sidebar(props) {
                       backgroundColor: '#DFF0F2'
                     }
                   }}
+                  suffix={<div onClick={(event)=> {
+                    preventDefaultAndProp(event);
+                    if (marketId) {
+                      navigate(history, `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${marketId}`);
+                    }
+                  }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddGroup' })}>
+                  <IconButton size="small" noPadding>
+                  <AddIcon htmlColor={marketId ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
+                  </IconButton>
+                </Tooltip></div>}
                   onMouseOver={hideShowExpandIcon('views', true)}
                   onMouseOut={hideShowExpandIcon('views', false)}
                   onClick={(event) => {
                     preventDefaultAndProp(event);
                     updatePageState({viewsOpen: !viewsOpen});
                   }}
-                    key="collaborators" open={viewsOpen}>
+                    key="views" open={viewsOpen}>
                     {navListItemTextArray?.map((navItem, topIndex) => {
                       const { text, target, num, numSuffix, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
                         onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;

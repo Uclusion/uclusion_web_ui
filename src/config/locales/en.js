@@ -614,7 +614,7 @@ const messages = defineMessages({
   // markets
   signupInvite: 'invites you to collaborate in',
   signupRedirectLogin: 'Create account will redirect you to login.',
-  switchWorkspace: 'Switch workspace',
+  switchWorkspace: 'Other workspaces',
   switchGroup: 'View',
   archivedWorkspace: 'Archived',
   editWorkspace: 'Edit workspace',

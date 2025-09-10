@@ -19,7 +19,6 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import Sidebar from '../../components/Menus/Sidebar'
-import AddIcon from '@material-ui/icons/Add'
 import { Group, GroupOutlined, Inbox, MoreVert } from '@material-ui/icons';
 import {
   getCurrentGroup,
@@ -296,10 +295,6 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
     }
   });
   const items = itemsRaw.filter((item) => !_.isEmpty(item));
-  const addViewChosen = action === 'wizard' && type === PLANNING_TYPE.toLowerCase();
-  items.push({icon: AddIcon, text: intl.formatMessage({ id: 'homeAddGroup' }), isBold: addViewChosen,
-    isBlue: addViewChosen,
-    target: `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${market.id}`});
   navListItemTextArray.push(...items);
 }
 
@@ -470,7 +465,7 @@ function Screen(props) {
   const myContainerClass = !mobileLayout ? (noPadDesktop ? classes.containerAllNoPad : classes.containerAllLeftPad)
     : classes.containerAll;
   const contentClass = mobileLayout ? classes.contentNoStyle : classes.content;
-  const sideNavigationContents = <Sidebar navigationOptions={navigationMenu} />;
+  const sideNavigationContents = <Sidebar navigationOptions={navigationMenu} marketId={defaultMarket?.id} />;
   const renderBanner = showBanner && banner && !hidden;
   return (
     <div className={hidden ? classes.hidden : classes.root} id="root">
@@ -491,7 +486,7 @@ function Screen(props) {
       )}
       {!mobileLayout && !hidden && (
         <div className={classes.paper}>
-          <Sidebar navigationOptions={navigationMenu} />
+          {sideNavigationContents}
         </div>
       )}
 

@@ -38,10 +38,10 @@ export function hideShowExpandIcon(id, isShow) {
     const parent = document.getElementById(id);
     const item = parent?.querySelector('[class*="ps-submenu-expand-icon"]');
     if (item) {
-      item.style.display = isShow ? 'block' : 'none';
+      item.style.visibility = isShow ? 'visible' : 'hidden';
       const svgIcon = item.querySelector('.MuiSvgIcon-root');
       if (svgIcon) {
-        svgIcon.style.display = isShow ? 'block' : 'none';
+        svgIcon.style.visibility = isShow ? 'visible' : 'hidden';
       }
     } 
   };

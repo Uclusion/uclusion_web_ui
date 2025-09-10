@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { makeStyles, Menu, Tooltip } from '@material-ui/core';
+import { IconButton, makeStyles, Menu, Tooltip } from '@material-ui/core';
 import { Menu as ProMenu, MenuItem, Sidebar, SubMenu } from 'react-pro-sidebar';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
@@ -18,6 +18,7 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks';
 import { hideShowExpandIcon } from '../../utils/windowUtils';
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
+import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
 
 
 const useStyles = makeStyles(() => ({
@@ -84,8 +85,8 @@ function OtherWorkspaceMenus(props) {
       <Sidebar width="14rem" backgroundColor="#DFF0F2">
         <ProMenu 
           rootStyles={{'.ps-menu-button': {paddingLeft: '10px', height: '30px', overflow: 'hidden'}}}
-          renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem', display: 'none'}} />
-            : <ExpandMore style={{marginTop: '0.3rem', display: 'none'}} />}>
+          renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem', visibility: 'hidden'}} />
+            : <ExpandMore style={{marginTop: '0.3rem', visibility: 'hidden'}} />}>
             <SubMenu id='collaborators'
                     label={intl.formatMessage({ id: 'collaborators' })}
                     onMouseOver={hideShowExpandIcon('collaborators', true)}
@@ -95,6 +96,16 @@ function OtherWorkspaceMenus(props) {
                         backgroundColor: '#DFF0F2'
                       }
                     }}
+                    suffix={<div onClick={(event)=> {
+                      preventDefaultAndProp(event);
+                      if (defaultMarket) {
+                        navigate(history, `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`);
+                      }
+                    }}><Tooltip placement='top' title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}>
+                    <IconButton size="small" noPadding>
+                    <AddIcon htmlColor={defaultMarket ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
+                    </IconButton>
+                  </Tooltip></div>}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
                       updatePageState({collaboratorsOpen: !collaboratorsOpen});
@@ -153,26 +164,8 @@ function OtherWorkspaceMenus(props) {
                     </Sidebar>
                   </Menu>
                 )}
-                <MenuItem icon={<AddIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
-                      key="addCollaboratorsKey" id="Addcollaborators"
-                      rootStyles={{
-                        '.css-wx7wi4': {
-                          marginRight: 0,
-                        }
-                      }}
-                      onClick={(event)=> {
-                        preventDefaultAndProp(event);
-                        navigate(history, `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`);
-                      }}
-                >
-                  <Tooltip title={intl.formatMessage({ id: 'addMoreCollaborators' })}>
-                    <div>
-                      {intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}
-                    </div>
-                  </Tooltip>
-                </MenuItem>
             </SubMenu>
-            <div style={{height: '10px'}} />
+            <div style={{marginBottom: '1rem'}} />
             <SubMenu id='integrations'
                     label={intl.formatMessage({ id: 'integrationPreferencesHeader' })}
                     onMouseOver={hideShowExpandIcon('integrations', true)}
@@ -272,6 +265,14 @@ function OtherWorkspaceMenus(props) {
                         backgroundColor: '#DFF0F2'
                       }
                     }}
+                    suffix={<div onClick={(event)=> {
+                      preventDefaultAndProp(event);
+                      navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+                    }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddPlanning' })}>
+                    <IconButton size="small" noPadding>
+                    <AddIcon htmlColor={defaultMarket ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
+                    </IconButton>
+                  </Tooltip></div>}
                     onMouseOver={hideShowExpandIcon('switchWorkspace', true)}
                     onMouseOut={hideShowExpandIcon('switchWorkspace', false)}
                     onClick={(event) => {
@@ -302,24 +303,6 @@ function OtherWorkspaceMenus(props) {
                 {market.name}
               </MenuItem>
             })}
-            <MenuItem icon={<AddIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
-                      key="addWorkspace Key" id="addWorkspaceIconId"
-                      rootStyles={{
-                        '.css-wx7wi4': {
-                          marginRight: 0,
-                        },
-                      }}
-                      onClick={(event)=> {
-                        preventDefaultAndProp(event);
-                        navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-                      }}
-            >
-              <Tooltip title={intl.formatMessage({ id: 'workspaceExplanationTooltip' })}>
-                <div>
-                  {intl.formatMessage({ id: 'homeAddPlanning' })}
-                </div>
-              </Tooltip>
-            </MenuItem>
           </SubMenu>
         </ProMenu>
       </Sidebar>

@@ -1,8 +1,7 @@
 import React, { useContext } from 'react';
-import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import { ArrowBack } from '@material-ui/icons';
+import { ArrowUpward } from '@material-ui/icons';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import _ from 'lodash';
@@ -13,6 +12,7 @@ import { usePresences } from '../../contexts/MarketPresencesContext/marketPresen
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
+import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
 
 function ReturnTop(props) {
   const { action, pathInvestibleId, market, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
@@ -20,7 +20,6 @@ function ReturnTop(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
-  const intl = useIntl();
   const history = useHistory();
   const presences = usePresences(market.id);
   const isConfigScreen = ['userPreferences', 'integrationPreferences', 'billing'].includes(action);
@@ -62,11 +61,9 @@ function ReturnTop(props) {
     [history, useLink, upFromConfigPossible, marketId, action, hashInvestibleId, activeGroupId]);
 
   return (
-    <div style={{marginBottom: '1.5rem', marginTop: '0.5rem'}}>
-      <TooltipIconButton disabled={upDisabled} icon={<ArrowBack htmlColor={upDisabled ? 'disabled' : 'black'} fontSize='small'/>}
-                         onClick={goUp} translationId="upNavigation">
-        <span style={{ paddingLeft: '0.5rem', color: 'black' }}>{intl.formatMessage({ id: 'up' })}</span>
-      </TooltipIconButton>
+    <div style={{marginRight: '0.5rem', marginLeft: '0.5rem', marginBottom: '0.5rem'}}>
+      <TooltipIconButton disabled={upDisabled} icon={<ArrowUpward htmlColor={upDisabled ? 'disabled' : ACTION_BUTTON_COLOR} />}
+                         onClick={goUp} translationId="upNavigation" />
     </div>
   );
 

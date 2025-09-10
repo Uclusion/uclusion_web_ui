@@ -24,6 +24,7 @@ import { ContactSupport, Face, Payment, PermIdentity, VpnKey } from '@material-u
 import md5 from 'md5';
 import { SIGN_OUT_WIZARD_TYPE } from '../../constants/markets';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
+import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -150,7 +151,7 @@ function Identity () {
     >
       {mobileLayout && (
         <IconButton onClick={recordPositionToggle} id="identityButton" style={{paddingLeft: 0}}>
-          <SettingsIcon htmlColor="white"/>
+          <SettingsIcon htmlColor={ACTION_BUTTON_COLOR}/>
         </IconButton>
       )}
       {!mobileLayout && (

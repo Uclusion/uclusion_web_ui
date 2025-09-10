@@ -27,47 +27,46 @@ export default function Hamburger(props) {
   };
 
   return (
-        <Toolbar>
-          <IconButton edge="start" aria-label="open drawer" onClick={toggleDrawer(true)}
-                      sx={{
-                        mr: 2,
-                        display: {
-                          xs: 'block',
-                          sm: 'none',
-                        }
-                      }}
-          >
-            <MenuIcon />
-          </IconButton>
+      <Toolbar disableGutters style={{marginLeft: '1rem'}}>
+        <IconButton edge="start" aria-label="open drawer" onClick={toggleDrawer(true)}
+                    sx={{
+                      mr: 2,
+                      display: {
+                        xs: 'block',
+                        sm: 'none',
+                      }
+                    }}
+        >
+          <MenuIcon />
+        </IconButton>
 
-          {/* The outside of the drawer */}
-          <Drawer
-            //from which side the drawer slides in
-            anchor="left"
-            //if open is true --> drawer is shown
-            open={open}
-            //function that is called when the drawer should close
-            onClose={toggleDrawer(false)}
-          >
-            {/* The inside of the drawer */}
-            <Box sx={{
-              p: 2,
-              height: 1,
-            }}>
-              <IconButton sx={{mb: 2}}>
-                <CloseIcon onClick={toggleDrawer(false)} />
-              </IconButton>
+        {/* The outside of the drawer */}
+        <Drawer
+          //from which side the drawer slides in
+          anchor="left"
+          //if open is true --> drawer is shown
+          open={open}
+          //function that is called when the drawer should close
+          onClose={toggleDrawer(false)}
+        >
+          {/* The inside of the drawer */}
+          <Box sx={{
+            p: 2,
+            height: 1,
+          }}>
+            <IconButton sx={{mb: 2}}>
+              <CloseIcon onClick={toggleDrawer(false)} />
+            </IconButton>
 
-              <Divider sx={{mb: 2}} />
-              <div onClick={toggleDrawer(false)}>
-                {navMenu}
-              </div>
-            </Box>
+            <Divider sx={{mb: 2}} />
+            <div onClick={toggleDrawer(false)}>
+              {navMenu}
+            </div>
+          </Box>
 
-          </Drawer>
+        </Drawer>
 
 
-        </Toolbar>
-
+      </Toolbar>
   );
 }

@@ -455,10 +455,7 @@ function Screen(props) {
             undefined}
       ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
-                              inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId}
-                              useLink={useLink} typeObjectId={typeObjectId}
-                              hashInvestibleId={hashInvestibleId} pathMarketIdRaw={pathMarketIdRaw}
-                              pathInvestibleId={pathInvestibleId} action={action} />,
+                              inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId} />,
       navLowerMenu: <OtherWorkspaceMenus markets={markets} defaultMarket={defaultMarket} mobileLayout={mobileLayout}
                                          chosenGroup={useGroupId || hashGroupId} setChosenMarketId={setMarketIdFull} />,
       navLowerListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [
@@ -486,6 +483,9 @@ function Screen(props) {
           appEnabled={appEnabled}
           navMenu={sideNavigationContents}
           disableSearch={disableSearch}
+          action={action} pathInvestibleId={pathInvestibleId} defaultMarket={defaultMarket} chosenGroup={useGroupId || hashGroupId}
+          pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId} isArchivedWorkspace={isArchivedWorkspace}
+          useLink={useLink} typeObjectId={typeObjectId}
         />
       )}
       {!mobileLayout && !hidden && (

@@ -42,6 +42,7 @@ import { ACTION_BUTTON_COLOR, WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { REPLY_TYPE } from '../../constants/comments';
 import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import ReturnTop from '../../pages/Home/ReturnTop';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: formInvestibleLink(market.id, investible.investible.id)};
@@ -57,8 +58,10 @@ function getGroupCandidate(group, market, navigations) {
   return candidate;
 }
 
-export default function NavigationChevrons() {
+export default function NavigationChevrons(props) {
   const history = useHistory();
+  const { action, pathInvestibleId, defaultMarket, chosenGroup, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
+    useLink, typeObjectId } = props;
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -204,7 +207,9 @@ export default function NavigationChevrons() {
           <TooltipIconButton disabled={backDisabled}
                              icon={<ArrowBack htmlColor={backDisabled ? 'disabled' : ACTION_BUTTON_COLOR} />}
                              onClick={doPreviousNavigation} translationId="previousNavigation" />
-          <div style={{marginLeft: '0.5rem'}}/>
+          <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket}
+            isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId}
+            groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>
           <TooltipIconButton disabled={nextDisabled}
                              icon={<ArrowForward htmlColor={nextDisabled ? 'disabled' :
                                (nextHighlighted ? WARNING_COLOR : ACTION_BUTTON_COLOR)} />}

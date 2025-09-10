@@ -152,7 +152,8 @@ function Header (props) {
   const [online] = useContext(OnlineStateContext);
   const [userState] = useContext(AccountContext);
   const history = useHistory();
-  const { toolbarButtons, appEnabled, navMenu, disableSearch } = props;
+  const { toolbarButtons, appEnabled, navMenu, disableSearch, action, pathInvestibleId, defaultMarket, chosenGroup, 
+    pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace, useLink, typeObjectId } = props;
   const [operationRunning] = useContext(OperationInProgressContext);
   const [logoTimer, setLogoTimer] = useState(undefined);
   const [logoImage, setLogoImage] = useState(NORMAL_LOGO);
@@ -249,7 +250,9 @@ function Header (props) {
           {!mobileLayout && (
             <div className={classes.grow}/>
           )}
-          <NavigationChevrons />
+          <NavigationChevrons action={action} pathInvestibleId={pathInvestibleId} defaultMarket={defaultMarket}
+            chosenGroup={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}
+            isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId}/>
           {!mobileLayout && (
             <div className={classes.grow}/>
           )}

@@ -11,7 +11,6 @@ import AddIcon from '@material-ui/icons/Add';
 import { formManageUsersLink, formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { DEMO_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 import { DoneAll, ExpandLess, ExpandMore, FlagOutlined, GroupOutlined, PermIdentity, Person } from '@material-ui/icons';
-import ReturnTop from './ReturnTop';
 import { banUser } from '../../api/users';
 import { changeBanStatus, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -106,8 +105,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function WorkspaceMenu(props) {
-  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup, action,
-    pathInvestibleId, pathMarketIdRaw, hashInvestibleId, useLink, typeObjectId } = props;
+  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup } = props;
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState] = useContext(CommentsContext);
@@ -156,12 +154,9 @@ function WorkspaceMenu(props) {
       </ProSidebar>
     );
   }
-  const isArchivedWorkspace = defaultMarket.market_stage !== 'Active';
+
   return (
-    <div style={{marginLeft: '15px', marginBottom: '1.5rem'}}>
-      <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket}
-                 isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId}
-                 groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>
+    <div style={{marginLeft: '15px', marginBottom: '1.5rem', marginTop: '1rem'}}>
       <Button
         onClick={recordPositionToggle}
         endIcon={<ExpandMoreIcon style={{fontSize: '1rem', marginLeft: '15px', marginRight: '10px'}} htmlColor="black"/>}

@@ -438,8 +438,8 @@ function Screen(props) {
     {
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
                               inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId} />,
-      navLowerMenu: <OtherWorkspaceMenus markets={markets} defaultMarket={defaultMarket} mobileLayout={mobileLayout}
-                                         chosenGroup={useGroupId || hashGroupId} setChosenMarketId={setMarketIdFull} />,
+      navLowerMenu: <OtherWorkspaceMenus markets={markets} defaultMarket={defaultMarket} mobileLayout={mobileLayout} 
+                      action={action} chosenGroup={useGroupId || hashGroupId} setChosenMarketId={setMarketIdFull} />,
       navLowerListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [
         {
           icon: EditOutlinedIcon, text: intl.formatMessage({ id: 'compose' }),

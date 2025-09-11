@@ -52,7 +52,7 @@ function processRegularItem(properties) {
   return (
     <div key={`sidebarMenuHolder${key}`}>
       <MenuItem icon={complexIcon ? Icon : <Icon htmlColor={iconColor} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
-                style={{backgroundColor, borderRadius: 22, width: '97%', marginLeft: 'auto', marginRight: 'auto'}}
+                style={{backgroundColor, borderRadius: 22}}
                 rootStyles={{
                   '.css-wx7wi4': {
                     marginRight: 0,

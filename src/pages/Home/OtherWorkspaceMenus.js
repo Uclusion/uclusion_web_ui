@@ -3,6 +3,7 @@ import { IconButton, makeStyles, Menu, Tooltip, Typography } from '@material-ui/
 import { Menu as ProMenu, MenuItem, Sidebar, SubMenu } from 'react-pro-sidebar';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
+import queryString from 'query-string'
 import { useIntl } from 'react-intl';
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
@@ -28,6 +29,7 @@ import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { useLocation } from 'react-router-dom/cjs/react-router-dom.min';
 
 
 const useStyles = makeStyles(() => ({
@@ -43,7 +45,13 @@ const useStyles = makeStyles(() => ({
 }));
 
 function OtherWorkspaceMenus(props) {
-  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, chosenGroup, mobileLayout } = props;
+  const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, chosenGroup, mobileLayout, action } = props;
+  const location = useLocation();
+  const { search: querySearch, hash } = location;
+  const values = queryString.parse(querySearch);
+  const { integrationType } = values || {};
+  const hashValues = queryString.parse(hash);
+  const { type } = hashValues || {};
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
@@ -130,6 +138,7 @@ function OtherWorkspaceMenus(props) {
                       backgroundColor: '#DFF0F2'
                     }
                   }}
+                  style={{backgroundColor: (action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()) ? '#e0e0e0' : undefined, borderRadius: 22}}
                   suffix={<div onClick={(event)=> {
                     preventDefaultAndProp(event);
                     if (defaultMarket) {
@@ -217,7 +226,8 @@ function OtherWorkspaceMenus(props) {
               updatePageState({messagesOpen: !messagesOpen});
             }}
             key="messagesKey" open={messagesOpen}>
-            <MenuItem icon={<Inbox htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+            <MenuItem style={{backgroundColor: action === 'inbox' ? '#e0e0e0' : undefined, borderRadius: 22}}
+              icon={<Inbox htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                 key="inboxKey" id="inboxId"
                 rootStyles={{
                   '.css-wx7wi4': {
@@ -238,7 +248,8 @@ function OtherWorkspaceMenus(props) {
                 </div>
               </Tooltip>
             </MenuItem>
-            <MenuItem icon={<OutboxIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+            <MenuItem style={{backgroundColor: action === 'outbox' ? '#e0e0e0' : undefined, borderRadius: 22}}
+             icon={<OutboxIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                     key="outboxKey" id="outboxId"
                     rootStyles={{
                       '.css-wx7wi4': {
@@ -285,6 +296,8 @@ function OtherWorkspaceMenus(props) {
                         marginRight: 0,
                       }
                     }}
+                    style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'gravatar') ? '#e0e0e0' : undefined, 
+                      borderRadius: 22}}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
                       navigate(history,`/integrationPreferences/${defaultMarket?.id}?integrationType=gravatar`);
@@ -303,6 +316,8 @@ function OtherWorkspaceMenus(props) {
                         marginRight: 0,
                       }
                     }}
+                    style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'cli') ? '#e0e0e0' : undefined, 
+                      borderRadius: 22}}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
                       navigate(history,`/integrationPreferences/${defaultMarket?.id}?groupId=${chosenGroup}&integrationType=cli`);
@@ -322,6 +337,8 @@ function OtherWorkspaceMenus(props) {
                           marginRight: 0,
                         },
                       }}
+                      style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'slack') ? '#e0e0e0' : undefined, 
+                        borderRadius: 22}}
                       onClick={(event) => {
                         preventDefaultAndProp(event);
                         navigate(history,'/integrationPreferences?integrationType=slack');

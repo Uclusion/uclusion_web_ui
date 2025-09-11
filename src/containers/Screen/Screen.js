@@ -254,7 +254,7 @@ export function getSidebarGroups(navListItemTextArray, intl, groupsState, market
       }
     }
     return {icon: myIcon, complexIcon: isGravatarDisplay, endIcon: outsetAvailable ? MoreVert : undefined,
-      text: isGravatarDisplay? intl.formatMessage({ id: 'work' }) : group.name, num, numSuffix,
+      text: group.name, num, numSuffix,
       isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
       isBlue: groupId === group.id || pathname === '/',
       resetFunction: isChosen ? resetFunction : undefined,

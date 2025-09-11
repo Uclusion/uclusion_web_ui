@@ -14,13 +14,6 @@ export function setPage(pageNum) {
   };
 }
 
-export function setTab(tabNum) {
-  return {
-    type: UPDATE_TAB,
-    tabNum
-  };
-}
-
 function searchFiltered(raw, searchResults, workItemId) {
   const { results, parentResults, search } = searchResults;
   return _.isEmpty(search) || workItemId ? raw : raw.filter((message) => {

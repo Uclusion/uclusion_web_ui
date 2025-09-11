@@ -90,6 +90,10 @@ function Root(props) {
     return action !== 'inbox';
   }
 
+  function hideOutbox() {
+    return action !== 'outbox';
+  }
+
   function hideWorkspaceWizard() {
     return action !== 'wizard';
   }
@@ -168,9 +172,9 @@ function Root(props) {
 
   // Page Not Found
   const hidePNF = isRootPath || !(hideMarket() && hideSupport() && hideInvestible() && hideWorkspaceWizard() && hideDemosFull() &&
-    hideInbox() && hideSlackInvite() && hideAccountPreferences() && hideMarketEdit() && hideManageUsers() && hideGroupSettings() &&
-    hideMarketLoad() && hideGroupArchive() && hideIntegrationPreferences() && hideBillingHome() && hideTodoAdd() &&
-    hideCommentReplyEdit() && hideDemoLoad() && hideGroupManage() && !isTicketPath(pathname));
+    hideInbox() && hideOutbox() && hideSlackInvite() && hideAccountPreferences() && hideMarketEdit() && hideManageUsers() && 
+    hideGroupSettings() && hideMarketLoad() && hideGroupArchive() && hideIntegrationPreferences() && hideBillingHome() && 
+    hideTodoAdd() && hideCommentReplyEdit() && hideDemoLoad() && hideGroupManage() && !isTicketPath(pathname));
 
   const isUserLoaded = userIsLoaded(userState, marketsState);
 
@@ -268,12 +272,12 @@ function Root(props) {
     <div>
       <CssBaseline/>
         <div style={{ width: '100%', height: '100%',
-          backgroundColor: (hideMarket() && hideInvestible() && hideInbox() && hideDemoLoad() && hideDemosFull() && hideMarketLoad() && hideWorkspaceWizard() 
-          && hideCommentReplyEdit()) ? undefined : '#EDF7F8'}}>
+          backgroundColor: (hideMarket() && hideInvestible() && hideInbox() && hideOutbox() && hideDemoLoad() && hideDemosFull() 
+          && hideMarketLoad() && hideWorkspaceWizard() && hideCommentReplyEdit()) ? undefined : '#EDF7F8'}}>
           <Wizard hidden={hideWorkspaceWizard()} />
           <DemoFull hidden={hideDemosFull()} />
           {marketJoinedUser && (
-            <InboxFull hidden={hideInbox()} />
+            <InboxFull hidden={hideInbox()&&hideOutbox()} isInbox={!hideInbox()} />
           )}
           {marketJoinedUser && (
             <Market hidden={hideMarket()||isArchivedWorkspace}/>

@@ -650,6 +650,7 @@ const messages = defineMessages({
   openHeader: 'Open',
   information: 'Information',
   message: 'Message',
+  messages: 'Messages',
   // Archives
   archivesTitle: 'Archive',
   inboxMarkRead: 'Mark selected read',
@@ -723,7 +724,7 @@ const messages = defineMessages({
   discussionToolTip: 'Suggestions and questions can later be moved to jobs.',
   votedOptionsToolTip: 'Only options promoted by the question creator can be approved.',
   proposedOptionsToolTip: 'Options here wait for promotion by the question creator or are permanently blocked.',
-  forYouToolTip: 'Events by others create notifications that display here for you.',
+  forYouToolTip: 'Events by others create notifications that display here.',
   fromYouToolTip: 'Your questions, suggestions, and assignments display here for processing or poking.',
   openTasksToolTip: 'Overview of open tasks for this job',
   resolvedTasksToolTip: 'Overview of resolved tasks for this job.',

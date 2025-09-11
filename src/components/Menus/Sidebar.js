@@ -117,22 +117,9 @@ export default function Sidebar(props) {
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, 'sidebarState',
     {viewsOpen: true});
   const { viewsOpen } = pageState;
-  const { navListItemTextArray, navLowerListItemTextArray, navMenu, navLowerMenu,
-    listOnClick, headerItemTextArray } = navigationOptions || {};
+  const { navListItemTextArray, navLowerListItemTextArray, navMenu, navLowerMenu, listOnClick } = navigationOptions || {};
   return (
     <ProSidebar width="16rem" backgroundColor="#DFF0F2">
-        {!_.isEmpty(headerItemTextArray) && (
-          <Menu onClick={listOnClick} style={{paddingTop: '10px'}}
-            rootStyles={{'.ps-menu-button': {height: 'unset', paddingLeft: '10px'}}}
-          >
-            {headerItemTextArray.map((navItem, topIndex) => {
-              const { text, target, num, numSuffix, icon: Icon, onClickFunc, isBold, isBlue, openMenuItems,
-                iconColor } = navItem;
-              return processRegularItem({history, text, target, num, Icon, iconColor, onClickFunc,
-                isBold, isBlue, index: topIndex, openMenuItems, numSuffix})
-            })}
-          </Menu>
-        )}
         {navMenu}
         <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '25px', height: '30px', overflow: 'hidden'}}}
           renderExpandIcon={({ open }) => open ? <ExpandLess style={{visibility: 'hidden', marginTop: '0.3rem', 
@@ -171,7 +158,7 @@ export default function Sidebar(props) {
                     })}
             </SubMenu>
         </Menu>
-        {navLowerMenu}
+        <div style={{marginBottom: '1rem'}} />
         {!_.isEmpty(navLowerListItemTextArray) && (
           <Menu 
             rootStyles={{'.ps-menu-button': {height: 'unset', paddingLeft: '10px'}}}
@@ -185,6 +172,8 @@ export default function Sidebar(props) {
             })}
           </Menu>
         )}
+        <div style={{marginBottom: '0.5rem'}} />
+        {navLowerMenu}
     </ProSidebar>
   );
 }

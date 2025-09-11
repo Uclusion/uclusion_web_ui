@@ -2,8 +2,7 @@ import WorkListItem from './WorkListItem';
 import { Box, Checkbox, useMediaQuery, useTheme } from '@material-ui/core';
 import React, { useContext, useEffect, useReducer } from 'react';
 import { useIntl } from 'react-intl';
-import { ArrowBack, Inbox as InboxIcon, KeyboardArrowLeft, NotificationsActive } from '@material-ui/icons';
-import OutboxIcon from '../../../components/CustomChip/Outbox';
+import { ArrowBack, KeyboardArrowLeft, NotificationsActive } from '@material-ui/icons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import _ from 'lodash';
 import { deleteOrDehilightMessages } from '../../../api/users';
@@ -11,15 +10,13 @@ import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import {
   dehighlightMessage,
-  getInboxCount,
   getInboxTarget, getMessageId
 } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 import InboxRow from './InboxRow';
 import { getPaginatedItems } from '../../../utils/messageUtils';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { calculateTitleExpansionPanel, createDefaultInboxRow } from './InboxExpansionPanel';
-import { getUnpaginatedItems, PAGE_SIZE, setPage, setTab } from './InboxContext';
+import { getUnpaginatedItems, PAGE_SIZE, setPage } from './InboxContext';
 import { stripHTML } from '../../../utils/stringFunctions';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import {
@@ -53,7 +50,7 @@ return (<div id={`inboxGroupHeader${group.id}`} key={`inboxGroupHeaderKey${group
 }
 
 function Inbox(props) {
-  const { messagesFull, inboxState, inboxDispatch, messagesHash, searchResults, workItemId, hidden } = props;
+  const { messagesFull, inboxState, inboxDispatch, messagesHash, workItemId, tabIndex } = props;
   const intl = useIntl();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [groupsState] = useContext(MarketGroupsContext);
@@ -62,8 +59,7 @@ function Inbox(props) {
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const { tabIndex, page } = inboxState;
-  const { search } = searchResults;
+  const { page } = inboxState;
   const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
     {determinate: {}, indeterminate: false, checkAll: false});
   const { indeterminate, determinate, checkAll } = determinateState;
@@ -71,7 +67,6 @@ function Inbox(props) {
     {determinate: {}, indeterminate: false, checkAll: false});
   const { indeterminate: indeterminateOutbox, determinate: determinateOutbox,
     checkAll: checkAllOutbox } = determinateStateOutbox;
-  const unreadCount = _.isEmpty(search) ? getInboxCount(messagesState) : 0;
   const unpaginatedItems = getUnpaginatedItems(messagesHash, tabIndex, workItemId);
   useEffect(() => {
     if (page) {
@@ -84,19 +79,6 @@ function Inbox(props) {
       }
     }
   }, [unpaginatedItems, page, inboxDispatch]);
-
-  useEffect(() => {
-    // If on first tab and trying to return to second tab panel or vice versa
-    if (!hidden && workItemId) {
-      const isOutboxItem = !workItemId.includes('_');
-      if (isOutboxItem&&tabIndex === 0) {
-        inboxDispatch(setTab(1));
-      }
-      if (!isOutboxItem&&tabIndex === 1) {
-        inboxDispatch(setTab(0));
-      }
-    }
-  }, [hidden, inboxDispatch, tabIndex, workItemId]);
 
   function changePage(byNum) {
     inboxDispatch(setPage(page + byNum));
@@ -118,8 +100,7 @@ function Inbox(props) {
     getPaginatedItems(unpaginatedItems, page, PAGE_SIZE, workItemId);
   const isOnWorkItem = workItemId && current > 0;
   const defaultRow = createDefaultInboxRow(unpaginatedItems, tabIndex);
-  const { outBoxMessagesOrdered, inboxMessagesOrdered } = messagesHash;
-  const htmlColor = _.isEmpty(inboxMessagesOrdered) ? '#8f8f8f' : (unreadCount > 0 ? '#E85757' : '#2D9CDB');
+  const { outBoxMessagesOrdered } = messagesHash;
 
   function getRows(isInbox) {
     const rows = [];
@@ -197,26 +178,6 @@ function Inbox(props) {
     <>
     <div style={{zIndex: 8, position: 'sticky', width: '100%', marginLeft: isOnWorkItem ? undefined : '-0.5rem'}}
       id="inbox-header">
-      {!isOnWorkItem && (
-        <GmailTabs
-          value={tabIndex}
-          onChange={(event, value) => {
-            window.scrollTo(0, 0);
-            inboxDispatch(setTab(value));
-          }}
-          removeBoxShadow
-          indicatorColors={[htmlColor, '#00008B']}
-          style={{ paddingBottom: '0.5rem', paddingTop: '1rem', marginTop: '-1rem' }}>
-          <GmailTabItem icon={<InboxIcon htmlColor={htmlColor} />} label={intl.formatMessage({id: 'unread'})}
-                        color='black' tagLabel={unreadCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                        tagColor={unreadCount > 0 ? '#E85757' : undefined} toolTipId='forYouToolTip'
-                        tag={unreadCount > 0 ? `${unreadCount}` :
-                          (_.size(inboxMessagesOrdered) > 0 ? `${_.size(inboxMessagesOrdered)}` : undefined)} />
-          <GmailTabItem icon={<OutboxIcon />} label={intl.formatMessage({id: 'outbox'})}
-                        toolTipId='fromYouToolTip'
-                        tag={_.size(outBoxMessagesOrdered) > 0 ? `${_.size(outBoxMessagesOrdered)}` : undefined} />
-        </GmailTabs>
-      )}
       <div style={{paddingBottom: tabIndex > 0 ? '0.25rem' : undefined}}>
         <div style={{display: 'flex', width: '80%', marginBottom: mobileLayout && workItemId ? '1rem': undefined}}>
           {!mobileLayout && !isOnWorkItem && (

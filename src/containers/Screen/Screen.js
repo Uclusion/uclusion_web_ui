@@ -14,12 +14,12 @@ import {
 } from '../../utils/marketIdPathFunctions';
 import LoadingDisplay from '../../components/LoadingDisplay';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
-import { getInboxCount, getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper'
+import { getInboxCount } from '../../contexts/NotificationsContext/notificationsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import Sidebar from '../../components/Menus/Sidebar'
-import { Group, GroupOutlined, Inbox, MoreVert } from '@material-ui/icons';
+import { Group, GroupOutlined, MoreVert } from '@material-ui/icons';
 import {
   getCurrentGroup,
   getCurrentWorkspace,
@@ -53,7 +53,6 @@ import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { getComment } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import jwt_decode from 'jwt-decode';
-import { WARNING_COLOR } from '../../components/Buttons/ButtonConstants';
 import { fixName, getMarketInfo } from '../../utils/userFunctions';
 import Gravatar from '../../components/Avatars/Gravatar';
 import OtherWorkspaceMenus from '../../pages/Home/OtherWorkspaceMenus';
@@ -135,7 +134,7 @@ export const screenStyles = makeStyles((theme) => ({
     zIndex: 8,
     position: 'fixed',
     top: '3.5rem',
-    paddingBottom: '2rem',
+    paddingBottom: '4rem',
     minWidth: '16rem',
     textOverflow: 'ellipsis'
   },
@@ -211,9 +210,9 @@ export function getActiveGroupId(myPresence, groupsState, marketId, marketPresen
   return activeGroupId;
 }
 
-export function getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
-  history, market, useGroupId, groupId, classes, useHoverFunctions, search, results, openMenuItems=[], inactiveGroups=[], pathname, resetFunction, action, 
-  type, mobileLayout, messagesState, investiblesState, investibleId) {
+export function getSidebarGroups(navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
+  history, market, useGroupId, groupId, classes, useHoverFunctions, search, results, openMenuItems=[], inactiveGroups=[], pathname, resetFunction, 
+  mobileLayout, messagesState, investiblesState, investibleId) {
   const marketId = market.id;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const itemsSorted = _.sortBy(groupsState[marketId],
@@ -429,26 +428,14 @@ function Screen(props) {
   const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])&&!isArchivedWorkspace) {
     const { useHoverFunctions, resetFunction } = navigationOptions || {};
-    getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState,
+    getSidebarGroups(navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, classes, useHoverFunctions, search,
-      results, openMenuItems, inactiveGroups, pathname, resetFunction, action, type, mobileLayout, messagesState, 
-      investiblesState, investibleId);
+      results, openMenuItems, inactiveGroups, pathname, resetFunction, mobileLayout, messagesState, investiblesState, 
+      investibleId);
   }
-  const inboxCount = getInboxCount(messagesState);
-  const inboxCountTotal = inboxCount > 0 ? undefined :
-    getInboxCount(messagesState, undefined, undefined, true);
   const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();
   const navigationMenu = isDemoLoading ? {} :
     {
-      headerItemTextArray: [
-        {icon: Inbox, text: intl.formatMessage({ id: 'inbox' }), target: getInboxTarget(),
-          isBold: action?.includes('inbox') || isInbox, isBlue: pathname === getInboxTarget(),
-          iconColor: inboxCount > 0 ? WARNING_COLOR : undefined,
-          num: _.isEmpty(search) ? (inboxCount > 0 ? inboxCount : (inboxCountTotal > 0 ? inboxCountTotal : undefined))
-            : undefined,
-          numSuffix: _.isEmpty(search) ? (inboxCount > 0 ? 'new' : (inboxCountTotal > 0 ? 'total' : undefined)) :
-            undefined}
-      ],
       navMenu: <WorkspaceMenu markets={markets} defaultMarket={defaultMarket} setChosenMarketId={setMarketIdFull}
                               inactiveGroups={inactiveGroups} chosenGroup={useGroupId || hashGroupId} />,
       navLowerMenu: <OtherWorkspaceMenus markets={markets} defaultMarket={defaultMarket} mobileLayout={mobileLayout}

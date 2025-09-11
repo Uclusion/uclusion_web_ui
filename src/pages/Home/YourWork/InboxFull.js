@@ -25,7 +25,7 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 function InboxFull(props) {
-  const { hidden } = props;
+  const { hidden, isInbox } = props;
   const intl = useIntl();
   const history = useHistory();
   const { location } = history;
@@ -52,7 +52,7 @@ function InboxFull(props) {
   const messagesHash = getMessages(allOutBoxMessagesOrdered, messagesFull,
     searchResults, workItemId, groupsState);
   const [inboxState, inboxDispatch] = useReducer(getReducer(),
-    {page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1});
+    {page: 1, expansionState: {}, pageState: {}, defaultPage: 1});
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let loading = marketsState.initializing || !notificationsInitialized;
   if (!loading && myNotHiddenMarketsState.marketDetails) {
@@ -88,7 +88,7 @@ function InboxFull(props) {
       outBoxMessages={allOutBoxMessagesOrdered}
     >
       <Inbox inboxState={inboxState} inboxDispatch={inboxDispatch} workItemId={workItemId} messagesHash={messagesHash}
-             messagesFull={messagesFull} searchResults={searchResults} hidden={hidden}
+             messagesFull={messagesFull} hidden={hidden} tabIndex={isInbox ? 0 : 1}
       />
     </Screen>
   );

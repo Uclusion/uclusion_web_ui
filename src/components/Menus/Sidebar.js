@@ -45,15 +45,13 @@ function processRegularItem(properties) {
   const isLink = isBold && !isBlue;
   const backgroundColor = isBold && !isSubMenu && isBlue ? '#e0e0e0' : undefined;
   const textRepresentation = isBold ? (<span
-      style={{fontWeight: 'bold', marginLeft: complexIcon ? '0.5rem' : undefined,
-        textDecoration: isLink ? 'underline' : undefined, color: isLink ? '#36A2EB' : undefined}}>
+      style={{fontWeight: 'bold', textDecoration: isLink ? 'underline' : undefined, color: isLink ? '#36A2EB' : undefined}}>
             {text}</span>)
-    : <span style={{marginLeft: complexIcon ? '0.5rem' : undefined,}}>
-      {text}</span>;
+    : <span>{text}</span>;
   const useIdPrepend =  complexIcon ? idPrepend + index : idPrepend;
   return (
     <div key={`sidebarMenuHolder${key}`}>
-      <MenuItem icon={complexIcon ? <div /> :<Icon htmlColor={iconColor} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+      <MenuItem icon={complexIcon ? Icon : <Icon htmlColor={iconColor} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                 style={{backgroundColor, borderRadius: 22, width: '97%', marginLeft: 'auto', marginRight: 'auto'}}
                 rootStyles={{
                   '.css-wx7wi4': {
@@ -96,12 +94,7 @@ function processRegularItem(properties) {
                   }
                 }
       >
-        {complexIcon && (
-          <div style={{display: 'flex', alignItems: 'center'}}>
-            {Icon} {textRepresentation}
-          </div>
-        )}
-        {!complexIcon && textRepresentation}
+        {textRepresentation}
       </MenuItem>
       {!_.isEmpty(openMenuItems) && (
         <div style={{paddingLeft: '1rem'}} key="openMenuItems">

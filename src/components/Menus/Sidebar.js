@@ -122,9 +122,8 @@ export default function Sidebar(props) {
     <ProSidebar width="16rem" backgroundColor="#DFF0F2">
         {navMenu}
         <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '25px', height: '30px', overflow: 'hidden'}}}
-          renderExpandIcon={({ open }) => open ? <ExpandLess style={{visibility: 'hidden', marginTop: '0.3rem', 
-            marginRight: '1.05rem'}} />: 
-          <ExpandMore style={{visibility: 'hidden', marginTop: '0.3rem', marginRight: '1.05rem'}} />}>
+          renderExpandIcon={({ open }) => open ? <ExpandLess style={{visibility: 'hidden', marginTop: '0.3rem'}} />: 
+          <ExpandMore style={{visibility: 'hidden', marginTop: '0.3rem'}} />}>
           <SubMenu id='views'
                   label={intl.formatMessage({ id: 'viewInGroup' })}
                   rootStyles={{

@@ -14,9 +14,6 @@ import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import CloseIcon from '@material-ui/icons/Close';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext'
-import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
-import { useLocation } from 'react-router';
-import queryString from 'query-string';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { getInvestibleName } from '../../contexts/InvestibesContext/investiblesContextHelper';
@@ -26,14 +23,9 @@ import PropTypes from 'prop-types';
 import { getSearchResults } from '../../contexts/SearchIndexContext/searchIndexContextHelper';
 
 function SearchBox(props) {
-  const { disableSearch } = props;
-  const location = useLocation();
+  const { disableSearch, marketId, investibleId, action, groupId } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const { pathname, search: querySearch } = location;
-  const { action, marketId, investibleId } = decomposeMarketPath(pathname);
-  const values = queryString.parse(querySearch);
-  const { groupId } = values || {};
   const intl = useIntl();
   const [index] = useContext(SearchIndexContext);
   const [searchResults, setSearchResults] = useContext(SearchResultsContext);
@@ -148,19 +140,14 @@ function SearchBox(props) {
     });
   }
 
-  if (!searchedName) {
-    return React.Fragment;
-  }
-
   return (
     <div id='search-box' onClick={(event) => event.stopPropagation()}
          style={{flex: 1, maxWidth: mobileLayout ? undefined : '800px'}}>
       <TextField
         style={{backgroundColor: 'white', width: '100%', minWidth: mobileLayout ? '10rem' : '15rem'}}
         onChange={onSearchChange}
-        onKeyPress={(ev) => {
+        onKeyDown={(ev) => {
           if (ev.key === 'Enter') {
-            // Do code here
             updateIndex(ev.target.value);
             ev.preventDefault();
           }
@@ -168,7 +155,7 @@ function SearchBox(props) {
         disabled={disableSearch}
         inputRef={inputRef}
         placeholder={`${intl.formatMessage({ id: mobileLayout ? 'searchBoxPlaceholderMobile' 
-            : 'searchBoxPlaceholder' })} ${mobileLayout ? '' : searchedName}`}
+            : 'searchBoxPlaceholder' })} ${mobileLayout || _.isEmpty(searchedName) ? '' : searchedName}`}
         size="small"
         defaultValue={searchResults.search}
         InputProps={{

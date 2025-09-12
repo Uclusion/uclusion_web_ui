@@ -244,9 +244,8 @@ function Header (props) {
               </Typography>
             </Paper>
           )}
-          {!isDemoLoading && (
-            <SearchBox disableSearch={disableSearch}/>
-          )}
+          <SearchBox disableSearch={disableSearch||isDemoLoading} marketId={defaultMarket?.id} 
+            investibleId={pathInvestibleId || hashInvestibleId} action={action} groupId={chosenGroup}/>
           {!mobileLayout && (
             <div className={classes.grow}/>
           )}

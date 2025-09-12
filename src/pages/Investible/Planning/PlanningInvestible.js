@@ -677,7 +677,7 @@ function PlanningInvestible(props) {
         }}
         useColor
         id='investible-header'
-        indicatorColors={['#00008B', '#00008B', '#00008B']}
+        indicatorColors={['#2F80ED', '#2F80ED', '#2F80ED']}
         style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
           paddingTop: mobileLayout ? undefined : '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0,
           marginLeft: '-0.5rem' }}>
@@ -944,8 +944,9 @@ function PlanningInvestible(props) {
                   </SpinningButton>
                 )}
                 {sectionOpen === 'tasksSection' && (
-                  <div style={{marginTop: '2.25rem'}}><Link
+                  <div style={{marginTop: '2.25rem', fontWeight: 'bold'}}><Link
                     href={`${formInvestibleLink(marketId, investibleId)}#investibleCondensedTodos`}
+                    color="primary"
                     onClick={(event) => {
                     preventDefaultAndProp(event);
                     navigate(history, `${formInvestibleLink(marketId, investibleId)}#investibleCondensedTodos`);

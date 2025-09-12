@@ -64,7 +64,7 @@ function WorkspaceInviteLinker(props) {
                   setInLinker(false);
                   setCopiedToClipboard(false);
                 }} onMouseEnter={() => setInLinker(true)}>
-          <LinkIcon style={{marginRight: 6}}/>
+          <LinkIcon style={{marginRight: 6, color: '#2F80ED'}}/>
              {intl.formatMessage({ id: 'copyInviteLink' }) }
 
         </Button>

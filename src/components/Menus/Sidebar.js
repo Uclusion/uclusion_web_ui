@@ -45,8 +45,7 @@ function processRegularItem(properties) {
   const isLink = isBold && !isBlue;
   const backgroundColor = isBold && !isSubMenu && isBlue ? '#e0e0e0' : undefined;
   const textRepresentation = isBold ? (<span
-      style={{fontWeight: 'bold', textDecoration: isLink ? 'underline' : undefined, color: isLink ? '#36A2EB' : undefined}}>
-            {text}</span>)
+      style={{fontWeight: 'bold', color: isLink ? '#2F80ED' : undefined}}>{text}</span>)
     : <span>{text}</span>;
   const useIdPrepend =  complexIcon ? idPrepend + index : idPrepend;
   return (

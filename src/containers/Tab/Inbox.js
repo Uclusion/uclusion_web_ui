@@ -6,7 +6,7 @@ import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 
 export function GmailTabItem(props) {
-  const { color='#797FF2', label, tag, tagLabel, tagColor='#797FF2', toolTipId,
+  const { color='#2F80ED', label, tag, tagLabel, tagColor='#797FF2', toolTipId,
     ...other } = props;
   const theme = useTheme();
   const intl = useIntl();

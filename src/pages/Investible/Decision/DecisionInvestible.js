@@ -70,6 +70,7 @@ import ListAltIcon from '@material-ui/icons/ListAlt';
 import { hasDecisionComment } from '../../../components/AddNewWizards/DecisionComment/AddCommentStep';
 import { getComment } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { useInvestibleVoters } from '../../../utils/votingUtils';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -187,12 +188,13 @@ function DecisionInvestible(props) {
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const wizardClasses = wizardStyles();
+  const investibleId = fullInvestible?.investible?.id;
+  const voters = useInvestibleVoters(marketPresences, investibleId, market?.id, false);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
   const [diffState, diffDispatch] = useContext(DiffContext);
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const investibleId = fullInvestible?.investible?.id;
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
   const { id: marketId, market_stage: marketStage, parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
@@ -328,7 +330,7 @@ function DecisionInvestible(props) {
   const editClasses = useInvestibleEditStyles();
   const allowedCommentTypesFiltered = mobileLayout ? allowedCommentTypes : allowedCommentTypes.filter((allowedCommentType) =>
     hasDecisionComment(marketId, allowedCommentType, investibleId));
-  const afterDescription = <>{!inProposed && (
+  const afterDescription = <>{!inProposed && !_.isEmpty(voters) && (
     <div style={{marginTop: '1rem'}}>
       <CommentBox comments={info} marketId={marketId} allowedTypes={allowedCommentTypes}
                   isInbox={removeActions} removeActions={removeActions} usePadding={false} />
@@ -358,8 +360,8 @@ function DecisionInvestible(props) {
       <div style={{marginTop: '1rem'}}/>
     </div>
   )}
-    {(displayCommentInput || !_.isEmpty(investmentReasonsRemoved)) && (
-      <div style={{ paddingBottom: '1rem' }}>
+    {((displayCommentInput && mobileLayout) || !_.isEmpty(investmentReasonsRemoved)) && (
+      <div style={{ paddingBottom: '1rem', marginTop: '1rem' }}>
         <h2 id="comments" style={{ marginTop: 0 }}>
           <FormattedMessage id="comments"/>
         </h2>

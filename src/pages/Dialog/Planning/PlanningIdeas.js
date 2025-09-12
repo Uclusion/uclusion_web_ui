@@ -526,6 +526,7 @@ const generalStageStyles = makeStyles((theme) => {
   return {
     chipClass: {
       fontSize: 10,
+      cursor: 'pointer'
     },
     chipStyleRed: {
       backgroundColor: '#E85757',
@@ -773,9 +774,12 @@ function StageInvestible(props) {
           >
             <Typography color='initial' variant="subtitle2">{name}</Typography>
             {!_.isEmpty(labelList) && labelList.map((label) =>
-              <div key={label} style={{paddingTop: '0.5rem'}}>
+              <div key={label} style={{paddingTop: '0.5rem', cursor: 'pointer'}} onClick={(event) => {
+                preventDefaultAndProp(event);
+                navigate(history, `${formInvestibleLink(marketId, investible.id)}#approve`);
+              }}>
                 <Chip size="small" label={label} className={classes.chipClass}
-                      style={{maxWidth: '90%', backgroundColor: '#73B76C', color: 'white'}}/>
+                      style={{maxWidth: '90%'}}/>
               </div>
             )}
           </StageLink>

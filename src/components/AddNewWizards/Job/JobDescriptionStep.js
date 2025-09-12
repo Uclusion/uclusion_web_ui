@@ -88,7 +88,7 @@ function JobDescriptionStep (props) {
   const classes = useContext(WizardStylesContext);
 
   const editorSpec = {
-    placeholder: "Ex: make magic happen via A, B, C",
+    placeholder: "Ex: Make magic happen. A bullet list in this description will be become tasks.",
     value: getQuillStoredState(editorName),
     marketId,
     autoFocus: true,
@@ -226,11 +226,7 @@ function JobDescriptionStep (props) {
         How would you describe this job?
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1" style={{marginBottom: 0}}>
-        Use a bullet list like below or add {isMovingTasks && 'additional'} tasks later.
-        <ul>
-          <li>My first task.</li>
-          <li>My second task.</li>
-        </ul>
+        Fill the description below and the job name will be created automatically. A bullet list will become tasks.
       </Typography>
       <FormControl>
         <FormLabel

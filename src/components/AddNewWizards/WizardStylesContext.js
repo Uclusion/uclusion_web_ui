@@ -152,7 +152,7 @@ export const wizardStyles = makeStyles(
       },
       actionNext: {
         width: 200,
-        border: '2px solid #2D9CDB',
+        border: '2px solid #2F80ED',
         color: 'black !important',
         backgroundColor: 'white',
         textTransform: 'unset !important',
@@ -169,7 +169,7 @@ export const wizardStyles = makeStyles(
         }
       },
       actionNextMobile: {
-        border: '2px solid #2D9CDB',
+        border: '2px solid #2F80ED',
         color: 'black !important',
         backgroundColor: 'white',
         textTransform: 'unset !important',

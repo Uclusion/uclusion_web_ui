@@ -184,7 +184,7 @@ function Options(props) {
           onChange={(event, value) => {
             updatePageState({ tabIndex: value });
           }}
-          indicatorColors={[htmlColor, '#00008B']}
+          indicatorColors={[htmlColor, '#2F80ED']}
           style={{ paddingBottom: '1rem' }}>
           <GmailTabItem icon={<ThumbsUpDownIcon htmlColor={htmlColor} />} onDrop={onDropApprovable}
                         label={intl.formatMessage({id: 'decisionDialogCurrentVotingLabel'})}

@@ -87,7 +87,7 @@ function InvesibleCommentLinker(props) {
                   setInLinker(false);
                   setCopiedToClipboard(false);
                 }} onMouseEnter={() => setInLinker(true)}>
-          <LinkIcon style={{marginRight: 6}} htmlColor="#339BFF" />
+          <LinkIcon style={{marginRight: 6}} htmlColor="#2F80ED" />
             { !useTextInsteadOfLink ? decodeURI(ticketCode)
                 : intl.formatMessage({ id: 'copyLink' }) }
         </Button>

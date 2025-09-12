@@ -377,6 +377,8 @@ function OtherWorkspaceMenus(props) {
                       backgroundColor: '#DFF0F2'
                     }
                   }}
+                  style={{backgroundColor: (action === 'wizard' && type === WORKSPACE_WIZARD_TYPE.toLowerCase()) ? '#e0e0e0' : undefined, 
+                    borderRadius: 22}}
                   suffix={<div onClick={(event)=> {
                     preventDefaultAndProp(event);
                     navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);

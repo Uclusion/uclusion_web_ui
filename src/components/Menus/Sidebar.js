@@ -137,7 +137,7 @@ export default function Sidebar(props) {
                         navigate(history, `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${marketId}`);
                       }
                     }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddGroup' })}>
-                    <IconButton size="small" noPadding>
+                    <IconButton size="small" id="addViewId" noPadding>
                     <AddIcon htmlColor={marketId ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
                     </IconButton>
                   </Tooltip></div>}

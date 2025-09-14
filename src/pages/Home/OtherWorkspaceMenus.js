@@ -145,7 +145,7 @@ function OtherWorkspaceMenus(props) {
                       navigate(history, `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`);
                     }
                   }}><Tooltip placement='top' title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}>
-                  <IconButton size="small" noPadding>
+                  <IconButton size="small" id="Addcollaborators" noPadding>
                   <AddIcon htmlColor={defaultMarket ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
                   </IconButton>
                 </Tooltip></div>}
@@ -383,7 +383,7 @@ function OtherWorkspaceMenus(props) {
                     preventDefaultAndProp(event);
                     navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
                   }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddPlanning' })}>
-                  <IconButton size="small" noPadding>
+                  <IconButton size="small" noPadding id="createWorkspaceId">
                   <AddIcon htmlColor={defaultMarket ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
                   </IconButton>
                 </Tooltip></div>}

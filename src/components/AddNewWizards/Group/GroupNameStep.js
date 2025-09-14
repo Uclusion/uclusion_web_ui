@@ -21,6 +21,7 @@ import {
   isAutonomousGroup,
   usePresences
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { fixName } from '../../../utils/userFunctions';
 
 function GroupNameStep (props) {
   const { updateFormData, formData, marketId } = props;
@@ -64,6 +65,8 @@ function GroupNameStep (props) {
     };
     if (isAutonomous && _.isEmpty(groupData.name)) {
       groupData.name = intl.formatMessage({id: 'singleView'});
+      // Not great may have to let them choose later
+      groupData.ticket_sub_code = fixName(myPresence.name).slice(0, 80);
     }
     return doCreateGroup(dispatchers, groupData)
       .then((group) => {

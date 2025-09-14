@@ -21,7 +21,6 @@ import {
   isAutonomousGroup,
   usePresences
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { fixName } from '../../../utils/userFunctions';
 
 function GroupNameStep (props) {
   const { updateFormData, formData, marketId } = props;
@@ -64,7 +63,7 @@ function GroupNameStep (props) {
       is_autonomous_group: isAutonomous
     };
     if (isAutonomous && _.isEmpty(groupData.name)) {
-      groupData.name = fixName(myPresence.name).slice(0, 80);
+      groupData.name = intl.formatMessage({id: 'singleView'});
     }
     return doCreateGroup(dispatchers, groupData)
       .then((group) => {

@@ -1340,6 +1340,7 @@ const messages = defineMessages({
   WorkspaceWizardTitle: 'Your workspace',
   createWorkspaceNormal: 'Configure for team',
   createViewSingleUser: 'Configure for single',
+  singleView: 'Single',
   configureLater: 'Configure later',
 
   // Job Wizard

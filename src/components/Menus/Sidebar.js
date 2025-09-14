@@ -120,42 +120,44 @@ export default function Sidebar(props) {
   return (
     <ProSidebar width="16rem" backgroundColor="#DFF0F2">
         {navMenu}
-        <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '25px', height: '30px', overflow: 'hidden'}}}
-          renderExpandIcon={({ open }) => open ? <ExpandLess style={{visibility: 'hidden', marginTop: '0.3rem'}} />: 
-          <ExpandMore style={{visibility: 'hidden', marginTop: '0.3rem'}} />}>
-          <SubMenu id='views'
-                  label={intl.formatMessage({ id: 'viewInGroup' })}
-                  rootStyles={{
-                    '.ps-menuitem-root': {
-                      backgroundColor: '#DFF0F2'
-                    }
-                  }}
-                  suffix={<div onClick={(event)=> {
-                    preventDefaultAndProp(event);
-                    if (marketId) {
-                      navigate(history, `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${marketId}`);
-                    }
-                  }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddGroup' })}>
-                  <IconButton size="small" noPadding>
-                  <AddIcon htmlColor={marketId ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
-                  </IconButton>
-                </Tooltip></div>}
-                  onMouseOver={hideShowExpandIcon('views', true)}
-                  onMouseOut={hideShowExpandIcon('views', false)}
-                  onClick={(event) => {
-                    preventDefaultAndProp(event);
-                    updatePageState({viewsOpen: !viewsOpen});
-                  }}
-                    key="views" open={viewsOpen}>
-                    {navListItemTextArray?.map((navItem, topIndex) => {
-                      const { text, target, num, numSuffix, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
-                        onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
-                      return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
-                        isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                        tipText, idPrepend})
-                    })}
-            </SubMenu>
-        </Menu>
+        {!_.isEmpty(navMenu) && (
+          <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '25px', height: '30px', overflow: 'hidden'}}}
+            renderExpandIcon={({ open }) => open ? <ExpandLess style={{visibility: 'hidden', marginTop: '0.3rem'}} />: 
+            <ExpandMore style={{visibility: 'hidden', marginTop: '0.3rem'}} />}>
+            <SubMenu id='views'
+                    label={intl.formatMessage({ id: 'viewInGroup' })}
+                    rootStyles={{
+                      '.ps-menuitem-root': {
+                        backgroundColor: '#DFF0F2'
+                      }
+                    }}
+                    suffix={<div onClick={(event)=> {
+                      preventDefaultAndProp(event);
+                      if (marketId) {
+                        navigate(history, `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${marketId}`);
+                      }
+                    }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddGroup' })}>
+                    <IconButton size="small" noPadding>
+                    <AddIcon htmlColor={marketId ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
+                    </IconButton>
+                  </Tooltip></div>}
+                    onMouseOver={hideShowExpandIcon('views', true)}
+                    onMouseOut={hideShowExpandIcon('views', false)}
+                    onClick={(event) => {
+                      preventDefaultAndProp(event);
+                      updatePageState({viewsOpen: !viewsOpen});
+                    }}
+                      key="views" open={viewsOpen}>
+                      {navListItemTextArray?.map((navItem, topIndex) => {
+                        const { text, target, num, numSuffix, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
+                          onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
+                        return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
+                          isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
+                          tipText, idPrepend})
+                      })}
+              </SubMenu>
+          </Menu>
+        )}
         <div style={{marginBottom: '1rem'}} />
         {!_.isEmpty(navLowerListItemTextArray) && (
           <Menu 

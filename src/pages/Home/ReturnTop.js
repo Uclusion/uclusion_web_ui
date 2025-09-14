@@ -21,17 +21,17 @@ function ReturnTop(props) {
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const history = useHistory();
-  const presences = usePresences(market.id);
+  const presences = usePresences(market?.id);
   const isConfigScreen = ['userPreferences', 'integrationPreferences', 'billing'].includes(action);
-  const marketId = market.id;
-  const isSupportMarket = market.market_sub_type === SUPPORT_SUB_TYPE;
+  const marketId = market?.id;
+  const isSupportMarket = market?.market_sub_type === SUPPORT_SUB_TYPE;
   const upFromConfigPossible = isConfigScreen && marketId;
-  const downLevel = action === 'inbox' ? !_.isEmpty(pathMarketIdRaw) :
-    (action === 'wizard' ? !_.isEmpty(groupId || marketId) :
+  const downLevel = ['inbox' || 'outbox'].includes(action) ? !_.isEmpty(pathMarketIdRaw) :
+    (['wizard', 'demo'].includes(action) ? !_.isEmpty(groupId || marketId) :
       (action === 'marketEdit' ? marketId : (['groupEdit', 'groupArchive'].includes(action)  ? groupId :
         !_.isEmpty(pathInvestibleId))));
   const upDisabled = ((!downLevel ||
-      !['dialog', 'inbox', 'wizard', 'marketEdit', 'groupEdit', 'groupArchive'].includes(action))
+      !['dialog', 'inbox', 'outbox', 'demo', 'wizard', 'marketEdit', 'groupEdit', 'groupArchive'].includes(action))
     &&!upFromConfigPossible&&!isSupportMarket)||isArchivedWorkspace;
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const activeGroupId = getActiveGroupId(myPresence, groupsState, marketId, presences, groupPresencesState, groupId, 
@@ -40,6 +40,10 @@ function ReturnTop(props) {
   function goUp(){
     if (action === 'inbox') {
       navigate(history, getInboxTarget());
+    } else if (action === 'outbox') {
+      navigate(history, '/outbox');
+    } else if (action === 'demo') {
+      navigate(history, formMarketLink(marketId, marketId))
     } else if (useLink) {
       navigate(history, useLink);
     }else if (upFromConfigPossible) {

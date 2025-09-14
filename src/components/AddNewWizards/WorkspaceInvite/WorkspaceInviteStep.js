@@ -80,8 +80,9 @@ function WorkspaceInviteStep (props) {
       <div style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
         <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
           {checkMark}ctrl+arrowRight to go to what most likely needs doing
-          <div style={{ backgroundColor: '#8ABABF', width: '8rem', height: '60px' }}>
-            <NavigationChevrons groupLoadId={marketId}/></div>
+          <div style={{ backgroundColor: 'DFF0F2', width: '10rem', height: '60px' }}>
+            <NavigationChevrons action='invite' defaultMarket={market} chosenGroup={market?.id} pathMarketIdRaw={market?.id} 
+              isArchivedWorkspace={false}/></div>
           {!mobileLayout && (
             <div>
               or with mouse use the navigation chevrons in header.

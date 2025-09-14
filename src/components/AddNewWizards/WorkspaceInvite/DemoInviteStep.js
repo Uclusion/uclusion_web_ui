@@ -18,7 +18,6 @@ import { useIntl } from 'react-intl';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { WORKSPACE_WIZARD_TYPE } from '../../../constants/markets';
 
 function DemoInviteStep (props) {
   const { marketId } = props;
@@ -34,15 +33,7 @@ function DemoInviteStep (props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const market = getMarket(marketsState, marketId) || {};
   const link = formMarketLink(marketId, marketId);
-  const checkMark = <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill='#3f6b72'
-                         style={{ width: 18, height: 18, marginRight: 4, marginBottom: -2 }}
-                         viewBox="0 0 20 20">
-    <path
-      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
-  </svg>;
   const navListItemTextArray = [];
-  const isSolo = market.name?.includes('solo');
-  const pathToCreateWorkspace = `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`;
   getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState, history, market, marketId, marketId, 
     screenClasses);
 
@@ -60,29 +51,18 @@ function DemoInviteStep (props) {
           }
         }>{market.name}</Link>
       </Typography>
-      {isSolo && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          This demo solo workspace also includes a fake participant if you want to try collaboration.
-          Play around and when you are ready create your own workspace and this demo will be removed.
-        </Typography>
-      )}
-      {!isSolo && (
-        <Typography className={classes.introSubText} variant="subtitle1">
-          Here you are a team member already working on UScript for a while. Play around and when you are
-          ready create your own workspace and this demo will be removed.
-        </Typography>
-      )}
       <h2 style={{marginTop: '1.75rem', marginBottom: 0}}>
         Navigation
       </h2>
       <div style={{ paddingTop: '1rem' }}>
         <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
-          {checkMark}ctrl+arrowRight to go to what most likely needs doing
-          <div style={{ backgroundColor: '#8ABABF', width: '8rem', height: '60px' }}>
-            <NavigationChevrons groupLoadId={marketId}/></div>
+          ctrl+arrowRight to go to what most likely needs doing
+          <div style={{ backgroundColor: '#DFF0F2', width: '10rem', height: '60px' }}>
+            <NavigationChevrons action='demo' defaultMarket={market} chosenGroup={market?.id} pathMarketIdRaw={market?.id} 
+              isArchivedWorkspace={false} /></div>
           {!mobileLayout && (
             <div>
-              or with mouse use the navigation chevrons in header.
+              or with mouse use the navigation chevrons in the header above.
             </div>
           )}
         </Typography>
@@ -91,12 +71,7 @@ function DemoInviteStep (props) {
         To create a workspace and end the demo
       </h2>
       <div style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
-        Skip the demo by clicking 'Get started' in the header, New workspace under Switch workspace on the left side panel, or <Link href={pathToCreateWorkspace} onClick={
-          (event) => {
-            preventDefaultAndProp(event);
-            navigate(history, pathToCreateWorkspace);
-          }
-        }>here</Link>.
+        Skip the demo by clicking 'Get started' in the header above.
       </div>
     </WizardStepContainer>
   );

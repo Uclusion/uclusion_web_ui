@@ -83,6 +83,8 @@ function OptionMenu(props) {
       });
   }
 
+  // TODO need IDs on all iconbuttons
+
   if (!anchorEl) {
     return (
       <>
@@ -92,7 +94,7 @@ function OptionMenu(props) {
             return changeStage();
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'promoteOption' })}>
-              <IconButton size="small" noPadding>
+              <IconButton size="small" id="promoteOptionButton" noPadding>
                 <ArrowUpward htmlColor={ACTION_BUTTON_COLOR} />
               </IconButton>
             </Tooltip>
@@ -104,7 +106,7 @@ function OptionMenu(props) {
             return changeStage();
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'demoteOption' })}>
-              <IconButton size="small" noPadding>
+              <IconButton size="small" id="demoteOptionButton" noPadding>
                 <ArrowDownward htmlColor={ACTION_BUTTON_COLOR} />
               </IconButton>
             </Tooltip>
@@ -116,7 +118,7 @@ function OptionMenu(props) {
             return createTask();
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'makeTask' })}>
-              <IconButton size="small" noPadding>
+              <IconButton size="small" id="makeTaskButton" noPadding>
                 <ListAltIcon htmlColor={ACTION_BUTTON_COLOR} />
               </IconButton>
             </Tooltip>
@@ -130,7 +132,7 @@ function OptionMenu(props) {
                 undefined, typeObjectId));
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNewApproval` })}>
-              <IconButton size="small" noPadding>
+              <IconButton size="small" id="approvalButton" noPadding>
                 <ThumbsUpDownIcon htmlColor={ACTION_BUTTON_COLOR} />
               </IconButton>
             </Tooltip>
@@ -143,7 +145,7 @@ function OptionMenu(props) {
                 TODO_TYPE, typeObjectId));
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${TODO_TYPE}Option` })}>
-              <IconButton size="small" noPadding>
+              <IconButton size="small" id="createTODOOptionButton" noPadding>
                 <Notes htmlColor={ACTION_BUTTON_COLOR} />
               </IconButton>
             </Tooltip>
@@ -155,7 +157,7 @@ function OptionMenu(props) {
                 ISSUE_TYPE, typeObjectId));
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${ISSUE_TYPE}` })}>
-              <IconButton size="small" noPadding>
+              <IconButton size="small" id="issueButton" noPadding>
                 <Block htmlColor={ACTION_BUTTON_COLOR} />
               </IconButton>
             </Tooltip>
@@ -167,7 +169,7 @@ function OptionMenu(props) {
                 SUGGEST_CHANGE_TYPE, typeObjectId));
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${SUGGEST_CHANGE_TYPE}` })}>
-              <IconButton size="small" noPadding>
+              <IconButton size="small" id="suggestButton" noPadding>
                 <LightbulbOutlined htmlColor={ACTION_BUTTON_COLOR} />
               </IconButton>
             </Tooltip>
@@ -179,7 +181,7 @@ function OptionMenu(props) {
                 QUESTION_TYPE, typeObjectId));
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${QUESTION_TYPE}` })}>
-              <IconButton size="small" noPadding>
+              <IconButton size="small" id="questionButton" noPadding>
                 <QuestionIcon htmlColor={ACTION_BUTTON_COLOR} />
               </IconButton>
             </Tooltip>

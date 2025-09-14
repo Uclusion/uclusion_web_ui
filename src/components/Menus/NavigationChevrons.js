@@ -92,9 +92,9 @@ export default function NavigationChevrons(props) {
     if (market.market_sub_type !== SUPPORT_SUB_TYPE) {
       const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
-      const groups = groupsState[market.id].filter((group) => {
+      const groups = groupsState[market.id]?.filter((group) => {
         const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id, group.id) || [];
-        return !_.isEmpty(groupPresences.find((presence) => presence.id === myPresence.id));
+        return !_.isEmpty(groupPresences?.find((presence) => presence.id === myPresence.id));
       });
       groups?.forEach((group) => {
         const candidate = getGroupCandidate(group, market, navigations);

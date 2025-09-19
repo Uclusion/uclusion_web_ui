@@ -141,6 +141,7 @@ function CommentBox(props) {
   function getCommentCards() {
     return sortedRoots.map(comment => {
       const { id, comment_type: commmentType } = comment;
+      const reallyNoAuthor = assigned?.length === 1 && assigned[0] === comment.created_by;
       return (
         <Grid item key={id} xs={12}>
           <div id={`${isInbox ? 'inbox' : ''}c${id}`}
@@ -169,6 +170,8 @@ function CommentBox(props) {
               wizardProps={wizardProps}
               isMove={isMove}
               usePadding={usePadding}
+              noAuthor={reallyNoAuthor}
+              reallyNoAuthor={reallyNoAuthor}
             />
           </div>
         </Grid>

@@ -12,7 +12,6 @@ import {
   TODO_TYPE
 } from '../constants/comments'
 import QuestionIcon from '@material-ui/icons/ContactSupport'
-import ListAltIcon from '@material-ui/icons/ListAlt'
 import VotingIcon from '@material-ui/icons/Assessment'
 import ThumbsUpDownIcon from '@material-ui/icons/ThumbsUpDown'
 import GavelIcon from '@material-ui/icons/Gavel'
@@ -27,11 +26,10 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd'
 import { DECISION_TYPE } from '../constants/markets'
 import AssignmentIcon from '@material-ui/icons/Assignment'
 import HowToVoteIcon from '@material-ui/icons/HowToVote'
-import UpdateIcon from '@material-ui/icons/Update'
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import { Block, BugReport, Notes } from '@material-ui/icons';
+import { Block, Notes } from '@material-ui/icons';
 import LightbulbOutlined from './CustomChip/LightbulbOutlined';
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
@@ -143,8 +141,6 @@ const labelIntlIds = {
   [ISSUE_TYPE]: "cardTypeLabelIssue",
   [QUESTION_TYPE]: "cardTypeLabelQuestion",
   [SUGGEST_CHANGE_TYPE]: "cardTypeLabelSuggestedChange",
-  [TODO_TYPE]: "cardTypeLabelTodo",
-  [REPORT_TYPE]: "cardTypeLabelProgressReport",
   certainty5: "certainty5",
   certainty25: "certainty25",
   certainty50: "certainty50",
@@ -164,20 +160,18 @@ export default function CardType(props) {
     stageChangedAt,
     color,
     compact = false,
-    compressed = false
+    compressed = false,
+    linker
   } = props;
   const classes = useCardTypeStyles({ type, resolved, color });
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
-  const IconComponent = {
+  const IconComponent = (subtype || type) in labelIntlIds ? {
     [ISSUE_TYPE]: Block,
     [QUESTION_TYPE]: QuestionIcon,
     [SUGGEST_CHANGE_TYPE]: LightbulbOutlined,
-    [TODO_TYPE]: ListAltIcon,
-    [BUG]: BugReport,
     [NOTE]: Notes,
-    [REPORT_TYPE]: UpdateIcon,
     [VOTING_TYPE]: VotingIcon,
     [STORY_TYPE]: EditIcon,
     [JUSTIFY_TYPE]: HowToVoteIcon,
@@ -199,7 +193,7 @@ export default function CardType(props) {
     certainty75: NoIcon,
     certainty100: NoIcon,
     [GENERIC_STORY_TYPE]: AssignmentIcon,
-  }[subtype || type];
+  }[subtype || type] : NoIcon;
 
   return (
     <div style={{display: 'flex', flexDirection: 'row', justifyContent: compressed ? undefined : 'space-between',
@@ -217,6 +211,7 @@ export default function CardType(props) {
           {gravatar}
         </>
       )}
+      {linker}
       {createdAt && (
         <Typography className={classes.timeElapsed} variant="body2">
           {intl.formatMessage({ id: 'created' })} <UsefulRelativeTime value={createdAt}/>

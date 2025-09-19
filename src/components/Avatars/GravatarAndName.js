@@ -15,10 +15,12 @@ function GravatarAndName(props) {
     typographyClassName,
     typographyComponent,
     typographyVariant,
+    useMarginBottom
   } = props;
 
   return (
-    <div style={{display: 'flex', alignItems: 'center', paddingLeft: !label ? '0.5rem' : undefined}}>
+    <div style={{display: 'flex', alignItems: 'center', paddingLeft: !label ? '0.5rem' : undefined, 
+    marginBottom: useMarginBottom}}>
       {label && (
         <Typography style={{marginRight: 6}} variant={typographyVariant} className={typographyClassName}
                     component={typographyComponent}>

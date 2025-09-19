@@ -490,7 +490,7 @@ function isSubTask(comment, commentsState, isTask) {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, noAuthor, isReply, wizardProps,
+  const { comment, marketId, comments, noAuthor, reallyNoAuthor, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, toggleCompression: toggleCompressionRaw, useCompression, showVoting, selectedInvestibleIdParent,
     isMove, idPrepend='c', usePadding=true, compressAll=false, focusMove=false } = props;
@@ -740,10 +740,10 @@ function Comment(props) {
   // For some reason can't stop propagation on clicking edit so just turn off in that case
   const isNavigateToInbox = myHighlightedLevel && !isEditable && !replyEditId;
   const isNote = commentType === REPORT_TYPE && _.isEmpty(investibleId);
-  const overrideLabel = isMarketTodo ? <FormattedMessage id="notificationLabel" /> :
-    (commentType === REPLY_TYPE ? (isSubTask(comment, commentsState, isTask) ? <FormattedMessage id="commentSubTaskLabel" /> :
+  const overrideLabel = commentType === REPLY_TYPE ? (isSubTask(comment, commentsState, isTask) ? 
+        <FormattedMessage id="commentSubTaskLabel" /> :
         <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> :
-      (isNote ? <FormattedMessage id="reportNote" /> : undefined ) ));
+      (isNote ? <FormattedMessage id="reportNote" /> : undefined ) );
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;
@@ -819,23 +819,30 @@ function Comment(props) {
     && ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType));
   const showSubTask = isTask && myPresence === createdBy;
   const isDeletable = !isInbox && !beingEdited && (commentType === REPORT_TYPE || isEditable || resolved);
+  const linker = 
+    <div style={{marginRight: '1rem', marginTop: '-0.25rem'}}>
+      <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
+    </div>;
   const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>
-    : <GravatarAndName key={myPresence.id} email={createdBy.email}
+    : <GravatarAndName key={myPresence.id} email={createdBy.email} useMarginBottom='10px'
                                             name={createdBy.name} typographyVariant="caption"
                                             typographyClassName={classes.createdBy}
                                             avatarClassName={classes.smallGravatar}
   />;
+  const showLinker = !mobileLayout && !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
+  && marketType !== DECISION_TYPE;
   const cardTypeDisplay = overrideLabel ? (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
               subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : (commentType === REPLY_TYPE ?
-                TODO_TYPE : (isNote ? NOTE :undefined))}
+                TODO_TYPE : (isNote ? NOTE :undefined))} linker={(reallyNoAuthor || isMarketTodo) && showLinker && linker}
               label={overrideLabel} color={color} compressed={useCompression}
               gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
     />
   ): (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact compressed={useCompression}
-              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
+              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName} 
+              linker={(reallyNoAuthor || isMarketTodo) && showLinker && linker}
     />
   );
   const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,
@@ -849,7 +856,7 @@ function Comment(props) {
     {!mobileLayout && (
       <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '1rem'}}>
         Created <UsefulRelativeTime value={comment.created_at}/>
-        {noAuthor &&
+        {noAuthor && !reallyNoAuthor &&
           `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
         {comment.created_at < comment.updated_at && !resolved && mediumLayout && (
           <> Updated <UsefulRelativeTime value={comment.updated_at}/></>
@@ -947,12 +954,7 @@ function Comment(props) {
             translationId="edit"
           />
         )}
-        {!mobileLayout && !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
-          && marketType !== DECISION_TYPE && (
-            <div style={{marginRight: '1rem', marginTop: '-0.25rem'}}>
-              <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
-            </div>
-          )}
+        {showLinker && !reallyNoAuthor && !isMarketTodo && linker}
         {isMyPokableComment(comment, presences, groupPresencesState, marketId) && enableActions && isEditable && !beingEdited && (
           <TooltipIconButton
             disabled={operationRunning !== false}

@@ -36,7 +36,7 @@ function InlineInitiativeBox(props) {
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};
   const inlineInvestibles = getMarketInvestibles(investiblesState, anInlineMarket.id) || [];
-  const isCreator = myInlinePresence.id === createdBy;
+  const isCreator = myInlinePresence.id === createdBy?.id;
   const [fullInlineInvestible] = inlineInvestibles;
   const inlineInvestibleId = fullInlineInvestible ? fullInlineInvestible.investible.id : undefined;
   const comments = getMarketComments(commentsState, anInlineMarket.id);

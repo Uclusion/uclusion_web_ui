@@ -158,6 +158,7 @@ function WorkspaceMenu(props) {
   return (
     <div style={{marginLeft: '15px', marginBottom: '1rem', marginTop: '1rem'}}>
       <Button
+        style={{paddingLeft: '0px'}}
         onClick={recordPositionToggle}
         endIcon={<ExpandMoreIcon style={{fontSize: '1rem', marginLeft: '15px', marginRight: '10px'}} htmlColor="black"/>}
         className={classes.buttonClass}

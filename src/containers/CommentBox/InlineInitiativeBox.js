@@ -19,6 +19,7 @@ import { APPROVAL_WIZARD_TYPE } from '../../constants/markets';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext';
 import { Typography } from '@material-ui/core';
+import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
 
 function InlineInitiativeBox(props) {
   const { anInlineMarket, removeActions, isTaskDisplay, typeObjectId, isInbox, createdBy } = props;
@@ -68,19 +69,15 @@ function InlineInitiativeBox(props) {
   }
   return (
     <div style={{paddingLeft: '1rem', paddingRight: '1rem'}}>
-      <h2 style={{marginBottom: '0.5rem'}}>
-        <FormattedMessage id="initiativeVotingFor"/>
+      <h2 style={{marginBottom: '0.5rem', display: 'flex'}}>
+        <FormattedMessage id="initiativeVotingFor"/> {showVoteButtons && <TooltipIconButton id={`voteFor${anInlineMarket.id}`}
+                        marginLeft='1rem'
+                        onClick={() => navigate(history, `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, 
+                          inlineInvestibleId, undefined, undefined, typeObjectId)}&voteFor=true`)}
+                        icon={<AddIcon fontSize='small' />}
+                        translationId="voteFor"
+                      />}
       </h2>
-      {showVoteButtons && (
-        <SpinningButton icon={AddIcon} doSpin={false} className={wizardClasses.actionNext} iconColor="black"
-                        variant="text" focus={isInbox}
-                        id={`voteFor${anInlineMarket.id}`} style={{display: "flex", marginBottom: '1rem'}}
-                        onClick={() => navigate(history,
-                          `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, inlineInvestibleId, 
-                            undefined, undefined, typeObjectId)}&voteFor=true`)}>
-          {intl.formatMessage({ id: 'voteFor'})}
-        </SpinningButton>
-      )}
       {!showVoteButtons && _.isEmpty(positiveVoters) && (
         <Typography style={{marginLeft: 'auto', marginRight: 'auto'}} variant="body1">
           No for votes.
@@ -96,19 +93,15 @@ function InlineInitiativeBox(props) {
         groupId={anInlineMarket.id}
         yourPresence={myInlinePresence}
       />
-      <h2 style={{marginTop: '1.75rem', marginBottom: '0.5rem'}}>
-        <FormattedMessage id="initiativeVotingAgainst" />
+      <h2 style={{marginTop: '1.75rem', marginBottom: '0.5rem', display: 'flex'}}>
+        <FormattedMessage id="initiativeVotingAgainst" /> {showVoteButtons && <TooltipIconButton id={`voteAgainst${anInlineMarket.id}`}
+                        marginLeft='1rem'
+                        onClick={() => navigate(history, `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, 
+                          inlineInvestibleId, undefined, undefined, typeObjectId)}&voteFor=false`)}
+                        icon={<AddIcon fontSize='small' />}
+                        translationId="voteAgainst"
+                      />}
       </h2>
-      {showVoteButtons && (
-        <SpinningButton icon={AddIcon} doSpin={false} className={wizardClasses.actionNext} iconColor="black"
-                        variant="text"
-                        id={`voteAgainst${anInlineMarket.id}`} style={{display: "flex", marginBottom: '1rem'}}
-                        onClick={() => navigate(history,
-                          `${formWizardLink(APPROVAL_WIZARD_TYPE, anInlineMarket.id, inlineInvestibleId,
-                            undefined, undefined, typeObjectId)}&voteFor=false`)}>
-          {intl.formatMessage({ id: 'voteAgainst'})}
-        </SpinningButton>
-      )}
       {!showVoteButtons && _.isEmpty(negativeVoters) && (
         <Typography style={{marginLeft: 'auto', marginRight: 'auto'}} variant="body1">
           No against votes.

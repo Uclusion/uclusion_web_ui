@@ -1,14 +1,21 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { IconButton, Tooltip } from '@material-ui/core'
-
+import { IconButton, makeStyles, Tooltip } from '@material-ui/core'
 import { useIntl } from 'react-intl'
+
+const useStyles = makeStyles(() => ({
+  buttonTopAlign: {
+    alignItems: 'start',
+    marginTop: '0.15rem'
+  }
+}));
 
 function TooltipIconButton(props) {
   const {
-    onClick, size, id, icon, translationId, disabled, children, doFloatRight, noPadding, marginLeft
+    onClick, size, id, icon, translationId, disabled, children, doFloatRight, noPadding, marginLeft, noAlign
   } = props;
   const intl = useIntl();
+  const classes = useStyles();
   const usedId = id || translationId;
   return (
     <>
@@ -20,6 +27,7 @@ function TooltipIconButton(props) {
           id={usedId}
           onClick={onClick}
           size={size}
+          classes={{root: noAlign ? classes.buttonTopAlign : undefined}}
           style={{float: doFloatRight ? 'right': undefined, padding: noPadding ? 0 : undefined, 
             marginLeft: marginLeft ? marginLeft : undefined}}
         >

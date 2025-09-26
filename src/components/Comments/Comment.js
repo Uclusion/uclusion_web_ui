@@ -967,6 +967,7 @@ function Comment(props) {
             size='small'
             translationId='poke'
             doFloatRight
+            noAlign
           />
         )}
         {(myPresence.is_admin || isEditable) && enableActions && isDeletable && (

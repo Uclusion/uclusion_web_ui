@@ -195,6 +195,7 @@ export default function PlanningInvestibleNav(props) {
   const readyToStartChecked = operationRunning === `readyToStartCheckbox${investibleId}` ?
     !openForInvestment : openForInvestment;
   const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
+  const isSingleWorkspaceUser = _.size(marketPresences) === 1;
   const useInVoting = isInVoting && !isSingleUser;
 
   function assignToSingleUser() {
@@ -263,7 +264,7 @@ export default function PlanningInvestibleNav(props) {
         userId={userId}
         tasksInProgress={tasksInProgress}
       />
-      {market.id && marketInvestible.investible && (!isSingleUser || isFurtherWork) && (
+      {market.id && marketInvestible.investible && (!isSingleWorkspaceUser || isFurtherWork) && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments

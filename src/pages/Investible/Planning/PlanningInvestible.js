@@ -81,6 +81,7 @@ import InfoIcon from '@material-ui/icons/Info';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -758,8 +759,8 @@ function PlanningInvestible(props) {
                     paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
                     <Tooltip key='toggleDetails'
                              title={<FormattedMessage id={`${detailsOpen ? 'closeDetails' : 'openDetails'}Tip`} />}>
-                      {detailsOpen ? <ExpandLess fontSize='large' htmlColor='black' /> :
-                        <ExpandMoreIcon fontSize='large' htmlColor='black' />}
+                      {detailsOpen ? <ExpandLess fontSize='small' /> :
+                        <ExpandMoreIcon fontSize='small' />}
                     </Tooltip>
                   </IconButton>
                 </div>
@@ -781,7 +782,13 @@ function PlanningInvestible(props) {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <h2 id="approvals" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
-                    <FormattedMessage id="decisionInvestibleOthersVoting"/>
+                    <FormattedMessage id="decisionInvestibleOthersVoting"/> {displayVotingInput && investibleId
+                     && <TooltipIconButton id="newApproval"
+                        marginLeft='1rem'
+                        onClick={() => navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}
+                        icon={<AddIcon fontSize='small' />}
+                        translationId="createNewApproval"
+                      />}
                   </h2>
                   <IconButton id='approvalsToggleId' onClick={() => toggleApprovals()} style={{
                     marginBottom: 0,
@@ -790,21 +797,11 @@ function PlanningInvestible(props) {
                     <Tooltip key="toggleApprovals"
                              title={<FormattedMessage
                                id={`${approvalsOpen ? 'closeApprovals' : 'openApprovals'}Tip`}/>}>
-                      {approvalsOpen ? <ExpandLess fontSize="large" htmlColor="black"/> :
-                        <ExpandMoreIcon fontSize="large" htmlColor="black"/>}
+                      {approvalsOpen ? <ExpandLess fontSize="small" /> :
+                        <ExpandMoreIcon fontSize="small" />}
                     </Tooltip>
                   </IconButton>
                 </div>
-                {displayVotingInput && investibleId && approvalsOpen && (
-                  <SpinningButton id="newApproval" className={wizardClasses.actionNext}
-                                  icon={AddIcon} iconColor="black"
-                                  style={{ display: 'flex', marginBottom: '1.5rem', marginTop: '0.5rem' }}
-                                  variant="text" doSpin={false}
-                                  onClick={() => navigate(history,
-                                    formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}>
-                    {intl.formatMessage({ id: 'createNewApproval'})}
-                  </SpinningButton>
-                )}
                 {(_.isEmpty(search) || displayApprovalsBySearch > 0) && approvalsOpen && (
                   <Voting
                     investibleId={investibleId}
@@ -821,7 +818,12 @@ function PlanningInvestible(props) {
                 )}
                 <div style={{ display: 'flex', alignItems: 'center', marginTop: '3rem' }}>
                   <h2 id="progress" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
-                    <FormattedMessage id="reportsSectionLabel"/>
+                    <FormattedMessage id="reportsSectionLabel"/> {showCommentAdd && isAssigned && <TooltipIconButton id="newReport"
+                        marginLeft='1rem'
+                        onClick={() => navigate(history, formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE))}
+                        icon={hasJobComment(groupId, investibleId, REPORT_TYPE) ? <EditIcon fontSize='small' /> : <AddIcon fontSize='small' />}
+                        translationId="createNewStatus"
+                      />}
                   </h2>
                   <IconButton id='reportsToggleId' onClick={() => toggleReports()} style={{
                       marginBottom: 0,
@@ -830,24 +832,11 @@ function PlanningInvestible(props) {
                     <Tooltip key="toggleReports"
                              title={<FormattedMessage
                                id={`${reportsOpen ? 'closeReports' : 'openReports'}Tip`}/>}>
-                      {reportsOpen ? <ExpandLess fontSize="large" htmlColor="black"/> :
-                        <ExpandMoreIcon fontSize="large" htmlColor="black"/>}
+                      {reportsOpen ? <ExpandLess fontSize="small" /> :
+                        <ExpandMoreIcon fontSize="small" />}
                     </Tooltip>
                   </IconButton>
                 </div>
-                {showCommentAdd && isAssigned && reportsOpen && (
-                  <SpinningButton id="newReport" className={wizardClasses.actionNext}
-                                  icon={hasJobComment(groupId, investibleId, REPORT_TYPE) ? EditIcon : AddIcon}
-                                  iconColor="black"
-                                  variant="text" doSpin={false}
-                                  style={{ display: 'flex', marginTop: '0.75rem', marginBottom:
-                                      _.isEmpty(reportsCommentsSearched) ? '1.75rem' : '0.75rem' }}
-                                  onClick={() => navigate(history,
-                                    formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                                      REPORT_TYPE))}>
-                    {intl.formatMessage({ id: 'createNewStatus'})}
-                  </SpinningButton>
-                )}
                 {!isSingleUser && reportsOpen && (
                   <DismissableText textId="progressReportCommentHelp"
                                    display={isAssigned && _.isEmpty(reportsCommentsSearched)} isLeft

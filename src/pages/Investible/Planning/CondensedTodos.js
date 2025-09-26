@@ -204,8 +204,8 @@ function CondensedTodos(props) {
           <Tooltip key='toggleTodos'
                    title={<FormattedMessage id={`${myToggleTodosOpen ? 'closeTodos' : 'openTodos'}Tip`} />}>
             {myToggleTodosOpen ?
-              <ExpandLess fontSize='large' htmlColor='black' /> :
-            <ExpandMoreIcon fontSize='large' htmlColor='black' />}
+              <ExpandLess fontSize='small' /> :
+            <ExpandMoreIcon fontSize='small' />}
           </Tooltip>
         </IconButton>
       </div>

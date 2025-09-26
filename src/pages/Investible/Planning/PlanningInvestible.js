@@ -534,6 +534,7 @@ function PlanningInvestible(props) {
   const todoCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === TODO_TYPE
   );
+  const openTodoCommentsSearched = todoCommentsSearched.filter((comment) => !comment.resolved);
   const questionCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === QUESTION_TYPE
   );
@@ -550,7 +551,7 @@ function PlanningInvestible(props) {
   let sectionComments = [];
   if (sectionOpen === 'tasksSection') {
     allowedCommentTypes = [TODO_TYPE];
-    sectionComments = todoCommentsSearched;
+    sectionComments = openTodoCommentsSearched;
   } else if (sectionOpen === 'assistanceSection') {
     if (canGetInput()) {
       allowedCommentTypes = [QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
@@ -685,9 +686,9 @@ function PlanningInvestible(props) {
                       label={intl.formatMessage({id: 'descriptionVotingLabel'})}
                       toolTipId='jobOverviewToolTip'
                       tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />
-        <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'taskSection'})}
+        <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'openTasksSection'})}
                       toolTipId='jobTasksToolTip'
-                      tag={countUnresolved(todoCommentsSearched, search)} tagLabel={getTagLabel('open')} />
+                      tag={countUnresolved(todoCommentsSearched, search)} />
         {displayAssistanceSection && (
           <GmailTabItem icon={getIcon(QUESTION_TYPE)} toolTipId='jobAssistanceToolTip'
                         label={intl.formatMessage({id: 'requiresInputStageLabel'})}

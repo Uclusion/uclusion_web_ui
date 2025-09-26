@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import PropTypes from 'prop-types'
-import { FormattedMessage, useIntl } from 'react-intl'
+import { FormattedMessage } from 'react-intl'
 import { JUSTIFY_TYPE } from '../../constants/comments'
 import Voting from '../../pages/Investible/Decision/Voting'
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
@@ -16,15 +16,12 @@ import AddIcon from '@material-ui/icons/Add';
 import { formWizardLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { APPROVAL_WIZARD_TYPE } from '../../constants/markets';
-import SpinningButton from '../../components/SpinBlocking/SpinningButton';
-import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext';
 import { Typography } from '@material-ui/core';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
 
 function InlineInitiativeBox(props) {
-  const { anInlineMarket, removeActions, isTaskDisplay, typeObjectId, isInbox, createdBy } = props;
+  const { anInlineMarket, removeActions, isTaskDisplay, typeObjectId, createdBy } = props;
   const history = useHistory();
-  const intl = useIntl();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState] =
     getPageReducerPage(votingPageStateFull, votingPageDispatch, anInlineMarket.id,
@@ -32,7 +29,6 @@ function InlineInitiativeBox(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [commentsState] = useContext(CommentsContext);
-  const wizardClasses = wizardStyles();
   const { useCompressionFor, useCompressionAgainst } = votingPageState;
   const anInlineMarketPresences = getMarketPresences(marketPresencesState, anInlineMarket.id) || [];
   const myInlinePresence = anInlineMarketPresences.find((presence) => presence.current_user) || {};

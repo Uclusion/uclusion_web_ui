@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { IconButton, makeStyles, Menu, Tooltip, Typography } from '@material-ui/core';
+import { IconButton, makeStyles, Menu, Tooltip } from '@material-ui/core';
 import { Menu as ProMenu, MenuItem, Sidebar, SubMenu } from 'react-pro-sidebar';
 import { useHistory } from 'react-router';
 import _ from 'lodash';
@@ -30,6 +30,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { useLocation } from 'react-router-dom/cjs/react-router-dom.min';
+import NotificationCountChips from '../Dialog/NotificationCountChips';
 
 
 const useStyles = makeStyles(() => ({
@@ -235,7 +236,7 @@ function OtherWorkspaceMenus(props) {
                   }
                 }}
                 suffix={num > 0 ?
-                  <Typography variant='caption' style={{ fontWeight: 'bold', paddingRight: '0.25rem' }} >{num} {numSuffix}</Typography>
+                  <NotificationCountChips num={num} numSuffix={numSuffix} />
                     : undefined}
                 onClick={(event) => {
                   preventDefaultAndProp(event);
@@ -257,8 +258,7 @@ function OtherWorkspaceMenus(props) {
                       }
                     }}
                     suffix={outboxCount > 0 ?
-                      <Typography variant='caption' style={{ fontWeight: 'bold', paddingRight: '0.25rem' }} >
-                        {outboxCount} total</Typography> : undefined}
+                      <NotificationCountChips num={outboxCount} numSuffix='total' /> : undefined}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
                       navigate(history, '/outbox');

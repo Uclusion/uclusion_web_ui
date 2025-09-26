@@ -3,7 +3,7 @@ import React from 'react'
 import { navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar'
-import { IconButton, Tooltip, Typography } from '@material-ui/core';
+import { IconButton, Tooltip } from '@material-ui/core';
 import Link from '@material-ui/core/Link';
 import { ExpandLess, ExpandMore } from '@material-ui/icons'
 import { useIntl } from 'react-intl'
@@ -12,6 +12,7 @@ import { hideShowExpandIcon } from '../../utils/windowUtils'
 import { PLANNING_TYPE } from '../../constants/markets'
 import { ACTION_BUTTON_COLOR } from '../Buttons/ButtonConstants'
 import AddIcon from '@material-ui/icons/Add'
+import NotificationCountChips from '../../pages/Dialog/NotificationCountChips'
 
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
@@ -48,6 +49,7 @@ function processRegularItem(properties) {
       style={{fontWeight: 'bold', color: isLink ? '#2F80ED' : undefined}}>{text}</span>)
     : <span>{text}</span>;
   const useIdPrepend =  complexIcon ? idPrepend + index : idPrepend;
+
   return (
     <div key={`sidebarMenuHolder${key}`}>
       <MenuItem icon={complexIcon ? Icon : <Icon htmlColor={iconColor} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
@@ -59,7 +61,7 @@ function processRegularItem(properties) {
                 }}
                 key={key} id={`${useIdPrepend}${textNoSpaces}`}
                 suffix={num > 0 ?
-                  <Typography variant='caption' style={{ fontWeight: 'bold', paddingRight: '0.25rem' }} >{num} {numSuffix}</Typography>
+                 <NotificationCountChips num={num} numSuffix={numSuffix} />
                   : (EndIcon ? <IconButton id={`end${useIdPrepend}${textNoSpaces}`} size="small" onClick={(event) => onClickFunc(event)}>
                       <EndIcon htmlColor="black" fontSize="small" /></IconButton>
                     : undefined)}

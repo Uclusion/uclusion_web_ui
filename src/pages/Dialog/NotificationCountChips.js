@@ -7,6 +7,7 @@ import { useIntl } from 'react-intl'
 import Chip from '@material-ui/core/Chip'
 import { ReportOutlined } from '@material-ui/icons';
 import Approval from '../../components/CustomChip/Approval'
+import { INFO_COLOR, WARNING_COLOR } from '../../components/Buttons/ButtonConstants'
 
 
 const useStyles = makeStyles(() => ({
@@ -16,15 +17,33 @@ const useStyles = makeStyles(() => ({
     backgroundColor: '#ffffff',
     paddingBottom: '0.3rem'
   },
+  numChipStyle: {
+    paddingRight: '6px',
+    paddingLeft: '6px',
+    fontSize: '0.75rem'
+  },
+  oneChipStyle: {
+    fontSize: '0.75rem'
+  },
   iconTodo: {
     color: '#F29100'
   },
 }));
 
 function NotificationCountChips(props) {
-  const { id, mentions, approvals } = props;
+  const { id, mentions, approvals,  num, numSuffix } = props;
   const classes = useStyles();
   const intl = useIntl();
+
+  if (num > 0 && numSuffix) {
+    const isNew = numSuffix === 'new';
+    return <Tooltip key={`countExplanation${numSuffix}`}
+    title={intl.formatMessage({ id: numSuffix })}>
+      <Chip label={`${num}`} size="small" classes={{labelSmall: num === 1 ? classes.oneChipStyle : classes.numChipStyle}} labelSmall
+      style={{ marginLeft: '5px', backgroundClip: 'padding-box', height: '20px',
+      backgroundColor: isNew? WARNING_COLOR : INFO_COLOR, color: isNew ? 'white' : 'black' }}/>
+    </Tooltip>;
+  }
 
   return (
     <>

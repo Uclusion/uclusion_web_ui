@@ -128,8 +128,8 @@ function OtherWorkspaceMenus(props) {
   return (
       <ProMenu 
         rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}
-        renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem', visibility: 'hidden'}} />
-          : <ExpandMore style={{marginTop: '0.3rem', visibility: 'hidden'}} />}>
+        renderExpandIcon={({ open }) => open ? <ExpandLess htmlColor="#8f8f8f" style={{marginTop: '0.3rem', visibility: 'hidden'}} />
+          : <ExpandMore htmlColor="#8f8f8f" style={{marginTop: '0.3rem', visibility: 'hidden'}} />}>
           <SubMenu id='collaborators'
                   label={intl.formatMessage({ id: 'collaborators' })}
                   onMouseOver={hideShowExpandIcon('collaborators', true)}

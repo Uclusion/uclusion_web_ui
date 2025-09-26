@@ -816,7 +816,7 @@ function PlanningInvestible(props) {
                     isAssigned={isAssigned}
                   />
                 )}
-                <div style={{ display: 'flex', alignItems: 'center', marginTop: '3rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginTop: '3rem', marginBottom: '0.75rem' }}>
                   <h2 id="progress" style={{ marginBottom: 0, paddingBottom: 0, marginTop: 0, paddingTop: 0 }}>
                     <FormattedMessage id="reportsSectionLabel"/> {showCommentAdd && isAssigned && <TooltipIconButton id="newReport"
                         marginLeft='1rem'
@@ -846,7 +846,7 @@ function PlanningInvestible(props) {
                                    }/>
                 )}
                 {(!showCommentAdd || !isAssigned) && _.isEmpty(reportsCommentsSearched) && reportsOpen && (
-                  <Typography style={{ marginLeft: 'auto', marginRight: 'auto', marginTop: '0.75rem' }}
+                  <Typography style={{ marginLeft: 'auto', marginRight: 'auto' }}
                               variant="body1">
                     No progress reports.
                   </Typography>

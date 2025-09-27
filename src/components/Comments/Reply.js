@@ -50,7 +50,7 @@ import { hasReply } from '../AddNewWizards/Reply/ReplyStep';
 import EditIcon from '@material-ui/icons/Edit';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../contexts/MarketsContext/marketsContextHelper';
-import { Done, Edit, Eject, NotificationsActive } from '@material-ui/icons';
+import { Done, Edit, Eject, Notifications, NotificationsActive } from '@material-ui/icons';
 import { resolveComment, updateComment } from '../../api/comments';
 import { previousInProgress } from '../AddNewWizards/TaskInProgress/TaskInProgressWizard';
 import { getNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
@@ -59,6 +59,8 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPanel';
 import { getMarketClient } from '../../api/marketLogin';
+import { WARNING_COLOR } from '../Buttons/ButtonConstants';
+import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -206,7 +208,7 @@ function Reply(props) {
   const presences = usePresences(marketId);
   const commenter = useCommenter(comment, presences) || { name: "unknown", email: "" };
   const [hashFragment, noHighlightId, setNoHighlightId] = useContext(ScrollContext);
-  const [messagesState] = useContext(NotificationsContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
@@ -264,9 +266,7 @@ function Reply(props) {
     navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId, undefined, undefined, comment.id,
       typeObjectId));
   }
-  const { level: myHighlightedLevel } = myMessage;
   const isLinkedTo = noHighlightId !== comment.id && hashFragment?.includes(comment.id);
-  const isHighlighted = myHighlightedLevel || isLinkedTo;
   const intl = useIntl();
   function getHighlightClass() {
     if (isInbox) {
@@ -283,7 +283,7 @@ function Reply(props) {
     if (isLinkedTo) {
       return classes.containerHashYellow;
     }
-    return !isHighlighted ? classes.container : classes.containerBlueLink;
+    return classes.container;
   }
 
   function moveToTask() {
@@ -338,12 +338,8 @@ function Reply(props) {
                             style={{width: !enableEditing ? 'fit-content' : undefined, paddingRight: '1rem', backgroundColor: 'white'}}
                             id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
     <div onClick={(event) => {
-      if (!invalidEditEvent(event, history)) {
-        if (replyBeingEdited || isInbox) {
-          navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
-        } else if (myMessage && myMessage.type_object_id) {
-          navigate(history, formInboxItemLink(myMessage));
-        }
+      if (!invalidEditEvent(event, history)&&(replyBeingEdited || isInbox)) {
+        navigate(history, formCommentLink(marketId, groupId, investibleId, comment.id));
       }
     }}>
       <CardContent className={classes.cardContent}>
@@ -354,6 +350,19 @@ function Reply(props) {
               <ListAltIcon style={{height: 16, width: 16, transform: 'translateY(3px)'}} />
             </div>
           </Tooltip>
+        )}
+        {myMessage?.type_object_id && !isInbox && !replyBeingEdited && (
+          <TooltipIconButton
+            onClick={(event) => {
+              if (!invalidEditEvent(event, history)) {
+                dehighlightMessage(myMessage, messagesDispatch);
+                navigate(history, formInboxItemLink(myMessage));
+              }
+            }}
+            icon={<Notifications fontSize='small' htmlColor={myMessage?.is_highlighted ? WARNING_COLOR : undefined} />}
+            size='small'
+            translationId='messagePresentComment'
+          />
         )}
         {!isTopLevelSubTask && (
           <Typography className={classes.commenter} variant="body2">

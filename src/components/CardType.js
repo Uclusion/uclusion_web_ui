@@ -29,8 +29,10 @@ import HowToVoteIcon from '@material-ui/icons/HowToVote'
 import RemoveFromQueueIcon from '@material-ui/icons/RemoveFromQueue';
 import UsefulRelativeTime from './TextFields/UseRelativeTime'
 import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
-import { Block, Notes } from '@material-ui/icons';
+import { Block, Notes, Notifications } from '@material-ui/icons';
 import LightbulbOutlined from './CustomChip/LightbulbOutlined';
+import TooltipIconButton from './Buttons/TooltipIconButton'
+import { WARNING_COLOR } from './Buttons/ButtonConstants'
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
 export const VOTING_TYPE = 'VOTING'
@@ -161,7 +163,9 @@ export default function CardType(props) {
     color,
     compact = false,
     compressed = false,
-    linker
+    linker,
+    notificationFunc,
+    notificationIsHighlighted
   } = props;
   const classes = useCardTypeStyles({ type, resolved, color });
   const intl = useIntl();
@@ -212,6 +216,14 @@ export default function CardType(props) {
         </>
       )}
       {linker}
+      {notificationFunc && (
+        <TooltipIconButton
+          onClick={notificationFunc}
+          icon={<Notifications fontSize='small' htmlColor={notificationIsHighlighted ? WARNING_COLOR : undefined} />}
+          size='small'
+          translationId='messagePresentComment'
+        />
+      )}
       {createdAt && (
         <Typography className={classes.timeElapsed} variant="body2">
           {intl.formatMessage({ id: 'created' })} <UsefulRelativeTime value={createdAt}/>

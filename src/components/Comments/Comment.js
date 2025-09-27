@@ -736,9 +736,6 @@ function Comment(props) {
   }
 
   const diff = getDiff(diffState, id);
-  const { level: myHighlightedLevel } = myMessage || {};
-  // For some reason can't stop propagation on clicking edit so just turn off in that case
-  const isNavigateToInbox = myHighlightedLevel && !isEditable && !replyEditId;
   const isNote = commentType === REPORT_TYPE && _.isEmpty(investibleId);
   const overrideLabel = commentType === REPLY_TYPE ? (isSubTask(comment, commentsState, isTask) ? 
         <FormattedMessage id="commentSubTaskLabel" /> :
@@ -753,9 +750,6 @@ function Comment(props) {
         return classes.containerBlueLink;
       }
       return classes.containerLink;
-    }
-    if (isNavigateToInbox) {
-      return classes.containerBlueLink;
     }
     if (noHighlightId !== id && hashFragment?.includes(id)) {
       return classes.containerHashYellow;
@@ -832,16 +826,23 @@ function Comment(props) {
   />;
   const showLinker = !mobileLayout && !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
   && marketType !== DECISION_TYPE;
+  // For some reason can't stop propagation on clicking edit so just turn off in that case
+  const notificationFunc = !isEditable && !replyEditId && myMessage?.type_object_id ? () => {
+    dehighlightMessage(myMessage, messagesDispatch);
+    navigate(history, formInboxItemLink(myMessage));
+  } : undefined;
   const cardTypeDisplay = overrideLabel ? (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
               subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : (commentType === REPLY_TYPE ?
                 TODO_TYPE : (isNote ? NOTE :undefined))} linker={(reallyNoAuthor || isMarketTodo) && showLinker && linker}
-              label={overrideLabel} color={color} compressed={useCompression}
+              label={overrideLabel} color={color} compressed={useCompression} notificationFunc={notificationFunc}
+              notificationIsHighlighted={myMessage?.is_highlighted}
               gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
     />
   ): (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact compressed={useCompression}
-              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName} 
+              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName} notificationFunc={notificationFunc}
+              notificationIsHighlighted={myMessage?.is_highlighted}
               linker={(reallyNoAuthor || isMarketTodo) && showLinker && linker}
     />
   );
@@ -937,9 +938,6 @@ function Comment(props) {
       if (!invalidEditEvent(event, history)) {
         if (isInbox) {
           navigate(history, formCommentLink(marketId, groupId, investibleId, id));
-        } else if (isNavigateToInbox && myMessage.type_object_id) {
-          dehighlightMessage(myMessage, messagesDispatch);
-          navigate(history, formInboxItemLink(myMessage));
         }
       }
     }}>

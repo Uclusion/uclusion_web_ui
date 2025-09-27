@@ -89,15 +89,14 @@ const useReplyStyles = makeStyles(
         display: "inline-block"
       },
       cardContent: {
-        // 25px in Figma
-        marginLeft: theme.spacing(3),
+        marginLeft: theme.spacing(1),
         paddingTop: 0,
         paddingRight: 0,
         paddingLeft: 0,
         paddingBottom: "0.5rem",
       },
       cardActions: {
-        marginLeft: theme.spacing(3),
+        marginLeft: theme.spacing(1),
         padding: 0
       },
       cardActionsYellow: {
@@ -182,13 +181,6 @@ const useReplyStyles = makeStyles(
         marginRight: '0.25rem',
         paddingRight: '0.5rem',
         overflow: 'unset'
-      },
-      editor: {
-        margin: "2px 0px",
-        "& .ql-editor": {
-          paddingTop: 0,
-          paddingBottom: 0
-        }
       }
     };
   },
@@ -359,7 +351,8 @@ function Reply(props) {
                 navigate(history, formInboxItemLink(myMessage));
               }
             }}
-            icon={<Notifications fontSize='small' htmlColor={myMessage?.is_highlighted ? WARNING_COLOR : undefined} />}
+            icon={<Notifications fontSize='small' htmlColor={myMessage?.is_highlighted ? WARNING_COLOR : undefined} 
+              style={{marginLeft: '-0.5rem'}} />}
             size='small'
             translationId='messagePresentComment'
           />
@@ -464,13 +457,14 @@ function Reply(props) {
           <div style={{marginRight: '1rem'}} />
         )}
         {!_.isEmpty(comment) && (
-          <ReadOnlyQuillEditor
-            className={classes.editor}
-            value={comment.body}
-            id={comment.id}
-            setBeingEdited={setBeingEdited}
-            isEditable={!mobileLayout && enableEditing && isEditable}
-          />
+          <div style={{marginLeft: '0.8rem'}}>
+            <ReadOnlyQuillEditor
+              value={comment.body}
+              id={comment.id}
+              setBeingEdited={setBeingEdited}
+              isEditable={!mobileLayout && enableEditing && isEditable}
+            />
+          </div>
         )}
       </CardContent>
       <CardActions className={classes.cardActions}>

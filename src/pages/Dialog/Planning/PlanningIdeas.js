@@ -608,8 +608,8 @@ function StageInvestible(props) {
     const messagesRaw = findMessagesForInvestibleId(id, messagesState);
     const messages = messagesRaw.filter((message) => isInInbox(message));
     const newMessages = messages.filter((message) => message.is_highlighted);
-    // Just go to the first message associated with this investible that needs assistance if user has one
-    const myMessage = !_.isEmpty(newMessages) ? newMessages[0] : (!_.isEmpty(messages) ? messages[0] : undefined);
+    // Just go to the first new message associated with this investible - do not show read messages
+    const myMessage = newMessages[0];
     if (myMessage) {
       const isHighlighted = myMessage.is_highlighted;
       const myMessages = isHighlighted ? newMessages : messages;

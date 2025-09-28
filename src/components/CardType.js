@@ -218,6 +218,7 @@ export default function CardType(props) {
       {linker}
       {notificationFunc && (
         <TooltipIconButton
+          noAlign
           onClick={notificationFunc}
           icon={<Notifications fontSize='small' htmlColor={notificationIsHighlighted ? WARNING_COLOR : undefined} />}
           size='small'

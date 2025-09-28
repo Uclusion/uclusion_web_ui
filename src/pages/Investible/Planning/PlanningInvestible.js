@@ -82,6 +82,9 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
+import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -365,6 +368,7 @@ function PlanningInvestible(props) {
   const wizardClasses = wizardStyles();
   const [searchResults] = useContext(SearchResultsContext);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
+  const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
   const { results, parentResults, search } = searchResults;
@@ -535,6 +539,9 @@ function PlanningInvestible(props) {
   const todoCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === TODO_TYPE
   );
+  const todoCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
+    todoCommentsSearched.includes(comment.root_comment_id));
+  const todoCommentsSearchedAll = todoCommentsSearched.concat(todoCommentsRepliesSearched);
   const openTodoCommentsSearched = todoCommentsSearched.filter((comment) => !comment.resolved);
   const questionCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === QUESTION_TYPE
@@ -547,6 +554,21 @@ function PlanningInvestible(props) {
   );
   const assistanceCommentsSearched = questionCommentsSearched.concat(suggestionCommentsSearched)
     .concat(blockingCommentsSearched);
+  const assistanceCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
+    assistanceCommentsSearched.includes(comment.root_comment_id));
+  const assistanceCommentsSearchedAll = assistanceCommentsSearched.concat(assistanceCommentsRepliesSearched);
+  const newAssistanceMessages = findMessagesForCommentIds(assistanceCommentsSearchedAll?.map((comment) => comment.id), 
+    messagesState, true);
+  const numNewAssistanceMessages = _.size(newAssistanceMessages.filter((message) => isInInbox(message)));
+  const newTodoMessages = findMessagesForCommentIds(todoCommentsSearchedAll?.map((comment) => comment.id), 
+    messagesState, true);
+  // Do not include each unread task as its own message
+  const numNewTodoMessages = _.size(newTodoMessages.filter((message) => isInInbox(message)));
+  const newNotOverviewMessages = newTodoMessages.concat(newAssistanceMessages);
+  const newInvestibleMessages = findMessagesForInvestibleIds([investibleId], messagesState, true);
+  const newOverviewMessages = newInvestibleMessages.filter((message) => isInInbox(message) && 
+    !newNotOverviewMessages.includes(message));
+  const numNewOverviewMessages = _.size(newOverviewMessages);
   const replies = investibleComments.filter((comment => comment.comment_type === REPLY_TYPE));
   let allowedCommentTypes = [];
   let sectionComments = [];
@@ -654,6 +676,9 @@ function PlanningInvestible(props) {
     setReportsOpen(!reportsOpen);
   }
 
+  const assistanceTag = numNewAssistanceMessages > 0 && _.isEmpty(search) ? `${numNewAssistanceMessages}` : 
+    countUnresolved(assistanceCommentsSearched, search);
+
   return (
     <Screen
       title={title}
@@ -683,18 +708,21 @@ function PlanningInvestible(props) {
         style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
           paddingTop: mobileLayout ? undefined : '0.5rem', width: '100%', marginTop: '-15px', paddingLeft: 0,
           marginLeft: '-0.5rem' }}>
-        <GmailTabItem icon={<InfoIcon />} tagLabel={getTagLabel('total')}
+        <GmailTabItem icon={<InfoIcon />} tagLabel={numNewOverviewMessages > 0 && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       label={intl.formatMessage({id: 'descriptionVotingLabel'})}
                       toolTipId='jobOverviewToolTip'
-                      tag={descriptionSectionResults === 0 ? undefined : `${descriptionSectionResults}`} />
+                      tag={descriptionSectionResults === 0 ? 
+                          (numNewOverviewMessages > 0 && _.isEmpty(search) ? `${numNewOverviewMessages}` : undefined) 
+                          : `${descriptionSectionResults}`} />
         <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'openTasksSection'})}
-                      toolTipId='jobTasksToolTip'
-                      tag={countUnresolved(todoCommentsSearched, search)} />
+                      toolTipId='jobTasksToolTip' tagLabel={numNewTodoMessages > 0 && _.isEmpty(search) ? 'new' : undefined}
+                      tag={numNewTodoMessages > 0 && _.isEmpty(search) ? `${numNewTodoMessages}` : 
+                        countUnresolved(todoCommentsSearched, search)} />
         {displayAssistanceSection && (
           <GmailTabItem icon={getIcon(QUESTION_TYPE)} toolTipId='jobAssistanceToolTip'
                         label={intl.formatMessage({id: 'requiresInputStageLabel'})}
-                        tag={countUnresolved(assistanceCommentsSearched, search)}
-                        tagLabel={getTagLabel('open')} />
+                        tag={assistanceTag}
+                        tagLabel={numNewAssistanceMessages > 0 && _.isEmpty(search) ? 'new' : getTagLabel('open')} />
         )}
       </GmailTabs>
       <div style={{paddingLeft: mobileLayout ? undefined : '2rem', paddingRight: mobileLayout ? undefined : '1rem'}}>

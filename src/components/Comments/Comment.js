@@ -826,8 +826,7 @@ function Comment(props) {
   />;
   const showLinker = !mobileLayout && !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
   && marketType !== DECISION_TYPE;
-  // For some reason can't stop propagation on clicking edit so just turn off in that case
-  const notificationFunc = !isEditable && !replyEditId && myMessage?.type_object_id ? () => {
+  const notificationFunc = !replyEditId && myMessage?.type_object_id ? () => {
     dehighlightMessage(myMessage, messagesDispatch);
     navigate(history, formInboxItemLink(myMessage));
   } : undefined;

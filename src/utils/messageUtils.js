@@ -215,10 +215,9 @@ export function findMessagesForCommentIds(commentIds, state, isHighlighted) {
 }
 
 export function findMessageForCommentId(commentId, state) {
-  const { messages } = (state || {});
-  const safeMessages = messages || [];
-  return safeMessages.find((message) => (message.comment_id === commentId
-    || message.comment_list?.includes(commentId)) && !message.deleted);
+  const messages = findMessagesForCommentIds([commentId], state);
+  const myHighlighted = messages.find((message) => message.is_highlighted);
+  return myHighlighted || messages[0];
 }
 
 export function findMessageOfType(aType, notificationId, state, subtype) {

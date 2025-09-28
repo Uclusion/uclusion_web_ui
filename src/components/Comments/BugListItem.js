@@ -14,7 +14,7 @@ import {
   DEHIGHLIGHT_CRITICAL_EVENT,
   MODIFY_NOTIFICATIONS_CHANNEL
 } from '../../contexts/NotificationsContext/notificationsContextMessages';
-import { ExpandLess, ReportOutlined } from '@material-ui/icons';
+import { ExpandLess, Notifications, ReportOutlined } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { expandOrContract } from './BugListContext';
 import Chip from '@material-ui/core/Chip';
@@ -252,29 +252,26 @@ function BugListItem(props) {
                 </Tooltip>: React.Fragment}
                 {isNew ? (<TitleB>{title}</TitleB>) : titleWithHelp}
                 {isNew && (
-                  <Tooltip title={intl.formatMessage({ id: 'messagePresent' })}>
-                    <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
-                      marginLeft: '1rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '6px',
-                      paddingTop: '2px', maxHeight: '20px'}}
-                          onClick={(event) => {
-                            preventDefaultAndProp(event);
-                            const message = newMessages[0];
-                            if (message.highlighted_list !== undefined) {
-                              pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { DEHIGHLIGHT_CRITICAL_EVENT,
-                                message: message.type_object_id,
-                                originalMessage: `${message.type}_${id}` });
-                            } else {
-                              dehighlightMessage(message, messagesDispatch);
-                            }
-                            navigate(history, formInboxItemLink(message));
-                          }}
-                          onMouseOver={(event) => {
-                            preventDefaultAndProp(event);
-                          }}
-                    >
-                      {_.size(newMessages)}
-                    </span>
-                  </Tooltip>
+                  <TooltipIconButton
+                    onClick={(event) => {
+                      preventDefaultAndProp(event);
+                      const message = newMessages[0];
+                      if (message.highlighted_list !== undefined) {
+                        pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { DEHIGHLIGHT_CRITICAL_EVENT,
+                          message: message.type_object_id,
+                          originalMessage: `${message.type}_${id}` });
+                      } else {
+                        dehighlightMessage(message, messagesDispatch);
+                      }
+                      navigate(history, formInboxItemLink(message));
+                    }}
+                    onMouseOver={(event) => {
+                      preventDefaultAndProp(event);
+                    }}
+                    icon={<Notifications fontSize='small' htmlColor={WARNING_COLOR} />}
+                    size='small'
+                    translationId='messagePresent'
+                  />
                 )}
                 {mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>) :
                   (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}

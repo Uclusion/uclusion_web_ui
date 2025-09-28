@@ -203,8 +203,13 @@ export default function CardType(props) {
     <div style={{display: 'flex', flexDirection: 'row', justifyContent: compressed ? undefined : 'space-between',
       width: compressed ? undefined : (compact ? '40%' : '100%'),
       maxWidth: compact && !compressed ? '25rem' : undefined}}>
-      {(label || gravatar) && (
-        <div style={{marginLeft: !label && compressed ? '0.5rem' : undefined}}>
+      {!label && gravatar && (
+        <div style={{marginLeft: compressed ? '0.5rem' : undefined}}>
+          {gravatar}
+        </div>
+      )}
+      {label && (
+        <>
           {label && (
             <div className={clsx(classes.root, className)}
                  style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
@@ -213,7 +218,7 @@ export default function CardType(props) {
             </div>
           )}
           {gravatar}
-        </div>
+        </>
       )}
       {linker}
       {notificationFunc && (

@@ -132,6 +132,8 @@ export default function PlanningInvestibleNav(props) {
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const unaccceptedMessage = findMessageOfType('UNREAD_JOB_APPROVAL_REQUEST', investibleId, messagesState);
+  const estimateMessage = findMessageOfType('UNREAD_ESTIMATE', investibleId, messagesState) || 
+    findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const hasBlockingIssue = !_.isEmpty(investibleComments.find((comment) => comment.comment_type === ISSUE_TYPE
     && !comment.resolved && !comment.deleted))
   const tasksInProgress = investibleComments.find((comment) => !comment.resolved && !comment.deleted && 
@@ -248,7 +250,7 @@ export default function PlanningInvestibleNav(props) {
       <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} flushLeft flushBottom />
       {isInAccepted && (
         <DaysEstimate marketId={marketId} onChange={handleDateChange} value={marketDaysEstimate}
-                      isAssigned={isAssigned} />
+                      isAssigned={isAssigned} estimateMessage={estimateMessage} messagesDispatch={messagesDispatch} />
       )}
       <MarketMetaData
         stagesInfo={stagesInfo}

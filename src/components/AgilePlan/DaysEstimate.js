@@ -8,11 +8,18 @@ import _ from 'lodash';
 import DatePicker from 'react-datepicker';
 import { usePlanFormStyles } from './index';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
+import { formInboxItemLink, navigate } from '../../utils/marketIdPathFunctions';
+import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import TooltipIconButton from '../Buttons/TooltipIconButton';
+import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
+import { Notifications } from '@material-ui/icons';
+import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 
 export function DaysEstimate(props) {
-  const { value, onChange, isAssigned } = props;
+  const { value, onChange, isAssigned, estimateMessage, messagesDispatch } = props;
   const classes = usePlanFormStyles();
   const intl = useIntl();
+  const history = useHistory();
   const [anchorEl, setAnchorEl] = useState(null);
 
   function handleDateChange (date) {
@@ -29,6 +36,21 @@ export function DaysEstimate(props) {
   const overDue = dueDate && new Date() > dueDate;
 
   function getDueText () {
+    if (estimateMessage) {
+      return (
+        <TooltipIconButton
+          marginRight='1rem'
+          onClick={() => {
+            dehighlightMessage(estimateMessage, messagesDispatch);
+            navigate(history, formInboxItemLink(estimateMessage));
+          }}
+          icon={<Notifications fontSize='small' 
+            htmlColor={estimateMessage.is_highlighted ? WARNING_COLOR : undefined} />}
+          size='small'
+          translationId='messagePresentComment'
+        />
+      );
+    }
     if (_.isEmpty(value)) {
       return (
         <Typography style={{marginRight: '0.5rem'}}>

@@ -15,7 +15,7 @@ import { useHistory } from 'react-router';
 import clsx from 'clsx';
 import GravatarAndName from '../../../components/Avatars/GravatarAndName';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { formWizardLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
+import { formInboxItemLink, formWizardLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { removeInvestment } from '../../../api/marketInvestibles';
@@ -28,6 +28,7 @@ import NotificationDeletion from '../../Home/YourWork/NotificationDeletion';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { useIntl } from 'react-intl';
+import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -63,9 +64,6 @@ const useVoteStyles = makeStyles(
         marginLeft: 6,
         fontSize: 16,
         fontWeight: "bold"
-      },
-      highlighted: {
-        boxShadow: "4px 4px 4px yellow"
       },
       editVoteDisplay: {
         alignItems: "flex-end",
@@ -160,6 +158,10 @@ function Voting(props) {
           const { name, email, id: userId, quantity, commentId, updatedAt } = voter;
           const isYourVote = userId === yourPresence.id;
           const myMessage = findMessageByInvestmentUserId(userId, investibleId, messagesState);
+          const notificationFunc = !isInbox && myMessage?.type_object_id ? () => {
+            dehighlightMessage(myMessage, messagesDispatch);
+            navigate(history, formInboxItemLink(myMessage));
+          } : undefined;
           const reason = investmentReasons.find((comment) => comment.id === commentId);
           const voteId = `cv${userId}`;
 
@@ -172,8 +174,7 @@ function Voting(props) {
           const isEditable = isYourVote && !myUseCompression;
           const hasContent = !editorEmpty(reason?.body);
           return (
-            <div className={myMessage && classes.highlighted}
-                 style={{width: 'fit-content', cursor: myUseCompression ? 'pointer' : undefined,
+            <div style={{width: 'fit-content', cursor: myUseCompression ? 'pointer' : undefined,
                    maxWidth: myUseCompression ? '98%' : undefined}} key={userId}>
               <div
                 key={userId}
@@ -192,6 +193,8 @@ function Voting(props) {
                   <CardType compact={!midLayout} compressed={!hasContent || myUseCompression}
                     className={classes.cardType}
                     type={`certainty${Math.abs(quantity)}`}
+                    notificationFunc={notificationFunc}
+                    notificationIsHighlighted={myMessage?.is_highlighted}
                     gravatar={<GravatarAndName email={email}
                                        name={name} typographyVariant="caption"
                                        typographyClassName={classes.createdBy}
@@ -221,7 +224,7 @@ function Voting(props) {
                     <div style={{ flexGrow: 1 }}/>
                   )}
                   {showExpiration && !mobileLayout && (
-                    <div style={{marginRight: '1rem', paddingTop: '5px'}}>
+                    <div style={{marginRight: '1rem', paddingTop: '5px', marginLeft: notificationFunc ? '1rem' : undefined}}>
                       <ExpiresDisplay
                         createdAt={new Date(updatedAt)}
                         expirationMinutes={expirationMinutes}

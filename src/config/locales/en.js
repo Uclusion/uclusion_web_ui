@@ -1156,7 +1156,7 @@ const messages = defineMessages({
 
   // Comments
   messagePresent: 'Go to notification for this job',
-  messagePresentComment: 'Go to notification for this comment',
+  messagePresentComment: 'Click to go to notification',
   issuePresent: 'Blocking issue',
   nonBlockIssuePresent: 'Issue',
   questionPresent: 'Assignee has question',

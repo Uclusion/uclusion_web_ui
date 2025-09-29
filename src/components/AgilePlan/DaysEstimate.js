@@ -75,7 +75,6 @@ export function DaysEstimate(props) {
         disabled={!isAssigned}
         doSpin={false}
         id='changeCompletionDate'
-        whiteBackground
         onClick={openPopover}
       />
       <Popover

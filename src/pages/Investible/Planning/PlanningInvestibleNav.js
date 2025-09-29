@@ -290,14 +290,14 @@ export default function PlanningInvestibleNav(props) {
           <SpinningIconLabelButton
             doSpin={false}
             onClick={()=>navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}
-            icon={ThumbUp} id='accept' whiteBackground>
+            icon={ThumbUp} id='accept'>
             {intl.formatMessage({ id: 'accept' })}
           </SpinningIconLabelButton>
         </div>
       )}
       {unaccepted && (
         <div style={{display: 'flex'}}>
-          <SpinningIconLabelButton onClick={myRejectInvestible} icon={ThumbDown} id='reject' whiteBackground>
+          <SpinningIconLabelButton onClick={myRejectInvestible} icon={ThumbDown} id='reject'>
             {intl.formatMessage({ id: 'reject' })}
           </SpinningIconLabelButton>
         </div>

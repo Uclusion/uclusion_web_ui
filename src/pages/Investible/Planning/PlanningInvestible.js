@@ -25,7 +25,6 @@ import {
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import EditMarketButton from '../../Dialog/EditMarketButton';
 import CardType from '../../../components/CardType';
-import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { PLACEHOLDER } from '../../../constants/global';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { allImagesLoaded, invalidEditEvent } from '../../../utils/windowUtils';
@@ -73,7 +72,6 @@ import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDif
 import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import DismissableText from '../../../components/Notifications/DismissableText';
-import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { useGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import EditIcon from '@material-ui/icons/Edit';
 import { hasJobComment } from '../../../components/AddNewWizards/JobComment/AddCommentStep';
@@ -1074,15 +1072,13 @@ export function Assignments(props) {
             <b><FormattedMessage id={assignmentColumnMessageId} /></b>
           )}
           {toggleIconButton && (
-              <SpinningIconLabelButton
-                icon={PersonAddIcon}
-                iconOnly
-                doSpin={false}
-                id={toolTipId}
-                whiteBackground
-                style={{marginLeft: '1rem', paddingTop: 0, marginBottom: 0, paddingBottom: 0, marginTop: '-0.25rem'}}
-                onClick={toggleIconButton}
-              />
+            <div style={{marginTop: '-0.3rem'}}>
+              <Tooltip placement='top' title={intl.formatMessage({ id: toolTipId })}>
+                <IconButton size="small" id="addViewId" noPadding onClick={toggleIconButton}>
+                  <AddIcon htmlColor='black' fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </div>
           )}
         </div>
       )}

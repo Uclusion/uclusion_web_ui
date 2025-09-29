@@ -149,7 +149,7 @@ function Header (props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
-  const [online] = useContext(OnlineStateContext);
+  const [online, , showOfflineMessage] = useContext(OnlineStateContext);
   const [userState] = useContext(AccountContext);
   const history = useHistory();
   const { toolbarButtons, appEnabled, navMenu, disableSearch, action, pathInvestibleId, defaultMarket, chosenGroup, 
@@ -237,7 +237,7 @@ function Header (props) {
             )}
           </div>
           {toolbarButtons}
-          {!online && (
+          {!online && showOfflineMessage && (
             <Paper style={{ marginRight: '4rem' }}>
               <Typography variant="h5" style={{ paddingLeft: '6px', paddingRight: '6px' }}>
                 {intl.formatMessage({ id: 'warningOffline' })}

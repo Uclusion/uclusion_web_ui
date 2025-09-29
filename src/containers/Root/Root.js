@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { useHistory, useLocation } from 'react-router';
@@ -55,10 +55,11 @@ function Root(props) {
   const { pathname, search } = location;
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [userState] = useContext(AccountContext);
-  const [, setOnline] = useContext(OnlineStateContext);
+  const [, setOnline, , setShowOfflineMessage] = useContext(OnlineStateContext);
   const [ticketState] = useContext(TicketIndexContext);
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
+  const [offlineTimer, setOfflineTimer] = useState(undefined);
   const values = queryString.parse(search || '') || {};
   const { utm_campaign: utm } = values;
   const { marketDetails } = marketsState;
@@ -221,7 +222,7 @@ function Root(props) {
       }
     }
 
-    if (!window.myListenerMarker && isUserLoaded) {
+    if ((!window.myListenerMarker || offlineTimer) && isUserLoaded) {
       window.myListenerMarker = true;
 
       window.addEventListener('load', () => {
@@ -234,12 +235,19 @@ function Root(props) {
       }, { passive: true })
       window.addEventListener('online', () => {
         console.info('Online listener');
-        setOnline(true)
-        setOperationInProgress(false)
+        setOnline(true);
+        clearTimeout(offlineTimer);
+        setOfflineTimer(undefined);
+        setShowOfflineMessage(false);
+        setOperationInProgress(false);
       }, { passive: true })
       window.addEventListener('offline', () => {
         console.info('Offline listener');
-        setOnline(false)
+        setOnline(false);
+        const offlineTimer = setTimeout(() => {
+          setShowOfflineMessage(true);
+        }, 5000);
+        setOfflineTimer(offlineTimer);
       }, { passive: true })
       document.addEventListener('visibilitychange', () => {
         console.info('Visibility change listener');
@@ -249,7 +257,7 @@ function Root(props) {
     //  window.onanimationiteration = console.debug;
       registerMarketTokenListeners();
     }
-  },  [history, setOnline, location, isUserLoaded]);
+  },  [history, setOnline, location, isUserLoaded, offlineTimer, setShowOfflineMessage]);
 
   if (authState !== 'signedIn' || action === 'supportWorkspace' || (action === 'demo' && marketsState.initializing) || 
     (isRootPath && marketJoinedUser && _.isEmpty(defaultMarketLink))) {

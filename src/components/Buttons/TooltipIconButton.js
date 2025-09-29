@@ -12,7 +12,8 @@ const useStyles = makeStyles(() => ({
 
 function TooltipIconButton(props) {
   const {
-    onClick, size, id, icon, translationId, disabled, children, doFloatRight, noPadding, marginLeft, noAlign, marginRight
+    onClick, size, id, icon, translationId, disabled, children, doFloatRight, noPadding, marginLeft, noAlign, 
+    marginRight, marginTop
   } = props;
   const intl = useIntl();
   const classes = useStyles();
@@ -29,7 +30,8 @@ function TooltipIconButton(props) {
           size={size}
           classes={{root: noAlign ? classes.buttonTopAlign : undefined}}
           style={{float: doFloatRight ? 'right': undefined, padding: noPadding ? 0 : undefined, 
-            marginLeft: marginLeft ? marginLeft : undefined, marginRight: marginRight ? marginRight : undefined}}
+            marginLeft: marginLeft ? marginLeft : undefined, marginRight: marginRight ? marginRight : undefined,
+            marginTop: marginTop ? marginTop : undefined}}
         >
           {React.cloneElement(icon, {})}
           {children}

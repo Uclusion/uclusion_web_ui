@@ -40,6 +40,7 @@ export function DaysEstimate(props) {
       return (
         <TooltipIconButton
           marginRight='1rem'
+          marginTop='0.15rem'
           onClick={() => {
             dehighlightMessage(estimateMessage, messagesDispatch);
             navigate(history, formInboxItemLink(estimateMessage));
@@ -53,13 +54,13 @@ export function DaysEstimate(props) {
     }
     if (_.isEmpty(value)) {
       return (
-        <Typography style={{marginRight: '0.5rem'}}>
+        <Typography style={{marginRight: '0.5rem', marginTop: '0.3rem'}}>
           {intl.formatMessage({ id: 'missingEstimatedCompletion' })}
         </Typography>
       );
     }
     return (
-      <Typography style={{marginRight: '0.5rem', color: overDue ? 'red': undefined}}>
+      <Typography style={{marginRight: '0.5rem', color: overDue ? 'red': undefined, marginTop: '0.3rem'}}>
         {intl.formatMessage({ id: 'estimatedCompletionToday' })} <UsefulRelativeTime value={dueDate}/>
       </Typography>
     );

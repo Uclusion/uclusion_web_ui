@@ -131,6 +131,7 @@ export default function PlanningInvestibleNav(props) {
     investibleId, market.id, true);
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
+  const unaccceptedMessage = findMessageOfType('UNREAD_JOB_APPROVAL_REQUEST', investibleId, messagesState);
   const hasBlockingIssue = !_.isEmpty(investibleComments.find((comment) => comment.comment_type === ISSUE_TYPE
     && !comment.resolved && !comment.deleted))
   const tasksInProgress = investibleComments.find((comment) => !comment.resolved && !comment.deleted && 
@@ -271,6 +272,8 @@ export default function PlanningInvestibleNav(props) {
               classes={classes}
               marketPresences={marketPresences}
               assigned={assigned}
+              unaccceptedMessage={unaccceptedMessage}
+              messagesDispatch={messagesDispatch}
               unaccceptedList={useInVoting ? assignedNotAccepted : undefined}
               toggleIconButton={isSingleUser ? (_.isEmpty(assigned) ? assignToSingleUser : undefined) :
                 () => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}

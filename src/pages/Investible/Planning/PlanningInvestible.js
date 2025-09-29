@@ -52,6 +52,7 @@ import {
 } from '../../../contexts/OperationInProgressContext/operationInProgressMessages';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import {
+  formInboxItemLink,
   formInvestibleAddCommentLink, formInvestibleLink, formMarketLink,
   formWizardLink,
   navigate,
@@ -66,7 +67,7 @@ import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
 import CondensedTodos from './CondensedTodos';
-import { DoneAll, ExpandLess } from '@material-ui/icons';
+import { DoneAll, ExpandLess, Notifications } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
 import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
@@ -84,7 +85,8 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
-import { isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -1045,8 +1047,9 @@ export function rejectInvestible (marketId, investibleId, marketInvestible, comm
 
 export function Assignments(props) {
   const { marketPresences, classes, assigned, toolTipId, toggleIconButton, assignmentColumnMessageId,
-    unaccceptedList, isLarge } = props;
+    unaccceptedList, isLarge, unaccceptedMessage, messagesDispatch } = props;
   const intl = useIntl();
+  const history = useHistory();
   const metaClasses = useMetaDataStyles();
   const safeAssigned = assigned || [];
   const presences = safeAssigned.map((userId) => {
@@ -1101,19 +1104,33 @@ export function Assignments(props) {
                 <Gravatar email={presence.email} name={presence.name}
                           className={isLarge ? classes.largeGravatar : classes.smallGravatar}/>
               )}
-              <div>
-                <Typography component="li" className={myClassName}>
-                  {name}
-                </Typography>
-                {unacccepted && (
-                  <Tooltip
-                    title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
-                  >
-                    <Typography component="li" style={{fontSize: 12, background: '#ffdcdf',
-                      paddingRight: '5px', paddingLeft: '5px'}}>
-                      {intl.formatMessage({ id: 'planningUnacceptedLabel' })}
-                    </Typography>
-                  </Tooltip>
+              <div style={{display: 'flex'}}>
+                <div>
+                  <Typography component="li" className={myClassName}>
+                    {name}
+                  </Typography>
+                  {unacccepted && (
+                      <Tooltip
+                        title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
+                      >
+                        <Typography component="li" style={{fontSize: 12, background: '#ffdcdf',
+                          paddingRight: '5px', paddingLeft: '5px'}}>
+                          {intl.formatMessage({ id: 'planningUnacceptedLabel' })}
+                        </Typography>
+                      </Tooltip>
+                  )}
+                </div>
+                {unaccceptedMessage && (
+                  <TooltipIconButton
+                    onClick={() => {
+                      dehighlightMessage(unaccceptedMessage, messagesDispatch);
+                      navigate(history, formInboxItemLink(unaccceptedMessage));
+                    }}
+                    icon={<Notifications fontSize='small' 
+                      htmlColor={unaccceptedMessage.is_highlighted ? WARNING_COLOR : undefined} />}
+                    size='small'
+                    translationId='messagePresentComment'
+                  />
                 )}
               </div>
             </div>

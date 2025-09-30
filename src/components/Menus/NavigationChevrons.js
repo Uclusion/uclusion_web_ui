@@ -41,7 +41,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { ACTION_BUTTON_COLOR, WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { REPLY_TYPE } from '../../constants/comments';
-import { getGroupPresences, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { getGroupPresences, getMarketPresences, isAutonomousGroup } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import ReturnTop from '../../pages/Home/ReturnTop';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
@@ -92,14 +92,24 @@ export default function NavigationChevrons(props) {
     if (market.market_sub_type !== SUPPORT_SUB_TYPE) {
       const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
+      let hasAutonomousGroup = undefined;
       const groups = groupsState[market.id]?.filter((group) => {
         const groupPresences = getGroupPresences(marketPresences, groupPresencesState, market.id, group.id) || [];
-        return !_.isEmpty(groupPresences?.find((presence) => presence.id === myPresence.id));
+        const isMember = !_.isEmpty(groupPresences?.find((presence) => presence.id === myPresence.id))
+        if (isAutonomousGroup(groupPresences, group) && isMember) {
+          hasAutonomousGroup = group;
+        }
+        return isMember;
       });
-      groups?.forEach((group) => {
-        const candidate = getGroupCandidate(group, market, navigations);
+      if (hasAutonomousGroup) {
+        const candidate = getGroupCandidate(hasAutonomousGroup, market, navigations);
         approvedCandidates.push(candidate);
-    });
+      } else {
+        groups?.forEach((group) => {
+          const candidate = getGroupCandidate(group, market, navigations);
+          approvedCandidates.push(candidate);
+        });
+      }
     }
     approvedInvestibles?.forEach((investible) => {
       const openInvestibleComments = getOpenInvestibleComments(investible.investible.id, comments);

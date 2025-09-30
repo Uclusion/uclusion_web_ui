@@ -188,6 +188,8 @@ export default function NavigationChevrons(props) {
     if (nextUrl.message) {
       dehighlightMessage(nextUrl.message, messagesDispatch);
     }
+    // Add the current resource so that it can be matched with a candidate for time and previous can return to it
+    messagesDispatch(addNavigation(resource, allExistingUrls));
     messagesDispatch(addNavigation(nextUrl.url, allExistingUrls));
     navigate(history, nextUrl.useUrl || nextUrl.url);
   }

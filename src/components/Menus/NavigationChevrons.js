@@ -142,19 +142,6 @@ export default function NavigationChevrons(props) {
       return {url: formInboxItemLink(message), message, isHighlighted: true};
     }
 
-    const notHighlightedMessagesCritical = allMessages.filter((message) => !message.is_highlighted &&
-      message.type === 'UNASSIGNED');
-    // special case return any critical bug unhighlighted notification here
-    if (!_.isEmpty(notHighlightedMessagesCritical)) {
-      const criticalNext = _.find(notHighlightedMessagesCritical, (message) =>
-        formInboxItemLink(message) !== resource);
-      if (criticalNext) {
-        const criticalNextCandidate = {url: formInboxItemLink(criticalNext)};
-        const candidateMeta = navigations?.find((navigation) => navigation.url === criticalNextCandidate.url);
-        criticalNextCandidate.time = candidateMeta?.time || 0;
-        approvedCandidates.push(criticalNextCandidate);
-      }
-    }
     if (!_.isEmpty(approvedCandidates)) {
       // Time as a long gets larger so smallest would be oldest
       const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['asc']);

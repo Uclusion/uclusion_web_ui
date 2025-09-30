@@ -4,48 +4,17 @@ import { InputAdornment, OutlinedInput, Typography } from '@material-ui/core';
 import _ from 'lodash';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import { createPlanning } from '../../../api/markets';
 import WizardStepButtons from '../WizardStepButtons';
-import { addMarketToStorage } from '../../../contexts/MarketsContext/marketsContextHelper';
-import { addGroupsToStorage } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
-import { addPresenceToMarket, changeBanStatus } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import TokenStorageManager from '../../../authorization/TokenStorageManager';
-import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
-import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
-import { accountUserRefresh } from '../../../contexts/AccountContext/accountContextReducer';
 import { AccountContext } from '../../../contexts/AccountContext/AccountContext';
-import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
-import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
-import { ADD_COLLABORATOR_WIZARD_TYPE, DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
-import { updateMarketStagesFromNetwork } from '../../../contexts/MarketStagesContext/marketStagesContextReducer';
-import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';
-import { useHistory } from 'react-router';
-import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { addGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
-import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
-import { fixName } from '../../../utils/userFunctions';
-import { useIntl } from 'react-intl';
 
 function WorkspaceNameStep (props) {
-  const { updateFormData, formData } = props;
-  const history = useHistory();
-  const intl = useIntl();
+  const { updateFormData, formData, createWorkspace } = props;
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
-  const [marketsState, marketsDispatch] = useContext(MarketsContext);
-  const [presenceState, presenceDispatch] = useContext(MarketPresencesContext);
-  const [, groupsDispatch] = useContext(MarketGroupsContext);
-  const [, groupMembersDispatch] = useContext(GroupMembersContext);
-  const [, userDispatch] = useContext(AccountContext);
-  const [, stagesDispatch] = useContext(MarketStagesContext);
   const [userState] = useContext(AccountContext);
-  const [commentsState] = useContext(CommentsContext);
-  const [, setOperationRunning] = useContext(OperationInProgressContext);
   const isDemoOn = userState?.user?.onboarding_state !== OnboardingState.FirstMarketJoined;
 
   function onNameChange (event) {
@@ -53,69 +22,6 @@ function WorkspaceNameStep (props) {
     updateFormData({
       name: value
     });
-  }
-
-  function getInitials(name) {
-    const words = name.split(' ');
-    let initials = '';
-    for (const word of words) {
-      if (word.length > 0) {
-        initials += word[0].toUpperCase();
-      }
-    }
-    return initials;
-  }
-
-  function onNext(isSinglePersonMode = true, isTerminate = false, groupNameId) {
-    const { name } = formData;
-    const marketInfo = {
-      name,
-      is_autonomous_group: isSinglePersonMode
-    };
-    if (isSinglePersonMode) {
-      const userName = fixName(userState.user.name);
-      marketInfo.group_name = userName.slice(0, 80);
-      marketInfo.ticket_sub_code = getInitials(userName);
-    } else {
-      marketInfo.group_name = intl.formatMessage({id: groupNameId});
-    }
-    return createPlanning(marketInfo)
-      .then((marketDetails) => {
-        const {
-          market,
-          presence,
-          stages,
-          token,
-          group,
-          market_creator: user,
-          default_members: defaultMembers
-        } = marketDetails;
-        const createdMarketId = market.id;
-        if (user) {
-          userDispatch(accountUserRefresh(user));
-        }
-        addMarketToStorage(marketsDispatch, market);
-        addGroupsToStorage(groupsDispatch, { [createdMarketId]: [group]});
-        stagesDispatch(updateMarketStagesFromNetwork({[createdMarketId]: stages }));
-        addPresenceToMarket(presenceDispatch, createdMarketId, presence);
-        groupMembersDispatch(addGroupMembers(createdMarketId, createdMarketId, defaultMembers));
-        const demos = marketsState?.marketDetails?.filter((market) => market.market_type === PLANNING_TYPE &&
-          market.object_type === DEMO_TYPE);
-        if (!_.isEmpty(demos) && user){
-          demos.forEach((demo) => changeBanStatus(presenceState, presenceDispatch, demo.id, user.id, true, commentsState));
-        }
-        const tokenStorageManager = new TokenStorageManager();
-        return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
-          .then(() => {
-            const link = isTerminate || !isSinglePersonMode ? formMarketLink(market.id, market.id) :
-              `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${market.id}`;
-            // Should fix up finish to be invoked but currently is not
-            setOperationRunning(false);
-            navigate(history, link);
-            return link;
-          });
-      });
-
   }
 
   return (
@@ -128,9 +34,8 @@ function WorkspaceNameStep (props) {
           What do you want to call your workspace?
         </Typography>
         <Typography className={classes.introSubText} variant="subtitle1">
-            Choosing customer feedback config creates a workspace with a view called "Feedback". Setup 
-            the created workspace first with jobs, bugs, or discussion and then invite a customer.
-          </Typography>
+            A workspace must have at least one view to organize and control who is notified by default.
+        </Typography>
         {isDemoOn && (
           <Typography className={classes.introSubText} variant="subtitle1">
             <b>Warning</b>: Creating this workspace <i>ends all demos</i> and removes their workspaces.
@@ -155,16 +60,11 @@ function WorkspaceNameStep (props) {
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
-          onNext={onNext}
-          nextLabel='addPeers'
+          onNext={() => createWorkspace(formData, true)}
+          nextLabel='singlePersonView'
           validForm={validForm}
           showOtherNext
-          otherNextLabel='configCustomerFeedback'
-          onOtherNext={() => onNext(false, false,
-            'customerFeedbackView')}
-          showTerminate={validForm}
-          onTerminate={() => onNext(true, true)}
-          terminateLabel='justMeForNow'
+          otherNextLabel='teamView'
         />
       </div>
     </WizardStepContainer>

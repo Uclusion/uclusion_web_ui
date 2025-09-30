@@ -105,7 +105,6 @@ function GroupNameStep (props) {
   return (
     <WizardStepContainer
       {...props}
-      isLarge
     >
       <Typography className={classes.introText}>
         What do you want to call your view?
@@ -118,6 +117,7 @@ function GroupNameStep (props) {
       <OutlinedInput
         id="groupName"
         className={classes.input}
+        style={{maxWidth: '25rem'}}
         value={value}
         autoFocus
         onChange={onNameChange}

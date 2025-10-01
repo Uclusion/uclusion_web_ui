@@ -147,8 +147,8 @@ export default function PlanningInvestibleNav(props) {
   });
 
   function requiresCloseComments(fullMoveStage) {
-    const openTodos = investibleComments.find((comment) => comment.comment_type === TODO_TYPE);
-    const openAssistance = investibleComments.find((comment) =>
+    const openTodos = investibleComments.find((comment) => comment.comment_type === TODO_TYPE && !comment.resolved);
+    const openAssistance = investibleComments.find((comment) => !comment.resolved &&
       [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type));
     const hasOpenTodos = !_.isEmpty(openTodos) && isInReviewStage(fullMoveStage);
     return hasOpenTodos ||

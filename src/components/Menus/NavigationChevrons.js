@@ -52,7 +52,7 @@ function getInvestibleCandidate(investible, market, navigations, isOutbox=false)
 }
 
 function getGroupCandidate(group, market, navigations) {
-  const candidate = {url: formatGroupLinkWithSuffix(ASSIGNED_HASH, market.id, group.id)};
+  const candidate = {url: formMarketLink(market.id, group.id), useUrl: formatGroupLinkWithSuffix(ASSIGNED_HASH, market.id, group.id)};
   const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
   candidate.time = candidateMeta?.time || 0;
   return candidate;

@@ -47,7 +47,7 @@ import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { Eject, ExpandLess, KeyboardArrowLeft } from '@material-ui/icons';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
+import { ACTION_BUTTON_COLOR, WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { getNewBugNotifications } from '../../../components/Comments/Options';
@@ -433,24 +433,24 @@ function MarketTodos(props) {
           onChange={(event, value) => {
             bugDispatch(setTab(value));
           }}
-          indicatorColors={['#E85757', '#e6e969', '#2F80ED']}
+          indicatorColors={[WARNING_COLOR, '#e6e969', '#2F80ED']}
           style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
           <GmailTabItem icon={immediateTodosChip} label={intl.formatMessage({id: 'immediate'})}
                         color='black' tagLabel={unreadRedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                        tagColor={unreadRedCount > 0 ? '#E85757' : undefined}
+                        tagColor={unreadRedCount > 0 ? WARNING_COLOR : undefined}
                         tag={unreadRedCount > 0 ? `${unreadRedCount}` :
                           (_.size(redComments) > 0 ? `${_.size(redComments)}` : undefined)}
                         onDrop={onDropImmediate} toolTipId='immediateToolTip'
                         onDragOver={(event)=>event.preventDefault()}/>
           <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'able'})}
-                        color='black' tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
+                        color='black' tagColor={unreadYellowCount > 0 ? WARNING_COLOR : undefined}
                         tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
                           (_.size(yellowComments) > 0 ? `${_.size(yellowComments)}` : undefined)}
                         onDrop={onDropAble} toolTipId='normalToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
           <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'convenient'})}
-                        color='black' tagColor={unreadBlueCount > 0 ? '#E85757' : undefined}
+                        color='black' tagColor={unreadBlueCount > 0 ? WARNING_COLOR : undefined}
                         tagLabel={unreadBlueCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tag={unreadBlueCount > 0 ? `${unreadBlueCount}` :
                           (_.size(blueComments) > 0 ? `${_.size(blueComments)}` : undefined)}

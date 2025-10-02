@@ -457,7 +457,7 @@ function Reply(props) {
           <div style={{marginRight: '1rem'}} />
         )}
         {!_.isEmpty(comment) && (
-          <div style={{marginLeft: '0.8rem'}}>
+          <div style={{marginLeft: '0.8rem', marginBottom: '0.5rem'}}>
             <ReadOnlyQuillEditor
               value={comment.body}
               id={comment.id}
@@ -468,9 +468,6 @@ function Reply(props) {
         )}
       </CardContent>
       <CardActions className={classes.cardActions}>
-        <Typography className={classes.timePosted} variant="body2">
-          <FormattedDate value={comment.created_at} />
-        </Typography>
         {enableEditing && !isMySubTask && (
           <Button
             className={classes.action}

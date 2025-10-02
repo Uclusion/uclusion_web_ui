@@ -1051,6 +1051,21 @@ function Comment(props) {
                     'commentResolveLabel' })}
               </SpinningIconLabelButton>
             )}
+            {commentType === TODO_TYPE && investibleId && !removeActions && enableEditing && !inBacklog && (
+              <FormControlLabel
+                id='inProgressCheckbox'
+                style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem'}}
+                control={
+                  <Checkbox
+                    id={`inProgressCheckbox${id}`}
+                    checked={operationRunning === `inProgressCheckbox${id}` ? !inProgress : inProgress}
+                    onClick={handleToggleInProgress}
+                    disabled={!myPresenceIsAssigned || removeActions || operationRunning !== false}
+                  />
+                }
+                label={intl.formatMessage({ id: 'inProgress' })}
+              />
+            )}
             {isSent !== false && enableEditing && !removeActions && (
               <SpinningIconLabelButton
                 onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
@@ -1122,21 +1137,6 @@ function Comment(props) {
               >
                 {!mobileLayout && intl.formatMessage({ id: 'commentUnmuteLabel' })}
               </SpinningIconLabelButton>
-            )}
-            {commentType === TODO_TYPE && investibleId && !removeActions && enableEditing && !inBacklog && (
-              <FormControlLabel
-                id='inProgressCheckbox'
-                style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem'}}
-                control={
-                  <Checkbox
-                    id={`inProgressCheckbox${id}`}
-                    checked={operationRunning === `inProgressCheckbox${id}` ? !inProgress : inProgress}
-                    onClick={handleToggleInProgress}
-                    disabled={!myPresenceIsAssigned || removeActions || operationRunning !== false}
-                  />
-                }
-                label={intl.formatMessage({ id: 'inProgress' })}
-              />
             )}
             {showMoveButton && mobileLayout && (
               <SpinningIconLabelButton

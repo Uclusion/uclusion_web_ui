@@ -44,7 +44,7 @@ import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { doRemoveEdit, doShowEdit } from './userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
-import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { COUNT_COLOR, WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
 import { getTicketNumber, stripHTML } from '../../../utils/stringFunctions';
 import { Schedule } from '@material-ui/icons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -641,7 +641,7 @@ function StageInvestible(props) {
     }
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
-        <span className={'MuiTabItem-tag'} style={{backgroundColor: '#F29100', marginLeft: '1rem', color: 'white',
+        <span className={'MuiTabItem-tag'} style={{backgroundColor: COUNT_COLOR, marginLeft: '1rem', color: 'white',
           borderRadius: 22, paddingLeft: '6px', paddingRight: '5px', paddingTop: '2px', maxHeight: '20px'}}>
           {labelNum} {intl.formatMessage({ id: 'open' })}
         </span>

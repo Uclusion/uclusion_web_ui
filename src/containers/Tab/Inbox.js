@@ -4,9 +4,10 @@ import Tabs from '@material-ui/core/Tabs';
 import { useGmailTabsStyles, useGmailTabItemStyles } from '@mui-treasury/styles/tabs/gmail';
 import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import { useIntl } from 'react-intl';
+import { COUNT_COLOR } from '../../components/Buttons/ButtonConstants';
 
 export function GmailTabItem(props) {
-  const { color='#2F80ED', label, tag, tagLabel, tagColor='#797FF2', toolTipId,
+  const { color='#2F80ED', label, tag, tagLabel, tagColor=COUNT_COLOR, toolTipId,
     ...other } = props;
   const theme = useTheme();
   const intl = useIntl();

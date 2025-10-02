@@ -679,6 +679,10 @@ function PlanningInvestible(props) {
   const assistanceTag = numNewAssistanceMessages > 0 && _.isEmpty(search) ? `${numNewAssistanceMessages}` : 
     countUnresolved(assistanceCommentsSearched, search);
 
+  const hasNewTodoMessages = numNewTodoMessages > 0 && _.isEmpty(search);
+  const hasNewAssistanceMessages = numNewAssistanceMessages > 0 && _.isEmpty(search);
+  const hasNewOverviewMessages = numNewOverviewMessages > 0 && _.isEmpty(search);
+
   return (
     <Screen
       title={title}
@@ -710,19 +714,19 @@ function PlanningInvestible(props) {
           marginLeft: '-0.5rem' }}>
         <GmailTabItem icon={<InfoIcon />} tagLabel={numNewOverviewMessages > 0 && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       label={intl.formatMessage({id: 'descriptionVotingLabel'})}
-                      toolTipId='jobOverviewToolTip'
+                      toolTipId='jobOverviewToolTip' tagColor={hasNewOverviewMessages ? WARNING_COLOR : undefined}
                       tag={descriptionSectionResults === 0 ? 
-                          (numNewOverviewMessages > 0 && _.isEmpty(search) ? `${numNewOverviewMessages}` : undefined) 
+                          (hasNewOverviewMessages ? `${numNewOverviewMessages}` : undefined) 
                           : `${descriptionSectionResults}`} />
         <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'openTasksSection'})}
-                      toolTipId='jobTasksToolTip' tagLabel={numNewTodoMessages > 0 && _.isEmpty(search) ? 'new' : undefined}
-                      tag={numNewTodoMessages > 0 && _.isEmpty(search) ? `${numNewTodoMessages}` : 
-                        countUnresolved(todoCommentsSearched, search)} />
+                      tagColor={hasNewTodoMessages ? WARNING_COLOR : undefined}
+                      toolTipId='jobTasksToolTip' tagLabel={hasNewTodoMessages ? 'new' : undefined}
+                      tag={hasNewTodoMessages ? `${numNewTodoMessages}` : countUnresolved(todoCommentsSearched, search)} />
         {displayAssistanceSection && (
           <GmailTabItem icon={getIcon(QUESTION_TYPE)} toolTipId='jobAssistanceToolTip'
                         label={intl.formatMessage({id: 'requiresInputStageLabel'})}
-                        tag={assistanceTag}
-                        tagLabel={numNewAssistanceMessages > 0 && _.isEmpty(search) ? 'new' : getTagLabel('open')} />
+                        tagColor={hasNewAssistanceMessages ? WARNING_COLOR : undefined} tag={assistanceTag}
+                        tagLabel={hasNewAssistanceMessages ? 'new' : getTagLabel('open')} />
         )}
       </GmailTabs>
       <div style={{paddingLeft: mobileLayout ? undefined : '2rem', paddingRight: mobileLayout ? undefined : '1rem'}}>

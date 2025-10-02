@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { FormattedDate, FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
   Button,

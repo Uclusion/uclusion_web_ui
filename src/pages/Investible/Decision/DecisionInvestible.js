@@ -330,7 +330,9 @@ function DecisionInvestible(props) {
   const editClasses = useInvestibleEditStyles();
   const allowedCommentTypesFiltered = mobileLayout ? allowedCommentTypes : allowedCommentTypes.filter((allowedCommentType) =>
     hasDecisionComment(marketId, allowedCommentType, investibleId));
-  const afterDescription = <>{!inProposed && !_.isEmpty(voters) && (
+  const showAfterDescriptionVoting = !inProposed && !_.isEmpty(voters);
+  const showAfterDescriptionComments = (displayCommentInput && mobileLayout) || !_.isEmpty(investmentReasonsRemoved);
+  const afterDescription = <>{showAfterDescriptionVoting && (
     <div style={{marginTop: '1rem'}}>
       <CommentBox comments={info} marketId={marketId} allowedTypes={allowedCommentTypes}
                   isInbox={removeActions} removeActions={removeActions} usePadding={false} />
@@ -360,7 +362,7 @@ function DecisionInvestible(props) {
       <div style={{marginTop: '1rem'}}/>
     </div>
   )}
-    {((displayCommentInput && mobileLayout) || !_.isEmpty(investmentReasonsRemoved)) && (
+    {showAfterDescriptionComments && (
       <div style={{ paddingBottom: '1rem', marginTop: '1rem' }}>
         <h2 id="comments" style={{ marginTop: 0 }}>
           <FormattedMessage id="comments"/>
@@ -420,7 +422,7 @@ function DecisionInvestible(props) {
     {afterDescription}
   </div>;
   const actions = 
-    <div>
+    <div style={{marginBottom: !showAfterDescriptionVoting && !showAfterDescriptionComments ? '4rem' : undefined}}>
       {!removeActions && activeMarket && mobileLayout && (
         getActions()
       )}

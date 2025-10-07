@@ -160,7 +160,7 @@ const GreenCheckbox = withStyles({
     },
   },
   checked: {},
-})(props => <Checkbox color="default" {...props} />);
+})(props => <Checkbox {...props} />);
 
 function reducer(state, action) {
   const { name, value } = action;

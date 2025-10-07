@@ -245,7 +245,7 @@ function WorkListItem(props) {
                     determinateDispatch({id});
                   }}
                 >
-                  {checked ? <Checkbox color="secondary" /> : <CheckBoxOutlineBlank />}
+                  {checked ? <Checkbox /> : <CheckBoxOutlineBlank />}
                 </StyledIconButton>
               )}
               {!mobileLayout && (

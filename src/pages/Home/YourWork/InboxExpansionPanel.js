@@ -181,7 +181,7 @@ export function createDefaultInboxRow(messagesOrdered, tabIndex) {
     return (
       <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                   variant="body1">
-        Your From You tab is empty.<br/><br/> Process or poke anything waiting on others here.
+        Your From You is empty.<br/><br/> Process or poke anything waiting on others here.
       </Typography>
     );
   }

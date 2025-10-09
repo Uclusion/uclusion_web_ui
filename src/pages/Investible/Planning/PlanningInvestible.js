@@ -995,6 +995,7 @@ function PlanningInvestible(props) {
               formerStageId={formerStageId}
               marketInfo={marketInfo}
               investible={marketInvestible}
+              singleWorkspaceUser={_.size(marketPresences) < 2}
               toggleCompression={sectionOpen === 'assistanceSection' ? toggleUseCompression : undefined}
               useCompression={sectionOpen === 'assistanceSection' ? getUseCompression : undefined}
               useInProgressSorting={sectionOpen === 'tasksSection'}

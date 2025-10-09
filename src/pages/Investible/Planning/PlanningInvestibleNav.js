@@ -107,6 +107,7 @@ export default function PlanningInvestibleNav(props) {
   const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
   // No quick add from your vote so have to check that as well
   const unaccepted = isAssigned && !accepted?.includes(userId) && (!isAssigned || _.isEmpty(yourVote));
+  const singleWorkspaceUser = _.size(marketPresences) < 2;
 
   function onDeleteFile(path) {
     return deleteAttachedFilesFromInvestible(market.id, investibleId, [path]).then((investible) => {
@@ -336,7 +337,8 @@ export default function PlanningInvestibleNav(props) {
           )}
         </div>
       )}
-      {!_.isEmpty(investibleCollaborators.filter((collaborator) => !assigned?.includes(collaborator.id))) && (
+      {!_.isEmpty(investibleCollaborators.filter((collaborator) => !assigned?.includes(collaborator.id))) 
+          && !singleWorkspaceUser && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Tooltip

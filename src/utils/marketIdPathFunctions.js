@@ -96,11 +96,14 @@ export function navigate(history, to, insideUseEffect, doNotAddToHistory) {
 }
 
 export function formInboxItemLinkFromId(id) {
+  if (!id.includes('_')) {
+    return `/outbox/${id}`;
+  }
   return `${getInboxTarget()}/${id}`;
 }
 
 export function formInboxItemLink(message) {
-  return `${getInboxTarget()}/${getMessageId(message)}`;
+  return `${getInboxTarget(message)}/${getMessageId(message)}`;
 }
 
 export function formInviteLink(marketToken) {

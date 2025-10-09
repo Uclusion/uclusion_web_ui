@@ -772,7 +772,7 @@ const messages = defineMessages({
   storyAddParticipantsLabel: 'Change assigned',
   storyApproversLabel: 'Change required approvers',
   addApproversLabel: 'Require approvers',
-  doneApprovalLabel: 'Yes - move to Work Ready',
+  doneApprovalLabel: 'Yes - Work Ready',
   moveSuggestionLabel: 'Move suggestion',
   notDoneApprovalLabel: 'No - other options',
   otherOptionsLabel: 'Other options',

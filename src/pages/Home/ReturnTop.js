@@ -26,7 +26,7 @@ function ReturnTop(props) {
   const marketId = market?.id;
   const isSupportMarket = market?.market_sub_type === SUPPORT_SUB_TYPE;
   const upFromConfigPossible = isConfigScreen && marketId;
-  const downLevel = ['inbox' || 'outbox'].includes(action) ? !_.isEmpty(pathMarketIdRaw) :
+  const downLevel = ['inbox', 'outbox'].includes(action) ? !_.isEmpty(pathMarketIdRaw) :
     (['wizard', 'demo'].includes(action) ? !_.isEmpty(groupId || marketId) :
       (action === 'marketEdit' ? marketId : (['groupEdit', 'groupArchive'].includes(action)  ? groupId :
         !_.isEmpty(pathInvestibleId))));

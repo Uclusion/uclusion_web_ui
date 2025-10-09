@@ -146,7 +146,10 @@ export function isInInbox(message) {
   return !(!message.type || message.type === 'UNREAD_REPORT' || message.deleted);
 }
 
-export function getInboxTarget() {
+export function getInboxTarget(message) {
+  if (message && !message.type_object_id) {
+    return 'outbox';
+  }
   return '/inbox';
 }
 

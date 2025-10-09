@@ -174,105 +174,108 @@ function Inbox(props) {
     [history, isOnWorkItem, nextItemId, messagesState, page]);
   const hasCheckAbleInboxItems = !_.isEmpty(data.filter((message) =>
     message.type_object_id?.startsWith('UNREAD')))
+  const rows = getRows(!tabIndex || tabIndex === 0)
   return (
     <>
-    <div style={{zIndex: 8, position: 'sticky', width: '100%', marginLeft: isOnWorkItem ? undefined : '-0.5rem'}}
-      id="inbox-header">
-      <div style={{paddingBottom: tabIndex > 0 ? '0.25rem' : undefined}}>
-        <div style={{display: 'flex', width: '80%', marginBottom: mobileLayout && workItemId ? '1rem': undefined}}>
-          {!mobileLayout && !isOnWorkItem && (
-            <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
-                      checked={0 === tabIndex ? checkAll : checkAllOutbox}
-                      disabled={tabIndex === 0 ? !hasCheckAbleInboxItems : _.isEmpty(outBoxMessagesOrdered)}
-                      indeterminate={0 === tabIndex ? indeterminate : indeterminateOutbox}
-                      onChange={() => 0 === tabIndex ? determinateDispatch({type: 'toggle'}) :
-                        determinateDispatchOutbox({type: 'toggle'})}
-            />
-          )}
-          {(checkAll || !_.isEmpty(determinate)) && 0 === tabIndex && !isOnWorkItem && (
-            <TooltipIconButton
-              icon={<NotificationDeletion />}
-              onClick={() => {
-                // UNREAD are the only ones that can be selected
-                let toProcess = messagesFull.filter((message) => message.type_object_id.startsWith('UNREAD'));
-                if (checkAll) {
-                  if (!_.isEmpty(determinate)) {
+    {!_.isEmpty(rows) && (
+      <div style={{zIndex: 8, position: 'sticky', width: '100%', marginLeft: isOnWorkItem ? undefined : '-0.5rem'}}
+        id="inbox-header">
+        <div style={{paddingBottom: tabIndex > 0 ? '0.25rem' : undefined}}>
+          <div style={{display: 'flex', width: '80%', marginBottom: mobileLayout && workItemId ? '1rem': undefined}}>
+            {!mobileLayout && !isOnWorkItem && (
+              <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
+                        checked={0 === tabIndex ? checkAll : checkAllOutbox}
+                        disabled={tabIndex === 0 ? !hasCheckAbleInboxItems : _.isEmpty(outBoxMessagesOrdered)}
+                        indeterminate={0 === tabIndex ? indeterminate : indeterminateOutbox}
+                        onChange={() => 0 === tabIndex ? determinateDispatch({type: 'toggle'}) :
+                          determinateDispatchOutbox({type: 'toggle'})}
+              />
+            )}
+            {(checkAll || !_.isEmpty(determinate)) && 0 === tabIndex && !isOnWorkItem && (
+              <TooltipIconButton
+                icon={<NotificationDeletion />}
+                onClick={() => {
+                  // UNREAD are the only ones that can be selected
+                  let toProcess = messagesFull.filter((message) => message.type_object_id.startsWith('UNREAD'));
+                  if (checkAll) {
+                    if (!_.isEmpty(determinate)) {
+                      const keys = Object.keys(determinate);
+                      toProcess = toProcess.filter((message) => !keys.includes(message.type_object_id));
+                    }
+                  } else {
                     const keys = Object.keys(determinate);
-                    toProcess = toProcess.filter((message) => !keys.includes(message.type_object_id));
+                    toProcess = toProcess.filter((message) => keys.includes(message.type_object_id));
                   }
-                } else {
-                  const keys = Object.keys(determinate);
-                  toProcess = toProcess.filter((message) => keys.includes(message.type_object_id));
-                }
-                return deleteOrDehilightMessages(toProcess, messagesDispatch)
-                  .then(() => {
-                    determinateDispatch({type: 'clear'});
-                  }).finally(() => {
-                    setOperationRunning(false);
-                  });
-              }} translationId="inboxArchive" />
-          )}
-          {(checkAllOutbox || !_.isEmpty(determinateOutbox)) && 1 === tabIndex && !isOnWorkItem && (
-            <TooltipIconButton
-              icon={<NotificationsActive />}
-              onClick={() => {
-                let toProcess = outBoxMessagesOrdered;
-                if (checkAll) {
-                  if (!_.isEmpty(determinateOutbox)) {
+                  return deleteOrDehilightMessages(toProcess, messagesDispatch)
+                    .then(() => {
+                      determinateDispatch({type: 'clear'});
+                    }).finally(() => {
+                      setOperationRunning(false);
+                    });
+                }} translationId="inboxArchive" />
+            )}
+            {(checkAllOutbox || !_.isEmpty(determinateOutbox)) && 1 === tabIndex && !isOnWorkItem && (
+              <TooltipIconButton
+                icon={<NotificationsActive />}
+                onClick={() => {
+                  let toProcess = outBoxMessagesOrdered;
+                  if (checkAll) {
+                    if (!_.isEmpty(determinateOutbox)) {
+                      const keys = Object.keys(determinateOutbox);
+                      toProcess = messagesFull.filter((message) => !keys.includes(message.id));
+                    }
+                  } else {
                     const keys = Object.keys(determinateOutbox);
-                    toProcess = messagesFull.filter((message) => !keys.includes(message.id));
+                    toProcess = messagesFull.filter((message) => keys.includes(message.id));
                   }
-                } else {
-                  const keys = Object.keys(determinateOutbox);
-                  toProcess = messagesFull.filter((message) => keys.includes(message.id));
-                }
-                let promiseChain = Promise.resolve(true);
-                if (!_.isEmpty(toProcess)) {
-                  toProcess.forEach((message) => {
-                    // getMarketClient will cache so only way to improve performance here would be poke takes list
-                    promiseChain = promiseChain.then(() => getMarketClient(message.marketId).then((client) => {
-                        if (message.isInvestibleType) {
-                          return client.users.pokeInvestible(message.id);
-                        }
-                        return client.users.pokeComment(message.id);
-                      }));
-                  });
-                }
-                return promiseChain.then(() => {
-                    determinateDispatchOutbox({type: 'clear'});
-                  }).finally(() => {
-                    setOperationRunning(false);
-                  });
-              }} translationId="outboxMark" />
-          )}
-          {isOnWorkItem && mobileLayout && (
-            <TooltipIconButton icon={<ArrowBack style={{marginLeft: '0.5rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
-                               onClick={() => {
-                                 navigate(history, getInboxTarget());
-                               }} translationId="backToInbox" />
-          )}
-          <div style={{flexGrow: 1}}/>
-          <Box fontSize={14} color="text.secondary">
-            {isOnWorkItem && current && (
-              `${current} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
+                  let promiseChain = Promise.resolve(true);
+                  if (!_.isEmpty(toProcess)) {
+                    toProcess.forEach((message) => {
+                      // getMarketClient will cache so only way to improve performance here would be poke takes list
+                      promiseChain = promiseChain.then(() => getMarketClient(message.marketId).then((client) => {
+                          if (message.isInvestibleType) {
+                            return client.users.pokeInvestible(message.id);
+                          }
+                          return client.users.pokeComment(message.id);
+                        }));
+                    });
+                  }
+                  return promiseChain.then(() => {
+                      determinateDispatchOutbox({type: 'clear'});
+                    }).finally(() => {
+                      setOperationRunning(false);
+                    });
+                }} translationId="outboxMark" />
             )}
-            {!isOnWorkItem && (
-              `${first} - ${last} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
+            {isOnWorkItem && mobileLayout && (
+              <TooltipIconButton icon={<ArrowBack style={{marginLeft: '0.5rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+                                onClick={() => {
+                                  navigate(history, getInboxTarget());
+                                }} translationId="backToInbox" />
             )}
-            <TooltipIconButton disabled={!hasLess} icon={<KeyboardArrowLeft
-              htmlColor={hasLess ? ACTION_BUTTON_COLOR : 'disabled'} />}
-                               onClick={goPreviousFunc} translationId="previousInbox" />
-            <TooltipIconButton disabled={!hasMore} icon={<KeyboardArrowRight
-              htmlColor={hasMore ? ACTION_BUTTON_COLOR : 'disabled'} />}
-                               onClick={goNextFunc} translationId="nextInbox" />
-          </Box>
+            <div style={{flexGrow: 1}}/>
+            <Box fontSize={14} color="text.secondary">
+              {isOnWorkItem && current && (
+                `${current} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
+              )}
+              {!isOnWorkItem && (
+                `${first} - ${last} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
+              )}
+              <TooltipIconButton disabled={!hasLess} icon={<KeyboardArrowLeft
+                htmlColor={hasLess ? ACTION_BUTTON_COLOR : 'disabled'} />}
+                                onClick={goPreviousFunc} translationId="previousInbox" />
+              <TooltipIconButton disabled={!hasMore} icon={<KeyboardArrowRight
+                htmlColor={hasMore ? ACTION_BUTTON_COLOR : 'disabled'} />}
+                                onClick={goNextFunc} translationId="nextInbox" />
+            </Box>
+          </div>
         </div>
       </div>
-    </div>
+    )}
     <div id="inbox">
       {!mobileLayout && defaultRow}
       {mobileLayout && <div style={{paddingLeft: '1rem'}}>{defaultRow}</div>}
-      { getRows(!tabIndex || tabIndex === 0) }
+      { rows }
     </div>
     </>
   );

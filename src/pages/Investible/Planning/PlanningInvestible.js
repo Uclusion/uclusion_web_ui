@@ -265,7 +265,7 @@ export const usePlanningInvestibleStyles = makeStyles(
       alignItems: "flex-start",
       '& > div': {
         borderRadius: '6px',
-        marginBottom: '1rem'
+        marginBottom: '1.5rem'
       },
       flex: '1 0 auto',
       backgroundColor: '#8ABABF',

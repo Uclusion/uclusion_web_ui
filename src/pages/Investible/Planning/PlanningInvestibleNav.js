@@ -248,7 +248,7 @@ export default function PlanningInvestibleNav(props) {
           {name}
         </div>
       )}
-      <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} flushLeft flushBottom />
+      <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} flushLeft />
       {isInAccepted && (
         <DaysEstimate marketId={marketId} onChange={handleDateChange} value={marketDaysEstimate}
                       isAssigned={isAssigned} estimateMessage={estimateMessage} messagesDispatch={messagesDispatch} />
@@ -649,7 +649,7 @@ function MarketMetaData(props) {
   }
 
   return (
-    <div style={{marginBottom: '2rem'}}>
+    <div style={{marginBottom: '1.5rem'}}>
       {myMessageDescription && diff && (
         <>
           <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}

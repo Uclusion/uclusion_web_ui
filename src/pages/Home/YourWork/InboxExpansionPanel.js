@@ -334,6 +334,9 @@ export function isMyPokableComment(comment, marketPresences, groupPresencesState
 }
 
 function isPokableComment(comment, marketPresences, groupPresencesState, marketId) {
+  if (comment.resolved) {
+    return false;
+  }
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId,
     comment.group_id) || [];
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};

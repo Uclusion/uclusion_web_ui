@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import cx from 'clsx';
 import styled from 'styled-components';
 import { Box, IconButton, Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
@@ -7,14 +7,9 @@ import CheckBoxOutlineBlank from '@material-ui/icons/CheckBoxOutlineBlank';
 import { useSizedIconButtonStyles } from '@mui-treasury/styles/iconButton/sized';
 import { useRowGutterStyles } from '@mui-treasury/styles/gutter/row';
 import PropTypes from 'prop-types';
-import { formInboxItemLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
+import { navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import RaisedCard from '../../components/Cards/RaisedCard';
-import { pushMessage } from '../../utils/MessageBusUtils';
-import {
-  DEHIGHLIGHT_CRITICAL_EVENT,
-  MODIFY_NOTIFICATIONS_CHANNEL
-} from '../../contexts/NotificationsContext/notificationsContextMessages';
-import { ExpandLess, Notifications, ReportOutlined } from '@material-ui/icons';
+import { ExpandLess, ReportOutlined } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { expandOrContract } from './BugListContext';
 import Chip from '@material-ui/core/Chip';
@@ -24,9 +19,6 @@ import { POKED } from '../../constants/notifications';
 import _ from 'lodash';
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { useHistory } from 'react-router';
-import { WARNING_COLOR } from '../Buttons/ButtonConstants';
-import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
-import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import BugMenu from './BugMenu';
 
 const Div = styled("div")`
@@ -152,7 +144,6 @@ function BugListItem(props) {
     activeInvestibles,
     maxWidth
   } = props;
-  const [, messagesDispatch] = useContext(NotificationsContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const [mouseX, setMouseX] = useState();
   const [mouseY, setMouseY] = useState();
@@ -251,28 +242,6 @@ function BugListItem(props) {
                     backgroundColor: 'white' }}/>
                 </Tooltip>: React.Fragment}
                 {isNew ? (<TitleB>{title}</TitleB>) : titleWithHelp}
-                {isNew && (
-                  <TooltipIconButton
-                    onClick={(event) => {
-                      preventDefaultAndProp(event);
-                      const message = newMessages[0];
-                      if (message.highlighted_list !== undefined) {
-                        pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { DEHIGHLIGHT_CRITICAL_EVENT,
-                          message: message.type_object_id,
-                          originalMessage: `${message.type}_${id}` });
-                      } else {
-                        dehighlightMessage(message, messagesDispatch);
-                      }
-                      navigate(history, formInboxItemLink(message));
-                    }}
-                    onMouseOver={(event) => {
-                      preventDefaultAndProp(event);
-                    }}
-                    icon={<Notifications fontSize='small' htmlColor={WARNING_COLOR} />}
-                    size='small'
-                    translationId='messagePresent'
-                  />
-                )}
                 {mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>) :
                   (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}
                 {mobileLayout && !_.isEmpty(expansionPanel) && (

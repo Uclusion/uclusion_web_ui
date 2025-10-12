@@ -125,7 +125,7 @@ import Reply from './Reply';
 import { isLargeDisplay, stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import styled from 'styled-components';
-import { NOT_FULLY_VOTED_TYPE, RED_LEVEL } from '../../constants/notifications';
+import { NOT_FULLY_VOTED_TYPE, RED_LEVEL, UNASSIGNED_TYPE } from '../../constants/notifications';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import { dehighlightMessage, getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import EditIcon from '@material-ui/icons/Edit';
@@ -826,7 +826,8 @@ function Comment(props) {
   />;
   const showLinker = !mobileLayout && !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
   && marketType !== DECISION_TYPE;
-  const notificationFunc = !replyEditId && myMessage?.type_object_id ? () => {
+  const notificationFunc = !replyEditId && myMessage?.type_object_id && !isInbox &&
+  (investibleId || commentType !== TODO_TYPE || myMessage.type !== UNASSIGNED_TYPE) ? () => {
     dehighlightMessage(myMessage, messagesDispatch);
     navigate(history, formInboxItemLink(myMessage));
   } : undefined;

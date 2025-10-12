@@ -235,7 +235,9 @@ export function quickNotificationChanges(apiType, investibleId, messagesState, m
     if (message) {
       dismissWorkListItem(message, messagesDispatch);
     }
-    quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);
+    if (investibleId) {
+      quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);
+    }
   }
   if (apiType === REPLY_TYPE) {
     let message = findMessageOfType('UNREAD_REVIEWABLE', comment.root_comment_id, messagesState);

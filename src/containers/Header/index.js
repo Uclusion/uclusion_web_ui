@@ -28,7 +28,7 @@ import NavigationChevrons from '../../components/Menus/NavigationChevrons';
 import _ from 'lodash';
 import { OnboardingState } from '../../contexts/AccountContext/accountUserContextHelper';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
+import { ACTION_BUTTON_COLOR, INFO_COLOR } from '../../components/Buttons/ButtonConstants';
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -69,7 +69,7 @@ export const headerStyles = makeStyles((theme) => {
       flexGrow: 1,
     },
     appBar: {
-      background: '#DFF0F2',
+      background: INFO_COLOR,
       height: '60px',
     },
     appBarNoSidebar: {

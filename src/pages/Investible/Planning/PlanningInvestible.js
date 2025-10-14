@@ -84,7 +84,7 @@ import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
 import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
-import { WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
+import { INFO_COLOR, WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -268,7 +268,7 @@ export const usePlanningInvestibleStyles = makeStyles(
         marginBottom: '1.5rem'
       },
       flex: '1 0 auto',
-      backgroundColor: '#8ABABF',
+      backgroundColor: INFO_COLOR,
       height: '100%',
       zIndex: 9,
       position: 'fixed',

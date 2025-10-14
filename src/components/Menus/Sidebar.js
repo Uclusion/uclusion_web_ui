@@ -10,7 +10,7 @@ import { useIntl } from 'react-intl'
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks'
 import { hideShowExpandIcon } from '../../utils/windowUtils'
 import { PLANNING_TYPE } from '../../constants/markets'
-import { ACTION_BUTTON_COLOR } from '../Buttons/ButtonConstants'
+import { ACTION_BUTTON_COLOR, INFO_COLOR } from '../Buttons/ButtonConstants'
 import AddIcon from '@material-ui/icons/Add'
 import NotificationCountChips from '../../pages/Dialog/NotificationCountChips'
 
@@ -120,7 +120,7 @@ export default function Sidebar(props) {
   const { viewsOpen } = pageState;
   const { navListItemTextArray, navLowerListItemTextArray, navMenu, navLowerMenu, listOnClick } = navigationOptions || {};
   return (
-    <ProSidebar width="16rem" backgroundColor="#DFF0F2">
+    <ProSidebar width="16rem" backgroundColor={INFO_COLOR}>
         {navMenu}
         {!_.isEmpty(navMenu) && (
           <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}
@@ -130,7 +130,7 @@ export default function Sidebar(props) {
                     label={intl.formatMessage({ id: 'viewInGroup' })}
                     rootStyles={{
                       '.ps-menuitem-root': {
-                        backgroundColor: '#DFF0F2'
+                        backgroundColor: INFO_COLOR
                       }
                     }}
                     suffix={<div onClick={(event)=> {

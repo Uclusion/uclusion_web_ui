@@ -18,6 +18,7 @@ import { useIntl } from 'react-intl';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { INFO_COLOR } from '../../Buttons/ButtonConstants';
 
 function DemoInviteStep (props) {
   const { marketId } = props;
@@ -57,7 +58,7 @@ function DemoInviteStep (props) {
       <div style={{ paddingTop: '1rem' }}>
         <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
           ctrl+arrowRight to go to what most likely needs doing
-          <div style={{ backgroundColor: '#DFF0F2', width: '10rem', height: '60px' }}>
+          <div style={{ backgroundColor: INFO_COLOR, width: '10rem', height: '60px' }}>
             <NavigationChevrons action='demo' defaultMarket={market} chosenGroup={market?.id} pathMarketIdRaw={market?.id} 
               isArchivedWorkspace={false} /></div>
           {!mobileLayout && (

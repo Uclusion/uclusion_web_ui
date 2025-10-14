@@ -59,6 +59,7 @@ import OtherWorkspaceMenus from '../../pages/Home/OtherWorkspaceMenus';
 import { findMessagesForGroupId } from '../../utils/messageUtils';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { INFO_COLOR } from '../../components/Buttons/ButtonConstants';
 
 export const screenStyles = makeStyles((theme) => ({
   hidden: {
@@ -129,7 +130,7 @@ export const screenStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     flex: '1 0 auto',
-    backgroundColor: '#DFF0F2',
+    backgroundColor: INFO_COLOR,
     height: '100%',
     zIndex: 8,
     position: 'fixed',

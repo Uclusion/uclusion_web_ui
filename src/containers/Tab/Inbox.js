@@ -4,7 +4,7 @@ import Tabs from '@material-ui/core/Tabs';
 import { useGmailTabsStyles, useGmailTabItemStyles } from '@mui-treasury/styles/tabs/gmail';
 import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import { useIntl } from 'react-intl';
-import { COUNT_COLOR } from '../../components/Buttons/ButtonConstants';
+import { COUNT_COLOR, LIGHT_BLUE_COLOR } from '../../components/Buttons/ButtonConstants';
 
 export function GmailTabItem(props) {
   const { color='#2F80ED', label, tag, tagLabel, tagColor=COUNT_COLOR, toolTipId,
@@ -44,7 +44,7 @@ export function GmailTabs(props) {
       {...tabsProps}
       classes={tabsStyles}
       style={{boxShadow: removeBoxShadow ? 'unset' : undefined, paddingLeft: addPaddingLeft, marginLeft: addMarginLeft,
-        backgroundColor: useColor ? '#EDF7F8' : undefined }}
+        backgroundColor: useColor ? LIGHT_BLUE_COLOR : undefined }}
       TabIndicatorProps={{
         ...props.TabIndicatorProps,
         children: <div className={`MuiIndicator-${props.value}`} />,

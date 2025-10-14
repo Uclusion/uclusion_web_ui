@@ -8,6 +8,7 @@ import {
   SECTION_TYPE_TERTIARY_WARNING
 } from '../../constants/global';
 import { DARKER_LINK_COLOR } from '../../pages/Dialog/Planning/InvestiblesByPerson';
+import { LIGHT_BLUE_COLOR } from '../../components/Buttons/ButtonConstants';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -19,7 +20,7 @@ const useStyles = makeStyles((theme) => {
     },
     secondarySubHeaderWarning: {
       boxShadow: 'none',
-      background: '#EDF7F8',
+      background: LIGHT_BLUE_COLOR,
       color: 'black',
       borderRadius: '20px 20px 0 0'
     },

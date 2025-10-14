@@ -8,13 +8,14 @@ import _ from 'lodash'
 import { getDiff } from '../../contexts/DiffContext/diffContextHelper';
 import { DiffContext } from '../../contexts/DiffContext/DiffContext';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { LIGHT_BLUE_COLOR } from '../Buttons/ButtonConstants';
 
 function DescriptionOrDiff(props) {
   const {
     id,
     description,
     showDiff,
-    backgroundColor = '#EDF7F8'
+    backgroundColor = LIGHT_BLUE_COLOR
   } = props;
 
   const [messagesState] = useContext(NotificationsContext);

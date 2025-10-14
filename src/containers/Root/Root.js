@@ -46,6 +46,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import GroupManage from '../../pages/DialogSettings/GroupManage';
 import ManageMarketUsers from '../../pages/Dialog/UserManagement/ManageMarketUsers';
 import DemoFull from '../../pages/Dialog/Planning/DemoFull';
+import { LIGHT_BLUE_COLOR } from '../../components/Buttons/ButtonConstants';
 
 function Root(props) {
   const { authState } = props;
@@ -281,7 +282,7 @@ function Root(props) {
       <CssBaseline/>
         <div style={{ width: '100%', height: '100%',
           backgroundColor: (hideMarket() && hideInvestible() && hideInbox() && hideOutbox() && hideDemoLoad() && hideDemosFull() 
-          && hideMarketLoad() && hideWorkspaceWizard() && hideCommentReplyEdit()) ? undefined : '#EDF7F8'}}>
+          && hideMarketLoad() && hideWorkspaceWizard() && hideCommentReplyEdit()) ? undefined : LIGHT_BLUE_COLOR}}>
           <Wizard hidden={hideWorkspaceWizard()} />
           <DemoFull hidden={hideDemosFull()} />
           {marketJoinedUser && (

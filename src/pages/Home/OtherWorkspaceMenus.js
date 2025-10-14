@@ -19,7 +19,7 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks';
 import { hideShowExpandIcon } from '../../utils/windowUtils';
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
-import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
+import { ACTION_BUTTON_COLOR, INFO_COLOR } from '../../components/Buttons/ButtonConstants';
 import { getInboxCount, getInboxTarget, isInInbox } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import OutboxIcon from '../../components/CustomChip/Outbox';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
@@ -136,7 +136,7 @@ function OtherWorkspaceMenus(props) {
                   onMouseOut={hideShowExpandIcon('collaborators', false)}
                   rootStyles={{
                     '.css-nx2aea': {
-                      backgroundColor: '#DFF0F2'
+                      backgroundColor: INFO_COLOR
                     }
                   }}
                   style={{backgroundColor: (action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()) ? '#e0e0e0' : undefined, borderRadius: 22}}
@@ -216,10 +216,10 @@ function OtherWorkspaceMenus(props) {
             onMouseOut={hideShowExpandIcon('messages', false)}
             rootStyles={{
               '.css-18unl23': {
-                backgroundColor: '#DFF0F2'
+                backgroundColor: INFO_COLOR
               },
               '.css-nx2aea': {
-                backgroundColor: '#DFF0F2'
+                backgroundColor: INFO_COLOR
               }
             }}
             onClick={(event) => {
@@ -278,10 +278,10 @@ function OtherWorkspaceMenus(props) {
                   onMouseOut={hideShowExpandIcon('integrations', false)}
                   rootStyles={{
                     '.css-18unl23': {
-                      backgroundColor: '#DFF0F2'
+                      backgroundColor: INFO_COLOR
                     },
                     '.css-nx2aea': {
-                      backgroundColor: '#DFF0F2'
+                      backgroundColor: INFO_COLOR
                     }
                   }}
                   onClick={(event) => {
@@ -371,10 +371,10 @@ function OtherWorkspaceMenus(props) {
         <SubMenu id='switchWorkspace' label={intl.formatMessage({ id: 'switchWorkspace' })}
                   rootStyles={{
                     '.css-ewdv3l': {
-                      backgroundColor: '#DFF0F2'
+                      backgroundColor: INFO_COLOR
                     },
                     '.css-nx2aea': {
-                      backgroundColor: '#DFF0F2'
+                      backgroundColor: INFO_COLOR
                     }
                   }}
                   style={{backgroundColor: (action === 'wizard' && type === WORKSPACE_WIZARD_TYPE.toLowerCase()) ? '#e0e0e0' : undefined, 

@@ -131,10 +131,12 @@ export default function NavigationChevrons(props) {
 
   function computeNext() {
     const isOnUreadGroupNotification = resource.startsWith(`${getInboxTarget()}`)&&resource.includes('UNREAD_GROUP_');
-    const isOnDemoLoad = action === 'demo';
-    if (isOnDemoLoad) {
-      const demoMarketId = getCurrentWorkspace();
-      return {url: formMarketLink(demoMarketId, demoMarketId), message: undefined, isHighlighted: true};
+    const isMarketLoad = ['demo', 'invite'].includes(action);
+    if (isMarketLoad) {
+      const marketId = getCurrentWorkspace();
+      if (marketId) {
+        return {url: formMarketLink(marketId, marketId), message: undefined, isHighlighted: true};
+      }
     }
     if (isOnUreadGroupNotification) {
       // Next from a new group message is that groups swimlanes

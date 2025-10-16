@@ -43,6 +43,7 @@ import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMem
 import { REPLY_TYPE } from '../../constants/comments';
 import { getGroupPresences, getMarketPresences, isAutonomousGroup } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import ReturnTop from '../../pages/Home/ReturnTop';
+import { getCurrentWorkspace } from '../../utils/redirectUtils';
 
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
   const candidate = {url: formInvestibleLink(market.id, investible.investible.id)};
@@ -129,7 +130,13 @@ export default function NavigationChevrons(props) {
     allExistingUrls.includes(navigation.url) && navigation.url !== resource);
 
   function computeNext() {
-    if (resource.startsWith(`${getInboxTarget()}`)&&resource.includes('UNREAD_GROUP_')) {
+    const isOnUreadGroupNotification = resource.startsWith(`${getInboxTarget()}`)&&resource.includes('UNREAD_GROUP_');
+    const isOnDemoLoad = action === 'demo';
+    if (isOnDemoLoad) {
+      const demoMarketId = getCurrentWorkspace();
+      return {url: formMarketLink(demoMarketId, demoMarketId), message: undefined, isHighlighted: true};
+    }
+    if (isOnUreadGroupNotification) {
       // Next from a new group message is that groups swimlanes
       const [, ,groupId] = resource.split('_');
       const groupMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${groupId}`, messagesState);

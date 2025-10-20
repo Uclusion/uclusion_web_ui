@@ -1,0 +1,13 @@
+name: Deploy Backend Stage
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    if: startsWith(github.event.release.tag_name, 'stage_backend')
+    uses: ./.github/workflows/reusableBuild.yml
+    secrets: inherit
+    with:
+      environment: "stage"

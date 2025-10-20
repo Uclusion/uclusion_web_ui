@@ -1,0 +1,68 @@
+name: Deploy UI
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: ${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: Clone sdk
+        uses: actions/checkout@v4
+        with:
+          repository: 'Uclusion/uclusion_sdk'
+          token: ${{ secrets.GIT_TOKEN }}
+          path: ../uclusion_sdk
+
+      - name: Clone utils
+        uses: actions/checkout@v4
+        with:
+          repository: 'Uclusion/circleci_orbs'
+          token: ${{ secrets.GIT_TOKEN }}
+          path: utils_repo
+
+      - name: Install dependencies & Deploy
+        run: |
+          echo 'export MY_RELEASE_VAR=`echo ${{ github.sha }} | head -c 16`' >> $GITHUB_ENV
+          yarn install
+          cp ${{ inputs.environment }}.env .env
+          npm run-script build
+          npm run-script deploy-${{ inputs.environment }}
+          aws configure set preview.cloudfront true
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.UI_DISTRIBUTION_ID }} --paths "/*"
+          cd utils_repo
+          pip install --user boto3
+          pip install --user pynamodb
+          # -c true to require signout on this release
+          python -m utils.record_release -a ${MY_RELEASE_VAR} -c false
+

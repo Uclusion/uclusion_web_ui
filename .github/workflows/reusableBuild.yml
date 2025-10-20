@@ -42,7 +42,6 @@ jobs:
         with:
           repository: 'Uclusion/uclusion_sdk'
           token: ${{ secrets.GIT_TOKEN }}
-          path: ../uclusion_sdk
 
       - name: Clone utils
         uses: actions/checkout@v4
@@ -53,6 +52,7 @@ jobs:
 
       - name: Install dependencies & Deploy
         run: |
+          mv uclusion_sdk ..
           echo 'export MY_RELEASE_VAR=`echo ${{ github.sha }} | head -c 16`' >> $GITHUB_ENV
           yarn install
           cp ${{ inputs.environment }}.env .env

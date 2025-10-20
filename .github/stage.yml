@@ -1,4 +1,4 @@
-name: Deploy Backend Stage
+name: Deploy UI Stage
 
 on:
   release:

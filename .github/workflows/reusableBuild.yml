@@ -42,6 +42,7 @@ jobs:
         with:
           repository: 'Uclusion/uclusion_sdk'
           token: ${{ secrets.GIT_TOKEN }}
+          path: uclusion_sdk
 
       - name: Clone utils
         uses: actions/checkout@v4

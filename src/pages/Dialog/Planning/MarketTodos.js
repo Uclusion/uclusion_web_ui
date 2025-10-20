@@ -173,7 +173,8 @@ function MarketTodos(props) {
     isInbox=false,
     openDefaultId,
     message,
-    activeInvestibles
+    activeInvestibles,
+    isSupport = false
   } = props
   const classes = todoClasses();
   const wizardClasses = wizardStyles();
@@ -420,8 +421,13 @@ function MarketTodos(props) {
           {intl.formatMessage({ id: 'createBug'})}
         </SpinningButton>
       )}
-      <DismissableText textId="todosHelp" noPad display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
+      <DismissableText textId="todosHelp" isLeft noPad display={!isInArchives && _.isEmpty(search) && _.isEmpty(todoComments)}
                        text={
+          isSupport ?
+          <div>
+            Open a bug and Uclusion support will respond. 
+          </div>
+          :
         <div>
           Use "Add bug" above to create a <Link href="https://documentation.uclusion.com/views/bugs" target="_blank">bug</Link> that
           sends notifications based on severity.

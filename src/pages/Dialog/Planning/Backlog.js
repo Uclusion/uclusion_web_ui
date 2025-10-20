@@ -42,7 +42,8 @@ function Backlog(props) {
     hidden,
     myGroupPresence,
     acceptedStageId,
-    inDialogStageId
+    inDialogStageId,
+    mobileLayout
   } = props;
   const { market_id: marketId, id: groupId} = group || {};
   const intl = useIntl();
@@ -111,14 +112,16 @@ function Backlog(props) {
       <SpinningButton id="addBacklogJob"
                       className={wizardClasses.actionNext}
                       icon={AddIcon} iconColor="black"
-                      style={{marginBottom: isEmptyBacklog ? undefined : '1rem'}}
+                      style={{marginBottom: isEmptyBacklog ? undefined : '1rem', 
+                        marginLeft: mobileLayout ? undefined : '0.5rem'}}
                       variant="text" doSpin={false} toolTipId='hotKeyJob'
                       onClick={() => {
                         navigate(history, formMarketAddInvestibleLink(marketId, groupId, tabIndex));
                       }}>
         {intl.formatMessage({ id: 'addStoryLabel'})}
       </SpinningButton>
-      <DismissableText textId="backlogHelp" noPad={true}
+      <div style={{paddingBottom: isEmptyBacklog ? '1rem' : undefined}} />
+      <DismissableText textId="backlogHelp" isLeft
                        display={isEmptyBacklog}
                        text={market?.market_sub_type === 'SUPPORT' ?
                          <div>

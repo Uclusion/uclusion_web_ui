@@ -63,7 +63,7 @@ import {
   formMarketAddCommentLink, formMarketAddInvestibleLink, formWizardLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
-import { DISCUSSION_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
+import { DISCUSSION_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE, SUPPORT_SUB_TYPE } from '../../../constants/markets';
 import DialogOutset from './DialogOutset';
 import SettingsIcon from '@material-ui/icons/Settings';
 import MenuBookIcon from '@material-ui/icons/MenuBook';
@@ -138,6 +138,7 @@ function PlanningDialog(props) {
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [, diffDispatch] = useContext(DiffContext);
   const market = getMarket(marketsState, marketId) || {};
+  const isSupport = market?.market_sub_type === SUPPORT_SUB_TYPE;
   const group = getGroup(groupState, marketId, groupId);
   const { name: groupName } = group || {};
   const marketComments = getMarketComments(commentsState, marketId) || [];
@@ -558,15 +559,7 @@ function PlanningDialog(props) {
     }
   }
 
-  const createButton = <SpinningButton id="addJob"
-  className={mobileLayout ? wizardClasses.actionNextMobile : wizardClasses.actionNext}
-  icon={AddIcon} iconColor="black"
-  variant="text" doSpin={false}
-  style={{marginBottom: '1rem', marginRight: mobileLayout ? undefined : '5rem'}}
-  toolTipId='hotKeyJob'
-  onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
-<FormattedMessage id='addStoryLabel'/>
-</SpinningButton>;
+const isSwimlaneEmpty = _.isEmpty(swimlaneInvestibles)&&_.isEmpty(swimlaneCompleteInvestibles);
 
   return (
     <Screen
@@ -658,7 +651,12 @@ function PlanningDialog(props) {
                     <div style={{marginTop: '2.5rem'}} />
                   )}
                   <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionNotesGroupComments)}
-                                   noPad text={
+                                   isLeft noPad text={
+                    isSupport ?
+                    <div>
+                      Ask a question or make a suggestion and Uclusion support will respond. 
+                    </div>
+                    :
                     <div>
                       <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
                       be used at the view level and later moved to a job. Notes can be resolved to archive.
@@ -672,12 +670,20 @@ function PlanningDialog(props) {
         )}
         {isSectionOpen('storiesSection') && (
           <div id="storiesSection" style={{overflowX: 'hidden'}}>
+            <SpinningButton id="addJob"
+              className={mobileLayout ? wizardClasses.actionNextMobile : wizardClasses.actionNext}
+              icon={AddIcon} iconColor="black"
+              variant="text" doSpin={false}
+              style={{marginTop: '1rem', marginLeft: mobileLayout ? undefined : '0.5rem'}}
+              toolTipId='hotKeyJob'
+              onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
+              <FormattedMessage id='addStoryLabel'/>
+            </SpinningButton>
             <div onDrop={onDropNext} onDragOver={onDragOverNext}>
               <SubSection
                 type={SECTION_TYPE_SECONDARY_WARNING}
                 bolder
                 id="blocked"
-                createButton={createButton}
                 showCard={false}
               >
                 {!_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) && (
@@ -694,15 +700,15 @@ function PlanningDialog(props) {
                 )}
               </SubSection>
             </div>
-            <div style={{ paddingBottom: '2rem' }}/>
+            <div style={{ paddingBottom: isSwimlaneEmpty ? undefined : '1rem' }}/>
             <DismissableText textId="notificationHelp" isLeft
-                             display={_.isEmpty(swimlaneInvestibles)&&_.isEmpty(swimlaneCompleteInvestibles)}
+                             display={isSwimlaneEmpty}
                              text={
                                isSingleUser ?
                                    <div>
                                      {swimlaneEmptyPreText} Use the "Add job" button above to start a new job.
                                    </div>
-                                : (market?.market_sub_type === 'SUPPORT' ?
+                                : (isSupport ?
                                   <div>
                                     {swimlaneEmptyPreText} The "Add job" button above creates a job
                                     and sends a <Link href="https://documentation.uclusion.com/notifications"
@@ -737,12 +743,12 @@ function PlanningDialog(props) {
           </div>
         )}
         <div id="backlogSection" style={{overflowX: 'hidden'}}>
-          <Backlog group={group} marketPresences={marketPresences} hidden={!isSectionOpen('backlogSection')}
+          <Backlog group={group} marketPresences={marketPresences} hidden={!isSectionOpen('backlogSection')} mobileLayout={mobileLayout}
                    furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
                    comments={marketComments} myGroupPresence={myGroupPresence} inDialogStageId={inDialogStage?.id}
                    acceptedStageId={acceptedStage?.id} singleUser={isSingleUser ? groupPresences[0] : undefined} />
         </div>
-        <MarketTodos comments={unResolvedGroupComments} marketId={marketId} groupId={groupId}
+        <MarketTodos comments={unResolvedGroupComments} marketId={marketId} groupId={groupId} isSupport={isSupport}
                      sectionOpen={isSectionOpen('marketTodos')}
                      hidden={hidden} activeInvestibles={activeInvestibles}
                      setSectionOpen={() => {

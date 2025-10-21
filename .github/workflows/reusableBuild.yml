@@ -65,5 +65,5 @@ jobs:
           pip install --user boto3
           pip install --user pynamodb
           # -c true to require signout on this release
-          python -m utils.record_release -a ${MY_RELEASE_VAR} -c false
+          python -m utils.record_release -a $MY_RELEASE_VAR -c false
 

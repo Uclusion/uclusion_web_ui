@@ -173,7 +173,7 @@ const messages = defineMessages({
   commentOptionsLoadingMessage: 'Comment options loading',
   loadingMarket: 'Processing invite',
   loadingSlack: 'Slack integration',
-  cliSecret: 'Get CLI secret',
+  cliSecret: 'Show CLI secret',
   invalidateSecret: 'Create new secret',
 
   // Market Add

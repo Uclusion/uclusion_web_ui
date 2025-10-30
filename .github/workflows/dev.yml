@@ -16,5 +16,5 @@ jobs:
           secret_key_id: ${{ secrets.SECRET_KEY_ID }}
           secret_key: ${{ secrets.SECRET_KEY }}
           workspace_id: ${{ secrets.WORKSPACE_ID }}
-          github-event-message: ${{ github.event.message }}
+          github-event-message: ${{ github.event.head_commit.message }}
     

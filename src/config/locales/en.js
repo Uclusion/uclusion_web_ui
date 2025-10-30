@@ -146,7 +146,7 @@ const messages = defineMessages({
   // Share story
   shareButtonExplanation: 'Link',
   shareButtonTitle: 'Share',
-  copyLink: 'Link',
+  copyCommitMessage: 'Copy commit message',
   copyInviteLink: 'Copy Invite Link',
   inviteLinkerTicketCode: 'Human friendly job identifier',
 
@@ -845,7 +845,9 @@ const messages = defineMessages({
   // invite linker
   inviteLinkerDirectionsDecision: 'Share this link',
   inviteLinkerDirectionsPlan: 'Click to copy this link',
+  commitMessageDirections: 'Click to copy commit message',
   inviteLinkerCopied: 'Link copied to clipboard',
+  commitMessageCopied: 'Commit message copied to clipboard',
   inviteLinkerDirectionsInitiative: 'Share this link',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
 

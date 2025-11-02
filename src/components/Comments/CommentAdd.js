@@ -49,7 +49,6 @@ import TokenStorageManager from '../../authorization/TokenStorageManager'
 import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
 import WizardStepButtons from '../InboxWizards/WizardStepButtons'
 import AddWizardStepButtons from '../AddNewWizards/WizardStepButtons'
-import { nameFromDescription } from '../../utils/stringFunctions';
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import { getMarketInfo } from '../../utils/userFunctions';
@@ -376,21 +375,11 @@ function CommentAdd(props) {
     const marketType = ((createInlineInitiative && isSent && doCreateInitiative === undefined)
     || doCreateInitiative) ? INITIATIVE_TYPE : (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && type === ISSUE_TYPE) && currentStageId !== blockingStage.id;
-    let label = undefined;
-    if (creatorIsAssigned && type === REPORT_TYPE && investibleId && isSent !== false) {
-      label = nameFromDescription(tokensRemoved);
-    }
     return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, type, filteredUploads, mentions,
-      passedNotificationType, marketType, undefined, isSent, label)
+      passedNotificationType, marketType, undefined, isSent)
       .then((response) => {
         let comment = marketType ? response.parent : response;
         let useRootInvestible = inv.investible;
-        if (!_.isEmpty(label)) {
-          const { comment: returnedComment, investible: returnedInvestible } = response;
-          comment = returnedComment;
-          useRootInvestible = returnedInvestible;
-          addInvestible(investibleDispatch, () => {}, returnedInvestible);
-        }
         commentAddStateReset();
         resetEditor(editorName);
         if (isSent !== false && investibleId) {

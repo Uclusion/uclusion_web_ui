@@ -29,6 +29,7 @@ import { getMarketInfo } from '../../../utils/userFunctions'
 import {
   ISSUE_TYPE,
   QUESTION_TYPE,
+  REPORT_TYPE,
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
 } from '../../../constants/comments';
@@ -666,6 +667,8 @@ function StageInvestible(props) {
   const ticketNumber = getTicketNumber(groupId, marketId, groupsState, isAutonomous, isSameGroup);
   const inProgressComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
     && !comment.resolved && comment.comment_type === TODO_TYPE && comment.in_progress);
+  const reviewComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
+    && !comment.resolved && comment.comment_type === REPORT_TYPE);
   return (
     <>
       {anchorEl && (
@@ -792,6 +795,14 @@ function StageInvestible(props) {
             const { body, id: commentId } = comment;
             return <BugListItem id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
                                 useSelect={false} toolTipId='inProgress'
+                                link={formCommentLink(marketId, marketInfo.group_id, id, commentId)} />;
+          })
+        )}
+        {isReview && !_.isEmpty(reviewComments) && (
+          reviewComments.map((comment) => {
+            const { body, id: commentId } = comment;
+            return <BugListItem id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
+                                useSelect={false} toolTipId='inReview'
                                 link={formCommentLink(marketId, marketInfo.group_id, id, commentId)} />;
           })
         )}

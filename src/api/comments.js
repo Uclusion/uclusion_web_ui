@@ -12,17 +12,17 @@ export function fetchComments(signatures, client) {
 }
 
 export function saveComment(marketId, groupId, investibleId, replyId, body, commentType, uploadedFiles, mentions,
-  notificationType, marketType, isRestricted, isSent, investibleLabel) {
+  notificationType, marketType, isRestricted, isSent) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.createComment(investibleId, groupId, body, replyId, commentType, uploadedFiles,
-      mentions, notificationType, marketType, isRestricted, isSent, investibleLabel))
+      mentions, notificationType, marketType, isRestricted, isSent))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 
-export function sendComment(marketId, commentId, label, marketType) {
+export function sendComment(marketId, commentId, marketType) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.updateComment(commentId, undefined, undefined,
-      undefined, undefined, undefined, undefined, true, label,
+      undefined, undefined, undefined, undefined, true, undefined,
       undefined, undefined, undefined, marketType))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
@@ -41,11 +41,10 @@ export function alterComments(marketId, commentIds, notificationType) {
 
 export function updateComment(values) {
   const { marketId, commentId, body, commentType, uploadedFiles, mentions, notificationType,
-    isSent, investibleLabel, allowMulti, isRestricted, inProgress, version } = values;
+    isSent, allowMulti, isRestricted, inProgress, version } = values;
   return getMarketClient(marketId)
     .then((client) => client.investibles.updateComment(commentId, body, undefined, uploadedFiles, mentions,
-      commentType, notificationType, isSent, investibleLabel, allowMulti, isRestricted, inProgress, undefined,
-      version))
+      commentType, notificationType, isSent, allowMulti, isRestricted, inProgress, undefined, version))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 

@@ -29,8 +29,6 @@ import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import { useEditor } from '../TextEditors/quillHooks';
 import { deleteOrDehilightMessages } from '../../api/users';
 import { getQuillStoredState, resetEditor } from '../TextEditors/Utilities/CoreUtils';
-import { nameFromDescription } from '../../utils/stringFunctions';
-import { addInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { removeMessages } from '../../contexts/NotificationsContext/notificationsContextReducer';
 import EmojiObjectsIcon from '@material-ui/icons/EmojiObjects';
 import BlockIcon from '@material-ui/icons/Block';
@@ -265,19 +263,10 @@ function CommentEdit(props) {
     const mentions = getMentionsFromText(tokensRemoved);
     const myActualNotificationType = commentType === TODO_TYPE && !investibleId ? myNotificationType :
       (commentType === REPORT_TYPE ? notificationType : undefined);
-    let label = undefined;
-    if (commentType === REPORT_TYPE && investibleId) {
-      label = nameFromDescription(tokensRemoved);
-    }
     return updateComment({marketId, commentId: id, body: tokensRemoved, uploadedFiles: filteredUploads, mentions,
-      notificationType: myActualNotificationType, investibleLabel: label, isSent, version})
+      notificationType: myActualNotificationType, isSent, version})
       .then((response) => {
         let comment = response;
-        if (!_.isEmpty(label)) {
-          const { comment: returnedComment, investible: returnedInvestible } = response;
-          comment = returnedComment;
-          addInvestible(investibleDispatch, () => {}, returnedInvestible);
-        }
         resetEditor(editorName);
         onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
           commentState, commentDispatch, myPresence);

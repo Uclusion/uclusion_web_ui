@@ -577,7 +577,7 @@ function StageInvestible(props) {
   const intl = useIntl();
   const { completion_estimate: daysEstimate, assigned, group_id: groupId, stage: stageId,
     open_for_investment: openForInvestment } = marketInfo;
-  const { id, name,  label_list: labelList } = investible;
+  const { id, name, labels } = investible;
   const history = useHistory();
   const to = `${formInvestibleLink(marketId, id)}#investible-header`;
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -604,6 +604,8 @@ function StageInvestible(props) {
     return findMessageOfType('REPORT_REQUIRED', id, messagesState);
   }
   const doesRequireStatusMessage = requiresStatusMessage(id);
+  const labelsSorted = _.sortBy(labels, "updated_at");
+  const label = _.isEmpty(labelsSorted) ? undefined : labelsSorted[0];
 
   function getMessagesChip() {
     const messagesRaw = findMessagesForInvestibleId(id, messagesState);
@@ -776,7 +778,7 @@ function StageInvestible(props) {
             }}
           >
             <Typography color='initial' variant="subtitle2">{name}</Typography>
-            {!_.isEmpty(labelList) && labelList.map((label) =>
+            {!_.isEmpty(label) && (
               <div key={label} style={{paddingTop: '0.5rem', cursor: 'pointer'}} onClick={(event) => {
                 preventDefaultAndProp(event);
                 navigate(history, `${formInvestibleLink(marketId, investible.id)}#approve`);

@@ -65,4 +65,14 @@ jobs:
           pip install --user pynamodb
           # -c true to require signout on this release
           python -m utils.record_release -a `echo ${{ github.sha }} | head -c 16` -c false
+      - name: Mark jobs released
+        uses: Uclusion/release-job@v1
+        with:
+          secret_key_id: ${{ secrets.SECRET_KEY_ID }}
+          secret_key: ${{ secrets.SECRET_KEY }}
+          workspace_id: ${{ secrets.WORKSPACE_ID }}
+          git_token: ${{ secrets.GIT_TOKEN }}
+          git-sha: ${{ github.sha }}
+          git-repository: ${{ github.repository }}
+          label: "Deployed to ${{ inputs.environment }}"
 

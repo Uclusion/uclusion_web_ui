@@ -687,8 +687,7 @@ function Comment(props) {
         undefined, id)}&isInbox=${isInbox === true}`);
     }
     return resolveComment(marketId, id)
-      .then((response) => {
-        const comment = commentType === REPORT_TYPE ? response['comment'] : response;
+      .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
         const isTriage = typeObjectIdRaw?.startsWith('UNASSIGNED_');
         let criticalCommentsNumber = 0;
@@ -701,9 +700,7 @@ function Comment(props) {
         if (inlineMarketId) {
           removeInlineMarketMessages(inlineMarketId, investiblesState, commentsState, messagesState, messagesDispatch);
         }
-        if (commentType === REPORT_TYPE) {
-          addInvestible(investiblesDispatch, () => {}, response['investible']);
-        } else if (resolvedStageId) {
+        if (resolvedStageId) {
           const newInfo = {
             ...marketInfo,
             stage: resolvedStageId,

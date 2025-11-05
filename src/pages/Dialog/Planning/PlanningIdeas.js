@@ -605,7 +605,7 @@ function StageInvestible(props) {
   }
   const doesRequireStatusMessage = requiresStatusMessage(id);
   const labelsSorted = _.sortBy(labels, "updated_at");
-  const label = _.isEmpty(labelsSorted) ? undefined : labelsSorted[0];
+  const label = _.isEmpty(labelsSorted) ? undefined : labelsSorted[0].label;
 
   function getMessagesChip() {
     const messagesRaw = findMessagesForInvestibleId(id, messagesState);

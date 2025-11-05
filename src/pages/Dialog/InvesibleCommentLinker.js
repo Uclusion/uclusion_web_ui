@@ -37,6 +37,14 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
+function transformTicketCode(inputString) {
+  if (!inputString) {
+    return inputString;
+  }
+  const allMatches = inputString.split('-');
+  return `${allMatches[0]}-${allMatches[2]}`;
+}
+
 function InvesibleCommentLinker(props) {
   const intl = useIntl();
   const {
@@ -61,6 +69,8 @@ function InvesibleCommentLinker(props) {
   let link = `${window.location.protocol}//${window.location.host}/${marketId}/${ticketCode}`;
   let useTextInsteadOfLink = false;
   let commitMessage = '';
+  const decodedTicketCode = decodeURI(ticketCode);
+  const shortTicketCode = transformTicketCode(decodedTicketCode);
   if (commentId) {
     if (comment.ticket_code) {
       ticketCode = comment.ticket_code;
@@ -69,13 +79,13 @@ function InvesibleCommentLinker(props) {
       useTextInsteadOfLink = true;
       link = `${window.location.href}#c${commentId}`;
     }
-    commitMessage = `${ticketCode} ${stripHTML(comment.body)}`;
+    commitMessage = `${decodedTicketCode} ${stripHTML(comment.body)}`;
   } else {
-    commitMessage = `${ticketCode} ${inv.investible.name}`;
+    commitMessage = `${decodedTicketCode} ${inv.investible.name}`;
   }
   return (
     <div id="inviteLinker" className={hidden ? classes.hidden : undefined}
-         style={{marginBottom: flushBottom ? 0 : undefined}}>
+         style={{marginBottom: flushBottom ? 0 : '1rem'}}>
         <IconButton
           style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap',
             paddingLeft: flushLeft ? 0 : undefined}} 
@@ -115,7 +125,7 @@ function InvesibleCommentLinker(props) {
                   setInMessageCopy(false);
                   setCopiedMessageToClipboard(false);
                 }} onMouseEnter={() => setInMessageCopy(true)}>
-            { !useTextInsteadOfLink ? decodeURI(ticketCode)
+            { !useTextInsteadOfLink ? shortTicketCode
                 : intl.formatMessage({ id: 'copyCommitMessage' }) }
         </Button>
       </Tooltip>

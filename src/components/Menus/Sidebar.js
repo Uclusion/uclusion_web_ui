@@ -115,7 +115,7 @@ export default function Sidebar(props) {
   const intl = useIntl();
   const { marketId, navigationOptions, idPrepend='' } = props;
   const [pageStateFull, pageDispatch] = usePageStateReducer('sidebarMenus');
-  const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, 'sidebarState',
+  const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, marketId || 'sidebarState',
     {viewsOpen: true});
   const { viewsOpen } = pageState;
   const { navListItemTextArray, navLowerListItemTextArray, navMenu, navLowerMenu, listOnClick } = navigationOptions || {};

@@ -8,7 +8,7 @@ import { useIntl } from 'react-intl';
 import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
 import { formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
-import { ADD_COLLABORATOR_WIZARD_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
+import { ADD_COLLABORATOR_WIZARD_TYPE, DEMO_TYPE, SUPPORT_SUB_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { AddAlert, ExpandLess, ExpandMore, Face, Inbox, VpnKey } from '@material-ui/icons';
 import config from '../../config';
@@ -70,8 +70,12 @@ function OtherWorkspaceMenus(props) {
   const intl = useIntl();
   const [pageStateFull, pageDispatch] = usePageStateReducer('otherMenus');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, 'menuState',
-    {switchWorkspaceOpen: true, integrationsOpen: false, collaboratorsOpen: !mobileLayout, messagesOpen: true});
-  const { switchWorkspaceOpen, integrationsOpen, collaboratorsOpen, messagesOpen } = pageState;
+    {switchWorkspaceOpen: true, messagesOpen: true});
+  const [workspacePageState, updateWorkspacePageState] = getPageReducerPage(pageStateFull, pageDispatch, 
+    defaultMarket?.id ||'menuState', {integrationsOpen: defaultMarket?.object_type !== DEMO_TYPE && 
+      defaultMarket?.market_sub_type !== SUPPORT_SUB_TYPE, collaboratorsOpen: !mobileLayout});
+  const { switchWorkspaceOpen, messagesOpen } = pageState;
+  const { integrationsOpen, collaboratorsOpen } = workspacePageState;
   const [presenceAnchor, setPresenceAnchor] = useState(null);
   const [presenceMenuId, setPresenceMenuId] = useState(undefined);
   const history = useHistory();
@@ -152,7 +156,7 @@ function OtherWorkspaceMenus(props) {
                 </Tooltip></div>}
                   onClick={(event) => {
                     preventDefaultAndProp(event);
-                    updatePageState({collaboratorsOpen: !collaboratorsOpen});
+                    updateWorkspacePageState({collaboratorsOpen: !collaboratorsOpen});
                   }}
                   key="collaborators" open={collaboratorsOpen}>
               <div style={{marginLeft: '2rem'}}>
@@ -286,7 +290,7 @@ function OtherWorkspaceMenus(props) {
                   }}
                   onClick={(event) => {
                     preventDefaultAndProp(event);
-                    updatePageState({integrationsOpen: !integrationsOpen});
+                    updateWorkspacePageState({integrationsOpen: !integrationsOpen});
                   }}
                   key="integrations" open={integrationsOpen}>
             <MenuItem icon={<Face htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}

@@ -69,11 +69,13 @@ function InvesibleCommentLinker(props) {
   let link = `${window.location.protocol}//${window.location.host}/${marketId}/${ticketCode}`;
   let useTextInsteadOfLink = false;
   let commitMessage = '';
-  const decodedTicketCode = decodeURI(ticketCode);
-  const shortTicketCode = transformTicketCode(decodedTicketCode);
+  let decodedTicketCode = decodeURI(ticketCode);
+  let shortTicketCode = transformTicketCode(decodedTicketCode);
   if (commentId) {
     if (comment.ticket_code) {
       ticketCode = comment.ticket_code;
+      decodedTicketCode = decodeURI(ticketCode);
+      shortTicketCode = transformTicketCode(decodedTicketCode);
       link = `${window.location.protocol}//${window.location.host}/${marketId}/${comment.ticket_code}`;
     } else {
       useTextInsteadOfLink = true;

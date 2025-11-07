@@ -812,7 +812,7 @@ function Comment(props) {
   const isDeletable = !isInbox && !beingEdited && (commentType === REPORT_TYPE || isEditable || resolved);
   const linker = 
     <div style={{marginRight: '1rem', marginTop: '-0.25rem'}}>
-      <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} />
+      <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} flushBottom />
     </div>;
   const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>

@@ -2,7 +2,7 @@
 
 Try an image 
 
-![some alt name](./public/images/uclusionblack.png)
+![some alt name](./public/images/ucusionblack.png)
 
 ## List of articles about this code
 

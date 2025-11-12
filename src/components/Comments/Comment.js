@@ -741,6 +741,7 @@ function Comment(props) {
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;
+  const showHighlight = noHighlightId !== id && hashFragment?.includes(id);
   function getCommentHighlightStyle() {
     if (isInbox) {
       if (!inboxMessageId || inboxMessageId === id) {
@@ -748,7 +749,7 @@ function Comment(props) {
       }
       return classes.containerLink;
     }
-    if (noHighlightId !== id && hashFragment?.includes(id)) {
+    if (showHighlight) {
       return classes.containerHashYellow;
     }
     return classes.container;
@@ -928,7 +929,8 @@ function Comment(props) {
       {!mobileLayout && intl.formatMessage({ id: showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'})}
     </SpinningIconLabelButton>
   )}</>;
-  const commentCard = <div style={{overflow: 'unset', backgroundColor: 'white', marginTop: isSent === false || usePadding === false ? 0
+  const commentCard = <div style={{overflow: 'unset', backgroundColor: showHighlight ? undefined : 'white', 
+    marginTop: isSent === false || usePadding === false ? 0
       : '1rem', width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
                             ref={editBox}>
     <div onClick={(event) => {

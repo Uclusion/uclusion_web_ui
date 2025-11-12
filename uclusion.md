@@ -4,6 +4,11 @@ Try an image
 
 ![some alt name](./public/images/ucusionblack.png)
 
+Now try smaller of same image
+
+<img src="./public/images/ucusionblack.png" alt="some smaller alt name" width="200"/>
+
+
 ## List of articles about this code
 
 [Notes on S3 backed File Downloads](https://dev.to/uclusionhq/notes-on-s3-backed-file-downloads-42i3)  

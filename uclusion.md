@@ -1,6 +1,8 @@
 # Testing Uclusion integration idea
 
-[Uclusion](https://www.uclusion.com) makes this code publicly available as a learning resource for anyone coding in React, building PWA, using Amplify, using Material UI, etc.
+Try an image 
+
+![some alt name](./public/images/uclusionblack.png)
 
 ## List of articles about this code
 

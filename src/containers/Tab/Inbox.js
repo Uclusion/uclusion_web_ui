@@ -7,7 +7,7 @@ import { useIntl } from 'react-intl';
 import { COUNT_COLOR, LIGHT_BLUE_COLOR } from '../../components/Buttons/ButtonConstants';
 
 export function GmailTabItem(props) {
-  const { color='#2F80ED', label, tag, tagLabel, tagColor=COUNT_COLOR, toolTipId,
+  const { color='#2F80ED', label, tag, tagLabel, hasChip=true, tagColor=COUNT_COLOR, toolTipId,
     ...other } = props;
   const theme = useTheme();
   const intl = useIntl();
@@ -25,8 +25,9 @@ export function GmailTabItem(props) {
       style={{maxWidth: '16rem', width: '12rem'}}
       label={
         <div className={'MuiTabItem-label'}>
-          {useLabel} {tag && <span className={'MuiTabItem-tag'} style={{backgroundColor: tagColor,
-          borderRadius: 22, paddingLeft: '5px', paddingRight: '5px', marginLeft: mobileLayout ? '-8px' : undefined}}>
+          {useLabel} {tag && <span className={'MuiTabItem-tag'} style={{backgroundColor: hasChip ? tagColor : 'unset',
+          color: hasChip ? undefined : 'black', borderRadius: 22, paddingLeft: '5px', paddingRight: '5px', 
+          marginLeft: mobileLayout ? '-8px' : undefined}}>
           {tag} {useTagLabel}</span>}
         </div>
       }

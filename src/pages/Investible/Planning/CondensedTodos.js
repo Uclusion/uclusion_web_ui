@@ -225,7 +225,7 @@ function CondensedTodos(props) {
                         onDrop={onDropOpen} toolTipId='openTasksToolTip'
                         onDragOver={(event)=>event.preventDefault()}/>
           <GmailTabItem label={intl.formatMessage({id: 'closedComments'})}
-                        color='black'
+                        color='black' hasChip={false}
                         tagLabel={intl.formatMessage({id: 'total'})}
                         tag={`${_.size(resolvedComments)}`}
                         onDrop={onDropResolved} toolTipId='resolvedTasksToolTip'

@@ -343,20 +343,6 @@ function Reply(props) {
             </div>
           </Tooltip>
         )}
-        {myMessage?.type_object_id && !isInbox && !replyBeingEdited && (
-          <TooltipIconButton
-            onClick={(event) => {
-              if (!invalidEditEvent(event, history)) {
-                dehighlightMessage(myMessage, messagesDispatch);
-                navigate(history, formInboxItemLink(myMessage));
-              }
-            }}
-            icon={<Notifications fontSize='small' htmlColor={myMessage?.is_highlighted ? WARNING_COLOR : undefined} 
-              style={{marginLeft: '-0.5rem'}} />}
-            size='small'
-            translationId='messagePresentComment'
-          />
-        )}
         {!isTopLevelSubTask && (
           <Typography className={classes.commenter} variant="body2">
             {commenter.name}
@@ -367,6 +353,20 @@ function Reply(props) {
             value={comment.created_at}
           />
         </Typography>
+        {myMessage?.type_object_id && !isInbox && !replyBeingEdited && (
+          <TooltipIconButton
+            onClick={(event) => {
+              if (!invalidEditEvent(event, history)) {
+                dehighlightMessage(myMessage, messagesDispatch);
+                navigate(history, formInboxItemLink(myMessage));
+              }
+            }}
+            icon={<Notifications fontSize='small' htmlColor={myMessage?.is_highlighted ? WARNING_COLOR : undefined} 
+              style={{marginLeft: '1rem'}} />}
+            size='small'
+            translationId='messagePresentComment'
+          />
+        )}
         {isEditable && enableEditing && (
           <TooltipIconButton
             disabled={operationRunning !== false}

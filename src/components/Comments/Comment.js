@@ -812,7 +812,7 @@ function Comment(props) {
   const showSubTask = isTask && myPresence === createdBy;
   const isDeletable = !isInbox && !beingEdited && (commentType === REPORT_TYPE || isEditable || resolved);
   const linker = 
-    <div style={{marginRight: '1rem', marginTop: '-0.25rem'}}>
+    <div style={{marginRight: '1rem', marginTop: '-0.6rem'}}>
       <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} flushBottom />
     </div>;
   const gravatarWithName = useCompression && inboxMessageId ?
@@ -829,6 +829,7 @@ function Comment(props) {
     dehighlightMessage(myMessage, messagesDispatch);
     navigate(history, formInboxItemLink(myMessage));
   } : undefined;
+  const linkerShouldBeFirst = noAuthor && commentType === TODO_TYPE && investibleId;
   const cardTypeDisplay = overrideLabel ? (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact
               subtype={commentType === TODO_TYPE && _.isEmpty(investibleId) ? BUG : (commentType === REPLY_TYPE ?
@@ -841,7 +842,7 @@ function Comment(props) {
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact compressed={useCompression}
               gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName} notificationFunc={notificationFunc}
               notificationIsHighlighted={myMessage?.is_highlighted}
-              linker={(reallyNoAuthor || isMarketTodo) && showLinker && linker}
+              linker={(linkerShouldBeFirst || reallyNoAuthor || isMarketTodo) && showLinker && linker}
     />
   );
   const deleteWizardBaseLink = formWizardLink(DELETE_COMMENT_TYPE, marketId, undefined,
@@ -951,7 +952,7 @@ function Comment(props) {
             translationId="edit"
           />
         )}
-        {showLinker && !reallyNoAuthor && !isMarketTodo && linker}
+        {showLinker && !linkerShouldBeFirst && !reallyNoAuthor && !isMarketTodo && linker}
         {isMyPokableComment(comment, presences, groupPresencesState, marketId) && enableActions && isEditable && !beingEdited && (
           <TooltipIconButton
             disabled={operationRunning !== false}

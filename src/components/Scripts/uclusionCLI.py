@@ -5,6 +5,7 @@ import re
 import sys
 import urllib.request
 import urllib.parse
+from itertools import batched
 
 
 # Define the names of the configuration file and the target file
@@ -14,30 +15,35 @@ STAGE_SOURCES_CONFIG_FILE = 'stage_uclusion.json'
 CREDENTIALS_FILE = 'credentials'
 DEV_CREDENTIALS_FILE = 'dev_credentials'
 STAGE_CREDENTIALS_FILE = 'stage_credentials'
-TARGET_FILENAME = 'uclusion.txt'
 DEV_API_URL = "dev.api.uclusion.com/v1"
 STAGE_API_URL = "stage.api.uclusion.com/v1"
 PRODUCTION_API_URL = "production.api.uclusion.com/v1"
 
 
 def send(data, method, my_api_url, auth=None):
-    # Encode the data into JSON format
-    json_data = json.dumps(data)
-    json_data_as_bytes = json_data.encode('utf-8')  # Convert to bytes
+    json_data_as_bytes = None
+    if data is not None:
+        # Encode the data into JSON format
+        json_data = json.dumps(data)
+        json_data_as_bytes = json_data.encode('utf-8')  # Convert to bytes
 
     headers = {'Content-Type': 'application/json'}
     if auth is not None:
         headers['Authorization'] = auth
 
-    # Create a Request object
-    # The 'data' parameter in Request() is used for POST requests
-    # We also need to set the 'Content-Type' header to 'application/json'
-    req = urllib.request.Request(
-        my_api_url,
-        data=json_data_as_bytes,
-        headers=headers,
-        method=method
-    )
+    if json_data_as_bytes is not None:
+        req = urllib.request.Request(
+            my_api_url,
+            data=json_data_as_bytes,
+            headers=headers,
+            method=method
+        )
+    else:
+        req = urllib.request.Request(
+            my_api_url,
+            headers=headers,
+            method=method
+        )
 
     try:
         # Send the request and get the response
@@ -319,49 +325,29 @@ def get_ticket_code_from_line(line, ticket_type):
     return f"{ticket_type}{line_split[0]}"
 
 
-def process_uclusion_txt(root, credentials, stages, resolved_ticket_codes):
-    file_path = os.path.join(root, TARGET_FILENAME)
+def write_uclusion_md(config, credentials):
+    file_path = config.get('uclusionMDFilePath')
+    file_type = config.get('uclusionMDFileType')
     print(f"  ✅ Processing: '{file_path}'")
+    if file_type == 'export':
+        export_list_api_url = 'https://summaries.' + credentials['api_url'] + '/export_list'
+        response = send(None, 'GET', export_list_api_url, credentials['api_token'])
+        market_investible_ids = response['market_investible_ids']
+        export_api_url = 'https://summaries.' + credentials['api_url'] + '/export'
+        new_file_content = ''
+        for batch in batched(market_investible_ids, 20):
+            full_export_api_url = export_api_url + '?idType=marketInvestible&id=' + '&id='.join(batch)
+            new_file_content += send(None, 'GET', full_export_api_url, credentials['api_token'])
+        comment_ids = response['comment_ids']
+        for batch in batched(comment_ids, 20):
+            full_export_api_url = export_api_url + '?idType=comment&id=' + '&id='.join(batch)
+            new_file_content += send(None, 'GET', full_export_api_url, credentials['api_token'])
+    else:
+        report_api_url = 'https://summaries.' + credentials['api_url'] + '/report'
+        response = send(None, 'GET', report_api_url, credentials['api_token'])
     try:
-        with open(file_path, 'r+', encoding='utf-8') as uclusion_file:
-            content = uclusion_file.read()
-            uclusion_file.seek(0)
-            pattern = r"\||B-|J-|R-"
-            comments = re.split(pattern, content)
-            if len(comments) > 1:
-                new_file_content_lines = []
-                for comment_partial in comments:
-                    comment_index = content.find(comment_partial)
-                    if content[comment_index - 1] == '|':
-                        comment = comment_partial
-                    elif content[comment_index - 1] == '-':
-                        comment = content[comment_index - 2: comment_index] + comment_partial
-                    elif content.startswith(comment_partial):
-                        # Handle the case that some text before the first token by just keeping it
-                        new_file_content_lines.append(comment_partial)
-                        continue
-                    if comment.startswith('B-') or comment.startswith('J-') or comment.startswith('R-'):
-                        if comment.startswith('B-'):
-                            ticket_code = get_ticket_code_from_line(comment, 'B-')
-                        elif comment.startswith('R-'):
-                            ticket_code = get_ticket_code_from_line(comment, 'R-')
-                        else:
-                            ticket_code = get_ticket_code_from_line(comment, 'J-')
-                        if ticket_code in resolved_ticket_codes and not comment.startswith(ticket_code + ' DONE'):
-                            print(f"  ✅ Marking {ticket_code} DONE")
-                            ticket_code_index = comment.find(ticket_code)
-                            new_file_content_lines.append(ticket_code + ' DONE' +
-                                                          comment[ticket_code_index + len(ticket_code):])
-                        else:
-                            new_file_content_lines.append(comment)
-                    else:
-                        new_content = sync_comment(comment, credentials, stages)
-                        if new_content is not None and 'comment_type' in new_content:
-                            new_file_content_lines.append(add_comment_line(new_content, credentials))
-                        else:
-                            new_file_content_lines.append(add_job_line(new_content, credentials))
-                uclusion_file.writelines(new_file_content_lines)
-
+        with open(file_path, 'w', encoding='utf-8') as uclusion_file:
+            uclusion_file.write(new_file_content)
     except Exception as e:
         print(f"     -> ❌ Error processing file: {e}")
 
@@ -501,78 +487,25 @@ def login(credentials):
     return send(data, 'POST', login_api_url)
 
 
-def process_source_directories(api_url, json_path, credentials_path):
+def process_source_directories(stages, config, credentials):
     """
     Reads source directories from a JSON config, recursively finds all TARGET_FILENAME files
     """
-    print(f"🚀 Starting search for '{TARGET_FILENAME}' files and TODOs...")
+    print(f"🚀 Starting search for TODOs...")
 
-    # Read and parse the SOURCES_CONFIG_FILE file
-    try:
-        with open(json_path, 'r') as f:
-            config = json.load(f)
-        source_dirs = config.get('sourcesList', [])
-        if not source_dirs:
-            print(f"⚠️ Warning: No source directories listed in '{json_path}'.")
-            return None
-        extensions = config.get('extensionsList', [])
-        if not extensions:
-            print(f"⚠️ Warning: No extensions listed in '{json_path}'.")
-            return None
-        workspace_id = config.get('workspaceId')
-        view_id = config.get('viewId')
-        if workspace_id is None:
-            print(f"⚠️ Warning: No workspaceId in '{json_path}'.")
-            return None
-        if view_id is None:
-            view_id = workspace_id
-            print(f"     ---\n{view_id}\n     ---")
-    except FileNotFoundError:
-        print(f"❌ Error: Configuration file '{json_path}' not found.")
+    source_dirs = config.get('sourcesList', [])
+    if not source_dirs:
+        print(f"⚠️ Warning: No source directories listed in config.")
         return None
-    except json.JSONDecodeError as error:
-        print(f"❌ Error:CLISecret Could not parse JSON from '{json_path}':")
-        print(error)
+    extensions = config.get('extensionsList', [])
+    if not extensions:
+        print(f"⚠️ Warning: No extensions listed in config.")
         return None
 
-    credentials = get_credentials(credentials_path)
-
-    if credentials is None:
-        return None
-
-    secret_key = credentials.get('secret_key')
-    secret_key_id = credentials.get('secret_key_id')
-
-    if secret_key is None:
-        print("   -> ❌ Error: 'secret_key' not found in credentials file.")
-        return None
-    if secret_key_id is None:
-        print("   -> ❌ Error: 'secret_key_id' not found in credentials file.")
-        return None
-
-    credentials['view_id'] = view_id
-    credentials['workspace_id'] = workspace_id
-    credentials['api_url'] = api_url
-
-    response = login(credentials)
-    if response is None or 'uclusion_token' not in response:
-        print("   -> ❌ Error: login failed.")
-        return None
-    credentials['api_token'] = response['uclusion_token']
-    credentials['ui_url'] = response['ui_url']
-    credentials['user_id'] = response['user_id']
-    stages = response['stages']
     resolved_ticket_codes = get_resolved_ticket_codes(credentials)
 
     # Process each source directory
-    total_notes_files_found = 0
     total_code_files_found = 0
-    try:
-        process_uclusion_txt('.', credentials, stages, resolved_ticket_codes)
-        total_notes_files_found += 1
-    except FileNotFoundError:
-        # Ignore - they don't need uclusion.txt here but should work if they have one
-        pass
     for directory in source_dirs:
         print(f"\n📁 Processing directory: '{directory}'")
 
@@ -583,16 +516,12 @@ def process_source_directories(api_url, json_path, credentials_path):
         # Recursively walk the directory tree
         for root, _, files in os.walk(directory):
             for file in files:
-                if TARGET_FILENAME == file:
-                    total_notes_files_found += 1
-                    process_uclusion_txt(root, credentials, stages, resolved_ticket_codes)
-                else:
-                    file_name, file_extension = os.path.splitext(file)
-                    if len(file_extension) > 1 and file_extension[1:] in extensions:
-                        total_code_files_found += 1
-                        process_code_file(root, file, file_extension, credentials, stages, resolved_ticket_codes)
+                file_name, file_extension = os.path.splitext(file)
+                if len(file_extension) > 1 and file_extension[1:] in extensions:
+                    total_code_files_found += 1
+                    process_code_file(root, file, file_extension, credentials, stages, resolved_ticket_codes)
 
-    print(f"\n🏁 Processed {total_notes_files_found} {TARGET_FILENAME} and {total_code_files_found} code files.")
+    print(f"\n🏁 Processed {total_code_files_found} code files.")
     return None
 
 
@@ -610,4 +539,47 @@ if __name__ == "__main__":
         json_path = SOURCES_CONFIG_FILE
         api_url = PRODUCTION_API_URL
         credentials_path = CREDENTIALS_FILE
-    process_source_directories(api_url, json_path, credentials_path)
+    credentials = get_credentials(credentials_path)
+    config = None
+    try:
+        with open(json_path, 'r') as f:
+            config = json.load(f)
+    except FileNotFoundError:
+        print(f"❌ Error: Configuration file '{json_path}' not found.")
+    except json.JSONDecodeError as error:
+        print(f"❌ Error:CLISecret Could not parse JSON from '{json_path}':")
+        print(error)
+
+    secret_key = credentials.get('secret_key')
+    secret_key_id = credentials.get('secret_key_id')
+
+    if secret_key is None:
+        print("   -> ❌ Error: 'secret_key' not found in credentials file.")
+    if secret_key_id is None:
+        print("   -> ❌ Error: 'secret_key_id' not found in credentials file.")
+    
+    workspace_id = config.get('workspaceId')
+    view_id = config.get('viewId')
+    if workspace_id is None:
+        print(f"⚠️ Warning: No workspaceId in config.")
+    if view_id is None:
+        view_id = workspace_id
+        print(f"     ---\n{view_id}\n     ---")
+
+    if secret_key is not None and secret_key_id is not None  and workspace_id is not None:
+        credentials['view_id'] = view_id
+        credentials['workspace_id'] = workspace_id
+        credentials['api_url'] = api_url
+
+        response = login(credentials)
+        if response is None or 'uclusion_token' not in response:
+            print("   -> ❌ Error: login failed.")
+        else:
+            credentials['api_token'] = response['uclusion_token']
+            credentials['ui_url'] = response['ui_url']
+            credentials['user_id'] = response['user_id']
+            stages = response['stages']
+
+            if credentials is not None and config is not None:
+                write_uclusion_md(config, credentials)
+                process_source_directories(stages, config, credentials)

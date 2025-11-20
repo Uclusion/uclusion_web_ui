@@ -1,24 +1,24 @@
-# Testing Uclusion integration idea
+***<br>Truthy still incomprehensible - need it simpler.
+<br>***<br>Mutating within a loop fails silently.
+<br>***<br>Not consistent on requiring end line semicolons.
+<br>***<br>NaN implementation missing negative bound.
+<br>***<br>Need a create bug policy visible for users.
+<br>***<br>Problems with nested functions.
+<br>***<br>Taking too long to release memory on string loop test.
+<br>***<br>Array equality should allow passing a comparator.
+<br>***<br>Website is sloshy on mobile.
+<br>***<br>The prototype needs to startup faster.
+<br>***<br>The spec should explain how extensions will be handled.
+<br>***<br>Disallow function definitions within functions.
+<br>***<br>'var' keyword should really be 'let'
+<br>***<br>Make shadowing a variable name a compile error - no reason to allow.
+<br>***<br>Asynchronous handling must be easier.
+<br>***<br>Asynchronous operations taking too long to release memory.
+<br>***<br>Our spec has no way to declare a variable immutable. That's required because otherwise no way to hint compiler, code editor, reviewer, etc.
 
-Try an image 
-
-![some alt name](./public/images/ucusionblack.png)
-
-Now try smaller of same image
-
-<img src="./public/images/ucusionblack.png" alt="some smaller alt name" width="200"/>
-
-
-## List of articles about this code
-
-[Notes on S3 backed File Downloads](https://dev.to/uclusionhq/notes-on-s3-backed-file-downloads-42i3)  
-[Gotchas with Service Workers and SPAs](https://dev.to/uclusionhq/gotchas-with-service-workers-and-spas-44e6)  
-[Stopping memory leaks in AWS Amplify Hub](https://dev.to/uclusionhq/stopping-memory-leaks-in-aws-amplify-hub-3f9c)  
-[Powering Client Side Search with React Contexts](https://dev.to/uclusionhq/powering-client-side-search-with-react-contexts-2o9j)  
-[Navigation in React](https://dev.to/uclusionhq/navigation-in-react-5bh3)  
-[Wizards aren’t just for Hogwarts](https://dev.to/uclusionhq/wizards-aren-t-just-for-hogwarts-14kd)  
-[Authenticated S3 Downloads Without Passing Through Your Lambdas](https://dev.to/uclusionhq/authenticated-s3-downloads-without-passing-through-your-lambdas-3i3k)   
-[Uploading user files to S3 without passing through your Lambdas](https://dev.to/uclusionhq/using-a-message-bus-and-react-context-instead-of-redux-with-promise-based-apis-26ic)  
-[Using a message bus and React context instead of Redux with promise based APIs](https://dev.to/uclusionhq/using-a-message-bus-and-react-context-instead-of-redux-with-promise-based-apis-26ic)  
-[Amplify and Github Login](https://dev.to/uclusionhq/circleci-aws-cognito-amplify-and-github-login-3poc)  
-[Multiple tabs in your app](https://dev.to/uclusionhq/multiple-tabs-in-your-app-133b)  
+<img src='https://dev.imagecdn.uclusion.com/f4d07672-e391-44be-9c1a-a34e66e2890b/94bd06ef-6f8b-4d0b-9f3c-fac653d8b059.png' alt='' title='' width='730' />
+<br>***<br>Obviously looping past array length should be a compile error.
+<br>***<br>Instance of failing for strings.
+<br>***<br>Shadowing via variable name case sensitivity should be compile error.
+<br>***<br>Use GitHub Actions for free since on a public repository.
+<br>

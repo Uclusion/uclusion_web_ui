@@ -1,11 +1,13 @@
 {
-  "workspaceId": "1c8d46c4-6f72-48ee-9120-ecd14996c858",
-  "viewId": "1c8d46c4-6f72-48ee-9120-ecd14996c858",
+  "workspaceId": "f4d07672-e391-44be-9c1a-a34e66e2890b",
+  "viewId": "f4d07672-e391-44be-9c1a-a34e66e2890b",
   "extensionsList": [
     "js",
     "py"
   ],
   "sourcesList": [
     "./src"
-  ]
+  ],
+  "uclusionMDFileType": "export",
+  "uclusionMDFilePath": "uclusion.md"
 }

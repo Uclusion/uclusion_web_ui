@@ -42,6 +42,9 @@ function transformTicketCode(inputString) {
     return inputString;
   }
   const allMatches = inputString.split('-');
+  if (allMatches.length < 3) {
+    return inputString;
+  }
   return `${allMatches[0]}-${allMatches[2]}`;
 }
 

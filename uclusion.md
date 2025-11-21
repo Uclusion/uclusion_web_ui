@@ -15,6 +15,14 @@ Handle nulls in a developer friendly way.
 
 #### Task
 Unit tests.
+> ##### Subtask
+Test run time nullable assigned null.
+> ##### Subtask
+Test compile time non-nullable unassigned.
+> ##### Subtask
+Test compile time nullable unassigned.
+> ##### Subtask
+Test run time non-nullable unassigned.
 
 #### Task
 Implement a null safe operator:
@@ -60,6 +68,8 @@ Need a formal spec.
 
 #### Task
 Incorporate the Union definition from TypeScript into *our* spec.
+> ##### Subtask
+Have an equivalent for strictNullChecks that includes null versus undefined.
 
 
 ## Job

@@ -338,6 +338,8 @@ def write_uclusion_md(config, credentials):
         for batch in batched(market_investible_ids, 20):
             full_export_api_url = export_api_url + '?idType=marketInvestible&id=' + '&id='.join(batch)
             new_file_content += send(None, 'GET', full_export_api_url, credentials['api_token'])
+        new_file_content += '<br/><br/>\n'
+        new_file_content += '***\n'
         comment_ids = response['comment_ids']
         for batch in batched(comment_ids, 20):
             full_export_api_url = export_api_url + '?idType=comment&id=' + '&id='.join(batch)

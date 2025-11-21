@@ -6,7 +6,7 @@ We need basic error handling with a returned value scheme like Go.
 ## Can we do better than wrapping errors?
 
 Wrapping errors feels like building a stack trace by hand. What are our options?
-## Option
+### Option
 ### Support both raise catch and Go style return errors.
 The syntax should allow for any combination of raise and return of errors on a function. If you expect the caller to handle the error then lean towards return and otherwise lean towards raise.
 
@@ -17,7 +17,7 @@ This allows us an immediate two classes of errors - expected to be handled and l
 The flexibility is good but will mean growing the error handling in two directions.
 
 
-## Option
+### Option
 ### Automatic error context creation
 A function will be provided that allows you to return an error with the runtime argument values of the enclosing function automatically included.
 
@@ -68,15 +68,15 @@ We need a way to define how sub threads or processes will pass data to each othe
 Something similar to Erlang mailboxes? Go channels? ﻿@TARGET USER﻿ what do you think?
 > ##### Reply
 What is our main use case?
-## Option
+### Option
 ### Mailboxes
 Each process will have a unique mailbox, and you send to it by broadcasting to it's PID.
 
-## Option
+### Option
 ### Pub/Sub
 Each process will subscribe to one or more topics, and you send to all receivers
 
-## Option
+### Option
 ### Channels
 We'd have generic channels as first class objects that any process can write to or read from.
 

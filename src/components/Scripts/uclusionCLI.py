@@ -346,7 +346,7 @@ def write_uclusion_md(config, credentials):
             new_file_content += send(None, 'GET', full_export_api_url, credentials['api_token'])
     else:
         report_api_url = 'https://summaries.' + credentials['api_url'] + '/report'
-        response = send(None, 'GET', report_api_url, credentials['api_token'])
+        new_file_content = send(None, 'GET', report_api_url, credentials['api_token'])
     try:
         with open(file_path, 'w', encoding='utf-8') as uclusion_file:
             uclusion_file.write(new_file_content)

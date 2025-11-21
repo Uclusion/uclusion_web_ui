@@ -8,6 +8,6 @@
   "sourcesList": [
     "./src"
   ],
-  "uclusionMDFileType": "export",
+  "uclusionMDFileType": "report",
   "uclusionMDFilePath": "uclusion.md"
 }

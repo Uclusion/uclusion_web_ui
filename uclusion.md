@@ -2,10 +2,10 @@
 ### Add C bindings
 Much easier to build out the standard library if can call into C.
 
-### Task
+#### Task
 Runtime binding.
 
-### Task
+#### Task
 Define and include for make file linkage.
 
 
@@ -13,16 +13,10 @@ Define and include for make file linkage.
 ### Null safety
 Handle nulls in a developer friendly way.
 
-### Reply
-Test run time nullable assigned null.
-
-### Reply
-Test compile time non-nullable unassigned.
-
-### Task
+#### Task
 Unit tests.
 
-### Task
+#### Task
 Implement a null safe operator:
 
 
@@ -37,16 +31,10 @@ obj?.[prop]: Returns obj[prop] if obj exists; otherwise, it returns undefined - 
 
 obj.method?.(): Calls obj.method() if obj.method exists; otherwise, it returns undefined.
 
-### Reply
-Test compile time nullable unassigned.
-
-### Suggestion
+#### Suggestion
 Kotlin has good null handling <https://kotlinlang.org/docs/null-safety.html>.
 
-### Reply
-Test run time non-nullable unassigned.
-
-### Task
+#### Task
 Allow explicitly creating a variable as nullable. Variables are non-nullable by default.
 
 
@@ -70,18 +58,15 @@ Union types like typescript has would make UScript much easier to work with
 
 Need a formal spec.
 
-### Task
+#### Task
 Incorporate the Union definition from TypeScript into *our* spec.
-
-### Reply
-Have an equivalent for strictNullChecks that includes null versus undefined.
 
 
 ## Job
 ### Need a UScript Intellij plugin.
 Even for our own usage this is required.
 
-### Suggestion
+#### Suggestion
 Find a base language plugin upon which to build.
 
 
@@ -89,7 +74,7 @@ Find a base language plugin upon which to build.
 ### Get basic REPL interpreter running
 Even if wind up compiled later a basic REPL will give a feel for how usable Demo really is.
 
-### Issue
+#### Issue
 Don't have a language spec yet. Can bring up a language shell, but without basic language definitions can't go much further.
 
 
@@ -97,17 +82,17 @@ Don't have a language spec yet. Can bring up a language shell, but without basic
 ### Initial pass at UScript syntax
 Emphasis on developer experience.
 
-### Task
+#### Task
 Automatic referencing and dereferencing.
 
-### Task
+#### Task
 Variable binding.
 
 
 ## Job
 ### My job for testing in view with space.
 
-### Task
+#### Task
 See if this task closes.
 
 

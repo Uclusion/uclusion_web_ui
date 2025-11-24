@@ -1,6 +1,9 @@
 ## Job
 ### Error handling
 We need basic error handling with a returned value scheme like Go.
+> ##### $${\color{orange} Reason \space For}$$#### Question
+By the time you Go 1.13 wrap everything it's very similar to a stack trace.
+
 
 #### Question
 ## Can we do better than wrapping errors?
@@ -9,11 +12,10 @@ Wrapping errors feels like building a stack trace by hand. What are our options?
 ### Option
 ### Support both raise catch and Go style return errors.
 The syntax should allow for any combination of raise and return of errors on a function. If you expect the caller to handle the error then lean towards return and otherwise lean towards raise.
-
-#### Reason
+> ##### $${\color{lightgreen} Reason \space For}$$#### Question
 This allows us an immediate two classes of errors - expected to be handled and likely needing to be fixed.
 
-#### Reason
+> ##### $${\color{orange} Reason \space For}$$#### Question
 The flexibility is good but will mean growing the error handling in two directions.
 
 
@@ -25,9 +27,6 @@ A function will be provided that allows you to return an error with the runtime 
 Then you would be automatically logging values that might be sensitive.
 
 
-
-#### Reason
-By the time you Go 1.13 wrap everything it's very similar to a stack trace.
 
 
 ## Job
@@ -45,15 +44,15 @@ Want to introduce the language at some developer conference.
 ## Job
 ### Get basic grammar defined
 What are our statement literals? How do you want to define functions? Operators?
+> ##### $${\color{green} Reason \space For}$$#### Question
+Will look at expressions in literals as well.
+
 
 #### Task
 Function declaration syntax.
 
 #### Task
 Definition of statement literals.
-
-#### Reason
-Will look at expressions in literals as well.
 
 
 ## Job
@@ -79,8 +78,7 @@ Each process will subscribe to one or more topics, and you send to all receivers
 ### Option
 ### Channels
 We'd have generic channels as first class objects that any process can write to or read from.
-
-#### Reason
+> ##### $${\color{yellow} Reason \space For}$$#### Question
 Try and see how it goes.
 
 
@@ -93,15 +91,15 @@ Try and see how it goes.
 ## Job
 ### Add C bindings
 We would have a much easier time building out the standard library if we can call into C.
+> ##### $${\color{green} Reason \space For}$$#### Question
+Starting that integration now will prevent duplicating functionality.
+
+> ##### $${\color{lightgreen} Reason \space For}$$#### Question
+Agreed - front load this work.
+
 
 #### Task
 Runtime binding.
-
-#### Reason
-Starting that integration now will prevent duplicating functionality.
-
-#### Reason
-Agreed - front load this work.
 
 #### Task
 Define and include for make file linkage.
@@ -110,9 +108,12 @@ Define and include for make file linkage.
 ## Job
 ### Null safety
 Handle nulls in a developer friendly way.
-
-#### Reason
+> ##### $${\color{lightgreen} Reason \space For}$$#### Question
 Table stakes feature.
+
+> ##### $${\color{yellow} Reason \space For}$$#### Question
+Would like us to do better than conditional operators but difficult.
+
 
 #### Task
 Implement a null safe operator:
@@ -129,18 +130,12 @@ obj?.[prop]: Returns obj[prop] if obj exists; otherwise, it returns undefined - 
 
 obj.method?.(): Calls obj.method() if obj.method exists; otherwise, it returns undefined.
 
-#### Reason
-Would like us to do better than conditional operators but difficult.
-
 #### Task
 Allow explicitly creating a variable as nullable. Variables are non-nullable by default.
 
 #### Suggestion
 Kotlin has good null handling <https://kotlinlang.org/docs/null-safety.html>.
-## Job
-### NA
-
-#### Reason
+> ##### $${\color{lightgreen} Reason \space For}$$#### Question
 Yes I like the way Kotlin easily declares nullable or not.
 
 
@@ -182,14 +177,14 @@ Similarly we need to tell the user's what UScript is about, in the simplest word
 Union types like typescript has would make UScript much easier to work with
 
 We need to sit down and make a formal spec.
+> ##### $${\color{lightgreen} Reason \space For}$$#### Question
+Yeah, they come in really handy when handling api error responses.
+
 
 #### Report
 Union types are defined [here](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types) (i.e. exactly as defined in TypeScript).
 
 ﻿@Samantha Demo﻿ I'd really like your feedback.
-
-#### Reason
-Yeah, they come in really handy when handling api error responses.
 
 #### Task
 Incorporate the Union definition from TypeScript into *our* spec.
@@ -208,14 +203,14 @@ What do think of this?
 ## Job
 ### Initial pass at UScript syntax
 Emphasis on developer experience.
+> ##### $${\color{green} Reason \space For}$$#### Question
+Should tie in with the testing strategy.
+
 
 #### Report
 Please review the latest checked in syntax docs.
 > ##### Reply
 Please add a section on arrow functions.
-
-#### Reason
-Should tie in with the testing strategy.
 
 
 ## Job

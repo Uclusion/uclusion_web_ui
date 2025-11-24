@@ -109,11 +109,7 @@ function removePrefix(fullElement, description) {
   if (!description.startsWith(fullElement)) {
     return description;
   }
-  const candidate = description.substring(fullElement.length);
-  if (_.isEmpty(stripHTML(candidate))) {
-    return "";
-  }
-  return candidate;
+  return description.substring(fullElement.length);
 }
 
 function indexOfOrOutofBounds(extracted, aChar) {

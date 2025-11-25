@@ -1,3 +1,18 @@
+| No Estimate | Scheduled | Done |
+|--------------|---------------|--------------|
+| Error handling| Get basic grammar defined| Initial pass at UScript syntax |
+| | 12-05-2025|  |
+| Need a UScript Intellij plugin.| Look for more founders| Prototype CLANG backend |
+| | 11-28-2025|  |
+| Find events to attend| Figure out IPC| Main explanatory blog |
+| | 11-26-2025|  |
+| Region based memory management for garbage collection.| Add C bindings| Unicode Handling |
+| | 11-19-2025| Deployed to prod. |
+| Null safety| Design Union Types| Automated tests for CLANG backend |
+| | 11-22-2025| Deployed to stage. |
+| Get basic REPL interpreter running| Create our logo|  |
+| | 11-28-2025|  |
+| Create our hero statement| |  |
 ## Job
 ### Error handling
 We need basic error handling with a returned value scheme like Go.

@@ -1,7 +1,8 @@
 ## Job
 ### Error handling
 We need basic error handling with a returned value scheme like Go.
-> ##### $${\color{orange} Reason \space For}$$By the time you Go 1.13 wrap everything it's very similar to a stack trace.
+> ##### $${\color{orange} Reason \space For}$$
+By the time you Go 1.13 wrap everything it's very similar to a stack trace.
 
 
 #### Question
@@ -11,9 +12,11 @@ Wrapping errors feels like building a stack trace by hand. What are our options?
 ### Option
 ### Support both raise catch and Go style return errors.
 The syntax should allow for any combination of raise and return of errors on a function. If you expect the caller to handle the error then lean towards return and otherwise lean towards raise.
-> ##### $${\color{lightgreen} Reason \space For}$$This allows us an immediate two classes of errors - expected to be handled and likely needing to be fixed.
+> ##### $${\color{lightgreen} Reason \space For}$$
+This allows us an immediate two classes of errors - expected to be handled and likely needing to be fixed.
 
-> ##### $${\color{orange} Reason \space For}$$The flexibility is good but will mean growing the error handling in two directions.
+> ##### $${\color{orange} Reason \space For}$$
+The flexibility is good but will mean growing the error handling in two directions.
 
 
 ### Option
@@ -21,7 +24,7 @@ The syntax should allow for any combination of raise and return of errors on a f
 
 
 
-![](https://dev.imagecdn.uclusion.com/69c38048-113c-4a64-8587-72d03610260c/61c70dec-2416-4661-98e9-e2e2b92499c8.png)
+![](https://dev.imagecdn.uclusion.com/69c38048-113c-4a64-8587-72d03610260c/61c70dec-2416-4661-98e9-e2e2b92499c8.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiI2OWMzODA0OC0xMTNjLTRhNjQtODU4Ny03MmQwMzYxMDI2MGMifQ.7HpKa6wz9gh9yXXWN0uOn-VyQev6wrq-AHAkWqDdsRs)
 
 ### Option
 ### Automatic error context creation
@@ -48,7 +51,8 @@ Want to introduce the language at some developer conference.
 ## Job
 ### Get basic grammar defined
 What are our statement literals? How do you want to define functions? Operators?
-> ##### $${\color{green} Reason \space For}$$Will look at expressions in literals as well.
+> ##### $${\color{green} Reason \space For}$$
+Will look at expressions in literals as well.
 
 
 #### Task
@@ -81,7 +85,8 @@ Each process will subscribe to one or more topics, and you send to all receivers
 ### Option
 ### Channels
 We'd have generic channels as first class objects that any process can write to or read from.
-> ##### $${\color{yellow} Reason \space For}$$Try and see how it goes.
+> ##### $${\color{yellow} Reason \space For}$$
+Try and see how it goes.
 
 
 
@@ -93,9 +98,11 @@ We'd have generic channels as first class objects that any process can write to 
 ## Job
 ### Add C bindings
 We would have a much easier time building out the standard library if we can call into C.
-> ##### $${\color{green} Reason \space For}$$Starting that integration now will prevent duplicating functionality.
+> ##### $${\color{green} Reason \space For}$$
+Starting that integration now will prevent duplicating functionality.
 
-> ##### $${\color{lightgreen} Reason \space For}$$Agreed - front load this work.
+> ##### $${\color{lightgreen} Reason \space For}$$
+Agreed - front load this work.
 
 
 #### Task
@@ -108,9 +115,11 @@ Define and include for make file linkage.
 ## Job
 ### Null safety
 Handle nulls in a developer friendly way.
-> ##### $${\color{lightgreen} Reason \space For}$$Table stakes feature.
+> ##### $${\color{lightgreen} Reason \space For}$$
+Table stakes feature.
 
-> ##### $${\color{yellow} Reason \space For}$$Would like us to do better than conditional operators but difficult.
+> ##### $${\color{yellow} Reason \space For}$$
+Would like us to do better than conditional operators but difficult.
 
 
 #### Task
@@ -133,7 +142,8 @@ Allow explicitly creating a variable as nullable. Variables are non-nullable by 
 
 #### Suggestion
 Kotlin has good null handling <https://kotlinlang.org/docs/null-safety.html>.
-> ##### $${\color{lightgreen} Reason \space For}$$Yes I like the way Kotlin easily declares nullable or not.
+> ##### $${\color{lightgreen} Reason \space For}$$
+Yes I like the way Kotlin easily declares nullable or not.
 
 
 
@@ -163,7 +173,7 @@ We don't have a language spec yet. We can bring up a language shell, but without
 ### Create our hero statement
 Every good language is really direct in what it's trying to solve 
 
-For example, Rust's: <img src='https://dev.imagecdn.uclusion.com/9e7bcee9-7203-42af-92ad-578e5832b47b/cfc937e0-580e-4e67-9d3f-205c48784311.png' alt='' title='' width='300' />
+For example, Rust's: <img src='https://dev.imagecdn.uclusion.com/9e7bcee9-7203-42af-92ad-578e5832b47b/cfc937e0-580e-4e67-9d3f-205c48784311.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiI5ZTdiY2VlOS03MjAzLTQyYWYtOTJhZC01NzhlNTgzMmI0N2IifQ.hhz1ODnYziWBVlDtTXpr4Kb0LY0x9BFZOI3pPRv5SE8' alt='' title='' width='300' />
 
 
 
@@ -174,7 +184,8 @@ Similarly we need to tell the user's what UScript is about, in the simplest word
 Union types like typescript has would make UScript much easier to work with
 
 We need to sit down and make a formal spec.
-> ##### $${\color{lightgreen} Reason \space For}$$Yeah, they come in really handy when handling api error responses.
+> ##### $${\color{lightgreen} Reason \space For}$$
+Yeah, they come in really handy when handling api error responses.
 
 
 #### Report
@@ -193,13 +204,14 @@ We need a Logo for UScript, something simple, but impactful.
 #### Report
 What do think of this?
 
-<img src='https://dev.imagecdn.uclusion.com/9e7bcee9-7203-42af-92ad-578e5832b47b/8fa3eb0d-d59b-40e7-989b-7ab435452f97.png' alt='' title='' width='200' />
+<img src='https://dev.imagecdn.uclusion.com/9e7bcee9-7203-42af-92ad-578e5832b47b/8fa3eb0d-d59b-40e7-989b-7ab435452f97.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiI5ZTdiY2VlOS03MjAzLTQyYWYtOTJhZC01NzhlNTgzMmI0N2IifQ.hhz1ODnYziWBVlDtTXpr4Kb0LY0x9BFZOI3pPRv5SE8' alt='' title='' width='200' />
 
 
 ## Job
 ### Initial pass at UScript syntax
 Emphasis on developer experience.
-> ##### $${\color{green} Reason \space For}$$Should tie in with the testing strategy.
+> ##### $${\color{green} Reason \space For}$$
+Should tie in with the testing strategy.
 
 
 #### Report

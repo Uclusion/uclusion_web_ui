@@ -1,18 +1,18 @@
-| No Estimate | Scheduled | Done |
+| No Estimate | Estimated | Done |
 |--------------|---------------|--------------|
-| Error handling| Get basic grammar defined| Initial pass at UScript syntax |
+| [Error handling](#error-handling)| [Get basic grammar defined](#get-basic-grammar-defined)| [Initial pass at UScript syntax](#initial-pass-at-uscript-syntax) |
 | | 12-05-2025|  |
-| Need a UScript Intellij plugin.| Look for more founders| Prototype CLANG backend |
+| [Need a UScript Intellij plugin.](#need-a-uscript-intellij-plugin.)| [Look for more founders](#look-for-more-founders)| [Prototype CLANG backend](#prototype-clang-backend) |
 | | 11-28-2025|  |
-| Find events to attend| Figure out IPC| Main explanatory blog |
+| [Find events to attend](#find-events-to-attend)| [Figure out IPC](#figure-out-ipc)| [Main explanatory blog](#main-explanatory-blog) |
 | | 11-26-2025|  |
-| Region based memory management for garbage collection.| Add C bindings| Unicode Handling |
+| [Region based memory management for garbage collection.](#region-based-memory-management-for-garbage-collection.)| [Add C bindings](#add-c-bindings)| [Unicode Handling](#unicode-handling) |
 | | 11-19-2025| Deployed to prod. |
-| Null safety| Design Union Types| Automated tests for CLANG backend |
+| [Null safety](#null-safety)| [Design Union Types](#design-union-types)| [Automated tests for CLANG backend](#automated-tests-for-clang-backend) |
 | | 11-22-2025| Deployed to stage. |
-| Get basic REPL interpreter running| Create our logo|  |
+| [Get basic REPL interpreter running](#get-basic-repl-interpreter-running)| [Create our logo](#create-our-logo)|  |
 | | 11-28-2025|  |
-| Create our hero statement| |  |
+| [Create our hero statement](#create-our-hero-statement)| |  |
 ## Job
 ### Error handling
 We need basic error handling with a returned value scheme like Go.

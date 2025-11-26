@@ -7,5 +7,7 @@
   ],
   "sourcesList": [
     "./src"
-  ]
+  ],
+  "uclusionMDFileType": "report",
+  "uclusionMDFilePath": "uclusion.md"
 }

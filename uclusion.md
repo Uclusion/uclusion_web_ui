@@ -721,6 +721,9 @@ Add to example comment with one thing from all of format bar and make sure trans
 Use with david view on stage and link resulting checked in to uclusion_web_ui repo md file in blog and docs.
 
 #### Task
+If report screen out resolved tasks but if export include them.
+
+#### Task
 Try out <https://pypi.org/project/html-to-markdown/> locally with examples grabbed from dev Dynamodb.
 
 #### Task
@@ -1121,6 +1124,14 @@ Make In progress left most on both parent and child. Drop date on child - parent
 
 #### Task
 Make solo demo single view only.
+
+#### Task
+<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c047efba-47bc-4389-8a4f-858fa4f06772.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='703' />
+
+
+
+
+Counts don't add up - 7 - 5 = 2 missing.
 
 #### Task
 Reply linking icon is in corner but for comment is in middle. Too confusing. Probably reply one should move to middle cause as it is looks like the avatar for the name which it isn't.

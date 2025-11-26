@@ -5,6 +5,7 @@ import re
 import sys
 import urllib.request
 import urllib.parse
+import traceback
 from itertools import batched
 
 
@@ -477,6 +478,7 @@ def process_code_file(root, file, extension, credentials, stages, resolved_ticke
                 code_file.writelines(all_lines)
     except Exception as e:
         print(f"     -> ❌ Error reading file {file}: {e}")
+        traceback.print_exc() 
 
 
 def login(credentials):
@@ -505,6 +507,8 @@ def process_source_directories(stages, config, credentials):
         return None
 
     resolved_ticket_codes = get_resolved_ticket_codes(credentials)
+    if resolved_ticket_codes is None:
+        resolved_ticket_codes = []
 
     # Process each source directory
     total_code_files_found = 0

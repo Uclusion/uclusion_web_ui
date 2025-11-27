@@ -88,7 +88,7 @@ function IntegrationPreferences (props) {
     markets = getSortedMarkets(filtered);
   }
 
-  // TODO B-all-339 Have drop down for view selection.
+  // DONE B-all-339 Have drop down for view selection.
 
   return (
     <Screen

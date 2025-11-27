@@ -507,7 +507,7 @@ function Comment(props) {
   const classes = useCommentStyles();
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, body, is_sent: isSent, group_id: groupId,
-    in_progress: inProgress } = comment;
+    in_progress: inProgress, is_visible: isVisible } = comment;
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
@@ -729,6 +729,14 @@ function Comment(props) {
       if (sendToWizard) {
         navigate(history, formWizardLink(IN_PROGRESS_WIZARD_TYPE, marketId, undefined, undefined, id));
       }
+    });
+  }
+
+  function handleToggleIsVisible() {
+    setOperationRunning(`isVisibleCheckbox${id}`);
+    return updateComment({marketId, commentId: id, isVisible: !isVisible}).then((comment) => {
+      setOperationRunning(false);
+      addCommentToMarket(comment, commentsState, commentsDispatch);
     });
   }
 
@@ -1078,6 +1086,21 @@ function Comment(props) {
               >
                 {!mobileLayout && intl.formatMessage({ id: showSubTask ? 'commentSubTaskLabel' : 'commentReplyLabel' })} {hasReply(comment) && <EditIcon />}
               </SpinningIconLabelButton>
+            )}
+            {!investibleId && !removeActions && enableEditing && !mobileLayout && (
+              <FormControlLabel
+                id='isVisibleCheckbox'
+                style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem'}}
+                control={
+                  <Checkbox
+                    id={`isVisibleCheckbox${id}`}
+                    checked={operationRunning === `isVisibleCheckbox${id}` ? !isVisible : isVisible}
+                    onClick={handleToggleIsVisible}
+                    disabled={operationRunning !== false}
+                  />
+                }
+                label={intl.formatMessage({ id: 'isVisibleCheckboxExplanation' })}
+              />
             )}
             {enableEditing && !removeActions && commentType === TODO_TYPE && !investibleId && (
               <FormControl size='small'>

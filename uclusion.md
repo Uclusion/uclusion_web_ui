@@ -1,210 +1,242 @@
-| No Estimate | Estimated | Done |
-|--------------|---------------|--------------|
-| [CLI TODO fixes](#cli-todo-fixes)| [Import / Export strategy and script.](#import-/-export-strategy-and-script.)| [Python 3.9 end of life - problem is that layers and Lambda runtime must match...](#python-3.9-end-of-life---problem-is-that-layers-and-lambda-runtime-must-match...) |
-| | 11-29-2025|  |
-| [Website feedback.](#website-feedback.)| |  |
-| [Should fix bugs.](#should-fix-bugs.)| |  |
-| [Button on the question that generates AI prompt onto the clipboard.](#button-on-the-question-that-generates-ai-prompt-onto-the-clipboard.)| |  |
-| [See if React now supports a better way to keep a websocket open - otherwise...](#see-if-react-now-supports-a-better-way-to-keep-a-websocket-open---otherwise...)| |  |
-| [Mobile issues.](#mobile-issues.)| |  |
+| No Estimate | Estimated | | Done | |
+|--------------|---------------|--------------|--------------|--------------|
+| [Error handling](#error-handling)| [Get basic grammar defined](#get-basic-grammar-defined)| 12-05-2025| [Initial pass at UScript syntax](#initial-pass-at-uscript-syntax)|  |
+| [Need a UScript Intellij plugin.](#need-a-uscript-intellij-plugin.)| [Look for more founders](#look-for-more-founders)| 11-28-2025| [Prototype CLANG backend](#prototype-clang-backend)|  |
+| [Find events to attend](#find-events-to-attend)| [Figure out IPC](#figure-out-ipc)| 11-26-2025| [Main explanatory blog](#main-explanatory-blog)|  |
+| [Region based memory management for garbage collection.](#region-based-memory-management-for-garbage-collection.)| [Add C bindings](#add-c-bindings)| 11-19-2025| [Unicode Handling](#unicode-handling)| Deployed to prod. |
+| [Null safety](#null-safety)| [Design Union Types](#design-union-types)| 11-22-2025| [Automated tests for CLANG backend](#automated-tests-for-clang-backend)| Deployed to stage. |
+| [Get basic REPL interpreter running](#get-basic-repl-interpreter-running)| [Create our logo](#create-our-logo)| 11-28-2025| |  |
+| [Create our hero statement](#create-our-hero-statement)| | | |  |
 ## Job
-### CLI TODO fixes
+### Error handling
+We need basic error handling with a returned value scheme like Go.
 
-#### Task
-Have drop down for view selection on IntegrationPreferences.js. Just copy the one done for job side panel.
+> ##### $${\color{orange} Reason \space For}$$
+By the time you Go 1.13 wrap everything it's very similar to a stack trace.
 
-#### Task
-viewId should be todoViewId as not used otherwise.
+#### Question
+## Can we do better than wrapping errors?
 
+Wrapping errors feels like building a stack trace by hand. What are our options?
 
-## Job
-### Website feedback.
-From various sources.
+### Option
+### Support both raise catch and Go style return errors.
+The syntax should allow for any combination of raise and return of errors on a function. If you expect the caller to handle the error then lean towards return and otherwise lean towards raise.
 
-#### Task
-Fix existing screen shots of planning investible that have this wrong.
+> ##### $${\color{lightgreen} Reason \space For}$$
+This allows us an immediate two classes of errors - expected to be handled and likely needing to be fixed.
 
-#### Task
-[Same three use cases but present like https://www.brkaway.co/ does with their...](/dialog/dd56682c-9920-417b-be46-7a30d41bc905/f577ab3a-9234-4f4d-af83-ed7aa1b25fce#option92b659f9-03c1-4d6c-9f9b-1156ca37c770)
+> ##### $${\color{orange} Reason \space For}$$
+The flexibility is good but will mean growing the error handling in two directions.
 
-
-
-
-Cases are link job, link code Todo, and export data. Give AI a shot at copy style- make sure set model first and use @
-
-
+### Option
+### Here is my option with a picture.
 
 
-<https://wanderlog.com/> also has features section with a grid of features that can be considered.
 
-#### Task
-Fix mobile images with Shots tool also.
+![](https://dev.imagecdn.uclusion.com/69c38048-113c-4a64-8587-72d03610260c/61c70dec-2416-4661-98e9-e2e2b92499c8.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiI2OWMzODA0OC0xMTNjLTRhNjQtODU4Ny03MmQwMzYxMDI2MGMifQ.7HpKa6wz9gh9yXXWN0uOn-VyQev6wrq-AHAkWqDdsRs)
 
-#### Task
-Under collaboration tab on landing page the blocking screenshot is too large - include more of the tab on etc. to make reasonable size.
+### Option
+### Automatic error context creation
+A function will be provided that allows you to return an error with the runtime argument values of the enclosing function automatically included.
 
-#### Task
-Fix margins at intermediate sizes.
-
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/aeb957b7-e349-40aa-8ea2-7255b9882949.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='544' />
-> ##### Subtask
-Mobile also needs margins.
-
+#### Issue
+Then you would be automatically logging values that might be sensitive.
 
 ## Job
-### Import / Export strategy and script.
-Users for this feature:
+### Need a UScript Intellij plugin.
+Even for our own usage this is required.
 
-1. Need export not to be locked in
-2. ~~Want to work mostly in their Idea~~ - if you finish a task then commit and then you have to refresh with CLI and then the task is gone - that's a ridiculous flow and no upside really as can't put in progress etc.
-3. ~~Like having AI suck in this meta info~~ - for what? and could use a button that removes or not removes pictures from Uclusion anyway
-4. Want to check in this file and provide status or get feedback that way instead of inviting an observer to Uclusion - for team they would choose some team view. -<https://mui.com/material-ui/discover-more/roadmap/> - so they do in fact share their project board <https://github.com/orgs/mui/projects/23/views/12> does this feature give us parity with that?
-
-
-
-
-
-See <https://github.github.com/gfm/> for the Github version of markdown.
-
-#### Task
-On CLI integration page correct the examples etc.
-
-#### Task
-In documentation explain how to use views and is public so that only what you want to show displays.
-
+#### Suggestion
+Find a base language plugin upon which we can build.
 
 ## Job
-### Should fix bugs.
+### Find events to attend
+Want to introduce the language at some developer conference.
+
+## Job
+### Get basic grammar defined
+What are our statement literals? How do you want to define functions? Operators?
+
+> ##### $${\color{green} Reason \space For}$$
+Will look at expressions in literals as well.
 
 #### Task
-For you menu must show search results when has them and not anything when doesn't and search.
-
-
-
-
-Sidebar menus must open when have search results.
+Function declaration syntax.
 
 #### Task
-Add and another does not clear if had previous draft task
+Definition of statement literals.
 
-1. Create a draft task so see pencil icon
-2. Go back and edit it
-3. Create and another has former draft
+## Job
+### Look for more founders
+Our current decision making and coding scaling well so consider talent if available.
 
-#### Task
-After go to view from job action, go to the my work view if the user has one.
+## Job
+### Figure out IPC
+We need a way to define how sub threads or processes will pass data to each other.
 
-#### Task
-When resolve minor but on return arrive in critical bugs section.
+#### Question
+Something similar to Erlang mailboxes? Go channels? ﻿@TARGET USER﻿ what do you think?
 
-
-
-
-Also happening when move a bug to a job from a non critical section.
-
-#### Task
-From context menu can send an unassigned job to tasks complete without assigning it or resolving tasks - even though am only person in workspace.
-
-#### Task
-No up arrow when do search.
-
-#### Task
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c047efba-47bc-4389-8a4f-858fa4f06772.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='703' />
-
-
-
-
-Counts don't add up - 7 - 5 = 2 missing.
-
-#### Task
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/36d21323-4f19-49d3-94e0-a52b3473f1c2.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='849' />
-
-
-
-
-Here have both the expand circle and the chevron to expand. So the collapsed comment should be blue and should link back to the comment instead of uncollapsing - except if hit chevron of course.
-
-#### Task
-Edit a subtask headers suck - should say subtask instead of reply and don't need author on either since only author of both can edit.
-
-
-
-
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/a1320ce4-4200-434e-99e7-eda11fe4916d.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='957' />
-
-#### Task
-Getting re-renders caused by context updates even when the sync gets nothing new. If nothing new there should be no updating contexts.
 > ##### Reply
-Why do you think it's by context updates? I instrumented the code, it's not going to be pushing messages.
+What is our main use case?
 
-#### Task
-Context menu for Not Ready backlog does not include Not Doing.
+### Option
+### Mailboxes
+Each process will have a unique mailbox, and you send to it by broadcasting to it's PID.
 
-#### Task
-Do the full context menu even if in swimlanes - no reason not to and now no stage header.
+### Option
+### Pub/Sub
+Each process will subscribe to one or more topics, and you send to all receivers
 
+### Option
+### Channels
+We'd have generic channels as first class objects that any process can write to or read from.
 
-## Job
-### Button on the question that generates AI prompt onto the clipboard.
-Probably skipping pictures and file attachments.
-
-#### Task
-This button should produce markdown as <https://github.com/microsoft/markitdown> claims it is native to LLMs. Furthermore need the same markdown with token included image URLs that getting for public status report.
-
-#### Task
-Button on the question that generates AI prompt onto the clipboard. Probably skipping pictures and file attachments.
-
+> ##### $${\color{yellow} Reason \space For}$$
+Try and see how it goes.
 
 ## Job
-### See if React now supports a better way to keep a websocket open - otherwise...
-...these changes outside the UI could bite.
-
-#### Task
-See if React now supports a better way to keep a websocket open - otherwise these changes outside the UI could bite.
-
+### Region based memory management for garbage collection.
+[Region based memory management](https://en.wikipedia.org/wiki/Region-based_memory_management) for garbage collection. That will still be useful even if we go with reference counting later as internal references won't have to be tracked.
 
 ## Job
-### Mobile issues.
+### Add C bindings
+We would have a much easier time building out the standard library if we can call into C.
+
+> ##### $${\color{green} Reason \space For}$$
+Starting that integration now will prevent duplicating functionality.
+
+> ##### $${\color{lightgreen} Reason \space For}$$
+Agreed - front load this work.
 
 #### Task
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/da90ff1b-a4ad-482a-bbe7-7db577d17a1f.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='376' />
-
-Still too much left padding to fit
+Runtime binding.
 
 #### Task
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c1fb4684-0181-4398-b875-e2bb38c3ae7b.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-After link option to task and resolve question have weird floating header
-
-#### Task
-Drop tool bar and drawer on mobile and just do exactly with menu as did for identity (which works on mobile). Make sure the color is okay - there is some weird white.
-
-#### Task
-Try again get rid of some of the floaty on mobile. Might be able to repro at intermediate sizes.
-
-
-
-
-This is intermittent and does not repro at intermediate sizes.
-
-#### Task
-Need refresh button since reload doesn’t do refresh necessarily and not obvious. This button should run sync so spinning on and returns error if fails just like anything else.
-
-
-
-
-Can have this button for desktop also if can find place to hide it but not required.
-
+Define and include for make file linkage.
 
 ## Job
-### Python 3.9 end of life - problem is that layers and Lambda runtime must match...
-...so seems all or nothing.
+### Null safety
+Handle nulls in a developer friendly way.
+
+> ##### $${\color{lightgreen} Reason \space For}$$
+Table stakes feature.
+
+> ##### $${\color{yellow} Reason \space For}$$
+Would like us to do better than conditional operators but difficult.
+
+#### Task
+Implement a null safe operator:
 
 
 
+obj?.prop: Returns obj.prop if obj exists; otherwise, it returns undefined.
 
-html-to-markdown requires 3.10.
+
+
+obj?.[prop]: Returns obj[prop] if obj exists; otherwise, it returns undefined - for dynamic or special characters.
+
+
+
+obj.method?.(): Calls obj.method() if obj.method exists; otherwise, it returns undefined.
+
+#### Task
+Allow explicitly creating a variable as nullable. Variables are non-nullable by default.
+
+#### Suggestion
+Kotlin has good null handling <https://kotlinlang.org/docs/null-safety.html>.
+
+> ##### $${\color{lightgreen} Reason \space For}$$
+Yes I like the way Kotlin easily declares nullable or not.
+
+#### Task
+Unit tests.
+
+> ##### Subtask
+Test run time non-nullable unassigned.
+
+> ##### Subtask
+Test compile time nullable unassigned.
+
+> ##### Subtask
+Test compile time non-nullable unassigned.
+
+> ##### Subtask
+Test run time nullable assigned null.
+
+## Job
+### Get basic REPL interpreter running
+Even if we wind up compiled later a basic REPL will give us a feel for how usable Demo really is.
+
+#### Issue
+We don't have a language spec yet. We can bring up a language shell, but without basic language definitions we can't go much further.
+
+> ##### Reply
+﻿@John Doe﻿ can you create a job with requirements for basic language definitions?
+
+## Job
+### Create our hero statement
+Every good language is really direct in what it's trying to solve 
+
+For example, Rust's: <img src='https://dev.imagecdn.uclusion.com/9e7bcee9-7203-42af-92ad-578e5832b47b/cfc937e0-580e-4e67-9d3f-205c48784311.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiI5ZTdiY2VlOS03MjAzLTQyYWYtOTJhZC01NzhlNTgzMmI0N2IifQ.hhz1ODnYziWBVlDtTXpr4Kb0LY0x9BFZOI3pPRv5SE8' alt='' title='' width='300' />
+
+
+
+Similarly we need to tell the user's what UScript is about, in the simplest words possible.
+
+## Job
+### Design Union Types
+Union types like typescript has would make UScript much easier to work with
+
+We need to sit down and make a formal spec.
+
+> ##### $${\color{lightgreen} Reason \space For}$$
+Yeah, they come in really handy when handling api error responses.
+
+#### Report
+Union types are defined [here](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types) (i.e. exactly as defined in TypeScript).
+
+﻿@Samantha Demo﻿ I'd really like your feedback.
+
+#### Task
+Incorporate the Union definition from TypeScript into *our* spec.
+
+## Job
+### Create our logo
+We need a Logo for UScript, something simple, but impactful.
+
+#### Report
+What do think of this?
+
+<img src='https://dev.imagecdn.uclusion.com/9e7bcee9-7203-42af-92ad-578e5832b47b/8fa3eb0d-d59b-40e7-989b-7ab435452f97.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiI5ZTdiY2VlOS03MjAzLTQyYWYtOTJhZC01NzhlNTgzMmI0N2IifQ.hhz1ODnYziWBVlDtTXpr4Kb0LY0x9BFZOI3pPRv5SE8' alt='' title='' width='200' />
+
+## Job
+### Initial pass at UScript syntax
+Emphasis on developer experience.
+
+> ##### $${\color{green} Reason \space For}$$
+Should tie in with the testing strategy.
+
+#### Report
+Please review the latest checked in syntax docs.
+
+> ##### Reply
+Please add a section on arrow functions.
+
+## Job
+### Prototype CLANG backend
+We need to be able to compile the language as we're running it.
+
+## Job
+### Main explanatory blog
+Tip of the spear explanation of the value of our new script.
+
+## Job
+### Unicode Handling
+Make character strings support the entire byte array via UTF-8.
+
+## Job
+### Automated tests for CLANG backend
+We need to be able test compiling the language.
 

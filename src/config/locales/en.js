@@ -1251,6 +1251,8 @@ const messages = defineMessages({
   tasksSection: 'Tasks',
   todoSection: 'Bugs',
   jobFromBugs: 'Bugs {ticketList}',
+  isVisibleJobToolTip: 'Appears in generated report',
+  isVisibleCheckboxExplanation: 'Visible',
   readyToStartCheckboxExplanation: 'Ready to Assign',
   blockingIssueCheckboxExplanation: 'Not ready - issue',
   readyToStartDisplay: 'This job is ready for assignment',

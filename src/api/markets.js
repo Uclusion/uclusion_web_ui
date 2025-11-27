@@ -24,7 +24,7 @@ export function getMarketDetails(client) {
 }
 
 export function updateGroup(props) {
-  const { marketId, groupId, name, description, uploadedFiles, ticketSubCode, autonomousMode  } = props;
+  const { marketId, groupId, name, description, uploadedFiles, ticketSubCode, autonomousMode, isPublic  } = props;
   const updateOptions = {}
   if (name) {
     updateOptions.name = name
@@ -40,6 +40,9 @@ export function updateGroup(props) {
   }
   if (autonomousMode !== undefined) {
     updateOptions.is_autonomous_group = autonomousMode;
+  }
+  if (isPublic !== undefined) {
+    updateOptions.is_public = isPublic;
   }
   return getMarketClient(marketId)
     .then((client) => client.markets.updateGroup(groupId, updateOptions))

@@ -65,6 +65,7 @@ function GroupEdit() {
   const [groupName, setGroupName] = useState(undefined);
   const [isDirtyName, setIsDirtyName] = useState(false);
   const [autonomousMode, setAutonomousMode] = useState(group.group_type === 'AUTONOMOUS');
+  const [isPublic, setIsPublic] = useState(group.is_public);
 
   function handleSave() {
     const groupInfo = {
@@ -72,7 +73,8 @@ function GroupEdit() {
       groupId: id,
       name,
       ticketSubCode: originalCode,
-      autonomousMode
+      autonomousMode,
+      isPublic
     }
     if (!_.isEmpty(groupName)) {
       groupInfo.name = groupName;
@@ -126,6 +128,13 @@ function GroupEdit() {
             onClick={() => setAutonomousMode(!autonomousMode)}
           />
           My work (only applies to views with one assignee).
+        </div>
+        <div className={classes.fieldsetContainer} style={{paddingTop: '2rem'}}>
+          <Checkbox
+            checked={isPublic}
+            onClick={() => setIsPublic(!isPublic)}
+          />
+          Public when creating a report.
         </div>
         <Typography style={{marginTop: '2rem'}}>
           {intl.formatMessage({ id: 'ticketSubCodeHelp' })}

@@ -70,6 +70,7 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { addMarketComments, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { requiresAction } from '../../../components/AddNewWizards/JobStage/JobStageWizard';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 
 const useStyles = makeStyles(
   () => ({
@@ -99,7 +100,7 @@ export default function PlanningInvestibleNav(props) {
   const styles = useStyles();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
-  const { stage, required_approvers:  requiredApprovers, open_for_investment: openForInvestment,
+  const { stage, required_approvers:  requiredApprovers, open_for_investment: openForInvestment, is_visible: isVisibleRaw,
     accepted, group_id: groupId, completion_estimate: marketDaysEstimate } = marketInfo;
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
@@ -108,6 +109,9 @@ export default function PlanningInvestibleNav(props) {
   // No quick add from your vote so have to check that as well
   const unaccepted = isAssigned && !accepted?.includes(userId) && (!isAssigned || _.isEmpty(yourVote));
   const singleWorkspaceUser = _.size(marketPresences) < 2;
+  const groupIsVisibleRaw = getGroup(groupsState, marketId, groupId)?.is_public;
+  const groupIsVisible = groupIsVisibleRaw === undefined ? true : groupIsVisibleRaw;
+  const isVisible = isVisibleRaw === undefined ? groupIsVisible : isVisibleRaw;
 
   function onDeleteFile(path) {
     return deleteAttachedFilesFromInvestible(market.id, investibleId, [path]).then((investible) => {
@@ -172,6 +176,20 @@ export default function PlanningInvestibleNav(props) {
     });
   }
 
+  function setIsVisible(isVisible) {
+    const updateInfo = {
+      marketId,
+      investibleId,
+      isVisible
+    };
+    setOperationRunning(`isVisibleCheckbox${investibleId}`);
+    return updateInvestible(updateInfo).then((fullInvestible) => {
+      refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
+      setOperationRunning(false);
+    });
+  }
+
+
   function myRejectInvestible() {
     return rejectInvestible(market.id, investibleId, marketInvestible, commentsState, commentsDispatch,
       investiblesDispatch, diffDispatch, marketStagesState, marketPresencesDispatch);
@@ -198,6 +216,8 @@ export default function PlanningInvestibleNav(props) {
   }
   const readyToStartChecked = operationRunning === `readyToStartCheckbox${investibleId}` ?
     !openForInvestment : openForInvestment;
+  const isVisibleChecked = operationRunning === `isVisibleCheckbox${investibleId}` ?
+    !isVisible : isVisible;
   const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
   const isSingleWorkspaceUser = _.size(marketPresences) === 1;
   const useInVoting = isInVoting && !isSingleUser;
@@ -394,6 +414,31 @@ export default function PlanningInvestibleNav(props) {
             </Select>
         </FormControl>
       )}
+      <div className={classes.assignmentContainer}>
+          <Tooltip key='isVisibleCheckboxKey'
+                    title={<FormattedMessage id='isVisibleJobToolTip' />}>
+            <FormControlLabel
+              id='isVisibleCheckbox'
+              style={{marginLeft: '0.25rem'}}
+              control={
+                <Checkbox
+                  id={`isVisibleCheckbox${investibleId}`}
+                  value={isVisible}
+                  className={styles.myCheckbox}
+                  style={{color: mobileLayout ? 'black' : 'white',
+                    backgroundColor: mobileLayout ? (isVisibleChecked ? 'white' : 'lightgrey') :
+                      (isVisibleChecked ? 'black' : 'white'),
+                    padding: 0, borderRadius: 0}}
+                  disabled={operationRunning !== false}
+                  checked={isVisibleChecked} 
+                  onClick={() => setIsVisible(!isVisibleChecked)}
+                />
+              }
+              label={<Typography variant="body2" style={{marginLeft: '0.8rem'}}>
+                {intl.formatMessage({ id: 'isVisibleCheckboxExplanation' })}</Typography>}
+            />
+          </Tooltip>
+        </div>
       <AttachedFilesList
         marketId={market.id}
         onUpload={onAttachFiles}

@@ -13,6 +13,7 @@ export function updateInvestible(updateInfo) {
     requiredApprovers,
     openForInvestment,
     groupId,
+    isVisible,
     version
   } = updateInfo;
   if (assignments) {
@@ -23,6 +24,11 @@ export function updateInvestible(updateInfo) {
   if (openForInvestment !== undefined) {
     return getMarketClient(marketId)
       .then((client) => client.investibles.updateOpenForInvestment(investibleId, openForInvestment))
+      .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
+  }
+  if (isVisible !== undefined) {
+    return getMarketClient(marketId)
+      .then((client) => client.investibles.updateIsVisible(investibleId, isVisible))
       .catch((error) => toastErrorAndThrow(error, 'errorInvestibleUpdateFailed'));
   }
   return getMarketClient(marketId)

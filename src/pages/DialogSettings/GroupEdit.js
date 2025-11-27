@@ -65,7 +65,7 @@ function GroupEdit() {
   const [groupName, setGroupName] = useState(undefined);
   const [isDirtyName, setIsDirtyName] = useState(false);
   const [autonomousMode, setAutonomousMode] = useState(group.group_type === 'AUTONOMOUS');
-  const [isPublic, setIsPublic] = useState(group.is_public);
+  const [isPublic, setIsPublic] = useState(group.is_public === undefined ? true : group.is_public);
 
   function handleSave() {
     const groupInfo = {

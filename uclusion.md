@@ -1,11 +1,11 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Error handling](#error-handling)| [Get basic grammar defined](#get-basic-grammar-defined)| 12-05-2025| [Initial pass at UScript syntax](#initial-pass-at-uscript-syntax)|  |
-| [Need a UScript Intellij plugin.](#need-a-uscript-intellij-plugin.)| [Look for more founders](#look-for-more-founders)| 11-28-2025| [Prototype CLANG backend](#prototype-clang-backend)|  |
-| [Find events to attend](#find-events-to-attend)| [Figure out IPC](#figure-out-ipc)| 11-26-2025| [Main explanatory blog](#main-explanatory-blog)|  |
-| [Region based memory management for garbage collection.](#region-based-memory-management-for-garbage-collection.)| [Add C bindings](#add-c-bindings)| 11-19-2025| [Unicode Handling](#unicode-handling)| Deployed to prod. |
-| [Null safety](#null-safety)| [Design Union Types](#design-union-types)| 11-22-2025| [Automated tests for CLANG backend](#automated-tests-for-clang-backend)| Deployed to stage. |
-| [Get basic REPL interpreter running](#get-basic-repl-interpreter-running)| [Create our logo](#create-our-logo)| 11-28-2025| |  |
+| [Error handling](#error-handling)| [Get basic grammar defined](#get-basic-grammar-defined)| 12-05| [Initial pass at UScript syntax](#initial-pass-at-uscript-syntax)|  |
+| [Need a UScript Intellij plugin.](#need-a-uscript-intellij-plugin.)| [Look for more founders](#look-for-more-founders)| 11-28| [Prototype CLANG backend](#prototype-clang-backend)|  |
+| [Find events to attend](#find-events-to-attend)| [Figure out IPC](#figure-out-ipc)| 11-26| [Main explanatory blog](#main-explanatory-blog)|  |
+| [Region based memory management for garbage collection.](#region-based-memory-management-for-garbage-collection.)| [Add C bindings](#add-c-bindings)| 11-19| [Unicode Handling](#unicode-handling)| Deployed to prod. |
+| [Null safety](#null-safety)| [Design Union Types](#design-union-types)| 11-22| [Automated tests for CLANG backend](#automated-tests-for-clang-backend)| Deployed to stage. |
+| [Get basic REPL interpreter running](#get-basic-repl-interpreter-running)| [Create our logo](#create-our-logo)| 11-28| |  |
 | [Create our hero statement](#create-our-hero-statement)| | | |  |
 ## Job
 ### Error handling

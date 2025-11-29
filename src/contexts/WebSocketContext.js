@@ -1,27 +1,14 @@
-/**
- * Web socket context provider must appear within the markets context, since it needs to
- * properly update it
- */
-import React, { useContext, useEffect, useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
-import WebSocketRunner from '../components/BackgroundProcesses/WebSocketRunner'
+import useWebSocket from 'react-use-websocket';
 import config from '../config'
 import { sendInfoPersistent, toastError } from '../utils/userMessage'
-import { pushMessage, registerListener } from '../utils/MessageBusUtils'
+import { pushMessage } from '../utils/MessageBusUtils'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
-import { isSignedOut, onSignOut } from '../utils/userFunctions'
+import { onSignOut } from '../utils/userFunctions'
 import { refreshNotifications, refreshVersions, VERSIONS_EVENT } from '../api/versionedFetchUtils';
-import { getAppVersion } from '../api/sso'
 import { PUSH_ACCOUNT_CHANNEL, PUSH_HOME_USER_CHANNEL } from './AccountContext/accountContextMessages'
-import { AccountContext } from './AccountContext/AccountContext';
-import { userIsLoaded } from './AccountContext/accountUserContextHelper';
-import { MarketsContext } from './MarketsContext/MarketsContext'
-
-export const AUTH_HUB_CHANNEL = 'auth'; // this is case sensitive.
-export const VERSIONS_HUB_CHANNEL = 'VersionsChannel';
-export const SOCKET_OPEN_EVENT = 'web_socket_opened';
-
-const pongTracker = {failureCount: 0};
+import { getLogin } from '../api/homeAccount';
 
 const WebSocketContext = React.createContext([
   {}, () => {
@@ -29,8 +16,6 @@ const WebSocketContext = React.createContext([
 ]);
 
 export const LAST_LOGIN_APP_VERSION = 'login_version';
-
-export const MAX_DRIFT_TIME = 300000;
 
 export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
   const { version } = config;
@@ -56,149 +41,61 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
   }
 }
 
-function sendPing(socket) {
-  const actionString = JSON.stringify({ action: 'ping' });
-  socket.send(actionString);
-}
-
-function createWebSocket(config, setState) {
-  console.info('Creating new websocket');
-  pongTracker.failureCount = 0;
-  const { webSockets } = config;
-  const sockConfig = { wsUrl: webSockets.wsUrl, reconnectInterval: webSockets.reconnectInterval };
-  const newSocket = new WebSocketRunner(sockConfig);
-  // this will incidentally subscribe to the identity
-  newSocket.connect();
-  // we also want to always be subscribed to new app versions
-  newSocket.registerHandler('UI_UPDATE_REQUIRED', (message) => {
-    const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = message;
-    notifyNewApplicationVersion(currentVersion, cacheClearVersion);
-  });
-
-  newSocket.registerHandler('pong', () => {
-    pongTracker.failureCount = 0;
-  });
-  newSocket.registerHandler('user', (message) => {
-    const { version } = message;
-    pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT, version });
-  });
-  newSocket.registerHandler('account', (message) => {
-    const { version } = message;
-    pushMessage(PUSH_ACCOUNT_CHANNEL, { event: VERSIONS_EVENT, version });
-  });
-  newSocket.registerHandler('market', () => {
-    refreshVersions().then(() => console.info('Refreshed versions from market push'));
-  });
-  newSocket.registerHandler('group', () => {
-    refreshVersions().then(() => console.info('Refreshed versions from group push'));
-  });
-  newSocket.registerHandler('group_capability', () => {
-    refreshVersions().then(() => console.info('Refreshed versions from group presence push'));
-  });
-  newSocket.registerHandler('investible', () => {
-    refreshVersions().then(() => console.info('Refreshed versions from investible push'));
-  });
-  newSocket.registerHandler('market_investible', () => {
-    refreshVersions().then(() => console.info('Refreshed versions from market investible push'));
-  });
-  newSocket.registerHandler('comment', () => {
-    refreshVersions().then(() => console.info('Refreshed versions from comment push'));
-  });
-  newSocket.registerHandler('stage', () => {
-    refreshVersions().then(() => console.info('Refreshed versions from stage push'));
-  });
-  newSocket.registerHandler('market_capability', () => {
-    refreshVersions().then(() => console.info('Refreshed versions from market presence push'));
-  });
-  newSocket.registerHandler('investment', () => {
-    refreshVersions().then(() => console.info('Refreshed versions from investment push'));
-  });
-  newSocket.registerHandler('addressed', () => {
-    refreshVersions().then(() => console.info('Refreshed versions from addressed push'));
-  });
-
-  newSocket.registerHandler('notification', () => {
-    // Try to be up to date before we push the notification out (which might need new data)
-    refreshVersions().then(() => console.info('Refreshed versions from notifications push'));
-    refreshNotifications();
-  });
-
-  sendPing(newSocket);
-  setState(newSocket);
+function subscribe(socket) {
+  return getLogin().then((accountData) => {
+    const { uclusion_token: accountToken } = accountData;
+    const action = { action: 'subscribe', identity: accountToken };
+    const actionString = JSON.stringify(action);
+    socket.send(actionString);
+  }).catch(() => console.warn('Error subscribing'));
 }
 
 function WebSocketProvider(props) {
-  const { children, config, userId } = props;
-  const [userState] = useContext(AccountContext);
-  const [marketsState] = useContext(MarketsContext);
-  const [state, setState] = useState();
-  const isUserLoaded = userIsLoaded(userState, marketsState);
-
-  useEffect(() => {
-    let interval;
-    if (isUserLoaded) {
-      interval = setInterval((tracker, socket, refresh, myCreateSocket) => {
-        const mySignedOut = isSignedOut();
-        const pingFailed = pongTracker.failureCount > 3;
-        if (socket && !pingFailed && !mySignedOut) {
-          sendPing(socket);
-        } else {
-          pongTracker.failureCount += 1;
-          if (pingFailed || !socket) {
-            if (socket) {
-              console.warn('Terminating socket');
-              socket.terminate();
-            }
-            if (!mySignedOut) {
-              console.info(`Recreating socket with fail count ${pongTracker.failureCount}`);
-              myCreateSocket();
-            }
-          }
-        }
-        if (!mySignedOut) {
-          refresh();
-          getAppVersion().then((version) => {
-            const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
+  const { children, config } = props;
+  const { sendMessage } = useWebSocket(
+    config.wsUrl,
+    {
+      onOpen: () => {
+        // Safe because this provider not instantiated until user is loaded
+        subscribe(sendMessage);
+      },
+      onMessage: (message) => {
+        const { event_type: event, version, app_version: currentVersion, 
+          requires_cache_clear: cacheClearVersion} = JSON.parse(message.data);
+        switch (event) {
+          case 'pong':
+            break;
+          case 'UI_UPDATE_REQUIRED':
             notifyNewApplicationVersion(currentVersion, cacheClearVersion);
-          }).catch(() => console.warn('Error checking version'));
+            break;
+          case 'user':
+            pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT, version });
+            break;
+          case 'account':
+            pushMessage(PUSH_ACCOUNT_CHANNEL, { event: VERSIONS_EVENT, version });
+            break;
+          case 'notification':
+            refreshVersions().then(() => console.info('Refreshed versions from notifications push'));
+            refreshNotifications();
+            break;
+          default:
+            refreshVersions().then(() => console.info('Refreshed versions from push'));
+            break;
         }
-      }, MAX_DRIFT_TIME, pongTracker, state, () => {
-        refreshVersions().then(() => console.info('Refreshed versions from max drift'));
-      }, () => createWebSocket(config, setState));
+      },
+      // The refresh done on sign out should mean this socket will be gone
+      reconnectInterval: config.reconnectInterval,
+      heartbeat: {
+        message: 'ping',
+        returnMessage: 'pong',
+        timeout: 60000, // 1 minute, if no response is received, the connection will be closed
+        interval: 25000, // every 25 seconds, a ping message will be sent
+      },
     }
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [config, state, userId, isUserLoaded]);
-
-  useEffect(() => {
-    if (isUserLoaded) {
-      createWebSocket(config, setState);
-    }
-    return () => {};
-  }, [config, isUserLoaded]);
-
-  if (isUserLoaded) {
-    registerListener(AUTH_HUB_CHANNEL, 'webSocketsAuth', (data) => {
-      const { payload: { event } } = data;
-      switch (event) {
-        case 'signOut':
-          if (state) {
-            state.terminate();
-          }
-          break;
-        case 'signIn':
-          // runs after user is loaded so too late for sign in event
-          break;
-        default:
-      }
-    });
-  }
+  );
 
   return (
-    <WebSocketContext.Provider value={[state, setState]}>
+    <WebSocketContext.Provider>
       {children}
     </WebSocketContext.Provider>
   );

@@ -38,7 +38,6 @@ import {
   groupMembersContextHack
 } from '../contexts/GroupMembersContext/GroupMembersContext';
 import { RepeatingFunction } from '../utils/RepeatingFunction';
-import { MAX_DRIFT_TIME } from '../contexts/WebSocketContext';
 import { isSignedOut } from '../utils/userFunctions';
 import { getMarketClient } from './marketLogin';
 import { TOKEN_TYPE_MARKET } from './tokenConstants';
@@ -54,6 +53,7 @@ import { versionsUpdateGroupMembers } from '../contexts/GroupMembersContext/grou
 import { leaderContextHack } from '../contexts/LeaderContext/LeaderContext';
 
 const MAX_RETRIES = 10;
+const MAX_DRIFT_TIME = 300000;
 const MAX_CONCURRENT_API_CALLS = 5;
 const MAX_CONCURRENT_ARCHIVE_API_CALLS = 1;
 export const NOTIFICATIONS_HUB_CHANNEL = 'NotificationsChannel';

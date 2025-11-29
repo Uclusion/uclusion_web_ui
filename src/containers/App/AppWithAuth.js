@@ -15,13 +15,12 @@ import VerifyEmail from '../../pages/Authentication/VerifyEmail'
 import IntlGlobalProvider from '../../components/ContextHacks/IntlGlobalProvider'
 import UclusionForgotPassword from '../../pages/Authentication/ForgotPassword'
 import { registerListener } from '../../utils/MessageBusUtils';
-import { AUTH_HUB_CHANNEL } from '../../contexts/WebSocketContext'
 import _ from 'lodash'
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
 import queryString from 'query-string'
 import { clearRedirect, clearUtm, getAndClearEmail, getRedirect, getUtm } from '../../utils/redirectUtils';
 import { clearSignedOut } from '../../utils/userFunctions';
-import { poll } from '../../contexts/AccountContext/accountContextMessages';
+import { AUTH_HUB_CHANNEL, poll } from '../../contexts/AccountContext/accountContextMessages';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { OnboardingState } from '../../contexts/AccountContext/accountUserContextHelper';
 

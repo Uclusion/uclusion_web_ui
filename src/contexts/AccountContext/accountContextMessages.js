@@ -1,5 +1,4 @@
 import { registerListener } from '../../utils/MessageBusUtils';
-import { AUTH_HUB_CHANNEL } from '../WebSocketContext';
 import { accountAndUserRefresh, clearAccount } from './accountContextReducer'
 import { VERSIONS_EVENT } from '../../api/versionedFetchUtils'
 import { fixDates } from './accountContextHelper'
@@ -8,6 +7,7 @@ import { getLogin } from '../../api/homeAccount';
 
 export const PUSH_HOME_USER_CHANNEL = 'HomeUserChannel';
 export const PUSH_ACCOUNT_CHANNEL = 'AccountChannel';
+export const AUTH_HUB_CHANNEL = 'auth';
 
 export function poll(dispatch, accountVersion, userVersion) {
   // TODO: need to try again after interval if this doesn't work but also needs to respond to await so tough

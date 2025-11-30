@@ -46,7 +46,7 @@ On CLI integration page correct the examples etc.
 In documentation explain how to use views and is public so that only what you want to show displays.
 
 ## Job
-### Button on the question that generates AI prompt onto the clipboard.
+### <a name="tith"></a> Button on the question that generates AI prompt onto the clipboard.
 Probably skipping pictures and file attachments.
 
 #### Task

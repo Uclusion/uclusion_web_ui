@@ -12114,10 +12114,10 @@ lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.19, lodash@^4.17.20, lodash@^4.17
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
-logrocket@^8.1.2:
-  version "8.1.2"
-  resolved "https://registry.yarnpkg.com/logrocket/-/logrocket-8.1.2.tgz#afe0c0d2814cb311db74f36c3820f210e154eee6"
-  integrity sha512-9D9ZiDkRkoDqjY/vV5L31Ry7dtNRDGiEFniPWmDUILBRdrCX/kPTMjXlD/RdHd/mUbRYM827lXJBIuoVHpShtA==
+logrocket@^10.1.0:
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/logrocket/-/logrocket-10.1.1.tgz#73a1cfbc2a22b666d5b9ecbeb135dc33ed12af19"
+  integrity sha512-Yv3ociIxbYxyY5sevTHS+I4ngtvQK6SGeeOBgg/X2R1hyqeHOPXTmrNUSu1+bG9g96VF0aR0rcyNwXDfuUFAtQ==
 
 loose-envify@^1.0.0, loose-envify@^1.1.0, loose-envify@^1.2.0, loose-envify@^1.3.1, loose-envify@^1.4.0:
   version "1.4.0"
@@ -14248,7 +14248,7 @@ react-transition-group@^4.4.0:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
-react-use-websocket@^4.0.0:
+react-use-websocket@^4.13.0:
   version "4.13.0"
   resolved "https://registry.yarnpkg.com/react-use-websocket/-/react-use-websocket-4.13.0.tgz#9db1dbac6dc8ba2fdc02a5bba06205fbf6406736"
   integrity sha512-anMuVoV//g2N76Wxqvqjjo1X48r9Np3y1/gMl7arX84tAPXdy5R7sB5lO5hvCzQRYjqXwV8XMAiEBOUbyrZFrw==
@@ -15632,10 +15632,10 @@ symbol-tree@^3.2.4:
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.4.tgz#430637d248ba77e078883951fb9aa0eed7c63fa2"
   integrity sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==
 
-tab-election@^4.1.18:
-  version "4.1.18"
-  resolved "https://registry.yarnpkg.com/tab-election/-/tab-election-4.1.18.tgz#af1e4a79c440811cf9f16573b6a22a206e820419"
-  integrity sha512-fVlnQJ5htfKPwjZIMv9XFikWehOaIQWQWRFUhFwLV7RNMaiH6Leaxs36F/ypRRHCV3z8uCGhCXGKUo7e8PtFAg==
+tab-election@^4.2.8:
+  version "4.2.8"
+  resolved "https://registry.yarnpkg.com/tab-election/-/tab-election-4.2.8.tgz#11709217b5028d187df7eb36f21207afd7913423"
+  integrity sha512-qHmh4jCMh1KKppqhIz3VWQPXGicCWaq2xtx9a37ZQroqbcXmCVUmmaf2rvFb0WThoJr9iaimK0PyHTxPkXcrDQ==
 
 table@^5.2.3:
   version "5.4.6"

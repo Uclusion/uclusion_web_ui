@@ -20,7 +20,7 @@ export const NAME_MAX_LENGTH = 80;
 
 function NameField(props) {
   const {
-    editorName, label, placeHolder, id, useCreateDefault, scrollId, initialValue, setHasValue
+    editorName, label, placeHolder, id, useCreateDefault, scrollId, initialValue, setHasValue, maxWidth
   } = props;
   const intl = useIntl();
   const defaultValue = getNameStoredState(id) || initialValue;
@@ -64,7 +64,7 @@ function NameField(props) {
   }
 
   return (
-    <FormControl variant="outlined" style={{marginBottom: '10px', width: '100%', maxWidth: '43rem', backgroundColor: 'white'}}>
+    <FormControl variant="outlined" style={{marginBottom: '10px', width: '100%', maxWidth: maxWidth, backgroundColor: 'white'}}>
       <InputLabel htmlFor='display-name'>{intl.formatMessage({ id: label })}</InputLabel>
       <OutlinedInput
         id={id}
@@ -94,14 +94,16 @@ NameField.propTypes = {
   placeHolder: PropTypes.string,
   label: PropTypes.string,
   useCreateDefault: PropTypes.bool,
-  setHasValue: PropTypes.func
+  setHasValue: PropTypes.func,
+  maxWidth: PropTypes.string
 }
 
 NameField.defaultProps = {
   placeHolder: "storyTitlePlaceholder",
   label: "agilePlanFormTitleLabel",
   useCreateDefault: false,
-  setHasValue: () => {}
+  setHasValue: () => {},
+  maxWidth: '43rem'
 }
 
 export default React.memo(NameField)

@@ -604,7 +604,7 @@ function StageInvestible(props) {
     return findMessageOfType('REPORT_REQUIRED', id, messagesState);
   }
   const doesRequireStatusMessage = requiresStatusMessage(id);
-  const labelsSorted = _.sortBy(labels, "updated_at");
+  const labelsSorted = _.reverse(_.sortBy(labels, "updated_at"));
   const label = _.isEmpty(labelsSorted) ? undefined : labelsSorted[0].label;
 
   function getMessagesChip() {

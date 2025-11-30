@@ -9,10 +9,10 @@ import {
   useTheme
 } from '@material-ui/core';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
-import { ExpandLess, ThumbDown, ThumbUp } from '@material-ui/icons';
+import { ExpandLess, Label, ThumbDown, ThumbUp } from '@material-ui/icons';
 import { FormattedMessage, useIntl } from 'react-intl';
 import AttachedFilesList from '../../../components/Files/AttachedFilesList';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Assignments, rejectInvestible, useCollaborators } from './PlanningInvestible';
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -71,6 +71,7 @@ import { addMarketComments, getInvestibleComments } from '../../../contexts/Comm
 import { requiresAction } from '../../../components/AddNewWizards/JobStage/JobStageWizard';
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import NameField, { getNameStoredState } from '../../../components/TextFields/NameField';
 
 const useStyles = makeStyles(
   () => ({
@@ -83,11 +84,12 @@ const useStyles = makeStyles(
   { name: "PlanningInvestibleNav" }
 );
 export default function PlanningInvestibleNav(props) {
-  const { name, market, marketInvestible, classes, userId, isAssigned,
+  const { name, market, marketInvestible, classes, userId, isAssigned, labels,
     pageState, marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId,
     updatePageState, investibleId, yourVote } = props;
   const intl = useIntl();
   const history = useHistory();
+  const [labelHasValue, setLabelHasValue] = useState(false);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
@@ -112,6 +114,8 @@ export default function PlanningInvestibleNav(props) {
   const groupIsVisibleRaw = getGroup(groupsState, marketId, groupId)?.is_public;
   const groupIsVisible = groupIsVisibleRaw === undefined ? true : groupIsVisibleRaw;
   const isVisible = isVisibleRaw === undefined ? groupIsVisible : isVisibleRaw;
+  const labelsSorted = _.reverse(_.sortBy(labels, "updated_at"));
+  const label = _.isEmpty(labelsSorted) ? undefined : labelsSorted[0].label;
 
   function onDeleteFile(path) {
     return deleteAttachedFilesFromInvestible(market.id, investibleId, [path]).then((investible) => {
@@ -183,6 +187,18 @@ export default function PlanningInvestibleNav(props) {
       isVisible
     };
     setOperationRunning(`isVisibleCheckbox${investibleId}`);
+    return updateInvestible(updateInfo).then((fullInvestible) => {
+      refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
+      setOperationRunning(false);
+    });
+  }
+
+  function addLabel() {
+    const updateInfo = {
+      marketId,
+      investibleId,
+      labelList: [getNameStoredState(`label${investibleId}`)]
+    };
     return updateInvestible(updateInfo).then((fullInvestible) => {
       refreshInvestibles(investiblesDispatch, diffDispatch, [fullInvestible]);
       setOperationRunning(false);
@@ -413,6 +429,27 @@ export default function PlanningInvestibleNav(props) {
               })}
             </Select>
         </FormControl>
+      )}
+      {!_.isEmpty(label) && (
+        <>
+          <b><FormattedMessage id={'label'}/></b>
+          <Typography variant="body2" style={{marginBottom: '1rem', maxWidth: '10rem'}}>
+            {label}
+          </Typography>
+        </>
+      )}
+      {isInReviewStage(fullStage)&&(
+        <>
+          <NameField id={`label${investibleId}`} setHasValue={setLabelHasValue} maxWidth='10rem'
+          placeHolder={intl.formatMessage({ id: 'label' })} label={'labelPlaceholder'} />
+          <SpinningIconLabelButton
+              style={{marginBottom: '1rem'}}
+                disabled={!labelHasValue}
+                onClick={addLabel}
+                icon={Label} id='addLabel'>
+                {intl.formatMessage({ id: 'addLabel' })}
+          </SpinningIconLabelButton>
+        </>
       )}
       <div className={classes.assignmentContainer}>
           <Tooltip key='isVisibleCheckboxKey'

@@ -388,7 +388,7 @@ function PlanningInvestible(props) {
     created_by: createdById } = marketInfo;
   const assigned = invAssigned || [];
   const { investible } = marketInvestible;
-  const { name, description, locked_by: lockedBy, created_at: createdAt } = investible;
+  const { name, description, locked_by: lockedBy, created_at: createdAt, labels } = investible;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [approvalsOpen, setApprovalsOpen] = useState(!_.isEmpty(calculateInvestibleVoters(investibleId, marketId, marketsState, 
@@ -639,7 +639,7 @@ function PlanningInvestible(props) {
                                                userId={userId} myPresence={myPresence} isAssigned={isAssigned}
                                                pageState={pageState} marketPresences={marketPresences}
                                                assigned={assigned} isInVoting={isInVoting}
-                                               investibleComments={investibleComments}
+                                               investibleComments={investibleComments} labels={labels}
                                                marketInfo={marketInfo} marketId={marketId}
                                                updatePageState={updatePageState} />;
   function getUseCompression(commentId) {

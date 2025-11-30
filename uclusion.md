@@ -1,7 +1,7 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
 | [CLI TODO fixes](#cli-todo-fixes)| [Import / Export strategy and script.](#import-/-export-strategy-and-script.)| 11/29| [Python 3.9 end of life - problem is that layers and Lambda runtime must match...](#python-3.9-end-of-life---problem-is-that-layers-and-lambda-runtime-must-match...)|  |
-| [Button on the question that generates AI prompt onto the clipboard.](#button-on-the-question-that-generates-ai-prompt-onto-the-clipboard.)| | | [See if React now supports a better way to keep a websocket open - otherwise...](#see-if-react-now-supports-a-better-way-to-keep-a-websocket-open---otherwise...)| Deployed to stage |
+| [Button on the question that generates AI prompt onto the clipboard.](#tith)| | | [See if React now supports a better way to keep a websocket open - otherwise...](#see-if-react-now-supports-a-better-way-to-keep-a-websocket-open---otherwise...)| Deployed to stage |
 ## Job
 ### CLI TODO fixes
 

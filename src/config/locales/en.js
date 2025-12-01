@@ -128,7 +128,6 @@ const messages = defineMessages({
   advanced: 'Advanced',
   close: 'Close',
   typeOrChoose: 'Type and hit enter or choose from dropdown',
-  addLabel: 'Add label',
   created: 'Created ',
   edited: 'Storing locally',
   hours: 'hours',

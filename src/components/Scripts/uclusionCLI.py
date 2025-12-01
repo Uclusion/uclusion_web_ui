@@ -570,7 +570,6 @@ if __name__ == "__main__":
         print(f"⚠️ Warning: No workspaceId in config.")
     if view_id is None:
         view_id = workspace_id
-        print(f"     ---\n{view_id}\n     ---")
 
     if secret_key is not None and secret_key_id is not None  and workspace_id is not None:
         credentials['view_id'] = view_id

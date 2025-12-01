@@ -41,25 +41,26 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
   }
 }
 
-function subscribe(socket) {
+function subscribe(sendMessage) {
   return getLogin().then((accountData) => {
     const { uclusion_token: accountToken } = accountData;
     const action = { action: 'subscribe', identity: accountToken };
     const actionString = JSON.stringify(action);
-    socket.send(actionString);
-  }).catch(() => console.warn('Error subscribing'));
+    return sendMessage(actionString);
+  }).catch((error) => console.error('Error subscribing', error));
 }
 
 function WebSocketProvider(props) {
   const { children, config } = props;
   const { sendMessage } = useWebSocket(
-    config.wsUrl,
+    config.webSockets.wsUrl,
     {
       onOpen: () => {
         // Safe because this provider not instantiated until user is loaded
         subscribe(sendMessage);
       },
       onMessage: (message) => {
+        console.info('WebSocket message received', message);
         const { event_type: event, version, app_version: currentVersion, 
           requires_cache_clear: cacheClearVersion} = JSON.parse(message.data);
         switch (event) {

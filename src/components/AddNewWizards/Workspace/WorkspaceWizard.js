@@ -25,6 +25,8 @@ import { DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
 import { TOKEN_TYPE_MARKET } from '../../../api/tokenConstants';
 import _ from 'lodash';
 import WorkspaceViewStep from './WorkspaceViewStep';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { quickRemoveMessages } from '../../../contexts/NotificationsContext/notificationsContextReducer';
 
 function WorkspaceWizard() {
   const history = useHistory();
@@ -86,7 +88,7 @@ function WorkspaceWizard() {
           market.object_type === DEMO_TYPE);
         if (!_.isEmpty(demos) && user){
           demos.forEach((demo) => changeBanStatus(presenceState, presenceDispatch, demo.id, user.id, true, commentsState));
-          const { messages } = (state || {});
+          const { messages } = (messagesState || {});
           const demoMarketIds = demos.map((demo) => demo.id);
           const demoMessages = messages?.filter((message) => demoMarketIds.includes(message.market_id));
           const typeObjectIds = demoMessages?.map((message) => message.type_object_id);

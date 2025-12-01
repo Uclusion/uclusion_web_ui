@@ -36,6 +36,7 @@ function WorkspaceWizard() {
   const [, stagesDispatch] = useContext(MarketStagesContext);
   const [commentsState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [messagesState, messagesDispatch] = useContext(NotificationsContext);
 
   function getInitials(name) {
     const words = name.split(' ');
@@ -85,6 +86,13 @@ function WorkspaceWizard() {
           market.object_type === DEMO_TYPE);
         if (!_.isEmpty(demos) && user){
           demos.forEach((demo) => changeBanStatus(presenceState, presenceDispatch, demo.id, user.id, true, commentsState));
+          const { messages } = (state || {});
+          const demoMarketIds = demos.map((demo) => demo.id);
+          const demoMessages = messages?.filter((message) => demoMarketIds.includes(message.market_id));
+          const typeObjectIds = demoMessages?.map((message) => message.type_object_id);
+          if (!_.isEmpty(typeObjectIds)) {
+            messagesDispatch(quickRemoveMessages(typeObjectIds));
+          }
         }
         const tokenStorageManager = new TokenStorageManager();
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)

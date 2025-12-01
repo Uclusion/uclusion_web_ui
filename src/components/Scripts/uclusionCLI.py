@@ -565,7 +565,7 @@ if __name__ == "__main__":
         print("   -> ❌ Error: 'secret_key_id' not found in credentials file.")
     
     workspace_id = config.get('workspaceId')
-    view_id = config.get('viewId')
+    view_id = config.get('todoViewId')
     if workspace_id is None:
         print(f"⚠️ Warning: No workspaceId in config.")
     if view_id is None:

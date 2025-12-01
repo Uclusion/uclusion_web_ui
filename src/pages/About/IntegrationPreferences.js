@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
-import { Card, Grid, ListItem, makeStyles, Typography, } from '@material-ui/core';
-import { useIntl } from 'react-intl';
+import React, { useContext, useState } from 'react';
+import { Card, FormControl, Grid, ListItem, makeStyles, MenuItem, Select, Typography, } from '@material-ui/core';
+import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import config from '../../config';
 import Screen from '../../containers/Screen/Screen';
@@ -18,6 +18,8 @@ import { useLocation } from 'react-router';
 import queryString from 'query-string';
 import CLISecret from './CLISecret';
 import CLIScript from '../../components/Scripts/uclusionCLI.py';
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
+import _ from 'lodash';
 
 const useStyles = makeStyles((theme) => ({
   disabled: {
@@ -73,14 +75,17 @@ function IntegrationPreferences (props) {
   const [userState] = useContext(AccountContext);
   const [marketsState] = useContext(MarketsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [groupsState] = useContext(MarketGroupsContext);
   const location = useLocation();
   const { pathname, search: querySearch } = location;
   const { marketId } = decomposeMarketPath(pathname);
+  const [groupId, setGroupId] = useState(marketId);
   const values = queryString.parse(querySearch);
-  const { groupId, integrationType } = values || {};
+  const { integrationType } = values || {};
   const { user } = userState || {};
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
+  const allowableGroups = groupsState[marketId];
 
   if (myNotHiddenMarketsState.marketDetails) {
     const filtered = myNotHiddenMarketsState.marketDetails.filter((market) =>
@@ -193,6 +198,23 @@ function IntegrationPreferences (props) {
       )}
       {(integrationType === undefined || integrationType === 'cli') && (
         <div className={classes.containerLarge} style={{marginTop: '3rem', marginBottom: '10rem'}}>
+          {_.size(allowableGroups) > 1 && groupId && (
+            <>
+              <div>
+                <FormattedMessage id="switchTodoView"/>
+              </div>
+              <FormControl style={{marginBottom: '1rem'}}>
+                  <Select
+                    value={groupId}
+                    onChange={(event) => setGroupId(event.target.value)}
+                  >
+                    {allowableGroups.map((group) => {
+                      return <MenuItem key={`key${group.id}`} value={group.id}>{group.name}</MenuItem>
+                    })}
+                  </Select>
+              </FormControl>
+            </>
+          )}
           <Card>
             <SubSection
               title={intl.formatMessage({ id: 'cliIntegration' })}
@@ -200,21 +222,23 @@ function IntegrationPreferences (props) {
             >
               <Typography variant="subtitle1" style={{paddingBottom: '1rem'}}>
                 See <Link href="https://documentation.uclusion.com/cli" target="_blank">CLI</Link> documentation.
-                Example uclusion.json for the current workspace and view:
+                Example uclusion.json for this workspace:
               </Typography>
               <p style={{whiteSpace: 'pre-wrap'}}>
                 {"{"}<br/>
                 {'   "workspaceId": "'+marketId+'",'}<br/>
-                {'   "viewId": "'+groupId+'",'}<br/>
+                {'   "todoViewId": "'+groupId+'",'}<br/>
                 {'   "extensionsList": ['}<br/>
                 {'     "java",'}<br/>
                 {'     "js",'}<br/>
                 {'     "py"'}<br/>
                 {"   ],"}<br/>
                 {'   "sourcesList": ['}<br/>
-                {'     "./src1",'}<br/>
+                {'     "./src",'}<br/>
                 {'     "./src2"'}<br/>
-                {"   ]"}<br/>
+                {"   ],"}<br/>
+                {'   "uclusionMDFileType": "report",'}<br/>
+                {'   "uclusionMDFilePath": "uclusion.md"'}<br/>
                 {"}"}
               </p>
               <CLISecret marketId={marketId} />

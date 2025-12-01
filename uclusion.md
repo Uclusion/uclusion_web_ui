@@ -1,7 +1,7 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Fix documentation for CLI - code todos, report markdown, and export.](#310a063e-441f-4412-9d89-0b07f8fc4627)| | | [Python 3.9 end of life - problem is that layers and Lambda runtime must match...](#d7c2f7ff-b9b2-4241-8fc7-e724d6a544ec)|  |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [CLI TODO fixes](#927f8039-c23a-427e-86e6-2f40100adc33)| Deployed to stage |
+| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| [Fix documentation for CLI - code todos, report markdown, and export.](#310a063e-441f-4412-9d89-0b07f8fc4627)| 12/02| [Python 3.9 end of life - problem is that layers and Lambda runtime must match...](#d7c2f7ff-b9b2-4241-8fc7-e724d6a544ec)|  |
+| | | | [CLI TODO fixes](#927f8039-c23a-427e-86e6-2f40100adc33)| Deployed to stage |
 | | | | [Import / Export strategy and script.](#8c6374e6-2b2c-4b08-abdd-b6bec66c4f69)| Deployed to stage |
 | | | | [See if React now supports a better way to keep a websocket open - otherwise...](#0119ab37-b6ed-432e-a05b-5a91e8e02393)| Deployed to stage |
 ## Job <a name="310a063e-441f-4412-9d89-0b07f8fc4627"></a>

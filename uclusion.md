@@ -1,16 +1,13 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)| | | [Fix documentation for CLI - code todos, report markdown, and export.](#310a063e-441f-4412-9d89-0b07f8fc4627)| Deployed to production |
-| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| | | [Python 3.9 end of life - problem is that layers and Lambda runtime must match...](#d7c2f7ff-b9b2-4241-8fc7-e724d6a544ec)|  |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [CLI TODO fixes](#927f8039-c23a-427e-86e6-2f40100adc33)| Deployed to stage |
-| | | | [Import / Export strategy and script.](#8c6374e6-2b2c-4b08-abdd-b6bec66c4f69)| Deployed to stage |
-| | | | [See if React now supports a better way to keep a websocket open - otherwise...](#0119ab37-b6ed-432e-a05b-5a91e8e02393)| Deployed to stage |
+| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)| 12/12| [Fix documentation for CLI - code todos, report markdown, and export.](#310a063e-441f-4412-9d89-0b07f8fc4627)| Deployed to production |
+| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Python 3.9 end of life - problem is that layers and Lambda runtime must match...](#d7c2f7ff-b9b2-4241-8fc7-e724d6a544ec)| Deployed to production |
+| | | | [CLI TODO fixes](#927f8039-c23a-427e-86e6-2f40100adc33)| Deployed to production |
+| | | | [Import / Export strategy and script.](#8c6374e6-2b2c-4b08-abdd-b6bec66c4f69)| Deployed to production |
+| | | | [See if React now supports a better way to keep a websocket open - otherwise...](#0119ab37-b6ed-432e-a05b-5a91e8e02393)| Deployed to production |
 ## Job <a name="f577ab3a-9234-4f4d-af83-ed7aa1b25fce"></a>
 ### Website feedback.
 From various sources.
-
-#### Task
-Fix existing screen shots of planning investible that have this wrong.
 
 #### Task
 [Same three use cases but present like https://www.brkaway.co/ does with their...](/dialog/dd56682c-9920-417b-be46-7a30d41bc905/f577ab3a-9234-4f4d-af83-ed7aa1b25fce#option92b659f9-03c1-4d6c-9f9b-1156ca37c770)
@@ -27,9 +24,6 @@ Cases are link job, link code Todo, and export data. Give AI a shot at copy styl
 
 #### Task
 Fix mobile images with Shots tool also.
-
-#### Task
-Under collaboration tab on landing page the blocking screenshot is too large - include more of the tab on etc. to make reasonable size.
 
 #### Task
 Fix margins at intermediate sizes.

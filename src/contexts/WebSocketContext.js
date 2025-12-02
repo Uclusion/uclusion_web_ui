@@ -87,6 +87,7 @@ function WebSocketProvider(props) {
       },
       // The refresh done on sign out should mean this socket will be gone
       reconnectInterval: config.webSockets.reconnectInterval,
+      shouldReconnect: () => true,
       heartbeat: {
         message: 'ping',
         returnMessage: {'event_type': 'pong'},

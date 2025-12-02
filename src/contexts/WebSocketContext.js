@@ -1,14 +1,15 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import useWebSocket from 'react-use-websocket';
 import config from '../config'
 import { sendInfoPersistent, toastError } from '../utils/userMessage'
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
-import { onSignOut } from '../utils/userFunctions'
+import { isSignedOut, onSignOut } from '../utils/userFunctions'
 import { refreshNotifications, refreshVersions, VERSIONS_EVENT } from '../api/versionedFetchUtils';
 import { PUSH_ACCOUNT_CHANNEL, PUSH_HOME_USER_CHANNEL } from './AccountContext/accountContextMessages'
 import { getLogin } from '../api/homeAccount';
+import { getAppVersion } from '../api/sso';
 
 const WebSocketContext = React.createContext([
   {}, () => {
@@ -94,6 +95,21 @@ function WebSocketProvider(props) {
       },
     }
   );
+
+  useEffect(() => {
+    const interval = setInterval((refresh) => { ;
+      if (!isSignedOut()) {
+        refresh();
+        getAppVersion().then((version) => {
+          const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
+          notifyNewApplicationVersion(currentVersion, cacheClearVersion);
+        }).catch(() => console.warn('Error checking version'));
+      }
+    }, 300000, ()=>refreshVersions().then(() => console.info('Refreshed versions from interval')));
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <WebSocketContext.Provider>

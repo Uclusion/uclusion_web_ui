@@ -89,7 +89,7 @@ function WebSocketProvider(props) {
       reconnectInterval: config.reconnectInterval,
       heartbeat: {
         message: 'ping',
-        returnMessage: 'pong',
+        returnMessage: {'event_type': 'pong'},
         timeout: 60000, // 1 minute, if no response is received, the connection will be closed
         interval: 25000, // every 25 seconds, a ping message will be sent
       },

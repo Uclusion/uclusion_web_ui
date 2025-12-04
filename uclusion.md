@@ -76,10 +76,10 @@ Our current decision making and coding scaling well so consider talent if availa
 We need a way to define how sub threads or processes will pass data to each other.
 
 #### Task <a name="9fb57d64-7b1d-4da4-bd9f-15a012b4f67c"></a> 
-See what kind of link get for this task [Design Union Types - T-Engineering-6](/dialog/9e7bcee9-7203-42af-92ad-578e5832b47b/f54dfca9-77f7-480b-8df9-7ea5b9344bf1#c9dc2b884-2648-4049-a08a-daee399b4545)
+See what kind of link get for this task Design Union Types - T-Engineering-6
 
 #### Task <a name="8614d47f-4123-4608-9130-f6f000073427"></a> 
-This is as link to a job [Design Union Types](/dialog/9e7bcee9-7203-42af-92ad-578e5832b47b/f54dfca9-77f7-480b-8df9-7ea5b9344bf1)
+This is as link to a job [Design Union Types](#f54dfca9-77f7-480b-8df9-7ea5b9344bf1)
 
 #### Question <a name="806d8130-10bd-4c89-87a8-20c534930f45"></a> 
 Something similar to Erlang mailboxes? Go channels? ﻿@TARGET USER﻿ what do you think?
@@ -103,7 +103,7 @@ We'd have generic channels as first class objects that any process can write to 
 Try and see how it goes.
 
 #### Task <a name="c00861de-4594-4382-b7c8-e5ed471720e6"></a> 
-This is bug link [B-Engineering-1](/dialog/9e7bcee9-7203-42af-92ad-578e5832b47b?groupId=9e7bcee9-7203-42af-92ad-578e5832b47b#ccdfeee1b-74b9-40a8-9a52-33a7640edb1a)
+This is bug link B-Engineering-1
 
 ## Job <a name="ecbf942f-033a-479e-9c86-7386841845da"></a>
 ### Region based memory management for garbage collection.
@@ -119,11 +119,11 @@ Starting that integration now will prevent duplicating functionality.
 > ##### $${\color{lightgreen} Reason \space For}$$
 Agreed - front load this work.
 
-#### Task <a name="27580552-6a4d-404b-8d10-5b57f8db3a5e"></a> 
-Runtime binding.
-
 #### Task <a name="3a9ab79b-fb2f-4d55-ba97-91e8468e51e1"></a> 
 Define and include for make file linkage.
+
+#### Resolved Task <a name="27580552-6a4d-404b-8d10-5b57f8db3a5e"></a> 
+Runtime binding.
 
 ## Job <a name="bd0aec7b-70e5-47be-9d6f-a7b1dfe7af65"></a>
 ### Null safety

@@ -487,11 +487,11 @@ Put this picture and explanation as first slide under organization tab and drop 
 
 Video won't work as code in Idea, switch to Uclusion to copy job info, paste in commit back in Idea is not sexy.
 
-### Option
+### Option<a name="92b659f9-03c1-4d6c-9f9b-1156ca37c770"></a>
 ### Same three use cases but present like https://www.brkaway.co/ does with their...
 Same three use cases but present like <https://www.brkaway.co/> does with their cards of info and pictures.
 
-### Option
+### Option<a name="ab94add0-093e-42ce-9a26-4645cfe21205"></a>
 ### Just close up on the job labels on one side and the Github action simple...
 ...config to setup on the other. Then same left and right thing for both TODO sync and data export.
 
@@ -1199,6 +1199,9 @@ So the market service endpoint handles everything it can.
 
 #### Resolved Task <a name="38debdfa-ed71-4998-87fd-a6087cc0ae71"></a> 
 Bring back resolved top level comments and just put them in their own section so clear they are resolved - so ship them in their own 'resolved' dictionary item.
+
+#### Resolved Task <a name="f07e7d43-a9c8-4e1d-b9a9-5ae143e665b2"></a> 
+Options missing anchors.
 
 #### Resolved Task <a name="25cfd345-9f40-4cb5-88c2-462d0069e8b3"></a> 
 CANNOT LET THEM EDIT THE UCLUSION MD FILE. 

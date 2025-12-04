@@ -79,7 +79,7 @@ Our current decision making and coding scaling well so consider talent if availa
 We need a way to define how sub threads or processes will pass data to each other.
 
 #### Task <a name="9fb57d64-7b1d-4da4-bd9f-15a012b4f67c"></a> 
-See what kind of link get for this task Design Union Types - T-Engineering-6
+See what kind of link get for this task [Design Union Types - T-Engineering-6](#9dc2b884-2648-4049-a08a-daee399b4545)
 
 #### Task <a name="8614d47f-4123-4608-9130-f6f000073427"></a> 
 This is as link to a job [Design Union Types](#f54dfca9-77f7-480b-8df9-7ea5b9344bf1)
@@ -106,7 +106,7 @@ We'd have generic channels as first class objects that any process can write to 
 Try and see how it goes.
 
 #### Task <a name="c00861de-4594-4382-b7c8-e5ed471720e6"></a> 
-This is bug link B-Engineering-1
+This is bug link [B-Engineering-1](#cdfeee1b-74b9-40a8-9a52-33a7640edb1a)
 
 ## Job <a name="ecbf942f-033a-479e-9c86-7386841845da"></a>
 ### Region based memory management for garbage collection.

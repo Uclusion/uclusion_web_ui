@@ -1,6 +1,6 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| | | [Fix documentation for CLI - code todos, report markdown, and export.](#310a063e-441f-4412-9d89-0b07f8fc4627)| Deployed to production |
+| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| 01/01| [Fix documentation for CLI - code todos, report markdown, and export.](#310a063e-441f-4412-9d89-0b07f8fc4627)| Deployed to production |
 | [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Python 3.9 end of life - problem is that layers and Lambda runtime must match...](#d7c2f7ff-b9b2-4241-8fc7-e724d6a544ec)| Deployed to production |
 | | | | [CLI TODO fixes](#927f8039-c23a-427e-86e6-2f40100adc33)| Deployed to production |
 | | | | [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)|  |
@@ -31,6 +31,249 @@ Also need counts from search on other views for anything not showing in the curr
 
 #### Task <a name="2fcd674f-7c8d-46cf-85e8-6f10a428863c"></a> 
 Change sub text on archive to say archive instead of group archive.
+
+## Job <a name="3af2201b-8111-46e9-b746-2f33cf1312bd"></a>
+### Should fix UI bugs.
+#### Task <a name="6480fd0a-956c-44f4-a84f-ca0caa68c65b"></a> 
+For you menu must show search results when has them and not anything when doesn't and search.
+
+
+
+
+Sidebar menus must open when have search results.
+
+#### Task <a name="8fef848b-0392-4584-ba8a-634ad14433a8"></a> 
+Add and another does not clear if had previous draft task
+
+1. Create a draft task so see pencil icon
+2. Go back and edit it
+3. Create and another has former draft
+
+#### Task <a name="e3955751-12b8-4c03-ba7d-88dfbe2cf053"></a> 
+After go to view from job action, go to the my work view if the user has one.
+
+#### Task <a name="21781abb-865d-4327-8917-944b7025faf2"></a> 
+When resolve minor but on return arrive in critical bugs section.
+
+
+
+
+Also happening when move a bug to a job from a non critical section.
+
+#### Task <a name="e60e9015-aa0c-49ed-abf4-0e58c1585873"></a> 
+From context menu can send an unassigned job to tasks complete without assigning it or resolving tasks - even though am only person in workspace.
+
+#### Task <a name="b019ffb1-7558-48ac-8916-3482485860d4"></a> 
+When move job with question from assignee in regular view to Work Ready not prompted to resolve question and instead goes briefly till quick add wiped out.
+
+#### Task <a name="90f611ac-c888-44be-86f8-98d215ca64a1"></a> 
+No up arrow when do search.
+
+#### Task <a name="8a4ee34b-6a80-4aa0-bfed-49825d42f892"></a> 
+<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c047efba-47bc-4389-8a4f-858fa4f06772.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='703' />
+
+
+
+
+Counts don't add up - 7 - 5 = 2 missing.
+
+#### Task <a name="7e20ed91-4fc7-4419-ab9d-a4cb49d7e74f"></a> 
+<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/36d21323-4f19-49d3-94e0-a52b3473f1c2.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='849' />
+
+
+
+
+Here have both the expand circle and the chevron to expand. So the collapsed comment should be blue and should link back to the comment instead of uncollapsing - except if hit chevron of course.
+
+#### Task <a name="5aaf01ec-a15e-4732-8c23-6c15c05b6dee"></a> 
+Edit a subtask header - should say subtask instead of reply and don't need author on either since only author of both can edit.
+
+
+
+
+<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/a1320ce4-4200-434e-99e7-eda11fe4916d.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='957' />
+
+#### Task <a name="3671e2b8-0876-4e90-921c-49c1144345ad"></a> 
+Getting re-renders caused by context updates even when the sync gets nothing new. If nothing new there should be no updating contexts.
+
+> ##### Reply <a name="3ddbca75-8758-4552-9cd0-e3a663bf6772"></a> 
+Why do you think it's by context updates? I instrumented the code, it's not going to be pushing messages.
+
+#### Task <a name="61a70e37-6cc3-41d4-9c64-6df09d309c8c"></a> 
+Context menu for Not Ready backlog does not include Not Doing.
+
+#### Task <a name="5c9637a6-b94c-4a16-9aea-fe8bcc4d2cc0"></a> 
+Do the full context menu even if in swimlanes - no reason not to and now no stage header.
+
+#### Resolved Task <a name="b5ca7cbe-704b-4cce-9e50-77834334f474"></a> 
+Count color not on bugs or backlog lists 
+
+#### Resolved Task <a name="d0c15bc9-9dbc-4a8f-a663-42c675f5995b"></a> 
+Link from comment in subtask wizard, and presumably others, goes to the comment but does not turn yellow. There was a flag for turning off the yellow but absolutely currently no reason to use such a thing - see if can fix so yellows correctly.
+
+
+
+
+Actually turning yellow broken for link from ticket code and inbox also - seems just broken.
+
+#### Resolved Task <a name="b85b71e3-3eb8-4b69-9d35-1c486b2101ed"></a> 
+Remove going to individual not new notifications other than critical bugs and outbox from navigation button. 
+
+
+
+
+Navigation will go to one of four places:
+
+1. New notifications expanded
+2. A critical bug notification
+3. Swimlanes of all views that is member of
+4. In progress tasks in assigned jobs
+
+#### Resolved Task <a name="4e34416d-9b53-433a-a2d9-d1aaacc03d1d"></a> 
+Simplify views.
+
+> ##### Subtask <a name="b85b71e3-3eb8-4b69-9d35-1c486b2101ed"></a> 
+Remove going to individual not new notifications other than critical bugs and outbox from navigation button. 
+
+
+
+
+Navigation will go to one of four places:
+
+1. New notifications expanded
+2. A critical bug notification
+3. Swimlanes of all views that is member of
+4. In progress tasks in assigned jobs
+
+> ##### Subtask <a name="2d774af4-91ba-41a1-8b46-c5185eac71ed"></a> 
+When choose add peers get this:
+
+<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/f8ed40e6-f4f2-465a-af22-e956e251d543.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='246' />
+
+That's too confusing - second step in the wizard has to ask if the people you are adding are on the same team or observers. If same team just create new named view and if not then automatically create autonomous view.
+
+
+
+
+**That means can't create the workspace till know as there must be at least one view.**
+
+
+
+
+**================**
+
+
+
+
+<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/e5bf8cf9-020c-49d7-81ae-e8f3c85af7a6.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='550' />
+
+
+
+
+This above is too confusing. How about just two choices "Single person view" or "Team view". Sub-text explains that a workspace must have at least one view. If choose team view you name it yourself with sub-text that explains what a view is - the finish button there creates the workspace.
+
+> ##### Subtask <a name="395caf80-2822-43fd-ae11-1a4ca6b17957"></a> 
+Remove view link to documentation and make collapsible section like all the rest and have collapsed by default when there is only one view.
+
+
+
+
+**J**ust drop the whole weird sidebar language and do as one thing.
+
+> ##### Subtask <a name="3e5e867f-97a0-4156-93d1-ba8dbe4319a9"></a> 
+Remove explanation of views from intro to workspace screens.
+
+> ##### Subtask <a name="6cff6d27-fbd1-455e-a1ab-4ad8aeb59e1b"></a> 
+Make solo demo single view only.
+
+#### Resolved Task <a name="1cb3e171-26ec-47a6-bdd6-ae2267efa6ae"></a> 
+Check box on tasks overview is red instead of green.
+
+#### Resolved Task <a name="e80ece94-a27e-4f71-8849-554133591e00"></a> 
+On the overview of a job the number of resolved tasks should be a plain number instead of inside an orange chip.
+
+#### Resolved Task <a name="8806f87e-106e-41a7-a886-ab3f2e48e6a8"></a> 
+Verify on production that no scroll bar on switch workspace even with many workspaces.
+
+#### Resolved Task <a name="db65eb46-58dc-4078-86f2-5dd63694e1ce"></a> 
+If drag job with open suggestion to Work Ready and choose Make Task then just spins forever and no action taken.
+
+
+
+
+*Unable to repro any of this.*
+
+> ##### Subtask <a name="528c8325-07e1-4366-9b2c-9d2ffcdf4a83"></a> 
+If have reply on that suggestion then after make the suggestion a task and put it in progress and put reply in progress, the reply disappears.
+
+#### Resolved Task <a name="395caf80-2822-43fd-ae11-1a4ca6b17957"></a> 
+Remove view link to documentation and make collapsible section like all the rest and have collapsed by default when there is only one view.
+
+
+
+
+**J**ust drop the whole weird sidebar language and do as one thing.
+
+#### Resolved Task <a name="1e78582a-7193-4907-b060-85dad860e25a"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/80873630-89de-4414-8a96-9aad0098400c.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+Don't display the view name in ticket code. It already displays on right nav under View and on left nav if in that view.
+
+#### Resolved Task <a name="1ba98476-cd57-40f9-af2e-be2cacea2d05"></a> 
+Put in debug log statements to figure out when search bar is re-rendering and flickering. Related to [Must fix bugs. - T-all-7](#3671e2b8-0876-4e90-921c-49c1144345ad) ?
+
+> ##### Subtask <a name="2e922336-b81d-49cb-853a-0e7f89942d95"></a> 
+Redo presentation of offline and have timer on it. See Gmail example - not nearly as big a message. Can simulate offline in Chrome devtools.
+
+#### Resolved Task <a name="3e5e867f-97a0-4156-93d1-ba8dbe4319a9"></a> 
+Remove explanation of views from intro to workspace screens.
+
+#### Resolved Task <a name="0e5f6beb-60b8-4283-bf69-028bdedb5dbf"></a> 
+Notes are somehow following the progress report logic and only showing the latest one - possibly even resolving older ones.
+
+#### Resolved Task <a name="13375543-da18-4589-b826-948cf8968370"></a> 
+Don't show poke icon on resolved comments.
+
+#### Resolved Task <a name="c3fec27e-6465-4b09-b299-b4205f34d957"></a> 
+<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/d06b3c63-0d12-4bb7-ac65-aa3577f134b8.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='416' />
+
+
+
+
+Make In progress left most on both parent and child. Drop date on child - parent doesn't have both so why should it.
+
+#### Resolved Task <a name="6cff6d27-fbd1-455e-a1ab-4ad8aeb59e1b"></a> 
+Make solo demo single view only.
+
+#### Resolved Task <a name="cb34dbe5-e22d-46aa-99f8-232cb75191ca"></a> 
+Reply linking icon is in corner but for comment is in middle. Too confusing. Probably reply one should move to middle cause as it is looks like the avatar for the name which it isn't.
+
+> ##### Subtask <a name="dd255c52-1d03-4c52-bc58-9abb4f2c2145"></a> 
+For the jobs overview expansion the linker is to the right and nothing is on the left.
+
+#### Resolved Task <a name="e6109310-9f42-4e46-b515-21e1c0bb62e7"></a> 
+All empty text in support workspace must be support specific.
+
+#### Resolved Task <a name="e3452cea-2ea2-4feb-b46d-482c136193e4"></a> 
+Colors have to match the status screen - red for new and orange for not.
+
+<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/8ac27cc5-e4af-40f1-ab1d-8745c7c31a73.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='743' />
+
+
+
+
+If orange doesn't work then change it in both places but must match - no new colors for the same info.
+
+#### Resolved Task <a name="537c9d78-ca5e-4976-81d4-bbec1412667b"></a> 
+Have an upgrade script that removes all notifications associated with unused older demo versions.
+
+
+
+
+**Or maybe just fully cleans them up as the script that does that cleans up a planning market (including notifications) should exist.**
 
 ## Job <a name="436e8e41-b8c4-4c73-8818-4d563a81ca44"></a>
 ### Button on the question that generates AI prompt onto the clipboard.

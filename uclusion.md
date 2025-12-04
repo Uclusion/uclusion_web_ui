@@ -7,6 +7,9 @@
 | [Null safety](#bd0aec7b-70e5-47be-9d6f-a7b1dfe7af65)| [Design Union Types](#f54dfca9-77f7-480b-8df9-7ea5b9344bf1)| 11/22| [Automated tests for CLANG backend](#f632fd36-8603-40c6-af11-40dd33ad9efe)| Deployed to stage. |
 | [Get basic REPL interpreter running](#2a83ce04-662f-4824-8372-1c6a82ee048f)| [Create our logo](#5e180eb1-b437-44db-83f1-41596378da1a)| 11/28| |  |
 | [Create our hero statement](#ff4514cb-bd95-4ea3-92b0-a3e39e2be7f3)| | | |  |
+#### Bug <a name="cdfeee1b-74b9-40a8-9a52-33a7640edb1a"></a> 
+Problems with nested functions are many. So we must avoid them.
+
 ## Job <a name="5a8db39c-f20e-4537-9b50-b7cef2468849"></a>
 ### Error handling
 We need basic error handling with a returned value scheme like Go.

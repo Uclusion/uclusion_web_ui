@@ -73,14 +73,14 @@ function GroupNameStep (props) {
       .then((group) => {
         setOperationRunning(false);
         const {id: groupId} = group;
-        const isAutonomous = groupType === 'AUTONOMOUS';
-        const link = isAutonomous || hasOthers ? formMarketLink(marketId, groupId) :
+        const participantsDecided = ['AUTONOMOUS', 'EVERYONE'].includes(groupType);
+        const link = participantsDecided || hasOthers ? formMarketLink(marketId, groupId) :
           `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${marketId}`;
         updateFormData({
           link,
           groupId,
         });
-        if (isAutonomous || !hasOthers) {
+        if (participantsDecided || !hasOthers) {
           navigate(history, link);
         } else {
           return link;
@@ -140,7 +140,7 @@ function GroupNameStep (props) {
         onNextDoAdvance={hasOthers}
         nextLabel={'GroupWizardAddMembers'}
         otherNextLabel={hasAutonomousGroups ? 'createEveryoneView' : 'createMyWorkView'}
-        otherNextValid
+        otherNextValid={!hasAutonomousGroups || validForm}
         showOtherNext
         onOtherNext={onOtherNext}
         onOtherDoAdvance={false}

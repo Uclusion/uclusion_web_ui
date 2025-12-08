@@ -44,6 +44,7 @@ function ManageExistingUsers(props) {
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, id, true)
     || [];
+  const isEveryoneView = group?.group_type === 'EVERYONE';
 
   function followUnfollow(userId, wasRemoved) {
     setOperationRunning({userId, isFollowing: wasRemoved});
@@ -81,7 +82,7 @@ function ManageExistingUsers(props) {
               name="followingGroup"
               checked={runningId === id ? isFollowing : !deleted}
               onClick={() => followUnfollow(id, deleted === true)}
-              disabled={operationRunning !== false}
+              disabled={isEveryoneView || operationRunning !== false}
             />
           </ListItemSecondaryAction>
         </ListItem>

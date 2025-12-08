@@ -25,6 +25,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { is } from 'immutable';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -62,6 +63,7 @@ function GroupManage() {
   const renderableMarket = getMarket(marketsState, marketId) || {};
   const { market_stage: marketStage } = renderableMarket;
   const active = marketStage === ACTIVE_STAGE;
+  const isEveryoneView = group?.group_type === 'EVERYONE';
 
   function handleSaveParticipants() {
     const added = checked.map((added) => {
@@ -93,7 +95,7 @@ function GroupManage() {
             <ManageExistingUsers group={group}/>
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>
-            {isAddGroup && (
+            {isAddGroup && !isEveryoneView && (
               <CardActions style={{paddingTop: '2rem', paddingLeft: '1rem'}}>
                 <SpinningIconLabelButton onClick={handleSaveParticipants} icon={SettingsBackupRestore}
                                          id="participantAddButton"
@@ -103,10 +105,12 @@ function GroupManage() {
                 </SpinningIconLabelButton>
               </CardActions>
             )}
-            <CardContent>
-              <AddNewUsers market={renderableMarket} name={name} group={group} isAddToGroup={isAddGroup} showAll={false}
-                           setToAddClean={(value) => setChecked(value)} />
-            </CardContent>
+            {!isEveryoneView && (
+              <CardContent>
+                <AddNewUsers market={renderableMarket} name={name} group={group} isAddToGroup={isAddGroup} showAll={false}
+                            setToAddClean={(value) => setChecked(value)} />
+              </CardContent>
+            )}
           </Grid>
         </Grid>
       </div>

@@ -8,7 +8,7 @@ import { modifyGroupMembers } from '../../../contexts/GroupMembersContext/groupM
  * @param formData
  */
 export function doCreateGroup(dispatchers, formData) {
-  const { marketId, name, is_autonomous_group } = formData;
+  const { marketId, name, groupType } = formData;
   const {
     groupsDispatch,
     groupMembersDispatch
@@ -16,7 +16,7 @@ export function doCreateGroup(dispatchers, formData) {
 
   const groupInfo = {
     name,
-    is_autonomous_group
+    group_type: groupType
   };
 
   return createGroup(marketId, groupInfo)

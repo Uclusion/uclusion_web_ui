@@ -62,7 +62,7 @@ function GroupNameStep (props) {
     const groupData = {
       ...formData,
       marketId,
-      group_type: groupType
+      groupType
     };
     if (groupType === 'AUTONOMOUS' && _.isEmpty(groupData.name)) {
       groupData.name = intl.formatMessage({id: 'singleView'});

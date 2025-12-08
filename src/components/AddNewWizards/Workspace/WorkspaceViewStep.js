@@ -32,7 +32,7 @@ function WorkspaceViewStep (props) {
       </Typography>
       <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
         Name your <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> to indicate 
-        who should be part of it, like 'Engineering' or 'Feedback'.
+        what will be included in it, like 'Engineering' or 'Feedback'. Everyone in the workspace will be part of it.
       </Typography>
       <OutlinedInput
         id="groupName"

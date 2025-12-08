@@ -18,7 +18,7 @@ import { updateMarketStagesFromNetwork } from '../../../contexts/MarketStagesCon
 import { addPresenceToMarket, changeBanStatus } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { addGroupMembers } from '../../../contexts/GroupMembersContext/groupMembersContextReducer';
 import TokenStorageManager from '../../../authorization/TokenStorageManager';
-import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formGroupManageLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { fixName } from '../../../utils/userFunctions';
 import { createPlanning } from '../../../api/markets';
 import { DEMO_TYPE, PLANNING_TYPE } from '../../../constants/markets';
@@ -51,13 +51,13 @@ function WorkspaceWizard() {
     return initials;
   }
 
-  function createWorkspace(formData, isSinglePersonMode = false) {
+  function createWorkspace(formData, groupType = 'TEAM') {
     const { name } = formData;
     const marketInfo = {
       name,
-      is_autonomous_group: isSinglePersonMode
+      group_type: groupType
     };
-    if (isSinglePersonMode) {
+    if (marketInfo.group_type === 'AUTONOMOUS') {
       const userName = fixName(userState.user.name);
       marketInfo.group_name = userName.slice(0, 80);
       marketInfo.ticket_sub_code = getInitials(userName);
@@ -100,6 +100,10 @@ function WorkspaceWizard() {
         return tokenStorageManager.storeToken(TOKEN_TYPE_MARKET, createdMarketId, token)
           .then(() => {
             setOperationRunning(false);
+            if (marketInfo.group_type === 'TEAM') { 
+              // Let them choose members
+              return navigate(history, formGroupManageLink(market.id, market.id));
+            }
             return navigate(history, formMarketLink(market.id, market.id));
           });
       });

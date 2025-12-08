@@ -60,11 +60,16 @@ function WorkspaceNameStep (props) {
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
-          onNext={() => createWorkspace(formData, true)}
+          onNext={() => createWorkspace(formData, 'AUTONOMOUS')}
           nextLabel='singlePersonView'
           validForm={validForm}
           showOtherNext
-          otherNextLabel='teamView'
+          otherNextLabel='everyoneView'
+          onOtherNext={() => updateFormData({ group_type: 'EVERYONE' })}
+          showTerminate
+          terminateSpinOnClick
+          terminateLabel='teamView'
+          onTerminate={() => createWorkspace(formData, 'TEAM')}
         />
       </div>
     </WizardStepContainer>

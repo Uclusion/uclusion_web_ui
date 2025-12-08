@@ -1332,7 +1332,8 @@ const messages = defineMessages({
   OnboardingWizardFinish: 'Finish',
   OnboardingWizardAddOther: 'Send + other workspace',
   singlePersonView: 'Single person view',
-  teamView: 'Team view',
+  teamView: 'Certain people view',
+  everyoneView: 'Everyone view',
   WorkspaceWizardCopyLink: 'Copy invite link',
   YesReady: 'Yes ready to assign',
   NoReady: 'No not ready',
@@ -1380,6 +1381,7 @@ const messages = defineMessages({
   ApprovalRestrictNo: 'Assignees can approve their own jobs.',
   ApprovalRestrictYes: 'Assignees need approval from others.',
   createMyWorkView: 'My work view',
+  createEveryoneView: 'Everyone view',
 
   // Decision comment wizard
   DecisionCommmentWizardTerminate: 'Back to option',

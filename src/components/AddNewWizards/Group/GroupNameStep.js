@@ -43,6 +43,7 @@ function GroupNameStep (props) {
     return !_.isEmpty(groupPresences.find((presence) => presence.id === myPresence?.id))
       && isAutonomousGroup(groupPresences, group);
   });
+  const hasAutonomousGroups = !_.isEmpty(myAutonomousGroups);
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -51,7 +52,7 @@ function GroupNameStep (props) {
     });
   }
 
-  function createGroup(isAutonomous) {
+  function createGroup(groupType) {
     const dispatchers = {
       groupsDispatch,
       diffDispatch,
@@ -61,9 +62,9 @@ function GroupNameStep (props) {
     const groupData = {
       ...formData,
       marketId,
-      is_autonomous_group: isAutonomous
+      group_type: groupType
     };
-    if (isAutonomous && _.isEmpty(groupData.name)) {
+    if (groupType === 'AUTONOMOUS' && _.isEmpty(groupData.name)) {
       groupData.name = intl.formatMessage({id: 'singleView'});
       // Not great may have to let them choose later
       groupData.ticket_sub_code = fixName(myPresence.name).slice(0, 80);
@@ -72,6 +73,7 @@ function GroupNameStep (props) {
       .then((group) => {
         setOperationRunning(false);
         const {id: groupId} = group;
+        const isAutonomous = groupType === 'AUTONOMOUS';
         const link = isAutonomous || hasOthers ? formMarketLink(marketId, groupId) :
           `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${marketId}`;
         updateFormData({
@@ -87,11 +89,11 @@ function GroupNameStep (props) {
   }
 
   function onNext(){
-      return createGroup(false);
+      return createGroup('TEAM');
   }
 
   function onOtherNext(){
-    return createGroup(true);
+    return createGroup(hasAutonomousGroups ? 'EVERYONE' : 'AUTONOMOUS');
   }
 
   function onTerminate(){
@@ -137,9 +139,9 @@ function GroupNameStep (props) {
         onNext={onNext}
         onNextDoAdvance={hasOthers}
         nextLabel={'GroupWizardAddMembers'}
-        otherNextLabel="createMyWorkView"
+        otherNextLabel={hasAutonomousGroups ? 'createEveryoneView' : 'createMyWorkView'}
         otherNextValid
-        showOtherNext={_.isEmpty(myAutonomousGroups)}
+        showOtherNext
         onOtherNext={onOtherNext}
         onOtherDoAdvance={false}
         showTerminate={validForm}

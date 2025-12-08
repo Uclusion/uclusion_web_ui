@@ -64,7 +64,7 @@ function GroupEdit() {
   const [isDirtyTicketSubCode, setIsDirtyTicketSubCode] = useState(false);
   const [groupName, setGroupName] = useState(undefined);
   const [isDirtyName, setIsDirtyName] = useState(false);
-  const [autonomousMode, setAutonomousMode] = useState(group.group_type === 'AUTONOMOUS');
+  const [groupType, setGroupType] = useState(group.group_type);
   const [isPublic, setIsPublic] = useState(group.is_public === undefined ? true : group.is_public);
 
   function handleSave() {
@@ -73,7 +73,7 @@ function GroupEdit() {
       groupId: id,
       name,
       ticketSubCode: originalCode,
-      autonomousMode,
+      groupType,
       isPublic
     }
     if (!_.isEmpty(groupName)) {
@@ -123,11 +123,18 @@ function GroupEdit() {
         />
         <div className={classes.fieldsetContainer} style={{paddingTop: '2rem'}}>
           <Checkbox
-            checked={autonomousMode}
-            disabled={groupPresences?.length > 1 && !autonomousMode}
-            onClick={() => setAutonomousMode(!autonomousMode)}
+            checked={groupType === 'AUTONOMOUS'}
+            disabled={groupPresences?.length > 1 && groupType !== 'AUTONOMOUS'}
+            onClick={() => setGroupType(groupType === 'AUTONOMOUS' ? 'TEAM' : 'AUTONOMOUS')}
           />
           My work (only applies to views with one assignee).
+        </div>
+        <div className={classes.fieldsetContainer} style={{paddingTop: '2rem'}}>
+          <Checkbox
+            checked={groupType === 'EVERYONE'}
+            onClick={() => setGroupType(groupType === 'EVERYONE' ? 'TEAM' : 'EVERYONE')}
+          />
+          Everyone (all members of the workspace included in view).
         </div>
         <div className={classes.fieldsetContainer} style={{paddingTop: '2rem'}}>
           <Checkbox

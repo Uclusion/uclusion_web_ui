@@ -1,7 +1,8 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
 | [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| 01/01| [Fix documentation for CLI - code todos, report markdown, and export.](#310a063e-441f-4412-9d89-0b07f8fc4627)| Deployed to production |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Python 3.9 end of life - problem is that layers and Lambda runtime must match...](#d7c2f7ff-b9b2-4241-8fc7-e724d6a544ec)| Deployed to production |
+| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Must be able to somehow get magic link users into a default view as do for...](#7eb14a5f-49ad-408a-837d-e887fb55b90f)| Deployed to stage |
+| [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| | | [Python 3.9 end of life - problem is that layers and Lambda runtime must match...](#d7c2f7ff-b9b2-4241-8fc7-e724d6a544ec)| Deployed to production |
 | | | | [CLI TODO fixes](#927f8039-c23a-427e-86e6-2f40100adc33)| Deployed to production |
 | | | | [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)|  |
 | | | | [Import / Export strategy and script.](#8c6374e6-2b2c-4b08-abdd-b6bec66c4f69)| Deployed to production |
@@ -16,7 +17,7 @@
 3. Split out objects in tabs - Tasks Complete, Not Doing, Bugs, Discussion
 
 #### Task <a name="bf1d3f46-f7ab-4213-8b02-81fb4af34e5b"></a> 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/8120554f-18cb-4c1f-900a-966cb2d9bd8e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='384' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/8120554f-18cb-4c1f-900a-966cb2d9bd8e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 Some freaky text stuck in corner - only on stage. Also double scroll bars doing nothing.
 
@@ -63,22 +64,49 @@ Also happening when move a bug to a job from a non critical section.
 #### Task <a name="e60e9015-aa0c-49ed-abf4-0e58c1585873"></a> 
 From context menu can send an unassigned job to tasks complete without assigning it or resolving tasks - even though am only person in workspace.
 
+#### Task <a name="bbe5eebd-10d3-4c1d-a4fa-cb7a75ae1538"></a> 
+On resolved tasks in overview do not show buttons to move to bugs as must be open to do that.
+
+
+
+
+Maybe don't show selector or anything as get "No open tasks" when try - either turn that off and allow or disallow any buttons that would arrive at that.
+
 #### Task <a name="b019ffb1-7558-48ac-8916-3482485860d4"></a> 
 When move job with question from assignee in regular view to Work Ready not prompted to resolve question and instead goes briefly till quick add wiped out.
 
 #### Task <a name="90f611ac-c888-44be-86f8-98d215ca64a1"></a> 
 No up arrow when do search.
 
+#### Task <a name="c545887b-8fe7-4fc3-ad4c-94b64005ff90"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/9ebd03f5-a012-4fd1-9980-a58c9379168e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+Doesn't look good and empty text is misleading. **Just make assist part of what prevents empty text from showing.**
+
 #### Task <a name="8a4ee34b-6a80-4aa0-bfed-49825d42f892"></a> 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c047efba-47bc-4389-8a4f-858fa4f06772.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='703' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c047efba-47bc-4389-8a4f-858fa4f06772.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 
 
 
 Counts don't add up - 7 - 5 = 2 missing.
 
+#### Task <a name="83af94b4-f765-4d25-bf40-c87c0eda20ac"></a> 
+When search resolved tasks must display on tasks page as well so that search works. Currently it shows resolved found as on tasks page but nothing there.
+
+#### Task <a name="da760056-b86d-42ef-b830-97d1f17019b9"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/102fb8cb-439c-470d-bf57-02c62b3dae35.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+In a team view so should have Add with voting button available. **Plus errors out if hit Configure voting button.**
+
 #### Task <a name="7e20ed91-4fc7-4419-ab9d-a4cb49d7e74f"></a> 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/36d21323-4f19-49d3-94e0-a52b3473f1c2.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='849' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/36d21323-4f19-49d3-94e0-a52b3473f1c2.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 
 
@@ -91,7 +119,7 @@ Edit a subtask header - should say subtask instead of reply and don't need autho
 
 
 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/a1320ce4-4200-434e-99e7-eda11fe4916d.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='957' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/a1320ce4-4200-434e-99e7-eda11fe4916d.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 #### Task <a name="3671e2b8-0876-4e90-921c-49c1144345ad"></a> 
 Getting re-renders caused by context updates even when the sync gets nothing new. If nothing new there should be no updating contexts.
@@ -106,7 +134,7 @@ Context menu for Not Ready backlog does not include Not Doing.
 Do the full context menu even if in swimlanes - no reason not to and now no stage header.
 
 #### Resolved Task <a name="b5ca7cbe-704b-4cce-9e50-77834334f474"></a> 
-Count color not on bugs or backlog lists 
+Count color not on bugs or backlog lists
 
 #### Resolved Task <a name="d0c15bc9-9dbc-4a8f-a663-42c675f5995b"></a> 
 Link from comment in subtask wizard, and presumably others, goes to the comment but does not turn yellow. There was a flag for turning off the yellow but absolutely currently no reason to use such a thing - see if can fix so yellows correctly.
@@ -117,7 +145,7 @@ Link from comment in subtask wizard, and presumably others, goes to the comment 
 Actually turning yellow broken for link from ticket code and inbox also - seems just broken.
 
 #### Resolved Task <a name="b85b71e3-3eb8-4b69-9d35-1c486b2101ed"></a> 
-Remove going to individual not new notifications other than critical bugs and outbox from navigation button. 
+Remove going to individual not new notifications other than critical bugs and outbox from navigation button.
 
 
 
@@ -133,7 +161,7 @@ Navigation will go to one of four places:
 Simplify views.
 
 > ##### Subtask <a name="b85b71e3-3eb8-4b69-9d35-1c486b2101ed"></a> 
-Remove going to individual not new notifications other than critical bugs and outbox from navigation button. 
+Remove going to individual not new notifications other than critical bugs and outbox from navigation button.
 
 
 
@@ -148,7 +176,7 @@ Navigation will go to one of four places:
 > ##### Subtask <a name="2d774af4-91ba-41a1-8b46-c5185eac71ed"></a> 
 When choose add peers get this:
 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/f8ed40e6-f4f2-465a-af22-e956e251d543.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='246' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/f8ed40e6-f4f2-465a-af22-e956e251d543.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 That's too confusing - second step in the wizard has to ask if the people you are adding are on the same team or observers. If same team just create new named view and if not then automatically create autonomous view.
 
@@ -165,7 +193,7 @@ That's too confusing - second step in the wizard has to ask if the people you ar
 
 
 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/e5bf8cf9-020c-49d7-81ae-e8f3c85af7a6.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='550' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/e5bf8cf9-020c-49d7-81ae-e8f3c85af7a6.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 
 
@@ -238,7 +266,7 @@ Notes are somehow following the progress report logic and only showing the lates
 Don't show poke icon on resolved comments.
 
 #### Resolved Task <a name="c3fec27e-6465-4b09-b299-b4205f34d957"></a> 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/d06b3c63-0d12-4bb7-ac65-aa3577f134b8.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='416' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/d06b3c63-0d12-4bb7-ac65-aa3577f134b8.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 
 
@@ -260,7 +288,7 @@ All empty text in support workspace must be support specific.
 #### Resolved Task <a name="e3452cea-2ea2-4feb-b46d-482c136193e4"></a> 
 Colors have to match the status screen - red for new and orange for not.
 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/8ac27cc5-e4af-40f1-ab1d-8745c7c31a73.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='743' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/8ac27cc5-e4af-40f1-ab1d-8745c7c31a73.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 
 
@@ -285,10 +313,78 @@ This button should produce markdown as <https://github.com/microsoft/markitdown>
 #### Task <a name="c37e86d4-1efc-4dea-ae23-1fd0171f3175"></a> 
 Button on the question that generates AI prompt onto the clipboard. Probably skipping pictures and file attachments.
 
+## Job <a name="a896d9fa-03bd-4f1d-aa18-48e6993fb1c2"></a>
+### Use Cursor to help fix all console warnings.
 ## Job <a name="310a063e-441f-4412-9d89-0b07f8fc4627"></a>
 ### Fix documentation for CLI - code todos, report markdown, and export.
 #### Resolved Task <a name="0e75a3a0-c66b-442f-b858-f8edc756f4c4"></a> 
 In documentation explain how to use views and is public so that only what you want to show displays.
+
+## Job <a name="7eb14a5f-49ad-408a-837d-e887fb55b90f"></a>
+### Must be able to somehow get magic link users into a default view as do for...
+...invite by email.
+
+
+
+
+Otherwise people you invite end up having to do that themselves and that doesn't work for customer use - which might be invited via Slack and not email.
+
+#### Resolved Task <a name="aead83fc-043e-469c-99c5-07e04b3bf757"></a> 
+See that new people are added to all everyone views.
+
+#### Resolved Task <a name="921df969-57e4-4ac2-af92-02105945b547"></a> 
+Same thing for view creation as currently only one option there and so easy to make it a second option.
+
+#### Resolved Task <a name="8e9f5c02-ed5c-464b-8387-48b4ea9a80e1"></a> 
+Workspace with everyone view.
+
+#### Resolved Task <a name="f4bbd274-8a25-4a74-953d-ab0e82ea712d"></a> 
+Fix view configuration screen - will be drop down instead of check box.
+
+#### Resolved Task <a name="08fe1d5f-51d4-42b5-bec4-9e9ef11a7c93"></a> 
+Testing.
+
+> ##### Subtask <a name="d36befc9-2ec9-4bf2-96c2-53ab843d505d"></a> 
+Workspace with team view.
+
+#### Resolved Task <a name="0b1928ae-5add-4ce7-aef7-0bba8e2f76c8"></a> 
+Make sure manage users for everyone group disabled.
+
+#### Resolved Task <a name="599d311c-255f-49db-8915-17c1c9cb9239"></a> 
+View edit.
+
+#### Resolved Task <a name="466f1389-f4fd-4696-8f5f-2571f0965876"></a> 
+UI tests - ones that exist now should be third option on workspace creation.
+
+#### Resolved Task <a name="f9f14d35-9606-4163-9ea0-2c5119152bc1"></a> 
+Simplest way is to just allow marking a view as an Everyone view when create. Anyone who joins a workspace is automatically put into all Everyone views. That was the original plan but thought could get by without it but even for my own use is required.
+
+
+
+
+Don't even need to make this option part of view creation if don't want as it's mostly for a power user.
+
+#### Resolved Task <a name="82db622d-986c-4fff-97f1-4d74502e0068"></a> 
+Update view to and from everyone.
+
+#### Resolved Task <a name="8f42fc79-a0a8-464e-b1a3-4ea98d74c799"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/48562327-9e3d-43ae-af57-fe07330aa26f.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+Make second choice "Everyone view" and explain what that is when get there. Then have third choice "Select members view".
+
+
+
+
+Make sure back button works after choose a view type.
+
+#### Resolved Task <a name="a471fc05-fe15-454e-a692-3a399c12126e"></a> 
+View creation.
+
+#### Resolved Task <a name="ab5b7313-0258-40e6-8a7d-b6bbded71bb8"></a> 
+When is Everyone group should not be able to remove members.
 
 ## Job <a name="d7c2f7ff-b9b2-4241-8fc7-e724d6a544ec"></a>
 ### Python 3.9 end of life - problem is that layers and Lambda runtime must match...
@@ -343,17 +439,17 @@ Plus the current API is not even working:
 
     Traceback (most recent call last):
 
-      File "/opt/python/lib/python3.10/site-packages/ucommon/handlers/abstract_request_handler.py", line 40, in handle_request
+    File "/opt/python/lib/python3.10/site-packages/ucommon/handlers/abstract_request_handler.py", line 40, in handle_request
 
-        response = post_validation_function(event, data, context, validation_context)
+    response = post_validation_function(event, data, context, validation_context)
 
-      File "/var/task/handlers/list_market.py", line 26, in post_validation_function
+    File "/var/task/handlers/list_market.py", line 26, in post_validation_function
 
-        return list_ticket_codes(event, data, context, validation_context)
+    return list_ticket_codes(event, data, context, validation_context)
 
-      File "/var/task/handlers/list_market_operations/list_ticket_codes.py", line 14, in list_ticket_codes
+    File "/var/task/handlers/list_market_operations/list_ticket_codes.py", line 14, in list_ticket_codes
 
-        ticket_codes.append(partial_comment['ticket_code'])
+    ticket_codes.append(partial_comment['ticket_code'])
 
     KeyError: 'ticket_code'
 
@@ -389,7 +485,7 @@ viewId should be todoViewId as not used otherwise.
 From various sources.
 
 #### Resolved Task <a name="782226dd-97a6-4dcd-9dd7-72dbcb6b91b7"></a> 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/26c15d5b-1c91-4f1d-9c77-12b975ceaaae.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='516' /> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/26c15d5b-1c91-4f1d-9c77-12b975ceaaae.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 Update the action.yml to have an check in square icon and a color.
 
@@ -397,7 +493,7 @@ Update the action.yml to have an check in square icon and a color.
 YouTube (probably) video showing hooking up and using the CLI after landing on demo.
 
 #### Resolved Task <a name="20e6df71-e029-4236-a8f3-2d599bfbf099"></a> 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/2ae68ccb-efdd-48e8-a891-aa13b2b1dd42.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='508' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/2ae68ccb-efdd-48e8-a891-aa13b2b1dd42.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 Graphically show the Uclusion object structure like they do and explain why better:
 
@@ -411,7 +507,7 @@ Views Collaborators
 
 
 
-Views 
+Views
 
 Members Jobs Bugs Question Suggestion Notes
 
@@ -539,7 +635,7 @@ Setup the scroll locking for this new section.
 
 
 
-Everything below the demo button goes in this new section and move changing text below the button 
+Everything below the demo button goes in this new section and move changing text below the button
 
 #### Resolved Task <a name="0f273011-6015-4848-88cd-16aaa404d77a"></a> 
 Compare to some of <https://saassy-board.com/leaderboard>
@@ -625,13 +721,13 @@ Unless going to rewrite the CLI Python makes more sense as can share code and so
 
     RUN apt-get update && apt-get install -y \
 
-        git \
+    git \
 
-        curl \
+    curl \
 
-        # Add other tools/packages your action needs
+    # Add other tools/packages your action needs
 
-        && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 
 
@@ -686,7 +782,7 @@ Drop the floating Suggestion thing on above the fold.
 Examine <https://github.com/marketplace/actions/todo-actions>
 
 #### Resolved Task <a name="ec6357f1-db79-4b1f-b080-0d6501892bee"></a> 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/8f82d609-4a2b-4a2c-92b6-dc37fa2d9723.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='915' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/8f82d609-4a2b-4a2c-92b6-dc37fa2d9723.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 
 
@@ -768,47 +864,47 @@ Need to pay attention to date of commit versus date of current label so don't ov
 
     for commit in commits:
 
-        commit_sha = commit["sha"]
+    commit_sha = commit["sha"]
 
-        commit_message = commit["commit"]["message"]
-
-
-
-        # Fetch detailed commit information to get diff (if needed for searching within code changes)
-
-        # commit_detail_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/commits/{commit_sha}"
-
-        # detail_response = requests.get(commit_detail_url, headers=headers)
-
-        # detail_response.raise_for_status()
-
-        # commit_detail = detail_response.json()
-
-        # commit_files = commit_detail.get("files", []) # List of files changed in the commit
+    commit_message = commit["commit"]["message"]
 
 
 
-        # 4. Search for the text
+    # Fetch detailed commit information to get diff (if needed for searching within code changes)
 
-        if SEARCH_TEXT.lower() in commit_message.lower():
+    # commit_detail_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/commits/{commit_sha}"
 
-            found_commits.append({"sha": commit_sha, "message": commit_message})
+    # detail_response = requests.get(commit_detail_url, headers=headers)
 
-        # You could also search within the content of changed files if you fetched commit_detail and processed the diffs.
+    # detail_response.raise_for_status()
+
+    # commit_detail = detail_response.json()
+
+    # commit_files = commit_detail.get("files", []) # List of files changed in the commit
+
+
+
+    # 4. Search for the text
+
+    if SEARCH_TEXT.lower() in commit_message.lower():
+
+    found_commits.append({"sha": commit_sha, "message": commit_message})
+
+    # You could also search within the content of changed files if you fetched commit_detail and processed the diffs.
 
 
 
     if found_commits:
 
-        print(f"Found '{SEARCH_TEXT}' in the following commits associated with the latest release:")
+    print(f"Found '{SEARCH_TEXT}' in the following commits associated with the latest release:")
 
-        for commit in found_commits:
+    for commit in found_commits:
 
-            print(f"- {commit['sha']}: {commit['message']}")
+    print(f"- {commit['sha']}: {commit['message']}")
 
     else:
 
-        print(f"'{SEARCH_TEXT}' not found in commits associated with the latest release.")
+    print(f"'{SEARCH_TEXT}' not found in commits associated with the latest release.")
 
 
 
@@ -833,99 +929,99 @@ without PyGithub seems much better than with. Unless <https://pygithub.readthedo
 
     try:
 
-        # Authenticate with GitHub
+    # Authenticate with GitHub
 
-        g = Github(GITHUB_TOKEN)
-
-
-
-        # Get the repository
-
-        repo = g.get_user(REPO_OWNER).get_repo(REPO_NAME)
+    g = Github(GITHUB_TOKEN)
 
 
 
-        # Get the latest release
+    # Get the repository
 
-        latest_release = repo.get_latest_release()
-
-
-
-        print(f"Latest Release: {latest_release.title} (Tag: {latest_release.tag_name})")
+    repo = g.get_user(REPO_OWNER).get_repo(REPO_NAME)
 
 
 
-        # Determine the commit SHA for the current release tag
+    # Get the latest release
 
-        release_commit_sha = latest_release.commit.sha
-
-
-
-        # Find the previous release to determine the commit range
-
-        # This example assumes a linear history between releases.
-
-        # More complex scenarios (e.g., merges, rebase) might require
-
-        # more sophisticated commit history analysis.
-
-        all_releases = sorted(repo.get_releases(), key=lambda r: r.created_at, reverse=True)
-
-        previous_release_commit_sha = None
-
-        for i, release in enumerate(all_releases):
-
-            if release.tag_name == latest_release.tag_name and i + 1 < len(all_releases):
-
-                previous_release_commit_sha = all_releases[i+1].commit.sha
-
-                break
+    latest_release = repo.get_latest_release()
 
 
 
-        if previous_release_commit_sha:
-
-            print(f"Commits included in '{latest_release.title}' (from {previous_release_commit_sha} to {release_commit_sha}):")
-
-            # Get commits between the previous release and the latest release
-
-            # This will fetch commits on the default branch between the two SHAs
-
-            commits = repo.get_commits(sha=repo.default_branch, since=repo.get_commit(previous_release_commit_sha).commit.author.date)
+    print(f"Latest Release: {latest_release.title} (Tag: {latest_release.tag_name})")
 
 
 
-            for commit in commits:
+    # Determine the commit SHA for the current release tag
 
-                # Only include commits up to the latest release commit
+    release_commit_sha = latest_release.commit.sha
 
-                if commit.sha == release_commit_sha:
 
-                    print(f"- {commit.commit.message}")
 
-                    break # Stop after reaching the latest release commit
+    # Find the previous release to determine the commit range
 
-                print(f"- {commit.commit.message}")
+    # This example assumes a linear history between releases.
 
-        else:
+    # More complex scenarios (e.g., merges, rebase) might require
 
-            print("Could not find a previous release to determine the commit range.")
+    # more sophisticated commit history analysis.
 
-            print("Displaying commits from the latest release commit backwards until a suitable stopping point (e.g., initial commit).")
+    all_releases = sorted(repo.get_releases(), key=lambda r: r.created_at, reverse=True)
 
-            # If no previous release, iterate backwards from the latest release commit
+    previous_release_commit_sha = None
 
-            commits = repo.get_commits(sha=release_commit_sha)
+    for i, release in enumerate(all_releases):
 
-            for commit in commits:
+    if release.tag_name == latest_release.tag_name and i + 1 < len(all_releases):
 
-                print(f"- {commit.commit.message}")
+    previous_release_commit_sha = all_releases[i+1].commit.sha
+
+    break
+
+
+
+    if previous_release_commit_sha:
+
+    print(f"Commits included in '{latest_release.title}' (from {previous_release_commit_sha} to {release_commit_sha}):")
+
+    # Get commits between the previous release and the latest release
+
+    # This will fetch commits on the default branch between the two SHAs
+
+    commits = repo.get_commits(sha=repo.default_branch, since=repo.get_commit(previous_release_commit_sha).commit.author.date)
+
+
+
+    for commit in commits:
+
+    # Only include commits up to the latest release commit
+
+    if commit.sha == release_commit_sha:
+
+    print(f"- {commit.commit.message}")
+
+    break # Stop after reaching the latest release commit
+
+    print(f"- {commit.commit.message}")
+
+    else:
+
+    print("Could not find a previous release to determine the commit range.")
+
+    print("Displaying commits from the latest release commit backwards until a suitable stopping point (e.g., initial commit).")
+
+    # If no previous release, iterate backwards from the latest release commit
+
+    commits = repo.get_commits(sha=release_commit_sha)
+
+    for commit in commits:
+
+    print(f"- {commit.commit.message}")
 
 
 
     except Exception as e:
 
-        print(f"An error occurred: {e}")
+    print(f"An error occurred: {e}")
 
 #### Resolved Task <a name="b98521f0-9a17-49c6-a897-eac81f584615"></a> 
 Follow <https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace>
@@ -970,10 +1066,10 @@ Integrations should be open by default for a real market - just not for support 
 #### Resolved Task <a name="4c424859-c0b8-44c5-a9ca-599ee577f67e"></a> 
 Fix margins at intermediate sizes.
 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/aeb957b7-e349-40aa-8ea2-7255b9882949.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='544' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/aeb957b7-e349-40aa-8ea2-7255b9882949.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 #### Resolved Task <a name="c61faa39-3f76-4d8f-9539-ddab028b66a5"></a> 
-Problem: if it's the last task do you have to put job and task in commit? 
+Problem: if it's the last task do you have to put job and task in commit?
 
 
 
@@ -987,7 +1083,7 @@ Try out Zenhub.
 Drop the Organization tab diagram or figure out a way to make it nice or something.
 
 > ##### Subtask <a name="f8b5f66b-1b19-4668-8317-1d7a04347db8"></a> 
-See if can do an animation to show the logical data model. Maybe even Powerpoint can handle it. 
+See if can do an animation to show the logical data model. Maybe even Powerpoint can handle it.
 
 #### Resolved Task <a name="862145a1-a796-4296-b2f9-a26edf1434e0"></a> 
 S**top using labels for showing progress report** (which is dumb anyway). Use comment as done with in progress task.
@@ -1030,7 +1126,7 @@ Use <https://shots.so/> with Chrome, 3:2, url production.uclusion.com, backgroun
 #### Resolved Task <a name="1bd62d16-af9c-4d39-8b4a-601034fa9d95"></a> 
 So layout can be like this:
 
-<img src='https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/65f894a5-33f2-470b-a2ee-cf548acf61b7.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw' alt='' title='' width='1176' />
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/65f894a5-33f2-470b-a2ee-cf548acf61b7.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 
 
@@ -1073,7 +1169,7 @@ Easy to have action on initial commit that resolves the task or job. Not easy to
 
 
 
-Then just 
+Then just
 
 # List commits between the previous release and the current release tag
 
@@ -1112,7 +1208,7 @@ Users for this feature:
 See <https://github.github.com/gfm/> for the Github version of markdown.
 
 #### Resolved Task <a name="d20d3237-684f-44c6-bd41-b9469c7dee2d"></a> 
-Votes are 
+Votes are
 
 
 
@@ -1156,7 +1252,7 @@ Have to be able to add a label from the UI cause could have multiple repos or ju
 
 
 
-The label input shows up only in done and is always to create a new label from scratch - no edit. So call it "New label" and it always shows even when there is a label. 
+The label input shows up only in done and is always to create a new label from scratch - no edit. So call it "New label" and it always shows even when there is a label.
 
 
 
@@ -1204,7 +1300,7 @@ Bring back resolved top level comments and just put them in their own section so
 Options missing anchors.
 
 #### Resolved Task <a name="25cfd345-9f40-4cb5-88c2-462d0069e8b3"></a> 
-CANNOT LET THEM EDIT THE UCLUSION MD FILE. 
+CANNOT LET THEM EDIT THE UCLUSION MD FILE.
 
 1. Incompatible with marking in progress, resolving etc.
 2. We don't even support MD in Uclusion and would have to convert both directions
@@ -1245,7 +1341,7 @@ Tell that story on the landing page new section - **in that story mention have t
 #### Resolved Task <a name="1a8ccc84-2029-496c-941c-361f7a8767c6"></a> 
 If can't find built in md manipulation can do server side or use a command line script like <https://python-markdown.github.io/cli/>
 
- 
+
 
 **Actually just have installer -** <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html> which is downloaded from the same integration page and run with the same steps as AWS CLI shows. That's going to be simpler all around and the added benefit of being allowed packages.
 
@@ -1301,9 +1397,9 @@ Is exporting only one view necessary / desirable? Sure you want to control the v
 
 
 
-For TODOs you can choose what view to create them in and that gets stored in the uclusion.json settings. 
+For TODOs you can choose what view to create them in and that gets stored in the uclusion.json settings.
 
- 
+
 
 So viewIds and todoViewId in json. **These are strict so including your my work doesn't export from other views - you have to list them as only if the view the job is in is exported does it show in export.**
 
@@ -1373,7 +1469,7 @@ Three stages - No Estimate, Scheduled, and Done. Scheduled have the only date th
 Table with 3 columns. Each column has the name of the job which is a link to lower in the markdown file. Directly the below the name of the scheduled is the estimated date. Directly below the name of the done is the label if any.
 
 #### Resolved Task <a name="e8a0de70-3807-401f-82d0-938e9318374c"></a> 
-Use anchors like 
+Use anchors like
 
 
 
@@ -1446,7 +1542,7 @@ Reason comments must be out of general pool and put as element of job, option, o
 All comments including replies will need anchors.
 
 #### Resolved Task <a name="c2d2eaa2-20a3-4b6d-8741-895802f30104"></a> 
-Fix so notes can be made public also. 
+Fix so notes can be made public also.
 
 #### Resolved Task <a name="7d843e2f-8de0-4436-a389-452885ee64dc"></a> 
 Then do we include recently competed as do on status page? If so makes harder to suck into AI or does it? Depends what AI does with it or if it observes complete stage.

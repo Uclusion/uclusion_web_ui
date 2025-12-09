@@ -376,7 +376,7 @@ function Screen(props) {
       pathMarketId = outboxMessage?.marketId;
       pathGroupId = outboxMessage?.group_id;
     }
-  } else if (['comment', 'dialog'].includes(action)) {
+  } else if (['comment', 'dialog', 'groupManage'].includes(action)) {
     pathMarketId = pathMarketIdRaw;
   } else if (action === 'invite') {
     const decoded = jwt_decode(pathMarketIdRaw);

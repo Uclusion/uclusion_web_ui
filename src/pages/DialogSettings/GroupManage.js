@@ -25,7 +25,6 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { is } from 'immutable';
 
 const useStyles = makeStyles((theme) => {
   return {

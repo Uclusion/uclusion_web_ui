@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { IconButton, makeStyles, Menu, Tooltip } from '@material-ui/core';
 import { Menu as ProMenu, MenuItem, Sidebar, SubMenu } from 'react-pro-sidebar';
 import { useHistory } from 'react-router';
@@ -31,6 +31,8 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { useLocation } from 'react-router-dom/cjs/react-router-dom.min';
 import NotificationCountChips from '../Dialog/NotificationCountChips';
+import md5 from 'md5';
+import { OnlineStateContext } from '../../contexts/OnlineStateContext';
 
 
 const useStyles = makeStyles(() => ({
@@ -63,6 +65,8 @@ function OtherWorkspaceMenus(props) {
   const [commentsState] = useContext(CommentsContext);
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
+  const [online] = useContext(OnlineStateContext);
+  const [gravatarExists, setGravatarExists] = useState(undefined);
   const { search } = searchResults;
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const notCurrentMarkets = markets.filter((market) => market.id !== defaultMarket?.id);
@@ -81,6 +85,7 @@ function OtherWorkspaceMenus(props) {
   const history = useHistory();
   const classes = useStyles();
   const { user } = userState;
+  const email = user?.email;
   const notificationConfig = user?.notification_configs?.find((config) =>
     config.market_id === defaultMarket?.id);
   const slackAddressable = notificationConfig?.is_slack_addressable;
@@ -93,6 +98,18 @@ function OtherWorkspaceMenus(props) {
       && groupCapability.id === presenceMenuId));
   });
   const presenceMenuGroupsOrdered = _.orderBy(presenceMenuGroups, ['name'], ['asc']);
+
+  useEffect(() => {
+    if (online && gravatarExists === undefined && email) {
+      const url = `https://www.gravatar.com/avatar/${md5(email, { encoding: 'binary' })}?d=404`;
+      const http = new XMLHttpRequest();
+      http.open('HEAD', url, true);
+      http.onload = () => {
+        setGravatarExists(http.status !== 404);
+      };
+      http.send();
+    }
+  }, [email, online, gravatarExists]);
 
   const recordPresenceToggle = (event, presence) => {
     if (presenceAnchor === null) {
@@ -293,26 +310,28 @@ function OtherWorkspaceMenus(props) {
                     updateWorkspacePageState({integrationsOpen: !integrationsOpen});
                   }}
                   key="integrations" open={integrationsOpen}>
-            <MenuItem icon={<Face htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
-                    key="gravatarIntegrationKey" id="gravatarIntegrationId"
-                    rootStyles={{
-                      '.css-wx7wi4': {
-                        marginRight: 0,
-                      }
-                    }}
-                    style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'gravatar') ? '#e0e0e0' : undefined, 
-                      borderRadius: 22}}
-                    onClick={(event) => {
-                      preventDefaultAndProp(event);
-                      navigate(history,`/integrationPreferences/${defaultMarket?.id}?integrationType=gravatar`);
-                    }}
-            >
-              <Tooltip title={intl.formatMessage({ id: 'IdentityChangeAvatar' })}>
-                <div>
-                  {intl.formatMessage({ id: 'changeAvatarPreferences' })}
-                </div>
-              </Tooltip>
-            </MenuItem>
+            {gravatarExists === false && (
+              <MenuItem icon={<Face htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+                      key="gravatarIntegrationKey" id="gravatarIntegrationId"
+                      rootStyles={{
+                        '.css-wx7wi4': {
+                          marginRight: 0,
+                        }
+                      }}
+                      style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'gravatar') ? '#e0e0e0' : undefined, 
+                        borderRadius: 22}}
+                      onClick={(event) => {
+                        preventDefaultAndProp(event);
+                        navigate(history,`/integrationPreferences/${defaultMarket?.id}?integrationType=gravatar`);
+                      }}
+              >
+                <Tooltip title={intl.formatMessage({ id: 'IdentityChangeAvatar' })}>
+                  <div>
+                    {intl.formatMessage({ id: 'changeAvatarPreferences' })}
+                  </div>
+                </Tooltip>
+              </MenuItem>
+            )}
             <MenuItem icon={<VpnKey htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                     key="cliIntegrationKey" id="cliIntegrationId"
                     rootStyles={{

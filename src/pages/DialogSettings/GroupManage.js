@@ -92,6 +92,11 @@ function GroupManage() {
             <Typography variant="h6">
               {intl.formatMessage({ id: 'viewMembers' })}
             </Typography>
+            {isEveryoneView && (
+              <Typography variant="body1">
+                This is an Everyone view. Everyone in the workspace is in this view.
+              </Typography>
+            )}
             <ManageExistingUsers group={group}/>
           </Grid>
           <Grid item md={5} xs={12} className={classes.fieldsetContainer}>

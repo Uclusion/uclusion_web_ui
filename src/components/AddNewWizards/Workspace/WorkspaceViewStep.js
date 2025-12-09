@@ -15,6 +15,7 @@ function WorkspaceViewStep (props) {
   const value = formData.group_name || '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
+  const isEveryoneView = formData?.groupType === 'EVERYONE';
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -30,10 +31,18 @@ function WorkspaceViewStep (props) {
       <Typography className={classes.introText}>
         What do you want to call your view?
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
-        Name your <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> to indicate 
-        what will be included in it, like 'Engineering' or 'Feedback'. Everyone in the workspace will be part of it.
-      </Typography>
+      {!isEveryoneView && (
+        <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
+          Name your <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> to indicate 
+          who should be part of it, like 'Engineering' or 'Feedback'.
+        </Typography>
+      )}
+      {isEveryoneView && (
+        <Typography className={classes.introSubText} variant="subtitle1" style={{paddingBottom: '1rem'}}>
+          Name your <Link href="https://documentation.uclusion.com/views" target="_blank">view</Link> to indicate 
+          what will be included in it, like 'Engineering' or 'Feedback'. Everyone in the workspace will be part of it.
+        </Typography>
+      )}
       <OutlinedInput
         id="groupName"
         style={{maxWidth: '25rem'}}

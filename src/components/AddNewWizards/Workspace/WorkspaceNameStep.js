@@ -10,7 +10,7 @@ import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';
 
 function WorkspaceNameStep (props) {
-  const { updateFormData, formData, createWorkspace } = props;
+  const { updateFormData, formData, createWorkspace, nextStep } = props;
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
@@ -60,16 +60,21 @@ function WorkspaceNameStep (props) {
         <div className={classes.borderBottom}/>
         <WizardStepButtons
           {...props}
-          onNext={() => createWorkspace(formData, 'AUTONOMOUS')}
+          onNext={() => {
+            updateFormData({ groupType: 'AUTONOMOUS' })
+            return createWorkspace(formData);
+          }}
           nextLabel='singlePersonView'
           validForm={validForm}
           showOtherNext
           otherNextLabel='everyoneView'
-          onOtherNext={() => updateFormData({ group_type: 'EVERYONE' })}
+          onOtherNext={() => updateFormData({ groupType: 'EVERYONE' })}
           showTerminate
-          terminateSpinOnClick
           terminateLabel='teamView'
-          onTerminate={() => createWorkspace(formData, 'TEAM')}
+          onTerminate={() => {
+            updateFormData({ groupType: 'TEAM' })
+            return nextStep();
+          }}
         />
       </div>
     </WizardStepContainer>

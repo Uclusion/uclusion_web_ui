@@ -51,8 +51,8 @@ function WorkspaceWizard() {
     return initials;
   }
 
-  function createWorkspace(formData, groupType = 'TEAM') {
-    const { name } = formData;
+  function createWorkspace(formData) {
+    const { name, groupType } = formData;
     const marketInfo = {
       name,
       group_type: groupType

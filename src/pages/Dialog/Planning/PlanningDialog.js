@@ -560,6 +560,7 @@ function PlanningDialog(props) {
   }
 
 const isSwimlaneEmpty = _.isEmpty(swimlaneInvestibles)&&_.isEmpty(swimlaneCompleteInvestibles);
+const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist);
 
   return (
     <Screen
@@ -700,9 +701,9 @@ const isSwimlaneEmpty = _.isEmpty(swimlaneInvestibles)&&_.isEmpty(swimlaneComple
                 )}
               </SubSection>
             </div>
-            <div style={{ paddingBottom: isSwimlaneEmpty ? undefined : '1rem' }}/>
+            <div style={{ paddingBottom: isJobProgressEmpty ? undefined : '1rem' }}/>
             <DismissableText textId="notificationHelp" isLeft
-                             display={isSwimlaneEmpty}
+                             display={isJobProgressEmpty}
                              text={
                                isSingleUser ?
                                    <div>
@@ -724,8 +725,6 @@ const isSwimlaneEmpty = _.isEmpty(swimlaneInvestibles)&&_.isEmpty(swimlaneComple
                                    </div>)
                               )
               }/>
-           {_.isEmpty(swimlaneInvestibles)&&_.isEmpty(swimlaneCompleteInvestibles) && <div style={{ paddingBottom: '2rem' }}/>}
-            
             <InvestiblesByPerson
               comments={marketComments}
               investibles={investiblesFullAssist}

@@ -28,7 +28,7 @@ function AssignViewsStep(props) {
   // Screen out autonomous as don't encourage adding to them
   const groupsFiltered = groupsState[marketId]?.filter((group) => {
     const groupPresences = getGroupPresences(marketPresences, groupMembersState, marketId, group.id);
-    return !isAutonomousGroup(groupPresences, group);
+    return !isAutonomousGroup(groupPresences, group) && group.group_type !== 'EVERYONE';
   });
   // Active and inactive treated the same - inactive so rare anyway
   const groupsSorted = _.sortBy(groupsFiltered, 'name');

@@ -69,7 +69,7 @@ function WorkspaceNameStep (props) {
           showOtherNext
           otherNextLabel='everyoneView'
           onOtherNext={() => updateFormData({ groupType: 'EVERYONE' })}
-          showTerminate
+          showTerminate={validForm}
           terminateLabel='teamView'
           onTerminate={() => {
             updateFormData({ groupType: 'TEAM' })

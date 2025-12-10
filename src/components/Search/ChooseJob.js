@@ -20,7 +20,6 @@ import { getMarketInvestibles } from '../../contexts/InvestibesContext/investibl
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import clsx from 'clsx';
 import { useIntl } from 'react-intl';
-import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import GravatarGroup from '../Avatars/GravatarGroup';
 import {
@@ -30,6 +29,7 @@ import {
 } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { getSearchResults } from '../../contexts/SearchIndexContext/searchIndexContextHelper';
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function ChooseJob(props) {
   const {
@@ -37,7 +37,8 @@ function ChooseJob(props) {
     groupId,
     marketId,
     onChange,
-    formData
+    formData,
+    isAutonomous
   } = props;
   const [index] = useContext(SearchIndexContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -49,7 +50,7 @@ function ChooseJob(props) {
   const [searchQuery, setSearchQuery] = useState(undefined);
   const [isAssignedToMe, setIsAssignedToMe] = useState(false);
   const [isActive, setIsActive] = useState(true);
-  const [isSameView, setIsSameView] = useState(true);
+  const [isSameView, setIsSameView] = useState(!isAutonomous);
   const marketStages = getStages(marketStagesState, marketId);
   const activeMarketStages = isActive ? marketStages.filter((stage) => {
     return !isInReviewStage(stage) && !isNotDoingStage(stage);
@@ -141,7 +142,7 @@ function ChooseJob(props) {
           <ListItemText style={{width: '80%'}}>
             <TextField
               className={classes.search}
-              placeholder="Search in this view"
+              placeholder="Search these jobs"
               onChange={onSearchChange}
               InputProps={{
                 startAdornment: (

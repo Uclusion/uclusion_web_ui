@@ -10,12 +10,24 @@ import _ from 'lodash';
 import ChooseJob from '../../Search/ChooseJob';
 import { getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { getGroupPresences, getMarketPresences, isAutonomousGroup } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function FindJobStep(props) {
   const { marketId, groupId, updateFormData, formData, startOver, moveFromComments, roots, isConvert, useType } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [investiblesState] = useContext(InvestiblesContext);
+  const [groupsState] = useContext(MarketGroupsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
+  const group = getGroup(groupsState, marketId, groupId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
+  const isAutonomous = isAutonomousGroup(groupPresences, group);
   const { investibleId } = formData;
   const currentInvestibleId = roots[0]?.investible_id;
 
@@ -38,7 +50,10 @@ function FindJobStep(props) {
       return moveFromComments(inv, formData, updateFormData, true).then(({link}) => navigate(history, link));
     }
   }
-
+  if (_.isEmpty(group)||_.isEmpty(groupPresences)) {
+    // Wait until know if group is autonomous to render choose job widget
+    return React.Fragment;
+  }
   return (
     <WizardStepContainer
       {...props}
@@ -55,6 +70,7 @@ function FindJobStep(props) {
         <ChooseJob
           marketId={marketId}
           groupId={groupId}
+          isAutonomous={isAutonomous}
           formData={formData}
           excluded={currentInvestibleId && !isConvert ? [currentInvestibleId] : undefined}
           onChange={(id) => {

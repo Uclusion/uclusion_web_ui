@@ -16,6 +16,13 @@ import { wizardFinish } from '../InboxWizardUtils';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { removeWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 import { onCommentsMove } from '../../../utils/commentFunctions';
+import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
+import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { isAutonomousGroup } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function FindJobStep(props) {
   const { marketId, commentId, updateFormData, formData, message } = props;
@@ -25,10 +32,17 @@ function FindJobStep(props) {
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const { investibleId } = formData;
+  const [groupsState] = useContext(MarketGroupsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [groupPresencesState] = useContext(GroupMembersContext);
   const commentRoot = getComment(commentState, marketId, commentId) || {id: 'fake'};
   const comments = getMarketComments(commentState, marketId).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const groupId = commentRoot.group_id;
+  const group = getGroup(groupsState, marketId, groupId);
+  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
+  const isAutonomous = isAutonomousGroup(groupPresences, group);
 
   function myTerminate() {
     removeWorkListItem(message, messagesDispatch, history);
@@ -50,6 +64,11 @@ function FindJobStep(props) {
       });
   }
 
+  if (_.isEmpty(group)||_.isEmpty(groupPresences)) {
+    // Wait until know if group is autonomous to render choose job widget
+    return React.Fragment;
+  }
+
   return (
     <WizardStepContainer
       {...props}
@@ -62,6 +81,7 @@ function FindJobStep(props) {
           marketId={marketId}
           groupId={groupId}
           formData={formData}
+          isAutonomous={isAutonomous}
           onChange={(id) => {
             updateFormData({ investibleId: id })
           }}

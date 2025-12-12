@@ -1,9 +1,8 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
 | [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| 01/01| [Fix documentation for CLI - code todos, report markdown, and export.](#310a063e-441f-4412-9d89-0b07f8fc4627)| Deployed to production |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Must be able to somehow get magic link users into a default view as do for...](#7eb14a5f-49ad-408a-837d-e887fb55b90f)| Deployed to stage |
-| [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| | | [Python 3.9 end of life - problem is that layers and Lambda runtime must match...](#d7c2f7ff-b9b2-4241-8fc7-e724d6a544ec)| Deployed to production |
-| | | | [CLI TODO fixes](#927f8039-c23a-427e-86e6-2f40100adc33)| Deployed to production |
+| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Must be able to somehow get magic link users into a default view as do for...](#7eb14a5f-49ad-408a-837d-e887fb55b90f)| Deployed to production |
+| [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| | | [CLI TODO fixes](#927f8039-c23a-427e-86e6-2f40100adc33)| Deployed to production |
 | | | | [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)|  |
 | | | | [Import / Export strategy and script.](#8c6374e6-2b2c-4b08-abdd-b6bec66c4f69)| Deployed to production |
 | | | | [See if React now supports a better way to keep a websocket open - otherwise...](#0119ab37-b6ed-432e-a05b-5a91e8e02393)| Deployed to production |
@@ -77,14 +76,6 @@ When move job with question from assignee in regular view to Work Ready not prom
 
 #### Task <a name="90f611ac-c888-44be-86f8-98d215ca64a1"></a> 
 No up arrow when do search.
-
-#### Task <a name="c545887b-8fe7-4fc3-ad4c-94b64005ff90"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/9ebd03f5-a012-4fd1-9980-a58c9379168e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Doesn't look good and empty text is misleading. **Just make assist part of what prevents empty text from showing.**
 
 #### Task <a name="8a4ee34b-6a80-4aa0-bfed-49825d42f892"></a> 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c047efba-47bc-4389-8a4f-858fa4f06772.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
@@ -259,6 +250,14 @@ Redo presentation of offline and have timer on it. See Gmail example - not nearl
 #### Resolved Task <a name="3e5e867f-97a0-4156-93d1-ba8dbe4319a9"></a> 
 Remove explanation of views from intro to workspace screens.
 
+#### Resolved Task <a name="c545887b-8fe7-4fc3-ad4c-94b64005ff90"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/9ebd03f5-a012-4fd1-9980-a58c9379168e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+Doesn't look good and empty text is misleading. **Just make assist part of what prevents empty text from showing.**
+
 #### Resolved Task <a name="0e5f6beb-60b8-4283-bf69-028bdedb5dbf"></a> 
 Notes are somehow following the progress report logic and only showing the latest one - possibly even resolving older ones.
 
@@ -385,15 +384,6 @@ View creation.
 
 #### Resolved Task <a name="ab5b7313-0258-40e6-8a7d-b6bbded71bb8"></a> 
 When is Everyone group should not be able to remove members.
-
-## Job <a name="d7c2f7ff-b9b2-4241-8fc7-e724d6a544ec"></a>
-### Python 3.9 end of life - problem is that layers and Lambda runtime must match...
-...so seems all or nothing.
-
-
-
-
-html-to-markdown requires 3.10.
 
 ## Job <a name="927f8039-c23a-427e-86e6-2f40100adc33"></a>
 ### CLI TODO fixes

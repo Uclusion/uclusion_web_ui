@@ -94,7 +94,7 @@ function CondensedTodos(props) {
         <BugListItem id={id} replyNum={replies.length + 1} title={stripHTML(body)} useMinWidth={false}
                      newMessages={isInbox ? undefined : getNewBugNotifications(comment, messagesState)}
                      date={intl.formatDate(updatedAt)}
-                     useSelect={!isInbox} expansionPanel={expansionPanel} checked={checked}
+                     useSelect={!isInbox && showOpen} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} 
                      determinateDispatch={determinateDispatch}
                      bugListDispatch={todoDispatch} notificationType="todo" />
@@ -234,7 +234,8 @@ function CondensedTodos(props) {
       )}
       {!_.isEmpty(tabComments) && sectionOpen && (
         <div style={{paddingBottom: '0.25rem'}}>
-          <div style={{display: 'flex', width: '80%'}}>
+          {showOpen && (
+            <div style={{display: 'flex', width: '80%'}}>
             {!mobileLayout && !isInbox && (
               <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                         checked={checkAll}
@@ -258,6 +259,7 @@ function CondensedTodos(props) {
                 onClick={() => moveToBugs(BLUE_LEVEL)} translationId="moveTodoBlue" />
             )}
           </div>
+          )}
         </div>
       )}
       {_.isEmpty(tabComments) && showOpen && sectionOpen && (

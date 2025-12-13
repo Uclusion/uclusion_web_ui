@@ -1,4 +1,4 @@
-import React, { useContext, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Checkbox, IconButton, Tooltip, Typography, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash';
@@ -7,7 +7,7 @@ import { useHistory } from 'react-router';
 import Comment from '../../../components/Comments/Comment';
 import { TODO_TYPE } from '../../../constants/comments';
 import { alterComments, reopenComment, resolveComment } from '../../../api/comments';
-import { addCommentToMarket, addMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket, addMarketComments, filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
@@ -15,7 +15,7 @@ import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { stripHTML } from '../../../utils/stringFunctions';
 import BugListItem from '../../../components/Comments/BugListItem';
-import getReducer, { contractAll, expandAll } from '../../../components/Comments/BugListContext';
+import getReducer, { contractAll, expandAll, expandOrContract } from '../../../components/Comments/BugListContext';
 import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { BugReport, Eject, ExpandLess } from '@material-ui/icons';
@@ -43,7 +43,9 @@ function CondensedTodos(props) {
     removeActions = true,
     useColor = false,
     expandTasksNotSection=false,
-    sectionTitle
+    sectionTitle,
+    hidden,
+    hash
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -66,14 +68,31 @@ function CondensedTodos(props) {
   const tabCommentsRaw = showOpen ? openComments : resolvedComments;
   const tabComments = sortInProgress(_.orderBy(tabCommentsRaw, ['updated_at', 'body'], ['desc', 'asc']));
 
+  useEffect(() => {
+    if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {
+      const found = investibleComments.find((comment) => hash.includes(comment.id));
+      if (!_.isEmpty(found)) {
+        const rootComment = filterToRoot(investibleComments, found.id);
+        if (rootComment?.investible_id && rootComment.comment_type === TODO_TYPE && rootComment.resolved) {
+          if (showOpen) {
+            setShowOpen(false);
+          }
+          if (!expansionState[rootComment.id]) {
+            todoDispatch(expandOrContract(rootComment.id));
+          }
+        }
+      }
+    }
+  }, [hash, hidden, investibleComments, showOpen, expansionState]);
+
   function getRows() {
     if (!sectionOpen) {
       return <div style={{marginBottom: '1rem'}} key={`${showOpen}empty`}/>
     }
     return tabComments.map((comment) => {
-      const { id, body, updated_at: updatedAt } = comment;
+      const { id, body, updated_at: updatedAt, resolved } = comment;
       const replies = comments.filter(comment => comment.root_comment_id === id) || [];
-      const expansionPanel = <div id={`condensed${id}`}
+      const expansionPanel = <div id={resolved ? `c${id}` : `condensed${id}`}
                                   style={{marginBottom: '1rem', marginRight: '1rem', marginLeft: '1rem'}}>
         <Comment
           marketId={marketId}

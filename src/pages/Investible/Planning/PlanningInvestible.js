@@ -447,6 +447,10 @@ function PlanningInvestible(props) {
             if (!_.isEmpty(rootComment.investible_id)) {
               switch (rootComment.comment_type) {
                 case TODO_TYPE:
+                  if (rootComment.resolved) {
+                    updatePageState({ sectionOpen: 'descriptionVotingSection' });
+                    break;
+                  }
                   if (sectionOpen !== 'tasksSection') {
                     updatePageState({ sectionOpen: 'tasksSection' });
                   }
@@ -804,7 +808,7 @@ function PlanningInvestible(props) {
               </div>
             )}
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
-                            usePadding={!mobileLayout} useColor
+                            usePadding={!mobileLayout} useColor hidden={hidden} hash={hash}
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen={!_.isEmpty(todoCommentsSearched)}/>
               <div style={{
                 marginTop: '3rem',

@@ -477,12 +477,18 @@ function sortSubTask(parentCreatedBy) {
   return (aComment) => aComment.created_by !== parentCreatedBy;
 }
 
-function isSubTask(comment, commentsState, isTask) {
-  if (!isTask) {
+function isSubTask(comment, commentsState, isPlanning) {
+  if (!isPlanning || comment.comment_type !== REPLY_TYPE) {
     return false;
   }
   const parent = getComment(commentsState, comment.market_id, comment.reply_id);
-  return parent?.created_by === comment.created_by;
+  if (!parent) {
+    return false;
+  }
+  if (parent.comment_type !== TODO_TYPE) {
+    return false;
+  }
+  return parent.created_by === comment.created_by;
 }
 
 /**
@@ -562,6 +568,7 @@ function Comment(props) {
     || (inlineMarketId && _.isEmpty(inlineMarket));
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
   const otherInProgress = previousInProgress(myPresence.id, comment, investiblesState, commentsState, notDoingStage.id);
+  const isDisplayOfSubTask = isSubTask(comment, commentsState, marketType === PLANNING_TYPE);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -742,7 +749,7 @@ function Comment(props) {
 
   const diff = getDiff(diffState, id);
   const isNote = commentType === REPORT_TYPE && _.isEmpty(investibleId);
-  const overrideLabel = commentType === REPLY_TYPE ? (isSubTask(comment, commentsState, isTask) ? 
+  const overrideLabel = commentType === REPLY_TYPE ? (isDisplayOfSubTask ? 
         <FormattedMessage id="commentSubTaskLabel" /> :
         <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> :
       (isNote ? <FormattedMessage id="reportNote" /> : undefined ) );
@@ -844,7 +851,7 @@ function Comment(props) {
                 TODO_TYPE : (isNote ? NOTE :undefined))} linker={(reallyNoAuthor || isMarketTodo) && showLinker && linker}
               label={overrideLabel} color={color} compressed={useCompression} notificationFunc={notificationFunc}
               notificationIsHighlighted={myMessage?.is_highlighted}
-              gravatar={noAuthor || mobileLayout ? undefined : gravatarWithName}
+              gravatar={noAuthor || mobileLayout || isDisplayOfSubTask ? undefined : gravatarWithName}
     />
   ): (
     <CardType className={classes.commentType} type={commentType} resolved={resolved} compact compressed={useCompression}
@@ -1014,6 +1021,7 @@ function Comment(props) {
             <CommentEdit
               marketId={marketId}
               comment={comment}
+              isDisplayOfSubTask={isDisplayOfSubTask}
               onSave={toggleEdit}
               onCancel={toggleEdit}
               editState={editState}

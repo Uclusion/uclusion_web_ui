@@ -194,7 +194,7 @@ export function getIcon(commentType) {
 function CommentEdit(props) {
   const {
     marketId, onSave, onCancel, comment, myNotificationType, editState, updateEditState, editStateReset, isWizard,
-    messages, subscribed
+    messages, subscribed, isDisplayOfSubTask
   } = props;
   const {
     uploadedFiles,
@@ -332,7 +332,7 @@ function CommentEdit(props) {
 
   return (
     <>
-      {!noSubscribedToSendTo && !isTask && (
+      {!noSubscribedToSendTo && !isTask && !isDisplayOfSubTask && (
         <Typography className={classes.introSubText} variant="subtitle1">
           <GravatarGroup users={subscribedNotMe}/>
           notified unless use @ mentions.

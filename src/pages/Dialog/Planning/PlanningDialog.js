@@ -34,6 +34,7 @@ import {
   isBlockedStage,
   isFurtherWorkStage,
   isInReviewStage,
+  isNotDoingStage,
   isRequiredInputStage
 } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
@@ -180,6 +181,7 @@ function PlanningDialog(props) {
   });
   const acceptedStage = marketStages.find(stage => isAcceptedStage(stage)) || {};
   const inDialogStage = marketStages.find(stage => stage.allows_investment) || {};
+  const notDoingStage = marketStages.find(stage => isNotDoingStage(stage)) || {};
   const inReviewStage = marketStages.find(stage => isInReviewStage(stage)) || {};
   const inBlockingStage = marketStages.find(stage => isBlockedStage(stage)) || {};
   const visibleStages = marketStages.filter((stage) => stage.appears_in_context) || [];
@@ -744,7 +746,7 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
         <div id="backlogSection" style={{overflowX: 'hidden'}}>
           <Backlog group={group} marketPresences={marketPresences} hidden={!isSectionOpen('backlogSection')} mobileLayout={mobileLayout}
                    furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
-                   comments={marketComments} myGroupPresence={myGroupPresence} inDialogStageId={inDialogStage?.id}
+                   comments={marketComments} myGroupPresence={myGroupPresence} inDialogStageId={inDialogStage?.id} notDoingStageId={notDoingStage?.id}
                    acceptedStageId={acceptedStage?.id} singleUser={isSingleUser ? groupPresences[0] : undefined} />
         </div>
         <MarketTodos comments={unResolvedGroupComments} marketId={marketId} groupId={groupId} isSupport={isSupport}

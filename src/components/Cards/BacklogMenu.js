@@ -10,7 +10,7 @@ import _ from 'lodash';
 import { JOB_STAGE_WIZARD_TYPE } from '../../constants/markets';
 import { useHistory } from 'react-router';
 import Chip from '@material-ui/core/Chip';
-import { AssignmentInd } from '@material-ui/icons';
+import { AssignmentInd, Block } from '@material-ui/icons';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -33,7 +33,7 @@ const useStyles = makeStyles(() => ({
 
 function BacklogMenu(props) {
   const { anchorEl, recordPositionToggle, marketId, investibleId, openForInvestment, mouseX, mouseY,
-    myGroupPresence, isSingleUser, acceptedStageId, stage, inDialogStageId } = props;
+    myGroupPresence, isSingleUser, acceptedStageId, stage, inDialogStageId, notDoingStageId } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useStyles();
@@ -53,6 +53,23 @@ function BacklogMenu(props) {
     });
   }
 
+  function notDoingJob() {
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: stage,
+        stage_id: notDoingStageId
+      },
+    };
+    setOperationRunning(true);
+    return stageChangeInvestible(moveInfo)
+      .then((newInv) => {
+        refreshInvestibles(investiblesDispatch, () => {}, [newInv]);
+        setOperationRunning(false);
+      });
+  }
+
   function assignJob() {
     if (isSingleUser) {
       const moveInfo = {
@@ -70,9 +87,8 @@ function BacklogMenu(props) {
           refreshInvestibles(investiblesDispatch, () => {}, [newInv]);
           setOperationRunning(false);
         });
-    } else {
-      navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&isAssign=true`);
     }
+    return Promise.resolve(navigate(history, `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&isAssign=true`));
   }
 
   return (
@@ -132,6 +148,19 @@ function BacklogMenu(props) {
           <Tooltip placement='top' title={intl.formatMessage({ id: 'moveAssigned' })}>
             <ListItemText>
               {intl.formatMessage({ id: 'planningInvestibleAssignments' })}
+            </ListItemText>
+          </Tooltip>
+        </MenuItem>
+        <MenuItem key="notDoingJobKey" id="notDoingJobId"
+                  onClick={(event) => {
+                    preventDefaultAndProp(event);
+                    return notDoingJob().then(() => recordPositionToggle());
+                  }}
+        >
+          <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Block size='small' style={{marginRight: '0.5rem'}} /></ListItemIcon>
+          <Tooltip placement='top' title={intl.formatMessage({ id: 'planningInvestibleNotDoingExplanation' })}>
+            <ListItemText>
+              {intl.formatMessage({ id: 'dialogArchivesNotDoingHeader' })}
             </ListItemText>
           </Tooltip>
         </MenuItem>

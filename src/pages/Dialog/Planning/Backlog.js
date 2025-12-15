@@ -43,6 +43,7 @@ function Backlog(props) {
     myGroupPresence,
     acceptedStageId,
     inDialogStageId,
+    notDoingStageId,
     mobileLayout
   } = props;
   const { market_id: marketId, id: groupId} = group || {};
@@ -187,7 +188,7 @@ function Backlog(props) {
         return (
           <BacklogItem inv={inv} comments={comments} marketPresences={marketPresences} marketId={marketId}
                        singleUser={singleUser} myGroupPresence={myGroupPresence} acceptedStageId={acceptedStageId}
-                       inDialogStageId={inDialogStageId} />
+                       inDialogStageId={inDialogStageId} notDoingStageId={notDoingStageId} />
         );
       })}
     </div>
@@ -196,7 +197,7 @@ function Backlog(props) {
 
 function BacklogItem(props) {
   const { inv, comments, marketPresences, marketId, singleUser, myGroupPresence, acceptedStageId,
-    inDialogStageId } = props;
+    inDialogStageId, notDoingStageId } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const intl = useIntl();
@@ -213,7 +214,7 @@ function BacklogItem(props) {
     <BacklogListItem id={investible.id} title={investible.name} date={intl.formatDate(investible.created_at)}
                      description={stripHTML(investible.description)} openForInvestment={openForInvestment}
                      newMessages={getNewMessages(inv, messagesState)} stage={stage} myGroupPresence={myGroupPresence}
-                     acceptedStageId={acceptedStageId} inDialogStageId={inDialogStageId}
+                     acceptedStageId={acceptedStageId} inDialogStageId={inDialogStageId} notDoingStageId={notDoingStageId}
                      isSingleUser={!_.isEmpty(singleUser)} marketId={marketId} people={collaboratorsForInvestible} />
   );
 }

@@ -675,7 +675,7 @@ function StageInvestible(props) {
     <>
       {anchorEl && (
         <PlanningJobMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} stageId={stageId}
-                         groupId={groupId} marketId={marketId} investibleId={investible.id}
+                         groupId={groupId} marketId={marketId} investibleId={investible.id} assigned={assigned}
                          openForInvestment={openForInvestment} marketPresences={marketPresences} />
       )}
       <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable

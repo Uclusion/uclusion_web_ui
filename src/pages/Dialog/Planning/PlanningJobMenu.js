@@ -21,6 +21,7 @@ import { JOB_STAGE_WIZARD_TYPE } from '../../../constants/markets';
 import { useHistory } from 'react-router';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import _ from 'lodash';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -30,7 +31,7 @@ const useStyles = makeStyles(() => ({
 
 function PlanningJobMenu(props) {
   const { anchorEl, recordPositionToggle, marketId, investibleId, stageId, openForInvestment, isBlocked,
-    needsAssist, groupId, marketPresences } = props;
+    needsAssist, groupId, marketPresences, assigned } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, invDispatch] = useContext(InvestiblesContext);
@@ -198,7 +199,12 @@ function PlanningJobMenu(props) {
           <MenuItem key="planningInvestibleMoveToVerifiedKey" id="planningInvestibleMoveToVerifiedId"
                     onClick={(event) => {
                       preventDefaultAndProp(event);
-                      return stageChange(tasksCompleteStageId).then(() => recordPositionToggle());
+                      if (_.isEmpty(assigned) && _.size(groupMembers) > 1) {
+                        return navigate(history,
+                          `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId)}&stageId=${tasksCompleteStageId}&isAssign=true`);
+                      }
+                      const assigment = _.isEmpty(assigned) && _.size(groupMembers) === 1 ? [groupMembers[0].id] : undefined;
+                      return stageChange(tasksCompleteStageId, undefined, assigment).then(() => recordPositionToggle());
                     }}
           >
             <Tooltip placement='top' title={intl.formatMessage({ id: 'allDone' })}>

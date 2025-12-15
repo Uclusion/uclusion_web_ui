@@ -70,7 +70,7 @@ const myArchiveClasses = makeStyles(
 
 function ArchiveInvestible(props) {
   const { name, id, stageId, marketId, allowDragDrop, onDragStart, enteredStageAt, TypeIconList, assignedNames, inAssistanceComments,
-    classes, openForInvestment, viewIndicator='', isBlocked, needsAssist, groupId, marketPresences, isSingleUser } = props;
+    classes, openForInvestment, viewIndicator='', isBlocked, needsAssist, groupId, marketPresences, isSingleUser, assigned } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const intl = useIntl();
@@ -92,7 +92,7 @@ function ArchiveInvestible(props) {
   return (
     <React.Fragment key={`frag${id}`}>
       {anchorEl && (
-        <PlanningJobMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} isBlocked={isBlocked}
+        <PlanningJobMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} isBlocked={isBlocked} assigned={assigned}
                          openForInvestment={openForInvestment}  stageId={stageId} marketId={marketId} investibleId={id}
                          needsAssist={needsAssist} groupId={groupId} marketPresences={marketPresences} />
       )}
@@ -328,7 +328,7 @@ function ArchiveInvestbiles(props) {
                                 needsAssist={!_.isEmpty(suggestionComments)||!_.isEmpty(questionComments)}
                                 allowDragDrop={allowDragDrop&&isMember} onDragStart={onDragStart}
                                 enteredStageAt={enteredStageAt} marketPresences={marketPresences}
-                                TypeIconList={TypeIconList} assignedNames={assignedNames}
+                                TypeIconList={TypeIconList} assignedNames={assignedNames} assigned={assigned}
                                 classes={classes} openForInvestment={openForInvestment} viewIndicator={ticketNumber} />;
     });
   }

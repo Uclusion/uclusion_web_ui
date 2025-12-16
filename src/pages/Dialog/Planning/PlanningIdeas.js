@@ -276,7 +276,7 @@ function PlanningIdeas(props) {
         }
       }
     } else if (isBlockedStage(fullCurrentStage) || isRequiredInputStage(fullCurrentStage)) {
-      if (isAutonomous || (!_.isEmpty(assigned)&&assigned.includes(presenceId))) {
+      if (isAutonomous || !_.isEmpty(assigned)) {
         // Go to change stage close comment step with divId destination
         link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}`;
       } else {

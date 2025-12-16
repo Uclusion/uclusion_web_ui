@@ -22,8 +22,8 @@ function JobCommentConfigureWizard(props) {
   return (
     <WizardStylesProvider>
       <FormdataWizard name={`job_comment_configure_wizard${commentId}`} useLocalStorage={false}>
-        <ConfigureCommentStep useType={comment.comment_type} comment={comment} navigateOnFinish
-                              typeObjectId={typeObjectId}
+        <ConfigureCommentStep useType={comment.comment_type} comment={comment} navigateOnFinish investibleId={comment.investible_id}
+                              typeObjectId={typeObjectId} marketId={comment.market_id} groupId={comment.group_id}
                               allowMulti={inlineMarket?.allow_multi_vote} />
       </FormdataWizard>
     </WizardStylesProvider>

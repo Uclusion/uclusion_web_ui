@@ -47,8 +47,10 @@ function DiscussionWizard(props) {
             isWizard
           />
         )}
-        <AddOptionStep />
-        <ConfigureCommentStep useType={commentType} />
+        {isQuestion && (
+          <AddOptionStep />
+        )}
+        <ConfigureCommentStep useType={commentType} marketId={marketId} groupId={groupId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

@@ -53,6 +53,8 @@ import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { TOKEN_TYPE_MARKET } from '../../api/tokenConstants';
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 
 function getPlaceHolderLabelId(type, investibleId, showSubTask=false) {
   switch (type) {
@@ -296,6 +298,7 @@ function CommentAdd(props) {
   const [investibleState, investibleDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
+  const [groupState] = useContext(MarketGroupsContext);
   const [marketPresencesState, presenceDispatch] = useContext(MarketPresencesContext);
   const [marketsState, marketsDispatch] = useContext(MarketsContext);
   const classes = useStyles();
@@ -308,7 +311,10 @@ function CommentAdd(props) {
   const { assigned, stage: currentStageId } = info || {};
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const ourMarket = getMarket(marketsState, marketId) || {};
+  const group = getGroup(groupState, marketId, groupId) || {};
   const isSingleUser = _.size(presences) < 2;
+  // Be certain that voting would never be wanted before remove button - could mention a second user in or want to add to group later
+  const isSingleAutonomousUser = isSingleUser && group?.group_type === 'AUTONOMOUS';
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
   const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId, wizardProps.showSubTask);
@@ -491,7 +497,7 @@ function CommentAdd(props) {
               terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
           )}
           {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
-            !investibleId && !isSingleUser && (
+            !investibleId && !isSingleAutonomousUser && (
             <AddWizardStepButtons
               {...wizardProps}
               validForm={hasValue}
@@ -502,14 +508,14 @@ function CommentAdd(props) {
               onOtherNext={() => handleSave( true, undefined, false)}
               otherNextLabel="noVoteSuggestion"
               onTerminate={() => {
-                wizardProps.updateFormData({marketId, groupId});
+                wizardProps.updateFormData({editorName});
                 wizardProps.nextStep();
               }}
               showTerminate={hasValue}
               terminateLabel="configureVoting"/>
           )}
           {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
-            !investibleId && isSingleUser && (
+            !investibleId && isSingleAutonomousUser && (
               <AddWizardStepButtons
                 {...wizardProps}
                 validForm={hasValue}
@@ -517,14 +523,14 @@ function CommentAdd(props) {
                 onNext={() => handleSave( true, undefined, false)}
                 onNextDoAdvance={false}
                 onTerminate={() => {
-                  wizardProps.updateFormData({marketId, groupId});
+                  wizardProps.updateFormData({editorName});
                   wizardProps.nextStep();
                 }}
                 showTerminate={hasValue}
                 terminateLabel="configureVoting"/>
             )}
           {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
-            investibleId && !isSingleUser && (
+            investibleId && !isSingleAutonomousUser && (
             <AddWizardStepButtons
               {...wizardProps}
               validForm={hasValue}
@@ -537,15 +543,14 @@ function CommentAdd(props) {
               otherNextLabel={createInlineInitiative ? 'noVoteSuggestion' : 'voteSuggestion'}
               onOtherNext={() => handleSave( true, undefined, !createInlineInitiative)}
               onTerminate={() => {
-                wizardProps.updateFormData({marketId, groupId, investibleId});
-                updateCommentAddState({editorName});
+                wizardProps.updateFormData({investibleId, editorName});
                 wizardProps.nextStep();
               }}
               showTerminate={hasValue}
               terminateLabel="configureVoting"/>
           )}
           {wizardProps.isAddWizard && type === SUGGEST_CHANGE_TYPE && ourMarket.market_type === PLANNING_TYPE &&
-            investibleId && isSingleUser && (
+            investibleId && isSingleAutonomousUser && (
               <AddWizardStepButtons
                 {...wizardProps}
                 validForm={hasValue}

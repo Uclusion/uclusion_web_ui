@@ -23,7 +23,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import { getQuillStoredState } from '../TextEditors/Utilities/CoreUtils';
+import { getQuillStoredState, resetEditor } from '../TextEditors/Utilities/CoreUtils';
 import { processTextAndFilesForSave } from '../../api/files';
 import { DECISION_TYPE, INITIATIVE_TYPE } from '../../constants/markets';
 import TokenStorageManager from '../../authorization/TokenStorageManager';
@@ -33,7 +33,7 @@ import _ from 'lodash';
 import { getFullStage, isFurtherWorkStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 
 function ConfigureCommentStep(props) {
-  const { updateFormData, formData, useType, comment, allowMulti, previousStep, navigateOnFinish,
+  const { updateFormData, formData, useType, comment, allowMulti, previousStep, navigateOnFinish, groupId, marketId, investibleId,
     typeObjectId } = props;
   const classes = useContext(WizardStylesContext);
   const history = useHistory();
@@ -44,19 +44,20 @@ function ConfigureCommentStep(props) {
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [, presenceDispatch] = useContext(MarketPresencesContext);
   const [, marketsDispatch] = useContext(MarketsContext);
-  const { useAnswer, marketId, commentId, investibleId, groupId } = formData;
+  const { useAnswer, commentId, editorName: editorNameCandidate } = formData;
   const presences = usePresences(marketId);
   const [commentAddStateFull, commentAddDispatch] = usePageStateReducer('addDecisionCommentWizard');
   const [commentAddState, , commentAddStateReset] =
     getPageReducerPage(commentAddStateFull, commentAddDispatch, investibleId || groupId);
   const {
-    uploadedFiles,
-    editorName
+    uploadedFiles
   } = commentAddState;
+  const editorName = editorNameCandidate ||`comment-edit-editor${commentId}`;
 
-  function onFinish() {
-    if (comment) {
-      navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
+  function onFinish(myComment) {
+    const useComment = myComment || comment;
+    if (useComment) {
+      navigate(history, formCommentLink(useComment.market_id, useComment.group_id, useComment.investible_id, useComment.id));
     } else if (investibleId) {
       navigate(history, formInvestibleLink(marketId, investibleId));
     } else {
@@ -88,12 +89,13 @@ function ConfigureCommentStep(props) {
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(currentUploadedFiles, myBodyNow)
-    const mentions = getMentionsFromText(tokensRemoved)
+    } = processTextAndFilesForSave(currentUploadedFiles, myBodyNow);
+    const mentions = getMentionsFromText(tokensRemoved);
     return saveComment(marketId, groupId, investibleId, undefined, tokensRemoved, useType, filteredUploads, 
       mentions, undefined, INITIATIVE_TYPE, isRestricted, true)
       .then((response) => {
         commentAddStateReset();
+        resetEditor(editorName);
         addMarket(response, marketsDispatch, presenceDispatch);
         const { market: { id: inlineMarketId }, token, investible } = response;
         if (investible) {
@@ -114,7 +116,7 @@ function ConfigureCommentStep(props) {
           // No op
           navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
         } else {
-          updateComment({marketId: comment.market_id, commentId: comment.id, allowMulti: useAnswerBool})
+          return updateComment({marketId: comment.market_id, commentId: comment.id, allowMulti: useAnswerBool})
             .then((response) => {
               const { comment } = response;
               addMarket(response, marketsDispatch, presenceDispatch);
@@ -123,33 +125,33 @@ function ConfigureCommentStep(props) {
         }
       } else {
         if (useAnswerBool) {
-          updateComment({marketId, commentId, isSent: true, allowMulti: true})
+          return updateComment({marketId, commentId, isSent: true, allowMulti: true})
             .then((response) => {
               const { comment } = response;
               addMarket(response, marketsDispatch, presenceDispatch);
               quickAddComment(comment);
             });
         } else {
-          sendComment(marketId, commentId, undefined, DECISION_TYPE).then((response) => {
+          return sendComment(marketId, commentId, undefined, DECISION_TYPE).then((response) => {
             quickAddComment(response);
           });
         }
       }
     } else if (useType === ISSUE_TYPE) {
-      updateComment({marketId, commentId, isSent: true, notificationType: useAnswerBool ? 'RED' : 'BLUE'})
+      return updateComment({marketId, commentId, isSent: true, notificationType: useAnswerBool ? 'RED' : 'BLUE'})
         .then((comment) => {
           quickAddComment(comment);
         });
     } else {
       if (comment) {
-        allowVotingForSuggestion(comment.id, setOperationRunning, marketsDispatch, presenceDispatch,
+        return allowVotingForSuggestion(comment.id, setOperationRunning, marketsDispatch, presenceDispatch,
           commentState, commentDispatch, investiblesDispatch, !useAnswerBool)
           .then(() => {
             setOperationRunning(false);
-            onFinish();
+            onFinish(comment);
           });
       } else {
-        handleSaveSuggestion(!useAnswerBool);
+        return handleSaveSuggestion(!useAnswerBool);
       }
     }
   }

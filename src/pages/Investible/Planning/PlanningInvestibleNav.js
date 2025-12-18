@@ -446,6 +446,7 @@ export default function PlanningInvestibleNav(props) {
               style={{marginBottom: '1rem'}}
                 disabled={!labelHasValue}
                 onClick={addLabel}
+                autoFocus={false}
                 icon={Label} id='addLabel'>
                 {intl.formatMessage({ id: 'addLabel' })}
           </SpinningIconLabelButton>

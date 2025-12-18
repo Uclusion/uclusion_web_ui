@@ -20,7 +20,7 @@ export const NAME_MAX_LENGTH = 80;
 
 function NameField(props) {
   const {
-    editorName, label, placeHolder, id, useCreateDefault, scrollId, initialValue, setHasValue, maxWidth
+    editorName, label, placeHolder, id, useCreateDefault, scrollId, initialValue, setHasValue, maxWidth, autoFocus=true,
   } = props;
   const intl = useIntl();
   const defaultValue = getNameStoredState(id) || initialValue;
@@ -72,7 +72,7 @@ function NameField(props) {
         ref={focusWorkAround}
         defaultValue={defaultValue}
         onChange={handleChange}
-        autoFocus
+        autoFocus={autoFocus}
         inputProps={{ maxLength : NAME_MAX_LENGTH }}
         placeholder={intl.formatMessage({
           id: placeHolder

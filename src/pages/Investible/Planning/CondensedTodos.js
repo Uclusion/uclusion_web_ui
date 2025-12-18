@@ -41,7 +41,7 @@ function CondensedTodos(props) {
     isDefaultOpen = false,
     defaultToOpenComments = true,
     removeActions = true,
-    useColor = false,
+    useColor = true,
     expandTasksNotSection=false,
     sectionTitle,
     hidden,

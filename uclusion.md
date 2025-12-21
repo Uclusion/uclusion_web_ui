@@ -1,8 +1,9 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
 | [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| 01/01| [Fix documentation for CLI - code todos, report markdown, and export.](#310a063e-441f-4412-9d89-0b07f8fc4627)| Deployed to production |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Must be able to somehow get magic link users into a default view as do for...](#7eb14a5f-49ad-408a-837d-e887fb55b90f)| Deployed to production |
-| [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| | | [CLI TODO fixes](#927f8039-c23a-427e-86e6-2f40100adc33)| Deployed to production |
+| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [More landing page fixes](#c0f0c729-a4bf-4ee0-b0ba-5a7199cc754b)|  |
+| [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| | | [Must be able to somehow get magic link users into a default view as do for...](#7eb14a5f-49ad-408a-837d-e887fb55b90f)| Deployed to production |
+| | | | [CLI TODO fixes](#927f8039-c23a-427e-86e6-2f40100adc33)| Deployed to production |
 | | | | [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)|  |
 | | | | [Import / Export strategy and script.](#8c6374e6-2b2c-4b08-abdd-b6bec66c4f69)| Deployed to production |
 | | | | [See if React now supports a better way to keep a websocket open - otherwise...](#0119ab37-b6ed-432e-a05b-5a91e8e02393)| Deployed to production |
@@ -60,20 +61,6 @@ When resolve minor but on return arrive in critical bugs section.
 
 Also happening when move a bug to a job from a non critical section.
 
-#### Task <a name="e60e9015-aa0c-49ed-abf4-0e58c1585873"></a> 
-From context menu can send an unassigned job to tasks complete without assigning it or resolving tasks - even though am only person in workspace.
-
-#### Task <a name="bbe5eebd-10d3-4c1d-a4fa-cb7a75ae1538"></a> 
-On resolved tasks in overview do not show buttons to move to bugs as must be open to do that.
-
-
-
-
-Maybe don't show selector or anything as get "No open tasks" when try - either turn that off and allow or disallow any buttons that would arrive at that.
-
-#### Task <a name="b019ffb1-7558-48ac-8916-3482485860d4"></a> 
-When move job with question from assignee in regular view to Work Ready not prompted to resolve question and instead goes briefly till quick add wiped out.
-
 #### Task <a name="90f611ac-c888-44be-86f8-98d215ca64a1"></a> 
 No up arrow when do search.
 
@@ -88,14 +75,6 @@ Counts don't add up - 7 - 5 = 2 missing.
 #### Task <a name="83af94b4-f765-4d25-bf40-c87c0eda20ac"></a> 
 When search resolved tasks must display on tasks page as well so that search works. Currently it shows resolved found as on tasks page but nothing there.
 
-#### Task <a name="da760056-b86d-42ef-b830-97d1f17019b9"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/102fb8cb-439c-470d-bf57-02c62b3dae35.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-In a team view so should have Add with voting button available. **Plus errors out if hit Configure voting button.**
-
 #### Task <a name="7e20ed91-4fc7-4419-ab9d-a4cb49d7e74f"></a> 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/36d21323-4f19-49d3-94e0-a52b3473f1c2.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
@@ -104,25 +83,22 @@ In a team view so should have Add with voting button available. **Plus errors ou
 
 Here have both the expand circle and the chevron to expand. So the collapsed comment should be blue and should link back to the comment instead of uncollapsing - except if hit chevron of course.
 
-#### Task <a name="5aaf01ec-a15e-4732-8c23-6c15c05b6dee"></a> 
-Edit a subtask header - should say subtask instead of reply and don't need author on either since only author of both can edit.
-
-
-
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/a1320ce4-4200-434e-99e7-eda11fe4916d.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
 #### Task <a name="3671e2b8-0876-4e90-921c-49c1144345ad"></a> 
 Getting re-renders caused by context updates even when the sync gets nothing new. If nothing new there should be no updating contexts.
 
 > ##### Reply <a name="3ddbca75-8758-4552-9cd0-e3a663bf6772"></a> 
 Why do you think it's by context updates? I instrumented the code, it's not going to be pushing messages.
 
-#### Task <a name="61a70e37-6cc3-41d4-9c64-6df09d309c8c"></a> 
-Context menu for Not Ready backlog does not include Not Doing.
-
 #### Task <a name="5c9637a6-b94c-4a16-9aea-fe8bcc4d2cc0"></a> 
 Do the full context menu even if in swimlanes - no reason not to and now no stage header.
+
+#### Task <a name="b3ac8ea4-c96a-480a-98fb-c5f7a6a07815"></a> 
+Leader thing with two tabs seems broken - got:
+
+
+
+
+    Not refreshing with is leader undefined
 
 #### Resolved Task <a name="b5ca7cbe-704b-4cce-9e50-77834334f474"></a> 
 Count color not on bugs or backlog lists
@@ -208,6 +184,9 @@ Make solo demo single view only.
 #### Resolved Task <a name="1cb3e171-26ec-47a6-bdd6-ae2267efa6ae"></a> 
 Check box on tasks overview is red instead of green.
 
+#### Resolved Task <a name="e60e9015-aa0c-49ed-abf4-0e58c1585873"></a> 
+From context menu can send an unassigned job to tasks complete without assigning it or resolving tasks - even though am only person in workspace.
+
 #### Resolved Task <a name="e80ece94-a27e-4f71-8849-554133591e00"></a> 
 On the overview of a job the number of resolved tasks should be a plain number instead of inside an orange chip.
 
@@ -247,6 +226,20 @@ Put in debug log statements to figure out when search bar is re-rendering and fl
 > ##### Subtask <a name="2e922336-b81d-49cb-853a-0e7f89942d95"></a> 
 Redo presentation of offline and have timer on it. See Gmail example - not nearly as big a message. Can simulate offline in Chrome devtools.
 
+#### Resolved Task <a name="bbe5eebd-10d3-4c1d-a4fa-cb7a75ae1538"></a> 
+On resolved tasks in overview do not show buttons to move to bugs as must be open to do that.
+
+
+
+
+Maybe don't show selector or anything as get "No open tasks" when try - either turn that off and allow or disallow any buttons that would arrive at that.
+
+#### Resolved Task <a name="b019ffb1-7558-48ac-8916-3482485860d4"></a> 
+When move job with question from assignee in regular view to Work Ready not prompted to resolve question and instead goes briefly till quick add wiped out.
+
+#### Resolved Task <a name="6f802862-2a5e-428a-a3a7-530455d4b794"></a> 
+Cannot link to resolved investible bugs - doesn't go to that section.
+
 #### Resolved Task <a name="3e5e867f-97a0-4156-93d1-ba8dbe4319a9"></a> 
 Remove explanation of views from intro to workspace screens.
 
@@ -275,6 +268,14 @@ Make In progress left most on both parent and child. Drop date on child - parent
 #### Resolved Task <a name="6cff6d27-fbd1-455e-a1ab-4ad8aeb59e1b"></a> 
 Make solo demo single view only.
 
+#### Resolved Task <a name="da760056-b86d-42ef-b830-97d1f17019b9"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/102fb8cb-439c-470d-bf57-02c62b3dae35.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+In a team view so should have Add with voting button available. **Plus errors out if hit Configure voting button.**
+
 #### Resolved Task <a name="cb34dbe5-e22d-46aa-99f8-232cb75191ca"></a> 
 Reply linking icon is in corner but for comment is in middle. Too confusing. Probably reply one should move to middle cause as it is looks like the avatar for the name which it isn't.
 
@@ -293,6 +294,17 @@ Colors have to match the status screen - red for new and orange for not.
 
 
 If orange doesn't work then change it in both places but must match - no new colors for the same info.
+
+#### Resolved Task <a name="5aaf01ec-a15e-4732-8c23-6c15c05b6dee"></a> 
+Edit a subtask header - should say subtask instead of reply and don't need author on either since only author of both can edit.
+
+
+
+
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/a1320ce4-4200-434e-99e7-eda11fe4916d.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+#### Resolved Task <a name="61a70e37-6cc3-41d4-9c64-6df09d309c8c"></a> 
+Context menu for Not Ready backlog does not include Not Doing.
 
 #### Resolved Task <a name="537c9d78-ca5e-4976-81d4-bbec1412667b"></a> 
 Have an upgrade script that removes all notifications associated with unused older demo versions.
@@ -318,6 +330,116 @@ Button on the question that generates AI prompt onto the clipboard. Probably ski
 ### Fix documentation for CLI - code todos, report markdown, and export.
 #### Resolved Task <a name="0e75a3a0-c66b-442f-b858-f8edc756f4c4"></a> 
 In documentation explain how to use views and is public so that only what you want to show displays.
+
+## Job <a name="c0f0c729-a4bf-4ee0-b0ba-5a7199cc754b"></a>
+### More landing page fixes
+1. Smaller pictures on above the fold so doesn't look low res and so that on mac the button and text can be put back on the side - MAKE SURE the top menu doesn't disappear when click on it as now after do that
+2. Open documentation and blog inside a frame so that don't leave main website - remove links on those that go to each other or main website OR remove header on those altogether
+
+#### Resolved Task <a name="66ac8010-9450-44a3-9ff6-854500efd572"></a> 
+Remove outer scrolling on a frame.
+
+#### Resolved Task <a name="94730e8c-2015-4a5f-841c-769e9530a994"></a> 
+If click pricing first then hash #pricing stays on URL when go to documentation.
+
+#### Resolved Task <a name="0c39c6f1-3ce4-4048-8a6d-d884d47bd9b7"></a> 
+See if there is a way to produce a higher quality screenshot - SVG?
+
+
+
+
+Current statusAutonomous.png: PNG image data, 1647 x 936, 8-bit/color RGBA, non-interlaced
+
+
+
+
+New statusShot.jpeg: JPEG image data, JFIF standard 1.01, aspect ratio, density 1x1, segment length 16, baseline, precision 8, 3840x2160, components 3
+
+
+
+
+So literally not enough pixels in the existing and must redo.
+
+> ##### Subtask <a name="0f33ab5f-ab12-4908-9a36-c8d6c13a51c0"></a> 
+Try higher screen resolution in dev tools like this says <https://docshound.com/blog/capturing-premium-product-screenshots> - now after setup:
+
+
+
+
+CTRL+Shift+P and then type screenshots and choose node one.
+
+
+
+
+Using zoom at 117 for most.
+
+#### Resolved Task <a name="821677c6-e682-4471-b219-9c14295f2d36"></a> 
+Smaller pictures on above the fold so doesn't look low res and so that on mac the button and text can be put back on the side - MAKE SURE the top menu doesn't disappear when click on it as now after do that
+
+#### Resolved Task <a name="f2960e96-c14c-4d98-b0e6-8537ef55de28"></a> 
+On documentation change:
+
+
+
+
+<div *id*="iframe-not-allowed-notice-kludge" *style*='margin-top: -50px;'></div>
+
+
+
+
+to be a class that only happens when not mobile.
+
+#### Resolved Task <a name="636997c6-c6bb-4bd1-919d-6ef63ba0a421"></a> 
+On mac when click the above the fold tab menu still snapping into place and screen jerks.
+
+
+
+
+**Might be the built in back to top on tab click - just remove logic if is.**
+
+#### Resolved Task <a name="60f7d932-b70d-4868-882b-7828ab6affe9"></a> 
+In iframe when click into blog have no way back - need to put back button somewhere (can show in both is fine).
+
+#### Resolved Task <a name="7565a128-9705-4112-97d7-aae0689d0a8c"></a> 
+May need to zoom in more to avoid being so small and unreadable- not sure how to do that with dev tools.
+
+
+
+
+From dev tools command menu select: Capture area screenshot
+
+#### Resolved Task <a name="3eed9c51-60f0-4cf3-ab9c-2bb2fd482d6a"></a> 
+Pictures in tip of spear blog must be hi res.
+
+#### Resolved Task <a name="6426369e-cbee-4f77-8ce8-f32a207321cd"></a> 
+Open documentation and blog inside a frame so that don't leave main website - remove links on those that go to each other or main website OR remove header on those altogether
+
+> ##### Subtask <a name="6ff29b3b-71be-4139-9f42-13d645659e75"></a> 
+Remove header and footer inside blog when in iframe.
+
+#### Resolved Task <a name="3de4278a-58ef-4109-959e-e984af2a36be"></a> 
+Since not showing header "All posts" no longer makes any sense in i-frame - drop it when in i-frame.
+
+#### Resolved Task <a name="d28876b3-3cd3-4f9e-8215-d95b68cbb881"></a> 
+Another go at fixing the space above search in iframe.
+
+
+
+
+However when click on some links like My work its not there and fix will mess up.
+
+
+
+
+**Not seeing this div when inspect - weird. Problem could be need more than -50px for above search or need padding -50px or something.**
+
+
+
+
+Could add div with color or words so can see what going on.
+
+#### Resolved Task <a name="b75d75b5-12fe-420e-b26b-32a34b92ab8f"></a> 
+On mobile break above the fold sentences so looks better
 
 ## Job <a name="7eb14a5f-49ad-408a-837d-e887fb55b90f"></a>
 ### Must be able to somehow get magic link users into a default view as do for...

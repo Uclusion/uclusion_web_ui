@@ -50,7 +50,6 @@ import { versionsUpdateMarketPresences } from '../contexts/MarketPresencesContex
 import { updateMarketStagesFromNetwork } from '../contexts/MarketStagesContext/marketStagesContextReducer';
 import { addGroupsToStorage } from '../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { versionsUpdateGroupMembers } from '../contexts/GroupMembersContext/groupMembersContextReducer';
-import { leaderContextHack } from '../contexts/LeaderContext/LeaderContext';
 
 const MAX_RETRIES = 10;
 const MAX_DRIFT_TIME = 300000;
@@ -102,10 +101,9 @@ export function startRefreshRunner() {
  * @returns {Promise<*>}
  */
 export function refreshVersions (dispatchers=undefined) {
-  const { isLeader } = leaderContextHack;
-  // Do not refresh till know if leader cause won't know if storing to disk or not
-  if (isSignedOut() || isLeader === undefined) {
-    console.info(`Not refreshing with is leader ${isLeader}`)
+  // Unless leader this refresh will only update memory and not disk - so safe
+  if (isSignedOut()) {
+    console.info('Not refreshing when signed out')
     return Promise.resolve(true); // also do nothing when signed out
   }
   return matchErrorHandlingVersionRefresh(true, dispatchers).then(() => {

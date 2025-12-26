@@ -746,7 +746,7 @@ function StageInvestible(props) {
           {messagesChip}
           {!_.isEmpty(doesRequireStatusMessage) && (
             <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
-            <span className={'MuiTabItem-tag'} style={{ marginRight: '0.5rem', marginTop: '-0.1rem' }} onClick={(event) => {
+            <span className={'MuiTabItem-tag'} style={{ marginRight: '0.5rem' }} onClick={(event) => {
                    if (isInInbox(doesRequireStatusMessage)) {
                      preventDefaultAndProp(event);
                      dehighlightMessage(doesRequireStatusMessage, messagesDispatch);

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useRef } from 'react'
 import { SearchIndexContext } from '../../contexts/SearchIndexContext/SearchIndexContext'
 import { InputAdornment, TextField, useMediaQuery, useTheme } from '@material-ui/core';
 import _ from 'lodash'
@@ -34,6 +34,7 @@ function SearchBox(props) {
   const [groupState] = useContext(MarketGroupsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const inputRef = React.useRef(null);
+  const timeoutRef = useRef(null);
   let searchedName = undefined;
   if (action !== 'groupEdit' && marketId && groupId) {
     const group = getGroup(groupState, marketId, groupId) || {};
@@ -116,23 +117,23 @@ function SearchBox(props) {
     });
   }
 
-  let timeout;
-
   function onSearchChange (event) {
     const { value } = event.target;
-    if (timeout) {
-      clearTimeout(timeout);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-    timeout = setTimeout(function () {
+    timeoutRef.current = setTimeout(function () {
       updateIndex(value);
     }, 2000);
   }
 
   function clearSearch() {
-    if (timeout) {
-      clearTimeout(timeout);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-    inputRef.current.value = '';
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
     setSearchResults({
       search: '',
       results: [],
@@ -144,10 +145,14 @@ function SearchBox(props) {
     <div id='search-box' onClick={(event) => event.stopPropagation()}
          style={{flex: 1, maxWidth: mobileLayout ? undefined : '800px'}}>
       <TextField
-        style={{backgroundColor: 'white', width: '100%', minWidth: mobileLayout ? '10rem' : '15rem'}}
+        variant="outlined"
+        style={{width: '100%', minWidth: mobileLayout ? '10rem' : '15rem'}}
         onChange={onSearchChange}
         onKeyDown={(ev) => {
           if (ev.key === 'Enter') {
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
             updateIndex(ev.target.value);
             ev.preventDefault();
           }
@@ -160,16 +165,15 @@ function SearchBox(props) {
         defaultValue={searchResults.search}
         InputProps={{
           startAdornment: (
-            mobileLayout ? undefined :
             <InputAdornment position="start">
-              <SearchIcon />
+              <SearchIcon color="action" />
             </InputAdornment>
           ),
           endAdornment: (
             _.isEmpty(searchResults.search) ? undefined :
             <InputAdornment style={{cursor: 'pointer'}}
                             onClick={clearSearch} position="end">
-              <CloseIcon htmlColor='black' />
+              <CloseIcon color="action" />
             </InputAdornment>
           ),
         }}
@@ -178,8 +182,12 @@ function SearchBox(props) {
   );
 }
 
-SearchBox.prototypes = {
-  disableSearch: PropTypes.bool
+SearchBox.propTypes = {
+  disableSearch: PropTypes.bool,
+  marketId: PropTypes.string,
+  investibleId: PropTypes.string,
+  action: PropTypes.string,
+  groupId: PropTypes.string
 }
 
 SearchBox.defaultProps = {

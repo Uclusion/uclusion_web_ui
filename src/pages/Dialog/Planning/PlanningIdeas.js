@@ -619,7 +619,7 @@ function StageInvestible(props) {
       return (
         <Tooltip title={intl.formatMessage({ id: 'messagePresent' })}>
           <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
-            marginLeft: '1rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '5px',
+            marginRight: '0.5rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '5px',
             paddingTop: '2px', maxHeight: '20px'}}
                 onClick={(event) => {
                   preventDefaultAndProp(event);
@@ -644,7 +644,7 @@ function StageInvestible(props) {
     }
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
-        <span className={'MuiTabItem-tag'} style={{backgroundColor: COUNT_COLOR, marginLeft: '1rem', color: 'white',
+        <span className={'MuiTabItem-tag'} style={{backgroundColor: COUNT_COLOR, marginRight: '0.5rem', color: 'white',
           borderRadius: 22, paddingLeft: '6px', paddingRight: '5px', paddingTop: '2px', maxHeight: '20px'}}>
           {labelNum} {intl.formatMessage({ id: 'open' })}
         </span>
@@ -692,20 +692,20 @@ function StageInvestible(props) {
         <div style={{display: 'flex', marginBottom: '0.35rem'}}>
           {!unaccepted && (isVoting || isReview) &&
             !_.isEmpty(collaboratorsForInvestible.filter((collaborator) => !assigned?.includes(collaborator.id))) && (
-              <div>
+              <div style={{marginRight: '0.5rem'}}>
                 <GravatarGroup users={collaboratorsForInvestible} gravatarClassName={classes.smallGravatar} />
               </div>
             )}
           {!unaccepted && ((isVoting && _.isEmpty(otherVoter)) || isReview) && (
-            <div>
-              <Typography style={{fontSize: '.75rem', marginLeft: '0.5rem'}}>
+            <div style={{marginRight: '0.5rem'}}>
+              <Typography style={{fontSize: '.75rem'}}>
                 {isVoting ? <span style={{color: COUNT_COLOR}}>Paused</span> : <span style={{color: 'green'}}>Complete</span>} <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/>
               </Typography>
             </div>
           )}
           {!unaccepted && isVoting && !_.isEmpty(otherVoter) && (
-            <div>
-              <Typography style={{fontSize: '.85rem', marginLeft: '0.5rem', color: COUNT_COLOR}}>
+            <div style={{marginRight: '0.5rem'}}>
+              <Typography style={{fontSize: '.85rem', color: COUNT_COLOR}}>
                 {_.size(investors)} {intl.formatMessage({ id: 'approvalsLower' })}
               </Typography>
             </div>
@@ -714,14 +714,14 @@ function StageInvestible(props) {
             <Tooltip
               title={intl.formatMessage({ id: 'planningAcceptExplanation' })}
             >
-              <div className={planClasses.daysEstimation} style={{wordWrap: 'normal'}}>
+              <div className={planClasses.daysEstimation} style={{wordWrap: 'normal', marginRight: '0.5rem'}}>
                 <FormattedMessage id='planningUnacceptedLabel' />
               </div>
             </Tooltip>
           )}
           {hasDaysEstimate && (
             <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? COUNT_COLOR: undefined,
-              cursor: unreadEstimate ? 'pointer' : undefined }}
+              cursor: unreadEstimate ? 'pointer' : undefined, marginRight: '0.5rem' }}
                  onClick={(event) => {
                    if (unreadEstimate) {
                      preventDefaultAndProp(event);
@@ -739,14 +739,14 @@ function StageInvestible(props) {
             </div>
           )}
           {ticketNumber && (
-            <div style={{whiteSpace: 'nowrap', fontSize: '.75rem', marginLeft: '0.5rem'}}>
+            <div style={{whiteSpace: 'nowrap', fontSize: '.75rem', marginRight: '0.5rem'}}>
               {ticketNumber}
             </div>
           )}
           {messagesChip}
           {!_.isEmpty(doesRequireStatusMessage) && (
             <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
-            <span className={'MuiTabItem-tag'} style={{ marginLeft: '1rem', marginTop: '-0.1rem' }} onClick={(event) => {
+            <span className={'MuiTabItem-tag'} style={{ marginRight: '0.5rem', marginTop: '-0.1rem' }} onClick={(event) => {
                    if (isInInbox(doesRequireStatusMessage)) {
                      preventDefaultAndProp(event);
                      dehighlightMessage(doesRequireStatusMessage, messagesDispatch);
@@ -760,14 +760,14 @@ function StageInvestible(props) {
           )}
           {countChip}
           {!countChip && showCompletion && (
-            <div>
-              <Typography style={{fontSize: '.75rem', marginLeft: '0.5rem'}}>
+            <div style={{marginRight: '0.5rem'}}>
+              <Typography style={{fontSize: '.75rem'}}>
                 Approved <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/>
               </Typography>
             </div>
           )}
         </div>
-        <div id={`planningIdea${id}`} style={{display: 'flex', paddingBottom: '0.5rem', paddingTop: '0.5rem'}}>
+        <div id={`planningIdea${id}`} style={{display: 'flex', paddingBottom: '0.7rem', paddingTop: '0.7rem'}}>
           <StageLink
             href={to}
             id={id}
@@ -779,7 +779,7 @@ function StageInvestible(props) {
           >
             <Typography color='initial' variant="subtitle2">{name}</Typography>
             {!_.isEmpty(label) && (
-              <div key={label} style={{paddingTop: '0.5rem', cursor: 'pointer'}} onClick={(event) => {
+              <div key={label} style={{paddingTop: '0.7rem', cursor: 'pointer'}} onClick={(event) => {
                 preventDefaultAndProp(event);
                 navigate(history, `${formInvestibleLink(marketId, investible.id)}#approve`);
               }}>

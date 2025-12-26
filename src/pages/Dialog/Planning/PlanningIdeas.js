@@ -689,7 +689,7 @@ function StageInvestible(props) {
              navigate(history, `${formInvestibleLink(marketId, investible.id)}#investible-header`);
            }}
       >
-        <div style={{display: 'flex', marginBottom: '0.35rem'}}>
+        <div style={{display: 'flex', alignItems: 'center', marginTop: '0.35rem', marginBottom: '0.35rem'}}>
           {!unaccepted && (isVoting || isReview) &&
             !_.isEmpty(collaboratorsForInvestible.filter((collaborator) => !assigned?.includes(collaborator.id))) && (
               <div style={{marginRight: '0.5rem'}}>

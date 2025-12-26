@@ -111,7 +111,7 @@ function ArchiveInvestible(props) {
           <Link href={formInvestibleLink(marketId, id)} color="inherit" style={{cursor: inArchives ? 'pointer' : 'grab'}}>
             <div className={classes.outlined}>
               {viewIndicator}
-              <div style={{display: 'flex', alignItems: 'center'}}>
+              <div style={{display: 'flex', alignItems: 'center', marginTop: '0.35rem'}}>
                 {TypeIconList.map((item) => {
                   const { TypeIcon, typeExplanation, myMessage, myLink } = item;
                   return (<div

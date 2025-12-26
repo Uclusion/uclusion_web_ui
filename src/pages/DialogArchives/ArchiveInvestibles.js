@@ -138,8 +138,8 @@ function ArchiveInvestible(props) {
                 })}
                 {inAssist && (
                   <div>
-                    <Typography style={{fontSize: '.75rem'}}>
-                      Assistance <UsefulRelativeTime value={enteredStageAt}/>
+                    <Typography style={{fontSize: '.75rem', paddingLeft: '0.5rem'}}>
+                     <UsefulRelativeTime value={enteredStageAt}/>
                     </Typography>
                   </div>
                 )}
@@ -149,7 +149,7 @@ function ArchiveInvestible(props) {
                   </div>
                 )}
               </div>
-              <p style={{paddingTop: '0.5rem', maxWidth: '16rem',  wordBreak: 'break-all'}}>
+              <p style={{paddingTop: '0.5rem', paddingBottom: '0.5rem', maxWidth: '16rem',  wordBreak: 'break-all'}}>
                 {name}
               </p>
               {!isSingleUser && assignedNames.map((name) => (<Typography

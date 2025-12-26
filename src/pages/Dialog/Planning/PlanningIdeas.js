@@ -699,13 +699,13 @@ function StageInvestible(props) {
           {!unaccepted && ((isVoting && _.isEmpty(otherVoter)) || isReview) && (
             <div>
               <Typography style={{fontSize: '.75rem', marginLeft: '0.5rem'}}>
-                {isVoting ? 'Paused' : 'Complete'} <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/>
+                {isVoting ? <span style={{color: COUNT_COLOR}}>Paused</span> : <span style={{color: 'green'}}>Complete</span>} <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/>
               </Typography>
             </div>
           )}
           {!unaccepted && isVoting && !_.isEmpty(otherVoter) && (
             <div>
-              <Typography style={{fontSize: '.75rem', marginLeft: '0.5rem'}}>
+              <Typography style={{fontSize: '.85rem', marginLeft: '0.5rem', color: COUNT_COLOR}}>
                 {_.size(investors)} {intl.formatMessage({ id: 'approvalsLower' })}
               </Typography>
             </div>
@@ -720,7 +720,7 @@ function StageInvestible(props) {
             </Tooltip>
           )}
           {hasDaysEstimate && (
-            <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? '#F29100': undefined,
+            <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? COUNT_COLOR: undefined,
               cursor: unreadEstimate ? 'pointer' : undefined }}
                  onClick={(event) => {
                    if (unreadEstimate) {
@@ -767,7 +767,7 @@ function StageInvestible(props) {
             </div>
           )}
         </div>
-        <div id={`planningIdea${id}`} style={{display: 'flex', paddingTop: `${(countChip || messagesChip) ? '0rem' : '0.5rem'}`}}>
+        <div id={`planningIdea${id}`} style={{display: 'flex', paddingBottom: '0.5rem', paddingTop: '0.5rem'}}>
           <StageLink
             href={to}
             id={id}

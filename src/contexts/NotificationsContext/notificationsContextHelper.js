@@ -45,7 +45,7 @@ export function dehighlightMessage(message, messagesDispatch, isPromise=false) {
       return getMarketClient(message.market_id).then((client) =>
         client?.users.dehighlightNotifications(typeObjectIds)).then(() => messagesDispatch(dehighlightMessages(typeObjectIds, true)));
     }
-    messagesDispatch(dehighlightMessages(typeObjectIds, false));
+    messagesDispatch(dehighlightMessages(typeObjectIds));
   }
 }
 

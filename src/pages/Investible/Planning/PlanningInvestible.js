@@ -1128,8 +1128,8 @@ export function Assignments(props) {
                 {unaccceptedMessage && (
                   <TooltipIconButton
                     onClick={() => {
-                      dehighlightMessage(unaccceptedMessage, messagesDispatch);
-                      navigate(history, formInboxItemLink(unaccceptedMessage));
+                      return dehighlightMessage(unaccceptedMessage, messagesDispatch, true)
+                      .then(() => navigate(history, formInboxItemLink(unaccceptedMessage)));
                     }}
                     icon={<Notifications fontSize='small' 
                       htmlColor={unaccceptedMessage.is_highlighted ? WARNING_COLOR : undefined} />}

@@ -623,6 +623,7 @@ function StageInvestible(props) {
             paddingTop: '2px', maxHeight: '20px'}}
                 onClick={(event) => {
                   preventDefaultAndProp(event);
+                  // TODO same here 
                   dehighlightMessage(myMessage, messagesDispatch);
                   navigate(history, formInboxItemLink(myMessage));
                 }}
@@ -725,6 +726,7 @@ function StageInvestible(props) {
                  onClick={(event) => {
                    if (unreadEstimate) {
                      preventDefaultAndProp(event);
+                     // TODO same here 
                      dehighlightMessage(unreadEstimate, messagesDispatch);
                      navigate(history, formInboxItemLink(unreadEstimate));
                    }
@@ -749,8 +751,8 @@ function StageInvestible(props) {
             <span className={'MuiTabItem-tag'} style={{ marginRight: '0.5rem', paddingTop: '0.25rem' }} onClick={(event) => {
                    if (isInInbox(doesRequireStatusMessage)) {
                      preventDefaultAndProp(event);
-                     dehighlightMessage(doesRequireStatusMessage, messagesDispatch);
-                     navigate(history, formInboxItemLink(doesRequireStatusMessage));
+                     return dehighlightMessage(doesRequireStatusMessage, messagesDispatch, true)
+                     .then(() => navigate(history, formInboxItemLink(doesRequireStatusMessage)));
                    }
                  }}
             >

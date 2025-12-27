@@ -47,10 +47,11 @@ export function addNavigation(url, allExistingUrls) {
   }
 }
 
-export function dehighlightMessages(messages) {
+export function dehighlightMessages(messages, isPromise=false) {
   return {
     type: DEHIGHLIGHT_MESSAGES,
-    messages
+    messages,
+    isPromise
   }
 }
 
@@ -275,8 +276,9 @@ function storeStatePromise(action, newState) {
 }
 
 function reducer (state, action) {
+  // If isPromise is true, we don't need to kludge removing or dehighlighting because the upper level promise will handle it
   const isDehighilightRemove = [DEHIGHLIGHT_MESSAGES, DEHIGHLIGHT_CRITICAL_MESSAGE,
-    REMOVE_MESSAGES].includes(action.type);
+    REMOVE_MESSAGES].includes(action.type) && action.isPromise !== true;
   if (isDehighilightRemove) {
     if (action.type === DEHIGHLIGHT_CRITICAL_MESSAGE) {
       const { message: rollupTypeObjectId, originalMessage } = action;

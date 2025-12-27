@@ -159,8 +159,7 @@ function Voting(props) {
           const isYourVote = userId === yourPresence.id;
           const myMessage = findMessageByInvestmentUserId(userId, investibleId, messagesState);
           const notificationFunc = !isInbox && myMessage?.type_object_id ? () => {
-            dehighlightMessage(myMessage, messagesDispatch);
-            navigate(history, formInboxItemLink(myMessage));
+            return dehighlightMessage(myMessage, messagesDispatch, true).then(() => navigate(history, formInboxItemLink(myMessage)));
           } : undefined;
           const reason = investmentReasons.find((comment) => comment.id === commentId);
           const voteId = `cv${userId}`;

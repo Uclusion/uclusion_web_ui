@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
-import { Button, Tooltip, makeStyles } from '@material-ui/core';
+import { Button, IconButton, Tooltip, makeStyles, useMediaQuery, useTheme } from '@material-ui/core';
 import { ArrowForward } from '@material-ui/icons';
 import {
   ASSIGNED_HASH,
@@ -79,6 +79,8 @@ export default function NavigationChevrons(props) {
   const classes = useStyles();
   const history = useHistory();
   const intl = useIntl();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { action, pathInvestibleId, defaultMarket, chosenGroup, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
     useLink, typeObjectId } = props;
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -210,12 +212,13 @@ export default function NavigationChevrons(props) {
   }
 
   function doNextNavigation() {
-    if (nextUrl.message) {
-      dehighlightMessage(nextUrl.message, messagesDispatch);
-    }
     // Add the current resource so that it can be matched with a candidate for time and previous can return to it
     messagesDispatch(addNavigation(resource, allExistingUrls));
     messagesDispatch(addNavigation(nextUrl.url, allExistingUrls));
+    if (nextUrl.message) {
+      // TODO THIS is a button so send all of this off and then return promise to send dehighlight message
+      return dehighlightMessage(nextUrl.message, messagesDispatch, true).then(() => navigate(history, nextUrl.useUrl || nextUrl.url));
+    }
     navigate(history, nextUrl.useUrl || nextUrl.url);
   }
 
@@ -233,8 +236,15 @@ export default function NavigationChevrons(props) {
     return React.Fragment;
   }
 
-  const buttonContent = (
-    <Button
+  const buttonContent = mobileLayout ? (
+    <IconButton
+      disabled={nextDisabled}
+      className={classes.magicButton}
+      onClick={doNextNavigation}
+    > <ArrowForward htmlColor={nextDisabled ? 'disabled' :
+      (nextHighlighted ? WARNING_COLOR : 'black')} />
+    </IconButton>
+  ) : <Button
       variant="outlined"
       disabled={nextDisabled}
       onClick={doNextNavigation}
@@ -243,8 +253,7 @@ export default function NavigationChevrons(props) {
         (nextHighlighted ? WARNING_COLOR : 'black')} />}
     >
       Next {nextUrl?.title || ''}
-    </Button>
-  );
+    </Button>;
   const toolTipTitle = <div><p>{intl.formatMessage({ id: 'nextNavigation' })}</p>
   <p>{intl.formatMessage({ id: 'previousNavigation' })}</p>
   <p>{intl.formatMessage({ id: 'upNavigation' })}</p></div>;

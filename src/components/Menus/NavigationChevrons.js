@@ -211,15 +211,18 @@ export default function NavigationChevrons(props) {
     }
   }
 
-  function doNextNavigation() {
+  function finishNavigation() {
     // Add the current resource so that it can be matched with a candidate for time and previous can return to it
     messagesDispatch(addNavigation(resource, allExistingUrls));
     messagesDispatch(addNavigation(nextUrl.url, allExistingUrls));
-    if (nextUrl.message) {
-      // TODO THIS is a button so send all of this off and then return promise to send dehighlight message
-      return dehighlightMessage(nextUrl.message, messagesDispatch, true).then(() => navigate(history, nextUrl.useUrl || nextUrl.url));
-    }
     navigate(history, nextUrl.useUrl || nextUrl.url);
+  }
+
+  function doNextNavigation() {
+    if (nextUrl.message) {
+      return dehighlightMessage(nextUrl.message, messagesDispatch, true).then(() => finishNavigation());
+    }
+    finishNavigation();
   }
 
   useHotkeys('ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled, enableOnContentEditable: true},

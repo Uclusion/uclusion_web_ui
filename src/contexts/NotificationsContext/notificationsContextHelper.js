@@ -39,13 +39,13 @@ function checkComment(commentId, commentVersion, marketId, commentsState, childI
 
 export function dehighlightMessage(message, messagesDispatch, isPromise=false) {
   if (message.type !== UNASSIGNED_TYPE) {
-    const typeObjectIds = [message.type_object_id];
     // Handle unassigned on the triage page after render or else default open row breaks
-    messagesDispatch(dehighlightMessages(typeObjectIds, isPromise));
+    const typeObjectIds = [message.type_object_id];
     if (isPromise) {
       return getMarketClient(message.market_id).then((client) =>
-        client?.users.dehighlightNotifications(typeObjectIds));
+        client?.users.dehighlightNotifications(typeObjectIds)).then(() => messagesDispatch(dehighlightMessages(typeObjectIds, true)));
     }
+    messagesDispatch(dehighlightMessages(typeObjectIds, false));
   }
 }
 

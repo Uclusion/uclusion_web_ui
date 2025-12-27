@@ -1,9 +1,7 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router';
 import { formInvestibleLink, formMarketLink, navigate } from '../../utils/marketIdPathFunctions';
-import { ArrowUpward } from '@material-ui/icons';
 import { getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
-import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
 import _ from 'lodash';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { SUPPORT_SUB_TYPE } from '../../constants/markets';
@@ -12,7 +10,6 @@ import { usePresences } from '../../contexts/MarketPresencesContext/marketPresen
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
-import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
 
 function ReturnTop(props) {
   const { action, pathInvestibleId, market, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,

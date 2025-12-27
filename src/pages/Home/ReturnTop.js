@@ -64,12 +64,7 @@ function ReturnTop(props) {
   useHotkeys('ctrl+arrowUp', goUp, {enabled: !upDisabled, enableOnContentEditable: true},
     [history, useLink, upFromConfigPossible, marketId, action, hashInvestibleId, activeGroupId]);
 
-  return (
-    <div style={{marginRight: '0.5rem', marginLeft: '0.5rem', marginBottom: '0.5rem'}}>
-      <TooltipIconButton disabled={upDisabled} icon={<ArrowUpward htmlColor={upDisabled ? 'disabled' : ACTION_BUTTON_COLOR} />}
-                         onClick={goUp} translationId="upNavigation" />
-    </div>
-  );
+  return React.Fragment;
 
 }
 

@@ -33,6 +33,7 @@ import { useIntl } from 'react-intl'
 import WorkspaceMenu from '../../pages/Home/WorkspaceMenu'
 import {
   COMPOSE_WIZARD_TYPE,
+  DEMO_TYPE,
   PLANNING_TYPE
 } from '../../constants/markets';
 import {
@@ -253,8 +254,9 @@ export function getSidebarGroups(navListItemTextArray, groupsState, marketPresen
         num = groupMessages.length;
       }
     }
+    const groupName = market.object_type === DEMO_TYPE && group.name === 'Single' && isGravatarDisplay ? singlePresence.name : group.name;
     return {icon: myIcon, complexIcon: isGravatarDisplay, endIcon: outsetAvailable ? MoreVert : undefined,
-      text: group.name, num, numSuffix,
+      text: groupName, num, numSuffix,
       isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
       isBlue: groupId === group.id || pathname === '/',
       resetFunction: isChosen ? resetFunction : undefined,

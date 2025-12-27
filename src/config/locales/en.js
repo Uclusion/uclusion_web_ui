@@ -290,9 +290,9 @@ const messages = defineMessages({
   closedComments: 'Resolved',
   commentReplyEdit: 'Comment Edit',
   labels: 'Labels',
-  previousNavigation: 'ctrl+arrowLeft Go to previous navigation',
-  nextNavigation: 'ctrl+arrowRight Go to what most likely needs doing',
-  upNavigation: 'ctrl+arrowUp Go up one level',
+  previousNavigation: 'ctrl+arrowLeft go to previous navigation',
+  nextNavigation: 'ctrl+arrowRight or this button goes to likely next',
+  upNavigation: 'ctrl+arrowUp go up one level',
   up: 'Up',
 
   //Inbox notification titles

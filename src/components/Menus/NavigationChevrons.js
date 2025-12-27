@@ -1,9 +1,7 @@
 import React, { useContext } from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
-import {
-  ArrowBack,
-  ArrowForward
-} from '@material-ui/icons';
+import { Button, Tooltip, makeStyles } from '@material-ui/core';
+import { ArrowForward } from '@material-ui/icons';
 import {
   ASSIGNED_HASH,
   formatGroupLinkWithSuffix,
@@ -12,7 +10,7 @@ import {
   formInvestibleLink, formMarketLink,
   navigate
 } from '../../utils/marketIdPathFunctions';
-import TooltipIconButton from '../Buttons/TooltipIconButton';
+import { useIntl } from 'react-intl';
 import { useHistory, useLocation } from 'react-router';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import {
@@ -38,29 +36,49 @@ import { SearchResultsContext } from '../../contexts/SearchResultsContext/Search
 import { findMessagesForTypeObjectId } from '../../utils/messageUtils';
 import { getOpenInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { ACTION_BUTTON_COLOR, WARNING_COLOR } from '../Buttons/ButtonConstants';
+import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { REPLY_TYPE } from '../../constants/comments';
 import { getGroupPresences, getMarketPresences, isAutonomousGroup } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import ReturnTop from '../../pages/Home/ReturnTop';
 import { getCurrentWorkspace } from '../../utils/redirectUtils';
 
+const useStyles = makeStyles(() => ({
+  magicButton: {
+    textTransform: 'none',
+    borderRadius: '8px',
+    padding: '6px 16px',
+    backgroundColor: 'white',
+    transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
+    '&:hover': {
+      backgroundColor: '#2F80ED',
+      color: 'white',
+      boxShadow: '0 2px 8px rgba(255, 255, 255, 0.15)'
+    },
+    '&:disabled': {
+      backgroundColor: 'transparent'
+    }
+  }
+}));
+
 function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
-  const candidate = {url: formInvestibleLink(market.id, investible.investible.id)};
+  const candidate = {url: formInvestibleLink(market.id, investible.investible.id), title: 'job'};
   const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
   candidate.time = candidateMeta?.time || 0;
   return candidate;
 }
 
 function getGroupCandidate(group, market, navigations) {
-  const candidate = {url: formMarketLink(market.id, group.id), useUrl: formatGroupLinkWithSuffix(ASSIGNED_HASH, market.id, group.id)};
+  const candidate = {url: formMarketLink(market.id, group.id), useUrl: formatGroupLinkWithSuffix(ASSIGNED_HASH, market.id, group.id), title: 'view'};
   const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
   candidate.time = candidateMeta?.time || 0;
   return candidate;
 }
 
 export default function NavigationChevrons(props) {
+  const classes = useStyles();
   const history = useHistory();
+  const intl = useIntl();
   const { action, pathInvestibleId, defaultMarket, chosenGroup, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
     useLink, typeObjectId } = props;
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -120,6 +138,7 @@ export default function NavigationChevrons(props) {
       // Only interested in in progress because if want not in progress choose it from swimlanes
       if (inProgress) {
         candidate.useUrl = formCommentLink(market.id, inProgress.group_id, inProgress.investible_id, inProgress.id);
+        candidate.title = 'task';
         approvedCandidates.push(candidate);
       }
     });
@@ -135,7 +154,7 @@ export default function NavigationChevrons(props) {
     if (isMarketLoad) {
       const marketId = getCurrentWorkspace();
       if (marketId) {
-        return {url: formMarketLink(marketId, marketId), message: undefined, isHighlighted: true};
+        return {url: formMarketLink(marketId, marketId), message: undefined, isHighlighted: true, title: 'view'};
       }
     }
     if (isOnUreadGroupNotification) {
@@ -144,7 +163,7 @@ export default function NavigationChevrons(props) {
       const groupMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${groupId}`, messagesState);
       if (groupMessage) {
         return {
-          url: formMarketLink(groupMessage.market_id, groupId), message: groupMessage,
+          url: formMarketLink(groupMessage.market_id, groupId), message: groupMessage, title: 'view',
           isHighlighted: groupMessage.is_highlighted
         };
       }
@@ -158,7 +177,7 @@ export default function NavigationChevrons(props) {
       ['desc', 'asc', 'desc']);
     if (!_.isEmpty(highlightedOrdered)) {
       const message = highlightedOrdered[0];
-      return {url: formInboxItemLink(message), message, isHighlighted: true};
+      return {url: formInboxItemLink(message), message, isHighlighted: true, title: 'message'};
     }
 
     if (!_.isEmpty(approvedCandidates)) {
@@ -167,7 +186,7 @@ export default function NavigationChevrons(props) {
       // Allowed to go to previous here so can cycle through in progress assignments
       const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource);
       if (approvedNext) {
-        return {url: approvedNext.url, useUrl: approvedNext.useUrl};
+        return {url: approvedNext.url, useUrl: approvedNext.useUrl, title: approvedNext.title};
       }
     }
     return {};
@@ -204,26 +223,41 @@ export default function NavigationChevrons(props) {
     [history, nextUrl.message, nextUrl.url]);
   useHotkeys('ctrl+arrowLeft', doPreviousNavigation,
     {enabled: !backDisabled, enableOnContentEditable: true}, [history, previous?.url]);
+  // To make up arrow navigation work
+  const returnTop = <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket}
+            isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId}
+            groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>;
 
   if (!_.isEmpty(searchText)) {
     // Otherwise too confusing and think next goes to next item found or something
     return React.Fragment;
   }
 
+  const buttonContent = (
+    <Button
+      variant="outlined"
+      disabled={nextDisabled}
+      onClick={doNextNavigation}
+      className={classes.magicButton}
+      endIcon={<ArrowForward htmlColor={nextDisabled ? 'disabled' :
+        (nextHighlighted ? WARNING_COLOR : 'black')} />}
+    >
+      Next {nextUrl?.title || ''}
+    </Button>
+  );
+  const toolTipTitle = <div><p>{intl.formatMessage({ id: 'nextNavigation' })}</p>
+  <p>{intl.formatMessage({ id: 'previousNavigation' })}</p>
+  <p>{intl.formatMessage({ id: 'upNavigation' })}</p></div>;
   return (
-        <Toolbar>
-          <TooltipIconButton disabled={backDisabled}
-                             icon={<ArrowBack htmlColor={backDisabled ? 'disabled' : ACTION_BUTTON_COLOR} />}
-                             onClick={doPreviousNavigation} translationId="previousNavigation" />
-          <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket}
-            isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId}
-            groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>
-          <TooltipIconButton disabled={nextDisabled}
-                             icon={<ArrowForward htmlColor={nextDisabled ? 'disabled' :
-                               (nextHighlighted ? WARNING_COLOR : ACTION_BUTTON_COLOR)} />}
-                             onClick={doNextNavigation}
-                             translationId="nextNavigation" />
-        </Toolbar>
-
+    <>
+    <Toolbar>
+      {nextDisabled ? buttonContent : (
+        <Tooltip title={toolTipTitle}>
+          {buttonContent}
+        </Tooltip>
+      )}
+    </Toolbar>
+    {returnTop}
+    </>
   );
 }

@@ -285,9 +285,11 @@ function reducer (state, action) {
       const { messages: existingMessages } = state;
       const message = existingMessages?.find((message) => message.type_object_id === rollupTypeObjectId);
       if (message) {
-        getMarketClient(message.market_id).then((client) =>
-          client?.users.dehighlightNotifications([originalMessage]))
-          .then(() => storeStatePromise(action, computeNewState(state, action)));
+        setTimeout(() => {
+          getMarketClient(message.market_id).then((client) =>
+            client?.users.dehighlightNotifications([originalMessage]))
+            .then(() => storeStatePromise(action, computeNewState(state, action)));
+        }, 0);
       }
     } else {
       const { messages, message } = action;
@@ -313,18 +315,24 @@ function reducer (state, action) {
       }
       Object.keys(allMessages).forEach((key) => {
         if (action.type === REMOVE_MESSAGES) {
-          getMarketClient(key).then((client) => client?.users.removeNotifications(allMessages[key])).then(() =>
-            storeStatePromise(action, computeNewState(state, action)));
+          setTimeout(() => {
+            getMarketClient(key).then((client) => client?.users.removeNotifications(allMessages[key])).then(() =>
+              storeStatePromise(action, computeNewState(state, action)));
+          }, 0);
         } else if (!_.isEmpty(allMessages[key])) {
-          getMarketClient(key).then((client) => client?.users.dehighlightNotifications(allMessages[key]))
-            .then(() => storeStatePromise(action, computeNewState(state, action)));
+          setTimeout(() => {
+            getMarketClient(key).then((client) => client?.users.dehighlightNotifications(allMessages[key]))
+              .then(() => storeStatePromise(action, computeNewState(state, action)));
+          }, 0);
         }
       });
     }
   }
   const newState = computeNewState(state, action);
   if (!isDehighilightRemove) {
-    storeStatePromise(action, newState);
+    setTimeout(() => {
+      storeStatePromise(action, newState);
+    }, 0);
   }
   return newState;
 }

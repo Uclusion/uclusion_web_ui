@@ -8,7 +8,6 @@ import { getGroup } from '../MarketGroupsContext/marketGroupsContextHelper';
 import { UNASSIGNED_TYPE } from '../../constants/notifications';
 import { dehighlightMessages } from './notificationsContextReducer';
 import { addWorkspaceGroupAttribute } from '../../pages/Home/YourWork/InboxContext';
-import { getMarketClient } from '../../api/marketLogin'
 
 function checkComment(commentId, commentVersion, marketId, commentsState, childId) {
   if (!commentId) {
@@ -41,10 +40,6 @@ export function dehighlightMessage(message, messagesDispatch, isPromise=false) {
   if (message.type !== UNASSIGNED_TYPE) {
     // Handle unassigned on the triage page after render or else default open row breaks
     const typeObjectIds = [message.type_object_id];
-    if (isPromise) {
-      return getMarketClient(message.market_id).then((client) =>
-        client?.users.dehighlightNotifications(typeObjectIds)).then(() => messagesDispatch(dehighlightMessages(typeObjectIds, true)));
-    }
     messagesDispatch(dehighlightMessages(typeObjectIds));
   }
 }

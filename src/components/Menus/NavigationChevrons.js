@@ -246,6 +246,7 @@ export default function NavigationChevrons(props) {
   ) : <Button
       variant="outlined"
       disabled={nextDisabled}
+      id="nextNavigation"
       onClick={doNextNavigation}
       className={classes.magicButton}
       endIcon={<ArrowForward htmlColor={nextDisabled ? 'disabled' :

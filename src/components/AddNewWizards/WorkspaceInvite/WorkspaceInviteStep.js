@@ -81,7 +81,7 @@ function WorkspaceInviteStep (props) {
       <div style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
         <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
           {checkMark}ctrl+arrowRight to go to what most likely needs doing
-          <div style={{ backgroundColor: INFO_COLOR, width: '10rem', height: '60px' }}>
+          <div style={{ backgroundColor: INFO_COLOR, width: '20rem', height: '60px' }}>
             <NavigationChevrons action='invite' defaultMarket={market} chosenGroup={market?.id} pathMarketIdRaw={market?.id} 
               isArchivedWorkspace={false}/></div>
           {!mobileLayout && (

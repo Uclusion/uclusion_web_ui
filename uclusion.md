@@ -1,12 +1,11 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| 01/01| [Fix documentation for CLI - code todos, report markdown, and export.](#310a063e-441f-4412-9d89-0b07f8fc4627)| Deployed to production |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [More landing page fixes](#c0f0c729-a4bf-4ee0-b0ba-5a7199cc754b)|  |
-| [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| | | [Must be able to somehow get magic link users into a default view as do for...](#7eb14a5f-49ad-408a-837d-e887fb55b90f)| Deployed to production |
-| | | | [CLI TODO fixes](#927f8039-c23a-427e-86e6-2f40100adc33)| Deployed to production |
-| | | | [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)|  |
-| | | | [Import / Export strategy and script.](#8c6374e6-2b2c-4b08-abdd-b6bec66c4f69)| Deployed to production |
-| | | | [See if React now supports a better way to keep a websocket open - otherwise...](#0119ab37-b6ed-432e-a05b-5a91e8e02393)| Deployed to production |
+| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| | | [Finish what started in dehighlightMessage so floating message processing...](#35fcebca-c6de-4ea7-a850-6ae647dfbf91)|  |
+| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| | | [More landing page fixes](#c0f0c729-a4bf-4ee0-b0ba-5a7199cc754b)|  |
+| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)|  |
+| [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| | | [Main page beautification.](#75ad865e-a3a7-4d48-9703-e9a900f8ff72)| Deployed to stage |
+| [More work on the landing page:](#7eac3364-a52a-47ac-8823-2be566506061)| | | |  |
+| [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| | | |  |
 ## Job <a name="f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f"></a>
 ### Better archive.
 
@@ -61,6 +60,12 @@ When resolve minor but on return arrive in critical bugs section.
 
 Also happening when move a bug to a job from a non critical section.
 
+#### Task <a name="da778633-d092-4486-b39c-0e9870887a7e"></a> 
+Search text doesn't change when go into job - still says view name.
+
+#### Task <a name="7a0e8e35-d10d-403e-aa5c-89cfe28fce04"></a> 
+When move from in approval to work ready on job I don't own it does not ask for reassignment to me. (Instead asks for approval.)
+
 #### Task <a name="90f611ac-c888-44be-86f8-98d215ca64a1"></a> 
 No up arrow when do search.
 
@@ -91,14 +96,6 @@ Why do you think it's by context updates? I instrumented the code, it's not goin
 
 #### Task <a name="5c9637a6-b94c-4a16-9aea-fe8bcc4d2cc0"></a> 
 Do the full context menu even if in swimlanes - no reason not to and now no stage header.
-
-#### Task <a name="b3ac8ea4-c96a-480a-98fb-c5f7a6a07815"></a> 
-Leader thing with two tabs seems broken - got:
-
-
-
-
-    Not refreshing with is leader undefined
 
 #### Resolved Task <a name="b5ca7cbe-704b-4cce-9e50-77834334f474"></a> 
 Count color not on bugs or backlog lists
@@ -268,6 +265,9 @@ Make In progress left most on both parent and child. Drop date on child - parent
 #### Resolved Task <a name="6cff6d27-fbd1-455e-a1ab-4ad8aeb59e1b"></a> 
 Make solo demo single view only.
 
+#### Resolved Task <a name="f9ce3d3e-7db4-42f6-9872-66a03e5e1729"></a> 
+Make the search bar look more standard - use AI if necessary.
+
 #### Resolved Task <a name="da760056-b86d-42ef-b830-97d1f17019b9"></a> 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/102fb8cb-439c-470d-bf57-02c62b3dae35.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
@@ -306,6 +306,14 @@ Edit a subtask header - should say subtask instead of reply and don't need autho
 #### Resolved Task <a name="61a70e37-6cc3-41d4-9c64-6df09d309c8c"></a> 
 Context menu for Not Ready backlog does not include Not Doing.
 
+#### Resolved Task <a name="b3ac8ea4-c96a-480a-98fb-c5f7a6a07815"></a> 
+Leader thing with two tabs seems broken - got:
+
+
+
+
+    Not refreshing with is leader undefined
+
 #### Resolved Task <a name="537c9d78-ca5e-4976-81d4-bbec1412667b"></a> 
 Have an upgrade script that removes all notifications associated with unused older demo versions.
 
@@ -326,10 +334,147 @@ Button on the question that generates AI prompt onto the clipboard. Probably ski
 
 ## Job <a name="a896d9fa-03bd-4f1d-aa18-48e6993fb1c2"></a>
 ### Use Cursor to help fix all console warnings.
-## Job <a name="310a063e-441f-4412-9d89-0b07f8fc4627"></a>
-### Fix documentation for CLI - code todos, report markdown, and export.
-#### Resolved Task <a name="0e75a3a0-c66b-442f-b858-f8edc756f4c4"></a> 
-In documentation explain how to use views and is public so that only what you want to show displays.
+## Job <a name="7eac3364-a52a-47ac-8823-2be566506061"></a>
+### More work on the landing page:
+[More work](https://www.reddit.com/r/roastmystartup/comments/1dyncmb/comment/lcbfdnp/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) on the landing page:
+
+
+
+
+Right off the bat, the website is painfully slow. It gets a performance score of 49 from Google's website performance test, which is a terrible result. A lot of people are going to just exit the website while it is still loading.
+
+On the over the fold area of the landing page, there are three moving elements, making the first impression busy and chaotic.
+
+Using light blue font over a white background for "sandbox demo" is awkward. The text is difficult to read and looks like a text link, while it's not.
+
+"Better than tickets" also looks like a text link with its underline effect, but again this is not a link. It's very confusing what elements here are clickable and which are not.
+
+There are so many font styles and effects that the entire thing looks very amateurish. For example, in the "Better than tickets" section, I can count 10 different font styles on one view. It looks like a collage kid who just learned CSS and realized the can use different font styles on a html page.
+
+The landing page keeps referring to a sandbox demo, but there is no link to it anywhere that I can see. And without it, I cannot really see how this thing works.
+
+This needs a lot of work.
+
+#### Task <a name="c3843400-5f48-4b2e-891b-a03be98e3bc8"></a> 
+Change existing landing, blog, and docs screenshots with swimlanes to new look.
+
+
+
+
+Change docs to explain keystrokes but no buttons for other two operations.
+
+
+
+
+Also on landing page have the screenshot be area instead of whole page.
+
+#### Resolved Task <a name="0c2035aa-3206-4261-9d2a-77447a5b5759"></a> 
+Try to fix Google performance score on load time. <https://pagespeed.web.dev/?utm_source=psi&utm_medium=redirect>
+
+#### Resolved Task <a name="4e18dca1-c75e-434c-900c-f6e911dc8fd0"></a> 
+Re-enforce sandbox demo on sign up page.
+
+#### Resolved Task <a name="1b3f95cc-57b3-4372-a184-54a047673335"></a> 
+Reduce number of fonts per comment.
+
+## Job <a name="c27ba80a-bc55-45b7-8dae-0bbae049e570"></a>
+### Mobile issues.
+#### Task <a name="39bf8c1f-32bc-46a5-a58d-0ecf3ad36233"></a> 
+On mobile when open collaborators get white instead of blue.
+
+#### Task <a name="38481d49-e8b4-4ce3-ba3b-d915f090b07b"></a> 
+Details section on mobile needs to default to open.
+
+#### Task <a name="4b3c9ca4-7326-4271-82de-803ef5e16876"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/da90ff1b-a4ad-482a-bbe7-7db577d17a1f.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+Still too much left padding to fit
+
+#### Task <a name="aad2b51c-2d4f-4b6c-b404-6a59999ae994"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c1fb4684-0181-4398-b875-e2bb38c3ae7b.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+After link option to task and resolve question have weird floating header
+
+#### Task <a name="acf05f3f-b694-40f7-8cd9-e846823909f4"></a> 
+Drop tool bar and drawer on mobile and just do exactly with menu as did for identity (which works on mobile). Make sure the color is okay - there is some weird white.
+
+#### Task <a name="21c29a24-a2c5-4809-a8cd-4d60de64b362"></a> 
+Try again get rid of some of the floaty on mobile. Might be able to repro at intermediate sizes.
+
+
+
+
+This is intermittent and does not repro at intermediate sizes.
+
+#### Task <a name="42ce409a-ce4d-468a-ae2a-4a0bf4c5560c"></a> 
+Need refresh button since reload doesn’t do refresh necessarily and not obvious. This button should run sync so spinning on and returns error if fails just like anything else.
+
+
+
+
+Can have this button for desktop also if can find place to hide it but not required.
+
+## Job <a name="35fcebca-c6de-4ea7-a850-6ae647dfbf91"></a>
+### Finish what started in dehighlightMessage so floating message processing...
+...logic kludge in notifications reducer can be removed.
+
+#### Resolved Task <a name="d116227c-d046-40c1-bbf3-b4dc8cd1d9a9"></a> 
+Next button takes too long and so will some of the other buttons.
+
+
+
+
+Would putting the promise into a timer help?
+
+
+
+
+The context update runs synchronous so the problem is just that the back end call can end up not happening at all unless make it securely.
+
+
+
+
+**The other problem is can end up redisplaying the Next message notification before the context propagates - this might be the actual problem hit originally.**
+
+
+
+
+HAVE STATE IN NAVIGATION SO COULD GUARD AGAINST SEEING SAME NOTIFICATION AGAIN.
+
+> ##### Subtask <a name="f9f579c7-0f42-44d9-8029-208a4441e230"></a> 
+Add guard against seeing the same message that just saw a short while ago again.
+
+#### Resolved Task <a name="6e3dc469-2240-473e-a12c-542966738f52"></a> 
+Try the timeout 0 wait way to avoid delaying the navigation.
+
+
+
+
+**Actually then why not just use this inside of notifications context and drop the whole promise true thing altogether?**
+
+
+
+
+
+
+
+    const newState = computeNewState(state, action);
+
+    if (!isDehighilightRemove) {
+
+    storeStatePromise(action, newState);
+
+    }
+
+    return newState;
+
+
+
+
+Actually above has a floating promise also IE the store state is not guaranteed to happen - should we put that in to a setTimer also or can we return a promise from a reducer?
 
 ## Job <a name="c0f0c729-a4bf-4ee0-b0ba-5a7199cc754b"></a>
 ### More landing page fixes
@@ -341,6 +486,30 @@ Remove outer scrolling on a frame.
 
 #### Resolved Task <a name="94730e8c-2015-4a5f-841c-769e9530a994"></a> 
 If click pricing first then hash #pricing stays on URL when go to documentation.
+
+#### Resolved Task <a name="272c8e36-1b46-4e63-b5ff-0f02ac067ac4"></a> 
+{iframeUrl && (
+
+        <**IframeContainer** *headerHeight*={headerHeight}>
+
+          <iframe
+
+            *src*={iframeUrl}
+
+            *title*="Embedded Content"
+
+            *allow*="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+
+/>
+
+        </**IframeContainer**>
+
+)}
+
+
+
+
+That's a dumb architecture - have an iFrame for both blog and documentation and just display none when state set by clicking on header urls is not matching.
 
 #### Resolved Task <a name="0c39c6f1-3ce4-4048-8a6d-d884d47bd9b7"></a> 
 See if there is a way to produce a higher quality screenshot - SVG?
@@ -440,157 +609,6 @@ Could add div with color or words so can see what going on.
 
 #### Resolved Task <a name="b75d75b5-12fe-420e-b26b-32a34b92ab8f"></a> 
 On mobile break above the fold sentences so looks better
-
-## Job <a name="7eb14a5f-49ad-408a-837d-e887fb55b90f"></a>
-### Must be able to somehow get magic link users into a default view as do for...
-...invite by email.
-
-
-
-
-Otherwise people you invite end up having to do that themselves and that doesn't work for customer use - which might be invited via Slack and not email.
-
-#### Resolved Task <a name="aead83fc-043e-469c-99c5-07e04b3bf757"></a> 
-See that new people are added to all everyone views.
-
-#### Resolved Task <a name="921df969-57e4-4ac2-af92-02105945b547"></a> 
-Same thing for view creation as currently only one option there and so easy to make it a second option.
-
-#### Resolved Task <a name="8e9f5c02-ed5c-464b-8387-48b4ea9a80e1"></a> 
-Workspace with everyone view.
-
-#### Resolved Task <a name="f4bbd274-8a25-4a74-953d-ab0e82ea712d"></a> 
-Fix view configuration screen - will be drop down instead of check box.
-
-#### Resolved Task <a name="08fe1d5f-51d4-42b5-bec4-9e9ef11a7c93"></a> 
-Testing.
-
-> ##### Subtask <a name="d36befc9-2ec9-4bf2-96c2-53ab843d505d"></a> 
-Workspace with team view.
-
-#### Resolved Task <a name="0b1928ae-5add-4ce7-aef7-0bba8e2f76c8"></a> 
-Make sure manage users for everyone group disabled.
-
-#### Resolved Task <a name="599d311c-255f-49db-8915-17c1c9cb9239"></a> 
-View edit.
-
-#### Resolved Task <a name="466f1389-f4fd-4696-8f5f-2571f0965876"></a> 
-UI tests - ones that exist now should be third option on workspace creation.
-
-#### Resolved Task <a name="f9f14d35-9606-4163-9ea0-2c5119152bc1"></a> 
-Simplest way is to just allow marking a view as an Everyone view when create. Anyone who joins a workspace is automatically put into all Everyone views. That was the original plan but thought could get by without it but even for my own use is required.
-
-
-
-
-Don't even need to make this option part of view creation if don't want as it's mostly for a power user.
-
-#### Resolved Task <a name="82db622d-986c-4fff-97f1-4d74502e0068"></a> 
-Update view to and from everyone.
-
-#### Resolved Task <a name="8f42fc79-a0a8-464e-b1a3-4ea98d74c799"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/48562327-9e3d-43ae-af57-fe07330aa26f.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Make second choice "Everyone view" and explain what that is when get there. Then have third choice "Select members view".
-
-
-
-
-Make sure back button works after choose a view type.
-
-#### Resolved Task <a name="a471fc05-fe15-454e-a692-3a399c12126e"></a> 
-View creation.
-
-#### Resolved Task <a name="ab5b7313-0258-40e6-8a7d-b6bbded71bb8"></a> 
-When is Everyone group should not be able to remove members.
-
-## Job <a name="927f8039-c23a-427e-86e6-2f40100adc33"></a>
-### CLI TODO fixes
-
-#### Resolved Task <a name="924bc822-4905-4010-891a-0f8b549ea77c"></a> 
-Have drop down for view selection on IntegrationPreferences.js. Just copy the one done for job side panel.
-
-#### Resolved Task <a name="c500e9fb-9bb2-4494-acb6-4a7802ddddeb"></a> 
-📁 Processing directory: './src'
-
-
-
-
--> ❌ Error reading file uclusionCLI.py: argument of type 'NoneType' is not iterable
-
-
-
-
--> ❌ Error reading file IntegrationPreferences.js: argument of type 'NoneType' is not iterable
-
-
-
-
-
-
-
-
-
-
-get_resolved_ticket_codes is stupid. Collect up all ticket codes that are active in the code files and then send all at once to find out their current state.
-
-
-
-
-Forget unresolving on Uclusion side and re-opening on code side - not supported - **and say so in documentation.** Make sure to handle even if created one is deleted.
-
-
-
-
-Plus the current API is not even working:
-
-    9-4579-9346-13e84d5ec4d9        <class 'KeyError'>
-
-    Traceback (most recent call last):
-
-    File "/opt/python/lib/python3.10/site-packages/ucommon/handlers/abstract_request_handler.py", line 40, in handle_request
-
-    response = post_validation_function(event, data, context, validation_context)
-
-    File "/var/task/handlers/list_market.py", line 26, in post_validation_function
-
-    return list_ticket_codes(event, data, context, validation_context)
-
-    File "/var/task/handlers/list_market_operations/list_ticket_codes.py", line 14, in list_ticket_codes
-
-    ticket_codes.append(partial_comment['ticket_code'])
-
-    KeyError: 'ticket_code'
-
-#### Resolved Task <a name="97cda397-c1d8-4c6d-86e6-c074ba07438a"></a> 
-On CLI integration page correct the examples etc.
-
-#### Resolved Task <a name="b8f4db01-db8f-4514-8ee2-bc63dfd7921f"></a> 
-Documentation does not mention marking done or removing on code side to resolve on Uclusion side.
-
-
-
-
-Either explain doesn't work or make work. Probably don't support as wouldn't know what going on with Uclusion side.
-
-> ##### Subtask <a name="f7dbb92c-e987-40f3-93df-3f59e8fdfffd"></a> 
-If don't support then
-
-
-
-
-    A script syncs between Uclusion bugs and jobs and code TODOs.
-
-
-
-
-should be changed to one direction.
-
-#### Resolved Task <a name="c2942d6c-e41f-4e46-bd8a-54756cb7e542"></a> 
-viewId should be todoViewId as not used otherwise.
 
 ## Job <a name="f577ab3a-9234-4f4d-af83-ed7aa1b25fce"></a>
 ### Website feedback.
@@ -1304,379 +1322,57 @@ Second one picture of report table of contents and in verbiage below subtitle ha
 #### Resolved Task <a name="12720958-8305-495b-9781-056282c5a1a2"></a> 
 Fix documention.
 
-## Job <a name="8c6374e6-2b2c-4b08-abdd-b6bec66c4f69"></a>
-### Import / Export strategy and script.
-Users for this feature:
+## Job <a name="75ad865e-a3a7-4d48-9703-e9a900f8ff72"></a>
+### Main page beautification.
+#### Resolved Task <a name="1cac1e19-a591-49c9-be0d-7896ee471946"></a> 
+Icon only Next button on mobile IE arrow with white button around it.
 
-1. Need export not to be locked in
-2. ~~Want to work mostly in their Idea~~ - if you finish a task then commit and then you have to refresh with CLI and then the task is gone - that's a ridiculous flow and no upside really as can't put in progress etc.
-3. ~~Like having AI suck in this meta info~~ - for what? and could use a button that removes or not removes pictures from Uclusion anyway
-4. Want to check in this file and provide status or get feedback that way instead of inviting an observer to Uclusion - for team they would choose some team view. -<https://mui.com/material-ui/discover-more/roadmap/> - so they do in fact share their project board <https://github.com/orgs/mui/projects/23/views/12> does this feature give us parity with that?
+#### Resolved Task <a name="178dd41e-49f2-449a-bb3e-5baeb5e5ef28"></a> 
+Consider making action buttons match Next button IE more rounded and no blue edge - but not a bleeder.
 
+#### Resolved Task <a name="0ae5f3cf-f132-4572-bfc4-afdeb01bfcf6"></a> 
+Get horizontal and vertical aligning of all stage investible headers correct. Can use AI if put them in their own component and specify.
 
 
 
 
-See <https://github.github.com/gfm/> for the Github version of markdown.
+Also add a bit more space above the stage investible header.
 
-#### Resolved Task <a name="d20d3237-684f-44c6-bd41-b9469c7dee2d"></a> 
-Votes are
+#### Resolved Task <a name="e6ba299a-e8d0-4139-b3f4-ff17f5316e65"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/92f32e1d-a31b-4c53-a869-3a80d59b789a.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
+When there are no in progress tasks there is not enough space below the title.
 
 
 
-    > ##### $${\color{red} Reason \space For}$$
 
+Also not enough space above the title when have open tasks - add bottom margin to the chips.
 
+#### Resolved Task <a name="fbd9a7ea-c03b-44cb-b164-8f2976209c8a"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/e3491e33-1b41-4f4f-8408-8b0fb5caa645.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 
-or Against with color based on certainty - red, orange, yellow, light green, green.
 
-> ##### Subtask <a name="e1bdab6f-b103-477c-a3fd-28065b303feb"></a> 
-Grab all votes so that can display those without reasons. If no reason just say For or Against colored and don't say reason.
 
-#### Resolved Task <a name="bb5819cd-1edc-47a2-a419-85d10f80feb9"></a> 
-Github Markdown supports img tags with width specified - see test file.
+Schedule icon somehow outside the centering.
 
-#### Resolved Task <a name="8a69404f-ca30-4c27-a202-23ce8e3b23dc"></a> 
-**Actually have view level which defaults to public and job which defaults to view setting for anything on status page (assigned or assistance) and false for anything not, bug which defaults to false, and discussion which defaults to false.**
+#### Resolved Task <a name="9263512a-c051-4526-b327-b3625e905435"></a> 
+Navigation arrows should be just one text one that says where you are going to go and keep the key strokes the same.
 
+> ##### Subtask <a name="cb254bd4-3d53-4b32-8ffb-c1a7ec76ecb9"></a> 
+The hover text explains all three key strokes (may need to do HTMl hover to do that).
 
+#### Resolved Task <a name="0465fa3f-292e-4bc0-b239-b04275a4888b"></a> 
+Add color to the words paused, complete, and assistance in the swimlanes - orange, green, and red.
 
+#### Resolved Task <a name="388ff458-9b2d-443f-a97f-e94cfc9f8bd5"></a> 
+When go to new message and don't process then dehighlighting not happening until press the Next button again.
 
-View level only applies to what is strictly in that view - not what is displaying in a my work.
+#### Resolved Task <a name="f889e5ef-36e8-4622-a944-e92dd91f5c60"></a> 
+Change this button to look like Add job.
 
-#### Resolved Task <a name="b734c616-8e5d-4aab-89e7-2ddc570c5aa0"></a> 
-Add to example comment with one thing from all of format bar and make sure translates.
+#### Resolved Task <a name="0ab75904-4bcc-466a-8dee-83ea9f5ca97f"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/3a8aee4c-ece1-4595-ab2c-96b6c83c7d74.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
-#### Resolved Task <a name="1909aced-5d89-4f29-831f-b01630209613"></a> 
-Use with david view on stage and link resulting checked in to uclusion_web_ui repo md file in blog and docs.
-
-#### Resolved Task <a name="89fa9a13-5168-4523-8cba-842dd71eb738"></a> 
-If report screen out resolved tasks but if export include them.
-
-#### Resolved Task <a name="0070e397-8501-4eae-9dab-1041c94c27b8"></a> 
-Try out <https://pypi.org/project/html-to-markdown/> locally with examples grabbed from dev Dynamodb.
-
-#### Resolved Task <a name="d3c24854-7403-4aa5-b4e8-c08b4f8c8ab9"></a> 
-Have to be able to add a label from the UI cause could have multiple repos or just forget to check in with ticket code.
-
-
-
-
-The label input shows up only in done and is always to create a new label from scratch - no edit. So call it "New label" and it always shows even when there is a label.
-
-
-
-
-Which means show label also on side panel as always should have - plenty of room.
-
-#### Resolved Task <a name="cad2faeb-a7c5-4d93-80a4-7536045b3cdf"></a> 
-Use <https://pypi.org/project/html-to-markdown/> or equivalent. Conversion seems the least of coding this feature.
-
-
-
-
-html-to-markdown does all versions of Python and simple [API](https://github.com/Goldziher/html-to-markdown/blob/6f9d36bfea65bb124116a067b43ffb87aeaf6f5d/packages/python/html_to_markdown/api.py#L4) but seems doesn't do HTML fragments but that probably doesn't matter - does help keep image urls instead of trying to convert to text.
-
-> ##### Subtask <a name="ea74a5de-dc21-4382-9dfe-5204de5e79a3"></a> 
-Choose from one of the one's mentioned in that libraries introduction <https://www.reddit.com/r/Python/comments/1igtrtp/htmltomarkdown_12_modern_html_to_markdown/>  
-
-
-
-
-<https://pypi.org/project/markdownify/> - doesn't support Python 3.9
-
-
-
-
-<https://pypi.org/project/markitdown/> - super supported by Microsoft but <https://dev.to/leapcell/deep-dive-into-microsoft-markitdown-4if5> trying to convert images to text which we don't need
-
-#### Resolved Task <a name="e28e46f0-d63c-4e14-8019-f4e801b0f75a"></a> 
-How will the queries be done to gather the necessary jobs and comments?
-
-
-
-
-Use the market_id_index jobs, market comments. and stages and calculate what is visible. Then for those visible need follow on stuff like job comments, inline_market_id, approvals, and maybe stuff inside comments that resolve like mentions and internal links.
-
-
-
-
-So the market service endpoint handles everything it can.
-
-#### Resolved Task <a name="38debdfa-ed71-4998-87fd-a6087cc0ae71"></a> 
-Bring back resolved top level comments and just put them in their own section so clear they are resolved - so ship them in their own 'resolved' dictionary item.
-
-#### Resolved Task <a name="f07e7d43-a9c8-4e1d-b9a9-5ae143e665b2"></a> 
-Options missing anchors.
-
-#### Resolved Task <a name="25cfd345-9f40-4cb5-88c2-462d0069e8b3"></a> 
-CANNOT LET THEM EDIT THE UCLUSION MD FILE.
-
-1. Incompatible with marking in progress, resolving etc.
-2. We don't even support MD in Uclusion and would have to convert both directions
-3. Too high a chance of corrupting the file - plus have to learn some notation language like with TODOs
-
-
-
-
-
-So it is one way export and even for that **must convert from Uclusion html to markdown in API endpoint that services the export.** Might be a html to markdown converter in Python already for simple html.
-
-
-
-
-Any md file in Github displays as md <https://github.com/Uclusion/uclusion_web_ui/blob/master/uclusion.md>
-
-> ##### Subtask <a name="54b56b49-466d-4d82-8dfd-19190428917f"></a> 
-Do we keep current uclusion.txt file? No reason not to as already coded and does not interfere with export.
-
-
-
-
-However very confusing on sync - even I had to look at code and operations - consider dropping. Since it's not like a TODO there is no real reason to support them editing this file - if it isn't better to go to Uclusion than edit the local file we are done anyway.
-
-
-
-
-**Keeping it just for the purposes of creation and stay in repo is dumb. Anything really repo related goes into a TODO and even then you edit on the Uclusion side. Anything higher level than the code has no point in being edited in the repo as Uclusion wizards do a much better job.**
-
-#### Resolved Task <a name="5f9f069d-c610-4834-90a7-a27033c90178"></a> 
-Tell that story on the landing page new section - **in that story mention have the entire file there for use by AI.**
-
-
-
-
-**To be useful by AI either do two files, one active and one archived, or just only keep active in the repo unless the full export flag is used.**
-
-#### Resolved Task <a name="1a8ccc84-2029-496c-941c-361f7a8767c6"></a> 
-If can't find built in md manipulation can do server side or use a command line script like <https://python-markdown.github.io/cli/>
-
-
-
-**Actually just have installer -** <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html> which is downloaded from the same integration page and run with the same steps as AWS CLI shows. That's going to be simpler all around and the added benefit of being allowed packages.
-
-
-
-
-**Actually just run as Github action and drop the CLI altogether.** Otherwise <https://docs.aws.amazon.com/cli/latest/userguide/getting-started-prereqs.html> - have to be self contained and support Linux, Mac, and Windows - too much effort. The action runs on any push to the repo and does a sync. **The only problem is that then they need pull to get the changed files - not great.**
-
-
-
-
-**Third alternative - keep existing CLI, don't have installer, and just do all heavy lifting to create the MD file server side. That means you upload the existing one and get back the new one. For the TODO part it just works exactly as now.**
-
-
-
-
-Keep the full export as separate from merge - maybe only get the archived ones for instance.
-
-
-
-
-ALSO THIS IS ALL VIEW SPECIFIC - you are downloading from your my work view. THE FULL EXPORT OF ALL VIEWS IS YET ANOTHER FLAG.
-
-> ##### Subtask <a name="2e9684b6-ef9b-424b-981e-60b49b84818c"></a> 
-If CLI based then order of operations problem. You check in with the latest job ticket code and then run the Uclusion CLI and then you have to commit again to get the MD file in.
-
-
-
-
-**Maybe the Uclusion CLI checks in the MD file for you? MAYBE NO NEED - the file can be restored at any time by CLI - could just add it to your .ignore. If you want it checked in so visible on repo you can do that yourself.**
-
-#### Resolved Task <a name="d0c52d76-efd9-4a59-838c-5ca1a9b6a3d8"></a> 
-Create an endpoint for the export / report.
-
-#### Resolved Task <a name="f93d51a1-88f2-47ac-84ad-54462b8f4291"></a> 
-Separate endpoint that just paginates through all jobs and market level comments in a workspace.
-
-> ##### Subtask <a name="ed31ea41-637b-4339-88a4-b73e4c86da7d"></a> 
-No meta information is exported except title of job. Even replies are flattened - job comments are just in retrieval order.
-
-#### Resolved Task <a name="ac19b570-dd8f-4035-ac07-cbfed5754fe1"></a> 
-Labels appear in green on the contents report at start (or if not there then with job).
-
-#### Resolved Task <a name="6bd43645-c4fa-4db0-85fb-e7798b80e6ab"></a> 
-If there is a way to setup the Uclusion CLI as a post commit script in major Ideas then that can be done **INSTEAD** of setting up update-job.
-
-#### Resolved Task <a name="bbae6020-fbe3-4d8c-a50e-7c68d864b934"></a> 
-This endpoint powered by a third endpoint that retrieves all job and market level comment IDs in a workspace.
-
-#### Resolved Task <a name="d95e3518-ec85-4f5c-9208-33b5a9c0e8a8"></a> 
-Is exporting only one view necessary / desirable? Sure you want to control the views exported but why not a list of them? Since the ticket codes are unique to the whole workspace why limit the export to one view? Plus better integrations view if you check box what will be exported.
-
-
-
-
-For TODOs you can choose what view to create them in and that gets stored in the uclusion.json settings.
-
-
-
-So viewIds and todoViewId in json. **These are strict so including your my work doesn't export from other views - you have to list them as only if the view the job is in is exported does it show in export.**
-
-#### Resolved Task <a name="bc1d174c-4e99-43c9-861d-516c57cf5487"></a> 
-Test locally.
-
-#### Resolved Task <a name="0ce3107c-898a-47c6-9d3c-ac235e14e65d"></a> 
-Since the md file is not for edit why md? Self contained HTML could still be checked in but also has the advantage that one could put it on any server - not just one that translates MD as Github does.
-
-
-
-
-Of course if for some reason the report did need to be edited it would be very difficult in HTML but that would not be a common case as no one wants to edit on a regular basis to make the status work.
-
-
-
-
-On the other hand Jekyll takes HTML or Markdown and you need a static generator running anyway <https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/about-github-pages-and-jekyll> - so maybe Markdown is the better choice?
-
-
-
-
-Have to stick with Markdown as Github only accepts it.
-
-#### Resolved Task <a name="caaf80d5-fe24-408d-8c5a-a947b243289a"></a> 
-Fix internal links to go to appropriate anchors.
-
-> ##### Subtask <a name="c248d945-f330-48dc-9c82-e7f60a5d14b7"></a> 
-Handle link to comment inside of option - neither ids are being added nor is link format covered.
-
-#### Resolved Task <a name="ab289029-c55c-4d12-acaf-e5269135ec7a"></a> 
-Add SDK to the documentation with small example that exports planning investibles and their comments and bugs. Example should work from CLI secret login.
-
-
-
-
-**Can keep the download example in the SDK so can be maintained and linked as readable Javascript.**
-
-> ##### Subtask <a name="1f89129f-7fb6-4c8b-9625-a4884b20c313"></a> 
-Convert publish in uclusion_sdk to Github actions and publish to NPM.
-
-#### Resolved Task <a name="1382a1f6-56f9-4b3f-95ef-75019a14513f"></a> 
-**Now with this feature can update the update-job action to accept comment ticket codes also as they can get them from this file.**
-
-#### Resolved Task <a name="8d713fac-1885-4726-b52e-98d55d7275a2"></a> 
-Update layers with html-to-markdown.
-
-#### Resolved Task <a name="3455dcea-7651-49f0-a9ef-7b882704783f"></a> 
-In the md file have a table of contents by stage at the beginning with links to the stories below. In that table can mimic the job progress page in Uclusion by having number open, how long in stage, etc. just like it does.
-
-
-
-
-See <https://blog.markdowntools.com/posts/markdown-internal-links>
-
-> ##### Subtask <a name="b73e5cf6-ded1-44a1-a917-9f126a81f40b"></a> 
-Decide on format in md file. No assignments obviously since that shouldn't matter. Yes show labels.
-
-
-
-
-Three stages - No Estimate, Scheduled, and Done. Scheduled have the only date that shows which is estimated completion.
-
-
-
-
-Table with 3 columns. Each column has the name of the job which is a link to lower in the markdown file. Directly the below the name of the scheduled is the estimated date. Directly below the name of the done is the label if any.
-
-#### Resolved Task <a name="e8a0de70-3807-401f-82d0-938e9318374c"></a> 
-Use anchors like
-
-
-
-
-    ### <a name="tith"></a> Button on the question that generates AI prompt onto the clipboard.
-
-
-
-
-Instead of dashed which is not working.
-
-#### Resolved Task <a name="32bf4316-e2c3-44ee-b2d5-5b4bb9babed1"></a> 
-Remove current uclusion.txt in place of this read only md file.
-
-#### Resolved Task <a name="3c675e5f-c3dc-44da-8c44-4ba945c13be1"></a> 
-If link goes to something not available then either suck in or remove the link.
-
-
-
-
-If suck in could be to something not visible. Could also be to something inside a job that is not visible.
-
-
-
-
-Could just add it to a new section - "Linked". **However removing the link should be fine.**
-
-
-
-
-Could do post process for broken links - check all internal links, can keep a list of anchors during main processing, and if anchor not present then remove braces from around verbiage, make underlined instead, and remove parentheses part which has the link.
-
-
-
-
-Actually just post process **for all links** - if broken remove and if internal and not broken then fix.
-
-#### Resolved Task <a name="ba80f6a4-323f-4418-9a4b-2dffd96b07d4"></a> 
-Have replies immediately follow the parent and put a > in front of them.
-
-#### Resolved Task <a name="37de59a3-14b7-44a0-a1e9-176f5ce4a915"></a> 
-Port code in ImageBlot.js to Python and process images as it shows. That requires using get_market_token <https://github.com/Uclusion/uclusion_common/blob/dc0064ddf8b5467c76392769e9977ab701180b5b/ucommon/capabilities/capability_marshaller.py#L71> and either setting up exp to years or remove exp if can get away with that.
-
-#### Resolved Task <a name="0177842f-1de3-4374-b880-c67e0e1d8fcf"></a> 
-Support changing is_public from UI.
-
-> ##### Subtask <a name="112cf23e-c834-4232-b637-45a7eb31c813"></a> 
-For jobs, bugs, and discussion.
-
-#### Resolved Task <a name="743adf30-31b9-462e-a1c6-f2e02f157554"></a> 
-For groups.
-
-#### Resolved Issue <a name="c1696a38-70ba-414a-a078-ffd6542b462b"></a> 
-You kind of are data locked in and exporting doesn't help. Just no good way to map between systems. Unstructured comments in Github have nowhere to go unless put them all in description or introduce info for planning investible as have for options. **Even if do that still have problem if users aren't all there.**
-
-
-
-
-Monday has [import from Jira](https://support.monday.com/hc/en-us/articles/360020585839-How-to-import-from-Jira-Server) and their new Jira data center app has two way sync. However its all Enterprise stuff.
-
-
-
-
-Is there much difference between throwing all issues into Uclusion backlog and having them over in Github till working on them?
-
-#### Resolved Task <a name="7b6548c2-98d6-41e0-a16d-ef3654680dd3"></a> 
-Reason comments must be out of general pool and put as element of job, option, or suggestion. Suggestion should not have an option shipped with it.
-
-#### Resolved Task <a name="ec55cc34-817c-44ca-9018-48dadbc47556"></a> 
-All comments including replies will need anchors.
-
-#### Resolved Task <a name="c2d2eaa2-20a3-4b6d-8741-895802f30104"></a> 
-Fix so notes can be made public also.
-
-#### Resolved Task <a name="7d843e2f-8de0-4436-a389-452885ee64dc"></a> 
-Then do we include recently competed as do on status page? If so makes harder to suck into AI or does it? Depends what AI does with it or if it observes complete stage.
-
-## Job <a name="0119ab37-b6ed-432e-a05b-5a91e8e02393"></a>
-### See if React now supports a better way to keep a websocket open - otherwise...
-...these changes outside the UI could bite.
-
-#### Resolved Task <a name="5f80d3ad-371b-4c44-8eaa-06c26f244e7c"></a> 
-See if React now supports a better way to keep a websocket open - otherwise these changes outside the UI could bite.
-
-#### Resolved Task <a name="86d83928-85e5-4a33-8f66-5a147ba16b0e"></a> 
-Some version of <https://github.com/robtaussig/react-use-websocket/issues/217> to handle reconnect after long time.
-
-
-
-
-Also possible same idea with offline listener or both.
-
-> ##### Subtask <a name="c1df5bff-c6ab-478d-966d-2b3b3ba5f407"></a> 
-See if this is still necessary by seeing if reconnects in morning after attempts may have been exceeded.
-
-#### Resolved Task <a name="89946901-5b08-4c0a-ad12-30f19f423598"></a> 
-Not working at all - have to test without clicking in as that refreshes.
+Messed up here.
 

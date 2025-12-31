@@ -1,11 +1,9 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| | | [Finish what started in dehighlightMessage so floating message processing...](#35fcebca-c6de-4ea7-a850-6ae647dfbf91)|  |
-| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| | | [More landing page fixes](#c0f0c729-a4bf-4ee0-b0ba-5a7199cc754b)|  |
+| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [More work on the landing page:](#7eac3364-a52a-47ac-8823-2be566506061)| 01/02| [Finish what started in dehighlightMessage so floating message processing...](#35fcebca-c6de-4ea7-a850-6ae647dfbf91)|  |
+| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| 01/03| [More landing page fixes](#c0f0c729-a4bf-4ee0-b0ba-5a7199cc754b)|  |
 | [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)|  |
 | [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| | | [Main page beautification.](#75ad865e-a3a7-4d48-9703-e9a900f8ff72)| Deployed to stage |
-| [More work on the landing page:](#7eac3364-a52a-47ac-8823-2be566506061)| | | |  |
-| [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| | | |  |
 ## Job <a name="f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f"></a>
 ### Better archive.
 

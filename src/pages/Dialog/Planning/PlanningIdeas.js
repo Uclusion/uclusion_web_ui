@@ -646,7 +646,8 @@ function StageInvestible(props) {
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
         <span className={'MuiTabItem-tag'} style={{backgroundColor: COUNT_COLOR, marginRight: '0.5rem', color: 'white',
-          borderRadius: 22, paddingLeft: '6px', paddingRight: '5px', paddingTop: '2px', maxHeight: '20px'}}>
+          borderRadius: 22, paddingLeft: '8px', paddingRight: '8px', paddingTop: '2px', paddingBottom: '2px',
+          display: 'inline-flex', alignItems: 'center', fontSize: '0.75rem', lineHeight: 1.2}}>
           {labelNum} {intl.formatMessage({ id: 'open' })}
         </span>
       </Tooltip>
@@ -720,6 +721,22 @@ function StageInvestible(props) {
               </div>
             </Tooltip>
           )}
+          {messagesChip}
+          {!_.isEmpty(doesRequireStatusMessage) && (
+            <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
+            <span className={'MuiTabItem-tag'} style={{ marginRight: '0.5rem', paddingTop: '0.25rem' }} onClick={(event) => {
+                   if (isInInbox(doesRequireStatusMessage)) {
+                     preventDefaultAndProp(event);
+                     return dehighlightMessage(doesRequireStatusMessage, messagesDispatch, true)
+                     .then(() => navigate(history, formInboxItemLink(doesRequireStatusMessage)));
+                   }
+                 }}
+            >
+              <Schedule style={{fontSize: 24, color: '#F29100'}}/>
+            </span>
+            </Tooltip>
+          )}
+          {countChip}
           {hasDaysEstimate && (
             <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? COUNT_COLOR: undefined,
               cursor: unreadEstimate ? 'pointer' : undefined, marginRight: '0.5rem' }}
@@ -739,32 +756,16 @@ function StageInvestible(props) {
               <FormattedMessage id='estimatedCompletionToday' /> <UsefulRelativeTime value={new Date(daysEstimate)}/>
             </div>
           )}
-          {ticketNumber && (
-            <div style={{whiteSpace: 'nowrap', fontSize: '.75rem', marginRight: '0.5rem'}}>
-              {ticketNumber}
-            </div>
-          )}
-          {messagesChip}
-          {!_.isEmpty(doesRequireStatusMessage) && (
-            <Tooltip title={intl.formatMessage({ id: 'reportRequired'})}>
-            <span className={'MuiTabItem-tag'} style={{ marginRight: '0.5rem', paddingTop: '0.25rem' }} onClick={(event) => {
-                   if (isInInbox(doesRequireStatusMessage)) {
-                     preventDefaultAndProp(event);
-                     return dehighlightMessage(doesRequireStatusMessage, messagesDispatch, true)
-                     .then(() => navigate(history, formInboxItemLink(doesRequireStatusMessage)));
-                   }
-                 }}
-            >
-              <Schedule style={{fontSize: 24, color: '#F29100'}}/>
-            </span>
-            </Tooltip>
-          )}
-          {countChip}
           {!countChip && showCompletion && (
             <div style={{marginRight: '0.5rem'}}>
               <Typography style={{fontSize: '.75rem'}}>
                 Approved <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/>
               </Typography>
+            </div>
+          )}
+          {ticketNumber && (
+            <div style={{whiteSpace: 'nowrap', fontSize: '.75rem', marginRight: '0.5rem', paddingTop: '1.5px'}}>
+              {ticketNumber}
             </div>
           )}
         </div>

@@ -90,8 +90,7 @@ function Inbox(props) {
     const itemMessage = messages?.find((message) => message.type_object_id === itemId);
     if (itemMessage || isOutboxItem) {
       if (itemMessage?.is_highlighted) {
-        return dehighlightMessage(itemMessage, messagesDispatch, true)
-        .then(() => navigate(history, itemMessage ? formInboxItemLink(itemMessage) : formInboxItemLinkFromId(itemId)));
+        dehighlightMessage(itemMessage, messagesDispatch);
       }
       navigate(history, itemMessage ? formInboxItemLink(itemMessage) : formInboxItemLinkFromId(itemId));
     }

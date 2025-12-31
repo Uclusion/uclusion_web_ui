@@ -36,7 +36,7 @@ function checkComment(commentId, commentVersion, marketId, commentsState, childI
   return comment.version >= commentVersion;
 }
 
-export function dehighlightMessage(message, messagesDispatch, isPromise=false) {
+export function dehighlightMessage(message, messagesDispatch) {
   if (message.type !== UNASSIGNED_TYPE) {
     // Handle unassigned on the triage page after render or else default open row breaks
     const typeObjectIds = [message.type_object_id];

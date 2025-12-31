@@ -227,7 +227,7 @@ function WorkListItem(props) {
             preventDefaultAndProp(event);
             // UNASSIGNED_TYPE only dehighlights when everything inside it has
             if (isHighlighted) {
-              return dehighlightMessage(message, messagesDispatch, true).then(() => navigate(history, formInboxItemLinkFromId(id)));
+              dehighlightMessage(message, messagesDispatch);
             }
             navigate(history, formInboxItemLinkFromId(id));
           }

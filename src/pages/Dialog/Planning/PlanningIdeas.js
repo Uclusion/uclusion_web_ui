@@ -726,7 +726,6 @@ function StageInvestible(props) {
                  onClick={(event) => {
                    if (unreadEstimate) {
                      preventDefaultAndProp(event);
-                     // TODO same here 
                      dehighlightMessage(unreadEstimate, messagesDispatch);
                      navigate(history, formInboxItemLink(unreadEstimate));
                    }

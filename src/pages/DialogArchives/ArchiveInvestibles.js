@@ -118,9 +118,9 @@ function ArchiveInvestible(props) {
                   onClick={(event) => {
                     if (myMessage) {
                       preventDefaultAndProp(event);
-                      return dehighlightMessage(myMessage, messagesDispatch, true).then(() => navigate(history, formInboxItemLink(myMessage)));
-                    } 
-                    if (myLink) {
+                      dehighlightMessage(myMessage, messagesDispatch);
+                      navigate(history, formInboxItemLink(myMessage));
+                    } else if (myLink) {
                       preventDefaultAndProp(event);
                       navigate(history, myLink);
                     }

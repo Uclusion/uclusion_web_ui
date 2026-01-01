@@ -332,7 +332,6 @@ function Screen(props) {
     titleIcon,
     children,
     tabTitle,
-    toolbarButtons,
     appEnabled,
     banner,
     isInbox,
@@ -463,7 +462,6 @@ function Screen(props) {
         <Header
           title={title}
           titleIcon={titleIcon}
-          toolbarButtons={toolbarButtons}
           hidden={reallyAmLoading}
           appEnabled={appEnabled}
           navMenu={sideNavigationContents}
@@ -504,8 +502,6 @@ function Screen(props) {
 Screen.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   breadCrumbs: PropTypes.arrayOf(PropTypes.object),
-  // eslint-disable-next-line react/forbid-prop-types
-  toolbarButtons: PropTypes.arrayOf(PropTypes.any),
   hidden: PropTypes.bool,
   loading: PropTypes.bool,
   title: PropTypes.any,
@@ -524,7 +520,6 @@ Screen.defaultProps = {
   titleIcon: undefined,
   hidden: false,
   loading: false,
-  toolbarButtons: [],
   sidebarActions: [],
   appEnabled: true,
   banner: undefined,

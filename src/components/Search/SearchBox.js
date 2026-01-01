@@ -143,10 +143,10 @@ function SearchBox(props) {
 
   return (
     <div id='search-box' onClick={(event) => event.stopPropagation()}
-         style={{flex: 1, maxWidth: mobileLayout ? undefined : '800px'}}>
+         style={{maxWidth: mobileLayout ? undefined : '50rem'}}>
       <TextField
         variant="outlined"
-        style={{width: '100%', minWidth: mobileLayout ? '10rem' : '15rem'}}
+        style={{width: '100%', minWidth: mobileLayout ? '10rem' : '30rem'}}
         onChange={onSearchChange}
         onKeyDown={(ev) => {
           if (ev.key === 'Enter') {

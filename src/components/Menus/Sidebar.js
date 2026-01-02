@@ -120,8 +120,8 @@ export default function Sidebar(props) {
     {viewsOpen: true});
   const { viewsOpen } = pageState;
   const { navListItemTextArray, navLowerListItemTextArray, navMenu, navLowerMenu, listOnClick } = navigationOptions || {};
-  const firstFiveNavListItemTextArray = navListItemTextArray.slice(0, 5);
-  const moreFiveNavListItemTextArray = navListItemTextArray.slice(5);
+  const firstFiveNavListItemTextArray = navListItemTextArray?.slice(0, 5);
+  const moreFiveNavListItemTextArray = navListItemTextArray?.slice(5);
   return (
     <ProSidebar width="16rem" backgroundColor={INFO_COLOR}>
         {navMenu}

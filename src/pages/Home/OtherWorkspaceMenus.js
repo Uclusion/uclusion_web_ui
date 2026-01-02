@@ -71,8 +71,8 @@ function OtherWorkspaceMenus(props) {
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const notCurrentMarkets = markets.filter((market) => market.id !== defaultMarket?.id);
   const activeMarkets = notCurrentMarkets.filter((market) => market.market_stage === 'Active');
-  const activeFirstFiveMarkets = activeMarkets.slice(0, 5);
-  const activeMoreFiveMarkets = activeMarkets.slice(5);
+  const activeFirstFiveMarkets = activeMarkets?.slice(0, 5);
+  const activeMoreFiveMarkets = activeMarkets?.slice(5);
   const intl = useIntl();
   const [pageStateFull, pageDispatch] = usePageStateReducer('otherMenus');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, 'menuState',

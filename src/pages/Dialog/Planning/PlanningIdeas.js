@@ -683,7 +683,7 @@ function StageInvestible(props) {
       <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
            className={classes.outlinedAccepted}
            onContextMenu={recordPositionToggle}
-           style={{minWidth: isReview ? '45%' : undefined}}
+           style={{minWidth: isReview ? (name?.length > 40 ? '90%' : '45%') : undefined}}
            onMouseOver={() => doShowEdit(investible.id)}
            onMouseOut={() => doRemoveEdit(investible.id)}
            onClick={event => {

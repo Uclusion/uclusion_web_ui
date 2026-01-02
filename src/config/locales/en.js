@@ -685,6 +685,8 @@ const messages = defineMessages({
   noQuestionUploads: 'Questions should go in their own comment.',
   collaborators: 'Collaborators',
   addMoreCollaborators: 'Invite more people',
+  more: 'More',
+  less: 'Less',
   onlyThisGroup: 'Only this view',
   inlineAddLabel: 'Add option',
   inlineProposeLabel: 'Propose option',

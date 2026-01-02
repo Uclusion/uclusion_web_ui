@@ -71,6 +71,8 @@ function OtherWorkspaceMenus(props) {
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const notCurrentMarkets = markets.filter((market) => market.id !== defaultMarket?.id);
   const activeMarkets = notCurrentMarkets.filter((market) => market.market_stage === 'Active');
+  const activeFirstFiveMarkets = activeMarkets.slice(0, 5);
+  const activeMoreFiveMarkets = activeMarkets.slice(5);
   const intl = useIntl();
   const [pageStateFull, pageDispatch] = usePageStateReducer('otherMenus');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, 'menuState',
@@ -79,7 +81,7 @@ function OtherWorkspaceMenus(props) {
     defaultMarket?.id ||'menuState', {integrationsOpen: defaultMarket?.object_type !== DEMO_TYPE && 
       defaultMarket?.market_sub_type !== SUPPORT_SUB_TYPE, collaboratorsOpen: !mobileLayout});
   const { switchWorkspaceOpen, messagesOpen } = pageState;
-  const { integrationsOpen, collaboratorsOpen } = workspacePageState;
+  const { integrationsOpen } = workspacePageState;
   const [presenceAnchor, setPresenceAnchor] = useState(null);
   const [presenceMenuId, setPresenceMenuId] = useState(undefined);
   const history = useHistory();
@@ -147,35 +149,28 @@ function OtherWorkspaceMenus(props) {
   const outboxCount = _.size(allOutBoxMessagesOrdered);
 
   return (
+    <>
       <ProMenu 
         rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}
-        renderExpandIcon={({ open }) => open ? <ExpandLess htmlColor="#8f8f8f" style={{marginTop: '0.3rem', visibility: 'hidden'}} />
-          : <ExpandMore htmlColor="#8f8f8f" style={{marginTop: '0.3rem', visibility: 'hidden'}} />}>
+        renderExpandIcon={() => <div onClick={(event)=> {
+          preventDefaultAndProp(event);
+          if (defaultMarket) {
+            navigate(history, `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`);
+          }
+        }}><Tooltip placement='top' title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}>
+        <IconButton size="small" id="Addcollaborators" noPadding>
+        <AddIcon htmlColor={defaultMarket ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
+        </IconButton>
+      </Tooltip></div>}>
           <SubMenu id='collaborators'
                   label={intl.formatMessage({ id: 'collaborators' })}
-                  onMouseOver={hideShowExpandIcon('collaborators', true)}
-                  onMouseOut={hideShowExpandIcon('collaborators', false)}
                   rootStyles={{
                     '.css-nx2aea': {
                       backgroundColor: INFO_COLOR
                     }
                   }}
                   style={{backgroundColor: (action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()) ? '#e0e0e0' : undefined, borderRadius: 22}}
-                  suffix={<div onClick={(event)=> {
-                    preventDefaultAndProp(event);
-                    if (defaultMarket) {
-                      navigate(history, `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`);
-                    }
-                  }}><Tooltip placement='top' title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}>
-                  <IconButton size="small" id="Addcollaborators" noPadding>
-                  <AddIcon htmlColor={defaultMarket ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
-                  </IconButton>
-                </Tooltip></div>}
-                  onClick={(event) => {
-                    preventDefaultAndProp(event);
-                    updateWorkspacePageState({collaboratorsOpen: !collaboratorsOpen});
-                  }}
-                  key="collaborators" open={collaboratorsOpen}>
+                  key="collaborators" open >
               <div style={{marginLeft: '2rem'}}>
                 <GravatarGroup users={presencesOrdered} gravatarClassName={classes.smallGravatar} 
                   onClick={(event, presence) => recordPresenceToggle(event, presence)}/>
@@ -230,7 +225,12 @@ function OtherWorkspaceMenus(props) {
                 </Menu>
               )}
           </SubMenu>
+          </ProMenu>
           <div style={{marginBottom: '1rem', marginTop: '0.5rem'}} />
+          <ProMenu 
+        rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}
+        renderExpandIcon={({ open }) => open ? <ExpandLess htmlColor="#8f8f8f" style={{marginTop: '0.3rem', visibility: 'hidden'}} />
+          : <ExpandMore htmlColor="#8f8f8f" style={{marginTop: '0.3rem', visibility: 'hidden'}} />}>
           <SubMenu id='messages'
             label={intl.formatMessage({ id: 'messages' })}
             onMouseOver={hideShowExpandIcon('messages', true)}
@@ -390,7 +390,22 @@ function OtherWorkspaceMenus(props) {
             </a>
           )}
         </SubMenu>
+        </ProMenu>
         <div style={{height: '10px'}} />
+        <ProMenu rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}
+        renderExpandIcon={() => <div onClick={(event)=> {
+          preventDefaultAndProp(event);
+          navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+        }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddPlanning' })}>
+        <IconButton size="small" noPadding id="createWorkspaceId">
+        <AddIcon htmlColor={defaultMarket ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
+        </IconButton>
+      </Tooltip></div>}
+        onClick={(event) => {
+          preventDefaultAndProp(event);
+          updatePageState({switchWorkspaceOpen: !switchWorkspaceOpen});
+        }}
+        >
         <SubMenu id='switchWorkspace' label={intl.formatMessage({ id: 'switchWorkspace' })}
                   rootStyles={{
                     '.css-ewdv3l': {
@@ -402,22 +417,45 @@ function OtherWorkspaceMenus(props) {
                   }}
                   style={{backgroundColor: (action === 'wizard' && type === WORKSPACE_WIZARD_TYPE.toLowerCase()) ? '#e0e0e0' : undefined, 
                     borderRadius: 22}}
-                  suffix={<div onClick={(event)=> {
-                    preventDefaultAndProp(event);
-                    navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
-                  }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddPlanning' })}>
-                  <IconButton size="small" noPadding id="createWorkspaceId">
-                  <AddIcon htmlColor={defaultMarket ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
-                  </IconButton>
-                </Tooltip></div>}
-                  onMouseOver={hideShowExpandIcon('switchWorkspace', true)}
-                  onMouseOut={hideShowExpandIcon('switchWorkspace', false)}
-                  onClick={(event) => {
-                    preventDefaultAndProp(event);
-                    updatePageState({switchWorkspaceOpen: !switchWorkspaceOpen});
-                  }}
-                  key="switchWorkspace" open={switchWorkspaceOpen}>
-          {activeMarkets.map((market) => {
+                  key="switchWorkspace" open >
+          {activeFirstFiveMarkets.map((market) => {
+            const key = `market${market.id}`;
+
+            if (market.id === defaultMarket.id) {
+              return <React.Fragment key={key}/>;
+            }
+            return <MenuItem
+              icon={<AgilePlanIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+              id={key}
+              key={key}
+              rootStyles={{
+                '.css-wx7wi4': {
+                  marginRight: 0,
+                },
+              }}
+              onClick={(event) => {
+                preventDefaultAndProp(event);
+                setChosenMarketId(market.id);
+              }}
+            >
+              {market.name}
+            </MenuItem>
+          })}
+          {activeMarkets.length > 5 && (
+            <MenuItem
+              icon={switchWorkspaceOpen ? <ExpandLess htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} /> 
+              : <ExpandMore htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+              id="moreMarketsId"
+              key="moreMarketsKey"
+              onClick={(event) => {
+                preventDefaultAndProp(event);
+                updatePageState({switchWorkspaceOpen: !switchWorkspaceOpen});
+              }}
+            >
+              {intl.formatMessage({ id: switchWorkspaceOpen ? 'less' : 'more' })}
+            </MenuItem>
+          )}
+          {switchWorkspaceOpen && activeMoreFiveMarkets.map((market) => {
             const key = `market${market.id}`;
 
             if (market.id === defaultMarket.id) {
@@ -442,6 +480,7 @@ function OtherWorkspaceMenus(props) {
           })}
         </SubMenu>
       </ProMenu>
+      </>
   );
 }
 

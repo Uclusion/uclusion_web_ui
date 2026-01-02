@@ -8,7 +8,6 @@ import Link from '@material-ui/core/Link';
 import { ExpandLess, ExpandMore } from '@material-ui/icons'
 import { useIntl } from 'react-intl'
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks'
-import { hideShowExpandIcon } from '../../utils/windowUtils'
 import { PLANNING_TYPE } from '../../constants/markets'
 import { ACTION_BUTTON_COLOR, INFO_COLOR } from '../Buttons/ButtonConstants'
 import AddIcon from '@material-ui/icons/Add'
@@ -62,7 +61,9 @@ function processRegularItem(properties) {
                 key={key} id={`${useIdPrepend}${textNoSpaces}`}
                 suffix={num > 0 ?
                  <NotificationCountChips num={num} numSuffix={numSuffix} />
-                  : (EndIcon ? <IconButton id={`end${useIdPrepend}${textNoSpaces}`} size="small" onClick={(event) => onClickFunc(event)}>
+                  : (EndIcon ? <IconButton id={`end${useIdPrepend}${textNoSpaces}`} size="small" 
+                    style={{transform: 'translateX(5px)'}}
+                  onClick={(event) => onClickFunc(event)}>
                       <EndIcon htmlColor="black" fontSize="small" /></IconButton>
                     : undefined)}
                 onClick={
@@ -119,13 +120,23 @@ export default function Sidebar(props) {
     {viewsOpen: true});
   const { viewsOpen } = pageState;
   const { navListItemTextArray, navLowerListItemTextArray, navMenu, navLowerMenu, listOnClick } = navigationOptions || {};
+  const firstFiveNavListItemTextArray = navListItemTextArray.slice(0, 5);
+  const moreFiveNavListItemTextArray = navListItemTextArray.slice(5);
   return (
     <ProSidebar width="16rem" backgroundColor={INFO_COLOR}>
         {navMenu}
         {!_.isEmpty(navMenu) && (
           <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}
-            renderExpandIcon={({ open }) => open ? <ExpandLess htmlColor="#8f8f8f"style={{visibility: 'hidden', marginTop: '0.3rem'}} />: 
-            <ExpandMore htmlColor="#8f8f8f" style={{visibility: 'hidden', marginTop: '0.3rem'}} />}>
+            renderExpandIcon={() => <div onClick={(event)=> {
+              preventDefaultAndProp(event);
+              if (marketId) {
+                navigate(history, `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${marketId}`);
+              }
+            }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddGroup' })}>
+            <IconButton size="small" id="addViewId" noPadding>
+            <AddIcon htmlColor={marketId ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
+            </IconButton>
+          </Tooltip></div>}>
             <SubMenu id='views'
                     label={intl.formatMessage({ id: 'viewInGroup' })}
                     rootStyles={{
@@ -133,24 +144,29 @@ export default function Sidebar(props) {
                         backgroundColor: INFO_COLOR
                       }
                     }}
-                    suffix={<div onClick={(event)=> {
-                      preventDefaultAndProp(event);
-                      if (marketId) {
-                        navigate(history, `/wizard#type=${PLANNING_TYPE.toLowerCase()}&marketId=${marketId}`);
-                      }
-                    }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddGroup' })}>
-                    <IconButton size="small" id="addViewId" noPadding>
-                    <AddIcon htmlColor={marketId ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
-                    </IconButton>
-                  </Tooltip></div>}
-                    onMouseOver={hideShowExpandIcon('views', true)}
-                    onMouseOut={hideShowExpandIcon('views', false)}
-                    onClick={(event) => {
-                      preventDefaultAndProp(event);
-                      updatePageState({viewsOpen: !viewsOpen});
-                    }}
-                      key="views" open={viewsOpen}>
-                      {navListItemTextArray?.map((navItem, topIndex) => {
+                      key="views" open >
+                      {firstFiveNavListItemTextArray?.map((navItem, topIndex) => {
+                        const { text, target, num, numSuffix, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
+                          onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
+                        return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
+                          isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
+                          tipText, idPrepend})
+                      })}
+                      {navListItemTextArray.length > 5 && (
+                        <MenuItem
+                          icon={viewsOpen ? <ExpandLess htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} /> 
+                          : <ExpandMore htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+                          id="moreViewsId"
+                          key="moreViewsKey"
+                          onClick={(event) => {
+                            preventDefaultAndProp(event);
+                            updatePageState({viewsOpen: !viewsOpen});
+                          }}
+                        >
+                          {intl.formatMessage({ id: viewsOpen ? 'less' : 'more' })}
+                        </MenuItem>
+                      )}
+                      {viewsOpen && moreFiveNavListItemTextArray?.map((navItem, topIndex) => {
                         const { text, target, num, numSuffix, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
                           onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
                         return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,

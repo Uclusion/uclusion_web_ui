@@ -78,7 +78,7 @@ const DateLabel = styled("div")`
     font-size: 14px;
     flex-basis: 120px;
     flex-shrink: 0;
-    padding-left: 1rem;
+    margin-left: auto;
     padding-right: 1rem;
     text-align: right;
 `;

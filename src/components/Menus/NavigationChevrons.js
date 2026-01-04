@@ -41,6 +41,8 @@ import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMem
 import { getGroupPresences, getMarketPresences, isAutonomousGroup } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import ReturnTop from '../../pages/Home/ReturnTop';
 import { getCurrentWorkspace } from '../../utils/redirectUtils';
+import { getMarketInfo } from '../../utils/userFunctions';
+import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 
 const useStyles = makeStyles(() => ({
   magicButton: {
@@ -106,9 +108,43 @@ export default function NavigationChevrons(props) {
   const workspacesData = getWorkspaceData(planningDetails, marketPresencesState, investiblesState, commentsState,
     marketStagesState);
   const approvedCandidates = [];
+  const inProgressCandidates = [];
+  const assistantanceCandidates = [];
+  const inVotingCandidates = [];
+  const groupCandidates = [];
+
+  function processComment(comment, market) {
+    if (comment.investible_id) {
+      const investible = getInvestible(investiblesState, market.id, comment.investible_id);
+      const marketInfo = getMarketInfo(investible, market.id);
+      const isAssigned = marketInfo?.assigned?.includes(comment.created_by);
+      if (isAssigned) {
+        const candidate = getInvestibleCandidate(investible, market, navigations);
+        candidate.useUrl = formCommentLink(market.id, marketInfo.group_id, marketInfo.investible_id, comment.id);
+        assistantanceCandidates.push(candidate);
+      }
+    }
+  }
+
+  function getCandidates() {
+    if (!_.isEmpty(inProgressCandidates)) {
+      return inProgressCandidates;
+    }
+    if (!_.isEmpty(approvedCandidates)) {
+      return approvedCandidates;
+    }
+    if (!_.isEmpty(assistantanceCandidates)) {
+      return assistantanceCandidates;
+    }
+    if (!_.isEmpty(inVotingCandidates)) {
+      return inVotingCandidates;
+    }
+    return [];
+  }
   // Don't need outbox or read inbox as have poke button on comments and notification icons in swimlanes
   workspacesData.forEach((workspaceData) => {
-    const { market, approvedInvestibles, comments } = workspaceData;
+    const { market, approvedInvestibles, comments, questions, issues, suggestions, 
+      inVotingInvestibles  } = workspaceData;
     if (market.market_sub_type !== SUPPORT_SUB_TYPE) {
       const marketPresences = getMarketPresences(marketPresencesState, market.id) || [];
       const myPresence = marketPresences.find((presence) => presence.current_user) || {};
@@ -123,11 +159,11 @@ export default function NavigationChevrons(props) {
       });
       if (hasAutonomousGroup) {
         const candidate = getGroupCandidate(hasAutonomousGroup, market, navigations);
-        approvedCandidates.push(candidate);
+        groupCandidates.push(candidate);
       } else {
         groups?.forEach((group) => {
           const candidate = getGroupCandidate(group, market, navigations);
-          approvedCandidates.push(candidate);
+          groupCandidates.push(candidate);
         });
       }
     }
@@ -139,12 +175,28 @@ export default function NavigationChevrons(props) {
       if (inProgress) {
         candidate.useUrl = formCommentLink(market.id, inProgress.group_id, inProgress.investible_id, inProgress.id);
         candidate.title = 'task';
+        inProgressCandidates.push(candidate);
+      } else {
+        candidate.title = 'job';
         approvedCandidates.push(candidate);
       }
     });
+    questions?.forEach((question) => {
+      processComment(question, market);
+    });
+    issues?.forEach((issue) => {
+      processComment(issue, market);
+    });
+    suggestions?.forEach((suggestion) => {
+      processComment(suggestion, market);
+    });
+    inVotingInvestibles?.forEach((investible) => {
+      const candidate = getInvestibleCandidate(investible, market, navigations);
+      inVotingCandidates.push(candidate);
+    });
   });
   let allExistingUrls = allMessages.map((message) => formInboxItemLink(message));
-  allExistingUrls = allExistingUrls.concat(approvedCandidates.map((candidate) => candidate.url));
+  allExistingUrls = allExistingUrls.concat(getCandidates().concat(groupCandidates).map((candidate) => candidate.url));
   const previous = _.find(orderedNavigations, (navigation) =>
     allExistingUrls.includes(navigation.url) && navigation.url !== resource);
 
@@ -179,16 +231,23 @@ export default function NavigationChevrons(props) {
       const message = highlightedOrdered[0];
       return {url: formInboxItemLink(message), message, isHighlighted: true, title: 'message'};
     }
-
-    if (!_.isEmpty(approvedCandidates)) {
+    const candidates = getCandidates();
+    if (!_.isEmpty(candidates)) {
+      const candidatesExtended = candidates.concat(groupCandidates);
       // Time as a long gets larger so smallest would be oldest
-      const orderedApprovedCandidates = _.orderBy(approvedCandidates, ['time'], ['asc']);
-      // Allowed to go to previous here so can cycle through in progress assignments
-      const approvedNext = _.find(orderedApprovedCandidates, (candidate) => candidate.url !== resource);
-      if (approvedNext) {
-        return {url: approvedNext.url, useUrl: approvedNext.useUrl, title: approvedNext.title};
+      const orderedCandidates = _.orderBy(candidatesExtended, ['time'], ['asc']);
+      // Allowed to go to previous here so can cycle through candidates
+      const next = _.find(orderedCandidates, (candidate) => candidate.url !== resource);
+      if (next) {
+        return {url: next.url, useUrl: next.useUrl, title: next.title};
       }
     }
+
+    if (!_.isEmpty(allMessages)) {
+      // Just go to inbox for them to choose a message
+      return {url: getInboxTarget(allMessages[0]), isHighlighted: false, title: 'message'};
+    }
+    // Don't know what to do so disable next - alternatively could go to compose button but that's not great
     return {};
   }
 

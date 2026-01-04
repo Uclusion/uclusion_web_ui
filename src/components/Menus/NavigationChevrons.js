@@ -38,7 +38,6 @@ import { getOpenInvestibleComments } from '../../contexts/CommentsContext/commen
 import { useHotkeys } from 'react-hotkeys-hook';
 import { WARNING_COLOR } from '../Buttons/ButtonConstants';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
-import { REPLY_TYPE } from '../../constants/comments';
 import { getGroupPresences, getMarketPresences, isAutonomousGroup } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import ReturnTop from '../../pages/Home/ReturnTop';
 import { getCurrentWorkspace } from '../../utils/redirectUtils';
@@ -61,7 +60,7 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-function getInvestibleCandidate(investible, market, navigations, isOutbox=false) {
+function getInvestibleCandidate(investible, market, navigations) {
   const candidate = {url: formInvestibleLink(market.id, investible.investible.id), title: 'job'};
   const candidateMeta = navigations?.find((navigation) => navigation.url === candidate.url);
   candidate.time = candidateMeta?.time || 0;
@@ -134,8 +133,7 @@ export default function NavigationChevrons(props) {
     }
     approvedInvestibles?.forEach((investible) => {
       const openInvestibleComments = getOpenInvestibleComments(investible.investible.id, comments);
-      const inProgress = openInvestibleComments.find((comment) => comment.in_progress &&
-        comment.comment_type !== REPLY_TYPE);
+      const inProgress = openInvestibleComments.find((comment) => comment.in_progress);
       const candidate = getInvestibleCandidate(investible, market, navigations);
       // Only interested in in progress because if want not in progress choose it from swimlanes
       if (inProgress) {

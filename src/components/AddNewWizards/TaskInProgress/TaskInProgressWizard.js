@@ -12,7 +12,6 @@ import { getNotDoingStage } from '../../../contexts/MarketStagesContext/marketSt
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { getComment, getInvestibleComments, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { REPLY_TYPE, TODO_TYPE } from '../../../constants/comments';
 
 export function previousInProgress(userId, currentComment, investibleState, commentsState, notDoingStageId) {
   const currentCommentId = currentComment?.id;
@@ -21,12 +20,6 @@ export function previousInProgress(userId, currentComment, investibleState, comm
   const inProgressComments = marketComments.filter((comment) => !comment.resolved && comment.in_progress &&
     comment.id !== currentCommentId);
   return inProgressComments.filter((comment) => {
-    if (comment.comment_type === REPLY_TYPE) {
-      // Subtasks do not count as other in progress unless current comment is a subtask on the same parent
-      if (currentComment?.comment_type !== REPLY_TYPE || currentComment.root_comment_id !== comment.root_comment_id) {
-        return false;
-      }
-    }
     // Resolved do not count as subtasks
     const parent = getComment(commentsState, marketId, comment.root_comment_id || comment.id);
     if (parent?.resolved) {
@@ -51,14 +44,10 @@ function TaskInProgressWizard(props) {
   const comment = commentId ? getComment(commentsState, marketId, commentId) : undefined;
   const myPresence = presences.find((presence) => presence.current_user);
   const notDoingStage = getNotDoingStage(marketStagesState, marketId)
-  const otherInProgressRaw = commentId ? previousInProgress(myPresence?.id, comment, investibleState, commentsState
+  const otherInProgress = commentId ? previousInProgress(myPresence?.id, comment, investibleState, commentsState
     , notDoingStage?.id) : undefined;
-  // For subtasks don't encourage taking the root task out of progress
-  const otherInProgress = commentId ? (comment?.comment_type === REPLY_TYPE ?
-    otherInProgressRaw.filter((aComment) => aComment.id !== comment?.root_comment_id) : otherInProgressRaw) : undefined;
   const investibleComments = investibleId ? getInvestibleComments(investibleId, marketId, commentsState) : undefined;
-  const tasksInProgress = investibleComments?.filter((comment) => !comment.resolved && !comment.deleted && 
-    comment.comment_type === TODO_TYPE && comment.in_progress);
+  const tasksInProgress = investibleComments?.filter((comment) => !comment.resolved && !comment.deleted && comment.in_progress);
 
   if (_.isEmpty(otherInProgress||tasksInProgress)) {
     return React.Fragment;

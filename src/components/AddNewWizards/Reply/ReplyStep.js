@@ -123,7 +123,7 @@ function ReplyStep(props) {
       )}
       {showSubTask && (
         <Typography className={classes.introText}>
-          What is your subtask?
+          What is your grouped task?
         </Typography>
       )}
       {!showSubTask && (

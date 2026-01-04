@@ -750,7 +750,7 @@ function Comment(props) {
   const diff = getDiff(diffState, id);
   const isNote = commentType === REPORT_TYPE && _.isEmpty(investibleId);
   const overrideLabel = commentType === REPLY_TYPE ? (isDisplayOfSubTask ? 
-        <FormattedMessage id="commentSubTaskLabel" /> :
+        <FormattedMessage id="commentGroupedTaskLabel" /> :
         <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> :
       (isNote ? <FormattedMessage id="reportNote" /> : undefined ) );
   const color = isMarketTodo ? myNotificationType : undefined;

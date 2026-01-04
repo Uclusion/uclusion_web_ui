@@ -226,7 +226,6 @@ function Reply(props) {
   const isTopLevelSubTask = isSubTask && rootComment?.id === comment.reply_id;
   const isMySubTask = isTopLevelSubTask && rootComment?.created_by === userId;
   const inProgress = comment.in_progress;
-  const parentInProgress = rootComment?.in_progress;
 
   function useMarketId() {
     return React.useContext(LocalCommentsContext).marketId;
@@ -290,11 +289,8 @@ function Reply(props) {
   function handleToggleInProgress() {
     setOperationRunning(`inProgressCheckbox${comment.id}`);
     const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
-    const otherInProgressRaw = previousInProgress(userId, comment, investiblesState, commentsState, notDoingStage.id);
-    // If they want to have parent in progress also don't bother them with the wizard
-    const otherInProgress = otherInProgressRaw.filter((aComment) => aComment.id !== rootComment?.id);
-    // If child of parent that is not in progress then ignore setting in progress
-    const sendToWizard = !inProgress && !_.isEmpty(otherInProgress) && rootComment?.in_progress;
+    const otherInProgress = previousInProgress(userId, comment, investiblesState, commentsState, notDoingStage.id);
+    const sendToWizard = !inProgress && !_.isEmpty(otherInProgress);
     return updateComment({marketId, commentId: comment.id, inProgress: !inProgress}).then((comment) => {
       setOperationRunning(false);
       addCommentToMarket(comment, commentsState, commentsDispatch)
@@ -337,7 +333,7 @@ function Reply(props) {
       <CardContent className={classes.cardContent}>
         {isTopLevelSubTask && (
           <Tooltip key='subTaskTipKey'
-                   title={<FormattedMessage id='commentSubTaskLabel' />}>
+                   title={<FormattedMessage id='commentGroupedTaskLabel' />}>
             <div className={classes.commenter}>
               <ListAltIcon style={{height: 16, width: 16, transform: 'translateY(3px)'}} />
             </div>
@@ -431,7 +427,7 @@ function Reply(props) {
             }}
             icon={<ListAltIcon fontSize='small' />}
             size='small'
-            translationId='wizardAcceptLabel'
+            translationId='ungroupLabel'
             doFloatRight
           />
         )}
@@ -491,7 +487,7 @@ function Reply(props) {
                 id={`inProgressCheckbox${comment.id}`}
                 checked={operationRunning === `inProgressCheckbox${comment.id}` ? !inProgress : inProgress}
                 onClick={handleToggleInProgress}
-                disabled={!myPresenceIsAssigned || !parentInProgress || operationRunning !== false}
+                disabled={!myPresenceIsAssigned || operationRunning !== false}
               />
             }
             label={mobileLayout ? undefined : intl.formatMessage({ id: 'inProgress' })}

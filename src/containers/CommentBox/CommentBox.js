@@ -9,6 +9,8 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { getFullStage, isNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getFormerStageId, isSingleAssisted } from '../../utils/commentFunctions';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { getInvestibleComments } from '../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 
 function findGreatestUpdatedAt(roots, comments, rootUpdatedAt) {
   let myRootUpdatedAt = rootUpdatedAt;
@@ -76,11 +78,13 @@ export function getSortedRoots(allComments, searchResults, preserveOrder, isInbo
   return fullOrdered;
 }
 
-export function sortInProgress(roots) {
+export function sortInProgress(roots, investibleComments) {
   const sorted = [];
   const inProgressSorted = [];
   roots.forEach((comment) => {
-    const { in_progress: inProgress, resolved } = comment;
+    const { in_progress: inProgressRaw, resolved } = comment;
+    const inProgress = inProgressRaw || !_.isEmpty(investibleComments?.filter((aComment) => aComment.in_progress 
+    && aComment.root_comment_id === comment.id));
     if (!inProgress || resolved) {
       sorted.push(comment);
     } else {
@@ -97,9 +101,11 @@ function CommentBox(props) {
     useInProgressSorting, displayRepliesAsTop=false, compressAll=false, singleWorkspaceUser } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
+  const [commentsState] = useContext(CommentsContext);
   let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox);
   if (useInProgressSorting) {
-    sortedRoots = sortInProgress(sortedRoots);
+    const investibleComments = getInvestibleComments(marketInfo?.investible_id, marketId, commentsState);
+    sortedRoots = sortInProgress(sortedRoots, investibleComments);
   }
   if (_.isEmpty(sortedRoots) && displayRepliesAsTop) {
     // Must be displaying some part of a thread lower than root

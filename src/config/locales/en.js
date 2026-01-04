@@ -497,6 +497,7 @@ const messages = defineMessages({
   planningUnacceptedLabel: 'Unaccepted',
   planningAcceptLabel: 'Accept',
   wizardAcceptLabel: 'Move to task',
+  ungroupLabel: 'Ungroup',
   moveToSuggestion: 'Move to suggestion',
   planningAcceptExplanation: 'Has not accepted this job.',
   // Issues
@@ -521,7 +522,7 @@ const messages = defineMessages({
   commentAddQuestionDefault: 'Your question...',
   commentAddSuggestDefault: 'Your suggestion...',
   commentAddReplyDefault: 'Your reply...',
-  commentAddSubTaskDefault: 'Your subtask...',
+  commentAddSubTaskDefault: 'Your grouped task...',
   commentAddReportDefault: "Report progress here, Ex: 'Made the button blue'",
   commentAddNoteDefault: 'Your note...',
   commentAddReportReview: "Explain what should be reviewed, Ex: 'Button is blue now.'",
@@ -546,7 +547,8 @@ const messages = defineMessages({
   // Comments
   commentReplyDefault: 'Your reply...',
   commentReplyLabel: 'Reply',
-  commentSubTaskLabel: 'Subtask',
+  commentSubTaskLabel: 'Group',
+  commentGroupedTaskLabel: 'Grouped task',
   commentEditLabel: 'Edit',
   commentReplyCancelLabel: 'Cancel',
   commentReopenLabel: 'Reopen',

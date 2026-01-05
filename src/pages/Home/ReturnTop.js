@@ -10,10 +10,13 @@ import { usePresences } from '../../contexts/MarketPresencesContext/marketPresen
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
+import TooltipIconButton from '../../components/Buttons/TooltipIconButton';
+import { ArrowUpward } from '@material-ui/icons';
+import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
 
 function ReturnTop(props) {
   const { action, pathInvestibleId, market, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
-    useLink, typeObjectId } = props;
+    useLink, typeObjectId, isSearch=false } = props;
   const [investiblesState] = useContext(InvestiblesContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
@@ -61,8 +64,17 @@ function ReturnTop(props) {
   useHotkeys('ctrl+arrowUp', goUp, {enabled: !upDisabled, enableOnContentEditable: true},
     [history, useLink, upFromConfigPossible, marketId, action, hashInvestibleId, activeGroupId]);
 
-  return React.Fragment;
 
+  if (isSearch && pathInvestibleId) {
+    return (
+      <div style={{marginRight: '0.5rem', marginLeft: '0.5rem', marginBottom: '0.5rem'}}>
+        <TooltipIconButton disabled={upDisabled} icon={<ArrowUpward htmlColor={upDisabled ? 'disabled' : ACTION_BUTTON_COLOR} />}
+                           onClick={goUp} translationId="upNavigation" />
+      </div>
+    );
+  }
+
+  return React.Fragment;
 }
 
 export default ReturnTop;

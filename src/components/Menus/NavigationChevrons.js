@@ -284,12 +284,12 @@ export default function NavigationChevrons(props) {
     {enabled: !backDisabled, enableOnContentEditable: true}, [history, previous?.url]);
   // To make up arrow navigation work
   const returnTop = <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket}
-            isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId}
+            isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId} isSearch={!_.isEmpty(searchText)}
             groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>;
 
   if (!_.isEmpty(searchText)) {
     // Otherwise too confusing and think next goes to next item found or something
-    return React.Fragment;
+    return returnTop;
   }
 
   const buttonContent = mobileLayout ? (

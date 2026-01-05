@@ -36,11 +36,11 @@ function SearchBox(props) {
   const inputRef = React.useRef(null);
   const timeoutRef = useRef(null);
   let searchedName = undefined;
-  if (action !== 'groupEdit' && marketId && groupId) {
+  if (investibleId) {
+    searchedName = getInvestibleName(investibleState, investibleId);
+  } else if (action !== 'groupEdit' && marketId && groupId) {
     const group = getGroup(groupState, marketId, groupId) || {};
     searchedName = group.name;
-  } else if (investibleId) {
-    searchedName = getInvestibleName(investibleState, investibleId);
   } else if (getInboxTarget().includes(action)) {
     searchedName = intl.formatMessage({id: 'inbox'});
   }

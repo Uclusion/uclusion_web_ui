@@ -107,7 +107,7 @@ function JobStageWizard(props) {
                              assignId={assignId}/>
         )}
         <StageActionStep myFinish={finish} marketId={marketId} investibleId={investibleId} marketInfo={marketInfo}
-                         currentReasonId={yourReason?.id} groupId={groupId} />
+                         currentReasonId={yourReason?.id} groupId={groupId} assignId={assignId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

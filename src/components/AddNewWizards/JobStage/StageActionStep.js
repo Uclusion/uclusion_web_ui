@@ -32,7 +32,7 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { getMarketInfo } from '../../../utils/userFunctions';
 
 function StageActionStep(props) {
-  const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId } = props;
+  const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId, assignId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -125,6 +125,9 @@ function StageActionStep(props) {
         stage_id: fullMoveStage.id,
       },
     };
+    if (assignId) {
+      moveInfo.stageInfo.assignments = [assignId];
+    }
     return stageChangeInvestible(moveInfo)
       .then((newInv) => {
         onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,

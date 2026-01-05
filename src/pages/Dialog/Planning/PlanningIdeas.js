@@ -283,6 +283,7 @@ function PlanningIdeas(props) {
         link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&assignId=${presenceId}`;
       }
     }
+    console.log('link', link);
     return link;
   }
 

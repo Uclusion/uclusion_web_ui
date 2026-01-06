@@ -221,8 +221,10 @@ function PlanningIdeas(props) {
     const id = event.dataTransfer.getData('text');
     const stageId = event.dataTransfer.getData('stageId');
     if (myPresence.id !== presenceId) {
-      // If you try to drop into someone else's accepted just route to their voting instead
-      onDropVoting(event);
+      if (stageId !== inDialogStageId) {
+        // If you try to drop into someone else's accepted just route to their voting instead
+        onDropVoting(event);
+      }
     } else {
       removeDroppableById();
       const link = getDropDestination(acceptedStageId, id, stageId);
@@ -250,13 +252,9 @@ function PlanningIdeas(props) {
     const investible = getInvestible(invState, id);
     const marketInfo = getMarketInfo(investible, marketId);
     const { assigned } = marketInfo;
-    const draggerIsAssigned = (assigned || []).includes(myPresence.id);
     const fullCurrentStage = getFullStage(marketStagesState, marketId, stageId);
+    // Before get to this choice am rerouting to in dialog stage when go to someone else's accepted stage
     let link = undefined;
-    if (divId === acceptedStageId && !draggerIsAssigned && !_.isEmpty(assigned)) {
-      // Go to change stage assign step with acceptedStageId destination
-      link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&isAssign=true`;
-    }
     if (divId === inReviewStageId) {
       const isTodoBlocked = isBlockedByTodo(id, stageId, divId);
       if (isTodoBlocked || isBlockedStage(fullCurrentStage) || isRequiredInputStage(fullCurrentStage)) {
@@ -283,7 +281,6 @@ function PlanningIdeas(props) {
         link = `${formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, id)}&stageId=${divId}&assignId=${presenceId}`;
       }
     }
-    console.log('link', link);
     return link;
   }
 

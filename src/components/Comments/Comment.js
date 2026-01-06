@@ -1191,10 +1191,19 @@ function Comment(props) {
   if (_.isEmpty(strippedBody)) {
     strippedBody = dateInfo;
   }
-  const compressedCommentCard = <div style={{ display: 'flex', paddingBottom: '1rem', backgroundColor: 'white',
+  const compressedCommentCard = <div className={getCommentHighlightStyle()}
+  style={{ display: 'flex', paddingBottom: '1rem', backgroundColor: 'white',
     height: '100%',
     cursor: 'pointer', width: 'fit-content', maxWidth: '98%', marginTop: isSent === false || usePadding === false ? 0
-      : '1rem' }} onClick={toggleCompression}>
+      : '1rem' }} onClick={(event) => {
+        if (!invalidEditEvent(event, history)) {
+          if (isInbox) {
+            navigate(history, formCommentLink(marketId, groupId, investibleId, id));
+          } else {
+            toggleCompression();
+          }
+        }
+      }}>
     {cardTypeDisplay}
     <div className={classes.compressedComment}>
       {strippedBody}</div>
@@ -1202,6 +1211,10 @@ function Comment(props) {
     <div style={{ marginRight: '1rem', marginTop: '0.5rem' }}>
       <TooltipIconButton
         icon={<ExpandMoreIcon />}
+        onClick={(event) => {
+          preventDefaultAndProp(event);
+          toggleCompression();
+        }}
         size="small"
         noPadding
         translationId="rowExpandComment"

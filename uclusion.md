@@ -1,9 +1,10 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [More work on the landing page:](#7eac3364-a52a-47ac-8823-2be566506061)| 01/02| [Finish what started in dehighlightMessage so floating message processing...](#35fcebca-c6de-4ea7-a850-6ae647dfbf91)|  |
-| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| 01/03| [More landing page fixes](#c0f0c729-a4bf-4ee0-b0ba-5a7199cc754b)|  |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)|  |
-| [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| | | [Main page beautification.](#75ad865e-a3a7-4d48-9703-e9a900f8ff72)| Deployed to stage |
+| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| 01/17| [Finish what started in dehighlightMessage so floating message processing...](#35fcebca-c6de-4ea7-a850-6ae647dfbf91)|  |
+| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| [More work on the landing page:](#7eac3364-a52a-47ac-8823-2be566506061)| 01/10| [More landing page fixes](#c0f0c729-a4bf-4ee0-b0ba-5a7199cc754b)|  |
+| [Substitute for the comparison section,](#283ed39c-2e32-4d70-9c99-a9aef975439a)| [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| 01/31| [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)|  |
+| | | | [Subtask in progress and next button changes.](#c201bd90-f6d5-4bc4-ae93-eef22b6650d6)|  |
+| | | | [Main page beautification.](#75ad865e-a3a7-4d48-9703-e9a900f8ff72)| Deployed to production |
 ## Job <a name="f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f"></a>
 ### Better archive.
 
@@ -58,15 +59,6 @@ When resolve minor but on return arrive in critical bugs section.
 
 Also happening when move a bug to a job from a non critical section.
 
-#### Task <a name="da778633-d092-4486-b39c-0e9870887a7e"></a> 
-Search text doesn't change when go into job - still says view name.
-
-#### Task <a name="7a0e8e35-d10d-403e-aa5c-89cfe28fce04"></a> 
-When move from in approval to work ready on job I don't own it does not ask for reassignment to me. (Instead asks for approval.)
-
-#### Task <a name="90f611ac-c888-44be-86f8-98d215ca64a1"></a> 
-No up arrow when do search.
-
 #### Task <a name="8a4ee34b-6a80-4aa0-bfed-49825d42f892"></a> 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c047efba-47bc-4389-8a4f-858fa4f06772.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
@@ -77,14 +69,6 @@ Counts don't add up - 7 - 5 = 2 missing.
 
 #### Task <a name="83af94b4-f765-4d25-bf40-c87c0eda20ac"></a> 
 When search resolved tasks must display on tasks page as well so that search works. Currently it shows resolved found as on tasks page but nothing there.
-
-#### Task <a name="7e20ed91-4fc7-4419-ab9d-a4cb49d7e74f"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/36d21323-4f19-49d3-94e0-a52b3473f1c2.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Here have both the expand circle and the chevron to expand. So the collapsed comment should be blue and should link back to the comment instead of uncollapsing - except if hit chevron of course.
 
 #### Task <a name="3671e2b8-0876-4e90-921c-49c1144345ad"></a> 
 Getting re-renders caused by context updates even when the sync gets nothing new. If nothing new there should be no updating contexts.
@@ -118,6 +102,9 @@ Navigation will go to one of four places:
 2. A critical bug notification
 3. Swimlanes of all views that is member of
 4. In progress tasks in assigned jobs
+
+#### Resolved Task <a name="6f93efb0-f0a6-4bc0-a1b4-6b3327c22571"></a> 
+Dragging a job directly from Assistance to Tasks Complete does not work for unassigned one (I think).
 
 #### Resolved Task <a name="4e34416d-9b53-433a-a2d9-d1aaacc03d1d"></a> 
 Simplify views.
@@ -176,6 +163,9 @@ Remove explanation of views from intro to workspace screens.
 > ##### Subtask <a name="6cff6d27-fbd1-455e-a1ab-4ad8aeb59e1b"></a> 
 Make solo demo single view only.
 
+#### Resolved Task <a name="da778633-d092-4486-b39c-0e9870887a7e"></a> 
+Search text doesn't change when go into job - still says view name.
+
 #### Resolved Task <a name="1cb3e171-26ec-47a6-bdd6-ae2267efa6ae"></a> 
 Check box on tasks overview is red instead of green.
 
@@ -221,6 +211,14 @@ Put in debug log statements to figure out when search bar is re-rendering and fl
 > ##### Subtask <a name="2e922336-b81d-49cb-853a-0e7f89942d95"></a> 
 Redo presentation of offline and have timer on it. See Gmail example - not nearly as big a message. Can simulate offline in Chrome devtools.
 
+#### Resolved Task <a name="7a0e8e35-d10d-403e-aa5c-89cfe28fce04"></a> 
+When move from in approval to work ready on job I don't own it does not ask for reassignment to me. (Instead asks for approval.)
+
+
+
+
+**Actually can't ask for reassignment to me since if I dragged to their work ready - if I dragged to my work ready then it will reassign.**
+
 #### Resolved Task <a name="bbe5eebd-10d3-4c1d-a4fa-cb7a75ae1538"></a> 
 On resolved tasks in overview do not show buttons to move to bugs as must be open to do that.
 
@@ -234,6 +232,9 @@ When move job with question from assignee in regular view to Work Ready not prom
 
 #### Resolved Task <a name="6f802862-2a5e-428a-a3a7-530455d4b794"></a> 
 Cannot link to resolved investible bugs - doesn't go to that section.
+
+#### Resolved Task <a name="90f611ac-c888-44be-86f8-98d215ca64a1"></a> 
+No navigation when do search. Instead make up a level the only one that shows.
 
 #### Resolved Task <a name="3e5e867f-97a0-4156-93d1-ba8dbe4319a9"></a> 
 Remove explanation of views from intro to workspace screens.
@@ -283,6 +284,14 @@ For the jobs overview expansion the linker is to the right and nothing is on the
 #### Resolved Task <a name="e6109310-9f42-4e46-b515-21e1c0bb62e7"></a> 
 All empty text in support workspace must be support specific.
 
+#### Resolved Task <a name="7e20ed91-4fc7-4419-ab9d-a4cb49d7e74f"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/36d21323-4f19-49d3-94e0-a52b3473f1c2.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+Here have both the expand circle and the chevron to expand. So the collapsed comment should be blue and should link back to the comment instead of uncollapsing - except if hit chevron of course.
+
 #### Resolved Task <a name="e3452cea-2ea2-4feb-b46d-482c136193e4"></a> 
 Colors have to match the status screen - red for new and orange for not.
 
@@ -330,8 +339,17 @@ This button should produce markdown as <https://github.com/microsoft/markitdown>
 #### Task <a name="c37e86d4-1efc-4dea-ae23-1fd0171f3175"></a> 
 Button on the question that generates AI prompt onto the clipboard. Probably skipping pictures and file attachments.
 
-## Job <a name="a896d9fa-03bd-4f1d-aa18-48e6993fb1c2"></a>
-### Use Cursor to help fix all console warnings.
+## Job <a name="283ed39c-2e32-4d70-9c99-a9aef975439a"></a>
+### Substitute for the comparison section,
+
+#### Task <a name="6d550fb7-e7d7-4985-bd2b-75ca88df6f2e"></a> 
+See if can find substitute for the comparison section or way to make it reasonable - get kid's help.
+
+
+
+
+Video explaining in progress/ navigation / subtask is possible.
+
 ## Job <a name="7eac3364-a52a-47ac-8823-2be566506061"></a>
 ### More work on the landing page:
 [More work](https://www.reddit.com/r/roastmystartup/comments/1dyncmb/comment/lcbfdnp/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) on the landing page:
@@ -366,11 +384,26 @@ Change docs to explain keystrokes but no buttons for other two operations.
 
 Also on landing page have the screenshot be area instead of whole page.
 
+#### Task <a name="a495ccb2-6d43-41d3-8c76-8d8b5741a4ae"></a> 
+Anything with tabs now has different look.
+
+#### Resolved Task <a name="4e9f3a05-3203-42d8-b564-1bb2684727c2"></a> 
+Remove the bouncing arrow above Pricing section.
+
+#### Resolved Task <a name="26f396f9-08bb-41d8-99cc-d20e6155325c"></a> 
+Add LogRocket to landing page.
+
 #### Resolved Task <a name="0c2035aa-3206-4261-9d2a-77447a5b5759"></a> 
 Try to fix Google performance score on load time. <https://pagespeed.web.dev/?utm_source=psi&utm_medium=redirect>
 
+#### Resolved Task <a name="999a2acc-3dbc-4c96-ae86-39794cb6ed86"></a> 
+Remove all usage of fades and zooms.
+
 #### Resolved Task <a name="4e18dca1-c75e-434c-900c-f6e911dc8fd0"></a> 
 Re-enforce sandbox demo on sign up page.
+
+#### Resolved Task <a name="d7351d08-bbd4-4aec-bfb2-58c53df7de59"></a> 
+Change landing page and docs to say grouped tasks instead of subtasks.
 
 #### Resolved Task <a name="1b3f95cc-57b3-4372-a184-54a047673335"></a> 
 Reduce number of fonts per comment.
@@ -1320,10 +1353,64 @@ Second one picture of report table of contents and in verbiage below subtitle ha
 #### Resolved Task <a name="12720958-8305-495b-9781-056282c5a1a2"></a> 
 Fix documention.
 
+## Job <a name="c201bd90-f6d5-4bc4-ae93-eef22b6650d6"></a>
+### Subtask in progress and next button changes.
+#### Resolved Task <a name="c47affe1-3a1c-4927-8fc9-a79fc7c99764"></a> 
+Don't disable in progress on subtask and instead automatically control exactly as if each subtask is a regular task. The parent does not have to be in progress - this is just a logical grouping.
+
+
+
+
+Where there is logic that checks the parent before counting the subtask as in progress just remove it.
+
+> ##### Subtask <a name="7605bac1-a958-4340-80be-c7cd05aa1132"></a> 
+Rename subtask to "grouped task" in general and "Group" on the create button. That in all ways is what was implemented. Then instead of Move to task just "ungroup".
+
+
+
+
+There should be no specific logic in the wizard for a grouped task - just asks about all others.
+
+
+
+
+If they don't want parent to be its own task they can just not have it in progress.
+
+#### Resolved Task <a name="be876ed1-f63b-4a2b-9406-cc5e869bf329"></a> 
+If in a back log job Next view is always what next button says and does.
+
+> ##### Subtask <a name="6d4aff4d-0419-402d-bedc-a2fa656b2379"></a> 
+No that won't work as could have arrive in back log job from next button.
+
+#### Resolved Task <a name="60500869-1d54-42f3-b30e-2b8112668540"></a> 
+Test next button.
+
+> ##### Subtask <a name="4bbf352b-04d1-4a88-8aa6-950268fbc647"></a> 
+Not going through all in approval investibles - just two of them.
+
+#### Resolved Task <a name="94af12b6-2781-4ac6-b560-783df8c35935"></a> 
+ Go to Next job where Next job is the one due next. If no due dates pick the first one in Work Ready. If nothing in Work Ready pick the first in Assistance. If nothing in Assistance go to the first in pause / approval.
+
+
+
+
+If no status at all and inbox has something read go there.
+
+
+
+
+If no status jobs and no inbox at all go to Next bug IE the section in order of priority. If no bugs either go to not ready jobs if exist. If none of that go to Compose button.
+
+#### Resolved Task <a name="a172bd76-c03f-463b-9362-441a68dc1007"></a> 
+Don't disable the Next button.
+
 ## Job <a name="75ad865e-a3a7-4d48-9703-e9a900f8ff72"></a>
 ### Main page beautification.
 #### Resolved Task <a name="1cac1e19-a591-49c9-be0d-7896ee471946"></a> 
 Icon only Next button on mobile IE arrow with white button around it.
+
+#### Resolved Task <a name="5b1d137b-58d6-428e-8861-ef3473cdf57d"></a> 
+Next button lines up outside of last tab IE Notes / Discussion - not on top of it - until page shrinks to where forced.
 
 #### Resolved Task <a name="178dd41e-49f2-449a-bb3e-5baeb5e5ef28"></a> 
 Consider making action buttons match Next button IE more rounded and no blue edge - but not a bleeder.
@@ -1336,6 +1423,15 @@ Get horizontal and vertical aligning of all stage investible headers correct. Ca
 
 Also add a bit more space above the stage investible header.
 
+#### Resolved Task <a name="3ac6ee70-f8a0-4ca7-8d55-00aa6e565962"></a> 
+Plus signs on side nav line up with count numbers. Drop expand collapse and just do More + like Google does if more than five - for Views and Other workspaces. That More and Less will connect with the same state used now so that it is permanent.
+
+> ##### Subtask <a name="32410979-285e-44f0-8009-81d5b140b607"></a> 
+Integrations and Messages continue to work the way they currently do as they have no plus button.
+
+> ##### Subtask <a name="fa3699e0-77f3-435d-b445-eb02299375f7"></a> 
+ For Collaborators just drop the expand collapse altogether.
+
 #### Resolved Task <a name="e6ba299a-e8d0-4139-b3f4-ff17f5316e65"></a> 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/92f32e1d-a31b-4c53-a869-3a80d59b789a.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
@@ -1346,6 +1442,9 @@ When there are no in progress tasks there is not enough space below the title.
 
 Also not enough space above the title when have open tasks - add bottom margin to the chips.
 
+#### Resolved Task <a name="fcd02a0a-8c94-4ae2-aa4d-9879162edb48"></a> 
+Search bar moves flush left.
+
 #### Resolved Task <a name="fbd9a7ea-c03b-44cb-b164-8f2976209c8a"></a> 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/e3491e33-1b41-4f4f-8408-8b0fb5caa645.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
@@ -1353,6 +1452,9 @@ Also not enough space above the title when have open tasks - add bottom margin t
 
 
 Schedule icon somehow outside the centering.
+
+#### Resolved Task <a name="6ae08120-9ca6-421a-8dab-4a1a4737f9eb"></a> 
+In complete section either be half length or full length.
 
 #### Resolved Task <a name="9263512a-c051-4526-b327-b3625e905435"></a> 
 Navigation arrows should be just one text one that says where you are going to go and keep the key strokes the same.

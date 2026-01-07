@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function SlackInvite(props) {
-  const { hidden } = props;
+  const { hidden = false } = props;
   const intl = useIntl();
   const history = useHistory();
   const { location } = history;
@@ -91,10 +91,6 @@ function SlackInvite(props) {
 
 SlackInvite.propTypes = {
   hidden: PropTypes.bool,
-};
-
-SlackInvite.defaultProps = {
-  hidden: false,
 };
 
 export default SlackInvite;

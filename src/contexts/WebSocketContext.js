@@ -113,7 +113,7 @@ function WebSocketProvider(props) {
   }, []);
 
   return (
-    <WebSocketContext.Provider>
+    <WebSocketContext.Provider value={null}>
       {children}
     </WebSocketContext.Provider>
   );

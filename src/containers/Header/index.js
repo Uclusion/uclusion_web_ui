@@ -275,16 +275,7 @@ function Header (props) {
 }
 
 Header.propTypes = {
-  title: PropTypes.any,
-  titleIcon: PropTypes.any,
-  hidden: PropTypes.bool,
   appEnabled: PropTypes.bool.isRequired
-};
-
-Header.defaultProps = {
-  title: '',
-  titleIcon: undefined,
-  hidden: false,
 };
 
 export default Header;

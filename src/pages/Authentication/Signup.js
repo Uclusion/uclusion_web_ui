@@ -172,7 +172,7 @@ function reducer(state, action) {
 
 function Signup(props) {
   const classes = useStyles();
-  const { authState, marketToken, code, onStateChange } = props;
+  const { authState = '', marketToken = '', code, onStateChange = () => {} } = props;
   const history = useHistory();
   const { location } = history;
   const { search } = location;
@@ -694,9 +694,4 @@ Signup.propTypes = {
   onStateChange: PropTypes.func,
 };
 
-Signup.defaultProps = {
-  authState: '',
-  marketToken: '',
-  onStateChange: () => {},
-};
 export default Signup;

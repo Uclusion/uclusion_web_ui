@@ -11,9 +11,9 @@ import FocusRippleButton from '../Buttons/FocusRippleButton';
 function SpinningButton(props) {
   const {
     id,
-    disabled,
+    disabled = false,
     children,
-    doSpin,
+    doSpin = true,
     onClick,
     spinning,
     icon: Icon,
@@ -76,11 +76,6 @@ function SpinningButton(props) {
 SpinningButton.propTypes = {
   doSpin: PropTypes.bool,
   disabled: PropTypes.bool,
-};
-
-SpinningButton.defaultProps = {
-  doSpin: true,
-  disabled: false,
 };
 
 export default SpinningButton;

@@ -23,7 +23,7 @@ import PropTypes from 'prop-types';
 import { getSearchResults } from '../../contexts/SearchIndexContext/searchIndexContextHelper';
 
 function SearchBox(props) {
-  const { disableSearch, marketId, investibleId, action, groupId } = props;
+  const { disableSearch = false, marketId, investibleId, action, groupId } = props;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const intl = useIntl();
@@ -188,10 +188,6 @@ SearchBox.propTypes = {
   investibleId: PropTypes.string,
   action: PropTypes.string,
   groupId: PropTypes.string
-}
-
-SearchBox.defaultProps = {
-  disableSearch: false
 }
 
 export default SearchBox;

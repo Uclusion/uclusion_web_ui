@@ -24,7 +24,7 @@ function createCommentsHash(commentsArray) {
 }
 
 function Investible(props) {
-  const { hidden } = props;
+  const { hidden = false } = props;
   const location = useLocation();
   const history = useHistory();
   const { hash, pathname } = location;
@@ -109,10 +109,6 @@ function Investible(props) {
 
 Investible.propTypes = {
   hidden: PropTypes.bool,
-};
-
-Investible.defaultProps = {
-  hidden: false,
 };
 
 export default Investible;

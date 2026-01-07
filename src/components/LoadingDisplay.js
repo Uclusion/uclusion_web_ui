@@ -29,7 +29,7 @@ const useStyles = makeStyles(() => {
 
 function LoadingDisplay (props) {
 
-  const { size, messageId, showMessage, noMargin } = props;
+  const { size = 120, messageId = 'loadingMessage', showMessage = false, noMargin } = props;
   const classes = useStyles();
   const intl = useIntl();
   const message = intl.formatMessage({ id: messageId });
@@ -53,12 +53,6 @@ LoadingDisplay.propTypes = {
   size: PropTypes.number,
   messageId: PropTypes.string,
   showMessage: PropTypes.bool,
-};
-
-LoadingDisplay.defaultProps = {
-  size: 120,
-  messageId: 'loadingMessage',
-  showMessage: false,
 };
 
 export default LoadingDisplay;

@@ -6,9 +6,9 @@ import { nameToAvatarText } from '../../utils/stringFunctions';
 
 function Gravatar (props) {
   const {
-    email,
-    name,
-    useBlank,
+    email = '',
+    name = '',
+    useBlank = false,
     className,
     onClick
   } = props;
@@ -52,12 +52,6 @@ Gravatar.propTypes = {
   name: PropTypes.string,
   useBlank: PropTypes.bool,
   onClick: PropTypes.func
-};
-
-Gravatar.defaultProps = {
-  name: '',
-  email: '',
-  useBlank: false
 };
 
 export default Gravatar;

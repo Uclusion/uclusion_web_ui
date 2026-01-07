@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function PageNotFound(props) {
-  const { hidden } = props;
+  const { hidden = false } = props;
   const intl = useIntl();
   const classes = useStyles();
 
@@ -41,10 +41,6 @@ function PageNotFound(props) {
 
 PageNotFound.propTypes = {
   hidden: PropTypes.bool,
-};
-
-PageNotFound.defaultProps = {
-  hidden: false,
 };
 
 export default PageNotFound;

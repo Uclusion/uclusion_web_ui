@@ -10,7 +10,7 @@ import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import { OnboardingState } from '../../../contexts/AccountContext/accountUserContextHelper';
 
 function WorkspaceNameStep (props) {
-  const { updateFormData, formData, createWorkspace, nextStep } = props;
+  const { updateFormData = () => {}, formData = {}, createWorkspace, nextStep } = props;
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
@@ -84,11 +84,6 @@ function WorkspaceNameStep (props) {
 WorkspaceNameStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-WorkspaceNameStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default WorkspaceNameStep;

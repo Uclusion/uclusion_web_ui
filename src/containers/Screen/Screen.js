@@ -326,21 +326,21 @@ function Screen(props) {
   const [commentsState] = useContext(CommentsContext);
   const { results, search } = searchResults;
   const {
-    hidden,
-    loading,
-    title,
+    hidden = false,
+    loading = false,
+    title = '',
     titleIcon,
     children,
     tabTitle,
-    appEnabled,
+    appEnabled = true,
     banner,
     isInbox,
     isKeptInMemory,
     openMenuItems,
     navigationOptions,
     showBanner,
-    disableSearch,
-    loadingMessageId,
+    disableSearch = false,
+    loadingMessageId = 'loadingMessage',
     outBoxMessages,
     leftNavAdjust,
     noPadDesktop,
@@ -512,19 +512,6 @@ Screen.propTypes = {
   banner: PropTypes.node,
   disableSearch: PropTypes.bool,
   loadingMessageId: PropTypes.string
-};
-
-Screen.defaultProps = {
-  breadCrumbs: [],
-  title: '',
-  titleIcon: undefined,
-  hidden: false,
-  loading: false,
-  sidebarActions: [],
-  appEnabled: true,
-  banner: undefined,
-  disableSearch: false,
-  loadingMessageId: 'loadingMessage'
 };
 
 export default Screen;

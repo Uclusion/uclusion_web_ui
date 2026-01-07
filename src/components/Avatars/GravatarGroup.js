@@ -24,14 +24,14 @@ const gravatarGroupStyles = makeStyles(
 function GravatarGroup(props) {
 
   const {
-    gravatarClassName,
+    gravatarClassName = '',
     gravatarHighlightClassName,
-    users,
-    max,
-    spacing,
-    className,
-    highlightList=[],
-    onClick
+    users = [],
+    max = 10,
+    spacing = 'medium',
+    className = '',
+    highlightList = [],
+    onClick = () => {}
   } = props;
   const classes = gravatarGroupStyles();
 
@@ -64,14 +64,4 @@ GravatarGroup.propTypes = {
   className: PropTypes.string,
   onClick: PropTypes.func
 };
-// max set extremely high for now to avoid https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/T-all-1463
-GravatarGroup.defaultProps = {
-  users: [],
-  gravatarClassName: '',
-  className: '',
-  max: 10,
-  spacing: 'medium',
-  onClick: () => {}
-}
-
 export default GravatarGroup;

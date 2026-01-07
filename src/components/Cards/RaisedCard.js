@@ -26,7 +26,7 @@ const useStyles = makeStyles({
 })
 
 function RaisedCard(props) {
-  const { onClick, elevation, className, cardClassName, isHighlighted, rowStyle, draggable, onDragStart, maxWidth } = props;
+  const { onClick = () => {}, elevation, className, cardClassName, isHighlighted, rowStyle, draggable, onDragStart, maxWidth } = props;
   const elevated = elevation ? elevation : 0;
   const classes = useStyles(onClick);
   let isClickable = typeof onClick === 'function' ? true : false;
@@ -59,8 +59,4 @@ function RaisedCard(props) {
 RaisedCard.propTypes = {
   onClick: PropTypes.func,
 };
-RaisedCard.defaultProps = {
-  onClick: () => {},
-};
-
 export default RaisedCard;

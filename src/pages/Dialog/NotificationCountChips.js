@@ -39,7 +39,7 @@ function NotificationCountChips(props) {
     const isNew = numSuffix === 'new';
     return <Tooltip key={`countExplanation${numSuffix}`}
     title={intl.formatMessage({ id: numSuffix })}>
-      <Chip label={`${num}`} size="small" classes={{labelSmall: num === 1 ? classes.oneChipStyle : classes.numChipStyle}} labelSmall
+      <Chip label={`${num}`} size="small" classes={{labelSmall: num === 1 ? classes.oneChipStyle : classes.numChipStyle}}
       style={{ marginLeft: '5px', backgroundClip: 'padding-box', height: '20px',
       backgroundColor: isNew? WARNING_COLOR : INFO_COLOR, color: isNew ? 'white' : 'black' }}/>
     </Tooltip>;
@@ -64,9 +64,5 @@ function NotificationCountChips(props) {
     </>
   );
 }
-
-NotificationCountChips.propTypes = {
-  id: PropTypes.string.isRequired,
-};
 
 export default NotificationCountChips;

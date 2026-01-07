@@ -12,7 +12,7 @@ const useStyles = makeStyles(() => ({
 
 function TooltipIconButton(props) {
   const {
-    onClick, size, id, icon, translationId, disabled, children, doFloatRight, noPadding, marginLeft, noAlign, 
+    onClick = () => {}, size = 'small', id, icon, translationId, disabled = false, children, doFloatRight, noPadding, marginLeft, noAlign, 
     marginRight, marginTop
   } = props;
   const intl = useIntl();
@@ -60,13 +60,6 @@ TooltipIconButton.propTypes = {
   icon: PropTypes.element.isRequired,
   disabled: PropTypes.bool,
   id: PropTypes.string,
-};
-
-TooltipIconButton.defaultProps = {
-  disabled: false,
-  size: 'small',
-  onClick: () => {},
-  id: undefined,
 };
 
 export default TooltipIconButton;

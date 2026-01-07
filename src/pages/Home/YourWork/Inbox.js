@@ -50,7 +50,7 @@ return (<div id={`inboxGroupHeader${group.id}`} key={`inboxGroupHeaderKey${group
 }
 
 function Inbox(props) {
-  const { messagesFull, inboxState, inboxDispatch, messagesHash, workItemId, tabIndex } = props;
+  const { messagesFull, inboxState = {}, inboxDispatch = () => {}, messagesHash = {}, workItemId, tabIndex } = props;
   const intl = useIntl();
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [groupsState] = useContext(MarketGroupsContext);
@@ -287,12 +287,5 @@ Inbox.propTypes = {
   messagesHash: PropTypes.object,
   searchResults: PropTypes.object
 }
-
-Inbox.defaultProps = {
-  inboxState: {},
-  inboxDispatch: () => {},
-  messagesHash: {},
-  searchResults: {}
-};
 
 export default Inbox;

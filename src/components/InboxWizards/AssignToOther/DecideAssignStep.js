@@ -59,9 +59,4 @@ DecideAssignStep.propTypes = {
   formData: PropTypes.object
 };
 
-DecideAssignStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default DecideAssignStep;

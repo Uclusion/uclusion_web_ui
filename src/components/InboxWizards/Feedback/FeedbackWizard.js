@@ -31,10 +31,5 @@ FeedbackWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-FeedbackWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default FeedbackWizard;
 

@@ -40,9 +40,4 @@ DemoChoiceStep.propTypes = {
   formData: PropTypes.object
 };
 
-DemoChoiceStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default DemoChoiceStep;

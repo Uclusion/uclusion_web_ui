@@ -63,8 +63,4 @@ DiffDisplay.propTypes = {
   showToggle: PropTypes.func,
 };
 
-DiffDisplay.defaultProps = {
-  showToggle: () => {},
-};
-
 export default DiffDisplay;

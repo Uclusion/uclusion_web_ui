@@ -19,10 +19,5 @@ ResolveWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-ResolveWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default ResolveWizard;
 

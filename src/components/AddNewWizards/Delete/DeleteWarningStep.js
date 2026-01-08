@@ -23,7 +23,7 @@ import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { TODO_TYPE } from '../../../constants/comments';
 
 function DeleteWarningStep(props) {
-  const { marketId, commentId, isInbox, formData, updateFormData } = props;
+  const { marketId, commentId, isInbox, formData = {}, updateFormData = () => {} } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -95,11 +95,6 @@ function DeleteWarningStep(props) {
 DeleteWarningStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DeleteWarningStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DeleteWarningStep;

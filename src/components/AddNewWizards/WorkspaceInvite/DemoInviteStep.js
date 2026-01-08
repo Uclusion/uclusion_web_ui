@@ -83,9 +83,4 @@ DemoInviteStep.propTypes = {
   formData: PropTypes.object
 };
 
-DemoInviteStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default DemoInviteStep;

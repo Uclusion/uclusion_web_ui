@@ -33,7 +33,7 @@ import _ from 'lodash';
 import { getFullStage, isFurtherWorkStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 
 function ConfigureCommentStep(props) {
-  const { updateFormData, formData, useType, comment, allowMulti, previousStep, navigateOnFinish, groupId, marketId, investibleId,
+  const { updateFormData = () => {}, formData = {}, useType, comment, allowMulti, previousStep, navigateOnFinish = false, groupId, marketId, investibleId,
     typeObjectId } = props;
   const classes = useContext(WizardStylesContext);
   const history = useHistory();
@@ -221,12 +221,6 @@ ConfigureCommentStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
   navigateOnFinish: PropTypes.bool
-};
-
-ConfigureCommentStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
-  navigateOnFinish: false
 };
 
 export default ConfigureCommentStep;

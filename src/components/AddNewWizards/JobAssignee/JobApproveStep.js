@@ -24,7 +24,7 @@ import _ from 'lodash'
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function JobApproveStep(props) {
-  const { marketId, investibleId, marketInfo, updateFormData, formData } = props;
+  const { marketId, investibleId, marketInfo, updateFormData = () => {}, formData = {} } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -139,11 +139,6 @@ function JobApproveStep(props) {
 JobApproveStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-JobApproveStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default JobApproveStep

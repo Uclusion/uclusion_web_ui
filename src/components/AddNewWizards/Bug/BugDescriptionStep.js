@@ -48,7 +48,7 @@ export function hasBug(groupId) {
 }
 
 function BugDescriptionStep (props) {
-  const { marketId, groupId, updateFormData, formData, commentType } = props;
+  const { marketId, groupId, updateFormData = () => {}, formData = {}, commentType } = props;
   const intl = useIntl();
   const history = useHistory();
   const [commentAddBugStateFull, commentAddBugDispatch] = usePageStateReducer('addBugWizard');
@@ -141,11 +141,6 @@ function BugDescriptionStep (props) {
 BugDescriptionStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-BugDescriptionStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default BugDescriptionStep;

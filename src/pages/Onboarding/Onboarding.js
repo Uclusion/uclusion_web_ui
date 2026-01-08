@@ -23,11 +23,5 @@ Onboarding.propTypes = {
   onStartOnboarding: PropTypes.func
 }
 
-
-Onboarding.defaultProps = {
-  onFinish: () => {},
-  onStartOnboarding: () => {},
-}
-
 export default Onboarding;
 

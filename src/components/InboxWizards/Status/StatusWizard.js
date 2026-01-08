@@ -36,10 +36,5 @@ StatusWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-StatusWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default StatusWizard;
 

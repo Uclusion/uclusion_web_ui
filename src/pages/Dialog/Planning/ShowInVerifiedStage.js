@@ -6,8 +6,8 @@ import { useIntl } from 'react-intl';
 
 function ShowInVerifiedStage(props) {
   const {
-    value,
-    onChange,
+    value = 3,
+    onChange = () => {},
   } = props;
 
   const intl = useIntl();
@@ -44,11 +44,6 @@ function ShowInVerifiedStage(props) {
 ShowInVerifiedStage.propTypes = {
   value: PropTypes.number,
   onChange: PropTypes.func,
-}
-
-ShowInVerifiedStage.defaultProps = {
-  value: 3,
-  onChange: () => {},
 }
 
 export default ShowInVerifiedStage;

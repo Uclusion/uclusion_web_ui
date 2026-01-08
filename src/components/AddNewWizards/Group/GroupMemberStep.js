@@ -19,7 +19,7 @@ import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext'
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function GroupMembersStep (props) {
-  const { updateFormData, formData, marketId } = props
+  const { updateFormData = () => {}, formData = {}, marketId } = props
   const [, groupMembersDispatch] = useContext(GroupMembersContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [groupState] = useContext(MarketGroupsContext);
@@ -75,11 +75,6 @@ function GroupMembersStep (props) {
 GroupMembersStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-GroupMembersStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default GroupMembersStep

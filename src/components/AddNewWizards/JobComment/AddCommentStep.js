@@ -42,7 +42,7 @@ export function hasJobComment(groupId, investibleId, commentType) {
 }
 
 function AddCommentStep (props) {
-  const { investibleId, marketId, useType, updateFormData, formData, resolveId, groupId, currentStageId,
+  const { investibleId, marketId, useType, updateFormData = () => {}, formData = {}, resolveId, groupId, currentStageId,
     assigned, onFinishCreation, subscribed, presences, decisionInvestibleId, decisionMarketId } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
@@ -250,11 +250,6 @@ function AddCommentStep (props) {
 AddCommentStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-AddCommentStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default AddCommentStep;

@@ -115,9 +115,4 @@ WorkspaceInviteStep.propTypes = {
   formData: PropTypes.object
 };
 
-WorkspaceInviteStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default WorkspaceInviteStep;

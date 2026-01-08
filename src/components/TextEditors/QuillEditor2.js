@@ -70,13 +70,13 @@ function QuillEditor2 (props) {
   const {
     id,
     cssId,
-    value,
-    uploadDisabled,
-    noToolbar,
-    simple,
+    value = '',
+    uploadDisabled = false,
+    noToolbar = false,
+    simple = false,
     marketId,
-    mentionsAllowed,
-    placeholder,
+    mentionsAllowed = false,
+    placeholder = '',
     noOverflow,
     maxHeight,
     backgroundColor,
@@ -272,17 +272,6 @@ QuillEditor2.propTypes = {
   simple: PropTypes.bool,
   mentionsAllowed: PropTypes.bool,
   dontManageState: PropTypes.bool
-};
-
-QuillEditor2.defaultProps = {
-  value: '',
-  placeholder: '',
-  marketId: undefined,
-  dontManageState: false,
-  uploadDisabled: false,
-  noToolbar: false,
-  simple: false,
-  mentionsAllowed: false,
 };
 
 export default React.memo(QuillEditor2);

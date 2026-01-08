@@ -21,7 +21,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 
 function DecideAcceptRejectStep(props) {
-  const { marketId, commentId, message, formData, updateFormData } = props;
+  const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
   const [commentState] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -91,11 +91,6 @@ function DecideAcceptRejectStep(props) {
 DecideAcceptRejectStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideAcceptRejectStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideAcceptRejectStep;

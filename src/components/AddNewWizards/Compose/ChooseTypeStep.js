@@ -19,7 +19,7 @@ import { useHistory } from 'react-router';
 import { goToChosenWizard } from './ComposeWizard';
 
 function ChooseTypeStep (props) {
-  const { marketId, groupId, updateFormData, formData } = props;
+  const { marketId, groupId, updateFormData = () => {}, formData = {} } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const theme = useTheme();
@@ -82,11 +82,6 @@ function ChooseTypeStep (props) {
 ChooseTypeStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-ChooseTypeStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default ChooseTypeStep;

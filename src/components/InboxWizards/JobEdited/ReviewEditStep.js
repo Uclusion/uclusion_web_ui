@@ -60,9 +60,4 @@ ReviewEditStep.propTypes = {
   formData: PropTypes.object
 };
 
-ReviewEditStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default ReviewEditStep;

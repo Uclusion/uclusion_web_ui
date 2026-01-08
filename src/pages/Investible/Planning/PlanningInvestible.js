@@ -1023,14 +1023,6 @@ PlanningInvestible.propTypes = {
   hidden: PropTypes.bool
 };
 
-PlanningInvestible.defaultProps = {
-  marketPresences: [],
-  investibleComments: [],
-  investibles: [],
-  inArchives: false,
-  hidden: false
-};
-
 export function rejectInvestible (marketId, investibleId, marketInvestible, commentsState, commentsDispatch, invDispatch,
   diffDispatch, marketStagesState, marketPresencesDispatch) {
   const furtherWorkStage = getFurtherWorkStage(marketStagesState, marketId);

@@ -15,7 +15,7 @@ import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 
 function FromOtherWorkspacesStep (props) {
-  const { participants, marketId, finish, formData, updateFormData, allAutonomousViews } = props;
+  const { participants, marketId, finish, formData = {}, updateFormData = () => {}, allAutonomousViews } = props;
   const [,marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const wizardClasses = useContext(WizardStylesContext);
@@ -65,11 +65,6 @@ function FromOtherWorkspacesStep (props) {
 FromOtherWorkspacesStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-};
-
-FromOtherWorkspacesStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default FromOtherWorkspacesStep;

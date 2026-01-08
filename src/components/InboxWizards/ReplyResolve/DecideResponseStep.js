@@ -30,7 +30,7 @@ import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideResponseStep(props) {
-  const { marketId, commentId, message, formData, updateFormData } = props;
+  const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
@@ -108,11 +108,6 @@ function DecideResponseStep(props) {
 DecideResponseStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideResponseStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideResponseStep;

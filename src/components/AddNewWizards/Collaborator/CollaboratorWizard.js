@@ -71,11 +71,5 @@ CollaboratorWizard.propTypes = {
   onStartOnboarding: PropTypes.func,
 }
 
-CollaboratorWizard.defaultProps = {
-  onboarding: false,
-  onFinish: () => {},
-  onStartOnboarding: () => {},
-}
-
 export default CollaboratorWizard
 

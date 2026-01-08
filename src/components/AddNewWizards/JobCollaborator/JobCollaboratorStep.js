@@ -24,7 +24,7 @@ import JobDescription from '../../InboxWizards/JobDescription';
 import { useAddressed } from '../../../utils/votingUtils';
 
 function JobCollaboratorStep (props) {
-  const { marketId, updateFormData, formData, onFinish, investibleId } = props;
+  const { marketId, updateFormData = () => {}, formData = {}, onFinish, investibleId } = props;
   const history = useHistory();
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -103,11 +103,6 @@ function JobCollaboratorStep (props) {
 JobCollaboratorStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-JobCollaboratorStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default JobCollaboratorStep

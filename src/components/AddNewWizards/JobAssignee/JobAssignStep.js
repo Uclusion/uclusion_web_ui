@@ -31,7 +31,7 @@ import JobDescription from '../../InboxWizards/JobDescription';
 import { JOB_ASSIGNEE_WIZARD_TYPE } from '../../../constants/markets';
 
 function JobAssignStep (props) {
-  const { marketId, updateFormData, formData, onFinish, investibleId, marketInfo } = props;
+  const { marketId, updateFormData = () => {}, formData = {}, onFinish, investibleId, marketInfo } = props;
   const history = useHistory();
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -152,11 +152,6 @@ function JobAssignStep (props) {
 JobAssignStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-JobAssignStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default JobAssignStep

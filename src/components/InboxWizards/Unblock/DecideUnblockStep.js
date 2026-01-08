@@ -26,7 +26,7 @@ import { REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideUnblockStep(props) {
-  const { marketId, commentId, message, formData, updateFormData } = props;
+  const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -109,11 +109,6 @@ function DecideUnblockStep(props) {
 DecideUnblockStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideUnblockStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideUnblockStep;

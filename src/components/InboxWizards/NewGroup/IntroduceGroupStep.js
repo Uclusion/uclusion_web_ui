@@ -106,9 +106,4 @@ IntroduceGroupStep.propTypes = {
   formData: PropTypes.object
 };
 
-IntroduceGroupStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default IntroduceGroupStep;

@@ -10,7 +10,7 @@ import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 import Link from '@material-ui/core/Link';
 
 function WorkspaceViewStep (props) {
-  const { updateFormData, formData, createWorkspace } = props;
+  const { updateFormData = () => {}, formData = {}, createWorkspace } = props;
   const intl = useIntl();
   const value = formData.group_name || '';
   const validForm = !_.isEmpty(value);
@@ -73,11 +73,6 @@ function WorkspaceViewStep (props) {
 WorkspaceViewStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-WorkspaceViewStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default WorkspaceViewStep;

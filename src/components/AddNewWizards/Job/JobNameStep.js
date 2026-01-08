@@ -17,7 +17,7 @@ import { addCommentsToMarket } from '../../../contexts/CommentsContext/commentsC
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 
 function JobNameStep(props) {
-  const { marketId, groupId, updateFormData, onFinish, formData, moveFromComments, isSingleUser, myPresenceId } = props;
+  const { marketId, groupId, updateFormData = () => {}, onFinish, formData = {}, moveFromComments, isSingleUser, myPresenceId } = props;
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentState, commentDispatch] = useContext(CommentsContext);
@@ -102,11 +102,6 @@ function JobNameStep(props) {
 JobNameStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-JobNameStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default JobNameStep;

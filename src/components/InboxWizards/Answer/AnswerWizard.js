@@ -19,10 +19,5 @@ AnswerWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-AnswerWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default AnswerWizard;
 

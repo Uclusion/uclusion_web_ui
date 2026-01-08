@@ -29,7 +29,7 @@ import { getMarketComments } from '../../../contexts/CommentsContext/commentsCon
 import { getCommentsSortedByType } from '../../../utils/commentFunctions';
 
 function EstimateCompletionStep(props) {
-  const { marketId, investibleId, message, updateFormData, formData } = props;
+  const { marketId, investibleId, message, updateFormData = () => {}, formData = {} } = props;
   const classes = wizardStyles();
   const intl = useIntl();
   const history = useHistory();
@@ -153,11 +153,6 @@ function EstimateCompletionStep(props) {
 EstimateCompletionStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-EstimateCompletionStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default EstimateCompletionStep;

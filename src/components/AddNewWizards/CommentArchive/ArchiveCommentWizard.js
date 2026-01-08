@@ -22,11 +22,5 @@ ArchiveCommentWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-ArchiveCommentWizard.defaultProps = {
-  onStartOver: () => {},
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default ArchiveCommentWizard;
 

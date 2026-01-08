@@ -29,8 +29,8 @@ import { useHistory } from 'react-router';
 import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
 
 function CloseCommentsStep(props) {
-  const { marketId, investibleId, formData, marketInfo, myFinish: finish, isAssign, requiresAction,
-    updateFormData, isSingleUser, assignId } = props;
+  const { marketId, investibleId, formData = {}, marketInfo, myFinish: finish, isAssign, requiresAction,
+    updateFormData = () => {}, isSingleUser, assignId } = props;
   const classes = useContext(WizardStylesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -160,11 +160,6 @@ function CloseCommentsStep(props) {
 CloseCommentsStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-CloseCommentsStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default CloseCommentsStep;

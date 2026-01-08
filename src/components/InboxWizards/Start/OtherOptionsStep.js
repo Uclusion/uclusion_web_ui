@@ -18,7 +18,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function OtherOptionsStep(props) {
-  const { marketId, commentId, message, updateFormData, formData } = props;
+  const { marketId, commentId, message, updateFormData = () => {}, formData = {} } = props;
   const [commentState, commentsDispatch] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -87,11 +87,6 @@ function OtherOptionsStep(props) {
 OtherOptionsStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-OtherOptionsStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default OtherOptionsStep;

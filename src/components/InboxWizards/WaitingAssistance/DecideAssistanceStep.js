@@ -31,7 +31,7 @@ import { YELLOW_LEVEL } from '../../../constants/notifications';
 import { getInboxTarget } from '../../../contexts/NotificationsContext/notificationsContextHelper';
 
 function DecideAssistanceStep(props) {
-  const { marketId, commentId, formData, updateFormData } = props;
+  const { marketId, commentId, formData = {}, updateFormData = () => {} } = props;
   const intl = useIntl();
   const [commentState] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -204,11 +204,6 @@ function DecideAssistanceStep(props) {
 DecideAssistanceStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideAssistanceStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideAssistanceStep;

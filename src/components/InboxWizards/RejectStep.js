@@ -82,9 +82,4 @@ RejectStep.propTypes = {
   formData: PropTypes.object
 };
 
-RejectStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default RejectStep;

@@ -11,8 +11,8 @@ import { CircularProgress, useTheme } from '@material-ui/core';
 export function withApiLock(Component) {
   function Locking(props) {
     const {
-      disabled,
-      onClick,
+      disabled = false,
+      onClick = () => {},
       children,
       ...rest
     } = props;
@@ -55,10 +55,6 @@ export function withApiLock(Component) {
   Locking.propTypes = {
     disabled: PropTypes.bool,
     onClick: PropTypes.func,
-  };
-  Locking.defaultProps = {
-    disabled: false,
-    onClick: () => {},
   };
   return Locking;
 }

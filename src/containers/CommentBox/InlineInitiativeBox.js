@@ -20,7 +20,7 @@ import { Typography } from '@material-ui/core';
 import TooltipIconButton from '../../components/Buttons/TooltipIconButton'
 
 function InlineInitiativeBox(props) {
-  const { anInlineMarket, removeActions, isTaskDisplay, typeObjectId, createdBy } = props;
+  const { anInlineMarket, removeActions = false, isTaskDisplay, typeObjectId, createdBy } = props;
   const history = useHistory();
   const [votingPageStateFull, votingPageDispatch] = usePageStateReducer('voting');
   const [votingPageState, updateVotingPageState] =
@@ -129,9 +129,5 @@ InlineInitiativeBox.propTypes = {
   anInlineMarket: PropTypes.object.isRequired,
   removeActions: PropTypes.bool
 };
-
-InlineInitiativeBox.defaultProps = {
-  removeActions: false
-}
 
 export default InlineInitiativeBox;

@@ -30,8 +30,8 @@ class EmailEntryBox extends React.Component{
     this.emailList = [];
     this.marketId = props.marketId;
     this.alreadyInList = props.alreadyInList || [];
-    this.setIsValid = props.setIsValid;
-    this.placeholder = props.placeholder;
+    this.setIsValid = props.setIsValid ?? (() => {});
+    this.placeholder = props.placeholder ?? 'Ex. bfollis@uclusion.com, disrael@uclusion.com';
     this.inputRef = React.createRef();
   }
    wizardStyles = {
@@ -267,11 +267,6 @@ EmailEntryBox.propTypes = {
   marketId: PropTypes.string.isRequired,
   placeholder: PropTypes.string,
   setIsValid: PropTypes.func
-};
-
-EmailEntryBox.defaultProps = {
-  placeholder: 'Ex. bfollis@uclusion.com, disrael@uclusion.com',
-  setIsValid: () => {}
 };
 
 export default EmailEntryBox;

@@ -23,10 +23,5 @@ StartWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-StartWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default StartWizard;
 

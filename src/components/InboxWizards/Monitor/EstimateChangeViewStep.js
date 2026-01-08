@@ -77,9 +77,4 @@ EstimateChangeViewStep.propTypes = {
   formData: PropTypes.object
 };
 
-EstimateChangeViewStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default EstimateChangeViewStep;

@@ -69,11 +69,5 @@ TaskInProgressWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-TaskInProgressWizard.defaultProps = {
-  onStartOver: () => {},
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default TaskInProgressWizard;
 

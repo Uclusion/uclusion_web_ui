@@ -72,9 +72,4 @@ AddCommentStep.propTypes = {
   formData: PropTypes.object
 };
 
-AddCommentStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default AddCommentStep;

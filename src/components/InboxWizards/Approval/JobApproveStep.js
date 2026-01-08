@@ -49,7 +49,7 @@ export function getJobApproveEditorName(investibleId) {
   return `jobapproveeditor${investibleId}`;
 }
 function JobApproveStep(props) {
-  const { marketId, updateFormData, formData, message, investibleId, yourVote, isAssigned } = props;
+  const { marketId, updateFormData = () => {}, formData = {}, message, investibleId, yourVote, isAssigned } = props;
   const intl = useIntl();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -210,11 +210,6 @@ function JobApproveStep(props) {
 JobApproveStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-JobApproveStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default JobApproveStep

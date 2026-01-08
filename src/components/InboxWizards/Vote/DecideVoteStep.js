@@ -14,7 +14,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function DecideVoteStep(props) {
-  const { marketId, commentRoot, formData, updateFormData } = props;
+  const { marketId, commentRoot, formData = {}, updateFormData = () => {} } = props;
   const [commentState] = useContext(CommentsContext);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -60,11 +60,6 @@ function DecideVoteStep(props) {
 DecideVoteStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideVoteStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideVoteStep;

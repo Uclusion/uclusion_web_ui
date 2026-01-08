@@ -29,7 +29,7 @@ import { NotificationsContext } from '../../../contexts/NotificationsContext/Not
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 
 function WhereDecisionStep (props) {
-  const { marketId, comment, comments, updateFormData, formData, previousStep } = props;
+  const { marketId, comment, comments, updateFormData = () => {}, formData = {}, previousStep } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const presences = usePresences(marketId);
@@ -168,11 +168,6 @@ function WhereDecisionStep (props) {
 WhereDecisionStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-WhereDecisionStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default WhereDecisionStep;

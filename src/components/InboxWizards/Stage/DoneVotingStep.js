@@ -29,7 +29,7 @@ import { getInvestible } from '../../../contexts/InvestibesContext/investiblesCo
 import { getMarketInfo } from '../../../utils/userFunctions';
 
 function DoneVotingStep(props) {
-  const { marketId, investibleId, groupId, formData, updateFormData } = props;
+  const { marketId, investibleId, groupId, formData = {}, updateFormData = () => {} } = props;
   const intl = useIntl();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -122,11 +122,6 @@ function DoneVotingStep(props) {
 DoneVotingStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DoneVotingStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DoneVotingStep;

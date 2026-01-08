@@ -22,7 +22,7 @@ import CondensedTodos from '../../../pages/Investible/Planning/CondensedTodos';
 import { getCommentThreads, getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function StartReviewStep(props) {
-  const { marketId, investibleId, groupId, formData, assignId } = props;
+  const { marketId, investibleId, groupId, formData = {}, assignId } = props;
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -102,11 +102,6 @@ function StartReviewStep(props) {
 StartReviewStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-StartReviewStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default StartReviewStep;

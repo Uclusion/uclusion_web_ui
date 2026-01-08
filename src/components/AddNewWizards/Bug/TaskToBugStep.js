@@ -39,7 +39,7 @@ const useStyles = makeStyles(
 );
 
 function TaskToBugStep (props) {
-  const { marketId, comment, comments, updateFormData, formData } = props;
+  const { marketId, comment, comments, updateFormData = () => {}, formData = {} } = props;
   const [commentsState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
@@ -141,11 +141,6 @@ function TaskToBugStep (props) {
 TaskToBugStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-TaskToBugStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default TaskToBugStep;

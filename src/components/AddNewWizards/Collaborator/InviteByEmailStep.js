@@ -17,7 +17,7 @@ import { formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 
 function InviteByEmailStep(props) {
-  const { formData, finish, marketId, updateFormData, displayFromOther, allAutonomousViews, isDemoMarket } = props;
+  const { formData = {}, finish, marketId, updateFormData = () => {}, displayFromOther, allAutonomousViews, isDemoMarket } = props;
   const classes = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
@@ -84,11 +84,6 @@ function InviteByEmailStep(props) {
 InviteByEmailStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-};
-
-InviteByEmailStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 };
 
 export default InviteByEmailStep;

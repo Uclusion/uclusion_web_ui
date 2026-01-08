@@ -19,10 +19,5 @@ NewGroupWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-NewGroupWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default NewGroupWizard;
 

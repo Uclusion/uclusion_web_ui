@@ -16,7 +16,7 @@ import Link from '@material-ui/core/Link';
 import { getGroupPresences, isAutonomousGroup } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function AssignViewsStep(props) {
-  const { finish, marketId, marketPresences, updateFormData, formData } = props;
+  const { finish, marketId, marketPresences, updateFormData = () => {}, formData = {} } = props;
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupMembersState, groupPresencesDispatch] = useContext(GroupMembersContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -93,11 +93,6 @@ function AssignViewsStep(props) {
 AssignViewsStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-};
-
-AssignViewsStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 };
 
 export default AssignViewsStep;

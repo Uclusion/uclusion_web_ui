@@ -30,13 +30,13 @@ import { BLUE_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
 
 function CondensedTodos(props) {
   const {
-    comments,
+    comments = [],
     investibleComments,
     marketInfo,
     marketId,
     groupId,
     isInbox = false,
-    hideTabs,
+    hideTabs = false,
     usePadding = true,
     isDefaultOpen = false,
     defaultToOpenComments = true,
@@ -302,11 +302,6 @@ CondensedTodos.propTypes = {
   comments: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
   hideTabs: PropTypes.bool
-};
-
-CondensedTodos.defaultProps = {
-  comments: [],
-  hideTabs: false
 };
 
 export default CondensedTodos;

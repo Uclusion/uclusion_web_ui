@@ -20,7 +20,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 
 function JobEditStep(props) {
-  const { marketId, investible, updateFormData, formData } = props;
+  const { marketId, investible, updateFormData = () => {}, formData = {} } = props;
   const intl = useIntl();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -111,11 +111,6 @@ function JobEditStep(props) {
 JobEditStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-JobEditStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default JobEditStep

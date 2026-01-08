@@ -41,9 +41,4 @@ SignOutWarningStep.propTypes = {
   formData: PropTypes.object
 };
 
-SignOutWarningStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default SignOutWarningStep;

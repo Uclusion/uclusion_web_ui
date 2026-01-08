@@ -107,7 +107,7 @@ function PlanningIdeas(props) {
     inReviewStageId,
     presenceId,
     groupId,
-    comments
+    comments = []
   } = props;
   const history = useHistory();
   const theme = useTheme();
@@ -385,11 +385,6 @@ PlanningIdeas.propTypes = {
   inReviewStageId: PropTypes.string.isRequired,
   inBlockingStageId: PropTypes.string.isRequired,
   presenceId: PropTypes.string.isRequired
-};
-
-PlanningIdeas.defaultProps = {
-  investibles: [],
-  comments: []
 };
 
 function Stage(props) {

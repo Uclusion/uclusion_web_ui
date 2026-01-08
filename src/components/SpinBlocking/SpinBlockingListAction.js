@@ -26,8 +26,8 @@ function SpinBlockingListAction(props) {
     openLabel,
     onClick,
     customClasses,
-    disabled,
-    doSpin
+    disabled = false,
+    doSpin = true
   } = props;
   const myClasses = useStyles()
   const classes = customClasses || myClasses
@@ -61,11 +61,6 @@ SpinBlockingListAction.propTypes = {
   customClasses: PropTypes.object,
   disabled: PropTypes.bool,
   doSpin: PropTypes.bool
-};
-
-SpinBlockingListAction.defaultProps = {
-  disabled: false,
-  doSpin: true
 };
 
 export default SpinBlockingListAction;

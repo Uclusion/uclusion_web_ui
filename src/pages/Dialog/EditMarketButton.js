@@ -33,9 +33,4 @@ EditMarketButton.propTypes = {
   labelId: PropTypes.string.isRequired,
 };
 
-EditMarketButton.defaultProps = {
-  onClick: () => {
-  },
-};
-
 export default EditMarketButton;

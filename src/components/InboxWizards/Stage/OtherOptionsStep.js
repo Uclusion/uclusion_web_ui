@@ -19,7 +19,7 @@ import { getMarketComments } from '../../../contexts/CommentsContext/commentsCon
 import { JOB_APPROVERS_WIZARD_TYPE } from '../../../constants/markets';
 
 function OtherOptionsStep(props) {
-  const { marketId, investibleId, groupId, formData, updateFormData, typeObjectId } = props;
+  const { marketId, investibleId, groupId, formData = {}, updateFormData = () => {}, typeObjectId } = props;
   const intl = useIntl();
   const [commentsState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -79,11 +79,6 @@ function OtherOptionsStep(props) {
 OtherOptionsStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-OtherOptionsStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default OtherOptionsStep;

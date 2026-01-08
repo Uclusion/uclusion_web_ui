@@ -66,9 +66,4 @@ JobUnlockStep.propTypes = {
   formData: PropTypes.object,
 }
 
-JobUnlockStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
-}
-
 export default JobUnlockStep

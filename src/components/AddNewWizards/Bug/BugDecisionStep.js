@@ -15,7 +15,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 
 function BugDecisionStep (props) {
-  const { marketId, comment, comments, updateFormData, formData } = props;
+  const { marketId, comment, comments, updateFormData = () => {}, formData = {} } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const history = useHistory();
@@ -112,11 +112,6 @@ function BugDecisionStep (props) {
 BugDecisionStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-BugDecisionStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default BugDecisionStep;

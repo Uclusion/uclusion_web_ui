@@ -15,7 +15,7 @@ import { useHistory } from 'react-router';
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function DisplayMarketStep(props) {
-  const { marketId, commentId, commentRoot, message, formData, updateFormData } = props;
+  const { marketId, commentId, commentRoot, message, formData = {}, updateFormData = () => {} } = props;
   const [commentState] = useContext(CommentsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
   const history = useHistory();
@@ -61,11 +61,6 @@ function DisplayMarketStep(props) {
 DisplayMarketStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DisplayMarketStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DisplayMarketStep;

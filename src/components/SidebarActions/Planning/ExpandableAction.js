@@ -41,7 +41,7 @@ function ExpandableAction(props) {
     openLabel,
     onClick,
     tipPlacement = 'bottom',
-    useWhiteText,
+    useWhiteText = false,
     disabled
   } = props;
 
@@ -82,10 +82,6 @@ ExpandableAction.propTypes = {
   onClick: PropTypes.func.isRequired,
   toolTip: PropTypes.string,
   useWhiteText: PropTypes.bool
-};
-
-ExpandableAction.defaultProps = {
-  useWhiteText: false,
 };
 
 export default ExpandableAction;

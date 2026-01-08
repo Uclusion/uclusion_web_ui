@@ -20,11 +20,5 @@ SignOutWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-SignOutWizard.defaultProps = {
-  onStartOver: () => {},
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default SignOutWizard;
 

@@ -19,10 +19,5 @@ WaitingAssistanceWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-WaitingAssistanceWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default WaitingAssistanceWizard;
 

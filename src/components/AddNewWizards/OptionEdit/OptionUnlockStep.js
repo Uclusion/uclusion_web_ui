@@ -61,9 +61,4 @@ OptionUnlockStep.propTypes = {
   formData: PropTypes.object,
 }
 
-OptionUnlockStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
-}
-
 export default OptionUnlockStep

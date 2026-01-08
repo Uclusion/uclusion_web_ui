@@ -30,10 +30,5 @@ ReviewWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-ReviewWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default ReviewWizard;
 

@@ -19,10 +19,5 @@ TriageWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-TriageWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default TriageWizard;
 

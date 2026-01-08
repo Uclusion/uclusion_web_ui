@@ -14,7 +14,7 @@ import { doCreateGroup } from '../Group/groupCreator';
 import { NAME_MAX_LENGTH } from '../../TextFields/NameField';
 
 function CreateTeamViewStep(props) {
-  const { updateFormData, formData, marketId, setViewCreated } = props;
+  const { updateFormData = () => {}, formData = {}, marketId, setViewCreated } = props;
   const intl = useIntl();
   const value = formData.name || '';
   const validForm = !_.isEmpty(value);
@@ -89,11 +89,6 @@ function CreateTeamViewStep(props) {
 CreateTeamViewStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-};
-
-CreateTeamViewStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 };
 
 export default CreateTeamViewStep;

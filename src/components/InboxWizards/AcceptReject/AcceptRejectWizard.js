@@ -19,10 +19,5 @@ AcceptRejectWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-AcceptRejectWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default AcceptRejectWizard;
 

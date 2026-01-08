@@ -287,7 +287,7 @@ export function hasCommentValue(groupId, parent, nameKey, fromInvestibleId, name
 }
 
 function CommentAdd(props) {
-  const { marketId, groupId, onSave, type, parent, nameKey, fromInvestibleId, mentionsAllowed, commentAddState, fromDecisionInvestibleId, 
+  const { marketId, groupId, onSave = () => {}, type, parent, nameKey, fromInvestibleId, mentionsAllowed = true, commentAddState, fromDecisionInvestibleId,
     updateCommentAddState, commentAddStateReset, autoFocus=true, threadMessages, nameDifferentiator='', wizardProps} = props;
   const {
     uploadedFiles
@@ -596,13 +596,6 @@ CommentAdd.propTypes = {
   investible: PropTypes.object,
   parent: PropTypes.object,
   mentionsAllowed: PropTypes.bool,
-};
-
-CommentAdd.defaultProps = {
-  parent: null,
-  investible: null,
-  onSave: () => {},
-  mentionsAllowed: true,
 };
 
 export default CommentAdd;

@@ -267,12 +267,4 @@ AddEditVote.propTypes = {
   multiplier: PropTypes.number,
 };
 
-AddEditVote.defaultProps = {
-  hasVoted: false,
-  allowMultiVote: true,
-  investment: {},
-  onSave: () => {},
-  multipler: 1,
-};
-
 export default AddEditVote;

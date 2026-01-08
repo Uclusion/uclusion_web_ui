@@ -19,10 +19,5 @@ RespondInOptionWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-RespondInOptionWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default RespondInOptionWizard;
 

@@ -38,7 +38,7 @@ export function hasReply(comment) {
 }
 
 function ReplyStep(props) {
-  const { marketId, commentId, updateFormData, formData } = props;
+  const { marketId, commentId, updateFormData = () => {}, formData = {} } = props;
   const history = useHistory();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -169,11 +169,6 @@ function ReplyStep(props) {
 ReplyStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-ReplyStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default ReplyStep;

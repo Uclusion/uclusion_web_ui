@@ -25,7 +25,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import Link from '@material-ui/core/Link';
 
 function ArchiveWarningStep(props) {
-  const { marketId, commentId, isInbox, formData, updateFormData, typeObjectId } = props;
+  const { marketId, commentId, isInbox, formData = {}, updateFormData = () => {}, typeObjectId } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -100,11 +100,6 @@ function ArchiveWarningStep(props) {
 ArchiveWarningStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-ArchiveWarningStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default ArchiveWarningStep;

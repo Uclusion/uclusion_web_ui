@@ -26,9 +26,9 @@ const useStyles = makeStyles(() => {
 
 function AssigneeFilterDropdown(props) {
   const {
-    presences,
-    value,
-    onChange,
+    presences = [],
+    value = '',
+    onChange = () => {},
   } = props;
 
   const intl = useIntl();
@@ -82,13 +82,6 @@ AssigneeFilterDropdown.propTypes = {
   presences: PropTypes.arrayOf(PropTypes.object),
   value: PropTypes.string,
   onChange: PropTypes.func,
-};
-
-AssigneeFilterDropdown.defaultProps = {
-  presences: [],
-  value: '',
-  onChange: () => {
-  },
 };
 
 export default AssigneeFilterDropdown;

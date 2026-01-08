@@ -24,7 +24,7 @@ import _ from 'lodash';
 import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideReviewStep(props) {
-  const { marketId, report, message, formData, updateFormData } = props;
+  const { marketId, report, message, formData = {}, updateFormData = () => {} } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
@@ -90,11 +90,6 @@ function DecideReviewStep(props) {
 DecideReviewStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideReviewStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideReviewStep;

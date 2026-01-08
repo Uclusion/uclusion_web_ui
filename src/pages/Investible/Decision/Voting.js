@@ -277,9 +277,4 @@ Voting.propTypes = {
   investibleId: PropTypes.string
 };
 
-Voting.defaultProps = {
-  investmentReasons: [],
-  marketPresences: []
-};
-
 export default Voting;

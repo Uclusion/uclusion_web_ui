@@ -34,7 +34,7 @@ const useStyles = makeStyles(
 );
 
 function ReadOnlyQuillEditor(props) {
-  const { value, setBeingEdited, isEditable, id, noOverflow } = props;
+  const { value = '', setBeingEdited = () => {}, isEditable = false, id, noOverflow } = props;
   const classes = useStyles();
 
   if (!id) {
@@ -64,12 +64,6 @@ ReadOnlyQuillEditor.propTypes = {
   value: PropTypes.string,
   setBeingEdited: PropTypes.func,
   isEditable: PropTypes.bool,
-};
-
-ReadOnlyQuillEditor.defaultProps = {
-  value: '',
-  setBeingEdited: () => {},
-  isEditable: false
 };
 
 export default React.memo(ReadOnlyQuillEditor);

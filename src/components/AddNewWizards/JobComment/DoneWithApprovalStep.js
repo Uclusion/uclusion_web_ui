@@ -71,9 +71,4 @@ DoneWithApprovalStep.propTypes = {
   formData: PropTypes.object,
 }
 
-DoneWithApprovalStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
-}
-
 export default DoneWithApprovalStep

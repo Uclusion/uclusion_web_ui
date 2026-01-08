@@ -21,10 +21,5 @@ TaskedWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-TaskedWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default TaskedWizard;
 

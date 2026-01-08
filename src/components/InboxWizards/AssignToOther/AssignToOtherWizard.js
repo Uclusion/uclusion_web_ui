@@ -28,10 +28,5 @@ AssignToOtherWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-AssignToOtherWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default AssignToOtherWizard;
 

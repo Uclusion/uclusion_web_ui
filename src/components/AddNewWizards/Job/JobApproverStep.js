@@ -27,7 +27,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function JobApproverStep(props) {
-  const { marketId, updateFormData, formData, groupId, moveFromComments, roots, previousStep } = props;
+  const { marketId, updateFormData = () => {}, formData = {}, groupId, moveFromComments, roots, previousStep } = props;
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
@@ -156,11 +156,6 @@ function JobApproverStep(props) {
 JobApproverStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-JobApproverStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default JobApproverStep

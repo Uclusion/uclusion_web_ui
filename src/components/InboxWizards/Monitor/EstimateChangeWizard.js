@@ -20,10 +20,5 @@ EstimateChangeWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-EstimateChangeWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default EstimateChangeWizard;
 

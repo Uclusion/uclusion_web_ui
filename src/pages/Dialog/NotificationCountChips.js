@@ -1,5 +1,4 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import {
   makeStyles, Tooltip
 } from '@material-ui/core'

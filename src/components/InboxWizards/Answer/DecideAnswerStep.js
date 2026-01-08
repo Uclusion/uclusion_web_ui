@@ -19,7 +19,7 @@ import { useHistory } from 'react-router';
 import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideAnswerStep(props) {
-  const { marketId, commentId, message, formData, updateFormData } = props;
+  const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -84,11 +84,6 @@ function DecideAnswerStep(props) {
 DecideAnswerStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideAnswerStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideAnswerStep;

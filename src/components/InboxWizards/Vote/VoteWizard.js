@@ -33,10 +33,5 @@ VoteWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-VoteWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default VoteWizard;
 

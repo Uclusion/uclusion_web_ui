@@ -30,11 +30,5 @@ JobAssigneeWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-JobAssigneeWizard.defaultProps = {
-  onStartOver: () => {},
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default JobAssigneeWizard;
 

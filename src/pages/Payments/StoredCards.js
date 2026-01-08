@@ -18,7 +18,7 @@ function capitalize(string) {
 
 function StoredCards (props) {
   const {
-    billingInfo
+    billingInfo = []
   } = props;
   const classes = useStyles();
 
@@ -57,10 +57,6 @@ function StoredCards (props) {
 
 StoredCards.propTypes = {
   billingInfo: PropTypes.arrayOf(PropTypes.object),
-};
-
-StoredCards.defaultProps = {
-  billingInfo: [],
 };
 
 export default StoredCards;

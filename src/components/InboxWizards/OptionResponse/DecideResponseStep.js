@@ -86,9 +86,4 @@ DecideResponseStep.propTypes = {
   formData: PropTypes.object
 };
 
-DecideResponseStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default DecideResponseStep;

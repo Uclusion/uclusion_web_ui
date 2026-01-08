@@ -11,7 +11,7 @@ import { useHistory } from 'react-router';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 
 function VoteCertaintyStep(props) {
-  const { market, investibleId, formData, updateFormData, isFor, showSwitch, currentReasonId, wasDeleted } = props;
+  const { market, investibleId, formData = {}, updateFormData = () => {}, isFor, showSwitch, currentReasonId, wasDeleted } = props;
   const [commentsState] = useContext(CommentsContext);
   const history = useHistory();
   const { parent_comment_id: parentCommentId, parent_comment_market_id: parentMarketId } = market;
@@ -72,11 +72,6 @@ function VoteCertaintyStep(props) {
 VoteCertaintyStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-VoteCertaintyStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default VoteCertaintyStep

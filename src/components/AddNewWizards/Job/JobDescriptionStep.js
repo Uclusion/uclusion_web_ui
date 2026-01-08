@@ -37,7 +37,7 @@ import { getGroupPresences } from '../../../contexts/MarketPresencesContext/mark
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 
 function JobDescriptionStep (props) {
-  const { marketId, groupId, updateFormData, onFinish, roots, formData, jobType, startOver, nextStep,
+  const { marketId, groupId, updateFormData = () => {}, onFinish, roots, formData = {}, jobType, startOver, nextStep,
     moveFromComments, isSingleUser, myPresenceId, presences } = props;
   const history = useHistory();
   const intl = useIntl();
@@ -286,11 +286,6 @@ function JobDescriptionStep (props) {
 JobDescriptionStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-JobDescriptionStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default JobDescriptionStep;

@@ -19,7 +19,7 @@ import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constan
 import { getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 
 function JobAssignStep (props) {
-  const { marketId, updateFormData, formData, investibleId, marketInfo, myFinish: finish, requiresAction } = props;
+  const { marketId, updateFormData = () => {}, formData = {}, investibleId, marketInfo, myFinish: finish, requiresAction } = props;
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -124,11 +124,6 @@ function JobAssignStep (props) {
 JobAssignStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-JobAssignStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default JobAssignStep

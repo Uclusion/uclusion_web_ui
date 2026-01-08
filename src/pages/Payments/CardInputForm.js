@@ -81,7 +81,7 @@ const useStyles = makeStyles(theme => ({
 const EMPTY_DETAILS = { name: '', email: '', phone: '' };
 
 function CardInputForm(props) {
-  const { onUpdate, onSubmit, submitLabelId, onCancel, wizardProps, stripe } = props;
+  const { onUpdate = () => {}, onSubmit, submitLabelId = 'upgradeFormUpgradeLabel', onCancel, wizardProps, stripe } = props;
 
   const classes = useStyles();
   const elements = useElements();
@@ -259,9 +259,4 @@ CardInputForm.propTypes = {
   submitLabelId: PropTypes.string,
 };
 
-CardInputForm.defaultProps = {
-  onUpdate: () => {},
-  onSubmit: undefined,
-  submitLabelId: 'upgradeFormUpgradeLabel',
-};
 export default CardInputForm;

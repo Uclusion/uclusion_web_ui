@@ -503,13 +503,4 @@ DecisionInvestible.propTypes = {
   removeActions: PropTypes.bool
 };
 
-DecisionInvestible.defaultProps = {
-  marketPresences: [],
-  investibleComments: [],
-  comments: [],
-  isAdmin: false,
-  inArchives: false,
-  removeActions: false
-};
-
 export default DecisionInvestible;

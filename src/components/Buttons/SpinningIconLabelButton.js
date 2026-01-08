@@ -140,9 +140,4 @@ SpinningIconLabelButton.propTypes = {
   icon: PropTypes.object.isRequired
 };
 
-SpinningIconLabelButton.defaultProps = {
-  disabled: false,
-  doSpin: true
-};
-
 export default SpinningIconLabelButton;

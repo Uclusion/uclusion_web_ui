@@ -25,7 +25,7 @@ import { getMarketPresences } from '../../../contexts/MarketPresencesContext/mar
 import { isAutonomousGroup } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 
 function FindJobStep(props) {
-  const { marketId, commentId, updateFormData, formData, message } = props;
+  const { marketId, commentId, updateFormData = () => {}, formData = {}, message } = props;
   const history = useHistory();
   const classes = wizardStyles();
   const [commentState, commentsDispatch] = useContext(CommentsContext);
@@ -106,11 +106,6 @@ function FindJobStep(props) {
 FindJobStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-FindJobStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default FindJobStep

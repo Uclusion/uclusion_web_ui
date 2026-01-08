@@ -496,7 +496,7 @@ function isSubTask(comment, commentsState, isPlanning) {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, noAuthor, reallyNoAuthor, isReply, wizardProps,
+  const { comment, marketId, comments, noAuthor = false, reallyNoAuthor, isReply, wizardProps,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, toggleCompression: toggleCompressionRaw, useCompression, showVoting, selectedInvestibleIdParent,
     isMove, idPrepend='c', usePadding=true, compressAll=false, focusMove=false } = props;
@@ -1312,11 +1312,6 @@ Comment.propTypes = {
   readOnly: PropTypes.bool,
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired
-};
-
-Comment.defaultProps = {
-  noAuthor: false,
-  readOnly: false
 };
 
 const unknownPresence = {

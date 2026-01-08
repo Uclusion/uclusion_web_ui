@@ -14,7 +14,7 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import _ from 'lodash';
 
 function RemoveInProgressStep (props) {
-  const { otherInProgress, comment, formData, updateFormData, marketId } = props;
+  const { otherInProgress, comment, formData = {}, updateFormData = () => {}, marketId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
@@ -98,11 +98,6 @@ function RemoveInProgressStep (props) {
 RemoveInProgressStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-RemoveInProgressStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default RemoveInProgressStep

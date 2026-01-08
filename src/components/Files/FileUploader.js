@@ -12,8 +12,8 @@ import { useIntl } from 'react-intl';
 function FileUploader(props) {
   const {
     marketId,
-    onUpload,
-    setUploadInProgress,
+    onUpload = () => {},
+    setUploadInProgress = () => {},
   } = props;
 
   const intl = useIntl();
@@ -61,11 +61,6 @@ FileUploader.propTypes = {
   marketId: PropTypes.string.isRequired,
   onUpload: PropTypes.func,
   setUploadInProgress: PropTypes.func,
-};
-
-FileUploader.defaultProps = {
-  onUpload: () => {},
-  setUploadInProgress: () => {},
 };
 
 export default FileUploader;

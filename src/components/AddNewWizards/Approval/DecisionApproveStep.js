@@ -23,7 +23,7 @@ import { ISSUE_TYPE } from '../../../constants/comments';
 import { hasDecisionComment } from '../DecisionComment/AddCommentStep';
 
 function DecisionApproveStep(props) {
-  const { market, updateFormData, formData, investibleId, hasOtherVote, currentReasonId } = props;
+  const { market, updateFormData = () => {}, formData = {}, investibleId, hasOtherVote, currentReasonId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -142,11 +142,6 @@ function DecisionApproveStep(props) {
 DecisionApproveStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-DecisionApproveStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default DecisionApproveStep

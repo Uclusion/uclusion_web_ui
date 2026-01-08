@@ -373,10 +373,4 @@ CommentEdit.propTypes = {
   isWizard: PropTypes.bool
 };
 
-CommentEdit.defaultProps = {
-  allowedTypes: [],
-  onSave: () => {},
-  isWizard: false
-};
-
 export default CommentEdit;

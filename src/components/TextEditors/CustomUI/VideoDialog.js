@@ -8,9 +8,9 @@ import TextField from '@material-ui/core/TextField';
 
 function VideoDialog (props) {
   const {
-    open,
-    onSave,
-    onClose
+    open = false,
+    onSave = () => {},
+    onClose = () => {}
   } = props;
 
   const [videoUrl, setVideoUrl] = useState("");
@@ -75,12 +75,5 @@ VideoDialog.propTypes = {
   onClose: PropTypes.func,
   open: PropTypes.bool,
 };
-
-VideoDialog.defaultProps = {
-  open: false,
-  onSave: () => {},
-  onClose: () => {},
-}
-
 
 export default VideoDialog;

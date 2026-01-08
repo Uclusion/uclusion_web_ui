@@ -20,7 +20,7 @@ export const NAME_MAX_LENGTH = 80;
 
 function NameField(props) {
   const {
-    editorName, label, placeHolder, id, useCreateDefault, scrollId, initialValue, setHasValue, maxWidth, autoFocus=true,
+    editorName, label = "agilePlanFormTitleLabel", placeHolder = "storyTitlePlaceholder", id, useCreateDefault = false, scrollId, initialValue, setHasValue = () => {}, maxWidth = '43rem', autoFocus=true,
   } = props;
   const intl = useIntl();
   const defaultValue = getNameStoredState(id) || initialValue;
@@ -96,14 +96,6 @@ NameField.propTypes = {
   useCreateDefault: PropTypes.bool,
   setHasValue: PropTypes.func,
   maxWidth: PropTypes.string
-}
-
-NameField.defaultProps = {
-  placeHolder: "storyTitlePlaceholder",
-  label: "agilePlanFormTitleLabel",
-  useCreateDefault: false,
-  setHasValue: () => {},
-  maxWidth: '43rem'
 }
 
 export default React.memo(NameField)

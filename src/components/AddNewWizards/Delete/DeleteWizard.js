@@ -21,11 +21,5 @@ DeleteWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-DeleteWizard.defaultProps = {
-  onStartOver: () => {},
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default DeleteWizard;
 

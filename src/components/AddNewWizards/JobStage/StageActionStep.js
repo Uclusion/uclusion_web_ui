@@ -32,7 +32,7 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { getMarketInfo } from '../../../utils/userFunctions';
 
 function StageActionStep(props) {
-  const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId, assignId } = props;
+  const { marketId, groupId, updateFormData = () => {}, formData = {}, investibleId, currentReasonId, assignId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -183,11 +183,6 @@ function StageActionStep(props) {
 StageActionStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-StageActionStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default StageActionStep

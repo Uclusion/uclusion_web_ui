@@ -42,8 +42,4 @@ StepHeaders.propTypes = {
   totalSteps: PropTypes.number.isRequired,
 };
 
-StepHeaders.defaultProps = {
-  hideSteppers: false,
-};
-
 export default StepHeaders;

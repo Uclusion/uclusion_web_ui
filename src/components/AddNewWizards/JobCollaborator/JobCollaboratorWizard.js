@@ -22,11 +22,5 @@ JobCollaboratorWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-JobCollaboratorWizard.defaultProps = {
-  onStartOver: () => {},
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default JobCollaboratorWizard;
 

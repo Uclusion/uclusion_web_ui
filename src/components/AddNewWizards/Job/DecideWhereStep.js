@@ -24,7 +24,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function DecideWhereStep (props) {
-  const { marketId, fromCommentIds, marketComments, updateFormData, formData, isDiscussion, useType } = props;
+  const { marketId, fromCommentIds, marketComments, updateFormData = () => {}, formData = {}, isDiscussion, useType } = props;
   const history = useHistory();
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
@@ -139,11 +139,6 @@ function DecideWhereStep (props) {
 DecideWhereStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideWhereStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideWhereStep;

@@ -529,8 +529,4 @@ MarketTodos.propTypes = {
   marketId: PropTypes.string.isRequired,
 };
 
-MarketTodos.defaultProps = {
-  comments: [],
-};
-
 export default MarketTodos;

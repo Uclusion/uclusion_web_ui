@@ -22,7 +22,7 @@ import { formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { JOB_APPROVERS_WIZARD_TYPE } from '../../../constants/markets';
 
 function DecideFeedbackStep(props) {
-  const { marketId, investibleId, message, updateFormData, formData } = props;
+  const { marketId, investibleId, message, updateFormData = () => {}, formData = {} } = props;
   const intl = useIntl();
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
@@ -87,11 +87,6 @@ function DecideFeedbackStep(props) {
 DecideFeedbackStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideFeedbackStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideFeedbackStep;

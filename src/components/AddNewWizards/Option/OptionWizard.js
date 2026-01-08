@@ -38,11 +38,5 @@ OptionWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-OptionWizard.defaultProps = {
-  onStartOver: () => {},
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default OptionWizard;
 

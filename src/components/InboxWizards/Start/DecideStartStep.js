@@ -97,9 +97,4 @@ DecideStartStep.propTypes = {
   formData: PropTypes.object
 };
 
-DecideStartStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default DecideStartStep;

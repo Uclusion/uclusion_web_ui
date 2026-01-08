@@ -19,10 +19,5 @@ InvestibleEditedWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-InvestibleEditedWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default InvestibleEditedWizard;
 

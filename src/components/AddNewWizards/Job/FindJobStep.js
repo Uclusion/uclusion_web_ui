@@ -17,7 +17,7 @@ import { getGroupPresences, getMarketPresences, isAutonomousGroup } from '../../
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 
 function FindJobStep(props) {
-  const { marketId, groupId, updateFormData, formData, startOver, moveFromComments, roots, isConvert, useType } = props;
+  const { marketId, groupId, updateFormData = () => {}, formData = {}, startOver, moveFromComments, roots, isConvert, useType } = props;
   const history = useHistory();
   const classes = useContext(WizardStylesContext);
   const [investiblesState] = useContext(InvestiblesContext);
@@ -94,11 +94,6 @@ function FindJobStep(props) {
 FindJobStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-FindJobStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default FindJobStep

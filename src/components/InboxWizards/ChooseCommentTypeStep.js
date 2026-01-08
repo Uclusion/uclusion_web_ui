@@ -13,7 +13,7 @@ import { JOB_COMMENT_WIZARD_TYPE } from '../../constants/markets';
 import { useHistory } from 'react-router';
 
 function ChooseCommentTypeStep (props) {
-  const { marketId, investibleId, message, updateFormData, formData } = props;
+  const { marketId, investibleId, message, updateFormData = () => {}, formData = {} } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const allowedTypes = [ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE];
@@ -78,11 +78,6 @@ function ChooseCommentTypeStep (props) {
 ChooseCommentTypeStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-ChooseCommentTypeStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default ChooseCommentTypeStep;

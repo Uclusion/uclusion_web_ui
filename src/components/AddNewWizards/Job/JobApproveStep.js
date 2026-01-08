@@ -25,7 +25,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import JobDescription from '../../InboxWizards/JobDescription';
 
 function JobApproveStep(props) {
-  const { marketId, groupId, updateFormData, formData, onFinish } = props;
+  const { marketId, groupId, updateFormData = () => {}, formData = {}, onFinish } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -160,11 +160,6 @@ function JobApproveStep(props) {
 JobApproveStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-JobApproveStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default JobApproveStep

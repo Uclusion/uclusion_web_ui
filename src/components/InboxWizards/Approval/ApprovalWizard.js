@@ -30,10 +30,5 @@ ApprovalWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-ApprovalWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default ApprovalWizard;
 

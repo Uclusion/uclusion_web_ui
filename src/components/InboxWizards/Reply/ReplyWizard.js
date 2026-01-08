@@ -45,10 +45,5 @@ ReplyWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-ReplyWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default ReplyWizard;
 

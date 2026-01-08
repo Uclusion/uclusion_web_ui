@@ -36,7 +36,7 @@ import {
 import { BUG_WIZARD_TYPE, JOB_COMMENT_CONFIGURE_WIZARD_TYPE } from '../../../constants/markets';
 
 function OtherOptionsStep(props) {
-  const { marketId, commentId, message, formData, updateFormData } = props;
+  const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -136,11 +136,6 @@ function OtherOptionsStep(props) {
 OtherOptionsStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-OtherOptionsStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default OtherOptionsStep;

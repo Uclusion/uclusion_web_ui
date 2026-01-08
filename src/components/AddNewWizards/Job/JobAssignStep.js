@@ -27,7 +27,7 @@ import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { createJobNameFromComments } from '../../../pages/Dialog/Planning/userUtils';
 
 function JobAssignStep (props) {
-  const { marketId, updateFormData, formData, onFinish, assigneeId, groupId, moveFromComments, roots } = props;
+  const { marketId, updateFormData = () => {}, formData = {}, onFinish, assigneeId, groupId, moveFromComments, roots } = props;
   const history = useHistory();
   const value = formData.wasSet ? (formData.assigned || []) : (assigneeId ? [assigneeId] : []);
   const validForm = !_.isEmpty(value);
@@ -156,11 +156,6 @@ function JobAssignStep (props) {
 JobAssignStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-JobAssignStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default JobAssignStep

@@ -13,7 +13,7 @@ import { MarketStagesContext } from '../../../contexts/MarketStagesContext/Marke
 import { SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
 
 function DecideResolveStep(props) {
-  const { marketId, commentId, marketComments, updateFormData, formData } = props;
+  const { marketId, commentId, marketComments, updateFormData = () => {}, formData = {} } = props;
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const comment = (marketComments || []).find((comment) => comment.id === commentId) || {id: 'fake'};
@@ -93,11 +93,6 @@ function DecideResolveStep(props) {
 DecideResolveStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideResolveStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideResolveStep;

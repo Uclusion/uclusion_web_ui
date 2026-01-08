@@ -24,7 +24,7 @@ import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 import _ from 'lodash';
 
 function TaskReviewStep(props) {
-  const { marketId, message, formData, updateFormData } = props;
+  const { marketId, message, formData = {}, updateFormData = () => {} } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
@@ -104,11 +104,6 @@ function TaskReviewStep(props) {
 TaskReviewStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-TaskReviewStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default TaskReviewStep;

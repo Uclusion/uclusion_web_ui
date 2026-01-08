@@ -28,7 +28,7 @@ import { findMessageOfType } from '../../../utils/messageUtils';
 import { dismissWorkListItem } from '../../../pages/Home/YourWork/WorkListItem';
 
 function JobApproveStep(props) {
-  const { marketId, groupId, updateFormData, formData, investibleId, currentReasonId } = props;
+  const { marketId, groupId, updateFormData = () => {}, formData = {}, investibleId, currentReasonId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -162,11 +162,6 @@ function JobApproveStep(props) {
 JobApproveStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-JobApproveStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default JobApproveStep

@@ -195,9 +195,4 @@ AddNewUsers.propTypes = {
   onSave: PropTypes.func,
 }
 
-AddNewUsers.defaultProps = {
-  onSave: () => {
-  },
-}
-
 export default AddNewUsers

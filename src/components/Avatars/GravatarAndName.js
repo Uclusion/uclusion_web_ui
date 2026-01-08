@@ -7,14 +7,14 @@ import PropTypes from 'prop-types';
 function GravatarAndName(props) {
 
   const {
-    email,
-    name,
+    email = '',
+    name = '',
     label,
-    useBlank,
-    avatarClassName,
-    typographyClassName,
+    useBlank = false,
+    avatarClassName = '',
+    typographyClassName = '',
     typographyComponent,
-    typographyVariant,
+    typographyVariant = 'body1',
     useMarginBottom
   } = props;
 
@@ -45,16 +45,6 @@ GravatarAndName.propTypes = {
   typographyComponent: PropTypes.string,
   typographyVariant: PropTypes.string,
   useBlank: PropTypes.bool,
-};
-
-GravatarAndName.defaultProps = {
-  email: '',
-  name: '',
-  typographyClassName: '',
-  avatarClassName: '',
-  useBlank: false,
-  typographyComponent: undefined,
-  typographyVariant: 'body1',
 };
 
 export default GravatarAndName;

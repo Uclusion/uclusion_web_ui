@@ -33,10 +33,5 @@ StageWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-StageWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default StageWizard;
 

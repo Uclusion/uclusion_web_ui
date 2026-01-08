@@ -142,8 +142,4 @@ InvesibleCommentLinker.propTypes = {
   hidden: PropTypes.bool
 };
 
-InvesibleCommentLinker.defaultProps = {
-  hidden: false,
-};
-
 export default InvesibleCommentLinker;

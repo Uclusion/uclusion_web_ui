@@ -21,7 +21,7 @@ export function hasDecisionComment(groupId, commentType, investibleId) {
 }
 
 function AddCommentStep (props) {
-  const { investibleId, commentType, marketId, groupId, formData, updateFormData } = props;
+  const { investibleId, commentType, marketId, groupId, formData = {}, updateFormData = () => {} } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [marketsState] = useContext(MarketsContext);
@@ -89,11 +89,6 @@ function AddCommentStep (props) {
 AddCommentStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-AddCommentStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default AddCommentStep;

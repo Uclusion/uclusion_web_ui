@@ -96,7 +96,7 @@ export function sortInProgress(roots, investibleComments) {
 
 function CommentBox(props) {
   const { comments, marketId, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId, isReply, wizardProps,
-    fullStage, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
+    fullStage = {}, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
     showVoting, selectedInvestibleIdParent, preserveOrder, isMove, toggleCompression, useCompression: rawUseCompression,
     useInProgressSorting, displayRepliesAsTop=false, compressAll=false, singleWorkspaceUser } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -198,9 +198,5 @@ CommentBox.propTypes = {
   marketId: PropTypes.string.isRequired,
   fullStage: PropTypes.object
 };
-
-CommentBox.defaultProps = {
-  fullStage: {}
-}
 
 export default CommentBox;

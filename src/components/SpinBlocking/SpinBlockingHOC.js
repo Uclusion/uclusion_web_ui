@@ -8,11 +8,11 @@ export function withSpinLock(Component) {
   const Spinning = function (props) {
     const {
       id,
-      onClick,
-      onError,
+      onClick = () => {},
+      onError = () => {},
       children,
-      disabled,
-      doSpin,
+      disabled = false,
+      doSpin = true,
       ...rest
     } = props;
 
@@ -57,12 +57,6 @@ export function withSpinLock(Component) {
     disabled: PropTypes.bool,
     doSpin: PropTypes.bool,
     id: PropTypes.string.isRequired
-  };
-  Spinning.defaultProps = {
-    onClick: () => {},
-    onError: () => {},
-    disabled: false,
-    doSpin: true
   };
   return Spinning;
 }

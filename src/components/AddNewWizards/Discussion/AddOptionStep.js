@@ -24,7 +24,7 @@ import { DECISION_TYPE } from '../../../constants/markets';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 
 function AddOptionStep(props) {
-  const { formData } = props;
+  const { formData = {} } = props;
   const { inlineMarketId, commentId, marketId, groupId } = formData;
   const editorName = `addOptionWizard${inlineMarketId}`;
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
@@ -138,11 +138,6 @@ function AddOptionStep(props) {
 AddOptionStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-AddOptionStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default AddOptionStep;

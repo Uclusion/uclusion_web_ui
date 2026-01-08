@@ -94,7 +94,7 @@ export function displayLinksList(filesList, fileBaseUrl, marketId, onDeleteClick
 
 function AttachedFilesList(props) {
 
-  const { marketId, attachedFiles, onUpload, onDeleteClick } = props;
+  const { marketId, attachedFiles = [], onUpload = () => {}, onDeleteClick } = props;
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const classes = attachedFilesStyles();
   const intl = useIntl();
@@ -130,12 +130,6 @@ AttachedFilesList.propTypes = {
   marketId: PropTypes.string.isRequired,
   onDeleteClick: PropTypes.func,
   isAdmin: PropTypes.bool,
-};
-
-AttachedFilesList.defaultProps = {
-  attachedFiles: [],
-  onUpload: () => {},
-  isAdmin: false
 };
 
 export default AttachedFilesList;

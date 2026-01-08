@@ -57,11 +57,5 @@ JobEditWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-JobEditWizard.defaultProps = {
-  onStartOver: () => {},
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default JobEditWizard;
 

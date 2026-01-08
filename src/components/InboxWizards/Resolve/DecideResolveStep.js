@@ -35,7 +35,7 @@ import { addMarketToStorage, getMarket } from '../../../contexts/MarketsContext/
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function DecideResolveStep(props) {
-  const { marketId, commentId, message, formData, updateFormData } = props;
+  const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -223,11 +223,6 @@ function DecideResolveStep(props) {
 DecideResolveStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideResolveStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideResolveStep;

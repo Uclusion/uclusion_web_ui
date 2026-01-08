@@ -61,8 +61,4 @@ InfoText.propTypes = {
   useDl: PropTypes.bool,
 };
 
-InfoText.defaultProps = {
-  useDl: true,
-};
-
 export default InfoText;

@@ -22,11 +22,5 @@ JobApproverWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-JobApproverWizard.defaultProps = {
-  onStartOver: () => {},
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default JobApproverWizard;
 

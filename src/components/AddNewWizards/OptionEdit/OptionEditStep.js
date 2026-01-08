@@ -21,7 +21,7 @@ import { DiffContext } from '../../../contexts/DiffContext/DiffContext';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 
 function OptionEditStep(props) {
-  const { marketId, investible, updateFormData, formData, parentComment } = props;
+  const { marketId, investible, updateFormData = () => {}, formData = {}, parentComment } = props;
   const intl = useIntl();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -128,11 +128,6 @@ function OptionEditStep(props) {
 OptionEditStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-OptionEditStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default OptionEditStep

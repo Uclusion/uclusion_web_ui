@@ -194,11 +194,5 @@ JobWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-JobWizard.defaultProps = {
-  onStartOver: () => {},
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default JobWizard;
 

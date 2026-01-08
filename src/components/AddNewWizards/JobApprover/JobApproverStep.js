@@ -18,7 +18,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import JobDescription from '../../InboxWizards/JobDescription';
 
 function JobApproverStep (props) {
-  const { marketId, updateFormData, formData, onFinish, investibleId } = props;
+  const { marketId, updateFormData = () => {}, formData = {}, onFinish, investibleId } = props;
   const history = useHistory();
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -92,11 +92,6 @@ function JobApproverStep (props) {
 JobApproverStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object,
-}
-
-JobApproverStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {},
 }
 
 export default JobApproverStep

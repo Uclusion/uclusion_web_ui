@@ -9,9 +9,9 @@ import { preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 
 function LinkDialog (props) {
   const {
-    open,
-    onSave,
-    onClose,
+    open = false,
+    onSave = () => {},
+    onClose = () => {},
   } = props;
 
   const [linkUrl, setLinkUrl] = useState("");
@@ -90,12 +90,6 @@ LinkDialog.propTypes = {
   onClose: PropTypes.func,
   open: PropTypes.bool,
 };
-
-LinkDialog.defaultProps = {
-  open: false,
-  onSave: () => {},
-  onClose: () => {},
-}
 
 
 export default LinkDialog;

@@ -39,7 +39,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 
 
 function JobDescriptionStatusStep(props) {
-  const { marketId, investibleId, message, formData, updateFormData } = props;
+  const { marketId, investibleId, message, formData = {}, updateFormData = () => {} } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
@@ -168,11 +168,6 @@ function JobDescriptionStatusStep(props) {
 JobDescriptionStatusStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-JobDescriptionStatusStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default JobDescriptionStatusStep;

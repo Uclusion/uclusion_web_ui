@@ -19,10 +19,5 @@ BlockedWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-BlockedWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default BlockedWizard;
 

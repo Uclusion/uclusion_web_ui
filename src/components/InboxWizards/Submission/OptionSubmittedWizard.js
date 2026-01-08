@@ -20,10 +20,5 @@ OptionSubmittedWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-OptionSubmittedWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default OptionSubmittedWizard;
 

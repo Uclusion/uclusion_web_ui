@@ -39,7 +39,7 @@ import { BUG_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
 function DecideReplyStep(props) {
-  const { marketId, commentId, message, formData, updateFormData } = props;
+  const { marketId, commentId, message, formData = {}, updateFormData = () => {} } = props;
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
@@ -177,11 +177,6 @@ function DecideReplyStep(props) {
 DecideReplyStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-DecideReplyStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default DecideReplyStep;

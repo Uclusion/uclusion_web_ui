@@ -24,7 +24,7 @@ import {
 import { fixName } from '../../../utils/userFunctions';
 
 function GroupNameStep (props) {
-  const { updateFormData, formData, marketId } = props;
+  const { updateFormData = () => {}, formData = {}, marketId } = props;
   const history = useHistory();
   const intl = useIntl();
   const value = formData.name || '';
@@ -154,11 +154,6 @@ function GroupNameStep (props) {
 GroupNameStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-GroupNameStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default GroupNameStep;

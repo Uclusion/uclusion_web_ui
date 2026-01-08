@@ -78,8 +78,4 @@ WorkspaceInviteLinker.propTypes = {
   marketToken: PropTypes.string.isRequired,
 };
 
-WorkspaceInviteLinker.defaultProps = {
-  hidden: false,
-};
-
 export default WorkspaceInviteLinker;

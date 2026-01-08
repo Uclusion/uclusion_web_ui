@@ -17,7 +17,7 @@ import { getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marke
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function JobReadyStep(props) {
-  const { updateFormData, formData, inv, marketId } = props;
+  const { updateFormData = () => {}, formData = {}, inv, marketId } = props;
   const classes = useContext(WizardStylesContext);
   const history = useHistory();
   const [, investiblesDispatch] = useContext(InvestiblesContext);
@@ -102,11 +102,6 @@ function JobReadyStep(props) {
 JobReadyStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-JobReadyStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default JobReadyStep;

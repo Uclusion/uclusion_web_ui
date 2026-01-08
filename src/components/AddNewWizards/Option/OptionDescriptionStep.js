@@ -24,8 +24,8 @@ import OptionListItem from '../../Comments/OptionListItem';
 import _ from 'lodash';
 
 function OptionDescriptionStep (props) {
-  const { marketId, parentGroupId, parentInvestibleId, parentMarketId, parentCommentId, createdBy, updateFormData,
-    formData } = props;
+  const { marketId, parentGroupId, parentInvestibleId, parentMarketId, parentCommentId, createdBy, updateFormData = () => {},
+    formData = {} } = props;
   const editorName = `addOptionWizard${marketId}`;
   const [hasValue, setHasValue] = useState(!editorEmpty(getQuillStoredState(editorName)));
   const [uploadedFiles, setUploadedFiles] = useState([]);
@@ -137,11 +137,6 @@ function OptionDescriptionStep (props) {
 OptionDescriptionStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-OptionDescriptionStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default OptionDescriptionStep;

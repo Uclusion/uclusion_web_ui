@@ -87,19 +87,19 @@ const useStyles = makeStyles((theme) => {
 function SubSection (props) {
   const {
     children,
-    hidden,
-    title,
+    hidden = false,
+    title = '',
     actionButton,
     createButton,
-    type,
+    type = SECTION_TYPE_SECONDARY,
     titleIcon,
     id,
     helpLink,
-    bolder,
-    padChildren,
+    bolder = false,
+    padChildren = false,
     isBlackText,
     supportingInformation,
-    showCard
+    showCard = true
   } = props;
   const classes = useStyles();
 
@@ -166,18 +166,6 @@ SubSection.propTypes = {
   bolder: PropTypes.bool,
   padChildren: PropTypes.bool,
   showCard: PropTypes.bool
-};
-
-SubSection.defaultProps = {
-  title: '',
-  hidden: false,
-  children: undefined,
-  type: SECTION_TYPE_SECONDARY,
-  titleIcon: undefined,
-  id: undefined,
-  bolder: false,
-  padChildren: false,
-  showCard: true
 };
 
 export default SubSection;

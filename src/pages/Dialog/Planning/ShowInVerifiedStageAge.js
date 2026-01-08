@@ -6,8 +6,8 @@ import { useIntl } from 'react-intl';
 
 function ShowInVerifiedStageAge(props) {
   const {
-    value,
-    onChange,
+    value = 21,
+    onChange = () => {},
   } = props;
 
   const intl = useIntl();
@@ -44,11 +44,6 @@ function ShowInVerifiedStageAge(props) {
 ShowInVerifiedStageAge.propTypes = {
   value: PropTypes.number,
   onChange: PropTypes.func,
-}
-
-ShowInVerifiedStageAge.defaultProps = {
-  value: 21,
-  onChange: () => {},
 }
 
 export default ShowInVerifiedStageAge;

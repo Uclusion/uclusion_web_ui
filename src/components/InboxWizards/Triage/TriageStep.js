@@ -81,9 +81,4 @@ TriageStep.propTypes = {
   formData: PropTypes.object
 };
 
-TriageStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default TriageStep;

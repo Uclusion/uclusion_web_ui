@@ -351,9 +351,4 @@ ArchiveInvestbiles.propTypes = {
   presenceMap: PropTypes.object
 };
 
-ArchiveInvestbiles.defaultProps = {
-  investibles: [],
-  presenceMap: {}
-};
-
 export default ArchiveInvestbiles;

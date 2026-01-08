@@ -14,7 +14,7 @@ import { getFurtherWorkStage } from '../../../contexts/MarketStagesContext/marke
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 function OtherOptionsStep(props) {
-  const { marketId, investibleId, message, formData, updateFormData } = props;
+  const { marketId, investibleId, message, formData = {}, updateFormData = () => {} } = props;
   const classes = wizardStyles();
   const history = useHistory();
   const intl = useIntl();
@@ -67,11 +67,6 @@ function OtherOptionsStep(props) {
 OtherOptionsStep.propTypes = {
   updateFormData: PropTypes.func,
   formData: PropTypes.object
-};
-
-OtherOptionsStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
 };
 
 export default OtherOptionsStep;

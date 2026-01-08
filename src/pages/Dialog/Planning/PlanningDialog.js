@@ -771,12 +771,4 @@ PlanningDialog.propTypes = {
   myPresence: PropTypes.object.isRequired,
 };
 
-PlanningDialog.defaultProps = {
-  investibles: [],
-  marketPresences: [],
-  marketStages: [],
-  hidden: false,
-  comments: []
-};
-
 export default PlanningDialog;

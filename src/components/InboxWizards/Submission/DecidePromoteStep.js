@@ -40,9 +40,4 @@ DecidePromoteStep.propTypes = {
   formData: PropTypes.object
 };
 
-DecidePromoteStep.defaultProps = {
-  updateFormData: () => {},
-  formData: {}
-};
-
 export default DecidePromoteStep;

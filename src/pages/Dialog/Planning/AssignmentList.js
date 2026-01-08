@@ -11,15 +11,15 @@ import { Checkbox } from '@material-ui/core';
 function AssignmentList(props) {
   const {
     fullMarketPresences,
-    onChange,
-    previouslyAssigned,
-    cannotBeAssigned,
-    listHeader,
-    requiresInput,
+    onChange = () => {},
+    previouslyAssigned = [],
+    cannotBeAssigned = [],
+    listHeader = 'assignmentListHeader',
+    requiresInput = false,
     groupId,
     marketId,
-    showAllOnly,
-    onlyThisGroup
+    showAllOnly = false,
+    onlyThisGroup = false
   } = props;
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [groupOnly, setGroupOnly] = useState(!showAllOnly);
@@ -82,16 +82,6 @@ AssignmentList.propTypes = {
   marketId: PropTypes.string.isRequired,
   showAllOnly: PropTypes.bool,
   onlyThisGroup: PropTypes.bool
-};
-
-AssignmentList.defaultProps = {
-  listHeader: 'assignmentListHeader',
-  onChange: () => {},
-  previouslyAssigned: [],
-  cannotBeAssigned: [],
-  requiresInput: false,
-  showAllOnly: false,
-  onlyThisGroup: false
 };
 
 export default AssignmentList;

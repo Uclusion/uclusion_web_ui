@@ -19,10 +19,5 @@ UpgradeWizard.propTypes = {
   showCancel: PropTypes.bool
 };
 
-UpgradeWizard.defaultProps = {
-  onFinish: () => {},
-  showCancel: true
-}
-
 export default UpgradeWizard;
 

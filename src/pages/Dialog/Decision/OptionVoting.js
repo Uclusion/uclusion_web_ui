@@ -12,7 +12,7 @@ import { findMessageByInvestmentUserId } from '../../../utils/messageUtils';
 
 function OptionVoting(props) {
   const [marketsState] = useContext(MarketsContext);
-  const { marketPresences, investibles, marketId, comments, isAdmin, inArchives, isSent, removeActions,
+  const { marketPresences = [], investibles = [], marketId, comments = [], isAdmin = false, inArchives, isSent, removeActions,
     selectedInvestibleId, setSelectedInvestibleId, isInbox, isInVoting } = props;
   const [messagesState] = useContext(NotificationsContext);
   const myPresence = marketPresences.find((presence) => presence.current_user);
@@ -71,13 +71,6 @@ OptionVoting.propTypes = {
   marketId: PropTypes.string.isRequired,
   comments: PropTypes.arrayOf(PropTypes.object),
   inArchives: PropTypes.bool.isRequired,
-};
-
-OptionVoting.defaultProps = {
-  isAdmin: false,
-  investibles: [],
-  marketPresences: [],
-  comments: []
 };
 
 export default OptionVoting;

@@ -186,7 +186,7 @@ function Backlog(props) {
       )}
       {data.map((inv) => {
         return (
-          <BacklogItem inv={inv} comments={comments} marketPresences={marketPresences} marketId={marketId}
+          <BacklogItem key={inv.investible.id} inv={inv} comments={comments} marketPresences={marketPresences} marketId={marketId}
                        singleUser={singleUser} myGroupPresence={myGroupPresence} acceptedStageId={acceptedStageId}
                        inDialogStageId={inDialogStageId} notDoingStageId={notDoingStageId} />
         );

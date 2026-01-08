@@ -40,6 +40,10 @@ export function GmailTabs(props) {
   const tabsProps = {...props};
   const { removeBoxShadow, addPaddingLeft, addMarginLeft, useColor=true } = props;
   delete tabsProps.indicatorColors;
+  delete tabsProps.useColor;
+  delete tabsProps.removeBoxShadow;
+  delete tabsProps.addPaddingLeft;
+  delete tabsProps.addMarginLeft;
   return (
     <Tabs
       {...tabsProps}

@@ -114,9 +114,10 @@ function ArchiveInvestible(props) {
                 {viewIndicator}
               </div>
               <div style={{display: 'flex', alignItems: 'center', marginTop: '0.35rem'}}>
-                {TypeIconList.map((item) => {
+                {TypeIconList.map((item, index) => {
                   const { TypeIcon, typeExplanation, myMessage, myLink } = item;
                   return (<div
+                  key={`${id}-icon-${index}`}
                   onClick={(event) => {
                     if (myMessage) {
                       preventDefaultAndProp(event);
@@ -161,7 +162,7 @@ function ArchiveInvestible(props) {
               {!_.isEmpty(inAssistanceComments) && (
                 inAssistanceComments.map((comment) => {
                   const { body, id: commentId, group_id: groupId } = comment;
-                  return <BugListItem id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
+                  return <BugListItem key={commentId} id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
                                       useSelect={false} toolTipId='WizardJobAssistance' maxWidth='16rem'
                                       link={formCommentLink(marketId, groupId, id, commentId)} />;
                 })
@@ -325,7 +326,7 @@ function ArchiveInvestbiles(props) {
       }
       const inAssistanceComments = blockedComments.concat(questionComments).concat(suggestionComments);
       const ticketNumber = getTicketNumber(groupId, marketId, groupsState, isAutonomous, groupId === viewGroupId);
-      return <ArchiveInvestible name={name} id={id} stageId={stageId} marketId={marketId} isSingleUser={isSingleUser}
+      return <ArchiveInvestible key={id} name={name} id={id} stageId={stageId} marketId={marketId} isSingleUser={isSingleUser}
                                 isBlocked={!_.isEmpty(blockedComments)} groupId={groupId} inAssistanceComments={inAssistanceComments}
                                 needsAssist={!_.isEmpty(suggestionComments)||!_.isEmpty(questionComments)}
                                 allowDragDrop={allowDragDrop&&isMember} onDragStart={onDragStart}

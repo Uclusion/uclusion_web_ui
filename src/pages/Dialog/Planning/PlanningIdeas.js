@@ -790,7 +790,7 @@ function StageInvestible(props) {
         {showCompletion && !_.isEmpty(inProgressComments) && (
           inProgressComments.map((comment) => {
             const { body, id: commentId } = comment;
-            return <BugListItem id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
+            return <BugListItem key={commentId} id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
                                 useSelect={false} toolTipId='inProgress'
                                 link={formCommentLink(marketId, marketInfo.group_id, id, commentId)} />;
           })
@@ -798,7 +798,7 @@ function StageInvestible(props) {
         {isReview && !_.isEmpty(reviewComments) && (
           reviewComments.map((comment) => {
             const { body, id: commentId } = comment;
-            return <BugListItem id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
+            return <BugListItem key={commentId} id={commentId} title={stripHTML(body)} useMinWidth={false} useMobileLayout smallFont
                                 useSelect={false} toolTipId='inReview'
                                 link={formCommentLink(marketId, marketInfo.group_id, id, commentId)} />;
           })

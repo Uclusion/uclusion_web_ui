@@ -119,7 +119,7 @@ function PlanningMarketEdit() {
               </Typography>
             </Grid>
           )}
-          {isArchived && (
+          {isArchived && market?.id && (
             <Grid item md={12} xs={12} className={classes.fieldsetContainer} style={{paddingTop: '4rem'}}>
               This workspace is archived and its users do not contribute to billing.
               <Typography variant="h6" style={{marginTop: '1rem'}}>

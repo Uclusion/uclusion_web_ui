@@ -579,7 +579,6 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
       <div style={{ paddingBottom: '0.25rem' }}>
         <GmailTabs
           value={tabIndex}
-          useColor
           addPaddingLeft='2rem'
           id='dialog-header'
           onChange={(event, value) => {

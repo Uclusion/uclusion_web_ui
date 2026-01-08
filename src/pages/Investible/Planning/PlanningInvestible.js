@@ -710,7 +710,6 @@ function PlanningInvestible(props) {
           // Previous scroll position no longer relevant
           refToTop.current?.scrollIntoView({ block: "end" });
         }}
-        useColor
         id='investible-header'
         indicatorColors={['#2F80ED', '#2F80ED', '#2F80ED']}
         style={{ paddingBottom: '0.25rem', zIndex: 8, position: mobileLayout ? undefined : 'fixed',
@@ -910,7 +909,7 @@ function PlanningInvestible(props) {
               <div style={{ display: mobileLayout ? undefined : 'flex', marginLeft: '0.5rem' }}>
                 {allowedCommentTypes.map((allowedCommentType) => {
                   return (
-                    <SpinningButton id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
+                    <SpinningButton key={allowedCommentType} id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
                                     icon={hasJobComment(groupId, investibleId, allowedCommentType) ? EditIcon :
                                       AddIcon}
                                     iconColor="black"
@@ -1075,7 +1074,7 @@ export function Assignments(props) {
           {toggleIconButton && (
             <div style={{marginTop: '-0.3rem'}}>
               <Tooltip placement='top' title={intl.formatMessage({ id: toolTipId })}>
-                <IconButton size="small" id="addViewId" noPadding onClick={toggleIconButton}>
+                <IconButton size="small" id="addViewId" onClick={toggleIconButton}>
                   <AddIcon htmlColor='black' fontSize="small" />
                 </IconButton>
               </Tooltip>

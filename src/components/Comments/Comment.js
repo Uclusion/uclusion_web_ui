@@ -1087,7 +1087,7 @@ function Comment(props) {
               <SpinningIconLabelButton
                 onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
                   undefined, undefined, id, typeObjectId))}
-                icon={showSubTask ? ListAltIcon : ReplyIcon}
+                icon={showSubTask ? AddIcon : ReplyIcon}
                 iconOnly={mobileLayout}
                 id={`commentReplyButton${id}`}
                 doSpin={false}

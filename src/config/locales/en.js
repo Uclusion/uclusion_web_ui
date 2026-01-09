@@ -547,7 +547,7 @@ const messages = defineMessages({
   // Comments
   commentReplyDefault: 'Your reply...',
   commentReplyLabel: 'Reply',
-  commentSubTaskLabel: 'Group',
+  commentSubTaskLabel: 'Grouped',
   commentGroupedTaskLabel: 'Grouped task',
   commentEditLabel: 'Edit',
   commentReplyCancelLabel: 'Cancel',

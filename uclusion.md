@@ -1,9 +1,9 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
 | [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| 01/17| [Finish what started in dehighlightMessage so floating message processing...](#35fcebca-c6de-4ea7-a850-6ae647dfbf91)|  |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| [More work on the landing page:](#7eac3364-a52a-47ac-8823-2be566506061)| 01/10| [More landing page fixes](#c0f0c729-a4bf-4ee0-b0ba-5a7199cc754b)|  |
-| [Substitute for the comparison section,](#283ed39c-2e32-4d70-9c99-a9aef975439a)| [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| 01/31| [Website feedback.](#f577ab3a-9234-4f4d-af83-ed7aa1b25fce)|  |
-| | | | [Subtask in progress and next button changes.](#c201bd90-f6d5-4bc4-ae93-eef22b6650d6)|  |
+| [Anything with tabs or left side panel now has different look - including the...](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)| [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| 01/31| [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| Deployed to production |
+| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Subtask in progress and next button changes.](#c201bd90-f6d5-4bc4-ae93-eef22b6650d6)| Deployed to stage |
+| [Substitute for the comparison section,](#283ed39c-2e32-4d70-9c99-a9aef975439a)| | | [More work on the landing page:](#7eac3364-a52a-47ac-8823-2be566506061)|  |
 | | | | [Main page beautification.](#75ad865e-a3a7-4d48-9703-e9a900f8ff72)| Deployed to production |
 ## Job <a name="f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f"></a>
 ### Better archive.
@@ -30,6 +30,13 @@ Also need counts from search on other views for anything not showing in the curr
 
 #### Task <a name="2fcd674f-7c8d-46cf-85e8-6f10a428863c"></a> 
 Change sub text on archive to say archive instead of group archive.
+
+## Job <a name="9d810e3e-9f32-4f1b-b377-13aebd8fbb64"></a>
+### Anything with tabs or left side panel now has different look - including the...
+...shot of estimating in messages section above the fold.
+
+#### Task <a name="a495ccb2-6d43-41d3-8c76-8d8b5741a4ae"></a> 
+Anything with tabs or left side panel now has different look - including the shot of estimating in messages section above the fold.
 
 ## Job <a name="3af2201b-8111-46e9-b746-2f33cf1312bd"></a>
 ### Should fix UI bugs.
@@ -58,6 +65,17 @@ When resolve minor but on return arrive in critical bugs section.
 
 
 Also happening when move a bug to a job from a non critical section.
+
+#### Task <a name="4eebebbb-a052-43e9-a492-d6474808fc1d"></a> 
+Change "subtask" to "grouped task" in markdown generator Lambda.
+
+#### Task <a name="87d078c7-9375-412a-9367-fb7509a8adc3"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/65826b2f-930a-42a1-863e-c24890e7db47.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+Tab extends beyond rows weirdly.
 
 #### Task <a name="8a4ee34b-6a80-4aa0-bfed-49825d42f892"></a> 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c047efba-47bc-4389-8a4f-858fa4f06772.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
@@ -350,64 +368,6 @@ See if can find substitute for the comparison section or way to make it reasonab
 
 Video explaining in progress/ navigation / subtask is possible.
 
-## Job <a name="7eac3364-a52a-47ac-8823-2be566506061"></a>
-### More work on the landing page:
-[More work](https://www.reddit.com/r/roastmystartup/comments/1dyncmb/comment/lcbfdnp/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) on the landing page:
-
-
-
-
-Right off the bat, the website is painfully slow. It gets a performance score of 49 from Google's website performance test, which is a terrible result. A lot of people are going to just exit the website while it is still loading.
-
-On the over the fold area of the landing page, there are three moving elements, making the first impression busy and chaotic.
-
-Using light blue font over a white background for "sandbox demo" is awkward. The text is difficult to read and looks like a text link, while it's not.
-
-"Better than tickets" also looks like a text link with its underline effect, but again this is not a link. It's very confusing what elements here are clickable and which are not.
-
-There are so many font styles and effects that the entire thing looks very amateurish. For example, in the "Better than tickets" section, I can count 10 different font styles on one view. It looks like a collage kid who just learned CSS and realized the can use different font styles on a html page.
-
-The landing page keeps referring to a sandbox demo, but there is no link to it anywhere that I can see. And without it, I cannot really see how this thing works.
-
-This needs a lot of work.
-
-#### Task <a name="c3843400-5f48-4b2e-891b-a03be98e3bc8"></a> 
-Change existing landing, blog, and docs screenshots with swimlanes to new look.
-
-
-
-
-Change docs to explain keystrokes but no buttons for other two operations.
-
-
-
-
-Also on landing page have the screenshot be area instead of whole page.
-
-#### Task <a name="a495ccb2-6d43-41d3-8c76-8d8b5741a4ae"></a> 
-Anything with tabs now has different look.
-
-#### Resolved Task <a name="4e9f3a05-3203-42d8-b564-1bb2684727c2"></a> 
-Remove the bouncing arrow above Pricing section.
-
-#### Resolved Task <a name="26f396f9-08bb-41d8-99cc-d20e6155325c"></a> 
-Add LogRocket to landing page.
-
-#### Resolved Task <a name="0c2035aa-3206-4261-9d2a-77447a5b5759"></a> 
-Try to fix Google performance score on load time. <https://pagespeed.web.dev/?utm_source=psi&utm_medium=redirect>
-
-#### Resolved Task <a name="999a2acc-3dbc-4c96-ae86-39794cb6ed86"></a> 
-Remove all usage of fades and zooms.
-
-#### Resolved Task <a name="4e18dca1-c75e-434c-900c-f6e911dc8fd0"></a> 
-Re-enforce sandbox demo on sign up page.
-
-#### Resolved Task <a name="d7351d08-bbd4-4aec-bfb2-58c53df7de59"></a> 
-Change landing page and docs to say grouped tasks instead of subtasks.
-
-#### Resolved Task <a name="1b3f95cc-57b3-4372-a184-54a047673335"></a> 
-Reduce number of fonts per comment.
-
 ## Job <a name="c27ba80a-bc55-45b7-8dae-0bbae049e570"></a>
 ### Mobile issues.
 #### Task <a name="39bf8c1f-32bc-46a5-a58d-0ecf3ad36233"></a> 
@@ -507,852 +467,8 @@ Try the timeout 0 wait way to avoid delaying the navigation.
 
 Actually above has a floating promise also IE the store state is not guaranteed to happen - should we put that in to a setTimer also or can we return a promise from a reducer?
 
-## Job <a name="c0f0c729-a4bf-4ee0-b0ba-5a7199cc754b"></a>
-### More landing page fixes
-1. Smaller pictures on above the fold so doesn't look low res and so that on mac the button and text can be put back on the side - MAKE SURE the top menu doesn't disappear when click on it as now after do that
-2. Open documentation and blog inside a frame so that don't leave main website - remove links on those that go to each other or main website OR remove header on those altogether
-
-#### Resolved Task <a name="66ac8010-9450-44a3-9ff6-854500efd572"></a> 
-Remove outer scrolling on a frame.
-
-#### Resolved Task <a name="94730e8c-2015-4a5f-841c-769e9530a994"></a> 
-If click pricing first then hash #pricing stays on URL when go to documentation.
-
-#### Resolved Task <a name="272c8e36-1b46-4e63-b5ff-0f02ac067ac4"></a> 
-{iframeUrl && (
-
-        <**IframeContainer** *headerHeight*={headerHeight}>
-
-          <iframe
-
-            *src*={iframeUrl}
-
-            *title*="Embedded Content"
-
-            *allow*="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-
-/>
-
-        </**IframeContainer**>
-
-)}
-
-
-
-
-That's a dumb architecture - have an iFrame for both blog and documentation and just display none when state set by clicking on header urls is not matching.
-
-#### Resolved Task <a name="0c39c6f1-3ce4-4048-8a6d-d884d47bd9b7"></a> 
-See if there is a way to produce a higher quality screenshot - SVG?
-
-
-
-
-Current statusAutonomous.png: PNG image data, 1647 x 936, 8-bit/color RGBA, non-interlaced
-
-
-
-
-New statusShot.jpeg: JPEG image data, JFIF standard 1.01, aspect ratio, density 1x1, segment length 16, baseline, precision 8, 3840x2160, components 3
-
-
-
-
-So literally not enough pixels in the existing and must redo.
-
-> ##### Subtask <a name="0f33ab5f-ab12-4908-9a36-c8d6c13a51c0"></a> 
-Try higher screen resolution in dev tools like this says <https://docshound.com/blog/capturing-premium-product-screenshots> - now after setup:
-
-
-
-
-CTRL+Shift+P and then type screenshots and choose node one.
-
-
-
-
-Using zoom at 117 for most.
-
-#### Resolved Task <a name="821677c6-e682-4471-b219-9c14295f2d36"></a> 
-Smaller pictures on above the fold so doesn't look low res and so that on mac the button and text can be put back on the side - MAKE SURE the top menu doesn't disappear when click on it as now after do that
-
-#### Resolved Task <a name="f2960e96-c14c-4d98-b0e6-8537ef55de28"></a> 
-On documentation change:
-
-
-
-
-<div *id*="iframe-not-allowed-notice-kludge" *style*='margin-top: -50px;'></div>
-
-
-
-
-to be a class that only happens when not mobile.
-
-#### Resolved Task <a name="636997c6-c6bb-4bd1-919d-6ef63ba0a421"></a> 
-On mac when click the above the fold tab menu still snapping into place and screen jerks.
-
-
-
-
-**Might be the built in back to top on tab click - just remove logic if is.**
-
-#### Resolved Task <a name="60f7d932-b70d-4868-882b-7828ab6affe9"></a> 
-In iframe when click into blog have no way back - need to put back button somewhere (can show in both is fine).
-
-#### Resolved Task <a name="7565a128-9705-4112-97d7-aae0689d0a8c"></a> 
-May need to zoom in more to avoid being so small and unreadable- not sure how to do that with dev tools.
-
-
-
-
-From dev tools command menu select: Capture area screenshot
-
-#### Resolved Task <a name="3eed9c51-60f0-4cf3-ab9c-2bb2fd482d6a"></a> 
-Pictures in tip of spear blog must be hi res.
-
-#### Resolved Task <a name="6426369e-cbee-4f77-8ce8-f32a207321cd"></a> 
-Open documentation and blog inside a frame so that don't leave main website - remove links on those that go to each other or main website OR remove header on those altogether
-
-> ##### Subtask <a name="6ff29b3b-71be-4139-9f42-13d645659e75"></a> 
-Remove header and footer inside blog when in iframe.
-
-#### Resolved Task <a name="3de4278a-58ef-4109-959e-e984af2a36be"></a> 
-Since not showing header "All posts" no longer makes any sense in i-frame - drop it when in i-frame.
-
-#### Resolved Task <a name="d28876b3-3cd3-4f9e-8215-d95b68cbb881"></a> 
-Another go at fixing the space above search in iframe.
-
-
-
-
-However when click on some links like My work its not there and fix will mess up.
-
-
-
-
-**Not seeing this div when inspect - weird. Problem could be need more than -50px for above search or need padding -50px or something.**
-
-
-
-
-Could add div with color or words so can see what going on.
-
-#### Resolved Task <a name="b75d75b5-12fe-420e-b26b-32a34b92ab8f"></a> 
-On mobile break above the fold sentences so looks better
-
-## Job <a name="f577ab3a-9234-4f4d-af83-ed7aa1b25fce"></a>
-### Website feedback.
-From various sources.
-
-#### Resolved Task <a name="782226dd-97a6-4dcd-9dd7-72dbcb6b91b7"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/26c15d5b-1c91-4f1d-9c77-12b975ceaaae.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-Update the action.yml to have an check in square icon and a color.
-
-#### Resolved Task <a name="2ff102c0-8ae7-4fc0-a09d-5983ee734724"></a> 
-YouTube (probably) video showing hooking up and using the CLI after landing on demo.
-
-#### Resolved Task <a name="20e6df71-e029-4236-a8f3-2d599bfbf099"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/2ae68ccb-efdd-48e8-a891-aa13b2b1dd42.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-Graphically show the Uclusion object structure like they do and explain why better:
-
-
-
-
-Workplaces
-
-Views Collaborators
-
-
-
-
-Views
-
-Members Jobs Bugs Question Suggestion Notes
-
-
-
-
-Jobs
-
-Assignees Stages Tasks Approvals Reports Questions Suggestions Blockers Due date
-
-
-
-
-Tasks <=> Bugs
-
-Subtasks Replies In Progress
-
-
-
-
-Approvals
-
-Certainty Expiration
-
-
-
-
-Reports
-
-Replies Older ones auto resolve
-
-
-
-
-Suggestion <=> Tasks
-
-Votes (same as approval but for or against) Replies
-
-
-
-
-Questions
-
-Options Replies
-
-
-
-
-Options => Task with link
-
-Approvals Stages Comments
-
-
-
-
-Replies => Tasks
-
-Mentions (can also be used on any comment)
-
-
-
-
-Each different type of comment backed by opinionated notifications / wizard help and status display.
-
-> ##### Subtask <a name="21c4d986-5984-4107-8413-88c02a8af0cd"></a> 
-Put this picture and explanation as first slide under organization tab and drop crappy third slide.
-
-#### Resolved Question <a name="af1c0020-7d85-40c3-8bc1-5a2932114d33"></a> 
-## How to sell/explain Github actions feature?
-
-
-
-
-Video won't work as code in Idea, switch to Uclusion to copy job info, paste in commit back in Idea is not sexy.
-
-### Option<a name="92b659f9-03c1-4d6c-9f9b-1156ca37c770"></a>
-### Same three use cases but present like https://www.brkaway.co/ does with their...
-Same three use cases but present like <https://www.brkaway.co/> does with their cards of info and pictures.
-
-### Option<a name="ab94add0-093e-42ce-9a26-4645cfe21205"></a>
-### Just close up on the job labels on one side and the Github action simple...
-...config to setup on the other. Then same left and right thing for both TODO sync and data export.
-
-#### Resolved Task <a name="c910b6dc-6b34-4da5-b797-6e16f987e151"></a> 
-Fix existing screen shots of planning investible that have this wrong.
-
-#### Resolved Task <a name="ff4ae7d5-8369-4c08-bbba-ad1db6d3f28a"></a> 
-Show before and after for Github actions issue to show how much better in Uclusion.
-
-1. Open tasks
-2. Overview
-3. Github issue version
-
-> ##### Subtask <a name="78dca463-9987-4b5a-b2cb-249fbc45211d"></a> 
-Can use a fade transition to sell this.
-
-#### Resolved Task <a name="914d66fe-bf5a-4017-9567-63217ad334f9"></a> 
-Add and use release-job action on stage.
-
-#### Resolved Task <a name="ea1fa292-e212-4765-ac48-d66e7fae9ddd"></a> 
-Check for market place examples from competitors to give a hint.
-
-#### Resolved Task <a name="15a6f145-aa28-4b9c-b7f3-ceec88eab35a"></a> 
-Setup the scroll locking for this new section.
-
-#### Resolved Task <a name="11ad6748-cd6c-41c6-9839-e9dae9f37632"></a> 
-<https://www.brkaway.co/> - very similar to Uclusion maybe can learn from their site. **Note the effort they put into proving that they are specific to their audience:**
-
-1. Asana for creator management
-2. Years in the industry before building this solution
-3. Explanation of extra features like approvals in terms of the flow they are supporting
-4. Their why section better than your comparison section as they maintain they are a whole different product - not apples to apples
-
-
-
-
-
-**Consider replace comparison with their why section - including copying their widgets. People who innovate are their own market and need a different tool from project management like Asana / Jira (which they hate).**
-
-
-
-
-**Might be able to keep the comparison but have it be lower.**
-
-
-
-
-Everything below the demo button goes in this new section and move changing text below the button
-
-#### Resolved Task <a name="0f273011-6015-4848-88cd-16aaa404d77a"></a> 
-Compare to some of <https://saassy-board.com/leaderboard>
-
-#### Resolved Task <a name="f50b1c72-6ce0-4552-965b-da1a7d787672"></a> 
-Fix mobile for this new section.
-
-#### Resolved Task <a name="07acd291-ca63-4423-b667-75a4995f6905"></a> 
-Fix point of spear blog. Make this founder to founder - hey trust me style as Ben was mentioning - we're not those guys.
-
-#### Resolved Task <a name="0124c37a-aeb0-45b3-afd1-061482be00e5"></a> 
-Release latest check in to update-job and test with a short code that has a space in it.
-
-#### Resolved Task <a name="8f4be1e7-005a-4c6b-9f92-f726a83eb39b"></a> 
-Do job-label.
-
-#### Resolved Task <a name="9e9cca6d-da9c-44c7-92cf-ce09ba561d1d"></a> 
-See <https://www.teamcamp.app/> which doesn't even have pricing on main page - Uclusion landing just not enough sections.
-
-
-
-
-They did video and tabbed pictures (their pictures are larger but that's not better) and click through for details.
-
-
-
-
-Maybe have some larger pictures available from links on comparison? Maybe throw in a video also?
-
-#### Resolved Task <a name="83d7f1c1-c168-4e11-9c8f-064efa70c0dc"></a> 
-[Same three use cases but present like https://www.brkaway.co/ does with their...](#92b659f9-03c1-4d6c-9f9b-1156ca37c770)
-
-
-
-
-Cases are code TODOs, generate report, and Github actions. Give AI a shot at copy style- make sure set model first and use @
-
-
-
-
-<https://wanderlog.com/> also has features section with a grid of features that can be considered.
-
-> ##### Subtask <a name="b9830f99-a4f5-4c22-8b34-635f91ce3123"></a> 
-Add a CTA below as Wanderlog did - copy the blue one above.
-
-#### Resolved Task <a name="732ae43a-77ae-4744-9536-ab21e54de809"></a> 
-Setup for the action - needs its own public repository - <https://docs.github.com/en/actions/how-tos/create-and-publish-actions/manage-custom-actions>
-
-
-
-
-Also Readme with instructions etc.
-
-#### Resolved Task <a name="583810de-af44-4ddb-83c8-77bf7d211c3e"></a> 
-Fix mobile images with Shots tool also.
-
-#### Resolved Task <a name="706bffdc-8737-4cd8-b847-d8fad243a9ac"></a> 
-Check out what Github did <https://github.com/marketplace/actions/add-to-github-projects>
-
-#### Resolved Task <a name="3c3e84c7-b545-4447-ac1c-ecef30b156d9"></a> 
-See <https://github.com/actions/add-to-project> - so would be Uclusion/update-job etc. However this is TypeScript. For Python they have <https://github.com/cicirello/python-github-action-template/blob/main/entrypoint.py>
-
-
-
-
-Unless going to rewrite the CLI Python makes more sense as can share code and so can anyone changing the action.
-
-
-
-
-**However choices are Javascript or Docker - so either need a way for Docker to be ubuntu-latest or have to use Javascript - see** <https://docs.github.com/en/actions/concepts/workflows-and-actions/custom-actions> - composite just means runs on the users runner.
-
-
-
-
-    # Dockerfile
-
-    FROM ubuntu:latest
-
-
-
-    # Install any necessary dependencies for your action
-
-    RUN apt-get update && apt-get install -y \
-
-    git \
-
-    curl \
-
-    # Add other tools/packages your action needs
-
-    && rm -rf /var/lib/apt/lists/*
-
-
-
-    # Copy your action's script into the container
-
-    COPY entrypoint.sh /entrypoint.sh
-
-
-
-    # Set execute permissions for the script
-
-    RUN chmod +x /entrypoint.sh
-
-
-
-    # Define the entrypoint for the action
-
-    ENTRYPOINT ["/entrypoint.sh"]
-
-#### Resolved Task <a name="641caf8d-6a5b-4c41-be70-cf3f04aec216"></a> 
-1. Redo website starting from scratch with asking AI to copy a site - provide the screenshots and video to the AI also. **Actually no need to be so dramatic - can have AI create section by section in classes it creates from scratch.**
-2. ~~Move Uclusion to Github Actions~~
-3. ~~Expand CLI to allow easily moving tickets to completion based on build reaching production - make this flexible so they can track dev, stage, prod - maybe is already tasks complete and just entering a new label~~
-4. CLI and UI as peers on landing page
-5. ~~Risk free in pricing section talks about ability to use CLI to export and so not trapped (not price)~~
-6. ~~Consider dropping the above the fold subtext altogether.~~
-7. ~~Change team price to $5.99 (Teamcamp and Google Workspace are 6) as $1 looks weird~~
-
-> ##### Subtask <a name="0a87decf-1127-498d-86fd-4bf65a7aa1a8"></a> 
-Comparison section is too much reading.
-
-#### Resolved Task <a name="70886cd4-e7e5-485d-b4d9-676a1344d1e0"></a> 
-Toy with shades of grey where have two colors of blue in the main app - again like Teamcamp - to see how does.
-
-
-
-
-**Note Github projects is the same grey and white.**
-
-
-
-
-**The third color for the job nav is jarring so either way it must go - can make it the same as left nav.**
-
-#### Resolved Task <a name="ff53a35c-eabd-4d15-9b43-438e110eda91"></a> 
-First one picture of TODO in code with | and then comment becomes and the one with ticket code filled out.
-
-#### Resolved Task <a name="f5b9bd50-a8fa-442e-8b2c-d3de1c25db8d"></a> 
-Drop the floating Suggestion thing on above the fold.
-
-#### Resolved Task <a name="1801d8e0-c3b5-4971-9ea3-ea39db69ffdc"></a> 
-Examine <https://github.com/marketplace/actions/todo-actions>
-
-#### Resolved Task <a name="ec6357f1-db79-4b1f-b080-0d6501892bee"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/8f82d609-4a2b-4a2c-92b6-dc37fa2d9723.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-List on <https://shipahe.ad/> - maybe can use one of these somehow.
-
-#### Resolved Task <a name="033abfe8-7098-4978-97eb-5551b1fd6c34"></a> 
-Change the demos to include labels for where the completed tasks jobs are - dev, stage, or prod.
-
-> ##### Subtask <a name="e65e9989-298a-4f5f-913c-8485f428b83c"></a> 
-Remove usage of label for review from the demo scripts.
-
-#### Resolved Task <a name="6ea858c5-528b-47e5-8bc4-01c4f89b45e9"></a> 
-Need to pay attention to date of commit versus date of current label so don't overwrite.
-
-
-
-
-**Model change - store label_list as string, date pairs and only display the latest. Change API to only add labels not existing already and always add to the existing labels instead of overwriting them.**
-
-#### Resolved Task <a name="0fe21b27-9887-43a6-8d65-07fa74974225"></a> 
-    import requests
-
-
-
-    # Replace with your GitHub access token and repository details
-
-    ACCESS_TOKEN = "YOUR_GITHUB_ACCESS_TOKEN"
-
-    REPO_OWNER = "YOUR_REPO_OWNER"
-
-    REPO_NAME = "YOUR_REPO_NAME"
-
-    SEARCH_TEXT = "your_search_term"
-
-
-
-    headers = {"Authorization": f"Bearer {ACCESS_TOKEN}"}
-
-
-
-    # 1. Get the latest release
-
-    releases_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/releases/latest"
-
-    response = requests.get(releases_url, headers=headers)
-
-    response.raise_for_status() # Raise an exception for bad status codes
-
-    latest_release = response.json()
-
-    latest_release_commit_sha = latest_release["target_commitish"] # or tag_name, depending on your release setup
-
-
-
-    # 2. (Optional) Get the previous release's commit SHA for a range
-
-    # If you want to search commits *since* the last release, you'd find the previous release's SHA here.
-
-    # For simplicity, this example will search all commits up to the latest release.
-
-
-
-    # 3. Fetch commits up to the latest release
-
-    # You might need to paginate if there are many commits
-
-    commits_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/commits?sha={latest_release_commit_sha}"
-
-    response = requests.get(commits_url, headers=headers)
-
-    response.raise_for_status()
-
-    commits = response.json()
-
-
-
-    found_commits = []
-
-    for commit in commits:
-
-    commit_sha = commit["sha"]
-
-    commit_message = commit["commit"]["message"]
-
-
-
-    # Fetch detailed commit information to get diff (if needed for searching within code changes)
-
-    # commit_detail_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}/commits/{commit_sha}"
-
-    # detail_response = requests.get(commit_detail_url, headers=headers)
-
-    # detail_response.raise_for_status()
-
-    # commit_detail = detail_response.json()
-
-    # commit_files = commit_detail.get("files", []) # List of files changed in the commit
-
-
-
-    # 4. Search for the text
-
-    if SEARCH_TEXT.lower() in commit_message.lower():
-
-    found_commits.append({"sha": commit_sha, "message": commit_message})
-
-    # You could also search within the content of changed files if you fetched commit_detail and processed the diffs.
-
-
-
-    if found_commits:
-
-    print(f"Found '{SEARCH_TEXT}' in the following commits associated with the latest release:")
-
-    for commit in found_commits:
-
-    print(f"- {commit['sha']}: {commit['message']}")
-
-    else:
-
-    print(f"'{SEARCH_TEXT}' not found in commits associated with the latest release.")
-
-
-
-
-without PyGithub seems much better than with. Unless <https://pygithub.readthedocs.io/en/latest/github_objects/Repository.html#github.Repository.Repository.get_commits> gets just commits for that release when give it sha and below is wrong?
-
-    from github import Github
-
-
-
-    # Replace with your GitHub personal access token
-
-    GITHUB_TOKEN = "YOUR_GITHUB_TOKEN"
-
-    # Replace with the owner and repository name
-
-    REPO_OWNER = "owner_username"
-
-    REPO_NAME = "repository_name"
-
-
-
-    try:
-
-    # Authenticate with GitHub
-
-    g = Github(GITHUB_TOKEN)
-
-
-
-    # Get the repository
-
-    repo = g.get_user(REPO_OWNER).get_repo(REPO_NAME)
-
-
-
-    # Get the latest release
-
-    latest_release = repo.get_latest_release()
-
-
-
-    print(f"Latest Release: {latest_release.title} (Tag: {latest_release.tag_name})")
-
-
-
-    # Determine the commit SHA for the current release tag
-
-    release_commit_sha = latest_release.commit.sha
-
-
-
-    # Find the previous release to determine the commit range
-
-    # This example assumes a linear history between releases.
-
-    # More complex scenarios (e.g., merges, rebase) might require
-
-    # more sophisticated commit history analysis.
-
-    all_releases = sorted(repo.get_releases(), key=lambda r: r.created_at, reverse=True)
-
-    previous_release_commit_sha = None
-
-    for i, release in enumerate(all_releases):
-
-    if release.tag_name == latest_release.tag_name and i + 1 < len(all_releases):
-
-    previous_release_commit_sha = all_releases[i+1].commit.sha
-
-    break
-
-
-
-    if previous_release_commit_sha:
-
-    print(f"Commits included in '{latest_release.title}' (from {previous_release_commit_sha} to {release_commit_sha}):")
-
-    # Get commits between the previous release and the latest release
-
-    # This will fetch commits on the default branch between the two SHAs
-
-    commits = repo.get_commits(sha=repo.default_branch, since=repo.get_commit(previous_release_commit_sha).commit.author.date)
-
-
-
-    for commit in commits:
-
-    # Only include commits up to the latest release commit
-
-    if commit.sha == release_commit_sha:
-
-    print(f"- {commit.commit.message}")
-
-    break # Stop after reaching the latest release commit
-
-    print(f"- {commit.commit.message}")
-
-    else:
-
-    print("Could not find a previous release to determine the commit range.")
-
-    print("Displaying commits from the latest release commit backwards until a suitable stopping point (e.g., initial commit).")
-
-    # If no previous release, iterate backwards from the latest release commit
-
-    commits = repo.get_commits(sha=release_commit_sha)
-
-    for commit in commits:
-
-    print(f"- {commit.commit.message}")
-
-
-
-    except Exception as e:
-
-    print(f"An error occurred: {e}")
-
-#### Resolved Task <a name="b98521f0-9a17-49c6-a897-eac81f584615"></a> 
-Follow <https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace>
-
-#### Resolved Task <a name="ef42f18a-dab8-4955-ade0-f15c1d1a39d7"></a> 
-Just look at project management verified <https://github.com/marketplace?verification=verified_creator&category=project-management&type=actions>
-
-#### Resolved Task <a name="ff2db5a5-4e5f-4096-be40-60d23beeaefb"></a> 
-Script for the video:
-
-
-
-
-1. Action that triggers on commit and moves forward jobs based on commit descriptions - **No point in doing this for tasks as no advantage.**
-2. Action that triggers on release and creates labels based on commit descriptions.
-3. Run the CLI as now if want to update TODOs and Uclusion text files in your repo - **otherwise too messy as would have to update files for you without you getting a chance to stop.**
-4. **Also the export runs from command line - can just show the CSV file it produces if don't want to wait for it in real time.**
-
-
-
-
-
-**That's already a long movie so have to skip the demo part and just show what was already setup working. Include the files that make it work to show simple.**
-
-#### Resolved Task <a name="7c606879-1357-4583-bcbb-c2ef59b27c64"></a> 
-Examine <https://github.com/marketplace/actions/attach-pull-request-to-asana-task> which is marked verified by Github - also useless similar to below
-
-
-
-
-<https://github.com/marketplace/actions/add-comment-to-asana-task> - official Asana but is about pull request notifications to collaborators - fairly useless as you can do this in Github better
-
-#### Resolved Task <a name="d24cc702-daa6-4c07-9f82-4a9da99568e5"></a> 
-Under collaboration tab on landing page the blocking screenshot is too large - include more of the tab on etc. to make reasonable size.
-
-#### Resolved Task <a name="014c9173-30c6-4f51-b3f4-fb15ba6dcf03"></a> 
-Integrations should be open by default for a real market - just not for support or demo.
-
-> ##### Subtask <a name="0c6f6870-cda5-4a87-af70-d3b3d7d438c2"></a> 
- State should be dependent on market id. True for Views and Collaborators folders also.
-
-#### Resolved Task <a name="4c424859-c0b8-44c5-a9ca-599ee577f67e"></a> 
-Fix margins at intermediate sizes.
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/aeb957b7-e349-40aa-8ea2-7255b9882949.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-#### Resolved Task <a name="c61faa39-3f76-4d8f-9539-ddab028b66a5"></a> 
-Problem: if it's the last task do you have to put job and task in commit?
-
-
-
-
-Problem: if you show copy task by clicking number and putting into commit isn't that awkward enough to mess up the video? **Could have just hit resolve at this point - then the only real advantage is the labels that show the release? - though that is cool.**
-
-#### Resolved Task <a name="8e1df7b0-cbe9-4fb4-8c9b-f25e942e1f00"></a> 
-Try out Zenhub.
-
-#### Resolved Task <a name="3849f0b1-fa75-497c-96c4-d09e497afb97"></a> 
-Drop the Organization tab diagram or figure out a way to make it nice or something.
-
-> ##### Subtask <a name="f8b5f66b-1b19-4668-8317-1d7a04347db8"></a> 
-See if can do an animation to show the logical data model. Maybe even Powerpoint can handle it.
-
-#### Resolved Task <a name="862145a1-a796-4296-b2f9-a26edf1434e0"></a> 
-S**top using labels for showing progress report** (which is dumb anyway). Use comment as done with in progress task.
-
-> ##### Subtask <a name="1b7a2afb-cf97-42ca-8ceb-493b35600569"></a> 
-There will also have to be activity logs / labels for each comment that display below them.
-
-#### Resolved Task <a name="34286b40-ee3e-4e6d-b8ed-e80aedcc756f"></a> 
-UI important cause Github bugs already has all of this <https://timheuer.com/blog/use-github-actions-for-bulk-resolve-issues/>
-
-
-
-
-So have to look very hard at why a maker shouldn't just use Github projects.
-
-
-
-
-**Try using them yourself on developer stuff repo and see how goes.** <https://github.com/orgs/Uclusion/projects/2> **Also see if can use straight issues on a private repo.**
-
-
-
-
-Github projects and built in like Zenhub are the competition for single user - see comparison section there <https://www.zenhub.com/> and maybe redo ours to be more like that.
-
-#### Resolved Task <a name="0c8728fe-e15b-42c0-a898-abe7fa20f256"></a> 
-Either like this:
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/704cb9f6-8e30-44c6-9aea-122ad3c536b1.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-or like this:
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/5558150b-5bdc-4232-a915-bbb520b34a66.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-Search for term Chromium window and make the above the fold screenshots use them.
-
-> ##### Subtask <a name="d9cd8d64-8521-4b19-8a9d-8cd2f8a35aad"></a> 
-Use <https://shots.so/> with Chrome, 3:2, url production.uclusion.com, background the same as landing page, and crop screenshot from that of 1647:936 size.
-
-#### Resolved Task <a name="1bd62d16-af9c-4d39-8b4a-601034fa9d95"></a> 
-So layout can be like this:
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/65f894a5-33f2-470b-a2ee-cf548acf61b7.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-with title "The CLI you never knew but always wanted" and subtitles, "Job and bug creation from code TODOs", "Status report in Github flavored markdown", "Github actions that track feature deployment".
-
-
-
-
-First one picture of TODO in code with | and then comment becomes and the one with ticket code filled out.
-
-Second one picture of report table of contents and in verbiage below subtitle have link to Uclusion's report.
-
-Third one showing snippet of how easy to use Github action is with link to the action repos.
-
-#### Resolved Task <a name="cf171b90-8012-42b3-a06e-83bcd119cdf4"></a> 
-Explain only goes as far back as tasks complete age show in readme and docs.
-
-
-
-
-**Link the docs into the readme in the Github actions. Make sure form of commit message obvious and that can click button to get.**
-
-#### Resolved Task <a name="5eddccf3-0a06-4b4d-8d0a-e71065277034"></a> 
-Third one showing snippet of how easy to use Github action is with link to the action repos.
-
-#### Resolved Task <a name="0ef8dcf9-5cec-4520-8936-049ffd1e1118"></a> 
-Easy to have action on initial commit that resolves the task or job. Not easy to know which commits are in a release. According to AI "github actions know all commits in a release" - you have to know the previous release and then find all commits between that release and the one being promoted. In this case you search all since that release **assuming that is cheaper than just searching all for ticket codes. Cause finding the previous release for a particular environment requires some searching also.**
-
-
-
-
-**Teamcamp got around this by using the release description only but that is lame.**
-
-
-
-
-**There is all sorts of stuff like this in Github actions** <https://github.com/WyriHaximus/github-action-get-previous-tag> so let them worry about it though you can of course give an example from what Uclusion does.
-
-
-
-
-Then just
-
-# List commits between the previous release and the current release tag
-
-git log --pretty=format:"%h - %s" $PREVIOUS_RELEASE_TAG..${{ github.event.release.tag_name }}
-
-
-
-
-and search that for ticket codes.
-
-#### Resolved Task <a name="5ff25c14-f257-4d75-af9e-c06cf043ca64"></a> 
-Make the link one button and the short code display a different button and have the latter put in a full commit description with job name and short code. **Remove or escape any " marks.**
-
-#### Resolved Task <a name="d1322194-7d84-430b-abcc-a545d1dae833"></a> 
-Mobile also needs margins.
-
-#### Resolved Task <a name="abca59df-c0e4-42fe-8afa-916eb4140ed2"></a> 
-Second one picture of report table of contents and in verbiage below subtitle have link to Uclusion's report.
-
-#### Resolved Task <a name="12720958-8305-495b-9781-056282c5a1a2"></a> 
-Fix documention.
-
+## Job <a name="a896d9fa-03bd-4f1d-aa18-48e6993fb1c2"></a>
+### Use Cursor to help fix all console warnings.
 ## Job <a name="c201bd90-f6d5-4bc4-ae93-eef22b6650d6"></a>
 ### Subtask in progress and next button changes.
 #### Resolved Task <a name="c47affe1-3a1c-4927-8fc9-a79fc7c99764"></a> 
@@ -1403,6 +519,57 @@ If no status jobs and no inbox at all go to Next bug IE the section in order of 
 
 #### Resolved Task <a name="a172bd76-c03f-463b-9362-441a68dc1007"></a> 
 Don't disable the Next button.
+
+#### Resolved Task <a name="b536c03f-6891-4a46-ab34-042a8b8bf34a"></a> 
+The display of grouped tasks in swimlanes still not seeing the child ones.
+
+## Job <a name="7eac3364-a52a-47ac-8823-2be566506061"></a>
+### More work on the landing page:
+[More work](https://www.reddit.com/r/roastmystartup/comments/1dyncmb/comment/lcbfdnp/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) on the landing page:
+
+
+
+
+Right off the bat, the website is painfully slow. It gets a performance score of 49 from Google's website performance test, which is a terrible result. A lot of people are going to just exit the website while it is still loading.
+
+On the over the fold area of the landing page, there are three moving elements, making the first impression busy and chaotic.
+
+Using light blue font over a white background for "sandbox demo" is awkward. The text is difficult to read and looks like a text link, while it's not.
+
+"Better than tickets" also looks like a text link with its underline effect, but again this is not a link. It's very confusing what elements here are clickable and which are not.
+
+There are so many font styles and effects that the entire thing looks very amateurish. For example, in the "Better than tickets" section, I can count 10 different font styles on one view. It looks like a collage kid who just learned CSS and realized the can use different font styles on a html page.
+
+The landing page keeps referring to a sandbox demo, but there is no link to it anywhere that I can see. And without it, I cannot really see how this thing works.
+
+This needs a lot of work.
+
+#### Resolved Task <a name="4e9f3a05-3203-42d8-b564-1bb2684727c2"></a> 
+Remove the bouncing arrow above Pricing section.
+
+#### Resolved Task <a name="42763b68-54e7-4e2f-879a-037d50f3e077"></a> 
+Fix all pictures in messages section of above the fold.
+
+#### Resolved Task <a name="c3843400-5f48-4b2e-891b-a03be98e3bc8"></a> 
+Change docs to explain keystrokes but no buttons for other two operations.
+
+#### Resolved Task <a name="26f396f9-08bb-41d8-99cc-d20e6155325c"></a> 
+Add LogRocket to landing page.
+
+#### Resolved Task <a name="0c2035aa-3206-4261-9d2a-77447a5b5759"></a> 
+Try to fix Google performance score on load time. <https://pagespeed.web.dev/?utm_source=psi&utm_medium=redirect>
+
+#### Resolved Task <a name="999a2acc-3dbc-4c96-ae86-39794cb6ed86"></a> 
+Remove all usage of fades and zooms.
+
+#### Resolved Task <a name="4e18dca1-c75e-434c-900c-f6e911dc8fd0"></a> 
+Re-enforce sandbox demo on sign up page.
+
+#### Resolved Task <a name="d7351d08-bbd4-4aec-bfb2-58c53df7de59"></a> 
+Change landing page and docs to say grouped tasks instead of subtasks.
+
+#### Resolved Task <a name="1b3f95cc-57b3-4372-a184-54a047673335"></a> 
+Reduce number of fonts per comment.
 
 ## Job <a name="75ad865e-a3a7-4d48-9703-e9a900f8ff72"></a>
 ### Main page beautification.

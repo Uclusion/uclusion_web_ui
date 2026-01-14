@@ -663,7 +663,7 @@ function StageInvestible(props) {
   const otherVoter = groupPresences.find((presence) => !assigned.includes(presence.id));
   const ticketNumber = getTicketNumber(groupId, marketId, groupsState, isAutonomous, isSameGroup);
   const inProgressComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
-    && !comment.resolved && comment.comment_type === TODO_TYPE && comment.in_progress);
+    && !comment.resolved && comment.in_progress);
   const reviewComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
     && !comment.resolved && comment.comment_type === REPORT_TYPE);
   return (

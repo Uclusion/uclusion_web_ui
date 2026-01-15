@@ -84,7 +84,7 @@ const useStyles = makeStyles(
   { name: "PlanningInvestibleNav" }
 );
 export default function PlanningInvestibleNav(props) {
-  const { name, market, marketInvestible, classes, userId, isAssigned, labels,
+  const { name, marketInvestible, classes, userId, isAssigned, labels,
     pageState, marketPresences, assigned, isInVoting, investibleComments, marketInfo, marketId,
     updatePageState, investibleId, yourVote } = props;
   const intl = useIntl();
@@ -118,18 +118,18 @@ export default function PlanningInvestibleNav(props) {
   const label = _.isEmpty(labelsSorted) ? undefined : labelsSorted[0].label;
 
   function onDeleteFile(path) {
-    return deleteAttachedFilesFromInvestible(market.id, investibleId, [path]).then((investible) => {
+    return deleteAttachedFilesFromInvestible(marketId, investibleId, [path]).then((investible) => {
       addInvestible(investiblesDispatch, diffDispatch, investible);
       setOperationRunning(false);
     });
   }
 
   function onAttachFiles(metadatas) {
-    return attachFilesToInvestible(market.id, investibleId, metadatas)
+    return attachFilesToInvestible(marketId, investibleId, metadatas)
       .then((investible) => addInvestible(investiblesDispatch, diffDispatch, investible));
   }
 
-  const stagesInfo = getStagesInfo(market.id, marketStagesState, stage);
+  const stagesInfo = getStagesInfo(marketId, marketStagesState, stage);
   const {
     isInAccepted,
     isFurtherWork
@@ -137,7 +137,7 @@ export default function PlanningInvestibleNav(props) {
   const addressedIds = (addressed || []).filter((address) => !address.abstain)
     .map((address) => address.id);
   const investibleCollaborators = useCollaborators(marketPresences, investibleComments, marketPresencesState,
-    investibleId, market.id, true);
+    investibleId, marketId, true);
   const assignedNotAccepted = assigned.filter((assignee) => !(accepted || []).includes(assignee));
   const reportMessage = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState);
   const unaccceptedMessage = findMessageOfType('UNREAD_JOB_APPROVAL_REQUEST', investibleId, messagesState);
@@ -207,7 +207,7 @@ export default function PlanningInvestibleNav(props) {
 
 
   function myRejectInvestible() {
-    return rejectInvestible(market.id, investibleId, marketInvestible, commentsState, commentsDispatch,
+    return rejectInvestible(marketId, investibleId, marketInvestible, commentsState, commentsDispatch,
       investiblesDispatch, diffDispatch, marketStagesState, marketPresencesDispatch);
   }
 
@@ -292,7 +292,7 @@ export default function PlanningInvestibleNav(props) {
       <MarketMetaData
         stagesInfo={stagesInfo}
         investibleId={investibleId}
-        market={market}
+        marketId={marketId}
         pageState={pageState}
         updatePageState={updatePageState}
         requiresCloseComments={requiresCloseComments}
@@ -304,7 +304,7 @@ export default function PlanningInvestibleNav(props) {
         userId={userId}
         tasksInProgress={tasksInProgress}
       />
-      {market.id && marketInvestible.investible && (!isSingleWorkspaceUser || isFurtherWork) && (
+      {marketId && marketInvestible.investible && (!isSingleWorkspaceUser || isFurtherWork) && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments
@@ -339,7 +339,7 @@ export default function PlanningInvestibleNav(props) {
           </SpinningIconLabelButton>
         </div>
       )}
-      {market.id && marketInvestible.investible && isFurtherWork && (
+      {marketId && marketInvestible.investible && isFurtherWork && (
         <div className={classes.assignmentContainer}>
           {hasBlockingIssue && (
             <Typography variant="body2">
@@ -385,7 +385,7 @@ export default function PlanningInvestibleNav(props) {
           </div>
         </div>
       )}
-      {market.id && marketInvestible.investible && useInVoting && (
+      {marketId && marketInvestible.investible && useInVoting && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments
@@ -478,7 +478,7 @@ export default function PlanningInvestibleNav(props) {
           </Tooltip>
         </div>
       <AttachedFilesList
-        marketId={market.id}
+        marketId={marketId}
         onUpload={onAttachFiles}
         onDeleteClick={onDeleteFile}
         attachedFiles={attachedFiles}
@@ -639,7 +639,7 @@ export const useMetaDataStyles = makeStyles(
 
 function MarketMetaData(props) {
   const {
-    market,
+    marketId,
     investibleId,
     stagesInfo,
     pageState,
@@ -667,7 +667,7 @@ function MarketMetaData(props) {
   const [, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const myMessageDescription = findMessageOfTypeAndId(investibleId, messagesState, 'DESCRIPTION');
   const diff = getDiff(diffState, investibleId);
-  const fullStagesFiltered = getStages(marketStagesState, market.id).filter((fullStage) => fullStage.id === stageId || 
+  const fullStagesFiltered = getStages(marketStagesState, marketId).filter((fullStage) => fullStage.id === stageId || 
   (!fullStage.move_on_comment && (isAssigned || _.isEmpty(assigned) || !isAcceptedStage(fullStage))));
   const allowableStages = _.orderBy(fullStagesFiltered, (aStage) => {
     if (isFurtherWorkStage(aStage)) {
@@ -689,11 +689,11 @@ function MarketMetaData(props) {
   function toggleDiffShow() {
     updatePageState({showDiff: !showDiff});
   }
-  const stageLink = formWizardLink(JOB_STAGE_WIZARD_TYPE, market.id, investibleId);
+  const stageLink = formWizardLink(JOB_STAGE_WIZARD_TYPE, marketId, investibleId);
 
   function changeInvestibleStage(stageMoveId) {
     if (stageMoveId !== stageId) {
-      const fullMoveStage = getFullStage(marketStagesState, market.id, stageMoveId);
+      const fullMoveStage = getFullStage(marketStagesState, marketId, stageMoveId);
       const requiresClose = requiresCloseComments(fullMoveStage);
       const requiresOtherAction = requiresAction(fullMoveStage, isSingleUser, stagesInfo.isBlocked, yourVote);
       if (requiresClose || requiresOtherAction) {
@@ -708,7 +708,7 @@ function MarketMetaData(props) {
       } else {
         setOperationRunning(true);
         const moveInfo = {
-          marketId: market.id,
+          marketId,
           investibleId,
           stageInfo: {
             current_stage_id: stageId,
@@ -720,11 +720,11 @@ function MarketMetaData(props) {
         }
         return stageChangeInvestible(moveInfo)
           .then((newInv) => {
-            onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, market.id, commentsState,
+            onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
               commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined, fullMoveStage, marketPresencesDispatch);
             setOperationRunning(false);
             if (!_.isEmpty(tasksInProgress) && fullMoveStage.allows_investment) {
-              navigate(history, formWizardLink(IN_PROGRESS_WIZARD_TYPE, market.id, investibleId));
+              navigate(history, formWizardLink(IN_PROGRESS_WIZARD_TYPE, marketId, investibleId));
             }
           });
       }
@@ -750,7 +750,7 @@ function MarketMetaData(props) {
         >
           {allowableStages.map((stage) => {
             return <MenuItem key={`key${stage.id}`} value={stage.id}>
-              {getStageNameForId(marketStagesState, market.id, stage.id, intl)}</MenuItem>
+              {getStageNameForId(marketStagesState, marketId, stage.id, intl)}</MenuItem>
           })}
         </Select>
       </FormControl>
@@ -760,5 +760,5 @@ function MarketMetaData(props) {
 
 MarketMetaData.propTypes = {
   investibleId: PropTypes.string.isRequired,
-  market: PropTypes.object.isRequired,
+  marketId: PropTypes.string.isRequired,
 }

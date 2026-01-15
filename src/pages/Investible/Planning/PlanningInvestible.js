@@ -40,7 +40,6 @@ import {
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import {
-  ACTIVE_STAGE,
   APPROVAL_WIZARD_TYPE,
   JOB_COMMENT_WIZARD_TYPE,
   JOB_EDIT_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE
@@ -352,10 +351,12 @@ function PlanningInvestible(props) {
     marketPresences,
     investibleComments,
     userId,
-    market,
+    marketId,
     marketInvestible,
     investibles,
     hash,
+    inArchives=false,
+    market,
     hidden
   } = props;
   const theme = useTheme();
@@ -372,8 +373,6 @@ function PlanningInvestible(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
   const { results, parentResults, search } = searchResults;
-  const { id: marketId, market_stage: marketStage } = market;
-  const inArchives = marketStage !== ACTIVE_STAGE;
   const investibleCommentsSearched = investibleComments.filter((comment) => {
     if (_.isEmpty(search)) {
       return true;
@@ -504,7 +503,7 @@ function PlanningInvestible(props) {
       lockedByName = name;
     }
   }
-  const stagesInfo = getStagesInfo(market.id, marketStagesState, stage);
+  const stagesInfo = getStagesInfo(marketId, marketStagesState, stage);
   const {
     isInReview,
     isInAccepted,
@@ -637,7 +636,7 @@ function PlanningInvestible(props) {
   }
   const showCommentAdd = !inArchives && !isInNotDoing && !isInVerified && _.isEmpty(search) && marketId &&
     !_.isEmpty(investible) && !hidden;
-  const investibleNav = <PlanningInvestibleNav investibles={investibles} name={name} market={market}
+  const investibleNav = <PlanningInvestibleNav investibles={investibles} name={name}
                                                marketInvestible={marketInvestible} classes={classes}
                                                investibleId={investibleId} yourVote={yourVote}
                                                userId={userId} myPresence={myPresence} isAssigned={isAssigned}
@@ -1011,7 +1010,7 @@ function PlanningInvestible(props) {
 }
 
 PlanningInvestible.propTypes = {
-  market: PropTypes.object.isRequired,
+  marketId: PropTypes.string.isRequired,
   marketInvestible: PropTypes.object.isRequired,
   marketPresences: PropTypes.arrayOf(PropTypes.object),
   investibleComments: PropTypes.arrayOf(PropTypes.object),

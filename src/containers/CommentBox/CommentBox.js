@@ -108,6 +108,7 @@ function CommentBox(props) {
   let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox);
   if (useInProgressSorting) {
     const investibleComments = getInvestibleComments(marketInfo?.investible_id, marketId, commentsState);
+    console.log('investibleId', marketInfo?.investible_id);
     console.log('investibleComments', investibleComments);
     sortedRoots = sortInProgress(sortedRoots, investibleComments);
   }

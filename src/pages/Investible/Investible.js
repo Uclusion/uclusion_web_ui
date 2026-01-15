@@ -49,7 +49,8 @@ function Investible(props) {
   const market = realMarket || {};
   const { parent_comment_id: aParentCommentId, parent_comment_market_id: aParentMarketId } = market;
   const parentComment = getComment(commentsState, aParentMarketId, aParentCommentId) || {};
-  const { investible_id: parentInvestibleId, market_id: parentMarketId, group_id: parentGroupId } = parentComment;
+  const { investible_id: parentInvestibleId, market_id: parentMarketId, group_id: parentGroupId, 
+    resolved: parentResolved } = parentComment;
   const comments = getMarketComments(commentsState, marketId);
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
@@ -94,7 +95,9 @@ function Investible(props) {
     <PlanningInvestible
       userId={userId}
       investibleId={investibleId}
+      marketId={marketId}
       market={market}
+      inArchives={parentResolved}
       marketInvestible={inv}
       investibles={investibles}
       commentsHash={commentsHash}

@@ -85,8 +85,6 @@ export function sortInProgress(roots, investibleComments) {
     const { in_progress: inProgressRaw, resolved } = comment;
     const hasInProgress = !_.isEmpty(investibleComments?.find((aComment) => aComment.in_progress 
     && aComment.root_comment_id === comment.id));
-    console.log('comment', comment);
-    console.log('hasInProgress', hasInProgress);
     const inProgress = inProgressRaw || hasInProgress;
     if (!inProgress || resolved) {
       sorted.push(comment);
@@ -108,8 +106,6 @@ function CommentBox(props) {
   let sortedRoots = getSortedRoots(comments, searchResults, preserveOrder, isInbox);
   if (useInProgressSorting) {
     const investibleComments = getInvestibleComments(marketInfo?.investible_id, marketId, commentsState);
-    console.log('investibleId', marketInfo?.investible_id);
-    console.log('investibleComments', investibleComments);
     sortedRoots = sortInProgress(sortedRoots, investibleComments);
   }
   if (_.isEmpty(sortedRoots) && displayRepliesAsTop) {

@@ -66,7 +66,8 @@ function CondensedTodos(props) {
   const openComments = comments.filter((comment) => !comment.resolved);
   const resolvedComments = comments.filter((comment) => comment.resolved);
   const tabCommentsRaw = showOpen ? openComments : resolvedComments;
-  const tabComments = sortInProgress(_.orderBy(tabCommentsRaw, ['updated_at', 'body'], ['desc', 'asc']));
+  const tabComments = sortInProgress(_.orderBy(tabCommentsRaw, ['updated_at', 'body'], ['desc', 'asc']), 
+    investibleComments);
 
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {

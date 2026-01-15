@@ -383,6 +383,8 @@ function PlanningInvestible(props) {
       return comment.comment_type === JUSTIFY_TYPE;
   });
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
+  console.log('marketInfo', marketInfo);
+  console.log('marketInvestible', marketInvestible);
   const { stage, assigned: invAssigned, ticket_code: ticketCode, former_stage_id: formerStageId, group_id: groupId,
     created_by: createdById } = marketInfo;
   const assigned = invAssigned || [];

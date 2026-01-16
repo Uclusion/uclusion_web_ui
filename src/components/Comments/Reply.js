@@ -344,11 +344,19 @@ function Reply(props) {
             {commenter.name}
           </Typography>
         )}
-        <Typography className={classes.timeElapsed} variant="body2">
-          <UsefulRelativeTime
-            value={comment.created_at}
-          />
-        </Typography>
+        {mobileLayout && (
+          <Typography className={classes.timeElapsed} variant="body2">
+            {intl.formatDate(comment.updated_at)}
+          </Typography>
+        )}
+        {!mobileLayout && (
+          <Typography className={classes.timeElapsed} variant="body2">
+            Created <UsefulRelativeTime value={comment.created_at}/>.
+            {comment.created_at < comment.updated_at && (
+              <> Updated <UsefulRelativeTime value={comment.updated_at}/>.</>
+            )}
+          </Typography>
+        )}
         {myMessage?.type_object_id && !isInbox && !replyBeingEdited && (
           <TooltipIconButton
             onClick={(event) => {

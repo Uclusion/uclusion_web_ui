@@ -2,7 +2,7 @@
 |--------------|---------------|--------------|--------------|--------------|
 | [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| 01/17| [Finish what started in dehighlightMessage so floating message processing...](#35fcebca-c6de-4ea7-a850-6ae647dfbf91)|  |
 | [Anything with tabs or left side panel now has different look - including the...](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)| [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| 01/31| [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| Deployed to production |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Subtask in progress and next button changes.](#c201bd90-f6d5-4bc4-ae93-eef22b6650d6)| Deployed to stage |
+| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Subtask in progress and next button changes.](#c201bd90-f6d5-4bc4-ae93-eef22b6650d6)| Deployed to production |
 | [Substitute for the comparison section,](#283ed39c-2e32-4d70-9c99-a9aef975439a)| | | [More work on the landing page:](#7eac3364-a52a-47ac-8823-2be566506061)|  |
 | | | | [Main page beautification.](#75ad865e-a3a7-4d48-9703-e9a900f8ff72)| Deployed to production |
 ## Job <a name="f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f"></a>
@@ -66,9 +66,6 @@ When resolve minor but on return arrive in critical bugs section.
 
 Also happening when move a bug to a job from a non critical section.
 
-#### Task <a name="4eebebbb-a052-43e9-a492-d6474808fc1d"></a> 
-Change "subtask" to "grouped task" in markdown generator Lambda.
-
 #### Task <a name="87d078c7-9375-412a-9367-fb7509a8adc3"></a> 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/65826b2f-930a-42a1-863e-c24890e7db47.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
@@ -127,7 +124,7 @@ Dragging a job directly from Assistance to Tasks Complete does not work for unas
 #### Resolved Task <a name="4e34416d-9b53-433a-a2d9-d1aaacc03d1d"></a> 
 Simplify views.
 
-> ##### Subtask <a name="b85b71e3-3eb8-4b69-9d35-1c486b2101ed"></a> 
+> ##### Grouped task <a name="b85b71e3-3eb8-4b69-9d35-1c486b2101ed"></a> 
 Remove going to individual not new notifications other than critical bugs and outbox from navigation button.
 
 
@@ -140,7 +137,7 @@ Navigation will go to one of four places:
 3. Swimlanes of all views that is member of
 4. In progress tasks in assigned jobs
 
-> ##### Subtask <a name="2d774af4-91ba-41a1-8b46-c5185eac71ed"></a> 
+> ##### Grouped task <a name="2d774af4-91ba-41a1-8b46-c5185eac71ed"></a> 
 When choose add peers get this:
 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/f8ed40e6-f4f2-465a-af22-e956e251d543.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
@@ -167,7 +164,7 @@ That's too confusing - second step in the wizard has to ask if the people you ar
 
 This above is too confusing. How about just two choices "Single person view" or "Team view". Sub-text explains that a workspace must have at least one view. If choose team view you name it yourself with sub-text that explains what a view is - the finish button there creates the workspace.
 
-> ##### Subtask <a name="395caf80-2822-43fd-ae11-1a4ca6b17957"></a> 
+> ##### Grouped task <a name="395caf80-2822-43fd-ae11-1a4ca6b17957"></a> 
 Remove view link to documentation and make collapsible section like all the rest and have collapsed by default when there is only one view.
 
 
@@ -175,10 +172,10 @@ Remove view link to documentation and make collapsible section like all the rest
 
 **J**ust drop the whole weird sidebar language and do as one thing.
 
-> ##### Subtask <a name="3e5e867f-97a0-4156-93d1-ba8dbe4319a9"></a> 
+> ##### Grouped task <a name="3e5e867f-97a0-4156-93d1-ba8dbe4319a9"></a> 
 Remove explanation of views from intro to workspace screens.
 
-> ##### Subtask <a name="6cff6d27-fbd1-455e-a1ab-4ad8aeb59e1b"></a> 
+> ##### Grouped task <a name="6cff6d27-fbd1-455e-a1ab-4ad8aeb59e1b"></a> 
 Make solo demo single view only.
 
 #### Resolved Task <a name="da778633-d092-4486-b39c-0e9870887a7e"></a> 
@@ -204,7 +201,7 @@ If drag job with open suggestion to Work Ready and choose Make Task then just sp
 
 *Unable to repro any of this.*
 
-> ##### Subtask <a name="528c8325-07e1-4366-9b2c-9d2ffcdf4a83"></a> 
+> ##### Grouped task <a name="528c8325-07e1-4366-9b2c-9d2ffcdf4a83"></a> 
 If have reply on that suggestion then after make the suggestion a task and put it in progress and put reply in progress, the reply disappears.
 
 #### Resolved Task <a name="395caf80-2822-43fd-ae11-1a4ca6b17957"></a> 
@@ -226,7 +223,7 @@ Don't display the view name in ticket code. It already displays on right nav und
 #### Resolved Task <a name="1ba98476-cd57-40f9-af2e-be2cacea2d05"></a> 
 Put in debug log statements to figure out when search bar is re-rendering and flickering. Related to [Must fix bugs. - T-all-7](#3671e2b8-0876-4e90-921c-49c1144345ad) ?
 
-> ##### Subtask <a name="2e922336-b81d-49cb-853a-0e7f89942d95"></a> 
+> ##### Grouped task <a name="2e922336-b81d-49cb-853a-0e7f89942d95"></a> 
 Redo presentation of offline and have timer on it. See Gmail example - not nearly as big a message. Can simulate offline in Chrome devtools.
 
 #### Resolved Task <a name="7a0e8e35-d10d-403e-aa5c-89cfe28fce04"></a> 
@@ -296,7 +293,7 @@ In a team view so should have Add with voting button available. **Plus errors ou
 #### Resolved Task <a name="cb34dbe5-e22d-46aa-99f8-232cb75191ca"></a> 
 Reply linking icon is in corner but for comment is in middle. Too confusing. Probably reply one should move to middle cause as it is looks like the avatar for the name which it isn't.
 
-> ##### Subtask <a name="dd255c52-1d03-4c52-bc58-9abb4f2c2145"></a> 
+> ##### Grouped task <a name="dd255c52-1d03-4c52-bc58-9abb4f2c2145"></a> 
 For the jobs overview expansion the linker is to the right and nothing is on the left.
 
 #### Resolved Task <a name="e6109310-9f42-4e46-b515-21e1c0bb62e7"></a> 
@@ -435,7 +432,7 @@ The context update runs synchronous so the problem is just that the back end cal
 
 HAVE STATE IN NAVIGATION SO COULD GUARD AGAINST SEEING SAME NOTIFICATION AGAIN.
 
-> ##### Subtask <a name="f9f579c7-0f42-44d9-8029-208a4441e230"></a> 
+> ##### Grouped task <a name="f9f579c7-0f42-44d9-8029-208a4441e230"></a> 
 Add guard against seeing the same message that just saw a short while ago again.
 
 #### Resolved Task <a name="6e3dc469-2240-473e-a12c-542966738f52"></a> 
@@ -471,6 +468,12 @@ Actually above has a floating promise also IE the store state is not guaranteed 
 ### Use Cursor to help fix all console warnings.
 ## Job <a name="c201bd90-f6d5-4bc4-ae93-eef22b6650d6"></a>
 ### Subtask in progress and next button changes.
+#### Resolved Task <a name="a45f0b97-ac93-4329-bdf5-4bc8add2e3c0"></a> 
+Showing resolved grouped tasks in swimlane.
+
+#### Resolved Task <a name="622d8950-281a-426b-9b3f-6bd9745fb914"></a> 
+If child grouped task in progress and parent isn't the sort to top doesn't work. Hard to reproduce - will have to add debug for stage to figure out.
+
 #### Resolved Task <a name="c47affe1-3a1c-4927-8fc9-a79fc7c99764"></a> 
 Don't disable in progress on subtask and instead automatically control exactly as if each subtask is a regular task. The parent does not have to be in progress - this is just a logical grouping.
 
@@ -479,7 +482,7 @@ Don't disable in progress on subtask and instead automatically control exactly a
 
 Where there is logic that checks the parent before counting the subtask as in progress just remove it.
 
-> ##### Subtask <a name="7605bac1-a958-4340-80be-c7cd05aa1132"></a> 
+> ##### Grouped task <a name="7605bac1-a958-4340-80be-c7cd05aa1132"></a> 
 Rename subtask to "grouped task" in general and "Group" on the create button. That in all ways is what was implemented. Then instead of Move to task just "ungroup".
 
 
@@ -495,13 +498,13 @@ If they don't want parent to be its own task they can just not have it in progre
 #### Resolved Task <a name="be876ed1-f63b-4a2b-9406-cc5e869bf329"></a> 
 If in a back log job Next view is always what next button says and does.
 
-> ##### Subtask <a name="6d4aff4d-0419-402d-bedc-a2fa656b2379"></a> 
+> ##### Grouped task <a name="6d4aff4d-0419-402d-bedc-a2fa656b2379"></a> 
 No that won't work as could have arrive in back log job from next button.
 
 #### Resolved Task <a name="60500869-1d54-42f3-b30e-2b8112668540"></a> 
 Test next button.
 
-> ##### Subtask <a name="4bbf352b-04d1-4a88-8aa6-950268fbc647"></a> 
+> ##### Grouped task <a name="4bbf352b-04d1-4a88-8aa6-950268fbc647"></a> 
 Not going through all in approval investibles - just two of them.
 
 #### Resolved Task <a name="94af12b6-2781-4ac6-b560-783df8c35935"></a> 
@@ -517,8 +520,14 @@ If no status at all and inbox has something read go there.
 
 If no status jobs and no inbox at all go to Next bug IE the section in order of priority. If no bugs either go to not ready jobs if exist. If none of that go to Compose button.
 
+#### Resolved Task <a name="4eebebbb-a052-43e9-a492-d6474808fc1d"></a> 
+Change "subtask" to "grouped task" in markdown generator Lambda.
+
 #### Resolved Task <a name="a172bd76-c03f-463b-9362-441a68dc1007"></a> 
 Don't disable the Next button.
+
+#### Resolved Task <a name="150f30f8-b6c9-44c0-8ef1-e8a0f22c3c9f"></a> 
+In overview the sorting is different from the in progress sorting the tasks page does.
 
 #### Resolved Task <a name="b536c03f-6891-4a46-ab34-042a8b8bf34a"></a> 
 The display of grouped tasks in swimlanes still not seeing the child ones.
@@ -593,10 +602,10 @@ Also add a bit more space above the stage investible header.
 #### Resolved Task <a name="3ac6ee70-f8a0-4ca7-8d55-00aa6e565962"></a> 
 Plus signs on side nav line up with count numbers. Drop expand collapse and just do More + like Google does if more than five - for Views and Other workspaces. That More and Less will connect with the same state used now so that it is permanent.
 
-> ##### Subtask <a name="32410979-285e-44f0-8009-81d5b140b607"></a> 
+> ##### Grouped task <a name="32410979-285e-44f0-8009-81d5b140b607"></a> 
 Integrations and Messages continue to work the way they currently do as they have no plus button.
 
-> ##### Subtask <a name="fa3699e0-77f3-435d-b445-eb02299375f7"></a> 
+> ##### Grouped task <a name="fa3699e0-77f3-435d-b445-eb02299375f7"></a> 
  For Collaborators just drop the expand collapse altogether.
 
 #### Resolved Task <a name="e6ba299a-e8d0-4139-b3f4-ff17f5316e65"></a> 
@@ -626,7 +635,7 @@ In complete section either be half length or full length.
 #### Resolved Task <a name="9263512a-c051-4526-b327-b3625e905435"></a> 
 Navigation arrows should be just one text one that says where you are going to go and keep the key strokes the same.
 
-> ##### Subtask <a name="cb254bd4-3d53-4b32-8ffb-c1a7ec76ecb9"></a> 
+> ##### Grouped task <a name="cb254bd4-3d53-4b32-8ffb-c1a7ec76ecb9"></a> 
 The hover text explains all three key strokes (may need to do HTMl hover to do that).
 
 #### Resolved Task <a name="0465fa3f-292e-4bc0-b239-b04275a4888b"></a> 

@@ -21,7 +21,8 @@ export const VIEW_EVENT = 'pageView';
 export const MARKET_TODOS_HASH = 'marketTodos';
 export const DISCUSSION_HASH = 'discussionSection';
 export const BACKLOG_HASH = 'insideBacklogSection';
-export const ASSIGNED_HASH = 'storiesSection';
+// TODO B-all-396 Make tab ids not depend on tab title
+export const ASSIGNED_HASH = 'JobProgress';
 
 /** Given the pathpart _without the hash or query params
  * will extract the action, the marketId and the investibleId
@@ -336,4 +337,6 @@ export function formMarketAddInvestibleLink(marketId, groupId, jobType, typeObje
     return `${baseLink}&jobType=${jobType}`;
   }
   return baseLink;
+}
+
 }

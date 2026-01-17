@@ -338,5 +338,3 @@ export function formMarketAddInvestibleLink(marketId, groupId, jobType, typeObje
   }
   return baseLink;
 }
-
-}

@@ -61,6 +61,7 @@ import { findMessagesForGroupId } from '../../utils/messageUtils';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { INFO_COLOR } from '../../components/Buttons/ButtonConstants';
+import { INDEX_COMMENT_TYPE, INDEX_INVESTIBLE_TYPE } from '../../contexts/SearchIndexContext/searchIndexContextMessages';
 
 export const screenStyles = makeStyles((theme) => ({
   hidden: {
@@ -214,7 +215,7 @@ export function getActiveGroupId(myPresence, groupsState, marketId, marketPresen
 
 export function getSidebarGroups(navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
   history, market, useGroupId, groupId, classes, useHoverFunctions, search, results, openMenuItems=[], inactiveGroups=[], pathname, resetFunction, 
-  mobileLayout, messagesState, investiblesState, investibleId) {
+  mobileLayout, messagesState, commentsState, investiblesState, investibleId) {
   const marketId = market.id;
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
   const itemsSorted = _.sortBy(groupsState[marketId],
@@ -240,7 +241,27 @@ export function getSidebarGroups(navListItemTextArray, groupsState, marketPresen
     let num = undefined;
     let numSuffix = undefined;
     if (!_.isEmpty(search)) {
-      num = _.size((results || []).filter((item) => item.groupId === group.id));
+      const groupResults = (results || []).filter((item) => item.groupId === group.id);
+      const groupLevelResults = []
+      groupResults.forEach((item) => {
+        if (item.type === INDEX_COMMENT_TYPE) {
+          const comment = getComment(commentsState, marketId, item.id);
+          if (comment) {
+            if (comment.investible_id) {
+              if (!groupLevelResults.includes(comment.investible_id)) {
+                groupLevelResults.push(comment.investible_id);
+              }
+            } else {
+              groupLevelResults.push(comment.id);
+            }
+          }
+        } else if (item.type === INDEX_INVESTIBLE_TYPE) {
+          if (!groupLevelResults.includes(item.id)) {
+            groupLevelResults.push(item.id);
+          }
+        }
+      });
+      num = _.size(groupLevelResults);
       numSuffix = 'total';
     } else if (!outsetAvailable) {
       let groupMessages = findMessagesForGroupId(group.id, messagesState, true);
@@ -432,8 +453,8 @@ function Screen(props) {
     const { useHoverFunctions, resetFunction } = navigationOptions || {};
     getSidebarGroups(navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, classes, useHoverFunctions, search,
-      results, openMenuItems, inactiveGroups, pathname, resetFunction, mobileLayout, messagesState, investiblesState, 
-      investibleId);
+      results, openMenuItems, inactiveGroups, pathname, resetFunction, mobileLayout, messagesState, commentsState, 
+      investiblesState, investibleId);
   }
   const composeChosen = action === 'wizard' && type === COMPOSE_WIZARD_TYPE.toLowerCase();
   const navigationMenu = isDemoLoading ? {} :

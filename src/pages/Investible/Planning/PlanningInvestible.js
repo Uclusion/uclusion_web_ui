@@ -806,7 +806,7 @@ function PlanningInvestible(props) {
               </div>
             )}
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
-                            usePadding={!mobileLayout} hidden={hidden} hash={hash}
+                            usePadding={!mobileLayout} hidden={hidden} hash={hash} maxWidth='95%'
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen={!_.isEmpty(todoCommentsSearched)}/>
               <div style={{
                 marginTop: '3rem',

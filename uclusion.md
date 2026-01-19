@@ -1,9 +1,10 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| 01/17| [Finish what started in dehighlightMessage so floating message processing...](#35fcebca-c6de-4ea7-a850-6ae647dfbf91)|  |
-| [Anything with tabs or left side panel now has different look - including the...](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)| [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| 01/31| [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| Deployed to production |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Subtask in progress and next button changes.](#c201bd90-f6d5-4bc4-ae93-eef22b6650d6)| Deployed to production |
-| [Substitute for the comparison section,](#283ed39c-2e32-4d70-9c99-a9aef975439a)| | | [More work on the landing page:](#7eac3364-a52a-47ac-8823-2be566506061)|  |
+| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| 01/31| [Finish what started in dehighlightMessage so floating message processing...](#35fcebca-c6de-4ea7-a850-6ae647dfbf91)|  |
+| [Anything with tabs or left side panel now has different look - including the...](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)| | | [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| Deployed to production |
+| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| Deployed to production |
+| [Substitute for the comparison section,](#283ed39c-2e32-4d70-9c99-a9aef975439a)| | | [Subtask in progress and next button changes.](#c201bd90-f6d5-4bc4-ae93-eef22b6650d6)| Deployed to production |
+| | | | [More work on the landing page:](#7eac3364-a52a-47ac-8823-2be566506061)|  |
 | | | | [Main page beautification.](#75ad865e-a3a7-4d48-9703-e9a900f8ff72)| Deployed to production |
 ## Job <a name="f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f"></a>
 ### Better archive.
@@ -38,62 +39,128 @@ Change sub text on archive to say archive instead of group archive.
 #### Task <a name="a495ccb2-6d43-41d3-8c76-8d8b5741a4ae"></a> 
 Anything with tabs or left side panel now has different look - including the shot of estimating in messages section above the fold.
 
+## Job <a name="436e8e41-b8c4-4c73-8818-4d563a81ca44"></a>
+### Button on the question that generates AI prompt onto the clipboard.
+Probably skipping pictures and file attachments.
+
+#### Task <a name="17c54d09-22e8-4b03-a8bf-f59463c1ab1b"></a> 
+This button should produce markdown as <https://github.com/microsoft/markitdown> claims it is native to LLMs. Furthermore need the same markdown with token included image URLs that getting for public status report.
+
+#### Task <a name="c37e86d4-1efc-4dea-ae23-1fd0171f3175"></a> 
+Button on the question that generates AI prompt onto the clipboard. Probably skipping pictures and file attachments.
+
+## Job <a name="283ed39c-2e32-4d70-9c99-a9aef975439a"></a>
+### Substitute for the comparison section,
+
+#### Task <a name="6d550fb7-e7d7-4985-bd2b-75ca88df6f2e"></a> 
+See if can find substitute for the comparison section or way to make it reasonable - get kid's help.
+
+
+
+
+Video explaining in progress/ navigation / subtask is possible.
+
+## Job <a name="c27ba80a-bc55-45b7-8dae-0bbae049e570"></a>
+### Mobile issues.
+#### Task <a name="39bf8c1f-32bc-46a5-a58d-0ecf3ad36233"></a> 
+On mobile when open collaborators get white instead of blue.
+
+#### Task <a name="38481d49-e8b4-4ce3-ba3b-d915f090b07b"></a> 
+Details section on mobile needs to default to open.
+
+#### Task <a name="4b3c9ca4-7326-4271-82de-803ef5e16876"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/da90ff1b-a4ad-482a-bbe7-7db577d17a1f.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+Still too much left padding to fit
+
+#### Task <a name="aad2b51c-2d4f-4b6c-b404-6a59999ae994"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c1fb4684-0181-4398-b875-e2bb38c3ae7b.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+After link option to task and resolve question have weird floating header
+
+#### Task <a name="acf05f3f-b694-40f7-8cd9-e846823909f4"></a> 
+Drop tool bar and drawer on mobile and just do exactly with menu as did for identity (which works on mobile). Make sure the color is okay - there is some weird white.
+
+#### Task <a name="21c29a24-a2c5-4809-a8cd-4d60de64b362"></a> 
+Try again get rid of some of the floaty on mobile. Might be able to repro at intermediate sizes.
+
+
+
+
+This is intermittent and does not repro at intermediate sizes.
+
+#### Task <a name="42ce409a-ce4d-468a-ae2a-4a0bf4c5560c"></a> 
+Need refresh button since reload doesn’t do refresh necessarily and not obvious. This button should run sync so spinning on and returns error if fails just like anything else.
+
+
+
+
+Can have this button for desktop also if can find place to hide it but not required.
+
+## Job <a name="35fcebca-c6de-4ea7-a850-6ae647dfbf91"></a>
+### Finish what started in dehighlightMessage so floating message processing...
+...logic kludge in notifications reducer can be removed.
+
+#### Resolved Task <a name="d116227c-d046-40c1-bbf3-b4dc8cd1d9a9"></a> 
+Next button takes too long and so will some of the other buttons.
+
+
+
+
+Would putting the promise into a timer help?
+
+
+
+
+The context update runs synchronous so the problem is just that the back end call can end up not happening at all unless make it securely.
+
+
+
+
+**The other problem is can end up redisplaying the Next message notification before the context propagates - this might be the actual problem hit originally.**
+
+
+
+
+HAVE STATE IN NAVIGATION SO COULD GUARD AGAINST SEEING SAME NOTIFICATION AGAIN.
+
+> ##### Grouped task <a name="f9f579c7-0f42-44d9-8029-208a4441e230"></a> 
+Add guard against seeing the same message that just saw a short while ago again.
+
+#### Resolved Task <a name="6e3dc469-2240-473e-a12c-542966738f52"></a> 
+Try the timeout 0 wait way to avoid delaying the navigation.
+
+
+
+
+**Actually then why not just use this inside of notifications context and drop the whole promise true thing altogether?**
+
+
+
+
+
+
+
+    const newState = computeNewState(state, action);
+
+    if (!isDehighilightRemove) {
+
+    storeStatePromise(action, newState);
+
+    }
+
+    return newState;
+
+
+
+
+Actually above has a floating promise also IE the store state is not guaranteed to happen - should we put that in to a setTimer also or can we return a promise from a reducer?
+
 ## Job <a name="3af2201b-8111-46e9-b746-2f33cf1312bd"></a>
 ### Should fix UI bugs.
-#### Task <a name="6480fd0a-956c-44f4-a84f-ca0caa68c65b"></a> 
-For you menu must show search results when has them and not anything when doesn't and search.
-
-
-
-
-Sidebar menus must open when have search results.
-
-#### Task <a name="8fef848b-0392-4584-ba8a-634ad14433a8"></a> 
-Add and another does not clear if had previous draft task
-
-1. Create a draft task so see pencil icon
-2. Go back and edit it
-3. Create and another has former draft
-
-#### Task <a name="e3955751-12b8-4c03-ba7d-88dfbe2cf053"></a> 
-After go to view from job action, go to the my work view if the user has one.
-
-#### Task <a name="21781abb-865d-4327-8917-944b7025faf2"></a> 
-When resolve minor but on return arrive in critical bugs section.
-
-
-
-
-Also happening when move a bug to a job from a non critical section.
-
-#### Task <a name="87d078c7-9375-412a-9367-fb7509a8adc3"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/65826b2f-930a-42a1-863e-c24890e7db47.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Tab extends beyond rows weirdly.
-
-#### Task <a name="8a4ee34b-6a80-4aa0-bfed-49825d42f892"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c047efba-47bc-4389-8a4f-858fa4f06772.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Counts don't add up - 7 - 5 = 2 missing.
-
-#### Task <a name="83af94b4-f765-4d25-bf40-c87c0eda20ac"></a> 
-When search resolved tasks must display on tasks page as well so that search works. Currently it shows resolved found as on tasks page but nothing there.
-
-#### Task <a name="3671e2b8-0876-4e90-921c-49c1144345ad"></a> 
-Getting re-renders caused by context updates even when the sync gets nothing new. If nothing new there should be no updating contexts.
-
-> ##### Reply <a name="3ddbca75-8758-4552-9cd0-e3a663bf6772"></a> 
-Why do you think it's by context updates? I instrumented the code, it's not going to be pushing messages.
-
-#### Task <a name="5c9637a6-b94c-4a16-9aea-fe8bcc4d2cc0"></a> 
-Do the full context menu even if in swimlanes - no reason not to and now no stage header.
-
 #### Resolved Task <a name="b5ca7cbe-704b-4cce-9e50-77834334f474"></a> 
 Count color not on bugs or backlog lists
 
@@ -221,7 +288,7 @@ Remove view link to documentation and make collapsible section like all the rest
 Don't display the view name in ticket code. It already displays on right nav under View and on left nav if in that view.
 
 #### Resolved Task <a name="1ba98476-cd57-40f9-af2e-be2cacea2d05"></a> 
-Put in debug log statements to figure out when search bar is re-rendering and flickering. Related to [Must fix bugs. - T-all-7](#3671e2b8-0876-4e90-921c-49c1144345ad) ?
+Put in debug log statements to figure out when search bar is re-rendering and flickering. Related to Must fix bugs. - T-all-7 ?
 
 > ##### Grouped task <a name="2e922336-b81d-49cb-853a-0e7f89942d95"></a> 
 Redo presentation of offline and have timer on it. See Gmail example - not nearly as big a message. Can simulate offline in Chrome devtools.
@@ -268,6 +335,14 @@ Notes are somehow following the progress report logic and only showing the lates
 #### Resolved Task <a name="13375543-da18-4589-b826-948cf8968370"></a> 
 Don't show poke icon on resolved comments.
 
+#### Resolved Task <a name="87d078c7-9375-412a-9367-fb7509a8adc3"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/65826b2f-930a-42a1-863e-c24890e7db47.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+Tab extends beyond rows weirdly.
+
 #### Resolved Task <a name="c3fec27e-6465-4b09-b299-b4205f34d957"></a> 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/d06b3c63-0d12-4bb7-ac65-aa3577f134b8.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
@@ -279,8 +354,29 @@ Make In progress left most on both parent and child. Drop date on child - parent
 #### Resolved Task <a name="6cff6d27-fbd1-455e-a1ab-4ad8aeb59e1b"></a> 
 Make solo demo single view only.
 
+#### Resolved Task <a name="8a4ee34b-6a80-4aa0-bfed-49825d42f892"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c047efba-47bc-4389-8a4f-858fa4f06772.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+Counts don't add up - 7 - 5 = 2 missing.
+
 #### Resolved Task <a name="f9ce3d3e-7db4-42f6-9872-66a03e5e1729"></a> 
 Make the search bar look more standard - use AI if necessary.
+
+#### Resolved Task <a name="83af94b4-f765-4d25-bf40-c87c0eda20ac"></a> 
+When search resolved tasks must display on tasks page as well so that search works. Currently it shows resolved found as on tasks page but nothing there.
+
+
+
+
+During search either show both resolved and unresolved on tasks page or one on the other respectively and nail up resolved tab on overview.
+
+
+
+
+Actually do the former - when searching doesn't matter resolved or not and not many will display.
 
 #### Resolved Task <a name="da760056-b86d-42ef-b830-97d1f17019b9"></a> 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/102fb8cb-439c-470d-bf57-02c62b3dae35.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
@@ -343,126 +439,6 @@ Have an upgrade script that removes all notifications associated with unused old
 
 
 **Or maybe just fully cleans them up as the script that does that cleans up a planning market (including notifications) should exist.**
-
-## Job <a name="436e8e41-b8c4-4c73-8818-4d563a81ca44"></a>
-### Button on the question that generates AI prompt onto the clipboard.
-Probably skipping pictures and file attachments.
-
-#### Task <a name="17c54d09-22e8-4b03-a8bf-f59463c1ab1b"></a> 
-This button should produce markdown as <https://github.com/microsoft/markitdown> claims it is native to LLMs. Furthermore need the same markdown with token included image URLs that getting for public status report.
-
-#### Task <a name="c37e86d4-1efc-4dea-ae23-1fd0171f3175"></a> 
-Button on the question that generates AI prompt onto the clipboard. Probably skipping pictures and file attachments.
-
-## Job <a name="283ed39c-2e32-4d70-9c99-a9aef975439a"></a>
-### Substitute for the comparison section,
-
-#### Task <a name="6d550fb7-e7d7-4985-bd2b-75ca88df6f2e"></a> 
-See if can find substitute for the comparison section or way to make it reasonable - get kid's help.
-
-
-
-
-Video explaining in progress/ navigation / subtask is possible.
-
-## Job <a name="c27ba80a-bc55-45b7-8dae-0bbae049e570"></a>
-### Mobile issues.
-#### Task <a name="39bf8c1f-32bc-46a5-a58d-0ecf3ad36233"></a> 
-On mobile when open collaborators get white instead of blue.
-
-#### Task <a name="38481d49-e8b4-4ce3-ba3b-d915f090b07b"></a> 
-Details section on mobile needs to default to open.
-
-#### Task <a name="4b3c9ca4-7326-4271-82de-803ef5e16876"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/da90ff1b-a4ad-482a-bbe7-7db577d17a1f.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-Still too much left padding to fit
-
-#### Task <a name="aad2b51c-2d4f-4b6c-b404-6a59999ae994"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c1fb4684-0181-4398-b875-e2bb38c3ae7b.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-After link option to task and resolve question have weird floating header
-
-#### Task <a name="acf05f3f-b694-40f7-8cd9-e846823909f4"></a> 
-Drop tool bar and drawer on mobile and just do exactly with menu as did for identity (which works on mobile). Make sure the color is okay - there is some weird white.
-
-#### Task <a name="21c29a24-a2c5-4809-a8cd-4d60de64b362"></a> 
-Try again get rid of some of the floaty on mobile. Might be able to repro at intermediate sizes.
-
-
-
-
-This is intermittent and does not repro at intermediate sizes.
-
-#### Task <a name="42ce409a-ce4d-468a-ae2a-4a0bf4c5560c"></a> 
-Need refresh button since reload doesn’t do refresh necessarily and not obvious. This button should run sync so spinning on and returns error if fails just like anything else.
-
-
-
-
-Can have this button for desktop also if can find place to hide it but not required.
-
-## Job <a name="35fcebca-c6de-4ea7-a850-6ae647dfbf91"></a>
-### Finish what started in dehighlightMessage so floating message processing...
-...logic kludge in notifications reducer can be removed.
-
-#### Resolved Task <a name="d116227c-d046-40c1-bbf3-b4dc8cd1d9a9"></a> 
-Next button takes too long and so will some of the other buttons.
-
-
-
-
-Would putting the promise into a timer help?
-
-
-
-
-The context update runs synchronous so the problem is just that the back end call can end up not happening at all unless make it securely.
-
-
-
-
-**The other problem is can end up redisplaying the Next message notification before the context propagates - this might be the actual problem hit originally.**
-
-
-
-
-HAVE STATE IN NAVIGATION SO COULD GUARD AGAINST SEEING SAME NOTIFICATION AGAIN.
-
-> ##### Grouped task <a name="f9f579c7-0f42-44d9-8029-208a4441e230"></a> 
-Add guard against seeing the same message that just saw a short while ago again.
-
-#### Resolved Task <a name="6e3dc469-2240-473e-a12c-542966738f52"></a> 
-Try the timeout 0 wait way to avoid delaying the navigation.
-
-
-
-
-**Actually then why not just use this inside of notifications context and drop the whole promise true thing altogether?**
-
-
-
-
-
-
-
-    const newState = computeNewState(state, action);
-
-    if (!isDehighilightRemove) {
-
-    storeStatePromise(action, newState);
-
-    }
-
-    return newState;
-
-
-
-
-Actually above has a floating promise also IE the store state is not guaranteed to happen - should we put that in to a setTimer also or can we return a promise from a reducer?
 
 ## Job <a name="a896d9fa-03bd-4f1d-aa18-48e6993fb1c2"></a>
 ### Use Cursor to help fix all console warnings.

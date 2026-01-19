@@ -248,8 +248,8 @@ function CondensedTodos(props) {
                         onDragOver={(event)=>event.preventDefault()}/>
           <GmailTabItem label={intl.formatMessage({id: 'closedComments'})}
                         color='black' hasChip={isSearch}
-                        tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) :intl.formatMessage({id: 'total'})}
-                        tag={`${_.size(resolvedComments)}`}
+                        tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) : intl.formatMessage({id: 'total'})}
+                        tag={isSearch ? (_.size(resolvedComments) > 0 ? `${_.size(resolvedComments)}` : undefined) : `${_.size(resolvedComments)}`}
                         onDrop={onDropResolved} toolTipId='resolvedTasksToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
         </GmailTabs>

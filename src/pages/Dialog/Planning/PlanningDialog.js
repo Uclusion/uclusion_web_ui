@@ -513,6 +513,9 @@ function PlanningDialog(props) {
   }
   function getTagLabel(tabCount, tabIndex) {
     if (tabCount) {
+      if (!_.isEmpty(search)) {
+        return intl.formatMessage({ id: 'match' });
+      }
       if (isAutonomous && tabIndex === 2) {
         return intl.formatMessage({ id: 'immediateLower' });
       }
@@ -585,18 +588,20 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
             resetFunction(value);
           }}
           indicatorColors={['#2F80ED', '#2F80ED', '#2F80ED', '#2F80ED']}>
-          <GmailTabItem icon={<AssignmentInd />} onDrop={onDropAssigned} tagLabel={getTagLabel(tabCount0)}
+          <GmailTabItem icon={<AssignmentInd />} onDrop={onDropAssigned} 
+                        tagLabel={getTagLabel(_.isEmpty(search) ? tabCount0 : jobsSearchResults)}
                         onDragOver={(event)=>event.preventDefault()} toolTipId='statusJobsToolTip' tagColor='#E85757'
                         label={intl.formatMessage({id: 'planningDialogNavStoriesLabel'})}
                         tag={_.isEmpty(search) || jobsSearchResults === 0 ? tabCount0 : `${jobsSearchResults}`} />
-          <GmailTabItem icon={<AssignmentIcon />} onDrop={onDropBacklog} tagLabel={getTagLabel(tabCount1)}
+          <GmailTabItem icon={<AssignmentIcon />} onDrop={onDropBacklog} tagLabel={getTagLabel(_.isEmpty(search) ? tabCount1 : backlogSearchResults)}
                         onDragOver={(event)=>event.preventDefault()} toolTipId='backlogJobsToolTip' tagColor='#E85757'
                         label={intl.formatMessage({id: 'planningDialogBacklog'})}
                         tag={_.isEmpty(search) || backlogSearchResults === 0 ? tabCount1 : `${backlogSearchResults}`} />
           <GmailTabItem icon={<BugReport />} label={intl.formatMessage({id: 'todoSection'})}
-                        toolTipId='bugsToolTip' tagLabel={getTagLabel(tabCount2, 2)} tagColor='#E85757'
+                        toolTipId='bugsToolTip' tagLabel={getTagLabel(_.isEmpty(search) ? tabCount2 : _.size(todoGroupComments), 2)} tagColor='#E85757'
                         tag={_.isEmpty(search) || _.isEmpty(todoGroupComments) ? tabCount2 : `${_.size(todoGroupComments)}` } />
-          <GmailTabItem icon={<LightbulbOutlined />} toolTipId='discussionToolTip' tagLabel={getTagLabel(tabCount3)}
+          <GmailTabItem icon={<LightbulbOutlined />} toolTipId='discussionToolTip' 
+                        tagLabel={getTagLabel(_.isEmpty(search) ? tabCount3 : _.size(questionSuggestionGroupComments))}
                         label={intl.formatMessage({id: 'planningDialogDiscussionLabel'})} tagColor='#E85757'
                         tag={_.isEmpty(search) || _.isEmpty(questionSuggestionGroupComments) ? tabCount3 :
                           `${_.size(questionSuggestionGroupComments)}`} />

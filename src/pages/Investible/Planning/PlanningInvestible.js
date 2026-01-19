@@ -330,7 +330,7 @@ export function countUnresolved(comments, search) {
     return undefined;
   }
   let unresolvedComments;
-  if (!_.isEmpty(search)) {
+  if (_.isEmpty(search)) {
     unresolvedComments =  comments;
   } else {
     unresolvedComments = comments.filter((comment) => !comment.resolved);
@@ -546,6 +546,7 @@ function PlanningInvestible(props) {
     todoCommentsSearched.includes(comment.root_comment_id));
   const todoCommentsSearchedAll = todoCommentsSearched.concat(todoCommentsRepliesSearched);
   const openTodoCommentsSearched = todoCommentsSearched.filter((comment) => !comment.resolved);
+  const todoCommentsResolvedSearched = todoCommentsSearched.filter((comment) => comment.resolved);
   const questionCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === QUESTION_TYPE
   );
@@ -618,7 +619,7 @@ function PlanningInvestible(props) {
   const title = ticketCode ? `${ticketCode} ${name}` : name;
   const descriptionSectionResults = _.isEmpty(search) ? 0 :
       ((results || []).find((item) => item.id === investibleId) ? 1 : 0) + _.size(investmentReasonsSearched)
-    + countReports;
+    + countReports + _.size(todoCommentsResolvedSearched);
   const displayQuestionSection = canGetInput() || _.size(questionCommentsSearched) > 0;
   const displaySuggestionsSection = canGetInput() || _.size(suggestionCommentsSearched) > 0;
   const displayBockingSection = canOpenBlocking() || _.size(blockingCommentsSearched) > 0;
@@ -722,13 +723,13 @@ function PlanningInvestible(props) {
                           : `${descriptionSectionResults}`} />
         <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'openTasksSection'})}
                       tagColor={hasNewTodoMessages ? WARNING_COLOR : undefined}
-                      toolTipId='jobTasksToolTip' tagLabel={hasNewTodoMessages ? 'new' : undefined}
-                      tag={hasNewTodoMessages ? `${numNewTodoMessages}` : countUnresolved(todoCommentsSearched, search)} />
+                      toolTipId='jobTasksToolTip' tagLabel={hasNewTodoMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
+                      tag={hasNewTodoMessages && _.isEmpty(search) ? `${numNewTodoMessages}` : countUnresolved(todoCommentsSearched, search)} />
         {displayAssistanceSection && (
           <GmailTabItem icon={getIcon(QUESTION_TYPE)} toolTipId='jobAssistanceToolTip'
                         label={intl.formatMessage({id: 'requiresInputStageLabel'})}
                         tagColor={hasNewAssistanceMessages ? WARNING_COLOR : undefined} tag={assistanceTag}
-                        tagLabel={hasNewAssistanceMessages ? 'new' : getTagLabel('open')} />
+                        tagLabel={hasNewAssistanceMessages && _.isEmpty(search) ? 'new' : getTagLabel('open')} />
         )}
       </GmailTabs>
       <div style={{paddingLeft: mobileLayout ? undefined : '2rem', paddingRight: mobileLayout ? undefined : '1rem'}}>
@@ -806,7 +807,7 @@ function PlanningInvestible(props) {
               </div>
             )}
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
-                            usePadding={!mobileLayout} hidden={hidden} hash={hash} maxWidth='95%'
+                            usePadding={!mobileLayout} hidden={hidden} hash={hash} maxWidth='95%' isSearch={!_.isEmpty(search)}
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen={!_.isEmpty(todoCommentsSearched)}/>
               <div style={{
                 marginTop: '3rem',

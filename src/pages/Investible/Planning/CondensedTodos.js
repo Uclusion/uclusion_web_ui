@@ -46,7 +46,8 @@ function CondensedTodos(props) {
     sectionTitle,
     hidden,
     hash,
-    maxWidth
+    maxWidth,
+    isSearch = false
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -241,13 +242,13 @@ function CondensedTodos(props) {
           indicatorColors={['black', 'black']}
           style={{ paddingBottom: '1rem' }}>
           <GmailTabItem label={intl.formatMessage({id: 'openHeader'})}
-                        color='black' tagLabel={intl.formatMessage({id: 'total'})}
+                        color='black' tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) : intl.formatMessage({id: 'total'})}
                         tag={`${_.size(openComments)}`}
                         onDrop={onDropOpen} toolTipId='openTasksToolTip'
                         onDragOver={(event)=>event.preventDefault()}/>
           <GmailTabItem label={intl.formatMessage({id: 'closedComments'})}
-                        color='black' hasChip={false}
-                        tagLabel={intl.formatMessage({id: 'total'})}
+                        color='black' hasChip={isSearch}
+                        tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) :intl.formatMessage({id: 'total'})}
                         tag={`${_.size(resolvedComments)}`}
                         onDrop={onDropResolved} toolTipId='resolvedTasksToolTip'
                         onDragOver={(event)=>event.preventDefault()} />

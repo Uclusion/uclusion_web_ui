@@ -51,7 +51,6 @@ function PlanningJobMenu(props) {
   const groupMembers = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId);
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const isMember = groupMembers.find((member) => member.id === myPresence.id);
-  const inAssist = stageId === backlogStageId || isBlocked || needsAssist;
 
   function stageChange(targetStageId, readyToStart, assignments) {
     if (!operationRunning) {
@@ -149,7 +148,7 @@ function PlanningJobMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
-        {inAssist && isMember && (
+        {stageId !== acceptedStageId && isMember && (
           <MenuItem key="planningInvestibleNextStageAcceptedKey" id="planningInvestibleNextStageAcceptedId"
                     onClick={(event) => {
                       preventDefaultAndProp(event);
@@ -173,7 +172,7 @@ function PlanningJobMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
-        {inAssist && (
+        {stageId !== invotingStageId && (
           <MenuItem key="planningInvestibleToVotingKey" id="planningInvestibleToVotingId"
                     onClick={(event) => {
                       preventDefaultAndProp(event);
@@ -195,7 +194,7 @@ function PlanningJobMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
-        {stageId === backlogStageId && (
+        {stageId !== tasksCompleteStageId && (
           <MenuItem key="planningInvestibleMoveToVerifiedKey" id="planningInvestibleMoveToVerifiedId"
                     onClick={(event) => {
                       preventDefaultAndProp(event);

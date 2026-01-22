@@ -806,7 +806,7 @@ function PlanningInvestible(props) {
                 )}
               </div>
             )}
-            <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments}
+            <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments} showCommentAdd={showCommentAdd}
                             usePadding={!mobileLayout} hidden={hidden} hash={hash} maxWidth='95%' isSearch={!_.isEmpty(search)}
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen={!_.isEmpty(todoCommentsSearched)}/>
               <div style={{
@@ -827,7 +827,7 @@ function PlanningInvestible(props) {
                   </h2>
                   <IconButton id='approvalsToggleId' onClick={() => toggleApprovals()} style={{
                     marginBottom: 0,
-                    paddingBottom: 0, marginTop: 0, paddingTop: 0
+                    paddingBottom: 0, marginTop: 0, paddingTop: '5px'
                   }}>
                     <Tooltip key="toggleApprovals"
                              title={<FormattedMessage
@@ -862,7 +862,7 @@ function PlanningInvestible(props) {
                   </h2>
                   <IconButton id='reportsToggleId' onClick={() => toggleReports()} style={{
                       marginBottom: 0,
-                      paddingBottom: 0, marginTop: 0, paddingTop: 0
+                      paddingBottom: 0, marginTop: 0, paddingTop: '4px'
                     }}>
                     <Tooltip key="toggleReports"
                              title={<FormattedMessage

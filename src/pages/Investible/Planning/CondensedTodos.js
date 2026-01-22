@@ -10,7 +10,7 @@ import { alterComments, reopenComment, resolveComment } from '../../../api/comme
 import { addCommentToMarket, addMarketComments, filterToRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleAddCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { stripHTML } from '../../../utils/stringFunctions';
@@ -27,6 +27,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { sortInProgress } from '../../../containers/CommentBox/CommentBox';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { BLUE_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
+import AddIcon from '@material-ui/icons/Add';
+import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
 
 function CondensedTodos(props) {
   const {
@@ -47,7 +49,8 @@ function CondensedTodos(props) {
     hidden,
     hash,
     maxWidth,
-    isSearch = false
+    isSearch = false,
+    showCommentAdd = false
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -219,10 +222,16 @@ function CondensedTodos(props) {
          style={{marginLeft: usePadding ? '1rem' : undefined, maxWidth}}>
       <div style={{display: 'flex', alignItems: 'center', marginTop: isInbox ? '1rem' : undefined}}>
         <h2 id="tasksOverview" style={{paddingBottom: 0, marginBottom: 0, marginTop: 0, paddingTop: 0}}>
-          <FormattedMessage id={!_.isEmpty(sectionTitle) ? sectionTitle : 'taskSection'} />
+          <FormattedMessage id={!_.isEmpty(sectionTitle) ? sectionTitle : 'taskSection'} />{showCommentAdd
+                     && <TooltipIconButton id="newTask"
+                        marginLeft='1rem'
+                        onClick={() => navigate(history,
+                          formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, marketInfo.investible_id, marketId, TODO_TYPE))}
+                        icon={<AddIcon fontSize='small' />}
+                        translationId={`createNew${TODO_TYPE}${mobileLayout ? 'Mobile' : ''}`}
+                      />}
         </h2>
-        <IconButton onClick={toggleTodos} style={{marginBottom: 0,
-          paddingBottom: 0, marginTop: 0, paddingTop: 0}}>
+        <IconButton onClick={toggleTodos} style={{marginBottom: 0, paddingBottom: 0, paddingTop: '5px'}}>
           <Tooltip key='toggleTodos'
                    title={<FormattedMessage id={`${myToggleTodosOpen ? 'closeTodos' : 'openTodos'}Tip`} />}>
             {myToggleTodosOpen ?

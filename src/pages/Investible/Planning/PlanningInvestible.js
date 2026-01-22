@@ -330,7 +330,7 @@ export function countUnresolved(comments, search) {
     return undefined;
   }
   let unresolvedComments;
-  if (_.isEmpty(search)) {
+  if (!_.isEmpty(search)) {
     unresolvedComments =  comments;
   } else {
     unresolvedComments = comments.filter((comment) => !comment.resolved);

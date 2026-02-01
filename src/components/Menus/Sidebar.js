@@ -99,7 +99,7 @@ function processRegularItem(properties) {
         {textRepresentation}
       </MenuItem>
       {!_.isEmpty(openMenuItems) && (
-        <div style={{paddingLeft: '1rem'}} key="openMenuItems">
+        <div style={{paddingLeft: '1rem', backgroundColor: INFO_COLOR}} key="openMenuItems">
           {openMenuItems.map((subItem, index) => {
             const { text, target, num, icon: Icon, onClickFunc, isBold } = subItem
             return processRegularItem({history, text, target, num, Icon, onClickFunc,

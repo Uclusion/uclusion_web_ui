@@ -389,7 +389,7 @@ function PlanningInvestible(props) {
   const { investible } = marketInvestible;
   const { name, description, locked_by: lockedBy, created_at: createdAt, labels } = investible;
   const [marketStagesState] = useContext(MarketStagesContext);
-  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(mobileLayout);
   const [approvalsOpen, setApprovalsOpen] = useState(!_.isEmpty(calculateInvestibleVoters(investibleId, marketId, marketsState, 
     investiblesState, marketPresences, false)));
   const reportsCommentsSearched = investibleCommentsSearched.filter(

@@ -292,28 +292,34 @@ export default function NavigationChevrons(props) {
     return returnTop;
   }
 
-  const buttonContent = mobileLayout ? (
-    <IconButton
-      disabled={nextDisabled}
-      className={classes.magicButton}
-      onClick={doNextNavigation}
-    > <ArrowForward htmlColor={nextDisabled ? 'disabled' :
-      (nextHighlighted ? WARNING_COLOR : 'black')} />
-    </IconButton>
-  ) : <Button
-      variant="outlined"
-      disabled={nextDisabled}
-      id={action === 'demo' || action === 'invite' ? 'nextDisplayNavigation' : 'nextNavigation'}
-      onClick={doNextNavigation}
-      className={classes.magicButton}
-      endIcon={<ArrowForward htmlColor={nextDisabled ? 'disabled' :
-        (nextHighlighted ? WARNING_COLOR : 'black')} />}
-    >
-      Next {nextUrl?.title || ''}
-    </Button>;
+  if (mobileLayout) {
+    return (
+      <Toolbar>
+        <IconButton
+          disabled={nextDisabled}
+          className={classes.magicButton}
+          onClick={doNextNavigation}
+        > <ArrowForward htmlColor={nextDisabled ? 'disabled' :
+          (nextHighlighted ? WARNING_COLOR : 'black')} />
+        </IconButton>
+      </Toolbar>
+    );
+  }
+
   const toolTipTitle = <div><p>{intl.formatMessage({ id: 'nextNavigation' })}</p>
   <p>{intl.formatMessage({ id: 'previousNavigation' })}</p>
   <p>{intl.formatMessage({ id: 'upNavigation' })}</p></div>;
+  const buttonContent = <Button
+    variant="outlined"
+    disabled={nextDisabled}
+    id={action === 'demo' || action === 'invite' ? 'nextDisplayNavigation' : 'nextNavigation'}
+    onClick={doNextNavigation}
+    className={classes.magicButton}
+    endIcon={<ArrowForward htmlColor={nextDisabled ? 'disabled' :
+      (nextHighlighted ? WARNING_COLOR : 'black')} />}
+  >
+    Next {nextUrl?.title || ''}
+  </Button>;
   return (
     <>
     <Toolbar>

@@ -543,6 +543,8 @@ const messages = defineMessages({
   commentIconRaiseIssueLabel: 'Raise issue',
   commentIconAskQuestionLabel: 'Ask question',
   commentIconSuggestChangesLabel: 'Suggest changes',
+  manualSync: 'Manual sync',
+  manualSyncExplanation: 'Sync all workspaces with the server',
 
   // Comments
   commentReplyDefault: 'Your reply...',

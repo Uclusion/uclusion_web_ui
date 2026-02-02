@@ -10,12 +10,13 @@ import AgilePlanIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
 import { formManageUsersLink, formMarketEditLink, formMarketLink, navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
 import { DEMO_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
-import { DoneAll, ExpandLess, ExpandMore, FlagOutlined, GroupOutlined, PermIdentity, Person } from '@material-ui/icons';
+import { DoneAll, ExpandLess, ExpandMore, FlagOutlined, GroupOutlined, PermIdentity, Person, Sync } from '@material-ui/icons';
 import { banUser } from '../../api/users';
 import { changeBanStatus, getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
+import { doVersionRefresh } from '../../api/versionedFetchUtils';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -343,6 +344,27 @@ function WorkspaceMenu(props) {
                   </Tooltip>
                 </MenuItem>
               )}
+              <MenuItem icon={<Sync htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+                rootStyles={{
+                  '.css-wx7wi4': {
+                    marginRight: 0,
+                  },
+                }}
+                key="sync" id="syncId"
+                onClick={() => {
+                  setOperationRunning(true);
+                  return doVersionRefresh().then(() => {
+                    setOperationRunning(false);
+                    recordPositionToggle();
+                  });
+                }}
+              >
+                <Tooltip title={intl.formatMessage({ id: 'manualSyncExplanation' })}>
+                  <div>
+                    {intl.formatMessage({ id: 'manualSync' })}
+                  </div>
+                </Tooltip>
+              </MenuItem>
             </ProMenu>
           </ProSidebar>
         </Menu>

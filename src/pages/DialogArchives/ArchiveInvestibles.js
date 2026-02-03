@@ -180,10 +180,10 @@ function ArchiveInvestible(props) {
 
 function ArchiveInvestbiles(props) {
   const {
-    investibles,
+    investibles = [],
     comments,
     marketId,
-    presenceMap,
+    presenceMap = {},
     allowDragDrop,
     viewGroupId,
     isAutonomous,

@@ -51,7 +51,7 @@ function transformTicketCode(inputString) {
 function InvesibleCommentLinker(props) {
   const intl = useIntl();
   const {
-    hidden,
+    hidden = false,
     investibleId,
     commentId,
     marketId,

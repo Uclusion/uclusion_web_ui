@@ -1,9 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import Screen from '../../containers/Screen/Screen';
 import LoadingDisplay from '../../components/LoadingDisplay';
 
-function Onboarding(props) {
+function Onboarding() {
   return (
     <Screen
       title="Welcome To Uclusion"
@@ -16,11 +15,6 @@ function Onboarding(props) {
 
     </Screen>
   )
-}
-
-Onboarding.propTypes = {
-  onFinish: PropTypes.func,
-  onStartOnboarding: PropTypes.func
 }
 
 export default Onboarding;

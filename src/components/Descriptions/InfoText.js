@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
 function InfoText(props) {
   const {
     textId,
-    useDl,
+    useDl = true,
     children
   } = props;
   const intl = useIntl();

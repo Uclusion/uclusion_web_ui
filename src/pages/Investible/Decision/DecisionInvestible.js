@@ -170,15 +170,15 @@ function GridMobileDiv(props) {
  */
 function DecisionInvestible(props) {
   const {
-    marketPresences,
-    investibleComments,
+    marketPresences = [],
+    investibleComments = [],
     userId,
     market,
     fullInvestible,
-    isAdmin,
-    inArchives,
+    isAdmin = false,
+    inArchives = false,
     isSent,
-    removeActions,
+    removeActions = false,
     isInbox
   } = props;
   const intl = useIntl();

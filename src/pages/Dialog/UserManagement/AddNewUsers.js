@@ -191,8 +191,7 @@ function AddNewUsers(props) {
 }
 
 AddNewUsers.propTypes = {
-  market: PropTypes.object,
-  onSave: PropTypes.func,
+  market: PropTypes.object
 }
 
 export default AddNewUsers

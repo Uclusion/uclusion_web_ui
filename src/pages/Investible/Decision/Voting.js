@@ -99,7 +99,7 @@ const useVoteStyles = makeStyles(
  * @constructor
  */
 function Voting(props) {
-  const { marketPresences, investibleId, investmentReasons, showExpiration, expirationMinutes, yourPresence, market, showDeleted,
+  const { marketPresences = [], investibleId, investmentReasons = [], showExpiration, expirationMinutes, yourPresence, market, showDeleted,
     isInbox, groupId, useCompression, showEmptyText, toggleCompression=() => {}} = props;
   const history = useHistory();
   const theme = useTheme();

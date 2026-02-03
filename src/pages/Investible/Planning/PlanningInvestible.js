@@ -348,16 +348,16 @@ function PlanningInvestible(props) {
   const intl = useIntl();
   const {
     investibleId,
-    marketPresences,
-    investibleComments,
+    marketPresences = [],
+    investibleComments = [],
     userId,
     marketId,
     marketInvestible,
-    investibles,
+    investibles = [],
     hash,
     inArchives=false,
     market,
-    hidden
+    hidden = false
   } = props;
   const theme = useTheme();
   const editorBox = useRef(null);

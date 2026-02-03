@@ -65,11 +65,5 @@ function CollaboratorWizard (props) {
   )
 }
 
-CollaboratorWizard.propTypes = {
-  onboarding: PropTypes.bool,
-  onFinish: PropTypes.func,
-  onStartOnboarding: PropTypes.func,
-}
-
 export default CollaboratorWizard
 

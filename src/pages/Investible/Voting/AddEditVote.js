@@ -102,7 +102,7 @@ function AddEditVote(props) {
     marketId,
     investibleId,
     groupId,
-    multiplier, wizardProps, hasVoted, currentReasonId,
+    multiplier = 1, wizardProps, hasVoted = false, currentReasonId,
     formData, updateFormData, voteMessage, isInbox, wasDeleted
   } = props;
   const {
@@ -260,10 +260,7 @@ AddEditVote.propTypes = {
   reason: PropTypes.object,
   marketId: PropTypes.string.isRequired,
   investibleId: PropTypes.string.isRequired,
-  investment: PropTypes.object,
-  onSave: PropTypes.func,
   hasVoted: PropTypes.bool,
-  allowMultiVote: PropTypes.bool,
   multiplier: PropTypes.number,
 };
 

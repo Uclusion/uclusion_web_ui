@@ -16,7 +16,7 @@ const useStyles = makeStyles(() => {
 });
 
 function StepHeaders (props) {
-  const { currentStep, totalSteps, hideSteppers, titleId } = props;
+  const { currentStep, totalSteps, hideSteppers = false, titleId } = props;
   const intl = useIntl();
   const classes = useStyles();
   const oneIndexedCurrentStep = currentStep + 1;

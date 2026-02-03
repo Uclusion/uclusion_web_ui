@@ -34,7 +34,7 @@ const useStyles = makeStyles(() => ({
 function WorkspaceInviteLinker(props) {
   const intl = useIntl();
   const {
-    hidden,
+    hidden = false,
     marketToken
   } = props;
   const classes = useStyles();

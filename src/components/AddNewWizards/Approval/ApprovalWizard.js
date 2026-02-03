@@ -95,7 +95,6 @@ function ApprovalWizard(props) {
 ApprovalWizard.propTypes = {
   onStartOver: PropTypes.func,
   onFinish: PropTypes.func,
-  showCancel: PropTypes.bool
 };
 
 export default ApprovalWizard;

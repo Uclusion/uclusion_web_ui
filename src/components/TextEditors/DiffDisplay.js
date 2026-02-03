@@ -59,8 +59,7 @@ function DiffDisplay(props) {
 }
 
 DiffDisplay.propTypes = {
-  id: PropTypes.string.isRequired,
-  showToggle: PropTypes.func,
+  id: PropTypes.string.isRequired
 };
 
 export default DiffDisplay;

@@ -65,8 +65,8 @@ const useStyles = makeStyles(
 
 function SpinningIconLabelButton(props) {
   const {
-    disabled,
-    doSpin,
+    disabled = false,
+    doSpin = true,
     children,
     icon: Icon,
     noMargin,

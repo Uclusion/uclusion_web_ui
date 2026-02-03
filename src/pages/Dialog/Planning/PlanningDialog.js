@@ -110,9 +110,9 @@ function getAnchorId(tabIndex) {
 
 function PlanningDialog(props) {
   const {
-    marketInvestibles,
-    marketStages,
-    hidden,
+    marketInvestibles = [],
+    marketStages = [],
+    hidden = false,
     myPresence,
     banner,
     marketId,

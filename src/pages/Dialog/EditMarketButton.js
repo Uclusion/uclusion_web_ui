@@ -8,7 +8,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 function EditMarketButton(props) {
   const [operationRunning] = useContext(OperationInProgressContext);
   const {
-    onClick,
+    onClick = () => {},
     labelId,
     icon,
     marketId,

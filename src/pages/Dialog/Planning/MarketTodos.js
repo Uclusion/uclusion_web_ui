@@ -164,7 +164,7 @@ export const todoClasses = makeStyles(
 
 function MarketTodos(props) {
   const {
-    comments,
+    comments = [],
     marketId,
     groupId,
     isInArchives = false,

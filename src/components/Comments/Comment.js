@@ -1309,7 +1309,6 @@ function Comment(props) {
 Comment.propTypes = {
   comment: PropTypes.object.isRequired,
   noAuthor: PropTypes.bool,
-  readOnly: PropTypes.bool,
   comments: PropTypes.arrayOf(PropTypes.object).isRequired,
   marketId: PropTypes.string.isRequired
 };

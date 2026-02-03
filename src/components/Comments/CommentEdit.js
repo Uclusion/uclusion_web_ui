@@ -193,8 +193,8 @@ export function getIcon(commentType) {
 
 function CommentEdit(props) {
   const {
-    marketId, onSave, onCancel, comment, myNotificationType, editState, updateEditState, editStateReset, isWizard,
-    messages, subscribed, isDisplayOfSubTask
+    marketId, onSave = () => {}, onCancel = () => {}, comment, myNotificationType, editState, updateEditState, editStateReset, 
+    isWizard = false, messages, subscribed, isDisplayOfSubTask
   } = props;
   const {
     uploadedFiles,
@@ -365,7 +365,6 @@ function CommentEdit(props) {
 }
 
 CommentEdit.propTypes = {
-  allowedTypes: PropTypes.arrayOf(PropTypes.string),
   marketId: PropTypes.string.isRequired,
   onSave: PropTypes.func,
   comment: PropTypes.object.isRequired,

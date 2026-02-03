@@ -128,8 +128,7 @@ AttachedFilesList.propTypes = {
   onUpload: PropTypes.func,
   attachedFiles: PropTypes.arrayOf(PropTypes.object),
   marketId: PropTypes.string.isRequired,
-  onDeleteClick: PropTypes.func,
-  isAdmin: PropTypes.bool,
+  onDeleteClick: PropTypes.func
 };
 
 export default AttachedFilesList;

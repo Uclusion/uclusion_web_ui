@@ -1,11 +1,566 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| 01/31| [Finish what started in dehighlightMessage so floating message processing...](#35fcebca-c6de-4ea7-a850-6ae647dfbf91)|  |
-| [Anything with tabs or left side panel now has different look - including the...](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)| | | [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| Deployed to production |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Use Cursor to help fix all console warnings.](#a896d9fa-03bd-4f1d-aa18-48e6993fb1c2)| Deployed to production |
-| [Substitute for the comparison section,](#283ed39c-2e32-4d70-9c99-a9aef975439a)| | | [Subtask in progress and next button changes.](#c201bd90-f6d5-4bc4-ae93-eef22b6650d6)| Deployed to production |
-| | | | [More work on the landing page:](#7eac3364-a52a-47ac-8823-2be566506061)|  |
-| | | | [Main page beautification.](#75ad865e-a3a7-4d48-9703-e9a900f8ff72)| Deployed to production |
+| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#ea70be12-ff47-4e5c-b4cd-013e8415d18a)| 02/02| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| Deployed to production |
+| [Anything with tabs or left side panel now has different look - including the...](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)| | | [Subtask in progress and next button changes.](#c201bd90-f6d5-4bc4-ae93-eef22b6650d6)| Deployed to production |
+| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Substitute for the comparison section,](#283ed39c-2e32-4d70-9c99-a9aef975439a)|  |
+| [Dark mode for app](#effdb67c-5825-421b-a298-48770945da5f)| | | [Organization section needs work.](#bffa8a04-9a95-4a38-b477-14171fb76464)|  |
+| | | | [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| Deployed to production |
+## Job <a name="ea70be12-ff47-4e5c-b4cd-013e8415d18a"></a>
+### Build the prompts necessary to get the lastest debuts from Show HN, Product...
+...Hunt, etc. that meet the small tech startup criteria - have landing page but not too many engineers.
+
+#### Task <a name="1b428bdd-3434-4c89-be1f-188ab330cf8b"></a> 
+<https://platform.claude.com/cookbook/claude-agent-sdk-00-the-one-liner-research-agent> - or do same in Python
+
+#### Task <a name="195e0742-30e7-4de6-94dc-7817796b26e0"></a> 
+    import requests
+
+    import json
+
+    import time
+
+    import os
+
+    import google.generativeai as genai
+
+    from bs4 import BeautifulSoup
+
+    from rich.console import Console
+
+    from rich.table import Table
+
+    from rich.panel import Panel
+
+
+
+    # --- CONFIGURATION ---
+
+    # Get your key from: https://aistudio.google.com/app/apikey
+
+    API_KEY = "AIzaSyAulYfv3yt2CU7RvWsTbCLcEsNB0knNB2U"
+
+    HN_API_BASE = "https://hacker-news.firebaseio.com/v0"
+
+    HISTORY_FILE = "seen_leads_ai.json"
+
+
+
+    # Configure the AI
+
+    genai.configure(api_key=API_KEY)
+
+    model = genai.GenerativeModel('gemini-1.5-flash')
+
+
+
+    console = Console()
+
+
+
+    # --- THE PROMPT ---
+
+    # This is the brain of the agent. It defines what Uclusion is looking for.
+
+    SYSTEM_PROMPT = """
+
+    You are a Lead Qualification Agent for a product called 'Uclusion'.
+
+    Uclusion is an opinionated project management tool for small, developer-centric startups.
+
+    It focuses on asynchronous workflows, deep GitHub integration, and "stories" rather than tickets.
+
+
+
+    Your Goal: Analyze the following Hacker News "Show HN" post and determine if the author is a potential customer.
+
+
+
+    Criteria for a GOOD Match (Score > 70):
+
+    1. It is a software startup or tool (not a blog post, tutorial, or hardware).
+
+    2. It looks early-stage (small team, seeking feedback, beta launch).
+
+    3. If they are building open source then the main developers must be founders of some startup or consulting company. Exclude open source with lots of not otherwise associated developers.
+
+    4. They are NOT a direct competitor (like Linear, Jira, Asana).
+
+
+
+    Output specifically in this JSON format:
+
+    {
+
+    "is_match": boolean,
+
+    "score": integer (0-100),
+
+    "reason": "Short explanation of why it fits or fails",
+
+    "suggested_opening_line": "A casual, developer-friendly opening sentence for a cold email referencing their specific product."
+
+    }
+
+    """
+
+
+
+    def clean_html(html_content):
+
+    if not html_content:
+
+    return ""
+
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    return soup.get_text()
+
+
+
+    def load_history():
+
+    if os.path.exists(HISTORY_FILE):
+
+    with open(HISTORY_FILE, "r") as f:
+
+    return set(json.load(f))
+
+    return set()
+
+
+
+    def save_history(seen_ids):
+
+    with open(HISTORY_FILE, "w") as f:
+
+    json.dump(list(seen_ids), f)
+
+
+
+    def get_show_hn_stories():
+
+    """Fetches top 30 'Show HN' stories."""
+
+    # HN has a specific endpoint for Show HN
+
+    url = f"{HN_API_BASE}/showstories.json"
+
+    return requests.get(url).json()[:30] # Limit to top 30 to save tokens/time
+
+
+
+    def get_item_details(item_id):
+
+    url = f"{HN_API_BASE}/item/{item_id}.json"
+
+    return requests.get(url).json()
+
+
+
+    def analyze_with_ai(title, text, url):
+
+    """Sends the lead data to the AI for grading."""
+
+
+
+    user_content = f"""
+
+    Title: {title}
+
+    Link: {url}
+
+    Post Text/Pitch: {text[:1000]} (truncated)
+
+    """
+
+
+
+    try:
+
+    response = model.generate_content(
+
+    f"{SYSTEM_PROMPT}\n\nDATA TO ANALYZE:\n{user_content}",
+
+    generation_config={"response_mime_type": "application/json"}
+
+    )
+
+    return json.loads(response.text)
+
+    except Exception as e:
+
+    console.print(f"[red]Error calling AI:[/red] {e}")
+
+    return None
+
+
+
+    def run_agent():
+
+    seen_ids = load_history()
+
+    console.print("[bold purple]🤖 Uclusion AI Sales Agent Starting...[/bold purple]")
+
+
+
+    story_ids = get_show_hn_stories()
+
+    new_leads = []
+
+
+
+    with console.status("[bold green]Scanning and analyzing leads...[/bold green]") as status:
+
+    for item_id in story_ids:
+
+    if str(item_id) in seen_ids:
+
+    continue
+
+
+
+    item = get_item_details(item_id)
+
+    title = item.get('title', 'No Title')
+
+    text = clean_html(item.get('text', ''))
+
+    url = item.get('url', f"https://news.ycombinator.com/item?id={item_id}")
+
+
+
+    # Simple pre-filter: If it doesn't say "Show HN", skip it (save AI cost)
+
+    # (Though fetching showstories.json usually ensures this)
+
+
+
+    # CALL THE AI
+
+    analysis = analyze_with_ai(title, text, url)
+
+
+
+    if analysis and analysis['is_match']:
+
+    lead_data = {
+
+    "title": title,
+
+    "url": url,
+
+    "score": analysis['score'],
+
+    "reason": analysis['reason'],
+
+    "opener": analysis['suggested_opening_line']
+
+    }
+
+    new_leads.append(lead_data)
+
+    console.print(f"[green]✔ MATCH FOUND:[/green] {title} ({analysis['score']}/100)")
+
+    else:
+
+    console.print(f"[dim]✖ Skipped:[/dim] {title}")
+
+
+
+    seen_ids.add(str(item_id))
+
+    time.sleep(1) # Respect rate limits
+
+
+
+    # --- REPORTING ---
+
+    if new_leads:
+
+    console.print("\n[bold]🎯 High Quality Leads Found:[/bold]")
+
+    for lead in new_leads:
+
+    p = Panel(
+
+    f"[bold]Score:[/bold] {lead['score']}\n"
+
+    f"[bold]Why:[/bold] {lead['reason']}\n"
+
+    f"[bold]Icebreaker:[/bold] {lead['opener']}\n"
+
+    f"[link={lead['url']}]Click to View[/link]",
+
+    title=f"[cyan]{lead['title']}[/cyan]",
+
+    expand=False
+
+    )
+
+    console.print(p)
+
+    save_history(seen_ids)
+
+    else:
+
+    console.print("[yellow]No new matches today.[/yellow]")
+
+
+
+    if __name__ == "__main__":
+
+    run_agent()
+
+
+
+
+Key from <https://aistudio.google.com/app/api-keys?_gl=1*e918yo*_ga*MTAwNDA0NDQ3OC4xNzY5OTA3NDcw*_ga_P1DBVKWT6V*czE3Njk5MDc0NzAkbzEkZzAkdDE3Njk5MDc0NzAkajYwJGwwJGgyODEwMjUyNzI.>
+
+#### Task <a name="98d7802c-da57-4a6c-947c-48843b385b00"></a> 
+
+
+| **Source** | **Why it fits Uclusion** | **What to filter for** |
+| --- | --- | --- |
+| **Hacker News (Show HN)** | High density of dev tools. | "Show HN", "for developers", "async", "remote", "team". |
+| **Reddit (r/SideProject, r/SaaS)** | Founders actively seeking validation. | "MVP", "beta", "looking for feedback", "dev tool". |
+| **Product Hunt (Dev Tools)** | The standard launchpad. | "Developer Tools" category, <100 upvotes (early stage). |
+| **GitHub** | Where the work actually happens. | New repos with high activity but few stars (growing teams). |
+
+
+
+
+
+
+
+
+Source ideas from Gemini. In theory have a different script for each of these.
+
+#### Resolved Task <a name="96c754d2-ab0a-4e19-bd3f-3c9a3c18a869"></a> 
+Where do we run this? Does it need to be command line to get it to crunch long enough?
+
+
+
+
+1. **Context Windows:** Complex, long-running tasks require agents that can bridge gaps between sessions. **Claude Agent SDK** is recommended for developing such agents, using an "initializer agent" to set up and a "coding agent" to make incremental progress.
+
+
+
+
+
+<https://platform.claude.com/docs/en/agent-sdk/overview> - has a WebSearch tool
+
+#### Resolved Task <a name="6eed327a-4de2-494b-b36d-16e6b7876843"></a> 
+Evaluate Gemini idea for searching HN - offhand it sucks as show HN yes but limiting by keywords no.
+
+
+
+
+    import requests
+
+    import datetime
+
+    import json
+
+    import time
+
+    from rich.console import Console
+
+    from rich.table import Table
+
+
+
+    console = Console()
+
+
+
+    # Configuration
+
+    HN_API_BASE = "https://hacker-news.firebaseio.com/v0"
+
+    KEYWORDS = [
+
+    "dev tool", "developer", "open source", "api", "sdk",
+
+    "collaboration", "task management", "remote team", "async",
+
+    "productivity", "workflow"
+
+    ]
+
+    # File to store seen IDs so we don't repeat leads
+
+    HISTORY_FILE = "seen_leads.json"
+
+
+
+    def load_history():
+
+    try:
+
+    with open(HISTORY_FILE, "r") as f:
+
+    return set(json.load(f))
+
+    except FileNotFoundError:
+
+    return set()
+
+
+
+    def save_history(seen_ids):
+
+    with open(HISTORY_FILE, "w") as f:
+
+    json.dump(list(seen_ids), f)
+
+
+
+    def get_new_stories():
+
+    """Fetches the latest 500 stories from HN (checking 'newstories' endpoint)"""
+
+    url = f"{HN_API_BASE}/newstories.json"
+
+    response = requests.get(url)
+
+    return response.json()[:200] # Check top 200 new items
+
+
+
+    def get_item_details(item_id):
+
+    url = f"{HN_API_BASE}/item/{item_id}.json"
+
+    return requests.get(url).json()
+
+
+
+    def analyze_lead(item):
+
+    """
+
+    Returns True if the item looks like a target for Uclusion.
+
+    """
+
+    if not item or 'title' not in item:
+
+    return False
+
+
+
+    title = item['title'].lower()
+
+
+
+    # 1. Filter for 'Show HN' (Makers showing off work)
+
+    if "show hn" not in title:
+
+    return False
+
+
+
+    # 2. Keyword Matching (Is it relevant to Uclusion?)
+
+    if any(keyword in title for keyword in KEYWORDS):
+
+    return True
+
+
+
+    return False
+
+
+
+    def run_agent():
+
+    seen_ids = load_history()
+
+    new_leads = []
+
+
+
+    console.print("[bold blue]🔎 Scanning Hacker News for Uclusion Leads...[/bold blue]")
+
+
+
+    story_ids = get_new_stories()
+
+
+
+    for item_id in story_ids:
+
+    # Skip if we've already seen this lead
+
+    if str(item_id) in seen_ids:
+
+    continue
+
+
+
+    item = get_item_details(item_id)
+
+    if analyze_lead(item):
+
+    lead = {
+
+    "title": item.get('title'),
+
+    "url": item.get('url', f"https://news.ycombinator.com/item?id={item_id}"),
+
+    "comments_url": f"https://news.ycombinator.com/item?id={item_id}",
+
+    "score": item.get('score', 0)
+
+    }
+
+    new_leads.append(lead)
+
+    seen_ids.add(str(item_id))
+
+
+
+    # Rate limit slightly to be polite
+
+    time.sleep(0.1)
+
+
+
+    # Output Results
+
+    if new_leads:
+
+    table = Table(title=f"🚀 New Leads found: {datetime.date.today()}")
+
+    table.add_column("Title", style="cyan")
+
+    table.add_column("URL", style="magenta")
+
+    table.add_column("Score", style="green")
+
+
+
+    for lead in new_leads:
+
+    table.add_row(lead['title'], lead['url'], str(lead['score']))
+
+
+
+    console.print(table)
+
+    save_history(seen_ids)
+
+    else:
+
+    console.print("[yellow]No new relevant leads found this run.[/yellow]")
+
+
+
+    if __name__ == "__main__":
+
+    run_agent()
+
 ## Job <a name="f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f"></a>
 ### Better archive.
 
@@ -20,14 +575,25 @@
 
 Some freaky text stuck in corner - only on stage. Also double scroll bars doing nothing.
 
+#### Task <a name="d6946616-8a26-42d7-9243-a024200c3cc5"></a> 
+**The important part is that the inset no longer open when search as count will display on side nav.**
+
 #### Task <a name="05c06cda-1c40-470a-8ca1-46d414a03d21"></a> 
 Add to solo demo archived stuff in all categories so can test.
 
 #### Task <a name="7d5d5a86-51c4-426d-a0cb-e8ffe45f5250"></a> 
 Show tasks complete as paginated rows as with backlog.
 
+#### Task <a name="c1430d15-702c-4731-859f-8520bf003dea"></a> 
+Can keep Archive on inset also if want - just it's a link into having the drop down set to that view.**﻿**
+
 #### Task <a name="dddc34c9-9309-4cd4-b112-8fd30e4e9106"></a> 
 Also need counts from search on other views for anything not showing in the current view (when autonomous).
+
+
+
+
+When search group drop down not in effect and just shows all results.
 
 #### Task <a name="2fcd674f-7c8d-46cf-85e8-6f10a428863c"></a> 
 Change sub text on archive to say archive instead of group archive.
@@ -49,115 +615,17 @@ This button should produce markdown as <https://github.com/microsoft/markitdown>
 #### Task <a name="c37e86d4-1efc-4dea-ae23-1fd0171f3175"></a> 
 Button on the question that generates AI prompt onto the clipboard. Probably skipping pictures and file attachments.
 
-## Job <a name="283ed39c-2e32-4d70-9c99-a9aef975439a"></a>
-### Substitute for the comparison section,
+## Job <a name="effdb67c-5825-421b-a298-48770945da5f"></a>
+### Dark mode for app
+Have to have it and doesn't seem like that hard to do. Just make the background colors come out of the theme and have setting to change theme to dark.
 
-#### Task <a name="6d550fb7-e7d7-4985-bd2b-75ca88df6f2e"></a> 
-See if can find substitute for the comparison section or way to make it reasonable - get kid's help.
 
 
 
+Does seem to also work off of a signal from OS as some things in browser go dark when use dark on OS.
 
-Video explaining in progress/ navigation / subtask is possible.
-
-## Job <a name="c27ba80a-bc55-45b7-8dae-0bbae049e570"></a>
-### Mobile issues.
-#### Task <a name="39bf8c1f-32bc-46a5-a58d-0ecf3ad36233"></a> 
-On mobile when open collaborators get white instead of blue.
-
-#### Task <a name="38481d49-e8b4-4ce3-ba3b-d915f090b07b"></a> 
-Details section on mobile needs to default to open.
-
-#### Task <a name="4b3c9ca4-7326-4271-82de-803ef5e16876"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/da90ff1b-a4ad-482a-bbe7-7db577d17a1f.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-Still too much left padding to fit
-
-#### Task <a name="aad2b51c-2d4f-4b6c-b404-6a59999ae994"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c1fb4684-0181-4398-b875-e2bb38c3ae7b.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-After link option to task and resolve question have weird floating header
-
-#### Task <a name="acf05f3f-b694-40f7-8cd9-e846823909f4"></a> 
-Drop tool bar and drawer on mobile and just do exactly with menu as did for identity (which works on mobile). Make sure the color is okay - there is some weird white.
-
-#### Task <a name="21c29a24-a2c5-4809-a8cd-4d60de64b362"></a> 
-Try again get rid of some of the floaty on mobile. Might be able to repro at intermediate sizes.
-
-
-
-
-This is intermittent and does not repro at intermediate sizes.
-
-#### Task <a name="42ce409a-ce4d-468a-ae2a-4a0bf4c5560c"></a> 
-Need refresh button since reload doesn’t do refresh necessarily and not obvious. This button should run sync so spinning on and returns error if fails just like anything else.
-
-
-
-
-Can have this button for desktop also if can find place to hide it but not required.
-
-## Job <a name="35fcebca-c6de-4ea7-a850-6ae647dfbf91"></a>
-### Finish what started in dehighlightMessage so floating message processing...
-...logic kludge in notifications reducer can be removed.
-
-#### Resolved Task <a name="d116227c-d046-40c1-bbf3-b4dc8cd1d9a9"></a> 
-Next button takes too long and so will some of the other buttons.
-
-
-
-
-Would putting the promise into a timer help?
-
-
-
-
-The context update runs synchronous so the problem is just that the back end call can end up not happening at all unless make it securely.
-
-
-
-
-**The other problem is can end up redisplaying the Next message notification before the context propagates - this might be the actual problem hit originally.**
-
-
-
-
-HAVE STATE IN NAVIGATION SO COULD GUARD AGAINST SEEING SAME NOTIFICATION AGAIN.
-
-> ##### Grouped task <a name="f9f579c7-0f42-44d9-8029-208a4441e230"></a> 
-Add guard against seeing the same message that just saw a short while ago again.
-
-#### Resolved Task <a name="6e3dc469-2240-473e-a12c-542966738f52"></a> 
-Try the timeout 0 wait way to avoid delaying the navigation.
-
-
-
-
-**Actually then why not just use this inside of notifications context and drop the whole promise true thing altogether?**
-
-
-
-
-
-
-
-    const newState = computeNewState(state, action);
-
-    if (!isDehighilightRemove) {
-
-    storeStatePromise(action, newState);
-
-    }
-
-    return newState;
-
-
-
-
-Actually above has a floating promise also IE the store state is not guaranteed to happen - should we put that in to a setTimer also or can we return a promise from a reducer?
+#### Task <a name="50ba92b2-572e-477a-9360-1c1cb761f91a"></a> 
+Consider dark mode for app and landing page.
 
 ## Job <a name="3af2201b-8111-46e9-b746-2f33cf1312bd"></a>
 ### Should fix UI bugs.
@@ -440,8 +908,6 @@ Have an upgrade script that removes all notifications associated with unused old
 
 **Or maybe just fully cleans them up as the script that does that cleans up a planning market (including notifications) should exist.**
 
-## Job <a name="a896d9fa-03bd-4f1d-aa18-48e6993fb1c2"></a>
-### Use Cursor to help fix all console warnings.
 ## Job <a name="c201bd90-f6d5-4bc4-ae93-eef22b6650d6"></a>
 ### Subtask in progress and next button changes.
 #### Resolved Task <a name="a45f0b97-ac93-4329-bdf5-4bc8add2e3c0"></a> 
@@ -508,123 +974,75 @@ In overview the sorting is different from the in progress sorting the tasks page
 #### Resolved Task <a name="b536c03f-6891-4a46-ab34-042a8b8bf34a"></a> 
 The display of grouped tasks in swimlanes still not seeing the child ones.
 
-## Job <a name="7eac3364-a52a-47ac-8823-2be566506061"></a>
-### More work on the landing page:
-[More work](https://www.reddit.com/r/roastmystartup/comments/1dyncmb/comment/lcbfdnp/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) on the landing page:
+## Job <a name="283ed39c-2e32-4d70-9c99-a9aef975439a"></a>
+### Substitute for the comparison section,
+
+#### Resolved Task <a name="6d550fb7-e7d7-4985-bd2b-75ca88df6f2e"></a> 
+See if can find substitute for the comparison section or way to make it reasonable - get kid's help.
 
 
 
 
-Right off the bat, the website is painfully slow. It gets a performance score of 49 from Google's website performance test, which is a terrible result. A lot of people are going to just exit the website while it is still loading.
+Video explaining in progress/ navigation / subtask is possible.
 
-On the over the fold area of the landing page, there are three moving elements, making the first impression busy and chaotic.
+## Job <a name="bffa8a04-9a95-4a38-b477-14171fb76464"></a>
+### Organization section needs work.
+Only the first picture should remain and even that might not be first. Bugs and backlog need pictures and backlog shows in assistance - show or explain that somehow.
 
-Using light blue font over a white background for "sandbox demo" is awkward. The text is difficult to read and looks like a text link, while it's not.
+#### Resolved Task <a name="1a051204-930b-4117-b22b-57011239af31"></a> 
+Show close up of assistance section and context menu on something in backlog showing that you can move to Not Ready - that also shows stages.
 
-"Better than tickets" also looks like a text link with its underline effect, but again this is not a link. It's very confusing what elements here are clickable and which are not.
+#### Resolved Task <a name="347b4083-564f-4865-aa98-5ffd973fc01f"></a> 
+Show bugs and explain they can be moved back and forth from jobs.
 
-There are so many font styles and effects that the entire thing looks very amateurish. For example, in the "Better than tickets" section, I can count 10 different font styles on one view. It looks like a collage kid who just learned CSS and realized the can use different font styles on a html page.
+#### Resolved Task <a name="0ab02d42-364a-45b9-9e22-b4264d7185b5"></a> 
+No reason not to add a plus sign next to tasks so that can create from there.
 
-The landing page keeps referring to a sandbox demo, but there is no link to it anywhere that I can see. And without it, I cannot really see how this thing works.
+#### Resolved Task <a name="5c9637a6-b94c-4a16-9aea-fe8bcc4d2cc0"></a> 
+Do the full context menu even if in swimlanes - no reason not to and now no stage header.
 
-This needs a lot of work.
+## Job <a name="c27ba80a-bc55-45b7-8dae-0bbae049e570"></a>
+### Mobile issues.
+#### Resolved Task <a name="39bf8c1f-32bc-46a5-a58d-0ecf3ad36233"></a> 
+On mobile when open collaborators get white instead of blue.
 
-#### Resolved Task <a name="4e9f3a05-3203-42d8-b564-1bb2684727c2"></a> 
-Remove the bouncing arrow above Pricing section.
+#### Resolved Task <a name="38481d49-e8b4-4ce3-ba3b-d915f090b07b"></a> 
+Details section on mobile needs to default to open.
 
-#### Resolved Task <a name="42763b68-54e7-4e2f-879a-037d50f3e077"></a> 
-Fix all pictures in messages section of above the fold.
+#### Resolved Task <a name="4b3c9ca4-7326-4271-82de-803ef5e16876"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/da90ff1b-a4ad-482a-bbe7-7db577d17a1f.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
-#### Resolved Task <a name="c3843400-5f48-4b2e-891b-a03be98e3bc8"></a> 
-Change docs to explain keystrokes but no buttons for other two operations.
+Still too much left padding to fit
 
-#### Resolved Task <a name="26f396f9-08bb-41d8-99cc-d20e6155325c"></a> 
-Add LogRocket to landing page.
-
-#### Resolved Task <a name="0c2035aa-3206-4261-9d2a-77447a5b5759"></a> 
-Try to fix Google performance score on load time. <https://pagespeed.web.dev/?utm_source=psi&utm_medium=redirect>
-
-#### Resolved Task <a name="999a2acc-3dbc-4c96-ae86-39794cb6ed86"></a> 
-Remove all usage of fades and zooms.
-
-#### Resolved Task <a name="4e18dca1-c75e-434c-900c-f6e911dc8fd0"></a> 
-Re-enforce sandbox demo on sign up page.
-
-#### Resolved Task <a name="d7351d08-bbd4-4aec-bfb2-58c53df7de59"></a> 
-Change landing page and docs to say grouped tasks instead of subtasks.
-
-#### Resolved Task <a name="1b3f95cc-57b3-4372-a184-54a047673335"></a> 
-Reduce number of fonts per comment.
-
-## Job <a name="75ad865e-a3a7-4d48-9703-e9a900f8ff72"></a>
-### Main page beautification.
-#### Resolved Task <a name="1cac1e19-a591-49c9-be0d-7896ee471946"></a> 
-Icon only Next button on mobile IE arrow with white button around it.
-
-#### Resolved Task <a name="5b1d137b-58d6-428e-8861-ef3473cdf57d"></a> 
-Next button lines up outside of last tab IE Notes / Discussion - not on top of it - until page shrinks to where forced.
-
-#### Resolved Task <a name="178dd41e-49f2-449a-bb3e-5baeb5e5ef28"></a> 
-Consider making action buttons match Next button IE more rounded and no blue edge - but not a bleeder.
-
-#### Resolved Task <a name="0ae5f3cf-f132-4572-bfc4-afdeb01bfcf6"></a> 
-Get horizontal and vertical aligning of all stage investible headers correct. Can use AI if put them in their own component and specify.
+#### Resolved Task <a name="aad2b51c-2d4f-4b6c-b404-6a59999ae994"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c1fb4684-0181-4398-b875-e2bb38c3ae7b.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 
 
 
-Also add a bit more space above the stage investible header.
+After link option to task and resolve question have weird floating header
 
-#### Resolved Task <a name="3ac6ee70-f8a0-4ca7-8d55-00aa6e565962"></a> 
-Plus signs on side nav line up with count numbers. Drop expand collapse and just do More + like Google does if more than five - for Views and Other workspaces. That More and Less will connect with the same state used now so that it is permanent.
+#### Resolved Task <a name="acf05f3f-b694-40f7-8cd9-e846823909f4"></a> 
+Drop tool bar and drawer on mobile and just do exactly with menu as did for identity (which works on mobile). Make sure the color is okay - there is some weird white.
 
-> ##### Grouped task <a name="32410979-285e-44f0-8009-81d5b140b607"></a> 
-Integrations and Messages continue to work the way they currently do as they have no plus button.
-
-> ##### Grouped task <a name="fa3699e0-77f3-435d-b445-eb02299375f7"></a> 
- For Collaborators just drop the expand collapse altogether.
-
-#### Resolved Task <a name="e6ba299a-e8d0-4139-b3f4-ff17f5316e65"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/92f32e1d-a31b-4c53-a869-3a80d59b789a.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-When there are no in progress tasks there is not enough space below the title.
+#### Resolved Task <a name="21c29a24-a2c5-4809-a8cd-4d60de64b362"></a> 
+Try again get rid of some of the floaty on mobile. Might be able to repro at intermediate sizes.
 
 
 
 
-Also not enough space above the title when have open tasks - add bottom margin to the chips.
-
-#### Resolved Task <a name="fcd02a0a-8c94-4ae2-aa4d-9879162edb48"></a> 
-Search bar moves flush left.
-
-#### Resolved Task <a name="fbd9a7ea-c03b-44cb-b164-8f2976209c8a"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/e3491e33-1b41-4f4f-8408-8b0fb5caa645.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+This is intermittent and does not repro at intermediate sizes.
 
 
 
 
-Schedule icon somehow outside the centering.
+**Maybe give AI a crack at it.**
 
-#### Resolved Task <a name="6ae08120-9ca6-421a-8dab-4a1a4737f9eb"></a> 
-In complete section either be half length or full length.
+#### Resolved Task <a name="42ce409a-ce4d-468a-ae2a-4a0bf4c5560c"></a> 
+Need refresh button since reload doesn’t do refresh necessarily and not obvious. This button should run sync so spinning on and returns error if fails just like anything else.
 
-#### Resolved Task <a name="9263512a-c051-4526-b327-b3625e905435"></a> 
-Navigation arrows should be just one text one that says where you are going to go and keep the key strokes the same.
 
-> ##### Grouped task <a name="cb254bd4-3d53-4b32-8ffb-c1a7ec76ecb9"></a> 
-The hover text explains all three key strokes (may need to do HTMl hover to do that).
 
-#### Resolved Task <a name="0465fa3f-292e-4bc0-b239-b04275a4888b"></a> 
-Add color to the words paused, complete, and assistance in the swimlanes - orange, green, and red.
 
-#### Resolved Task <a name="388ff458-9b2d-443f-a97f-e94cfc9f8bd5"></a> 
-When go to new message and don't process then dehighlighting not happening until press the Next button again.
-
-#### Resolved Task <a name="f889e5ef-36e8-4622-a944-e92dd91f5c60"></a> 
-Change this button to look like Add job.
-
-#### Resolved Task <a name="0ab75904-4bcc-466a-8dee-83ea9f5ca97f"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/3a8aee4c-ece1-4595-ab2c-96b6c83c7d74.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-Messed up here.
+Put this button on the workspace dropdown - mobile and desktop. Call it "Manual sync".
 

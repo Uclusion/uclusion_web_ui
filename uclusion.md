@@ -37,7 +37,7 @@
 
     # Get your key from: https://aistudio.google.com/app/apikey
 
-    API_KEY = "AIzaSyAulYfv3yt2CU7RvWsTbCLcEsNB0knNB2U"
+    API_KEY = ""
 
     HN_API_BASE = "https://hacker-news.firebaseio.com/v0"
 

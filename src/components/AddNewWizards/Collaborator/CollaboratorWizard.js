@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import PropTypes from 'prop-types'
 import { WizardStylesProvider } from '../WizardStylesContext'
 import FormdataWizard from 'react-formdata-wizard'
 import { extractUsersList } from '../../../utils/userFunctions';

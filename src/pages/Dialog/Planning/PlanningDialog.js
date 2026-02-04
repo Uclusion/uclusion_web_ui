@@ -46,7 +46,7 @@ import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { AssignmentInd, BugReport } from '@material-ui/icons';
 import Backlog from './Backlog';
 import InvestiblesByPerson from './InvestiblesByPerson';
-import { NO_SECTION_TYPE, SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
+import { NO_SECTION_TYPE } from '../../../constants/global';
 import SubSection from '../../../containers/SubSection/SubSection';
 import {
   addMarketComments,

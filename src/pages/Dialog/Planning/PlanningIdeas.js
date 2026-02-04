@@ -535,7 +535,6 @@ const generalStageStyles = makeStyles((theme) => {
       height: '24px',
     },
     outlinedAccepted: {
-      backgroundColor: 'white',
       border: `1px solid ${theme.palette.grey['400']}`,
       borderRadius: theme.spacing(1),
       fontSize: '.8em',
@@ -773,7 +772,7 @@ function StageInvestible(props) {
               navigate(history, to);
             }}
           >
-            <Typography color='initial' variant="subtitle2">{name}</Typography>
+            <Typography variant="subtitle2">{name}</Typography>
             {!_.isEmpty(label) && (
               <div key={label} style={{paddingTop: '0.7rem', cursor: 'pointer'}} onClick={(event) => {
                 preventDefaultAndProp(event);

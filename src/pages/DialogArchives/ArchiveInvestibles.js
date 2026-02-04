@@ -52,8 +52,7 @@ const myArchiveClasses = makeStyles(
       outlined: {
         border: `1px solid ${theme.palette.grey["400"]}`,
         borderRadius: theme.spacing(1),
-        padding: theme.spacing(1, 2),
-        backgroundColor: 'white'
+        padding: theme.spacing(1, 2)
       },
       noPadding: {
         padding: 0,

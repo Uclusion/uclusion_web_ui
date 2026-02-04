@@ -47,7 +47,7 @@ import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { Eject, ExpandLess, KeyboardArrowLeft } from '@material-ui/icons';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { useButtonColors, WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
+import { useButtonColors } from '../../../components/Buttons/ButtonConstants';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { getNewBugNotifications } from '../../../components/Comments/Options';

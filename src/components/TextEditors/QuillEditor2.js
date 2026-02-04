@@ -80,6 +80,7 @@ function QuillEditor2 (props) {
     noOverflow,
     maxHeight,
     backgroundColor,
+    isWhiteText = false,
     buttons = React.Fragment
   } = props;
   const useCssId = cssId || id;
@@ -164,7 +165,7 @@ function QuillEditor2 (props) {
   const editorStyle = {
     fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSize,
-    color: 'black',
+    color: isWhiteText ? 'white' : 'black',
     overflowX: 'hidden',
     backgroundColor: backgroundColor || (noToolbar ? undefined : 'white'),
     minHeight: noToolbar ? undefined : '8rem'

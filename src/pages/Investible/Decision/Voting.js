@@ -29,6 +29,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { useIntl } from 'react-intl';
 import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextHelper';
+import { DARK_TEXT_BACKGROUND_COLOR } from '../../../components/Buttons/ButtonConstants';
+import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 
 const useVoteStyles = makeStyles(
   theme => {
@@ -102,6 +104,8 @@ function Voting(props) {
   const { marketPresences = [], investibleId, investmentReasons = [], showExpiration, expirationMinutes, yourPresence, market, showDeleted,
     isInbox, groupId, useCompression, showEmptyText, toggleCompression=() => {}} = props;
   const history = useHistory();
+  const [themeMode] = React.useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const theme = useTheme();
   const intl = useIntl();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
@@ -255,7 +259,7 @@ function Voting(props) {
                 </div>
                 {hasContent && !myUseCompression && (
                   <CardContent className={classes.cardContent}>
-                    <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable}
+                    <ReadOnlyQuillEditor value={reason.body} isEditable={isEditable} isWhiteText={isDark}
                                          id={isInbox ? `inboxReason${reason.id}` : reason.id}
                                          setBeingEdited={setBeingEdited}
                     />

@@ -83,7 +83,7 @@ import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
 import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
-import { DARK_ACTION_BUTTON_COLOR, useButtonColors } from '../../../components/Buttons/ButtonConstants';
+import { DARK_ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors } from '../../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 
 export const usePlanningInvestibleStyles = makeStyles(
@@ -213,7 +213,6 @@ export const usePlanningInvestibleStyles = makeStyles(
       }
     },
     fullWidthEditable: {
-      paddingRight: '1rem',
       cursor: "url('/images/edit_cursor.svg') 0 24, pointer",
         maxWidth: '100%',
         flexBasis: '100%',
@@ -360,6 +359,8 @@ function PlanningInvestible(props) {
     market,
     hidden = false
   } = props;
+  const [themeMode] = React.useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const theme = useTheme();
   const editorBox = useRef(null);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -777,11 +778,11 @@ function PlanningInvestible(props) {
                 )}
                 {marketId && investibleId && (
                   <div className={isEditableByUser() ? editClasses.containerEditable : editClasses.container} 
-                    style={{padding: '1rem'}}>
+                    style={{padding: '1rem', backgroundColor: isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white'}}>
                     <Typography className={editClasses.title} variant="h3" component="h1">
                       {name}
                     </Typography>
-                    <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} backgroundColor='white' />
+                    <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} backgroundColor={isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white'} />
                   </div>
                 )}
               </div>

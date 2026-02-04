@@ -198,6 +198,22 @@ export const wizardStyles = makeStyles(
         marginBottom: '40px'
       },
       stepDefault: {},
+      certaintyLabel: {
+        marginBottom: theme.spacing(2),
+        textTransform: "capitalize"
+      },
+      certaintyValue: {
+        borderRadius: 6,
+        backgroundColor: theme.palette.background.wizard,
+        paddingLeft: theme.spacing(1),
+        margin: theme.spacing(0, 2, 2, 0),
+        '& .MuiRadio-root': {
+          color: theme.palette.type === 'dark' ? 'rgba(255, 255, 255, 0.7)' : undefined,
+        },
+        '& .MuiRadio-colorSecondary.Mui-checked': {
+          color: theme.palette.type === 'dark' ? '#ffffff' : undefined,
+        }
+      },
       wizardCommentBoxDiv: {
         paddingBottom: '1rem',
         overflowY: 'hidden',

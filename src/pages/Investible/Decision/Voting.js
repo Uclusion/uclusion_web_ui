@@ -29,7 +29,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import SpinningIconLabelButton from '../../../components/Buttons/SpinningIconLabelButton';
 import { useIntl } from 'react-intl';
 import { dehighlightMessage } from '../../../contexts/NotificationsContext/notificationsContextHelper';
-import { DARK_TEXT_BACKGROUND_COLOR } from '../../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 
 const useVoteStyles = makeStyles(

@@ -19,6 +19,7 @@ export function GmailTabItem(props) {
   const useTagLabel = mobileLayout ? '' : (tagLabel || 'total');
   const useLabel = mobileLayout ? '' : (toolTipId ? <Tooltip
     title={intl.formatMessage({ id: toolTipId })}><div>{label}</div></Tooltip> : label);
+  const defaultColor = isDark ? '#ffffff' : '#000000';
   return (
     <Tab
       disableTouchRipple
@@ -28,9 +29,9 @@ export function GmailTabItem(props) {
       id={label.replace(/[ &/]/g, '')}
       style={{maxWidth: '16rem', width: '12rem'}}
       label={
-        <div className={'MuiTabItem-label'} style={{color: isDark ? '#ffffff' : '#000000', opacity: 0.6}}>
+        <div className={'MuiTabItem-label'} style={{color: defaultColor, opacity: 0.6}}>
           {useLabel} {tag && <span className={'MuiTabItem-tag'} style={{backgroundColor: hasChip ? tagColor : 'unset',
-          color: hasChip ? undefined : 'black', borderRadius: 22, paddingLeft: '5px', paddingRight: '5px', 
+          color: hasChip ? undefined : defaultColor, borderRadius: 22, paddingLeft: '5px', paddingRight: '5px', 
           marginLeft: mobileLayout ? '-8px' : undefined}}>
           {tag} {useTagLabel}</span>}
         </div>

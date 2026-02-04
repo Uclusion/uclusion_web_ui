@@ -29,6 +29,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { BLUE_LEVEL, YELLOW_LEVEL } from '../../../constants/notifications';
 import AddIcon from '@material-ui/icons/Add';
 import { JOB_COMMENT_WIZARD_TYPE } from '../../../constants/markets';
+import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 
 function CondensedTodos(props) {
   const {
@@ -55,6 +56,8 @@ function CondensedTodos(props) {
   const classes = todoClasses();
   const intl = useIntl();
   const history = useHistory();
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { actionButtonColor } = useButtonColors();
@@ -218,6 +221,8 @@ function CondensedTodos(props) {
     }
   }, {enableOnContentEditable: true}, []);
 
+  const indicatorColor = isDark ? 'white' : 'black';
+
   return (
     <div className={sectionOpen ? classes.outerBorder : undefined} id="investibleCondensedTodos"
          style={{marginLeft: usePadding ? '1rem' : undefined, maxWidth}}>
@@ -249,7 +254,7 @@ function CondensedTodos(props) {
           onChange={(event, value) => {
             setShowOpen(value === 0);
           }}
-          indicatorColors={['black', 'black']}
+          indicatorColors={[indicatorColor, indicatorColor]}
           style={{ paddingBottom: '1rem' }}>
           <GmailTabItem label={intl.formatMessage({id: 'openHeader'})}
                         color='black' tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) : intl.formatMessage({id: 'total'})}

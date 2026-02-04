@@ -74,7 +74,6 @@ const Title = styled(Text)`
   min-width: 13vw;
   flex-shrink: 0;
   flex-grow: 0;
-  color: black;
   & > *:not(:first-child) {
     font-size: 12px;
     margin-left: 4px;
@@ -85,7 +84,7 @@ const Title = styled(Text)`
 `;
 
 const TitleB = styled(Title)`
-  color: rgba(0, 0, 0, 0.87);
+  opacity: 0.87;
   font-weight: bold;
 `;
 
@@ -257,7 +256,8 @@ function WorkListItem(props) {
                 </StyledIconButton>
               )}
             </Box>
-            {read ? (<Title>{title}</Title>) : (<TitleB>{title}</TitleB>)}
+            {read ? (<Title style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{title}</Title>) : 
+            (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{title}</TitleB>)}
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
             <Text>{fullText}</Text>
             {mobileLayout || !date ? React.Fragment : (read ? (<DateLabelNotHovered>{date}</DateLabelNotHovered>) :

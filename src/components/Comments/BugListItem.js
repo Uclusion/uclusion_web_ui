@@ -209,7 +209,8 @@ function BugListItem(props) {
                   {!mobileLayout && (
                     <StyledIconButton
                       className={cx(checked && "MailListItem-checked")}
-                      style={{marginLeft: '0.15rem', visibility: useSelect ? 'visible' : 'hidden'}}
+                      style={{marginLeft: '0.15rem', color: theme.palette.type === 'dark' ? 'white' : undefined, 
+                        visibility: useSelect ? 'visible' : 'hidden'}}
                       classes={actionStyles}
                       onClick={(event) => {
                         preventDefaultAndProp(event);

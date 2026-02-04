@@ -32,6 +32,7 @@ const lightThemeDefinition = {
     background: {
       default: '#ffffff',
       paper: '#DFF0F2',
+      actionButton: 'white',
     },
     text: {
       primary: 'rgba(0, 0, 0, 0.87)',
@@ -59,6 +60,7 @@ const darkThemeDefinition = {
     background: {
       default: '#121212',
       paper: '#2a3a3c',
+      actionButton: '#D9DDDC',
     },
     text: {
       primary: '#ffffff',

@@ -154,7 +154,7 @@ export const wizardStyles = makeStyles(
         width: 200,
         border: '2px solid #2F80ED',
         color: 'black !important',
-        backgroundColor: 'white',
+        backgroundColor: theme.palette.background.actionButton,
         textTransform: 'unset !important',
         maxHeight: '2.6rem',
         whiteSpace: 'nowrap',

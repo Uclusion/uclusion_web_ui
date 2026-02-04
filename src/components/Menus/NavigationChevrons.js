@@ -44,13 +44,13 @@ import { getCurrentWorkspace } from '../../utils/redirectUtils';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   magicButton: {
     textTransform: 'none',
     borderRadius: '8px',
     padding: '6px 16px',
     color: 'black',
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.background.actionButton,
     transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
     '&:hover': {
       backgroundColor: '#2F80ED',

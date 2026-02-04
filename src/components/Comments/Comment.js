@@ -135,6 +135,8 @@ import { previousInProgress } from '../AddNewWizards/TaskInProgress/TaskInProgre
 import { getMarketClient } from '../../api/marketLogin';
 import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPanel';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
+import { DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -240,6 +242,7 @@ export const useCommentStyles = makeStyles(
       },
       createdBy: {
         fontSize: '15px',
+        color: 'black',
         whiteSpace: 'nowrap'
       },
       childWrapper: {
@@ -510,6 +513,8 @@ function Comment(props) {
   const history = useHistory();
   const location = useLocation();
   const editBox = useRef(null);
+  const [themeMode] = React.useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const theme = useTheme();
   const isReallyMobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
@@ -954,7 +959,7 @@ function Comment(props) {
       {!mobileLayout && intl.formatMessage({ id: showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'})}
     </SpinningIconLabelButton>
   )}</>;
-  const commentCard = <div style={{overflow: 'unset', backgroundColor: showHighlight ? undefined : 'white', 
+  const commentCard = <div style={{overflow: 'unset', backgroundColor: showHighlight ? undefined : (isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white'), 
     marginTop: isSent === false || usePadding === false ? 0
       : '1rem', width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
                             ref={editBox}>

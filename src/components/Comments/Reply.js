@@ -59,8 +59,9 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPanel';
 import { getMarketClient } from '../../api/marketLogin';
-import { ACTION_BUTTON_COLOR, useButtonColors } from '../Buttons/ButtonConstants';
+import { ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors } from '../Buttons/ButtonConstants';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -193,6 +194,8 @@ function Reply(props) {
   const history = useHistory();
   const location = useLocation();
   const replyBeingEdited = replyEditId === comment.id && isInbox;
+  const [themeMode] = React.useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { warningColor } = useButtonColors();
@@ -324,7 +327,7 @@ function Reply(props) {
   </div>;
 
   const commentCard = <div className={getHighlightClass()}
-                            style={{width: !enableEditing ? 'fit-content' : undefined, paddingRight: '1rem', backgroundColor: 'white'}}
+                            style={{width: !enableEditing ? 'fit-content' : undefined, paddingRight: '1rem', backgroundColor: (isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white')}}
                             id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
     <div onClick={(event) => {
       if (!invalidEditEvent(event, history)&&(replyBeingEdited || isInbox)) {

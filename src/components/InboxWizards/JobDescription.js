@@ -23,6 +23,7 @@ import { attachedFilesStyles, displayLinksList } from '../Files/AttachedFilesLis
 import config from '../../config';
 import CompressedDescription from './CompressedDescription';
 import { isLargeDisplay } from '../../utils/stringFunctions';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 function JobDescription(props) {
   const { investibleId, marketId, comments, showAssigned=true, inboxMessageId, showRequiredApprovers = false,
@@ -30,6 +31,8 @@ function JobDescription(props) {
     useCompression, isSingleTaskDisplay = false, showCreatedBy = false, commentMarketId, expandTasksNotSection=false,
     showDiff = false, tasksDefaultOpen=false, hideTabs=false, tasksSectionTitle, useJobLink } = props;
   const history = useHistory();
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const planningClasses = usePlanningInvestibleStyles();
@@ -54,7 +57,7 @@ function JobDescription(props) {
   const nonTodoComments = comments?.filter((comment) => comment.comment_type !== TODO_TYPE);
   const nonTodoCommentsRoots = nonTodoComments?.filter((comment) => comment.comment_type !== REPLY_TYPE);
   const normalDescriptionDisplay = showDiff || !isLargeDisplay(description);
-  const fullDescription = <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} />;
+  const fullDescription = <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff} darkModeNoBackground={isDark} />;
   const planningMarketId = commentMarketId || marketId;
 
   return (

@@ -84,6 +84,7 @@ function InboxFull(props) {
       isInbox
       isKeptInMemory
       disableSearch={!_.isEmpty(workItemId)}
+      isWizard={!_.isEmpty(workItemId)}
       showBanner
       outBoxMessages={allOutBoxMessagesOrdered}
     >

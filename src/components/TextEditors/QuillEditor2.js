@@ -164,6 +164,7 @@ function QuillEditor2 (props) {
   const editorStyle = {
     fontFamily: theme.typography.fontFamily,
     fontSize: theme.typography.fontSize,
+    color: 'black',
     overflowX: 'hidden',
     backgroundColor: backgroundColor || (noToolbar ? undefined : 'white'),
     minHeight: noToolbar ? undefined : '8rem'

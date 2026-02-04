@@ -24,7 +24,7 @@ export function GmailTabItem(props) {
       disableTouchRipple
       classes={tabItemStyles}
       {...other}
-      icon={isDark ? React.cloneElement(icon, { htmlColor: DARK_ACTION_BUTTON_COLOR }) : icon}
+      icon={isDark && icon ? React.cloneElement(icon, { htmlColor: DARK_ACTION_BUTTON_COLOR }) : icon}
       id={label.replace(/[ &/]/g, '')}
       style={{maxWidth: '16rem', width: '12rem'}}
       label={

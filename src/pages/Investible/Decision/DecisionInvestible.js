@@ -404,10 +404,12 @@ function DecisionInvestible(props) {
     {marketId && investibleId && userId && (
       <div className={isEditableByUser() ? editClasses.containerEditable : editClasses.container}
            onClick={(event) => mySetBeingEdited(event)} style={{minHeight: mobileLayout ? undefined : '6rem'}}>
-        <Typography className={editClasses.title} variant="h3" component="h1">
+        <Typography className={editClasses.title} style={{ color: theme.palette.type === 'dark' ? 'white' : undefined }} 
+          variant="h3" component="h1">
           {name}
         </Typography>
-        <DescriptionOrDiff id={investibleId} description={description} showDiff={showDiff}/>
+        <DescriptionOrDiff id={investibleId} darkModeNoBackground={theme.palette.type === 'dark'} 
+            isWhiteText={theme.palette.type === 'dark'} description={description} showDiff={showDiff}/>
       </div>
     )}
     {mobileLayout && isEditableByUser() && (

@@ -40,7 +40,6 @@ const Text = styled("div")`
 const Title = styled(Text)`
   flex-shrink: 0;
   flex-grow: 0;
-  color: black;
   margin-left: 0.5rem;
   & > *:not(:first-child) {
     font-size: 12px;
@@ -51,8 +50,8 @@ const Title = styled(Text)`
 `;
 
 const TitleB = styled(Title)`
-  color: rgba(0, 0, 0, 0.87);
   font-weight: bold;
+  opacity: 0.87;
 `;
 
 const DateLabel = styled("div")`
@@ -145,7 +144,8 @@ function OptionListItem(props) {
               {!mobileLayout || _.isEmpty(people) ? React.Fragment :
                 <GravatarGroup users={people} highlightList={highlightList} />
               }
-              {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
+              {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{title}</TitleB>) : 
+              (<Title style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{title}</Title>)}
               {!mobileLayout && (
                 <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{useDescription}</Text>
               )}

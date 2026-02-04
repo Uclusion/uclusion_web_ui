@@ -136,7 +136,7 @@ import { getMarketClient } from '../../api/marketLogin';
 import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPanel';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
-import { DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
+import { DARK_INFO_COLOR, DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -990,7 +990,7 @@ function Comment(props) {
               setOperationRunning(true);
               return getMarketClient(marketId).then((client) => client.users.pokeComment(comment.id).then(() => setOperationRunning(false)));
             }}
-            icon={<NotificationsActive fontSize='small' /> }
+            icon={<NotificationsActive fontSize='small' htmlColor={theme.palette.type === 'dark' ? DARK_INFO_COLOR : undefined} /> }
             size='small'
             translationId='poke'
             doFloatRight

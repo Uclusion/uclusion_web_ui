@@ -32,7 +32,7 @@ import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { Block, Notes, Notifications } from '@material-ui/icons';
 import LightbulbOutlined from './CustomChip/LightbulbOutlined';
 import TooltipIconButton from './Buttons/TooltipIconButton'
-import { useButtonColors } from './Buttons/ButtonConstants'
+import { DARK_INFO_COLOR, useButtonColors } from './Buttons/ButtonConstants'
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
 export const VOTING_TYPE = 'VOTING'
@@ -226,7 +226,8 @@ export default function CardType(props) {
         <TooltipIconButton
           noAlign
           onClick={notificationFunc}
-          icon={<Notifications fontSize='small' htmlColor={notificationIsHighlighted ? warningColor : undefined} />}
+          icon={<Notifications fontSize='small' htmlColor={notificationIsHighlighted ? warningColor : 
+            (theme.palette.type === 'dark' ? DARK_INFO_COLOR : undefined)} />}
           size='small'
           translationId='messagePresentComment'
         />

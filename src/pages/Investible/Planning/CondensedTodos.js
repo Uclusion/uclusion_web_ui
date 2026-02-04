@@ -20,7 +20,7 @@ import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { BugReport, Eject, ExpandLess } from '@material-ui/icons';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
+import { useButtonColors } from '../../../components/Buttons/ButtonConstants';
 import { getNewBugNotifications } from '../../../components/Comments/Options';
 import { todoClasses } from '../../Dialog/Planning/MarketTodos';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -57,6 +57,7 @@ function CondensedTodos(props) {
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const { actionButtonColor } = useButtonColors();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState] = useContext(NotificationsContext);
@@ -276,7 +277,7 @@ function CondensedTodos(props) {
             )}
             {(checkAll || !_.isEmpty(determinate)) && (
               <TooltipIconButton
-                icon={<Eject htmlColor={ACTION_BUTTON_COLOR} />}
+                icon={<Eject htmlColor={actionButtonColor} />}
                 onClick={moveSelected} translationId="todosMove" />
             )}
             {(checkAll || !_.isEmpty(determinate)) && !isInbox && (

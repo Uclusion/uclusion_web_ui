@@ -6,7 +6,7 @@ import { AllSequentialMap } from '../../utils/PromiseUtils';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import Dropzone from 'react-dropzone';
 import ExpandableAction from '../SidebarActions/Planning/ExpandableAction';
-import { ACTION_BUTTON_COLOR } from '../Buttons/ButtonConstants';
+import { useButtonColors } from '../Buttons/ButtonConstants';
 import { useIntl } from 'react-intl';
 
 function FileUploader(props) {
@@ -17,6 +17,7 @@ function FileUploader(props) {
   } = props;
 
   const intl = useIntl();
+  const { actionButtonColor } = useButtonColors();
 
   function onDrop(files) {
     setUploadInProgress(true);
@@ -45,7 +46,7 @@ function FileUploader(props) {
             <ExpandableAction
               id="proposeOption"
               onClick={()=>{}}
-              icon={<CloudUploadIcon htmlColor={ACTION_BUTTON_COLOR} />}
+              icon={<CloudUploadIcon htmlColor={actionButtonColor} />}
               label={intl.formatMessage({ id: 'uploadFilesDisplay' })}
               toolTip={intl.formatMessage({ id: 'uploadFilesTooltip'})}
             />

@@ -2,13 +2,13 @@ import React from 'react';
 import { AppBar, Card, Link, makeStyles, Toolbar, Typography, } from '@material-ui/core'
 import PropTypes from 'prop-types';
 import {
+  NO_SECTION_TYPE,
   SECTION_SUB_HEADER,
   SECTION_TYPE_SECONDARY,
   SECTION_TYPE_SECONDARY_WARNING,
   SECTION_TYPE_TERTIARY_WARNING
 } from '../../constants/global';
 import { DARKER_LINK_COLOR } from '../../pages/Dialog/Planning/InvestiblesByPerson';
-import { LIGHT_BLUE_COLOR } from '../../components/Buttons/ButtonConstants';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => {
     },
     secondarySubHeaderWarning: {
       boxShadow: 'none',
-      background: LIGHT_BLUE_COLOR,
+      background: theme.palette.background.paper,
       color: 'black',
       borderRadius: '20px 20px 0 0'
     },
@@ -105,7 +105,8 @@ function SubSection (props) {
 
   return (
     <React.Fragment key={`frag${id}`}>
-      <AppBar
+      {type !== NO_SECTION_TYPE && (
+        <AppBar
         id={id}
         className={type === SECTION_TYPE_SECONDARY ? classes.secondarySubHeader :
           type === SECTION_TYPE_SECONDARY_WARNING ? classes.secondarySubHeaderWarning :
@@ -137,6 +138,7 @@ function SubSection (props) {
           </div>
         </Toolbar>
       </AppBar>
+      )}
       {showCard && (
         <div className={children ? classes.toolbar : classes.hide} id={`${id}Children`}>
           <Card className={padChildren ? classes.paddedChildContainer : classes.childContainer}>

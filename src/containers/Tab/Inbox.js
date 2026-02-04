@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import { useGmailTabsStyles, useGmailTabItemStyles } from '@mui-treasury/styles/tabs/gmail';
 import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
 import { useIntl } from 'react-intl';
-import { COUNT_COLOR, LIGHTER_BLUE_COLOR } from '../../components/Buttons/ButtonConstants';
+import { useButtonColors, COUNT_COLOR, DARK_ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 export function GmailTabItem(props) {
-  const { color='#2F80ED', label, tag, tagLabel, hasChip=true, tagColor=COUNT_COLOR, toolTipId,
+  const { color='#2F80ED', label, tag, tagLabel, hasChip=true, tagColor=COUNT_COLOR, toolTipId, icon,
     ...other } = props;
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const theme = useTheme();
   const intl = useIntl();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
@@ -21,10 +24,11 @@ export function GmailTabItem(props) {
       disableTouchRipple
       classes={tabItemStyles}
       {...other}
+      icon={isDark ? React.cloneElement(icon, { htmlColor: DARK_ACTION_BUTTON_COLOR }) : icon}
       id={label.replace(/[ &/]/g, '')}
       style={{maxWidth: '16rem', width: '12rem'}}
       label={
-        <div className={'MuiTabItem-label'}>
+        <div className={'MuiTabItem-label'} style={{color: isDark ? '#ffffff' : '#000000', opacity: 0.6}}>
           {useLabel} {tag && <span className={'MuiTabItem-tag'} style={{backgroundColor: hasChip ? tagColor : 'unset',
           color: hasChip ? undefined : 'black', borderRadius: 22, paddingLeft: '5px', paddingRight: '5px', 
           marginLeft: mobileLayout ? '-8px' : undefined}}>
@@ -39,6 +43,7 @@ export function GmailTabs(props) {
   const tabsStyles = useGmailTabsStyles({ ...props });
   const tabsProps = {...props};
   const { removeBoxShadow, addPaddingLeft, addMarginLeft, useColor=true } = props;
+  const { lighterBlueColor } = useButtonColors();
   delete tabsProps.indicatorColors;
   delete tabsProps.useColor;
   delete tabsProps.removeBoxShadow;
@@ -49,7 +54,7 @@ export function GmailTabs(props) {
       {...tabsProps}
       classes={tabsStyles}
       style={{boxShadow: removeBoxShadow ? 'unset' : undefined, paddingLeft: addPaddingLeft, marginLeft: addMarginLeft,
-        backgroundColor: useColor ? LIGHTER_BLUE_COLOR : undefined }}
+        backgroundColor: useColor ? lighterBlueColor : undefined }}
       TabIndicatorProps={{
         ...props.TabIndicatorProps,
         children: <div className={`MuiIndicator-${props.value}`} />,

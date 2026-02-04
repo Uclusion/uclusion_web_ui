@@ -49,6 +49,7 @@ const useStyles = makeStyles(() => ({
     textTransform: 'none',
     borderRadius: '8px',
     padding: '6px 16px',
+    color: 'black',
     backgroundColor: 'white',
     transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
     '&:hover': {

@@ -83,7 +83,7 @@ import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
 import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
-import { LIGHT_BLUE_COLOR, WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
+import { useButtonColors } from '../../../components/Buttons/ButtonConstants';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -267,7 +267,7 @@ export const usePlanningInvestibleStyles = makeStyles(
         marginBottom: '1.5rem'
       },
       flex: '1 0 auto',
-      backgroundColor: LIGHT_BLUE_COLOR,
+      backgroundColor: theme.palette.background.paper,
       height: '100%',
       zIndex: 9,
       position: 'fixed',
@@ -362,6 +362,7 @@ function PlanningInvestible(props) {
   const theme = useTheme();
   const editorBox = useRef(null);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const { warningColor } = useButtonColors();
   const leftNavBreak = useMediaQuery(theme.breakpoints.down('md'));
   const refToTop = useRef();
   const classes = usePlanningInvestibleStyles();
@@ -717,18 +718,18 @@ function PlanningInvestible(props) {
           marginLeft: '-0.5rem' }}>
         <GmailTabItem icon={<InfoIcon />} tagLabel={numNewOverviewMessages > 0 && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       label={intl.formatMessage({id: 'descriptionVotingLabel'})}
-                      toolTipId='jobOverviewToolTip' tagColor={hasNewOverviewMessages ? WARNING_COLOR : undefined}
+                      toolTipId='jobOverviewToolTip' tagColor={hasNewOverviewMessages ? warningColor : undefined}
                       tag={descriptionSectionResults === 0 ? 
                           (hasNewOverviewMessages ? `${numNewOverviewMessages}` : undefined) 
                           : `${descriptionSectionResults}`} />
         <GmailTabItem icon={getIcon(TODO_TYPE)} label={intl.formatMessage({id: 'openTasksSection'})}
-                      tagColor={hasNewTodoMessages ? WARNING_COLOR : undefined}
+                      tagColor={hasNewTodoMessages ? warningColor : undefined}
                       toolTipId='jobTasksToolTip' tagLabel={hasNewTodoMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
                       tag={hasNewTodoMessages && _.isEmpty(search) ? `${numNewTodoMessages}` : countUnresolved(todoCommentsSearched, search)} />
         {displayAssistanceSection && (
           <GmailTabItem icon={getIcon(QUESTION_TYPE)} toolTipId='jobAssistanceToolTip'
                         label={intl.formatMessage({id: 'requiresInputStageLabel'})}
-                        tagColor={hasNewAssistanceMessages ? WARNING_COLOR : undefined} tag={assistanceTag}
+                        tagColor={hasNewAssistanceMessages ? warningColor : undefined} tag={assistanceTag}
                         tagLabel={hasNewAssistanceMessages && _.isEmpty(search) ? 'new' : getTagLabel('open')} />
         )}
       </GmailTabs>
@@ -1049,6 +1050,7 @@ export function Assignments(props) {
   const intl = useIntl();
   const history = useHistory();
   const metaClasses = useMetaDataStyles();
+  const { warningColor } = useButtonColors();
   const safeAssigned = assigned || [];
   const presences = safeAssigned.map((userId) => {
     const presence = marketPresences.find(presence => presence.id === userId)
@@ -1123,7 +1125,7 @@ export function Assignments(props) {
                       navigate(history, formInboxItemLink(unaccceptedMessage));
                     }}
                     icon={<Notifications fontSize='small' 
-                      htmlColor={unaccceptedMessage.is_highlighted ? WARNING_COLOR : undefined} />}
+                      htmlColor={unaccceptedMessage.is_highlighted ? warningColor : undefined} />}
                     size='small'
                     translationId='messagePresentComment'
                   />

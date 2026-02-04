@@ -17,6 +17,8 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { doVersionRefresh } from '../../api/versionedFetchUtils';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
+import { DARK_ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -107,6 +109,8 @@ const useStyles = makeStyles((theme) => ({
 
 function WorkspaceMenu(props) {
   const { markets: unfilteredMarkets, defaultMarket, setChosenMarketId, inactiveGroups, chosenGroup } = props;
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const [marketPresencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState] = useContext(CommentsContext);
@@ -161,7 +165,7 @@ function WorkspaceMenu(props) {
       <Button
         style={{paddingLeft: '0px'}}
         onClick={recordPositionToggle}
-        endIcon={<ExpandMoreIcon style={{fontSize: '1rem', marginLeft: '15px', marginRight: '10px'}} htmlColor="black"/>}
+        endIcon={<ExpandMoreIcon style={{fontSize: '1rem', marginLeft: '15px', marginRight: '10px'}} htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'}/>}
         className={classes.buttonClass}
         id="workspaceMenuButton"
       >

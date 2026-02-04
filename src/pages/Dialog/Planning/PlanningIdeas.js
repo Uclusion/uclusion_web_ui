@@ -45,7 +45,7 @@ import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { doRemoveEdit, doShowEdit } from './userUtils'
 import EditOutlinedIcon from '@material-ui/icons/EditOutlined';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
-import { COUNT_COLOR, WARNING_COLOR } from '../../../components/Buttons/ButtonConstants'
+import { useButtonColors } from '../../../components/Buttons/ButtonConstants'
 import { getTicketNumber, stripHTML } from '../../../utils/stringFunctions';
 import { Schedule } from '@material-ui/icons';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -568,6 +568,7 @@ function StageInvestible(props) {
     investibleOnDragStart
   } = props;
   const intl = useIntl();
+  const { countColor, warningColor } = useButtonColors();
   const { completion_estimate: daysEstimate, assigned, group_id: groupId, stage: stageId,
     open_for_investment: openForInvestment } = marketInfo;
   const { id, name, labels } = investible;
@@ -611,7 +612,7 @@ function StageInvestible(props) {
       const myMessages = isHighlighted ? newMessages : messages;
       return (
         <Tooltip title={intl.formatMessage({ id: 'messagePresent' })}>
-          <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
+          <span className={'MuiTabItem-tag'} style={{backgroundColor: warningColor, cursor: 'pointer',
             marginRight: '0.5rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '5px',
             paddingTop: '2px', maxHeight: '20px'}}
                 onClick={(event) => {
@@ -638,7 +639,7 @@ function StageInvestible(props) {
     }
     return (
       <Tooltip title={intl.formatMessage({ id: toolTipId })}>
-        <span className={'MuiTabItem-tag'} style={{backgroundColor: COUNT_COLOR, marginRight: '0.5rem', color: 'white',
+        <span className={'MuiTabItem-tag'} style={{backgroundColor: countColor, marginRight: '0.5rem', color: 'white',
           borderRadius: 22, paddingLeft: '8px', paddingRight: '8px', paddingTop: '2px', paddingBottom: '2px',
           display: 'inline-flex', alignItems: 'center', fontSize: '0.75rem', lineHeight: 1.2}}>
           {labelNum} {intl.formatMessage({ id: 'open' })}
@@ -694,13 +695,13 @@ function StageInvestible(props) {
           {!unaccepted && ((isVoting && _.isEmpty(otherVoter)) || isReview) && (
             <div style={{marginRight: '0.5rem'}}>
               <Typography style={{fontSize: '.75rem'}}>
-                {isVoting ? <span style={{color: COUNT_COLOR}}>Paused</span> : <span style={{color: 'green'}}>Complete</span>} <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/>
+                {isVoting ? <span style={{color: countColor}}>Paused</span> : <span style={{color: 'green'}}>Complete</span>} <UsefulRelativeTime value={new Date(marketInfo.last_stage_change_date)}/>
               </Typography>
             </div>
           )}
           {!unaccepted && isVoting && !_.isEmpty(otherVoter) && (
             <div style={{marginRight: '0.5rem'}}>
-              <Typography style={{fontSize: '.85rem', color: COUNT_COLOR}}>
+              <Typography style={{fontSize: '.85rem', color: countColor}}>
                 {_.size(investors)} {intl.formatMessage({ id: 'approvalsLower' })}
               </Typography>
             </div>
@@ -731,7 +732,7 @@ function StageInvestible(props) {
           )}
           {countChip}
           {hasDaysEstimate && (
-            <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? COUNT_COLOR: undefined,
+            <div style={{ whiteSpace: 'nowrap', color: unreadEstimate ? countColor: undefined,
               cursor: unreadEstimate ? 'pointer' : undefined, marginRight: '0.5rem' }}
                  onClick={(event) => {
                    if (unreadEstimate) {

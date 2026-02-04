@@ -3,10 +3,11 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import Menu from '@material-ui/core/Menu';
-import { INFO_COLOR } from '../Buttons/ButtonConstants';
+import { useButtonColors } from '../Buttons/ButtonConstants';
 
 export default function Hamburger(props) {
   const { navMenu } = props;
+  const { infoColor } = useButtonColors();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -56,7 +57,7 @@ export default function Hamburger(props) {
           disableRestoreFocus
           PaperProps={{
             style: {
-              backgroundColor: INFO_COLOR,
+              backgroundColor: infoColor,
             }
           }}
         >

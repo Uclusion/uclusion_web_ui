@@ -59,7 +59,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPanel';
 import { getMarketClient } from '../../api/marketLogin';
-import { WARNING_COLOR } from '../Buttons/ButtonConstants';
+import { useButtonColors } from '../Buttons/ButtonConstants';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 
 const useReplyStyles = makeStyles(
@@ -195,6 +195,7 @@ function Reply(props) {
   const replyBeingEdited = replyEditId === comment.id && isInbox;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const { warningColor } = useButtonColors();
   const marketId = useMarketId();
   const idPrepend = usePrependId();
   const presences = usePresences(marketId);
@@ -365,7 +366,7 @@ function Reply(props) {
                 navigate(history, formInboxItemLink(myMessage));
               }
             }}
-            icon={<Notifications fontSize='small' htmlColor={myMessage?.is_highlighted ? WARNING_COLOR : undefined} 
+            icon={<Notifications fontSize='small' htmlColor={myMessage?.is_highlighted ? warningColor : undefined} 
               style={{marginLeft: '1rem'}} />}
             size='small'
             translationId='messagePresentComment'

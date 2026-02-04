@@ -32,7 +32,7 @@ import { Typography, useMediaQuery, useTheme } from '@material-ui/core'
 import { Block, Notes, Notifications } from '@material-ui/icons';
 import LightbulbOutlined from './CustomChip/LightbulbOutlined';
 import TooltipIconButton from './Buttons/TooltipIconButton'
-import { WARNING_COLOR } from './Buttons/ButtonConstants'
+import { useButtonColors } from './Buttons/ButtonConstants'
 
 export { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, DECISION_TYPE }
 export const VOTING_TYPE = 'VOTING'
@@ -171,6 +171,7 @@ export default function CardType(props) {
   const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const { warningColor } = useButtonColors();
   const IconComponent = (subtype || type) in labelIntlIds ? {
     [ISSUE_TYPE]: Block,
     [QUESTION_TYPE]: QuestionIcon,
@@ -225,7 +226,7 @@ export default function CardType(props) {
         <TooltipIconButton
           noAlign
           onClick={notificationFunc}
-          icon={<Notifications fontSize='small' htmlColor={notificationIsHighlighted ? WARNING_COLOR : undefined} />}
+          icon={<Notifications fontSize='small' htmlColor={notificationIsHighlighted ? warningColor : undefined} />}
           size='small'
           translationId='messagePresentComment'
         />

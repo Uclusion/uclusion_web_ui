@@ -19,7 +19,6 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { getGroupMentionsApprovals } from '../../../utils/commentFunctions';
-import { LIGHT_BLUE_COLOR } from '../../../components/Buttons/ButtonConstants';
 
 const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -28,7 +27,7 @@ const useInvestiblesByPersonStyles = makeStyles(
         margin: theme.spacing(1, 0),
       },
       content: {
-        backgroundColor: LIGHT_BLUE_COLOR,
+        backgroundColor: theme.palette.primary.light,
         padding: 0,
         "&:last-child": {
           paddingBottom: "inherit"
@@ -40,7 +39,7 @@ const useInvestiblesByPersonStyles = makeStyles(
       },
       header: {
         paddingLeft: theme.spacing(1),
-        backgroundColor: LIGHT_BLUE_COLOR,
+        backgroundColor: theme.palette.primary.light,
         paddingBottom: 0,
         paddingTop: 0,
         borderBottom: '1px solid #ecf0f1'

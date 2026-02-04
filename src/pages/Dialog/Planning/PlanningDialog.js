@@ -46,7 +46,7 @@ import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { AssignmentInd, BugReport } from '@material-ui/icons';
 import Backlog from './Backlog';
 import InvestiblesByPerson from './InvestiblesByPerson';
-import { SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
+import { NO_SECTION_TYPE, SECTION_TYPE_SECONDARY_WARNING } from '../../../constants/global';
 import SubSection from '../../../containers/SubSection/SubSection';
 import {
   addMarketComments,
@@ -688,7 +688,7 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
             </SpinningButton>
             <div onDrop={onDropNext} onDragOver={onDragOverNext}>
               <SubSection
-                type={SECTION_TYPE_SECONDARY_WARNING}
+                type={NO_SECTION_TYPE}
                 bolder
                 id="blocked"
                 showCard={false}

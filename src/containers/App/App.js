@@ -7,8 +7,7 @@ import { WebSocketProvider } from '../../contexts/WebSocketContext'
 import { OnlineStateProvider } from '../../contexts/OnlineStateContext'
 import { Auth } from 'aws-amplify'
 import LogRocket from 'logrocket'
-import { defaultTheme } from '../../config/themes'
-import { ThemeProvider } from '@material-ui/core/styles'
+import { ThemeModeProvider } from '../../contexts/ThemeModeContext'
 import { CognitoUserProvider } from '../../contexts/CognitoUserContext/CongitoUserContext'
 import { LeaderProvider } from '../../contexts/LeaderContext/LeaderContext'
 import { CommentsProvider } from '../../contexts/CommentsContext/CommentsContext'
@@ -63,9 +62,9 @@ function App(props) {
   if (!userId && email) {
     return (
       <OnlineStateProvider>
-        <ThemeProvider theme={defaultTheme}>
+        <ThemeModeProvider>
           <NoAccount email={email} authState={authState}/>
-        </ThemeProvider>
+        </ThemeModeProvider>
       </OnlineStateProvider>
     );
   }
@@ -83,9 +82,9 @@ function App(props) {
                     <OnlineStateProvider>
                       <WebSocketProvider config={config} userId={userId}>
                         <AppConfigProvider appConfig={configs}>
-                          <ThemeProvider theme={defaultTheme}>
+                          <ThemeModeProvider>
                             <Root appConfig={configs} authState={authState}/>
-                          </ThemeProvider>
+                          </ThemeModeProvider>
                         </AppConfigProvider>
                       </WebSocketProvider>
                     </OnlineStateProvider>

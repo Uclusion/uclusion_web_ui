@@ -60,8 +60,9 @@ import OtherWorkspaceMenus from '../../pages/Home/OtherWorkspaceMenus';
 import { findMessagesForGroupId } from '../../utils/messageUtils';
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
-import { INFO_COLOR } from '../../components/Buttons/ButtonConstants';
 import { INDEX_COMMENT_TYPE, INDEX_INVESTIBLE_TYPE } from '../../contexts/SearchIndexContext/searchIndexContextMessages';
+import { DARK_ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 export const screenStyles = makeStyles((theme) => ({
   hidden: {
@@ -132,7 +133,7 @@ export const screenStyles = makeStyles((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     flex: '1 0 auto',
-    backgroundColor: INFO_COLOR,
+    backgroundColor: theme.palette.background.paper,
     height: '100%',
     zIndex: 8,
     position: 'fixed',
@@ -213,7 +214,7 @@ export function getActiveGroupId(myPresence, groupsState, marketId, marketPresen
   return activeGroupId;
 }
 
-export function getSidebarGroups(navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
+export function getSidebarGroups(isDark, navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
   history, market, useGroupId, groupId, classes, useHoverFunctions, search, results, openMenuItems=[], inactiveGroups=[], pathname, resetFunction, 
   mobileLayout, messagesState, commentsState, investiblesState, investibleId) {
   const marketId = market.id;
@@ -276,7 +277,8 @@ export function getSidebarGroups(navListItemTextArray, groupsState, marketPresen
       }
     }
     const groupName = market.object_type === DEMO_TYPE && group.name === 'Single' && isGravatarDisplay ? singlePresence.name : group.name;
-    return {icon: myIcon, complexIcon: isGravatarDisplay, endIcon: outsetAvailable ? MoreVert : undefined,
+    return {icon: myIcon, complexIcon: isGravatarDisplay, iconColor: isDark ? DARK_ACTION_BUTTON_COLOR : 'black', 
+      endIcon: outsetAvailable ? MoreVert : undefined,
       text: groupName, num, numSuffix,
       isBold: isChosen, openMenuItems: isChosen ? openMenuItems : undefined,
       isBlue: groupId === group.id || pathname === '/',
@@ -329,6 +331,8 @@ function Screen(props) {
   const [userState] = useContext(AccountContext);
   const history = useHistory();
   const location = useLocation();
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const { pathname, search: querySearch, hash } = location;
   const { action, marketId: pathMarketIdRaw, investibleId: pathInvestibleId } = decomposeMarketPath(pathname);
   const values = queryString.parse(querySearch);
@@ -451,7 +455,7 @@ function Screen(props) {
   const isArchivedWorkspace = defaultMarket?.market_stage !== 'Active';
   if (!_.isEmpty(defaultMarket) && !_.isEmpty(groupsState[defaultMarket.id])&&!isArchivedWorkspace) {
     const { useHoverFunctions, resetFunction } = navigationOptions || {};
-    getSidebarGroups(navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
+    getSidebarGroups(isDark, navListItemTextArray, groupsState, marketPresencesState, groupPresencesState,
       history, defaultMarket, useGroupId || pathGroupId || hashGroupId, groupId, classes, useHoverFunctions, search,
       results, openMenuItems, inactiveGroups, pathname, resetFunction, mobileLayout, messagesState, commentsState, 
       investiblesState, investibleId);
@@ -466,7 +470,7 @@ function Screen(props) {
       navLowerListItemTextArray: !_.isEmpty(defaultMarket) && !isArchivedWorkspace ? [
         {
           icon: EditOutlinedIcon, text: intl.formatMessage({ id: 'compose' }),
-          isBold: composeChosen, isBlue: composeChosen,
+          isBold: composeChosen, isBlue: composeChosen, iconColor: isDark ? DARK_ACTION_BUTTON_COLOR : 'black', 
           target: `/wizard#type=${COMPOSE_WIZARD_TYPE.toLowerCase()}&marketId=${defaultMarket.id}`
         }
       ] : null,

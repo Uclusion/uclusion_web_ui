@@ -19,7 +19,7 @@ import { getMarketPresences } from '../../contexts/MarketPresencesContext/market
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks';
 import { hideShowExpandIcon } from '../../utils/windowUtils';
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
-import { ACTION_BUTTON_COLOR, INFO_COLOR } from '../../components/Buttons/ButtonConstants';
+import { DARK_ACTION_BUTTON_COLOR, useButtonColors } from '../../components/Buttons/ButtonConstants';
 import { getInboxCount, getInboxTarget, isInInbox } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import OutboxIcon from '../../components/CustomChip/Outbox';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
@@ -33,6 +33,7 @@ import { useLocation } from 'react-router-dom/cjs/react-router-dom.min';
 import NotificationCountChips from '../Dialog/NotificationCountChips';
 import md5 from 'md5';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 
 const useStyles = makeStyles(() => ({
@@ -67,6 +68,7 @@ function OtherWorkspaceMenus(props) {
   const [searchResults] = useContext(SearchResultsContext);
   const [online] = useContext(OnlineStateContext);
   const [gravatarExists, setGravatarExists] = useState(undefined);
+  const { actionButtonColor, infoColor } = useButtonColors();
   const { search } = searchResults;
   const markets = unfilteredMarkets.filter((market) => !market.is_banned);
   const notCurrentMarkets = markets.filter((market) => market.id !== defaultMarket?.id);
@@ -86,6 +88,8 @@ function OtherWorkspaceMenus(props) {
   const [presenceMenuId, setPresenceMenuId] = useState(undefined);
   const history = useHistory();
   const classes = useStyles();
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const { user } = userState;
   const email = user?.email;
   const notificationConfig = user?.notification_configs?.find((config) =>
@@ -159,14 +163,14 @@ function OtherWorkspaceMenus(props) {
           }
         }}><Tooltip placement='top' title={intl.formatMessage({ id: 'dialogAddParticipantsLabel' })}>
         <IconButton size="small" id="Addcollaborators">
-        <AddIcon htmlColor={defaultMarket ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
+        <AddIcon htmlColor={defaultMarket ? actionButtonColor : 'disabled'} fontSize="small" />
         </IconButton>
       </Tooltip></div>}>
           <SubMenu id='collaborators'
                   label={intl.formatMessage({ id: 'collaborators' })}
                   rootStyles={{
                     '.css-nx2aea': {
-                      backgroundColor: INFO_COLOR
+                      backgroundColor: infoColor
                     }
                   }}
                   style={{backgroundColor: (action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()) ? '#e0e0e0' : undefined, borderRadius: 22}}
@@ -237,10 +241,10 @@ function OtherWorkspaceMenus(props) {
             onMouseOut={hideShowExpandIcon('messages', false)}
             rootStyles={{
               '.css-18unl23': {
-                backgroundColor: INFO_COLOR
+                backgroundColor: infoColor
               },
               '.css-nx2aea': {
-                backgroundColor: INFO_COLOR
+                backgroundColor: infoColor
               }
             }}
             onClick={(event) => {
@@ -249,7 +253,7 @@ function OtherWorkspaceMenus(props) {
             }}
             key="messagesKey" open={messagesOpen}>
             <MenuItem style={{backgroundColor: action === 'inbox' ? '#e0e0e0' : undefined, borderRadius: 22}}
-              icon={<Inbox htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+              icon={<Inbox htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                 key="inboxKey" id="inboxId"
                 rootStyles={{
                   '.css-wx7wi4': {
@@ -271,7 +275,7 @@ function OtherWorkspaceMenus(props) {
               </Tooltip>
             </MenuItem>
             <MenuItem style={{backgroundColor: action === 'outbox' ? '#e0e0e0' : undefined, borderRadius: 22}}
-             icon={<OutboxIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+             icon={<OutboxIcon htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                     key="outboxKey" id="outboxId"
                     rootStyles={{
                       '.css-wx7wi4': {
@@ -299,10 +303,10 @@ function OtherWorkspaceMenus(props) {
                   onMouseOut={hideShowExpandIcon('integrations', false)}
                   rootStyles={{
                     '.css-18unl23': {
-                      backgroundColor: INFO_COLOR
+                      backgroundColor: infoColor
                     },
                     '.css-nx2aea': {
-                      backgroundColor: INFO_COLOR
+                      backgroundColor: infoColor
                     }
                   }}
                   onClick={(event) => {
@@ -311,7 +315,7 @@ function OtherWorkspaceMenus(props) {
                   }}
                   key="integrations" open={integrationsOpen}>
             {gravatarExists === false && (
-              <MenuItem icon={<Face htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+              <MenuItem icon={<Face htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                       key="gravatarIntegrationKey" id="gravatarIntegrationId"
                       rootStyles={{
                         '.css-wx7wi4': {
@@ -332,7 +336,7 @@ function OtherWorkspaceMenus(props) {
                 </Tooltip>
               </MenuItem>
             )}
-            <MenuItem icon={<VpnKey htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+            <MenuItem icon={<VpnKey htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                     key="cliIntegrationKey" id="cliIntegrationId"
                     rootStyles={{
                       '.css-wx7wi4': {
@@ -353,7 +357,7 @@ function OtherWorkspaceMenus(props) {
               </Tooltip>
             </MenuItem>
           {slackAddressable && (
-            <MenuItem icon={<AddAlert htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+            <MenuItem icon={<AddAlert htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                       key="slackIntegrationKey" id="slackIntegrationId"
                       rootStyles={{
                         '.css-wx7wi4': {
@@ -398,7 +402,7 @@ function OtherWorkspaceMenus(props) {
           navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
         }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddPlanning' })}>
         <IconButton size="small" id="createWorkspaceId">
-        <AddIcon htmlColor={defaultMarket ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
+        <AddIcon htmlColor={defaultMarket ? actionButtonColor : 'disabled'} fontSize="small" />
         </IconButton>
       </Tooltip></div>}
         onClick={(event) => {
@@ -409,10 +413,10 @@ function OtherWorkspaceMenus(props) {
         <SubMenu id='switchWorkspace' label={intl.formatMessage({ id: 'switchWorkspace' })}
                   rootStyles={{
                     '.css-ewdv3l': {
-                      backgroundColor: INFO_COLOR
+                      backgroundColor: infoColor
                     },
                     '.css-nx2aea': {
-                      backgroundColor: INFO_COLOR
+                      backgroundColor: infoColor
                     }
                   }}
                   style={{backgroundColor: (action === 'wizard' && type === WORKSPACE_WIZARD_TYPE.toLowerCase()) ? '#e0e0e0' : undefined, 
@@ -425,7 +429,7 @@ function OtherWorkspaceMenus(props) {
               return <React.Fragment key={key}/>;
             }
             return <MenuItem
-              icon={<AgilePlanIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+              icon={<AgilePlanIcon htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
               id={key}
               key={key}
               rootStyles={{
@@ -462,7 +466,7 @@ function OtherWorkspaceMenus(props) {
               return <React.Fragment key={key}/>;
             }
             return <MenuItem
-              icon={<AgilePlanIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+              icon={<AgilePlanIcon htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
               id={key}
               key={key}
               rootStyles={{

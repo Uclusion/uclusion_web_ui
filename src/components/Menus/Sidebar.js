@@ -9,14 +9,14 @@ import { ExpandLess, ExpandMore } from '@material-ui/icons'
 import { useIntl } from 'react-intl'
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks'
 import { PLANNING_TYPE } from '../../constants/markets'
-import { ACTION_BUTTON_COLOR, INFO_COLOR } from '../Buttons/ButtonConstants'
+import { useButtonColors } from '../Buttons/ButtonConstants'
 import AddIcon from '@material-ui/icons/Add'
 import NotificationCountChips from '../../pages/Dialog/NotificationCountChips'
 
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
     index, openMenuItems, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon, linkHref, resetFunction, tipText, idPrepend='', 
-    numSuffix=''} = properties;
+    numSuffix='', infoColor} = properties;
   if (!text) {
     return React.Fragment
   }
@@ -99,11 +99,11 @@ function processRegularItem(properties) {
         {textRepresentation}
       </MenuItem>
       {!_.isEmpty(openMenuItems) && (
-        <div style={{paddingLeft: '1rem', backgroundColor: INFO_COLOR}} key="openMenuItems">
+        <div style={{paddingLeft: '1rem', backgroundColor: infoColor}} key="openMenuItems">
           {openMenuItems.map((subItem, index) => {
             const { text, target, num, icon: Icon, onClickFunc, isBold } = subItem
             return processRegularItem({history, text, target, num, Icon, onClickFunc,
-              isBold, index, isSubMenu: true})
+              isBold, index, isSubMenu: true, infoColor})
           })}
         </div>
       )}
@@ -115,6 +115,7 @@ export default function Sidebar(props) {
   const history = useHistory();
   const intl = useIntl();
   const { marketId, navigationOptions, idPrepend='' } = props;
+  const { actionButtonColor, infoColor } = useButtonColors();
   const [pageStateFull, pageDispatch] = usePageStateReducer('sidebarMenus');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, marketId || 'sidebarState',
     {viewsOpen: true});
@@ -123,7 +124,7 @@ export default function Sidebar(props) {
   const firstFiveNavListItemTextArray = navListItemTextArray?.slice(0, 5);
   const moreFiveNavListItemTextArray = navListItemTextArray?.slice(5);
   return (
-    <ProSidebar width="16rem" backgroundColor={INFO_COLOR}>
+    <ProSidebar width="16rem" backgroundColor={infoColor}>
         {navMenu}
         {!_.isEmpty(navMenu) && (
           <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}
@@ -134,23 +135,23 @@ export default function Sidebar(props) {
               }
             }}><Tooltip placement='top' title={intl.formatMessage({ id: 'homeAddGroup' })}>
             <IconButton size="small" id="addViewId">
-            <AddIcon htmlColor={marketId ? ACTION_BUTTON_COLOR : 'disabled'} fontSize="small" />
+            <AddIcon htmlColor={marketId ? actionButtonColor : 'disabled'} fontSize="small" />
             </IconButton>
           </Tooltip></div>}>
             <SubMenu id='views'
                     label={intl.formatMessage({ id: 'viewInGroup' })}
                     rootStyles={{
                       '.ps-menuitem-root': {
-                        backgroundColor: INFO_COLOR
+                        backgroundColor: infoColor
                       }
                     }}
                       key="views" open >
                       {firstFiveNavListItemTextArray?.map((navItem, topIndex) => {
                         const { text, target, num, numSuffix, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
-                          onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
+                          onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
                         return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
                           isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                          tipText, idPrepend})
+                          tipText, idPrepend, infoColor, iconColor})
                       })}
                       {navListItemTextArray.length > 5 && (
                         <MenuItem
@@ -168,10 +169,10 @@ export default function Sidebar(props) {
                       )}
                       {viewsOpen && moreFiveNavListItemTextArray?.map((navItem, topIndex) => {
                         const { text, target, num, numSuffix, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
-                          onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
+                          onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
                         return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
                           isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                          tipText, idPrepend})
+                          tipText, idPrepend, infoColor, iconColor})
                       })}
               </SubMenu>
           </Menu>
@@ -183,10 +184,10 @@ export default function Sidebar(props) {
             onClick={listOnClick}>
             {navLowerListItemTextArray.map((navItem, topIndex) => {
               const { text, target, num, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,
-                onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref } = navItem;
+                onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
               return processRegularItem({history, text, target, num, Icon, complexIcon, onClickFunc, isBold,
                 isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                tipText, idPrepend})
+                tipText, idPrepend, infoColor, iconColor})
             })}
           </Menu>
         )}

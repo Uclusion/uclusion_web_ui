@@ -13,7 +13,7 @@ import { dehighlightMessage } from '../../contexts/NotificationsContext/notifica
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { Notifications } from '@material-ui/icons';
-import { WARNING_COLOR } from '../Buttons/ButtonConstants';
+import { useButtonColors } from '../Buttons/ButtonConstants';
 
 export function DaysEstimate(props) {
   const { value, onChange, isAssigned, estimateMessage, messagesDispatch } = props;
@@ -21,6 +21,7 @@ export function DaysEstimate(props) {
   const intl = useIntl();
   const history = useHistory();
   const [anchorEl, setAnchorEl] = useState(null);
+  const { warningColor } = useButtonColors();
 
   function handleDateChange (date) {
     setAnchorEl(null);
@@ -46,7 +47,7 @@ export function DaysEstimate(props) {
             navigate(history, formInboxItemLink(estimateMessage));
           }}
           icon={<Notifications fontSize='small' 
-            htmlColor={estimateMessage.is_highlighted ? WARNING_COLOR : undefined} />}
+            htmlColor={estimateMessage.is_highlighted ? warningColor : undefined} />}
           size='small'
           translationId='messagePresentComment'
         />

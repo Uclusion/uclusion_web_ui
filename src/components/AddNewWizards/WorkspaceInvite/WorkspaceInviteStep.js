@@ -25,16 +25,20 @@ import { useIntl } from 'react-intl';
 import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { INFO_COLOR } from '../../Buttons/ButtonConstants';
+import { useButtonColors } from '../../Buttons/ButtonConstants';
+import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 
 function WorkspaceInviteStep (props) {
   const { marketId } = props;
   const history = useHistory();
   const intl = useIntl();
   const theme = useTheme();
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const mobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const classes = useContext(WizardStylesContext);
   const screenClasses = screenStyles();
+  const { infoColor } = useButtonColors();
   const [userState] = useContext(AccountContext);
   const [marketsState] = useContext(MarketsContext);
   const [groupsState] = useContext(MarketGroupsContext);
@@ -51,7 +55,7 @@ function WorkspaceInviteStep (props) {
       d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
   </svg>;
   const navListItemTextArray = [];
-  getSidebarGroups(navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState, history, market, marketId, marketId, 
+  getSidebarGroups(isDark, navListItemTextArray, intl, groupsState, marketPresencesState, groupPresencesState, history, market, marketId, marketId, 
     screenClasses);
 
   return (
@@ -81,7 +85,7 @@ function WorkspaceInviteStep (props) {
       <div style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
         <Typography variant="body2" style={{ paddingBottom: '1.5rem' }}>
           {checkMark}ctrl+arrowRight to go to what most likely needs doing
-          <div style={{ backgroundColor: INFO_COLOR, width: '20rem', height: '60px' }}>
+          <div style={{ backgroundColor: infoColor, width: '20rem', height: '60px' }}>
             <NavigationChevrons action='invite' defaultMarket={market} chosenGroup={market?.id} pathMarketIdRaw={market?.id} 
               isArchivedWorkspace={false}/></div>
           {!mobileLayout && (

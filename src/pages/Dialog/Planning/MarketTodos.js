@@ -47,7 +47,7 @@ import { getDeterminateReducer } from '../../../contexts/ContextUtils';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { Eject, ExpandLess, KeyboardArrowLeft } from '@material-ui/icons';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
-import { ACTION_BUTTON_COLOR, WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
+import { useButtonColors, WARNING_COLOR } from '../../../components/Buttons/ButtonConstants';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { getNewBugNotifications } from '../../../components/Comments/Options';
@@ -184,6 +184,7 @@ function MarketTodos(props) {
   const location = useLocation();
   const { hash } = location;
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const { actionButtonColor, warningColor } = useButtonColors();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -439,24 +440,24 @@ function MarketTodos(props) {
           onChange={(event, value) => {
             bugDispatch(setTab(value));
           }}
-          indicatorColors={[WARNING_COLOR, '#e6e969', '#2F80ED']}
+          indicatorColors={[warningColor, '#e6e969', '#2F80ED']}
           style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
           <GmailTabItem icon={immediateTodosChip} label={intl.formatMessage({id: 'immediate'})}
                         color='black' tagLabel={unreadRedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                        tagColor={unreadRedCount > 0 ? WARNING_COLOR : undefined}
+                        tagColor={unreadRedCount > 0 ? warningColor : undefined}
                         tag={unreadRedCount > 0 ? `${unreadRedCount}` :
                           (_.size(redComments) > 0 ? `${_.size(redComments)}` : undefined)}
                         onDrop={onDropImmediate} toolTipId='immediateToolTip'
                         onDragOver={(event)=>event.preventDefault()}/>
           <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'able'})}
-                        color='black' tagColor={unreadYellowCount > 0 ? WARNING_COLOR : undefined}
+                        color='black' tagColor={unreadYellowCount > 0 ? warningColor : undefined}
                         tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
                           (_.size(yellowComments) > 0 ? `${_.size(yellowComments)}` : undefined)}
                         onDrop={onDropAble} toolTipId='normalToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
           <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'convenient'})}
-                        color='black' tagColor={unreadBlueCount > 0 ? WARNING_COLOR : undefined}
+                        color='black' tagColor={unreadBlueCount > 0 ? warningColor : undefined}
                         tagLabel={unreadBlueCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
                         tag={unreadBlueCount > 0 ? `${unreadBlueCount}` :
                           (_.size(blueComments) > 0 ? `${_.size(blueComments)}` : undefined)}
@@ -476,14 +477,14 @@ function MarketTodos(props) {
             )}
             {(checkAll || !_.isEmpty(determinate)) && (
               <TooltipIconButton
-                icon={<Eject htmlColor={ACTION_BUTTON_COLOR} />}
+                icon={<Eject htmlColor={actionButtonColor} />}
                 onClick={moveSelected} translationId="todosCreateStory" />
             )}
-            <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+            <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={actionButtonColor} />}
                                onClick={() => {
                                  bugDispatch(contractAll(data));
                                }} translationId="inboxCollapseAll" />
-            <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+            <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={actionButtonColor} />}
                                onClick={doExpandAll} translationId="inboxExpandAll" />
             <div style={{flexGrow: 1}}/>
             <Box fontSize={14} color="text.secondary">

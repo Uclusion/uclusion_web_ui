@@ -63,6 +63,8 @@ const messages = defineMessages({
   delete: 'Delete',
   ok: 'OK',
   help: 'Help Guide',
+  darkMode: 'Switch to Dark Mode',
+  lightMode: 'Switch to Light Mode',
   email_not_verified: 'E-Mail is not verified!',
   email_verified: 'E-Mail is verified',
   send_verification_email: 'Send verification E-Mail',

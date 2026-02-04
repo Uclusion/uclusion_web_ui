@@ -24,7 +24,7 @@ import { ContactSupport, Face, Payment, PermIdentity, VpnKey } from '@material-u
 import md5 from 'md5';
 import { SIGN_OUT_WIZARD_TYPE } from '../../constants/markets';
 import { OnlineStateContext } from '../../contexts/OnlineStateContext';
-import { ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
+import { useButtonColors } from '../../components/Buttons/ButtonConstants';
 
 const useStyles = makeStyles((theme) => ({
   name: {
@@ -112,6 +112,7 @@ function Identity () {
   const [online] = useContext(OnlineStateContext);
   const history = useHistory();
   const intl = useIntl();
+  const { actionButtonColor } = useButtonColors();
   const email = user?.email || '';
   const chipLabel = user?.name || '';
 
@@ -151,7 +152,7 @@ function Identity () {
     >
       {mobileLayout && (
         <IconButton onClick={recordPositionToggle} id="identityButton" style={{paddingLeft: 0}}>
-          <SettingsIcon htmlColor={ACTION_BUTTON_COLOR}/>
+          <SettingsIcon htmlColor={actionButtonColor}/>
         </IconButton>
       )}
       {!mobileLayout && (

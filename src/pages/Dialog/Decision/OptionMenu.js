@@ -22,7 +22,7 @@ import { moveInvestibleToCurrentVoting } from '../../../api/investibles';
 import { refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import LightbulbOutlined from '../../../components/CustomChip/LightbulbOutlined';
 import { ISSUE_TYPE } from '../../../constants/notifications';
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
+import { useButtonColors } from '../../../components/Buttons/ButtonConstants';
 
 const useStyles = makeStyles(() => ({
   paperMenu: {
@@ -45,6 +45,7 @@ function OptionMenu(props) {
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
+  const { actionButtonColor } = useButtonColors();
   const location = useLocation();
   const proposedStage = getProposedOptionsStage(marketStagesState, marketId);
   const underConsiderationStage = getInCurrentVotingStage(marketStagesState, marketId);
@@ -95,7 +96,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'promoteOption' })}>
               <IconButton size="small" id="promoteOptionButton" noPadding>
-                <ArrowUpward htmlColor={ACTION_BUTTON_COLOR} />
+                <ArrowUpward htmlColor={actionButtonColor} />
               </IconButton>
             </Tooltip>
           </div>
@@ -107,7 +108,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'demoteOption' })}>
               <IconButton size="small" id="demoteOptionButton" noPadding>
-                <ArrowDownward htmlColor={ACTION_BUTTON_COLOR} />
+                <ArrowDownward htmlColor={actionButtonColor} />
               </IconButton>
             </Tooltip>
           </div>
@@ -119,7 +120,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: 'makeTask' })}>
               <IconButton size="small" id="makeTaskButton" noPadding>
-                <ListAltIcon htmlColor={ACTION_BUTTON_COLOR} />
+                <ListAltIcon htmlColor={actionButtonColor} />
               </IconButton>
             </Tooltip>
           </div>
@@ -133,7 +134,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNewApproval` })}>
               <IconButton size="small" id="approvalButton" noPadding>
-                <ThumbsUpDownIcon htmlColor={ACTION_BUTTON_COLOR} />
+                <ThumbsUpDownIcon htmlColor={actionButtonColor} />
               </IconButton>
             </Tooltip>
           </div>
@@ -146,7 +147,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${TODO_TYPE}Option` })}>
               <IconButton size="small" id="createTODOOptionButton" noPadding>
-                <Notes htmlColor={ACTION_BUTTON_COLOR} />
+                <Notes htmlColor={actionButtonColor} />
               </IconButton>
             </Tooltip>
         </div>
@@ -158,7 +159,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${ISSUE_TYPE}` })}>
               <IconButton size="small" id="issueButton" noPadding>
-                <Block htmlColor={ACTION_BUTTON_COLOR} />
+                <Block htmlColor={actionButtonColor} />
               </IconButton>
             </Tooltip>
         </div>
@@ -170,7 +171,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${SUGGEST_CHANGE_TYPE}` })}>
               <IconButton size="small" id="suggestButton" noPadding>
-                <LightbulbOutlined htmlColor={ACTION_BUTTON_COLOR} />
+                <LightbulbOutlined htmlColor={actionButtonColor} />
               </IconButton>
             </Tooltip>
         </div>
@@ -182,7 +183,7 @@ function OptionMenu(props) {
           }}>
             <Tooltip placement='top' title={intl.formatMessage({ id: `createNew${QUESTION_TYPE}` })}>
               <IconButton size="small" id="questionButton" noPadding>
-                <QuestionIcon htmlColor={ACTION_BUTTON_COLOR} />
+                <QuestionIcon htmlColor={actionButtonColor} />
               </IconButton>
             </Tooltip>
         </div>

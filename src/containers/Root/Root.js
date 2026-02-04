@@ -46,7 +46,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import GroupManage from '../../pages/DialogSettings/GroupManage';
 import ManageMarketUsers from '../../pages/Dialog/UserManagement/ManageMarketUsers';
 import DemoFull from '../../pages/Dialog/Planning/DemoFull';
-import { LIGHT_BLUE_COLOR } from '../../components/Buttons/ButtonConstants';
+import { useButtonColors } from '../../components/Buttons/ButtonConstants';
 
 function Root(props) {
   const { authState } = props;
@@ -56,6 +56,7 @@ function Root(props) {
   const { pathname, search } = location;
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [userState] = useContext(AccountContext);
+  const { lightBlueColor } = useButtonColors();
   const [, setOnline, , setShowOfflineMessage] = useContext(OnlineStateContext);
   const [ticketState] = useContext(TicketIndexContext);
   const [marketsState] = useContext(MarketsContext);
@@ -282,7 +283,7 @@ function Root(props) {
       <CssBaseline/>
         <div style={{ width: '100%', height: '100%',
           backgroundColor: (hideMarket() && hideInvestible() && hideInbox() && hideOutbox() && hideDemoLoad() && hideDemosFull() 
-          && hideMarketLoad() && hideWorkspaceWizard() && hideCommentReplyEdit()) ? undefined : LIGHT_BLUE_COLOR}}>
+          && hideMarketLoad() && hideWorkspaceWizard() && hideCommentReplyEdit()) ? undefined : lightBlueColor}}>
           <Wizard hidden={hideWorkspaceWizard()} />
           <DemoFull hidden={hideDemosFull()} />
           {marketJoinedUser && (

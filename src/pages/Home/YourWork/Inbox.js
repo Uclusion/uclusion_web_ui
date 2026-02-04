@@ -6,7 +6,7 @@ import { ArrowBack, KeyboardArrowLeft, NotificationsActive } from '@material-ui/
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import _ from 'lodash';
 import { deleteOrDehilightMessages } from '../../../api/users';
-import { ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
+import { useButtonColors } from '../../../components/Buttons/ButtonConstants';
 import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import {
   dehighlightMessage,
@@ -59,6 +59,7 @@ function Inbox(props) {
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const { actionButtonColor } = useButtonColors();
   const { page } = inboxState;
   const [determinateState, determinateDispatch] = useReducer(getDeterminateReducer(),
     {determinate: {}, indeterminate: false, checkAll: false});
@@ -248,7 +249,7 @@ function Inbox(props) {
                 }} translationId="outboxMark" />
             )}
             {isOnWorkItem && mobileLayout && (
-              <TooltipIconButton icon={<ArrowBack style={{marginLeft: '0.5rem'}} htmlColor={ACTION_BUTTON_COLOR} />}
+              <TooltipIconButton icon={<ArrowBack style={{marginLeft: '0.5rem'}} htmlColor={actionButtonColor} />}
                                 onClick={() => {
                                   navigate(history, getInboxTarget());
                                 }} translationId="backToInbox" />
@@ -262,10 +263,10 @@ function Inbox(props) {
                 `${first} - ${last} of ${_.size(unpaginatedItems) > 0 ? _.size(unpaginatedItems) : 1}`
               )}
               <TooltipIconButton disabled={!hasLess} icon={<KeyboardArrowLeft
-                htmlColor={hasLess ? ACTION_BUTTON_COLOR : 'disabled'} />}
+                htmlColor={hasLess ? actionButtonColor : 'disabled'} />}
                                 onClick={goPreviousFunc} translationId="previousInbox" />
               <TooltipIconButton disabled={!hasMore} icon={<KeyboardArrowRight
-                htmlColor={hasMore ? ACTION_BUTTON_COLOR : 'disabled'} />}
+                htmlColor={hasMore ? actionButtonColor : 'disabled'} />}
                                 onClick={goNextFunc} translationId="nextInbox" />
             </Box>
           </div>

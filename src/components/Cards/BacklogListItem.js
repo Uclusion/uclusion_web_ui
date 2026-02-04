@@ -13,7 +13,7 @@ import { useHistory } from 'react-router';
 import _ from 'lodash';
 import GravatarGroup from '../Avatars/GravatarGroup';
 import DragImage from '../Dialogs/DragImage';
-import { WARNING_COLOR } from '../Buttons/ButtonConstants';
+import { useButtonColors } from '../Buttons/ButtonConstants';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { useIntl } from 'react-intl';
@@ -113,6 +113,7 @@ function BacklogListItem(props) {
   const history = useHistory();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
+  const { warningColor } = useButtonColors();
   const isNew = !_.isEmpty(newMessages);
 
   const recordPositionToggle = (event) => {
@@ -164,7 +165,7 @@ function BacklogListItem(props) {
               }
               {isNew && (
                 <Tooltip title={intl.formatMessage({ id: 'messagePresent' })}>
-                  <span className={'MuiTabItem-tag'} style={{backgroundColor: WARNING_COLOR, cursor: 'pointer',
+                  <span className={'MuiTabItem-tag'} style={{backgroundColor: warningColor, cursor: 'pointer',
                     marginLeft: '1rem', color: 'white', borderRadius: 22, paddingLeft: '6px', paddingRight: '6px',
                     paddingTop: '2px', maxHeight: '20px'}}
                         onClick={(event) => {

@@ -3,6 +3,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import {
   AppBar,
+  IconButton,
   Link,
   Paper,
   Toolbar,
@@ -21,6 +22,8 @@ import Identity from '../Screen/Identity';
 import { useHistory } from 'react-router';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import Brightness4Icon from '@material-ui/icons/Brightness4';
+import Brightness7Icon from '@material-ui/icons/Brightness7';
 import config from '../../config';
 import Hamburger from '../../components/Menus/Hamburger'
 import SearchBox from '../../components/Search/SearchBox'
@@ -28,7 +31,8 @@ import NavigationChevrons from '../../components/Menus/NavigationChevrons';
 import _ from 'lodash';
 import { OnboardingState } from '../../contexts/AccountContext/accountUserContextHelper';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
-import { ACTION_BUTTON_COLOR, INFO_COLOR } from '../../components/Buttons/ButtonConstants';
+import { useButtonColors, INFO_COLOR } from '../../components/Buttons/ButtonConstants';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -41,14 +45,14 @@ export const headerStyles = makeStyles((theme) => {
       marginTop: '0.5rem'
     },
     chip: {
-      color: 'black',
+      color: theme.palette.text.primary,
       '& .MuiBadge-badge': {
         border: '0.5px solid grey',
-        backgroundColor: '#fff',
+        backgroundColor: theme.palette.background.paper,
       },
     },
     fab: {
-      backgroundColor: '#fff',
+      backgroundColor: theme.palette.background.paper,
       borderRadius: '50%',
       width: '48px',
       height: '48px',
@@ -69,11 +73,11 @@ export const headerStyles = makeStyles((theme) => {
       flexGrow: 1,
     },
     appBar: {
-      background: INFO_COLOR,
+      background: theme.palette.type === 'dark' ? theme.palette.background.paper : INFO_COLOR,
       height: '60px',
     },
     appBarNoSidebar: {
-      background: '#fff',
+      background: theme.palette.background.paper,
       height: `67px`,
     },
 
@@ -114,7 +118,7 @@ export const headerStyles = makeStyles((theme) => {
       alignItems: 'center',
       height: '48px',
       borderRadius: '50%',
-      background: '#fff',
+      background: theme.palette.background.paper,
       boxShadow: 'none',
       paddingLeft: '10px'
     },
@@ -151,6 +155,8 @@ function Header (props) {
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const [online, , showOfflineMessage] = useContext(OnlineStateContext);
   const [userState] = useContext(AccountContext);
+  const [themeMode, toggleThemeMode] = useContext(ThemeModeContext);
+  const { actionButtonColor } = useButtonColors();
   const history = useHistory();
   const { appEnabled, navMenu, disableSearch, action, pathInvestibleId, defaultMarket, chosenGroup, 
     pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace, useLink, typeObjectId } = props;
@@ -261,8 +267,20 @@ function Header (props) {
           )}
           {!mobileLayout && (
             <Tooltip title={<FormattedMessage id="help"/>}>
-              <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: ACTION_BUTTON_COLOR }} id="helpIcon"
+              <HelpOutlineIcon style={{ cursor: 'pointer', marginLeft: '1rem', color: actionButtonColor }} id="helpIcon"
                                onClick={() => openInNewTab(config.helpLink)}/>
+            </Tooltip>
+          )}
+          {!mobileLayout && (
+            <Tooltip title={themeMode === 'dark' ? intl.formatMessage({ id: 'lightMode' }) : intl.formatMessage({ id: 'darkMode' })}>
+              <IconButton
+                onClick={toggleThemeMode}
+                style={{ marginLeft: '0.5rem', color: actionButtonColor }}
+                size="small"
+                id="themeToggle"
+              >
+                {themeMode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+              </IconButton>
             </Tooltip>
           )}
           {!isDemoLoading && (

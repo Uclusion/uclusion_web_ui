@@ -56,7 +56,8 @@ function InvesibleCommentLinker(props) {
     commentId,
     marketId,
     flushLeft,
-    flushBottom
+    flushBottom,
+    textColor
   } = props;
   const classes = useStyles();
   const [investiblesState] = useContext(InvestiblesContext);
@@ -120,7 +121,7 @@ function InvesibleCommentLinker(props) {
       }
                placement="top">
         <Button
-          style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap',
+          style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap', color: textColor,
             paddingLeft: 0}} disableRipple={true}
                 onClick={(event) => {
                   preventDefaultAndProp(event);

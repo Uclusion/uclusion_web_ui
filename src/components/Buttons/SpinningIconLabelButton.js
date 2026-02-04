@@ -19,7 +19,9 @@ const useStyles = makeStyles(
           textTransform: 'none'
         },
         fontSize: '1rem',
+        border: '1px solid rgba(0, 0, 0, 0.23)',
         borderRadius: '15px',
+        color: 'black',
         "&:hover": {
           backgroundColor: "#F1F1F1"
         }
@@ -33,6 +35,7 @@ const useStyles = makeStyles(
         fontSize: '1rem',
         maxHeight: '1.8rem',
         borderRadius: '15px',
+        color: 'black',
         "&:hover": {
           backgroundColor: "#F1F1F1"
         }

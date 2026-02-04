@@ -59,7 +59,7 @@ import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketSt
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPanel';
 import { getMarketClient } from '../../api/marketLogin';
-import { useButtonColors } from '../Buttons/ButtonConstants';
+import { ACTION_BUTTON_COLOR, useButtonColors } from '../Buttons/ButtonConstants';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 
 const useReplyStyles = makeStyles(
@@ -336,7 +336,7 @@ function Reply(props) {
           <Tooltip key='subTaskTipKey'
                    title={<FormattedMessage id='commentGroupedTaskLabel' />}>
             <div className={classes.commenter}>
-              <ListAltIcon style={{height: 16, width: 16, transform: 'translateY(3px)'}} />
+              <ListAltIcon htmlColor={ACTION_BUTTON_COLOR} style={{height: 16, width: 16, transform: 'translateY(3px)'}} />
             </div>
           </Tooltip>
         )}
@@ -366,7 +366,7 @@ function Reply(props) {
                 navigate(history, formInboxItemLink(myMessage));
               }
             }}
-            icon={<Notifications fontSize='small' htmlColor={myMessage?.is_highlighted ? warningColor : undefined} 
+            icon={<Notifications fontSize='small' htmlColor={myMessage?.is_highlighted ? warningColor : ACTION_BUTTON_COLOR} 
               style={{marginLeft: '1rem'}} />}
             size='small'
             translationId='messagePresentComment'
@@ -397,7 +397,7 @@ function Reply(props) {
               setOperationRunning(true);
               return getMarketClient(marketId).then((client) => client.users.pokeComment(comment.id).then(() => setOperationRunning(false)));
             }}
-            icon={<NotificationsActive fontSize='small' /> }
+            icon={<NotificationsActive fontSize='small' htmlColor={ACTION_BUTTON_COLOR} /> }
             size='small'
             translationId='poke'
             doFloatRight
@@ -406,7 +406,7 @@ function Reply(props) {
         {enableEditing && isEditable && mobileLayout && (
           <TooltipIconButton
             onClick={handleEditClick}
-            icon={<Edit fontSize='small' />}
+            icon={<Edit fontSize='small' htmlColor={ACTION_BUTTON_COLOR} />}
             size='small'
             translationId="edit"
             doFloatRight
@@ -421,7 +421,7 @@ function Reply(props) {
                 `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
                   BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}`)
             }}
-            icon={<Eject fontSize='small' /> }
+            icon={<Eject fontSize='small' htmlColor={ACTION_BUTTON_COLOR} /> }
             size='small'
             translationId='storyFromComment'
             doFloatRight
@@ -434,7 +434,7 @@ function Reply(props) {
               preventDefaultAndProp(event);
               return moveToTask();
             }}
-            icon={<ListAltIcon fontSize='small' />}
+            icon={<ListAltIcon fontSize='small' htmlColor={ACTION_BUTTON_COLOR} />}
             size='small'
             translationId='ungroupLabel'
             doFloatRight
@@ -452,7 +452,7 @@ function Reply(props) {
                   setOperationRunning(false);
                 });
             }}
-            icon={<Done fontSize='small' />}
+            icon={<Done fontSize='small' htmlColor={ACTION_BUTTON_COLOR} />}
             size='small'
             translationId="commentResolveLabel"
             doFloatRight
@@ -483,13 +483,13 @@ function Reply(props) {
             }}
             variant="text"
           >
-            {intl.formatMessage({ id: "issueReplyLabel" })} {hasReply(comment) && <EditIcon style={{fontSize: '1rem'}} fontSize='small' />}
+            {intl.formatMessage({ id: "issueReplyLabel" })} {hasReply(comment) && <EditIcon htmlColor={ACTION_BUTTON_COLOR} style={{fontSize: '1rem'}} fontSize='small' />}
           </Button>
         )}
         {enableEditing && isTopLevelSubTask && (
           <FormControlLabel
             id='inProgressCheckbox'
-            style={{maxHeight: '0.7rem', marginTop: '0.35rem', marginBottom: '0.35rem'}}
+            style={{maxHeight: '0.7rem', marginTop: '0.35rem', marginBottom: '0.35rem', color: 'black'}}
             control={
               <Checkbox
                 size='small'

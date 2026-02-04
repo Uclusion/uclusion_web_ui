@@ -372,7 +372,14 @@ export const useCommentStyles = makeStyles(
         paddingRight: '0.5rem',
         marginRight: '0.5rem',
         marginTop: '0.25rem'
-      }
+      },
+      rootCheckbox: {
+        color: 'black',
+        opacity: 0.54,
+      },
+      checkedCheckbox: {
+        opacity: 1,
+      },
   }
 },
 { name: "Comment" }
@@ -828,7 +835,8 @@ function Comment(props) {
   const isDeletable = !isInbox && !beingEdited && (commentType === REPORT_TYPE || isEditable || resolved);
   const linker = 
     <div style={{marginRight: '1rem', marginTop: '-0.6rem'}}>
-      <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} flushBottom />
+      <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} flushBottom 
+          textColor='black' />
     </div>;
   const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>
@@ -869,7 +877,8 @@ function Comment(props) {
       </Typography>
     )}
     {!mobileLayout && (
-      <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '1rem'}}>
+      <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '1rem', color: 'black', 
+          opacity: 0.87}}>
         Created <UsefulRelativeTime value={comment.created_at}/>
         {noAuthor && !reallyNoAuthor &&
           `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.
@@ -1071,9 +1080,13 @@ function Comment(props) {
             {commentType === TODO_TYPE && investibleId && !removeActions && enableEditing && !inBacklog && (
               <FormControlLabel
                 id='inProgressCheckbox'
-                style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem'}}
+                style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem', color: 'black'}}
                 control={
                   <Checkbox
+                    classes={{
+                      root: classes.rootCheckbox,
+                      checked: classes.checkedCheckbox,
+                    }}
                     id={`inProgressCheckbox${id}`}
                     checked={operationRunning === `inProgressCheckbox${id}` ? !inProgress : inProgress}
                     onClick={handleToggleInProgress}

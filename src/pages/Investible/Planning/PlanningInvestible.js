@@ -83,7 +83,8 @@ import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
 import { dehighlightMessage, isInInbox } from '../../../contexts/NotificationsContext/notificationsContextHelper';
-import { useButtonColors } from '../../../components/Buttons/ButtonConstants';
+import { DARK_ACTION_BUTTON_COLOR, useButtonColors } from '../../../components/Buttons/ButtonConstants';
+import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 
 export const usePlanningInvestibleStyles = makeStyles(
   theme => ({
@@ -1049,6 +1050,8 @@ export function Assignments(props) {
     unaccceptedList, isLarge, unaccceptedMessage, messagesDispatch } = props;
   const intl = useIntl();
   const history = useHistory();
+  const [themeMode] = React.useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const metaClasses = useMetaDataStyles();
   const { warningColor } = useButtonColors();
   const safeAssigned = assigned || [];
@@ -1077,7 +1080,7 @@ export function Assignments(props) {
             <div style={{marginTop: '-0.3rem'}}>
               <Tooltip placement='top' title={intl.formatMessage({ id: toolTipId })}>
                 <IconButton size="small" id="addViewId" onClick={toggleIconButton}>
-                  <AddIcon htmlColor='black' fontSize="small" />
+                  <AddIcon htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} fontSize="small" />
                 </IconButton>
               </Tooltip>
             </div>

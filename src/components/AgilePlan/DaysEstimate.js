@@ -13,13 +13,16 @@ import { dehighlightMessage } from '../../contexts/NotificationsContext/notifica
 import TooltipIconButton from '../Buttons/TooltipIconButton';
 import { useHistory } from 'react-router-dom/cjs/react-router-dom.min';
 import { Notifications } from '@material-ui/icons';
-import { useButtonColors } from '../Buttons/ButtonConstants';
+import { DARK_ACTION_BUTTON_COLOR, useButtonColors } from '../Buttons/ButtonConstants';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 export function DaysEstimate(props) {
   const { value, onChange, isAssigned, estimateMessage, messagesDispatch } = props;
   const classes = usePlanFormStyles();
   const intl = useIntl();
   const history = useHistory();
+  const [themeMode] = React.useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const [anchorEl, setAnchorEl] = useState(null);
   const { warningColor } = useButtonColors();
 
@@ -47,7 +50,7 @@ export function DaysEstimate(props) {
             navigate(history, formInboxItemLink(estimateMessage));
           }}
           icon={<Notifications fontSize='small' 
-            htmlColor={estimateMessage.is_highlighted ? warningColor : undefined} />}
+            htmlColor={estimateMessage.is_highlighted ? warningColor : (isDark ? DARK_ACTION_BUTTON_COLOR : undefined)} />}
           size='small'
           translationId='messagePresentComment'
         />
@@ -73,6 +76,7 @@ export function DaysEstimate(props) {
       {getDueText()}
       <SpinningIconLabelButton
         icon={EventIcon}
+        iconColor={isDark ? DARK_ACTION_BUTTON_COLOR : undefined}
         iconOnly
         disabled={!isAssigned}
         doSpin={false}

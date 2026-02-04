@@ -72,6 +72,8 @@ import { requiresAction } from '../../../components/AddNewWizards/JobStage/JobSt
 import GravatarGroup from '../../../components/Avatars/GravatarGroup';
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import NameField, { getNameStoredState } from '../../../components/TextFields/NameField';
+import { DARK_ACTION_BUTTON_COLOR } from '../../../components/Buttons/ButtonConstants';
+import { ThemeModeContext } from '../../../contexts/ThemeModeContext';
 
 const useStyles = makeStyles(
   () => ({
@@ -89,6 +91,8 @@ export default function PlanningInvestibleNav(props) {
     updatePageState, investibleId, yourVote } = props;
   const intl = useIntl();
   const history = useHistory();
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const [labelHasValue, setLabelHasValue] = useState(false);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
@@ -327,14 +331,15 @@ export default function PlanningInvestibleNav(props) {
           <SpinningIconLabelButton
             doSpin={false}
             onClick={()=>navigate(history, formWizardLink(APPROVAL_WIZARD_TYPE, marketId, investibleId, groupId))}
-            icon={ThumbUp} id='accept'>
+            icon={ThumbUp} iconColor={isDark ? DARK_ACTION_BUTTON_COLOR : undefined} id='accept'>
             {intl.formatMessage({ id: 'accept' })}
           </SpinningIconLabelButton>
         </div>
       )}
       {unaccepted && (
         <div style={{display: 'flex'}}>
-          <SpinningIconLabelButton onClick={myRejectInvestible} icon={ThumbDown} id='reject'>
+          <SpinningIconLabelButton onClick={myRejectInvestible} icon={ThumbDown} 
+             iconColor={isDark ? DARK_ACTION_BUTTON_COLOR : undefined} id='reject'>
             {intl.formatMessage({ id: 'reject' })}
           </SpinningIconLabelButton>
         </div>
@@ -443,6 +448,7 @@ export default function PlanningInvestibleNav(props) {
           <NameField id={`label${investibleId}`} setHasValue={setLabelHasValue} maxWidth='10rem'
           placeHolder={intl.formatMessage({ id: 'label' })} label={'labelPlaceholder'} />
           <SpinningIconLabelButton
+            iconColor={isDark ? DARK_ACTION_BUTTON_COLOR : undefined}
               style={{marginBottom: '1rem'}}
                 disabled={!labelHasValue}
                 onClick={addLabel}
@@ -658,6 +664,8 @@ function MarketMetaData(props) {
     showDiff
   } = pageState
   const history = useHistory();
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const [diffState] = useContext(DiffContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [messagesState] = useContext(NotificationsContext);
@@ -736,6 +744,7 @@ function MarketMetaData(props) {
       {myMessageDescription && diff && (
         <>
           <SpinningIconLabelButton icon={showDiff ? ExpandLess : ExpandMoreIcon}
+                                   iconColor={isDark ? DARK_ACTION_BUTTON_COLOR : undefined}
                                    onClick={toggleDiffShow} doSpin={false}>
             {intl.formatMessage({ id: showDiff ? 'diffDisplayDismissLabel' : 'diffDisplayShowLabel'})}
           </SpinningIconLabelButton>

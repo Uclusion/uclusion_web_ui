@@ -11,10 +11,9 @@ function MentionListItem(props) {
   const { value: name, email } = mentionResult;
 
   return (
-    <GravatarAndName
-      name={name}
-      email={email}
-    />
+    <div style={{ color: 'black' }}>
+       <GravatarAndName name={name} email={email} />
+    </div>
   );
 }
 

@@ -177,7 +177,6 @@ export const usePlanFormStyles = makeStyles(
       overflowY: 'hidden',
       border: '1px solid #cfcfcf',
       borderRadius: 8,
-      backgroundColor: 'white',
       marginBottom: 15,
       [theme.breakpoints.down('sm')]: {
         marginRight: 0

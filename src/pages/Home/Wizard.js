@@ -104,6 +104,7 @@ function Wizard(props) {
       title={intl.formatMessage({ 'id': 'wizardBreadCrumb' })}
       tabTitle={intl.formatMessage({ id: 'wizardBreadCrumb' })}
       showBanner={isDemo}
+      isWizard
       hidden={hidden}
     >
       {typeObjectId && (

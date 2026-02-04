@@ -12,7 +12,7 @@ export const LIGHTER_BLUE_COLOR = '#F8FBFC';
 // Dark mode colors
 export const DARK_ACTION_BUTTON_COLOR = "#b0b0b0";
 const DARK_WARNING_COLOR = '#FF6B6B';
-const DARK_INFO_COLOR = '#2a3a3c';
+export const DARK_INFO_COLOR = '#2a3a3c';
 export const DARK_COUNT_COLOR = '#FFB347';
 const DARK_LIGHT_BLUE_COLOR = '#1e2e30';
 export const DARK_LIGHTER_BLUE_COLOR = '#1a2628';

@@ -61,6 +61,7 @@ const darkThemeDefinition = {
       default: '#121212',
       paper: '#2a3a3c',
       actionButton: '#D9DDDC',
+      wizard: '#8c8c8c',
     },
     text: {
       primary: '#ffffff',

@@ -369,7 +369,8 @@ function Screen(props) {
     outBoxMessages,
     leftNavAdjust,
     noPadDesktop,
-    isDemoChoice
+    isDemoChoice,
+    isWizard = false
   } = props;
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
@@ -482,7 +483,8 @@ function Screen(props) {
   const sideNavigationContents = <Sidebar navigationOptions={navigationMenu} marketId={defaultMarket?.id} />;
   const renderBanner = showBanner && banner && !hidden;
   return (
-    <div className={hidden ? classes.hidden : classes.root} id="root">
+    <div className={hidden ? classes.hidden : classes.root} id="root" 
+       style={{backgroundColor: isWizard ? theme.palette.background.wizard : undefined}}>
       {!hidden && (
         <Header
           title={title}

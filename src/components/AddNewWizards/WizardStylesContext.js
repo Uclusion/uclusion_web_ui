@@ -81,7 +81,6 @@ export const wizardStyles = makeStyles(
       input: {
         borderRadius: 8,
         padding: '4px',
-        backgroundColor: 'white',
         width: '100%',
         '& > div:before': {
           borderBottom: 0

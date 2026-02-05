@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import React from 'react'
+import React, { useContext } from 'react'
 import { navigate, preventDefaultAndProp } from '../../utils/marketIdPathFunctions'
 import { useHistory } from 'react-router'
 import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar'
@@ -12,6 +12,7 @@ import { PLANNING_TYPE } from '../../constants/markets'
 import { useButtonColors } from '../Buttons/ButtonConstants'
 import AddIcon from '@material-ui/icons/Add'
 import NotificationCountChips from '../../pages/Dialog/NotificationCountChips'
+import { ThemeModeContext } from '../../contexts/ThemeModeContext'
 
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
@@ -114,6 +115,8 @@ function processRegularItem(properties) {
 export default function Sidebar(props) {
   const history = useHistory();
   const intl = useIntl();
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const { marketId, navigationOptions, idPrepend='' } = props;
   const { actionButtonColor, infoColor } = useButtonColors();
   const [pageStateFull, pageDispatch] = usePageStateReducer('sidebarMenus');
@@ -127,7 +130,10 @@ export default function Sidebar(props) {
     <ProSidebar width="16rem" backgroundColor={infoColor} style={{borderRightWidth: '0px'}}>
         {navMenu}
         {!_.isEmpty(navMenu) && (
-          <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}
+          <Menu rootStyles={{
+            '.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'},
+            '.ps-menu-button:hover': {backgroundColor: isDark ? 'black' : undefined}
+          }}
             renderExpandIcon={() => <div onClick={(event)=> {
               preventDefaultAndProp(event);
               if (marketId) {
@@ -180,7 +186,10 @@ export default function Sidebar(props) {
         <div style={{marginBottom: '1rem'}} />
         {!_.isEmpty(navLowerListItemTextArray) && (
           <Menu 
-            rootStyles={{'.ps-menu-button': {height: 'unset', paddingLeft: '10px'}}}
+            rootStyles={{
+              '.ps-menu-button': {height: 'unset', paddingLeft: '10px'},
+              '.ps-menu-button:hover': {backgroundColor: isDark ? 'black' : undefined}
+            }}
             onClick={listOnClick}>
             {navLowerListItemTextArray.map((navItem, topIndex) => {
               const { text, target, num, icon: Icon, complexIcon, onClickFunc, isBold, isBlue, openMenuItems,

@@ -155,7 +155,10 @@ function OtherWorkspaceMenus(props) {
   return (
     <>
       <ProMenu 
-        rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}
+        rootStyles={{
+          '.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'},
+          '.ps-menu-button:hover': {backgroundColor: isDark ? 'black' : undefined}
+        }}
         renderExpandIcon={() => <div onClick={(event)=> {
           preventDefaultAndProp(event);
           if (defaultMarket) {
@@ -199,7 +202,10 @@ function OtherWorkspaceMenus(props) {
                   MenuListProps={{ disablePadding: true }}
                 >
                   <Sidebar width="8rem">
-                    <ProMenu rootStyles={{'.ps-menu-button': {height: '30px'}}}>
+                    <ProMenu rootStyles={{
+                        '.ps-menu-button': {height: '30px'},
+                        '.ps-menu-button:hover': {backgroundColor: isDark ? 'black' : undefined}
+                      }}>
                       {_.isEmpty(presenceMenuGroups) && (
                         <div style={{marginLeft: '10px', fontWeight: 'bold', marginTop: '8px'}}>
                           {intl.formatMessage({ id: 'noViews' })}
@@ -232,7 +238,10 @@ function OtherWorkspaceMenus(props) {
           </ProMenu>
           <div style={{marginBottom: '1rem', marginTop: '0.5rem'}} />
           <ProMenu 
-        rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}
+            rootStyles={{
+              '.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'},
+              '.ps-menu-button:hover': {backgroundColor: isDark ? 'black' : undefined}
+            }}
         renderExpandIcon={({ open }) => open ? <ExpandLess htmlColor="#8f8f8f" style={{marginTop: '0.3rem', visibility: 'hidden'}} />
           : <ExpandMore htmlColor="#8f8f8f" style={{marginTop: '0.3rem', visibility: 'hidden'}} />}>
           <SubMenu id='messages'
@@ -396,7 +405,10 @@ function OtherWorkspaceMenus(props) {
         </SubMenu>
         </ProMenu>
         <div style={{height: '10px'}} />
-        <ProMenu rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}
+        <ProMenu rootStyles={{
+          '.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'},
+          '.ps-menu-button:hover': {backgroundColor: isDark ? 'black' : undefined}
+        }}
         renderExpandIcon={() => <div onClick={(event)=> {
           preventDefaultAndProp(event);
           navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);

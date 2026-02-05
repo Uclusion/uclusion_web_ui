@@ -17,7 +17,6 @@ import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGr
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getPageReducerPage, usePageStateReducer } from '../../components/PageState/pageStateHooks';
-import { hideShowExpandIcon } from '../../utils/windowUtils';
 import GravatarGroup from '../../components/Avatars/GravatarGroup';
 import { DARK_ACTION_BUTTON_COLOR, useButtonColors } from '../../components/Buttons/ButtonConstants';
 import { getInboxCount, getInboxTarget, isInInbox } from '../../contexts/NotificationsContext/notificationsContextHelper';
@@ -242,12 +241,10 @@ function OtherWorkspaceMenus(props) {
               '.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'},
               '.ps-menu-button:hover': {backgroundColor: isDark ? 'black' : undefined}
             }}
-        renderExpandIcon={({ open }) => open ? <ExpandLess htmlColor="#8f8f8f" style={{marginTop: '0.3rem', visibility: 'hidden'}} />
-          : <ExpandMore htmlColor="#8f8f8f" style={{marginTop: '0.3rem', visibility: 'hidden'}} />}>
+        renderExpandIcon={({ open }) => open ? <ExpandLess htmlColor="#8f8f8f" style={{marginTop: '0.3rem'}} />
+          : <ExpandMore htmlColor="#8f8f8f" style={{marginTop: '0.3rem'}} />}>
           <SubMenu id='messages'
             label={intl.formatMessage({ id: 'messages' })}
-            onMouseOver={hideShowExpandIcon('messages', true)}
-            onMouseOut={hideShowExpandIcon('messages', false)}
             rootStyles={{
               '.css-18unl23': {
                 backgroundColor: infoColor
@@ -308,8 +305,6 @@ function OtherWorkspaceMenus(props) {
           <div style={{marginBottom: '1rem'}} />
           <SubMenu id='integrations'
                   label={intl.formatMessage({ id: 'integrationPreferencesHeader' })}
-                  onMouseOver={hideShowExpandIcon('integrations', true)}
-                  onMouseOut={hideShowExpandIcon('integrations', false)}
                   rootStyles={{
                     '.css-18unl23': {
                       backgroundColor: infoColor

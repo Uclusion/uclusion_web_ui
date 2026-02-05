@@ -32,17 +32,3 @@ export function invalidEditEvent(event, history) {
   }
   return isLink || event === true;
 }
-
-export function hideShowExpandIcon(id, isShow) {
-  return () => {
-    const parent = document.getElementById(id);
-    const item = parent?.querySelector('[class*="ps-submenu-expand-icon"]');
-    if (item) {
-      item.style.visibility = isShow ? 'visible' : 'hidden';
-      const svgIcon = item.querySelector('.MuiSvgIcon-root');
-      if (svgIcon) {
-        svgIcon.style.visibility = isShow ? 'visible' : 'hidden';
-      }
-    } 
-  };
-}

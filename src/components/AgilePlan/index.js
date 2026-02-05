@@ -8,6 +8,16 @@ import { Typography,} from '@material-ui/core'
 
 export const usePlanFormStyles = makeStyles(
   theme => ({
+    rootCheckbox: {
+      color: 'black',
+      opacity: 0.54,
+      '&$checked': {
+        color: theme.palette.type === 'dark' ? 'black' : undefined,
+      },
+    },
+    checkedCheckbox: {
+      opacity: 1,
+    },
     cardContent: {
       display: "flex",
       flexWrap: "wrap",

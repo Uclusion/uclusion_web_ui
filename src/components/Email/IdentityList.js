@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Checkbox,
@@ -16,9 +16,12 @@ import SearchIcon from '@material-ui/icons/Search';
 import GravatarAndName from '../Avatars/GravatarAndName';
 import { usePlanFormStyles } from '../AgilePlan';
 import { fixName } from '../../utils/userFunctions';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 function IdentityList (props) {
   const { participants, checked, setChecked } = props;
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const classes = usePlanFormStyles();
   const [searchValueLower, setSearchValueLower] = useState(undefined);
   function getCheckToggle(id) {
@@ -45,11 +48,15 @@ function IdentityList (props) {
       <ListItem
         key={useId}
         onClick={getCheckToggle(useId)}
-        className={isChecked ? clsx(classes.unselected, classes.selected) : classes.unselected}
       >
         <ListItemIcon>
           <Checkbox
             checked={isChecked}
+            color={isDark ? 'default' : undefined}
+            classes={{
+              root: classes.rootCheckbox,
+              checked: classes.checkedCheckbox,
+            }}
           />
         </ListItemIcon>
         <ListItemText>

@@ -55,7 +55,7 @@ function WorkspaceInviteLinker(props) {
         <Button
           variant="outlined"
           id='copyInviteLink'
-          style={{textTransform: 'none', justifyContent: 'left', backgroundColor: 'white'}} disableRipple={true}
+          style={{textTransform: 'none', justifyContent: 'left'}} disableRipple={true}
                 onClick={(event) => {
                   preventDefaultAndProp(event);
                   navigator.clipboard.writeText(link);

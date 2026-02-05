@@ -288,7 +288,7 @@ export default function PlanningInvestibleNav(props) {
           {name}
         </div>
       )}
-      <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} flushLeft />
+      <InvesibleCommentLinker investibleId={investibleId} marketId={marketId} flushLeft textColor={isDark ? 'white' : undefined} />
       {isInAccepted && (
         <DaysEstimate marketId={marketId} onChange={handleDateChange} value={marketDaysEstimate}
                       isAssigned={isAssigned} estimateMessage={estimateMessage} messagesDispatch={messagesDispatch} />

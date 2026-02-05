@@ -124,7 +124,7 @@ export default function Sidebar(props) {
   const firstFiveNavListItemTextArray = navListItemTextArray?.slice(0, 5);
   const moreFiveNavListItemTextArray = navListItemTextArray?.slice(5);
   return (
-    <ProSidebar width="16rem" backgroundColor={infoColor}>
+    <ProSidebar width="16rem" backgroundColor={infoColor} style={{borderRightWidth: '0px'}}>
         {navMenu}
         {!_.isEmpty(navMenu) && (
           <Menu rootStyles={{'.ps-menu-button': {paddingLeft: '16px', height: '30px', overflow: 'hidden'}}}

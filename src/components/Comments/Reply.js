@@ -146,6 +146,13 @@ const useReplyStyles = makeStyles(
         overflow: 'unset',
         cursor: 'pointer'
       },
+      rootCheckbox: {
+        color: 'black',
+        opacity: 0.54,
+      },
+      checkedCheckbox: {
+        opacity: 1,
+      },
       containerBlueLink: {
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px blue",
         overflow: 'unset',
@@ -498,6 +505,10 @@ function Reply(props) {
                 size='small'
                 id={`inProgressCheckbox${comment.id}`}
                 checked={operationRunning === `inProgressCheckbox${comment.id}` ? !inProgress : inProgress}
+                classes={{
+                  root: classes.rootCheckbox,
+                  checked: classes.checkedCheckbox,
+                }}
                 onClick={handleToggleInProgress}
                 disabled={!myPresenceIsAssigned || operationRunning !== false}
               />

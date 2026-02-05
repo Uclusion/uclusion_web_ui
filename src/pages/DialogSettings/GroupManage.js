@@ -25,6 +25,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -49,6 +50,8 @@ function GroupManage() {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [, groupPresencesDispatch] = useContext(GroupMembersContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
@@ -102,6 +105,7 @@ function GroupManage() {
             {isAddGroup && !isEveryoneView && (
               <CardActions style={{paddingTop: '2rem', paddingLeft: '1rem'}}>
                 <SpinningIconLabelButton onClick={handleSaveParticipants} icon={SettingsBackupRestore}
+                                         useDark={isDark}
                                          id="participantAddButton"
                                          disabled={_.isEmpty(checked)}>
                   {intl.formatMessage({ id: mobileLayout ? 'addExistingCollaboratorMobile' :

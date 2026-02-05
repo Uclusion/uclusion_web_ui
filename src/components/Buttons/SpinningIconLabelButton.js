@@ -26,6 +26,20 @@ const useStyles = makeStyles(
           backgroundColor: "#F1F1F1"
         }
       },
+      buttonDark: {
+        marginRight: '1rem',
+        '& .MuiButton-label': {
+          textTransform: 'none'
+        },
+        fontSize: '1rem',
+        border: '1px solid rgba(0, 0, 0, 0.23)',
+        borderRadius: '15px',
+        color: 'black',
+        backgroundColor: "#F1F1F1",
+        "&:hover": {
+          backgroundColor: "grey"
+        }
+      },
       buttonWhiteBackground: {
         backgroundColor: "#FFF",
         marginRight: '1rem',
@@ -80,6 +94,7 @@ function SpinningIconLabelButton(props) {
     id,
     toolTipId,
     focus,
+    useDark,
     ...rest
   } = props;
   const intl = useIntl();
@@ -112,7 +127,7 @@ function SpinningIconLabelButton(props) {
     style={{whiteSpace: 'nowrap', width: 'fit-content', minWidth: 0}}
     startIcon={iconOnly ? undefined : myIcon}
     className={noMargin ? (whiteBackground ? classes.buttonNoMarginWhite : classes.buttonNoMargin) :
-      (whiteBackground ? classes.buttonWhiteBackground : classes.button)}
+      (whiteBackground ? classes.buttonWhiteBackground : (useDark && !myDisabled ? classes.buttonDark : classes.button))}
     {...rest}
   >
     {iconOnly && myIcon}

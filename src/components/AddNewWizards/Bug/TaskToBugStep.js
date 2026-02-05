@@ -28,7 +28,13 @@ const useStyles = makeStyles(
       certaintyValue: {
         borderRadius: 6,
         paddingLeft: theme.spacing(1),
-        margin: theme.spacing(0, 2, 2, 0)
+        margin: theme.spacing(0, 2, 2, 0),
+        '& .MuiRadio-root': {
+          color: theme.palette.type === 'dark' ? 'rgba(255, 255, 255, 0.7)' : undefined,
+        },
+        '& .MuiRadio-colorSecondary.Mui-checked': {
+          color: theme.palette.type === 'dark' ? '#ffffff' : undefined,
+        }
       },
       certaintyValueLabel: {
         fontWeight: "bold"

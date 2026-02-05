@@ -69,9 +69,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   paperMenu: {
-    border: '0.5px solid grey',
-    paddingTop: '1rem',
-    paddingBottom: '1rem'
+    border: '0.5px solid grey'
   },
   listAction: {
     paddingTop: '1rem',
@@ -192,7 +190,7 @@ function WorkspaceMenu(props) {
         >
           <ProSidebar width="14rem">
             <ProMenu 
-            rootStyles={{'.ps-menu-button': {height: 'unset', paddingLeft: '10px'}}}
+            rootStyles={{'.ps-menu-button': {height: 'unset', paddingLeft: '10px', color: 'black'}}}
             renderExpandIcon={({ open }) => open ? <ExpandLess style={{marginTop: '0.3rem'}} />: <ExpandMore style={{marginTop: '0.3rem'}} />}>
               <MenuItem icon={<SettingsIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                   rootStyles={{

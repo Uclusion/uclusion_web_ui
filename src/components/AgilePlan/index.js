@@ -186,8 +186,7 @@ export const usePlanFormStyles = makeStyles(
       paddingLeft: 0,
     },
     input: {
-      backgroundColor: '#ecf0f1',
-      border: 0,
+      border: '1px solid #cfcfcf',
       borderRadius: 8,
       padding: '4px',
       '& > div': {

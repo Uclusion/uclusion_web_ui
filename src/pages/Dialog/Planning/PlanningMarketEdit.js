@@ -154,10 +154,10 @@ function PlanningMarketEdit() {
         </Grid>
       </CardContent>
       <CardActions className={myClasses.actions}>
-        <SpinningIconLabelButton onClick={clear} doSpin={false} icon={Clear}>
+        <SpinningIconLabelButton onClick={clear} doSpin={false} icon={Clear} whiteBackground>
           {intl.formatMessage({ id: 'clear' })}
         </SpinningIconLabelButton>
-        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} id="planningDialogUpdateButton">
+        <SpinningIconLabelButton onClick={handleSave} icon={SettingsBackupRestore} whiteBackground id="planningDialogUpdateButton">
           {intl.formatMessage({ id: 'marketEditSaveLabel' })}
         </SpinningIconLabelButton>
       </CardActions>

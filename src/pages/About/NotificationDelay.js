@@ -22,7 +22,6 @@ function NotificationDelay(props) {
     <Select
       value={value}
       onChange={onChange}
-      style={{backgroundColor: "#ecf0f1"}}
       disabled={disabled}
     >
       <MenuItem value={0}>

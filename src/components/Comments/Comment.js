@@ -254,6 +254,9 @@ export const useCommentStyles = makeStyles(
       avatarWrapper: {
         marginRight: "20px"
       },
+      selectIcon: {
+        color: 'black'
+      },
       containerRed: {
         boxShadow: "0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px red",
         overflow: "visible",
@@ -1116,11 +1119,15 @@ function Comment(props) {
             {!investibleId && !removeActions && enableEditing && !mobileLayout && (
               <FormControlLabel
                 id='isVisibleCheckbox'
-                style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem'}}
+                style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem', color: 'black'}}
                 control={
                   <Checkbox
                     id={`isVisibleCheckbox${id}`}
                     checked={operationRunning === `isVisibleCheckbox${id}` ? !isVisible : isVisible}
+                    classes={{
+                      root: classes.rootCheckbox,
+                      checked: classes.checkedCheckbox,
+                    }}
                     onClick={handleToggleIsVisible}
                     disabled={operationRunning !== false}
                   />
@@ -1132,9 +1139,12 @@ function Comment(props) {
               <FormControl size='small'>
                 <Select
                   value={myNotificationType}
+                  classes={{
+                    icon: classes.selectIcon
+                  }}
                   onChange={onNotificationTypeChange}
                   onClick={(event) => event.stopPropagation()}
-                  style={{backgroundColor: 'white', marginRight: '1rem', marginTop: '0.35rem'}}
+                  style={{marginRight: '1rem', marginTop: '0.35rem', color: 'black'}}
                 >
                   <MenuItem value='RED'>
                     {intl.formatMessage({ id: 'immediate' })}

@@ -19,7 +19,6 @@ function ShowInVerifiedStageAge(props) {
     <Select
       value={value}
       onChange={onChange}
-      style={{backgroundColor: "#ecf0f1"}}
     >
       <MenuItem value={0}>
         {intl.formatMessage({ id: 'showInvestiblesUnlimitedValue' })}

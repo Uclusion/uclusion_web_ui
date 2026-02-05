@@ -300,7 +300,6 @@ function AccountPreferences(props) {
                       <Select
                         value={marketId}
                         onChange={(event) => setChosenMarketId(event.target.value)}
-                        style={{ backgroundColor: "#ecf0f1" }}
                       >
                         {markets.map((market) => {
                           return <MenuItem key={`key${market.id}`} value={market.id}>{market.name}</MenuItem>

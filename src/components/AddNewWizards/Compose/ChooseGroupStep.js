@@ -38,8 +38,12 @@ function ChooseGroupStep (props) {
                   key={groupId}
                   /* prevent clicking the label stealing focus */
                   onMouseDown={e => e.preventDefault()}
-                  control={<Radio color="primary" />}
-                  style={{backgroundColor: 'white', paddingRight: '0.5rem'}}
+                  control={<Radio />}
+                  className={classes.certaintyValue}
+                  classes={{
+                    label: classes.certaintyValueLabel
+                  }}
+                  style={{paddingRight: '0.5rem'}}
                   label={group.name}
                   labelPlacement="end"
                   value={groupId}

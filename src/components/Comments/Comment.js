@@ -1210,7 +1210,7 @@ function Comment(props) {
     strippedBody = dateInfo;
   }
   const compressedCommentCard = <div className={getCommentHighlightStyle()}
-  style={{ display: 'flex', paddingBottom: '1rem', backgroundColor: 'white',
+  style={{ display: 'flex', paddingBottom: '1rem', backgroundColor: (theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white'),
     height: '100%',
     cursor: 'pointer', width: 'fit-content', maxWidth: '98%', marginTop: isSent === false || usePadding === false ? 0
       : '1rem' }} onClick={(event) => {
@@ -1228,7 +1228,7 @@ function Comment(props) {
     <div style={{ flexGrow: 1 }}/>
     <div style={{ marginRight: '1rem', marginTop: '0.5rem' }}>
       <TooltipIconButton
-        icon={<ExpandMoreIcon />}
+        icon={<ExpandMoreIcon htmlColor={theme.palette.type === 'dark' ? 'black' : undefined} />}
         onClick={(event) => {
           preventDefaultAndProp(event);
           toggleCompression();

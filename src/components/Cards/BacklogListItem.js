@@ -156,7 +156,8 @@ function BacklogListItem(props) {
             }
           }>
             <Div key={`actions${id}`}>
-              {isNew ? (<TitleB>{title}</TitleB>) : (<Title>{title}</Title>)}
+              {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : undefined }}>{title}</TitleB>) : 
+              (<Title style={{ color: theme.palette.type === 'dark' ? 'white' : undefined }}>{title}</Title>)}
               {!mobileLayout && (
                 <Text style={{ maxWidth: '55vw', marginLeft: '1rem' }}>{useDescription}</Text>
               )}

@@ -84,8 +84,12 @@ function BugDecisionStep (props) {
                 key={objectType}
                 /* prevent clicking the label stealing focus */
                 onMouseDown={e => e.preventDefault()}
-                control={<Radio color="primary"/>}
-                style={{backgroundColor: 'white', paddingRight: '0.5rem'}}
+                className={classes.certaintyValue}
+                classes={{
+                  label: classes.certaintyValueLabel
+                }}
+                control={<Radio />}
+                style={{paddingRight: '0.5rem'}}
                 label={<FormattedMessage id={doesTypeMatch(objectType) ? `${objectType}OtherMoveLabel`
                   : `${objectType}Label`}/>}
                 labelPlacement="end"

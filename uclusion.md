@@ -1,9 +1,9 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#ea70be12-ff47-4e5c-b4cd-013e8415d18a)| 02/02| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| Deployed to production |
-| [Anything with tabs or left side panel now has different look - including the...](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)| | | [Subtask in progress and next button changes.](#c201bd90-f6d5-4bc4-ae93-eef22b6650d6)| Deployed to production |
+| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#ea70be12-ff47-4e5c-b4cd-013e8415d18a)| 02/11| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| Deployed to production |
+| [Anything with tabs or left side panel now has different look - including the...](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)| | | [Dark mode for app](#effdb67c-5825-421b-a298-48770945da5f)| Deployed to production |
 | [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Substitute for the comparison section,](#283ed39c-2e32-4d70-9c99-a9aef975439a)|  |
-| [Dark mode for app](#effdb67c-5825-421b-a298-48770945da5f)| | | [Organization section needs work.](#bffa8a04-9a95-4a38-b477-14171fb76464)|  |
+| | | | [Organization section needs work.](#bffa8a04-9a95-4a38-b477-14171fb76464)|  |
 | | | | [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| Deployed to production |
 ## Job <a name="ea70be12-ff47-4e5c-b4cd-013e8415d18a"></a>
 ### Build the prompts necessary to get the lastest debuts from Show HN, Product...
@@ -316,6 +316,11 @@
 
 Key from <https://aistudio.google.com/app/api-keys?_gl=1*e918yo*_ga*MTAwNDA0NDQ3OC4xNzY5OTA3NDcw*_ga_P1DBVKWT6V*czE3Njk5MDc0NzAkbzEkZzAkdDE3Njk5MDc0NzAkajYwJGwwJGgyODEwMjUyNzI.>
 
+
+
+
+1. Have to create a new key
+
 #### Task <a name="98d7802c-da57-4a6c-947c-48843b385b00"></a> 
 
 
@@ -615,18 +620,6 @@ This button should produce markdown as <https://github.com/microsoft/markitdown>
 #### Task <a name="c37e86d4-1efc-4dea-ae23-1fd0171f3175"></a> 
 Button on the question that generates AI prompt onto the clipboard. Probably skipping pictures and file attachments.
 
-## Job <a name="effdb67c-5825-421b-a298-48770945da5f"></a>
-### Dark mode for app
-Have to have it and doesn't seem like that hard to do. Just make the background colors come out of the theme and have setting to change theme to dark.
-
-
-
-
-Does seem to also work off of a signal from OS as some things in browser go dark when use dark on OS.
-
-#### Task <a name="50ba92b2-572e-477a-9360-1c1cb761f91a"></a> 
-Consider dark mode for app and landing page.
-
 ## Job <a name="3af2201b-8111-46e9-b746-2f33cf1312bd"></a>
 ### Should fix UI bugs.
 #### Resolved Task <a name="b5ca7cbe-704b-4cce-9e50-77834334f474"></a> 
@@ -908,71 +901,89 @@ Have an upgrade script that removes all notifications associated with unused old
 
 **Or maybe just fully cleans them up as the script that does that cleans up a planning market (including notifications) should exist.**
 
-## Job <a name="c201bd90-f6d5-4bc4-ae93-eef22b6650d6"></a>
-### Subtask in progress and next button changes.
-#### Resolved Task <a name="a45f0b97-ac93-4329-bdf5-4bc8add2e3c0"></a> 
-Showing resolved grouped tasks in swimlane.
-
-#### Resolved Task <a name="622d8950-281a-426b-9b3f-6bd9745fb914"></a> 
-If child grouped task in progress and parent isn't the sort to top doesn't work. Hard to reproduce - will have to add debug for stage to figure out.
-
-#### Resolved Task <a name="c47affe1-3a1c-4927-8fc9-a79fc7c99764"></a> 
-Don't disable in progress on subtask and instead automatically control exactly as if each subtask is a regular task. The parent does not have to be in progress - this is just a logical grouping.
+## Job <a name="effdb67c-5825-421b-a298-48770945da5f"></a>
+### Dark mode for app
+Have to have it and doesn't seem like that hard to do. Just make the background colors come out of the theme and have setting to change theme to dark.
 
 
 
 
-Where there is logic that checks the parent before counting the subtask as in progress just remove it.
+Does seem to also work off of a signal from OS as some things in browser go dark when use dark on OS.
 
-> ##### Grouped task <a name="7605bac1-a958-4340-80be-c7cd05aa1132"></a> 
-Rename subtask to "grouped task" in general and "Group" on the create button. That in all ways is what was implemented. Then instead of Move to task just "ungroup".
+#### Resolved Task <a name="05da9aa2-de7e-4b6d-84ee-a74babb69de1"></a> 
+MenuLists need work - inbox, bugs, backlog, options, etc.
 
-
-
-
-There should be no specific logic in the wizard for a grouped task - just asks about all others.
+#### Resolved Task <a name="9ef67ef5-439f-4fd2-bbc7-744452fc4b4e"></a> 
+Check dark mode when chips.
 
 
 
 
-If they don't want parent to be its own task they can just not have it in progress.
+Use dark mode on stage for a while.
 
-#### Resolved Task <a name="be876ed1-f63b-4a2b-9406-cc5e869bf329"></a> 
-If in a back log job Next view is always what next button says and does.
+#### Resolved Task <a name="76e4cad8-390e-4c55-911a-4544b795f380"></a> 
+Fix user preferences.
 
-> ##### Grouped task <a name="6d4aff4d-0419-402d-bedc-a2fa656b2379"></a> 
-No that won't work as could have arrive in back log job from next button.
+#### Resolved Task <a name="aef1d487-32cc-4aec-b8b7-0c89f29b1081"></a> 
+Fix all the wizards.
 
-#### Resolved Task <a name="60500869-1d54-42f3-b30e-2b8112668540"></a> 
-Test next button.
+#### Resolved Task <a name="4c575926-cbe2-49ca-8877-02ef46d70099"></a> 
+Check mobile - button should be not present there.
 
-> ##### Grouped task <a name="4bbf352b-04d1-4a88-8aa6-950268fbc647"></a> 
-Not going through all in approval investibles - just two of them.
+#### Resolved Task <a name="31b39ecb-197a-4120-b8a3-4449e433a958"></a> 
+Use one color for created updated by text on comments - is greyish on child and black on parent - regardless of mode.
 
-#### Resolved Task <a name="94af12b6-2781-4ac6-b560-783df8c35935"></a> 
- Go to Next job where Next job is the one due next. If no due dates pick the first one in Work Ready. If nothing in Work Ready pick the first in Assistance. If nothing in Assistance go to the first in pause / approval.
+#### Resolved Task <a name="c8fdae53-c03f-42fd-8321-a7ae06759a8d"></a> 
+Check remaining FormControl in both add and inbox wizards.
+
+#### Resolved Task <a name="a0485f7c-fb9c-4fea-8ce9-89ae97950f26"></a> 
+In light mode when a row in inbox etc. is new it should be the light blue of the background color instead of the current darker color of the sidebar. Similarly for dark mode.
+
+#### Resolved Task <a name="623614ad-814c-4a4d-b0a7-4c1c9e732d9b"></a> 
+Quill editor background should be more greyish in dark mode - black text still works but display won't be so glaring.
 
 
 
 
-If no status at all and inbox has something read go there.
+Same for rectangular action buttons at top and next button?
+
+#### Resolved Task <a name="0c7a4a36-ffe8-4131-abfc-b72e7e744fa7"></a> 
+Icons on investible right nav.
+
+#### Resolved Task <a name="3ebd6230-64ae-4651-b64f-165dda904529"></a> 
+Close integrations chevron not visible in light or dark mode unless hover and so don't know can close.
+
+#### Resolved Task <a name="f60da6bd-8b22-4531-b7a5-aee0e58aa360"></a> 
+Fix the background of inbox wizards to be the same as add wizards.
+
+#### Resolved Task <a name="4174dcb1-2680-4bc3-acdd-91489b297897"></a> 
+Add another view to demo so can check collapse icon visible in dark mode.
+
+#### Resolved Task <a name="94e04ea2-17e3-4cdb-8607-16d46dcbff08"></a> 
+Get rid of the line under the name in swimlanes.
+
+#### Resolved Task <a name="50ba92b2-572e-477a-9360-1c1cb761f91a"></a> 
+Consider dark mode for app and landing page.
 
 
 
 
-If no status jobs and no inbox at all go to Next bug IE the section in order of priority. If no bugs either go to not ready jobs if exist. If none of that go to Compose button.
+**See if AI can do this for you.**
 
-#### Resolved Task <a name="4eebebbb-a052-43e9-a492-d6474808fc1d"></a> 
-Change "subtask" to "grouped task" in markdown generator Lambda.
+#### Resolved Task <a name="017a1dc8-edaa-4ce6-9e9a-5fac9f54d477"></a> 
+Workspace menu drop down needs work.
 
-#### Resolved Task <a name="a172bd76-c03f-463b-9362-441a68dc1007"></a> 
-Don't disable the Next button.
+#### Resolved Task <a name="84d3f75d-14dc-4a6b-a9c1-71bbd00d7503"></a> 
+Visible checkbox on comment is wrong color.
 
-#### Resolved Task <a name="150f30f8-b6c9-44c0-8ef1-e8a0f22c3c9f"></a> 
-In overview the sorting is different from the in progress sorting the tasks page does.
+#### Resolved Task <a name="c293bb08-c18c-4d24-9bec-613dbf0f4c6b"></a> 
+Highlight of left nav item must be darker or can't read it - or make everything in it darker.
 
-#### Resolved Task <a name="b536c03f-6891-4a46-ab34-042a8b8bf34a"></a> 
-The display of grouped tasks in swimlanes still not seeing the child ones.
+#### Resolved Task <a name="76688d5e-8b0d-418c-84b9-6b67b4942009"></a> 
+Can't get to workspace integration preferences from workspace drop down - even in light mode.
+
+#### Resolved Task <a name="3e1cd93a-8ee0-4811-899d-57247dc4ca97"></a> 
+Get rid of the sidebar border line in dark mode.
 
 ## Job <a name="283ed39c-2e32-4d70-9c99-a9aef975439a"></a>
 ### Substitute for the comparison section,

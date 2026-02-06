@@ -48,7 +48,7 @@ import { findMessagesForTypeObjectId, findMessagesForUserPoked } from '../../uti
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import _ from 'lodash';
 import DismissableText from '../../components/Notifications/DismissableText';
-import { formInboxItemLink, navigate } from '../../utils/marketIdPathFunctions';
+import { formInboxItemLinkFromId, navigate } from '../../utils/marketIdPathFunctions';
 import SpinningButton from '../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../components/AddNewWizards/WizardStylesContext';
 import ReplyWizard from '../../components/AddNewWizards/Reply/ReplyWizard';
@@ -112,7 +112,7 @@ function Wizard(props) {
                         className={wizardClasses.actionNext}
                         style={{marginTop: '1rem', marginLeft: '2rem'}}
                         variant="text" doSpin={false}
-                        onClick={() => navigate(history, formInboxItemLink(message))}>
+                        onClick={() => navigate(history, formInboxItemLinkFromId(typeObjectId))}>
           {intl.formatMessage({ id: 'backToInboxWizard'})}
         </SpinningButton>
       )}

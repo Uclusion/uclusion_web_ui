@@ -346,11 +346,12 @@ function CommentEdit(props) {
           <SpinningIconLabelButton
             icon={Update}
             onClick={() => handleSave(true)}
+            whiteBackground
             id="updateCommentButton"
           >
             {intl.formatMessage({ id: 'update' })}
           </SpinningIconLabelButton>
-          <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear}>
+          <SpinningIconLabelButton onClick={handleCancel} doSpin={false} icon={Clear} whiteBackground>
             {intl.formatMessage({ id: 'cancel' })}
           </SpinningIconLabelButton>
           {!mobileLayout && (

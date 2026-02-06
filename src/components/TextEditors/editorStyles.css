@@ -47,6 +47,7 @@ a[target="_blank"]::after {
 .ql-toolbar {
     /* <== using sticky here breaks the dropdowns */
     width: 100%;
+    background-color:lightgrey;
 }
 @media screen and (max-width: 600px) {
     .ql-disabled .ql-editor{

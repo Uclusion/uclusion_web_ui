@@ -289,6 +289,7 @@ export const useCommentStyles = makeStyles(
       },
       timeElapsed: {
         whiteSpace: 'nowrap',
+        color: "#A7A7A7",
         paddingRight: '10px',
         paddingTop: '5px'
       },
@@ -885,8 +886,7 @@ function Comment(props) {
       </Typography>
     )}
     {!mobileLayout && (
-      <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '1rem', color: 'black', 
-          opacity: 0.87}}>
+      <Typography className={classes.timeElapsed} variant="body2" style={{paddingLeft: '1rem'}}>
         Created <UsefulRelativeTime value={comment.created_at}/>
         {noAuthor && !reallyNoAuthor &&
           `${intl.formatMessage({ id: 'lastUpdatedBy' })} ${createdBy.name}`}.

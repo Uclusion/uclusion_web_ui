@@ -90,6 +90,7 @@ function DoneVotingStep(props) {
         marketPresences={marketPresences}
         investmentReasons={investmentReasons}
         showExpiration
+        showEmptyText
         expirationMinutes={market.investment_expiration * 1440}
         yourPresence={marketPresences.find((presence) => presence.current_user)}
         market={market}

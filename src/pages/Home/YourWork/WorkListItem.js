@@ -214,7 +214,7 @@ function WorkListItem(props) {
 
   return (
     <Item key={`workListItem${id}`} id={`workListItem${id}`}>
-      <RaisedCard elevation={3} rowStyle key={`raised${id}`}>
+      <RaisedCard elevation={3} rowStyle key={`raised${id}`} isHighlighted={!read}>
         <div style={{ width: '100%', cursor: isNotSynced ? undefined : 'pointer' }}
              id={`${isNotSynced ? 'grey' : 'link'}${id}`} key={`link${id}`}
              onClick={

@@ -199,7 +199,7 @@ function InboxRow(props) {
   }
   calculateTitleExpansionPanel({ item, openExpansion: expansionOpen, intl });
   return <WorkListItem key={`inboxRow${getMessageId(message)}`} id={getMessageId(message)} checked={checked}
-                       determinateDispatch={determinateDispatch} useSelect={isDeletable}
+                       determinateDispatch={determinateDispatch} useSelect={isDeletable} read={!message.is_highlighted}
                        expansionOpen={expansionOpen} {...item} />;
 }
 

@@ -22,6 +22,7 @@ const lightThemeDefinition = {
       light: '#EDF7F8',
       dark: '#5b8592',
       contrastText: '#ffffff',
+      highlight: '#F8FBFC',
     },
     secondary: {
       main: '#3f6b72',
@@ -50,6 +51,7 @@ const darkThemeDefinition = {
       light: '#1e2e30',
       dark: '#2F80ED',
       contrastText: '#000000',
+      highlight: '#1a2628',
     },
     secondary: {
       main: '#6d99a0',

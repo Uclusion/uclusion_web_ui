@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { Box, Card, makeStyles } from '@material-ui/core';
 import clsx from 'clsx'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => {
+  return {
   card: {
     padding: '8px',
     display: 'flex',
@@ -17,13 +18,15 @@ const useStyles = makeStyles({
   noClass: {
 
   },
+  
   highlightedCard: {
-    padding: '8px',
+    "&:hover": { boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px black'},
     display: 'flex',
     flexDirection: 'column',
-    boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px red'
+    backgroundColor: theme.palette.primary.highlight
   }
-})
+  }
+});
 
 function RaisedCard(props) {
   const { onClick = () => {}, elevation, className, cardClassName, isHighlighted, rowStyle, draggable, onDragStart, maxWidth } = props;
@@ -34,6 +37,7 @@ function RaisedCard(props) {
     isClickable = false;
   }
   const useCardClassName = cardClassName || classes.noClass;
+  console.log('isHighlighted', isHighlighted);
   return (
     <Box
       p={0}
@@ -47,8 +51,8 @@ function RaisedCard(props) {
         draggable={draggable}
         onDragStart={onDragStart}
         style={{ height: '100%', cursor: isClickable ? 'pointer' : 'default'}}
-        className={clsx(useCardClassName, rowStyle ? classes.rowStyle :
-          (isHighlighted ? classes.highlightedCard : classes.card))}
+        className={clsx(useCardClassName, isHighlighted ? classes.highlightedCard :
+          (rowStyle ? classes.rowStyle : classes.card))}
       >
         {props.children}
       </Card>

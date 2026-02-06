@@ -91,7 +91,7 @@ export const usePlanningIdStyles = makeStyles(
       stageLabel: {},
       containerEmpty: {},
       containerDroppable: {
-        backgroundColor: '#efefef'
+        backgroundColor: theme.palette.type === 'light' ? '#efefef' : 'grey'
       }
     };
   },

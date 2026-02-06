@@ -175,7 +175,7 @@ function OtherWorkspaceMenus(props) {
                       backgroundColor: infoColor
                     }
                   }}
-                  style={{backgroundColor: (action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()) ? '#e0e0e0' : undefined, borderRadius: 22}}
+                  style={{backgroundColor: (action === 'wizard' && type === ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()) ? (isDark ? 'black' : '#e0e0e0') : undefined, borderRadius: 22}}
                   key="collaborators" open >
               <div style={{marginLeft: '2rem'}}>
                 <GravatarGroup users={presencesOrdered} gravatarClassName={classes.smallGravatar} 
@@ -258,7 +258,7 @@ function OtherWorkspaceMenus(props) {
               updatePageState({messagesOpen: !messagesOpen});
             }}
             key="messagesKey" open={messagesOpen}>
-            <MenuItem style={{backgroundColor: action === 'inbox' ? '#e0e0e0' : undefined, borderRadius: 22}}
+            <MenuItem style={{backgroundColor: action === 'inbox' ? (isDark ? 'grey' : '#e0e0e0') : undefined, borderRadius: 22}}
               icon={<Inbox htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                 key="inboxKey" id="inboxId"
                 rootStyles={{
@@ -280,7 +280,7 @@ function OtherWorkspaceMenus(props) {
                 </div>
               </Tooltip>
             </MenuItem>
-            <MenuItem style={{backgroundColor: action === 'outbox' ? '#e0e0e0' : undefined, borderRadius: 22}}
+            <MenuItem style={{backgroundColor: action === 'outbox' ? (isDark ? 'grey' : '#e0e0e0') : undefined, borderRadius: 22}}
              icon={<OutboxIcon htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                     key="outboxKey" id="outboxId"
                     rootStyles={{
@@ -326,7 +326,7 @@ function OtherWorkspaceMenus(props) {
                           marginRight: 0,
                         }
                       }}
-                      style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'gravatar') ? '#e0e0e0' : undefined, 
+                      style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'gravatar') ? (isDark ? 'grey' : '#e0e0e0') : undefined, 
                         borderRadius: 22}}
                       onClick={(event) => {
                         preventDefaultAndProp(event);
@@ -347,7 +347,7 @@ function OtherWorkspaceMenus(props) {
                         marginRight: 0,
                       }
                     }}
-                    style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'cli') ? '#e0e0e0' : undefined, 
+                    style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'cli') ? (isDark ? 'grey' : '#e0e0e0') : undefined, 
                       borderRadius: 22}}
                     onClick={(event) => {
                       preventDefaultAndProp(event);
@@ -368,7 +368,7 @@ function OtherWorkspaceMenus(props) {
                           marginRight: 0,
                         },
                       }}
-                      style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'slack') ? '#e0e0e0' : undefined, 
+                      style={{backgroundColor: (action === 'integrationPreferences' && integrationType === 'slack') ? (isDark ? 'grey' : '#e0e0e0') : undefined, 
                         borderRadius: 22}}
                       onClick={(event) => {
                         preventDefaultAndProp(event);
@@ -426,7 +426,7 @@ function OtherWorkspaceMenus(props) {
                       backgroundColor: infoColor
                     }
                   }}
-                  style={{backgroundColor: (action === 'wizard' && type === WORKSPACE_WIZARD_TYPE.toLowerCase()) ? '#e0e0e0' : undefined, 
+                  style={{backgroundColor: (action === 'wizard' && type === WORKSPACE_WIZARD_TYPE.toLowerCase()) ? (isDark ? 'grey' : '#e0e0e0') : undefined, 
                     borderRadius: 22}}
                   key="switchWorkspace" open >
           {activeFirstFiveMarkets.map((market) => {

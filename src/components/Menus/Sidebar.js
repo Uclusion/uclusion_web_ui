@@ -17,7 +17,7 @@ import { ThemeModeContext } from '../../contexts/ThemeModeContext'
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
     index, openMenuItems, isSubMenu, onEnterFunc, onLeaveFunc, endIcon: EndIcon, linkHref, resetFunction, tipText, idPrepend='', 
-    numSuffix='', infoColor} = properties;
+    numSuffix='', infoColor, isDark} = properties;
   if (!text) {
     return React.Fragment
   }
@@ -44,7 +44,8 @@ function processRegularItem(properties) {
   }
   const key = `${index}${textNoSpaces}`;
   const isLink = isBold && !isBlue;
-  const backgroundColor = isBold && !isSubMenu && isBlue ? '#e0e0e0' : undefined;
+  const isActive = isBold && !isSubMenu && isBlue;
+  const backgroundColor = isActive ? (isDark ? 'grey' : '#e0e0e0') : undefined;
   const textRepresentation = isBold ? (<span
       style={{fontWeight: 'bold', color: isLink ? '#2F80ED' : undefined}}>{text}</span>)
     : <span>{text}</span>;
@@ -104,7 +105,7 @@ function processRegularItem(properties) {
           {openMenuItems.map((subItem, index) => {
             const { text, target, num, icon: Icon, onClickFunc, isBold } = subItem
             return processRegularItem({history, text, target, num, Icon, onClickFunc,
-              isBold, index, isSubMenu: true, infoColor})
+              isBold, index, isSubMenu: true, infoColor, isDark})
           })}
         </div>
       )}
@@ -157,7 +158,7 @@ export default function Sidebar(props) {
                           onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
                         return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
                           isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                          tipText, idPrepend, infoColor, iconColor})
+                          tipText, idPrepend, infoColor, iconColor, isDark})
                       })}
                       {navListItemTextArray.length > 5 && (
                         <MenuItem
@@ -178,7 +179,7 @@ export default function Sidebar(props) {
                           onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
                         return processRegularItem({history, text, target, num, numSuffix,Icon, complexIcon, onClickFunc, isBold,
                           isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                          tipText, idPrepend, infoColor, iconColor})
+                          tipText, idPrepend, infoColor, iconColor, isDark})
                       })}
               </SubMenu>
           </Menu>
@@ -196,7 +197,7 @@ export default function Sidebar(props) {
                 onEnterFunc, onLeaveFunc, endIcon, resetFunction, tipText, linkHref, iconColor } = navItem;
               return processRegularItem({history, text, target, num, Icon, complexIcon, onClickFunc, isBold,
                 isBlue, linkHref, index: topIndex, openMenuItems, onEnterFunc, onLeaveFunc, endIcon, resetFunction,
-                tipText, idPrepend, infoColor, iconColor})
+                tipText, idPrepend, infoColor, iconColor, isDark})
             })}
           </Menu>
         )}

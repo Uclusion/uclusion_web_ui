@@ -9,7 +9,7 @@ import { ExpandLess, ExpandMore } from '@material-ui/icons'
 import { useIntl } from 'react-intl'
 import { getPageReducerPage, usePageStateReducer } from '../PageState/pageStateHooks'
 import { PLANNING_TYPE } from '../../constants/markets'
-import { useButtonColors } from '../Buttons/ButtonConstants'
+import { DARK_ACTION_BUTTON_COLOR, useButtonColors } from '../Buttons/ButtonConstants'
 import AddIcon from '@material-ui/icons/Add'
 import NotificationCountChips from '../../pages/Dialog/NotificationCountChips'
 import { ThemeModeContext } from '../../contexts/ThemeModeContext'
@@ -162,8 +162,8 @@ export default function Sidebar(props) {
                       })}
                       {navListItemTextArray.length > 5 && (
                         <MenuItem
-                          icon={viewsOpen ? <ExpandLess htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} /> 
-                          : <ExpandMore htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+                          icon={viewsOpen ? <ExpandLess htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} /> 
+                          : <ExpandMore htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                           id="moreViewsId"
                           key="moreViewsKey"
                           onClick={(event) => {

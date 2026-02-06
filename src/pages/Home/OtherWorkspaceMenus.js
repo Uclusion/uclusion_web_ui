@@ -454,8 +454,8 @@ function OtherWorkspaceMenus(props) {
           })}
           {activeMarkets.length > 5 && (
             <MenuItem
-              icon={switchWorkspaceOpen ? <ExpandLess htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} /> 
-              : <ExpandMore htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
+              icon={switchWorkspaceOpen ? <ExpandLess htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} /> 
+              : <ExpandMore htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
               id="moreMarketsId"
               key="moreMarketsKey"
               onClick={(event) => {

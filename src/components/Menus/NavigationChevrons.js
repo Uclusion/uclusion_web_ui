@@ -114,6 +114,10 @@ export default function NavigationChevrons(props) {
   const inVotingCandidates = [];
   const groupCandidates = [];
 
+  function getCommentUseUrl(comment) {
+    return formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.root_comment_id || comment.id);
+  }
+
   function processComment(comment, market) {
     if (comment.investible_id) {
       const investible = getInvestible(investiblesState, market.id, comment.investible_id);
@@ -121,7 +125,8 @@ export default function NavigationChevrons(props) {
       const isAssigned = marketInfo?.assigned?.includes(comment.created_by);
       if (isAssigned) {
         const candidate = getInvestibleCandidate(investible, market, navigations);
-        candidate.useUrl = formCommentLink(market.id, marketInfo.group_id, marketInfo.investible_id, comment.id);
+        // Use root comment id if it exists as you can't go to a reply directly
+        candidate.useUrl = getCommentUseUrl(comment);
         assistantanceCandidates.push(candidate);
       }
     }
@@ -174,7 +179,7 @@ export default function NavigationChevrons(props) {
       const candidate = getInvestibleCandidate(investible, market, navigations);
       // Only interested in in progress because if want not in progress choose it from swimlanes
       if (inProgress) {
-        candidate.useUrl = formCommentLink(market.id, inProgress.group_id, inProgress.investible_id, inProgress.id);
+        candidate.useUrl = getCommentUseUrl(inProgress);
         candidate.title = 'task';
         inProgressCandidates.push(candidate);
       } else {

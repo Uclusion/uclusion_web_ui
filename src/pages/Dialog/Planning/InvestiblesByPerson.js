@@ -41,8 +41,7 @@ const useInvestiblesByPersonStyles = makeStyles(
         paddingLeft: theme.spacing(1),
         backgroundColor: theme.palette.primary.light,
         paddingBottom: 0,
-        paddingTop: 0,
-        borderBottom: '1px solid #ecf0f1'
+        paddingTop: 0
       },
       menuButton: {
         width: '100%',

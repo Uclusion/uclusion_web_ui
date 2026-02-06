@@ -15,7 +15,6 @@ import {
   Typography,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import clsx from 'clsx';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import { usePlanFormStyles } from '../../../components/AgilePlan';
 import GravatarAndName from '../../../components/Avatars/GravatarAndName';

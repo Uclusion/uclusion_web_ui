@@ -301,12 +301,12 @@ export function getWorkspaceData(planningDetailsRaw, marketPresencesState, inves
         }
       }
     });
-    const myUnresolvedRoots = comments.filter((comment) => !comment.resolved &&
-      comment.created_by === myPresence.id && !comment.reply_id);
+    const unresolvedRoots = comments.filter((comment) => !comment.resolved && !comment.reply_id);
+    const myUnresolvedRoots = unresolvedRoots.filter((comment) => comment.created_by === myPresence.id);
     const questions = myUnresolvedRoots.filter((comment) => comment.comment_type === QUESTION_TYPE);
-    const issues = myUnresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
+    const issues = unresolvedRoots.filter((comment) => comment.comment_type === ISSUE_TYPE);
     const suggestions = myUnresolvedRoots.filter((comment) => comment.comment_type === SUGGEST_CHANGE_TYPE);
-    const bugs = myUnresolvedRoots.filter((comment) => comment.comment_type === TODO_TYPE && !comment.investible_id &&
+    const bugs = unresolvedRoots.filter((comment) => comment.comment_type === TODO_TYPE && !comment.investible_id &&
       comment.notification_type === RED_LEVEL);
     return { market, comments, inVotingInvestibles: inVotingInvestibles.concat(inVotingNotAcceptedMarked), questions,
       issues, suggestions, bugs, approvedInvestibles};

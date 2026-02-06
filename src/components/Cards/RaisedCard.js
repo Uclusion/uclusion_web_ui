@@ -37,7 +37,6 @@ function RaisedCard(props) {
     isClickable = false;
   }
   const useCardClassName = cardClassName || classes.noClass;
-  console.log('isHighlighted', isHighlighted);
   return (
     <Box
       p={0}

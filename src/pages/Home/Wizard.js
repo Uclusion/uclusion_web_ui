@@ -44,7 +44,7 @@ import JobStageWizard from '../../components/AddNewWizards/JobStage/JobStageWiza
 import ApprovalWizard from '../../components/AddNewWizards/Approval/ApprovalWizard';
 import JobCommentConfigureWizard from '../../components/AddNewWizards/CommentConfigure/JobCommentConfigureWizard';
 import OptionWizard from '../../components/AddNewWizards/Option/OptionWizard';
-import { findMessagesForTypeObjectId, findMessagesForUserPoked } from '../../utils/messageUtils';
+import { findMessagesForUserPoked } from '../../utils/messageUtils';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import _ from 'lodash';
 import DismissableText from '../../components/Notifications/DismissableText';
@@ -77,7 +77,6 @@ function Wizard(props) {
   const history = useHistory();
   const wizardClasses = wizardStyles();
   const upgradeMessages = findMessagesForUserPoked(messagesState);
-  const message = findMessagesForTypeObjectId(typeObjectId, messagesState);
   const market = getMarket(marketsState, marketId) || {};
   const isDemo = marketIsDemo(market);
 

@@ -62,7 +62,8 @@ import {
   formGroupArchiveLink,
   formGroupEditLink, formGroupManageLink,
   formMarketAddCommentLink, formMarketAddInvestibleLink, formWizardLink,
-  navigate
+  navigate,
+  removeHash
 } from '../../../utils/marketIdPathFunctions';
 import { DISCUSSION_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE, SUPPORT_SUB_TYPE } from '../../../constants/markets';
 import DialogOutset from './DialogOutset';
@@ -238,22 +239,26 @@ function PlanningDialog(props) {
     {enabled: !hidden}, [history, groupId, marketId]);
 
   useEffect(() => {
-    if (hash && !hidden) {
-      const element = document.getElementById(hash.substring(1, hash.length));
-      if (!element) {
-        if (hash.includes('option')||hash.includes(DISCUSSION_HASH)) {
-          if (sectionOpen !== 'discussionSection') {
+    if (hash && !hidden) { 
+      if (hash.includes('option')||hash.includes(DISCUSSION_HASH)) {
+        if (sectionOpen !== 'discussionSection') {
           updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
-          }
-        } else if (hash.includes(ASSIGNED_HASH)) {
-          if (sectionOpen !== 'storiesSection') {
-            updatePageState({ sectionOpen: 'storiesSection', tabIndex: 0 });
-          }
-        } else if (hash.includes(BACKLOG_HASH)) {
-          if (sectionOpen !== 'backlogSection') {
-            updatePageState({ sectionOpen: 'backlogSection', tabIndex: 1 });
-          }
-        } else {
+        }
+        removeHash(history);
+      } else if (hash.includes(ASSIGNED_HASH)) {
+        if (sectionOpen !== 'storiesSection') {
+          updatePageState({ sectionOpen: 'storiesSection', tabIndex: 0 });
+        }
+        // Not looking to scroll to this so scroll context won't touch it
+        removeHash(history);
+      } else if (hash.includes(BACKLOG_HASH)) {
+        if (sectionOpen !== 'backlogSection') {
+          updatePageState({ sectionOpen: 'backlogSection', tabIndex: 1 });
+        }
+        removeHash(history);
+      } else {
+        const element = document.getElementById(hash.substring(1, hash.length));
+        if (!element) {
           const comments = getMarketComments(commentsState, marketId) || [];
           const found = comments.find((comment) => hash.includes(comment.id));
           if (!_.isEmpty(found)) {

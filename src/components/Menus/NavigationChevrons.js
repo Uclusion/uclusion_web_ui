@@ -221,7 +221,7 @@ export default function NavigationChevrons(props) {
       const groupMessage = findMessagesForTypeObjectId(`UNREAD_GROUP_${groupId}`, messagesState);
       if (groupMessage) {
         return {
-          url: formMarketLink(groupMessage.market_id, groupId), message: groupMessage, title: 'view',
+          url: formatGroupLinkWithSuffix(ASSIGNED_HASH, groupMessage.market_id, groupId), message: groupMessage, title: 'view',
           isHighlighted: groupMessage.is_highlighted
         };
       }

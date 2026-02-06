@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
-import { decomposeMarketPath, removeHash } from '../utils/marketIdPathFunctions';
+import { ASSIGNED_HASH, BACKLOG_HASH, decomposeMarketPath, DISCUSSION_HASH, removeHash } from '../utils/marketIdPathFunctions';
 
 const ScrollContext = React.createContext({});
 
@@ -74,18 +74,20 @@ function ScrollProvider(props) {
   }, [hashFragment, history]);
 
   useEffect(() => {
-    const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
-    if (processedPath !== pathname || hashFragment !== myHashFragment) {
-      setProcessedPath(pathname);
-      const { action } = decomposeMarketPath(pathname);
-      if (!myHashFragment || (!['dialog', 'inbox', 'comment'].includes(action) && pathname !== '/')) {
-        //Scroll to the top if it's a new page and there is no anchor to scroll to
-        if (!hashFragment) {
-          window.scrollTo(0, 0);
-        }
-      } else if (myHashFragment !== hashFragment) {
-        setHashFragment(myHashFragment);
-      } 
+    if (![`#${ASSIGNED_HASH}`, `#${BACKLOG_HASH}`, `#${DISCUSSION_HASH}`].includes(hash)) {
+      const myHashFragment = (hash && hash.length > 1) ? hash.substring(1, hash.length) : undefined;
+      if (processedPath !== pathname || hashFragment !== myHashFragment) {
+        setProcessedPath(pathname);
+        const { action } = decomposeMarketPath(pathname);
+        if (!myHashFragment || (!['dialog', 'inbox', 'comment'].includes(action) && pathname !== '/')) {
+          //Scroll to the top if it's a new page and there is no anchor to scroll to
+          if (!hashFragment) {
+            window.scrollTo(0, 0);
+          }
+        } else if (myHashFragment !== hashFragment) {
+          setHashFragment(myHashFragment);
+        } 
+      }
     }
     return () => {
     };

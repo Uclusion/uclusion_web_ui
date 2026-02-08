@@ -18,7 +18,6 @@ import { usePlanFormStyles } from '../AgilePlan';
 import { getMarketInfo } from '../../utils/userFunctions';
 import { getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
-import clsx from 'clsx';
 import { useIntl } from 'react-intl';
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext';
 import GravatarGroup from '../Avatars/GravatarGroup';
@@ -30,6 +29,7 @@ import {
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { getSearchResults } from '../../contexts/SearchIndexContext/searchIndexContextHelper';
 import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 
 function ChooseJob(props) {
   const {
@@ -45,6 +45,8 @@ function ChooseJob(props) {
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const intl = useIntl();
+  const [themeMode] = useContext(ThemeModeContext);
+  const isDark = themeMode === 'dark';
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const [searchQuery, setSearchQuery] = useState(undefined);
@@ -116,11 +118,15 @@ function ChooseJob(props) {
       <ListItem
         key={myInvestibleId}
         onClick={() => onChange(isChecked ? undefined : myInvestibleId)}
-        className={isChecked ? clsx(classes.unselected, classes.selected) : classes.unselected}
       >
         <ListItemIcon>
           <Checkbox
             checked={isChecked}
+            color= {isDark ? 'default' : undefined}
+            classes={{
+              root: classes.rootCheckbox,
+              checked: classes.checkedCheckbox,
+            }}
           />
         </ListItemIcon>
         <div style={{display: 'flex', alignItems: 'center'}}>

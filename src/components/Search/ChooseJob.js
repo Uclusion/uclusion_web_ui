@@ -164,6 +164,7 @@ function ChooseJob(props) {
         <ListItemText>
           {intl.formatMessage({ id: 'searchActive' })}
           <Checkbox
+            color= {isDark ? 'default' : undefined}
             checked={isActive}
             onClick={toggleActive}
           />
@@ -171,6 +172,7 @@ function ChooseJob(props) {
         <ListItemText>
           {intl.formatMessage({ id: mobileLayout ? 'searchAssignedMobile' : 'searchAssigned' })}
           <Checkbox
+            color= {isDark ? 'default' : undefined}
             checked={isAssignedToMe}
             onClick={toggleAssignedToMe}
           />
@@ -178,6 +180,7 @@ function ChooseJob(props) {
         <ListItemText>
           {intl.formatMessage({ id: 'sameView' })}
           <Checkbox
+            color= {isDark ? 'default' : undefined}
             checked={isSameView}
             onClick={toggleIsSameView}
           />

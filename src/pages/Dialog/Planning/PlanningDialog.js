@@ -615,7 +615,7 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
       <div style={{display: 'flex', overflow: 'hidden'}}>
         <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}
                       archivedSize={archivedSize} />
-      <div style={{paddingTop: '1rem', width: '96%', marginLeft: 'auto', marginRight: 'auto', overflow: 'hidden'}}>
+      <div style={{paddingTop: '0.5rem', width: '96%', marginLeft: 'auto', marginRight: 'auto', overflow: 'hidden'}}>
         <div ref={refToTop}></div>
         {isSectionOpen('discussionSection') && (
           <div id="discussionSection">
@@ -691,7 +691,8 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
               onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
               <FormattedMessage id='addStoryLabel'/>
             </SpinningButton>
-            <div onDrop={onDropNext} onDragOver={onDragOverNext}>
+            <div onDrop={onDropNext} onDragOver={onDragOverNext} 
+              style={{paddingTop: !_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) ? '0.5rem' : undefined}}>
               <SubSection
                 type={NO_SECTION_TYPE}
                 bolder

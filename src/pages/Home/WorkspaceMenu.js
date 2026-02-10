@@ -51,6 +51,7 @@ const useStyles = makeStyles((theme) => ({
   buttonClass: {
     textTransform: 'none',
     display: 'flex',
+    color: theme.palette.type === 'dark' ? 'white' : 'black',
     fontWeight: 'bold',
     '& .MuiButton-endIcon': {
       marginLeft: 0,

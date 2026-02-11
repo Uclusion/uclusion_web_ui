@@ -43,10 +43,12 @@ import GravatarGroup from '../Avatars/GravatarGroup';
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { calculateInvestibleVoters } from '../../utils/votingUtils';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
+import { DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
-    overflow: 'visible'
+    overflow: 'visible',
+    backgroundColor: theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white'
   },
   cardContent: {
     padding: 0,

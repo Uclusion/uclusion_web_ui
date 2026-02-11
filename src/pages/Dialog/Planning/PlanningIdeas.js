@@ -680,8 +680,8 @@ function StageInvestible(props) {
            className={classes.outlinedAccepted}
            onContextMenu={recordPositionToggle}
            style={{minWidth: isReview ? (name?.length > 40 ? '90%' : '45%') : undefined, 
-            backgroundColor: isReview ? (isDark ? '#3b5b5f' : '#F4FAFB' ) : (isVoting ? (isDark ? '#273c3f' : '#E2F2F4') : 
-            (isDark ? '#314b4f' : '#EDF7F8'))}}
+            backgroundColor: isReview ? (isDark ? '#3b5b5f' : '#F4FAFB' ) : (isVoting ? (isDark ? '#273c3f' : '#CCEBEE') : 
+            (isDark ? '#314b4f' : '#E0F3F5'))}}
            onMouseOver={() => doShowEdit(investible.id)}
            onMouseOut={() => doRemoveEdit(investible.id)}
            onClick={event => {

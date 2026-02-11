@@ -289,7 +289,7 @@ export const useCommentStyles = makeStyles(
       },
       timeElapsed: {
         whiteSpace: 'nowrap',
-        color: "#A7A7A7",
+        color: theme.palette.type === 'dark' ? '#8E8E8E' : '#A7A7A7',
         paddingRight: '10px',
         paddingTop: '5px'
       },

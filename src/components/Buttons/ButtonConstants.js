@@ -16,7 +16,7 @@ export const DARK_INFO_COLOR = '#2a3a3c';
 export const DARK_COUNT_COLOR = '#FFB347';
 const DARK_LIGHT_BLUE_COLOR = '#1e2e30';
 export const DARK_LIGHTER_BLUE_COLOR = '#1a2628';
-export const DARK_TEXT_BACKGROUND_COLOR = '#D9DDDC';
+export const DARK_TEXT_BACKGROUND_COLOR = '#C7CBCA';
 
 /**
  * Hook that returns theme-aware button colors

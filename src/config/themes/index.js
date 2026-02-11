@@ -63,7 +63,7 @@ const darkThemeDefinition = {
       default: '#121212',
       paper: '#2a3a3c',
       actionButton: '#D9DDDC',
-      wizard: '#8c8c8c',
+      wizard: '#7a7a7a',
     },
     text: {
       primary: '#ffffff',

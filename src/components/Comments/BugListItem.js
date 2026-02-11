@@ -238,7 +238,7 @@ function BugListItem(props) {
                 {replyNum > 1 ? <Tooltip key={`tipreplies${id}`}
                                          title={intl.formatMessage({ id: 'numRepliesExplanation' })}>
                   <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px', marginRight: '15px',
-                    backgroundColor: 'white' }}/>
+                    backgroundColor: theme.palette.type === 'dark' ? 'grey' : 'white' }}/>
                 </Tooltip>: React.Fragment}
                 {isNew ? (<TitleB>{title}</TitleB>) : titleWithHelp}
                 {mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>) :

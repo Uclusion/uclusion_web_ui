@@ -334,7 +334,8 @@ function Reply(props) {
   </div>;
 
   const commentCard = <div className={getHighlightClass()}
-                            style={{width: !enableEditing ? 'fit-content' : undefined, paddingRight: '1rem', backgroundColor: (isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white')}}
+                            style={{width: !enableEditing ? 'fit-content' : undefined, paddingRight: '1rem', borderRadius: '8px',
+                              backgroundColor: (isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white')}}
                             id={`${isInbox ? 'inbox' : ''}${idPrepend}${comment.id}`}>
     <div onClick={(event) => {
       if (!invalidEditEvent(event, history)&&(replyBeingEdited || isInbox)) {

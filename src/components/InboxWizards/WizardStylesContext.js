@@ -129,10 +129,11 @@ export const wizardStyles = makeStyles(
         width: 200,
         backgroundColor: '#2D9CDB',
         color: 'white !important',
+        borderRadius: '8px',
         textTransform: 'unset !important',
         marginRight: '20px',
         '&:hover': {
-          backgroundColor: '#2D9CDB !important'
+          backgroundColor: '#2F80ED !important'
         },
         '&:disabled': {
           color: 'black',
@@ -144,6 +145,7 @@ export const wizardStyles = makeStyles(
         border: '2px solid #2D9CDB',
         color: 'black !important',
         backgroundColor: 'white',
+        borderRadius: '8px',
         textTransform: 'unset !important',
         maxHeight: '2.6rem',
         whiteSpace: 'nowrap',
@@ -159,10 +161,11 @@ export const wizardStyles = makeStyles(
       },
       actionSecondary: {
         backgroundColor: '#e0e0e0',
+        borderRadius: '8px',
         textTransform: 'unset',
         marginRight: '20px',
         '&:hover': {
-          backgroundColor: '#e0e0e0'
+          backgroundColor: '#2D9CDB'
         }
       },
       actionSkip: {

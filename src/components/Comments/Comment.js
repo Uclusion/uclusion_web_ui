@@ -963,7 +963,7 @@ function Comment(props) {
     </SpinningIconLabelButton>
   )}</>;
   const commentCard = <div style={{overflow: 'unset', backgroundColor: showHighlight ? undefined : (isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white'), 
-    marginTop: isSent === false || usePadding === false ? 0
+    borderRadius: '8px', marginTop: isSent === false || usePadding === false ? 0
       : '1rem', width: removeActions ? 'fit-content' : undefined}} className={getCommentHighlightStyle()}
                             ref={editBox}>
     <div onClick={(event) => {

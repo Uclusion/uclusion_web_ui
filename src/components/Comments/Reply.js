@@ -125,7 +125,7 @@ const useReplyStyles = makeStyles(
         }
       },
       timeElapsed: {
-        color: "#A7A7A7",
+        color: theme.palette.type === 'dark' ? '#8E8E8E' : '#A7A7A7',
         display: "inline-block",
         fontSize: 14
       },

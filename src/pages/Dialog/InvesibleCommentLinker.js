@@ -16,6 +16,16 @@ const useStyles = makeStyles(() => ({
   hidden: {
     display: 'none',
   },
+  iconButton: {
+    '&:hover': {
+      backgroundColor: 'rgba(45,128,237,0.12)',
+    },
+  },
+  copyButton: {
+    '&:hover': {
+      backgroundColor: 'rgba(45,128,237,0.12)',
+    },
+  },
   linkContainer: {
     width: '100%',
     display: 'flex',
@@ -93,6 +103,7 @@ function InvesibleCommentLinker(props) {
     <div id="inviteLinker" className={hidden ? classes.hidden : undefined}
          style={{marginBottom: flushBottom ? 0 : '1rem'}}>
         <IconButton
+          className={classes.iconButton}
           style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap',
             paddingLeft: flushLeft ? 0 : undefined}} 
             disableRipple={true}
@@ -121,6 +132,7 @@ function InvesibleCommentLinker(props) {
       }
                placement="top">
         <Button
+          className={classes.copyButton}
           style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap', color: textColor,
             paddingLeft: 0}} disableRipple={true}
                 onClick={(event) => {

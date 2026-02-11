@@ -3,9 +3,18 @@ import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import { useGmailTabsStyles, useGmailTabItemStyles } from '@mui-treasury/styles/tabs/gmail';
 import { Tooltip, useMediaQuery, useTheme } from '@material-ui/core';
+import { makeStyles } from '@material-ui/styles';
 import { useIntl } from 'react-intl';
 import { useButtonColors, COUNT_COLOR, DARK_ACTION_BUTTON_COLOR } from '../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
+
+const useTabHoverStyles = makeStyles(({ palette }) => ({
+  tabRoot: {
+    '&:hover': {
+      backgroundColor: palette.type === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(45,128,237,0.12)',
+    },
+  },
+}));
 
 export function GmailTabItem(props) {
   const { color='#2F80ED', label, tag, tagLabel, hasChip=true, tagColor=COUNT_COLOR, toolTipId, icon,
@@ -16,6 +25,7 @@ export function GmailTabItem(props) {
   const intl = useIntl();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const tabItemStyles = useGmailTabItemStyles({ ...props, color });
+  const hoverStyles = useTabHoverStyles();
   const useTagLabel = mobileLayout ? '' : (tagLabel || 'total');
   const useLabel = mobileLayout ? '' : (toolTipId ? <Tooltip
     title={intl.formatMessage({ id: toolTipId })}><div>{label}</div></Tooltip> : label);
@@ -23,7 +33,7 @@ export function GmailTabItem(props) {
   return (
     <Tab
       disableTouchRipple
-      classes={tabItemStyles}
+      classes={{ ...tabItemStyles, root: `${tabItemStyles.root} ${hoverStyles.tabRoot}` }}
       {...other}
       icon={isDark && icon ? React.cloneElement(icon, { htmlColor: DARK_ACTION_BUTTON_COLOR }) : icon}
       id={label.replace(/[ &/]/g, '')}

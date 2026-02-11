@@ -19,7 +19,7 @@ const lightThemeDefinition = {
     type: 'light',
     primary: {
       main: '#2F80ED',
-      light: '#EDF7F8',
+      light: '#D5EEEF',
       dark: '#5b8592',
       contrastText: '#ffffff',
       highlight: '#F8FBFC',
@@ -32,7 +32,7 @@ const lightThemeDefinition = {
     },
     background: {
       default: '#ffffff',
-      paper: '#DFF0F2',
+      paper: '#CCE7EA',
       actionButton: 'white',
     },
     text: {

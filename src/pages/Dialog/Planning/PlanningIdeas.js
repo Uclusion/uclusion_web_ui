@@ -312,7 +312,7 @@ function PlanningIdeas(props) {
     <div className={mobileLayout ? undefined : classes.stages}>
       <div id={`${inDialogStageId}_${presenceId}`} onDrop={onDropVoting} onDragEnd={removeDroppable}
            onDragOver={onDragOverProcess} onDragEnter={onDragEnterProcess} onDragLeave={onDragLeaveProcess}
-      >
+       >
         {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inDialogStageId]) && (
           <div style={{ marginTop: '0.5rem', marginLeft: '0.5rem' }}>
             <b><FormattedMessage id="planningVotingStageLabel"/></b>
@@ -333,7 +333,7 @@ function PlanningIdeas(props) {
       </div>
       <div id={`${acceptedStageId}_${presenceId}`} onDrop={onDropAccepted} onDragEnd={removeDroppable}
            onDragOver={onDragOverProcess} onDragEnter={onDragEnterProcess} onDragLeave={onDragLeaveProcess}
-      >
+       >
         {mobileLayout && !_.isEmpty(myInvestiblesStageHash[acceptedStageId]) && (
           <div style={{ marginTop: '0.5rem', marginLeft: '0.5rem' }}>
             <b><FormattedMessage id="planningAcceptedStageLabel"/></b>
@@ -351,9 +351,10 @@ function PlanningIdeas(props) {
           viewGroupId={groupId}
         />
       </div>
-      <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview} style={{ flex: '2 1 50%' }}
+      <div id={`${inReviewStageId}_${presenceId}`} onDrop={onDropReview}
            onDragEnd={removeDroppable} onDragOver={onDragOverProcess} onDragEnter={onDragEnterProcess}
            onDragLeave={onDragLeaveProcess}
+           style={{ flex: '2 1 50%'}}
       >
         {mobileLayout && !_.isEmpty(myInvestiblesStageHash[inReviewStageId]) && (
           <div style={{marginTop: '0.5rem', marginLeft: '0.5rem'}}>
@@ -567,6 +568,7 @@ function StageInvestible(props) {
     investibleOnDragStart
   } = props;
   const intl = useIntl();
+  const theme = useTheme();
   const { countColor, warningColor } = useButtonColors();
   const { completion_estimate: daysEstimate, assigned, group_id: groupId, stage: stageId,
     open_for_investment: openForInvestment } = marketInfo;
@@ -666,6 +668,7 @@ function StageInvestible(props) {
     && !comment.resolved && comment.in_progress && (!comment.root_comment_id || comments.find((c) => c.id === comment.root_comment_id)?.resolved !== true));
   const reviewComments = comments.filter((comment) => comment.investible_id === investible.id && !comment.deleted
     && !comment.resolved && comment.comment_type === REPORT_TYPE);
+  const isDark = theme.palette.type === 'dark';
   return (
     <>
       {anchorEl && (
@@ -676,7 +679,9 @@ function StageInvestible(props) {
       <div key={investible.id} id={investible.id} onDragStart={investibleOnDragStart} draggable
            className={classes.outlinedAccepted}
            onContextMenu={recordPositionToggle}
-           style={{minWidth: isReview ? (name?.length > 40 ? '90%' : '45%') : undefined}}
+           style={{minWidth: isReview ? (name?.length > 40 ? '90%' : '45%') : undefined, 
+            backgroundColor: isReview ? (isDark ? '#3b5b5f' : '#F4FAFB' ) : (isVoting ? (isDark ? '#273c3f' : '#E2F2F4') : 
+            (isDark ? '#314b4f' : '#EDF7F8'))}}
            onMouseOver={() => doShowEdit(investible.id)}
            onMouseOut={() => doRemoveEdit(investible.id)}
            onClick={event => {

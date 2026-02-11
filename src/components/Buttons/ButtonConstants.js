@@ -4,10 +4,10 @@ import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 // Light mode colors (default)
 export const ACTION_BUTTON_COLOR = "#8f8f8f";
 export const WARNING_COLOR = '#E85757';
-export const INFO_COLOR = '#DFF0F2';
+export const INFO_COLOR = '#CCE7EA';
 export const COUNT_COLOR = '#F29100';
-export const LIGHT_BLUE_COLOR = '#EDF7F8';
-export const LIGHTER_BLUE_COLOR = '#F8FBFC';
+export const LIGHT_BLUE_COLOR = '#D5EEEF';
+export const LIGHTER_BLUE_COLOR = '#EDF7F8';
 
 // Dark mode colors
 export const DARK_ACTION_BUTTON_COLOR = "#b0b0b0";

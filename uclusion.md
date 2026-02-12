@@ -1,10 +1,8 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#ea70be12-ff47-4e5c-b4cd-013e8415d18a)| 02/11| [Should fix UI bugs.](#3af2201b-8111-46e9-b746-2f33cf1312bd)| Deployed to production |
-| [Anything with tabs or left side panel now has different look - including the...](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)| | | [Dark mode for app](#effdb67c-5825-421b-a298-48770945da5f)| Deployed to production |
-| [Button on the question that generates AI prompt onto the clipboard.](#436e8e41-b8c4-4c73-8818-4d563a81ca44)| | | [Substitute for the comparison section,](#283ed39c-2e32-4d70-9c99-a9aef975439a)|  |
-| | | | [Organization section needs work.](#bffa8a04-9a95-4a38-b477-14171fb76464)|  |
-| | | | [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| Deployed to production |
+| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#ea70be12-ff47-4e5c-b4cd-013e8415d18a)| [Remaining back end issues](#5d515962-6d4d-4207-a85f-a0962b31eca0)| 02/26| [Bugs B-all-401, B-all-400](#f7e64af2-2c81-4baa-b2f7-a40df723db52)| Deployed to production |
+| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| | | [Dark mode for app](#effdb67c-5825-421b-a298-48770945da5f)| Deployed to production |
+| [Update stale documentation screen shots](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)| | | [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| Deployed to production |
 ## Job <a name="ea70be12-ff47-4e5c-b4cd-013e8415d18a"></a>
 ### Build the prompts necessary to get the lastest debuts from Show HN, Product...
 ...Hunt, etc. that meet the small tech startup criteria - have landing page but not too many engineers.
@@ -603,303 +601,70 @@ When search group drop down not in effect and just shows all results.
 #### Task <a name="2fcd674f-7c8d-46cf-85e8-6f10a428863c"></a> 
 Change sub text on archive to say archive instead of group archive.
 
+#### Task <a name="924ecad1-9099-4100-a608-bbbf24594cb6"></a> 
+Make sure empty text does not display in archive. Currently it does at least for bugs.
+
+#### Task <a name="8afc772c-c0e4-4131-abc3-2f930687e764"></a> 
+Just copy how chat inset works for Gmail - it does cover stuff up. No need to push everything over as now which ends up being hokey.
+
 ## Job <a name="9d810e3e-9f32-4f1b-b377-13aebd8fbb64"></a>
-### Anything with tabs or left side panel now has different look - including the...
-...shot of estimating in messages section above the fold.
+### Update stale documentation screen shots
+#### Task <a name="e651dc48-234e-440f-8fa0-9e215e22a64d"></a> 
+Almost all documentation pictures that come from Uclusion app screen shots.
 
-#### Task <a name="a495ccb2-6d43-41d3-8c76-8d8b5741a4ae"></a> 
-Anything with tabs or left side panel now has different look - including the shot of estimating in messages section above the fold.
+#### Resolved Task <a name="4957ab06-e55a-4948-910c-d21ffb3f0a48"></a> 
+Inbox dark mode date needs to be white.
 
-## Job <a name="436e8e41-b8c4-4c73-8818-4d563a81ca44"></a>
-### Button on the question that generates AI prompt onto the clipboard.
-Probably skipping pictures and file attachments.
+#### Resolved Task <a name="bc224c1c-8dfd-496c-a85b-2fc57c0e6c3d"></a> 
+All blog pictures that come from Uclusion app screen shots.
 
-#### Task <a name="17c54d09-22e8-4b03-a8bf-f59463c1ab1b"></a> 
-This button should produce markdown as <https://github.com/microsoft/markitdown> claims it is native to LLMs. Furthermore need the same markdown with token included image URLs that getting for public status report.
+#### Resolved Task <a name="a495ccb2-6d43-41d3-8c76-8d8b5741a4ae"></a> 
+All front end pictures that come from Uclusion app screen shots.
 
-#### Task <a name="c37e86d4-1efc-4dea-ae23-1fd0171f3175"></a> 
-Button on the question that generates AI prompt onto the clipboard. Probably skipping pictures and file attachments.
+## Job <a name="5d515962-6d4d-4207-a85f-a0962b31eca0"></a>
+### Remaining back end issues
+All currently known.
 
-## Job <a name="3af2201b-8111-46e9-b746-2f33cf1312bd"></a>
-### Should fix UI bugs.
-#### Resolved Task <a name="b5ca7cbe-704b-4cce-9e50-77834334f474"></a> 
-Count color not on bugs or backlog lists
+#### Task <a name="b097101a-dae2-406c-ac90-de23f91aa566"></a> 
+The action moving to complete took a long time to resolve the open tasks - probably async. Since this call from the action is already async should resolve them synchronously.
 
-#### Resolved Task <a name="d0c15bc9-9dbc-4a8f-a663-42c675f5995b"></a> 
-Link from comment in subtask wizard, and presumably others, goes to the comment but does not turn yellow. There was a flag for turning off the yellow but absolutely currently no reason to use such a thing - see if can fix so yellows correctly.
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/7811b2d6-d717-453a-a343-deab460e7fa7.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
+> ##### Grouped task <a name="d57adbc0-572b-46e1-afd7-6de66dce5386"></a> 
+Try to share the code to do this between async and sync (invoked from the action).
 
+#### Task <a name="39f63963-4ba5-454d-bef0-197b2c8de2d5"></a> 
+When you move a task to a bug any replies on it resend their notifications.
 
+## Job <a name="f7e64af2-2c81-4baa-b2f7-a40df723db52"></a>
+### Bugs B-all-401, B-all-400
 
-Actually turning yellow broken for link from ticket code and inbox also - seems just broken.
+#### Resolved Task <a name="3e6bb486-ad35-4235-8e46-6dcb9fa30bec"></a> 
+Now when do Ready for Work -> Reject assignment -> Back to Inbox it goes back to a different wizard than started with and hitting buttons there doesn't work.
 
-#### Resolved Task <a name="b85b71e3-3eb8-4b69-9d35-1c486b2101ed"></a> 
-Remove going to individual not new notifications other than critical bugs and outbox from navigation button.
+#### Resolved Task <a name="65bc9fa9-be29-4ed2-bb2e-4d9b93051c02"></a> 
+Back to Inbox wizard appears for outbox also but sends to undefined. Can do Ready for Work -> Other options -> Back to Inbox.
 
+#### Resolved Task <a name="bb04c532-ac14-4a5b-b722-0781a831a54e"></a> 
+Next view from navigation button must go to Job progress tab and not whatever tab already on.
 
+#### Resolved Task <a name="d29780df-27a6-4c74-86d8-e007227cde9b"></a> 
+Next task on local goes to
 
 
-Navigation will go to one of four places:
 
-1. New notifications expanded
-2. A critical bug notification
-3. Swimlanes of all views that is member of
-4. In progress tasks in assigned jobs
 
-#### Resolved Task <a name="6f93efb0-f0a6-4bc0-a1b4-6b3327c22571"></a> 
-Dragging a job directly from Assistance to Tasks Complete does not work for unassigned one (I think).
+<http://localhost:3000/dialog/161f6b87-f72d-4c85-afac-7ae4827ba924/0f7cbe80-64e3-46af-84e0-7290c2ae55ca#c75e3ebfc-b9dc-46d8-b888-1266c5d8422c>
 
-#### Resolved Task <a name="4e34416d-9b53-433a-a2d9-d1aaacc03d1d"></a> 
-Simplify views.
 
-> ##### Grouped task <a name="b85b71e3-3eb8-4b69-9d35-1c486b2101ed"></a> 
-Remove going to individual not new notifications other than critical bugs and outbox from navigation button.
 
 
+which then spins forever looking for that comment.
 
 
-Navigation will go to one of four places:
 
-1. New notifications expanded
-2. A critical bug notification
-3. Swimlanes of all views that is member of
-4. In progress tasks in assigned jobs
 
-> ##### Grouped task <a name="2d774af4-91ba-41a1-8b46-c5185eac71ed"></a> 
-When choose add peers get this:
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/f8ed40e6-f4f2-465a-af22-e956e251d543.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-That's too confusing - second step in the wizard has to ask if the people you are adding are on the same team or observers. If same team just create new named view and if not then automatically create autonomous view.
-
-
-
-
-**That means can't create the workspace till know as there must be at least one view.**
-
-
-
-
-**================**
-
-
-
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/e5bf8cf9-020c-49d7-81ae-e8f3c85af7a6.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-This above is too confusing. How about just two choices "Single person view" or "Team view". Sub-text explains that a workspace must have at least one view. If choose team view you name it yourself with sub-text that explains what a view is - the finish button there creates the workspace.
-
-> ##### Grouped task <a name="395caf80-2822-43fd-ae11-1a4ca6b17957"></a> 
-Remove view link to documentation and make collapsible section like all the rest and have collapsed by default when there is only one view.
-
-
-
-
-**J**ust drop the whole weird sidebar language and do as one thing.
-
-> ##### Grouped task <a name="3e5e867f-97a0-4156-93d1-ba8dbe4319a9"></a> 
-Remove explanation of views from intro to workspace screens.
-
-> ##### Grouped task <a name="6cff6d27-fbd1-455e-a1ab-4ad8aeb59e1b"></a> 
-Make solo demo single view only.
-
-#### Resolved Task <a name="da778633-d092-4486-b39c-0e9870887a7e"></a> 
-Search text doesn't change when go into job - still says view name.
-
-#### Resolved Task <a name="1cb3e171-26ec-47a6-bdd6-ae2267efa6ae"></a> 
-Check box on tasks overview is red instead of green.
-
-#### Resolved Task <a name="e60e9015-aa0c-49ed-abf4-0e58c1585873"></a> 
-From context menu can send an unassigned job to tasks complete without assigning it or resolving tasks - even though am only person in workspace.
-
-#### Resolved Task <a name="e80ece94-a27e-4f71-8849-554133591e00"></a> 
-On the overview of a job the number of resolved tasks should be a plain number instead of inside an orange chip.
-
-#### Resolved Task <a name="8806f87e-106e-41a7-a886-ab3f2e48e6a8"></a> 
-Verify on production that no scroll bar on switch workspace even with many workspaces.
-
-#### Resolved Task <a name="db65eb46-58dc-4078-86f2-5dd63694e1ce"></a> 
-If drag job with open suggestion to Work Ready and choose Make Task then just spins forever and no action taken.
-
-
-
-
-*Unable to repro any of this.*
-
-> ##### Grouped task <a name="528c8325-07e1-4366-9b2c-9d2ffcdf4a83"></a> 
-If have reply on that suggestion then after make the suggestion a task and put it in progress and put reply in progress, the reply disappears.
-
-#### Resolved Task <a name="395caf80-2822-43fd-ae11-1a4ca6b17957"></a> 
-Remove view link to documentation and make collapsible section like all the rest and have collapsed by default when there is only one view.
-
-
-
-
-**J**ust drop the whole weird sidebar language and do as one thing.
-
-#### Resolved Task <a name="1e78582a-7193-4907-b060-85dad860e25a"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/80873630-89de-4414-8a96-9aad0098400c.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Don't display the view name in ticket code. It already displays on right nav under View and on left nav if in that view.
-
-#### Resolved Task <a name="1ba98476-cd57-40f9-af2e-be2cacea2d05"></a> 
-Put in debug log statements to figure out when search bar is re-rendering and flickering. Related to Must fix bugs. - T-all-7 ?
-
-> ##### Grouped task <a name="2e922336-b81d-49cb-853a-0e7f89942d95"></a> 
-Redo presentation of offline and have timer on it. See Gmail example - not nearly as big a message. Can simulate offline in Chrome devtools.
-
-#### Resolved Task <a name="7a0e8e35-d10d-403e-aa5c-89cfe28fce04"></a> 
-When move from in approval to work ready on job I don't own it does not ask for reassignment to me. (Instead asks for approval.)
-
-
-
-
-**Actually can't ask for reassignment to me since if I dragged to their work ready - if I dragged to my work ready then it will reassign.**
-
-#### Resolved Task <a name="bbe5eebd-10d3-4c1d-a4fa-cb7a75ae1538"></a> 
-On resolved tasks in overview do not show buttons to move to bugs as must be open to do that.
-
-
-
-
-Maybe don't show selector or anything as get "No open tasks" when try - either turn that off and allow or disallow any buttons that would arrive at that.
-
-#### Resolved Task <a name="b019ffb1-7558-48ac-8916-3482485860d4"></a> 
-When move job with question from assignee in regular view to Work Ready not prompted to resolve question and instead goes briefly till quick add wiped out.
-
-#### Resolved Task <a name="6f802862-2a5e-428a-a3a7-530455d4b794"></a> 
-Cannot link to resolved investible bugs - doesn't go to that section.
-
-#### Resolved Task <a name="90f611ac-c888-44be-86f8-98d215ca64a1"></a> 
-No navigation when do search. Instead make up a level the only one that shows.
-
-#### Resolved Task <a name="3e5e867f-97a0-4156-93d1-ba8dbe4319a9"></a> 
-Remove explanation of views from intro to workspace screens.
-
-#### Resolved Task <a name="c545887b-8fe7-4fc3-ad4c-94b64005ff90"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/9ebd03f5-a012-4fd1-9980-a58c9379168e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Doesn't look good and empty text is misleading. **Just make assist part of what prevents empty text from showing.**
-
-#### Resolved Task <a name="0e5f6beb-60b8-4283-bf69-028bdedb5dbf"></a> 
-Notes are somehow following the progress report logic and only showing the latest one - possibly even resolving older ones.
-
-#### Resolved Task <a name="13375543-da18-4589-b826-948cf8968370"></a> 
-Don't show poke icon on resolved comments.
-
-#### Resolved Task <a name="87d078c7-9375-412a-9367-fb7509a8adc3"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/65826b2f-930a-42a1-863e-c24890e7db47.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Tab extends beyond rows weirdly.
-
-#### Resolved Task <a name="c3fec27e-6465-4b09-b299-b4205f34d957"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/d06b3c63-0d12-4bb7-ac65-aa3577f134b8.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Make In progress left most on both parent and child. Drop date on child - parent doesn't have both so why should it.
-
-#### Resolved Task <a name="6cff6d27-fbd1-455e-a1ab-4ad8aeb59e1b"></a> 
-Make solo demo single view only.
-
-#### Resolved Task <a name="8a4ee34b-6a80-4aa0-bfed-49825d42f892"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c047efba-47bc-4389-8a4f-858fa4f06772.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Counts don't add up - 7 - 5 = 2 missing.
-
-#### Resolved Task <a name="f9ce3d3e-7db4-42f6-9872-66a03e5e1729"></a> 
-Make the search bar look more standard - use AI if necessary.
-
-#### Resolved Task <a name="83af94b4-f765-4d25-bf40-c87c0eda20ac"></a> 
-When search resolved tasks must display on tasks page as well so that search works. Currently it shows resolved found as on tasks page but nothing there.
-
-
-
-
-During search either show both resolved and unresolved on tasks page or one on the other respectively and nail up resolved tab on overview.
-
-
-
-
-Actually do the former - when searching doesn't matter resolved or not and not many will display.
-
-#### Resolved Task <a name="da760056-b86d-42ef-b830-97d1f17019b9"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/102fb8cb-439c-470d-bf57-02c62b3dae35.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-In a team view so should have Add with voting button available. **Plus errors out if hit Configure voting button.**
-
-#### Resolved Task <a name="cb34dbe5-e22d-46aa-99f8-232cb75191ca"></a> 
-Reply linking icon is in corner but for comment is in middle. Too confusing. Probably reply one should move to middle cause as it is looks like the avatar for the name which it isn't.
-
-> ##### Grouped task <a name="dd255c52-1d03-4c52-bc58-9abb4f2c2145"></a> 
-For the jobs overview expansion the linker is to the right and nothing is on the left.
-
-#### Resolved Task <a name="e6109310-9f42-4e46-b515-21e1c0bb62e7"></a> 
-All empty text in support workspace must be support specific.
-
-#### Resolved Task <a name="7e20ed91-4fc7-4419-ab9d-a4cb49d7e74f"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/36d21323-4f19-49d3-94e0-a52b3473f1c2.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Here have both the expand circle and the chevron to expand. So the collapsed comment should be blue and should link back to the comment instead of uncollapsing - except if hit chevron of course.
-
-#### Resolved Task <a name="e3452cea-2ea2-4feb-b46d-482c136193e4"></a> 
-Colors have to match the status screen - red for new and orange for not.
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/8ac27cc5-e4af-40f1-ab1d-8745c7c31a73.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-If orange doesn't work then change it in both places but must match - no new colors for the same info.
-
-#### Resolved Task <a name="5aaf01ec-a15e-4732-8c23-6c15c05b6dee"></a> 
-Edit a subtask header - should say subtask instead of reply and don't need author on either since only author of both can edit.
-
-
-
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/a1320ce4-4200-434e-99e7-eda11fe4916d.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-#### Resolved Task <a name="61a70e37-6cc3-41d4-9c64-6df09d309c8c"></a> 
-Context menu for Not Ready backlog does not include Not Doing.
-
-#### Resolved Task <a name="b3ac8ea4-c96a-480a-98fb-c5f7a6a07815"></a> 
-Leader thing with two tabs seems broken - got:
-
-
-
-
-    Not refreshing with is leader undefined
-
-#### Resolved Task <a name="537c9d78-ca5e-4976-81d4-bbec1412667b"></a> 
-Have an upgrade script that removes all notifications associated with unused older demo versions.
-
-
-
-
-**Or maybe just fully cleans them up as the script that does that cleans up a planning market (including notifications) should exist.**
+**Problem is that this is a child comment and nothing knows how to get there. Just link to parent as can't get to children cause logic of potentially opening compressed to get there was funky and want context from parent anyway.**
 
 ## Job <a name="effdb67c-5825-421b-a298-48770945da5f"></a>
 ### Dark mode for app
@@ -909,6 +674,9 @@ Have to have it and doesn't seem like that hard to do. Just make the background 
 
 
 Does seem to also work off of a signal from OS as some things in browser go dark when use dark on OS.
+
+#### Resolved Task <a name="951a3004-573d-4e06-be0b-5d36f0f87c4f"></a> 
+Number of replies chip on BuglistItem not working in dark mode.
 
 #### Resolved Task <a name="05da9aa2-de7e-4b6d-84ee-a74babb69de1"></a> 
 MenuLists need work - inbox, bugs, backlog, options, etc.
@@ -926,6 +694,28 @@ Fix user preferences.
 
 #### Resolved Task <a name="aef1d487-32cc-4aec-b8b7-0c89f29b1081"></a> 
 Fix all the wizards.
+
+#### Resolved Task <a name="7113cf47-f30b-4201-a661-a68aa59745b7"></a> 
+Try making the boxes in swimlanes and assistance a different color - just do slight shades of the background color - get AI to generate them and have them go from paused to complete with complete the lightest.
+
+> ##### Grouped task <a name="47b4200e-2430-4ae6-af5a-6270e1911d08"></a> 
+Fix the drag and drop color also.
+
+#### Resolved Task <a name="963a9bc8-e6e5-48f9-8eb1-5c51b6522634"></a> 
+On comments and anywhere else round all corners.
+
+
+
+
+Action buttons should match the rounding done for Next button.
+
+#### Resolved Task <a name="ae93ff66-3e53-4c18-abbc-09f38da0ca3a"></a> 
+Make sure anything clickable like the commit message and tab names etc. changes color.
+
+
+
+
+This includes add button on wizards which is not changing color.
 
 #### Resolved Task <a name="4c575926-cbe2-49ca-8877-02ef46d70099"></a> 
 Check mobile - button should be not present there.
@@ -946,6 +736,17 @@ Quill editor background should be more greyish in dark mode - black text still w
 
 
 Same for rectangular action buttons at top and next button?
+
+#### Resolved Task <a name="eec1e53e-82db-468e-a8e3-2fb68fc8d8ea"></a> 
+"Move to which job" - remove highlight on selection as did elsewhere.
+
+#### Resolved Task <a name="3a81e818-ed5f-4c69-a10d-2c1b57455cca"></a> 
+Make comment and investible description boxes darker shade of grey than current.
+
+
+
+
+Also the same for wizard background.
 
 #### Resolved Task <a name="0c7a4a36-ffe8-4131-abfc-b72e7e744fa7"></a> 
 Icons on investible right nav.
@@ -970,6 +771,9 @@ Consider dark mode for app and landing page.
 
 **See if AI can do this for you.**
 
+#### Resolved Task <a name="8efc886a-ebb9-4207-9f69-7f128691021f"></a> 
+Fix pitch black that is there when edit a comment.
+
 #### Resolved Task <a name="017a1dc8-edaa-4ce6-9e9a-5fac9f54d477"></a> 
 Workspace menu drop down needs work.
 
@@ -982,35 +786,14 @@ Highlight of left nav item must be darker or can't read it - or make everything 
 #### Resolved Task <a name="76688d5e-8b0d-418c-84b9-6b67b4942009"></a> 
 Can't get to workspace integration preferences from workspace drop down - even in light mode.
 
+#### Resolved Task <a name="db79b78f-7f22-4ade-abed-8d22e408f225"></a> 
+When drag and drop section is high lighting white in dark mode swimlanes.
+
+#### Resolved Task <a name="5118b044-abae-416e-9f9a-dd0c8bbac97a"></a> 
+Change colors on identity box - darker in dark mode and darker in light mode too but less.
+
 #### Resolved Task <a name="3e1cd93a-8ee0-4811-899d-57247dc4ca97"></a> 
 Get rid of the sidebar border line in dark mode.
-
-## Job <a name="283ed39c-2e32-4d70-9c99-a9aef975439a"></a>
-### Substitute for the comparison section,
-
-#### Resolved Task <a name="6d550fb7-e7d7-4985-bd2b-75ca88df6f2e"></a> 
-See if can find substitute for the comparison section or way to make it reasonable - get kid's help.
-
-
-
-
-Video explaining in progress/ navigation / subtask is possible.
-
-## Job <a name="bffa8a04-9a95-4a38-b477-14171fb76464"></a>
-### Organization section needs work.
-Only the first picture should remain and even that might not be first. Bugs and backlog need pictures and backlog shows in assistance - show or explain that somehow.
-
-#### Resolved Task <a name="1a051204-930b-4117-b22b-57011239af31"></a> 
-Show close up of assistance section and context menu on something in backlog showing that you can move to Not Ready - that also shows stages.
-
-#### Resolved Task <a name="347b4083-564f-4865-aa98-5ffd973fc01f"></a> 
-Show bugs and explain they can be moved back and forth from jobs.
-
-#### Resolved Task <a name="0ab02d42-364a-45b9-9e22-b4264d7185b5"></a> 
-No reason not to add a plus sign next to tasks so that can create from there.
-
-#### Resolved Task <a name="5c9637a6-b94c-4a16-9aea-fe8bcc4d2cc0"></a> 
-Do the full context menu even if in swimlanes - no reason not to and now no stage header.
 
 ## Job <a name="c27ba80a-bc55-45b7-8dae-0bbae049e570"></a>
 ### Mobile issues.

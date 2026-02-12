@@ -766,7 +766,7 @@ function PlanningInvestible(props) {
               </div>
             </div>
             <div className={mobileLayout? undefined : classes.votingCardContent}
-                 style={{display: 'flex', paddingLeft: mobileLayout ? '10px' : undefined, backgroundColor: 'white',
+                 style={{display: 'flex', paddingLeft: mobileLayout ? '10px' : undefined, 
                    paddingBottom: mobileLayout ? '20px' : undefined, marginBottom: '2rem'}}>
               <div className={isEditableByUser() ? classes.fullWidthEditable :
                 classes.fullWidth} onClick={(event) =>
@@ -778,7 +778,8 @@ function PlanningInvestible(props) {
                 )}
                 {marketId && investibleId && (
                   <div className={isEditableByUser() ? editClasses.containerEditable : editClasses.container} 
-                    style={{padding: '1rem', backgroundColor: isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white'}}>
+                    style={{padding: '1rem', borderRadius: '8px',
+                    backgroundColor: isDark ? DARK_TEXT_BACKGROUND_COLOR : 'white'}}>
                     <Typography className={editClasses.title} variant="h3" component="h1">
                       {name}
                     </Typography>

@@ -70,7 +70,7 @@ const Title = styled(Text)`
 
 const TitleB
   = styled(Title)`
-  color: rgba(0, 0, 0, 0.87);
+  opacity: 0.87;
   font-weight: bold;
 `;
 
@@ -84,7 +84,7 @@ const DateLabel = styled("div")`
 `;
 
 const DateLabelB = styled(DateLabel)`
-  color: rgba(0, 0, 0, 0.87);
+  opacity: 0.87;
   font-weight: bold;
 `;
 
@@ -182,7 +182,8 @@ function BacklogListItem(props) {
                   </span>
                 </Tooltip>
               )}
-              {!date ? React.Fragment : (isNew ? (<DateLabelB>{date}</DateLabelB>) :
+              {!date ? React.Fragment : 
+              (isNew ? (<DateLabelB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{date}</DateLabelB>) :
                 (<DateLabel>{date}</DateLabel>))}
             </Div>
           </div>

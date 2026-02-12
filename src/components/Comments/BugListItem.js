@@ -80,7 +80,7 @@ const Title = styled(Text)`
 
 const TitleB
   = styled(Title)`
-  color: rgba(0, 0, 0, 0.87);
+  opacity: 0.87;
   font-weight: bold;
 `;
 
@@ -240,7 +240,7 @@ function BugListItem(props) {
                   <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px', marginRight: '15px',
                     backgroundColor: theme.palette.type === 'dark' ? 'grey' : 'white' }}/>
                 </Tooltip>: React.Fragment}
-                {isNew ? (<TitleB>{title}</TitleB>) : titleWithHelp}
+                {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{title}</TitleB>) : titleWithHelp}
                 {mobileLayout || !date ? React.Fragment : 
                 (isNew ? (<DateLabelBNotHovered style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{date}</DateLabelBNotHovered>) :
                   (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}

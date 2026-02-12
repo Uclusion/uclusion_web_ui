@@ -101,7 +101,7 @@ const DateLabelNotHovered = styled(DateLabel)`
 `;
 
 const DateLabelBNotHovered = styled(DateLabelNotHovered)`
-  color: rgba(0, 0, 0, 0.87);
+  opacity: 0.87;
   font-weight: bold;
 `;
 
@@ -241,7 +241,8 @@ function BugListItem(props) {
                     backgroundColor: theme.palette.type === 'dark' ? 'grey' : 'white' }}/>
                 </Tooltip>: React.Fragment}
                 {isNew ? (<TitleB>{title}</TitleB>) : titleWithHelp}
-                {mobileLayout || !date ? React.Fragment : (isNew ? (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>) :
+                {mobileLayout || !date ? React.Fragment : 
+                (isNew ? (<DateLabelBNotHovered style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{date}</DateLabelBNotHovered>) :
                   (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}
                 {mobileLayout && !_.isEmpty(expansionPanel) && (
                   <div style={{paddingRight: '0.25rem'}}>

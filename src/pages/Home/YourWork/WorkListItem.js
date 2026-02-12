@@ -106,7 +106,7 @@ const DateLabelNotHovered = styled(DateLabel)`
 `;
 
 const DateLabelBNotHovered = styled(DateLabelNotHovered)`
-  color: rgba(0, 0, 0, 0.87);
+  opacity: 0.87;
   font-weight: bold;
 `;
 
@@ -261,7 +261,7 @@ function WorkListItem(props) {
             {mobileLayout || !people ? React.Fragment : <GravatarGroup users={people} className={classes.gravatarStyle}/> }
             <Text>{fullText}</Text>
             {mobileLayout || !date ? React.Fragment : (read ? (<DateLabelNotHovered>{date}</DateLabelNotHovered>) :
-              (<DateLabelBNotHovered>{date}</DateLabelBNotHovered>))}
+              (<DateLabelBNotHovered style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{date}</DateLabelBNotHovered>))}
             {!isNotSynced && !mobileLayout && (
               <DateLabelHovered>
                 {isDeletable && (

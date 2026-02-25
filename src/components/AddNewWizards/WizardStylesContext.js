@@ -145,9 +145,11 @@ export const wizardStyles = makeStyles(
         color: '#fff',
         textTransform: 'capitalize',
         fontWeight: 'bold',
-        '&:hover': {
-          backgroundColor: '#ec7676'
-        }
+        '@media (hover: hover)': {
+          '&:hover': {
+            backgroundColor: '#ec7676'
+          }
+        },
       },
       actionPrimary: {
         width: 200,
@@ -158,8 +160,10 @@ export const wizardStyles = makeStyles(
         maxHeight: '2.6rem',
         whiteSpace: 'nowrap',
         marginRight: '20px',
-        '&:hover': {
-          backgroundColor: '#2F80ED !important'
+        '@media (hover: hover)': {
+          '&:hover': {
+            backgroundColor: '#2F80ED !important'
+          },
         },
         '&:disabled': {
           color: 'black',
@@ -176,9 +180,11 @@ export const wizardStyles = makeStyles(
         maxHeight: '2.6rem',
         whiteSpace: 'nowrap',
         marginRight: '20px',
-        '&:hover': {
-          backgroundColor: '#2D9CDB !important',
-          color: 'white !important'
+        '@media (hover: hover)': {
+         '&:hover': {
+            backgroundColor: '#2D9CDB !important',
+            color: 'white !important'
+          },
         },
         '&:disabled': {
           color: 'black',
@@ -193,9 +199,11 @@ export const wizardStyles = makeStyles(
         maxHeight: '2.6rem',
         whiteSpace: 'nowrap',
         marginRight: '20px',
-        '&:hover': {
-          backgroundColor: '#2D9CDB !important',
-          color: 'white !important'
+        '@media (hover: hover)': {
+          '&:hover': {
+            backgroundColor: '#2D9CDB !important',
+            color: 'white !important'
+          },
         },
         '&:disabled': {
           color: 'black',
@@ -207,9 +215,11 @@ export const wizardStyles = makeStyles(
         textTransform: 'unset',
         borderRadius: '8px',
         marginRight: '20px',
-        '&:hover': {
-          backgroundColor: '#2D9CDB'
-        }
+        '@media (hover: hover)': {
+          '&:hover': {
+            backgroundColor: '#2D9CDB'
+          }
+        },
       },
       actionSkip: {
         textTransform: 'unset !important',

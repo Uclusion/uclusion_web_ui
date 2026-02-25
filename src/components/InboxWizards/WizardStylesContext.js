@@ -150,9 +150,11 @@ export const wizardStyles = makeStyles(
         maxHeight: '2.6rem',
         whiteSpace: 'nowrap',
         marginRight: '20px',
-        '&:hover': {
-          backgroundColor: '#2D9CDB !important',
-          color: 'white !important',
+        '@media (hover: hover)': {
+          '&:hover': {
+            backgroundColor: '#2D9CDB !important',
+            color: 'white !important',
+          },
         },
         '&:disabled': {
           color: 'black',
@@ -164,9 +166,11 @@ export const wizardStyles = makeStyles(
         borderRadius: '8px',
         textTransform: 'unset',
         marginRight: '20px',
-        '&:hover': {
-          backgroundColor: '#2D9CDB'
-        }
+        '@media (hover: hover)': {
+          '&:hover': {
+            backgroundColor: '#2D9CDB'
+          }
+        },
       },
       actionSkip: {
         textTransform: 'unset !important',

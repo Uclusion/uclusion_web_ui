@@ -26,6 +26,7 @@ function SpinningButton(props) {
   const intl = useIntl();
   const [operationRunning, setOperationRunning] = useContext(OperationInProgressContext);
   const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const mySpinning = operationRunning === id || (!onClick && spinning);
   const spinningDisabled = (operationRunning !== false)||(!onClick && spinning);
   function myOnClick() {
@@ -58,7 +59,7 @@ function SpinningButton(props) {
       />
     )}
   </BaseButton>;
-  if (toolTipId && !myDisabled) {
+  if (toolTipId && !myDisabled && !mobileLayout) {
     return (
       <Tooltip title={
         <h3>

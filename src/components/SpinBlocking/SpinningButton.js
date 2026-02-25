@@ -3,7 +3,7 @@
  */
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { CircularProgress, useTheme, Tooltip, Button } from '@material-ui/core';
+import { CircularProgress, useTheme, Tooltip, Button, useMediaQuery } from '@material-ui/core';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext'
 import { useIntl } from 'react-intl';
 import FocusRippleButton from '../Buttons/FocusRippleButton';

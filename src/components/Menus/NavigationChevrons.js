@@ -53,15 +53,10 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.actionButton,
     transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
     '@media (hover: hover)': {
-    '&:hover': {
+      '&:hover': {
         backgroundColor: '#2F80ED',
         color: 'white',
         boxShadow: '0 2px 8px rgba(255, 255, 255, 0.15)'
-      },
-    },
-    '@media (hover: none)': {
-      '&:hover': {
-        backgroundColor: 'unset !important',
       },
     },
     '&:disabled': {

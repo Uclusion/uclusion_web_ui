@@ -35,6 +35,7 @@ import { extractTodosList } from '../../../utils/commentFunctions';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
+import { TODO_TYPE } from '../../../constants/comments';
 
 function JobDescriptionStep (props) {
   const { marketId, groupId, updateFormData = () => {}, onFinish, roots, formData = {}, jobType, startOver, nextStep,
@@ -60,8 +61,8 @@ function JobDescriptionStep (props) {
   function getDefaultDescription() {
     let defaultDescription = undefined;
     if (_.isEmpty(getQuillStoredState(editorName))&&isMovingTasks) {
-      const isNotBugMove = roots.find((fromComment) => !fromComment?.ticket_code?.startsWith('B'));
-      if (isNotBugMove) {
+      const isBugMove = roots.find((fromComment) => fromComment.comment_type === TODO_TYPE && !fromComment.investible_id);
+      if (!isBugMove) {
         // If moving more than one non bug task don't default the description
         if (_.size(roots) === 1) {
           const fromComment = roots[0];

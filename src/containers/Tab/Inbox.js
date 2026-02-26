@@ -15,6 +15,11 @@ const useTabHoverStyles = makeStyles(({ palette }) => ({
         backgroundColor: palette.type === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(45,128,237,0.12)',
       },
     },
+    '@media (hover: none)': {
+      '&:hover': {
+        backgroundColor: 'unset !important',
+      },
+    },
   },
 }));
 

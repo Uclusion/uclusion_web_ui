@@ -156,6 +156,11 @@ export const wizardStyles = makeStyles(
             color: 'white !important',
           },
         },
+        '@media (hover: none)': {
+          '&:hover': {
+            backgroundColor: 'unset !important',
+          },
+        },
         '&:disabled': {
           color: 'black',
           backgroundColor: '#ecf0f1'
@@ -170,6 +175,11 @@ export const wizardStyles = makeStyles(
           '&:hover': {
             backgroundColor: '#2D9CDB'
           }
+        },
+        '@media (hover: none)': {
+          '&:hover': {
+            backgroundColor: 'unset !important',
+          },
         },
       },
       actionSkip: {

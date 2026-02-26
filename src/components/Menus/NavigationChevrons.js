@@ -59,6 +59,11 @@ const useStyles = makeStyles((theme) => ({
         boxShadow: '0 2px 8px rgba(255, 255, 255, 0.15)'
       },
     },
+    '@media (hover: none)': {
+      '&:hover': {
+        backgroundColor: 'unset !important',
+      },
+    },
     '&:disabled': {
       backgroundColor: 'transparent'
     }

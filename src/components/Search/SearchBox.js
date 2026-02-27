@@ -164,6 +164,7 @@ function SearchBox(props) {
         size="small"
         defaultValue={searchResults.search}
         InputProps={{
+          style: { borderRadius: '8px' },
           startAdornment: (
             <InputAdornment position="start">
               <SearchIcon color="action" />

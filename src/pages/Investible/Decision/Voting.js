@@ -186,7 +186,7 @@ function Voting(props) {
                 style={{paddingBottom: hasContent && !myUseCompression ? undefined : '1rem'}}
                 onClick={(event) => {
                   if (isEditable) {
-                    setBeingEdited(true, event);
+                    setBeingEdited(event);
                   } else {
                     toggleCompression();
                   }

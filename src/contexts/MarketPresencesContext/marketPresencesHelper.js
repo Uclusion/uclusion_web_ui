@@ -13,9 +13,12 @@ export function addPresenceToMarket(dispatch, marketId, presence) {
   dispatch(addMarketPresence(marketId, presence));
 }
 
-export function removeInvestibleInvestments(state, dispatch, marketId, investibleId) {
+export function removeInvestibleInvestments(state, dispatch, marketId, investibleId, isKeepMyInvestment=false) {
   const presences = state[marketId] || [];
   presences.forEach((presence) => {
+    if (isKeepMyInvestment && presence.current_user) {
+      return;
+    }
     const { investments: oldInvestments } = presence;
     let modified = false;
     const investments = oldInvestments?.map((investment) => {

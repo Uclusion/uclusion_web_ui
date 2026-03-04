@@ -85,12 +85,12 @@ function JobAssignStep (props) {
       investibleId,
       assignments: value,
     };
-    return updateInvestible(updateInfo).then((fullInvestible) => {
+    return updateInvestible(updateInfo).then((fullInvestible) => { 
       refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
       const messages = findMessagesForInvestibleId(investibleId, messagesState) || [];
       const messageIds = messages.map((message) => message.type_object_id);
       messagesDispatch(removeMessages(messageIds));
-      removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId);
+      removeInvestibleInvestments(marketPresencesState, marketPresencesDispatch, marketId, investibleId, true);
       setOperationRunning(false);
       // Remove type object id as will not be able to return to inbox row necessarily
       history.replace(formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId));

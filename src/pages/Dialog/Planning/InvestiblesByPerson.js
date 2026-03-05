@@ -19,6 +19,7 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { getGroupMentionsApprovals } from '../../../utils/commentFunctions';
+import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
 const useInvestiblesByPersonStyles = makeStyles(
   theme => {
@@ -130,6 +131,7 @@ function InvestiblesByPerson(props) {
   const [groupPresencesState] = useContext(GroupMembersContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [messagesState] = useContext(NotificationsContext);
+  const [marketStagesState] = useContext(MarketStagesContext);
   const { search } = searchResults;
   const presences = getMarketPresences(marketPresencesState, marketId) || [];
   const groupPresences = getGroupPresences(presences, groupPresencesState, marketId, groupId) || [];
@@ -147,7 +149,7 @@ function InvestiblesByPerson(props) {
         const showAsPlaceholder = placeholderType === PLACEHOLDER;
         const myInvestibles = getUserInvestibles(id, marketId, investibles);
         const myInvestiblesStageHash = getUserSwimlaneInvestiblesHash(myInvestibles, visibleStages, marketId,
-          comments, messagesState);
+          comments, messagesState, marketStagesState);
         const myClassName = showAsPlaceholder ? metaClasses.archivedColor : metaClasses.normalColor;
         const { mentions, approvals } = getGroupMentionsApprovals(groupId, myPresence, isAutonomous, comments);
         if (_.isEmpty(myInvestiblesStageHash) &&

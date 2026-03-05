@@ -1,7 +1,7 @@
 import { getMarketInfo } from '../../../utils/userFunctions';
 import _ from 'lodash';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getFullStage, isAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { findMessagesForInvestibleId } from '../../../utils/messageUtils';
 import { TODO_TYPE } from '../../../constants/comments';
 
@@ -53,14 +53,16 @@ function hasInProgress(investibleId, marketComments) {
     comment.comment_type === TODO_TYPE && comment.in_progress));
 }
 
-export function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments, messagesState) {
+export function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments, messagesState, 
+  marketStagesState) {
   const stageId = stage.id;
   const isStartedStage = isAcceptedStage(stage);
   const limitInvestibles = !isStartedStage ? (stage || {}).allowed_investibles : undefined;
   const limitInvestiblesAge = (stage || {}).days_visible;
   let stageInvestibles = userInvestibles.filter((investible) => {
     const marketInfo = getMarketInfo(investible, marketId) || {};
-    if (isStartedStage && hasInProgress(investible.investible.id, marketComments)) {
+    const investibleStage = getFullStage(marketStagesState, marketId, marketInfo.stage);
+    if (isStartedStage && investibleStage.allows_tasks && hasInProgress(investible.investible.id, marketComments)) {
       return true;
     }
     return marketInfo.stage === stageId;
@@ -89,12 +91,13 @@ export function getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId,
   return stageInvestibles;
 }
 
-export function getUserSwimlaneInvestiblesHash(userInvestibles, stages, marketId, marketComments, messagesState) {
+export function getUserSwimlaneInvestiblesHash(userInvestibles, stages, marketId, marketComments, messagesState, 
+  marketStagesState) {
   const stageInvestiblesHash = {};
   (stages || []).forEach((stage) =>{
     const stageId = stage.id;
     const stageInvestibles = getSwimlaneInvestiblesForStage(userInvestibles, stage, marketId, marketComments,
-      messagesState);
+      messagesState, marketStagesState);
     if (!_.isEmpty(stageInvestibles)) {
       stageInvestiblesHash[stageId] = stageInvestibles;
     }

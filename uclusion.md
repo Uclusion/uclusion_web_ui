@@ -1,8 +1,9 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#ea70be12-ff47-4e5c-b4cd-013e8415d18a)| [Remaining back end issues](#5d515962-6d4d-4207-a85f-a0962b31eca0)| 02/26| [Bugs B-all-401, B-all-400](#f7e64af2-2c81-4baa-b2f7-a40df723db52)| Deployed to production |
-| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| | | [Dark mode for app](#effdb67c-5825-421b-a298-48770945da5f)| Deployed to production |
-| [Update stale documentation screen shots](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)| | | [Mobile issues.](#c27ba80a-bc55-45b7-8dae-0bbae049e570)| Deployed to production |
+| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#ea70be12-ff47-4e5c-b4cd-013e8415d18a)| | | [Update stale documentation screen shots](#9d810e3e-9f32-4f1b-b377-13aebd8fbb64)|  |
+| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| | | [Remaining back end issues](#5d515962-6d4d-4207-a85f-a0962b31eca0)| Stage |
+| | | | [Critical bugs.](#a3bdbe44-f98a-46d7-8b87-5badd9a4db4d)| Stage |
+| | | | [Delaware franchise tax.](#d26b4ed9-b655-4c06-94f6-e2ce68cc55bb)|  |
 ## Job <a name="ea70be12-ff47-4e5c-b4cd-013e8415d18a"></a>
 ### Build the prompts necessary to get the lastest debuts from Show HN, Product...
 ...Hunt, etc. that meet the small tech startup criteria - have landing page but not too many engineers.
@@ -609,7 +610,7 @@ Just copy how chat inset works for Gmail - it does cover stuff up. No need to pu
 
 ## Job <a name="9d810e3e-9f32-4f1b-b377-13aebd8fbb64"></a>
 ### Update stale documentation screen shots
-#### Task <a name="e651dc48-234e-440f-8fa0-9e215e22a64d"></a> 
+#### Resolved Task <a name="e651dc48-234e-440f-8fa0-9e215e22a64d"></a> 
 Almost all documentation pictures that come from Uclusion app screen shots.
 
 #### Resolved Task <a name="4957ab06-e55a-4948-910c-d21ffb3f0a48"></a> 
@@ -625,218 +626,167 @@ All front end pictures that come from Uclusion app screen shots.
 ### Remaining back end issues
 All currently known.
 
-#### Task <a name="b097101a-dae2-406c-ac90-de23f91aa566"></a> 
-The action moving to complete took a long time to resolve the open tasks - probably async. Since this call from the action is already async should resolve them synchronously.
+#### Resolved Task <a name="b097101a-dae2-406c-ac90-de23f91aa566"></a> 
+The action moving to complete took a long time to resolve the open tasks.
 
 ![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/7811b2d6-d717-453a-a343-deab460e7fa7.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
 
 > ##### Grouped task <a name="d57adbc0-572b-46e1-afd7-6de66dce5386"></a> 
-Try to share the code to do this between async and sync (invoked from the action).
+**Actually no the correct way to do this is to filter better on the status display so that async has time to catch up.**
 
-#### Task <a name="39f63963-4ba5-454d-bef0-197b2c8de2d5"></a> 
+#### Resolved Task <a name="6a5ec178-53a0-4dc2-9128-4b97917650d5"></a> 
+Changing the assignment from someone else to me when I have an existing approval does not work. Probably need to drop automatically removing my own approval when I am the one changing assignment.
+
+
+
+
+Also check for any quick delete of your approval.
+
+> ##### Grouped task <a name="d12b3f53-1cde-4bb4-b6dd-a7e1ba56b195"></a> 
+Then change front end to not go into update approval when drag and drop and already have a vote OR just fix that stage for this case.
+
+#### Resolved Task <a name="075badfd-12c4-4688-aaa5-68fee3cd0f0e"></a> 
+You have an SSL/TLS certificate from AWS Certificate Manager in your AWS account that expires on Apr 13, 2026 at 23:59:59 UTC. This certificate includes the primary domain [preview.documentation.uclusion.com](http://preview.documentation.uclusion.com/) and a total of 1 domains.
+
+
+
+
+AWS account ID: 264600994537
+
+AWS Region name: us-east-1
+
+Certificate identifier: arn:aws:acm:us-east-1:264600994537:certificate/423c7b15-1c3c-45d6-889b-2ea181761a00
+
+
+
+
+**Remove this certificate - see email.**
+
+#### Resolved Task <a name="39f63963-4ba5-454d-bef0-197b2c8de2d5"></a> 
 When you move a task to a bug any replies on it resend their notifications.
 
-## Job <a name="f7e64af2-2c81-4baa-b2f7-a40df723db52"></a>
-### Bugs B-all-401, B-all-400
+#### Resolved Task <a name="4d996224-4a16-443f-b97f-412a3df8e6bd"></a> 
+    22602-During handling of the above exception, another exception occurred:
 
-#### Resolved Task <a name="3e6bb486-ad35-4235-8e46-6dcb9fa30bec"></a> 
-Now when do Ready for Work -> Reject assignment -> Back to Inbox it goes back to a different wizard than started with and hitting buttons there doesn't work.
+    22670-
 
-#### Resolved Task <a name="65bc9fa9-be29-4ed2-bb2e-4d9b93051c02"></a> 
-Back to Inbox wizard appears for outbox also but sends to undefined. Can do Ready for Work -> Other options -> Back to Inbox.
+    22671-Traceback (most recent call last):
 
-#### Resolved Task <a name="bb04c532-ac14-4a5b-b722-0781a831a54e"></a> 
-Next view from navigation button must go to Job progress tab and not whatever tab already on.
+    22706-  File "/var/task/handlers/update.py", line 69, in post_validation_function
 
-#### Resolved Task <a name="d29780df-27a6-4c74-86d8-e007227cde9b"></a> 
-Next task on local goes to
+    22782-    user.update(actions=actions)
 
+    22815-  File "/opt/python/lib/python3.10/site-packages/pynamodb/models.py", line 436, in update
 
+    22905-    data = self._get_connection().update_item(hk_value, range_key=rk_value, return_values=ALL_NEW, condition=condition, actions=actions)
 
+    23042-  File "/opt/python/lib/python3.10/site-packages/pynamodb/connection/table.py", line 122, in update_item
 
-<http://localhost:3000/dialog/161f6b87-f72d-4c85-afac-7ae4827ba924/0f7cbe80-64e3-46af-84e0-7290c2ae55ca#c75e3ebfc-b9dc-46d8-b888-1266c5d8422c>
+    23147-    return self.connection.update_item(
 
+    23187-  File "/opt/python/lib/python3.10/site-packages/pynamodb/connection/base.py", line 912, in update_item
 
+    23291:    raise UpdateError("Failed to update item: {}".format(e), e)
 
+    23355:pynamodb.exceptions.UpdateError: Failed to update item: An error occurred (ConditionalCheckFailedException) on request (OBNN9GKOBDIPL0SJI94IBRP6VFVV4KQNSO5AEMVJF66Q9ASUAAJG) on table (uclusion-users-dev-users) when calling the UpdateItem operation: The conditional request failed
 
-which then spins forever looking for that comment.
+    23635-
 
+    23636-During handling of the above exception, another exception occurred:
 
+    23704-
 
+    23705-Traceback (most recent call last):
 
-**Problem is that this is a child comment and nothing knows how to get there. Just link to parent as can't get to children cause logic of potentially opening compressed to get there was funky and want context from parent anyway.**
+    23740-  File "/opt/python/lib/python3.10/site-packages/pynamodb/connection/base.py", line 365, in _make_api_call
 
-## Job <a name="effdb67c-5825-421b-a298-48770945da5f"></a>
-### Dark mode for app
-Have to have it and doesn't seem like that hard to do. Just make the background colors come out of the theme and have setting to change theme to dark.
+    23847-    return self.client._make_api_call(operation_name, operation_kwargs)
 
+    23919-  File "/opt/python/lib/python3.10/site-packages/botocore/context.py", line 123, in wrapper
 
+    24011-    return func(*args, **kwargs)
 
+    24044-  File "/opt/python/lib/python3.10/site-packages/botocore/client.py", line 1078, in _make_api_call
 
-Does seem to also work off of a signal from OS as some things in browser go dark when use dark on OS.
+    24143-    raise error_class(parsed_response, operation_name)
 
-#### Resolved Task <a name="951a3004-573d-4e06-be0b-5d36f0f87c4f"></a> 
-Number of replies chip on BuglistItem not working in dark mode.
+    --
 
-#### Resolved Task <a name="05da9aa2-de7e-4b6d-84ee-a74babb69de1"></a> 
-MenuLists need work - inbox, bugs, backlog, options, etc.
+    25478-Traceback (most recent call last):
 
-#### Resolved Task <a name="9ef67ef5-439f-4fd2-bbc7-744452fc4b4e"></a> 
-Check dark mode when chips.
+    25513-  File "/opt/python/lib/python3.10/site-packages/ubcommon/handlers/abstract_request_handler.py", line 32, in handle_request
 
+    25637-    return create_standard_return_body(post_validation_function(event, data, context, validation_context),
 
+    25744-  File "/var/task/handlers/update.py", line 75, in post_validation_function
 
+    25820-    user.update(actions=actions)
 
-Use dark mode on stage for a while.
+    25853-  File "/opt/python/lib/python3.10/site-packages/pynamodb/models.py", line 436, in update
 
-#### Resolved Task <a name="76e4cad8-390e-4c55-911a-4544b795f380"></a> 
-Fix user preferences.
+    25943-    data = self._get_connection().update_item(hk_value, range_key=rk_value, return_values=ALL_NEW, condition=condition, actions=actions)
 
-#### Resolved Task <a name="aef1d487-32cc-4aec-b8b7-0c89f29b1081"></a> 
-Fix all the wizards.
+    26080-  File "/opt/python/lib/python3.10/site-packages/pynamodb/connection/table.py", line 122, in update_item
 
-#### Resolved Task <a name="7113cf47-f30b-4201-a661-a68aa59745b7"></a> 
-Try making the boxes in swimlanes and assistance a different color - just do slight shades of the background color - get AI to generate them and have them go from paused to complete with complete the lightest.
+    26185-    return self.connection.update_item(
 
-> ##### Grouped task <a name="47b4200e-2430-4ae6-af5a-6270e1911d08"></a> 
-Fix the drag and drop color also.
+    26225-  File "/opt/python/lib/python3.10/site-packages/pynamodb/connection/base.py", line 912, in update_item
 
-#### Resolved Task <a name="963a9bc8-e6e5-48f9-8eb1-5c51b6522634"></a> 
-On comments and anywhere else round all corners.
+    26329:    raise UpdateError("Failed to update item: {}".format(e), e)
 
+    26393:pynamodb.exceptions.UpdateError: Failed to update item: An error occurred (ValidationException) on request (1GO9UIJ948JTP8PI25N6L7FKGBVV4KQNSO5AEMVJF66Q9ASUAAJG) on table (uclusion-users-dev-users) when calling the UpdateItem operation: Invalid UpdateExpression: Two document paths overlap with each other; must remove or rewrite one of these paths; path one: [version], path two: [version]
 
+    26784-/aws/lambda/uclusion-users-dev-users_update 2026/03/03/[$LATEST]c333a99c9cb44e309d978431eff4a03b [WARNING]        2026-03-03T04:20:42.300Z        65d0b467-ce55-4180-a2bb-1aff3dfef1a0  {'user_id': 'a2f1fe14-2b98-40dc-8cd7-a953678f71c5', 'needs_onboarding': False, 'onboarding_state': 'DEMO_CREATED'}
 
+    27068:/aws/lambda/uclusion-users-dev-users_update 2026/03/03/[$LATEST]c333a99c9cb44e309d978431eff4a03b [INFO]   2026-03-03T04:20:42.300Z        65d0b467-ce55-4180-a2bb-1aff3dfef1a0  {'invoked': 'uclusion-users-dev-users_update', 'statusCode': 500, 'body': '{"error_message": "<class \'pynamodb.exceptions.UpdateError\'>"}'}
 
-Action buttons should match the rounding done for Next button.
 
-#### Resolved Task <a name="ae93ff66-3e53-4c18-abbc-09f38da0ca3a"></a> 
-Make sure anything clickable like the commit message and tab names etc. changes color.
 
 
+Cause this trick failing:
 
 
-This includes add button on wizards which is not changing color.
 
-#### Resolved Task <a name="4c575926-cbe2-49ca-8877-02ef46d70099"></a> 
-Check mobile - button should be not present there.
 
-#### Resolved Task <a name="31b39ecb-197a-4120-b8a3-4449e433a958"></a> 
-Use one color for created updated by text on comments - is greyish on child and black on parent - regardless of mode.
+    try:
 
-#### Resolved Task <a name="c8fdae53-c03f-42fd-8321-a7ae06759a8d"></a> 
-Check remaining FormControl in both add and inbox wizards.
+    user.update(actions=actions)
 
-#### Resolved Task <a name="a0485f7c-fb9c-4fea-8ce9-89ae97950f26"></a> 
-In light mode when a row in inbox etc. is new it should be the light blue of the background color instead of the current darker color of the sidebar. Similarly for dark mode.
+    except UpdateError as e:
 
-#### Resolved Task <a name="623614ad-814c-4a4d-b0a7-4c1c9e732d9b"></a> 
-Quill editor background should be more greyish in dark mode - black text still works but display won't be so glaring.
+    if 'onboarding_state' not in data:
 
+    raise e
 
+    # Do one retry as onboarding state is must have
 
+    user = UserModel.get(hash_key=user.external_id, range_key=user.account_id, consistent_read=True)
 
-Same for rectangular action buttons at top and next button?
+    user.update(actions=actions)
 
-#### Resolved Task <a name="eec1e53e-82db-468e-a8e3-2fb68fc8d8ea"></a> 
-"Move to which job" - remove highlight on selection as did elsewhere.
+## Job <a name="a3bdbe44-f98a-46d7-8b87-5badd9a4db4d"></a>
+### Critical bugs.
+#### Resolved Task <a name="225e42f3-9282-46a2-a546-0d409965f9e2"></a> 
+Remove the hover color from navigate button on mobile. Also hints from Add button.
 
-#### Resolved Task <a name="3a81e818-ed5f-4c69-a10d-2c1b57455cca"></a> 
-Make comment and investible description boxes darker shade of grey than current.
 
 
 
+Actually same on Add buttons and maybe all with hover / press - the color does not go back to normal. Check or have AI put in the correct way.
 
-Also the same for wizard background.
 
-#### Resolved Task <a name="0c7a4a36-ffe8-4131-abfc-b72e7e744fa7"></a> 
-Icons on investible right nav.
 
-#### Resolved Task <a name="3ebd6230-64ae-4651-b64f-165dda904529"></a> 
-Close integrations chevron not visible in light or dark mode unless hover and so don't know can close.
 
-#### Resolved Task <a name="f60da6bd-8b22-4531-b7a5-aee0e58aa360"></a> 
-Fix the background of inbox wizards to be the same as add wizards.
+Same for tabs - the changes Ethan had make don’t work on mobile.
 
-#### Resolved Task <a name="4174dcb1-2680-4bc3-acdd-91489b297897"></a> 
-Add another view to demo so can check collapse icon visible in dark mode.
+> ##### Grouped task <a name="eafc8662-57f8-4fe4-991b-989f2923d7c3"></a> 
+Test on iPhone as dev tools not honoring fix.
 
-#### Resolved Task <a name="94e04ea2-17e3-4cdb-8607-16d46dcbff08"></a> 
-Get rid of the line under the name in swimlanes.
+#### Resolved Task <a name="bf554e8a-5f5b-49b4-b1d9-5baf091115ab"></a> 
+Created a new job out of two critical bugs and the description didn't auto fill.
 
-#### Resolved Task <a name="50ba92b2-572e-477a-9360-1c1cb761f91a"></a> 
-Consider dark mode for app and landing page.
+#### Resolved Task <a name="ad1cead2-893b-4f0a-b411-2cd8a4ac9043"></a> 
+Use of isSingleUser in CommentAdd is wrong - could have just not added the second user yet. Can check if fully autonomous instead. Probably true on whatever doing with ISSUE type but not sure.
 
-
-
-
-**See if AI can do this for you.**
-
-#### Resolved Task <a name="8efc886a-ebb9-4207-9f69-7f128691021f"></a> 
-Fix pitch black that is there when edit a comment.
-
-#### Resolved Task <a name="017a1dc8-edaa-4ce6-9e9a-5fac9f54d477"></a> 
-Workspace menu drop down needs work.
-
-#### Resolved Task <a name="84d3f75d-14dc-4a6b-a9c1-71bbd00d7503"></a> 
-Visible checkbox on comment is wrong color.
-
-#### Resolved Task <a name="c293bb08-c18c-4d24-9bec-613dbf0f4c6b"></a> 
-Highlight of left nav item must be darker or can't read it - or make everything in it darker.
-
-#### Resolved Task <a name="76688d5e-8b0d-418c-84b9-6b67b4942009"></a> 
-Can't get to workspace integration preferences from workspace drop down - even in light mode.
-
-#### Resolved Task <a name="db79b78f-7f22-4ade-abed-8d22e408f225"></a> 
-When drag and drop section is high lighting white in dark mode swimlanes.
-
-#### Resolved Task <a name="5118b044-abae-416e-9f9a-dd0c8bbac97a"></a> 
-Change colors on identity box - darker in dark mode and darker in light mode too but less.
-
-#### Resolved Task <a name="3e1cd93a-8ee0-4811-899d-57247dc4ca97"></a> 
-Get rid of the sidebar border line in dark mode.
-
-## Job <a name="c27ba80a-bc55-45b7-8dae-0bbae049e570"></a>
-### Mobile issues.
-#### Resolved Task <a name="39bf8c1f-32bc-46a5-a58d-0ecf3ad36233"></a> 
-On mobile when open collaborators get white instead of blue.
-
-#### Resolved Task <a name="38481d49-e8b4-4ce3-ba3b-d915f090b07b"></a> 
-Details section on mobile needs to default to open.
-
-#### Resolved Task <a name="4b3c9ca4-7326-4271-82de-803ef5e16876"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/da90ff1b-a4ad-482a-bbe7-7db577d17a1f.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-Still too much left padding to fit
-
-#### Resolved Task <a name="aad2b51c-2d4f-4b6c-b404-6a59999ae994"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/c1fb4684-0181-4398-b875-e2bb38c3ae7b.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-After link option to task and resolve question have weird floating header
-
-#### Resolved Task <a name="acf05f3f-b694-40f7-8cd9-e846823909f4"></a> 
-Drop tool bar and drawer on mobile and just do exactly with menu as did for identity (which works on mobile). Make sure the color is okay - there is some weird white.
-
-#### Resolved Task <a name="21c29a24-a2c5-4809-a8cd-4d60de64b362"></a> 
-Try again get rid of some of the floaty on mobile. Might be able to repro at intermediate sizes.
-
-
-
-
-This is intermittent and does not repro at intermediate sizes.
-
-
-
-
-**Maybe give AI a crack at it.**
-
-#### Resolved Task <a name="42ce409a-ce4d-468a-ae2a-4a0bf4c5560c"></a> 
-Need refresh button since reload doesn’t do refresh necessarily and not obvious. This button should run sync so spinning on and returns error if fails just like anything else.
-
-
-
-
-Put this button on the workspace dropdown - mobile and desktop. Call it "Manual sync".
-
+## Job <a name="d26b4ed9-b655-4c06-94f6-e2ce68cc55bb"></a>
+### Delaware franchise tax.

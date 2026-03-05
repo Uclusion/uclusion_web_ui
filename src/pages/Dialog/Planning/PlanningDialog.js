@@ -211,7 +211,7 @@ function PlanningDialog(props) {
     return stage && stage.appears_in_context && stage.allows_tasks;
   });
   const swimlaneCompleteInvestibles = getSwimlaneInvestiblesForStage(investiblesFullAssist, inReviewStage,
-    marketId, marketComments, messagesState)
+    marketId, marketComments, messagesState, marketStagesState);
   const activeInvestibles = swimlaneInvestibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     return marketInfo.assigned?.includes(myPresence.id);

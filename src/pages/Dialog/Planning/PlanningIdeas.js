@@ -140,8 +140,7 @@ function PlanningIdeas(props) {
     event.preventDefault();
     const investibleId = event.dataTransfer.getData('text');
     const currentStageId = event.dataTransfer.getData('stageId');
-    if (!operationRunning && !isBlockedByTodo(investibleId, currentStageId, targetStageId) &&
-      currentStageId !== targetStageId) {
+    if (!operationRunning && !isBlockedByTodo(investibleId, currentStageId, targetStageId)) {
       const target = event.target;
       target.style.cursor = 'wait';
       const moveInfo = {
@@ -155,22 +154,25 @@ function PlanningIdeas(props) {
       const investible = getInvestible(invState, investibleId);
       const marketInfo = getMarketInfo(investible, marketId);
       const { assigned } = marketInfo;
+      const isAssignToOther = !assigned?.includes(presenceId);
       // When moving to a row can't end up on a different row but can be on multiple rows
-      if (!assigned?.includes(presenceId)) {
+      if (isAssignToOther) {
         moveInfo.stageInfo.assignments = [presenceId];
       } else {
         moveInfo.stageInfo.assignments = assigned;
       }
-      setOperationRunning(true);
-      return stageChangeInvestible(moveInfo)
-        .then((inv) => {
-          const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
-          onInvestibleStageChange(targetStageId, inv, investibleId, marketId, commentsState, commentsDispatch,
-            invDispatch, diffDispatch, marketStagesState, undefined, fullStage, marketPresencesDispatch);
-        }).finally(() => {
-          target.style.cursor = 'grab';
-          setOperationRunning(false);
-        });
+      if (currentStageId !== targetStageId || isAssignToOther) {
+        setOperationRunning(true);
+        return stageChangeInvestible(moveInfo)
+          .then((inv) => {
+            const fullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
+            onInvestibleStageChange(targetStageId, inv, investibleId, marketId, commentsState, commentsDispatch,
+              invDispatch, diffDispatch, marketStagesState, undefined, fullStage, marketPresencesDispatch);
+          }).finally(() => {
+            target.style.cursor = 'grab';
+            setOperationRunning(false);
+          });
+      }
     }
     return Promise.resolve();
   }

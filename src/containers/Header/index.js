@@ -14,6 +14,7 @@ import {
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/styles';
 import {
+  navigate,
   openInNewTab,
   preventDefaultAndProp
 } from '../../utils/marketIdPathFunctions'
@@ -33,6 +34,7 @@ import { OnboardingState } from '../../contexts/AccountContext/accountUserContex
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
 import { useButtonColors, INFO_COLOR } from '../../components/Buttons/ButtonConstants';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
+import { DEMO_TYPE, PLANNING_TYPE, WORKSPACE_WIZARD_TYPE } from '../../constants/markets';
 
 export const headerStyles = makeStyles((theme) => {
   return {
@@ -166,6 +168,7 @@ function Header (props) {
   const [pegLogo, setPegLogo] = useState(false);
   const isDemoLoading = _.isEmpty(userState?.user) ||
     OnboardingState.NeedsOnboarding === userState.user.onboarding_state;
+  const isDemoWorkspace = defaultMarket?.market_type === PLANNING_TYPE && defaultMarket?.object_type === DEMO_TYPE;
 
   useEffect(() => {
     if (appEnabled) {
@@ -215,7 +218,13 @@ function Header (props) {
               {(!mobileLayout || operationRunning) && !isDemoLoading && (
                 <Link href="/" onClick={(event) => {
                   preventDefaultAndProp(event);
-                  history.push('/');
+                  if (isDemoWorkspace) {
+                    // Don't rely on useEffect in Root because it won't run if nothing has changed
+                    console.info('Navigating to create workspace with default demo market');
+                    navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`);
+                  } else {
+                    history.push('/');
+                  }
                 }} color="primary" style={{fontWeight: 'bold'}}>
                   <svg style={{ width: '130px', verticalAlign: 'middle', transition: 'all 125ms linear' }}
                       xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">

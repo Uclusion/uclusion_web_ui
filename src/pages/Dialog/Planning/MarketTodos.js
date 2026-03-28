@@ -234,24 +234,26 @@ function MarketTodos(props) {
         const foundComment = comments.find((comment) => comment.id === foundCommentId);
         const { root_comment_id: rootId } = foundComment;
         const rootComment = !rootId ? foundComment : comments.find((comment) => comment.id === rootId);
-        const { notification_type: notificationType } = rootComment;
-        if (notificationType === RED_LEVEL) {
-          bugDispatch(setTab(0));
-        } else if (notificationType === YELLOW_LEVEL) {
-          bugDispatch(setTab(1));
-        } else {
-          bugDispatch(setTab(2));
-        }
-        bugDispatch(pin(rootComment.id));
-        const message = findMessageForCommentId(rootComment.id, messagesState);
-        if (message?.is_highlighted) {
-          let event = DEHIGHLIGHT_EVENT;
-          if (message.type_object_id.startsWith('UNREAD')) {
-            event = DELETE_EVENT;
+        if (rootComment) {
+          const { notification_type: notificationType } = rootComment;
+          if (notificationType === RED_LEVEL) {
+            bugDispatch(setTab(0));
+          } else if (notificationType === YELLOW_LEVEL) {
+            bugDispatch(setTab(1));
+          } else {
+            bugDispatch(setTab(2));
           }
-          pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: message.type_object_id });
+          bugDispatch(pin(rootComment.id));
+          const message = findMessageForCommentId(rootComment.id, messagesState);
+          if (message?.is_highlighted) {
+            let event = DEHIGHLIGHT_EVENT;
+            if (message.type_object_id.startsWith('UNREAD')) {
+              event = DELETE_EVENT;
+            }
+            pushMessage(MODIFY_NOTIFICATIONS_CHANNEL, { event, message: message.type_object_id });
+          }
+          removeHash(history);
         }
-        removeHash(history);
       }
       if (foundCommentId || hash.includes(MARKET_TODOS_HASH)) {
         if (!sectionOpen) {

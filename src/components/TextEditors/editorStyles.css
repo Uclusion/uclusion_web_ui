@@ -45,9 +45,21 @@ a[target="_blank"]::after {
     }
 }
 .ql-toolbar {
-    /* <== using sticky here breaks the dropdowns */
     width: 100%;
     background-color:lightgrey;
+}
+.ql-snow .ql-picker.ql-expanded .ql-picker-options {
+    top: auto !important;
+    bottom: 100%;
+}
+.ql-snow .ql-picker.ql-expanded .ql-picker-label {
+    color: #444;
+}
+.ql-snow .ql-picker.ql-expanded .ql-picker-label .ql-stroke {
+    stroke: #444;
+}
+.ql-snow .ql-picker.ql-expanded .ql-picker-label .ql-fill {
+    fill: #444;
 }
 @media screen and (max-width: 600px) {
     .ql-disabled .ql-editor{

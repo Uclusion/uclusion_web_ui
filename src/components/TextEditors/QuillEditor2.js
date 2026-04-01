@@ -87,6 +87,7 @@ function QuillEditor2 (props) {
   const classes = useStyles();
   const containerRef = useRef();
   const boxRef = useRef();
+  const toolbarRef = useRef();
   const [uploadInProgress, setUploadInProgress] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
@@ -209,6 +210,13 @@ function QuillEditor2 (props) {
         value
       };
       createEditor(id, noToolbar ? value : undefined, editorConfig, false);
+      if (!noToolbar && toolbarRef.current && containerRef.current) {
+        const toolbar = containerRef.current.querySelector('.ql-toolbar');
+        if (toolbar) {
+          toolbarRef.current.innerHTML = '';
+          toolbarRef.current.appendChild(toolbar);
+        }
+      }
     }
     // This is probably a bad idea, but the create should be fine
     // due to the checks above (missing createEditor dep)
@@ -230,35 +238,47 @@ function QuillEditor2 (props) {
 
   return (
     <div
-      id={`${useCssId}scroll`}
       style={{
+        display: 'flex',
+        flexDirection: 'column',
         maxHeight: maxHeight || (noOverflow ? undefined : '50vh'),
-        overflowY: noOverflow ? undefined : 'auto',
       }}
     >
-      {createVideoUi(id)}
-      {createLinkUi(id)}
       <div
-        ref={containerRef}
-        className={noToolbar ? classes.root : classes.nothing}
-        style={noToolbar ? containerReadOnlyStyle : containerStyle}
-        id={useCssId}
+        id={`${useCssId}scroll`}
+        style={{
+          flex: noOverflow ? undefined : 1,
+          overflowY: noOverflow ? undefined : 'auto',
+          minHeight: noOverflow ? undefined : 0,
+        }}
       >
-        {noToolbar && (
-          <div ref={boxRef} id={boundsId} style={editorStyle}/>
-        )}
-        {!noToolbar && (
-          <LoadingOverlay
-            active={uploadInProgress}
-            spinner
-            className="editor-wrapper"
-            text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
-          >
+        {createVideoUi(id)}
+        {createLinkUi(id)}
+        <div
+          ref={containerRef}
+          className={noToolbar ? classes.root : classes.nothing}
+          style={noToolbar ? containerReadOnlyStyle : containerStyle}
+          id={useCssId}
+        >
+          {noToolbar && (
             <div ref={boxRef} id={boundsId} style={editorStyle}/>
-            {buttons}
-          </LoadingOverlay>
-        )}
+          )}
+          {!noToolbar && (
+            <LoadingOverlay
+              active={uploadInProgress}
+              spinner
+              className="editor-wrapper"
+              text={intl.formatMessage({ id: 'quillEditorUploadInProgress' })}
+            >
+              <div ref={boxRef} id={boundsId} style={editorStyle}/>
+              {buttons}
+            </LoadingOverlay>
+          )}
+        </div>
       </div>
+      {!noToolbar && (
+        <div ref={toolbarRef} style={{ flexShrink: 0, position: 'relative', zIndex: 8 }} />
+      )}
     </div>
   );
 }

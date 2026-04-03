@@ -40,8 +40,7 @@ class CustomQuillClipboard extends Clipboard {
 
 
   onCapturePaste(e) {
-    // mostly cribbed from the real implementation
-    // at https://github.com/quilljs/quill/blob/develop/modules/clipboard.js
+    // See very similar real implementation at https://github.com/quilljs/quill/blob/develop/modules/clipboard.js
     if (e.defaultPrevented || !this.quill.isEnabled()) return;
     e.preventDefault();
     const range = this.quill.getSelection(true);

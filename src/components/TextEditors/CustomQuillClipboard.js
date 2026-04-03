@@ -43,6 +43,9 @@ class CustomQuillClipboard extends Clipboard {
     const html = e.clipboardData.getData('text/html');
     let filteredHtml = stripDangerousImageTags(html);
     let text = e.clipboardData.getData('text/plain');
+    // These are invisible and mess up the line breaks
+    text = text.replace(/&nbsp;/g, ' '); 
+    text = text.replace(/\u00a0/g, ' ');
     if(isUrl(text)){
       const name = getNameForUrl(text);
       let url = text;

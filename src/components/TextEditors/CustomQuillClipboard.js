@@ -27,6 +27,12 @@ function stripDangerousImageTags(html){
   return sandbox.innerHTML;
 }
 
+function cleanText(text) {
+  // These are invisible and mess up the line breaks
+  return text?.replace(/&nbsp;/g, ' ')
+    .replace(/\u00a0/g, ' ');
+}
+
 // NOTE: We currently allow copying and pasting the image tag for our own images
 // this WILL break if you paste across markets because what we need to do there
 // is reupload the original to the new market.
@@ -42,10 +48,9 @@ class CustomQuillClipboard extends Clipboard {
     if (range == null) return;
     const html = e.clipboardData.getData('text/html');
     let filteredHtml = stripDangerousImageTags(html);
+    filteredHtml = cleanText(filteredHtml);
     let text = e.clipboardData.getData('text/plain');
-    // These are invisible and mess up the line breaks
-    text = text.replace(/&nbsp;/g, ' '); 
-    text = text.replace(/\u00a0/g, ' ');
+    text = cleanText(text);
     if(isUrl(text)){
       const name = getNameForUrl(text);
       let url = text;

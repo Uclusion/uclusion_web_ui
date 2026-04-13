@@ -47,44 +47,40 @@ def login(api_url, credentials):
         return json.loads(resp.read().decode('utf-8'))
 
 
-def post_to_mcp(url, headers, body):
-    """
-    POST a JSON-RPC message to the streamable HTTP MCP endpoint.
-    Returns the response, handling both application/json and text/event-stream.
-    """
+def post_to_mcp(url, headers, body, timeout=30):
     req = urllib.request.Request(
         url, data=body.encode('utf-8'),
         headers=headers, method='POST'
     )
-    resp = urllib.request.urlopen(req)
-    return resp
+    return urllib.request.urlopen(req, timeout=timeout)
+
+
+def write_message(obj):
+    """Write a JSON-RPC message as a single compact line to stdout (stdio transport)."""
+    line = json.dumps(obj, separators=(',', ':'))
+    sys.stdout.write(line + '\n')
+    sys.stdout.flush()
 
 
 def handle_json_response(resp):
-    if resp.status == 200 or resp.status == 201:
-        """Write a plain JSON response back to stdout for Cursor."""
-        data = resp.read().decode('utf-8')
-        if data.strip():
-            sys.stdout.write(data)
-            if not data.endswith('\n'):
-                sys.stdout.write('\n')
-            sys.stdout.flush()
+    data = resp.read().decode('utf-8')
+    if data.strip():
+        write_message(json.loads(data))
 
 
 def handle_sse_response(resp):
-    """Parse an SSE stream and write each JSON-RPC message to stdout for Cursor."""
     for raw_line in resp:
         line = raw_line.decode('utf-8').rstrip('\r\n')
         if line.startswith('data: '):
             payload = line[6:]
             if payload.strip():
-                sys.stdout.write(payload)
-                if not payload.endswith('\n'):
-                    sys.stdout.write('\n')
-                sys.stdout.flush()
+                write_message(json.loads(payload))
 
 
 def main():
+    sys.stdin = os.fdopen(sys.stdin.fileno(), 'r', buffering=1, closefd=False)
+    sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', buffering=1, closefd=False)
+
     market_id = sys.argv[1]
     url_env = sys.argv[2] if len(sys.argv) > 2 else None
     if url_env == 'dev':
@@ -108,7 +104,10 @@ def main():
         post_url = 'https://investibles.' + api_url + '/mcp'
         session_id = None
 
-        for line in sys.stdin:
+        while True:
+            line = sys.stdin.readline()
+            if not line:
+                break
             line = line.strip()
             if not line:
                 continue
@@ -128,8 +127,6 @@ def main():
                 continue
 
             is_notification = 'id' not in msg
-            if is_notification:
-                continue
 
             try:
                 resp = post_to_mcp(post_url, headers, line)
@@ -137,6 +134,10 @@ def main():
                 sid = resp.headers.get('Mcp-Session-Id')
                 if sid:
                     session_id = sid
+
+                if is_notification:
+                    resp.read()
+                    continue
 
                 content_type = resp.headers.get('Content-Type', '')
                 if 'text/event-stream' in content_type:
@@ -146,9 +147,11 @@ def main():
 
             except urllib.request.HTTPError as e:
                 body = e.read().decode('utf-8', errors='replace')
-                sys.stderr.write(f"HTTP {e.code} from MCP server: {body}\n")
+                if not is_notification:
+                    sys.stderr.write(f"HTTP {e.code} from MCP server: {body}\n")
             except Exception as e:
-                sys.stderr.write(f"Error posting to MCP server: {e}\n")
+                if not is_notification:
+                    sys.stderr.write(f"Error posting to MCP server: {e}\n")
 
     except Exception as e:
         sys.stderr.write(f"Proxy setup failed: {e}\n")

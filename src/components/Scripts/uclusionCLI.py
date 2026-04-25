@@ -326,33 +326,39 @@ def get_ticket_code_from_line(line, ticket_type):
     return f"{ticket_type}{line_split[0]}"
 
 
-def write_uclusion_md(config, credentials):
-    file_path = config.get('uclusionMDFilePath')
-    file_type = config.get('uclusionMDFileType')
-    print(f"  ✅ Processing: '{file_path}'")
-    if file_type == 'export':
-        export_list_api_url = 'https://summaries.' + credentials['api_url'] + '/export_list'
-        response = send(None, 'GET', export_list_api_url, credentials['api_token'])
-        market_investible_ids = response['market_investible_ids']
-        export_api_url = 'https://summaries.' + credentials['api_url'] + '/export'
-        new_file_content = ''
-        for batch in batched(market_investible_ids, 20):
-            full_export_api_url = export_api_url + '?idType=marketInvestible&id=' + '&id='.join(batch)
-            new_file_content += send(None, 'GET', full_export_api_url, credentials['api_token'])
-        new_file_content += '<br/><br/>\n'
-        new_file_content += '***\n'
-        comment_ids = response['comment_ids']
-        for batch in batched(comment_ids, 20):
-            full_export_api_url = export_api_url + '?idType=comment&id=' + '&id='.join(batch)
-            new_file_content += send(None, 'GET', full_export_api_url, credentials['api_token'])
-    else:
-        report_api_url = 'https://summaries.' + credentials['api_url'] + '/report'
+def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_report.md'):
+    if short_code_id is not None:
+        file_path = job_report_path if job_report_path is not None else 'job_report.md'
+        report_api_url = 'https://investibles.' + credentials['api_url'] + '/cli_report/' + short_code_id
         new_file_content = send(None, 'GET', report_api_url, credentials['api_token'])
+    else:
+        file_path = config.get('uclusionMDFilePath')
+        file_type = config.get('uclusionMDFileType')
+        print(f"  ✅ Processing: '{file_path}'")
+        if file_type == 'export':
+            export_list_api_url = 'https://summaries.' + credentials['api_url'] + '/export_list'
+            response = send(None, 'GET', export_list_api_url, credentials['api_token'])
+            market_investible_ids = response['market_investible_ids']
+            export_api_url = 'https://summaries.' + credentials['api_url'] + '/export'
+            new_file_content = ''
+            for batch in batched(market_investible_ids, 20):
+                full_export_api_url = export_api_url + '?idType=marketInvestible&id=' + '&id='.join(batch)
+                new_file_content += send(None, 'GET', full_export_api_url, credentials['api_token'])
+            new_file_content += '<br/><br/>\n'
+            new_file_content += '***\n'
+            comment_ids = response['comment_ids']
+            for batch in batched(comment_ids, 20):
+                full_export_api_url = export_api_url + '?idType=comment&id=' + '&id='.join(batch)
+                new_file_content += send(None, 'GET', full_export_api_url, credentials['api_token'])
+        else:
+            report_api_url = 'https://summaries.' + credentials['api_url'] + '/report'
+            new_file_content = send(None, 'GET', report_api_url, credentials['api_token'])
     try:
         with open(file_path, 'w', encoding='utf-8') as uclusion_file:
             uclusion_file.write(new_file_content)
     except Exception as e:
-        print(f"     -> ❌ Error processing file: {e}")
+        print(f"     -> ❌ For: {new_file_content}")
+        print(f"     -> ❌ Error processing file: {e} with path: {file_path}")
 
 
 def is_todo(text: str, extension: str) -> bool:
@@ -533,6 +539,8 @@ def process_source_directories(stages, config, credentials):
 
 if __name__ == "__main__":
     urlEnv = sys.argv[1] if len(sys.argv) > 1 else None
+    short_code_id = sys.argv[2] if len(sys.argv) > 2 else None
+    job_report_path = sys.argv[3] if len(sys.argv) > 3 else None
     if urlEnv == 'dev':
         api_url = DEV_API_URL
         json_path = DEV_SOURCES_CONFIG_FILE
@@ -586,5 +594,6 @@ if __name__ == "__main__":
             stages = response['stages']
 
             if credentials is not None and config is not None:
-                write_uclusion_md(config, credentials)
-                process_source_directories(stages, config, credentials)
+                write_uclusion_md(config, credentials, short_code_id, job_report_path)
+                if short_code_id is None:
+                    process_source_directories(stages, config, credentials)

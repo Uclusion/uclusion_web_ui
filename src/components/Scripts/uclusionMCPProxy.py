@@ -61,6 +61,13 @@ def write_message(obj):
     sys.stdout.write(line + '\n')
     sys.stdout.flush()
 
+def write_jsonrpc_error(request_id, code, message, data=None):
+    """Emit a JSON-RPC error response for a request id."""
+    err = {"code": code, "message": message}
+    if data is not None:
+        err["data"] = data
+    write_message({"jsonrpc": "2.0", "id": request_id, "error": err})
+
 
 def handle_json_response(resp):
     data = resp.read().decode('utf-8')
@@ -127,6 +134,7 @@ def main():
                 continue
 
             is_notification = 'id' not in msg
+            request_id = msg.get('id')
 
             try:
                 resp = post_to_mcp(post_url, headers, line)
@@ -147,10 +155,25 @@ def main():
 
             except urllib.request.HTTPError as e:
                 body = e.read().decode('utf-8', errors='replace')
+                # Always return a JSON-RPC error for requests so clients don't hang.
                 if not is_notification:
+                    write_jsonrpc_error(
+                        request_id=request_id,
+                        code=-32000,
+                        message=f"HTTP {e.code} from MCP server",
+                        data={"status": e.code, "body": body}
+                    )
+                else:
                     sys.stderr.write(f"HTTP {e.code} from MCP server: {body}\n")
             except Exception as e:
                 if not is_notification:
+                    write_jsonrpc_error(
+                        request_id=request_id,
+                        code=-32001,
+                        message="Error posting to MCP server",
+                        data={"error": str(e)}
+                    )
+                else:
                     sys.stderr.write(f"Error posting to MCP server: {e}\n")
 
     except Exception as e:

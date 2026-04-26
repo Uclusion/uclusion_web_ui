@@ -850,12 +850,14 @@ const messages = defineMessages({
   allowMultiVoteQuestionMobile: 'Allow multi-option?',
 
   // invite linker
-  inviteLinkerDirectionsDecision: 'Share this link',
-  inviteLinkerDirectionsPlan: 'Click to copy this link',
+  inviteLinkerDirectionsDecision: 'Share link',
+  inviteLinkerDirectionsPlan: 'Click to copy link',
   commitMessageDirections: 'Click to copy commit message',
+  codeOnlyDirections: 'Click to copy code only',
   inviteLinkerCopied: 'Link copied to clipboard',
   commitMessageCopied: 'Commit message copied to clipboard',
-  inviteLinkerDirectionsInitiative: 'Share this link',
+  codeOnlyCopied: 'Code copied to clipboard',
+  inviteLinkerDirectionsInitiative: 'Share link',
   inviteLinkerCopyToClipboard: 'Copy to clipboard',
 
   // Assignment List

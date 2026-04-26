@@ -7,6 +7,7 @@ import { InvestiblesContext } from '../../contexts/InvestibesContext/Investibles
 import { getMarketInfo } from '../../utils/userFunctions'
 import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import LinkIcon from '@material-ui/icons/Link'
+import FileCopyIcon from '@material-ui/icons/FileCopy'
 import { getComment } from '../../contexts/CommentsContext/commentsContextHelper'
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
 import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
@@ -16,10 +17,18 @@ const useStyles = makeStyles(() => ({
   hidden: {
     display: 'none',
   },
+  inlinePill: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    verticalAlign: 'middle',
+  },
   iconButton: {
     '&:hover': {
       backgroundColor: 'rgba(45,128,237,0.12)',
     },
+  },
+  iconButtonTight: {
+    padding: 6,
   },
   copyButton: {
     '&:hover': {
@@ -74,8 +83,10 @@ function InvesibleCommentLinker(props) {
   const [commentState] = useContext(CommentsContext);
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [copiedMessageToClipboard, setCopiedMessageToClipboard] = useState(false);
+  const [copiedCodeToClipboard, setCopiedCodeToClipboard] = useState(false);
   const [inLinker, setInLinker] = useState(false);
   const [inMessageCopy, setInMessageCopy] = useState(false);
+  const [inCodeCopy, setInCodeCopy] = useState(false);
   const inv = getInvestible(investiblesState, investibleId);
   const comment = getComment(commentState, marketId, commentId) || {};
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -100,10 +111,13 @@ function InvesibleCommentLinker(props) {
     commitMessage = `${decodedTicketCode} ${inv.investible.name}`;
   }
   return (
-    <div id="inviteLinker" className={hidden ? classes.hidden : undefined}
-         style={{marginBottom: flushBottom ? 0 : '1rem'}}>
+    <div
+      id="inviteLinker"
+      className={`${classes.inlinePill} ${hidden ? classes.hidden : ''}`}
+      style={{ marginBottom: flushBottom ? 0 : '1rem' }}
+    >
         <IconButton
-          className={classes.iconButton}
+          className={`${classes.iconButton} ${classes.iconButtonTight}`}
           style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap',
             paddingLeft: flushLeft ? 0 : undefined}} 
             disableRipple={true}
@@ -134,7 +148,7 @@ function InvesibleCommentLinker(props) {
         <Button
           className={classes.copyButton}
           style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap', color: textColor,
-            paddingLeft: 0}} disableRipple={true}
+            paddingLeft: 0, paddingRight: 4, minWidth: 0}} disableRipple={true}
                 onClick={(event) => {
                   preventDefaultAndProp(event);
                   navigator.clipboard.writeText(commitMessage);
@@ -147,6 +161,33 @@ function InvesibleCommentLinker(props) {
                 : intl.formatMessage({ id: 'copyCommitMessage' }) }
         </Button>
       </Tooltip>
+      {!useTextInsteadOfLink && decodedTicketCode ? (
+        <IconButton
+          className={`${classes.iconButton} ${classes.iconButtonTight}`}
+          style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap', marginLeft: 0, padding: 2}}
+          disableRipple={true}
+          onClick={(event) => {
+            preventDefaultAndProp(event);
+            navigator.clipboard.writeText(decodedTicketCode);
+            setCopiedCodeToClipboard(true);
+          }}
+          onMouseLeave={() => {
+            setInCodeCopy(false);
+            setCopiedCodeToClipboard(false);
+          }}
+          onMouseEnter={() => setInCodeCopy(true)}
+        >
+          <Tooltip title={
+            <h3>
+              {intl.formatMessage({
+                id: inCodeCopy && copiedCodeToClipboard ? 'codeOnlyCopied' : 'codeOnlyDirections',
+              })}
+            </h3>
+          } placement="top">
+            <FileCopyIcon htmlColor="#2F80ED" style={{ fontSize: 14 }} />
+          </Tooltip>
+        </IconButton>
+      ) : null}
     </div>
   );
 }

@@ -66,7 +66,7 @@ function JobDescription(props) {
         {investibleId && (
           <div
             style={{ display: mobileLayout ? undefined : 'flex', paddingBottom: mobileLayout ? '1.5rem' : undefined }}>
-            <Link href={useJobLink || formInvestibleLink(planningMarketId, investibleId)} variant="h6"
+            <Link href={useJobLink || formInvestibleLink(planningMarketId, investibleId)} variant="h6" tabindex="-1"
                   onClick={(event) => {
                     preventDefaultAndProp(event);
                     navigate(history, useJobLink || formInvestibleLink(planningMarketId, investibleId));

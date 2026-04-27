@@ -117,6 +117,9 @@ function OptionDescriptionStep (props) {
           {allOptions.map((fullInvestible) => getOptionListItem(fullInvestible))}
         </div>
       )}
+      {_.isEmpty(allOptions) && (
+        <div style={{ marginTop: '2rem' }} />
+      )}
       {Editor}
       <div className={classes.borderBottom}/>
       <WizardStepButtons

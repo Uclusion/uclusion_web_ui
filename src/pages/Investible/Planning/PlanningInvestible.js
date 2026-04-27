@@ -72,6 +72,7 @@ import { useInvestibleEditStyles } from '../InvestibleBodyEdit';
 import { setUclusionLocalStorageItem } from '../../../components/localStorageUtils';
 import DismissableText from '../../../components/Notifications/DismissableText';
 import { useGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
+import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import EditIcon from '@material-ui/icons/Edit';
 import { hasJobComment } from '../../../components/AddNewWizards/JobComment/AddCommentStep';
 import Link from '@material-ui/core/Link';
@@ -375,6 +376,7 @@ function PlanningInvestible(props) {
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketsState] = useContext(MarketsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
   const { results, parentResults, search } = searchResults;
   const investibleCommentsSearched = investibleComments.filter((comment) => {
     if (_.isEmpty(search)) {
@@ -431,6 +433,9 @@ function PlanningInvestible(props) {
   });
   const displayVotingInput = canVote && _.isEmpty(search) && !yourVote;
   const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
+  const collaboratorIds = useCollaborators(marketPresences, investibleComments, marketPresencesState,
+    investibleId, marketId);
+  const isCollaborator = collaboratorIds.includes(userId);
 
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {
@@ -819,6 +824,11 @@ function PlanningInvestible(props) {
                 )}
               </div>
             )}
+            <DismissableText textId="planningInvestibleNotCollaboratorHelp" isLeft display={!isCollaborator} text={
+              <div style={{ paddingBottom: '1rem' }}>
+                    To ask a question, make a suggestion, or block this job go to the Assistance tab. To add information
+                    edit the job description above.
+            </div>}/>
             <CondensedTodos comments={todoCommentsSearched} investibleComments={investibleComments} showCommentAdd={showCommentAdd}
                             usePadding={!mobileLayout} hidden={hidden} hash={hash} maxWidth='95%' isSearch={!_.isEmpty(search)}
                             marketId={marketId} marketInfo={marketInfo} groupId={groupId} isDefaultOpen={!_.isEmpty(todoCommentsSearched)}/>

@@ -41,6 +41,10 @@ export const wizardStyles = makeStyles(
         paddingTop: '16px',
         paddingLeft: '32px',
         paddingRight: '32px',
+        [theme.breakpoints.down('md')]: {
+          paddingLeft: '12px',
+          paddingRight: '12px',
+        },
         [theme.breakpoints.down('xs')]: {
           paddingTop: 'unset',
         }

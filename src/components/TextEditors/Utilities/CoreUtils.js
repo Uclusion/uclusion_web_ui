@@ -429,12 +429,6 @@ export function generateEditorOptions (id, config) {
     modules.imageResize = false;
   }
 
-  if (layout) {
-    modules.toolbar.container = [
-      ['bold', 'italic', 'link', { header: [1, 2, false] }, 'image', 'video', 'clean'],
-    ]
-  }
-
   if (mentionsAllowed) {
     /* Note, due to lifecycles if they edit a comment begin creating a mention
       and hit save before selecting one (or clicking off to not do so), then

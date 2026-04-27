@@ -126,8 +126,29 @@ function doUpdateMarketPresences(state, action) {
   const { userDetails } = action;
   const newState = {...state};
   Object.keys(userDetails).forEach((marketId) => {
+    const incomingUsers = userDetails[marketId] || [];
+    const existingUsers = newState[marketId] || [];
+    const existingUsersById = _.keyBy(existingUsers, 'id');
+    // Carry forward any investments that existed on the prior user but are
+    // missing from the incoming user so version replacement does not drop them
+    const mergedIncomingUsers = incomingUsers.map((incomingUser) => {
+      if (!incomingUser) {
+        return incomingUser;
+      }
+      const existingUser = existingUsersById[incomingUser.id];
+      if (_.isEmpty(existingUser?.investments)) {
+        return incomingUser;
+      }
+      const incomingInvestments = incomingUser.investments || [];
+      const mergedInvestments = _.unionBy(incomingInvestments, existingUser.investments,
+        'investible_id');
+      return {
+        ...incomingUser,
+        investments: mergedInvestments,
+      };
+    });
     // Avoid clobbering presences that were quick added
-    newState[marketId] = addByIdAndVersion(userDetails[marketId], newState[marketId]);
+    newState[marketId] = addByIdAndVersion(mergedIncomingUsers, newState[marketId]);
   });
   return removeInitializing(newState);
 }

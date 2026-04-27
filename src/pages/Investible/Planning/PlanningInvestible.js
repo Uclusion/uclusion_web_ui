@@ -418,8 +418,17 @@ function PlanningInvestible(props) {
   const canVote = isInVoting && !inArchives;
   const yourPresence = marketPresences.find((presence) => presence.current_user);
   const createdBy = marketPresences.find((presence) => presence.id === createdById) || {};
-  const yourVote = yourPresence?.investments?.find((investment) =>
-    investment.investible_id === investibleId && !investment.deleted);
+  const lastStageChangeDate = new Date(marketInfo.last_stage_change_date);
+  const investmentExpirationMs = (market?.investment_expiration ?? 0) * 86400000;
+  const yourVote = yourPresence?.investments?.find((investment) => {
+    if (investment.investible_id !== investibleId || investment.deleted) {
+      return false;
+    }
+    const updatedAtDate = new Date(investment.updated_at);
+    const lastEventTime = Math.max(lastStageChangeDate.getTime(), updatedAtDate.getTime());
+    const isExpired = Date.now() - lastEventTime > investmentExpirationMs;
+    return !isExpired;
+  });
   const displayVotingInput = canVote && _.isEmpty(search) && !yourVote;
   const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
 

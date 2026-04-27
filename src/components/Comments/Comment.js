@@ -273,6 +273,11 @@ export const useCommentStyles = makeStyles(
         marginTop: "0.5rem",
         cursor: 'pointer'
       },
+      containerWhite: {
+        backgroundColor: "white",
+        overflow: "visible",
+        marginTop: "1.5rem"
+      },
       containerHashYellow: {
         backgroundColor: "#FBF6D8",
         overflow: "visible",
@@ -776,6 +781,9 @@ function Comment(props) {
   function getCommentHighlightStyle() {
     if (isInbox) {
       if (!inboxMessageId || inboxMessageId === id) {
+        if (!isSent) {
+          return classes.containerWhite;
+        }
         return classes.containerBlueLink;
       }
       return classes.containerLink;
@@ -968,7 +976,7 @@ function Comment(props) {
                             ref={editBox}>
     <div onClick={(event) => {
       if (!invalidEditEvent(event, history)) {
-        if (isInbox) {
+        if (isInbox && isSent) {
           navigate(history, formCommentLink(marketId, groupId, investibleId, id));
         }
       }

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, Tooltip, Typography } from '@material-ui/core';
 import _ from 'lodash';
@@ -100,11 +100,27 @@ function JobDescriptionStep (props) {
 
   const [Editor] = useEditor(editorName, editorSpec);
 
+  // Tracks whether the most recent radio change came from an arrow key, so we
+  // don't steal focus to the editor and break keyboard navigation through the
+  // RadioGroup.
+  const arrowKeyChangeRef = useRef(false);
   function onChange(event) {
     updateFormData({
       newQuantity: event.target.value
     });
-    focusEditor(editorName);
+    if (!arrowKeyChangeRef.current) {
+      focusEditor(editorName);
+    }
+  }
+  function handleRadioGroupKeyDown(event) {
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+      arrowKeyChangeRef.current = true;
+    } else {
+      arrowKeyChangeRef.current = false;
+    }
+  }
+  function handleRadioGroupMouseDown() {
+    arrowKeyChangeRef.current = false;
   }
 
   function doIncrement(resolved) {
@@ -239,6 +255,8 @@ function JobDescriptionStep (props) {
           aria-labelledby="add-vote-certainty"
           style={{display: 'flex', flexDirection: 'row'}}
           onChange={onChange}
+          onKeyDown={handleRadioGroupKeyDown}
+          onMouseDown={handleRadioGroupMouseDown}
           value={currentValue}
         >
           {jobTypes.map(certainty => {

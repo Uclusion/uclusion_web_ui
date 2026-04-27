@@ -30,12 +30,18 @@ const useStyles = makeStyles((theme) => ({
     display: 'block',
     marginLeft: 'auto',
     marginRight: 'auto',
+    '& .MuiCard-root': {
+      backgroundColor: 'white',
+    },
   },
   containerLarge: {
     maxWidth: '800px',
     display: 'block',
     marginLeft: 'auto',
     marginRight: 'auto',
+    '& .MuiCard-root': {
+      backgroundColor: 'white',
+    },
   },
   action: {
     boxShadow: 'none',
@@ -101,6 +107,7 @@ function IntegrationPreferences (props) {
       tabTitle={intl.formatMessage({ id: 'integrationPreferencesHeader' })}
       hidden={hidden}
       loading={!user}
+      pageBackground="#A9D4D9"
     >
       {(integrationType === undefined || integrationType === 'gravatar') && (
         <div className={classes.container} style={{marginTop: '3rem', marginBottom: '1rem'}}>

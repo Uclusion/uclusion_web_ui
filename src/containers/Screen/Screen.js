@@ -370,7 +370,8 @@ function Screen(props) {
     leftNavAdjust,
     noPadDesktop,
     isDemoChoice,
-    isWizard = false
+    isWizard = false,
+    pageBackground
   } = props;
   useEffect(() => {
     if (!hidden && !_.isEmpty(tabTitle)) {
@@ -505,7 +506,10 @@ function Screen(props) {
         </div>
       )}
 
-      <div className={contentClass} style={{maxWidth: leftNavAdjust ? `calc(100vw - ${leftNavAdjust}px)` : undefined}}>
+      <div className={contentClass} style={{
+        maxWidth: leftNavAdjust ? `calc(100vw - ${leftNavAdjust}px)` : undefined,
+        backgroundColor: pageBackground || undefined
+      }}>
         {!reallyAmLoading && (
           <div className={myContainerClass}>
             {renderBanner && (
@@ -538,7 +542,8 @@ Screen.propTypes = {
   appEnabled: PropTypes.bool,
   banner: PropTypes.node,
   disableSearch: PropTypes.bool,
-  loadingMessageId: PropTypes.string
+  loadingMessageId: PropTypes.string,
+  pageBackground: PropTypes.string
 };
 
 export default Screen;

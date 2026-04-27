@@ -53,6 +53,11 @@ const useStyles = makeStyles(
       "&:hover": {
         backgroundColor: "#2D9CDB"
       }
+    },
+    whiteCardScope: {
+      "& .MuiCard-root": {
+        backgroundColor: "white"
+      }
     }
   }, {name: 'change'}
 )
@@ -163,8 +168,9 @@ function AccountPreferences(props) {
       title={intl.formatMessage({ id: 'changePasswordHeader' })}
       tabTitle={intl.formatMessage({ id: 'changePasswordHeader' })}
       hidden={hidden}
+      pageBackground="#A9D4D9"
     >
-      <div style={{height: '100%', overflow: 'hidden'}}>
+      <div className={classes.whiteCardScope} style={{height: '100%', overflow: 'hidden'}}>
       {canChangePassword && (
         <Grid container spacing={3} style={{marginTop: '3rem'}}>
           <Grid item md={4} xs={12}/>

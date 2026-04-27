@@ -106,6 +106,7 @@ function PlanningMarketEdit() {
       tabTitle={intl.formatMessage({ id: 'editWorkspace' })}
       hidden={false}
       loading={_.isEmpty(market)}
+      pageBackground="#A9D4D9"
     >
     <Card className={classes.overflowVisible}>
       <CardContent className={classes.cardContent}>

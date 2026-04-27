@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     padding: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    backgroundColor: 'white',
     '&:last-child': {
       marginBottom: 0,
     },
@@ -25,6 +26,9 @@ const useStyles = makeStyles((theme) => ({
     display: 'block',
     marginLeft: 'auto',
     marginRight: 'auto',
+    '& .MuiCard-root': {
+      backgroundColor: 'white',
+    },
   },
   row: {
     display: 'flex',
@@ -67,6 +71,7 @@ function Support(props) {
       tabTitle={intl.formatMessage({ id: 'support' })}
       hidden={hidden}
       loading={!externalId}
+      pageBackground="#A9D4D9"
     >
       <div className={classes.container}>
         <Card>

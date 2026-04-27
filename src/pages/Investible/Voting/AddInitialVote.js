@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
@@ -86,13 +86,29 @@ function AddInitialVote(props) {
   const [editor, setEditor] = useState(newQuantity > 0 ? myEditor : null);
   const classes = useStyles();
   const certainties = [5, 25, 50, 75, 100];
+  // Tracks whether the most recent radio change came from an arrow key, so we
+  // don't steal focus to the editor and break keyboard navigation through the
+  // RadioGroup.
+  const arrowKeyChangeRef = useRef(false);
   function myOnChange(event) {
     if (_.isEmpty(editor)) {
       // Have to do it like this so that they cannot type before choosing a certainty
       setEditor(myEditor);
     }
     onChange(event);
-    focusEditor(editorName);
+    if (!arrowKeyChangeRef.current) {
+      focusEditor(editorName);
+    }
+  }
+  function handleRadioGroupKeyDown(event) {
+    if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+      arrowKeyChangeRef.current = true;
+    } else {
+      arrowKeyChangeRef.current = false;
+    }
+  }
+  function handleRadioGroupMouseDown() {
+    arrowKeyChangeRef.current = false;
   }
   function simulateCertainty(key) {
     return () => {
@@ -124,8 +140,10 @@ function AddInitialVote(props) {
   }, [editorName, onEditorChange, onUpload]);
 
   useEffect(() => {
-    if (editor) {
-      // Run once when the editor first created, but after it is rendered
+    if (editor && !arrowKeyChangeRef.current) {
+      // Run once when the editor first created, but after it is rendered.
+      // Skip when the editor was created via keyboard arrow navigation so we
+      // don't steal focus out of the RadioGroup.
       focusEditor(editorName);
     }
     return () => {};
@@ -166,6 +184,8 @@ function AddInitialVote(props) {
               aria-labelledby="add-vote-certainty"
               className={classes.certaintyGroup}
               onChange={myOnChange}
+              onKeyDown={handleRadioGroupKeyDown}
+              onMouseDown={handleRadioGroupMouseDown}
               value={newQuantity || 0}
             >
               {certainties.map(certainty => {

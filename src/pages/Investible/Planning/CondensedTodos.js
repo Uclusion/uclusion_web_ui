@@ -271,32 +271,36 @@ function CondensedTodos(props) {
       )}
       {!_.isEmpty(tabComments) && sectionOpen && (
         <div style={{paddingBottom: '0.25rem'}}>
-          {showOpen && (
-            <div style={{display: 'flex', width: '80%'}}>
-            {!mobileLayout && !isInbox && (
+          <div style={{display: 'flex', width: '80%'}}>
+            {showOpen && !mobileLayout && !isInbox && (
               <Checkbox style={{padding: 0, marginLeft: '0.6rem'}}
                         checked={checkAll}
                         indeterminate={indeterminate}
                         onChange={() => determinateDispatch({type: 'toggle'})}
               />
             )}
-            {(checkAll || !_.isEmpty(determinate)) && (
+            {showOpen && (checkAll || !_.isEmpty(determinate)) && (
               <TooltipIconButton
                 icon={<Eject htmlColor={actionButtonColor} />}
                 onClick={moveSelected} translationId="todosMove" />
             )}
-            {(checkAll || !_.isEmpty(determinate)) && !isInbox && (
+            {showOpen && (checkAll || !_.isEmpty(determinate)) && !isInbox && (
               <TooltipIconButton
                 icon={<BugReport htmlColor='#e6e969' />}
                 onClick={() => moveToBugs(YELLOW_LEVEL)} translationId="moveTodoYellow" />
             )}
-            {(checkAll || !_.isEmpty(determinate)) && !isInbox && (
+            {showOpen && (checkAll || !_.isEmpty(determinate)) && !isInbox && (
               <TooltipIconButton
                 icon={<BugReport htmlColor='#2F80ED' />}
                 onClick={() => moveToBugs(BLUE_LEVEL)} translationId="moveTodoBlue" />
             )}
+            <TooltipIconButton icon={<ExpandLess style={{marginLeft: '0.25rem'}} htmlColor={actionButtonColor} />}
+                               onClick={() => todoDispatch(contractAll(tabComments))}
+                               translationId="inboxCollapseAll" />
+            <TooltipIconButton icon={<ExpandMoreIcon style={{marginLeft: '0.25rem'}} htmlColor={actionButtonColor} />}
+                               onClick={() => todoDispatch(expandAll(tabComments))}
+                               translationId="inboxExpandAll" />
           </div>
-          )}
         </div>
       )}
       {_.isEmpty(tabComments) && showOpen && sectionOpen && (

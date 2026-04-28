@@ -44,6 +44,9 @@ import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMem
 import { calculateInvestibleVoters } from '../../utils/votingUtils';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
+import { formCommentLink } from '../../utils/marketIdPathFunctions';
+import { useHistory } from 'react-router';
+import { navigate } from '../../utils/marketIdPathFunctions';
 
 const useStyles = makeStyles((theme) => ({
   visible: {
@@ -207,6 +210,7 @@ function CommentEdit(props) {
   const [investiblesState] = useContext(InvestiblesContext);
   const intl = useIntl();
   const theme = useTheme();
+  const history = useHistory();
   const editBox = useRef(null);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, investible_id: investibleId,
@@ -325,7 +329,8 @@ function CommentEdit(props) {
               }
             }
           }
-          onTerminate={() => handleSave(true)}
+          onTerminate={() => handleSave(true).then(() => 
+            navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id)))}
           showTerminate
           terminateLabel="commentAddSendLabel"/>
       </WizardStepContainer>

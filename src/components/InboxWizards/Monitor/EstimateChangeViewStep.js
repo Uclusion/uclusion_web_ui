@@ -32,6 +32,8 @@ function EstimateChangeViewStep(props) {
   const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
   const groupId = marketInfo.group_id;
   const marketComments = getMarketComments(commentsState, marketId, groupId);
+  const unSentComments = getMarketComments(commentsState, marketId, undefined, true);
+  const unSentInvestibleComments = unSentComments.filter((comment) => comment.investible_id === investibleId);
   const comments = getCommentsSortedByType(marketComments, investibleId, true, true);
   const { completion_estimate: daysEstimate } = marketInfo;
 
@@ -55,14 +57,14 @@ function EstimateChangeViewStep(props) {
         onNext={() => navigate(history,
           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, QUESTION_TYPE,
             message.type_object_id))}
-        nextShowEdit={hasJobComment(groupId, investibleId, QUESTION_TYPE)}
+        nextShowEdit={hasJobComment(groupId, investibleId, QUESTION_TYPE, unSentInvestibleComments)}
         spinOnClick={false}
         showOtherNext
         otherNextLabel="createNewISSUE"
         onOtherNext={() => navigate(history,
           formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE,
             message.type_object_id))}
-        otherNextShowEdit={hasJobComment(groupId, investibleId, ISSUE_TYPE)}
+        otherNextShowEdit={hasJobComment(groupId, investibleId, ISSUE_TYPE, unSentInvestibleComments)}
         otherSpinOnClick={false}
         onFinish={() => removeWorkListItem(message, messagesDispatch, history)}
         terminateLabel="notificationDelete"

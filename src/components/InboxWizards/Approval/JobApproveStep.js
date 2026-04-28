@@ -68,6 +68,8 @@ function JobApproveStep(props) {
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { group_id: groupId } = marketInfo;
   const marketComments = getMarketComments(commentsState, marketId, marketInfo.group_id);
+  const unSentComments = getMarketComments(commentsState, marketId, undefined, true);
+  const unSentInvestibleComments = unSentComments.filter((comment) => comment.investible_id === investibleId);
   const todos = marketComments.filter((comment) => comment.comment_type === TODO_TYPE &&
     comment.investible_id === investibleId);
   const yourReason = getReasonForVote(yourVote, marketComments);
@@ -197,9 +199,9 @@ function JobApproveStep(props) {
         otherNextLabel={wasDeleted ? 'JobAssignBacklog' : 'WizardJobAssistance'}
         onOtherNext={wasDeleted ? moveToBacklog : undefined}
         onOtherNextDoAdvance={!wasDeleted}
-        otherNextShowEdit={hasJobComment(groupId, investibleId, QUESTION_TYPE)||
-          hasJobComment(groupId, investibleId, SUGGEST_CHANGE_TYPE)||
-          hasJobComment(groupId, investibleId, ISSUE_TYPE)}
+        otherNextShowEdit={hasJobComment(groupId, investibleId, QUESTION_TYPE, unSentInvestibleComments)||
+          hasJobComment(groupId, investibleId, SUGGEST_CHANGE_TYPE, unSentInvestibleComments)||
+          hasJobComment(groupId, investibleId, ISSUE_TYPE, unSentInvestibleComments)}
         showTerminate={getShowTerminate(message)}
         terminateLabel={getLabelForTerminate(message)}
       />

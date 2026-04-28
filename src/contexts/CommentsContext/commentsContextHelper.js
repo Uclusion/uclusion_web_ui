@@ -51,9 +51,9 @@ export function filterToRoot(comments, commentId) {
   return filterToRoot(comments, comment.reply_id);
 }
 
-export function getMarketComments(state, marketId, groupId) {
+export function getMarketComments(state, marketId, groupId, isUnSent) {
   const marketComments = state[marketId] || [];
-  return marketComments.filter((comment) => !comment.deleted && comment.is_sent !== false &&
+  return marketComments.filter((comment) => !comment.deleted && (isUnSent === true ? comment.is_sent === false : comment.is_sent !== false) &&
     (groupId === undefined || comment.group_id === groupId));
 }
 

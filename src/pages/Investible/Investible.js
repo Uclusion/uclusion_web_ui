@@ -52,7 +52,9 @@ function Investible(props) {
   const { investible_id: parentInvestibleId, market_id: parentMarketId, group_id: parentGroupId, 
     resolved: parentResolved } = parentComment;
   const comments = getMarketComments(commentsState, marketId);
+  const unSentComments = getMarketComments(commentsState, marketId, undefined, true);
   const investibleComments = comments.filter((comment) => comment.investible_id === investibleId);
+  const unSentInvestibleComments = unSentComments.filter((comment) => comment.investible_id === investibleId);
   const commentsHash = createCommentsHash(investibleComments);
   const [investiblesState] = useContext(InvestiblesContext);
   const investibles = getMarketInvestibles(investiblesState, marketId);
@@ -103,6 +105,7 @@ function Investible(props) {
       commentsHash={commentsHash}
       marketPresences={marketPresences}
       investibleComments={investibleComments}
+      unSentInvestibleComments={unSentInvestibleComments}
       isAdmin={isAdmin}
       hash={hash}
       hidden={hidden}

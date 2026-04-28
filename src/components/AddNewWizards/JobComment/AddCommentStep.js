@@ -36,7 +36,10 @@ import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 
-export function hasJobComment(groupId, investibleId, commentType) {
+export function hasJobComment(groupId, investibleId, commentType, unSentInvestibleComments) {
+  if (!_.isEmpty(unSentInvestibleComments?.find((comment) => comment.comment_type === commentType))) {
+    return true;
+  }
   return hasCommentValue(groupId, undefined, 'JobCommentAdd', investibleId,
     `jobComment${commentType}`);
 }

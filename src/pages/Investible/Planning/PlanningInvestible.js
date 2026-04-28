@@ -358,7 +358,8 @@ function PlanningInvestible(props) {
     hash,
     inArchives=false,
     market,
-    hidden = false
+    hidden = false,
+    unSentInvestibleComments = []
   } = props;
   const [themeMode] = React.useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
@@ -879,7 +880,7 @@ function PlanningInvestible(props) {
                     <FormattedMessage id="reportsSectionLabel"/> {showCommentAdd && isAssigned && <TooltipIconButton id="newReport"
                         marginLeft='1rem'
                         onClick={() => navigate(history, formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE))}
-                        icon={hasJobComment(groupId, investibleId, REPORT_TYPE) ? <EditIcon fontSize='small' /> : <AddIcon fontSize='small' />}
+                        icon={hasJobComment(groupId, investibleId, REPORT_TYPE, unSentInvestibleComments) ? <EditIcon fontSize='small' /> : <AddIcon fontSize='small' />}
                         translationId="createNewStatus"
                       />}
                   </h2>
@@ -933,7 +934,7 @@ function PlanningInvestible(props) {
                 {allowedCommentTypes.map((allowedCommentType) => {
                   return (
                     <SpinningButton key={allowedCommentType} id={`new${allowedCommentType}`} className={wizardClasses.actionNext}
-                                    icon={hasJobComment(groupId, investibleId, allowedCommentType) ? EditIcon :
+                                    icon={hasJobComment(groupId, investibleId, allowedCommentType, unSentInvestibleComments) ? EditIcon :
                                       AddIcon}
                                     iconColor="black"
                                     style={{

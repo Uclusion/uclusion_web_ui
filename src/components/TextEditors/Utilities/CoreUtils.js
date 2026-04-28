@@ -323,7 +323,6 @@ export function getQuillStoredState(id) {
 export function generateEditorOptions (id, config) {
   const {
     marketId,
-    layout,
     noToolbar,
     onS3Upload,
     setUploadInProgress,

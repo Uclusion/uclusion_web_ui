@@ -5,7 +5,7 @@ import { REPORT_TYPE } from '../constants/comments'
 import { quickRemoveMessages, removeMessages } from '../contexts/NotificationsContext/notificationsContextReducer';
 import { getMarketInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper';
 import { getMarketComments } from '../contexts/CommentsContext/commentsContextHelper';
-import { NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../constants/notifications';
+import { BLUE_LEVEL, NOT_FULLY_VOTED_TYPE, UNREAD_JOB_APPROVAL_REQUEST } from '../constants/notifications';
 import { getMessageId } from '../contexts/NotificationsContext/notificationsContextHelper';
 
 function getMessageTextForId(rawId, isMobile, intl) {
@@ -152,7 +152,8 @@ export function messageText(message, isMobile, intl) {
 export function findMessagesForGroupId(groupId, state, isHighlighted) {
   const { messages } = (state || {});
   const safeMessages = messages || [];
-  return safeMessages.filter((message) => message.group_id === groupId && (isHighlighted === undefined || message.is_highlighted === isHighlighted));
+  return safeMessages.filter((message) => message.group_id === groupId && message.level !== BLUE_LEVEL
+    && (isHighlighted === undefined || message.is_highlighted === isHighlighted));
 }
 
 

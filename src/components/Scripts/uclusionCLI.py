@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import argparse
 import json
 import os
 import re
@@ -537,63 +538,131 @@ def process_source_directories(stages, config, credentials):
     return None
 
 
-if __name__ == "__main__":
-    urlEnv = sys.argv[1] if len(sys.argv) > 1 else None
-    short_code_id = sys.argv[2] if len(sys.argv) > 2 else None
-    job_report_path = sys.argv[3] if len(sys.argv) > 3 else None
-    if urlEnv == 'dev':
-        api_url = DEV_API_URL
-        json_path = DEV_SOURCES_CONFIG_FILE
-        credentials_path = DEV_CREDENTIALS_FILE
-    elif urlEnv == 'stage':
-        json_path = STAGE_SOURCES_CONFIG_FILE
-        api_url = STAGE_API_URL
-        credentials_path = STAGE_CREDENTIALS_FILE
-    else:
-        json_path = SOURCES_CONFIG_FILE
-        api_url = PRODUCTION_API_URL
-        credentials_path = CREDENTIALS_FILE
-    credentials = get_credentials(credentials_path)
-    config = None
+def get_env_paths(env):
+    """Returns (api_url, config_path, credentials_path) for the given environment name."""
+    if env == 'dev':
+        return DEV_API_URL, DEV_SOURCES_CONFIG_FILE, DEV_CREDENTIALS_FILE
+    if env == 'stage':
+        return STAGE_API_URL, STAGE_SOURCES_CONFIG_FILE, STAGE_CREDENTIALS_FILE
+    return PRODUCTION_API_URL, SOURCES_CONFIG_FILE, CREDENTIALS_FILE
+
+
+def load_config(json_path):
     try:
         with open(json_path, 'r') as f:
-            config = json.load(f)
+            return json.load(f)
     except FileNotFoundError:
         print(f"❌ Error: Configuration file '{json_path}' not found.")
     except json.JSONDecodeError as error:
-        print(f"❌ Error:CLISecret Could not parse JSON from '{json_path}':")
+        print(f"❌ Error: Could not parse JSON from '{json_path}':")
         print(error)
+    return None
+
+
+def initialize(env):
+    """Loads credentials & config, performs login, and returns (credentials, config, stages).
+
+    Returns None if any step fails so callers can exit cleanly.
+    """
+    api_url, json_path, credentials_path = get_env_paths(env)
+
+    credentials = get_credentials(credentials_path)
+    if credentials is None:
+        return None
+
+    config = load_config(json_path)
+    if config is None:
+        return None
 
     secret_key = credentials.get('secret_key')
     secret_key_id = credentials.get('secret_key_id')
-
     if secret_key is None:
         print("   -> ❌ Error: 'secret_key' not found in credentials file.")
+        return None
     if secret_key_id is None:
         print("   -> ❌ Error: 'secret_key_id' not found in credentials file.")
-    
+        return None
+
     workspace_id = config.get('workspaceId')
-    view_id = config.get('todoViewId')
     if workspace_id is None:
         print(f"⚠️ Warning: No workspaceId in config.")
-    if view_id is None:
-        view_id = workspace_id
+        return None
 
-    if secret_key is not None and secret_key_id is not None  and workspace_id is not None:
-        credentials['view_id'] = view_id
-        credentials['workspace_id'] = workspace_id
-        credentials['api_url'] = api_url
+    view_id = config.get('todoViewId') or workspace_id
 
-        response = login(credentials)
-        if response is None or 'uclusion_token' not in response:
-            print("   -> ❌ Error: login failed.")
-        else:
-            credentials['api_token'] = response['uclusion_token']
-            credentials['ui_url'] = response['ui_url']
-            credentials['user_id'] = response['user_id']
-            stages = response['stages']
+    credentials['view_id'] = view_id
+    credentials['workspace_id'] = workspace_id
+    credentials['api_url'] = api_url
 
-            if credentials is not None and config is not None:
-                write_uclusion_md(config, credentials, short_code_id, job_report_path)
-                if short_code_id is None:
-                    process_source_directories(stages, config, credentials)
+    response = login(credentials)
+    if response is None or 'uclusion_token' not in response:
+        print("   -> ❌ Error: login failed.")
+        return None
+
+    credentials['api_token'] = response['uclusion_token']
+    credentials['ui_url'] = response['ui_url']
+    credentials['user_id'] = response['user_id']
+
+    return credentials, config, response['stages']
+
+
+def cmd_sync(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, config, stages = result
+    write_uclusion_md(config, credentials, None, None)
+    process_source_directories(stages, config, credentials)
+    return 0
+
+
+def cmd_report(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, config, _stages = result
+    write_uclusion_md(config, credentials, args.short_code, args.output)
+    return 0
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(
+        prog='uclusionCLI',
+        description='Uclusion command line interface.',
+    )
+    parser.add_argument(
+        '-e', '--env',
+        choices=['dev', 'stage', 'production'],
+        default='production',
+        help='API environment to target (default: production).',
+    )
+
+    subparsers = parser.add_subparsers(dest='command', metavar='COMMAND', required=True)
+
+    sync_parser = subparsers.add_parser(
+        'sync',
+        help='Write the Uclusion MD file and sync TODOs in the configured source directories.',
+    )
+    sync_parser.set_defaults(func=cmd_sync)
+
+    report_parser = subparsers.add_parser(
+        'report',
+        help='Fetch a job report for a single short code.',
+    )
+    report_parser.add_argument(
+        'short_code',
+        help='The short code id of the job to fetch (e.g. J-abc-123).',
+    )
+    report_parser.add_argument(
+        '-o', '--output',
+        default='job_report.md',
+        help='Path to write the job report to (default: job_report.md).',
+    )
+    report_parser.set_defaults(func=cmd_report)
+
+    return parser
+
+
+if __name__ == "__main__":
+    args = build_parser().parse_args()
+    sys.exit(args.func(args) or 0)

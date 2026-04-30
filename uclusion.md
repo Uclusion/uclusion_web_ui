@@ -2684,40 +2684,6 @@ These comments will be as an AI user that is local to the workspace and has no h
 > ##### Grouped task <a name="28a32df1-43f5-4a02-8860-4f804672e78e"></a> 
 How should it work in MCP to get humans to give commands like necessary? Are the examples just in the Uclusion docs or AI should give hints to the human or maybe the hints are in Uclusion or all the above?
 
-> ##### Grouped task <a name="095d979a-21f7-4378-bbba-9f7e7ad50d52"></a> 
-Name: add_question_option
-
-Description: Add a new option to a question. The new option will show as created by the human user.
-
-Input schema: question_id, description
-
-
-
-
-Name: add_question_option_approval
-
-Description: Add an option approval which is a certainty value where higher is more certain and a reason for the certainty. The new approval will show as created by the AI user.
-
-Input schema: question_id, certainty - number 1 to 5, reason
-
-
-
-
-Name: add_question_option_info
-
-Description: Add info to an option that will show as created by the AI user.
-
-Input schema: option_id, description
-
-
-
-
-Name: add_suggestion
-
-Description: Add a new suggestion for a job. The new suggestion will show as created by the human user.
-
-Input schema: job_id, description
-
 > ##### Grouped task <a name="27bf1b03-9194-4a5a-9468-73fbbfcc39cc"></a> 
 As it stands you oauth as yourself with secret keys but then some of your actions require using a different acting user.
 
@@ -2765,26 +2731,28 @@ For the purposes of calculating view collaborators, the AI user doesn't count as
 You also cannot assign to the AI user or use in a mention.
 
 #### Task <a name="d8353352-35bf-40a7-9a74-5ac40985f2a1"></a> 
-Possibilities for a marketable example:
-
-1. Review a question and give option approval - has to be able to add option also - just make sure that any thing people add in an option goes to the moderator also - this is correct as in real life someone could add an option and not respond again.
-2. Review a job and give approval based on its certainty of whether or not it will be useful for the application. Give a reason explaining the certainty score.
+Use Uclusion to get J-Engineering-2 and add a certainty score of this job, proposed by a junior engineer, being useful for this application along with a reason for that score from the point of view of a critical product manager. Research typical product users to synthesize the critical product manager. Read the documentation of this application first and ask any questions you still have relevant to this job.
 
 
 
 
-
-**In general any notification that would be sent to AI user and is not already being sent to job assignees is sent to job assignees.**
-
-
-
-
-Use Uclusion to get Q-Engineering-2 and add info for any option that is missing information. If there are important options missing then add them also. Then approve the option you think is correct with a certainty score and reason for that score.
+Using the code base and all other available information add info at the task and job level where there are gaps. Also add info to suggestions, questions, and question options where missing.
 
 
 
 
-Use Uclusion to get J-Engineering-2 and add a certainty score of this job being useful for this application along with a reason for that score from the point of view of a critical product manager. Read the documentation of this application first and ask any questions you still have relevant to this job.
+**Put above prompt into documentation and maybe elsewhere.**
+
+> ##### Grouped task <a name="f596e7ee-edb5-4204-8248-0de841460c7f"></a> 
+Need add_approval tool and CLI also.
+
+> ##### Grouped task <a name="ec550ae9-aa15-420a-bf3b-a12208e6c74b"></a> 
+Just have an add_info tool and CLI that takes a short_code_id. Underneath it might add notes, reply, option info, or whatever - AI doesn't need to know that.
+
+
+
+
+So just need that and add_approval which takes job_id, certainty score, and reason.
 
 #### Resolved Task <a name="d63e211e-5ca1-4b16-818f-2ae999f609b8"></a> 
 For secret keys need to make sure banned check happens as currently does in
@@ -3261,6 +3229,40 @@ The prompt defines JSON AI output object and that tells the Uclusion program wha
 #### Resolved Task <a name="c9bd570f-f626-4f9e-b637-4cc5122a66ab"></a> 
 Claude has to show up as a collaborator in Uclusion - same as GitHub does.
 
+#### Resolved Task <a name="095d979a-21f7-4378-bbba-9f7e7ad50d52"></a> 
+Name: add_question_option
+
+Description: Add a new option to a question. The new option will show as created by the human user.
+
+Input schema: question_id, description
+
+
+
+
+Name: add_question_option_approval
+
+Description: Add an option approval which is a certainty value where higher is more certain and a reason for the certainty. The new approval will show as created by the AI user.
+
+Input schema: question_id, certainty - number 1 to 5, reason
+
+
+
+
+Name: add_question_option_info
+
+Description: Add info to an option that will show as created by the AI user.
+
+Input schema: option_id, description
+
+
+
+
+Name: add_suggestion
+
+Description: Add a new suggestion for a job. The new suggestion will show as created by the human user.
+
+Input schema: job_id, description
+
 #### Resolved Task <a name="aefb68d3-0821-4793-811d-d2b859f537d0"></a> 
 Get the name of the MCP server to be Uclusion so that can say "Use Uclusion MCP to get J-mywork-1."
 
@@ -3374,6 +3376,9 @@ But that shouldn't be an issue - maybe cost a second or two which is not very me
 
 The token handling should be fine as can handle that in serverless config as currently. Then just don't even run separate validation as passed in arguments will vary too much and FastMCP can handle it.
 
+#### Resolved Task <a name="b3a89570-637f-4cf1-8cb9-cffd387ae49a"></a> 
+get_job has to support getting market level comments like bugs etc. - too confusing otherwise.
+
 #### Resolved Task <a name="f462dfe7-ba9f-42c4-b4c2-c16b8b3ab747"></a> 
 Write example prompts for above to see if doable.
 
@@ -3429,6 +3434,17 @@ The verbiage on the tool needs to be change also to say these are not included.
 
 
 **For that matter external links are not either and should not be sucked in indiscriminately cause would also overflow context as unbounded.**
+
+#### Resolved Task <a name="417b8e87-2266-49cb-b9c9-28e8df9b3d31"></a> 
+For a solo developer, the risk of technical debt and "hacks" is high. The AI Job Reviewer provides a standardized, rigorous check that mimics a senior engineer's "Definition of Done". By using MCP to pull in context from "all servers" (including GitHub, database schemas, and documentation), the AI can perform a "Criteria-Grounded Verification" that ensures every job is actionable and verifiable. The primary limitation is the AI's struggle with judging the *novelty* or *long-term business significance* of a project, which must remain a human responsibility.
+
+
+
+
+
+
+
+**So it thinks AI can't do business ROI and is mostly after DoD. Which if we believe that then this is about adding tasks, grouped tasks, and notes and don't need the approval and certainty score. Emphasis should be on reading the code base to fill in blind spots, recommend testing, find potential feature conflicts etc.**
 
 #### Resolved Task <a name="257050cd-78bc-4b3c-b3b5-8ca052b6d729"></a> 
 Have them add to their ~/.cursor/mcp.json server list a Uclusion server with the correct URL and secret_key_id and secret_key as arguments.
@@ -3658,6 +3674,9 @@ The CLI you run must be on a loop and responding to push events / notifications 
 
 
 Plus may need to know that this is user is an agent so can send it an event when it creates a job for itself instead of screening that out - otherwise it won't know to spawn a new thread.
+
+#### Resolved Task <a name="c727939d-dabd-42a6-a6d6-07c42c1cbcf7"></a> 
+get_job tool has to screen out existing approvals.
 
 ## Job <a name="52807b88-8b10-4d09-b91d-4ffb68385ebc"></a>
 ### Use plan mode in Cursor for an front end bugs in B-all-416, B-all-415,...

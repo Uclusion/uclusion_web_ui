@@ -327,6 +327,15 @@ def get_ticket_code_from_line(line, ticket_type):
     return f"{ticket_type}{line_split[0]}"
 
 
+def approve_job(credentials, job_short_code, certainty, reason):
+    approve_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
+    data = {
+        'certainty': certainty
+    }
+    if reason is not None:
+        data['reason'] = reason
+    return send(data, 'PATCH', approve_api_url, credentials['api_token'])
+
 def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_report.md'):
     if short_code_id is not None:
         file_path = job_report_path if job_report_path is not None else 'job_report.md'
@@ -625,6 +634,25 @@ def cmd_report(args):
     return 0
 
 
+def cmd_approve(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, _config, _stages = result
+    approve_job(credentials, args.job_short_code, args.certainty, args.reason)
+    return 0
+
+
+def certainty_value(raw):
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        raise argparse.ArgumentTypeError(f"certainty must be an integer between 1 and 5, got {raw!r}")
+    if value < 1 or value > 5:
+        raise argparse.ArgumentTypeError(f"certainty must be between 1 and 5, got {value}")
+    return value
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog='uclusionCLI',
@@ -658,7 +686,30 @@ def build_parser():
         default='job_report.md',
         help='Path to write the job report to (default: job_report.md).',
     )
+
     report_parser.set_defaults(func=cmd_report)
+
+    approve_parser = subparsers.add_parser(
+        'approve',
+        help='Approve a job with a job short code, certainty, and optional reason.',
+    )
+    approve_parser.add_argument(
+        'job_short_code',
+        help='The short code id of the job to approve (e.g. J-abc-123).',
+    )
+
+    approve_parser.add_argument(
+        'certainty',
+        type=certainty_value,
+        help='Certainty level to approve the job with (integer 1-5).',
+    )
+
+    approve_parser.add_argument(
+        'reason',
+        help='Reason for the approval certainty.',
+    )
+
+    approve_parser.set_defaults(func=cmd_approve)
 
     return parser
 

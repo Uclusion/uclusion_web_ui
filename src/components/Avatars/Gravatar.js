@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Avatar, Tooltip } from '@material-ui/core'
 import md5 from 'md5';
 import { nameToAvatarText } from '../../utils/stringFunctions';
+import AIIcon from './sparkle.png';
 
 function Gravatar (props) {
   const {
@@ -15,6 +16,7 @@ function Gravatar (props) {
 
   const blankCode = useBlank ? 'blank' : '404';
   const url = `https://www.gravatar.com/avatar/${md5(email, { encoding: 'binary' })}?d=${blankCode}`;
+  const isAI = email === '' && name === 'AI';
 
 
 
@@ -26,7 +28,7 @@ function Gravatar (props) {
           <Avatar
             className={className}
             key={email}
-            src={url}
+            src={isAI ? AIIcon : url}
             onClick={onClick}
           >
             {nameToAvatarText(name)}

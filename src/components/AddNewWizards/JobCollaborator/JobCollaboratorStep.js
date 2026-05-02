@@ -30,6 +30,7 @@ function JobCollaboratorStep (props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const aIuser = marketPresences.find((presence) => _.isEmpty(presence.email));
   const [investibleState] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
   const inv = getInvestible(investibleState, investibleId);
@@ -42,6 +43,7 @@ function JobCollaboratorStep (props) {
   const value = (formData.wasSet ? formData.addressed : addressedIds) || [];
   const validForm = !_.isEqual(value, addressedIds);
   const cannotBeAssigned = _.union(assigned, groupPresences.map((presence) => presence.id));
+  cannotBeAssigned.push(aIuser?.id);
 
   function onAddressedChange(newAddressed){
     updateFormData({

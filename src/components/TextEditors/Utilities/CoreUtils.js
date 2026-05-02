@@ -445,7 +445,8 @@ export function generateEditorOptions (id, config) {
         return ReactDOMServer.renderToString(<MentionListItem mentionResult={item}/>);
       },
       source: function (searchTerm, renderList) {
-        const participants = getMarketPresences(marketPresencesContextHack, marketId) || [];
+        const participantsRaw = getMarketPresences(marketPresencesContextHack, marketId) || [];
+        const participants = participantsRaw.filter((presence) => !_.isEmpty(presence.email));
         if (searchTerm.length === 0) {
           renderList(participants.map((presence) => {
             const { name, id, email, external_id } = presence;

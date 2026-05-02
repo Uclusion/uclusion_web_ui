@@ -39,7 +39,9 @@ function AddNewUsers(props) {
   const { user: unsafeUser } = userState || {};
   const myUser = unsafeUser || {};
 
-  const marketPresences = getMarketPresences(marketPresencesState, addToMarketId) || [];
+  const marketPresencesRaw = getMarketPresences(marketPresencesState, addToMarketId) || [];
+  // AI user has no email, so we filter them out
+  const marketPresences = marketPresencesRaw.filter((presence) => !_.isEmpty(presence.email));
   const addToMarketPresences = groupId ?
     getGroupPresences(marketPresences, groupPresencesState, addToMarketId, groupId, !showAll) :
     (addToMarketId ? marketPresences : [myUser]);

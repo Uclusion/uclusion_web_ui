@@ -36,7 +36,8 @@ export function extractUsersList(marketPresencesState, marketState, addToMarketP
         placeholder_type: placeholderType
       } = presence;
       const isPlaceHolder = placeholderType === PLACEHOLDER;
-      if (!isPlaceHolder && !banned && !addToMarketPresencesHash[external_id] && !acc[user_id] && !macc[user_id]) {
+      if (!isPlaceHolder && !banned && !_.isEmpty(email) && !addToMarketPresencesHash[external_id] && !acc[user_id] && 
+      !macc[user_id]) {
         addToMarketPresencesHash[external_id] = true;
         macc[user_id] = {
           user_id, name, account_id, email, external_id, current_user

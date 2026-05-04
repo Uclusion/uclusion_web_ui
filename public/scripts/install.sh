@@ -3,20 +3,20 @@
 # environment-specific Uclusion site and runs it with the supplied arguments.
 #
 # Usage:
-#   install.sh <environment> <workspaceId>
+#   install.sh <workspaceId> [environment]
 #
 # Typical invocation (one-liner):
-#   curl -fsSL https://stage.uclusion.com/scripts/install.sh | bash -s -- stage <workspaceId>
+#   curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- <workspaceId>
 set -euo pipefail
 
-if [ "$#" -lt 2 ]; then
-  echo "Usage: $0 <environment> <workspaceId>" >&2
-  echo "  environment: dev | stage | production" >&2
+if [ "$#" -lt 1 ]; then
+  echo "Usage: $0 <workspaceId> [environment]" >&2
+  echo "  environment: dev | stage | production (default: production)" >&2
   exit 64
 fi
 
-ENVIRONMENT="$1"
-WORKSPACE_ID="$2"
+WORKSPACE_ID="$1"
+ENVIRONMENT="${2:-production}"
 
 case "$ENVIRONMENT" in
   dev|stage|production) ;;

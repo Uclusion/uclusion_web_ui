@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Card, FormControl, Grid, ListItem, makeStyles, MenuItem, Select, Typography, } from '@material-ui/core';
+import { Card, FormControl, Grid, IconButton, ListItem, makeStyles, MenuItem, Select, Tooltip, Typography, } from '@material-ui/core';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import config from '../../config';
 import Screen from '../../containers/Screen/Screen';
 import SubSection from '../../containers/SubSection/SubSection';
-import { Face } from '@material-ui/icons';
+import { Face, FileCopyOutlined } from '@material-ui/icons';
 import Link from '@material-ui/core/Link';
 import Gravatar from '../../components/Avatars/Gravatar';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
@@ -72,6 +72,54 @@ const useStyles = makeStyles((theme) => ({
     fontSize: theme.spacing(4),
   }
 }));
+
+function CopyCommand (props) {
+  const { command } = props;
+  const [copied, setCopied] = useState(false);
+  return (
+    <div
+      style={{
+        position: 'relative',
+        backgroundColor: '#f6f8fa',
+        border: '1px solid #e1e4e8',
+        borderRadius: '6px',
+        padding: '12px 44px 12px 16px',
+      }}
+    >
+      <code
+        style={{
+          display: 'block',
+          fontFamily: 'Menlo, Consolas, monospace',
+          fontSize: '0.875rem',
+          color: '#24292e',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-all',
+          lineHeight: 1.5,
+        }}
+      >
+        {command}
+      </code>
+      <Tooltip title={copied ? 'Copied!' : 'Copy to clipboard'} placement="top">
+        <IconButton
+          size="small"
+          aria-label="copy command"
+          style={{position: 'absolute', top: '6px', right: '6px'}}
+          onClick={() => {
+            navigator.clipboard.writeText(command);
+            setCopied(true);
+          }}
+          onMouseLeave={() => setCopied(false)}
+        >
+          <FileCopyOutlined fontSize="small" />
+        </IconButton>
+      </Tooltip>
+    </div>
+  );
+}
+
+CopyCommand.propTypes = {
+  command: PropTypes.string.isRequired,
+};
 
 function IntegrationPreferences (props) {
   const { hidden } = props;
@@ -230,9 +278,17 @@ function IntegrationPreferences (props) {
                 See <Link href="https://documentation.uclusion.com/cli" target="_blank">CLI</Link> documentation.
                 Installation command:
               </Typography>
-              <p style={{whiteSpace: 'pre-wrap'}}>
-               // TODO command goes here
-              </p>
+              <CopyCommand
+                command={`curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId}`}
+              />
+              <div style={{display: 'flex', alignItems: 'center', margin: '0.75rem 0', color: '#6a737d'}}>
+                <div style={{flex: 1, height: '1px', backgroundColor: '#e1e4e8'}} />
+                <Typography variant="caption" style={{padding: '0 0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em'}}>or</Typography>
+                <div style={{flex: 1, height: '1px', backgroundColor: '#e1e4e8'}} />
+              </div>
+              <CopyCommand
+                command={`wget -qO- https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId}`}
+              />
               <CLISecret marketId={marketId} />
             </SubSection>
           </Card>

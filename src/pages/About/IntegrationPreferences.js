@@ -17,7 +17,6 @@ import { decomposeMarketPath } from '../../utils/marketIdPathFunctions';
 import { useLocation } from 'react-router';
 import queryString from 'query-string';
 import CLISecret from './CLISecret';
-import CLIScript from '../../components/Scripts/uclusionCLI.py';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import _ from 'lodash';
 
@@ -229,30 +228,12 @@ function IntegrationPreferences (props) {
             >
               <Typography variant="subtitle1" style={{paddingBottom: '1rem'}}>
                 See <Link href="https://documentation.uclusion.com/cli" target="_blank">CLI</Link> documentation.
-                Example uclusion.json for this workspace:
+                Installation command:
               </Typography>
               <p style={{whiteSpace: 'pre-wrap'}}>
-                {"{"}<br/>
-                {'   "workspaceId": "'+marketId+'",'}<br/>
-                {'   "todoViewId": "'+groupId+'",'}<br/>
-                {'   "extensionsList": ['}<br/>
-                {'     "java",'}<br/>
-                {'     "js",'}<br/>
-                {'     "py"'}<br/>
-                {"   ],"}<br/>
-                {'   "sourcesList": ['}<br/>
-                {'     "./src",'}<br/>
-                {'     "./src2"'}<br/>
-                {"   ],"}<br/>
-                {'   "uclusionMDFileType": "report",'}<br/>
-                {'   "uclusionMDFilePath": "uclusion.md"'}<br/>
-                {"}"}
+               // TODO command goes here
               </p>
               <CLISecret marketId={marketId} />
-              <Typography variant="subtitle1" style={{marginTop: '2rem', marginBottom: '0.5rem'}}>
-                Download the CLI Python script by clicking below:
-              </Typography>
-              <a href={CLIScript} download='uclusionCLI.py' >CLI Script</a>
             </SubSection>
           </Card>
         </div>

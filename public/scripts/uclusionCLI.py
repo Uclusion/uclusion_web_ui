@@ -557,13 +557,14 @@ def get_env_paths(env):
 
 
 def load_config(json_path):
+    config_path = os.path.join(os.path.expanduser('~'), '.uclusion', json_path)
     try:
-        with open(json_path, 'r') as f:
+        with open(config_path, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
-        print(f"❌ Error: Configuration file '{json_path}' not found.")
+        print(f"❌ Error: Configuration file '{config_path}' not found.")
     except json.JSONDecodeError as error:
-        print(f"❌ Error: Could not parse JSON from '{json_path}':")
+        print(f"❌ Error: Could not parse JSON from '{config_path}':")
         print(error)
     return None
 

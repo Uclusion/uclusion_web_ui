@@ -1,7 +1,8 @@
 | No Estimate | Estimated | | Done |
 |--------------|---------------|--------------|--------------|
 | [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#ea70be12-ff47-4e5c-b4cd-013e8415d18a)| [Support progress on a task that are notes not things you complete](#9721e840-b3ce-4ad2-8b46-675326b397fd)| 05/07| [Use plan mode in Cursor for an front end bugs in B-all-416, B-all-415,...](#52807b88-8b10-4d09-b91d-4ffb68385ebc) |
-| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Uclusion is how you collaborate with AI.](#7545b5fa-d70d-429a-83e4-90130a9ef83e)| 05/01|  |
+| [Better archive.](#f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f)| [Uclusion is how you collaborate with AI.](#7545b5fa-d70d-429a-83e4-90130a9ef83e)| 05/07|  |
+| [More upgrading.](#cfa6f642-f28e-4e02-92bc-14a25cbb49cf)| | |  |
 ## Job <a name="ea70be12-ff47-4e5c-b4cd-013e8415d18a"></a>
 ### Build the prompts necessary to get the lastest debuts from Show HN, Product...
 ...Hunt, etc. that meet the small tech startup criteria - have landing page but not too many engineers.
@@ -309,303 +310,639 @@ Waiting for [Uclusion is how you collaborate with AI.](#7545b5fa-d70d-429a-83e4-
 Customers of potential customers works well cause these people open to using early stage products.
 
 #### Task <a name="195e0742-30e7-4de6-94dc-7817796b26e0"></a> 
-    import requests
+```
+import requests
+```
 
-    import json
+```
+import json
+```
 
-    import time
+```
+import time
+```
 
-    import os
+```
+import os
+```
 
-    import google.generativeai as genai
+```
+import google.generativeai as genai
+```
 
-    from bs4 import BeautifulSoup
+```
+from bs4 import BeautifulSoup
+```
 
-    from rich.console import Console
+```
+from rich.console import Console
+```
 
-    from rich.table import Table
+```
+from rich.table import Table
+```
 
-    from rich.panel import Panel
+```
+from rich.panel import Panel
+```
 
+```
 
 
-    # --- CONFIGURATION ---
 
-    # Get your key from: https://aistudio.google.com/app/apikey
+```
 
-    API_KEY = ""
+```
+# --- CONFIGURATION ---
+```
 
-    HN_API_BASE = "https://hacker-news.firebaseio.com/v0"
+```
+# Get your key from: https://aistudio.google.com/app/apikey
+```
 
-    HISTORY_FILE = "seen_leads_ai.json"
+```
+API_KEY = ""
+```
 
+```
+HN_API_BASE = "https://hacker-news.firebaseio.com/v0"
+```
 
+```
+HISTORY_FILE = "seen_leads_ai.json"
+```
 
-    # Configure the AI
+```
 
-    genai.configure(api_key=API_KEY)
 
-    model = genai.GenerativeModel('gemini-1.5-flash')
 
+```
 
+```
+# Configure the AI
+```
 
-    console = Console()
+```
+genai.configure(api_key=API_KEY)
+```
 
+```
+model = genai.GenerativeModel('gemini-1.5-flash')
+```
 
+```
 
-    # --- THE PROMPT ---
 
-    # This is the brain of the agent. It defines what Uclusion is looking for.
 
-    SYSTEM_PROMPT = """
+```
 
-    You are a Lead Qualification Agent for a product called 'Uclusion'.
+```
+console = Console()
+```
 
-    Uclusion is an opinionated project management tool for small, developer-centric startups.
+```
 
-    It focuses on asynchronous workflows, deep GitHub integration, and "stories" rather than tickets.
 
 
+```
 
-    Your Goal: Analyze the following Hacker News "Show HN" post and determine if the author is a potential customer.
+```
+# --- THE PROMPT ---
+```
 
+```
+# This is the brain of the agent. It defines what Uclusion is looking for.
+```
 
+```
+SYSTEM_PROMPT = """
+```
 
-    Criteria for a GOOD Match (Score > 70):
+```
+You are a Lead Qualification Agent for a product called 'Uclusion'.
+```
 
-    1. It is a software startup or tool (not a blog post, tutorial, or hardware).
+```
+Uclusion is an opinionated project management tool for small, developer-centric startups.
+```
 
-    2. It looks early-stage (small team, seeking feedback, beta launch).
+```
+It focuses on asynchronous workflows, deep GitHub integration, and "stories" rather than tickets.
+```
 
-    3. If they are building open source then the main developers must be founders of some startup or consulting company. Exclude open source with lots of not otherwise associated developers.
+```
 
-    4. They are NOT a direct competitor (like Linear, Jira, Asana).
 
 
+```
 
-    Output specifically in this JSON format:
+```
+Your Goal: Analyze the following Hacker News "Show HN" post and determine if the author is a potential customer.
+```
 
-    {
+```
 
-    "is_match": boolean,
 
-    "score": integer (0-100),
 
-    "reason": "Short explanation of why it fits or fails",
+```
 
-    "suggested_opening_line": "A casual, developer-friendly opening sentence for a cold email referencing their specific product."
+```
+Criteria for a GOOD Match (Score > 70):
+```
 
-    }
+```
+1. It is a software startup or tool (not a blog post, tutorial, or hardware).
+```
 
-    """
+```
+2. It looks early-stage (small team, seeking feedback, beta launch).
+```
 
+```
+3. If they are building open source then the main developers must be founders of some startup or consulting company. Exclude open source with lots of not otherwise associated developers.
+```
 
+```
+4. They are NOT a direct competitor (like Linear, Jira, Asana).
+```
 
-    def clean_html(html_content):
+```
 
-    if not html_content:
 
-    return ""
 
-    soup = BeautifulSoup(html_content, "html.parser")
+```
 
-    return soup.get_text()
+```
+Output specifically in this JSON format:
+```
 
+```
+{
+```
 
+```
+"is_match": boolean,
+```
 
-    def load_history():
+```
+"score": integer (0-100),
+```
 
-    if os.path.exists(HISTORY_FILE):
+```
+"reason": "Short explanation of why it fits or fails",
+```
 
-    with open(HISTORY_FILE, "r") as f:
+```
+"suggested_opening_line": "A casual, developer-friendly opening sentence for a cold email referencing their specific product."
+```
 
-    return set(json.load(f))
+```
+}
+```
 
-    return set()
+```
+"""
+```
 
+```
 
 
-    def save_history(seen_ids):
 
-    with open(HISTORY_FILE, "w") as f:
+```
 
-    json.dump(list(seen_ids), f)
+```
+def clean_html(html_content):
+```
 
+```
+if not html_content:
+```
 
+```
+return ""
+```
 
-    def get_show_hn_stories():
+```
+soup = BeautifulSoup(html_content, "html.parser")
+```
 
-    """Fetches top 30 'Show HN' stories."""
+```
+return soup.get_text()
+```
 
-    # HN has a specific endpoint for Show HN
+```
 
-    url = f"{HN_API_BASE}/showstories.json"
 
-    return requests.get(url).json()[:30] # Limit to top 30 to save tokens/time
 
+```
 
+```
+def load_history():
+```
 
-    def get_item_details(item_id):
+```
+if os.path.exists(HISTORY_FILE):
+```
 
-    url = f"{HN_API_BASE}/item/{item_id}.json"
+```
+with open(HISTORY_FILE, "r") as f:
+```
 
-    return requests.get(url).json()
+```
+return set(json.load(f))
+```
 
+```
+return set()
+```
 
+```
 
-    def analyze_with_ai(title, text, url):
 
-    """Sends the lead data to the AI for grading."""
 
+```
 
+```
+def save_history(seen_ids):
+```
 
-    user_content = f"""
+```
+with open(HISTORY_FILE, "w") as f:
+```
 
-    Title: {title}
+```
+json.dump(list(seen_ids), f)
+```
 
-    Link: {url}
+```
 
-    Post Text/Pitch: {text[:1000]} (truncated)
 
-    """
 
+```
 
+```
+def get_show_hn_stories():
+```
 
-    try:
+```
+"""Fetches top 30 'Show HN' stories."""
+```
 
-    response = model.generate_content(
+```
+# HN has a specific endpoint for Show HN
+```
 
-    f"{SYSTEM_PROMPT}\n\nDATA TO ANALYZE:\n{user_content}",
+```
+url = f"{HN_API_BASE}/showstories.json"
+```
 
-    generation_config={"response_mime_type": "application/json"}
+```
+return requests.get(url).json()[:30] # Limit to top 30 to save tokens/time
+```
 
-    )
+```
 
-    return json.loads(response.text)
 
-    except Exception as e:
 
-    console.print(f"[red]Error calling AI:[/red] {e}")
+```
 
-    return None
+```
+def get_item_details(item_id):
+```
 
+```
+url = f"{HN_API_BASE}/item/{item_id}.json"
+```
 
+```
+return requests.get(url).json()
+```
 
-    def run_agent():
+```
 
-    seen_ids = load_history()
 
-    console.print("[bold purple]🤖 Uclusion AI Sales Agent Starting...[/bold purple]")
 
+```
 
+```
+def analyze_with_ai(title, text, url):
+```
 
-    story_ids = get_show_hn_stories()
+```
+"""Sends the lead data to the AI for grading."""
+```
 
-    new_leads = []
+```
+  
+```
 
+```
+user_content = f"""
+```
 
+```
+Title: {title}
+```
 
-    with console.status("[bold green]Scanning and analyzing leads...[/bold green]") as status:
+```
+Link: {url}
+```
 
-    for item_id in story_ids:
+```
+Post Text/Pitch: {text[:1000]} (truncated)
+```
 
-    if str(item_id) in seen_ids:
+```
+"""
+```
 
-    continue
+```
+  
+```
 
+```
+try:
+```
 
+```
+response = model.generate_content(
+```
 
-    item = get_item_details(item_id)
+```
+f"{SYSTEM_PROMPT}\n\nDATA TO ANALYZE:\n{user_content}",
+```
 
-    title = item.get('title', 'No Title')
+```
+generation_config={"response_mime_type": "application/json"}
+```
 
-    text = clean_html(item.get('text', ''))
+```
+)
+```
 
-    url = item.get('url', f"https://news.ycombinator.com/item?id={item_id}")
+```
+return json.loads(response.text)
+```
 
+```
+except Exception as e:
+```
 
+```
+console.print(f"[red]Error calling AI:[/red] {e}")
+```
 
-    # Simple pre-filter: If it doesn't say "Show HN", skip it (save AI cost)
+```
+return None
+```
 
-    # (Though fetching showstories.json usually ensures this)
+```
 
 
 
-    # CALL THE AI
+```
 
-    analysis = analyze_with_ai(title, text, url)
+```
+def run_agent():
+```
 
+```
+seen_ids = load_history()
+```
 
+```
+console.print("[bold purple]🤖 Uclusion AI Sales Agent Starting...[/bold purple]")
+```
 
-    if analysis and analysis['is_match']:
+```
+  
+```
 
-    lead_data = {
+```
+story_ids = get_show_hn_stories()
+```
 
-    "title": title,
+```
+new_leads = []
+```
 
-    "url": url,
+```
 
-    "score": analysis['score'],
 
-    "reason": analysis['reason'],
 
-    "opener": analysis['suggested_opening_line']
+```
 
-    }
+```
+with console.status("[bold green]Scanning and analyzing leads...[/bold green]") as status:
+```
 
-    new_leads.append(lead_data)
+```
+for item_id in story_ids:
+```
 
-    console.print(f"[green]✔ MATCH FOUND:[/green] {title} ({analysis['score']}/100)")
+```
+if str(item_id) in seen_ids:
+```
 
-    else:
+```
+continue
+```
 
-    console.print(f"[dim]✖ Skipped:[/dim] {title}")
+```
 
 
 
-    seen_ids.add(str(item_id))
+```
 
-    time.sleep(1) # Respect rate limits
+```
+item = get_item_details(item_id)
+```
 
+```
+title = item.get('title', 'No Title')
+```
 
+```
+text = clean_html(item.get('text', ''))
+```
 
-    # --- REPORTING ---
+```
+url = item.get('url', f"https://news.ycombinator.com/item?id={item_id}")
+```
 
-    if new_leads:
+```
+  
+```
 
-    console.print("\n[bold]🎯 High Quality Leads Found:[/bold]")
+```
+# Simple pre-filter: If it doesn't say "Show HN", skip it (save AI cost)
+```
 
-    for lead in new_leads:
+```
+# (Though fetching showstories.json usually ensures this)
+```
 
-    p = Panel(
+```
+  
+```
 
-    f"[bold]Score:[/bold] {lead['score']}\n"
+```
+# CALL THE AI
+```
 
-    f"[bold]Why:[/bold] {lead['reason']}\n"
+```
+analysis = analyze_with_ai(title, text, url)
+```
 
-    f"[bold]Icebreaker:[/bold] {lead['opener']}\n"
+```
+  
+```
 
-    f"[link={lead['url']}]Click to View[/link]",
+```
+if analysis and analysis['is_match']:
+```
 
-    title=f"[cyan]{lead['title']}[/cyan]",
+```
+lead_data = {
+```
 
-    expand=False
+```
+"title": title,
+```
 
-    )
+```
+"url": url,
+```
 
-    console.print(p)
+```
+"score": analysis['score'],
+```
 
-    save_history(seen_ids)
+```
+"reason": analysis['reason'],
+```
 
-    else:
+```
+"opener": analysis['suggested_opening_line']
+```
 
-    console.print("[yellow]No new matches today.[/yellow]")
+```
+}
+```
 
+```
+new_leads.append(lead_data)
+```
 
+```
+console.print(f"[green]✔ MATCH FOUND:[/green] {title} ({analysis['score']}/100)")
+```
 
-    if __name__ == "__main__":
+```
+else:
+```
 
-    run_agent()
+```
+console.print(f"[dim]✖ Skipped:[/dim] {title}")
+```
+
+```
+
+
+
+```
+
+```
+seen_ids.add(str(item_id))
+```
+
+```
+time.sleep(1) # Respect rate limits
+```
+
+```
+
+
+
+```
+
+```
+# --- REPORTING ---
+```
+
+```
+if new_leads:
+```
+
+```
+console.print("\n[bold]🎯 High Quality Leads Found:[/bold]")
+```
+
+```
+for lead in new_leads:
+```
+
+```
+p = Panel(
+```
+
+```
+f"[bold]Score:[/bold] {lead['score']}\n"
+```
+
+```
+f"[bold]Why:[/bold] {lead['reason']}\n"
+```
+
+```
+f"[bold]Icebreaker:[/bold] {lead['opener']}\n"
+```
+
+```
+f"[link={lead['url']}]Click to View[/link]",
+```
+
+```
+title=f"[cyan]{lead['title']}[/cyan]",
+```
+
+```
+expand=False
+```
+
+```
+)
+```
+
+```
+console.print(p)
+```
+
+```
+save_history(seen_ids)
+```
+
+```
+else:
+```
+
+```
+console.print("[yellow]No new matches today.[/yellow]")
+```
+
+```
+
+
+
+```
+
+```
+if __name__ == "__main__":
+```
+
+```
+run_agent()
+```
 
 
 
@@ -691,211 +1028,441 @@ Evaluate Gemini idea for searching HN - offhand it sucks as show HN yes but limi
 
 
 
-    import requests
+```
+import requests
+```
 
-    import datetime
+```
+import datetime
+```
 
-    import json
+```
+import json
+```
 
-    import time
+```
+import time
+```
 
-    from rich.console import Console
+```
+from rich.console import Console
+```
 
-    from rich.table import Table
+```
+from rich.table import Table
+```
 
+```
 
 
-    console = Console()
 
+```
 
+```
+console = Console()
+```
 
-    # Configuration
+```
 
-    HN_API_BASE = "https://hacker-news.firebaseio.com/v0"
 
-    KEYWORDS = [
 
-    "dev tool", "developer", "open source", "api", "sdk",
+```
 
-    "collaboration", "task management", "remote team", "async",
+```
+# Configuration
+```
 
-    "productivity", "workflow"
+```
+HN_API_BASE = "https://hacker-news.firebaseio.com/v0"
+```
 
-    ]
+```
+KEYWORDS = [
+```
 
-    # File to store seen IDs so we don't repeat leads
+```
+"dev tool", "developer", "open source", "api", "sdk",
+```
 
-    HISTORY_FILE = "seen_leads.json"
+```
+"collaboration", "task management", "remote team", "async",
+```
 
+```
+"productivity", "workflow"
+```
 
+```
+]
+```
 
-    def load_history():
+```
+# File to store seen IDs so we don't repeat leads
+```
 
-    try:
+```
+HISTORY_FILE = "seen_leads.json"
+```
 
-    with open(HISTORY_FILE, "r") as f:
+```
 
-    return set(json.load(f))
 
-    except FileNotFoundError:
 
-    return set()
+```
 
+```
+def load_history():
+```
 
+```
+try:
+```
 
-    def save_history(seen_ids):
+```
+with open(HISTORY_FILE, "r") as f:
+```
 
-    with open(HISTORY_FILE, "w") as f:
+```
+return set(json.load(f))
+```
 
-    json.dump(list(seen_ids), f)
+```
+except FileNotFoundError:
+```
 
+```
+return set()
+```
 
+```
 
-    def get_new_stories():
 
-    """Fetches the latest 500 stories from HN (checking 'newstories' endpoint)"""
 
-    url = f"{HN_API_BASE}/newstories.json"
+```
 
-    response = requests.get(url)
+```
+def save_history(seen_ids):
+```
 
-    return response.json()[:200] # Check top 200 new items
+```
+with open(HISTORY_FILE, "w") as f:
+```
 
+```
+json.dump(list(seen_ids), f)
+```
 
+```
 
-    def get_item_details(item_id):
 
-    url = f"{HN_API_BASE}/item/{item_id}.json"
 
-    return requests.get(url).json()
+```
 
+```
+def get_new_stories():
+```
 
+```
+"""Fetches the latest 500 stories from HN (checking 'newstories' endpoint)"""
+```
 
-    def analyze_lead(item):
+```
+url = f"{HN_API_BASE}/newstories.json"
+```
 
-    """
+```
+response = requests.get(url)
+```
 
-    Returns True if the item looks like a target for Uclusion.
+```
+return response.json()[:200] # Check top 200 new items
+```
 
-    """
+```
 
-    if not item or 'title' not in item:
 
-    return False
 
+```
 
+```
+def get_item_details(item_id):
+```
 
-    title = item['title'].lower()
+```
+url = f"{HN_API_BASE}/item/{item_id}.json"
+```
 
+```
+return requests.get(url).json()
+```
 
+```
 
-    # 1. Filter for 'Show HN' (Makers showing off work)
 
-    if "show hn" not in title:
 
-    return False
+```
 
+```
+def analyze_lead(item):
+```
 
+```
+"""
+```
 
-    # 2. Keyword Matching (Is it relevant to Uclusion?)
+```
+Returns True if the item looks like a target for Uclusion.
+```
 
-    if any(keyword in title for keyword in KEYWORDS):
+```
+"""
+```
 
-    return True
+```
+if not item or 'title' not in item:
+```
 
+```
+return False
+```
 
+```
+  
+```
 
-    return False
+```
+title = item['title'].lower()
+```
 
+```
+  
+```
 
+```
+# 1. Filter for 'Show HN' (Makers showing off work)
+```
 
-    def run_agent():
+```
+if "show hn" not in title:
+```
 
-    seen_ids = load_history()
+```
+return False
+```
 
-    new_leads = []
+```
 
 
 
-    console.print("[bold blue]🔎 Scanning Hacker News for Uclusion Leads...[/bold blue]")
+```
 
+```
+# 2. Keyword Matching (Is it relevant to Uclusion?)
+```
 
+```
+if any(keyword in title for keyword in KEYWORDS):
+```
 
-    story_ids = get_new_stories()
+```
+return True
+```
 
+```
+  
+```
 
+```
+return False
+```
 
-    for item_id in story_ids:
+```
 
-    # Skip if we've already seen this lead
 
-    if str(item_id) in seen_ids:
 
-    continue
+```
 
+```
+def run_agent():
+```
 
+```
+seen_ids = load_history()
+```
 
-    item = get_item_details(item_id)
+```
+new_leads = []
+```
 
-    if analyze_lead(item):
+```
+  
+```
 
-    lead = {
+```
+console.print("[bold blue]🔎 Scanning Hacker News for Uclusion Leads...[/bold blue]")
+```
 
-    "title": item.get('title'),
+```
+  
+```
 
-    "url": item.get('url', f"https://news.ycombinator.com/item?id={item_id}"),
+```
+story_ids = get_new_stories()
+```
 
-    "comments_url": f"https://news.ycombinator.com/item?id={item_id}",
+```
+  
+```
 
-    "score": item.get('score', 0)
+```
+for item_id in story_ids:
+```
 
-    }
+```
+# Skip if we've already seen this lead
+```
 
-    new_leads.append(lead)
+```
+if str(item_id) in seen_ids:
+```
 
-    seen_ids.add(str(item_id))
+```
+continue
+```
 
+```
+  
+```
 
+```
+item = get_item_details(item_id)
+```
 
-    # Rate limit slightly to be polite
+```
+if analyze_lead(item):
+```
 
-    time.sleep(0.1)
+```
+lead = {
+```
 
+```
+"title": item.get('title'),
+```
 
+```
+"url": item.get('url', f"https://news.ycombinator.com/item?id={item_id}"),
+```
 
-    # Output Results
+```
+"comments_url": f"https://news.ycombinator.com/item?id={item_id}",
+```
 
-    if new_leads:
+```
+"score": item.get('score', 0)
+```
 
-    table = Table(title=f"🚀 New Leads found: {datetime.date.today()}")
+```
+}
+```
 
-    table.add_column("Title", style="cyan")
+```
+new_leads.append(lead)
+```
 
-    table.add_column("URL", style="magenta")
+```
+seen_ids.add(str(item_id))
+```
 
-    table.add_column("Score", style="green")
+```
+  
+```
 
+```
+# Rate limit slightly to be polite
+```
 
+```
+time.sleep(0.1)
+```
 
-    for lead in new_leads:
+```
 
-    table.add_row(lead['title'], lead['url'], str(lead['score']))
 
 
+```
 
-    console.print(table)
+```
+# Output Results
+```
 
-    save_history(seen_ids)
+```
+if new_leads:
+```
 
-    else:
+```
+table = Table(title=f"🚀 New Leads found: {datetime.date.today()}")
+```
 
-    console.print("[yellow]No new relevant leads found this run.[/yellow]")
+```
+table.add_column("Title", style="cyan")
+```
 
+```
+table.add_column("URL", style="magenta")
+```
 
+```
+table.add_column("Score", style="green")
+```
 
-    if __name__ == "__main__":
+```
 
-    run_agent()
+
+
+```
+
+```
+for lead in new_leads:
+```
+
+```
+table.add_row(lead['title'], lead['url'], str(lead['score']))
+```
+
+```
+  
+```
+
+```
+console.print(table)
+```
+
+```
+save_history(seen_ids)
+```
+
+```
+else:
+```
+
+```
+console.print("[yellow]No new relevant leads found this run.[/yellow]")
+```
+
+```
+
+
+
+```
+
+```
+if __name__ == "__main__":
+```
+
+```
+run_agent()
+```
 
 ## Job <a name="f7a8e7eb-1fbf-4c5a-84cb-0a9a99acc66f"></a>
 ### Better archive.
@@ -939,6 +1506,18 @@ Make sure empty text does not display in archive. Currently it does at least for
 
 #### Task <a name="8afc772c-c0e4-4131-abc3-2f930687e764"></a> 
 Just copy how chat inset works for Gmail - it does cover stuff up. No need to push everything over as now which ends up being hokey.
+
+## Job <a name="cfa6f642-f28e-4e02-92bc-14a25cbb49cf"></a>
+### More upgrading.
+
+
+
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/461a740d-8f1b-4a51-a98e-53b06e6b7e5e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+And check emails also.
 
 ## Job <a name="9721e840-b3ce-4ad2-8b46-675326b397fd"></a>
 ### Support progress on a task that are notes not things you complete
@@ -2633,6 +3212,14 @@ python rnaseq.py /data/output_docker_4_14/ethan_metadata_04142026_215115.tsv /da
 
 +------------------------------------------------------------------------------------------------------+
 
+#### Task <a name="ec550ae9-aa15-420a-bf3b-a12208e6c74b"></a> 
+Just have an add_info tool and CLI that takes a short_code_id. Underneath it might add notes, reply, option info, or whatever - AI doesn't need to know that.
+
+
+
+
+So just need that and add_approval which takes job_id, certainty score, and reason.
+
 #### Task <a name="6f16019a-55f5-44e6-8ce3-678b747f25aa"></a> 
 Notes are there own tab but can be associated with a top level task and displays as a compressed row beneath.
 
@@ -2653,6 +3240,9 @@ The compressed rows work like the ones on tasks summary where opening gives you 
 
 > ##### Grouped task <a name="debfe04f-e9bd-450e-9e69-69b9831615f9"></a> 
 Probably it is Grouped + and then radio button if you want task or note that defaults to task.
+
+#### Task <a name="820720f5-9dec-4a13-81bd-7c98f07a7e8b"></a> 
+Cannot reply to an AI created comment.
 
 #### Task <a name="9869a5ce-131d-460e-be3f-f839e38c4cc5"></a> 
 Need attachments support linking and open directly when possible instead download. At least open directly for txt files?
@@ -2678,57 +3268,8 @@ Going with secret key instead of full Oauth stuff <https://upstash.com/blog/mcp-
 
 <https://www.mintlify.com/upstash/context7/mcp/configuration> - verifies this worked in real life.
 
-#### Task <a name="283dfc1c-6af5-43ce-ac84-6e0e16a479c5"></a> 
-These comments will be as an AI user that is local to the workspace and has no home account or a dummy home account. The point is that a collaboration with AI to get its opinion on the job, at a high level, is better than nothing.
-
-> ##### Grouped task <a name="28a32df1-43f5-4a02-8860-4f804672e78e"></a> 
-How should it work in MCP to get humans to give commands like necessary? Are the examples just in the Uclusion docs or AI should give hints to the human or maybe the hints are in Uclusion or all the above?
-
-> ##### Grouped task <a name="27bf1b03-9194-4a5a-9468-73fbbfcc39cc"></a> 
-As it stands you oauth as yourself with secret keys but then some of your actions require using a different acting user.
-
 #### Task <a name="2a0e2855-befe-40ce-9e37-56f288089d58"></a> 
-Use this system with the better archive job and Cursor.
-
-#### Task <a name="7895fe30-5433-4687-a922-0c8d8d4cb97c"></a> 
-Need simpler setup - credentials file, json file, and two scripts is too much. Do setup command that downloads install script if necessary. Could just copy that command from copy window in integration setup screen and it has credentials and workspace ID.
-
-
-
-
-Can have AI write the one setup script.
-
-> ##### Grouped task <a name="bb6e6270-54cc-4284-aaed-ae949f2928ec"></a> 
-Have MCP server in Cursor be part of this script whenever Cursor is present.
-
-
-
-
-~/.cursor/mcp.json
-
-    {
-
-    "mcpServers": {
-
-    "Uclusion": {
-
-    "command": "python3",
-
-    "args": ["/home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
-
-    }
-
-    }
-
-    }
-
-#### Task <a name="b79e1fa9-a754-4815-aa42-1953914f887b"></a> 
-For the purposes of calculating view collaborators, the AI user doesn't count as is not an agent.
-
-
-
-
-You also cannot assign to the AI user or use in a mention.
+Use this system with the notes job and Cursor.
 
 #### Task <a name="d8353352-35bf-40a7-9a74-5ac40985f2a1"></a> 
 Use Uclusion to get J-Engineering-2 and add a certainty score of this job, proposed by a junior engineer, being useful for this application along with a reason for that score from the point of view of a critical product manager. Research typical product users to synthesize the critical product manager. Read the documentation of this application first and ask any questions you still have relevant to this job.
@@ -2741,18 +3282,7 @@ Using the code base and all other available information add info at the task and
 
 
 
-**Put above prompt into documentation and maybe elsewhere.**
-
-> ##### Grouped task <a name="f596e7ee-edb5-4204-8248-0de841460c7f"></a> 
-Need add_approval tool and CLI also.
-
-> ##### Grouped task <a name="ec550ae9-aa15-420a-bf3b-a12208e6c74b"></a> 
-Just have an add_info tool and CLI that takes a short_code_id. Underneath it might add notes, reply, option info, or whatever - AI doesn't need to know that.
-
-
-
-
-So just need that and add_approval which takes job_id, certainty score, and reason.
+**Put above prompt that works for you into documentation and maybe elsewhere as an example. In reality they will have to tune.**
 
 #### Resolved Task <a name="d63e211e-5ca1-4b16-818f-2ae999f609b8"></a> 
 For secret keys need to make sure banned check happens as currently does in
@@ -2775,6 +3305,9 @@ So need a get_task which only gets a task into a context in case you put a promp
 
 But then tricky cause do you get the job for question you want answered and then ask it to answer the question? Kind of requires a lot of skill for the user. Is getting the full job really going to fill the context too much or distract? **Also a user of the UI would never have only a comment in a job without seeing the job.**
 
+#### Resolved Task <a name="9903f737-f24c-4359-a170-f53f553027d0"></a> 
+Screen the AI user out of get followers of job method - won't be in any views.
+
 #### Resolved Task <a name="905ab0e8-302b-4db0-9b4a-daa1e3441ee9"></a> 
 Have to output everything the AI puts out so that people can see the "thinking".
 
@@ -2784,21 +3317,37 @@ Have to output everything the AI puts out so that people can see the "thinking".
 
 
 
-    {
+```
+{
+```
 
-    "mcpServers": {
+```
+"mcpServers": {
+```
 
-    "uclusion-mcp-proxy": {
+```
+"uclusion-mcp-proxy": {
+```
 
-    "command": "python3",
+```
+"command": "python3",
+```
 
-    "args": ["/home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
+```
+"args": ["/home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
+```
 
-    }
+```
+}
+```
 
-    }
+```
+}
+```
 
-    }
+```
+}
+```
 
 
 
@@ -2824,53 +3373,105 @@ So to make this work you need and endpoint on https://api.example.com/mcp/.well-
 
 
 
-
-
-    async def token_endpoint(
-
-    grant_type: str = Form(...),
-
-    client_id: str = Form(None),
-
-    client_secret: str = Form(None)
-
-    ):
-
-    """
-
-    Step 2: The Token Exchange.
-
-    Cursor POSTs the ID and Secret here. You validate them and return a signed JWT.
-
-    """
-
-    if grant_type != "client_credentials":
-
-    raise HTTPException(status_code=400, detail="unsupported_grant_type")
+```
 
 
 
-    if client_id != EXPECTED_CLIENT_ID or client_secret != EXPECTED_CLIENT_SECRET:
+```
 
-    raise HTTPException(status_code=401, detail="invalid_client")
+```
+async def token_endpoint(
+```
+
+```
+grant_type: str = Form(...),
+```
+
+```
+client_id: str = Form(None),
+```
+
+```
+client_secret: str = Form(None)
+```
+
+```
+):
+```
+
+```
+"""
+```
+
+```
+Step 2: The Token Exchange.
+```
+
+```
+Cursor POSTs the ID and Secret here. You validate them and return a signed JWT.
+```
+
+```
+"""
+```
+
+```
+if grant_type != "client_credentials":
+```
+
+```
+raise HTTPException(status_code=400, detail="unsupported_grant_type")
+```
+
+```
+  
+```
+
+```
+if client_id != EXPECTED_CLIENT_ID or client_secret != EXPECTED_CLIENT_SECRET:
+```
+
+```
+raise HTTPException(status_code=401, detail="invalid_client")
+```
+
+```
 
 
 
-    return {
+```
 
-    "issuer": base_url,
+```
+return {
+```
 
-    "token_endpoint": f"{base_url}/token",
+```
+"issuer": base_url,
+```
 
-    # Cursor uses the client_credentials grant for machine-to-machine auth
+```
+"token_endpoint": f"{base_url}/token",
+```
 
-    "grant_types_supported": ["client_credentials"],
+```
+# Cursor uses the client_credentials grant for machine-to-machine auth
+```
 
-    "response_types_supported": ["token"],
+```
+"grant_types_supported": ["client_credentials"],
+```
 
-    "token_endpoint_auth_methods_supported": ["client_secret_post"]
+```
+"response_types_supported": ["token"],
+```
 
-    }
+```
+"token_endpoint_auth_methods_supported": ["client_secret_post"]
+```
+
+```
+}
+```
 
 
 
@@ -2880,15 +3481,25 @@ and another endpoint on https://api.example.com/mcp/token that returns:
 
 
 
-    return {
+```
+return {
+```
 
-    "access_token": token,
+```
+"access_token": token,
+```
 
-    "token_type": "Bearer",
+```
+"token_type": "Bearer",
+```
 
-    "expires_in": 3600
+```
+"expires_in": 3600
+```
 
-    }
+```
+}
+```
 
 
 
@@ -2896,178 +3507,358 @@ and another endpoint on https://api.example.com/mcp/token that returns:
 and of course the actual MCP endpoint on https://api.example.com/mcp that is secured by a normal Uclusion token as any other API - for now could just use <https://github.com/modelcontextprotocol/python-sdk/blob/main/examples/mcpserver/simple_echo.py>
 
 > ##### Grouped task <a name="a9942427-b3ab-4b8f-8597-06607e4d11da"></a> 
-    2026-04-13 13:23:30.526 [info] Starting new stdio process with command: python3 /home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py 3a2c3b12-336b-4d72-b36c-fd3a27a884b2 dev
-
-    2026-04-13 13:23:33.323 [error] Client error for command [
-
-    {
-
-    "code": "invalid_union",
-
-    "errors": [
-
-    [
-
-    {
-
-    "expected": "object",
-
-    "code": "invalid_type",
-
-    "path": [],
-
-    "message": "Invalid input: expected object, received string"
-
-    }
-
-    ],
-
-    [
-
-    {
-
-    "expected": "object",
-
-    "code": "invalid_type",
-
-    "path": [],
-
-    "message": "Invalid input: expected object, received string"
-
-    }
-
-    ],
-
-    [
-
-    {
-
-    "expected": "object",
-
-    "code": "invalid_type",
-
-    "path": [],
-
-    "message": "Invalid input: expected object, received string"
-
-    }
-
-    ],
-
-    [
-
-    {
-
-    "expected": "object",
-
-    "code": "invalid_type",
-
-    "path": [],
-
-    "message": "Invalid input: expected object, received string"
-
-    }
-
-    ]
-
-    ],
-
-    "path": [],
-
-    "message": "Invalid input"
-
-    }
-
-    ]
-
-    2026-04-13 13:23:33.323 [warning] [V1] initializing -> error: [
-
-    {
-
-    "code": "invalid_union",
-
-    "errors": [
-
-    [
-
-    {
-
-    "expected": "object",
-
-    "code": "invalid_type",
-
-    "path": [],
-
-    "message": "Invalid input: expected object, received string"
-
-    }
-
-    ],
-
-    [
-
-    {
-
-    "expected": "object",
-
-    "code": "invalid_type",
-
-    "path": [],
-
-    "message": "Invalid input: expected object, received string"
-
-    }
-
-    ],
-
-    [
-
-    {
-
-    "expected": "object",
-
-    "code": "invalid_type",
-
-    "path": [],
-
-    "message": "Invalid input: expected object, received string"
-
-    }
-
-    ],
-
-    [
-
-    {
-
-    "expected": "object",
-
-    "code": "invalid_type",
-
-    "path": [],
-
-    "message": "Invalid input: expected object, received string"
-
-    }
-
-    ]
-
-    ],
-
-    "path": [],
-
-    "message": "Invalid input"
-
-    }
-
-    ]
+```
+2026-04-13 13:23:30.526 [info] Starting new stdio process with command: python3 /home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py 3a2c3b12-336b-4d72-b36c-fd3a27a884b2 dev
+```
+
+```
+2026-04-13 13:23:33.323 [error] Client error for command [
+```
+
+```
+{
+```
+
+```
+"code": "invalid_union",
+```
+
+```
+"errors": [
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+]
+```
+
+```
+],
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input"
+```
+
+```
+}
+```
+
+```
+]
+```
+
+```
+2026-04-13 13:23:33.323 [warning] [V1] initializing -> error: [
+```
+
+```
+{
+```
+
+```
+"code": "invalid_union",
+```
+
+```
+"errors": [
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+]
+```
+
+```
+],
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input"
+```
+
+```
+}
+```
+
+```
+]
+```
 
 
 
 
 Coming from:
 
-    /aws/lambda/uclusion-investible-api-dev-mcp_post 2026/04/13/[$LATEST]da08c828fa524be3a18023325d0a7d14 [INFO]    2026-04-13T20:23:33.325Z        d7b2425f-fff5-4b26-b338-7bbceedc9ed1  {'statusCode': 200, 'body': '"{\\"jsonrpc\\":\\"2.0\\",\\"id\\":0,\\"result\\":{\\"protocolVersion\\":\\"2024-11-05\\",\\"capabilities\\":{},\\"serverInfo\\":{\\"name\\":\\"uclusion-mcp-server\\",\\"version\\":\\"1.0.0\\"}}}"', 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': True}, 'isBase64Encoded': False}
+```
+/aws/lambda/uclusion-investible-api-dev-mcp_post 2026/04/13/[$LATEST]da08c828fa524be3a18023325d0a7d14 [INFO]    2026-04-13T20:23:33.325Z        d7b2425f-fff5-4b26-b338-7bbceedc9ed1  {'statusCode': 200, 'body': '"{\\"jsonrpc\\":\\"2.0\\",\\"id\\":0,\\"result\\":{\\"protocolVersion\\":\\"2024-11-05\\",\\"capabilities\\":{},\\"serverInfo\\":{\\"name\\":\\"uclusion-mcp-server\\",\\"version\\":\\"1.0.0\\"}}}"', 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': True}, 'isBase64Encoded': False}
+```
+
+```
+
+
+
+```
+
+```
+
+
+
+```
 
 #### Resolved Task <a name="5120f6e9-f71a-4128-8a93-db5545a8258a"></a> 
 The prompts explain what the agent should do with the assigned jobs approval - use the description as a prompt to plan and add high level tasks and existing tasks as things that must have grouped tasks plans. **Anything you want handled in its own context should go in its own job - so the tasks are all things that require knowing other things in the job.**
@@ -3076,6 +3867,49 @@ The prompts explain what the agent should do with the assigned jobs approval - u
 
 
 Prompt also explains that if in Work Ready then start on all tasks - marking each one currently doing as in progress and resolving ones that are done.
+
+#### Resolved Task <a name="bb6e6270-54cc-4284-aaed-ae949f2928ec"></a> 
+Have MCP server in Cursor be part of this script whenever Cursor is present.
+
+
+
+
+~/.cursor/mcp.json
+
+```
+{
+```
+
+```
+"mcpServers": {
+```
+
+```
+"Uclusion": {
+```
+
+```
+"command": "python3",
+```
+
+```
+"args": ["/user/local/bin/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
+```
+
+```
+}
+```
+
+```
+}
+```
+
+```
+}
+```
+
+#### Resolved Task <a name="283dfc1c-6af5-43ce-ac84-6e0e16a479c5"></a> 
+These comments will be as an AI user that is local to the workspace and has no home account or a dummy home account. The point is that a collaboration with AI to get its opinion on the job, at a high level, is better than nothing.
 
 #### Resolved Question <a name="29237281-73a6-46d9-bffd-ba94e2017d5f"></a> 
 Do you run CLI each time or just have an agent running all the time that reacts to changes you make in Uclusion?
@@ -3087,6 +3921,9 @@ Currently can get link or commit message but cannot copy just the ID of a job or
 
 
 **Actually the drop down can include all info necessary - which might be a full prompt as have in the other task.**
+
+#### Resolved Task <a name="28a32df1-43f5-4a02-8860-4f804672e78e"></a> 
+How should it work in MCP to get humans to give commands like necessary? Are the examples just in the Uclusion docs or AI should give hints to the human or maybe the hints are in Uclusion or all the above?
 
 #### Resolved Task <a name="6879c128-fd75-4ec0-ac6d-75caf94d453e"></a> 
 Be careful with wasting tokens
@@ -3120,19 +3957,39 @@ MCP allows defining a prompt for a method:
 
 
 
-    @prompt(
+```
+@prompt(
+```
 
-    name="query-data",
+```
+name="query-data",
+```
 
-    description="Fetches data from the SQL database using a SQL query"
+```
+description="Fetches data from the SQL database using a SQL query"
+```
 
-    )
+```
+)
+```
 
-    def query_data(query: str) -> str:
+```
+def query_data(query: str) -> str:
+```
 
-    # Logic to fetch data from resource
+```
+# Logic to fetch data from resource
+```
 
-    return f"Result: {db.execute(query)}"
+```
+return f"Result: {db.execute(query)}"
+```
+
+```
+
+
+
+```
 
 > ##### Grouped task <a name="b2f99ebf-6584-4878-9a0f-6ac42f647b67"></a> 
 <https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization> - has authorization but how do you make Cursor know how to do this for an API call?
@@ -3174,7 +4031,9 @@ It should be encouraged to create this plan in Uclusion as grouped tasks ahead o
 Test get job from MCP.
 
 > ##### Grouped task <a name="17d75af2-c89d-48ff-9a5d-2d8f15fdd2f4"></a> 
-    "params":{"name":"get_job","arguments":{"job_id":"J-Engineering-9"},"_meta":{"progressToken":4}}
+```
+"params":{"name":"get_job","arguments":{"job_id":"J-Engineering-9"},"_meta":{"progressToken":4}}
+```
 
 #### Resolved Task <a name="c7cdb08c-c5e8-49ce-be1f-d981dc727673"></a> 
 For an AI user need to turn off notifications of anything it won't be doing - for instance answering assistance questions, critical bugs, unassigned jobs, etc.
@@ -3190,9 +4049,13 @@ For an AI user need to turn off notifications of anything it won't be doing - fo
 
 
 
-    2026-04-11 20:09:28.506 [info] Creating streamableHttp transport
+```
+2026-04-11 20:09:28.506 [info] Creating streamableHttp transport
+```
 
-    2026-04-11 20:09:28.506 [info] No scopes in config, fetching from well-known endpoint
+```
+2026-04-11 20:09:28.506 [info] No scopes in config, fetching from well-known endpoint
+```
 
 
 
@@ -3215,6 +4078,9 @@ When mention a job or task how does AI know whether to plan it as the current us
 
 Cursor will analyze intent from the prompt and then match that against tool descriptions and choose the tool and fill in its arguments based on its JSON schema.
 
+#### Resolved Task <a name="f596e7ee-edb5-4204-8248-0de841460c7f"></a> 
+Need add_approval tool and CLI also.
+
 #### Resolved Suggestion <a name="97bcdf2c-4a57-4057-82b8-e66dc743e069"></a> 
 Need someone's opinion on whether this would be usable or too big of an abstraction layer over the input to AI. **Maybe Brad would have an opinion?**
 
@@ -3222,6 +4088,194 @@ Need someone's opinion on whether this would be usable or too big of an abstract
 
 
 FOR INSTANCE ANOTHER WAY TO GO - provide some sort of hook so that the job or task gets created in Uclusion from inside the chat with AI.
+
+#### Resolved Task <a name="7dcd5970-04f6-4e4c-be1b-105e8e82f469"></a> 
+AI not showing up in new demo market - debug.
+
+#### Resolved Task <a name="7895fe30-5433-4687-a922-0c8d8d4cb97c"></a> 
+Copy command from copy window in integration setup screen and it has credentials and workspace ID.
+
+
+
+
+Can have AI write the one setup script.
+
+
+
+
+**disrael@uclusion-tuxedo**:**~**$ which aws
+
+/usr/local/bin/aws
+
+
+
+
+Scripts are now located in:
+
+<https://stage.uclusion.com/scripts/>
+
+
+
+
+but this install script will need to take the usual argument defaulting to prod for the url.
+
+
+
+
+Prompt:
+
+
+
+
+In public/scripts add a third script which takes environment and workspaceId as arguments and:
+
+1. Installs the two scripts in public/scripts in /usr/local/bin by downloading them from <https://stage.uclusion.com/scripts/> where the url depends on env as seen in @uclusionCLI.py
+2. Creates a ~/.uclusion folder, if not already existing, and puts a uclusion.json file in it of the form
+
+
+```
+{
+```
+
+```
+"workspaceId": "3a2c3b12-336b-4d72-b36c-fd3a27a884b2",
+```
+
+```
+"extensionsList": [
+```
+
+```
+"js",
+```
+
+```
+"py"
+```
+
+```
+],
+```
+
+```
+"sourcesList": [
+```
+
+```
+"./src"
+```
+
+```
+],
+```
+
+```
+"uclusionMDFileType": "report",
+```
+
+```
+"uclusionMDFilePath": "uclusion.md"
+```
+
+```
+}
+```
+
+where the workspaceId comes from the argument to this script.
+
+1. If there exists a ~/.cursor/mcp.json it edits it to add
+
+
+```
+{
+```
+
+```
+"mcpServers": {
+```
+
+```
+"Uclusion": {
+```
+
+```
+"command": "python3",
+```
+
+```
+"args": ["/user/local/bin/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
+```
+
+```
+}
+```
+
+```
+}
+```
+
+```
+}
+```
+
+Uclusion to the mcpServers as shown above where the second arg is the workspaceId and the third is the env if one was given or no third argument if not.
+
+> ##### Grouped task <a name="d195f16a-7dfc-46f3-bf59-4085345f49e9"></a> 
+```
+{
+```
+
+```
+"workspaceId": "3a2c3b12-336b-4d72-b36c-fd3a27a884b2",
+```
+
+```
+"extensionsList": [
+```
+
+```
+"js",
+```
+
+```
+"py"
+```
+
+```
+],
+```
+
+```
+"sourcesList": [
+```
+
+```
+"./src"
+```
+
+```
+],
+```
+
+```
+"uclusionMDFileType": "report",
+```
+
+```
+"uclusionMDFilePath": "uclusion.md"
+```
+
+```
+}
+```
+
+
+
+
+Just puts this file with workspaceId from argumentand they can edit if want later.
+
+#### Resolved Task <a name="6caa3ac9-2866-4dc9-9b22-d698f4ec4fcd"></a> 
+Make AI avatar image be the standard AI symbol.
 
 #### Resolved Task <a name="42b0655f-ac0a-46d1-9ce1-bd3eabff9371"></a> 
 The prompt defines JSON AI output object and that tells the Uclusion program what APIs to call with what arguments. For the parallel case the prompt says first see if this job can be split into separate jobs and output that JSON if so. If you get that JSON just loop around and call the agent again in a different thread for each job it created.
@@ -3379,6 +4433,14 @@ The token handling should be fine as can handle that in serverless config as cur
 #### Resolved Task <a name="b3a89570-637f-4cf1-8cb9-cffd387ae49a"></a> 
 get_job has to support getting market level comments like bugs etc. - too confusing otherwise.
 
+#### Resolved Task <a name="b79e1fa9-a754-4815-aa42-1953914f887b"></a> 
+For the purposes of calculating view collaborators, the AI user doesn't count as is not an agent - front end and **back end also.**
+
+
+
+
+You also cannot assign to the AI user or use in a mention.
+
 #### Resolved Task <a name="f462dfe7-ba9f-42c4-b4c2-c16b8b3ab747"></a> 
 Write example prompts for above to see if doable.
 
@@ -3434,6 +4496,9 @@ The verbiage on the tool needs to be change also to say these are not included.
 
 
 **For that matter external links are not either and should not be sucked in indiscriminately cause would also overflow context as unbounded.**
+
+#### Resolved Task <a name="27bf1b03-9194-4a5a-9468-73fbbfcc39cc"></a> 
+As it stands you oauth as yourself with secret keys but then some of your actions require using a different acting user.
 
 #### Resolved Task <a name="417b8e87-2266-49cb-b9c9-28e8df9b3d31"></a> 
 For a solo developer, the risk of technical debt and "hacks" is high. The AI Job Reviewer provides a standardized, rigorous check that mimics a senior engineer's "Definition of Done". By using MCP to pull in context from "all servers" (including GitHub, database schemas, and documentation), the AI can perform a "Criteria-Grounded Verification" that ensures every job is actionable and verifiable. The primary limitation is the AI's struggle with judging the *novelty* or *long-term business significance* of a project, which must remain a human responsibility.
@@ -3504,6 +4569,9 @@ So just need to handle JSON-RPC and do some minimal form of the protocol - it's 
 #### Resolved Task <a name="0b37ce69-262b-4c34-bb31-8a88f366628e"></a> 
 Add get_job by short code to the CLI so that can see the result for testing. Also useful if they wanted to use the CLI themselves instead of MCP.
 
+#### Resolved Task <a name="66500f86-241c-4ce7-bb37-0a60c90d6bc5"></a> 
+Redo the integrations page to have a download command based on public/scripts/install.sh but make it a one liner. Keep the secrets as now as should not be installing secrets they don't know about.
+
 #### Resolved Task <a name="8e7609a1-3f23-4fa5-85a8-65f4965c2d79"></a> 
 Come up with plan for tools beyond get that is more reasonable. The MCP thing doesn't work well and it's hard to even get it to use it correctly.
 
@@ -3531,9 +4599,13 @@ Should be able to pass it
 
 
 
-    deployment_group = DeploymentGroupVersionModel.get(account['deployment_group'])
+```
+deployment_group = DeploymentGroupVersionModel.get(account['deployment_group'])
+```
 
-    base_url = deployment_group.ui_url
+```
+base_url = deployment_group.ui_url
+```
 
 
 
@@ -3558,6 +4630,19 @@ This is a dummy account with no API key etc. as AI will never run its own worksp
 
 #### Resolved Question <a name="7b4fb0f3-c9b7-4014-bb6b-597466ec5d18"></a> 
 Does this user have its own account? Does it have a dummy account that does not have its own credentials or aggregate notifications?
+
+#### Resolved Task <a name="7e02ac9d-916f-4ccb-9a59-1163d2c6fc17"></a> 
+~~Make sure AI user cannot be added to a view.~~
+
+
+
+
+~~Make sure AI user cannot be added to a workspace from another workspace.~~
+
+
+
+
+And AI user cannot be added in job add others.
 
 #### Resolved Task <a name="9e6af3ef-554f-4a4d-a1b4-4278aa7da4b3"></a> 
 Figure out how can have Claude look at back end code without losing the IP so can try this with back end also.
@@ -3584,19 +4669,33 @@ Can we instead:
 
 
 
-    {
+```
+{
+```
 
-    "mcpServers": {
+```
+"mcpServers": {
+```
 
-    "uclusion": {
+```
+"uclusion": {
+```
 
-    "url": "https://production.uclusion.com/mcp?secret_key_id=blah&secret_key=blah"
+```
+"url": "https://production.uclusion.com/mcp?secret_key_id=blah&secret_key=blah"
+```
 
-    }
+```
+}
+```
 
-    }
+```
+}
+```
 
-    }
+```
+}
+```
 
 
 
@@ -3653,6 +4752,16 @@ Model Context Protocol (MCP): This is the primary way to allow Cursor to interac
 
 #### Suggestion <a name="fdad0ca3-9a5e-40d1-8c0a-7fd38824727d"></a> 
 Then maybe just be yourself instead of an AI user.
+
+#### Resolved Task <a name="c5b91036-e215-4e5b-acbc-186f9bcf2700"></a> 
+First test install for stage by removing the current dev cursor server etc. and reinstall using command but with stage.
+
+
+
+
+```
+curl -fsSL https://stage.uclusion.com/scripts/install.sh | bash -s -- dd56682c-9920-417b-be46-7a30d41bc905 stage
+```
 
 #### Resolved Task <a name="187cd322-6670-4bf4-804e-ff2748427e6d"></a> 
 Job approval based on what context?

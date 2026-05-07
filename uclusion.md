@@ -12,7 +12,13 @@
 We would have a much easier time building out the standard library if we can call into C.
 
 > ##### $${\color{green} Reason \space For}$$
+#### Question <a name="0c78f264-826c-4e74-b709-25a7dec1dbd8"></a> 
+Starting that integration now will prevent duplicating functionality.
+
 > ##### $${\color{lightgreen} Reason \space For}$$
+#### Question <a name="69366eca-a634-4caa-9717-0be14b2116ef"></a> 
+Agreed - front load this work.
+
 #### Tasks 
 #### Task <a name="be3c524d-0c69-4d27-8b9e-5ecd13c8f277"></a> 
 Define and include for make file linkage.
@@ -25,6 +31,9 @@ Runtime binding.
 We need basic error handling with a returned value scheme like Go.
 
 > ##### $${\color{orange} Reason \space For}$$
+#### Question <a name="f5cd81d5-06e3-411e-8511-c8bc549140f3"></a> 
+By the time you Go 1.13 wrap everything it's very similar to a stack trace.
+
 #### Assistance 
 #### Question <a name="40b4e4a1-f4b9-4fd3-a6bf-b44ef7608fcd"></a> 
 ## Can we do better than wrapping errors?
@@ -44,7 +53,13 @@ Then you would be automatically logging values that might be sensitive.
 The syntax should allow for any combination of raise and return of errors on a function. If you expect the caller to handle the error then lean towards return and otherwise lean towards raise.
 
 > ##### $${\color{lightgreen} Reason \space For}$$
+#### Question <a name="9f0dec8a-7afd-4d6f-98bd-150daa2ddc6e"></a> 
+This allows us an immediate two classes of errors - expected to be handled and likely needing to be fixed.
+
 > ##### $${\color{orange} Reason \space For}$$
+#### Question <a name="18719dc4-961d-482d-b43c-b5e01d1ff0d9"></a> 
+The flexibility is good but will mean growing the error handling in two directions.
+
 ## Job <a name="d79f3ea7-313b-4f50-9cde-9d5e220f0ace"></a>
 ### Region based memory management for garbage collection.
 [Region based memory management](https://en.wikipedia.org/wiki/Region-based_memory_management) for garbage collection. That will still be useful even if we go with reference counting later as internal references won't have to be tracked.
@@ -73,6 +88,9 @@ We don't have a language spec yet. We can bring up a language shell, but without
 We need a way to define how sub threads or processes will pass data to each other.
 
 > ##### $${\color{yellow} Reason \space For}$$
+#### Question <a name="a1892a6b-83ff-4d1e-86ba-ec3ed046f1c6"></a> 
+Looks good
+
 #### Assistance 
 #### Question <a name="1aa2ebac-8f7e-4f0a-90ce-67fe5365fd82"></a> 
 Something similar to Erlang mailboxes? Go channels? ﻿@TARGET USER﻿ what do you think?
@@ -93,12 +111,21 @@ Each process will have a unique mailbox, and you send to it by broadcasting to i
 We'd have generic channels as first class objects that any process can write to or read from.
 
 > ##### $${\color{yellow} Reason \space For}$$
+#### Question <a name="c1525173-bf19-4da0-82c8-5ae91eb06144"></a> 
+Try and see how it goes.
+
 ## Job <a name="244d958c-93ed-4712-b76a-4a40550d151e"></a>
 ### Null safety
 Handle nulls in a developer friendly way.
 
 > ##### $${\color{lightgreen} Reason \space For}$$
+#### Question <a name="ebadf5d4-2442-4f06-a000-eaf81d71d690"></a> 
+Table stakes feature.
+
 > ##### $${\color{yellow} Reason \space For}$$
+#### Question <a name="97de6ee0-adf9-4367-b90e-10f8a3e6e7ea"></a> 
+Would like us to do better than conditional operators but difficult.
+
 #### Tasks 
 #### Task <a name="e1e2f3ee-c139-40e7-a41f-7d6f0dc1e3f0"></a> 
 Allow explicitly creating a variable as nullable. Variables are non-nullable by default.
@@ -138,6 +165,9 @@ obj.method?.(): Calls obj.method() if obj.method exists; otherwise, it returns u
 Kotlin has good null handling <https://kotlinlang.org/docs/null-safety.html>.
 
 > ##### $${\color{lightgreen} Reason \space For}$$
+#### Question <a name="e1a57996-a18a-414d-b64c-7fccd4f72b6b"></a> 
+Yes I like the way Kotlin easily declares nullable or not.
+
 ## Job <a name="bed0fd0e-eebe-471a-a6b6-89b2ed2a6cc0"></a>
 ### Look for more founders
 Our current decision making and coding scaling well so consider talent if available.
@@ -171,6 +201,9 @@ What do think of this?
 What are our statement literals? How do you want to define functions? Operators?
 
 > ##### $${\color{green} Reason \space For}$$
+#### Question <a name="c11144c8-30f9-4ead-9109-df8844f54ef3"></a> 
+Will look at expressions in literals as well.
+
 #### Tasks 
 #### Task <a name="e8081664-1ac5-4676-8581-51f84f31b08a"></a> 
 Definition of statement literals.
@@ -185,6 +218,9 @@ Union types like typescript has would make UScript much easier to work with
 We need to sit down and make a formal spec.
 
 > ##### $${\color{lightgreen} Reason \space For}$$
+#### Question <a name="0655af0e-20b4-43bd-b85c-d5763ac7212e"></a> 
+Yeah, they come in really handy when handling api error responses.
+
 #### Reports 
 #### Report <a name="ee6f2bbc-eb63-46f7-a7f9-e144eb6f4502"></a> 
 Union types are defined [here](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types) (i.e. exactly as defined in TypeScript).
@@ -223,6 +259,9 @@ Tip of the spear explanation of the value of our new script.
 Emphasis on developer experience.
 
 > ##### $${\color{green} Reason \space For}$$
+#### Question <a name="b76f0b3d-7fd0-4a94-b255-510e210cc78d"></a> 
+Should tie in with the testing strategy.
+
 #### Reports 
 #### Report <a name="462f9141-7412-41df-af7d-55e0c71390f3"></a> 
 Please review the latest checked in syntax docs.

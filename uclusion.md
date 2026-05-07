@@ -15,8 +15,7 @@ We would have a much easier time building out the standard library if we can cal
 #### Question <a name="0c78f264-826c-4e74-b709-25a7dec1dbd8"></a> 
 Starting that integration now will prevent duplicating functionality.
 
-> ##### $${\color{lightgreen} Reason \space For}$$
-#### Question <a name="69366eca-a634-4caa-9717-0be14b2116ef"></a> 
+> ##### $${\color{lightgreen} Reason \space For}$$ <a name="69366eca-a634-4caa-9717-0be14b2116ef"></a> 
 Agreed - front load this work.
 
 #### Tasks 

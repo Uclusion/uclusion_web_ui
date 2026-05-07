@@ -56,7 +56,7 @@ import { TOKEN_TYPE_MARKET } from '../../api/tokenConstants';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 
-function getPlaceHolderLabelId(type, investibleId, showSubTask=false) {
+function getPlaceHolderLabelId(type, investibleId, showSubTask=false, isNote=false) {
   switch (type) {
     case QUESTION_TYPE:
       return 'commentAddQuestionDefault';
@@ -70,7 +70,7 @@ function getPlaceHolderLabelId(type, investibleId, showSubTask=false) {
       }
       return 'commentAddReplyDefault';
     case REPORT_TYPE:
-      if (investibleId) {
+      if (investibleId && !isNote) {
         return 'commentAddReportDefault';
       }
       return 'commentAddNoteDefault';
@@ -317,7 +317,7 @@ function CommentAdd(props) {
   const isSingleAutonomousUser = isSingleUser && group?.group_type === 'AUTONOMOUS';
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const creatorIsAssigned = (assigned || []).includes(myPresence.id);
-  const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId, wizardProps.showSubTask);
+  const placeHolderLabelId = getPlaceHolderLabelId(type, investibleId, wizardProps.showSubTask, wizardProps.isNote);
   const placeholder = intl.formatMessage({ id: placeHolderLabelId });
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const blockingStage = getBlockedStage(marketStagesState, marketId) || {};
@@ -371,6 +371,7 @@ function CommentAdd(props) {
     const currentUploadedFiles = uploadedFiles || [];
     // The default was never saved so if they immediately save have to use that instead of stored on disk
     const myBodyNow = getQuillStoredState(editorName) || useBody;
+    const associatedCommentId = wizardProps.isNote ? parentId : undefined;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
@@ -381,8 +382,9 @@ function CommentAdd(props) {
     const marketType = ((createInlineInitiative && isSent && doCreateInitiative === undefined)
     || doCreateInitiative) ? INITIATIVE_TYPE : (createInlineDecision ? DECISION_TYPE : undefined);
     const investibleBlocks = (investibleId && type === ISSUE_TYPE) && currentStageId !== blockingStage.id;
-    return saveComment(marketId, groupId, investibleId, parentId, tokensRemoved, type, filteredUploads, mentions,
-      passedNotificationType, marketType, undefined, isSent)
+    const useReplyId = type === REPLY_TYPE ? parentId : undefined;
+    return saveComment(marketId, groupId, investibleId, useReplyId, tokensRemoved, type, filteredUploads, mentions,
+      passedNotificationType, marketType, undefined, isSent, associatedCommentId)
       .then((response) => {
         let comment = marketType ? response.parent : response;
         let useRootInvestible = inv.investible;
@@ -462,8 +464,8 @@ function CommentAdd(props) {
             <WizardStepButtons
               {...wizardProps}
               validForm={hasValue}
-              nextLabel={`${type}ApproveWizard`}
-              onNext={() => handleSave( wizardProps.isSent !== false)}
+              nextLabel={`${wizardProps.isNote ? 'NOTE' : type}ApproveWizard`}
+              onNext={() => handleSave( wizardProps.isSent !== false, wizardProps.isNote ? 'BLUE' : undefined)}
               showTerminate
               onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
               terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>

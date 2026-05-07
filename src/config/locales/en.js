@@ -591,6 +591,9 @@ const messages = defineMessages({
   DecisionCommentAddSUGGEST: 'Add',
   DecisionCommentAddISSUE: 'Add',
   DecisionCommentAddTODO: 'Add',
+  commentTypeLabelREPLY: 'Reply',
+  commentTypeLabelREPORT: 'Note',
+  commentTypeLabelSubTaskREPLY: 'Grouped task',
 
   // card types
   cardTypeLabelIssue: 'Blocking issue',
@@ -1408,6 +1411,7 @@ const messages = defineMessages({
   QUESTIONApproveWizard: 'Create question',
   SUGGESTApproveWizard: 'Create suggestion',
   REPORTApproveWizard: 'Create report',
+  NOTEApproveWizard: 'Create note',
   CommentAddStartReviewREPORT: 'Create report',
   TODOApproveWizard: 'Create task',
 

@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Typography } from '@material-ui/core';
+import { FormControl, FormControlLabel, FormLabel, makeStyles, Radio, RadioGroup, Typography } from '@material-ui/core';
 import {
   addCommentToMarket, getComment,
   getCommentRoot,
@@ -24,22 +24,50 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import { formCommentLink, formInvestibleLink, formMarketLink, navigate } from '../../../utils/marketIdPathFunctions';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
-import { REPLY_TYPE, TODO_TYPE } from '../../../constants/comments';
+import { REPLY_TYPE, REPORT_TYPE, TODO_TYPE } from '../../../constants/comments';
 import CommentAdd, { hasCommentValue } from '../../Comments/CommentAdd';
 import { getPageReducerPage, usePageStateReducer } from '../../PageState/pageStateHooks';
 import { usePresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { PLANNING_TYPE } from '../../../constants/markets';
+import { FormattedMessage } from 'react-intl';
 
 export function hasReply(comment) {
   return hasCommentValue(comment.group_id, comment, 'CommentAddReply', undefined,
     'reply');
 }
 
+const useStyles = makeStyles(
+  theme => {
+    return {
+      certaintyLabel: {
+        marginBottom: theme.spacing(2),
+        textTransform: "capitalize"
+      },
+      certaintyValue: {
+        borderRadius: 6,
+        paddingLeft: theme.spacing(1),
+        margin: theme.spacing(0, 2, 2, 0),
+        '& .MuiRadio-root': {
+          color: theme.palette.type === 'dark' ? 'rgba(255, 255, 255, 0.7)' : undefined,
+        },
+        '& .MuiRadio-colorSecondary.Mui-checked': {
+          color: theme.palette.type === 'dark' ? '#ffffff' : undefined,
+        }
+      },
+      certaintyValueLabel: {
+        fontWeight: "bold"
+      },
+    };
+  },
+  { name: "ReplyAdd" }
+);
+
 function ReplyStep(props) {
   const { marketId, commentId, updateFormData = () => {}, formData = {} } = props;
   const history = useHistory();
+  const radioClasses = useStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
   const [investibleState, investiblesDispatch] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -48,11 +76,12 @@ function ReplyStep(props) {
   const [marketsState] = useContext(MarketsContext);
   const classes = useContext(WizardStylesContext);
   const presences = usePresences(marketId);
+  const [commentType, setCommentType] = useState(REPLY_TYPE);
   const comment = getComment(commentState, marketId, commentId) || {};
-  const { comment_type: commentType, created_by: createdById, investible_id: investibleId } = comment;
+  const { comment_type: parentCommentType, created_by: createdById, investible_id: investibleId } = comment;
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const market = getMarket(marketsState, marketId)
-  const showSubTask = market?.market_type === PLANNING_TYPE && commentType === TODO_TYPE && myPresence.id === createdById && investibleId;
+  const showSubTask = market?.market_type === PLANNING_TYPE && parentCommentType === TODO_TYPE && myPresence.id === createdById && investibleId;
   const inv = comment.investible_id ? getInvestible(investibleState, investibleId) : undefined;
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, comment?.group_id);
@@ -118,12 +147,12 @@ function ReplyStep(props) {
     >
       {!showSubTask && (
         <Typography className={classes.introText}>
-          What is your reply?
+          What is your reply or note?
         </Typography>
       )}
       {showSubTask && (
         <Typography className={classes.introText}>
-          What is your grouped task?
+          What is your grouped task or note?
         </Typography>
       )}
       {!showSubTask && (
@@ -147,13 +176,44 @@ function ReplyStep(props) {
         isReply
         useCompression={useCompression}
       />
-      <div className={classes.borderBottom}/>
+      <FormControl>
+        <FormLabel
+          className={radioClasses.certaintyLabel}
+          id="add-vote-certainty"
+        >
+        </FormLabel>
+        <RadioGroup
+          aria-labelledby="add-reply-type"
+          style={{display: 'flex', flexDirection: 'row'}}
+          onChange={(event) => setCommentType(event.target.value)}
+          value={commentType}
+        >
+          {[REPLY_TYPE, REPORT_TYPE].map(aType => {
+            return (
+              <FormControlLabel
+                key={aType}
+                id={`${aType}`}
+                className={radioClasses.certaintyValue}
+                classes={{
+                  label: radioClasses.certaintyValueLabel
+                }}
+                /* prevent clicking the label stealing focus */
+                onMouseDown={e => e.preventDefault()}
+                control={<Radio />}
+                label={<FormattedMessage id={`commentTypeLabel${showSubTask && aType === REPLY_TYPE ? 'SubTask' : ''}${aType}`} />}
+                labelPlacement="start"
+                value={aType}
+              />
+            );
+          })}
+        </RadioGroup>
+      </FormControl>
       <CommentAdd
         nameKey="CommentAddReply"
-        type={REPLY_TYPE}
+        type={commentType}
         parent={comment}
-        wizardProps={{...props, isReply: true, onResolve: showSubTask ? () => {} : resolve, showSubTask,
-          parentIsTopLevel}}
+        wizardProps={{...props, isReply: commentType === REPLY_TYPE, isNote: commentType === REPORT_TYPE,
+          onResolve: showSubTask ? () => {} : resolve, showSubTask, parentIsTopLevel}}
         commentAddState={commentAddReplyState}
         updateCommentAddState={updateCommentAddReplyState}
         commentAddStateReset={commentAddStateReplyReset}

@@ -336,6 +336,15 @@ def approve_job(credentials, job_short_code, certainty, reason):
         data['reason'] = reason
     return send(data, 'PATCH', approve_api_url, credentials['api_token'])
 
+
+def add_info(credentials, short_code, info):
+    info_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + short_code
+    data = {
+        'body': info
+    }
+    return send(data, 'POST', info_api_url, credentials['api_token'])
+
+
 def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_report.md'):
     if short_code_id is not None:
         file_path = job_report_path if job_report_path is not None else 'job_report.md'
@@ -644,6 +653,16 @@ def cmd_approve(args):
     return 0
 
 
+def cmd_add_info(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, _config, _stages = result
+    response = add_info(credentials, args.short_code, args.info)
+    print(response)
+    return 0
+
+
 def certainty_value(raw):
     try:
         value = int(raw)
@@ -711,6 +730,21 @@ def build_parser():
     )
 
     approve_parser.set_defaults(func=cmd_approve)
+
+    add_info_parser = subparsers.add_parser(
+        'add_info',
+        help='Add info a job, option or comment with its short code and the info to add. Returns the created object.',
+    )
+    add_info_parser.add_argument(
+        'short_code',
+        help='The short code id of the job, option, or comment to add info to (e.g. J-abc-123).',
+    )
+    add_info_parser.add_argument(
+        'info',
+        help='Info to add.',
+    )
+
+    add_info_parser.set_defaults(func=cmd_add_info)
 
     return parser
 

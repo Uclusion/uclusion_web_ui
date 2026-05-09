@@ -345,6 +345,17 @@ def add_info(credentials, short_code, info):
     return send(data, 'POST', info_api_url, credentials['api_token'])
 
 
+def add_question(credentials, job_short_code, question, options):
+    question_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
+    data = {
+        'body': question,
+        'is_question': True
+    }
+    if len(options) > 0:
+        data['options'] = options
+    return send(data, 'POST', question_api_url, credentials['api_token'])
+
+
 def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_report.md'):
     if short_code_id is not None:
         file_path = job_report_path if job_report_path is not None else 'job_report.md'
@@ -663,6 +674,16 @@ def cmd_add_info(args):
     return 0
 
 
+def cmd_add_question(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, _config, _stages = result
+    response = add_question(credentials, args.job_short_code, args.question, args.options)
+    print(response)
+    return 0
+
+
 def certainty_value(raw):
     try:
         value = int(raw)
@@ -745,6 +766,30 @@ def build_parser():
     )
 
     add_info_parser.set_defaults(func=cmd_add_info)
+
+    add_question_parser = subparsers.add_parser(
+        'add_question',
+        help='Add a question and optionally options to a job by job short code. Returns the created question.',
+    )
+    add_question_parser.add_argument(
+        'job_short_code',
+        help='The short code id of the job to add the question to (e.g. J-abc-123).',
+    )
+    add_question_parser.add_argument(
+        'question',
+        help='Question text.',
+    )
+    add_question_parser.add_argument(
+        '-o', '--option',
+        action='append',
+        nargs=2,
+        metavar=('NAME', 'DESCRIPTION'),
+        dest='options',
+        default=[],
+        help='An option for the question as NAME DESCRIPTION. Repeat the flag to add multiple options.',
+    )
+
+    add_question_parser.set_defaults(func=cmd_add_question)
 
     return parser
 

@@ -352,7 +352,13 @@ def add_question(credentials, job_short_code, question, options):
         'is_question': True
     }
     if len(options) > 0:
-        data['options'] = options
+        processed_options = []
+        for option in options:
+            processed_options.append({
+                'name': option[0],
+                'description': option[1]
+            })
+        data['options'] = processed_options
     return send(data, 'POST', question_api_url, credentials['api_token'])
 
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { useHistory, useLocation } from 'react-router';
@@ -23,12 +23,12 @@ import Wizard from '../../pages/Home/Wizard';
 import InboxFull from '../../pages/Home/YourWork/InboxFull';
 import CommentReplyEdit from '../../pages/Comment/CommentReplyEdit';
 import PlanningMarketEdit from '../../pages/Dialog/Planning/PlanningMarketEdit';
-import { isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
+import { getTicket, isTicketPath } from '../../contexts/TicketContext/ticketIndexContextHelper';
 import { TicketIndexContext } from '../../contexts/TicketContext/TicketIndexContext';
 import { setOperationInProgress } from '../../components/ContextHacks/OperationInProgressGlobalProvider';
 import GroupEdit from '../../pages/DialogSettings/GroupEdit';
 import DialogArchives from '../../pages/DialogArchives/DialogArchives';
-import { refreshVersions } from '../../api/versionedFetchUtils';
+import { doVersionRefresh, refreshVersions } from '../../api/versionedFetchUtils';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';
@@ -180,15 +180,39 @@ function Root(props) {
     hideTodoAdd() && hideCommentReplyEdit() && hideDemoLoad() && hideGroupManage() && !isTicketPath(pathname));
 
   const isUserLoaded = userIsLoaded(userState, marketsState);
+  const ticketPollIntervalRef = useRef(null);
 
   useEffect(() => {
+    function clearTicketPoll() {
+      if (ticketPollIntervalRef.current) {
+        clearInterval(ticketPollIntervalRef.current);
+        ticketPollIntervalRef.current = null;
+      }
+    }
     if (isTicketPath(pathname)) {
       const url = getUrlForTicketPath(pathname, ticketState, marketsState, commentsState);
       if (url) {
+        clearTicketPoll();
         navigate(history, url, true);
+      } else if (!ticketPollIntervalRef.current) {
+        // Poll until we have enough data locally to resolve the ticket path to a URL.
+        // Each refresh dispatches into the ticket/markets/comments contexts, which re-runs this
+        // effect and gives us another chance to resolve the URL.
+        ticketPollIntervalRef.current = setInterval(() => {
+          doVersionRefresh().catch(() => console.warn('Error refreshing for ticket'));
+        }, 2000);
       }
+    } else {
+      clearTicketPoll();
     }
   },  [pathname, history, ticketState, marketsState, commentsState]);
+
+  useEffect(() => {
+    if (authState !== 'signedIn' && ticketPollIntervalRef.current) {
+      clearInterval(ticketPollIntervalRef.current);
+      ticketPollIntervalRef.current = null;
+    }
+  },  [authState]);
 
   useEffect(() => {
     if (action === 'supportWorkspace') {
@@ -262,7 +286,7 @@ function Root(props) {
   },  [history, setOnline, location, isUserLoaded, offlineTimer, setShowOfflineMessage]);
 
   if (authState !== 'signedIn' || action === 'supportWorkspace' || (action === 'demo' && marketsState.initializing) || 
-    (isRootPath && marketJoinedUser && _.isEmpty(defaultMarketLink))) {
+    (isRootPath && marketJoinedUser && _.isEmpty(defaultMarketLink))||(isTicketPath(pathname)&&!getTicket(ticketState, pathname.substring(1)))) {
     return (
       <Screen
         hidden={false}

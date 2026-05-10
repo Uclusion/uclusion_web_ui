@@ -14,7 +14,7 @@ We would have a much easier time building out the standard library if we can cal
 > ##### $${\color{green} Reason \space For}$$ E-Engineering-3<a name="E-Engineering-3"></a>
 Starting that integration now will prevent duplicating functionality.
 
-> ##### $${\color{lightgreen} Reason \space For}$$E-Engineering-5<a name="E-Engineering-5"></a>
+> ##### $${\color{lightgreen} Reason \space For}$$ E-Engineering-5<a name="E-Engineering-5"></a>
 Agreed - front load this work.
 
 #### Tasks 
@@ -28,7 +28,7 @@ Runtime binding.
 ### Error handling
 We need basic error handling with a returned value scheme like Go.
 
-> ##### $${\color{orange} Reason \space For}$$E-Engineering-2<a name="E-Engineering-2"></a>
+> ##### $${\color{orange} Reason \space For}$$ E-Engineering-2<a name="E-Engineering-2"></a>
 By the time you Go 1.13 wrap everything it's very similar to a stack trace.
 
 #### Assistance 
@@ -40,7 +40,7 @@ Wrapping errors feels like building a stack trace by hand. What are our options?
 > ##### Reply C-Engineering-9<a name="C-Engineering-9"></a> 
 This is some info.
 
-### OptionO-1<a name="O-1"></a>
+### Option O-1<a name="O-1"></a>
 ### Automatic error context creation
 A function will be provided that allows you to return an error with the runtime argument values of the enclosing function automatically included.
 
@@ -48,14 +48,14 @@ A function will be provided that allows you to return an error with the runtime 
 #### Issue I-Default-1<a name="I-Default-1"></a> 
 Then you would be automatically logging values that might be sensitive.
 
-### OptionO-2<a name="O-2"></a>
+### Option O-2<a name="O-2"></a>
 ### Support both raise catch and Go style return errors.
 The syntax should allow for any combination of raise and return of errors on a function. If you expect the caller to handle the error then lean towards return and otherwise lean towards raise.
 
-> ##### $${\color{lightgreen} Reason \space For}$$E-Default-1<a name="E-Default-1"></a>
+> ##### $${\color{lightgreen} Reason \space For}$$ E-Default-1<a name="E-Default-1"></a>
 This allows us an immediate two classes of errors - expected to be handled and likely needing to be fixed.
 
-> ##### $${\color{orange} Reason \space For}$$E-Default-2<a name="E-Default-2"></a>
+> ##### $${\color{orange} Reason \space For}$$ E-Default-2<a name="E-Default-2"></a>
 The flexibility is good but will mean growing the error handling in two directions.
 
 ## Job J-Engineering-5<a name="J-Engineering-5"></a>
@@ -85,7 +85,7 @@ We don't have a language spec yet. We can bring up a language shell, but without
 ### Figure out IPC
 We need a way to define how sub threads or processes will pass data to each other.
 
-> ##### $${\color{yellow} Reason \space For}$$E-Engineering-8<a name="E-Engineering-8"></a>
+> ##### $${\color{yellow} Reason \space For}$$ E-Engineering-8<a name="E-Engineering-8"></a>
 Looks good
 
 #### Assistance 
@@ -95,19 +95,19 @@ Something similar to Erlang mailboxes? Go channels? ﻿@TARGET USER﻿ what do y
 > ##### Reply C-Engineering-6<a name="C-Engineering-6"></a> 
 What is our main use case?
 
-### OptionO-2<a name="O-2"></a>
+### Option O-2<a name="O-2"></a>
 ### Pub/Sub
 Each process will subscribe to one or more topics, and you send to all receivers
 
-### OptionO-1<a name="O-1"></a>
+### Option O-1<a name="O-1"></a>
 ### Mailboxes
 Each process will have a unique mailbox, and you send to it by broadcasting to it's PID.
 
-### OptionO-3<a name="O-3"></a>
+### Option O-3<a name="O-3"></a>
 ### Channels
 We'd have generic channels as first class objects that any process can write to or read from.
 
-> ##### $${\color{yellow} Reason \space For}$$E-Default-1<a name="E-Default-1"></a>
+> ##### $${\color{yellow} Reason \space For}$$ E-Default-1<a name="E-Default-1"></a>
 Try and see how it goes.
 
 #### Question Q-Engineering-3<a name="Q-Engineering-3"></a> 
@@ -116,22 +116,22 @@ Is this a question?
 #### Question Q-Engineering-5<a name="Q-Engineering-5"></a> 
 How long for a question to show up now?
 
-### OptionO-2<a name="O-2"></a>
+### Option O-2<a name="O-2"></a>
 ### Maybe they could wait.
 Maybe not though.
 
-### OptionO-1<a name="O-1"></a>
+### Option O-1<a name="O-1"></a>
 ### Forever
 Way too long.
 
 #### Question Q-Engineering-4<a name="Q-Engineering-4"></a> 
 How long for a question to show up?
 
-### OptionO-2<a name="O-2"></a>
+### Option O-2<a name="O-2"></a>
 ### Maybe they could wait.
 Maybe not though.
 
-### OptionO-1<a name="O-1"></a>
+### Option O-1<a name="O-1"></a>
 ### Forever
 Way too long.
 
@@ -139,10 +139,10 @@ Way too long.
 ### Null safety
 Handle nulls in a developer friendly way.
 
-> ##### $${\color{lightgreen} Reason \space For}$$E-Engineering-7<a name="E-Engineering-7"></a>
+> ##### $${\color{lightgreen} Reason \space For}$$ E-Engineering-7<a name="E-Engineering-7"></a>
 Table stakes feature.
 
-> ##### $${\color{yellow} Reason \space For}$$E-Engineering-6<a name="E-Engineering-6"></a>
+> ##### $${\color{yellow} Reason \space For}$$ E-Engineering-6<a name="E-Engineering-6"></a>
 Would like us to do better than conditional operators but difficult.
 
 #### Tasks 
@@ -183,7 +183,7 @@ obj.method?.(): Calls obj.method() if obj.method exists; otherwise, it returns u
 #### Suggestion S-Engineering-1<a name="S-Engineering-1"></a> 
 Kotlin has good null handling <https://kotlinlang.org/docs/null-safety.html>.
 
-> ##### $${\color{lightgreen} Reason \space For}$$E-Default-1<a name="E-Default-1"></a>
+> ##### $${\color{lightgreen} Reason \space For}$$ E-Default-1<a name="E-Default-1"></a>
 Yes I like the way Kotlin easily declares nullable or not.
 
 ## Job J-sd-1<a name="J-sd-1"></a>
@@ -218,7 +218,7 @@ What do think of this?
 ### Get basic grammar defined
 What are our statement literals? How do you want to define functions? Operators?
 
-> ##### $${\color{green} Reason \space For}$$E-mywork-1<a name="E-mywork-1"></a>
+> ##### $${\color{green} Reason \space For}$$ E-mywork-1<a name="E-mywork-1"></a>
 Will look at expressions in literals as well.
 
 #### Tasks 
@@ -234,7 +234,7 @@ Union types like typescript has would make UScript much easier to work with
 
 We need to sit down and make a formal spec.
 
-> ##### $${\color{lightgreen} Reason \space For}$$E-Engineering-1<a name="E-Engineering-1"></a>
+> ##### $${\color{lightgreen} Reason \space For}$$ E-Engineering-1<a name="E-Engineering-1"></a>
 Yeah, they come in really handy when handling api error responses.
 
 #### Reports 
@@ -274,7 +274,7 @@ Tip of the spear explanation of the value of our new script.
 ### Initial pass at UScript syntax
 Emphasis on developer experience.
 
-> ##### $${\color{green} Reason \space For}$$E-Engineering-4<a name="E-Engineering-4"></a>
+> ##### $${\color{green} Reason \space For}$$ E-Engineering-4<a name="E-Engineering-4"></a>
 Should tie in with the testing strategy.
 
 #### Reports 

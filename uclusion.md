@@ -11,7 +11,7 @@
 ### Add C bindings
 We would have a much easier time building out the standard library if we can call into C.
 
-> ##### $${\color{green} Reason \space For}$$E-Engineering-3<a name="E-Engineering-3"></a>
+> ##### $${\color{green} Reason \space For}$$ E-Engineering-3<a name="E-Engineering-3"></a>
 Starting that integration now will prevent duplicating functionality.
 
 > ##### $${\color{lightgreen} Reason \space For}$$E-Engineering-5<a name="E-Engineering-5"></a>

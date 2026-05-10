@@ -637,9 +637,9 @@ function Comment(props) {
   function getDialog(anInlineMarket) {
     return (
       <Options anInlineMarket={anInlineMarket} marketId={marketId} investibleId={investibleId} inArchives={inArchives}
-               isEditable={isEditable} isSent={isSent} groupId={groupId} removeActions={removeActions} isInbox={isInbox}
-               selectedInvestibleIdParent={selectedInvestibleIdParent} searchResults={searchResults}
-               useCompression={useCompression} />
+               isEditable={isEditable || myPresenceIsAssigned} isSent={isSent} groupId={groupId} 
+               removeActions={removeActions} isInbox={isInbox} selectedInvestibleIdParent={selectedInvestibleIdParent} 
+               searchResults={searchResults} useCompression={useCompression} />
     );
   }
 

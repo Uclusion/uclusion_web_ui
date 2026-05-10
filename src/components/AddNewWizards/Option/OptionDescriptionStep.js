@@ -8,7 +8,7 @@ import { useEditor } from '../../TextEditors/quillHooks';
 import { convertDescription, stripHTML } from '../../../utils/stringFunctions';
 import { addDecisionInvestible } from '../../../api/investibles';
 import { processTextAndFilesForSave } from '../../../api/files';
-import { getMarketInvestibles, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
+import { getInvestible, getMarketInvestibles, refreshInvestibles } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
 import { getStages } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
@@ -22,6 +22,7 @@ import { getComment } from '../../../contexts/CommentsContext/commentsContextHel
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import OptionListItem from '../../Comments/OptionListItem';
 import _ from 'lodash';
+import { getMarketInfo } from '../../../utils/userFunctions';
 
 function OptionDescriptionStep (props) {
   const { marketId, parentGroupId, parentInvestibleId, parentMarketId, parentCommentId, createdBy, updateFormData = () => {},
@@ -38,10 +39,15 @@ function OptionDescriptionStep (props) {
   const presences = usePresences(marketId);
   const classes = useContext(WizardStylesContext);
   const myPresence = presences.find((presence) => presence.current_user) || {};
+  const inv = getInvestible(investibleState, parentInvestibleId);
+  const marketInfo = getMarketInfo(inv, parentMarketId) || {};
+  const { assigned } = marketInfo || {};
+  const isInvestibleAssigned = (assigned || []).includes(myPresence.id);
   const marketStages = getStages(marketStagesState, marketId) || [];
   const investmentAllowedStage = marketStages.find((stage) => stage.allows_investment) || {};
   const proposedStage = marketStages.find((stage) => !stage.allows_investment) || {};
   const isQuestionCreator = createdBy === myPresence.id;
+  const isQuestionAdmin = isQuestionCreator || isInvestibleAssigned;
   const parentComment = getComment(commentsState, parentMarketId, parentCommentId);
   const allOptions = getMarketInvestibles(investibleState, marketId) || [];
   const { useCompression } = formData;
@@ -69,7 +75,7 @@ function OptionDescriptionStep (props) {
       groupId: marketId,
       marketId,
       uploadedFiles: filteredUploads,
-      stageId: isQuestionCreator ? investmentAllowedStage.id : proposedStage.id
+      stageId: isQuestionAdmin ? investmentAllowedStage.id : proposedStage.id
     }
     return addDecisionInvestible(addInfo)
       .then((inv) => {
@@ -125,7 +131,7 @@ function OptionDescriptionStep (props) {
       <WizardStepButtons
         {...props}
         validForm={hasValue}
-        nextLabel={isQuestionCreator ? 'inlineAddLabel' : 'inlineProposeLabel'}
+        nextLabel={isQuestionAdmin ? 'inlineAddLabel' : 'inlineProposeLabel'}
         onNext={createOption}
         showOtherNext
         onOtherNext={createOption}

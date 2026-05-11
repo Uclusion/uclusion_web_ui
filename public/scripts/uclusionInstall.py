@@ -135,7 +135,7 @@ def install_scripts(env):
             print(f"  🔗 Linked {symlink_path} -> {install_path}")
 
 
-def write_uclusion_config(workspace_id):
+def write_uclusion_config(workspace_id, view_id):
     print(f"🗂  Writing workspace config to {UCLUSION_CONFIG_PATH}")
     os.makedirs(UCLUSION_HOME, exist_ok=True)
     config = {
@@ -145,6 +145,8 @@ def write_uclusion_config(workspace_id):
         'uclusionMDFileType': 'report',
         'uclusionMDFilePath': 'uclusion.md',
     }
+    if view_id is not None and view_id != workspace_id:
+        config['todoViewId'] = view_id
     with open(UCLUSION_CONFIG_PATH, 'w', encoding='utf-8') as out:
         json.dump(config, out, indent=2)
         out.write('\n')
@@ -202,6 +204,10 @@ def build_parser():
         'workspace_id',
         help='Uclusion workspaceId to configure.',
     )
+    parser.add_argument(
+        'view_id',
+        help='Uclusion viewId to configure.',
+    )
     return parser
 
 
@@ -209,10 +215,11 @@ def main():
     args = build_parser().parse_args()
     env = args.environment
     workspace_id = args.workspace_id
+    view_id = args.view_id
 
     try:
         install_scripts(env)
-        write_uclusion_config(workspace_id)
+        write_uclusion_config(workspace_id, view_id)
         mcp_env = None if env == 'production' else env
         update_cursor_mcp(workspace_id, mcp_env)
     except subprocess.CalledProcessError as err:

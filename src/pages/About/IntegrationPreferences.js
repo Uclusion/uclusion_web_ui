@@ -279,7 +279,7 @@ function IntegrationPreferences (props) {
                 Installation command:
               </Typography>
               <CopyCommand
-                command={`curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId}`}
+                command={`curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId} ${groupId}`}
               />
               <div style={{display: 'flex', alignItems: 'center', margin: '0.75rem 0', color: '#6a737d'}}>
                 <div style={{flex: 1, height: '1px', backgroundColor: '#e1e4e8'}} />
@@ -287,7 +287,7 @@ function IntegrationPreferences (props) {
                 <div style={{flex: 1, height: '1px', backgroundColor: '#e1e4e8'}} />
               </div>
               <CopyCommand
-                command={`wget -qO- https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId}`}
+                command={`wget -qO- https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId} ${groupId}`}
               />
               <CLISecret marketId={marketId} />
             </SubSection>

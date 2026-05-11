@@ -16,7 +16,8 @@ if [ "$#" -lt 1 ]; then
 fi
 
 WORKSPACE_ID="$1"
-ENVIRONMENT="${2:-production}"
+VIEW_ID="$2"
+ENVIRONMENT="${3:-production}"
 
 case "$ENVIRONMENT" in
   dev|stage|production) ;;
@@ -49,4 +50,4 @@ else
   exit 1
 fi
 
-exec python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" "$WORKSPACE_ID"
+exec python3 "$INSTALL_SCRIPT" "$ENVIRONMENT" "$WORKSPACE_ID" "$VIEW_ID"

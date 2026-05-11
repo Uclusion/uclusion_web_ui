@@ -24,7 +24,7 @@ import { onCommentOpen } from '../../utils/commentFunctions';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { findMessageOfType } from '../../utils/messageUtils';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
-import { Clear, Feedback, Update } from '@material-ui/icons';
+import { Clear, Feedback, Note, Update } from '@material-ui/icons';
 import SpinningIconLabelButton from '../Buttons/SpinningIconLabelButton';
 import { useEditor } from '../TextEditors/quillHooks';
 import { deleteOrDehilightMessages } from '../../api/users';
@@ -172,7 +172,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }), { name: 'CommentEdit' });
 
-export function getIcon(commentType) {
+export function getIcon(commentType, color = undefined) {
 
   switch (commentType) {
     case SUGGEST_CHANGE_TYPE: {
@@ -188,6 +188,9 @@ export function getIcon(commentType) {
       return <AssignmentIcon />;
     }
     case REPORT_TYPE: {
+      if (color === 'BLUE') {
+        return <Note />;
+      }
       return <Feedback />;
     }
     default: {

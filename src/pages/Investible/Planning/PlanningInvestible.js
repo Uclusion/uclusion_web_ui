@@ -576,6 +576,9 @@ function PlanningInvestible(props) {
   );
   const assistanceCommentsSearched = questionCommentsSearched.concat(suggestionCommentsSearched)
     .concat(blockingCommentsSearched);
+  const notesCommentsSearched = investibleCommentsSearched.filter(
+    comment => comment.comment_type === REPORT_TYPE && comment.notification_type === 'BLUE'
+  );
   const assistanceCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
     assistanceCommentsSearched.includes(comment.root_comment_id));
   const assistanceCommentsSearchedAll = assistanceCommentsSearched.concat(assistanceCommentsRepliesSearched);
@@ -591,6 +594,9 @@ function PlanningInvestible(props) {
   const newOverviewMessages = newInvestibleMessages.filter((message) => isInInbox(message) && 
     !newNotOverviewMessages.includes(message));
   const numNewOverviewMessages = _.size(newOverviewMessages);
+  const newNotesMessages = findMessagesForCommentIds(notesCommentsSearched?.map((comment) => comment.id), 
+    messagesState, true);
+  const numNewNotesMessages = _.size(newNotesMessages.filter((message) => isInInbox(message)));
   const replies = investibleComments.filter((comment => comment.comment_type === REPLY_TYPE));
   let allowedCommentTypes = [];
   let sectionComments = [];
@@ -641,12 +647,12 @@ function PlanningInvestible(props) {
   const displayQuestionSection = canGetInput() || _.size(questionCommentsSearched) > 0;
   const displaySuggestionsSection = canGetInput() || _.size(suggestionCommentsSearched) > 0;
   const displayBockingSection = canOpenBlocking() || _.size(blockingCommentsSearched) > 0;
-  const sections = ['descriptionVotingSection'];
-  sections.push('tasksSection');
+  const sections = ['descriptionVotingSection', 'tasksSection'];
   const displayAssistanceSection = displayQuestionSection || displaySuggestionsSection || displayBockingSection;
   if (displayAssistanceSection) {
     sections.push('assistanceSection');
   }
+  sections.push('notesSection');
   function getTagLabel(tagLabelId) {
     if (!_.isEmpty(search)) {
       return intl.formatMessage({ id: 'match' });
@@ -704,7 +710,7 @@ function PlanningInvestible(props) {
   const hasNewTodoMessages = numNewTodoMessages > 0 && _.isEmpty(search);
   const hasNewAssistanceMessages = numNewAssistanceMessages > 0 && _.isEmpty(search);
   const hasNewOverviewMessages = numNewOverviewMessages > 0 && _.isEmpty(search);
-
+  const hasNewNotesMessages = numNewNotesMessages > 0 && _.isEmpty(search);
   return (
     <Screen
       title={title}
@@ -749,6 +755,10 @@ function PlanningInvestible(props) {
                         tagColor={hasNewAssistanceMessages ? warningColor : undefined} tag={assistanceTag}
                         tagLabel={hasNewAssistanceMessages && _.isEmpty(search) ? 'new' : getTagLabel('open')} />
         )}
+        <GmailTabItem icon={getIcon(REPORT_TYPE, 'BLUE')} label={intl.formatMessage({id: 'notesSection'})}
+                      tagColor={hasNewNotesMessages ? warningColor : undefined}
+                      toolTipId='jobNotesToolTip' tagLabel={hasNewNotesMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
+                      tag={hasNewNotesMessages && _.isEmpty(search) ? `${numNewNotesMessages}` : (!_.isEmpty(search) ? _.size(notesCommentsSearched) : undefined)} />
       </GmailTabs>
       <div style={{paddingLeft: mobileLayout ? undefined : '2rem', paddingRight: mobileLayout ? undefined : '1rem'}}>
         <div style={{paddingBottom: '0.5rem'}} ref={refToTop}></div>
@@ -1010,7 +1020,8 @@ function PlanningInvestible(props) {
                                    <li>Question - invites others to add voteable options for brainstorming</li>
                                    <li>Suggestion - others vote on this idea and then can be converted to a task</li>
                                    <li>Blocking issue - asks for help clearing the blocker</li>
-                                 </ul>) : (<div>Tasks can be moved between jobs or converted to or from bugs.</div>)
+                                 </ul>) : (sectionOpen === 'tasksSection' ? (<div>Tasks can be moved between jobs or converted to or from bugs.</div>) : 
+                                 (<div>Notes can be added to at the task or job level.</div>))
                              }/>
             <CommentBox
               comments={sectionComments.concat(replies)}

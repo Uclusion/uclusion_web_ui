@@ -399,7 +399,7 @@ function PlanningInvestible(props) {
   const [approvalsOpen, setApprovalsOpen] = useState(!_.isEmpty(calculateInvestibleVoters(investibleId, marketId, marketsState, 
     investiblesState, marketPresences, false)));
   const reportsCommentsSearched = investibleCommentsSearched.filter(
-    comment => comment.comment_type === REPORT_TYPE
+    comment => comment.comment_type === REPORT_TYPE && comment.notification_type !== 'BLUE'
   );
   const [reportsOpen, setReportsOpen] = useState(!_.isEmpty(reportsCommentsSearched));
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};

@@ -78,9 +78,8 @@ function WhereDecisionStep (props) {
         if (myPresenceIsAssigned && myPresence.id === comment.created_by && !isInAssistance) {
           changeInvestibleStageOnCommentOpen(false, true, marketStagesState,
             [marketInfo], investible.investible, investiblesDispatch, comment, myPresence);
-          quickNotificationChanges(comment.comment_type, comment.investible_id, messagesState, messagesDispatch,
-            [], comment, undefined, commentsState, commentsDispatch, comment.market_id,
-            myPresence);
+          quickNotificationChanges(comment.comment_type, comment.investible_id, messagesState, messagesDispatch, 
+            comment, undefined, commentsState, commentsDispatch, comment.market_id, myPresence);
         }
         setOperationRunning(false);
         navigate(history, formCommentLink(marketId, comment.group_id, comment.investible_id, comment.id));

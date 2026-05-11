@@ -110,7 +110,7 @@ function AddOptionStep(props) {
         creatorIsAssigned && currentStageId !== requiresInputStage.id, marketStagesState,
         [marketInfo], investible, investiblesDispatch, comment, myPresence);
       addCommentToMarket(comment, commentState, commentDispatch);
-      quickNotificationChanges(QUESTION_TYPE, investibleId, messagesState, messagesDispatch, [], comment,
+      quickNotificationChanges(QUESTION_TYPE, investibleId, messagesState, messagesDispatch, comment,
         undefined, commentState, commentDispatch, marketId, myPresence);
       setOperationRunning(false);
       navigate(history, formCommentLink(marketId, groupId, investibleId, commentId));

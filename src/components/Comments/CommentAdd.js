@@ -209,15 +209,15 @@ const useStyles = makeStyles((theme) => ({
   }
 }), { name: 'CommentAdd' });
 
-export function getOlderReports(currentId, allComments, marketId, investibleId, myPresence) {
-  return allComments.filter(comment => comment.comment_type === REPORT_TYPE && !comment.resolved
-    && comment.id !== currentId && comment.investible_id === investibleId && comment.created_by === myPresence.id)
-    || [];
+function getOlderReports(currentId, allComments, investibleId, myPresence) {
+  return allComments.filter(comment => (comment.comment_type === REPORT_TYPE && comment.notification_type !== 'BLUE') 
+  && !comment.resolved && comment.id !== currentId && comment.investible_id === investibleId 
+  && comment.created_by === myPresence.id) || [];
 }
 
 function quickResolveOlderReports(marketId, investibleId, myPresence, currentComment, commentsState, commentDispatch) {
   const marketComments = getMarketComments(commentsState, marketId) || [];
-  const updatedComments = getOlderReports(currentComment.id, marketComments, marketId, investibleId,
+  const updatedComments = getOlderReports(currentComment.id, marketComments, investibleId,
     myPresence).map((comment) => {
     return {
       ...comment,
@@ -229,14 +229,14 @@ function quickResolveOlderReports(marketId, investibleId, myPresence, currentCom
   addMarketComments(commentDispatch, marketId, updatedComments)
 }
 
-export function quickNotificationChanges(apiType, investibleId, messagesState, messagesDispatch, threadMessages,
-  comment, parentId, commentsState, commentDispatch, marketId, myPresence) {
+export function quickNotificationChanges(apiType, investibleId, messagesState, messagesDispatch, comment, parentId, 
+  commentsState, commentDispatch, marketId, myPresence) {
   if (apiType === REPORT_TYPE) {
     const message = findMessageOfType('REPORT_REQUIRED', investibleId, messagesState)
     if (message) {
       dismissWorkListItem(message, messagesDispatch);
     }
-    if (investibleId) {
+    if (investibleId && comment.notification_type !== 'BLUE') {
       quickResolveOlderReports(marketId, investibleId, myPresence, comment, commentsState, commentDispatch);
     }
   }

@@ -76,8 +76,8 @@ function ConfigureCommentStep(props) {
       const fullStage = getFullStage(marketStagesState, comment.market_id, marketInfo.stage);
       changeInvestibleStageOnCommentOpen(false, creatorIsAssigned && !isFurtherWorkStage(fullStage), marketStagesState,
         [marketInfo], investible, investiblesDispatch, comment, myPresence);
-      quickNotificationChanges(comment.comment_type, comment.investible_id, messagesState, messagesDispatch,
-        [], comment, undefined, commentState, commentDispatch, comment.market_id, myPresence);
+      quickNotificationChanges(comment.comment_type, comment.investible_id, messagesState, messagesDispatch, comment, 
+        undefined, commentState, commentDispatch, comment.market_id, myPresence);
     }
     setOperationRunning(false);
     navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));

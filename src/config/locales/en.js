@@ -174,7 +174,7 @@ const messages = defineMessages({
   commentOptionsLoadingMessage: 'Comment options loading',
   loadingMarket: 'Processing invite',
   loadingSlack: 'Slack integration',
-  cliSecret: 'Show CLI secret',
+  cliSecret: 'Show Uclusion secret',
   invalidateSecret: 'Create new secret',
 
   // Market Add
@@ -965,7 +965,7 @@ const messages = defineMessages({
   integrationPreferencesHeader: 'Integrations',
   slackIntegrationExplanation: 'Add or remove Slack integration',
   slackIntegration: 'Slack',
-  cliIntegration: 'CLI',
+  cliIntegration: 'MCP & CLI',
   cliIntegrationExplanation: 'Sync notes and TODOs with jobs and bugs in Uclusion',
   changePreferences: 'Email and Slack notification preferences by workspace',
   emailEnabledLabel: 'Send notifications via email',

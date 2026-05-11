@@ -45,7 +45,7 @@ function CLISecret (props) {
     <div style={{marginTop: '2rem'}}>
       {!secretUser && (
         <Typography variant="subtitle1">
-          Press this button to show your CLI secret.
+          Press this button to show your Uclusion secret.
         </Typography>
       )}
       {secretUser && (
@@ -69,7 +69,7 @@ function CLISecret (props) {
         </SpinBlockingButton>
       )}
       <Typography variant="subtitle1" style={{marginTop: '2rem'}}>
-        Press this button to invalidate your current CLI secret and create a new one.
+        Press this button to invalidate your current Uclusion secret and create a new one.
       </Typography>
       <SpinBlockingButton
         className={classes.getSecretButton}

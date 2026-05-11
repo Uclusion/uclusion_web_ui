@@ -46,7 +46,7 @@ export function hasJobComment(groupId, investibleId, commentType, unSentInvestib
 
 function AddCommentStep (props) {
   const { investibleId, marketId, useType, updateFormData = () => {}, formData = {}, resolveId, groupId, currentStageId,
-    assigned, onFinishCreation, subscribed, presences, decisionInvestibleId, decisionMarketId } = props;
+    assigned, onFinishCreation, subscribed, presences, decisionInvestibleId, decisionMarketId, isNote } = props;
   const intl = useIntl();
   const classes = useContext(WizardStylesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -136,9 +136,16 @@ function AddCommentStep (props) {
       {...props}
       isXLarge
     >
-      <Typography className={classes.introText}>
-        What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?
-      </Typography>
+      {isNote && (
+        <Typography className={classes.introText}>
+          What is your note?
+        </Typography>
+      )}
+      {!isNote && (
+        <Typography className={classes.introText}>
+          What is your {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })}?
+        </Typography>
+      )}
       {movingJob && !noSubscribedToSendTo && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening this {intl.formatMessage({ id: `${useType.toLowerCase()}Simple` })} moves the job to
@@ -191,16 +198,21 @@ function AddCommentStep (props) {
           Use @ mentions or options / voting to send notifications from backlog.
         </Typography>
       )}
-      {useType === REPORT_TYPE && !isResolve && !noSubscribedToSendTo && (
+      {useType === REPORT_TYPE && !isResolve && !noSubscribedToSendTo && !isNote && (
         <Typography className={classes.introSubText} variant="subtitle1">
           <GravatarGroup users={subscribedNotMe}/>
           notified unless use @ mentions to require and only notify specific reviewers.
         </Typography>
       )}
-      {useType === REPORT_TYPE && isResolve && (
+      {useType === REPORT_TYPE && isResolve && !isNote && (
         <Typography className={classes.introSubText} variant="subtitle1">
           Opening a new progress report automatically resolves older reports. If you don't have a new report choose
           'Resolve only' below.
+        </Typography>
+      )}
+      {isNote && (
+        <Typography className={classes.introSubText} variant="subtitle1">
+          Notes do not notify unless you use @ mentions.
         </Typography>
       )}
       {useType === QUESTION_TYPE && !movingJob && !noSubscribedToSendTo && (
@@ -235,7 +247,8 @@ function AddCommentStep (props) {
       <CommentAdd
         nameKey="JobCommentAdd"
         type={useType}
-        wizardProps={{ ...props, isAddWizard: true, isResolve, onResolve: decisionInvestibleId ? onCreateTaskQuestionResolve : onReportResolveOnly }}
+        wizardProps={{ ...props, isAddWizard: true, isResolve, isNote: isNote,
+          onResolve: decisionInvestibleId ? onCreateTaskQuestionResolve : onReportResolveOnly }}
         commentAddState={commentAddState}
         updateCommentAddState={updateCommentAddState}
         commentAddStateReset={commentAddStateReset}

@@ -284,7 +284,7 @@ export function formGroupArchiveLink(marketId, groupId) {
 }
 
 export function formInvestibleAddCommentLink(wizardType, investibleId, marketId, commentType, typeObjectId, decisionInvestibleId, 
-  decisionMarketId) {
+  decisionMarketId, notificationType) {
   let link = `/wizard#type=${wizardType.toLowerCase()}&investibleId=${investibleId}`;
   if (marketId) {
     link += `&marketId=${marketId}`;
@@ -297,6 +297,9 @@ export function formInvestibleAddCommentLink(wizardType, investibleId, marketId,
   }
   if (decisionInvestibleId) {
     link += `&decisionInvestibleId=${decisionInvestibleId}&decisionMarketId=${decisionMarketId}`;
+  }
+  if (notificationType) {
+    link += `&notificationType=${notificationType}`;
   }
   return link;
 }

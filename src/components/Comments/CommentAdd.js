@@ -460,7 +460,7 @@ function CommentAdd(props) {
               nextLabel="createBug"
               onNext={() => handleSave( true, wizardProps.bugType)} />
           )}
-          {!wizardProps.isBug && !wizardProps.isAddWizard && !wizardProps.isReply && (
+          {!wizardProps.isBug && (!wizardProps.isAddWizard || wizardProps.isNote) && !wizardProps.isReply && (
             <WizardStepButtons
               {...wizardProps}
               validForm={hasValue}
@@ -470,7 +470,7 @@ function CommentAdd(props) {
               onTerminate={() => navigate(history, formInvestibleLink(marketId, investibleId))}
               terminateLabel={wizardProps.terminateLabel || 'JobWizardGotoJob'}/>
           )}
-          {wizardProps.isAddWizard &&
+          {(wizardProps.isAddWizard && !wizardProps.isNote) &&
             (type !== ISSUE_TYPE || isSingleUser || ourMarket.market_type !== PLANNING_TYPE) &&
             (![SUGGEST_CHANGE_TYPE, QUESTION_TYPE].includes(type) || ourMarket.market_type === DECISION_TYPE) && (
             <AddWizardStepButtons

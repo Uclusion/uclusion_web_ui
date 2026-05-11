@@ -611,6 +611,9 @@ function PlanningInvestible(props) {
       allowedCommentTypes.push(ISSUE_TYPE);
     }
     sectionComments = assistanceCommentsSearched;
+  } else if (sectionOpen === 'notesSection') {
+    allowedCommentTypes = [REPORT_TYPE];
+    sectionComments = notesCommentsSearched;
   }
 
   const invested = getVotesForInvestible(marketPresences, investibleId);
@@ -952,12 +955,13 @@ function PlanningInvestible(props) {
                                       marginRight: mobileLayout ? undefined : '2rem', marginBottom: '0.75rem'
                                     }}
                                     toolTipId={
-                      [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(allowedCommentType) ?
+                      [TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE, REPORT_TYPE].includes(allowedCommentType) ?
                                       `hotKey${allowedCommentType}`: undefined}
                                     variant="text" doSpin={false}
                                     onClick={() => navigate(history,
                                       formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
-                                        allowedCommentType))}>
+                                        allowedCommentType, undefined, undefined, undefined, 
+                                        allowedCommentType === REPORT_TYPE ? 'BLUE' : undefined))}>
                       {intl.formatMessage({ id: `createNew${allowedCommentType}${mobileLayout ? 'Mobile' : ''}`})}
                     </SpinningButton>
                   );

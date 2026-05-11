@@ -22,7 +22,7 @@ import { calculateInvestibleVoters } from '../../../utils/votingUtils';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 
 function JobCommentWizard(props) {
-  const { investibleId, marketId, commentType, resolveId, decisionInvestibleId, decisionMarketId } = props;
+  const { investibleId, marketId, commentType, notificationType, resolveId, decisionInvestibleId, decisionMarketId } = props;
   const [commentsState] = useContext(CommentsContext);
   const [investibleState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
@@ -33,7 +33,8 @@ function JobCommentWizard(props) {
   const [wasJustCreated, setWasJustCreated] = useState(false);
   const presences = usePresences(marketId);
   const isQuestion = commentType === QUESTION_TYPE;
-  const isReport = commentType === REPORT_TYPE;
+  const isReport = commentType === REPORT_TYPE && notificationType !== 'BLUE';
+  const isNote = commentType === REPORT_TYPE && notificationType === 'BLUE';
   const investibleComments = (commentsState[marketId]||[]).filter(comment =>
     comment.investible_id === investibleId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
@@ -75,7 +76,7 @@ function JobCommentWizard(props) {
         {(!hasDraft || wasJustCreated) && (
           <AddCommentStep investibleId={investibleId} marketId={marketId} useType={commentType} resolveId={resolveId} decisionMarketId={decisionMarketId}
                           onFinishCreation={() => setWasJustCreated(true)} subscribed={subscribed} decisionInvestibleId={decisionInvestibleId}
-                          currentStageId={stage} groupId={groupId} assigned={assigned} presences={presences} />
+                          currentStageId={stage} groupId={groupId} assigned={assigned} presences={presences} isNote={isNote} />
         )}
         {hasDraft && !wasJustCreated && (
           <CommentEdit

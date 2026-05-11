@@ -769,7 +769,7 @@ function Comment(props) {
   }
 
   const diff = getDiff(diffState, id);
-  const isNote = commentType === REPORT_TYPE && _.isEmpty(investibleId);
+  const isNote = commentType === REPORT_TYPE && (_.isEmpty(investibleId) || myNotificationType === 'BLUE');
   const overrideLabel = commentType === REPLY_TYPE ? (isDisplayOfSubTask ? 
         <FormattedMessage id="commentGroupedTaskLabel" /> :
         <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> :
@@ -838,7 +838,7 @@ function Comment(props) {
   const inlineInvestibles = getMarketInvestibles(investiblesState, inlineMarketId);
   const showConfigureVotingButton = commentType === QUESTION_TYPE && !inArchives &&
     !_.isEmpty(inlineInvestibles) && !resolved && !removeActions && myPresence === createdBy;
-  const showResolve = isSent !== false && enableActions && !resolved && !removeActions && !isInfo;
+  const showResolve = isSent !== false && enableActions && !resolved && !removeActions && !isInfo && !isNote;
   const showReopen = resolved && !removeActions && enableActions && commentType !== REPORT_TYPE;
   const showAddVoting = commentType === SUGGEST_CHANGE_TYPE && !inArchives && !resolved && !inlineMarketId
     && marketType === PLANNING_TYPE && !removeActions && !isSingleUser;

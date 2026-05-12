@@ -137,6 +137,8 @@ import { isMyPokableComment } from '../../pages/Home/YourWork/InboxExpansionPane
 import { GroupMembersContext } from '../../contexts/GroupMembersContext/GroupMembersContext';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 import { DARK_INFO_COLOR, DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -528,6 +530,7 @@ function Comment(props) {
   const isReallyMobileLayout = useMediaQuery(theme.breakpoints.down('xs'));
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const mediumLayout = useMediaQuery('(min-width:1400px)');
+  const [groupsState] = useContext(MarketGroupsContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
   const intl = useIntl();
@@ -535,6 +538,11 @@ function Comment(props) {
   const { id, comment_type: commentType, investible_id: investibleId, inline_market_id: inlineMarketId,
     resolved, notification_type: myNotificationType, body, is_sent: isSent, group_id: groupId,
     in_progress: inProgress, is_visible: isVisible } = comment;
+  const groupIsVisibleRaw = getGroup(groupsState, marketId, groupId)?.is_public;
+  const groupIsVisible = groupIsVisibleRaw === undefined ? true : groupIsVisibleRaw;
+  const isVisibleNote = isVisible === undefined ? groupIsVisible : isVisible;
+  const isNote = commentType === REPORT_TYPE && (_.isEmpty(investibleId) || myNotificationType === 'BLUE');
+  const useIsVisible = isNote ? isVisibleNote : isVisible;
   const { pathname } = location;
   const { marketId: typeObjectIdRaw, action } = decomposeMarketPath(pathname);
   const typeObjectId = action === 'inbox' ? typeObjectIdRaw : undefined;
@@ -762,14 +770,13 @@ function Comment(props) {
 
   function handleToggleIsVisible() {
     setOperationRunning(`isVisibleCheckbox${id}`);
-    return updateComment({marketId, commentId: id, isVisible: !isVisible}).then((comment) => {
+    return updateComment({marketId, commentId: id, isVisible: !useIsVisible}).then((comment) => {
       setOperationRunning(false);
       addCommentToMarket(comment, commentsState, commentsDispatch);
     });
   }
 
   const diff = getDiff(diffState, id);
-  const isNote = commentType === REPORT_TYPE && (_.isEmpty(investibleId) || myNotificationType === 'BLUE');
   const overrideLabel = commentType === REPLY_TYPE ? (isDisplayOfSubTask ? 
         <FormattedMessage id="commentGroupedTaskLabel" /> :
         <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> :
@@ -1124,14 +1131,14 @@ function Comment(props) {
                 {!mobileLayout && intl.formatMessage({ id: showSubTask ? 'commentSubTaskLabel' : 'commentReplyLabel' })} {hasReply(comment) && <EditIcon />}
               </SpinningIconLabelButton>
             )}
-            {!investibleId && !removeActions && enableEditing && !mobileLayout && (
+            {(!investibleId || isNote) && !removeActions && enableEditing && !mobileLayout && (
               <FormControlLabel
                 id='isVisibleCheckbox'
                 style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem', color: 'black'}}
                 control={
                   <Checkbox
                     id={`isVisibleCheckbox${id}`}
-                    checked={operationRunning === `isVisibleCheckbox${id}` ? !isVisible : isVisible}
+                    checked={operationRunning === `isVisibleCheckbox${id}` ? !useIsVisible : useIsVisible}
                     classes={{
                       root: classes.rootCheckbox,
                       checked: classes.checkedCheckbox,

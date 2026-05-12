@@ -17,7 +17,7 @@ import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/Ma
 import PlanningInvestible from './Planning/PlanningInvestible'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { JOB_COMMENT_WIZARD_TYPE } from '../../constants/markets';
-import { ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
+import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../constants/comments';
 
 function createCommentsHash(commentsArray) {
   return _.keyBy(commentsArray, 'id');
@@ -40,6 +40,10 @@ function Investible(props) {
     {enabled: !hidden},[history, investibleId, marketId]);
   useHotkeys('ctrl+alt+b', () => navigate(history,
       formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, ISSUE_TYPE)),
+    {enabled: !hidden},[history, investibleId, marketId]);
+  useHotkeys('ctrl+alt+n', () => navigate(history,
+      formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId, REPORT_TYPE, undefined, undefined, 
+        undefined, 'BLUE')),
     {enabled: !hidden},[history, investibleId, marketId]);
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];

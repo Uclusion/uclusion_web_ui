@@ -463,6 +463,18 @@ function PlanningInvestible(props) {
             const rootComment = filterToRoot(investibleComments, found.id);
             if (!_.isEmpty(rootComment.investible_id)) {
               switch (rootComment.comment_type) {
+                case REPORT_TYPE:
+                  if (rootComment.notification_type === 'BLUE') {
+                    if (sectionOpen !== 'notesSection') {
+                      updatePageState({ sectionOpen: 'notesSection' });
+                    }
+                    break;
+                  } else {
+                    if (sectionOpen !== 'descriptionVotingSection') {
+                      updatePageState({ sectionOpen: 'descriptionVotingSection' });
+                    }
+                    break;
+                  }
                 case TODO_TYPE:
                   if (rootComment.resolved) {
                     updatePageState({ sectionOpen: 'descriptionVotingSection' });
@@ -495,11 +507,6 @@ function PlanningInvestible(props) {
                     if (sectionOpen !== 'assistanceSection') {
                       updatePageState({ sectionOpen: 'assistanceSection' });
                     }
-                  }
-                  break;
-                case REPORT_TYPE:
-                  if (sectionOpen !== 'descriptionVotingSection') {
-                    updatePageState({ sectionOpen: 'descriptionVotingSection' });
                   }
                   break;
                 default:

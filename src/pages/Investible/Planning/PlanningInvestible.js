@@ -1029,11 +1029,13 @@ function PlanningInvestible(props) {
                              }/>
             <CommentBox
               comments={sectionComments.concat(replies)}
+              investibleComments={investibleComments}
               marketId={marketId}
               isRequiresInput={isRequiresInput}
               isInBlocking={isInBlocked}
               fullStage={fullStage}
               assigned={assigned}
+              showNotes={sectionOpen === 'tasksSection'}
               formerStageId={formerStageId}
               marketInfo={marketInfo}
               investible={marketInvestible}

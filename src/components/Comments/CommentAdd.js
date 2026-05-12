@@ -408,7 +408,7 @@ function CommentAdd(props) {
         }
         addCommentToMarket(comment, commentsState, commentDispatch);
         if (isSent !== false) {
-          quickNotificationChanges(type, investibleId, messagesState, messagesDispatch, threadMessages, comment,
+          quickNotificationChanges(type, investibleId, messagesState, messagesDispatch, comment,
             parentId, commentsState, commentDispatch, marketId, myPresence);
         }
         if (marketType) {

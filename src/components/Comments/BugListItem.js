@@ -140,6 +140,7 @@ function BugListItem(props) {
     hideRow = false,
     link,
     toolTipId,
+    showChecked = true,
     activeInvestibles,
     maxWidth
   } = props;
@@ -206,7 +207,7 @@ function BugListItem(props) {
             }>
               <Div key={`actions${id}`}>
                 <Box flexShrink={0} className={gutterStyles.parent} key={`box${id}`}>
-                  {!mobileLayout && (
+                  {!mobileLayout && showChecked && (
                     <StyledIconButton
                       className={cx(checked && "MailListItem-checked")}
                       style={{marginLeft: '0.15rem', color: theme.palette.type === 'dark' ? 'white' : undefined, 
@@ -221,8 +222,8 @@ function BugListItem(props) {
                       {checked ? <Checkbox /> : <CheckBoxOutlineBlank />}
                     </StyledIconButton>
                   )}
-                  {mobileLayout && (
-                    <div style={{marginLeft: '0.25rem'}} />
+                  {(mobileLayout || !showChecked) && (
+                    <div style={{marginLeft: '0.5rem'}} />
                   )}
                   {poked && (
                     <Tooltip key='pokedRowKey'

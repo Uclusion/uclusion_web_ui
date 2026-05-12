@@ -139,6 +139,7 @@ import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 import { DARK_INFO_COLOR, DARK_TEXT_BACKGROUND_COLOR } from '../Buttons/ButtonConstants';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import CondensedTodos from '../../pages/Investible/Planning/CondensedTodos';
 
 export const useCommentStyles = makeStyles(
   theme => {
@@ -517,10 +518,10 @@ function isSubTask(comment, commentsState, isPlanning) {
  * @param {{comment: Comment, comments: Comment[]}} props
  */
 function Comment(props) {
-  const { comment, marketId, comments, noAuthor = false, reallyNoAuthor, isReply, wizardProps,
+  const { comment, marketId, comments, noAuthor = false, reallyNoAuthor, isReply, wizardProps, investibleComments,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, toggleCompression: toggleCompressionRaw, useCompression, showVoting, selectedInvestibleIdParent,
-    isMove, idPrepend='c', usePadding=true, compressAll=false, focusMove=false } = props;
+    isMove, idPrepend='c', usePadding=true, compressAll=false, focusMove=false, showNotes=false } = props;
   const history = useHistory();
   const location = useLocation();
   const editBox = useRef(null);
@@ -598,6 +599,10 @@ function Comment(props) {
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
   const otherInProgress = previousInProgress(myPresence.id, comment, investiblesState, commentsState, notDoingStage.id);
   const isDisplayOfSubTask = isSubTask(comment, commentsState, marketType === PLANNING_TYPE);
+
+  console.log('investibleComments', investibleComments);
+  console.log('showNotes', showNotes);
+  console.log('id', id);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -1234,6 +1239,7 @@ function Comment(props) {
   if (_.isEmpty(strippedBody)) {
     strippedBody = dateInfo;
   }
+  const associatedComments = investibleComments?.filter(comment => comment.associated_comment_id === id);
   const compressedCommentCard = <div className={getCommentHighlightStyle()}
   style={{ display: 'flex', paddingBottom: '1rem', backgroundColor: (theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white'),
     height: '100%',
@@ -1321,6 +1327,19 @@ function Comment(props) {
             </StyledBadge>
           </Tooltip>
         </IconButton>
+      )}
+      {showNotes && !_.isEmpty(associatedComments) && (
+        <div style={{marginTop: '1rem'}}>
+          <CondensedTodos
+            comments={associatedComments}
+            investibleComments={investibleComments}
+            marketId={marketId}
+            hideTabs
+            isDefaultOpen
+            hideTitle
+            showChecked={false}
+          />
+        </div>
       )}
       {!useCompression && (
         <Box marginTop={1} paddingX={1} className={classes.childWrapper}>

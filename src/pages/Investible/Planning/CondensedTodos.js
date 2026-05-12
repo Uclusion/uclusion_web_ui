@@ -51,7 +51,9 @@ function CondensedTodos(props) {
     hash,
     maxWidth,
     isSearch = false,
-    showCommentAdd = false
+    showCommentAdd = false,
+    hideTitle = false,
+    showChecked = true
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -122,7 +124,7 @@ function CondensedTodos(props) {
       return (
         <BugListItem id={id} replyNum={replies.length + 1} title={stripHTML(body)} useMinWidth={false}
                      newMessages={isInbox ? undefined : getNewBugNotifications(comment, messagesState)}
-                     date={intl.formatDate(updatedAt)}
+                     date={intl.formatDate(updatedAt)} showChecked={showChecked}
                      useSelect={!isInbox && showOpen} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} 
                      determinateDispatch={determinateDispatch}
@@ -226,7 +228,8 @@ function CondensedTodos(props) {
   return (
     <div className={sectionOpen ? classes.outerBorder : undefined} id="investibleCondensedTodos"
          style={{marginLeft: usePadding ? '1rem' : undefined, maxWidth}}>
-      <div style={{display: 'flex', alignItems: 'center', marginTop: isInbox ? '1rem' : undefined}}>
+      {!hideTitle && (
+        <div style={{display: 'flex', alignItems: 'center', marginTop: isInbox ? '1rem' : undefined}}>
         <h2 id="tasksOverview" style={{paddingBottom: 0, marginBottom: 0, marginTop: 0, paddingTop: 0}}>
           <FormattedMessage id={!_.isEmpty(sectionTitle) ? sectionTitle : 'taskSection'} />{showCommentAdd
                      && <TooltipIconButton id="newTask"
@@ -246,6 +249,7 @@ function CondensedTodos(props) {
           </Tooltip>
         </IconButton>
       </div>
+      )}
       {!hideTabs && sectionOpen && (
         <GmailTabs
           removeBoxShadow
@@ -269,7 +273,7 @@ function CondensedTodos(props) {
                         onDragOver={(event)=>event.preventDefault()} />
         </GmailTabs>
       )}
-      {!_.isEmpty(tabComments) && sectionOpen && (
+      {!_.isEmpty(tabComments) && showChecked && sectionOpen && (
         <div style={{paddingBottom: '0.25rem'}}>
           <div style={{display: 'flex', width: '80%'}}>
             {showOpen && !mobileLayout && !isInbox && (

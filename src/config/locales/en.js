@@ -597,6 +597,7 @@ const messages = defineMessages({
 
   // card types
   cardTypeLabelIssue: 'Blocking issue',
+  cardTypeLabelTask: 'Task',
   cardTypeLabelQuestion: 'Question',
   cardTypeLabelSuggestedChange: 'Suggestion',
   cardTypeLabelTodo: 'task',

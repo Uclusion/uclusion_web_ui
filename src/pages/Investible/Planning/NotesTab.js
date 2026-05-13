@@ -45,7 +45,8 @@ function NotesTab(props) {
     isInBlocking,
     singleWorkspaceUser,
     usePadding: false,
-    preserveOrder: true
+    preserveOrder: true,
+    inNotesTab: true
   };
 
   return (
@@ -84,6 +85,7 @@ function NotesTab(props) {
                 hideTitle
                 isDefaultOpen
                 showChecked={false}
+                inNotesTab
               />
               {_.isEmpty(sg.notes) ? (
                 sg.isResolvedHere && (

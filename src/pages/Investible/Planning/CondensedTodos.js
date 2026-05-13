@@ -53,7 +53,8 @@ function CondensedTodos(props) {
     isSearch = false,
     showCommentAdd = false,
     hideTitle = false,
-    showChecked = true
+    showChecked = true,
+    inNotesTab = false
   } = props
   const classes = todoClasses();
   const intl = useIntl();
@@ -117,6 +118,7 @@ function CondensedTodos(props) {
           removeActions={isInbox && removeActions}
           stagePreventsActions={isInbox && removeActions}
           idPrepend='condensed'
+          inNotesTab={inNotesTab}
         />
       </div>
       const determinateChecked = determinate[id];

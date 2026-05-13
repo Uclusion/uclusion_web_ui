@@ -521,7 +521,8 @@ function Comment(props) {
   const { comment, marketId, comments, noAuthor = false, reallyNoAuthor, isReply, wizardProps, investibleComments,
     resolvedStageId, stagePreventsActions, isInbox, replyEditId, currentStageId, marketInfo, investible, removeActions,
     inboxMessageId, toggleCompression: toggleCompressionRaw, useCompression, showVoting, selectedInvestibleIdParent,
-    isMove, idPrepend='c', usePadding=true, compressAll=false, focusMove=false, showNotes=false } = props;
+    isMove, idPrepend='c', usePadding=true, compressAll=false, focusMove=false, showNotes=false,
+    inNotesTab=false } = props;
   const history = useHistory();
   const location = useLocation();
   const editBox = useRef(null);
@@ -782,10 +783,18 @@ function Comment(props) {
   }
 
   const diff = getDiff(diffState, id);
-  const overrideLabel = commentType === REPLY_TYPE ? (isDisplayOfSubTask ? 
+  // The "comment label" (the small colored chip rendered by CardType) is only displayed when it
+  // adds information beyond the tab the user is already on. On the Notes tab every note is
+  // implicitly a note, so the "Note" label is redundant - suppress it. Tasks on the Notes tab
+  // are the exception (sub-header expansions) and should make their type explicit with a "Task"
+  // label so users can tell the sub-header apart from the notes below it. Symmetric to how the
+  // Tasks tab today shows "Note" labels on associated notes but no label on the tasks themselves.
+  const overrideLabel = commentType === REPLY_TYPE ? (isDisplayOfSubTask ?
         <FormattedMessage id="commentGroupedTaskLabel" /> :
         <FormattedMessage id="issueReplyLabel" />) : (isInfo ? <FormattedMessage id="todoInfo" /> :
-      (isNote ? <FormattedMessage id="reportNote" /> : undefined ) );
+      (inNotesTab && isNote ? undefined :
+        (inNotesTab && commentType === TODO_TYPE ? <FormattedMessage id="cardTypeLabelTask" /> :
+          (isNote ? <FormattedMessage id="reportNote" /> : undefined))));
   const color = isMarketTodo ? myNotificationType : undefined;
   const displayUpdatedBy = updatedBy !== undefined && comment.updated_by !== comment.created_by;
   const showActions = (!replyBeingEdited || replies.length > 0) && !removeActions;

@@ -1256,6 +1256,7 @@ const messages = defineMessages({
   taskSection: 'Tasks',
   openTasksSection: 'Open tasks',
   notesSection: 'Notes',
+  notesResolvedMarker: 'Resolved.',
   openTodosTip: 'ctrl+alt+e Expand tasks',
   closeTodosTip: 'ctrl+shift+e Collapse tasks',
   openApprovalsTip: 'Expand approvals',

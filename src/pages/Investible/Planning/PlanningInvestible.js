@@ -65,6 +65,7 @@ import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
 import CondensedTodos from './CondensedTodos';
+import NotesTab from './NotesTab';
 import { DoneAll, ExpandLess, Notifications } from '@material-ui/icons';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DescriptionOrDiff from '../../../components/Descriptions/DescriptionOrDiff';
@@ -1034,23 +1035,40 @@ function PlanningInvestible(props) {
                                  </ul>) : (sectionOpen === 'tasksSection' ? (<div>Tasks can be moved between jobs or converted to or from bugs.</div>) : 
                                  (<div>Notes can be added to at the task or job level.</div>))
                              }/>
-            <CommentBox
-              comments={sectionComments.concat(replies)}
-              investibleComments={investibleComments}
-              marketId={marketId}
-              isRequiresInput={isRequiresInput}
-              isInBlocking={isInBlocked}
-              fullStage={fullStage}
-              assigned={assigned}
-              showNotes={sectionOpen === 'tasksSection'}
-              formerStageId={formerStageId}
-              marketInfo={marketInfo}
-              investible={marketInvestible}
-              singleWorkspaceUser={_.size(marketPresences) < 2}
-              toggleCompression={sectionOpen === 'assistanceSection' ? toggleUseCompression : undefined}
-              useCompression={sectionOpen === 'assistanceSection' ? getUseCompression : undefined}
-              useInProgressSorting={sectionOpen === 'tasksSection'}
-            />
+            {sectionOpen === 'notesSection' ? (
+              <NotesTab
+                notes={notesCommentsSearched}
+                investibleComments={investibleComments}
+                replies={replies}
+                marketId={marketId}
+                marketInfo={marketInfo}
+                investible={marketInvestible}
+                fullStage={fullStage}
+                formerStageId={formerStageId}
+                assigned={assigned}
+                isRequiresInput={isRequiresInput}
+                isInBlocking={isInBlocked}
+                singleWorkspaceUser={_.size(marketPresences) < 2}
+              />
+            ) : (
+              <CommentBox
+                comments={sectionComments.concat(replies)}
+                investibleComments={investibleComments}
+                marketId={marketId}
+                isRequiresInput={isRequiresInput}
+                isInBlocking={isInBlocked}
+                fullStage={fullStage}
+                assigned={assigned}
+                showNotes={sectionOpen === 'tasksSection'}
+                formerStageId={formerStageId}
+                marketInfo={marketInfo}
+                investible={marketInvestible}
+                singleWorkspaceUser={_.size(marketPresences) < 2}
+                toggleCompression={sectionOpen === 'assistanceSection' ? toggleUseCompression : undefined}
+                useCompression={sectionOpen === 'assistanceSection' ? getUseCompression : undefined}
+                useInProgressSorting={sectionOpen === 'tasksSection'}
+              />
+            )}
           </>
         )}
       </div>

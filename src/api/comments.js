@@ -2,6 +2,7 @@ import _ from 'lodash'
 import { getMarketClient } from './marketLogin'
 import { errorAndThrow, toastErrorAndThrow } from '../utils/userMessage'
 import { AllSequentialMap } from '../utils/PromiseUtils'
+import { getBrowserTz } from '../utils/timezoneUtils'
 
 export function fetchComments(signatures, client) {
   const chunks = _.chunk(signatures, 100);
@@ -12,10 +13,10 @@ export function fetchComments(signatures, client) {
 }
 
 export function saveComment(marketId, groupId, investibleId, replyId, body, commentType, uploadedFiles, mentions,
-  notificationType, marketType, isRestricted, isSent, associatedCommentId) {
+  notificationType, marketType, isRestricted, isSent, associatedCommentId, tz) {
   return getMarketClient(marketId)
     .then((client) => client.investibles.createComment(investibleId, groupId, body, replyId, commentType, uploadedFiles,
-      mentions, notificationType, marketType, isRestricted, isSent, associatedCommentId))
+      mentions, notificationType, marketType, isRestricted, isSent, associatedCommentId, tz ?? getBrowserTz()))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 
@@ -41,10 +42,13 @@ export function alterComments(marketId, commentIds, notificationType) {
 
 export function updateComment(values) {
   const { marketId, commentId, body, commentType, uploadedFiles, mentions, notificationType,
-    isSent, allowMulti, isRestricted, inProgress, isVisible, version } = values;
+    isSent, allowMulti, isRestricted, inProgress, isVisible, version, tz } = values;
   return getMarketClient(marketId)
     .then((client) => client.investibles.updateComment(commentId, body, undefined, uploadedFiles, mentions,
-      commentType, notificationType, isSent, allowMulti, isRestricted, inProgress, undefined, isVisible, version))
+      commentType, notificationType, isSent, allowMulti, isRestricted, inProgress, undefined, isVisible, version,
+      // Only attach a tz on user-driven edits (those that include a body or commentType change). Pure flag toggles
+      // like resolve/alter do not carry a tz so the comment's original creator tz is preserved.
+      tz ?? (body || commentType ? getBrowserTz() : undefined)))
     .catch((error) => toastErrorAndThrow(error, 'errorCommentSaveFailed'));
 }
 

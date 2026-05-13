@@ -288,7 +288,7 @@ export function hasCommentValue(groupId, parent, nameKey, fromInvestibleId, name
 
 function CommentAdd(props) {
   const { marketId, groupId, onSave = () => {}, type, parent, nameKey, fromInvestibleId, mentionsAllowed = true, commentAddState, fromDecisionInvestibleId,
-    updateCommentAddState, commentAddStateReset, autoFocus=true, threadMessages, nameDifferentiator='', wizardProps} = props;
+    updateCommentAddState, commentAddStateReset, autoFocus=true, nameDifferentiator='', wizardProps} = props;
   const {
     uploadedFiles
   } = commentAddState;

@@ -8,6 +8,7 @@ import urllib.request
 import urllib.parse
 import traceback
 from itertools import batched
+from datetime import datetime
 
 
 # Define the names of the configuration file and the target file
@@ -339,8 +340,10 @@ def approve_job(credentials, job_short_code, certainty, reason):
 
 def add_info(credentials, short_code, info):
     info_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + short_code
+    local_tz = datetime.now().astimezone().tzinfo
     data = {
-        'body': info
+        'body': info,
+        'tz': local_tz.tzname(None)
     }
     return send(data, 'POST', info_api_url, credentials['api_token'])
 

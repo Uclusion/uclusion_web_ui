@@ -574,7 +574,7 @@ const messages = defineMessages({
   lastUpdatedBy: ' by',
   comments: 'Comments',
   JobCommentConfigure: 'Create option',
-  JobCommentCreateAnotherOption: 'Create and add another',
+  JobCommentCreateAnotherOption: 'Create and another',
   JobOptionTerminate: 'Go to question',
   DecideStartNavigate: 'Go to bug',
   DiscussionCommentAddQUESTION: 'Add options',

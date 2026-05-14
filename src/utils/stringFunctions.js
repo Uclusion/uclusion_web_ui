@@ -1,20 +1,6 @@
 import _ from 'lodash';
 import { getGroup } from '../contexts/MarketGroupsContext/marketGroupsContextHelper';
-/**
- * Returns the first letter of each part of the name
- * capitalized, for use in avatars
- * @param name
- */
-export function nameToAvatarText(name) {
-  const chunks = name.split(' ');
-  const firstLetters = chunks.reduce((acc, chunk) => {
-    if (!_.isEmpty(chunk)) {
-      return acc + chunk.charAt(0);
-    }
-    return acc;
-  }, "");
-  return firstLetters.toUpperCase();
-}
+
 
 export function getTicketNumber(groupId, marketId, groupsState, isAutonomous=false, isSameGroup = true) {
   if (isAutonomous && !isSameGroup) {

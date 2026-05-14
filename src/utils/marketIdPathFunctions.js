@@ -15,7 +15,6 @@ import {
   isTicketPath
 } from '../contexts/TicketContext/ticketIndexContextHelper';
 import { getInboxTarget, getMessageId } from '../contexts/NotificationsContext/notificationsContextHelper';
-import { OUR_CND_DOMAIN_ENDING } from '../components/TextEditors/ImageBlot';
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -24,6 +23,7 @@ export const DISCUSSION_HASH = 'discussionSection';
 export const BACKLOG_HASH = 'insideBacklogSection';
 // TODO B-all-396 Make tab ids not depend on tab title
 export const ASSIGNED_HASH = 'JobProgress';
+const OUR_CND_DOMAIN_ENDING = 'imagecdn.uclusion.com';
 
 /** Given the pathpart _without the hash or query params
  * will extract the action, the marketId and the investibleId

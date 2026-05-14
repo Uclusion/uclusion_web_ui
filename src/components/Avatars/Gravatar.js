@@ -2,8 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Avatar, Tooltip } from '@material-ui/core'
 import md5 from 'md5';
-import { nameToAvatarText } from '../../utils/stringFunctions';
-import AIIcon from './sparkle.png';
+import _ from 'lodash';
+
+function nameToAvatarText(name) {
+  const chunks = name.split(' ');
+  const firstLetters = chunks.reduce((acc, chunk) => {
+    if (!_.isEmpty(chunk)) {
+      return acc + chunk.charAt(0);
+    }
+    return acc;
+  }, "");
+  return firstLetters.toUpperCase();
+}
 
 function Gravatar (props) {
   const {
@@ -28,7 +38,7 @@ function Gravatar (props) {
           <Avatar
             className={className}
             key={email}
-            src={isAI ? AIIcon : url}
+            src={isAI ? '/images/sparkle.png' : url}
             onClick={onClick}
           >
             {nameToAvatarText(name)}

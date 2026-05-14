@@ -49,7 +49,6 @@ function FileCopyLinker(props) {
   const { linkToFile } = props;
   const classes = attachedFilesStyles();
   const intl = useIntl();
-  const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const [copiedCodeToClipboard, setCopiedCodeToClipboard] = useState(false);
   const [inCodeCopy, setInCodeCopy] = useState(false);
   return (

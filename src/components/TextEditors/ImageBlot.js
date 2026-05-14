@@ -3,7 +3,7 @@ import { tokensHashHack } from '../../contexts/MarketsContext/MarketsContext'
 import _ from 'lodash'
 
 const OUR_CLOUDFRONT_FILE_PATTERN = /https:\/\/\w+.cloudfront.net\/(\w{8}(-\w{4}){3}-\w{12})\/\w{8}(-\w{4}){3}-\w{12}.*/i;
-export const OUR_CND_DOMAIN_ENDING = 'imagecdn.uclusion.com';
+const OUR_CND_DOMAIN_ENDING = 'imagecdn.uclusion.com';
 const Image = Quill.import('formats/image');
 
 export function convertImageSrc(value) {

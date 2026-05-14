@@ -88,11 +88,9 @@ function AddCommentStep (props) {
 
   function onReportResolveOnly() {
     return resolveComment(marketId, resolveId)
-      .then((response) => {
-        const comment = response['comment'];
+      .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         removeMessagesForCommentId(resolveId, messagesState, messagesDispatch);
-        addInvestible(investiblesDispatch, () => {}, response['investible']);
         setOperationRunning(false);
         navigate(history, formCommentLink(marketId, groupId, investibleId, resolveId));
       });

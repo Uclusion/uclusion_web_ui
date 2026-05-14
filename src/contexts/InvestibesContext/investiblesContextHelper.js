@@ -10,6 +10,7 @@ import {
 } from '../SearchIndexContext/searchIndexContextMessages'
 import { TICKET_INDEX_CHANNEL } from '../TicketContext/ticketIndexContextMessages'
 import { getMarketInfo } from '../../utils/userFunctions'
+import { attachmentPathHack } from './InvestiblesContext'
 
 export function getMarketInvestibles(state, marketId, searchResults={}, isInbox=false) {
   const { results, parentResults, search } = searchResults;
@@ -72,6 +73,11 @@ export function refreshInvestibles(dispatch, diffDispatch, investibles, fromNetw
   pushMessage(SEARCH_INDEX_CHANNEL, { event: INDEX_UPDATE, itemType: INDEX_INVESTIBLE_TYPE, items: investibles});
   const fixed = investibles.map((item) => {
     const { investible, market_infos, updated_by_you } = item;
+    if (investible.attached_files) {
+      investible.attached_files.forEach((attachment) => {
+        attachmentPathHack[attachment.path] = attachment.original_name;
+      });
+    }
     const fixedInvestible = fixupItemForStorage(investible);
     return { investible: fixedInvestible, market_infos, updated_by_you };
   });

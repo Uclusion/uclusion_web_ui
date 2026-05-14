@@ -16,6 +16,9 @@ const INVESTIBLES_CONTEXT_NAMESPACE = 'investibles';
 const EMPTY_STATE = {initializing: true};
 
 const InvestiblesContext = React.createContext(EMPTY_STATE);
+// normally this would be in context hacks directory but we can use this let to get the context out of the react tree
+// we don't use a provider, because we have one defined below
+let investibleContextHack, attachmentPathHack = {};
 
 function pushIndexItems(diskState) {
   const investibles = Object.values(diskState) || [];
@@ -24,6 +27,11 @@ function pushIndexItems(diskState) {
   const ticketCodeItems = []
   investibles.forEach((inv) => {
     const { market_infos: marketInfos, investible } = inv;
+    if (investible.attached_files) {
+      investible.attached_files.forEach((attachment) => {
+        attachmentPathHack[attachment.path] = attachment.original_name;
+      });
+    }
     marketInfos.forEach((item) => {
       const { market_id: marketId, ticket_code: ticketCode } = item;
       if (ticketCode) {
@@ -34,10 +42,7 @@ function pushIndexItems(diskState) {
   pushMessage(TICKET_INDEX_CHANNEL, ticketCodeItems);
 }
 
-// normally this would be in context hacks directory but we can use this let to get the context out of the react tree
-// we don't use a provider, because we have one defined below
-let investibleContextHack;
-export { investibleContextHack };
+export { investibleContextHack, attachmentPathHack };
 
 function InvestiblesProvider(props) {
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);

@@ -3,7 +3,7 @@ import { tokensHashHack } from '../../contexts/MarketsContext/MarketsContext'
 import _ from 'lodash'
 
 const OUR_CLOUDFRONT_FILE_PATTERN = /https:\/\/\w+.cloudfront.net\/(\w{8}(-\w{4}){3}-\w{12})\/\w{8}(-\w{4}){3}-\w{12}.*/i;
-const OUR_CND_DOMAIN_ENDING = 'imagecdn.uclusion.com';
+export const OUR_CND_DOMAIN_ENDING = 'imagecdn.uclusion.com';
 const Image = Quill.import('formats/image');
 
 export function convertImageSrc(value) {
@@ -44,6 +44,12 @@ export function convertHTMLString(htmlStr) {
     const converted = convertImageSrc(img.src);
     if (converted !== undefined) {
       img.src = converted;
+    }
+  });
+  const links = document.getElementsByTagName("a") || [];
+  [...links].forEach((link) => {
+    if (link.href.includes(OUR_CND_DOMAIN_ENDING)) {
+      link.href = convertImageSrc(link.href);
     }
   });
   // const text = document.documentElement.innerHTML;

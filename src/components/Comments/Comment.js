@@ -601,10 +601,6 @@ function Comment(props) {
   const otherInProgress = previousInProgress(myPresence.id, comment, investiblesState, commentsState, notDoingStage.id);
   const isDisplayOfSubTask = isSubTask(comment, commentsState, marketType === PLANNING_TYPE);
 
-  console.log('investibleComments', investibleComments);
-  console.log('showNotes', showNotes);
-  console.log('id', id);
-
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (inlineMarketId && !marketsState.initializing && hasUser && !operationRunning) {

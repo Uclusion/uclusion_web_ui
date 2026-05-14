@@ -1,9 +1,9 @@
 import { pushMessage } from './MessageBusUtils'
 import _ from 'lodash'
-import { getInvestibleName } from '../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestible, getInvestibleName } from '../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import { marketsContextHack } from '../contexts/MarketsContext/MarketsContext';
-import { investibleContextHack } from '../contexts/InvestibesContext/InvestiblesContext';
+import { attachmentPathHack, investibleContextHack } from '../contexts/InvestibesContext/InvestiblesContext';
 import { getComment, getCommentRoot } from '../contexts/CommentsContext/commentsContextHelper';
 import { commentsContextHack } from '../contexts/CommentsContext/CommentsContext'
 import { JOB_WIZARD_TYPE } from '../constants/markets';
@@ -15,6 +15,7 @@ import {
   isTicketPath
 } from '../contexts/TicketContext/ticketIndexContextHelper';
 import { getInboxTarget, getMessageId } from '../contexts/NotificationsContext/notificationsContextHelper';
+import { OUR_CND_DOMAIN_ENDING } from '../components/TextEditors/ImageBlot';
 
 export const VISIT_CHANNEL = 'VisitChannel';
 export const VIEW_EVENT = 'pageView';
@@ -159,7 +160,11 @@ export function getNameForUrl(url) {
   const commentsState = commentsContextHack;
   const ticketState = ticketContextHack;
   const urlParts = new URL(url);
-  if (isTicketPath(urlParts.pathname)) {
+  console.info("url", url);
+  if (url.includes(OUR_CND_DOMAIN_ENDING)) {
+    const attachmentPath = urlParts.pathname.split('/').slice(1).join('/');
+    return attachmentPathHack[attachmentPath];
+  } else if (isTicketPath(urlParts.pathname)) {
     const ticket = getTicket(ticketState, urlParts.pathname.substring(1));
     if (ticket) {
       if (isInvestibleTicket(urlParts.pathname)) {

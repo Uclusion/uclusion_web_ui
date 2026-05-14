@@ -1,6 +1,6 @@
 import { pushMessage } from './MessageBusUtils'
 import _ from 'lodash'
-import { getInvestible, getInvestibleName } from '../contexts/InvestibesContext/investiblesContextHelper'
+import { getInvestibleName } from '../contexts/InvestibesContext/investiblesContextHelper'
 import { getMarket } from '../contexts/MarketsContext/marketsContextHelper'
 import { marketsContextHack } from '../contexts/MarketsContext/MarketsContext';
 import { attachmentPathHack, investibleContextHack } from '../contexts/InvestibesContext/InvestiblesContext';

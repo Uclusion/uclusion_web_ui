@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Link } from '@material-ui/core';
+import { IconButton, Link, Tooltip } from '@material-ui/core';
 import { FormattedMessage, useIntl } from 'react-intl';
 import config from '../../config';
 import LoadingOverlay from 'react-loading-overlay';
@@ -10,6 +10,8 @@ import FileUploader from './FileUploader';
 import { getMarketLogin } from '../../api/marketLogin';
 import SpinningTooltipIconButton from '../SpinBlocking/SpinningTooltipIconButton';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
+import { preventDefaultAndProp } from '../../utils/marketIdPathFunctions';
+import FileCopyIcon from '@material-ui/icons/FileCopy'
 
 export const attachedFilesStyles = makeStyles(() => ({
   sectionTitle: {
@@ -32,8 +34,53 @@ export const attachedFilesStyles = makeStyles(() => ({
   },
   capitalize: {
     textTransform: 'capitalize'
-  }
+  },
+  iconButton: {
+    '&:hover': {
+      backgroundColor: 'rgba(45,128,237,0.12)',
+    },
+  },
+  iconButtonTight: {
+    padding: 6,
+  },
 }))
+
+function FileCopyLinker(props) {
+  const { linkToFile } = props;
+  const classes = attachedFilesStyles();
+  const intl = useIntl();
+  const [copiedToClipboard, setCopiedToClipboard] = useState(false);
+  const [copiedCodeToClipboard, setCopiedCodeToClipboard] = useState(false);
+  const [inCodeCopy, setInCodeCopy] = useState(false);
+  return (
+    <IconButton
+          className={`${classes.iconButton} ${classes.iconButtonTight}`}
+          style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap', marginLeft: 0, padding: 2}}
+          disableRipple={true}
+          onClick={(event) => {
+            preventDefaultAndProp(event);
+            navigator.clipboard.writeText(linkToFile);
+            setCopiedCodeToClipboard(true);
+          }}
+          onMouseLeave={() => {
+            setInCodeCopy(false);
+            setCopiedCodeToClipboard(false);
+          }}
+          onMouseEnter={() => setInCodeCopy(true)}
+        >
+          <Tooltip title={
+            <h3>
+              {intl.formatMessage({
+                id: inCodeCopy && copiedCodeToClipboard ? 'uclusionAttachmentLinkCopied' : 
+                'uclusionAttachmentLinkDirections',
+              })}
+            </h3>
+          } placement="top">
+            <FileCopyIcon htmlColor="#2F80ED" style={{ fontSize: 14 }} />
+          </Tooltip>
+        </IconButton>
+  )
+}
 
 export function displayLinksList(filesList, fileBaseUrl, marketId, onDeleteClick, classes) {
   return (filesList || []).map((file) => {
@@ -60,7 +107,11 @@ export function displayLinksList(filesList, fileBaseUrl, marketId, onDeleteClick
     }
 
     return (
-      <div>
+      <>
+      {onDeleteClick && (
+        <FileCopyLinker linkToFile={linkToFile} />
+      )}
+      <div style={{ maxWidth: '200px' }}>
         <Link
           href={linkToFile}
           variant="inherit"
@@ -88,6 +139,7 @@ export function displayLinksList(filesList, fileBaseUrl, marketId, onDeleteClick
           />
         )}
       </div>
+      </>
     )
   })
 }

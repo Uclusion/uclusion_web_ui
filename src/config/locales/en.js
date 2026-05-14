@@ -1312,6 +1312,8 @@ const messages = defineMessages({
   MarketSearchResultDialog: 'Dialog',
   InvestibleSearchResultStory: 'Job',
   InvestibleSearchResultOption: 'Option',
+  uclusionAttachmentLinkCopied: 'In app attachment link copied',
+  uclusionAttachmentLinkDirections: 'Click to copy in app attachment link',
 
 
   // existing users

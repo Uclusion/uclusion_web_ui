@@ -6,18 +6,35 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import { makeStyles } from "@material-ui/core/styles";
+import { DARK_TEXT_BACKGROUND_COLOR } from "../Buttons/ButtonConstants";
 
 const useDialogStyles = makeStyles(
-  {
+  (theme) => ({
     root: {
       '& .MuiDialog-paper': {
-        backgroundColor: 'white',
+        backgroundColor: theme.palette.type === 'dark' ? DARK_TEXT_BACKGROUND_COLOR : 'white',
+        color: theme.palette.type === 'dark' ? 'black' : undefined,
+      },
+      '& .MuiDialog-paper .MuiTypography-root': {
+        color: theme.palette.type === 'dark' ? 'black' : undefined,
+      },
+      '& .MuiDialog-paper .MuiInputBase-root, & .MuiDialog-paper .MuiInputBase-input': {
+        color: theme.palette.type === 'dark' ? 'black' : undefined,
+      },
+      '& .MuiDialog-paper .MuiInputLabel-root': {
+        color: theme.palette.type === 'dark' ? 'rgba(0, 0, 0, 0.6)' : undefined,
+      },
+      '& .MuiDialog-paper .MuiButton-root': {
+        color: theme.palette.type === 'dark' ? 'black' : undefined,
+      },
+      '& .MuiDialog-paper .MuiButton-root.Mui-disabled': {
+        color: theme.palette.type === 'dark' ? 'rgba(0, 0, 0, 0.38)' : undefined,
       },
     },
     actions: {paddingBottom: '1.25rem', paddingTop: '1.25rem'},
     content: {},
     title: {textTransform: 'none !important'}
-  },
+  }),
   { name: "Dialog" }
 );
 

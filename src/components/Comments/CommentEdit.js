@@ -217,7 +217,7 @@ function CommentEdit(props) {
   const editBox = useRef(null);
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { id, uploaded_files: initialUploadedFiles, comment_type: commentType, investible_id: investibleId,
-    body: initialBody, group_id: groupId, version } = comment;
+    body: initialBody, group_id: groupId, version, notification_type: commentNotificationType } = comment;
   const classes = useStyles();
   const wizardClasses = useContext(WizardStylesContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
@@ -241,6 +241,7 @@ function CommentEdit(props) {
   const subscribedNotMe = subscribedReal.filter((presence) => presence.id !== myPresence?.id);
   const noSubscribedToSendTo = _.isEmpty(subscribedNotMe);
   const isTask = investibleId && commentType === TODO_TYPE;
+  const isInvestibleNote = commentType === REPORT_TYPE && commentNotificationType === 'BLUE';
 
   const editorName = `comment-edit-editor${id}`;
   const editorSpec = {
@@ -314,7 +315,7 @@ function CommentEdit(props) {
         <Typography className={wizardClasses.introSubText} variant="subtitle1">
           Pick up where you left off with this {isQuestion ? 'question' : 'blocking issue'}.
         </Typography>
-        {!noSubscribedToSendTo && !isTask && (
+        {!noSubscribedToSendTo && !isTask && !isInvestibleNote && (
           <Typography className={classes.introSubText} variant="subtitle1">
             <GravatarGroup users={subscribedNotMe}/>
             notified unless use @ mentions.
@@ -342,7 +343,7 @@ function CommentEdit(props) {
 
   return (
     <>
-      {!noSubscribedToSendTo && !isTask && !isDisplayOfSubTask && (
+      {!noSubscribedToSendTo && !isTask && !isDisplayOfSubTask && !isInvestibleNote && (
         <Typography className={classes.introSubText} variant="subtitle1">
           <GravatarGroup users={subscribedNotMe}/>
           notified unless use @ mentions.

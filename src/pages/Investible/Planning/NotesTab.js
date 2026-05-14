@@ -75,7 +75,7 @@ function NotesTab(props) {
           )}
 
           {day.subGroups.map((sg) => (
-            <div key={`${day.dayKey}-${sg.task.id}`} style={{ marginBottom: '1.5rem', marginLeft: '0.5rem' }}>
+            <div key={`${day.dayKey}-${sg.task.id}`} style={{ marginBottom: '1.5rem' }}>
               <CondensedTodos
                 comments={[sg.task]}
                 investibleComments={investibleComments}
@@ -85,6 +85,8 @@ function NotesTab(props) {
                 hideTitle
                 isDefaultOpen
                 showChecked={false}
+                usePadding={false}
+                maxWidth="98%"
                 inNotesTab
               />
               {_.isEmpty(sg.notes) ? (

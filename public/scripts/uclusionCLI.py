@@ -348,6 +348,14 @@ def add_info(credentials, short_code, info):
     return send(data, 'POST', info_api_url, credentials['api_token'])
 
 
+def resolve(credentials, short_code, stage_id):
+    resolve_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + short_code
+    data = {
+        'stage_id': stage_id
+    }
+    return send(data, 'PATCH', resolve_api_url, credentials['api_token'])
+
+
 def add_question(credentials, job_short_code, question, options):
     question_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
     data = {
@@ -693,6 +701,23 @@ def cmd_add_question(args):
     return 0
 
 
+def cmd_resolve(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, _config, stages = result
+    stage_id = None
+    for stage in stages:
+        if not stage.get('allows_tasks', True): 
+            stage_id = stage['id']
+            break
+    if stage_id is None:
+        print("   -> ❌ Error: No stage found that allows tasks.")
+        return 1
+    response = resolve(credentials, args.short_code, stage_id)
+    print(response)
+    return 0
+
 def certainty_value(raw):
     try:
         value = int(raw)
@@ -773,8 +798,17 @@ def build_parser():
         'info',
         help='Info to add.',
     )
-
     add_info_parser.set_defaults(func=cmd_add_info)
+
+    resolve_parser = subparsers.add_parser(
+        'resolve',
+        help='Resolves a job by sending to stage Tasks Complete or a comment by marking resolved. Returns the created object.',
+    )
+    resolve_parser.add_argument(
+        'short_code',
+        help='The short code id of the job or comment to resolve (e.g. J-abc-123).',
+    )
+    resolve_parser.set_defaults(func=cmd_resolve)
 
     add_question_parser = subparsers.add_parser(
         'add_question',

@@ -18,7 +18,7 @@ function GroupWizard(props) {
 
   return (
     <WizardStylesProvider>
-      <FormdataWizard name="group_wizard" onFinish={onFinish} useLocalStorage={false}>
+      <FormdataWizard name="group_wizard" onFinish={onFinish} useLocalStorage={false} defaultFormData={{groupType: 'TEAM'}}>
         <GroupNameStep marketId={marketId} />
         <GroupMembersStep marketId={marketId}/>
       </FormdataWizard>

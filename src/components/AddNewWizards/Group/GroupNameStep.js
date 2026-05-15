@@ -1,7 +1,16 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types'
-import { InputAdornment, OutlinedInput, Typography } from '@material-ui/core'
-import { useIntl } from 'react-intl'
+import {
+  FormControl,
+  FormControlLabel,
+  InputAdornment,
+  OutlinedInput,
+  Radio,
+  RadioGroup,
+  Tooltip,
+  Typography
+} from '@material-ui/core'
+import { FormattedMessage, useIntl } from 'react-intl'
 import _ from 'lodash'
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
@@ -22,14 +31,17 @@ import {
   usePresences
 } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { fixName } from '../../../utils/userFunctions';
+import { bugRadioStyles } from '../Bug/BugDescriptionStep';
 
 function GroupNameStep (props) {
   const { updateFormData = () => {}, formData = {}, marketId } = props;
   const history = useHistory();
   const intl = useIntl();
   const value = formData.name || '';
-  const validForm = !_.isEmpty(value);
+  const selectedGroupType = formData.groupType || '';
+  const validForm = !_.isEmpty(value) && !_.isEmpty(selectedGroupType);
   const classes = useContext(WizardStylesContext);
+  const radioClasses = bugRadioStyles();
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [groupsState, groupsDispatch] = useContext(MarketGroupsContext);
   const [, diffDispatch] = useContext(DiffContext);
@@ -44,6 +56,15 @@ function GroupNameStep (props) {
       && isAutonomousGroup(groupPresences, group);
   });
   const hasAutonomousGroups = !_.isEmpty(myAutonomousGroups);
+  const groupTypeChoices = hasAutonomousGroups
+    ? ['TEAM', 'EVERYONE']
+    : ['AUTONOMOUS', 'TEAM', 'EVERYONE'];
+
+  function onGroupTypeChange (event) {
+    updateFormData({
+      groupType: event.target.value
+    });
+  }
 
   function onNameChange (event) {
     const { value } = event.target;
@@ -52,7 +73,7 @@ function GroupNameStep (props) {
     });
   }
 
-  function createGroup(groupType) {
+  function createGroup() {
     const dispatchers = {
       groupsDispatch,
       diffDispatch,
@@ -62,9 +83,9 @@ function GroupNameStep (props) {
     const groupData = {
       ...formData,
       marketId,
-      groupType
+      groupType: selectedGroupType
     };
-    if (groupType === 'AUTONOMOUS' && _.isEmpty(groupData.name)) {
+    if (selectedGroupType === 'AUTONOMOUS' && _.isEmpty(groupData.name)) {
       groupData.name = intl.formatMessage({id: 'singleView'});
       // Not great may have to let them choose later
       groupData.ticket_sub_code = fixName(myPresence.name).slice(0, 80);
@@ -73,7 +94,7 @@ function GroupNameStep (props) {
       .then((group) => {
         setOperationRunning(false);
         const {id: groupId} = group;
-        const participantsDecided = ['AUTONOMOUS', 'EVERYONE'].includes(groupType);
+        const participantsDecided = ['AUTONOMOUS', 'EVERYONE'].includes(selectedGroupType);
         const link = participantsDecided || hasOthers ? formMarketLink(marketId, groupId) :
           `/wizard#type=${ADD_COLLABORATOR_WIZARD_TYPE.toLowerCase()}&marketId=${marketId}`;
         updateFormData({
@@ -85,22 +106,6 @@ function GroupNameStep (props) {
         } else {
           return link;
         }
-      });
-  }
-
-  function onNext(){
-      return createGroup('TEAM');
-  }
-
-  function onOtherNext(){
-    return createGroup(hasAutonomousGroups ? 'EVERYONE' : 'AUTONOMOUS');
-  }
-
-  function onTerminate(){
-    return onNext()
-      .then((link) => {
-        setOperationRunning(false);
-        navigate(history, link);
       });
   }
 
@@ -116,6 +121,36 @@ function GroupNameStep (props) {
         backlog. It also controls the addressing of notifications unless using mentions or a subscription to a
         job. {_.isEmpty(myAutonomousGroups) && 'A My work view has only you and shows your work across views.'}
       </Typography>
+      <FormControl component="fieldset" style={{display: 'flex', marginBottom: '1rem'}}>
+        <RadioGroup
+          aria-labelledby="group-type-choice"
+          style={{display: 'flex', flexDirection: 'row'}}
+          onChange={onGroupTypeChange}
+          value={selectedGroupType}
+        >
+          {groupTypeChoices.map((groupType) => {
+            return (
+              <Tooltip key={groupType} title={<h3>
+                <FormattedMessage id={`groupTypeTip${groupType}`} />
+              </h3>} placement="top">
+                <FormControlLabel
+                  id={`groupType${groupType}`}
+                  className={radioClasses.certaintyValue}
+                  classes={{
+                    label: radioClasses.certaintyValueLabel
+                  }}
+                  /* prevent clicking the label stealing focus */
+                  onMouseDown={e => e.preventDefault()}
+                  control={<Radio />}
+                  label={<FormattedMessage id={`groupTypeLabel${groupType}`} />}
+                  labelPlacement="end"
+                  value={groupType}
+                />
+              </Tooltip>
+            );
+          })}
+        </RadioGroup>
+      </FormControl>
       <OutlinedInput
         id="groupName"
         className={classes.input}
@@ -136,17 +171,10 @@ function GroupNameStep (props) {
       <WizardStepButtons
         {...props}
         validForm={validForm}
-        onNext={onNext}
-        onNextDoAdvance={hasOthers}
-        nextLabel={'GroupWizardAddMembers'}
-        otherNextLabel={hasAutonomousGroups ? 'createEveryoneView' : 'createMyWorkView'}
-        otherNextValid={!hasAutonomousGroups || validForm}
-        showOtherNext
-        onOtherNext={onOtherNext}
-        onOtherDoAdvance={false}
-        showTerminate={validForm}
-        onTerminate={onTerminate}
-        terminateLabel="GroupWizardGotoGroup"/>
+        onNext={createGroup}
+        onNextDoAdvance={hasOthers && selectedGroupType === 'TEAM'}
+        nextLabel={selectedGroupType === 'TEAM' ? 'GroupWizardAddMembers' : 'addPlanning'}
+      />
     </WizardStepContainer>
   );
 }

@@ -1403,6 +1403,12 @@ const messages = defineMessages({
   ApprovalRestrictYes: 'Assignees need approval from others.',
   createMyWorkView: 'My work view',
   createEveryoneView: 'Everyone view',
+  groupTypeLabelAUTONOMOUS: 'My work',
+  groupTypeLabelTEAM: 'Team',
+  groupTypeLabelEVERYONE: 'Everyone',
+  groupTypeTipAUTONOMOUS: 'A view with only you that displays your work across views',
+  groupTypeTipTEAM: 'A view with you and selected collaborators',
+  groupTypeTipEVERYONE: 'A view that automatically includes everyone in the workspace',
 
   // Decision comment wizard
   DecisionCommmentWizardTerminate: 'Back to option',

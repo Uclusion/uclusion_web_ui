@@ -110,6 +110,7 @@ const useCardTypeStyles = makeStyles(theme => ({
       fontSize: 14,
       fontWeight: 500,
       lineHeight: 1,
+      color: 'black',
       textTransform: 'capitalize'
     },
     labelGrid: {

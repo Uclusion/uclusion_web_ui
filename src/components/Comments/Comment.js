@@ -395,6 +395,11 @@ export const useCommentStyles = makeStyles(
       checkedCheckbox: {
         opacity: 1,
       },
+      formControlLabel: {
+        '& .MuiFormControlLabel-label.Mui-disabled': {
+          color: theme.palette.type === 'dark' ? 'rgba(0, 0, 0, 0.38)' : undefined,
+        },
+      },
   }
 },
 { name: "Comment" }
@@ -1113,6 +1118,7 @@ function Comment(props) {
             {commentType === TODO_TYPE && investibleId && !removeActions && enableEditing && !inBacklog && (
               <FormControlLabel
                 id='inProgressCheckbox'
+                className={classes.formControlLabel}
                 style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem', color: 'black'}}
                 control={
                   <Checkbox
@@ -1144,6 +1150,7 @@ function Comment(props) {
             {(!investibleId || isNote) && !removeActions && enableEditing && !mobileLayout && (
               <FormControlLabel
                 id='isVisibleCheckbox'
+                className={classes.formControlLabel}
                 style={{maxHeight: '1rem', marginTop: mobileLayout ? '0.35rem' : '0.7rem', color: 'black'}}
                 control={
                   <Checkbox

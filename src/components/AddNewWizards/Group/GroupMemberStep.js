@@ -40,15 +40,13 @@ function GroupMembersStep (props) {
     return changeGroupParticipation(market.id, group.id, added).then((newUsers) => {
       setOperationRunning(false);
       groupMembersDispatch(addGroupMembers(market.id, group.id, newUsers));
+      onTerminate();
     });
   }
 
   function onTerminate() {
-    return onNext()
-      .then(() => {
-        const {link} = formData;
-        navigate(history, link);
-      })
+    const {link} = formData;
+    navigate(history, link);
   }
 
   return (

@@ -33,21 +33,37 @@ const useStyles = makeStyles(() => ({
 
 function BacklogMenu(props) {
   const { anchorEl, recordPositionToggle, marketId, investibleId, openForInvestment, mouseX, mouseY,
-    myGroupPresence, isSingleUser, acceptedStageId, stage, inDialogStageId, notDoingStageId } = props;
+    myGroupPresence, isSingleUser, acceptedStageId, stage, inDialogStageId, notDoingStageId,
+    furtherWorkStageId } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
+  const isInNotDoing = stage === notDoingStageId;
 
-  function toggleOpenForInvestment() {
-    const updateInfo = {
+  function moveToBacklogState(targetOpenForInvestment) {
+    setOperationRunning('readyToStart');
+    if (isInNotDoing && furtherWorkStageId) {
+      const moveInfo = {
+        marketId,
+        investibleId,
+        stageInfo: {
+          current_stage_id: stage,
+          stage_id: furtherWorkStageId,
+          open_for_investment: targetOpenForInvestment,
+        },
+      };
+      return stageChangeInvestible(moveInfo).then((newInv) => {
+        refreshInvestibles(investiblesDispatch, () => {}, [newInv]);
+        setOperationRunning(false);
+      });
+    }
+    return updateInvestible({
       marketId,
       investibleId,
-      openForInvestment: !openForInvestment,
-    };
-    setOperationRunning('readyToStart');
-    return updateInvestible(updateInfo).then((fullInvestible) => {
+      openForInvestment: targetOpenForInvestment,
+    }).then((fullInvestible) => {
       refreshInvestibles(investiblesDispatch, () => {}, [fullInvestible]);
       setOperationRunning(false);
     });
@@ -108,11 +124,11 @@ function BacklogMenu(props) {
         classes={{ paper: classes.paperMenu }}
       >
         <ListSubheader classes={{root:classes.listSubHeaderRoot}}>Move to</ListSubheader>
-        {!openForInvestment && (
+        {(!openForInvestment || isInNotDoing) && (
           <MenuItem key="moveJobYellowKey" id="moveJobYellowId"
                     onClick={(event) => {
                       preventDefaultAndProp(event);
-                      return toggleOpenForInvestment().then(() => recordPositionToggle());
+                      return moveToBacklogState(true).then(() => recordPositionToggle());
                     }}
           >
             <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Chip color="primary" size='small' className={classes.chipStyleYellow} /></ListItemIcon>
@@ -123,11 +139,11 @@ function BacklogMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
-        {openForInvestment && (
+        {(openForInvestment || isInNotDoing) && (
           <MenuItem key="moveJobBlueKey" id="moveJobBlueId"
                     onClick={(event) => {
                       preventDefaultAndProp(event);
-                      return toggleOpenForInvestment().then(() => recordPositionToggle());
+                      return moveToBacklogState(false).then(() => recordPositionToggle());
                     }}
           >
             <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Chip color="primary" size='small' className={classes.chipStyleBlue} /></ListItemIcon>
@@ -151,19 +167,21 @@ function BacklogMenu(props) {
             </ListItemText>
           </Tooltip>
         </MenuItem>
-        <MenuItem key="notDoingJobKey" id="notDoingJobId"
-                  onClick={(event) => {
-                    preventDefaultAndProp(event);
-                    return notDoingJob().then(() => recordPositionToggle());
-                  }}
-        >
-          <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Block size='small' style={{marginRight: '0.5rem'}} /></ListItemIcon>
-          <Tooltip placement='top' title={intl.formatMessage({ id: 'planningInvestibleNotDoingExplanation' })}>
-            <ListItemText>
-              {intl.formatMessage({ id: 'dialogArchivesNotDoingHeader' })}
-            </ListItemText>
-          </Tooltip>
-        </MenuItem>
+        {!isInNotDoing && (
+          <MenuItem key="notDoingJobKey" id="notDoingJobId"
+                    onClick={(event) => {
+                      preventDefaultAndProp(event);
+                      return notDoingJob().then(() => recordPositionToggle());
+                    }}
+          >
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><Block size='small' style={{marginRight: '0.5rem'}} /></ListItemIcon>
+            <Tooltip placement='top' title={intl.formatMessage({ id: 'planningInvestibleNotDoingExplanation' })}>
+              <ListItemText>
+                {intl.formatMessage({ id: 'dialogArchivesNotDoingHeader' })}
+              </ListItemText>
+            </Tooltip>
+          </MenuItem>
+        )}
       </Menu>
   );
 }

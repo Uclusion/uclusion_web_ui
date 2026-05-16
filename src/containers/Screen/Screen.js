@@ -289,14 +289,12 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
         } 
         if (outsetAvailable) {
           const dialogOutset = document.getElementById('dialogOutset');
-          const dialogOutsetBuffer = document.getElementById('dialogOutsetBuffer');
-          if (dialogOutset && dialogOutsetBuffer) {
+          if (dialogOutset) {
             if (DIALOG_OUTSET_STATE_HACK.timerId) {
               clearTimeout(DIALOG_OUTSET_STATE_HACK.timerId);
               DIALOG_OUTSET_STATE_HACK.timerId = undefined;
             }
             dialogOutset.style.display = 'block';
-            dialogOutsetBuffer.style.display = 'block';
           }
         } else {
           setCurrentGroup(group.id);
@@ -306,12 +304,10 @@ export function getSidebarGroups(isDark, navListItemTextArray, groupsState, mark
       onLeaveFunc: () => {
         if (isChosen && useHoverFunctions) {
           const dialogOutset = document.getElementById(`dialogOutset`);
-          const dialogOutsetBuffer = document.getElementById('dialogOutsetBuffer');
-          if (dialogOutset && dialogOutsetBuffer) {
+          if (dialogOutset) {
             DIALOG_OUTSET_STATE_HACK.timerId = setTimeout(function () {
               if (DIALOG_OUTSET_STATE_HACK.open !== 1) {
                 dialogOutset.style.display = 'none';
-                dialogOutsetBuffer.style.display = 'none';
               }
             }, 2000);
           }

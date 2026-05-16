@@ -55,13 +55,13 @@ function DialogOutset(props) {
 
   return (
     <>
-      <div id="dialogOutsetBuffer" style={{width: '16rem', display: isArchivedSearch ? 'block' : 'none'}} />
       <div id="dialogOutset" style={{
         marginLeft: '1.65rem',
         overflowY: 'none',
         zIndex: 3,
         position: 'absolute',
         boxShadow: "2px 2px 2px lightgrey",
+        backgroundColor: 'white',
         display: isArchivedSearch ? 'block' : 'none'
       }}
            onMouseEnter={() => {

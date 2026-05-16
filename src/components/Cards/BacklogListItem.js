@@ -103,7 +103,8 @@ function BacklogListItem(props) {
     acceptedStageId,
     stage,
     inDialogStageId,
-    notDoingStageId
+    notDoingStageId,
+    furtherWorkStageId
   } = props;
   const [, messagesDispatch] = useContext(NotificationsContext);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -145,6 +146,7 @@ function BacklogListItem(props) {
           <BacklogMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} marketId={marketId}
                        myGroupPresence={myGroupPresence} isSingleUser={isSingleUser} acceptedStageId={acceptedStageId}
                        stage={stage} inDialogStageId={inDialogStageId} investibleId={id} notDoingStageId={notDoingStageId}
+                       furtherWorkStageId={furtherWorkStageId}
                        openForInvestment={openForInvestment} mouseX={mouseX} mouseY={mouseY} />
         )}
         <RaisedCard elevation={3} rowStyle key={`raised${id}`} maxWidth='96%'>

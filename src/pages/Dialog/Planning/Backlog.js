@@ -15,13 +15,13 @@ import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import Chip from '@material-ui/core/Chip';
 import { todoClasses } from './MarketTodos';
 import { getPaginatedItems } from '../../../utils/messageUtils';
-import { updateInvestible } from '../../../api/investibles';
+import { stageChangeInvestible, updateInvestible } from '../../../api/investibles';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getFullStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { Box, IconButton, Typography } from '@material-ui/core';
-import { KeyboardArrowLeft } from '@material-ui/icons';
+import { Block, KeyboardArrowLeft } from '@material-ui/icons';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import { getNewMessages, isNew } from '../../../components/Comments/Options';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -36,6 +36,7 @@ function Backlog(props) {
     group,
     furtherWorkReadyToStart,
     furtherWorkInvestibles,
+    notDoingInvestibles = [],
     comments,
     marketPresences,
     singleUser,
@@ -44,6 +45,7 @@ function Backlog(props) {
     acceptedStageId,
     inDialogStageId,
     notDoingStageId,
+    furtherWorkStageId,
     mobileLayout
   } = props;
   const { market_id: marketId, id: groupId} = group || {};
@@ -59,45 +61,106 @@ function Backlog(props) {
   const [backlogState, backlogDispatch] = useReducer(getReducer(),
     {page: 1, tabIndex: 0, pageState: {}, defaultPage: 1});
   const { tabIndex, page } = backlogState;
-  const tabInvestiblesRaw = tabIndex === 0 ? furtherWorkReadyToStart : furtherWorkInvestibles;
+  const tabInvestiblesRaw = tabIndex === 0 ? furtherWorkReadyToStart
+    : (tabIndex === 1 ? furtherWorkInvestibles : notDoingInvestibles);
   const tabInvestibles = _.orderBy(tabInvestiblesRaw, [(inv) => inv.investible.created_at],
     ['desc']);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabInvestibles,
     page, PAGE_SIZE);
   const market = getMarket(marketsState, marketId) || {};
-  const isEmptyBacklog = _.isEmpty(furtherWorkInvestibles) && _.isEmpty(furtherWorkReadyToStart);
+  const isEmptyBacklog = _.isEmpty(furtherWorkInvestibles) && _.isEmpty(furtherWorkReadyToStart)
+    && _.isEmpty(notDoingInvestibles);
   const yellowChip = <Chip color="primary" size='small' className={classes.chipStyleYellow} />;
   const blueChip = <Chip color="primary" size='small' className={classes.chipStyleBlue} />;
   const yellowCount = _.size(furtherWorkReadyToStart);
   const unreadYellowCount = _.size(furtherWorkReadyToStart.filter((inv) => isNew(inv, messagesState)));
   const unreadBlueCount = _.size(furtherWorkInvestibles);
 
-  function onDrop(investibleId) {
+  function moveToBacklogState(investibleId, targetOpenForInvestment) {
+    // Drop on Ready/Not Ready: if source is currently in further-work stage just toggle open;
+    // otherwise (e.g. dragging from Not Doing) stage-change back to further-work.
     const marketInvestible = data.find((inv) => inv.investible.id === investibleId);
+    if (!marketInvestible) {
+      return;
+    }
     const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
-    const { stage, open_for_investment: openForInvestment } = marketInfo;
-    const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
-    const updateInfo = {
+    const { stage: currentStageId, open_for_investment: currentOpen } = marketInfo;
+    const currentFullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
+    setOperationRunning('readyToStart');
+    if (furtherWorkStageId && currentStageId !== furtherWorkStageId) {
+      const moveInfo = {
+        marketId,
+        investibleId,
+        stageInfo: {
+          current_stage_id: currentStageId,
+          stage_id: furtherWorkStageId,
+          open_for_investment: targetOpenForInvestment,
+        },
+      };
+      return stageChangeInvestible(moveInfo).then((fullInvestible) => {
+        onInvestibleStageChange(furtherWorkStageId, fullInvestible, investibleId, marketId, undefined,
+          undefined, investiblesDispatch, () => {}, marketStagesState,
+          undefined, currentFullStage);
+        setOperationRunning(false);
+      });
+    }
+    return updateInvestible({
       marketId,
       investibleId,
-      openForInvestment: !openForInvestment,
-    };
-    setOperationRunning('readyToStart');
-    return updateInvestible(updateInfo).then((fullInvestible) => {
-      onInvestibleStageChange(stage, fullInvestible, investibleId, marketId, undefined,
+      openForInvestment: targetOpenForInvestment !== undefined ? targetOpenForInvestment : !currentOpen,
+    }).then((fullInvestible) => {
+      onInvestibleStageChange(currentStageId, fullInvestible, investibleId, marketId, undefined,
         undefined, investiblesDispatch, () => {}, marketStagesState,
-        undefined, fullStage);
+        undefined, currentFullStage);
       setOperationRunning(false);
     });
   }
+
+  function moveToNotDoing(investibleId) {
+    if (!notDoingStageId) {
+      return;
+    }
+    const marketInvestible = data.find((inv) => inv.investible.id === investibleId);
+    if (!marketInvestible) {
+      return;
+    }
+    const marketInfo = getMarketInfo(marketInvestible, marketId) || {};
+    const { stage: currentStageId } = marketInfo;
+    if (currentStageId === notDoingStageId) {
+      return;
+    }
+    const currentFullStage = getFullStage(marketStagesState, marketId, currentStageId) || {};
+    setOperationRunning('readyToStart');
+    const moveInfo = {
+      marketId,
+      investibleId,
+      stageInfo: {
+        current_stage_id: currentStageId,
+        stage_id: notDoingStageId,
+        open_for_investment: false,
+      },
+    };
+    return stageChangeInvestible(moveInfo).then((fullInvestible) => {
+      onInvestibleStageChange(notDoingStageId, fullInvestible, investibleId, marketId, undefined,
+        undefined, investiblesDispatch, () => {}, marketStagesState,
+        undefined, currentFullStage);
+      setOperationRunning(false);
+    });
+  }
+
   function onDropAble(event) {
     const investibleId = event.dataTransfer.getData('text');
-    onDrop(investibleId);
+    moveToBacklogState(investibleId, true);
   }
 
   function onDropConvenient(event) {
     const investibleId = event.dataTransfer.getData('text');
-    onDrop(investibleId);
+    moveToBacklogState(investibleId, false);
+  }
+
+  function onDropNotDoing(event) {
+    const investibleId = event.dataTransfer.getData('text');
+    moveToNotDoing(investibleId);
   }
 
   function changePage(byNum) {
@@ -139,7 +202,7 @@ function Backlog(props) {
         onChange={(event, value) => {
           backlogDispatch(setTab(value));
         }}
-        indicatorColors={['#e6e969', '#2F80ED']}
+        indicatorColors={['#e6e969', '#2F80ED', '#bdbdbd']}
         style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
         <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'readyToStartHeader'})}
                       color='black' tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
@@ -152,6 +215,10 @@ function Backlog(props) {
                       color='black'
                       tag={unreadBlueCount > 0 ? `${unreadBlueCount}` : undefined}
                       onDrop={onDropConvenient} toolTipId='notReadyToolTip'
+                      onDragOver={(event)=>event.preventDefault()} />
+        <GmailTabItem icon={<Block />} label={intl.formatMessage({id: 'notDoingHeader'})}
+                      color='black'
+                      onDrop={onDropNotDoing} toolTipId='notDoingBacklogToolTip'
                       onDragOver={(event)=>event.preventDefault()} />
       </GmailTabs>
       {!_.isEmpty(data) && (
@@ -184,11 +251,19 @@ function Backlog(props) {
           Jobs that are not ready for assignment display here.
         </Typography>
       )}
+      {_.isEmpty(data) && tabIndex === 2 && (
+        <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                    variant="body1">
+          {intl.formatMessage({id: 'notDoingHeader'})} is empty.<br/><br/>
+          Jobs marked as not doing display here.
+        </Typography>
+      )}
       {data.map((inv) => {
         return (
           <BacklogItem key={inv.investible.id} inv={inv} comments={comments} marketPresences={marketPresences} marketId={marketId}
                        singleUser={singleUser} myGroupPresence={myGroupPresence} acceptedStageId={acceptedStageId}
-                       inDialogStageId={inDialogStageId} notDoingStageId={notDoingStageId} />
+                       inDialogStageId={inDialogStageId} notDoingStageId={notDoingStageId}
+                       furtherWorkStageId={furtherWorkStageId} />
         );
       })}
     </div>
@@ -197,7 +272,7 @@ function Backlog(props) {
 
 function BacklogItem(props) {
   const { inv, comments, marketPresences, marketId, singleUser, myGroupPresence, acceptedStageId,
-    inDialogStageId, notDoingStageId } = props;
+    inDialogStageId, notDoingStageId, furtherWorkStageId } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const intl = useIntl();
@@ -215,6 +290,7 @@ function BacklogItem(props) {
                      description={stripHTML(investible.description)} openForInvestment={openForInvestment}
                      newMessages={getNewMessages(inv, messagesState)} stage={stage} myGroupPresence={myGroupPresence}
                      acceptedStageId={acceptedStageId} inDialogStageId={inDialogStageId} notDoingStageId={notDoingStageId}
+                     furtherWorkStageId={furtherWorkStageId}
                      isSingleUser={!_.isEmpty(singleUser)} marketId={marketId} people={collaboratorsForInvestible} />
   );
 }

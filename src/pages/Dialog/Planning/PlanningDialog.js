@@ -331,7 +331,10 @@ function PlanningDialog(props) {
     const { open_for_investment: openForInvestment } = marketInfo;
     return openForInvestment;
   });
-  const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles);
+  const notDoingInvestibles = getInvestiblesInStage(investiblesViewOnly, notDoingStage.id,
+    marketId) || [];
+  const backlogSearchResults = _.size(furtherWorkReadyToStart) + _.size(furtherWorkInvestibles)
+    + _.size(notDoingInvestibles);
   let navListItemTextArray = undefined;
   if (mobileLayout) {
     navListItemTextArray = [
@@ -756,6 +759,7 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
         <div id="backlogSection" style={{overflowX: 'hidden'}}>
           <Backlog group={group} marketPresences={marketPresences} hidden={!isSectionOpen('backlogSection')} mobileLayout={mobileLayout}
                    furtherWorkReadyToStart={furtherWorkReadyToStart} furtherWorkInvestibles={furtherWorkInvestibles}
+                   notDoingInvestibles={notDoingInvestibles} furtherWorkStageId={furtherWorkStage?.id}
                    comments={marketComments} myGroupPresence={myGroupPresence} inDialogStageId={inDialogStage?.id} notDoingStageId={notDoingStage?.id}
                    acceptedStageId={acceptedStage?.id} singleUser={isSingleUser ? groupPresences[0] : undefined} />
         </div>

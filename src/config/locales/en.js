@@ -728,6 +728,7 @@ const messages = defineMessages({
   normalToolTip: 'Normal bugs send a dismissable notification.',
   minorToolTip: 'Minor bugs do not send notifications.',
   notReadyToolTip: 'Not Ready jobs do not display on job status.',
+  notDoingBacklogToolTip: 'Not Doing jobs are dormant and unassigned but kept for reference.',
   assignReadyJobsToolTip: 'Ready to assign jobs also display on the job status page.',
   statusJobsToolTip: 'This page shows all assignments and jobs needing help',
   backlogJobsToolTip: 'Discuss jobs while waiting for an assignee.',
@@ -901,8 +902,10 @@ const messages = defineMessages({
   readyFurtherWorkHeader: 'Backlog',
   readyToStartHeader: 'Ready to Assign',
   notReadyToStartHeader: 'Not Ready',
+  notDoingHeader: 'Not Doing',
   backlogReadyToStartHeader: 'Backlog - Ready to Assign',
   backlogNotReadyToStartHeader: 'Backlog - Not Ready',
+  backlogNotDoingHeader: 'Backlog - Not Doing',
   blockedHeader: 'Next / Assistance',
 
   // SignIn

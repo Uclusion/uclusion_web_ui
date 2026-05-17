@@ -593,7 +593,7 @@ function PlanningInvestible(props) {
   const newAssistanceMessages = findMessagesForCommentIds(assistanceCommentsSearchedAll?.map((comment) => comment.id), 
     messagesState, true);
   const numNewAssistanceMessages = _.size(newAssistanceMessages.filter((message) => isInInbox(message)));
-  const newTodoMessages = findMessagesForCommentIds(todoCommentsSearchedAll?.map((comment) => comment.id), 
+  const newTodoMessages = findMessagesForCommentIds(openTodoCommentsSearched?.map((comment) => comment.id), 
     messagesState, true);
   // Do not include each unread task as its own message
   const numNewTodoMessages = _.size(newTodoMessages.filter((message) => isInInbox(message)));

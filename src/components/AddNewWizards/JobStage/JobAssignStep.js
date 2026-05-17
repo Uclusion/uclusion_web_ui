@@ -24,7 +24,8 @@ function JobAssignStep (props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
-  const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
+  const marketPresences = (getMarketPresences(marketPresencesState, marketId) || []).filter(
+    (presence) => presence.external_id !== marketId);
   const [, investiblesDispatch] = useContext(InvestiblesContext);
   const classes = useContext(WizardStylesContext);
   const { assigned, stage: currentStageId, group_id: groupId } = marketInfo;

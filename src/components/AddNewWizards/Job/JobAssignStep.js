@@ -33,7 +33,8 @@ function JobAssignStep (props) {
   const validForm = !_.isEmpty(value);
   const intl = useIntl();
   const [presencesState, marketPresencesDispatch] = useContext(MarketPresencesContext);
-  const presences = getMarketPresences(presencesState, marketId);
+  const presences = (getMarketPresences(presencesState, marketId) || []).filter(
+    (presence) => presence.external_id !== marketId);
   const [investiblesState, investiblesDispatch] = useContext(InvestiblesContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [marketStagesState] = useContext(MarketStagesContext);

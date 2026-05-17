@@ -373,6 +373,15 @@ def add_question(credentials, job_short_code, question, options):
     return send(data, 'POST', question_api_url, credentials['api_token'])
 
 
+def add_suggestion(credentials, job_short_code, suggestion, options):
+    suggestion_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
+    data = {
+        'body': suggestion,
+        'is_question': False
+    }
+    return send(data, 'POST', suggestion_api_url, credentials['api_token'])
+
+
 def write_uclusion_md(config, credentials, short_code_id, job_report_path='job_report.md'):
     if short_code_id is not None:
         file_path = job_report_path if job_report_path is not None else 'job_report.md'
@@ -701,6 +710,16 @@ def cmd_add_question(args):
     return 0
 
 
+def cmd_add_suggestion(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, _config, _stages = result
+    response = add_suggestion(credentials, args.job_short_code, args.suggestion, args.options)
+    print(response)
+    return 0
+
+
 def cmd_resolve(args):
     result = initialize(args.env)
     if result is None:
@@ -833,6 +852,21 @@ def build_parser():
     )
 
     add_question_parser.set_defaults(func=cmd_add_question)
+
+    add_suggestion_parser = subparsers.add_parser(
+        'add_suggestion',
+        help='Add a suggestion to a job by job short code. Returns the created suggestion.',
+    )
+    add_suggestion_parser.add_argument(
+        'job_short_code',
+        help='The short code id of the job to add the question to (e.g. J-abc-123).',
+    )
+    add_suggestion_parser.add_argument(
+        'suggestion',
+        help='Suggestion text.',
+    )
+
+    add_suggestion_parser.set_defaults(func=cmd_add_suggestion)
 
     return parser
 

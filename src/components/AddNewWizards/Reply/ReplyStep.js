@@ -147,7 +147,7 @@ function ReplyStep(props) {
     >
       {!showSubTask && (
         <Typography className={classes.introText}>
-          What is your reply or note?
+          What is your reply?
         </Typography>
       )}
       {showSubTask && (
@@ -176,38 +176,43 @@ function ReplyStep(props) {
         isReply
         useCompression={useCompression}
       />
-      <FormControl>
-        <FormLabel
-          className={radioClasses.certaintyLabel}
-          id="add-vote-certainty"
-        >
-        </FormLabel>
-        <RadioGroup
-          aria-labelledby="add-reply-type"
-          style={{display: 'flex', flexDirection: 'row'}}
-          onChange={(event) => setCommentType(event.target.value)}
-          value={commentType}
-        >
-          {[REPLY_TYPE, REPORT_TYPE].map(aType => {
-            return (
-              <FormControlLabel
-                key={aType}
-                id={`${aType}`}
-                className={radioClasses.certaintyValue}
-                classes={{
-                  label: radioClasses.certaintyValueLabel
-                }}
-                /* prevent clicking the label stealing focus */
-                onMouseDown={e => e.preventDefault()}
-                control={<Radio />}
-                label={<FormattedMessage id={`commentTypeLabel${showSubTask && aType === REPLY_TYPE ? 'SubTask' : ''}${aType}`} />}
-                labelPlacement="start"
-                value={aType}
-              />
-            );
-          })}
-        </RadioGroup>
-      </FormControl>
+      {showSubTask && (
+        <FormControl>
+          <FormLabel
+            className={radioClasses.certaintyLabel}
+            id="add-vote-certainty"
+          >
+          </FormLabel>
+          <RadioGroup
+            aria-labelledby="add-reply-type"
+            style={{display: 'flex', flexDirection: 'row'}}
+            onChange={(event) => setCommentType(event.target.value)}
+            value={commentType}
+          >
+            {[REPLY_TYPE, REPORT_TYPE].map(aType => {
+              return (
+                <FormControlLabel
+                  key={aType}
+                  id={`${aType}`}
+                  className={radioClasses.certaintyValue}
+                  classes={{
+                    label: radioClasses.certaintyValueLabel
+                  }}
+                  /* prevent clicking the label stealing focus */
+                  onMouseDown={e => e.preventDefault()}
+                  control={<Radio />}
+                  label={<FormattedMessage id={`commentTypeLabel${showSubTask && aType === REPLY_TYPE ? 'SubTask' : ''}${aType}`} />}
+                  labelPlacement="start"
+                  value={aType}
+                />
+              );
+            })}
+          </RadioGroup>
+        </FormControl>
+      )}
+      {!showSubTask && (
+        <div className={classes.borderBottom}/>
+      )}
       <CommentAdd
         nameKey="CommentAddReply"
         type={commentType}

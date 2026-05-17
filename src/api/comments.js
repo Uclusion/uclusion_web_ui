@@ -42,9 +42,9 @@ export function alterComments(marketId, commentIds, notificationType) {
 
 export function updateComment(values) {
   const { marketId, commentId, body, commentType, uploadedFiles, mentions, notificationType,
-    isSent, allowMulti, isRestricted, inProgress, isVisible, version, tz } = values;
+    isSent, allowMulti, isRestricted, inProgress, isVisible, version, tz, resolved } = values;
   return getMarketClient(marketId)
-    .then((client) => client.investibles.updateComment(commentId, body, undefined, uploadedFiles, mentions,
+    .then((client) => client.investibles.updateComment(commentId, body, resolved, uploadedFiles, mentions,
       commentType, notificationType, isSent, allowMulti, isRestricted, inProgress, undefined, isVisible, version,
       // Only attach a tz on user-driven edits (those that include a body or commentType change). Pure flag toggles
       // like resolve/alter do not carry a tz so the comment's original creator tz is preserved.

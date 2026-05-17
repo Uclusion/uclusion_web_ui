@@ -23,7 +23,7 @@ import { OperationInProgressContext } from '../../../contexts/OperationInProgres
 import FindJobStep from './FindJobStep';
 import JobApproverStep from './JobApproverStep';
 import JobNameStep from './JobNameStep';
-import { moveComments } from '../../../api/comments';
+import { moveComments, reopenComment } from '../../../api/comments';
 import {
   changeInvestibleStageOnCommentClose,
   changeInvestibleStageOnCommentOpen,
@@ -88,9 +88,15 @@ function JobWizard(props) {
     const movingComments = getCommentThreads(roots, comments);
     const fromInv = isAssistanceMove && roots[0]?.investible_id ?
       getInvestible(investiblesState, roots[0]?.investible_id) : undefined;
-    return moveComments(marketId, investibleId, fromCommentIds, doResolveId ? [doResolveId]: undefined,
+    const resolvedRootIds = (roots || []).filter((root) => root?.resolved).map((root) => root.id);
+    const reopenChain = resolvedRootIds.reduce((chain, rootId) => chain.then(() =>
+      reopenComment(marketId, rootId).then((comment) => {
+        addCommentToMarket(comment, commentsState, commentsDispatch);
+      })), Promise.resolve());
+    return reopenChain.then(() => moveComments(marketId, investibleId, fromCommentIds,
+      doResolveId ? [doResolveId]: undefined,
       myDoTaskId && !isSuggestion ? [myDoTaskId] : undefined,
-      isSuggestion && myDoTaskId ? [myDoTaskId] : undefined)
+      isSuggestion && myDoTaskId ? [myDoTaskId] : undefined))
       .then((movedComments) => {
         if (!isConvert) {
           setModifiedId(doResolveId || myDoTaskId);

@@ -142,7 +142,8 @@ function BugListItem(props) {
     toolTipId,
     showChecked = true,
     activeInvestibles,
-    maxWidth
+    maxWidth,
+    isResolved = false
   } = props;
   const [anchorEl, setAnchorEl] = useState(null);
   const [mouseX, setMouseX] = useState();
@@ -178,6 +179,9 @@ function BugListItem(props) {
     }
     event.dataTransfer.setData('text', event.target.id);
     event.dataTransfer.setData('notificationType', notificationType);
+    if (isResolved) {
+      event.dataTransfer.setData('resolved', 'true');
+    }
   }
   const titleWithHelp = toolTipId ? <Tooltip key={`inProgressRowKey${id}`} placement='top'
                                              title={<FormattedMessage id={toolTipId} />}>
@@ -188,7 +192,7 @@ function BugListItem(props) {
       {anchorEl && marketId && (
         <BugMenu anchorEl={anchorEl} recordPositionToggle={recordPositionToggle} marketId={marketId} groupId={groupId}
                  commentId={id} notificationType={notificationType} mouseX={mouseX} mouseY={mouseY}
-                 activeInvestibles={activeInvestibles} />
+                 activeInvestibles={activeInvestibles} isResolved={isResolved} />
       )}
       {!hideRow && (
         <Item key={`listItem${id}`} id={id} style={{maxWidth, minWidth: (useSelect || !useMinWidth) ? undefined : '80vw'}}

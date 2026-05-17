@@ -146,6 +146,12 @@ function PlanningDialog(props) {
   const marketComments = getMarketComments(commentsState, marketId) || [];
   const unResolvedGroupComments = marketComments.filter(comment => !comment.investible_id &&
     !comment.resolved && comment.group_id === groupId) || [];
+  const resolvedTodoRoots = marketComments.filter(comment => !comment.investible_id &&
+    comment.resolved && comment.group_id === groupId && comment.comment_type === TODO_TYPE) || [];
+  const resolvedTodoRootIds = new Set(resolvedTodoRoots.map((c) => c.id));
+  const resolvedTodoReplies = marketComments.filter(comment => comment.comment_type === REPLY_TYPE &&
+    resolvedTodoRootIds.has(comment.root_comment_id));
+  const resolvedTodoGroupComments = resolvedTodoRoots.concat(resolvedTodoReplies);
   // There is no link to a reply so including them should be okay
   const notTodoGroupComments = unResolvedGroupComments.filter(comment =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
@@ -763,7 +769,8 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
                    comments={marketComments} myGroupPresence={myGroupPresence} inDialogStageId={inDialogStage?.id} notDoingStageId={notDoingStage?.id}
                    acceptedStageId={acceptedStage?.id} singleUser={isSingleUser ? groupPresences[0] : undefined} />
         </div>
-        <MarketTodos comments={unResolvedGroupComments} marketId={marketId} groupId={groupId} isSupport={isSupport}
+        <MarketTodos comments={unResolvedGroupComments} resolvedTodoComments={resolvedTodoGroupComments}
+                     marketId={marketId} groupId={groupId} isSupport={isSupport}
                      sectionOpen={isSectionOpen('marketTodos')}
                      hidden={hidden} activeInvestibles={activeInvestibles}
                      setSectionOpen={() => {

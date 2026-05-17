@@ -10,7 +10,7 @@ import { OperationInProgressContext } from '../../contexts/OperationInProgressCo
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { BLUE_LEVEL, RED_LEVEL, YELLOW_LEVEL } from '../../constants/notifications';
 import { removeMessagesForCommentId } from '../../utils/messageUtils';
-import { moveComments, updateComment } from '../../api/comments';
+import { moveComments, reopenComment, updateComment } from '../../api/comments';
 import {
   addCommentToMarket,
   getComment,
@@ -21,6 +21,7 @@ import AddIcon from '@material-ui/icons/Add';
 import { useHistory } from 'react-router';
 import { onCommentsMove } from '../../utils/commentFunctions';
 import SearchIcon from '@material-ui/icons/Search';
+import { CheckCircleOutline } from '@material-ui/icons';
 import Chip from '@material-ui/core/Chip';
 
 const useStyles = makeStyles(() => ({
@@ -49,27 +50,59 @@ const useStyles = makeStyles(() => ({
 
 function BugMenu(props) {
   const { anchorEl, recordPositionToggle, marketId, commentId, groupId, notificationType, mouseX, mouseY,
-    activeInvestibles } = props;
+    activeInvestibles, isResolved = false } = props;
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [messagesState, messagesDispatch] = useContext(NotificationsContext);
   const classes = useStyles();
   const intl = useIntl();
   const history = useHistory();
-  const isCritical = notificationType === RED_LEVEL;
-  const isNormal = notificationType === YELLOW_LEVEL;
-  const isMinor = notificationType === BLUE_LEVEL;
+  const isCritical = !isResolved && notificationType === RED_LEVEL;
+  const isNormal = !isResolved && notificationType === YELLOW_LEVEL;
+  const isMinor = !isResolved && notificationType === BLUE_LEVEL;
 
   function moveToComment(newNotificationType) {
     setOperationRunning(true);
     removeMessagesForCommentId(commentId, messagesState);
-    return updateComment({marketId, commentId, notificationType: newNotificationType})
+    const updateValues = { marketId, commentId, notificationType: newNotificationType };
+    if (isResolved) {
+      updateValues.resolved = false;
+    }
+    return updateComment(updateValues)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
         return comment;
       }).finally(() => {
         setOperationRunning(false);
       });
+  }
+
+  function resolveBug() {
+    setOperationRunning(true);
+    removeMessagesForCommentId(commentId, messagesState);
+    return updateComment({ marketId, commentId, resolved: true })
+      .then((comment) => {
+        addCommentToMarket(comment, commentsState, commentsDispatch);
+        return comment;
+      }).finally(() => {
+        setOperationRunning(false);
+      });
+  }
+
+  function moveToInvestible(investibleId) {
+    const roots = [getComment(commentsState, marketId, commentId)];
+    const marketComments = getMarketComments(commentsState, marketId, groupId);
+    const movingComments = getCommentThreads(roots, marketComments);
+    const moveRunner = isResolved
+      ? reopenComment(marketId, commentId).then((comment) => {
+        addCommentToMarket(comment, commentsState, commentsDispatch);
+      })
+      : Promise.resolve();
+    return moveRunner.then(() => moveComments(marketId, investibleId, [commentId], undefined,
+      [commentId], undefined)).then((movedComments) => {
+      return onCommentsMove([commentId], messagesState, movingComments, investibleId,
+        commentsDispatch, marketId, movedComments, messagesDispatch);
+    });
   }
 
   return (
@@ -134,6 +167,21 @@ function BugMenu(props) {
             </Tooltip>
           </MenuItem>
         )}
+        {!isResolved && (
+          <MenuItem key="resolveBugKey" id="resolveBugId"
+                    onClick={(event) => {
+                      preventDefaultAndProp(event);
+                      return resolveBug().then(() => recordPositionToggle());
+                    }}
+          >
+            <ListItemIcon style={{marginLeft: '-0.25rem', minWidth: '26px'}}><CheckCircleOutline fontSize="small" /></ListItemIcon>
+            <Tooltip placement='top' title={intl.formatMessage({ id: 'moveTodoResolved' })}>
+              <ListItemText>
+                {intl.formatMessage({ id: 'resolvedBugsHeader' })}
+              </ListItemText>
+            </Tooltip>
+          </MenuItem>
+        )}
         <MenuItem key="newJobKey" id="newJobId"
                   onClick={(event) => {
                     preventDefaultAndProp(event);
@@ -155,14 +203,7 @@ function BugMenu(props) {
                       onClick={(event) => {
                         preventDefaultAndProp(event);
                         recordPositionToggle();
-                        const roots = [getComment(commentsState, marketId, commentId)];
-                        const marketComments = getMarketComments(commentsState, marketId, groupId);
-                        const movingComments = getCommentThreads(roots, marketComments);
-                        return moveComments(marketId, investible.id, [commentId], undefined,
-                          [commentId], undefined).then((movedComments) => {
-                          return onCommentsMove([commentId], messagesState, movingComments, investible.id,
-                            commentsDispatch, marketId, movedComments, messagesDispatch);
-                        })
+                        return moveToInvestible(investible.id);
                       }}
             >
               <ListItemText>

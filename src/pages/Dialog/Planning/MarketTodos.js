@@ -19,6 +19,7 @@ import {
   removeHash
 } from '../../../utils/marketIdPathFunctions';
 import Chip from '@material-ui/core/Chip';
+import { CheckCircleOutline } from '@material-ui/icons';
 import {
   findMessageForCommentId, findMessagesForCommentIds,
   getPaginatedItems,
@@ -165,6 +166,7 @@ export const todoClasses = makeStyles(
 function MarketTodos(props) {
   const {
     comments = [],
+    resolvedTodoComments = [],
     marketId,
     groupId,
     isInArchives = false,
@@ -205,10 +207,22 @@ function MarketTodos(props) {
     return comment.comment_type === TODO_TYPE && (results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id));
   }) || [];
+  const resolvedRoots = (resolvedTodoComments || []).filter((comment) => comment.comment_type === TODO_TYPE);
+  const resolvedComments = resolvedRoots.filter((comment) => {
+    if (_.isEmpty(search)) {
+      return true;
+    }
+    return results.find((item) => item.id === comment.id)
+      || parentResults.find((id) => id === comment.id);
+  });
   const blueComments = todoComments.filter((comment) => comment.notification_type === BLUE_LEVEL);
   const yellowComments = todoComments.filter((comment) => comment.notification_type === YELLOW_LEVEL);
   const redComments = todoComments.filter((comment) => comment.notification_type === RED_LEVEL);
-  const tabCommentsRaw = tabIndex === 0 ? redComments : (tabIndex === 1 ? yellowComments : blueComments);
+  const tabCommentsRaw = tabIndex === 0 ? redComments
+    : (tabIndex === 1 ? yellowComments
+      : (tabIndex === 2 ? blueComments : resolvedComments));
+  const isResolvedTab = tabIndex === 3;
+  const commentsForCurrentTab = isResolvedTab ? resolvedTodoComments : comments;
   const unreadRedCount = getUnreadCount(redComments, messagesState);
   const unreadYellowCount = getUnreadCount(yellowComments, messagesState);
   const unreadBlueCount = getUnreadCount(blueComments, messagesState);
@@ -303,13 +317,13 @@ function MarketTodos(props) {
     }
     const numOpen = _.size(data.filter((comment) => !!expansionState[comment.id]));
     return data.map((comment) => {
-      const { id, body, updated_at: updatedAt, notification_type: notificationType } = comment;
-      const replies = comments.filter(comment => comment.root_comment_id === id) || [];
+      const { id, body, updated_at: updatedAt, notification_type: notificationType, resolved } = comment;
+      const replies = commentsForCurrentTab.filter(comment => comment.root_comment_id === id) || [];
       const expansionPanel = <div id={`c${id}`} key={`c${id}key`} style={{marginBottom: '1rem'}}>
         <Comment
           marketId={marketId}
           comment={comment}
-          comments={comments}
+          comments={commentsForCurrentTab}
           allowedTypes={[TODO_TYPE]}
           noAuthor
           isInbox={isInbox}
@@ -326,6 +340,7 @@ function MarketTodos(props) {
                      useSelect={!isInArchives} expansionPanel={expansionPanel} checked={checked}
                      expansionOpen={!!expansionState[id]} determinateDispatch={determinateDispatch}
                      bugListDispatch={bugDispatch} notificationType={notificationType}
+                     isResolved={!!resolved}
                      activeInvestibles={activeInvestibles}/>
       );
     });
@@ -334,14 +349,19 @@ function MarketTodos(props) {
   function onDrop(event, notificationType) {
     const commentId = event.dataTransfer.getData('text');
     const currentNotificationType = event.dataTransfer.getData("notificationType");
-    if (currentNotificationType === notificationType) {
+    const wasResolved = event.dataTransfer.getData('resolved') === 'true';
+    if (currentNotificationType === notificationType && !wasResolved) {
       return Promise.resolve(false);
     }
     setOperationRunning(true);
     removeMessagesForCommentId(commentId, messagesState);
     const target = event.target;
     target.style.cursor = 'wait';
-    return updateComment({marketId, commentId, notificationType})
+    const updateValues = { marketId, commentId, notificationType };
+    if (wasResolved) {
+      updateValues.resolved = false;
+    }
+    return updateComment(updateValues)
       .then((comment) => {
         addCommentToMarket(comment, commentState, commentDispatch);
         setOperationRunning(false);
@@ -362,6 +382,27 @@ function MarketTodos(props) {
 
   function onDropConvenient(event) {
     onDrop(event, 'BLUE');
+  }
+
+  function onDropResolve(event) {
+    const commentId = event.dataTransfer.getData('text');
+    const wasResolved = event.dataTransfer.getData('resolved') === 'true';
+    if (wasResolved) {
+      return Promise.resolve(false);
+    }
+    setOperationRunning(true);
+    removeMessagesForCommentId(commentId, messagesState);
+    const target = event.target;
+    target.style.cursor = 'wait';
+    return updateComment({ marketId, commentId, resolved: true })
+      .then((comment) => {
+        addCommentToMarket(comment, commentState, commentDispatch);
+        setOperationRunning(false);
+        return comment;
+      }).finally(() => {
+        target.style.cursor = 'pointer';
+        setOperationRunning(false);
+      });
   }
 
   function changePage(byNum) {
@@ -442,7 +483,7 @@ function MarketTodos(props) {
           onChange={(event, value) => {
             bugDispatch(setTab(value));
           }}
-          indicatorColors={[warningColor, '#e6e969', '#2F80ED']}
+          indicatorColors={[warningColor, '#e6e969', '#2F80ED', '#bdbdbd']}
           style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
           <GmailTabItem icon={immediateTodosChip} label={intl.formatMessage({id: 'immediate'})}
                         color='black' tagLabel={unreadRedCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
@@ -464,6 +505,10 @@ function MarketTodos(props) {
                         tag={unreadBlueCount > 0 ? `${unreadBlueCount}` :
                           (_.size(blueComments) > 0 ? `${_.size(blueComments)}` : undefined)}
                         onDrop={onDropConvenient} toolTipId='minorToolTip'
+                        onDragOver={(event)=>event.preventDefault()} />
+          <GmailTabItem icon={<CheckCircleOutline />} label={intl.formatMessage({id: 'resolvedBugsHeader'})}
+                        color='black'
+                        onDrop={onDropResolve} toolTipId='resolvedToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
         </GmailTabs>
       )}
@@ -520,6 +565,13 @@ function MarketTodos(props) {
                     variant="body1">
           {intl.formatMessage({id: 'convenient'})} is empty.<br/><br/>
           Bugs that can wait till other work is done display here.
+        </Typography>
+      )}
+      {_.isEmpty(data) && tabIndex === 3 && (
+        <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
+                    variant="body1">
+          {intl.formatMessage({id: 'resolvedBugsHeader'})} is empty.<br/><br/>
+          Resolved bugs display here. Drag a bug to a severity tab to unresolve.
         </Typography>
       )}
       {getRows()}

@@ -11,7 +11,8 @@ on ``PATH`` via a ``uclusion`` symlink, so users invoke it simply as
 ``uclusion`` rather than the legacy ``uclusionCLI.py`` filename.
 
 Also writes a workspace config to ``~/.uclusion/uclusion.json`` and registers
-the Uclusion MCP server in ``~/.cursor/mcp.json`` if that file already exists.
+the Uclusion MCP server in ``~/.cursor/mcp.json`` and ``~/.claude.json`` if
+those files already exist.
 """
 import argparse
 import json
@@ -42,6 +43,7 @@ SCRIPT_FILES = (
 UCLUSION_HOME = os.path.join(os.path.expanduser('~'), '.uclusion')
 UCLUSION_CONFIG_PATH = os.path.join(UCLUSION_HOME, 'uclusion.json')
 CURSOR_MCP_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'mcp.json')
+CLAUDE_JSON_PATH = os.path.join(os.path.expanduser('~'), '.claude.json')
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')
 
 
@@ -190,6 +192,43 @@ def update_cursor_mcp(workspace_id, env):
     print(f"  ✅ Updated {CURSOR_MCP_PATH}")
 
 
+def update_claude_json_mcp(workspace_id, env):
+    if not os.path.exists(CLAUDE_JSON_PATH):
+        print(f"ℹ️  No {CLAUDE_JSON_PATH} found; skipping Claude Code MCP server registration.")
+        return
+
+    print(f"🧩 Registering Uclusion MCP server in {CLAUDE_JSON_PATH}")
+    try:
+        with open(CLAUDE_JSON_PATH, 'r', encoding='utf-8') as src:
+            claude_config = json.load(src)
+    except json.JSONDecodeError as err:
+        print(f"  ❌ {CLAUDE_JSON_PATH} is not valid JSON: {err}")
+        return
+
+    if not isinstance(claude_config, dict):
+        print(f"  ❌ {CLAUDE_JSON_PATH} top-level value must be a JSON object.")
+        return
+
+    args = [MCP_PROXY_SYMLINK_PATH, workspace_id]
+    if env is not None:
+        args.append(env)
+
+    servers = claude_config.setdefault('mcpServers', {})
+    if not isinstance(servers, dict):
+        print(f"  ❌ 'mcpServers' in {CLAUDE_JSON_PATH} must be a JSON object.")
+        return
+
+    servers['Uclusion'] = {
+        'command': 'python3',
+        'args': args,
+    }
+
+    with open(CLAUDE_JSON_PATH, 'w', encoding='utf-8') as out:
+        json.dump(claude_config, out, indent=2)
+        out.write('\n')
+    print(f"  ✅ Updated {CLAUDE_JSON_PATH}")
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog='uclusionInstall',
@@ -222,6 +261,7 @@ def main():
         write_uclusion_config(workspace_id, view_id)
         mcp_env = None if env == 'production' else env
         update_cursor_mcp(workspace_id, mcp_env)
+        update_claude_json_mcp(workspace_id, mcp_env)
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")
         return 1

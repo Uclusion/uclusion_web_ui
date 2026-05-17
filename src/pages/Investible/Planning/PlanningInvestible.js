@@ -568,10 +568,10 @@ function PlanningInvestible(props) {
   const todoCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === TODO_TYPE
   );
-  const todoCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
-    todoCommentsSearched.includes(comment.root_comment_id));
-  const todoCommentsSearchedAll = todoCommentsSearched.concat(todoCommentsRepliesSearched);
   const openTodoCommentsSearched = todoCommentsSearched.filter((comment) => !comment.resolved);
+  const openTodoCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
+    openTodoCommentsSearched.includes(comment.root_comment_id));
+  const openTodoCommentsSearchedAll = todoCommentsSearched.concat(openTodoCommentsRepliesSearched);
   const todoCommentsResolvedSearched = todoCommentsSearched.filter((comment) => comment.resolved);
   const questionCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === QUESTION_TYPE
@@ -587,23 +587,26 @@ function PlanningInvestible(props) {
   const notesCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === REPORT_TYPE && comment.notification_type === 'BLUE'
   );
+  const notesCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
+    notesCommentsSearched.includes(comment.root_comment_id));
+  const notesCommentsAllSearched = notesCommentsSearched.concat(notesCommentsRepliesSearched);
   const assistanceCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
     assistanceCommentsSearched.includes(comment.root_comment_id));
   const assistanceCommentsSearchedAll = assistanceCommentsSearched.concat(assistanceCommentsRepliesSearched);
   const newAssistanceMessages = findMessagesForCommentIds(assistanceCommentsSearchedAll?.map((comment) => comment.id), 
     messagesState, true);
   const numNewAssistanceMessages = _.size(newAssistanceMessages.filter((message) => isInInbox(message)));
-  const newTodoMessages = findMessagesForCommentIds(openTodoCommentsSearched?.map((comment) => comment.id), 
+  const newTodoMessages = findMessagesForCommentIds(openTodoCommentsSearchedAll?.map((comment) => comment.id), 
     messagesState, true);
   // Do not include each unread task as its own message
   const numNewTodoMessages = _.size(newTodoMessages.filter((message) => isInInbox(message)));
-  const newNotOverviewMessages = newTodoMessages.concat(newAssistanceMessages);
+  const newNotesMessages = findMessagesForCommentIds(notesCommentsAllSearched?.map((comment) => comment.id), 
+  messagesState, true);
+  const newNotOverviewMessages = newTodoMessages.concat(newAssistanceMessages).concat(newNotesMessages);
   const newInvestibleMessages = findMessagesForInvestibleIds([investibleId], messagesState, true);
   const newOverviewMessages = newInvestibleMessages.filter((message) => isInInbox(message) && 
     !newNotOverviewMessages.includes(message));
   const numNewOverviewMessages = _.size(newOverviewMessages);
-  const newNotesMessages = findMessagesForCommentIds(notesCommentsSearched?.map((comment) => comment.id), 
-    messagesState, true);
   const numNewNotesMessages = _.size(newNotesMessages.filter((message) => isInInbox(message)));
   const replies = investibleComments.filter((comment => comment.comment_type === REPLY_TYPE));
   let allowedCommentTypes = [];

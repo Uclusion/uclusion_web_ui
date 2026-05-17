@@ -373,7 +373,16 @@ def add_question(credentials, job_short_code, question, options):
     return send(data, 'POST', question_api_url, credentials['api_token'])
 
 
-def add_suggestion(credentials, job_short_code, suggestion, options):
+def add_report(credentials, job_short_code, report):
+    report_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
+    data = {
+        'body': report,
+        'is_review': True
+    }
+    return send(data, 'POST', report_api_url, credentials['api_token'])
+
+
+def add_suggestion(credentials, job_short_code, suggestion):
     suggestion_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
     data = {
         'body': suggestion,
@@ -715,7 +724,17 @@ def cmd_add_suggestion(args):
     if result is None:
         return 1
     credentials, _config, _stages = result
-    response = add_suggestion(credentials, args.job_short_code, args.suggestion, args.options)
+    response = add_suggestion(credentials, args.job_short_code, args.suggestion)
+    print(response)
+    return 0
+
+
+def cmd_add_report(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, _config, _stages = result
+    response = add_report(credentials, args.job_short_code, args.report)
     print(response)
     return 0
 
@@ -867,6 +886,22 @@ def build_parser():
     )
 
     add_suggestion_parser.set_defaults(func=cmd_add_suggestion)
+
+
+    add_report_parser = subparsers.add_parser(
+        'add_report',
+        help='Add a report to a job by job short code. Returns the created report.',
+    )
+    add_report_parser.add_argument(
+        'job_short_code',
+        help='The short code id of the job to add the question to (e.g. J-abc-123).',
+    )
+    add_report_parser.add_argument(
+        'report',
+        help='Report text.',
+    )
+
+    add_report_parser.set_defaults(func=cmd_add_report)
 
     return parser
 

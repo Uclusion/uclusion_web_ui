@@ -18,6 +18,7 @@ import { PUSH_INVESTIBLES_CHANNEL } from '../api/versionedFetchUtils'
 import { removeMessagesForCommentId } from './messageUtils';
 import { getMarketInfo } from './userFunctions';
 import { TOKEN_TYPE_MARKET } from '../api/tokenConstants';
+import { BLUE_LEVEL } from '../constants/notifications';
 
 export function onCommentOpen(investibleState, investibleId, marketStagesState, marketId, comment, investibleDispatch,
   commentsState, commentsDispatch, myPresence) {
@@ -209,7 +210,7 @@ export function getCommentsSortedByType(marketComments, investibleId, includeSta
   const commentsRaw = marketComments.filter((comment) => comment.investible_id === investibleId &&
     (!comment.resolved || (includeResolvedTodos && comment.comment_type === TODO_TYPE)) &&
     ([TODO_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE, ISSUE_TYPE].includes(comment.comment_type) ||
-      (includeStatusReports && comment.comment_type === REPORT_TYPE)));
+      (includeStatusReports && comment.comment_type === REPORT_TYPE && comment.notification_type !== BLUE_LEVEL)));
   // include children of all raw
   const comments = getThreads(commentsRaw, marketComments);
   return _.orderBy(comments, [(comment) => {

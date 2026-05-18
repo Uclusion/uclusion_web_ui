@@ -6,7 +6,7 @@ import { useHistory, useLocation } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
-import { Grid, Link, useMediaQuery, useTheme } from '@material-ui/core';
+import { Link, useMediaQuery, useTheme } from '@material-ui/core';
 import Screen from '../../../containers/Screen/Screen';
 import {
   ISSUE_TYPE,
@@ -16,7 +16,7 @@ import {
   SUGGEST_CHANGE_TYPE,
   TODO_TYPE
 } from '../../../constants/comments';
-import CommentBox, { getSortedRoots } from '../../../containers/CommentBox/CommentBox';
+import { getSortedRoots } from '../../../containers/CommentBox/CommentBox';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
 import {
   getGroupPresences,
@@ -45,6 +45,7 @@ import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsCont
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { AssignmentInd, BugReport } from '@material-ui/icons';
 import Backlog from './Backlog';
+import DiscussionSection from './DiscussionSection';
 import InvestiblesByPerson from './InvestiblesByPerson';
 import { NO_SECTION_TYPE } from '../../../constants/global';
 import SubSection from '../../../containers/SubSection/SubSection';
@@ -80,8 +81,6 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
-import EditIcon from '@material-ui/icons/Edit';
-import { hasDiscussionComment } from '../../../components/AddNewWizards/Discussion/AddCommentStep';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { findMessagesForCommentIds, findMessagesForInvestibleIds } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
@@ -154,6 +153,9 @@ function PlanningDialog(props) {
   const resolvedTodoGroupComments = resolvedTodoRoots.concat(resolvedTodoReplies);
   // There is no link to a reply so including them should be okay
   const notTodoGroupComments = unResolvedGroupComments.filter(comment =>
+    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
+  const resolvedDiscussionComments = marketComments.filter(comment =>
+    comment.group_id === groupId && !comment.investible_id && comment.resolved &&
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [pageStateFull, pageDispatch] = usePageStateReducer('group');
@@ -295,8 +297,6 @@ function PlanningDialog(props) {
   const sortedGroupRoots = getSortedRoots(notTodoGroupComments, searchResults);
   const questionSuggestionGroupComments = sortedGroupRoots.filter((comment) =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(comment.comment_type));
-  const questionSuggestionNotesGroupComments = sortedGroupRoots.filter((comment) =>
-    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(comment.comment_type));
   const todoGroupComments = unResolvedGroupComments.filter((comment) => {
     if (_.isEmpty(search)) {
       return comment.comment_type === TODO_TYPE;
@@ -626,69 +626,14 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
                       archivedSize={archivedSize} />
       <div style={{paddingTop: '0.5rem', width: '96%', marginLeft: 'auto', marginRight: 'auto', overflow: 'hidden'}}>
         <div ref={refToTop}></div>
-        {isSectionOpen('discussionSection') && (
-          <div id="discussionSection">
-            <Grid item id="discussionAddArea" xs={12}>
-              {_.isEmpty(search) && marketId && !hidden && (
-                <>
-                  <div style={{display: mobileLayout ? undefined : 'flex', marginBottom: '1.5rem', marginLeft: '0.5rem'}}>
-                    <SpinningButton id="newMarketReport"
-                                    icon={hasDiscussionComment(groupId, REPORT_TYPE) ? EditIcon : AddIcon}
-                                    iconColor="black"
-                                    className={wizardClasses.actionNext}
-                                    style={{display: "flex", marginTop: '1rem',
-                                      marginRight: mobileLayout ? undefined : '2rem'}}
-                                    variant="text" doSpin={false} toolTipId='hotKeyREPORT'
-                                    onClick={() => navigate(history,
-                                      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
-                                        REPORT_TYPE))}>
-                      {intl.formatMessage({ id: `createNote${mobileLayout ? 'Mobile' : ''}`})}
-                    </SpinningButton>
-                    <SpinningButton id="newMarketQuestion"
-                                    icon={hasDiscussionComment(groupId, QUESTION_TYPE) ? EditIcon : AddIcon}
-                                    iconColor="black"
-                                    className={wizardClasses.actionNext}
-                                    style={{display: "flex", marginTop: '1rem',
-                                      marginRight: mobileLayout ? undefined : '2rem'}}
-                                    variant="text" doSpin={false} toolTipId='hotKeyQUESTION'
-                                    onClick={() => navigate(history,
-                                      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
-                                        QUESTION_TYPE))}>
-                      {intl.formatMessage({ id: `createQuestion${mobileLayout ? 'Mobile' : ''}`})}
-                    </SpinningButton>
-                    <SpinningButton id="createSuggestion"
-                                    icon={hasDiscussionComment(groupId, SUGGEST_CHANGE_TYPE) ? EditIcon : AddIcon}
-                                    iconColor="black"
-                                    className={wizardClasses.actionNext}
-                                    style={{display: "flex", marginTop: '1rem'}}
-                                    variant="text" doSpin={false} toolTipId='hotKeySUGGEST'
-                                    onClick={() => navigate(history,
-                                      formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId,
-                                        SUGGEST_CHANGE_TYPE))}>
-                      {intl.formatMessage({ id: `createSuggestion${mobileLayout ? 'Mobile' : ''}`})}
-                    </SpinningButton>
-                  </div>
-                  {_.isEmpty(questionSuggestionNotesGroupComments) && (
-                    <div style={{marginTop: '2.5rem'}} />
-                  )}
-                  <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(questionSuggestionNotesGroupComments)}
-                                   isLeft noPad text={
-                    isSupport ?
-                    <div>
-                      Ask a question or make a suggestion and Uclusion support will respond. 
-                    </div>
-                    :
-                    <div>
-                      <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
-                      be used at the view level and later moved to a job. Notes can be resolved to archive.
-                    </div>
-                  }/>
-                </>
-              )}
-              <CommentBox comments={notTodoGroupComments} marketId={marketId} />
-            </Grid>
-          </div>
-        )}
+        <DiscussionSection
+          comments={notTodoGroupComments}
+          resolvedComments={resolvedDiscussionComments}
+          marketId={marketId}
+          groupId={groupId}
+          isSupport={isSupport}
+          hidden={!isSectionOpen('discussionSection')}
+        />
         {isSectionOpen('storiesSection') && (
           <div id="storiesSection" style={{overflowX: 'hidden'}}>
             <SpinningButton id="addJob"

@@ -1,0 +1,228 @@
+import React, { useContext, useReducer } from 'react';
+import { useIntl } from 'react-intl';
+import { useHistory } from 'react-router';
+import _ from 'lodash';
+import { Box, Grid, IconButton, Link, useMediaQuery, useTheme } from '@material-ui/core';
+import CommentBox from '../../../containers/CommentBox/CommentBox';
+import { getSortedRoots } from '../../../containers/CommentBox/CommentBox';
+import DismissableText from '../../../components/Notifications/DismissableText';
+import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
+import { CheckCircleOutline } from '@material-ui/icons';
+import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
+import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
+import AddIcon from '@material-ui/icons/Add';
+import EditIcon from '@material-ui/icons/Edit';
+import { DISCUSSION_WIZARD_TYPE } from '../../../constants/markets';
+import { QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { formMarketAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import BugListItem from '../../../components/Comments/BugListItem';
+import Comment from '../../../components/Comments/Comment';
+import getReducer, { PAGE_SIZE, setPage, setTab } from '../../../components/Comments/BugListContext';
+import { getPaginatedItems } from '../../../utils/messageUtils';
+import { updateComment } from '../../../api/comments';
+import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
+import { removeMessagesForCommentId } from '../../../utils/messageUtils';
+import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
+import { stripHTML } from '../../../utils/stringFunctions';
+import { KeyboardArrowLeft } from '@material-ui/icons';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import { hasDiscussionComment } from '../../../components/AddNewWizards/Discussion/AddCommentStep';
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
+
+function DiscussionSection(props) {
+  const {
+    comments = [],
+    resolvedComments = [],
+    marketId,
+    groupId,
+    isSupport = false,
+    hidden,
+  } = props;
+
+  const intl = useIntl();
+  const history = useHistory();
+  const theme = useTheme();
+  const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
+  const wizardClasses = wizardStyles();
+  const [commentsState, commentsDispatch] = useContext(CommentsContext);
+  const [, setOperationRunning] = useContext(OperationInProgressContext);
+  const [messagesState] = useContext(NotificationsContext);
+  const [searchResults] = useContext(SearchResultsContext);
+  const { search } = searchResults;
+
+  const [sectionState, sectionDispatch] = useReducer(getReducer(),
+    { page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1 });
+  const { tabIndex, page, expansionState = {} } = sectionState;
+
+  const resolvedRoots = _.orderBy(
+    resolvedComments.filter(c => [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(c.comment_type)),
+    ['updated_at'], ['desc']
+  );
+  const { first, last, data, hasMore, hasLess } = getPaginatedItems(resolvedRoots, page, PAGE_SIZE);
+
+  const sortedRoots = getSortedRoots(comments, searchResults);
+  const questionSuggestionNotesComments = sortedRoots.filter(c =>
+    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(c.comment_type));
+
+  function onDropUnresolve(event) {
+    const commentId = event.dataTransfer.getData('text');
+    const wasResolved = event.dataTransfer.getData('resolved') === 'true';
+    if (!wasResolved) {
+      return Promise.resolve(false);
+    }
+    setOperationRunning(true);
+    removeMessagesForCommentId(commentId, messagesState);
+    const target = event.target;
+    target.style.cursor = 'wait';
+    return updateComment({ marketId, commentId, resolved: false })
+      .then((comment) => {
+        addCommentToMarket(comment, commentsState, commentsDispatch);
+        setOperationRunning(false);
+      }).finally(() => {
+        target.style.cursor = 'pointer';
+        setOperationRunning(false);
+      });
+  }
+
+  function changePage(byNum) {
+    sectionDispatch(setPage(page + byNum));
+  }
+
+  if (hidden) {
+    return <React.Fragment />;
+  }
+
+  return (
+    <div id="discussionSection">
+      <div style={{ display: mobileLayout ? undefined : 'flex', marginBottom: '1rem', marginLeft: '0.5rem',
+        marginTop: '1rem' }}>
+        <SpinningButton id="newMarketReport"
+          icon={hasDiscussionComment(groupId, REPORT_TYPE) ? EditIcon : AddIcon}
+          iconColor="black"
+          className={wizardClasses.actionNext}
+          style={{ display: 'flex', marginRight: mobileLayout ? undefined : '2rem' }}
+          variant="text" doSpin={false} toolTipId='hotKeyREPORT'
+          onClick={() => navigate(history, formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, REPORT_TYPE))}>
+          {intl.formatMessage({ id: `createNote${mobileLayout ? 'Mobile' : ''}` })}
+        </SpinningButton>
+        <SpinningButton id="newMarketQuestion"
+          icon={hasDiscussionComment(groupId, QUESTION_TYPE) ? EditIcon : AddIcon}
+          iconColor="black"
+          className={wizardClasses.actionNext}
+          style={{ display: 'flex', marginRight: mobileLayout ? undefined : '2rem' }}
+          variant="text" doSpin={false} toolTipId='hotKeyQUESTION'
+          onClick={() => navigate(history, formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, QUESTION_TYPE))}>
+          {intl.formatMessage({ id: `createQuestion${mobileLayout ? 'Mobile' : ''}` })}
+        </SpinningButton>
+        <SpinningButton id="createSuggestion"
+          icon={hasDiscussionComment(groupId, SUGGEST_CHANGE_TYPE) ? EditIcon : AddIcon}
+          iconColor="black"
+          className={wizardClasses.actionNext}
+          style={{ display: 'flex' }}
+          variant="text" doSpin={false} toolTipId='hotKeySUGGEST'
+          onClick={() => navigate(history, formMarketAddCommentLink(DISCUSSION_WIZARD_TYPE, marketId, groupId, SUGGEST_CHANGE_TYPE))}>
+          {intl.formatMessage({ id: `createSuggestion${mobileLayout ? 'Mobile' : ''}` })}
+        </SpinningButton>
+      </div>
+      {_.isEmpty(search) && _.isEmpty(questionSuggestionNotesComments) && (
+        <div style={{ marginTop: '2.5rem' }} />
+      )}
+      <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(search) && _.isEmpty(questionSuggestionNotesComments)}
+        isLeft noPad text={
+          isSupport ?
+            <div>Ask a question or make a suggestion and Uclusion support will respond.</div>
+            :
+            <div>
+              <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
+              be used at the view level and later moved to a job. Notes can be resolved to archive.
+            </div>
+        } />
+      <GmailTabs
+        value={tabIndex}
+        onChange={(event, value) => sectionDispatch(setTab(value))}
+        indicatorColors={['#2F80ED', '#bdbdbd']}
+        style={{ paddingBottom: '1rem', paddingTop: '1rem' }}
+      >
+        <GmailTabItem
+          label={intl.formatMessage({ id: 'openHeader' })}
+          color='black'
+          onDrop={onDropUnresolve}
+          onDragOver={(event) => event.preventDefault()}
+        />
+        <GmailTabItem
+          icon={<CheckCircleOutline />}
+          label={intl.formatMessage({ id: 'resolvedBugsHeader' })}
+          color='black'
+          tag={_.size(resolvedRoots) > 0 ? `${_.size(resolvedRoots)}` : undefined}
+        />
+      </GmailTabs>
+
+      {tabIndex === 0 && (
+        <Grid item id="discussionAddArea" xs={12}>
+          <CommentBox comments={comments} marketId={marketId} />
+        </Grid>
+      )}
+
+      {tabIndex === 1 && (
+        <div style={{ overflowX: 'hidden' }}>
+          {!_.isEmpty(data) && (
+            <div style={{ paddingBottom: '0.25rem' }}>
+              <div style={{ display: 'flex', width: '80%' }}>
+                <div style={{ flexGrow: 1 }} />
+                <Box fontSize={14} color="text.secondary">
+                  {first} - {last} of {_.size(resolvedRoots)}
+                  <IconButton disabled={!hasLess} onClick={() => changePage(-1)}>
+                    <KeyboardArrowLeft />
+                  </IconButton>
+                  <IconButton disabled={!hasMore} onClick={() => changePage(1)}>
+                    <KeyboardArrowRight />
+                  </IconButton>
+                </Box>
+              </div>
+            </div>
+          )}
+          {_.isEmpty(data) && (
+            <div style={{ marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto',
+              fontSize: '1rem' }}>
+              {intl.formatMessage({ id: 'resolvedBugsHeader' })} is empty.<br /><br />
+              Resolved notes, questions, and suggestions display here. Drag to the Open tab to unresolve.
+            </div>
+          )}
+          {data.map((comment) => {
+            const replies = resolvedComments.filter(c => c.root_comment_id === comment.id);
+            const expansionPanel = (
+              <div id={`c${comment.id}`} key={`c${comment.id}key`} style={{ marginBottom: '1rem' }}>
+                <Comment
+                  marketId={marketId}
+                  comment={comment}
+                  comments={[...comments, ...resolvedComments]}
+                  allowedTypes={[]}
+                />
+              </div>
+            );
+            return (
+              <BugListItem
+                key={comment.id}
+                id={comment.id}
+                replyNum={replies.length + 1}
+                title={stripHTML(comment.body)}
+                date={intl.formatDate(comment.updated_at)}
+                marketId={marketId}
+                groupId={groupId}
+                useSelect={false}
+                expansionPanel={expansionPanel}
+                expansionOpen={!!expansionState[comment.id]}
+                bugListDispatch={sectionDispatch}
+                isResolved
+              />
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default DiscussionSection;

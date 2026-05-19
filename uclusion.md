@@ -1,6 +1,6 @@
 | No Estimate | Estimated | | Done |
 |--------------|---------------|--------------|--------------|
-| [Eventually will need some user finer grained control of notifications from AI.](#J-all-294)| [Better archive.](#J-all-230)| 05/20| [Fix documentation for notes, AI, and everyone view..](#J-all-290) |
+| [Eventually will need some user finer grained control of notifications from AI.](#J-all-294)| [Better archive.](#j-all-230)| 05/20| [Fix documentation for notes, AI, and everyone view..](#J-all-290) |
 | [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#J-Marketing-15)| [Bugs B-all-418](#J-all-293)| 05/29| [Either fix tip of spear blog of have new tip of spear which shows detail of...](#J-all-292) |
 | [Other AI integrations.](#J-all-291)| | | [Issues with view creation.](#J-all-289) |
 | [More upgrading.](#J-all-286)| | | [Support progress on a task that are notes instead of things you complete](#J-all-284) |
@@ -1486,7 +1486,7 @@ if __name__ == "__main__":
 run_agent()
 ```
 
-## Job J-all-230<a name="J-all-230"></a>
+## Job J-all-230<a name="j-all-230"></a>
 ### Better archive.
 The current archive was more of a placeholder than a real implementation. This should be cleaned up now because if you archive something and change your mind it is very difficult to get back.
 

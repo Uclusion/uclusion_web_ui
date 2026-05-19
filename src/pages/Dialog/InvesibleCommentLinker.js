@@ -76,7 +76,8 @@ function InvesibleCommentLinker(props) {
     marketId,
     flushLeft,
     flushBottom,
-    textColor
+    textColor,
+    hideLink = false,
   } = props;
   const classes = useStyles();
   const [investiblesState] = useContext(InvestiblesContext);
@@ -116,6 +117,7 @@ function InvesibleCommentLinker(props) {
       className={`${classes.inlinePill} ${hidden ? classes.hidden : ''}`}
       style={{ marginBottom: flushBottom ? 0 : '1rem' }}
     >
+      {!hideLink && (
         <IconButton
           className={`${classes.iconButton} ${classes.iconButtonTight}`}
           style={{textTransform: 'none', justifyContent: 'left', whiteSpace: 'nowrap',
@@ -138,6 +140,7 @@ function InvesibleCommentLinker(props) {
                   <LinkIcon htmlColor="#2F80ED" />
           </Tooltip>  
         </IconButton>
+      )}
       <Tooltip title={
         <h3>
           {intl.formatMessage({

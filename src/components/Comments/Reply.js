@@ -62,6 +62,7 @@ import { getMarketClient } from '../../api/marketLogin';
 import { ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors } from '../Buttons/ButtonConstants';
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
+import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -350,6 +351,13 @@ function Reply(props) {
               <ListAltIcon htmlColor={ACTION_BUTTON_COLOR} style={{height: 16, width: 16, transform: 'translateY(3px)'}} />
             </div>
           </Tooltip>
+        )}
+        {isSubTask && (
+          <div style={{display: 'inline-block', marginRight: '1rem', marginTop: '-0.6rem'}}>
+            <InvesibleCommentLinker commentId={comment.id} investibleId={investibleId} marketId={marketId} flushBottom 
+              textColor='black' hideLink />
+          </div>
+
         )}
         {!isTopLevelSubTask && (
           <Typography className={classes.commenter} variant="body2">

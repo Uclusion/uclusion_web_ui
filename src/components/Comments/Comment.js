@@ -878,7 +878,7 @@ function Comment(props) {
                                             typographyClassName={classes.createdBy}
                                             avatarClassName={classes.smallGravatar}
   />;
-  const showLinker = !mobileLayout && !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
+  const showLinker = !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
   && marketType !== DECISION_TYPE;
   const notificationFunc = !replyEditId && myMessage?.type_object_id && !isInbox &&
   (investibleId || commentType !== TODO_TYPE || myMessage.type !== UNASSIGNED_TYPE) ? () => {

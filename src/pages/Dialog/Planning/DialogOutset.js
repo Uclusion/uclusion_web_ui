@@ -7,14 +7,11 @@ import { GroupMembersContext } from '../../../contexts/GroupMembersContext/Group
 import SettingsIcon from '@material-ui/icons/Settings';
 import { Menu, MenuItem, Sidebar as ProSidebar } from 'react-pro-sidebar';
 import {
-  formGroupArchiveLink,
   formGroupEditLink,
   formGroupManageLink,
   navigate
 } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
-import MenuBookIcon from '@material-ui/icons/MenuBook';
-import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 import _ from 'lodash';
 import AddIcon from '@material-ui/icons/Add';
 import { Tooltip } from '@material-ui/core';
@@ -26,23 +23,20 @@ import PersonAddIcon from '@material-ui/icons/PersonAdd';
 export const DIALOG_OUTSET_STATE_HACK = {};
 
 function DialogOutset(props) {
-  const { marketPresences, marketId, groupId, hidden, archivedSize } = props;
+  const { marketPresences, marketId, groupId } = props;
   const history = useHistory();
   const intl = useIntl();
   const [groupPresencesState, groupPresencesDispatch] = useContext(GroupMembersContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
-  const [searchResults] = useContext(SearchResultsContext);
-  const { search } = searchResults;
   const groupCollaborators = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId)
   const classes = usePlanningInvestibleStyles();
   const myPresence = marketPresences.find((presence) => presence.current_user) || {};
   const isCurrentUserMember = !_.isEmpty(groupCollaborators.find((presence) =>
     presence.id === myPresence.id));
-  const isArchivedSearch = !hidden && !_.isEmpty(search) && archivedSize > 0;
 
   function closeOutset() {
     const dialogOutset = document.getElementById(`dialogOutset`);
-    if (dialogOutset && !isArchivedSearch) {
+    if (dialogOutset) {
       DIALOG_OUTSET_STATE_HACK.open = 0;
       dialogOutset.style.display = 'none';
     }
@@ -62,7 +56,7 @@ function DialogOutset(props) {
         position: 'absolute',
         boxShadow: "2px 2px 2px lightgrey",
         backgroundColor: 'white',
-        display: isArchivedSearch ? 'block' : 'none'
+        display: 'none'
       }}
            onMouseEnter={() => {
              const dialogOutset = document.getElementById(`dialogOutset`);
@@ -86,24 +80,6 @@ function DialogOutset(props) {
                         onClick={() => myNavigate(formGroupEditLink(marketId, groupId))}
               >
                 {intl.formatMessage({id: 'settings'})}
-              </MenuItem>
-              <MenuItem icon={<MenuBookIcon htmlColor="black" style={{fontSize: '1rem', marginBottom: '0.15rem'}}/>} 
-                        key={`groupArchive${groupId}`}
-                        rootStyles={{
-                          '.css-wx7wi4': {
-                            marginRight: 0,
-                          },
-                        }}
-                        onClick={() => myNavigate(formGroupArchiveLink(marketId, groupId))}
-                        suffix={isArchivedSearch ?
-                          <span style={{backgroundColor: '#055099', borderRadius: 22, paddingLeft: '5px',
-                                  paddingRight: '5px', color: 'white',
-                                  padding: '1px 4px', fontSize: '0.75rem', lineHeight: '16px',
-                                  marginLeft: '8px', whiteSpace: 'nowrap'}}>
-                            {archivedSize} {intl.formatMessage({ id: 'total' })}
-                          </span> : undefined}
-              >
-                {intl.formatMessage({id: 'planningDialogViewArchivesLabel'})}
               </MenuItem>
             </Menu>
             <div className={clsx(classes.group, classes.assignments)} 

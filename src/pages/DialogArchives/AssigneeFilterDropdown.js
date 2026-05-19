@@ -4,22 +4,22 @@ import _ from 'lodash';
 import { Select, MenuItem, FormControl, makeStyles, FormHelperText } from '@material-ui/core';
 import { useIntl } from 'react-intl';
 
-const useStyles = makeStyles(() => {
+const useStyles = makeStyles((theme) => {
   return {
-    black: {
-      color: '#000000',
+    label: {
+      color: theme.palette.text.primary,
     },
     select: {
-      color: '#000000',
+      color: theme.palette.text.primary,
       '&:before': {
-        borderColor: '#000000',
+        borderColor: theme.palette.text.primary,
       },
       '&:after': {
-        borderColor: '#000000',
+        borderColor: theme.palette.text.primary,
       },
     },
     icon: {
-      fill: '#000000',
+      fill: theme.palette.text.primary,
     },
   };
 });
@@ -53,7 +53,7 @@ function AssigneeFilterDropdown(props) {
 
   return (
     <FormControl>
-      <FormHelperText className={classes.black}>{intl.formatMessage({ id: 'assigneeFilterLabel' })}</FormHelperText>
+      <FormHelperText className={classes.label}>{intl.formatMessage({ id: 'assigneeFilterLabel' })}</FormHelperText>
       <Select
         value={value}
         displayEmpty

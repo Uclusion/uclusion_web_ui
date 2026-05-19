@@ -215,13 +215,17 @@ function MarketTodos(props) {
     return results.find((item) => item.id === comment.id)
       || parentResults.find((id) => id === comment.id);
   });
+  const isSearchActive = !_.isEmpty(search);
   const blueComments = todoComments.filter((comment) => comment.notification_type === BLUE_LEVEL);
   const yellowComments = todoComments.filter((comment) => comment.notification_type === YELLOW_LEVEL);
   const redComments = todoComments.filter((comment) => comment.notification_type === RED_LEVEL);
-  const tabCommentsRaw = tabIndex === 0 ? redComments
-    : (tabIndex === 1 ? yellowComments
-      : (tabIndex === 2 ? blueComments : resolvedComments));
-  const isResolvedTab = tabIndex === 3;
+  // During search collapse sub-tabs: show all open bugs combined; resolved only contributes to parent count
+  const tabCommentsRaw = isSearchActive
+    ? [...redComments, ...yellowComments, ...blueComments]
+    : (tabIndex === 0 ? redComments
+        : (tabIndex === 1 ? yellowComments
+          : (tabIndex === 2 ? blueComments : resolvedComments)));
+  const isResolvedTab = !isSearchActive && tabIndex === 3;
   const commentsForCurrentTab = isResolvedTab ? resolvedTodoComments : comments;
   const unreadRedCount = getUnreadCount(redComments, messagesState);
   const unreadYellowCount = getUnreadCount(yellowComments, messagesState);
@@ -477,7 +481,7 @@ function MarketTodos(props) {
           sends notifications based on severity.
         </div>
       }/>
-      {!isInbox && (
+      {!isInbox && !isSearchActive && (
         <GmailTabs
           value={tabIndex}
           onChange={(event, value) => {
@@ -546,28 +550,28 @@ function MarketTodos(props) {
           </div>
         </div>
       )}
-      {_.isEmpty(data) && tabIndex === 0 && (
+      {_.isEmpty(data) && !isSearchActive && tabIndex === 0 && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           {intl.formatMessage({id: 'immediate'})} is empty.<br/><br/>
           Bugs that urgently need assignment display here.
         </Typography>
       )}
-      {_.isEmpty(data) && tabIndex === 1 && (
+      {_.isEmpty(data) && !isSearchActive && tabIndex === 1 && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           {intl.formatMessage({id: 'able'})} is empty.<br/><br/>
           Bugs that need assignment display here.
         </Typography>
       )}
-      {_.isEmpty(data) && tabIndex === 2 && (
+      {_.isEmpty(data) && !isSearchActive && tabIndex === 2 && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           {intl.formatMessage({id: 'convenient'})} is empty.<br/><br/>
           Bugs that can wait till other work is done display here.
         </Typography>
       )}
-      {_.isEmpty(data) && tabIndex === 3 && (
+      {_.isEmpty(data) && !isSearchActive && tabIndex === 3 && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           {intl.formatMessage({id: 'resolvedBugsHeader'})} is empty.<br/><br/>

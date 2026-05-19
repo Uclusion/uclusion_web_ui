@@ -30,6 +30,7 @@ import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesCont
 import AddIcon from '@material-ui/icons/Add';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { useCollaborators } from '../../Investible/Planning/PlanningInvestible';
+import { SearchResultsContext } from '../../../contexts/SearchResultsContext/SearchResultsContext';
 
 function Backlog(props) {
   const {
@@ -58,11 +59,17 @@ function Backlog(props) {
   const [messagesState] = useContext(NotificationsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = todoClasses();
+  const [searchResults] = useContext(SearchResultsContext);
+  const { search } = searchResults;
+  const isSearchActive = !_.isEmpty(search);
   const [backlogState, backlogDispatch] = useReducer(getReducer(),
     {page: 1, tabIndex: 0, pageState: {}, defaultPage: 1});
   const { tabIndex, page } = backlogState;
-  const tabInvestiblesRaw = tabIndex === 0 ? furtherWorkReadyToStart
-    : (tabIndex === 1 ? furtherWorkInvestibles : notDoingInvestibles);
+  // During search collapse sub-tabs and show only live (non-Not-Doing) items combined
+  const tabInvestiblesRaw = isSearchActive
+    ? [...(furtherWorkReadyToStart || []), ...(furtherWorkInvestibles || [])]
+    : (tabIndex === 0 ? furtherWorkReadyToStart
+        : (tabIndex === 1 ? furtherWorkInvestibles : notDoingInvestibles));
   const tabInvestibles = _.orderBy(tabInvestiblesRaw, [(inv) => inv.investible.created_at],
     ['desc']);
   const { first, last, data, hasMore, hasLess } = getPaginatedItems(tabInvestibles,
@@ -197,30 +204,32 @@ function Backlog(props) {
                            job status page.
                          </div>
                        }/>
-      <GmailTabs
-        value={tabIndex}
-        onChange={(event, value) => {
-          backlogDispatch(setTab(value));
-        }}
-        indicatorColors={['#e6e969', '#2F80ED', '#bdbdbd']}
-        style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
-        <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'readyToStartHeader'})}
-                      color='black' tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
-                      tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
-                        (yellowCount > 0 ? `${yellowCount}` : undefined)}
-                      tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
-                      onDrop={onDropAble} toolTipId='assignReadyJobsToolTip'
-                      onDragOver={(event)=>event.preventDefault()} />
-        <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'notReadyToStartHeader'})}
-                      color='black'
-                      tag={unreadBlueCount > 0 ? `${unreadBlueCount}` : undefined}
-                      onDrop={onDropConvenient} toolTipId='notReadyToolTip'
-                      onDragOver={(event)=>event.preventDefault()} />
-        <GmailTabItem icon={<Block />} label={intl.formatMessage({id: 'notDoingHeader'})}
-                      color='black'
-                      onDrop={onDropNotDoing} toolTipId='notDoingBacklogToolTip'
-                      onDragOver={(event)=>event.preventDefault()} />
-      </GmailTabs>
+      {!isSearchActive && (
+        <GmailTabs
+          value={tabIndex}
+          onChange={(event, value) => {
+            backlogDispatch(setTab(value));
+          }}
+          indicatorColors={['#e6e969', '#2F80ED', '#bdbdbd']}
+          style={{ paddingBottom: '1rem', paddingTop: '1rem' }}>
+          <GmailTabItem icon={yellowChip} label={intl.formatMessage({id: 'readyToStartHeader'})}
+                        color='black' tagColor={unreadYellowCount > 0 ? '#E85757' : undefined}
+                        tag={unreadYellowCount > 0 ? `${unreadYellowCount}` :
+                          (yellowCount > 0 ? `${yellowCount}` : undefined)}
+                        tagLabel={unreadYellowCount > 0 ? intl.formatMessage({id: 'new'}) : undefined}
+                        onDrop={onDropAble} toolTipId='assignReadyJobsToolTip'
+                        onDragOver={(event)=>event.preventDefault()} />
+          <GmailTabItem icon={blueChip} label={intl.formatMessage({id: 'notReadyToStartHeader'})}
+                        color='black'
+                        tag={unreadBlueCount > 0 ? `${unreadBlueCount}` : undefined}
+                        onDrop={onDropConvenient} toolTipId='notReadyToolTip'
+                        onDragOver={(event)=>event.preventDefault()} />
+          <GmailTabItem icon={<Block />} label={intl.formatMessage({id: 'notDoingHeader'})}
+                        color='black'
+                        onDrop={onDropNotDoing} toolTipId='notDoingBacklogToolTip'
+                        onDragOver={(event)=>event.preventDefault()} />
+        </GmailTabs>
+      )}
       {!_.isEmpty(data) && (
         <div style={{paddingBottom: '0.25rem'}}>
           <div style={{display: 'flex', width: '80%'}}>
@@ -237,21 +246,21 @@ function Backlog(props) {
           </div>
         </div>
       )}
-      {_.isEmpty(data) && tabIndex === 0 && (
+      {_.isEmpty(data) && !isSearchActive && tabIndex === 0 && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           {intl.formatMessage({id: 'readyToStartHeader'})} is empty.<br/><br/>
           Jobs that need assignment display here.
         </Typography>
       )}
-      {_.isEmpty(data) && tabIndex === 1 && (
+      {_.isEmpty(data) && !isSearchActive && tabIndex === 1 && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           {intl.formatMessage({id: 'notReadyToStartHeader'})} is empty.<br/><br/>
           Jobs that are not ready for assignment display here.
         </Typography>
       )}
-      {_.isEmpty(data) && tabIndex === 2 && (
+      {_.isEmpty(data) && !isSearchActive && tabIndex === 2 && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           {intl.formatMessage({id: 'notDoingHeader'})} is empty.<br/><br/>
@@ -270,9 +279,9 @@ function Backlog(props) {
   )
 }
 
-function BacklogItem(props) {
+export function BacklogItem(props) {
   const { inv, comments, marketPresences, marketId, singleUser, myGroupPresence, acceptedStageId,
-    inDialogStageId, notDoingStageId, furtherWorkStageId } = props;
+    inDialogStageId, notDoingStageId, furtherWorkStageId, suppressNotifications } = props;
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [messagesState] = useContext(NotificationsContext);
   const intl = useIntl();
@@ -288,7 +297,7 @@ function BacklogItem(props) {
   return (
     <BacklogListItem id={investible.id} title={investible.name} date={intl.formatDate(investible.created_at)}
                      description={stripHTML(investible.description)} openForInvestment={openForInvestment}
-                     newMessages={getNewMessages(inv, messagesState)} stage={stage} myGroupPresence={myGroupPresence}
+                     newMessages={suppressNotifications ? [] : getNewMessages(inv, messagesState)} stage={stage} myGroupPresence={myGroupPresence}
                      acceptedStageId={acceptedStageId} inDialogStageId={inDialogStageId} notDoingStageId={notDoingStageId}
                      furtherWorkStageId={furtherWorkStageId}
                      isSingleUser={!_.isEmpty(singleUser)} marketId={marketId} people={collaboratorsForInvestible} />

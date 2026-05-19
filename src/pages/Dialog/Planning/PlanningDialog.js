@@ -1,7 +1,7 @@
 /**
  * A component that renders a single group's view of a planning market
  */
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -44,7 +44,12 @@ import { MarketGroupsContext } from '../../../contexts/MarketGroupsContext/Marke
 import { getGroup } from '../../../contexts/MarketGroupsContext/marketGroupsContextHelper';
 import { GmailTabItem, GmailTabs } from '../../../containers/Tab/Inbox';
 import { AssignmentInd, BugReport } from '@material-ui/icons';
-import Backlog from './Backlog';
+import Backlog, { BacklogItem } from './Backlog';
+import { PAGE_SIZE } from '../../../components/Comments/BugListContext';
+import { getPaginatedItems } from '../../../utils/messageUtils';
+import { Box, IconButton } from '@material-ui/core';
+import { KeyboardArrowLeft } from '@material-ui/icons';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import DiscussionSection from './DiscussionSection';
 import InvestiblesByPerson from './InvestiblesByPerson';
 import { NO_SECTION_TYPE } from '../../../constants/global';
@@ -59,8 +64,6 @@ import {
   ASSIGNED_HASH,
   BACKLOG_HASH,
   DISCUSSION_HASH,
-  formArchiveCommentLink,
-  formGroupArchiveLink,
   formGroupEditLink, formGroupManageLink,
   formMarketAddCommentLink, formMarketAddInvestibleLink, formWizardLink,
   navigate,
@@ -69,7 +72,6 @@ import {
 import { DISCUSSION_WIZARD_TYPE, JOB_STAGE_WIZARD_TYPE, SUPPORT_SUB_TYPE } from '../../../constants/markets';
 import DialogOutset from './DialogOutset';
 import SettingsIcon from '@material-ui/icons/Settings';
-import MenuBookIcon from '@material-ui/icons/MenuBook';
 import SpinningButton from '../../../components/SpinBlocking/SpinningButton';
 import { wizardStyles } from '../../../components/AddNewWizards/WizardStylesContext';
 import AddIcon from '@material-ui/icons/Add';
@@ -158,6 +160,7 @@ function PlanningDialog(props) {
     comment.group_id === groupId && !comment.investible_id && comment.resolved &&
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [jobSearchPage, setJobSearchPage] = useState(1);
   const [pageStateFull, pageDispatch] = usePageStateReducer('group');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, groupId,
     {sectionOpen: 'storiesSection', tabIndex: 0 });
@@ -220,13 +223,27 @@ function PlanningDialog(props) {
   });
   const swimlaneCompleteInvestibles = getSwimlaneInvestiblesForStage(investiblesFullAssist, inReviewStage,
     marketId, marketComments, messagesState, marketStagesState);
+  // During search use all complete investibles (uncapped) per Q-all-65 O-3
+  const allCompleteInvestibles = !_.isEmpty(search)
+    ? getInvestiblesInStage(investiblesFullAssist, inReviewStage.id, marketId)
+    : swimlaneCompleteInvestibles;
+  const jobProgressSearchList = !_.isEmpty(search)
+    ? blockedOrRequiresInputOrReadyInvestiblesFullAssist
+        .concat(swimlaneInvestibles)
+        .concat(allCompleteInvestibles)
+    : [];
   const activeInvestibles = swimlaneInvestibles.filter((inv) => {
     const marketInfo = getMarketInfo(inv, marketId) || {};
     return marketInfo.assigned?.includes(myPresence.id);
-  });<div style={{ marginTop: '0.5rem', marginLeft: '0.5rem' }}>
-  <b><FormattedMessage id="planningVotingStageLabel"/></b>
-</div>
+  });
   const presenceMap = getPresenceMap(marketPresences);
+  const {
+    first: jobSearchFirst,
+    last: jobSearchLast,
+    data: jobSearchData,
+    hasMore: jobSearchHasMore,
+    hasLess: jobSearchHasLess
+  } = getPaginatedItems(jobProgressSearchList, jobSearchPage, PAGE_SIZE);
   const myGroupPresence = groupPresences.find((presence) => presence.id === myPresence.id);
 
   function isSectionOpen(section) {
@@ -280,8 +297,10 @@ function PlanningDialog(props) {
                   }
                 }
               } else {
-                // send over to the archives
-                navigate(history, formArchiveCommentLink(marketId, groupId, found.id), true);
+                // resolved comment — open the discussion section where the resolved sub-tab lives
+                if (sectionOpen !== 'discussionSection') {
+                  updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
+                }
               }
             }
           }
@@ -306,30 +325,7 @@ function PlanningDialog(props) {
   });
   const criticalTodoGroupComments = todoGroupComments.filter((comment) =>
     comment.notification_type === RED_LEVEL);
-  const archiveInvestibles = investiblesViewOnly.filter((inv) => {
-    const marketInfo = getMarketInfo(inv, marketId) || {};
-    const stage = marketStages.find((stage) => stage.id === marketInfo.stage);
-    const archived = stage && stage.close_comments_on_entrance;
-    if (_.isEmpty(search)) {
-      return archived;
-    }
-    return archived && (results.find((item) => item.id === inv.investible.id)
-      || parentResults.find((id) => id === inv.investible.id));
-  });
-  const resolvedGroupComments = marketComments.filter((comment) => {
-    if (comment.group_id !== groupId) {
-      return false;
-    }
-    if (_.isEmpty(search)) {
-      return !comment.investible_id && comment.resolved;
-    }
-    return !comment.investible_id && comment.resolved && (results.find((item) => item.id === comment.id)
-      || parentResults.find((id) => id === comment.id));
-  });
-  const archivedSize = _.isEmpty(search) ? undefined :
-    _.size(archiveInvestibles) + _.size(resolvedGroupComments);
-  const jobsSearchResults = _.size(requiresInputInvestiblesFullAssist) + _.size(blockedInvestiblesFullAssist)
-    + _.size(swimlaneInvestibles);
+  const jobsSearchResults = _.size(jobProgressSearchList);
   const furtherWorkInvestibles = getInvestiblesInStage(investiblesViewOnly, furtherWorkStage.id,
     marketId) || [];
   const furtherWorkReadyToStart = _.remove(furtherWorkInvestibles, (investible) => {
@@ -346,8 +342,6 @@ function PlanningDialog(props) {
     navListItemTextArray = [
       {icon: SettingsIcon, text: intl.formatMessage({id: 'settings'}),
         target: formGroupEditLink(marketId, groupId), num: 0, isBold: false},
-      {icon: MenuBookIcon, text: intl.formatMessage({id: 'planningDialogViewArchivesLabel'}),
-        target: formGroupArchiveLink(marketId, groupId), num: archivedSize, isBold: false},
       {icon: PersonAddIcon, text: intl.formatMessage({id: 'manageMembers'}),
         target: formGroupManageLink(marketId, groupId), num: 0, isBold: false}
     ];
@@ -622,8 +616,7 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
         </GmailTabs>
       </div>
       <div style={{display: 'flex', overflow: 'hidden'}}>
-        <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} hidden={hidden}
-                      archivedSize={archivedSize} />
+        <DialogOutset marketPresences={marketPresences} marketId={marketId} groupId={groupId} />
       <div style={{paddingTop: '0.5rem', width: '96%', marginLeft: 'auto', marginRight: 'auto', overflow: 'hidden'}}>
         <div ref={refToTop}></div>
         <DiscussionSection
@@ -636,75 +629,114 @@ const isJobProgressEmpty = isSwimlaneEmpty && _.isEmpty(blockedOrRequiresInputOr
         />
         {isSectionOpen('storiesSection') && (
           <div id="storiesSection" style={{overflowX: 'hidden'}}>
-            <SpinningButton id="addJob"
-              className={mobileLayout ? wizardClasses.actionNextMobile : wizardClasses.actionNext}
-              icon={AddIcon} iconColor="black"
-              variant="text" doSpin={false}
-              style={{marginTop: '1rem', marginLeft: mobileLayout ? undefined : '0.5rem'}}
-              toolTipId='hotKeyJob'
-              onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
-              <FormattedMessage id='addStoryLabel'/>
-            </SpinningButton>
-            <div onDrop={onDropNext} onDragOver={onDragOverNext} 
-              style={{paddingTop: !_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) ? '0.5rem' : undefined}}>
-              <SubSection
-                type={NO_SECTION_TYPE}
-                bolder
-                id="blocked"
-                showCard={false}
-              >
-                {!_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) && (
-                  <ArchiveInvestbiles
-                    comments={marketComments}
-                    marketId={marketId}
-                    presenceMap={presenceMap}
-                    investibles={blockedOrRequiresInputOrReadyInvestiblesFullAssist}
-                    allowDragDrop
-                    isAutonomous={isAutonomous}
-                    isSingleUser={isSingleUser}
-                    viewGroupId={groupId}
-                  />
+            {!_.isEmpty(search) ? (
+              <div style={{ paddingTop: '0.5rem', paddingBottom: '5rem' }}>
+                {!_.isEmpty(jobSearchData) && (
+                  <div style={{ paddingBottom: '0.25rem' }}>
+                    <div style={{ display: 'flex', width: '80%' }}>
+                      <div style={{ flexGrow: 1 }} />
+                      <Box fontSize={14} color="text.secondary">
+                        {jobSearchFirst} - {jobSearchLast} of {_.size(jobProgressSearchList)}
+                        <IconButton disabled={!jobSearchHasLess} onClick={() => setJobSearchPage(jobSearchPage - 1)}>
+                          <KeyboardArrowLeft />
+                        </IconButton>
+                        <IconButton disabled={!jobSearchHasMore} onClick={() => setJobSearchPage(jobSearchPage + 1)}>
+                          <KeyboardArrowRight />
+                        </IconButton>
+                      </Box>
+                    </div>
+                  </div>
                 )}
-              </SubSection>
-            </div>
-            <div style={{ paddingBottom: isJobProgressEmpty ? undefined : '1rem' }}/>
-            <DismissableText textId="notificationHelp" isLeft
-                             display={isJobProgressEmpty}
-                             text={
-                               isSingleUser ?
-                                   <div>
-                                     {swimlaneEmptyPreText} Use the "Add job" button above to start a new job.
-                                   </div>
-                                : (isSupport ?
-                                  <div>
-                                    {swimlaneEmptyPreText} The "Add job" button above creates a job
-                                    and sends a <Link href="https://documentation.uclusion.com/notifications"
-                                                    target="_blank">notification</Link> to Uclusion support.
-                                  </div>
-                                  : (_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) ?
-                                 <div>
-                                   {swimlaneEmptyPreText} The "Add job" button above creates a job
-                                   and sends <Link href="https://documentation.uclusion.com/notifications"
-                                             target="_blank">notifications</Link> to members of this view.
-                                 </div> : <div>
-                                     {swimlaneEmptyPreText} Drag a job down to start or use the "Add job" button above.
-                                   </div>)
-                              )
-              }/>
-            <InvestiblesByPerson
-              comments={marketComments}
-              investibles={investiblesFullAssist}
-              visibleStages={visibleStages}
-              acceptedStage={acceptedStage}
-              inDialogStage={inDialogStage}
-              inBlockingStage={inBlockingStage}
-              inReviewStage={inReviewStage}
-              requiresInputStage={requiresInputStage}
-              group={group}
-              isAutonomous={isAutonomous}
-              mobileLayout={mobileLayout}
-              pageState={pageState} updatePageState={updatePageState}
-            />
+                {jobSearchData.map((inv) => (
+                  <BacklogItem
+                    key={inv.investible.id}
+                    inv={inv}
+                    comments={marketComments}
+                    marketPresences={marketPresences}
+                    marketId={marketId}
+                    myGroupPresence={myGroupPresence}
+                    acceptedStageId={acceptedStage?.id}
+                    inDialogStageId={inDialogStage?.id}
+                    notDoingStageId={notDoingStage?.id}
+                    furtherWorkStageId={furtherWorkStage?.id}
+                    singleUser={isSingleUser ? groupPresences[0] : undefined}
+                    suppressNotifications
+                  />
+                ))}
+              </div>
+            ) : (
+              <>
+                <SpinningButton id="addJob"
+                  className={mobileLayout ? wizardClasses.actionNextMobile : wizardClasses.actionNext}
+                  icon={AddIcon} iconColor="black"
+                  variant="text" doSpin={false}
+                  style={{marginTop: '1rem', marginLeft: mobileLayout ? undefined : '0.5rem'}}
+                  toolTipId='hotKeyJob'
+                  onClick={() => navigate(history, formMarketAddInvestibleLink(marketId, groupId))}>
+                  <FormattedMessage id='addStoryLabel'/>
+                </SpinningButton>
+                <div onDrop={onDropNext} onDragOver={onDragOverNext}
+                  style={{paddingTop: !_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) ? '0.5rem' : undefined}}>
+                  <SubSection
+                    type={NO_SECTION_TYPE}
+                    bolder
+                    id="blocked"
+                    showCard={false}
+                  >
+                    {!_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) && (
+                      <ArchiveInvestbiles
+                        comments={marketComments}
+                        marketId={marketId}
+                        presenceMap={presenceMap}
+                        investibles={blockedOrRequiresInputOrReadyInvestiblesFullAssist}
+                        allowDragDrop
+                        isAutonomous={isAutonomous}
+                        isSingleUser={isSingleUser}
+                        viewGroupId={groupId}
+                      />
+                    )}
+                  </SubSection>
+                </div>
+                <div style={{ paddingBottom: isJobProgressEmpty ? undefined : '1rem' }}/>
+                <DismissableText textId="notificationHelp" isLeft
+                                 display={isJobProgressEmpty}
+                                 text={
+                                   isSingleUser ?
+                                       <div>
+                                         {swimlaneEmptyPreText} Use the "Add job" button above to start a new job.
+                                       </div>
+                                    : (isSupport ?
+                                      <div>
+                                        {swimlaneEmptyPreText} The "Add job" button above creates a job
+                                        and sends a <Link href="https://documentation.uclusion.com/notifications"
+                                                        target="_blank">notification</Link> to Uclusion support.
+                                      </div>
+                                      : (_.isEmpty(blockedOrRequiresInputOrReadyInvestiblesFullAssist) ?
+                                     <div>
+                                       {swimlaneEmptyPreText} The "Add job" button above creates a job
+                                       and sends <Link href="https://documentation.uclusion.com/notifications"
+                                                 target="_blank">notifications</Link> to members of this view.
+                                     </div> : <div>
+                                         {swimlaneEmptyPreText} Drag a job down to start or use the "Add job" button above.
+                                       </div>)
+                                  )
+                  }/>
+                <InvestiblesByPerson
+                  comments={marketComments}
+                  investibles={investiblesFullAssist}
+                  visibleStages={visibleStages}
+                  acceptedStage={acceptedStage}
+                  inDialogStage={inDialogStage}
+                  inBlockingStage={inBlockingStage}
+                  inReviewStage={inReviewStage}
+                  requiresInputStage={requiresInputStage}
+                  group={group}
+                  isAutonomous={isAutonomous}
+                  mobileLayout={mobileLayout}
+                  pageState={pageState} updatePageState={updatePageState}
+                />
+              </>
+            )}
           </div>
         )}
         <div id="backlogSection" style={{overflowX: 'hidden'}}>

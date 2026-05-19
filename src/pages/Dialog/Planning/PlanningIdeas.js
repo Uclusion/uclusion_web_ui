@@ -7,6 +7,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
   formCommentLink,
+  formCompleteJobsLink,
   formInboxItemLink,
   formInvestibleLink, formWizardLink,
   navigate,
@@ -110,6 +111,7 @@ function PlanningIdeas(props) {
     comments = []
   } = props;
   const history = useHistory();
+  const intl = useIntl();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const acceptedStageId = acceptedStage.id;
@@ -374,6 +376,16 @@ function PlanningIdeas(props) {
           isAutonomous={isAutonomous}
           viewGroupId={groupId}
         />
+        <Link
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate(history, formCompleteJobsLink(marketId, groupId, presenceId));
+          }}
+          style={{ fontSize: '0.8rem', whiteSpace: 'nowrap', display: 'block', marginTop: '0.5rem' }}
+        >
+          {intl.formatMessage({ id: 'showAllComplete' })}
+        </Link>
       </div>
     </div>
   );

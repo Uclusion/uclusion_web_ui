@@ -288,6 +288,14 @@ export function formGroupArchiveLink(marketId, groupId) {
   return formatGroupLinkWithPrefix('groupArchive', marketId, groupId);
 }
 
+export function formCompleteJobsLink(marketId, groupId, presenceId) {
+  let link = formGroupArchiveLink(marketId, groupId);
+  if (presenceId) {
+    link += `&assigneeId=${presenceId}`;
+  }
+  return link;
+}
+
 export function formInvestibleAddCommentLink(wizardType, investibleId, marketId, commentType, typeObjectId, decisionInvestibleId, 
   decisionMarketId, notificationType) {
   let link = `/wizard#type=${wizardType.toLowerCase()}&investibleId=${investibleId}`;

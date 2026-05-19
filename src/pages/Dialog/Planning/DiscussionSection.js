@@ -50,7 +50,8 @@ function DiscussionSection(props) {
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const [messagesState] = useContext(NotificationsContext);
   const [searchResults] = useContext(SearchResultsContext);
-  const { search } = searchResults;
+  const { results, parentResults, search } = searchResults;
+  const isSearchActive = !_.isEmpty(search);
 
   const [sectionState, sectionDispatch] = useReducer(getReducer(),
     { page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1 });
@@ -60,11 +61,22 @@ function DiscussionSection(props) {
     resolvedComments.filter(c => [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(c.comment_type)),
     ['updated_at'], ['desc']
   );
-  const { first, last, data, hasMore, hasLess } = getPaginatedItems(resolvedRoots, page, PAGE_SIZE);
 
   const sortedRoots = getSortedRoots(comments, searchResults);
   const questionSuggestionNotesComments = sortedRoots.filter(c =>
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(c.comment_type));
+
+  // During search: combine open + resolved into a single paginated compressed list (per Q-all-66 O-1)
+  const searchResolvedRoots = isSearchActive ? resolvedRoots.filter((c) =>
+    results.find((item) => item.id === c.id) || parentResults.find((id) => id === c.id)
+  ) : [];
+  const searchUnifiedItems = isSearchActive
+    ? _.orderBy([...questionSuggestionNotesComments, ...searchResolvedRoots], ['updated_at'], ['desc'])
+    : [];
+  const searchPaginated = getPaginatedItems(searchUnifiedItems, page, PAGE_SIZE);
+
+  const resolvedPaginated = getPaginatedItems(resolvedRoots, page, PAGE_SIZE);
+  const { first, last, data, hasMore, hasLess } = isSearchActive ? searchPaginated : resolvedPaginated;
 
   function onDropUnresolve(event) {
     const commentId = event.dataTransfer.getData('text');
@@ -126,53 +138,29 @@ function DiscussionSection(props) {
           {intl.formatMessage({ id: `createSuggestion${mobileLayout ? 'Mobile' : ''}` })}
         </SpinningButton>
       </div>
-      {_.isEmpty(search) && _.isEmpty(questionSuggestionNotesComments) && (
+      {!isSearchActive && _.isEmpty(questionSuggestionNotesComments) && (
         <div style={{ marginTop: '2.5rem' }} />
       )}
-      <DismissableText textId="workspaceCommentHelp" display={_.isEmpty(search) && _.isEmpty(questionSuggestionNotesComments)}
+      <DismissableText textId="workspaceCommentHelp" display={!isSearchActive && _.isEmpty(questionSuggestionNotesComments)}
         isLeft noPad text={
           isSupport ?
             <div>Ask a question or make a suggestion and Uclusion support will respond.</div>
             :
             <div>
               <Link href="https://documentation.uclusion.com/structured-comments" target="_blank">Questions and suggestions</Link> can
-              be used at the view level and later moved to a job. Notes can be resolved to archive.
+              be used at the view level and later moved to a job.
             </div>
         } />
-      <GmailTabs
-        value={tabIndex}
-        onChange={(event, value) => sectionDispatch(setTab(value))}
-        indicatorColors={['#2F80ED', '#bdbdbd']}
-        style={{ paddingBottom: '1rem', paddingTop: '1rem' }}
-      >
-        <GmailTabItem
-          label={intl.formatMessage({ id: 'openHeader' })}
-          color='black'
-          onDrop={onDropUnresolve}
-          onDragOver={(event) => event.preventDefault()}
-        />
-        <GmailTabItem
-          icon={<CheckCircleOutline />}
-          label={intl.formatMessage({ id: 'resolvedBugsHeader' })}
-          color='black'
-          tag={_.size(resolvedRoots) > 0 ? `${_.size(resolvedRoots)}` : undefined}
-        />
-      </GmailTabs>
 
-      {tabIndex === 0 && (
-        <Grid item id="discussionAddArea" xs={12}>
-          <CommentBox comments={comments} marketId={marketId} />
-        </Grid>
-      )}
-
-      {tabIndex === 1 && (
+      {/* During search: show all matching items (open + resolved) as compressed paginated rows */}
+      {isSearchActive && (
         <div style={{ overflowX: 'hidden' }}>
           {!_.isEmpty(data) && (
             <div style={{ paddingBottom: '0.25rem' }}>
               <div style={{ display: 'flex', width: '80%' }}>
                 <div style={{ flexGrow: 1 }} />
                 <Box fontSize={14} color="text.secondary">
-                  {first} - {last} of {_.size(resolvedRoots)}
+                  {first} - {last} of {_.size(searchUnifiedItems)}
                   <IconButton disabled={!hasLess} onClick={() => changePage(-1)}>
                     <KeyboardArrowLeft />
                   </IconButton>
@@ -183,21 +171,15 @@ function DiscussionSection(props) {
               </div>
             </div>
           )}
-          {_.isEmpty(data) && (
-            <div style={{ marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto',
-              fontSize: '1rem' }}>
-              {intl.formatMessage({ id: 'resolvedBugsHeader' })} is empty.<br /><br />
-              Resolved notes, questions, and suggestions display here. Drag to the Open tab to unresolve.
-            </div>
-          )}
           {data.map((comment) => {
-            const replies = resolvedComments.filter(c => c.root_comment_id === comment.id);
+            const allComments = [...comments, ...resolvedComments];
+            const replies = allComments.filter(c => c.root_comment_id === comment.id);
             const expansionPanel = (
               <div id={`c${comment.id}`} key={`c${comment.id}key`} style={{ marginBottom: '1rem' }}>
                 <Comment
                   marketId={marketId}
                   comment={comment}
-                  comments={[...comments, ...resolvedComments]}
+                  comments={allComments}
                   allowedTypes={[]}
                 />
               </div>
@@ -215,11 +197,97 @@ function DiscussionSection(props) {
                 expansionPanel={expansionPanel}
                 expansionOpen={!!expansionState[comment.id]}
                 bugListDispatch={sectionDispatch}
-                isResolved
+                isResolved={!!comment.resolved}
               />
             );
           })}
         </div>
+      )}
+
+      {!isSearchActive && (
+        <>
+          <GmailTabs
+            value={tabIndex}
+            onChange={(event, value) => sectionDispatch(setTab(value))}
+            indicatorColors={['#2F80ED', '#bdbdbd']}
+            style={{ paddingBottom: '1rem', paddingTop: '1rem' }}
+          >
+            <GmailTabItem
+              label={intl.formatMessage({ id: 'openHeader' })}
+              color='black'
+              onDrop={onDropUnresolve}
+              onDragOver={(event) => event.preventDefault()}
+            />
+            <GmailTabItem
+              icon={<CheckCircleOutline />}
+              label={intl.formatMessage({ id: 'resolvedBugsHeader' })}
+              color='black'
+            />
+          </GmailTabs>
+
+          {tabIndex === 0 && (
+            <Grid item id="discussionAddArea" xs={12}>
+              <CommentBox comments={comments} marketId={marketId} />
+            </Grid>
+          )}
+
+          {tabIndex === 1 && (
+            <div style={{ overflowX: 'hidden' }}>
+              {!_.isEmpty(data) && (
+                <div style={{ paddingBottom: '0.25rem' }}>
+                  <div style={{ display: 'flex', width: '80%' }}>
+                    <div style={{ flexGrow: 1 }} />
+                    <Box fontSize={14} color="text.secondary">
+                      {first} - {last} of {_.size(resolvedRoots)}
+                      <IconButton disabled={!hasLess} onClick={() => changePage(-1)}>
+                        <KeyboardArrowLeft />
+                      </IconButton>
+                      <IconButton disabled={!hasMore} onClick={() => changePage(1)}>
+                        <KeyboardArrowRight />
+                      </IconButton>
+                    </Box>
+                  </div>
+                </div>
+              )}
+              {_.isEmpty(data) && (
+                <div style={{ marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto',
+                  fontSize: '1rem' }}>
+                  {intl.formatMessage({ id: 'resolvedBugsHeader' })} is empty.<br /><br />
+                  Resolved notes, questions, and suggestions display here. Drag to the Open tab to unresolve.
+                </div>
+              )}
+              {data.map((comment) => {
+                const replies = resolvedComments.filter(c => c.root_comment_id === comment.id);
+                const expansionPanel = (
+                  <div id={`c${comment.id}`} key={`c${comment.id}key`} style={{ marginBottom: '1rem' }}>
+                    <Comment
+                      marketId={marketId}
+                      comment={comment}
+                      comments={[...comments, ...resolvedComments]}
+                      allowedTypes={[]}
+                    />
+                  </div>
+                );
+                return (
+                  <BugListItem
+                    key={comment.id}
+                    id={comment.id}
+                    replyNum={replies.length + 1}
+                    title={stripHTML(comment.body)}
+                    date={intl.formatDate(comment.updated_at)}
+                    marketId={marketId}
+                    groupId={groupId}
+                    useSelect={false}
+                    expansionPanel={expansionPanel}
+                    expansionOpen={!!expansionState[comment.id]}
+                    bugListDispatch={sectionDispatch}
+                    isResolved
+                  />
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

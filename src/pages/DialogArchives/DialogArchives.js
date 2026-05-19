@@ -4,70 +4,68 @@ import { useLocation } from 'react-router';
 import { decomposeMarketPath } from '../../utils/marketIdPathFunctions'
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext'
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext'
-import { getInReviewStage, getNotDoingStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
+import { getInReviewStage } from '../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { getInvestiblesInStage, getMarketInvestibles } from '../../contexts/InvestibesContext/investiblesContextHelper'
 import SubSection from '../../containers/SubSection/SubSection'
 import { useIntl } from 'react-intl'
-import ArchiveInvestbiles from './ArchiveInvestibles'
 import { SECTION_TYPE_SECONDARY_WARNING } from '../../constants/global'
 import { MarketPresencesContext } from '../../contexts/MarketPresencesContext/MarketPresencesContext'
-import { getMarketPresences, getPresenceMap } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
+import { getMarketPresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper'
 import AssigneeFilterDropdown from './AssigneeFilterDropdown'
-import { Grid } from '@material-ui/core'
-import CommentBox from '../../containers/CommentBox/CommentBox'
-import MarketTodos from '../Dialog/Planning/MarketTodos'
-import { REPLY_TYPE, TODO_TYPE } from '../../constants/comments'
-import { getMarketComments } from '../../contexts/CommentsContext/commentsContextHelper'
-import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext'
-import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
+import { Box, FormControl, FormHelperText, Grid, IconButton, MenuItem, Select, Typography } from '@material-ui/core'
 import { getMarketInfo } from '../../utils/userFunctions'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 import queryString from 'query-string'
 import Screen from '../../containers/Screen/Screen';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+import { makeStyles } from '@material-ui/core/styles';
+import { BacklogItem } from '../Dialog/Planning/Backlog';
+import { PAGE_SIZE } from '../../components/Comments/BugListContext';
+import { getPaginatedItems } from '../../utils/messageUtils';
+import { KeyboardArrowLeft } from '@material-ui/icons';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+
+const useStyles = makeStyles((theme) => ({
+  label: { color: theme.palette.text.primary },
+  select: {
+    color: theme.palette.text.primary,
+    '&:before': { borderColor: theme.palette.text.primary },
+    '&:after': { borderColor: theme.palette.text.primary },
+  },
+  icon: { fill: theme.palette.text.primary },
+}));
 
 function DialogArchives() {
   const intl = useIntl();
   const location = useLocation();
+  const classes = useStyles();
   const { pathname, search: querySearch } = location;
   const values = queryString.parse(querySearch);
-  const { groupId } = values || {};
+  const { groupId: urlGroupId, assigneeId: urlAssigneeId } = values || {};
   const { marketId } = decomposeMarketPath(pathname);
-  const [assigneeFilter, setAssigneeFilter] = useState('');
+  const [assigneeFilter, setAssigneeFilter] = useState(urlAssigneeId || '');
+  const [groupFilter, setGroupFilter] = useState(urlGroupId || '');
   const [filteredMarketId, setFilteredMarketId] = useState(undefined);
+  const [page, setPage] = useState(1);
   const [investiblesState] = useContext(InvestiblesContext);
   const [marketStagesState] = useContext(MarketStagesContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
-  const [commentsState] = useContext(CommentsContext);
   const [searchResults] = useContext(SearchResultsContext);
   const [groupState] = useContext(MarketGroupsContext);
-  const group = getGroup(groupState, marketId, groupId) || {};
+  const group = getGroup(groupState, marketId, urlGroupId) || {};
+  const allMarketGroups = (groupState[marketId] || []).filter((g) => !g.initializing);
   const marketPresences = getMarketPresences(marketPresencesState, marketId) || [];
-  const presenceMap = getPresenceMap(marketPresences);
   const completeStage = getInReviewStage(marketStagesState, marketId) || {};
-  const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
   const marketInvestiblesRaw = getMarketInvestibles(investiblesState, marketId, searchResults) || [];
   const marketInvestibles = marketInvestiblesRaw.filter((investible) => {
     const marketInfo = getMarketInfo(investible, marketId);
-    return marketInfo.group_id === groupId;
+    if (_.isEmpty(groupFilter)) {
+      return true;
+    }
+    return marketInfo.group_id === groupFilter;
   });
   const verifiedInvestibles = getInvestiblesInStage(marketInvestibles, completeStage.id, marketId);
-  const notDoingInvestibles = getInvestiblesInStage(marketInvestibles, notDoingStage.id, marketId);
-  const comments = getMarketComments(commentsState, marketId, groupId) || [];
-  const notTodoComments = comments.filter(comment => {
-    if (comment.comment_type !== TODO_TYPE && comment.comment_type !== REPLY_TYPE) {
-      return !comment.investible_id && comment.resolved;
-    }
-    //Just return all replies also
-    return comment.comment_type === REPLY_TYPE;
-  });
-  const todoComments = comments.filter(comment => {
-    if (comment.comment_type === TODO_TYPE) {
-      return !comment.investible_id && comment.resolved;
-    }
-    //Just return all replies also because market todos component needs them
-    return comment.comment_type === REPLY_TYPE;
-  });
 
   const filteredVerifiedInvestibles = verifiedInvestibles.filter((inv) => {
     if (_.isEmpty(assigneeFilter)) {
@@ -77,68 +75,108 @@ function DialogArchives() {
     return myInfo && myInfo.assigned && myInfo.assigned.includes(assigneeFilter);
   });
 
-  function onFilterChange(event) {
+  const { first, last, data, hasMore, hasLess } = getPaginatedItems(filteredVerifiedInvestibles, page, PAGE_SIZE);
+
+  function onAssigneeChange(event) {
     const { value } = event.target;
     setAssigneeFilter(value);
     setFilteredMarketId(marketId);
+    setPage(1);
+  }
+
+  function onGroupChange(event) {
+    const { value } = event.target;
+    setGroupFilter(value);
+    setFilteredMarketId(marketId);
+    setPage(1);
   }
 
   useEffect(() => {
     if (filteredMarketId && filteredMarketId !== marketId) {
       setFilteredMarketId(undefined);
       setAssigneeFilter('');
+      setGroupFilter('');
+      setPage(1);
     }
   }, [filteredMarketId, marketId]);
 
-  if (!marketId || !groupId) {
+  if (!marketId) {
     return React.Fragment;
   }
 
+  const sortedGroups = _.sortBy(allMarketGroups, 'name');
+
   return (
     <Screen
-      title={`${group.name} Settings`}
-      tabTitle={`${group.name} Settings`}
+      title={intl.formatMessage({ id: 'completeJobsTitle' })}
+      tabTitle={group.name ? `${group.name} - ${intl.formatMessage({ id: 'completeJobsTitle' })}` : intl.formatMessage({ id: 'completeJobsTitle' })}
     >
       <SubSection
         type={SECTION_TYPE_SECONDARY_WARNING}
         bolder
         title={intl.formatMessage({ id: 'dialogArchivesVerifiedHeader' })}
         id="verified"
+        showCard={false}
         actionButton={
-          (<AssigneeFilterDropdown
-            onChange={onFilterChange}
-            presences={marketPresences}
-            value={assigneeFilter}
-          />)}
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <FormControl>
+              <FormHelperText className={classes.label}>{intl.formatMessage({ id: 'viewFilterLabel' })}</FormHelperText>
+              <Select
+                value={groupFilter}
+                displayEmpty
+                onChange={onGroupChange}
+                className={classes.select}
+                inputProps={{ classes: { icon: classes.icon } }}
+              >
+                <MenuItem key="all" value="">
+                  {intl.formatMessage({ id: 'viewFilterAll' })}
+                </MenuItem>
+                {sortedGroups.map((g) => (
+                  <MenuItem key={g.id} value={g.id}>{g.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <AssigneeFilterDropdown
+              onChange={onAssigneeChange}
+              presences={marketPresences}
+              value={assigneeFilter}
+            />
+          </div>
+        }
       >
-        <ArchiveInvestbiles
-          marketId={marketId}
-          investibles={filteredVerifiedInvestibles}
-          presenceMap={presenceMap}
-          comments={comments}
-        />
+        {_.isEmpty(filteredVerifiedInvestibles) ? (
+          <Typography style={{ marginTop: '2rem', marginLeft: '0.5rem' }} variant="body1">
+            {intl.formatMessage({ id: 'completeJobsTitle' })} is empty.
+          </Typography>
+        ) : (
+          <>
+            <div style={{ paddingBottom: '0.25rem', paddingTop: '0.5rem' }}>
+              <div style={{ display: 'flex', width: '80%' }}>
+                <div style={{ flexGrow: 1 }} />
+                <Box fontSize={14} color="text.secondary">
+                  {first} - {last} of {_.size(filteredVerifiedInvestibles)}
+                  <IconButton disabled={!hasLess} onClick={() => setPage(page - 1)}>
+                    <KeyboardArrowLeft />
+                  </IconButton>
+                  <IconButton disabled={!hasMore} onClick={() => setPage(page + 1)}>
+                    <KeyboardArrowRight />
+                  </IconButton>
+                </Box>
+              </div>
+            </div>
+            {data.map((inv) => (
+              <BacklogItem
+                key={inv.investible.id}
+                inv={inv}
+                comments={[]}
+                marketPresences={marketPresences}
+                marketId={marketId}
+              />
+            ))}
+          </>
+        )}
       </SubSection>
-      <div style={{paddingBottom: '1rem'}} />
-      <SubSection
-        type={SECTION_TYPE_SECONDARY_WARNING}
-        bolder
-        id="notDoing"
-        title={intl.formatMessage({ id: 'dialogArchivesNotDoingHeader' })}
-        style={{marginTop: '16px'}}
-      >
-        <ArchiveInvestbiles
-          comments={comments}
-          marketId={marketId}
-          presenceMap={presenceMap}
-          investibles={notDoingInvestibles}
-        />
-      </SubSection>
-      <MarketTodos comments={todoComments} marketId={marketId} groupId={groupId} isInArchives sectionOpen={true} />
-      <Grid container spacing={2}>
-        <Grid item id="commentAddArea"  xs={12} style={{ marginTop: '15px' }}>
-          <CommentBox comments={notTodoComments} marketId={marketId} allowedTypes={[]} />
-        </Grid>
-      </Grid>
+      <Grid item xs={12} style={{ height: '5rem' }} />
     </Screen>
   );
 }

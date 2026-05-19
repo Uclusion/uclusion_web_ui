@@ -22,7 +22,6 @@ import { TODO_TYPE } from '../../../constants/comments';
 import _ from 'lodash';
 import { RED_LEVEL } from '../../../constants/notifications';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import Link from '@material-ui/core/Link';
 
 function ArchiveWarningStep(props) {
   const { marketId, commentId, isInbox, formData = {}, updateFormData = () => {}, typeObjectId } = props;
@@ -67,9 +66,7 @@ function ArchiveWarningStep(props) {
       <Typography className={classes.introText}>
         Are you sure you want to resolve?
       </Typography>
-      <Typography className={classes.introSubText} variant="subtitle1">
-        Resolving a comment that is not in a job moves it to the <Link href="https://documentation.uclusion.com/views/archive" target="_blank">group's archive</Link>.
-      </Typography>
+
       <CommentBox
         comments={[commentToDelete]}
         marketId={marketId}

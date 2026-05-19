@@ -42,7 +42,7 @@ import {
 } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import {
-  ACTIVE_STAGE, ARCHIVE_COMMENT_TYPE,
+  ACTIVE_STAGE,
   BUG_WIZARD_TYPE, DELETE_COMMENT_TYPE, IN_PROGRESS_WIZARD_TYPE,
   INITIATIVE_TYPE,
   JOB_COMMENT_CONFIGURE_WIZARD_TYPE,
@@ -721,14 +721,6 @@ function Comment(props) {
   }
 
   function resolve() {
-    if (!investibleId) {
-      if (typeObjectId) {
-        return navigate(history, `${formWizardLink(ARCHIVE_COMMENT_TYPE, marketId, undefined,
-          undefined, id)}&isInbox=${isInbox === true}&typeObjectId=${typeObjectId}`);
-      }
-      return navigate(history, `${formWizardLink(ARCHIVE_COMMENT_TYPE, marketId, undefined, 
-        undefined, id)}&isInbox=${isInbox === true}`);
-    }
     return resolveComment(marketId, id)
       .then((comment) => {
         addCommentToMarket(comment, commentsState, commentsDispatch);
@@ -977,7 +969,7 @@ function Comment(props) {
   )}
   {((resolved && showReopen) || (!resolved && showResolve)) && !mobileLayout && (
     <SpinningIconLabelButton
-      doSpin={(investibleId || resolved) && (resolved || commentType !== REPORT_TYPE)}
+      doSpin={resolved || commentType !== REPORT_TYPE || !investibleId}
       onClick={resolved ? reopen : (commentType === REPORT_TYPE && investibleId ? () => navigate(history,
         `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
           REPORT_TYPE)}&resolveId=${id}`) : resolve)}
@@ -1105,7 +1097,7 @@ function Comment(props) {
           <div className={classes.actions}>
             {((resolved && showReopen) || (!resolved && showResolve)) && mobileLayout && (
               <SpinningIconLabelButton
-                doSpin={(investibleId || resolved) && (resolved || commentType !== REPORT_TYPE)}
+                doSpin={resolved || commentType !== REPORT_TYPE || !investibleId}
                 onClick={resolved ? reopen : (commentType === REPORT_TYPE && investibleId ? () => navigate(history,
                   `${formInvestibleAddCommentLink(JOB_COMMENT_WIZARD_TYPE, investibleId, marketId,
                     REPORT_TYPE)}&resolveId=${id}`) : resolve)}

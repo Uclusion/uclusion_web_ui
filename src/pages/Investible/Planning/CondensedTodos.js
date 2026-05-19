@@ -11,7 +11,7 @@ import { addCommentToMarket, addMarketComments, filterToRoot } from '../../../co
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { formInvestibleAddCommentLink, formMarketAddInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
-import { removeMessagesForCommentId } from '../../../utils/messageUtils';
+import { findMessagesForCommentIds, removeMessagesForCommentId } from '../../../utils/messageUtils';
 import { NotificationsContext } from '../../../contexts/NotificationsContext/NotificationsContext';
 import { stripHTML } from '../../../utils/stringFunctions';
 import BugListItem from '../../../components/Comments/BugListItem';
@@ -61,6 +61,7 @@ function CondensedTodos(props) {
   const history = useHistory();
   const [themeMode] = useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
+  const { warningColor } = useButtonColors();
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('sm'));
   const { actionButtonColor } = useButtonColors();
@@ -80,6 +81,9 @@ function CondensedTodos(props) {
   const tabCommentsRaw = showOpen ? openComments : resolvedComments;
   const tabComments = sortInProgress(_.orderBy(tabCommentsRaw, ['updated_at', 'body'], ['desc', 'asc']), 
     investibleComments);
+  const resolvedTodoMessages = findMessagesForCommentIds(resolvedComments?.map((comment) => comment.id), 
+    messagesState, true);
+  const hasResolvedTodoMessages = !_.isEmpty(resolvedTodoMessages);
 
   useEffect(() => {
     if (hash && hash.length > 1 && !hidden && !hash.includes('header')) {
@@ -268,9 +272,12 @@ function CondensedTodos(props) {
                         onDrop={onDropOpen} toolTipId='openTasksToolTip'
                         onDragOver={(event)=>event.preventDefault()}/>
           <GmailTabItem label={intl.formatMessage({id: 'closedComments'})}
-                        color='black' hasChip={isSearch}
-                        tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) : intl.formatMessage({id: 'total'})}
-                        tag={isSearch ? (_.size(resolvedComments) > 0 ? `${_.size(resolvedComments)}` : undefined) : `${_.size(resolvedComments)}`}
+                        tagColor={hasResolvedTodoMessages ? warningColor : undefined}
+                        color='black' hasChip={isSearch || hasResolvedTodoMessages}
+                        tagLabel={isSearch ? intl.formatMessage({ id: 'match' }) : (hasResolvedTodoMessages ? intl.formatMessage({id: 'new'}) 
+                        : intl.formatMessage({id: 'total'}))}
+                        tag={isSearch ? (_.size(resolvedComments) > 0 ? `${_.size(resolvedComments)}` : undefined) : (hasResolvedTodoMessages ? 
+                          `${_.size(resolvedTodoMessages)}` : `${_.size(resolvedComments)}`)}
                         onDrop={onDropResolved} toolTipId='resolvedTasksToolTip'
                         onDragOver={(event)=>event.preventDefault()} />
         </GmailTabs>

@@ -571,7 +571,7 @@ function PlanningInvestible(props) {
   const openTodoCommentsSearched = todoCommentsSearched.filter((comment) => !comment.resolved);
   const openTodoCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
     openTodoCommentsSearched.includes(comment.root_comment_id));
-  const openTodoCommentsSearchedAll = todoCommentsSearched.concat(openTodoCommentsRepliesSearched);
+  const openTodoCommentsSearchedAll = openTodoCommentsSearched.concat(openTodoCommentsRepliesSearched);
   const todoCommentsResolvedSearched = todoCommentsSearched.filter((comment) => comment.resolved);
   const questionCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === QUESTION_TYPE

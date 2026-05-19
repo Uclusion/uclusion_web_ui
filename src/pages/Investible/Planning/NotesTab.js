@@ -53,18 +53,19 @@ function NotesTab(props) {
     <div>
       {days.map((day) => (
         <div key={day.dayKey} style={{ marginBottom: '2rem' }}>
-          <Typography
-            variant="h6"
-            style={{
-              marginTop: '1rem',
-              marginBottom: '0.5rem',
-              paddingBottom: '0.25rem',
-              borderBottom: `1px solid ${theme.palette.divider}`
-            }}
-          >
-            {formatDayLabel(day.dayKey, viewerTz)}
-          </Typography>
-
+          {!_.isEmpty(day.jobLevelNotes) && (
+            <Typography
+              variant="h6"
+              style={{
+                marginTop: '1rem',
+                marginBottom: '0.5rem',
+                paddingBottom: '0.25rem',
+                borderBottom: `1px solid ${theme.palette.divider}`
+              }}
+            >
+              {formatDayLabel(day.dayKey, viewerTz)}
+            </Typography>
+          )}
           {!_.isEmpty(day.jobLevelNotes) && (
             <div style={{ marginBottom: '1rem' }}>
               <CommentBox
@@ -89,21 +90,7 @@ function NotesTab(props) {
                 maxWidth="98%"
                 inNotesTab
               />
-              {_.isEmpty(sg.notes) ? (
-                sg.isResolvedHere && (
-                  <Typography
-                    variant="body2"
-                    style={{
-                      marginLeft: '1rem',
-                      marginTop: '0.5rem',
-                      fontStyle: 'italic',
-                      color: theme.palette.text.secondary
-                    }}
-                  >
-                    {intl.formatMessage({ id: 'notesResolvedMarker' })}
-                  </Typography>
-                )
-              ) : (
+              {!_.isEmpty(sg.notes) && (
                 <div style={{ marginLeft: '1rem', marginTop: '0.5rem' }}>
                   <CommentBox
                     {...commentBoxCommonProps}

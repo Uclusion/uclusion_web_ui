@@ -316,7 +316,7 @@ function CondensedTodos(props) {
           </div>
         </div>
       )}
-      {_.isEmpty(tabComments) && showOpen && sectionOpen && (
+      {_.isEmpty(tabComments) && showOpen && sectionOpen && !inNotesTab && (
         <Typography style={{marginTop: '2rem', maxWidth: '40rem', marginLeft: 'auto', marginRight: 'auto'}}
                     variant="body1">
           No open tasks.

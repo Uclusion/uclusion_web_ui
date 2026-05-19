@@ -772,7 +772,8 @@ function PlanningInvestible(props) {
         <GmailTabItem icon={getIcon(REPORT_TYPE, 'BLUE')} label={intl.formatMessage({id: 'notesSection'})}
                       tagColor={hasNewNotesMessages ? warningColor : undefined}
                       toolTipId='jobNotesToolTip' tagLabel={hasNewNotesMessages && _.isEmpty(search) ? 'new' : getTagLabel('total')}
-                      tag={hasNewNotesMessages && _.isEmpty(search) ? `${numNewNotesMessages}` : (!_.isEmpty(search) ? _.size(notesCommentsSearched) : undefined)} />
+                      tag={hasNewNotesMessages && _.isEmpty(search) ? `${numNewNotesMessages}` : 
+                      (!_.isEmpty(search) && _.size(notesCommentsSearched) > 0 ? _.size(notesCommentsSearched) : undefined)} />
       </GmailTabs>
       <div style={{paddingLeft: mobileLayout ? undefined : '2rem', paddingRight: mobileLayout ? undefined : '1rem'}}>
         <div style={{paddingBottom: '0.5rem'}} ref={refToTop}></div>
@@ -1028,7 +1029,7 @@ function PlanningInvestible(props) {
                 )}
               </div>
             )}
-            <DismissableText textId="investibleCommentHelp" display={_.isEmpty(sectionComments)} noPad isLeft
+            <DismissableText textId="investibleCommentHelp" display={_.isEmpty(sectionComments)&&_.isEmpty(search)} noPad isLeft
                              text={
                                sectionOpen === 'assistanceSection' ? (
                                  <ul style={{ paddingLeft: 0, marginLeft: '1rem' }}>

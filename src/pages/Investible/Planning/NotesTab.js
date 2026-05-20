@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { Typography, useTheme } from '@material-ui/core';
-import { useIntl } from 'react-intl';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import CondensedTodos from './CondensedTodos';
 import { groupNotesByDay } from './notesGrouping';
@@ -23,7 +22,6 @@ function NotesTab(props) {
     isInBlocking,
     singleWorkspaceUser
   } = props;
-  const intl = useIntl();
   const theme = useTheme();
   const viewerTz = getBrowserTz();
   const tasks = (investibleComments || []).filter((comment) => comment.comment_type === 'TODO');

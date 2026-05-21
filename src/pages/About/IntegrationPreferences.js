@@ -1,11 +1,11 @@
 import React, { useContext, useState } from 'react';
-import { Card, FormControl, Grid, IconButton, ListItem, makeStyles, MenuItem, Select, Tooltip, Typography, } from '@material-ui/core';
+import { Card, FormControl, Grid, ListItem, makeStyles, MenuItem, Select, Typography, } from '@material-ui/core';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import config from '../../config';
 import Screen from '../../containers/Screen/Screen';
 import SubSection from '../../containers/SubSection/SubSection';
-import { Face, FileCopyOutlined } from '@material-ui/icons';
+import { Face } from '@material-ui/icons';
 import Link from '@material-ui/core/Link';
 import Gravatar from '../../components/Avatars/Gravatar';
 import { AccountContext } from '../../contexts/AccountContext/AccountContext';

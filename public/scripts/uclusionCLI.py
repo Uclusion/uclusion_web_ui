@@ -338,13 +338,15 @@ def approve_job(credentials, job_short_code, certainty, reason):
     return send(data, 'PATCH', approve_api_url, credentials['api_token'])
 
 
-def add_info(credentials, short_code, info):
+def add_info(credentials, short_code, info, question_short_code=None):
     info_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + short_code
     local_tz = datetime.now().astimezone().tzinfo
     data = {
         'body': info,
         'tz': local_tz.tzname(None)
     }
+    if question_short_code is not None:
+        data['parent_question_short_code_id'] = question_short_code
     return send(data, 'POST', info_api_url, credentials['api_token'])
 
 
@@ -704,7 +706,7 @@ def cmd_add_info(args):
     if result is None:
         return 1
     credentials, _config, _stages = result
-    response = add_info(credentials, args.short_code, args.info)
+    response = add_info(credentials, args.short_code, args.info, args.question_short_code)
     print(response)
     return 0
 
@@ -835,6 +837,10 @@ def build_parser():
     add_info_parser.add_argument(
         'info',
         help='Info to add.',
+    )
+    add_info_parser.add_argument(
+        'question_short_code',
+        help='If the short code is an option or inside an option then the short code id of the question the option is for (e.g. Q-abc-123).',
     )
     add_info_parser.set_defaults(func=cmd_add_info)
 

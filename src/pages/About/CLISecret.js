@@ -4,6 +4,7 @@ import SpinBlockingButton from '../../components/SpinBlocking/SpinBlockingButton
 import { getSecret, newSecret } from '../../api/users';
 import { useIntl } from 'react-intl';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
+import CopyCommand from './CopyCommand';
 
 const styleClasses = makeStyles(
   {
@@ -54,10 +55,9 @@ function CLISecret (props) {
         </Typography>
       )}
       {secretUser && (
-        <p style={{whiteSpace: 'pre-wrap', marginTop: '0.5rem'}}>
-          {`secret_key_id = ${secretUser.external_id}_${secretUser.account_id}`}<br/>
-          {`secret_key = ${secretUser.client_secret}`}<br/>
-        </p>
+        <CopyCommand
+          command={`secret_key_id = ${secretUser.external_id}_${secretUser.account_id}\nsecret_key = ${secretUser.client_secret}`}
+        />
       )}
       {!secretUser && (
         <SpinBlockingButton

@@ -19,6 +19,7 @@ import queryString from 'query-string';
 import CLISecret from './CLISecret';
 import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
 import _ from 'lodash';
+import CopyCommand from './CopyCommand';
 
 const useStyles = makeStyles((theme) => ({
   disabled: {
@@ -73,54 +74,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function CopyCommand (props) {
-  const { command } = props;
-  const [copied, setCopied] = useState(false);
-  return (
-    <div
-      style={{
-        position: 'relative',
-        backgroundColor: '#f6f8fa',
-        border: '1px solid #e1e4e8',
-        borderRadius: '6px',
-        padding: '12px 44px 12px 16px',
-      }}
-    >
-      <code
-        style={{
-          display: 'block',
-          fontFamily: 'Menlo, Consolas, monospace',
-          fontSize: '0.875rem',
-          color: '#24292e',
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-all',
-          lineHeight: 1.5,
-        }}
-      >
-        {command}
-      </code>
-      <Tooltip title={copied ? 'Copied!' : 'Copy to clipboard'} placement="top">
-        <IconButton
-          size="small"
-          aria-label="copy command"
-          style={{position: 'absolute', top: '6px', right: '6px'}}
-          onClick={() => {
-            navigator.clipboard.writeText(command);
-            setCopied(true);
-          }}
-          onMouseLeave={() => setCopied(false)}
-        >
-          <FileCopyOutlined fontSize="small" />
-        </IconButton>
-      </Tooltip>
-    </div>
-  );
-}
-
-CopyCommand.propTypes = {
-  command: PropTypes.string.isRequired,
-};
-
 function IntegrationPreferences (props) {
   const { hidden } = props;
   const intl = useIntl();
@@ -136,6 +89,7 @@ function IntegrationPreferences (props) {
   const values = queryString.parse(querySearch);
   const { integrationType } = values || {};
   const { user } = userState || {};
+  const useGroupId = groupId || marketId;
   const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
   let markets = [];
   const allowableGroups = groupsState[marketId];
@@ -198,7 +152,7 @@ function IntegrationPreferences (props) {
           </Card>
         </div>
       )}
-      {(integrationType === undefined || integrationType === 'slack') && (
+      {(integrationType === 'slack') && (
         <div className={classes.container} style={{marginTop: '3rem', marginBottom: '1rem'}}>
           <Card>
             <SubSection
@@ -250,16 +204,16 @@ function IntegrationPreferences (props) {
           </Card>
         </div>
       )}
-      {(integrationType === undefined || integrationType === 'cli') && (
+      {(integrationType === undefined || integrationType === 'cli') && useGroupId && (
         <div className={classes.containerLarge} style={{marginTop: '3rem', marginBottom: '10rem'}}>
-          {_.size(allowableGroups) > 1 && groupId && (
+          {_.size(allowableGroups) > 1 && useGroupId && (
             <>
               <div>
                 <FormattedMessage id="switchTodoView"/>
               </div>
               <FormControl style={{marginBottom: '1rem'}}>
                   <Select
-                    value={groupId}
+                    value={useGroupId}
                     onChange={(event) => setGroupId(event.target.value)}
                   >
                     {allowableGroups.map((group) => {
@@ -279,7 +233,7 @@ function IntegrationPreferences (props) {
                 Installation command:
               </Typography>
               <CopyCommand
-                command={`curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId} ${groupId}`}
+                command={`curl -fsSL https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId} ${useGroupId}`}
               />
               <div style={{display: 'flex', alignItems: 'center', margin: '0.75rem 0', color: '#6a737d'}}>
                 <div style={{flex: 1, height: '1px', backgroundColor: '#e1e4e8'}} />
@@ -287,7 +241,7 @@ function IntegrationPreferences (props) {
                 <div style={{flex: 1, height: '1px', backgroundColor: '#e1e4e8'}} />
               </div>
               <CopyCommand
-                command={`wget -qO- https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId} ${groupId}`}
+                command={`wget -qO- https://production.uclusion.com/scripts/install.sh | bash -s -- ${marketId} ${useGroupId}`}
               />
               <CLISecret marketId={marketId} />
             </SubSection>

@@ -16,7 +16,7 @@ import ReadOnlyQuillEditor from '../TextEditors/ReadOnlyQuillEditor';
 import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE, } from '../../constants/comments';
 import { OperationInProgressContext } from '../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { usePresences } from '../../contexts/MarketPresencesContext/marketPresencesHelper';
-import { addCommentToMarket, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
+import { addCommentToMarket, getComment, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import UsefulRelativeTime from '../TextFields/UseRelativeTime';
 import {
@@ -63,6 +63,7 @@ import { ACTION_BUTTON_COLOR, DARK_TEXT_BACKGROUND_COLOR, useButtonColors } from
 import { dehighlightMessage } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import { ThemeModeContext } from '../../contexts/ThemeModeContext';
 import InvesibleCommentLinker from '../../pages/Dialog/InvesibleCommentLinker';
+import { BLUE_LEVEL } from '../../constants/notifications';
 
 const useReplyStyles = makeStyles(
   theme => {
@@ -229,10 +230,11 @@ function Reply(props) {
   const classes = useReplyStyles();
   const commentClasses = useCommentStyles();
   const rootComment = getCommentRoot(commentsState, marketId, comment.id);
+  const parentComment = getComment(commentsState, marketId, comment.reply_id);
   const market = getMarket(marketsState, marketId);
   const { investible_id: investibleId, group_id: groupId } = comment || {};
   const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE, ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(rootComment?.comment_type)
-    && !isInbox && market?.market_type !== DECISION_TYPE && !rootComment?.resolved;
+    && !isInbox && market?.market_type !== DECISION_TYPE && !rootComment?.resolved && !rootComment?.notification_type === BLUE_LEVEL;
   const isSubTask = market?.market_type === PLANNING_TYPE && rootComment?.comment_type === TODO_TYPE && investibleId &&
     comment.created_by === rootComment?.created_by;
   const isTopLevelSubTask = isSubTask && rootComment?.id === comment.reply_id;
@@ -311,6 +313,10 @@ function Reply(props) {
           comment.id));
       }
     });
+  }
+
+  function isNoNotification() {
+    return  _.isEmpty(comment.mentions) && parentComment?.created_by === userId;
   }
 
   if (!marketId) {
@@ -405,7 +411,7 @@ function Reply(props) {
             doFloatRight
           />
         )}
-        {isMyPokableComment(comment, presences, groupPresencesState, marketId) && enableEditing && isEditable && !isSubTask && (
+        {isMyPokableComment(comment, presences, groupPresencesState, marketId) && !isNoNotification() && enableEditing && isEditable && !isSubTask && (
           <TooltipIconButton
             disabled={operationRunning !== false}
             onClick={(event) => {

@@ -594,6 +594,7 @@ const messages = defineMessages({
   commentTypeLabelREPLY: 'Reply',
   commentTypeLabelREPORT: 'Note',
   commentTypeLabelSubTaskREPLY: 'Grouped task',
+  addNote: 'Add note',
 
   // card types
   cardTypeLabelIssue: 'Blocking issue',

@@ -240,6 +240,8 @@ function Reply(props) {
   const isTopLevelSubTask = isSubTask && rootComment?.id === comment.reply_id;
   const isMySubTask = isTopLevelSubTask && rootComment?.created_by === userId;
   const inProgress = comment.in_progress;
+  const thisIsMyNote = comment.created_by === userId && rootComment?.notification_type === BLUE_LEVEL 
+   && rootComment?.comment_type === REPORT_TYPE && parentComment?.created_by ===  userId;
 
   function useMarketId() {
     return React.useContext(LocalCommentsContext).marketId;
@@ -505,7 +507,7 @@ function Reply(props) {
             }}
             variant="text"
           >
-            {intl.formatMessage({ id: "issueReplyLabel" })} {hasReply(comment) && <EditIcon htmlColor={ACTION_BUTTON_COLOR} style={{fontSize: '1rem'}} fontSize='small' />}
+            {intl.formatMessage({ id: thisIsMyNote ? "addNote" : "issueReplyLabel" })} {hasReply(comment) && <EditIcon htmlColor={ACTION_BUTTON_COLOR} style={{fontSize: '1rem'}} fontSize='small' />}
           </Button>
         )}
         {enableEditing && isTopLevelSubTask && (

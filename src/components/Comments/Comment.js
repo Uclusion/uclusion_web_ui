@@ -605,6 +605,7 @@ function Comment(props) {
   const notDoingStage = getNotDoingStage(marketStagesState, marketId) || {};
   const otherInProgress = previousInProgress(myPresence.id, comment, investiblesState, commentsState, notDoingStage.id);
   const isDisplayOfSubTask = isSubTask(comment, commentsState, marketType === PLANNING_TYPE);
+  const thisIsMyNote = createdBy === myPresence && isNote;
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -1132,12 +1133,12 @@ function Comment(props) {
               <SpinningIconLabelButton
                 onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
                   undefined, undefined, id, typeObjectId))}
-                icon={showSubTask ? AddIcon : ReplyIcon}
+                icon={showSubTask || thisIsMyNote ? AddIcon : ReplyIcon}
                 iconOnly={mobileLayout}
                 id={`commentReplyButton${id}`}
                 doSpin={false}
               >
-                {!mobileLayout && intl.formatMessage({ id: showSubTask ? 'commentSubTaskLabel' : 'commentReplyLabel' })} {hasReply(comment) && <EditIcon />}
+                {!mobileLayout && intl.formatMessage({ id: showSubTask ? 'commentSubTaskLabel' : (thisIsMyNote ? 'addNote' : 'commentReplyLabel') })} {hasReply(comment) && <EditIcon />}
               </SpinningIconLabelButton>
             )}
             {(!investibleId || isNote) && !removeActions && enableEditing && !mobileLayout && (

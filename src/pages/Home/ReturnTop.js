@@ -16,7 +16,7 @@ import { useButtonColors } from '../../components/Buttons/ButtonConstants';
 
 function ReturnTop(props) {
   const { action, pathInvestibleId, market, groupId, pathMarketIdRaw, hashInvestibleId, isArchivedWorkspace,
-    useLink, typeObjectId, isSearch=false } = props;
+    useLink, typeObjectId, isSearch=false, isMac=false } = props;
   const [investiblesState] = useContext(InvestiblesContext);
   const [groupsState] = useContext(MarketGroupsContext);
   const [groupPresencesState] = useContext(GroupMembersContext);
@@ -62,7 +62,7 @@ function ReturnTop(props) {
     }
   }
 
-  useHotkeys('ctrl+arrowUp', goUp, {enabled: !upDisabled, enableOnContentEditable: true},
+  useHotkeys(isMac ? 'ctrl+option+arrowUp' : 'ctrl+arrowUp', goUp, {enabled: !upDisabled, enableOnContentEditable: true},
     [history, useLink, upFromConfigPossible, marketId, action, hashInvestibleId, activeGroupId]);
 
 

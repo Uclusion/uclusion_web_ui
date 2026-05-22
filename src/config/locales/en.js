@@ -293,8 +293,11 @@ const messages = defineMessages({
   commentReplyEdit: 'Comment Edit',
   labels: 'Labels',
   previousNavigation: 'ctrl+arrowLeft go to previous navigation',
+  previousNavigationMac: 'ctrl+option+arrowLeft go to previous navigation',
   nextNavigation: 'ctrl+arrowRight or this button goes to likely next',
+  nextNavigationMac: 'ctrl+option+arrowRight or this button goes to likely next',
   upNavigation: 'ctrl+arrowUp go up one level',
+  upNavigationMac: 'ctrl+option+arrowUp go up one level',
   up: 'Up',
 
   //Inbox notification titles

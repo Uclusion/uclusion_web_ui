@@ -120,6 +120,8 @@ export default function NavigationChevrons(props) {
   const assistantanceCandidates = [];
   const inVotingCandidates = [];
   const groupCandidates = [];
+  const isMac = window.navigator.userAgentData ? window.navigator.userAgentData.platform === 'macOS' 
+  : /Mac/i.test(window.navigator.userAgent);
 
   function getCommentUseUrl(comment) {
     return formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.root_comment_id || comment.id);
@@ -291,12 +293,12 @@ export default function NavigationChevrons(props) {
     navigate(history, nextUrl.useUrl || nextUrl.url);
   }
 
-  useHotkeys('ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled, enableOnContentEditable: true},
+  useHotkeys(isMac ? 'ctrl+option+arrowRight' : 'ctrl+arrowRight', doNextNavigation, {enabled: !nextDisabled, enableOnContentEditable: true},
     [history, nextUrl.message, nextUrl.url]);
-  useHotkeys('ctrl+arrowLeft', doPreviousNavigation,
+  useHotkeys(isMac ? 'ctrl+option+arrowLeft' : 'ctrl+arrowLeft', doPreviousNavigation,
     {enabled: !backDisabled, enableOnContentEditable: true}, [history, previous?.url]);
   // To make up arrow navigation work
-  const returnTop = <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket}
+  const returnTop = <ReturnTop action={action} pathInvestibleId={pathInvestibleId} market={defaultMarket} isMac={isMac}
             isArchivedWorkspace={isArchivedWorkspace} useLink={useLink} typeObjectId={typeObjectId} isSearch={!_.isEmpty(searchText)}
             groupId={chosenGroup} pathMarketIdRaw={pathMarketIdRaw} hashInvestibleId={hashInvestibleId}/>;
 
@@ -319,9 +321,9 @@ export default function NavigationChevrons(props) {
     );
   }
 
-  const toolTipTitle = <div><p>{intl.formatMessage({ id: 'nextNavigation' })}</p>
-  <p>{intl.formatMessage({ id: 'previousNavigation' })}</p>
-  <p>{intl.formatMessage({ id: 'upNavigation' })}</p></div>;
+  const toolTipTitle = <div><p>{intl.formatMessage({ id: isMac ? 'nextNavigationMac' : 'nextNavigation' })}</p>
+  <p>{intl.formatMessage({ id: isMac ? 'previousNavigationMac' : 'previousNavigation' })}</p>
+  <p>{intl.formatMessage({ id: isMac ? 'upNavigationMac' : 'upNavigation' })}</p></div>;
   const buttonContent = <Button
     variant="outlined"
     disabled={nextDisabled}

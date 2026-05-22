@@ -195,6 +195,7 @@ function QuillEditor2 (props) {
         scrollingContainer: `#${useCssId}scroll`,
         boxRef,
         containerRef,
+        toolbarRef,
         marketId,
         layout: mobileLayout,
         noToolbar,
@@ -210,13 +211,6 @@ function QuillEditor2 (props) {
         value
       };
       createEditor(id, noToolbar ? value : undefined, editorConfig, false);
-      if (!noToolbar && toolbarRef.current && containerRef.current) {
-        const toolbar = containerRef.current.querySelector('.ql-toolbar');
-        if (toolbar) {
-          toolbarRef.current.innerHTML = '';
-          toolbarRef.current.appendChild(toolbar);
-        }
-      }
     }
     // This is probably a bad idea, but the create should be fine
     // due to the checks above (missing createEditor dep)

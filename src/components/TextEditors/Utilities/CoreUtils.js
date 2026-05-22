@@ -146,6 +146,20 @@ function removeToolbarTabs (editorNode) {
   }
 }
 
+/** Moves the Quill-generated toolbar out of the editor container and into the
+ * dedicated toolbar ref, so it renders below the editor. Must run on every
+ * editor creation (including resetEditor) since Quill builds a fresh toolbar.
+ */
+function relocateToolbar (containerNode, toolbarRef) {
+  if (toolbarRef?.current && containerNode) {
+    const toolbar = containerNode.querySelector('.ql-toolbar');
+    if (toolbar) {
+      toolbarRef.current.innerHTML = '';
+      toolbarRef.current.appendChild(toolbar);
+    }
+  }
+}
+
 
 export function resetEditor(id, contents, configOverrides, hardReset=false) {
   storeState(id, null);
@@ -243,6 +257,7 @@ export function createEditor (id, editorContents, config, forceCreate) {
       addToolTips(editor.container.previousSibling)
     }
     disableToolbarTabs(containerRef.current)
+    relocateToolbar(containerRef.current, config.toolbarRef)
   }
   const onChange = generateOnChangeHandler(id);
 

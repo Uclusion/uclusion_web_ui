@@ -352,13 +352,10 @@ function Reply(props) {
             </div>
           </Tooltip>
         )}
-        {isSubTask && (
-          <div style={{display: 'inline-block', marginRight: '1rem', marginTop: '-0.6rem'}}>
-            <InvesibleCommentLinker commentId={comment.id} investibleId={investibleId} marketId={marketId} flushBottom 
-              textColor='black' hideLink />
-          </div>
-
-        )}
+        <div style={{display: 'inline-block', marginRight: '1rem', marginTop: '-0.6rem'}}>
+          <InvesibleCommentLinker commentId={comment.id} investibleId={investibleId} marketId={marketId} flushBottom 
+            textColor='black' hideLink />
+        </div>
         {!isTopLevelSubTask && (
           <Typography className={classes.commenter} variant="body2">
             {commenter.name}

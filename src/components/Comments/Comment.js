@@ -869,7 +869,7 @@ function Comment(props) {
   const linker = 
     <div style={{marginRight: '1rem', marginTop: '-0.6rem'}}>
       <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} flushBottom 
-          textColor='black' />
+          textColor='black' hideLink={marketType === DECISION_TYPE} />
     </div>;
   const gravatarWithName = useCompression && inboxMessageId ?
     <Gravatar name={createdBy.name} email={createdBy.email} className={classes.smallGravatar}/>
@@ -878,8 +878,7 @@ function Comment(props) {
                                             typographyClassName={classes.createdBy}
                                             avatarClassName={classes.smallGravatar}
   />;
-  const showLinker = !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType)
-  && marketType !== DECISION_TYPE;
+  const showLinker = !isInbox && !beingEdited && ![JUSTIFY_TYPE, REPLY_TYPE].includes(commentType);
   const notificationFunc = !replyEditId && myMessage?.type_object_id && !isInbox &&
   (investibleId || commentType !== TODO_TYPE || myMessage.type !== UNASSIGNED_TYPE) ? () => {
     dehighlightMessage(myMessage, messagesDispatch);

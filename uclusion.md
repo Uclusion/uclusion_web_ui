@@ -1,13 +1,13 @@
 | No Estimate | Estimated | | Done |
 |--------------|---------------|--------------|--------------|
-| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#j-marketing-15)| [Support progress on a task that are notes instead of things you complete](#j-all-284)| 05/14| [AI notifications stuff](#j-all-294) |
+| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#j-marketing-15)| [Uclusion is how you collaborate with AI.](#j-all-283)| 05/14| [AI notifications stuff](#j-all-294) |
 | [Other AI integrations.](#j-all-291)| [Current must fix](#j-all-293)| 05/29| [Fix documentation for notes, AI, and everyone view..](#j-all-290) |
 | [More upgrading.](#j-all-286)| | | [Better archive.](#j-all-230) |
-| | | | [Either fix tip of spear blog of have new tip of spear which shows detail of...](#j-all-292) |
+| [Problems with approvals.](#j-all-297)| | | [Either fix tip of spear blog of have new tip of spear which shows detail of...](#j-all-292) |
 | | | | [Issues with view creation.](#j-all-289) |
-| | | | [Uclusion is how you collaborate with AI.](#j-all-283) |
+| | | | [Support progress on a task that are notes instead of things you complete](#j-all-284) |
 | | | | [Bugs B-all-424, B-all-423, B-all-422, B-all-420, B-all-421, B-all-419, B-all-418](#j-all-288) |
-## Job J-Marketing-15<a name="J-Marketing-15"></a>
+## Job J-Marketing-15<a name="j-marketing-15"></a>
 ### Build the prompts necessary to get the lastest debuts from Show HN, Product...
 ...Hunt, etc. that meet the small tech startup criteria - have landing page but not too many engineers.
 
@@ -1468,7 +1468,7 @@ if __name__ == "__main__":
 run_agent()
 ```
 
-## Job J-all-291<a name="J-all-291"></a>
+## Job J-all-291<a name="j-all-291"></a>
 ### Other AI integrations.
 #### Tasks 
 #### Task T-all-2023<a name="t-all-2023"></a> 
@@ -1508,7 +1508,7 @@ Ask for the location of an .mcp.json and add to it.
 #### Resolved Task C-all-892<a name="c-all-892"></a> 
 Can try the same thing in Cursor - it asks its questions in Uclusion and then waits for you to say you are done answering them. **They won't clutter up as you will resolve them.**
 
-## Job J-all-286<a name="J-all-286"></a>
+## Job J-all-286<a name="j-all-286"></a>
 ### More upgrading.
 
 
@@ -1520,7 +1520,2349 @@ Can try the same thing in Cursor - it asks its questions in Uclusion and then wa
 
 And check emails also.
 
-## Job J-all-284<a name="J-all-284"></a>
+## Job J-all-283<a name="j-all-283"></a>
+### Uclusion is how you collaborate with AI.
+The only reason some solo devs have to write anything down is AI. Have AI take a job from CLI and communicate it's plan through the job - ask questions with options and vote on best option, make suggestions when have an idea for changing the job, add tasks, add grouped tasks at code level like it's current plan, and of course blockers if it is stuck.
+
+
+
+
+Going with secret key instead of full Oauth stuff <https://upstash.com/blog/mcp-oauth-implementation> :
+
+<https://www.truefoundry.com/blog/mcp-authentication-in-cursor-oauth-api-keys-and-secure-configuration> - shows Cursor will handle everything from a discovery flow
+
+<https://www.mintlify.com/upstash/context7/mcp/configuration> - verifies this worked in real life.
+
+#### Tasks 
+#### Task T-all-2096<a name="t-all-2096"></a> 
+Have to remove bullet list when create tasks or else the shadow copy can become out of date and confusing to AI in the markdown.
+
+#### Resolved 
+#### Resolved Task T-all-2065<a name="t-all-2065"></a> 
+Need to encourage it to resolve tasks that are done and resolve questions that are through with.
+
+#### Resolved Task C-all-854<a name="c-all-854"></a> 
+For secret keys need to make sure banned check happens as currently does in
+
+
+
+
+<https://github.com/Uclusion/uclusion_common/blob/5ef9a6a61b390cd16c945282b6e9abb8cff59383/ucommon/handlers/abstract_request_handler.py#L102>
+
+#### Resolved Task C-all-870<a name="c-all-870"></a> 
+So need a get_task which only gets a task into a context in case you put a prompt there - need to work however they work.
+
+
+
+
+**Maybe task gets task and job gets job? Cause task gets job means AI will think is on task as it won't get this surrounding thing thing.**
+
+
+
+
+But then tricky cause do you get the job for question you want answered and then ask it to answer the question? Kind of requires a lot of skill for the user. Is getting the full job really going to fill the context too much or distract? **Also a user of the UI would never have only a comment in a job without seeing the job.**
+
+#### Resolved Task C-all-882<a name="c-all-882"></a> 
+Screen the AI user out of get followers of job method - won't be in any views.
+
+#### Resolved Task T-all-2003<a name="t-all-2003"></a> 
+Have to output everything the AI puts out so that people can see the "thinking".
+
+#### Resolved Task T-all-2072<a name="t-all-2072"></a> 
+Test suggestion and progress report from CLI.
+
+#### Resolved Task C-all-851<a name="c-all-851"></a> 
+<https://cursor.com/docs/mcp> has the example we want (possibly with scopes added):
+
+
+
+
+```
+{
+```
+
+```
+"mcpServers": {
+```
+
+```
+"uclusion-mcp-proxy": {
+```
+
+```
+"command": "python3",
+```
+
+```
+"args": ["/home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
+```
+
+```
+}
+```
+
+```
+}
+```
+
+```
+}
+```
+
+
+
+
+We want that one cause don't want them to do a full Uclusion login with Google, Github, or email/password as would go too many screen deep. Cursor says use this when
+
+
+
+
+1. The provider does not support OAuth 2.0 Dynamic Client Registration
+
+
+
+
+
+Which for Uclusion is true - there is no dynamic way to get your secret keys as shown [here](https://www.scalekit.com/blog/dynamic-client-registration-oauth2).
+
+
+
+
+So to make this work you need and endpoint on https://api.example.com/mcp/.well-known/oauth-authorization-server that:
+
+
+
+
+```
+
+
+
+```
+
+```
+async def token_endpoint(
+```
+
+```
+grant_type: str = Form(...),
+```
+
+```
+client_id: str = Form(None),
+```
+
+```
+client_secret: str = Form(None)
+```
+
+```
+):
+```
+
+```
+"""
+```
+
+```
+Step 2: The Token Exchange.
+```
+
+```
+Cursor POSTs the ID and Secret here. You validate them and return a signed JWT.
+```
+
+```
+"""
+```
+
+```
+if grant_type != "client_credentials":
+```
+
+```
+raise HTTPException(status_code=400, detail="unsupported_grant_type")
+```
+
+```
+  
+```
+
+```
+if client_id != EXPECTED_CLIENT_ID or client_secret != EXPECTED_CLIENT_SECRET:
+```
+
+```
+raise HTTPException(status_code=401, detail="invalid_client")
+```
+
+```
+
+
+
+```
+
+```
+return {
+```
+
+```
+"issuer": base_url,
+```
+
+```
+"token_endpoint": f"{base_url}/token",
+```
+
+```
+# Cursor uses the client_credentials grant for machine-to-machine auth
+```
+
+```
+"grant_types_supported": ["client_credentials"],
+```
+
+```
+"response_types_supported": ["token"],
+```
+
+```
+"token_endpoint_auth_methods_supported": ["client_secret_post"]
+```
+
+```
+}
+```
+
+
+
+
+and another endpoint on https://api.example.com/mcp/token that returns:
+
+
+
+
+```
+return {
+```
+
+```
+"access_token": token,
+```
+
+```
+"token_type": "Bearer",
+```
+
+```
+"expires_in": 3600
+```
+
+```
+}
+```
+
+
+
+
+and of course the actual MCP endpoint on https://api.example.com/mcp that is secured by a normal Uclusion token as any other API - for now could just use <https://github.com/modelcontextprotocol/python-sdk/blob/main/examples/mcpserver/simple_echo.py>
+
+> ##### Grouped task C-all-863<a name="c-all-863"></a> 
+```
+2026-04-13 13:23:30.526 [info] Starting new stdio process with command: python3 /home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py 3a2c3b12-336b-4d72-b36c-fd3a27a884b2 dev
+```
+
+```
+2026-04-13 13:23:33.323 [error] Client error for command [
+```
+
+```
+{
+```
+
+```
+"code": "invalid_union",
+```
+
+```
+"errors": [
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+]
+```
+
+```
+],
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input"
+```
+
+```
+}
+```
+
+```
+]
+```
+
+```
+2026-04-13 13:23:33.323 [warning] [V1] initializing -> error: [
+```
+
+```
+{
+```
+
+```
+"code": "invalid_union",
+```
+
+```
+"errors": [
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+]
+```
+
+```
+],
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input"
+```
+
+```
+}
+```
+
+```
+]
+```
+
+
+
+
+Coming from:
+
+```
+/aws/lambda/uclusion-investible-api-dev-mcp_post 2026/04/13/[$LATEST]da08c828fa524be3a18023325d0a7d14 [INFO]    2026-04-13T20:23:33.325Z        d7b2425f-fff5-4b26-b338-7bbceedc9ed1  {'statusCode': 200, 'body': '"{\\"jsonrpc\\":\\"2.0\\",\\"id\\":0,\\"result\\":{\\"protocolVersion\\":\\"2024-11-05\\",\\"capabilities\\":{},\\"serverInfo\\":{\\"name\\":\\"uclusion-mcp-server\\",\\"version\\":\\"1.0.0\\"}}}"', 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': True}, 'isBase64Encoded': False}
+```
+
+```
+
+
+
+```
+
+```
+
+
+
+```
+
+#### Resolved Task T-all-2034<a name="t-all-2034"></a> 
+Fix 'The CLI you never knew but always wanted' section in general and of course it is 'The MCP and CLI you never knew but always wanted'.
+
+
+
+
+Maybe add a fourth box.
+
+#### Resolved Task T-all-1995<a name="t-all-1995"></a> 
+The prompts explain what the agent should do with the assigned jobs approval - use the description as a prompt to plan and add high level tasks and existing tasks as things that must have grouped tasks plans. **Anything you want handled in its own context should go in its own job - so the tasks are all things that require knowing other things in the job.**
+
+
+
+
+Prompt also explains that if in Work Ready then start on all tasks - marking each one currently doing as in progress and resolving ones that are done.
+
+#### Resolved Task C-all-869<a name="c-all-869"></a> 
+Have MCP server in Cursor be part of this script whenever Cursor is present.
+
+
+
+
+~/.cursor/mcp.json
+
+```
+{
+```
+
+```
+"mcpServers": {
+```
+
+```
+"Uclusion": {
+```
+
+```
+"command": "python3",
+```
+
+```
+"args": ["/user/local/bin/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
+```
+
+```
+}
+```
+
+```
+}
+```
+
+```
+}
+```
+
+#### Resolved Task T-all-2052<a name="t-all-2052"></a> 
+Resolve is missing from the CLI.
+
+#### Resolved Task T-all-2040<a name="t-all-2040"></a> 
+The script just takes a workspace ID and that breaks input of bug and TODO integration view.
+
+#### Resolved Task T-all-2037<a name="t-all-2037"></a> 
+For MCP has to send full link to question so that user clicks the link and then sees loading till the question is available.
+
+
+
+
+**Verify that see loading until question available also and that is polling at a decent rate to get the question.**
+
+#### Resolved Task T-all-2038<a name="t-all-2038"></a> 
+Change verbiage on get job to make it clear that the rest of the job is just for context.
+
+#### Resolved Task T-all-2077<a name="t-all-2077"></a> 
+Need to see ID on grouped task or don't know which one AI is doing or resolving.
+
+#### Resolved Task T-all-2004<a name="t-all-2004"></a> 
+These comments will be as an AI user that is local to the workspace and has no home account or a dummy home account. The point is that a collaboration with AI to get its opinion on the job, at a high level, is better than nothing.
+
+#### Resolved Question Q-all-49<a name="q-all-49"></a> 
+Do you run CLI each time or just have an agent running all the time that reacts to changes you make in Uclusion?
+
+#### Resolved Task T-all-2005<a name="t-all-2005"></a> 
+Currently can get link or commit message but cannot copy just the ID of a job or comment. Clicking the short code will have to open a drop down that has you choose ID or commit message.
+
+
+
+
+**Actually the drop down can include all info necessary - which might be a full prompt as have in the other task.**
+
+#### Resolved Task C-all-864<a name="c-all-864"></a> 
+How should it work in MCP to get humans to give commands like necessary? Are the examples just in the Uclusion docs or AI should give hints to the human or maybe the hints are in Uclusion or all the above?
+
+#### Resolved Task T-all-2066<a name="t-all-2066"></a> 
+Setup [Claude Code](https://code.claude.com/docs) and finish the Archive job using that since ran out of credits on Cursor.
+
+
+
+
+**Finish and deploy other changes to stage before proceed with Archive job.**
+
+#### Resolved Task S-all-58<a name="s-all-58"></a> 
+Be careful with wasting tokens
+
+
+
+
+<https://medium.com/generative-ai/i-spent-a-year-burning-money-on-ai-and-finally-decided-to-do-something-about-it-61854d738d4a>
+
+
+
+
+If can MCP to work then it's both - you can look from the AI side or the Uclusion side.
+
+
+
+
+**However no assistance - you answer AI's questions as you do now and then it creates a plan as tasks and grouped tasks. The job can be created from the AI side also and records prompt and answers in job description. Now people, including you, know what you are working on without sharing an AI session or something funky. Furthermore instead of looking at plans in crappy MD files you can see everything in a job.**
+
+
+
+
+If you want to go the other way and write down things in Uclusion and then pull them into your AI session then of course you can via MCP.
+
+> ##### Grouped task C-all-842<a name="c-all-842"></a> 
+Understand MCP <https://github.com/modelcontextprotocol>
+
+> ##### Grouped task C-all-844<a name="c-all-844"></a> 
+MCP allows defining a prompt for a method:
+
+
+
+
+```
+@prompt(
+```
+
+```
+name="query-data",
+```
+
+```
+description="Fetches data from the SQL database using a SQL query"
+```
+
+```
+)
+```
+
+```
+def query_data(query: str) -> str:
+```
+
+```
+# Logic to fetch data from resource
+```
+
+```
+return f"Result: {db.execute(query)}"
+```
+
+```
+
+
+
+```
+
+> ##### Grouped task C-all-843<a name="c-all-843"></a> 
+<https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization> - has authorization but how do you make Cursor know how to do this for an API call?
+
+
+
+
+**OAuth via Browser (Remote Servers):**
+
+1. Add the URL in Cursor Settings -> Tools & MCP.
+2. Click the blue "Connect" button that appears.
+3. A browser window will pop up to authorize the service, which will then redirect back to Cursor.
+
+
+
+
+
+There is also a discovery flow listed and might have to do that for non Cursor.
+
+#### Resolved Task C-all-850<a name="c-all-850"></a> 
+Cursor has its own UI including tasks:
+
+
+
+
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/b0dc8453-7273-438b-a23c-2d356f3527cc.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+It should be encouraged to create this plan in Uclusion as grouped tasks ahead of time. **For whatever reason Cursor is not outputting the markdown plan Daniel mentioned - maybe you have to tell it use planning mode first or something.**
+
+
+
+
+**Plan mode is an option on the switch agent mode button.**
+
+#### Resolved Task T-all-2068<a name="t-all-2068"></a> 
+During install when a ~/.claude.json is present also add to its list of mcp servers as was done for cursor's mcp.json.
+
+#### Resolved Task T-all-2017<a name="t-all-2017"></a> 
+Test get job from MCP.
+
+> ##### Grouped task C-all-867<a name="c-all-867"></a> 
+```
+"params":{"name":"get_job","arguments":{"job_id":"J-Engineering-9"},"_meta":{"progressToken":4}}
+```
+
+#### Resolved Task T-all-2000<a name="t-all-2000"></a> 
+For an AI user need to turn off notifications of anything it won't be doing - for instance answering assistance questions, critical bugs, unassigned jobs, etc.
+
+
+
+
+**Should stick with AI only responds when something assigned to it - to creepy otherwise - later can be a setting.**
+
+#### Resolved Task C-all-861<a name="c-all-861"></a> 
+<https://sso.dev.api.uclusion.com/v1/mcp/.well-known/oauth-authorization-server> works but is never hit and get
+
+
+
+
+```
+2026-04-11 20:09:28.506 [info] Creating streamableHttp transport
+```
+
+```
+2026-04-11 20:09:28.506 [info] No scopes in config, fetching from well-known endpoint
+```
+
+
+
+
+But never hits the endpoint.
+
+
+
+
+Try <https://gemini.google.com/share/d8e348aae17f> proxy idea.
+
+#### Resolved Task T-all-1992<a name="t-all-1992"></a> 
+Use this system with the notes job and Cursor.
+
+
+
+
+Use Uclusion to get J-all-284 and also read through the application documentation at https://documentation.uclusion.com/ Then as a product manager ask any questions you have about the business value of this job which was proposed by a junior engineer. Once your questions are answered use Uclusion to add an approval to this job and use add info to record the questions and answers.
+
+> ##### Grouped task C-all-888<a name="c-all-888"></a> 
+```
+File "/opt/python/lib/python3.10/site-packages/ucommon/handlers/abstract_request_handler.py", line 40, in handle_request
+```
+
+```
+response = post_validation_function(event, data, context, validation_context)
+```
+
+```
+File "/var/task/handlers/mcp_serve.py", line 48, in post_validation_function
+```
+
+```
+result_data = handle_call_tool(request.params, user_id, capability, tool_name)
+```
+
+```
+File "/var/task/handlers/mcp_serve.py", line 164, in handle_call_tool
+```
+
+```
+result = approve_job(user_id, arguments, capability)
+```
+
+```
+File "/var/task/handlers/mcp_serve.py", line 146, in approve_job
+```
+
+```
+create_approval(ai_capability['user_id'], found_in_market, ai_capability['capability'], arguments.get('reason'),
+```
+
+```
+TypeError: 'NoneType' object is not subscriptable
+```
+
+
+
+
+Need the upgrade script!!!!!!! Don't run it on demo as they are fine.
+
+#### Resolved Task C-all-859<a name="c-all-859"></a> 
+Start with hello world version where return tool list with one tool and see what JSON get and that token stuff works.
+
+#### Resolved Task T-all-2092<a name="t-all-2092"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/27b17a3e-5296-43b2-8435-8afe4dd9b35d.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+Get rid of default in the inline market comments as did for option ticket codes.
+
+#### Resolved Task C-all-846<a name="c-all-846"></a> 
+When mention a job or task how does AI know whether to plan it as the current user or review it as the AI user? Is this decision taken locally or by the MCP server? What gets passed where?
+
+
+
+
+Cursor will analyze intent from the prompt and then match that against tool descriptions and choose the tool and fill in its arguments based on its JSON schema.
+
+#### Resolved Suggestion S-all-59<a name="s-all-59"></a> 
+Need someone's opinion on whether this would be usable or too big of an abstraction layer over the input to AI. **Maybe Brad would have an opinion?**
+
+
+
+
+FOR INSTANCE ANOTHER WAY TO GO - provide some sort of hook so that the job or task gets created in Uclusion from inside the chat with AI.
+
+#### Resolved Task C-all-884<a name="c-all-884"></a> 
+AI not showing up in new demo market - debug.
+
+#### Resolved Task T-all-2016<a name="t-all-2016"></a> 
+Copy command from copy window in integration setup screen and it has credentials and workspace ID.
+
+
+
+
+Can have AI write the one setup script.
+
+
+
+
+**disrael@uclusion-tuxedo**:**~**$ which aws
+
+/usr/local/bin/aws
+
+
+
+
+Scripts are now located in:
+
+<https://stage.uclusion.com/scripts/>
+
+
+
+
+but this install script will need to take the usual argument defaulting to prod for the url.
+
+
+
+
+Prompt:
+
+
+
+
+In public/scripts add a third script which takes environment and workspaceId as arguments and:
+
+1. Installs the two scripts in public/scripts in /usr/local/bin by downloading them from <https://stage.uclusion.com/scripts/> where the url depends on env as seen in @uclusionCLI.py
+2. Creates a ~/.uclusion folder, if not already existing, and puts a uclusion.json file in it of the form
+
+
+```
+{
+```
+
+```
+"workspaceId": "3a2c3b12-336b-4d72-b36c-fd3a27a884b2",
+```
+
+```
+"extensionsList": [
+```
+
+```
+"js",
+```
+
+```
+"py"
+```
+
+```
+],
+```
+
+```
+"sourcesList": [
+```
+
+```
+"./src"
+```
+
+```
+],
+```
+
+```
+"uclusionMDFileType": "report",
+```
+
+```
+"uclusionMDFilePath": "uclusion.md"
+```
+
+```
+}
+```
+
+where the workspaceId comes from the argument to this script.
+
+1. If there exists a ~/.cursor/mcp.json it edits it to add
+
+
+```
+{
+```
+
+```
+"mcpServers": {
+```
+
+```
+"Uclusion": {
+```
+
+```
+"command": "python3",
+```
+
+```
+"args": ["/user/local/bin/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
+```
+
+```
+}
+```
+
+```
+}
+```
+
+```
+}
+```
+
+Uclusion to the mcpServers as shown above where the second arg is the workspaceId and the third is the env if one was given or no third argument if not.
+
+> ##### Grouped task C-all-886<a name="c-all-886"></a> 
+```
+{
+```
+
+```
+"workspaceId": "3a2c3b12-336b-4d72-b36c-fd3a27a884b2",
+```
+
+```
+"extensionsList": [
+```
+
+```
+"js",
+```
+
+```
+"py"
+```
+
+```
+],
+```
+
+```
+"sourcesList": [
+```
+
+```
+"./src"
+```
+
+```
+],
+```
+
+```
+"uclusionMDFileType": "report",
+```
+
+```
+"uclusionMDFilePath": "uclusion.md"
+```
+
+```
+}
+```
+
+
+
+
+Just puts this file with workspaceId from argumentand they can edit if want later.
+
+#### Resolved Task T-all-2064<a name="t-all-2064"></a> 
+Daniel is right there will have to be a way to ask AI to break out tasks into new jobs where applicable. Saves on context but also is much faster if it can go in parallel.
+
+
+
+
+**On the other hand can just start another task in another session - putting into its own job doesn't save much context and might be confusing.**
+
+#### Resolved Task C-all-885<a name="c-all-885"></a> 
+Make AI avatar image be the standard AI symbol.
+
+#### Resolved Task C-all-838<a name="c-all-838"></a> 
+The prompt defines JSON AI output object and that tells the Uclusion program what APIs to call with what arguments. For the parallel case the prompt says first see if this job can be split into separate jobs and output that JSON if so. If you get that JSON just loop around and call the agent again in a different thread for each job it created.
+
+#### Resolved Task T-all-2083<a name="t-all-2083"></a> 
+Fix approval to work for job or option.
+
+> ##### Grouped task C-all-916<a name="c-all-916"></a> 
+Change documentation.
+
+#### Resolved Task T-all-2047<a name="t-all-2047"></a> 
+Provide a tool for resolving a question and add verbiage to questions tool saying use this when satisfied with an answer.
+
+#### Resolved Task T-all-2061<a name="t-all-2061"></a> 
+Add verbiage to the question tool that makes it clear you separate different question and options into multiple questions.
+
+#### Resolved Task T-all-2071<a name="t-all-2071"></a> 
+Tool and CLI for asking for a review (progress report).
+
+#### Resolved Task T-all-1994<a name="t-all-1994"></a> 
+Claude has to show up as a collaborator in Uclusion - same as GitHub does.
+
+#### Resolved Task C-all-856<a name="c-all-856"></a> 
+Name: add_question_option
+
+Description: Add a new option to a question. The new option will show as created by the human user.
+
+Input schema: question_id, description
+
+
+
+
+Name: add_question_option_approval
+
+Description: Add an option approval which is a certainty value where higher is more certain and a reason for the certainty. The new approval will show as created by the AI user.
+
+Input schema: question_id, certainty - number 1 to 5, reason
+
+
+
+
+Name: add_question_option_info
+
+Description: Add info to an option that will show as created by the AI user.
+
+Input schema: option_id, description
+
+
+
+
+Name: add_suggestion
+
+Description: Add a new suggestion for a job. The new suggestion will show as created by the human user.
+
+Input schema: job_id, description
+
+#### Resolved Task C-all-868<a name="c-all-868"></a> 
+Get the name of the MCP server to be Uclusion so that can say "Use Uclusion MCP to get J-mywork-1."
+
+#### Resolved Task C-all-847<a name="c-all-847"></a> 
+What verbs are we supporting for jobs?
+
+1. Plan - needs to return a link to see the plan in Uclusion and that link should spin if missing that task - which should be the first of the created tasks
+2. Start
+
+
+
+
+
+What verbs are we supporting for tasks?
+
+1. Plan
+2. Start
+
+
+
+
+
+What verbs are we supporting for a question or suggestion?
+
+1. Give opinion
+
+
+
+
+
+What is the full list of tools for a job?
+
+1. Add tasks, questions and options, suggestions, and blockers as user after user has no immediate answer or for task is okay with plan and agrees should be recorded
+2. Start, user as acting user
+
+
+
+
+
+What is the full list of tools for a task?
+
+1. Add grouped task as user
+2. Move task or tasks to new job as AI user, including adding job approval as AI user - of course tell user you did this so they can start job in new chat window. The prompt here should actually say do this for things that should have their own context
+3. Start, user as acting user
+4. Resolve, as AI user
+
+
+
+
+
+What is the full list of tools for a question?
+
+1. Add option approval as AI user
+2. Add option info as AI user
+
+
+
+
+
+What is the full list of tools for a suggestion?
+
+1. Add vote as AI user
+
+#### Resolved Task C-all-858<a name="c-all-858"></a> 
+How to make MCPServer play nice with existing token processing? Do we even need MCPServer or there is some more white box way of meeting the spec? Maybe a different Python library that is less annotation based and more clear.
+
+
+
+
+<https://gemini.google.com/share/69cb45ff2fb8> which is mostly just reading <https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda> and <https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/tree/main/examples/servers/dad-jokes>
+
+
+
+
+ApiEvent:
+
+Type: HttpApi
+
+
+
+
+**What is the difference between streamable HTTP and a REST API of all methods GET, POST, etc?**
+
+
+
+
+The Model Context Protocol (MCP) introduced **Streamable HTTP** in early 2025 to allow AI agents to interact with tools fluidly, receiving partial results as they are generated rather than waiting for a complete task to finish.
+
+
+
+
+But the Uclusion backend doesn't do partial results so this is all nonsense. Given that suppose I just want normal GET and POST REST endpoints?
+
+
+
+
+Also:
+
+
+
+
+**Cold Starts:** Because the adapter spins up a Python subprocess to execute your server, you will incur a slight cold-start penalty. If this becomes an issue for your agent workflows, consider enabling Lambda Provisioned Concurrency.
+
+
+
+
+But that shouldn't be an issue - maybe cost a second or two which is not very meaningful.
+
+
+
+
+The token handling should be fine as can handle that in serverless config as currently. Then just don't even run separate validation as passed in arguments will vary too much and FastMCP can handle it.
+
+#### Resolved Task T-all-2006<a name="t-all-2006"></a> 
+For the purposes of calculating view collaborators, the AI user doesn't count as is not an agent - front end and **back end also.**
+
+
+
+
+You also cannot assign to the AI user or use in a mention.
+
+#### Resolved Task T-all-2001<a name="t-all-2001"></a> 
+For an AI user must remove the rule that cannot put someone else's job into Work Ready.
+
+#### Resolved Task T-all-2090<a name="t-all-2090"></a> 
+```
+see the shot-by-shot script I added under Q-Default-1.
+```
+
+
+
+
+Add everything but link icon to comments in options.
+
+#### Resolved Task C-all-853<a name="c-all-853"></a> 
+See if can find an example of an MCP implementation that matches this config file. Either way see if Claude will create or if fast mcp does the handshake necessary to get the uclusion_token back to Cursor for use in all subsequent MCP calls.
+
+
+
+
+**You only get one URL so** the MCP server must be private and its authorizer must look for either token OR secret keys. No authorizers in SSO so probably this lives in investible_api or summaries.
+
+#### Resolved Task T-all-2080<a name="t-all-2080"></a> 
+```
+"params":{"name":"get_job","arguments":{"short_code_id":"Q-Default-1"},"
+```
+
+
+
+
+This failed because it didn't know to look for an option with that short code. Need to add another argument or break this out as its own tool.
+
+
+
+
+**Need to do another argument for this and the question tool and anything else that could be deeper.**
+
+#### Resolved Task C-all-902<a name="c-all-902"></a> 
+CLI also of course.
+
+#### Resolved Task C-all-913<a name="c-all-913"></a> 
+~/.claude.json
+
+
+
+
+For MCP - says [here](https://code.claude.com/docs/en/settings) with format [here](https://code.claude.com/docs/en/agent-sdk/mcp#from-a-config-file).
+
+#### Resolved Task T-all-2009<a name="t-all-2009"></a> 
+Handle case of someone adds suggestion without voting and then points AI to it for opinion.
+
+#### Resolved Task C-all-860<a name="c-all-860"></a> 
+Getting forbidden back from <https://sso.dev.api.uclusion.com/mcp/.well-known/oauth-authorization-server> and doesn't seem to hit Lambda.
+
+#### Resolved Task T-all-2046<a name="t-all-2046"></a> 
+<https://stage.uclusion.com9721e840-b3ce-4ad2-8b46-675326b397fd/Q-all-61> - missing a slash when got question in cursor.
+
+#### Resolved Task T-all-2015<a name="t-all-2015"></a> 
+get_job by short code will not include all visible in that job so links to stuff outside will not work by hash. **However returning all will be messy and unbounded.**
+
+
+
+
+Currently convert_single_link won't even return the link but instead just the verbiage and that needs to be changed to just keep the full link.
+
+
+
+
+The verbiage on the tool needs to be change also to say these are not included.
+
+
+
+
+**For that matter external links are not either and should not be sucked in indiscriminately cause would also overflow context as unbounded.**
+
+#### Resolved Task C-all-845<a name="c-all-845"></a> 
+As it stands you oauth as yourself with secret keys but then some of your actions require using a different acting user.
+
+#### Resolved Task T-all-2024<a name="t-all-2024"></a> 
+In Integrations CLI is now CLI & MCP - need to fix and make clear all over is combined install and that mcp server directly added to cursor if available when run script.
+
+#### Resolved Task T-all-2007<a name="t-all-2007"></a> 
+Have them add to their ~/.cursor/mcp.json server list a Uclusion server with the correct URL and secret_key_id and secret_key as arguments.
+
+
+
+
+Then just take the hit of authentication each time following what cli.py does.
+
+
+
+
+<https://github.com/modelcontextprotocol/python-sdk/tree/main/examples/mcpserver>
+
+#### Resolved Task C-all-848<a name="c-all-848"></a> 
+Problem with AI adding a question is that there is no moderator at that point - since not agentic.
+
+
+
+
+How get around that? For instance let anyone operate as moderator for an AI question?
+
+
+
+
+Don't have AI ask questions?
+
+
+
+
+Have AI ask locally first and only resort to question when person can't answer and then ask him if he would like a question added and then the **question is added by the user and AI just votes on option likes.**
+
+#### Resolved Task S-all-60<a name="s-all-60"></a> 
+Can we just implement the MCP over regular HTTP?
+
+
+
+
+Also can we just return a tools list when asked to by nailing up the list and then not using FastMPC etc? Just see what the protocol requires.
+
+
+
+
+<https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http>
+
+
+
+
+1. The client **MUST** use HTTP POST to send JSON-RPC messages to the MCP endpoint.
+
+
+
+
+
+So just need to handle JSON-RPC and do some minimal form of the protocol - it's always a standard HTTP POST and no need for HTTP API - <https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html> which doesn't support API keys anyway.
+
+#### Resolved Task T-all-2035<a name="t-all-2035"></a> 
+When a question is created in a job anyone assigned to the job is also an admin of the question instead of just the question creator.
+
+
+
+
+Required because someone not assigned to could create a question with options and then it just sits there if that guy doesn't admin it - in this case the someone is AI.
+
+#### Resolved Task T-all-2081<a name="t-all-2081"></a> 
+Inline markets created for demo have no AI user capability.
+
+#### Resolved Task T-all-2010<a name="t-all-2010"></a> 
+Add get_job by short code to the CLI so that can see the result for testing. Also useful if they wanted to use the CLI themselves instead of MCP.
+
+#### Resolved Task T-all-2021<a name="t-all-2021"></a> 
+Redo the integrations page to have a download command based on public/scripts/install.sh but make it a one liner. Keep the secrets as now as should not be installing secrets they don't know about.
+
+#### Resolved Task T-all-2014<a name="t-all-2014"></a> 
+Come up with plan for tools beyond get that is more reasonable. The MCP thing doesn't work well and it's hard to even get it to use it correctly.
+
+
+
+
+Have one thing that can show in a marketing video that is cool and easy.
+
+
+
+
+**Plus fix the verbiage on tools list so that Cursor does a better job of knowing to run a tool. Might have to make separate tools for all types or list all sorts of things you can get explicitly.**
+
+#### Resolved Task T-all-2002<a name="t-all-2002"></a> 
+[Have a Create AI User button that makes a user specific to a workspace and...](#2f89e4a0-7f3e-4847-8ac0-8da3105248bd)
+
+#### Resolved Suggestion S-all-61<a name="s-all-61"></a> 
+Might need to send question with options as sent false and then update to true after create options and that way force options to show up instead of having to manually sync.
+
+#### Resolved Task T-all-2082<a name="t-all-2082"></a> 
+Need a copy button on the show secret dev - just have AI do it.
+
+#### Resolved Task C-all-866<a name="c-all-866"></a> 
+Pass the Uclusion URL down to convert_single_link so that not resolved internal links can be fixed up to be absolute.
+
+
+
+
+Should be able to pass it
+
+
+
+
+```
+deployment_group = DeploymentGroupVersionModel.get(account['deployment_group'])
+```
+
+```
+base_url = deployment_group.ui_url
+```
+
+
+
+
+as that is used for sending welcome email but double check what that is in production.
+
+#### Resolved Question Q-all-50<a name="q-all-50"></a> 
+## Who does the Uclusion AI login as?
+
+
+
+
+The notifications must be specific to the workspace Uclusion AI is associated with.
+
+### Option O-1<a name="o-1"></a>
+### Have a Create AI User button that makes a user specific to a workspace and...
+...creates the CLI API keys for it.
+
+> ##### $${\color{lightgreen} For}$$
+#### Assistance 
+#### Suggestion S-Default-1<a name="s-default-1"></a> 
+This is a dummy account with no API key etc. as AI will never run its own workspace.
+
+#### Resolved 
+#### Resolved Question Q-Default-1<a name="q-default-1"></a> 
+Does this user have its own account? Does it have a dummy account that does not have its own credentials or aggregate notifications?
+
+#### Resolved Task T-all-2036<a name="t-all-2036"></a> 
+lrwxrwxrwx 1 root root 37 Sep 3 2025 **aws** -> **/usr/local/aws-cli/v2/current/bin/aws**
+
+
+
+
+lrwxrwxrwx 1 root root 47 Sep 3 2025 **aws_completer** -> **/usr/local/aws-cli/v2/current/bin/aws_completer**
+
+
+
+
+-rwxr-xr-x 1 root root 29547 May 8 22:40 **uclusionCLI.py**
+
+
+
+
+-rwxr-xr-x 1 root root 5932 May 4 13:28 **uclusionMCPProxy.py**
+
+
+
+
+
+
+
+The correct way to do is to use pointers to an install directory. Also the CLI script should be uclusion.py.
+
+#### Resolved Task C-all-883<a name="c-all-883"></a> 
+~~Make sure AI user cannot be added to a view.~~
+
+
+
+
+~~Make sure AI user cannot be added to a workspace from another workspace.~~
+
+
+
+
+And AI user cannot be added in job add others.
+
+#### Resolved Task T-all-2070<a name="t-all-2070"></a> 
+Tool and CLI for making a suggestion. Otherwise forcing AI to ask very leading questions.
+
+#### Resolved Task T-all-1993<a name="t-all-1993"></a> 
+Figure out how can have Claude look at back end code without losing the IP so can try this with back end also.
+
+
+
+
+For instance the backlog job to finish comments sucking in when go to something in archive.
+
+#### Resolved Task T-all-1996<a name="t-all-1996"></a> 
+Must have the ability to move a task to a new job (or just create a new job period) and work on that job in a new instance of Claude (multi threaded from the original command line invocation).
+
+#### Resolved Task T-all-2008<a name="t-all-2008"></a> 
+Test that task link by short code spins if missing that task.
+
+#### Resolved Task T-all-2039<a name="t-all-2039"></a> 
+Options created by AI show as created by no one in DecisionInvestible. The AI user is not being added to inline markets.
+
+#### Resolved Task T-all-2073<a name="t-all-2073"></a> 
+Claude is not able to distinguish already resolved questions are resolved. Check the markdown and make more clear somehow. Also can add to the resolve tool information how to discern already resolved and not to attempt to resolve them.
+
+
+
+
+Currently looks like this:
+
+
+
+
+```
+Resolved
+```
+
+```
+
+
+
+```
+
+```
+Question Q-all-67
+```
+
+```
+T-all-1946 describes search behavior for Jobs Backlog, Bugs, Notes/Discussion, and Job Progress, but doesn’t mention the new T-all-2056 complete-jobs archive page. When a user is on the T-all-2056 page (with its view + collaborator filter dropdowns) and types in the search field, what happens?
+```
+
+```
+
+
+
+```
+
+```
+Option O-3
+```
+
+```
+...
+```
+
+
+
+
+And that Resolved at top was not enough for AI. Just make it "Resolved Question Q-all-67" etc.
+
+#### Resolved Task C-all-852<a name="c-all-852"></a> 
+How does this flow get you to the Uclusion login page where Github, Google, and name / password are available? Then if they choose Google they are another level deep?
+
+
+
+
+Can we instead:
+
+
+
+
+```
+{
+```
+
+```
+"mcpServers": {
+```
+
+```
+"uclusion": {
+```
+
+```
+"url": "https://production.uclusion.com/mcp?secret_key_id=blah&secret_key=blah"
+```
+
+```
+}
+```
+
+```
+}
+```
+
+```
+}
+```
+
+
+
+
+And those keys can come out of environment variables if preferred to avoid any possibility of being checked in and let people share.
+
+
+
+
+Point is that then we just need to find an MCP server implementation that does the handshake correctly so that Cursor uses the token from then on. The actual security is just the keys and not another login.
+
+#### Resolved Task T-all-2091<a name="t-all-2091"></a> 
+See [Autoplay loop in its own section](https://stage.uclusion.com/dialog/dd56682c-9920-417b-be46-7a30d41bc905/4b66ff31-12ef-490d-9b16-fef90943257f#option933d0f69-9ac0-42a3-9dbc-0d2e1406a69e) - table did not render.
+
+
+
+
+```
+import markdown
+```
+
+```
+
+
+
+```
+
+```
+text = """
+```
+
+```
+
+
+
+```
+
+```
+| Header 1 | Header 2 |
+```
+
+```
+| -------- | -------- |
+```
+
+```
+| Cell 1   | Cell 2   |
+```
+
+```
+"""
+```
+
+```
+
+
+
+```
+
+```
+# Enable the tables extension
+```
+
+```
+html = markdown.markdown(text, extensions=['tables'])
+```
+
+```
+print(html)
+```
+
+```
+
+
+
+```
+
+#### Resolved Task T-all-1998<a name="t-all-1998"></a> 
+This should be an npm install so that you can easily put one in your docker container or whatever. Then you just put your keys in a .uclusion/credentials file and include the command for spawning an instance of your AI that accepts markdown input.
+
+> ##### Grouped task C-all-839<a name="c-all-839"></a> 
+Use WebSocketRunner from nodejs_sdk. Also in the main loop check for new notifications and sleep some amount of time if nothing.
+
+> ##### Grouped task C-all-837<a name="c-all-837"></a> 
+When you receive a push event or poll and get a new notification the point is just to group by investible and spawn AI to handle.
+
+> ##### Grouped task C-all-836<a name="c-all-836"></a> 
+Make the agent runner call the same CLI as now but gets you list of investibles and then you call API to get the markdown for each investible. That markdown includes all associated comments or investibles from links as well as images - as it does now.
+
+> ##### Grouped task C-all-840<a name="c-all-840"></a> 
+On startup check also check for Work Ready and assume you are the only instance so should be doing anything left there.
+
+#### Resolved Task T-all-2074<a name="t-all-2074"></a> 
+Links in the table of contents were broken by switching to ticket code - switch the links in table of contents to use ticket code also.
+
+#### Resolved Task T-all-2067<a name="t-all-2067"></a> 
+Need feedback from install like:
+
+
+
+
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/a289d0cc-3b36-4e6f-aa36-be997fac2078.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+#### Resolved Task C-all-862<a name="c-all-862"></a> 
+Move mcp endpoint over to investible as with proxy script don't need it to be any different from CLI and api tokens may not being added to SSO.
+
+
+
+
+Remove the authorizer from SSO so it is back to as before.
+
+
+
+
+Change the URL of mcp in the script.
+
+#### Resolved Task C-all-855<a name="c-all-855"></a> 
+Figure out how Cursor knows to invoke Uclusion MCP when sees something like "plan J-1000" and what sub operations it can perform on that resource - like move task to new job or vote.
+
+
+
+
+<https://modelcontextprotocol.io/specification/2025-11-25/server/resources>
+
+#### Resolved Task T-all-2041<a name="t-all-2041"></a> 
+Retest install script. Make sure CLI still works - try resolving which is untested.
+
+#### Resolved Question Q-all-51<a name="q-all-51"></a> 
+## What if I want to work inside Cursor?
+
+### Option O-1<a name="o-1"></a>
+### Seems this is why have to do MCP instead of just JSON output:
+Model Context Protocol (MCP): This is the primary way to allow Cursor to interact with external tools and APIs dynamically. By setting up an MCP server, you can give the AI "tools" that allow it to fetch data from your own APIs, databases, or local scripts during a chat session.
+
+#### Assistance 
+#### Suggestion S-Default-1<a name="s-default-1"></a> 
+Then maybe just be yourself instead of an AI user.
+
+#### Resolved Task C-all-887<a name="c-all-887"></a> 
+First test install for stage by removing the current dev cursor server etc. and reinstall using command but with stage.
+
+
+
+
+```
+curl -fsSL https://stage.uclusion.com/scripts/install.sh | bash -s -- dd56682c-9920-417b-be46-7a30d41bc905 stage
+```
+
+#### Resolved Task C-all-849<a name="c-all-849"></a> 
+Job approval based on what context?
+
+
+
+
+You would have to provide all marketing materials, documentation, etc.
+
+
+
+
+**AI job approval might not be a reasonable feature.**
+
+#### Resolved Task C-all-898<a name="c-all-898"></a> 
+If you load a question that is not there like <http://localhost:3000/0f13660a-8420-401a-8340-315c9505b2de/Q-Engineering-6> then you just get a white screen instead of a loading screen and polling for Q-.Engineering-6.
+
+#### Resolved Task T-all-1997<a name="t-all-1997"></a> 
+The CLI you run must be on a loop and responding to push events / notifications from Uclusion - has the same listen on socket plus poll that use in browser. See what did for configuration tests.
+
+
+
+
+Plus may need to know that this is user is an agent so can send it an event when it creates a job for itself instead of screening that out - otherwise it won't know to spawn a new thread.
+
+#### Resolved Task T-all-2063<a name="t-all-2063"></a> 
+Remove AI user from list that can be assigned to a job.
+
+#### Resolved Task T-all-2075<a name="t-all-2075"></a> 
+AI writes its comments in markdown so have to convert from markdown to Quill or use an editor that accepts markdown.
+
+
+
+
+Accept markdown from CLI to make testing easier.
+
+
+
+
+```
+import markdown
+```
+
+```
+
+
+
+```
+
+```
+md_text = "# Hello World\nThis is **bold** text."
+```
+
+```
+html = markdown.markdown(md_text)
+```
+
+```
+print(html) # Output: <h1>Hello World</h1><p>This is <strong>bold</strong> text.</p>
+```
+
+```
+
+
+
+```
+
+## Job J-all-293<a name="j-all-293"></a>
+### Current must fix
+#### Tasks 
+#### Task T-all-2097<a name="t-all-2097"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/19514962-8a40-491d-a086-388ac5d87871.jpg?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+#### Task B-all-418<a name="b-all-418"></a> 
+Clear notification_configs of demo users and don't create them to begin with. Tricky though unless we are going to disable changing configs in demo?
+
+#### Resolved 
+#### Resolved Task T-all-2089<a name="t-all-2089"></a> 
+When hit Add and another from task creation the Quill tool bar is on top for a few seconds and then goes to bottom.
+
+#### Resolved Task T-all-2086<a name="t-all-2086"></a> 
+Control arrow up not working on Mac - have to have key strokes that work there and change the key strokes that show.
+
+
+
+
+On a Mac, pressing **Control + Up Arrow** (⌃ + ↑) opens **Mission Control**.
+
+
+
+
+On a Mac, the **Control (⌃) + Right Arrow** shortcut is primarily used to navigate between different full-screen apps or desktop spaces (Mission Control)
+
+
+
+
+So those are taken on Mac.
+
+
+
+
+```
+const checkMac = window.navigator.userAgentData
+```
+
+```
+? window.navigator.userAgentData.platform === 'macOS'
+```
+
+```
+: /Mac/i.test(window.navigator.userAgent);
+```
+
+
+
+
+So it should be
+
+
+
+
+```
+Control + Option + Arrow Up
+```
+
+
+
+
+and all of them are option on Mac. Check if the definition in the keystroke command is still alt or you use option there also.
+
+#### Resolved Task T-all-2093<a name="t-all-2093"></a> 
+Anchors on status report screwed up again somehow missing.
+
+#### Resolved Task T-all-2084<a name="t-all-2084"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/aa6b25ea-a06c-4d5d-97f8-d5e88328a15e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+Number of issues here.
+
+> ##### Grouped task C-all-917<a name="c-all-917"></a> 
+The Need better... job has an open question from AI doesn't have a notification since I asked a question. However it for sure should show in the compressed in progress list.
+
+#### Resolved Task T-all-2085<a name="t-all-2085"></a> 
+Signup button on landing page is broken.
+
+## Job J-all-297<a name="j-all-297"></a>
+### Problems with approvals.
+1. When chose Use approvals on create job flow got a notification (presumably to approve) which then disappeared when chose a required approver.
+2. AI as required approver does not display on the right nav or anywhere.
+
+#### Tasks 
+#### Task T-all-2097<a name="t-all-2097"></a> 
+When chose Use approvals on create job flow got a notification (presumably to approve) which then disappeared when chose a required approver.
+
+
+
+
+Updated by should prevent this - is this the famous one could never figure out?
+
+
+
+
+**You don't need a notification when headed to a screen asking you to approve - either you do on that screen or you have decided not to.**
+
+#### Task T-all-2096<a name="t-all-2096"></a> 
+AI as required approver does not display on the right nav or anywhere.
+
+> ##### Grouped task C-all-918<a name="c-all-918"></a> 
+Plus what does AI as required approver do? Make sure it shows up in the markdown and that the approve tool mentions looking for this and doing approval after asking questions and making suggestions.
+
+## Job J-all-294<a name="j-all-294"></a>
+### AI notifications stuff
+Cause they are already seeing them on the agent side also.
+
+#### Resolved 
+#### Resolved Task T-all-2079<a name="t-all-2079"></a> 
+Still showing on the open tasks tab.
+
+
+
+
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/bf002da2-2751-4d34-82a2-a288d30fd66c.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+#### Resolved Task T-all-2069<a name="t-all-2069"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/4913fafe-ce2e-4888-b24e-3ae10d577149.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+Unclear if we want resolve notifications from AI user resolving. And **even if we do they need to be rolled up per job.**
+
+
+
+
+SCREW THIS JUST DON'T GENERATE THESE FOR AI - RELY ON IT ASKING ON ITS SIDE.
+
+## Job J-all-290<a name="j-all-290"></a>
+### Fix documentation for notes, AI, and everyone view..
+#### Resolved 
+#### Resolved Task C-all-889<a name="c-all-889"></a> 
+As much of this prompt as possible goes into the description of the tool. May or may not work there but worth a shot.
+
+#### Resolved Task T-all-2042<a name="t-all-2042"></a> 
+Fix documentation to include new functionality and change CLI section name to MCP & CLI.
+
+#### Resolved Task T-all-2050<a name="t-all-2050"></a> 
+AI documentation.
+
+#### Resolved Task C-all-881<a name="c-all-881"></a> 
+Need add_approval tool and CLI also.
+
+#### Resolved Task C-all-880<a name="c-all-880"></a> 
+get_job has to support getting market level comments like bugs etc. - too confusing otherwise.
+
+#### Resolved Task C-all-872<a name="c-all-872"></a> 
+Write example prompts for above to see if doable.
+
+#### Resolved Task C-all-871<a name="c-all-871"></a> 
+Use Uclusion to get J-all-284 and also read through the application documentation at https://documentation.uclusion.com/ Then as a product manager ask any questions you have about the business value of this job which was proposed by a junior engineer. Once your questions are answered use Uclusion to add an approval to this job and use add info to record the questions and answers.
+
+
+
+
+**Put above prompt that works for you into documentation and maybe elsewhere as an example. In reality they will have to tune.**
+
+> ##### Grouped task C-all-889<a name="c-all-889"></a> 
+As much of this prompt as possible goes into the description of the tool. May or may not work there but worth a shot.
+
+> ##### Grouped task C-all-881<a name="c-all-881"></a> 
+Need add_approval tool and CLI also.
+
+> ##### Grouped task C-all-880<a name="c-all-880"></a> 
+get_job has to support getting market level comments like bugs etc. - too confusing otherwise.
+
+> ##### Grouped task C-all-872<a name="c-all-872"></a> 
+Write example prompts for above to see if doable.
+
+> ##### Grouped task C-all-876<a name="c-all-876"></a> 
+This [video](https://www.youtube.com/watch?v=h0hdaHPKDdI), at the end, explains how want reviews of specs ahead of time.
+
+
+
+
+So making that happen has to be the main marketable example. Anything else is just parlor tricks. Currently planning mode gives you a nice md file and you could have a review of that file.
+
+
+
+
+**However this CEO is wrongly assuming that the features were all worth doing and now with AI speeding things up the chances of FEATURE FACTORY ARE 100% so need Uclusion there. What's missing is the AGILE DEVELOPER WHO THINKS ABOUT THE FEATURE AND REALIZES WHAT'S WRONG WITH IT.**
+
+
+
+
+LIKE IT OR NOT WE HAVE TO GO BACK TO TRYING TO GET AI TO HAVE AN OPINION ON THE VALUE OF THE FEATURE ALTOGETHER. TO RATE CERTAINTY ON WHETHER OR NOT PEOPLE WILL LIKE THE FEATURE WHICH MUST HAVE A DETAILED EXPLANATION OF IT AND ITS VALUE. Then once they are use to have AI opinion its nature to try to get human opinion and the approval game is afoot.
+
+> ##### Grouped task C-all-877<a name="c-all-877"></a> 
+For a solo developer, the risk of technical debt and "hacks" is high. The AI Job Reviewer provides a standardized, rigorous check that mimics a senior engineer's "Definition of Done". By using MCP to pull in context from "all servers" (including GitHub, database schemas, and documentation), the AI can perform a "Criteria-Grounded Verification" that ensures every job is actionable and verifiable. The primary limitation is the AI's struggle with judging the *novelty* or *long-term business significance* of a project, which must remain a human responsibility.
+
+
+
+
+
+
+
+**So it thinks AI can't do business ROI and is mostly after DoD. Which if we believe that then this is about adding tasks, grouped tasks, and notes and don't need the approval and certainty score. Emphasis should be on reading the code base to fill in blind spots, recommend testing, find potential feature conflicts etc.**
+
+> ##### Grouped task C-all-878<a name="c-all-878"></a> 
+get_job tool has to screen out existing approvals.
+
+#### Resolved Task C-all-876<a name="c-all-876"></a> 
+This [video](https://www.youtube.com/watch?v=h0hdaHPKDdI), at the end, explains how want reviews of specs ahead of time.
+
+
+
+
+So making that happen has to be the main marketable example. Anything else is just parlor tricks. Currently planning mode gives you a nice md file and you could have a review of that file.
+
+
+
+
+**However this CEO is wrongly assuming that the features were all worth doing and now with AI speeding things up the chances of FEATURE FACTORY ARE 100% so need Uclusion there. What's missing is the AGILE DEVELOPER WHO THINKS ABOUT THE FEATURE AND REALIZES WHAT'S WRONG WITH IT.**
+
+
+
+
+LIKE IT OR NOT WE HAVE TO GO BACK TO TRYING TO GET AI TO HAVE AN OPINION ON THE VALUE OF THE FEATURE ALTOGETHER. TO RATE CERTAINTY ON WHETHER OR NOT PEOPLE WILL LIKE THE FEATURE WHICH MUST HAVE A DETAILED EXPLANATION OF IT AND ITS VALUE. Then once they are use to have AI opinion its nature to try to get human opinion and the approval game is afoot.
+
+#### Resolved Task T-all-2053<a name="t-all-2053"></a> 
+Missed the what is Uclusion page in rewrite.
+
+#### Resolved Task C-all-877<a name="c-all-877"></a> 
+For a solo developer, the risk of technical debt and "hacks" is high. The AI Job Reviewer provides a standardized, rigorous check that mimics a senior engineer's "Definition of Done". By using MCP to pull in context from "all servers" (including GitHub, database schemas, and documentation), the AI can perform a "Criteria-Grounded Verification" that ensures every job is actionable and verifiable. The primary limitation is the AI's struggle with judging the *novelty* or *long-term business significance* of a project, which must remain a human responsibility.
+
+
+
+
+
+
+
+**So it thinks AI can't do business ROI and is mostly after DoD. Which if we believe that then this is about adding tasks, grouped tasks, and notes and don't need the approval and certainty score. Emphasis should be on reading the code base to fill in blind spots, recommend testing, find potential feature conflicts etc.**
+
+#### Resolved Task T-all-2051<a name="t-all-2051"></a> 
+Add explanation of everyone group.
+
+#### Resolved Task C-all-878<a name="c-all-878"></a> 
+get_job tool has to screen out existing approvals.
+
+## Job J-all-230<a name="j-all-230"></a>
+### Better archive.
+The current archive was more of a placeholder than a real implementation. This should be cleaned up now because if you archive something and change your mind it is very difficult to get back.
+
+> ##### $${\color{lightgreen} Reason \space For}$$ E-all-53<a name="e-all-53"></a>
+Direction is correct. The existing archive (`DialogArchives` linked from `DialogOutset` via `formGroupArchiveLink`) is acknowledged in the description as a placeholder, and the code confirms it: a single page lumping complete jobs, not-doing jobs, resolved TODOs, and resolved non-TODO comments together, plus an `ArchiveWarningStep` that effectively warns the resolve is one-way. The proposed refactor — distributing archived content into per-section sub-tabs (Bugs ‘Resolved’, Notes/Discussion ‘Resolved’, Backlog ‘Not Doing’) with drag-back-to-unresolve (C-all-907) and right-click resolve (C-all-910) — is the right shape because (a) it puts archived items where users naturally look, (b) it makes including archived matches in tab-level search counts straightforward (T-all-1946) instead of the current `archivedSize` outset-only badge in `PlanningDialog`, and (c) it makes archive reversible, which is the stated user pain point. The ‘Show all complete’ link (T-all-2056) is necessary because `getSwimlaneInvestiblesForStage` in `userUtils.js` caps complete jobs via `allowed_investibles` and `days_visible`, so older complete work is currently unreachable from the swimlane. C-all-911 (making view-level notes resolvable) lines up with `Comment.js` where `showResolve` is currently false for `REPORT_TYPE` notes without an `investibleId`. T-all-1984 (overlay view inset, no buffer) removes the brittle `dialogOutsetBuffer` coordination between `DialogOutset` and `Screen.js` and is consistent with the right-side fixed-translate pattern already used by the investible page. Held at 4 rather than 5 because of two design ambiguities I posted as a question: (1) T-all-2059 removes the archive page but T-all-2056 says the new ‘Show all complete’ link goes to an archive page — these need to be reconciled (new dedicated complete-jobs page vs. repurposed `DialogArchives`); and (2) the intended search behavior in T-all-1946 — whether archived matches surface inline in the primary tab content or only bump counts while live items remain in the primary tab and matches sit under the Resolved sub-tab. Resolving these before implementation will avoid rework in `PlanningDialog`’s tab-count plumbing (`getTabCount`, `getTagLabel`, the per-tab `tag`/`tagLabel` props) and in route/link cleanup (`formGroupArchiveLink`, `formArchiveCommentLink`, the `groupArchive` action in `Root.js`).
+
+#### Reports 
+#### Report R-all-102<a name="r-all-102"></a> 
+Completed all three tasks for the Better Archive job:
+
+**T-all-2059 — Remove old archive implementation** - Removed the archive link from the view outset (`DialogOutset.js`) along with its imports
+- Removed the archive warning wizard invocation when resolving view-level comments (`Comment.js`) — resolving now calls `resolveComment` directly without the confirmation dialog
+- Removed archive-related computations and navigation from `PlanningDialog.js`
+
+**T-all-2056 — Show all complete link + complete-jobs archive page** - Added "Show all complete" link at the bottom of the Tasks Complete column in the swimlane (`PlanningIdeas.js`), left-justified within that column
+- Added `formCompleteJobsLink(marketId, groupId, presenceId)` helper that appends `&assigneeId=` to the archive URL
+- Rewrote `DialogArchives.js` as a complete-jobs-only page with view and collaborator filter dropdowns, paginated `BacklogListItem` rows, and a "Tasks Complete" SubSection header; fixed dark mode by replacing hardcoded black colors with `theme.palette.text.primary` in both the SubSection and the filter dropdowns
+
+**T-all-1946 — Search collapses sub-tabs to unified paginated lists** - Jobs Backlog: during search, collapses Ready/Not Ready/Not Doing tabs into a single paginated list (Not Doing excluded per design); notification count and bold suppressed in Job Progress search results
+- Bugs/Todos (`MarketTodos.js`): during search, collapses sub-tabs into a unified list
+- Notes/Discussion (`DiscussionSection.js`): during search, shows all matching open + resolved items as compressed paginated `BugListItem` rows; removed resolved count from the tab label
+- Job Progress (`PlanningDialog.js`): during search, replaces swimlanes with a paginated list covering live stages + all Tasks Complete (uncapped), with notifications suppressed
+
+#### Resolved 
+#### Resolved Question Q-all-67<a name="q-all-67"></a> 
+T-all-1946 describes search behavior for Jobs Backlog, Bugs, Notes/Discussion, and Job Progress, but doesn’t mention the new T-all-2056 complete-jobs archive page. When a user is on the T-all-2056 page (with its view + collaborator filter dropdowns) and types in the search field, what happens?
+
+### Option O-3<a name="o-3"></a>
+### Search is global — redirect to a global complete-jobs search results page
+Searching from the T-all-2056 page navigates the user back to the parent view with the search applied (so they land on the Job Progress / Jobs Backlog search results which already cover live + complete per the Q-65 outcome). Pro: avoids duplicating search logic on this page. Con: feels like the page is unsearchable in place; breaks user mental model.
+
+### Option O-1<a name="o-1"></a>
+### Search filters within the active view/collaborator filter, paginated list stays the same
+The view and collaborator dropdown filters remain in effect. The single paginated list of complete jobs simply narrows to those matching the search. No new layout, no sub-tab collapse (there are no sub-tabs on this page). Pro: predictable, consistent with how filters compose on most pages. Con: if the user wants to search across all views/collaborators, they have to first set both dropdowns to ‘All’.
+
+> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+The user can see the filter results for each view on the Views section of the left side panel for each view that has matches. If he wants those matches he can just click that view.
+
+### Option O-2<a name="o-2"></a>
+### Search auto-broadens filters to ‘All’ while active
+Typing into search temporarily sets both dropdowns to ‘All’ (with a visual hint), so search always covers every complete job in the workspace. When search is cleared, the prior filter selection is restored. Pro: ‘searching reaches everything’ invariant is preserved across all tabs. Con: surprising filter mutation; restoring prior state adds complexity.
+
+#### Resolved Question Q-all-63<a name="q-all-63"></a> 
+Two design points need clarification before implementation. First, T-all-2059 says to remove the current archive implementation (its page and links from `Root.js`/`DialogOutset`), but T-all-2056 says the new ‘Show all complete’ link above complete jobs ‘goes to an archive page for complete jobs that is filtered to the view and collaborator of that row’. Is that new destination a brand-new page, or the existing `DialogArchives` repurposed and scoped to complete-only with view/collaborator filters? Second, for T-all-1946, when a search matches an item that is archived/resolved/not-doing, should the matching items appear inline within the primary tab’s content list, or stay under the new Resolved/Not Doing sub-tab while only the counts roll up to the parent tab? The answer drives whether `PlanningDialog`’s `getTabCount`/`getTagLabel`/per-tab `tag` plumbing needs to combine live and archived result sets or just sum counts.
+
+> ##### Reply C-all-912<a name="c-all-912"></a> 
+The current DialogArchives page includes Complete jobs, Not Doing jobs, bugs, and discussion all in one page. In the new system there is no all in one page for these archived items. Whether it is easier to remove stuff from the current page or create a new page is unclear - the existing page also has issues with the way it looks.
+
+### Option O-2<a name="o-2"></a>
+### New dedicated complete-jobs page + counts-only roll-up
+Same new dedicated `CompleteJobsArchive` page as option 1. But for T-all-1946, live tab content stays live-only during search; archived matches live exclusively under the Resolved / Not Doing sub-tab. The parent tab’s count chip sums live + sub-tab matches so the user sees there are hidden archived hits and clicks into the sub-tab to see them. Simpler to implement (sub-tab filter is independent), keeps primary list semantics clean.
+
+### Option O-4<a name="o-4"></a>
+### Repurpose `DialogArchives` as complete-jobs page + counts-only roll-up
+Same as option 3 (repurpose `DialogArchives` to a complete-jobs-only filtered page), but search behavior follows option 2 (archived matches only appear in the Resolved/Not Doing sub-tab; parent tab count chip rolls up the total).
+
+### Option O-3<a name="o-3"></a>
+### Repurpose `DialogArchives` as complete-jobs page + inline archived matches
+Do not delete the `DialogArchives` route/component; instead strip out everything except complete jobs and add view + collaborator filters (defaulted to the clicked row, settable to ‘All’). T-all-2059’s ‘remove the current archive’ then really means: remove the not-doing section, resolved-TODO section, and resolved-discussion section from `DialogArchives`, plus the outset link and the resolve warning, since those concerns now live in sub-tabs. Search behavior follows option 1 (inline archived matches in primary tabs).
+
+### Option O-1<a name="o-1"></a>
+### New dedicated complete-jobs page + inline archived matches
+T-all-2056 introduces a NEW page (e.g. `CompleteJobsArchive`) at a new route, separate from the deleted `DialogArchives`. Filters: view dropdown + collaborator dropdown, defaulted to the row that was clicked, both settable to ‘All’. For search (T-all-1946), archived/resolved/not-doing matches appear inline within the primary tab content (jobs/backlog/bugs/notes) alongside live matches, with a visual marker (e.g. greyed/strikethrough or a small ‘resolved’/‘not doing’ chip). The Resolved/Not Doing sub-tab still exists and contains the full archived set; sub-tab counts also reflect the search. This gives users a single scan to find matches regardless of state.
+
+#### Resolved Question Q-all-65<a name="q-all-65"></a> 
+T-all-1946 says the Job Progress tab during search becomes a paginated list of ‘all currently assigned jobs that match the search’. Per the stages documentation, ‘assigned’ jobs can live in Waiting/Approval, Next/Assistance, Work Ready, Tasks Complete, and Not Doing. Today the `PlanningIdeas` swimlanes show Waiting/Approval + Work Ready + Tasks Complete, and Tasks Complete is capped per `stage.allowed_investibles` / `stage.days_visible` in `getSwimlaneInvestiblesForStage`. T-all-2056 also creates a dedicated complete-jobs archive page that reaches all Tasks Complete including the capped-out older ones. Which scope should the Job Progress search list use?
+
+### Option O-4<a name="o-4"></a>
+### Live stages + ALL Tasks Complete + ALL Not Doing (everything ever assigned)
+Maximally comprehensive: any job in the view that has ever been assigned and matches the search appears, including terminal stages. Conflicts with the stages doc which says Not Doing jobs are ‘visible only in the archive’. Probably wrong but listed for completeness.
+
+### Option O-3<a name="o-3"></a>
+### Live stages + ALL Tasks Complete (uncapped during search)
+Search shows Waiting/Approval + Work Ready + every Tasks Complete job in the view, ignoring the swimlane cap. Not Doing excluded. T-all-2056 archive page is still the right destination for browsing complete jobs without a search; search on Job Progress reaches them too. Pro: user expectation that ‘search finds everything currently assigned’ holds. Con: requires `getSwimlaneInvestiblesForStage` to take an ‘ignore caps for search’ path, or for the search list to bypass that helper entirely.
+
+> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+Please note that a job is unassigned when it moves to Not Doing so Not Doing jobs cannot have an assignment.
+
+### Option O-2<a name="o-2"></a>
+### Live stages + visible Tasks Complete (current swimlane scope)
+Search shows whatever the swimlanes show today — Waiting/Approval, Work Ready, and Tasks Complete subject to the existing `allowed_investibles` / `days_visible` capping. Older capped-out complete jobs are not reachable from Job Progress search and require T-all-2056. Pro: visually consistent with non-search swimlane content. Con: search silently hides matches the user might expect, because the cap was designed for visual density, not search filtering.
+
+### Option O-1<a name="o-1"></a>
+### Live stages only (exclude Tasks Complete and Not Doing)
+Search shows only Waiting/Approval, Next/Assistance, and Work Ready jobs assigned to anyone in this view. Tasks Complete matches are reachable via the new T-all-2056 complete-jobs archive page (which has its own search). Not Doing matches aren’t reachable from Job Progress at all (stages doc says Not Doing is only visible in the archive). Cleanest separation of concerns and lightest data: `PlanningIdeas` search code paths only need to combine the three live stages.
+
+#### Resolved Question Q-all-64<a name="q-all-64"></a> 
+For T-all-1946, when an active search matches an item that lives in a Resolved / Not Doing sub-tab (a resolved bug, resolved note/discussion, not-doing backlog item, or complete job), how should those matches surface in the parent tab’s UI? This affects whether `PlanningDialog`’s `getTabCount`/`getTagLabel` and the per-tab `tag`/`tagLabel` props need to combine live + archived result sets, or just sum counts while content lists stay segregated by sub-tab. Two clean options below; option C is a compromise.
+
+### Option O-3<a name="o-3"></a>
+### Counts-only roll-up by default + a one-click ‘Include resolved’ toggle on the primary tab
+Default behavior is option B (counts roll up, content stays live-only). Add a small toggle / filter chip next to the search field (or on the tab strip) that, when enabled, switches the primary tab to option A behavior (inline archived matches in the list). Toggle state persists in the existing `BugListContext`-style reducer per view. Benefit: keeps the default clean while letting power users opt into a single-scan view. Cost: one more UI control plus a small amount of state to plumb.
+
+### Option O-2<a name="o-2"></a>
+### Counts-only roll-up; primary content stays live-only
+During search, the primary tab’s content list shows only live (non-archived) matches — exactly as today. The Resolved / Not Doing sub-tab’s count chip shows its own matched count. The parent tab’s count chip rolls up: parent count = live matches + sub-tab matches, so the user sees that hidden archived hits exist and clicks into the sub-tab to see them. Benefit: simpler implementation — each list filter stays independent, no mixed rendering, drag/drop unchanged. Cost: extra click to reach archived matches.
+
+### Option O-1<a name="o-1"></a>
+### Inline archived matches in the primary tab content
+During search, archived/resolved/not-doing items that match appear in the primary tab’s content list right next to live matches, visually distinguished (e.g. greyed background, strikethrough, or a small ‘resolved’ / ‘not doing’ chip). The Resolved / Not Doing sub-tab still exists and its own count chip also reflects the search. Parent tab count = live matches + archived matches. Benefit: user sees every hit in one scan without having to remember to check the sub-tab. Cost: primary lists now mix two states; `Backlog.js`, `MarketTodos.js`, and the new Notes/Discussion Resolved sub-tab plumbing all need to render two visual variants and exclude the archived ones from drag/drop targets that don’t apply.
+
+#### Resolved Report R-all-101<a name="r-all-101"></a> 
+Implemented T-all-2060: two sub-tabs (Open / Resolved) in the Notes / Discussion section.
+
+**What changed:**
+- Created `DiscussionSection.js` — a new component (following the same pattern as `Backlog.js` and `MarketTodos.js`) that renders:
+ - **Open tab**: exactly the existing layout — add buttons for Note/Question/Suggestion, dismissable help text, and `CommentBox`.
+ - **Resolved tab**: paginated `BugListItem` rows for resolved questions, suggestions, and notes, with expandable `Comment` panels.
+ - Dragging a resolved item and dropping it on the **Open** tab calls `updateComment({ resolved: false })` to unresolve it (the same mechanism `MarketTodos` uses).
+- Updated `PlanningDialog.js`:
+ - Replaced the inline discussion section JSX with `<DiscussionSection>`.
+ - Added `resolvedDiscussionComments` computation (resolved group-level non-bug comments).
+ - Removed now-unused imports (`Grid`, `CommentBox`, `EditIcon`, `hasDiscussionComment`) and the unused `questionSuggestionNotesGroupComments` variable.
+- Build is clean with no errors or warnings in the changed files.
+
+> ##### Reply C-all-914<a name="c-all-914"></a> 
+Move the add buttons to the top instead of inside the open tab - this matches what was done for Bugs and also allows hitting a button even when on the Resolved tab.
+
+> ##### Reply C-all-915<a name="c-all-915"></a> 
+Moved all three add buttons (Note, Question, Suggestion) above the GmailTabs, along with the DismissableText help — matching the Bugs layout. They're now always visible regardless of which sub-tab is active.
+
+#### Resolved Task C-all-908<a name="c-all-908"></a> 
+This includes removing the archive link from the view outset.
+
+#### Resolved Task T-all-2057<a name="t-all-2057"></a> 
+On Job backlog add a third tab 'Not Doing'. This tab shows Not Doing backlog in the same display used for the other two.
+
+#### Resolved Task T-all-1946<a name="t-all-1946"></a> 
+When a search is active the sub tabs under the Jobs Backlog, Bugs, and Notes / Discussion section disappear and all results display together with the paginated display currently used. No visual indication of what type of result they are is necessary and counts on the parent tab will reflect everything showing beneath it.
+
+
+
+
+Similarly on the Job Progress tab the current page will not show and instead a page just like the paginated one that shows on Jobs Backlog except it will just contain all currently assigned jobs that match the search.
+
+#### Resolved Task T-all-2059<a name="t-all-2059"></a> 
+Overwrite or remove the current archive implementation - including its page and linking in root.
+
+#### Resolved Task T-all-2056<a name="t-all-2056"></a> 
+Above complete jobs at the same level as the collaborator avatar, there is a new link to 'Show all complete'. This link goes to an archive page for complete jobs that is filtered to the view and collaborator of that row. These filters can be removed by selected All from the view and collaborator drop down filters.
+
+#### Resolved Task C-all-911<a name="c-all-911"></a> 
+Make notes in the Notes / Discussion section IE ones having no investible ID be resolvable.
+
+#### Resolved Task T-all-2060<a name="t-all-2060"></a> 
+Have two sub tabs in the Notes / Discussion section like what is done for Bugs and Job Backlog. The first tab is 'Open" and display everything exactly as now. The second tab is 'Resolved' and it holds compressed paginated rows for all resolved notes and discussion using the same form as bugs tabs.
+
+
+
+
+Again dropping a resolved notes / discussion to the other tab will unresolve it.
+
+#### Resolved Task T-all-2058<a name="t-all-2058"></a> 
+On Bugs add a fourth tab 'Resolved'. This tab shows resolved bugs in the same display used for the other three.
+
+> ##### Grouped task C-all-910<a name="c-all-910"></a> 
+Resolved will be a choice on the right click menu as the other bug types are currently - when not in resolved already of course.
+
+> ##### Grouped task C-all-907<a name="c-all-907"></a> 
+If you drag a bug from resolved to another tab its notification_type might change but also it unresolves.
+
+> ##### Grouped task C-all-906<a name="c-all-906"></a> 
+If you create a job from a resolved bug the task it becomes is not resolved anymore.
+
+#### Resolved Task C-all-909<a name="c-all-909"></a> 
+This includes removing the warning you get when resolving a view level comment like bugs or discussion. Since there will be a link to where resolved went on the same page that warning is no longer necessary.
+
+#### Resolved Question Q-all-66<a name="q-all-66"></a> 
+T-all-1946 says during search the Notes/Discussion sub-tabs collapse and ‘all results display together with the paginated display currently used’. Bugs and Backlog already use compressed paginated rows in both sub-tabs, so ‘currently used’ is unambiguous there. But Notes/Discussion today uses `CommentBox` (full-bodied rendered comments) in the Open section, while T-all-2060’s new Resolved sub-tab will use bugs-style compressed paginated rows. Which form should the unified Notes/Discussion search list use?
+
+### Option O-1<a name="o-1"></a>
+### Compressed paginated rows (bugs/backlog form) for all matches during search
+When search is active on Notes/Discussion, every match — open or resolved — renders as a compressed paginated row like bugs. Pro: consistent with the ‘sub-tabs collapse into the paginated display’ framing in T-all-1946, and matches how Bugs/Backlog already behave. Pro: pagination scales when search hits many items. Con: users lose the in-context body preview of open notes/discussion that `CommentBox` currently shows; they have to click into each row.
+
+> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+Yes this is what I meant.
+
+### Option O-3<a name="o-3"></a>
+### Mixed: Open matches in `CommentBox`, Resolved matches in compressed rows below
+Two visually distinct stacked sections in the unified search view — first `CommentBox` for open matches, then a compressed paginated row block for resolved matches, divided by a small header. Pro: preserves rich preview for live work where users mostly look. Con: violates ‘sub tabs disappear, all results display together’ in spirit (two sections is effectively two sub-displays); more code to maintain than option A or B.
+
+### Option O-2<a name="o-2"></a>
+### Keep `CommentBox` rendering for all matches during search
+When search is active on Notes/Discussion, all matches (open + resolved) render via `CommentBox` just like the Open sub-tab today, with no pagination collapse. Pro: rich body preview preserved. Con: inconsistent with Bugs/Backlog search behavior; large match sets render heavy; ‘paginated display’ framing in T-all-1946 doesn’t literally apply because there is no current paginated display in Notes/Discussion.
+
+#### Resolved Task T-all-1984<a name="t-all-1984"></a> 
+For view inset drop pushing over all existing on the page. Like how chat inset works for Gmail - it does cover stuff up. Pushing over everything ends up being hokey.
+
+## Job J-all-292<a name="j-all-292"></a>
+### Either fix tip of spear blog of have new tip of spear which shows detail of...
+...interaction with AI.
+
+#### Resolved 
+#### Resolved Task T-all-2055<a name="t-all-2055"></a> 
+Do we want pictures of question interface?
+
+
+
+
+Do we want to go through entire example with AI and job in Uclusion?
+
+#### Resolved Task T-all-2054<a name="t-all-2054"></a> 
+People like Brad and Daniel have working systems with things like it leaves a space for you to type your own option. The "chat" interface seems to be what they are going for - why is this better?
+
+
+
+
+1. Chat interface sucks - especially for many questions at once or any question with options where an option requires considerable explanation.
+2. Storing the collaboration in the job much preferred
+3. No subtleties on chat - communication within an option. Or you can approve multiple options in chat but not with a certainty and reason for each.
+4. If want other humans opinions chat is a complete fail.
+
+## Job J-all-289<a name="j-all-289"></a>
+### Issues with view creation.
+#### Resolved 
+#### Resolved Task B-all-419<a name="b-all-419"></a> 
+When create new TEAM view and don't add any people hits the back end follow endpoint with empty and errors.
+
+#### Resolved Task C-all-904<a name="c-all-904"></a> 
+Still supporting Everyone group but no mention on creation page or in documentation of what it does. In code looks like it is a short cut for automatically adding anyone who joins.
+
+#### Resolved Task C-all-905<a name="c-all-905"></a> 
+Since there are three choices - TEAM, AUTONOMOUS, or EVERYONE will have to have radio button choice and help text for each.
+
+
+
+
+**That's fine since creating a view is not very common.**
+
+## Job J-all-284<a name="j-all-284"></a>
 ### Support progress on a task that are notes instead of things you complete
 Task related notes display as collapsed rows under a task where currently only have grouped tasks. Notes can also just be job related. Both display on their own notes tab with date headers so can easily see all notes taken on a day. Also displaying under a date header are any resolved tasks and these show as collapsed rows.
 
@@ -3219,10 +5561,6 @@ python rnaseq.py /data/output_docker_4_14/ethan_metadata_04142026_215115.tsv /da
 
 +------------------------------------------------------------------------------------------------------+
 
-#### Tasks 
-#### Task T-all-2087<a name="t-all-2087"></a> 
-Instead of Reply for the author of a note need sub note button.
-
 #### Resolved 
 #### Resolved Task T-all-2062<a name="t-all-2062"></a> 
 Do not show choice of note or reply for replying to comments that are not tasks - just show page without radio button choice as before.
@@ -3230,20 +5568,23 @@ Do not show choice of note or reply for replying to comments that are not tasks 
 #### Resolved Question Q-all-58<a name="q-all-58"></a> 
 T-all-2026: How should individual notes display under a sub-header? Today the Notes tab uses full Comment cards via CommentBox. The new design's nested-under-task feel suggests something more compact.
 
-### Option O-3<a name="O-3"></a>
+### Option O-3<a name="o-3"></a>
 ### Compressed rows that link/navigate to the note's permalink
 Like option 1 but clicking navigates to the note (formCommentLink) instead of expanding inline. Matches the 'compressed row' pattern used in CondensedTodos.
 
-### Option O-1<a name="O-1"></a>
+### Option O-1<a name="o-1"></a>
 ### Compressed rows by default, click to expand inline
 Each note renders as a one-line row (stripped body preview), same visual as the existing compressedCommentCard. Clicking expands to the full Comment card with replies.
 
-### Option O-2<a name="O-2"></a>
+### Option O-2<a name="o-2"></a>
 ### Full Comment cards (current Notes tab visual), just regrouped
 Keep the existing CommentBox/Comment rendering exactly, only change is the day headers and task sub-headers wrapping them. Easiest for replies/editing but visually heavy.
 
 > ##### $${\color{lightgreen} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 We will be using compressed for tasks and so would be confusing to use for both. Plus for other people seeking status is easier to just scroll than have to click many times to open things.
+
+#### Resolved Task T-all-2087<a name="t-all-2087"></a> 
+Instead of Reply for the author of a note need sub note button.
 
 #### Resolved Task T-all-2025<a name="t-all-2025"></a> 
 Database design for notes - comment_type REPORT and notification_type BLUE.
@@ -3260,33 +5601,33 @@ Probably it is Grouped + and then radio button if you want task or note that def
 #### Resolved Question Q-all-62<a name="q-all-62"></a> 
 T-all-2026 follow-up to Q-all-56: Tasks have a `resolved` boolean and `updated_at` but no dedicated `resolved_at` timestamp. To put a resolved task under the day-header it was resolved on, I need to know when it was resolved. How should I proceed?
 
-### Option O-1<a name="O-1"></a>
+### Option O-1<a name="o-1"></a>
 ### Use updated_at when resolved is true - acceptable approximation
 If task.resolved is true, group it under the day of updated_at. Wrong if the task was edited after being resolved (rare for resolved tasks), but pragmatic and needs no backend change.
 
 > ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 Users cannot edit resolved comments so this is not just an approximation.
 
-### Option O-2<a name="O-2"></a>
+### Option O-2<a name="o-2"></a>
 ### Add resolved_at on backend first - file as separate task in J-all-284
 Pause the resolved-task-under-day-header piece of T-all-2026 until backend adds a resolved_at column. Notes day-grouping ships first; resolved-task sub-headers ship after backend support lands.
 
-### Option O-3<a name="O-3"></a>
+### Option O-3<a name="o-3"></a>
 ### Drop the resolved-task display from T-all-2026 entirely - revisit later
 Just implement the notes day/task grouping (matches T-all-2026's own text). Move the 'resolved tasks under day header' behavior (from J-all-284 description) to a brand-new task that includes whatever backend work it needs.
 
 #### Resolved Question Q-all-56<a name="q-all-56"></a> 
 T-all-2026: Is showing resolved tasks under the day header part of this task, or a separate one? The parent J-all-284 description says 'Also displaying under a date header are any resolved tasks and these show as collapsed rows,' but T-all-2026's own text only talks about notes. Resolved tasks already exist on the Tasks tab so dragging them into the Notes tab is a non-trivial additional behavior.
 
-### Option O-2<a name="O-2"></a>
+### Option O-2<a name="o-2"></a>
 ### Out of scope - resolved tasks display will be its own task
 T-all-2026 only implements day/task grouping for notes. We'll create a separate task in J-all-284 (or add it to backlog) for the resolved-tasks-in-notes behavior.
 
-### Option O-1<a name="O-1"></a>
+### Option O-1<a name="o-1"></a>
 ### In scope for T-all-2026 - include resolved tasks under the day they were resolved
 Under each day header, in addition to notes, also show tasks resolved that day as collapsed rows. They participate in the same day grouping (using resolved_at) but probably belong to their own visual section within the day.
 
-### Option O-3<a name="O-3"></a>
+### Option O-3<a name="o-3"></a>
 ### If a task is resolved on the day of the day header it shows as a sub header...
 ...even if it has no notes. If it has notes it is already displaying with those notes. If it has no notes just put the text "Resolved." under it.
 
@@ -3305,18 +5646,18 @@ Here is a progress report.
 #### Resolved Question Q-all-61<a name="q-all-61"></a> 
 T-all-2026 follow-up to Q-all-59: Comments in the frontend codebase only carry created_at/updated_at as UTC ISO strings - there is no timezone field on the comment. Storing the creator's TZ requires a backend schema change (and the SDK to return it). How should I proceed?
 
-### Option O-3<a name="O-3"></a>
+### Option O-3<a name="o-3"></a>
 ### Plumb tz from frontend on create/update now even though backend may not consume it
 Have the create/update wizards include the browser timezone in the payload. If backend ignores it harmlessly, we still ship the UI now with the viewer's local TZ. When backend starts persisting it, no UI changes needed.
 
 > ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 I will fix the back end to accept the new field before this ships.
 
-### Option O-2<a name="O-2"></a>
+### Option O-2<a name="o-2"></a>
 ### Block T-all-2026 until backend stores creator TZ - I'll file the backend task first
 Pause UI work. Add a sibling task in J-all-284 to (a) add a tz column on comments, (b) populate it from browser Intl.DateTimeFormat().resolvedOptions().timeZone on create/update, (c) return it via SDK. Once that ships, finish T-all-2026.
 
-### Option O-1<a name="O-1"></a>
+### Option O-1<a name="o-1"></a>
 ### Use viewer's local browser TZ now, add a separate task to plumb creator TZ end-to-end later
 I'll group days using new Date(updated_at).toLocaleDateString() in the viewer's browser. We get correct-looking day boundaries for the common case (the developer reading their own notes). I'll file a follow-up task in J-all-284 to add created_tz/updated_tz on the backend and switch the grouping over.
 
@@ -3343,18 +5684,18 @@ local_tz.tzname(None)
 #### Resolved Question Q-all-57<a name="q-all-57"></a> 
 T-all-2026: What should the task sub-header look like and what does clicking it do? The spec says 'this header is a compressed task,' which suggests reusing the existing compressedCommentCard from Comment.js, but the click target is ambiguous - that card currently toggles compression to expand inline.
 
-### Option O-1<a name="O-1"></a>
+### Option O-1<a name="o-1"></a>
 ### Reuse compressedCommentCard, click toggles compression in place
 Sub-header is the existing one-line compressed task row. Clicking expands the full task inline (and any non-note replies/grouped tasks) within the Notes tab. Notes still listed below either way.
 
 > ##### $${\color{yellow} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 On the tasks page I represented associated notes using CondensedTodos that work this way so this should be symmetric. Can copy what I did and just pass an array of one if that is easy.
 
-### Option O-3<a name="O-3"></a>
+### Option O-3<a name="o-3"></a>
 ### Just title text (ticket code + first line), clickable like a hash link to the task
 Not the full compressed comment widget - just a lightweight header showing the short code (e.g. T-all-2030) and stripped first line of the task body, linking to it. Keeps the Notes tab visually flat.
 
-### Option O-2<a name="O-2"></a>
+### Option O-2<a name="o-2"></a>
 ### Reuse compressedCommentCard, click navigates to the task (Tasks tab)
 Sub-header looks like the compressed row but clicking jumps to the task on the Tasks tab via formCommentLink. Notes tab itself stays read-only for the task.
 
@@ -3388,16 +5729,16 @@ The compressed rows work like the ones on tasks summary where opening gives you 
 #### Resolved Question Q-all-55<a name="q-all-55"></a> 
 T-all-2026: Within a given day header, where should job-level notes (no associated task) appear relative to the per-task sub-headers? The spec says they 'don't have a task sub header' but doesn't say where in the day they go.
 
-### Option O-1<a name="O-1"></a>
+### Option O-1<a name="o-1"></a>
 ### Above all task sub-headers, with no sub-header label
 Job-level notes for that day appear first (bare, no sub-header), followed by the task sub-headers in their sort order. Reads as 'general notes for the day, then per-task work.'
 
 > ##### $${\color{lightgreen} For}$$
-### Option O-2<a name="O-2"></a>
+### Option O-2<a name="o-2"></a>
 ### Below all task sub-headers, with no sub-header label
 Task sub-headers come first; job-level notes appear at the bottom of the day group with no sub-header.
 
-### Option O-3<a name="O-3"></a>
+### Option O-3<a name="o-3"></a>
 ### Treated as their own pseudo sub-header sorted by latest note time
 Job-level notes get an implicit 'Job' sub-header that participates in the 'whichever has the later notes displays later' ordering alongside task sub-headers, so it can land anywhere in the day.
 
@@ -3410,11 +5751,11 @@ Add tab opening for notes link in investible.
 #### Resolved Question Q-all-53<a name="q-all-53"></a> 
 MD file is not good enough for Ethan's supervisor to use.
 
-### Option O-1<a name="O-1"></a>
+### Option O-1<a name="o-1"></a>
 ### Fix it up to be nice for a human.
 Could let Claude do it with the MD file and then change the code to match whatever it comes up with. Remember to tell Claude it has to stay within GitHub supported MD and give it link to that [documentation](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github).
 
-### Option O-2<a name="O-2"></a>
+### Option O-2<a name="o-2"></a>
 ### MD files are for AI only.
 If so have to change landing page.
 
@@ -3433,14 +5774,14 @@ Fix on back end to make notes honor this flag.
 #### Resolved Question Q-all-60<a name="q-all-60"></a> 
 T-all-2026: What direction do day headers themselves scroll? Within a header notes go ascending (most recent last) per the spec, and the J-all-284 description example shows Mar 30 -> Mar 31 -> Apr 7 -> ... top-to-bottom (ascending). Should I confirm day headers also go ascending top-to-bottom, requiring the user to scroll down to see today's notes?
 
-### Option O-1<a name="O-1"></a>
+### Option O-1<a name="o-1"></a>
 ### Ascending top-to-bottom (oldest day at top, today at bottom)
 Matches the J-all-284 example. Reads like a chronological log; today's notes are at the bottom. Consistent with within-header ordering.
 
 > ##### $${\color{yellow} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 The developer's notes we are trying to accommodate are ascending so that's are target for now.
 
-### Option O-2<a name="O-2"></a>
+### Option O-2<a name="o-2"></a>
 ### Descending top-to-bottom (today at top, oldest at bottom)
 More like a typical feed/blog/inbox - today's notes are immediately visible without scrolling. Inconsistent with within-day ordering but better for daily-use ergonomics.
 
@@ -3474,15 +5815,15 @@ Don't show notes on report required - basically remove showing notes from job de
 #### Resolved Question Q-all-54<a name="q-all-54"></a> 
 T-all-2026: Which timestamp determines which day-header a note appears under? The spec says 'created or updated on the day' which is ambiguous: a note created Apr 7 and updated Apr 9 could appear once (under Apr 9), once (under Apr 7), or twice (under both). Which behavior do you want?
 
-### Option O-3<a name="O-3"></a>
+### Option O-3<a name="o-3"></a>
 ### Appear under both created and updated days when different
 A note created Apr 7 and updated Apr 9 shows under BOTH Apr 7 and Apr 9 headers. Matches the literal 'created or updated on' wording but means the same note can appear twice on the Notes tab.
 
-### Option O-2<a name="O-2"></a>
+### Option O-2<a name="o-2"></a>
 ### Use created_at only (single appearance, creation day)
 A note appears under exactly one day header - the day it was created. Edits never move it. Best when notes are immutable status entries.
 
-### Option O-1<a name="O-1"></a>
+### Option O-1<a name="o-1"></a>
 ### Use updated_at only (single appearance, latest day)
 A note appears under exactly one day header - the day of its most recent update (or creation if never updated). Editing a note moves it to today's header. Simplest and matches how a 'daily status' usually works.
 
@@ -3525,7 +5866,7 @@ This seems a completely different system of organization. Is there anyway other 
 2. A truly solo developer does not go to the notes page at all unless forgets something. He is always working on some task of a job and creates his notes there or does task only as I do.
 3. Essentially notes capture experiments - which are only progress if you do something that seems done and want review.
 
-### Option O-2<a name="O-2"></a>
+### Option O-2<a name="o-2"></a>
 ### Make notes a good place to store a prompt.
 A prompt is essentially an experiment. You might export the job later and check it in so that all of your prompts are stored.
 
@@ -3534,7 +5875,7 @@ A prompt is essentially an experiment. You might export the job later and check 
 
 **Put a visible flag on the note so that they can control which notes are exported - maybe hiding prompts that didn't work out or notes that are too long or too rambling to be useful for status.**
 
-### Option O-1<a name="O-1"></a>
+### Option O-1<a name="o-1"></a>
 ### Make notes display by day and then by task.
 Whichever task has the later notes displays later.
 
@@ -3544,2329 +5885,22 @@ Remove poke, move, and ungroup buttons from notes. Keep poke if the note has men
 #### Resolved Question Q-all-59<a name="q-all-59"></a> 
 T-all-2026: What time zone defines the 'day' for the day header? Affects when a note created at 11pm vs 1am ends up under different headers.
 
-### Option O-2<a name="O-2"></a>
+### Option O-2<a name="o-2"></a>
 ### Creator's timezone (stored on the note)
 Each note carries the timezone it was authored in; that's what determines the day. All viewers see the same grouping but it can look 'off' for viewers in other zones.
 
 > ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 It won't look off because as a status report it is expected to be from the author's point of view.
 
-### Option O-3<a name="O-3"></a>
+### Option O-3<a name="o-3"></a>
 ### UTC
 Day header boundaries are 00:00-24:00 UTC. Consistent for everyone, but the example in J-all-284 ('Mar 30 2026' labels) implies wall-clock days, which UTC may not match for west-coast users.
 
-### Option O-1<a name="O-1"></a>
+### Option O-1<a name="o-1"></a>
 ### Viewing user's local browser timezone
 Day boundary uses the browser's local timezone. Different users may see slightly different groupings if they're in different zones, but each user sees days that match their wall clock.
 
-## Job J-all-293<a name="J-all-293"></a>
-### Current must fix
-#### Tasks 
-#### Task T-all-2089<a name="t-all-2089"></a> 
-When hit Add and another from task creation the Quill tool bar is on top for a few seconds and then goes to bottom.
-
-#### Task T-all-2086<a name="t-all-2086"></a> 
-Control arrow up not working on Mac - have to have key strokes that work there and change the key strokes that show.
-
-
-
-
-On a Mac, pressing **Control + Up Arrow** (⌃ + ↑) opens **Mission Control**.
-
-
-
-
-On a Mac, the **Control (⌃) + Right Arrow** shortcut is primarily used to navigate between different full-screen apps or desktop spaces (Mission Control)
-
-
-
-
-So those are taken on Mac.
-
-
-
-
-```
-const checkMac = window.navigator.userAgentData
-```
-
-```
-? window.navigator.userAgentData.platform === 'macOS'
-```
-
-```
-: /Mac/i.test(window.navigator.userAgent);
-```
-
-
-
-
-So it should be
-
-
-
-
-```
-Control + Option + Arrow Up
-```
-
-
-
-
-and all of them are option on Mac. Check if the definition in the keystroke command is still alt or you use option there also.
-
-#### Task B-all-418<a name="b-all-418"></a> 
-Clear notification_configs of demo users and don't create them to begin with. Tricky though unless we are going to disable changing configs in demo?
-
-#### Resolved 
-#### Resolved Task T-all-2084<a name="t-all-2084"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/aa6b25ea-a06c-4d5d-97f8-d5e88328a15e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-Number of issues here.
-
-> ##### Grouped task C-all-917<a name="c-all-917"></a> 
-The Need better... job has an open question from AI doesn't have a notification since I asked a question. However it for sure should show in the compressed in progress list.
-
-#### Resolved Task T-all-2085<a name="t-all-2085"></a> 
-Signup button on landing page is broken.
-
-## Job J-all-294<a name="J-all-294"></a>
-### AI notifications stuff
-Cause they are already seeing them on the agent side also.
-
-#### Resolved 
-#### Resolved Task T-all-2079<a name="t-all-2079"></a> 
-Still showing on the open tasks tab.
-
-
-
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/bf002da2-2751-4d34-82a2-a288d30fd66c.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-#### Resolved Task T-all-2069<a name="t-all-2069"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/4913fafe-ce2e-4888-b24e-3ae10d577149.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Unclear if we want resolve notifications from AI user resolving. And **even if we do they need to be rolled up per job.**
-
-
-
-
-SCREW THIS JUST DON'T GENERATE THESE FOR AI - RELY ON IT ASKING ON ITS SIDE.
-
-## Job J-all-290<a name="J-all-290"></a>
-### Fix documentation for notes, AI, and everyone view..
-#### Resolved 
-#### Resolved Task C-all-889<a name="c-all-889"></a> 
-As much of this prompt as possible goes into the description of the tool. May or may not work there but worth a shot.
-
-#### Resolved Task T-all-2042<a name="t-all-2042"></a> 
-Fix documentation to include new functionality and change CLI section name to MCP & CLI.
-
-#### Resolved Task T-all-2050<a name="t-all-2050"></a> 
-AI documentation.
-
-#### Resolved Task C-all-881<a name="c-all-881"></a> 
-Need add_approval tool and CLI also.
-
-#### Resolved Task C-all-880<a name="c-all-880"></a> 
-get_job has to support getting market level comments like bugs etc. - too confusing otherwise.
-
-#### Resolved Task C-all-872<a name="c-all-872"></a> 
-Write example prompts for above to see if doable.
-
-#### Resolved Task C-all-871<a name="c-all-871"></a> 
-Use Uclusion to get J-all-284 and also read through the application documentation at https://documentation.uclusion.com/ Then as a product manager ask any questions you have about the business value of this job which was proposed by a junior engineer. Once your questions are answered use Uclusion to add an approval to this job and use add info to record the questions and answers.
-
-
-
-
-**Put above prompt that works for you into documentation and maybe elsewhere as an example. In reality they will have to tune.**
-
-> ##### Grouped task C-all-889<a name="c-all-889"></a> 
-As much of this prompt as possible goes into the description of the tool. May or may not work there but worth a shot.
-
-> ##### Grouped task C-all-881<a name="c-all-881"></a> 
-Need add_approval tool and CLI also.
-
-> ##### Grouped task C-all-880<a name="c-all-880"></a> 
-get_job has to support getting market level comments like bugs etc. - too confusing otherwise.
-
-> ##### Grouped task C-all-872<a name="c-all-872"></a> 
-Write example prompts for above to see if doable.
-
-> ##### Grouped task C-all-876<a name="c-all-876"></a> 
-This [video](https://www.youtube.com/watch?v=h0hdaHPKDdI), at the end, explains how want reviews of specs ahead of time.
-
-
-
-
-So making that happen has to be the main marketable example. Anything else is just parlor tricks. Currently planning mode gives you a nice md file and you could have a review of that file.
-
-
-
-
-**However this CEO is wrongly assuming that the features were all worth doing and now with AI speeding things up the chances of FEATURE FACTORY ARE 100% so need Uclusion there. What's missing is the AGILE DEVELOPER WHO THINKS ABOUT THE FEATURE AND REALIZES WHAT'S WRONG WITH IT.**
-
-
-
-
-LIKE IT OR NOT WE HAVE TO GO BACK TO TRYING TO GET AI TO HAVE AN OPINION ON THE VALUE OF THE FEATURE ALTOGETHER. TO RATE CERTAINTY ON WHETHER OR NOT PEOPLE WILL LIKE THE FEATURE WHICH MUST HAVE A DETAILED EXPLANATION OF IT AND ITS VALUE. Then once they are use to have AI opinion its nature to try to get human opinion and the approval game is afoot.
-
-> ##### Grouped task C-all-877<a name="c-all-877"></a> 
-For a solo developer, the risk of technical debt and "hacks" is high. The AI Job Reviewer provides a standardized, rigorous check that mimics a senior engineer's "Definition of Done". By using MCP to pull in context from "all servers" (including GitHub, database schemas, and documentation), the AI can perform a "Criteria-Grounded Verification" that ensures every job is actionable and verifiable. The primary limitation is the AI's struggle with judging the *novelty* or *long-term business significance* of a project, which must remain a human responsibility.
-
-
-
-
-
-
-
-**So it thinks AI can't do business ROI and is mostly after DoD. Which if we believe that then this is about adding tasks, grouped tasks, and notes and don't need the approval and certainty score. Emphasis should be on reading the code base to fill in blind spots, recommend testing, find potential feature conflicts etc.**
-
-> ##### Grouped task C-all-878<a name="c-all-878"></a> 
-get_job tool has to screen out existing approvals.
-
-#### Resolved Task C-all-876<a name="c-all-876"></a> 
-This [video](https://www.youtube.com/watch?v=h0hdaHPKDdI), at the end, explains how want reviews of specs ahead of time.
-
-
-
-
-So making that happen has to be the main marketable example. Anything else is just parlor tricks. Currently planning mode gives you a nice md file and you could have a review of that file.
-
-
-
-
-**However this CEO is wrongly assuming that the features were all worth doing and now with AI speeding things up the chances of FEATURE FACTORY ARE 100% so need Uclusion there. What's missing is the AGILE DEVELOPER WHO THINKS ABOUT THE FEATURE AND REALIZES WHAT'S WRONG WITH IT.**
-
-
-
-
-LIKE IT OR NOT WE HAVE TO GO BACK TO TRYING TO GET AI TO HAVE AN OPINION ON THE VALUE OF THE FEATURE ALTOGETHER. TO RATE CERTAINTY ON WHETHER OR NOT PEOPLE WILL LIKE THE FEATURE WHICH MUST HAVE A DETAILED EXPLANATION OF IT AND ITS VALUE. Then once they are use to have AI opinion its nature to try to get human opinion and the approval game is afoot.
-
-#### Resolved Task T-all-2053<a name="t-all-2053"></a> 
-Missed the what is Uclusion page in rewrite.
-
-#### Resolved Task C-all-877<a name="c-all-877"></a> 
-For a solo developer, the risk of technical debt and "hacks" is high. The AI Job Reviewer provides a standardized, rigorous check that mimics a senior engineer's "Definition of Done". By using MCP to pull in context from "all servers" (including GitHub, database schemas, and documentation), the AI can perform a "Criteria-Grounded Verification" that ensures every job is actionable and verifiable. The primary limitation is the AI's struggle with judging the *novelty* or *long-term business significance* of a project, which must remain a human responsibility.
-
-
-
-
-
-
-
-**So it thinks AI can't do business ROI and is mostly after DoD. Which if we believe that then this is about adding tasks, grouped tasks, and notes and don't need the approval and certainty score. Emphasis should be on reading the code base to fill in blind spots, recommend testing, find potential feature conflicts etc.**
-
-#### Resolved Task T-all-2051<a name="t-all-2051"></a> 
-Add explanation of everyone group.
-
-#### Resolved Task C-all-878<a name="c-all-878"></a> 
-get_job tool has to screen out existing approvals.
-
-## Job J-all-230<a name="J-all-230"></a>
-### Better archive.
-The current archive was more of a placeholder than a real implementation. This should be cleaned up now because if you archive something and change your mind it is very difficult to get back.
-
-> ##### $${\color{lightgreen} Reason \space For}$$ E-all-53<a name="e-all-53"></a>
-Direction is correct. The existing archive (`DialogArchives` linked from `DialogOutset` via `formGroupArchiveLink`) is acknowledged in the description as a placeholder, and the code confirms it: a single page lumping complete jobs, not-doing jobs, resolved TODOs, and resolved non-TODO comments together, plus an `ArchiveWarningStep` that effectively warns the resolve is one-way. The proposed refactor — distributing archived content into per-section sub-tabs (Bugs ‘Resolved’, Notes/Discussion ‘Resolved’, Backlog ‘Not Doing’) with drag-back-to-unresolve (C-all-907) and right-click resolve (C-all-910) — is the right shape because (a) it puts archived items where users naturally look, (b) it makes including archived matches in tab-level search counts straightforward (T-all-1946) instead of the current `archivedSize` outset-only badge in `PlanningDialog`, and (c) it makes archive reversible, which is the stated user pain point. The ‘Show all complete’ link (T-all-2056) is necessary because `getSwimlaneInvestiblesForStage` in `userUtils.js` caps complete jobs via `allowed_investibles` and `days_visible`, so older complete work is currently unreachable from the swimlane. C-all-911 (making view-level notes resolvable) lines up with `Comment.js` where `showResolve` is currently false for `REPORT_TYPE` notes without an `investibleId`. T-all-1984 (overlay view inset, no buffer) removes the brittle `dialogOutsetBuffer` coordination between `DialogOutset` and `Screen.js` and is consistent with the right-side fixed-translate pattern already used by the investible page. Held at 4 rather than 5 because of two design ambiguities I posted as a question: (1) T-all-2059 removes the archive page but T-all-2056 says the new ‘Show all complete’ link goes to an archive page — these need to be reconciled (new dedicated complete-jobs page vs. repurposed `DialogArchives`); and (2) the intended search behavior in T-all-1946 — whether archived matches surface inline in the primary tab content or only bump counts while live items remain in the primary tab and matches sit under the Resolved sub-tab. Resolving these before implementation will avoid rework in `PlanningDialog`’s tab-count plumbing (`getTabCount`, `getTagLabel`, the per-tab `tag`/`tagLabel` props) and in route/link cleanup (`formGroupArchiveLink`, `formArchiveCommentLink`, the `groupArchive` action in `Root.js`).
-
-#### Reports 
-#### Report R-all-102<a name="r-all-102"></a> 
-Completed all three tasks for the Better Archive job:
-
-**T-all-2059 — Remove old archive implementation** - Removed the archive link from the view outset (`DialogOutset.js`) along with its imports
-- Removed the archive warning wizard invocation when resolving view-level comments (`Comment.js`) — resolving now calls `resolveComment` directly without the confirmation dialog
-- Removed archive-related computations and navigation from `PlanningDialog.js`
-
-**T-all-2056 — Show all complete link + complete-jobs archive page** - Added "Show all complete" link at the bottom of the Tasks Complete column in the swimlane (`PlanningIdeas.js`), left-justified within that column
-- Added `formCompleteJobsLink(marketId, groupId, presenceId)` helper that appends `&assigneeId=` to the archive URL
-- Rewrote `DialogArchives.js` as a complete-jobs-only page with view and collaborator filter dropdowns, paginated `BacklogListItem` rows, and a "Tasks Complete" SubSection header; fixed dark mode by replacing hardcoded black colors with `theme.palette.text.primary` in both the SubSection and the filter dropdowns
-
-**T-all-1946 — Search collapses sub-tabs to unified paginated lists** - Jobs Backlog: during search, collapses Ready/Not Ready/Not Doing tabs into a single paginated list (Not Doing excluded per design); notification count and bold suppressed in Job Progress search results
-- Bugs/Todos (`MarketTodos.js`): during search, collapses sub-tabs into a unified list
-- Notes/Discussion (`DiscussionSection.js`): during search, shows all matching open + resolved items as compressed paginated `BugListItem` rows; removed resolved count from the tab label
-- Job Progress (`PlanningDialog.js`): during search, replaces swimlanes with a paginated list covering live stages + all Tasks Complete (uncapped), with notifications suppressed
-
-#### Resolved 
-#### Resolved Question Q-all-67<a name="q-all-67"></a> 
-T-all-1946 describes search behavior for Jobs Backlog, Bugs, Notes/Discussion, and Job Progress, but doesn’t mention the new T-all-2056 complete-jobs archive page. When a user is on the T-all-2056 page (with its view + collaborator filter dropdowns) and types in the search field, what happens?
-
-### Option O-3<a name="O-3"></a>
-### Search is global — redirect to a global complete-jobs search results page
-Searching from the T-all-2056 page navigates the user back to the parent view with the search applied (so they land on the Job Progress / Jobs Backlog search results which already cover live + complete per the Q-65 outcome). Pro: avoids duplicating search logic on this page. Con: feels like the page is unsearchable in place; breaks user mental model.
-
-### Option O-1<a name="O-1"></a>
-### Search filters within the active view/collaborator filter, paginated list stays the same
-The view and collaborator dropdown filters remain in effect. The single paginated list of complete jobs simply narrows to those matching the search. No new layout, no sub-tab collapse (there are no sub-tabs on this page). Pro: predictable, consistent with how filters compose on most pages. Con: if the user wants to search across all views/collaborators, they have to first set both dropdowns to ‘All’.
-
-> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
-The user can see the filter results for each view on the Views section of the left side panel for each view that has matches. If he wants those matches he can just click that view.
-
-### Option O-2<a name="O-2"></a>
-### Search auto-broadens filters to ‘All’ while active
-Typing into search temporarily sets both dropdowns to ‘All’ (with a visual hint), so search always covers every complete job in the workspace. When search is cleared, the prior filter selection is restored. Pro: ‘searching reaches everything’ invariant is preserved across all tabs. Con: surprising filter mutation; restoring prior state adds complexity.
-
-#### Resolved Question Q-all-63<a name="q-all-63"></a> 
-Two design points need clarification before implementation. First, T-all-2059 says to remove the current archive implementation (its page and links from `Root.js`/`DialogOutset`), but T-all-2056 says the new ‘Show all complete’ link above complete jobs ‘goes to an archive page for complete jobs that is filtered to the view and collaborator of that row’. Is that new destination a brand-new page, or the existing `DialogArchives` repurposed and scoped to complete-only with view/collaborator filters? Second, for T-all-1946, when a search matches an item that is archived/resolved/not-doing, should the matching items appear inline within the primary tab’s content list, or stay under the new Resolved/Not Doing sub-tab while only the counts roll up to the parent tab? The answer drives whether `PlanningDialog`’s `getTabCount`/`getTagLabel`/per-tab `tag` plumbing needs to combine live and archived result sets or just sum counts.
-
-> ##### Reply C-all-912<a name="c-all-912"></a> 
-The current DialogArchives page includes Complete jobs, Not Doing jobs, bugs, and discussion all in one page. In the new system there is no all in one page for these archived items. Whether it is easier to remove stuff from the current page or create a new page is unclear - the existing page also has issues with the way it looks.
-
-### Option O-2<a name="O-2"></a>
-### New dedicated complete-jobs page + counts-only roll-up
-Same new dedicated `CompleteJobsArchive` page as option 1. But for T-all-1946, live tab content stays live-only during search; archived matches live exclusively under the Resolved / Not Doing sub-tab. The parent tab’s count chip sums live + sub-tab matches so the user sees there are hidden archived hits and clicks into the sub-tab to see them. Simpler to implement (sub-tab filter is independent), keeps primary list semantics clean.
-
-### Option O-4<a name="O-4"></a>
-### Repurpose `DialogArchives` as complete-jobs page + counts-only roll-up
-Same as option 3 (repurpose `DialogArchives` to a complete-jobs-only filtered page), but search behavior follows option 2 (archived matches only appear in the Resolved/Not Doing sub-tab; parent tab count chip rolls up the total).
-
-### Option O-3<a name="O-3"></a>
-### Repurpose `DialogArchives` as complete-jobs page + inline archived matches
-Do not delete the `DialogArchives` route/component; instead strip out everything except complete jobs and add view + collaborator filters (defaulted to the clicked row, settable to ‘All’). T-all-2059’s ‘remove the current archive’ then really means: remove the not-doing section, resolved-TODO section, and resolved-discussion section from `DialogArchives`, plus the outset link and the resolve warning, since those concerns now live in sub-tabs. Search behavior follows option 1 (inline archived matches in primary tabs).
-
-### Option O-1<a name="O-1"></a>
-### New dedicated complete-jobs page + inline archived matches
-T-all-2056 introduces a NEW page (e.g. `CompleteJobsArchive`) at a new route, separate from the deleted `DialogArchives`. Filters: view dropdown + collaborator dropdown, defaulted to the row that was clicked, both settable to ‘All’. For search (T-all-1946), archived/resolved/not-doing matches appear inline within the primary tab content (jobs/backlog/bugs/notes) alongside live matches, with a visual marker (e.g. greyed/strikethrough or a small ‘resolved’/‘not doing’ chip). The Resolved/Not Doing sub-tab still exists and contains the full archived set; sub-tab counts also reflect the search. This gives users a single scan to find matches regardless of state.
-
-#### Resolved Question Q-all-65<a name="q-all-65"></a> 
-T-all-1946 says the Job Progress tab during search becomes a paginated list of ‘all currently assigned jobs that match the search’. Per the stages documentation, ‘assigned’ jobs can live in Waiting/Approval, Next/Assistance, Work Ready, Tasks Complete, and Not Doing. Today the `PlanningIdeas` swimlanes show Waiting/Approval + Work Ready + Tasks Complete, and Tasks Complete is capped per `stage.allowed_investibles` / `stage.days_visible` in `getSwimlaneInvestiblesForStage`. T-all-2056 also creates a dedicated complete-jobs archive page that reaches all Tasks Complete including the capped-out older ones. Which scope should the Job Progress search list use?
-
-### Option O-4<a name="O-4"></a>
-### Live stages + ALL Tasks Complete + ALL Not Doing (everything ever assigned)
-Maximally comprehensive: any job in the view that has ever been assigned and matches the search appears, including terminal stages. Conflicts with the stages doc which says Not Doing jobs are ‘visible only in the archive’. Probably wrong but listed for completeness.
-
-### Option O-3<a name="O-3"></a>
-### Live stages + ALL Tasks Complete (uncapped during search)
-Search shows Waiting/Approval + Work Ready + every Tasks Complete job in the view, ignoring the swimlane cap. Not Doing excluded. T-all-2056 archive page is still the right destination for browsing complete jobs without a search; search on Job Progress reaches them too. Pro: user expectation that ‘search finds everything currently assigned’ holds. Con: requires `getSwimlaneInvestiblesForStage` to take an ‘ignore caps for search’ path, or for the search list to bypass that helper entirely.
-
-> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
-Please note that a job is unassigned when it moves to Not Doing so Not Doing jobs cannot have an assignment.
-
-### Option O-2<a name="O-2"></a>
-### Live stages + visible Tasks Complete (current swimlane scope)
-Search shows whatever the swimlanes show today — Waiting/Approval, Work Ready, and Tasks Complete subject to the existing `allowed_investibles` / `days_visible` capping. Older capped-out complete jobs are not reachable from Job Progress search and require T-all-2056. Pro: visually consistent with non-search swimlane content. Con: search silently hides matches the user might expect, because the cap was designed for visual density, not search filtering.
-
-### Option O-1<a name="O-1"></a>
-### Live stages only (exclude Tasks Complete and Not Doing)
-Search shows only Waiting/Approval, Next/Assistance, and Work Ready jobs assigned to anyone in this view. Tasks Complete matches are reachable via the new T-all-2056 complete-jobs archive page (which has its own search). Not Doing matches aren’t reachable from Job Progress at all (stages doc says Not Doing is only visible in the archive). Cleanest separation of concerns and lightest data: `PlanningIdeas` search code paths only need to combine the three live stages.
-
-#### Resolved Question Q-all-64<a name="q-all-64"></a> 
-For T-all-1946, when an active search matches an item that lives in a Resolved / Not Doing sub-tab (a resolved bug, resolved note/discussion, not-doing backlog item, or complete job), how should those matches surface in the parent tab’s UI? This affects whether `PlanningDialog`’s `getTabCount`/`getTagLabel` and the per-tab `tag`/`tagLabel` props need to combine live + archived result sets, or just sum counts while content lists stay segregated by sub-tab. Two clean options below; option C is a compromise.
-
-### Option O-3<a name="O-3"></a>
-### Counts-only roll-up by default + a one-click ‘Include resolved’ toggle on the primary tab
-Default behavior is option B (counts roll up, content stays live-only). Add a small toggle / filter chip next to the search field (or on the tab strip) that, when enabled, switches the primary tab to option A behavior (inline archived matches in the list). Toggle state persists in the existing `BugListContext`-style reducer per view. Benefit: keeps the default clean while letting power users opt into a single-scan view. Cost: one more UI control plus a small amount of state to plumb.
-
-### Option O-2<a name="O-2"></a>
-### Counts-only roll-up; primary content stays live-only
-During search, the primary tab’s content list shows only live (non-archived) matches — exactly as today. The Resolved / Not Doing sub-tab’s count chip shows its own matched count. The parent tab’s count chip rolls up: parent count = live matches + sub-tab matches, so the user sees that hidden archived hits exist and clicks into the sub-tab to see them. Benefit: simpler implementation — each list filter stays independent, no mixed rendering, drag/drop unchanged. Cost: extra click to reach archived matches.
-
-### Option O-1<a name="O-1"></a>
-### Inline archived matches in the primary tab content
-During search, archived/resolved/not-doing items that match appear in the primary tab’s content list right next to live matches, visually distinguished (e.g. greyed background, strikethrough, or a small ‘resolved’ / ‘not doing’ chip). The Resolved / Not Doing sub-tab still exists and its own count chip also reflects the search. Parent tab count = live matches + archived matches. Benefit: user sees every hit in one scan without having to remember to check the sub-tab. Cost: primary lists now mix two states; `Backlog.js`, `MarketTodos.js`, and the new Notes/Discussion Resolved sub-tab plumbing all need to render two visual variants and exclude the archived ones from drag/drop targets that don’t apply.
-
-#### Resolved Report R-all-101<a name="r-all-101"></a> 
-Implemented T-all-2060: two sub-tabs (Open / Resolved) in the Notes / Discussion section.
-
-**What changed:**
-- Created `DiscussionSection.js` — a new component (following the same pattern as `Backlog.js` and `MarketTodos.js`) that renders:
- - **Open tab**: exactly the existing layout — add buttons for Note/Question/Suggestion, dismissable help text, and `CommentBox`.
- - **Resolved tab**: paginated `BugListItem` rows for resolved questions, suggestions, and notes, with expandable `Comment` panels.
- - Dragging a resolved item and dropping it on the **Open** tab calls `updateComment({ resolved: false })` to unresolve it (the same mechanism `MarketTodos` uses).
-- Updated `PlanningDialog.js`:
- - Replaced the inline discussion section JSX with `<DiscussionSection>`.
- - Added `resolvedDiscussionComments` computation (resolved group-level non-bug comments).
- - Removed now-unused imports (`Grid`, `CommentBox`, `EditIcon`, `hasDiscussionComment`) and the unused `questionSuggestionNotesGroupComments` variable.
-- Build is clean with no errors or warnings in the changed files.
-
-> ##### Reply C-all-914<a name="c-all-914"></a> 
-Move the add buttons to the top instead of inside the open tab - this matches what was done for Bugs and also allows hitting a button even when on the Resolved tab.
-
-> ##### Reply C-all-915<a name="c-all-915"></a> 
-Moved all three add buttons (Note, Question, Suggestion) above the GmailTabs, along with the DismissableText help — matching the Bugs layout. They're now always visible regardless of which sub-tab is active.
-
-#### Resolved Task C-all-908<a name="c-all-908"></a> 
-This includes removing the archive link from the view outset.
-
-#### Resolved Task T-all-2057<a name="t-all-2057"></a> 
-On Job backlog add a third tab 'Not Doing'. This tab shows Not Doing backlog in the same display used for the other two.
-
-#### Resolved Task T-all-1946<a name="t-all-1946"></a> 
-When a search is active the sub tabs under the Jobs Backlog, Bugs, and Notes / Discussion section disappear and all results display together with the paginated display currently used. No visual indication of what type of result they are is necessary and counts on the parent tab will reflect everything showing beneath it.
-
-
-
-
-Similarly on the Job Progress tab the current page will not show and instead a page just like the paginated one that shows on Jobs Backlog except it will just contain all currently assigned jobs that match the search.
-
-#### Resolved Task T-all-2059<a name="t-all-2059"></a> 
-Overwrite or remove the current archive implementation - including its page and linking in root.
-
-#### Resolved Task T-all-2056<a name="t-all-2056"></a> 
-Above complete jobs at the same level as the collaborator avatar, there is a new link to 'Show all complete'. This link goes to an archive page for complete jobs that is filtered to the view and collaborator of that row. These filters can be removed by selected All from the view and collaborator drop down filters.
-
-#### Resolved Task C-all-911<a name="c-all-911"></a> 
-Make notes in the Notes / Discussion section IE ones having no investible ID be resolvable.
-
-#### Resolved Task T-all-2060<a name="t-all-2060"></a> 
-Have two sub tabs in the Notes / Discussion section like what is done for Bugs and Job Backlog. The first tab is 'Open" and display everything exactly as now. The second tab is 'Resolved' and it holds compressed paginated rows for all resolved notes and discussion using the same form as bugs tabs.
-
-
-
-
-Again dropping a resolved notes / discussion to the other tab will unresolve it.
-
-#### Resolved Task T-all-2058<a name="t-all-2058"></a> 
-On Bugs add a fourth tab 'Resolved'. This tab shows resolved bugs in the same display used for the other three.
-
-> ##### Grouped task C-all-910<a name="c-all-910"></a> 
-Resolved will be a choice on the right click menu as the other bug types are currently - when not in resolved already of course.
-
-> ##### Grouped task C-all-907<a name="c-all-907"></a> 
-If you drag a bug from resolved to another tab its notification_type might change but also it unresolves.
-
-> ##### Grouped task C-all-906<a name="c-all-906"></a> 
-If you create a job from a resolved bug the task it becomes is not resolved anymore.
-
-#### Resolved Task C-all-909<a name="c-all-909"></a> 
-This includes removing the warning you get when resolving a view level comment like bugs or discussion. Since there will be a link to where resolved went on the same page that warning is no longer necessary.
-
-#### Resolved Question Q-all-66<a name="q-all-66"></a> 
-T-all-1946 says during search the Notes/Discussion sub-tabs collapse and ‘all results display together with the paginated display currently used’. Bugs and Backlog already use compressed paginated rows in both sub-tabs, so ‘currently used’ is unambiguous there. But Notes/Discussion today uses `CommentBox` (full-bodied rendered comments) in the Open section, while T-all-2060’s new Resolved sub-tab will use bugs-style compressed paginated rows. Which form should the unified Notes/Discussion search list use?
-
-### Option O-1<a name="O-1"></a>
-### Compressed paginated rows (bugs/backlog form) for all matches during search
-When search is active on Notes/Discussion, every match — open or resolved — renders as a compressed paginated row like bugs. Pro: consistent with the ‘sub-tabs collapse into the paginated display’ framing in T-all-1946, and matches how Bugs/Backlog already behave. Pro: pagination scales when search hits many items. Con: users lose the in-context body preview of open notes/discussion that `CommentBox` currently shows; they have to click into each row.
-
-> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
-Yes this is what I meant.
-
-### Option O-3<a name="O-3"></a>
-### Mixed: Open matches in `CommentBox`, Resolved matches in compressed rows below
-Two visually distinct stacked sections in the unified search view — first `CommentBox` for open matches, then a compressed paginated row block for resolved matches, divided by a small header. Pro: preserves rich preview for live work where users mostly look. Con: violates ‘sub tabs disappear, all results display together’ in spirit (two sections is effectively two sub-displays); more code to maintain than option A or B.
-
-### Option O-2<a name="O-2"></a>
-### Keep `CommentBox` rendering for all matches during search
-When search is active on Notes/Discussion, all matches (open + resolved) render via `CommentBox` just like the Open sub-tab today, with no pagination collapse. Pro: rich body preview preserved. Con: inconsistent with Bugs/Backlog search behavior; large match sets render heavy; ‘paginated display’ framing in T-all-1946 doesn’t literally apply because there is no current paginated display in Notes/Discussion.
-
-#### Resolved Task T-all-1984<a name="t-all-1984"></a> 
-For view inset drop pushing over all existing on the page. Like how chat inset works for Gmail - it does cover stuff up. Pushing over everything ends up being hokey.
-
-## Job J-all-292<a name="J-all-292"></a>
-### Either fix tip of spear blog of have new tip of spear which shows detail of...
-...interaction with AI.
-
-#### Resolved 
-#### Resolved Task T-all-2055<a name="t-all-2055"></a> 
-Do we want pictures of question interface?
-
-
-
-
-Do we want to go through entire example with AI and job in Uclusion?
-
-#### Resolved Task T-all-2054<a name="t-all-2054"></a> 
-People like Brad and Daniel have working systems with things like it leaves a space for you to type your own option. The "chat" interface seems to be what they are going for - why is this better?
-
-
-
-
-1. Chat interface sucks - especially for many questions at once or any question with options where an option requires considerable explanation.
-2. Storing the collaboration in the job much preferred
-3. No subtleties on chat - communication within an option. Or you can approve multiple options in chat but not with a certainty and reason for each.
-4. If want other humans opinions chat is a complete fail.
-
-## Job J-all-289<a name="J-all-289"></a>
-### Issues with view creation.
-#### Resolved 
-#### Resolved Task B-all-419<a name="b-all-419"></a> 
-When create new TEAM view and don't add any people hits the back end follow endpoint with empty and errors.
-
-#### Resolved Task C-all-904<a name="c-all-904"></a> 
-Still supporting Everyone group but no mention on creation page or in documentation of what it does. In code looks like it is a short cut for automatically adding anyone who joins.
-
-#### Resolved Task C-all-905<a name="c-all-905"></a> 
-Since there are three choices - TEAM, AUTONOMOUS, or EVERYONE will have to have radio button choice and help text for each.
-
-
-
-
-**That's fine since creating a view is not very common.**
-
-## Job J-all-283<a name="J-all-283"></a>
-### Uclusion is how you collaborate with AI.
-The only reason some solo devs have to write anything down is AI. Have AI take a job from CLI and communicate it's plan through the job - ask questions with options and vote on best option, make suggestions when have an idea for changing the job, add tasks, add grouped tasks at code level like it's current plan, and of course blockers if it is stuck.
-
-
-
-
-Going with secret key instead of full Oauth stuff <https://upstash.com/blog/mcp-oauth-implementation> :
-
-<https://www.truefoundry.com/blog/mcp-authentication-in-cursor-oauth-api-keys-and-secure-configuration> - shows Cursor will handle everything from a discovery flow
-
-<https://www.mintlify.com/upstash/context7/mcp/configuration> - verifies this worked in real life.
-
-#### Resolved 
-#### Resolved Task T-all-2065<a name="t-all-2065"></a> 
-Need to encourage it to resolve tasks that are done and resolve questions that are through with.
-
-#### Resolved Task C-all-854<a name="c-all-854"></a> 
-For secret keys need to make sure banned check happens as currently does in
-
-
-
-
-<https://github.com/Uclusion/uclusion_common/blob/5ef9a6a61b390cd16c945282b6e9abb8cff59383/ucommon/handlers/abstract_request_handler.py#L102>
-
-#### Resolved Task C-all-870<a name="c-all-870"></a> 
-So need a get_task which only gets a task into a context in case you put a prompt there - need to work however they work.
-
-
-
-
-**Maybe task gets task and job gets job? Cause task gets job means AI will think is on task as it won't get this surrounding thing thing.**
-
-
-
-
-But then tricky cause do you get the job for question you want answered and then ask it to answer the question? Kind of requires a lot of skill for the user. Is getting the full job really going to fill the context too much or distract? **Also a user of the UI would never have only a comment in a job without seeing the job.**
-
-#### Resolved Task C-all-882<a name="c-all-882"></a> 
-Screen the AI user out of get followers of job method - won't be in any views.
-
-#### Resolved Task T-all-2003<a name="t-all-2003"></a> 
-Have to output everything the AI puts out so that people can see the "thinking".
-
-#### Resolved Task T-all-2072<a name="t-all-2072"></a> 
-Test suggestion and progress report from CLI.
-
-#### Resolved Task C-all-851<a name="c-all-851"></a> 
-<https://cursor.com/docs/mcp> has the example we want (possibly with scopes added):
-
-
-
-
-```
-{
-```
-
-```
-"mcpServers": {
-```
-
-```
-"uclusion-mcp-proxy": {
-```
-
-```
-"command": "python3",
-```
-
-```
-"args": ["/home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
-```
-
-```
-}
-```
-
-```
-}
-```
-
-```
-}
-```
-
-
-
-
-We want that one cause don't want them to do a full Uclusion login with Google, Github, or email/password as would go too many screen deep. Cursor says use this when
-
-
-
-
-1. The provider does not support OAuth 2.0 Dynamic Client Registration
-
-
-
-
-
-Which for Uclusion is true - there is no dynamic way to get your secret keys as shown [here](https://www.scalekit.com/blog/dynamic-client-registration-oauth2).
-
-
-
-
-So to make this work you need and endpoint on https://api.example.com/mcp/.well-known/oauth-authorization-server that:
-
-
-
-
-```
-
-
-
-```
-
-```
-async def token_endpoint(
-```
-
-```
-grant_type: str = Form(...),
-```
-
-```
-client_id: str = Form(None),
-```
-
-```
-client_secret: str = Form(None)
-```
-
-```
-):
-```
-
-```
-"""
-```
-
-```
-Step 2: The Token Exchange.
-```
-
-```
-Cursor POSTs the ID and Secret here. You validate them and return a signed JWT.
-```
-
-```
-"""
-```
-
-```
-if grant_type != "client_credentials":
-```
-
-```
-raise HTTPException(status_code=400, detail="unsupported_grant_type")
-```
-
-```
-  
-```
-
-```
-if client_id != EXPECTED_CLIENT_ID or client_secret != EXPECTED_CLIENT_SECRET:
-```
-
-```
-raise HTTPException(status_code=401, detail="invalid_client")
-```
-
-```
-
-
-
-```
-
-```
-return {
-```
-
-```
-"issuer": base_url,
-```
-
-```
-"token_endpoint": f"{base_url}/token",
-```
-
-```
-# Cursor uses the client_credentials grant for machine-to-machine auth
-```
-
-```
-"grant_types_supported": ["client_credentials"],
-```
-
-```
-"response_types_supported": ["token"],
-```
-
-```
-"token_endpoint_auth_methods_supported": ["client_secret_post"]
-```
-
-```
-}
-```
-
-
-
-
-and another endpoint on https://api.example.com/mcp/token that returns:
-
-
-
-
-```
-return {
-```
-
-```
-"access_token": token,
-```
-
-```
-"token_type": "Bearer",
-```
-
-```
-"expires_in": 3600
-```
-
-```
-}
-```
-
-
-
-
-and of course the actual MCP endpoint on https://api.example.com/mcp that is secured by a normal Uclusion token as any other API - for now could just use <https://github.com/modelcontextprotocol/python-sdk/blob/main/examples/mcpserver/simple_echo.py>
-
-> ##### Grouped task C-all-863<a name="c-all-863"></a> 
-```
-2026-04-13 13:23:30.526 [info] Starting new stdio process with command: python3 /home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py 3a2c3b12-336b-4d72-b36c-fd3a27a884b2 dev
-```
-
-```
-2026-04-13 13:23:33.323 [error] Client error for command [
-```
-
-```
-{
-```
-
-```
-"code": "invalid_union",
-```
-
-```
-"errors": [
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-]
-```
-
-```
-],
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input"
-```
-
-```
-}
-```
-
-```
-]
-```
-
-```
-2026-04-13 13:23:33.323 [warning] [V1] initializing -> error: [
-```
-
-```
-{
-```
-
-```
-"code": "invalid_union",
-```
-
-```
-"errors": [
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-]
-```
-
-```
-],
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input"
-```
-
-```
-}
-```
-
-```
-]
-```
-
-
-
-
-Coming from:
-
-```
-/aws/lambda/uclusion-investible-api-dev-mcp_post 2026/04/13/[$LATEST]da08c828fa524be3a18023325d0a7d14 [INFO]    2026-04-13T20:23:33.325Z        d7b2425f-fff5-4b26-b338-7bbceedc9ed1  {'statusCode': 200, 'body': '"{\\"jsonrpc\\":\\"2.0\\",\\"id\\":0,\\"result\\":{\\"protocolVersion\\":\\"2024-11-05\\",\\"capabilities\\":{},\\"serverInfo\\":{\\"name\\":\\"uclusion-mcp-server\\",\\"version\\":\\"1.0.0\\"}}}"', 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': True}, 'isBase64Encoded': False}
-```
-
-```
-
-
-
-```
-
-```
-
-
-
-```
-
-#### Resolved Task T-all-2034<a name="t-all-2034"></a> 
-Fix 'The CLI you never knew but always wanted' section in general and of course it is 'The MCP and CLI you never knew but always wanted'.
-
-
-
-
-Maybe add a fourth box.
-
-#### Resolved Task T-all-1995<a name="t-all-1995"></a> 
-The prompts explain what the agent should do with the assigned jobs approval - use the description as a prompt to plan and add high level tasks and existing tasks as things that must have grouped tasks plans. **Anything you want handled in its own context should go in its own job - so the tasks are all things that require knowing other things in the job.**
-
-
-
-
-Prompt also explains that if in Work Ready then start on all tasks - marking each one currently doing as in progress and resolving ones that are done.
-
-#### Resolved Task C-all-869<a name="c-all-869"></a> 
-Have MCP server in Cursor be part of this script whenever Cursor is present.
-
-
-
-
-~/.cursor/mcp.json
-
-```
-{
-```
-
-```
-"mcpServers": {
-```
-
-```
-"Uclusion": {
-```
-
-```
-"command": "python3",
-```
-
-```
-"args": ["/user/local/bin/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
-```
-
-```
-}
-```
-
-```
-}
-```
-
-```
-}
-```
-
-#### Resolved Task T-all-2052<a name="t-all-2052"></a> 
-Resolve is missing from the CLI.
-
-#### Resolved Task T-all-2040<a name="t-all-2040"></a> 
-The script just takes a workspace ID and that breaks input of bug and TODO integration view.
-
-#### Resolved Task T-all-2037<a name="t-all-2037"></a> 
-For MCP has to send full link to question so that user clicks the link and then sees loading till the question is available.
-
-
-
-
-**Verify that see loading until question available also and that is polling at a decent rate to get the question.**
-
-#### Resolved Task T-all-2038<a name="t-all-2038"></a> 
-Change verbiage on get job to make it clear that the rest of the job is just for context.
-
-#### Resolved Task T-all-2077<a name="t-all-2077"></a> 
-Need to see ID on grouped task or don't know which one AI is doing or resolving.
-
-#### Resolved Task T-all-2004<a name="t-all-2004"></a> 
-These comments will be as an AI user that is local to the workspace and has no home account or a dummy home account. The point is that a collaboration with AI to get its opinion on the job, at a high level, is better than nothing.
-
-#### Resolved Question Q-all-49<a name="q-all-49"></a> 
-Do you run CLI each time or just have an agent running all the time that reacts to changes you make in Uclusion?
-
-#### Resolved Task T-all-2005<a name="t-all-2005"></a> 
-Currently can get link or commit message but cannot copy just the ID of a job or comment. Clicking the short code will have to open a drop down that has you choose ID or commit message.
-
-
-
-
-**Actually the drop down can include all info necessary - which might be a full prompt as have in the other task.**
-
-#### Resolved Task C-all-864<a name="c-all-864"></a> 
-How should it work in MCP to get humans to give commands like necessary? Are the examples just in the Uclusion docs or AI should give hints to the human or maybe the hints are in Uclusion or all the above?
-
-#### Resolved Task T-all-2066<a name="t-all-2066"></a> 
-Setup [Claude Code](https://code.claude.com/docs) and finish the Archive job using that since ran out of credits on Cursor.
-
-
-
-
-**Finish and deploy other changes to stage before proceed with Archive job.**
-
-#### Resolved Task S-all-58<a name="s-all-58"></a> 
-Be careful with wasting tokens
-
-
-
-
-<https://medium.com/generative-ai/i-spent-a-year-burning-money-on-ai-and-finally-decided-to-do-something-about-it-61854d738d4a>
-
-
-
-
-If can MCP to work then it's both - you can look from the AI side or the Uclusion side.
-
-
-
-
-**However no assistance - you answer AI's questions as you do now and then it creates a plan as tasks and grouped tasks. The job can be created from the AI side also and records prompt and answers in job description. Now people, including you, know what you are working on without sharing an AI session or something funky. Furthermore instead of looking at plans in crappy MD files you can see everything in a job.**
-
-
-
-
-If you want to go the other way and write down things in Uclusion and then pull them into your AI session then of course you can via MCP.
-
-> ##### Grouped task C-all-842<a name="c-all-842"></a> 
-Understand MCP <https://github.com/modelcontextprotocol>
-
-> ##### Grouped task C-all-844<a name="c-all-844"></a> 
-MCP allows defining a prompt for a method:
-
-
-
-
-```
-@prompt(
-```
-
-```
-name="query-data",
-```
-
-```
-description="Fetches data from the SQL database using a SQL query"
-```
-
-```
-)
-```
-
-```
-def query_data(query: str) -> str:
-```
-
-```
-# Logic to fetch data from resource
-```
-
-```
-return f"Result: {db.execute(query)}"
-```
-
-```
-
-
-
-```
-
-> ##### Grouped task C-all-843<a name="c-all-843"></a> 
-<https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization> - has authorization but how do you make Cursor know how to do this for an API call?
-
-
-
-
-**OAuth via Browser (Remote Servers):**
-
-1. Add the URL in Cursor Settings -> Tools & MCP.
-2. Click the blue "Connect" button that appears.
-3. A browser window will pop up to authorize the service, which will then redirect back to Cursor.
-
-
-
-
-
-There is also a discovery flow listed and might have to do that for non Cursor.
-
-#### Resolved Task C-all-850<a name="c-all-850"></a> 
-Cursor has its own UI including tasks:
-
-
-
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/b0dc8453-7273-438b-a23c-2d356f3527cc.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-It should be encouraged to create this plan in Uclusion as grouped tasks ahead of time. **For whatever reason Cursor is not outputting the markdown plan Daniel mentioned - maybe you have to tell it use planning mode first or something.**
-
-
-
-
-**Plan mode is an option on the switch agent mode button.**
-
-#### Resolved Task T-all-2068<a name="t-all-2068"></a> 
-During install when a ~/.claude.json is present also add to its list of mcp servers as was done for cursor's mcp.json.
-
-#### Resolved Task T-all-2017<a name="t-all-2017"></a> 
-Test get job from MCP.
-
-> ##### Grouped task C-all-867<a name="c-all-867"></a> 
-```
-"params":{"name":"get_job","arguments":{"job_id":"J-Engineering-9"},"_meta":{"progressToken":4}}
-```
-
-#### Resolved Task T-all-2000<a name="t-all-2000"></a> 
-For an AI user need to turn off notifications of anything it won't be doing - for instance answering assistance questions, critical bugs, unassigned jobs, etc.
-
-
-
-
-**Should stick with AI only responds when something assigned to it - to creepy otherwise - later can be a setting.**
-
-#### Resolved Task C-all-861<a name="c-all-861"></a> 
-<https://sso.dev.api.uclusion.com/v1/mcp/.well-known/oauth-authorization-server> works but is never hit and get
-
-
-
-
-```
-2026-04-11 20:09:28.506 [info] Creating streamableHttp transport
-```
-
-```
-2026-04-11 20:09:28.506 [info] No scopes in config, fetching from well-known endpoint
-```
-
-
-
-
-But never hits the endpoint.
-
-
-
-
-Try <https://gemini.google.com/share/d8e348aae17f> proxy idea.
-
-#### Resolved Task T-all-1992<a name="t-all-1992"></a> 
-Use this system with the notes job and Cursor.
-
-
-
-
-Use Uclusion to get J-all-284 and also read through the application documentation at https://documentation.uclusion.com/ Then as a product manager ask any questions you have about the business value of this job which was proposed by a junior engineer. Once your questions are answered use Uclusion to add an approval to this job and use add info to record the questions and answers.
-
-> ##### Grouped task C-all-888<a name="c-all-888"></a> 
-```
-File "/opt/python/lib/python3.10/site-packages/ucommon/handlers/abstract_request_handler.py", line 40, in handle_request
-```
-
-```
-response = post_validation_function(event, data, context, validation_context)
-```
-
-```
-File "/var/task/handlers/mcp_serve.py", line 48, in post_validation_function
-```
-
-```
-result_data = handle_call_tool(request.params, user_id, capability, tool_name)
-```
-
-```
-File "/var/task/handlers/mcp_serve.py", line 164, in handle_call_tool
-```
-
-```
-result = approve_job(user_id, arguments, capability)
-```
-
-```
-File "/var/task/handlers/mcp_serve.py", line 146, in approve_job
-```
-
-```
-create_approval(ai_capability['user_id'], found_in_market, ai_capability['capability'], arguments.get('reason'),
-```
-
-```
-TypeError: 'NoneType' object is not subscriptable
-```
-
-
-
-
-Need the upgrade script!!!!!!! Don't run it on demo as they are fine.
-
-#### Resolved Task C-all-859<a name="c-all-859"></a> 
-Start with hello world version where return tool list with one tool and see what JSON get and that token stuff works.
-
-#### Resolved Task T-all-2092<a name="t-all-2092"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/27b17a3e-5296-43b2-8435-8afe4dd9b35d.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Get rid of default in the inline market comments as did for option ticket codes.
-
-#### Resolved Task C-all-846<a name="c-all-846"></a> 
-When mention a job or task how does AI know whether to plan it as the current user or review it as the AI user? Is this decision taken locally or by the MCP server? What gets passed where?
-
-
-
-
-Cursor will analyze intent from the prompt and then match that against tool descriptions and choose the tool and fill in its arguments based on its JSON schema.
-
-#### Resolved Suggestion S-all-59<a name="s-all-59"></a> 
-Need someone's opinion on whether this would be usable or too big of an abstraction layer over the input to AI. **Maybe Brad would have an opinion?**
-
-
-
-
-FOR INSTANCE ANOTHER WAY TO GO - provide some sort of hook so that the job or task gets created in Uclusion from inside the chat with AI.
-
-#### Resolved Task C-all-884<a name="c-all-884"></a> 
-AI not showing up in new demo market - debug.
-
-#### Resolved Task T-all-2016<a name="t-all-2016"></a> 
-Copy command from copy window in integration setup screen and it has credentials and workspace ID.
-
-
-
-
-Can have AI write the one setup script.
-
-
-
-
-**disrael@uclusion-tuxedo**:**~**$ which aws
-
-/usr/local/bin/aws
-
-
-
-
-Scripts are now located in:
-
-<https://stage.uclusion.com/scripts/>
-
-
-
-
-but this install script will need to take the usual argument defaulting to prod for the url.
-
-
-
-
-Prompt:
-
-
-
-
-In public/scripts add a third script which takes environment and workspaceId as arguments and:
-
-1. Installs the two scripts in public/scripts in /usr/local/bin by downloading them from <https://stage.uclusion.com/scripts/> where the url depends on env as seen in @uclusionCLI.py
-2. Creates a ~/.uclusion folder, if not already existing, and puts a uclusion.json file in it of the form
-
-
-```
-{
-```
-
-```
-"workspaceId": "3a2c3b12-336b-4d72-b36c-fd3a27a884b2",
-```
-
-```
-"extensionsList": [
-```
-
-```
-"js",
-```
-
-```
-"py"
-```
-
-```
-],
-```
-
-```
-"sourcesList": [
-```
-
-```
-"./src"
-```
-
-```
-],
-```
-
-```
-"uclusionMDFileType": "report",
-```
-
-```
-"uclusionMDFilePath": "uclusion.md"
-```
-
-```
-}
-```
-
-where the workspaceId comes from the argument to this script.
-
-1. If there exists a ~/.cursor/mcp.json it edits it to add
-
-
-```
-{
-```
-
-```
-"mcpServers": {
-```
-
-```
-"Uclusion": {
-```
-
-```
-"command": "python3",
-```
-
-```
-"args": ["/user/local/bin/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
-```
-
-```
-}
-```
-
-```
-}
-```
-
-```
-}
-```
-
-Uclusion to the mcpServers as shown above where the second arg is the workspaceId and the third is the env if one was given or no third argument if not.
-
-> ##### Grouped task C-all-886<a name="c-all-886"></a> 
-```
-{
-```
-
-```
-"workspaceId": "3a2c3b12-336b-4d72-b36c-fd3a27a884b2",
-```
-
-```
-"extensionsList": [
-```
-
-```
-"js",
-```
-
-```
-"py"
-```
-
-```
-],
-```
-
-```
-"sourcesList": [
-```
-
-```
-"./src"
-```
-
-```
-],
-```
-
-```
-"uclusionMDFileType": "report",
-```
-
-```
-"uclusionMDFilePath": "uclusion.md"
-```
-
-```
-}
-```
-
-
-
-
-Just puts this file with workspaceId from argumentand they can edit if want later.
-
-#### Resolved Task T-all-2064<a name="t-all-2064"></a> 
-Daniel is right there will have to be a way to ask AI to break out tasks into new jobs where applicable. Saves on context but also is much faster if it can go in parallel.
-
-
-
-
-**On the other hand can just start another task in another session - putting into its own job doesn't save much context and might be confusing.**
-
-#### Resolved Task C-all-885<a name="c-all-885"></a> 
-Make AI avatar image be the standard AI symbol.
-
-#### Resolved Task C-all-838<a name="c-all-838"></a> 
-The prompt defines JSON AI output object and that tells the Uclusion program what APIs to call with what arguments. For the parallel case the prompt says first see if this job can be split into separate jobs and output that JSON if so. If you get that JSON just loop around and call the agent again in a different thread for each job it created.
-
-#### Resolved Task T-all-2083<a name="t-all-2083"></a> 
-Fix approval to work for job or option.
-
-> ##### Grouped task C-all-916<a name="c-all-916"></a> 
-Change documentation.
-
-#### Resolved Task T-all-2047<a name="t-all-2047"></a> 
-Provide a tool for resolving a question and add verbiage to questions tool saying use this when satisfied with an answer.
-
-#### Resolved Task T-all-2061<a name="t-all-2061"></a> 
-Add verbiage to the question tool that makes it clear you separate different question and options into multiple questions.
-
-#### Resolved Task T-all-2071<a name="t-all-2071"></a> 
-Tool and CLI for asking for a review (progress report).
-
-#### Resolved Task T-all-1994<a name="t-all-1994"></a> 
-Claude has to show up as a collaborator in Uclusion - same as GitHub does.
-
-#### Resolved Task C-all-856<a name="c-all-856"></a> 
-Name: add_question_option
-
-Description: Add a new option to a question. The new option will show as created by the human user.
-
-Input schema: question_id, description
-
-
-
-
-Name: add_question_option_approval
-
-Description: Add an option approval which is a certainty value where higher is more certain and a reason for the certainty. The new approval will show as created by the AI user.
-
-Input schema: question_id, certainty - number 1 to 5, reason
-
-
-
-
-Name: add_question_option_info
-
-Description: Add info to an option that will show as created by the AI user.
-
-Input schema: option_id, description
-
-
-
-
-Name: add_suggestion
-
-Description: Add a new suggestion for a job. The new suggestion will show as created by the human user.
-
-Input schema: job_id, description
-
-#### Resolved Task C-all-868<a name="c-all-868"></a> 
-Get the name of the MCP server to be Uclusion so that can say "Use Uclusion MCP to get J-mywork-1."
-
-#### Resolved Task C-all-847<a name="c-all-847"></a> 
-What verbs are we supporting for jobs?
-
-1. Plan - needs to return a link to see the plan in Uclusion and that link should spin if missing that task - which should be the first of the created tasks
-2. Start
-
-
-
-
-
-What verbs are we supporting for tasks?
-
-1. Plan
-2. Start
-
-
-
-
-
-What verbs are we supporting for a question or suggestion?
-
-1. Give opinion
-
-
-
-
-
-What is the full list of tools for a job?
-
-1. Add tasks, questions and options, suggestions, and blockers as user after user has no immediate answer or for task is okay with plan and agrees should be recorded
-2. Start, user as acting user
-
-
-
-
-
-What is the full list of tools for a task?
-
-1. Add grouped task as user
-2. Move task or tasks to new job as AI user, including adding job approval as AI user - of course tell user you did this so they can start job in new chat window. The prompt here should actually say do this for things that should have their own context
-3. Start, user as acting user
-4. Resolve, as AI user
-
-
-
-
-
-What is the full list of tools for a question?
-
-1. Add option approval as AI user
-2. Add option info as AI user
-
-
-
-
-
-What is the full list of tools for a suggestion?
-
-1. Add vote as AI user
-
-#### Resolved Task C-all-858<a name="c-all-858"></a> 
-How to make MCPServer play nice with existing token processing? Do we even need MCPServer or there is some more white box way of meeting the spec? Maybe a different Python library that is less annotation based and more clear.
-
-
-
-
-<https://gemini.google.com/share/69cb45ff2fb8> which is mostly just reading <https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda> and <https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/tree/main/examples/servers/dad-jokes>
-
-
-
-
-ApiEvent:
-
-Type: HttpApi
-
-
-
-
-**What is the difference between streamable HTTP and a REST API of all methods GET, POST, etc?**
-
-
-
-
-The Model Context Protocol (MCP) introduced **Streamable HTTP** in early 2025 to allow AI agents to interact with tools fluidly, receiving partial results as they are generated rather than waiting for a complete task to finish.
-
-
-
-
-But the Uclusion backend doesn't do partial results so this is all nonsense. Given that suppose I just want normal GET and POST REST endpoints?
-
-
-
-
-Also:
-
-
-
-
-**Cold Starts:** Because the adapter spins up a Python subprocess to execute your server, you will incur a slight cold-start penalty. If this becomes an issue for your agent workflows, consider enabling Lambda Provisioned Concurrency.
-
-
-
-
-But that shouldn't be an issue - maybe cost a second or two which is not very meaningful.
-
-
-
-
-The token handling should be fine as can handle that in serverless config as currently. Then just don't even run separate validation as passed in arguments will vary too much and FastMCP can handle it.
-
-#### Resolved Task T-all-2006<a name="t-all-2006"></a> 
-For the purposes of calculating view collaborators, the AI user doesn't count as is not an agent - front end and **back end also.**
-
-
-
-
-You also cannot assign to the AI user or use in a mention.
-
-#### Resolved Task T-all-2001<a name="t-all-2001"></a> 
-For an AI user must remove the rule that cannot put someone else's job into Work Ready.
-
-#### Resolved Task T-all-2090<a name="t-all-2090"></a> 
-```
-see the shot-by-shot script I added under Q-Default-1.
-```
-
-
-
-
-Add everything but link icon to comments in options.
-
-#### Resolved Task C-all-853<a name="c-all-853"></a> 
-See if can find an example of an MCP implementation that matches this config file. Either way see if Claude will create or if fast mcp does the handshake necessary to get the uclusion_token back to Cursor for use in all subsequent MCP calls.
-
-
-
-
-**You only get one URL so** the MCP server must be private and its authorizer must look for either token OR secret keys. No authorizers in SSO so probably this lives in investible_api or summaries.
-
-#### Resolved Task T-all-2080<a name="t-all-2080"></a> 
-```
-"params":{"name":"get_job","arguments":{"short_code_id":"Q-Default-1"},"
-```
-
-
-
-
-This failed because it didn't know to look for an option with that short code. Need to add another argument or break this out as its own tool.
-
-
-
-
-**Need to do another argument for this and the question tool and anything else that could be deeper.**
-
-#### Resolved Task C-all-902<a name="c-all-902"></a> 
-CLI also of course.
-
-#### Resolved Task C-all-913<a name="c-all-913"></a> 
-~/.claude.json
-
-
-
-
-For MCP - says [here](https://code.claude.com/docs/en/settings) with format [here](https://code.claude.com/docs/en/agent-sdk/mcp#from-a-config-file).
-
-#### Resolved Task T-all-2009<a name="t-all-2009"></a> 
-Handle case of someone adds suggestion without voting and then points AI to it for opinion.
-
-#### Resolved Task C-all-860<a name="c-all-860"></a> 
-Getting forbidden back from <https://sso.dev.api.uclusion.com/mcp/.well-known/oauth-authorization-server> and doesn't seem to hit Lambda.
-
-#### Resolved Task T-all-2046<a name="t-all-2046"></a> 
-<https://stage.uclusion.com9721e840-b3ce-4ad2-8b46-675326b397fd/Q-all-61> - missing a slash when got question in cursor.
-
-#### Resolved Task T-all-2015<a name="t-all-2015"></a> 
-get_job by short code will not include all visible in that job so links to stuff outside will not work by hash. **However returning all will be messy and unbounded.**
-
-
-
-
-Currently convert_single_link won't even return the link but instead just the verbiage and that needs to be changed to just keep the full link.
-
-
-
-
-The verbiage on the tool needs to be change also to say these are not included.
-
-
-
-
-**For that matter external links are not either and should not be sucked in indiscriminately cause would also overflow context as unbounded.**
-
-#### Resolved Task C-all-845<a name="c-all-845"></a> 
-As it stands you oauth as yourself with secret keys but then some of your actions require using a different acting user.
-
-#### Resolved Task T-all-2024<a name="t-all-2024"></a> 
-In Integrations CLI is now CLI & MCP - need to fix and make clear all over is combined install and that mcp server directly added to cursor if available when run script.
-
-#### Resolved Task T-all-2007<a name="t-all-2007"></a> 
-Have them add to their ~/.cursor/mcp.json server list a Uclusion server with the correct URL and secret_key_id and secret_key as arguments.
-
-
-
-
-Then just take the hit of authentication each time following what cli.py does.
-
-
-
-
-<https://github.com/modelcontextprotocol/python-sdk/tree/main/examples/mcpserver>
-
-#### Resolved Task C-all-848<a name="c-all-848"></a> 
-Problem with AI adding a question is that there is no moderator at that point - since not agentic.
-
-
-
-
-How get around that? For instance let anyone operate as moderator for an AI question?
-
-
-
-
-Don't have AI ask questions?
-
-
-
-
-Have AI ask locally first and only resort to question when person can't answer and then ask him if he would like a question added and then the **question is added by the user and AI just votes on option likes.**
-
-#### Resolved Task S-all-60<a name="s-all-60"></a> 
-Can we just implement the MCP over regular HTTP?
-
-
-
-
-Also can we just return a tools list when asked to by nailing up the list and then not using FastMPC etc? Just see what the protocol requires.
-
-
-
-
-<https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http>
-
-
-
-
-1. The client **MUST** use HTTP POST to send JSON-RPC messages to the MCP endpoint.
-
-
-
-
-
-So just need to handle JSON-RPC and do some minimal form of the protocol - it's always a standard HTTP POST and no need for HTTP API - <https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html> which doesn't support API keys anyway.
-
-#### Resolved Task T-all-2035<a name="t-all-2035"></a> 
-When a question is created in a job anyone assigned to the job is also an admin of the question instead of just the question creator.
-
-
-
-
-Required because someone not assigned to could create a question with options and then it just sits there if that guy doesn't admin it - in this case the someone is AI.
-
-#### Resolved Task T-all-2081<a name="t-all-2081"></a> 
-Inline markets created for demo have no AI user capability.
-
-#### Resolved Task T-all-2010<a name="t-all-2010"></a> 
-Add get_job by short code to the CLI so that can see the result for testing. Also useful if they wanted to use the CLI themselves instead of MCP.
-
-#### Resolved Task T-all-2021<a name="t-all-2021"></a> 
-Redo the integrations page to have a download command based on public/scripts/install.sh but make it a one liner. Keep the secrets as now as should not be installing secrets they don't know about.
-
-#### Resolved Task T-all-2014<a name="t-all-2014"></a> 
-Come up with plan for tools beyond get that is more reasonable. The MCP thing doesn't work well and it's hard to even get it to use it correctly.
-
-
-
-
-Have one thing that can show in a marketing video that is cool and easy.
-
-
-
-
-**Plus fix the verbiage on tools list so that Cursor does a better job of knowing to run a tool. Might have to make separate tools for all types or list all sorts of things you can get explicitly.**
-
-#### Resolved Task T-all-2002<a name="t-all-2002"></a> 
-[Have a Create AI User button that makes a user specific to a workspace and...](#2f89e4a0-7f3e-4847-8ac0-8da3105248bd)
-
-#### Resolved Suggestion S-all-61<a name="s-all-61"></a> 
-Might need to send question with options as sent false and then update to true after create options and that way force options to show up instead of having to manually sync.
-
-#### Resolved Task T-all-2082<a name="t-all-2082"></a> 
-Need a copy button on the show secret dev - just have AI do it.
-
-#### Resolved Task C-all-866<a name="c-all-866"></a> 
-Pass the Uclusion URL down to convert_single_link so that not resolved internal links can be fixed up to be absolute.
-
-
-
-
-Should be able to pass it
-
-
-
-
-```
-deployment_group = DeploymentGroupVersionModel.get(account['deployment_group'])
-```
-
-```
-base_url = deployment_group.ui_url
-```
-
-
-
-
-as that is used for sending welcome email but double check what that is in production.
-
-#### Resolved Question Q-all-50<a name="q-all-50"></a> 
-## Who does the Uclusion AI login as?
-
-
-
-
-The notifications must be specific to the workspace Uclusion AI is associated with.
-
-### Option O-1<a name="O-1"></a>
-### Have a Create AI User button that makes a user specific to a workspace and...
-...creates the CLI API keys for it.
-
-> ##### $${\color{lightgreen} For}$$
-#### Assistance 
-#### Suggestion S-Default-1<a name="s-default-1"></a> 
-This is a dummy account with no API key etc. as AI will never run its own workspace.
-
-#### Resolved 
-#### Resolved Question Q-Default-1<a name="q-default-1"></a> 
-Does this user have its own account? Does it have a dummy account that does not have its own credentials or aggregate notifications?
-
-#### Resolved Task T-all-2036<a name="t-all-2036"></a> 
-lrwxrwxrwx 1 root root 37 Sep 3 2025 **aws** -> **/usr/local/aws-cli/v2/current/bin/aws**
-
-
-
-
-lrwxrwxrwx 1 root root 47 Sep 3 2025 **aws_completer** -> **/usr/local/aws-cli/v2/current/bin/aws_completer**
-
-
-
-
--rwxr-xr-x 1 root root 29547 May 8 22:40 **uclusionCLI.py**
-
-
-
-
--rwxr-xr-x 1 root root 5932 May 4 13:28 **uclusionMCPProxy.py**
-
-
-
-
-
-
-
-The correct way to do is to use pointers to an install directory. Also the CLI script should be uclusion.py.
-
-#### Resolved Task C-all-883<a name="c-all-883"></a> 
-~~Make sure AI user cannot be added to a view.~~
-
-
-
-
-~~Make sure AI user cannot be added to a workspace from another workspace.~~
-
-
-
-
-And AI user cannot be added in job add others.
-
-#### Resolved Task T-all-2070<a name="t-all-2070"></a> 
-Tool and CLI for making a suggestion. Otherwise forcing AI to ask very leading questions.
-
-#### Resolved Task T-all-1993<a name="t-all-1993"></a> 
-Figure out how can have Claude look at back end code without losing the IP so can try this with back end also.
-
-
-
-
-For instance the backlog job to finish comments sucking in when go to something in archive.
-
-#### Resolved Task T-all-1996<a name="t-all-1996"></a> 
-Must have the ability to move a task to a new job (or just create a new job period) and work on that job in a new instance of Claude (multi threaded from the original command line invocation).
-
-#### Resolved Task T-all-2008<a name="t-all-2008"></a> 
-Test that task link by short code spins if missing that task.
-
-#### Resolved Task T-all-2039<a name="t-all-2039"></a> 
-Options created by AI show as created by no one in DecisionInvestible. The AI user is not being added to inline markets.
-
-#### Resolved Task T-all-2073<a name="t-all-2073"></a> 
-Claude is not able to distinguish already resolved questions are resolved. Check the markdown and make more clear somehow. Also can add to the resolve tool information how to discern already resolved and not to attempt to resolve them.
-
-
-
-
-Currently looks like this:
-
-
-
-
-```
-Resolved
-```
-
-```
-
-
-
-```
-
-```
-Question Q-all-67
-```
-
-```
-T-all-1946 describes search behavior for Jobs Backlog, Bugs, Notes/Discussion, and Job Progress, but doesn’t mention the new T-all-2056 complete-jobs archive page. When a user is on the T-all-2056 page (with its view + collaborator filter dropdowns) and types in the search field, what happens?
-```
-
-```
-
-
-
-```
-
-```
-Option O-3
-```
-
-```
-...
-```
-
-
-
-
-And that Resolved at top was not enough for AI. Just make it "Resolved Question Q-all-67" etc.
-
-#### Resolved Task C-all-852<a name="c-all-852"></a> 
-How does this flow get you to the Uclusion login page where Github, Google, and name / password are available? Then if they choose Google they are another level deep?
-
-
-
-
-Can we instead:
-
-
-
-
-```
-{
-```
-
-```
-"mcpServers": {
-```
-
-```
-"uclusion": {
-```
-
-```
-"url": "https://production.uclusion.com/mcp?secret_key_id=blah&secret_key=blah"
-```
-
-```
-}
-```
-
-```
-}
-```
-
-```
-}
-```
-
-
-
-
-And those keys can come out of environment variables if preferred to avoid any possibility of being checked in and let people share.
-
-
-
-
-Point is that then we just need to find an MCP server implementation that does the handshake correctly so that Cursor uses the token from then on. The actual security is just the keys and not another login.
-
-#### Resolved Task T-all-2091<a name="t-all-2091"></a> 
-See [Autoplay loop in its own section](https://stage.uclusion.com/dialog/dd56682c-9920-417b-be46-7a30d41bc905/4b66ff31-12ef-490d-9b16-fef90943257f#option933d0f69-9ac0-42a3-9dbc-0d2e1406a69e) - table did not render.
-
-
-
-
-```
-import markdown
-```
-
-```
-
-
-
-```
-
-```
-text = """
-```
-
-```
-
-
-
-```
-
-```
-| Header 1 | Header 2 |
-```
-
-```
-| -------- | -------- |
-```
-
-```
-| Cell 1   | Cell 2   |
-```
-
-```
-"""
-```
-
-```
-
-
-
-```
-
-```
-# Enable the tables extension
-```
-
-```
-html = markdown.markdown(text, extensions=['tables'])
-```
-
-```
-print(html)
-```
-
-```
-
-
-
-```
-
-#### Resolved Task T-all-1998<a name="t-all-1998"></a> 
-This should be an npm install so that you can easily put one in your docker container or whatever. Then you just put your keys in a .uclusion/credentials file and include the command for spawning an instance of your AI that accepts markdown input.
-
-> ##### Grouped task C-all-839<a name="c-all-839"></a> 
-Use WebSocketRunner from nodejs_sdk. Also in the main loop check for new notifications and sleep some amount of time if nothing.
-
-> ##### Grouped task C-all-837<a name="c-all-837"></a> 
-When you receive a push event or poll and get a new notification the point is just to group by investible and spawn AI to handle.
-
-> ##### Grouped task C-all-836<a name="c-all-836"></a> 
-Make the agent runner call the same CLI as now but gets you list of investibles and then you call API to get the markdown for each investible. That markdown includes all associated comments or investibles from links as well as images - as it does now.
-
-> ##### Grouped task C-all-840<a name="c-all-840"></a> 
-On startup check also check for Work Ready and assume you are the only instance so should be doing anything left there.
-
-#### Resolved Task T-all-2074<a name="t-all-2074"></a> 
-Links in the table of contents were broken by switching to ticket code - switch the links in table of contents to use ticket code also.
-
-#### Resolved Task T-all-2067<a name="t-all-2067"></a> 
-Need feedback from install like:
-
-
-
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/a289d0cc-3b36-4e6f-aa36-be997fac2078.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-#### Resolved Task C-all-862<a name="c-all-862"></a> 
-Move mcp endpoint over to investible as with proxy script don't need it to be any different from CLI and api tokens may not being added to SSO.
-
-
-
-
-Remove the authorizer from SSO so it is back to as before.
-
-
-
-
-Change the URL of mcp in the script.
-
-#### Resolved Task C-all-855<a name="c-all-855"></a> 
-Figure out how Cursor knows to invoke Uclusion MCP when sees something like "plan J-1000" and what sub operations it can perform on that resource - like move task to new job or vote.
-
-
-
-
-<https://modelcontextprotocol.io/specification/2025-11-25/server/resources>
-
-#### Resolved Task T-all-2041<a name="t-all-2041"></a> 
-Retest install script. Make sure CLI still works - try resolving which is untested.
-
-#### Resolved Question Q-all-51<a name="q-all-51"></a> 
-## What if I want to work inside Cursor?
-
-### Option O-1<a name="O-1"></a>
-### Seems this is why have to do MCP instead of just JSON output:
-Model Context Protocol (MCP): This is the primary way to allow Cursor to interact with external tools and APIs dynamically. By setting up an MCP server, you can give the AI "tools" that allow it to fetch data from your own APIs, databases, or local scripts during a chat session.
-
-#### Assistance 
-#### Suggestion S-Default-1<a name="s-default-1"></a> 
-Then maybe just be yourself instead of an AI user.
-
-#### Resolved Task C-all-887<a name="c-all-887"></a> 
-First test install for stage by removing the current dev cursor server etc. and reinstall using command but with stage.
-
-
-
-
-```
-curl -fsSL https://stage.uclusion.com/scripts/install.sh | bash -s -- dd56682c-9920-417b-be46-7a30d41bc905 stage
-```
-
-#### Resolved Task C-all-849<a name="c-all-849"></a> 
-Job approval based on what context?
-
-
-
-
-You would have to provide all marketing materials, documentation, etc.
-
-
-
-
-**AI job approval might not be a reasonable feature.**
-
-#### Resolved Task C-all-898<a name="c-all-898"></a> 
-If you load a question that is not there like <http://localhost:3000/0f13660a-8420-401a-8340-315c9505b2de/Q-Engineering-6> then you just get a white screen instead of a loading screen and polling for Q-.Engineering-6.
-
-#### Resolved Task T-all-1997<a name="t-all-1997"></a> 
-The CLI you run must be on a loop and responding to push events / notifications from Uclusion - has the same listen on socket plus poll that use in browser. See what did for configuration tests.
-
-
-
-
-Plus may need to know that this is user is an agent so can send it an event when it creates a job for itself instead of screening that out - otherwise it won't know to spawn a new thread.
-
-#### Resolved Task T-all-2063<a name="t-all-2063"></a> 
-Remove AI user from list that can be assigned to a job.
-
-#### Resolved Task T-all-2075<a name="t-all-2075"></a> 
-AI writes its comments in markdown so have to convert from markdown to Quill or use an editor that accepts markdown.
-
-
-
-
-Accept markdown from CLI to make testing easier.
-
-
-
-
-```
-import markdown
-```
-
-```
-
-
-
-```
-
-```
-md_text = "# Hello World\nThis is **bold** text."
-```
-
-```
-html = markdown.markdown(md_text)
-```
-
-```
-print(html) # Output: <h1>Hello World</h1><p>This is <strong>bold</strong> text.</p>
-```
-
-```
-
-
-
-```
-
-## Job J-all-288<a name="J-all-288"></a>
+## Job J-all-288<a name="j-all-288"></a>
 ### Bugs B-all-424, B-all-423, B-all-422, B-all-420, B-all-421, B-all-419, B-all-418
 
 #### Resolved 

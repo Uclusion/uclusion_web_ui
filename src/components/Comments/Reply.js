@@ -234,7 +234,7 @@ function Reply(props) {
   const market = getMarket(marketsState, marketId);
   const { investible_id: investibleId, group_id: groupId } = comment || {};
   const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE, ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(rootComment?.comment_type)
-    && !isInbox && market?.market_type !== DECISION_TYPE && !rootComment?.resolved && !rootComment?.notification_type === BLUE_LEVEL;
+    && !isInbox && market?.market_type !== DECISION_TYPE && !rootComment?.resolved && rootComment?.notification_type !== BLUE_LEVEL;
   const isSubTask = market?.market_type === PLANNING_TYPE && rootComment?.comment_type === TODO_TYPE && investibleId &&
     comment.created_by === rootComment?.created_by;
   const isTopLevelSubTask = isSubTask && rootComment?.id === comment.reply_id;

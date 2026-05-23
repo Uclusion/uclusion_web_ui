@@ -19,8 +19,7 @@ function NotesTab(props) {
     formerStageId,
     assigned,
     isRequiresInput,
-    isInBlocking,
-    singleWorkspaceUser
+    isInBlocking
   } = props;
   const theme = useTheme();
   const viewerTz = getBrowserTz();
@@ -41,7 +40,6 @@ function NotesTab(props) {
     assigned,
     isRequiresInput,
     isInBlocking,
-    singleWorkspaceUser,
     usePadding: false,
     preserveOrder: true,
     inNotesTab: true
@@ -115,8 +113,7 @@ NotesTab.propTypes = {
   formerStageId: PropTypes.string,
   assigned: PropTypes.array,
   isRequiresInput: PropTypes.bool,
-  isInBlocking: PropTypes.bool,
-  singleWorkspaceUser: PropTypes.bool
+  isInBlocking: PropTypes.bool
 };
 
 export default NotesTab;

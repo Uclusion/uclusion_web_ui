@@ -111,10 +111,9 @@ export default function PlanningInvestibleNav(props) {
   const groupPresences = getGroupPresences(marketPresences, groupPresencesState, marketId, groupId) || [];
   const addressed = useAddressed(groupPresences, marketPresences, investibleId, marketId);
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
-  const attachedFiles = marketInvestible.investible && marketInvestible.investible.attached_files;
+  const attachedFiles =  marketInvestible?.investible?.attached_files;
   // No quick add from your vote so have to check that as well
   const unaccepted = isAssigned && !accepted?.includes(userId) && (!isAssigned || _.isEmpty(yourVote));
-  const singleWorkspaceUser = _.size(marketPresences) < 2;
   const groupIsVisibleRaw = getGroup(groupsState, marketId, groupId)?.is_public;
   const groupIsVisible = groupIsVisibleRaw === undefined ? true : groupIsVisibleRaw;
   const isVisible = isVisibleRaw === undefined ? groupIsVisible : isVisibleRaw;
@@ -239,8 +238,6 @@ export default function PlanningInvestibleNav(props) {
   const isVisibleChecked = operationRunning === `isVisibleCheckbox${investibleId}` ?
     !isVisible : isVisible;
   const isSingleUser = useGroupPresences(groupId, marketId, marketPresences);
-  const isSingleWorkspaceUser = _.size(marketPresences) === 1;
-  const useInVoting = isInVoting && !isSingleUser;
 
   function assignToSingleUser() {
     const fullMoveStage = getAcceptedStage(marketStagesState, marketId);
@@ -308,7 +305,7 @@ export default function PlanningInvestibleNav(props) {
         userId={userId}
         tasksInProgress={tasksInProgress}
       />
-      {marketId && marketInvestible.investible && (!isSingleWorkspaceUser || isFurtherWork) && (
+      {marketId && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments
@@ -317,7 +314,7 @@ export default function PlanningInvestibleNav(props) {
               assigned={assigned}
               unaccceptedMessage={unaccceptedMessage}
               messagesDispatch={messagesDispatch}
-              unaccceptedList={useInVoting ? assignedNotAccepted : undefined}
+              unaccceptedList={isInVoting ? assignedNotAccepted : undefined}
               toggleIconButton={isSingleUser ? (_.isEmpty(assigned) ? assignToSingleUser : undefined) :
                 () => navigate(history, formWizardLink(JOB_ASSIGNEE_WIZARD_TYPE, marketId, investibleId))}
               assignmentColumnMessageId='planningInvestibleAssignments'
@@ -378,8 +375,7 @@ export default function PlanningInvestibleNav(props) {
           )}
         </div>
       )}
-      {!_.isEmpty(investibleCollaborators.filter((collaborator) => !assigned?.includes(collaborator.id))) 
-          && !singleWorkspaceUser && (
+      {!_.isEmpty(investibleCollaborators.filter((collaborator) => !assigned?.includes(collaborator.id))) && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Tooltip
@@ -390,7 +386,7 @@ export default function PlanningInvestibleNav(props) {
           </div>
         </div>
       )}
-      {marketId && marketInvestible.investible && useInVoting && (
+      {marketId && isInVoting && (
         <div className={clsx(classes.group, classes.assignments)}>
           <div className={classes.assignmentContainer}>
             <Assignments

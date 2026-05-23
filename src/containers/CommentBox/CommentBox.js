@@ -99,7 +99,7 @@ function CommentBox(props) {
   const { comments, marketId, isInbox, isRequiresInput, isInBlocking, assigned, formerStageId, isReply, wizardProps,
     fullStage = {}, stage, replyEditId, usePadding, issueWarningId, marketInfo, investible, removeActions, inboxMessageId,
     showVoting, selectedInvestibleIdParent, preserveOrder, isMove, toggleCompression, useCompression: rawUseCompression,
-    useInProgressSorting, displayRepliesAsTop=false, compressAll=false, singleWorkspaceUser, showNotes=false,
+    useInProgressSorting, displayRepliesAsTop=false, compressAll=false, showNotes=false,
     inNotesTab=false, investibleComments } = props;
   const [marketStagesState] = useContext(MarketStagesContext);
   const [searchResults] = useContext(SearchResultsContext);
@@ -149,7 +149,7 @@ function CommentBox(props) {
   function getCommentCards() {
     return sortedRoots.map(comment => {
       const { id, comment_type: commmentType } = comment;
-      const reallyNoAuthor = singleWorkspaceUser || (assigned?.length === 1 && assigned[0] === comment.created_by);
+      const reallyNoAuthor = assigned?.length === 1 && assigned[0] === comment.created_by;
       return (
         <Grid item key={id} xs={12}>
           <div id={`${isInbox ? 'inbox' : ''}c${id}`}

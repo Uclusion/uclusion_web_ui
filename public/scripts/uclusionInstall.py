@@ -44,6 +44,8 @@ UCLUSION_HOME = os.path.join(os.path.expanduser('~'), '.uclusion')
 UCLUSION_CONFIG_PATH = os.path.join(UCLUSION_HOME, 'uclusion.json')
 CURSOR_MCP_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'mcp.json')
 CLAUDE_JSON_PATH = os.path.join(os.path.expanduser('~'), '.claude.json')
+CLAUDE_MD_PATH = os.path.join(os.path.expanduser('~'), '.claude', 'CLAUDE.md')
+CLAUDE_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')
 
 
@@ -229,6 +231,73 @@ def update_claude_json_mcp(workspace_id, env):
     print(f"  ✅ Updated {CLAUDE_JSON_PATH}")
 
 
+def prompt_yes_no(question):
+    """Prompt for a y/N answer on stdin; return True only on explicit yes."""
+    try:
+        answer = input(f"{question} [y/N] ").strip().lower()
+    except EOFError:
+        return False
+    return answer in ('y', 'yes')
+
+
+def append_claude_md(env):
+    """Append the Uclusion workflow CLAUDE.md to the user's global CLAUDE.md.
+
+    Asks for permission first. If the target file doesn't exist, offers to
+    create it. Uses a marker line to skip cleanly on reruns.
+    """
+    base_url = get_scripts_base_url(env)
+    url = base_url + 'CLAUDE.md'
+
+    exists = os.path.exists(CLAUDE_MD_PATH)
+    if exists:
+        try:
+            with open(CLAUDE_MD_PATH, 'r', encoding='utf-8') as src:
+                existing = src.read()
+        except OSError as err:
+            print(f"  ❌ Could not read {CLAUDE_MD_PATH}: {err}")
+            return
+        if CLAUDE_MD_MARKER in existing:
+            print(f"ℹ️  Uclusion workflow already present in {CLAUDE_MD_PATH}; skipping.")
+            return
+        print(f"📝 Found existing {CLAUDE_MD_PATH}")
+        if not prompt_yes_no(f"  Append Uclusion job workflow to {CLAUDE_MD_PATH}?"):
+            print("  ⏭  Skipped CLAUDE.md update.")
+            return
+    else:
+        print(f"📝 No {CLAUDE_MD_PATH} found.")
+        if not prompt_yes_no(f"  Create {CLAUDE_MD_PATH} with Uclusion job workflow?"):
+            print("  ⏭  Skipped CLAUDE.md creation.")
+            return
+
+    print(f"  ⬇️  Downloading {url}")
+    try:
+        with urllib.request.urlopen(url) as response:
+            if response.status != 200:
+                raise RuntimeError(f"status {response.status}")
+            content = response.read().decode('utf-8')
+    except Exception as err:
+        print(f"  ❌ Failed to download {url}: {err}")
+        return
+
+    if not content.endswith('\n'):
+        content += '\n'
+
+    try:
+        os.makedirs(os.path.dirname(CLAUDE_MD_PATH), exist_ok=True)
+        if exists:
+            with open(CLAUDE_MD_PATH, 'a', encoding='utf-8') as out:
+                out.write('\n')
+                out.write(content)
+            print(f"  ✅ Appended Uclusion workflow to {CLAUDE_MD_PATH}")
+        else:
+            with open(CLAUDE_MD_PATH, 'w', encoding='utf-8') as out:
+                out.write(content)
+            print(f"  ✅ Wrote {CLAUDE_MD_PATH}")
+    except OSError as err:
+        print(f"  ❌ Could not write {CLAUDE_MD_PATH}: {err}")
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog='uclusionInstall',
@@ -262,6 +331,7 @@ def main():
         mcp_env = None if env == 'production' else env
         update_cursor_mcp(workspace_id, mcp_env)
         update_claude_json_mcp(workspace_id, mcp_env)
+        append_claude_md(env)
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")
         return 1

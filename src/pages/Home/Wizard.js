@@ -27,7 +27,6 @@ import {
   JOB_EDIT_WIZARD_TYPE,
   OPTION_EDIT_WIZARD_TYPE,
   DELETE_COMMENT_TYPE,
-  ARCHIVE_COMMENT_TYPE,
   IN_PROGRESS_WIZARD_TYPE
 } from '../../constants/markets';
 import WorkspaceWizard from '../../components/AddNewWizards/Workspace/WorkspaceWizard';
@@ -59,7 +58,6 @@ import OptionEditWizard from '../../components/AddNewWizards/OptionEdit/OptionEd
 import { getMarket, marketIsDemo } from '../../contexts/MarketsContext/marketsContextHelper';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import DeleteWizard from '../../components/AddNewWizards/Delete/DeleteWizard';
-import ArchiveCommentWizard from '../../components/AddNewWizards/CommentArchive/ArchiveCommentWizard';
 import TaskInProgressWizard from '../../components/AddNewWizards/TaskInProgress/TaskInProgressWizard';
 
 function Wizard(props) {
@@ -182,9 +180,6 @@ function Wizard(props) {
       )}
       {createType === DELETE_COMMENT_TYPE.toLowerCase() && (
         <DeleteWizard marketId={marketId} commentId={commentId} isInbox={isInbox} />
-      )}
-      {createType === ARCHIVE_COMMENT_TYPE.toLowerCase() && (
-        <ArchiveCommentWizard marketId={marketId} commentId={commentId} isInbox={isInbox} typeObjectId={typeObjectId} />
       )}
     </Screen>
   );

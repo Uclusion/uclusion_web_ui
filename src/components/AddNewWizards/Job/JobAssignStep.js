@@ -58,8 +58,10 @@ function JobAssignStep (props) {
     const addInfo = {
       name,
       groupId,
-      marketId,
-      assignments: value
+      marketId
+    }
+    if (validForm) {
+      addInfo.assignments = value;
     }
     return addPlanningInvestible(addInfo)
       .then((inv) => {
@@ -143,6 +145,7 @@ function JobAssignStep (props) {
           onNextSkipStep
           showTerminate
           onNext={investibleId ? assignJob : createJob}
+          onOtherNext={investibleId ? assignJob : createJob}
           isFinal={false}
           showOtherNext
           otherNextLabel="addApproversLabel"

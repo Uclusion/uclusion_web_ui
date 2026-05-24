@@ -216,7 +216,9 @@ export default function CardType(props) {
             <div className={clsx(classes.root, className)}
                  style={{marginRight: mobileLayout ? '0.25rem' : '1rem'}}>
               <IconComponent className={classes.icon}/>
-              <span className={classes.label}>{label}</span>
+              {(!mobileLayout || IconComponent === NoIcon) && (
+                <span className={classes.label}>{label}</span>
+              )} 
             </div>
           )}
           {gravatar}

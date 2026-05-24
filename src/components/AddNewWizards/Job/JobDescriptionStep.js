@@ -31,7 +31,7 @@ import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketSt
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { addCommentsToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
-import { extractTodosList } from '../../../utils/commentFunctions';
+import { extractTodosList, removeTodosFromDescription } from '../../../utils/commentFunctions';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { getGroupPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { GroupMembersContext } from '../../../contexts/GroupMembersContext/GroupMembersContext';
@@ -174,6 +174,8 @@ function JobDescriptionStep (props) {
     const todos = extractTodosList(tokensRemoved);
     if (!_.isEmpty(todos)) {
       addInfo.todos = todos;
+      const newDescription = removeTodosFromDescription(description);
+      addInfo.description = newDescription;
     }
     if (readyToStart !== undefined) {
       addInfo.openForInvestment = readyToStart;

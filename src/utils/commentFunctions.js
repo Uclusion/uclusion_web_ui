@@ -123,6 +123,16 @@ export function extractTodosList(body) {
   return bodies;
 }
 
+export function removeTodosFromDescription(description) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(description, "text/html");
+  const liElements = doc.querySelectorAll("li");
+  for (const li of liElements) {
+    li.remove();
+  }
+  return doc.body.innerHTML;
+}
+
 export function handleAcceptSuggestion(info) {
   const { isMove, comment, investible, investiblesDispatch, marketStagesState, commentsState,
     commentsDispatch, messagesState, messagesDispatch } = info;

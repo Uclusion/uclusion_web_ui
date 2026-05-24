@@ -11,7 +11,7 @@ import { InvestiblesContext } from '../../../contexts/InvestibesContext/Investib
 import NameField, { clearNameStoredState, getNameStoredState } from '../../TextFields/NameField';
 import { getAcceptedStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
-import { extractTodosList } from '../../../utils/commentFunctions';
+import { extractTodosList, removeTodosFromDescription } from '../../../utils/commentFunctions';
 import _ from 'lodash';
 import { addCommentsToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -37,6 +37,8 @@ function JobNameStep(props) {
     }
     if (doCreateTasks) {
       const todos = extractTodosList(description);
+      const newDescription = removeTodosFromDescription(description);
+      addInfo.description = newDescription;
       if (!_.isEmpty(todos)) {
         addInfo.todos = todos;
       }

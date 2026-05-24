@@ -1,54 +1,47 @@
-## Job <a name="dd358d6f-76f2-49d2-881b-eca1a2f5d367"></a>
-### Figure out IPC
-We need a way to define how sub threads or processes will pass data to each other.
+## Job J-Engineering-2<a name="j-engineering-2"></a>
+### Null safety
+Handle nulls in a developer friendly way.
 
-#### Task <a name="3325a428-434c-4b97-bf22-d75009d3e49c"></a> 
-See about link to task in another job [Design Union Types - T-Engineering-6](http://localhost:3000/dialog/3a2c3b12-336b-4d72-b36c-fd3a27a884b2/dbc49201-c3cc-46b0-af53-a70cd9b23738#cf7f6be6e-149a-461b-92b5-2d099e410bb2)
 
-#### Task <a name="86e037da-491c-497e-9e16-821198d4b3af"></a> 
-What happens when include a [Figure out IPC - T-Engineering-7](#13c8c616-3e10-4033-87b4-f95495db0a92) link?
+AI user is a required approver.
+#### Tasks 
+#### Task T-Engineering-4<a name="t-engineering-4"></a> 
+Unit tests.
 
-#### Question <a name="ba91f000-2faf-446e-9cc1-44f9ea41a512"></a> 
-Something similar to Erlang mailboxes? Go channels? ﻿@TARGET USER﻿ what do you think?
+> ##### Grouped task C-Engineering-4<a name="c-engineering-4"></a> 
+Test compile time nullable unassigned.
 
-> ##### Reply <a name="9917c0ef-b99b-4f9a-bb34-066394a501c1"></a> 
-What is our main use case? Now what?
+> ##### Grouped task C-Engineering-3<a name="c-engineering-3"></a> 
+Test run time non-nullable unassigned.
 
-### Option<a name="56329608-9890-4a28-9f4b-cac64df426b4"></a>
-### Pub/Sub
-Each process will subscribe to one or more topics, and you send to all receivers
+> ##### Grouped task C-Engineering-2<a name="c-engineering-2"></a> 
+Test compile time non-nullable unassigned.
 
-### Option<a name="03e7b32e-f778-4d5a-844b-decf5176c5f4"></a>
-### Mailboxes
-Each process will have a unique mailbox, and you send to it by broadcasting to it's PID.
+> ##### Grouped task C-Engineering-5<a name="c-engineering-5"></a> 
+Test run time nullable assigned null.
 
-### Option<a name="1d246802-9e4c-47c6-b9ea-28358e20d93b"></a>
-### Channels
-We'd have generic channels as first class objects that any process can write to or read from.
+#### Task T-Engineering-3<a name="t-engineering-3"></a> 
+Allow explicitly creating a variable as nullable. Variables are non-nullable by default.
 
-> ##### $${\color{yellow} Reason \space For}$$
-Try and see how it goes.
-
-#### Task <a name="13c8c616-3e10-4033-87b4-f95495db0a92"></a> 
-**Subject**: Better planning for an elite developer like you
+#### Task T-Engineering-5<a name="t-engineering-5"></a> 
+Implement a null safe operator:
 
 
 
-
-Shrijith,
-
+obj?.prop: Returns obj.prop if obj exists; otherwise, it returns undefined.
 
 
 
-Hexmos is extremely impressive. I’m reaching out because after many years coding, we’re finally seeking our first customers for Uclusion.
+obj?.[prop]: Returns obj[prop] if obj exists; otherwise, it returns undefined - for dynamic or special characters.
 
 
 
+obj.method?.(): Calls obj.method() if obj.method exists; otherwise, it returns undefined.
 
-Uclusion is designed specifically for developer flow state. For your solo dev work, it's a superior way to keep organized. When you collaborate, it’s an asynchronous solution that treats design and approval as first class citizens.
+#### Assistance 
+#### Suggestion S-Engineering-1<a name="s-engineering-1"></a> 
+Kotlin has good null handling <https://kotlinlang.org/docs/null-safety.html>.
 
-
-
-
-If you are interested, our [landing page](https://www.uclusion.com) sets you up with already populated solo and team sandbox workspaces - no credit card required.
+> ##### $${\color{lightgreen} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+Yes I like the way Kotlin easily declares nullable or not.
 

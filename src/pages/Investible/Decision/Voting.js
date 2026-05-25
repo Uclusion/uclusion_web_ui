@@ -244,7 +244,7 @@ function Voting(props) {
                       />
                     </div>
                   )}
-                  {isEditable && (
+                  {!myUseCompression && (
                     <div style={{marginRight: '2rem'}}>
                       <TooltipIconButton
                         disabled={operationRunning !== false}

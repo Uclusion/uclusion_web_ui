@@ -232,12 +232,25 @@ def update_claude_json_mcp(workspace_id, env):
 
 
 def prompt_yes_no(question):
-    """Prompt for a y/N answer on stdin; return True only on explicit yes."""
+    """Prompt for a y/N answer; return True only on explicit yes.
+
+    Reads from /dev/tty so the prompt still works when the installer is run via
+    ``curl ... | bash`` (in which case stdin is the pipe, not the terminal).
+    """
+    prompt = f"{question} [y/N] "
     try:
-        answer = input(f"{question} [y/N] ").strip().lower()
-    except EOFError:
+        with open('/dev/tty', 'r+', encoding='utf-8') as tty:
+            tty.write(prompt)
+            tty.flush()
+            answer = tty.readline()
+    except OSError:
+        try:
+            answer = input(prompt)
+        except EOFError:
+            return False
+    if not answer:
         return False
-    return answer in ('y', 'yes')
+    return answer.strip().lower() in ('y', 'yes')
 
 
 def append_claude_md(env):

@@ -46,6 +46,7 @@ CURSOR_MCP_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'mcp.json')
 CLAUDE_JSON_PATH = os.path.join(os.path.expanduser('~'), '.claude.json')
 CLAUDE_MD_PATH = os.path.join(os.path.expanduser('~'), '.claude', 'CLAUDE.md')
 CLAUDE_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
+CLAUDE_MD_END_MARKER = '<!-- /uclusion-workflow:v1 -->'
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')
 
 
@@ -270,15 +271,17 @@ def prompt_yes_no(question):
 
 
 def append_claude_md(env):
-    """Append the Uclusion workflow CLAUDE.md to the user's global CLAUDE.md.
+    """Install or refresh the Uclusion workflow block in the user's CLAUDE.md.
 
-    Asks for permission first. If the target file doesn't exist, offers to
-    create it. Uses a marker line to skip cleanly on reruns.
+    The block is delimited by ``CLAUDE_MD_MARKER`` and ``CLAUDE_MD_END_MARKER``
+    so that on reruns we can replace it in place without disturbing anything
+    the user appended afterwards.
     """
     base_url = get_scripts_base_url(env)
     url = base_url + 'CLAUDE.md'
 
     exists = os.path.exists(CLAUDE_MD_PATH)
+    existing = ''
     if exists:
         try:
             with open(CLAUDE_MD_PATH, 'r', encoding='utf-8') as src:
@@ -286,18 +289,32 @@ def append_claude_md(env):
         except OSError as err:
             print(f"  ❌ Could not read {CLAUDE_MD_PATH}: {err}")
             return
-        if CLAUDE_MD_MARKER in existing:
-            print(f"ℹ️  Uclusion workflow already present in {CLAUDE_MD_PATH}; skipping.")
-            return
+
+    has_start = CLAUDE_MD_MARKER in existing
+    has_end = CLAUDE_MD_END_MARKER in existing
+
+    if has_start != has_end:
+        which = 'start' if has_start else 'end'
+        print(f"  ❌ {CLAUDE_MD_PATH} has the Uclusion {which} marker but not its")
+        print(f"      counterpart; refusing to modify. Remove the orphan marker and re-run.")
+        return
+
+    if has_start:
+        print(f"📝 Found Uclusion workflow block in {CLAUDE_MD_PATH}")
+        action = 'replace'
+        prompt = f"  Refresh Uclusion job workflow in {CLAUDE_MD_PATH}?"
+    elif exists:
         print(f"📝 Found existing {CLAUDE_MD_PATH}")
-        if not prompt_yes_no(f"  Append Uclusion job workflow to {CLAUDE_MD_PATH}?"):
-            print("  ⏭  Skipped CLAUDE.md update.")
-            return
+        action = 'append'
+        prompt = f"  Append Uclusion job workflow to {CLAUDE_MD_PATH}?"
     else:
         print(f"📝 No {CLAUDE_MD_PATH} found.")
-        if not prompt_yes_no(f"  Create {CLAUDE_MD_PATH} with Uclusion job workflow?"):
-            print("  ⏭  Skipped CLAUDE.md creation.")
-            return
+        action = 'create'
+        prompt = f"  Create {CLAUDE_MD_PATH} with Uclusion job workflow?"
+
+    if not prompt_yes_no(prompt):
+        print("  ⏭  Skipped CLAUDE.md update.")
+        return
 
     print(f"  ⬇️  Downloading {url}")
     try:
@@ -309,20 +326,33 @@ def append_claude_md(env):
         print(f"  ❌ Failed to download {url}: {err}")
         return
 
+    if CLAUDE_MD_MARKER not in content or CLAUDE_MD_END_MARKER not in content:
+        print(f"  ❌ Downloaded CLAUDE.md is missing the workflow markers; refusing to write.")
+        return
+
     if not content.endswith('\n'):
         content += '\n'
 
+    if action == 'replace':
+        start_idx = existing.find(CLAUDE_MD_MARKER)
+        end_idx = existing.find(CLAUDE_MD_END_MARKER, start_idx) + len(CLAUDE_MD_END_MARKER)
+        if end_idx < len(existing) and existing[end_idx] == '\n':
+            end_idx += 1
+        updated = existing[:start_idx] + content + existing[end_idx:]
+        verb = 'Refreshed Uclusion workflow in'
+    elif action == 'append':
+        sep = '' if existing.endswith('\n') else '\n'
+        updated = existing + sep + '\n' + content
+        verb = 'Appended Uclusion workflow to'
+    else:  # create
+        updated = content
+        verb = 'Wrote'
+
     try:
         os.makedirs(os.path.dirname(CLAUDE_MD_PATH), exist_ok=True)
-        if exists:
-            with open(CLAUDE_MD_PATH, 'a', encoding='utf-8') as out:
-                out.write('\n')
-                out.write(content)
-            print(f"  ✅ Appended Uclusion workflow to {CLAUDE_MD_PATH}")
-        else:
-            with open(CLAUDE_MD_PATH, 'w', encoding='utf-8') as out:
-                out.write(content)
-            print(f"  ✅ Wrote {CLAUDE_MD_PATH}")
+        with open(CLAUDE_MD_PATH, 'w', encoding='utf-8') as out:
+            out.write(updated)
+        print(f"  ✅ {verb} {CLAUDE_MD_PATH}")
     except OSError as err:
         print(f"  ❌ Could not write {CLAUDE_MD_PATH}: {err}")
 

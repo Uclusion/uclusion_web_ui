@@ -436,7 +436,7 @@ function getCompressionButton(numberHidden, inboxMessageId, toggleCompression, i
 
 function InitialReply(props) {
   const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps,
-    numberHidden = 0, useCompression, toggleCompression, myPresenceIsAssigned } = props;
+    numberHidden = 0, useCompression, toggleCompression, myPresenceIsAssigned, enableActions, isDeletable } = props;
   const intl = useIntl();
   if (numberHidden > 0) {
     return (
@@ -445,6 +445,8 @@ function InitialReply(props) {
         <Reply comment={comment} enableEditing={enableEditing} replyEditId={replyEditId}
                useCompression={useCompression} toggleCompression={toggleCompression}
                myPresenceIsAssigned={myPresenceIsAssigned}
+               enableActions={enableActions}
+               isDeletable={isDeletable}
                inboxMessageId={inboxMessageId} isInbox={isInbox} wizardProps={wizardProps}/>
       </>
     );
@@ -452,6 +454,8 @@ function InitialReply(props) {
   return <Reply comment={comment} enableEditing={enableEditing} replyEditId={replyEditId}
                 useCompression={useCompression} toggleCompression={toggleCompression}
                 myPresenceIsAssigned={myPresenceIsAssigned}
+                enableActions={enableActions}
+                isDeletable={isDeletable}
                 inboxMessageId={inboxMessageId} isInbox={isInbox} wizardProps={wizardProps}/>;
 }
 
@@ -866,7 +870,7 @@ function Comment(props) {
   const showUnmute = !removeActions && myInlinePresence.abstain && !resolved && enableActions
     && ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType));
   const showSubTask = isTask && myPresence === createdBy;
-  const isDeletable = !isInbox && !beingEdited && (commentType === REPORT_TYPE || isEditable || resolved);
+  const isDeletable = !isInbox && !beingEdited;
   const linker = 
     <div style={{marginRight: '1rem', marginTop: '-0.6rem'}}>
       <InvesibleCommentLinker commentId={id} investibleId={investibleId} marketId={marketId} flushBottom 
@@ -1024,7 +1028,7 @@ function Comment(props) {
             noAlign
           />
         )}
-        {(myPresence.is_admin || isEditable) && enableActions && isDeletable && (
+        {enableActions && isDeletable && (
           <div style={{marginRight: '2rem'}}>
             <TooltipIconButton
               disabled={operationRunning !== false}
@@ -1298,6 +1302,8 @@ function Comment(props) {
                   comment={parent}
                   marketId={marketId}
                   enableEditing={enableEditing}
+                  enableActions={enableActions}
+                  isDeletable={isDeletable}
                   replyEditId={replyEditId}
                   inboxMessageId={inboxMessageId}
                   useCompression

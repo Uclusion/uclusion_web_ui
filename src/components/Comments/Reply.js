@@ -199,7 +199,7 @@ const useReplyStyles = makeStyles(
 
 function Reply(props) {
   const { comment, enableEditing, replyEditId, inboxMessageId, isInbox, wizardProps, useCompression,
-    toggleCompression, myPresenceIsAssigned } = props;
+    toggleCompression, myPresenceIsAssigned, enableActions, isDeletable } = props;
   const history = useHistory();
   const location = useLocation();
   const replyBeingEdited = replyEditId === comment.id && isInbox;
@@ -396,7 +396,7 @@ function Reply(props) {
             translationId='messagePresentComment'
           />
         )}
-        {isEditable && enableEditing && (
+        {enableActions && isDeletable && (
           <TooltipIconButton
             disabled={operationRunning !== false}
             onClick={(event) => {

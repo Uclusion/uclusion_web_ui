@@ -58,7 +58,10 @@ score and reason.
 
 ### 5. Execute and document
 
-When instructed to start work, do the task and its grouped tasks. As you go:
+When instructed to start work, do the task and its grouped tasks. Do not 
+attempt to do tasks that start with Resolved in front of their short codes.
+
+As you go:
 
 - Call `resolve` on tasks you have finished.
 - Call `add_info` at the job or task level for anything someone reviewing

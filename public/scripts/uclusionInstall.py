@@ -236,18 +236,34 @@ def prompt_yes_no(question):
 
     Reads from /dev/tty so the prompt still works when the installer is run via
     ``curl ... | bash`` (in which case stdin is the pipe, not the terminal).
+    Uses separate read/write handles to avoid buffering quirks that can make a
+    shared ``r+`` handle return EOF on the first ``readline`` call.
     """
     prompt = f"{question} [y/N] "
+    answer = None
     try:
-        with open('/dev/tty', 'r+', encoding='utf-8') as tty:
-            tty.write(prompt)
-            tty.flush()
-            answer = tty.readline()
+        tty_in = open('/dev/tty', 'r', encoding='utf-8')
     except OSError:
+        tty_in = None
+
+    if tty_in is not None:
+        try:
+            try:
+                with open('/dev/tty', 'w', encoding='utf-8') as tty_out:
+                    tty_out.write(prompt)
+                    tty_out.flush()
+            except OSError:
+                sys.stderr.write(prompt)
+                sys.stderr.flush()
+            answer = tty_in.readline()
+        finally:
+            tty_in.close()
+    else:
         try:
             answer = input(prompt)
         except EOFError:
             return False
+
     if not answer:
         return False
     return answer.strip().lower() in ('y', 'yes')

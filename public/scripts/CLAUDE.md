@@ -22,10 +22,21 @@ before deciding what to do.
 
 ### 2. Ask questions
 
-Call `ask_question` for anything ambiguous. One tool call per question — do
+Call `ask_question` for anything ambiguous OR for any judgment call the
+job doesn't pin down where a reasonable reviewer could pick differently
+(visual density, which of several real artifacts to reference, whether
+public-facing content should mention a known caveat, tone, scope cuts,
+etc.). "I have a default in mind but the user might disagree" is a
+step-2 question, not a silent decision. One tool call per question — do
 not pack multiple questions into one. Provide options when there is a
-discrete set of choices. Call `resolve` on questions you feel have already
-been answered.
+discrete set of choices. Call `resolve` on questions you feel have
+already been answered.
+
+If later — while approving, executing, or writing the review — you
+catch yourself wanting to say "flag if you'd rather X", "verify that Y
+reads correctly", or "does this feel right?", that is a step-2 question
+you missed. Stop and file it via `ask_question` before continuing.
+Never defer such questions to the step-6 review report.
 
 ### 3. Make suggestions
 
@@ -59,6 +70,14 @@ When instructed to start work, do the task and its grouped tasks. As you go:
 When a set of tasks has a testable output, call `ask_for_review` with a
 concise progress report describing what is ready to look at. This is the
 signal that human or AI review can begin.
+
+The report describes finished work — what was built, what was skipped
+and why, which tasks are now depicted and safe to resolve. It is NOT a
+place to surface choices you should have asked about earlier. If the
+report contains "verify that X reads correctly", "flag if you'd rather
+Y", or any other request for the user to validate a judgment call you
+already made, those are step-2 questions. Go back, file them via
+`ask_question`, and only then send the review.
 
 ## Notes
 

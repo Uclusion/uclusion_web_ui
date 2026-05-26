@@ -13,6 +13,25 @@ Run the steps in order. Don't skip ahead: questions and suggestions come
 BEFORE approval, approval comes BEFORE execution, and review comes AFTER a
 testable result exists.
 
+When working on a Uclusion job, ALL workflow artifacts — questions,
+suggestions, approvals, info notes, resolutions, and review requests —
+go through the Uclusion MCP tools (`ask_question`, `make_suggestion`,
+`approve_job_or_option`, `add_info`, `resolve`, `ask_for_review`). Do
+NOT substitute a built-in or local equivalent (e.g. `AskUserQuestion`,
+inline multiple-choice prompts, chat-only "which would you prefer?"
+messages, plain-text approvals or progress reports in chat) — those
+keep the discussion in chat scrollback instead of in the job, which
+defeats the whole point of the workflow. If you find yourself reaching
+for another tool to ask, suggest, approve, note, resolve, or report
+something about the job, stop and use the Uclusion MCP tool instead.
+
+This applies even when the user critiques your prior work and asks you
+to try again ("this isn't good, redo it", "attempt again", "the X is
+wrong"). The clarifying questions you need before redoing — what
+specifically is wrong, which direction to take, what to keep vs. throw
+out — are step-2 questions and belong in Uclusion via `ask_question`,
+not in a local clarification prompt.
+
 ### 1. Read
 
 Call `get_job` with the short code to load the job and all its child tasks,

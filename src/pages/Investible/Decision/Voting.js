@@ -18,7 +18,7 @@ import TooltipIconButton from '../../../components/Buttons/TooltipIconButton';
 import { formInboxItemLink, formWizardLink, navigate, preventDefaultAndProp } from '../../../utils/marketIdPathFunctions';
 import { APPROVAL_WIZARD_TYPE } from '../../../constants/markets';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { removeInvestment } from '../../../api/marketInvestibles';
+import { removeInvestment, removeOthersInvestment } from '../../../api/marketInvestibles';
 import { commonQuick } from '../../../components/AddNewWizards/Approval/ApprovalWizard';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -117,10 +117,12 @@ function Voting(props) {
   const voters = useInvestibleVoters(marketPresences, investibleId, market.id, showDeleted);
   const sortedVoters = _.sortBy(voters, 'quantity', 'updatedAt');
 
-  function remove(event) {
+  function remove(event, userId) {
     preventDefaultAndProp(event);
     setOperationRunning(true);
-    return removeInvestment(market.id, investibleId).then(result => {
+    const removePromise = userId === yourPresence.id ? removeInvestment(market.id, investibleId) : 
+    removeOthersInvestment(market.id, investibleId, userId);
+    return removePromise.then(result => {
       commonQuick(result, commentsDispatch, market.id, commentsState, marketPresencesDispatch, messagesState,
         messagesDispatch, setOperationRunning);
       setOperationRunning(false);
@@ -248,7 +250,7 @@ function Voting(props) {
                     <div style={{marginRight: '2rem'}}>
                       <TooltipIconButton
                         disabled={operationRunning !== false}
-                        onClick={remove}
+                        onClick={(event) => remove(event, userId)}
                         icon={<NotificationDeletion isRed />}
                         size={mobileLayout ? 'small' : undefined}
                         translationId="commentRemoveLabel"

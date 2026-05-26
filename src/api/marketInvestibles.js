@@ -22,6 +22,17 @@ export function removeInvestment(marketId, investibleId) {
     }).catch((error) => toastErrorAndThrow(error, 'errorInvestmentUpdateFailed'));
 }
 
+export function removeOthersInvestment(marketId, investibleId, userId) {
+  return getMarketClient(marketId)
+    .then((client) => client.markets.removeOthersInvestment(investibleId, userId)).then((investmentResult) => {
+      const commentResult = { commentAction: 'DELETED', comment: { id: undefined } };
+      return {
+        commentResult,
+        investmentResult,
+      };
+    }).catch((error) => toastErrorAndThrow(error, 'errorInvestmentUpdateFailed'));
+}
+
 /**
  * This call returns structure that has
  * 1) what happened to the comment

@@ -85,11 +85,12 @@ export function getSortedMarkets(filtered) {
 export function getNotHiddenMarketDetailsForUser(state, marketPresencesState) {
   if (state.marketDetails) {
     const newMarketDetails = state.marketDetails.filter((market) => {
-      if(!market){
-        return false;
-      }
       const marketPresences = getMarketPresences(marketPresencesState, market?.id);
-      return !_.isEmpty(marketPresences?.find((presence) => presence.current_user));
+      const hasCurrentUser = !_.isEmpty(marketPresences?.find((presence) => presence.current_user));
+      if (!hasCurrentUser) {
+        console.warn(`Market ${market?.id} has no current user`);
+      }
+      return hasCurrentUser;
     });
     return { marketDetails: newMarketDetails };
   }

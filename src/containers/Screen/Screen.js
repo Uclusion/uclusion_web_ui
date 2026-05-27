@@ -426,7 +426,8 @@ function Screen(props) {
   }
   const isTopLevelInbox = action === 'inbox' && _.isEmpty(pathMarketIdRaw);
   const defaultMarket = getFirstWorkspace(markets, marketId, !isTopLevelInbox, !isTopLevelInbox) || {};
-  const reallyAmLoading = !hidden && !isDemoChoice && appEnabled && (loading || !userIsLoaded(userState, marketsState));
+  const reallyAmLoading = !hidden && !isDemoChoice && appEnabled && 
+  (loading || (!userIsLoaded(userState, marketsState) && action !== 'wizard'));
   if (marketId && _.isEmpty(defaultMarket)) {
     return <React.Fragment/>
   }

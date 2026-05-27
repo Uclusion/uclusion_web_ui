@@ -15,7 +15,7 @@ function WorkspaceNameStep (props) {
   const validForm = !_.isEmpty(value);
   const classes = useContext(WizardStylesContext);
   const [userState] = useContext(AccountContext);
-  const isDemoOn = userState?.user?.onboarding_state !== OnboardingState.FirstMarketJoined;
+  const isDemoOn = userState?.user?.onboarding_state === OnboardingState.DemoCreated;
 
   function onNameChange (event) {
     const { value } = event.target;

@@ -299,6 +299,7 @@ const messages = defineMessages({
   upNavigation: 'ctrl+arrowUp go up one level',
   upNavigationMac: 'ctrl+option+arrowUp go up one level',
   up: 'Up',
+  skipDemo: 'Skip demo',
 
   //Inbox notification titles
   unfinished: 'Unfinished',

@@ -6,6 +6,7 @@ import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
+import { WORKSPACE_WIZARD_TYPE } from '../../../constants/markets';
 
 function DemoChoiceStep() {
   const classes = useContext(WizardStylesContext);
@@ -30,6 +31,9 @@ function DemoChoiceStep() {
         otherNextLabel='createWorkspaceNormal'
         onOtherNext={() => navigate(history, '/demo?utm_campaign=team')}
         otherSpinOnClick={false}
+        terminateLabel='skipDemo'
+        showTerminate
+        onTerminate={() => navigate(history, `/wizard#type=${WORKSPACE_WIZARD_TYPE.toLowerCase()}`)}
       />
     </WizardStepContainer>
   );

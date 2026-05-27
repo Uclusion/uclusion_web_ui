@@ -74,7 +74,7 @@ function DecideResolveStep(props) {
         onCommentOpen(investiblesState, commentRoot.investible_id, marketStagesState, marketId, comment,
           investiblesDispatch, commentState, commentDispatch, myPresence);
         const inlineMarket = getMarket(marketsState, comment.inline_market_id);
-        if (inlineMarket && inlineMarket.market_stage !== 'Active') {
+        if (!_.isEmpty(inlineMarket) && inlineMarket.market_stage !== 'Active') {
           // re-open inline market
           const newInlineMarket = {...inlineMarket, market_stage: 'Active'};
           addMarketToStorage(marketDispatch, newInlineMarket);

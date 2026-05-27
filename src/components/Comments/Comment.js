@@ -698,7 +698,7 @@ function Comment(props) {
           onCommentOpen(investiblesState, investibleId, marketStagesState, marketId, comment, investiblesDispatch,
             commentsState, commentsDispatch, myPresence);
         }
-        if (inlineMarket && inlineMarket.market_stage !== 'Active') {
+        if (!_.isEmpty(inlineMarket) && inlineMarket.market_stage !== 'Active') {
           // re-open inline market
           const newInlineMarket = {...inlineMarket, market_stage: 'Active'};
           addMarketToStorage(marketDispatch, newInlineMarket);

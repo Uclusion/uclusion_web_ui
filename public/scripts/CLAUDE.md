@@ -1,4 +1,5 @@
 <!-- uclusion-workflow:v1 -->
+<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->
 # Uclusion job workflow
 
 You have access to the Uclusion MCP server. When the user asks you to work on
@@ -69,6 +70,16 @@ Call `approve_job_or_option` with a certainty score (1–5) and a written
 reason. Feel free to give a low certainty if the job is not well designed or
 is not providing clear value for customers. Approval comes before execution.
 
+**Precondition — do NOT offer to approve the job while any question on it
+is still open and unanswered.** A question counts as answered when there is
+a "For" vote on one of its options, when the user has replied in the question
+with a clear direction, or when you have voted on your preferred option
+yourself in step 4. If any open question is still waiting for a response, go
+back to step 2 — resolve the question, file the follow-up you need, or vote
+your own preferred option — before offering approval to the user. Offering to
+approve a job with open questions defeats the workflow, because the
+implementation decisions those questions gate aren't pinned down yet.
+
 If the job markdown says that the AI user is a required approver then approval
 is mandatory. Otherwise ask if you should approve the job.
 
@@ -76,6 +87,19 @@ Also approve your preferred option on questions the same way with a certainty
 score and reason.
 
 ### 5. Execute and document
+
+**Before doing ANY work in this step, first sweep the job:**
+
+- Call `resolve` on every open question whose answer is already in the job
+  (a "For" vote on an option, a clear reply from the user, or a vote you
+  cast yourself in step 4). Open-but-answered questions left dangling will
+  confuse later sessions.
+- Call `resolve` on tasks that turn out to be already done — sometimes a
+  task is listed as active but the work is already in the diff, in a prior
+  resolved item, or no longer applicable. Don't re-implement those; resolve
+  them instead.
+
+Only after that sweep should you start the implementation work.
 
 When instructed to start work, do the task and its grouped tasks. Do not 
 attempt to do tasks that start with Resolved in front of their short codes.

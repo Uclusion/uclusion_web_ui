@@ -47,6 +47,14 @@ CLAUDE_JSON_PATH = os.path.join(os.path.expanduser('~'), '.claude.json')
 CLAUDE_MD_PATH = os.path.join(os.path.expanduser('~'), '.claude', 'CLAUDE.md')
 CLAUDE_MD_MARKER = '<!-- uclusion-workflow:v1 -->'
 CLAUDE_MD_END_MARKER = '<!-- /uclusion-workflow:v1 -->'
+CURSOR_MDC_PATH = os.path.join(os.path.expanduser('~'), '.cursor', 'rules', 'uclusion.mdc')
+CURSOR_MDC_FRONTMATTER = (
+    '---\n'
+    'description: Uclusion job workflow — invoke when working on a Uclusion '
+    'job/task/bug short code (J-*, T-*, B-*)\n'
+    'alwaysApply: false\n'
+    '---\n'
+)
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')
 
 
@@ -357,6 +365,60 @@ def append_claude_md(env):
         print(f"  ❌ Could not write {CLAUDE_MD_PATH}: {err}")
 
 
+def install_cursor_mdc(env):
+    """Install or refresh ~/.cursor/rules/uclusion.mdc as a Cursor rule.
+
+    The body of the rule is the same workflow markdown that lands in
+    CLAUDE.md — we download CLAUDE.md, strip the install markers, prepend a
+    description-based Cursor frontmatter, and write the result. Keeping
+    CLAUDE.md as the single source of truth means the two surfaces never
+    drift.
+    """
+    base_url = get_scripts_base_url(env)
+    url = base_url + 'CLAUDE.md'
+
+    exists = os.path.exists(CURSOR_MDC_PATH)
+    if exists:
+        print(f"📝 Found existing {CURSOR_MDC_PATH}")
+        prompt = f"  Refresh Uclusion Cursor rule at {CURSOR_MDC_PATH}?"
+        verb = 'Refreshed'
+    else:
+        print(f"📝 No {CURSOR_MDC_PATH} found.")
+        prompt = f"  Create {CURSOR_MDC_PATH} with Uclusion job workflow?"
+        verb = 'Wrote'
+
+    if not prompt_yes_no(prompt):
+        print("  ⏭  Skipped uclusion.mdc update.")
+        return
+
+    print(f"  ⬇️  Downloading {url}")
+    try:
+        with urllib.request.urlopen(url) as response:
+            if response.status != 200:
+                raise RuntimeError(f"status {response.status}")
+            content = response.read().decode('utf-8')
+    except Exception as err:
+        print(f"  ❌ Failed to download {url}: {err}")
+        return
+
+    if CLAUDE_MD_MARKER not in content or CLAUDE_MD_END_MARKER not in content:
+        print(f"  ❌ Downloaded CLAUDE.md is missing the workflow markers; refusing to write.")
+        return
+
+    start_idx = content.find(CLAUDE_MD_MARKER) + len(CLAUDE_MD_MARKER)
+    end_idx = content.find(CLAUDE_MD_END_MARKER, start_idx)
+    body = content[start_idx:end_idx].lstrip('\n').rstrip() + '\n'
+    mdc_content = CURSOR_MDC_FRONTMATTER + body
+
+    try:
+        os.makedirs(os.path.dirname(CURSOR_MDC_PATH), exist_ok=True)
+        with open(CURSOR_MDC_PATH, 'w', encoding='utf-8') as out:
+            out.write(mdc_content)
+        print(f"  ✅ {verb} {CURSOR_MDC_PATH}")
+    except OSError as err:
+        print(f"  ❌ Could not write {CURSOR_MDC_PATH}: {err}")
+
+
 def build_parser():
     parser = argparse.ArgumentParser(
         prog='uclusionInstall',
@@ -391,6 +453,7 @@ def main():
         update_cursor_mcp(workspace_id, mcp_env)
         update_claude_json_mcp(workspace_id, mcp_env)
         append_claude_md(env)
+        install_cursor_mdc(env)
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")
         return 1

@@ -39,15 +39,21 @@ function TooltipIconButton(props) {
       </Tooltip>
       )}
       {disabled && (
-      <IconButton
-        disabled={disabled}
-        onClick={onClick}
-        size={size}
-        style={{float: doFloatRight ? 'right': undefined}}
+      <Tooltip
+        title={intl.formatMessage({ id: translationId })}
       >
-        {React.cloneElement(icon, {})}
-        {children}
-      </IconButton>
+        {/* A disabled button stops firing pointer events, so the Tooltip must attach to a wrapping span. */}
+        <span style={{float: doFloatRight ? 'right': undefined}}>
+          <IconButton
+            disabled={disabled}
+            onClick={onClick}
+            size={size}
+          >
+            {React.cloneElement(icon, {})}
+            {children}
+          </IconButton>
+        </span>
+      </Tooltip>
       )}
     </>
   );

@@ -13,6 +13,7 @@ import { DARK_ACTION_BUTTON_COLOR, useButtonColors } from '../Buttons/ButtonCons
 import AddIcon from '@material-ui/icons/Add'
 import NotificationCountChips from '../../pages/Dialog/NotificationCountChips'
 import { ThemeModeContext } from '../../contexts/ThemeModeContext'
+import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext'
 
 function processRegularItem(properties) {
   const {history, text, target, num, Icon, iconColor='black', onClickFunc, isBold, isBlue, complexIcon,
@@ -118,12 +119,15 @@ export default function Sidebar(props) {
   const intl = useIntl();
   const [themeMode] = useContext(ThemeModeContext);
   const isDark = themeMode === 'dark';
+  const [searchResults] = useContext(SearchResultsContext);
+  const isSearch = !_.isEmpty(searchResults?.search);
   const { marketId, navigationOptions, idPrepend='' } = props;
   const { actionButtonColor, infoColor } = useButtonColors();
   const [pageStateFull, pageDispatch] = usePageStateReducer('sidebarMenus');
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, marketId || 'sidebarState',
     {viewsOpen: true});
-  const { viewsOpen } = pageState;
+  // While searching always reveal the overflow groups so a match below the first five isn't hidden.
+  const viewsOpen = pageState.viewsOpen || isSearch;
   const { navListItemTextArray, navLowerListItemTextArray, navMenu, navLowerMenu, listOnClick } = navigationOptions || {};
   const firstFiveNavListItemTextArray = navListItemTextArray?.slice(0, 5);
   const moreFiveNavListItemTextArray = navListItemTextArray?.slice(5);

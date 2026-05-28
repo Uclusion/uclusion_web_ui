@@ -7,7 +7,7 @@ import WizardStepButtons from '../WizardStepButtons';
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
 import { updateInvestment } from '../../../api/marketInvestibles';
-import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
+import { editorEmpty, getQuillStoredState } from '../../TextEditors/Utilities/CoreUtils';
 import {
   addCommentToMarket,
   getMarketComments
@@ -79,10 +79,13 @@ function JobApproveStep(props) {
 
   function onNext() {
     const {approveUploadedFiles, approveReason, approveQuantity} = formData;
+    // The editor may show default/stored text the user never edited, so onEditorChange never fired -
+    // fall back to the editor's stored state so that reason still gets saved.
+    const usedReason = editorEmpty(approveReason) ? getQuillStoredState(editorName) : approveReason;
     const {
       uploadedFiles: filteredUploads,
       text: tokensRemoved,
-    } = processTextAndFilesForSave(approveUploadedFiles, approveReason);
+    } = processTextAndFilesForSave(approveUploadedFiles, usedReason);
     const reasonNeedsUpdate = !_.isEmpty(tokensRemoved);
     const updateInfo = {
       marketId,

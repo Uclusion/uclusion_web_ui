@@ -167,6 +167,9 @@ export function resetEditor(id, contents, configOverrides, hardReset=false) {
     const { editor, config } = QuillEditorRegistry.getEditor(id);
     const fullConfig = {
       ...config,
+      // Reseed value with the reset contents so a recreate can't fall back to a stale draft this editor
+      // was originally opened with (e.g. "add and another" after editing a draft task).
+      value: contents,
       configOverrides,
     }
     if (editor != null) {

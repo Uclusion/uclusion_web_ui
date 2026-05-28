@@ -14,7 +14,7 @@ export function setPage(pageNum) {
   };
 }
 
-function searchFiltered(raw, searchResults, workItemId) {
+export function searchFiltered(raw, searchResults, workItemId) {
   const { results, parentResults, search } = searchResults;
   return _.isEmpty(search) || workItemId ? raw : raw.filter((message) => {
       const { type_object_id: typeObjectId,  investible_id: investibleId, comment_id: commentId, id } = message;

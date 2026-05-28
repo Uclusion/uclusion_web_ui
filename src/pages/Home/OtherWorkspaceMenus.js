@@ -24,6 +24,7 @@ import OutboxIcon from '../../components/CustomChip/Outbox';
 import { SearchResultsContext } from '../../contexts/SearchResultsContext/SearchResultsContext';
 import { NotificationsContext } from '../../contexts/NotificationsContext/NotificationsContext';
 import { getOutboxMessages } from './YourWork/InboxExpansionPanel';
+import { searchFiltered } from './YourWork/InboxContext';
 import { MarketsContext } from '../../contexts/MarketsContext/MarketsContext';
 import { MarketStagesContext } from '../../contexts/MarketStagesContext/MarketStagesContext';
 import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
@@ -135,15 +136,25 @@ function OtherWorkspaceMenus(props) {
   const messagesFull = messages?.filter((message) => {
     return isInInbox(message);
   });
-  const unreadCount = _.isEmpty(search) ? getInboxCount(messagesState) : 0;
+  const isSearch = !_.isEmpty(search);
   let num = undefined;
   let numSuffix = undefined;
-  if (unreadCount > 0) {
-    num = unreadCount;
-    numSuffix = 'new';
-  } else if (!_.isEmpty(messagesFull)) {
-    num = messagesFull.length;
-    numSuffix = 'total';
+  if (isSearch) {
+    // While searching show how many inbox items match (mirrors the group "Views" counts) and nothing when none.
+    const matchingInbox = searchFiltered(messagesFull || [], searchResults, undefined);
+    if (!_.isEmpty(matchingInbox)) {
+      num = matchingInbox.length;
+      numSuffix = 'total';
+    }
+  } else {
+    const unreadCount = getInboxCount(messagesState);
+    if (unreadCount > 0) {
+      num = unreadCount;
+      numSuffix = 'new';
+    } else if (!_.isEmpty(messagesFull)) {
+      num = messagesFull.length;
+      numSuffix = 'total';
+    }
   }
 
   // Not going to be good performance for this - move to root and pass down as prop?
@@ -257,7 +268,7 @@ function OtherWorkspaceMenus(props) {
               preventDefaultAndProp(event);
               updatePageState({messagesOpen: !messagesOpen});
             }}
-            key="messagesKey" open={messagesOpen}>
+            key="messagesKey" open={messagesOpen || isSearch}>
             <MenuItem style={{backgroundColor: action === 'inbox' ? (isDark ? 'grey' : '#e0e0e0') : undefined, borderRadius: 22}}
               icon={<Inbox htmlColor={isDark ? DARK_ACTION_BUTTON_COLOR : 'black'} style={{fontSize: '1rem', marginBottom: '0.15rem'}} />}
                 key="inboxKey" id="inboxId"

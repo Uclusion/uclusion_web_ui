@@ -299,7 +299,7 @@ function OtherWorkspaceMenus(props) {
                         marginRight: 0,
                       }
                     }}
-                    suffix={outboxCount > 0 ?
+                    suffix={outboxCount > 0 && !isSearch ?
                       <NotificationCountChips num={outboxCount} numSuffix='total' /> : undefined}
                     onClick={(event) => {
                       preventDefaultAndProp(event);

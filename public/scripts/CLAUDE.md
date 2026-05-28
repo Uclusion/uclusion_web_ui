@@ -5,8 +5,8 @@
 You have access to the Uclusion MCP server. When the user asks you to work on
 a Uclusion job, task, bug, or comment (anything referenced by a short code
 like `J-Marketing-22`, `T-Marketing-180`, or `B-...`), follow the workflow
-below. The structured artifacts in the job ARE the plan — keep work in the
-job, not in chat scrollback.
+below. The structured artifacts in the job ARE the plan so keep work in the
+job, not in chat.
 
 ## Workflow
 
@@ -20,11 +20,9 @@ go through the Uclusion MCP tools (`ask_question`, `make_suggestion`,
 `approve_job_or_option`, `add_info`, `resolve`, `ask_for_review`). Do
 NOT substitute a built-in or local equivalent (e.g. `AskUserQuestion`,
 inline multiple-choice prompts, chat-only "which would you prefer?"
-messages, plain-text approvals or progress reports in chat) — those
-keep the discussion in chat scrollback instead of in the job, which
-defeats the whole point of the workflow. If you find yourself reaching
-for another tool to ask, suggest, approve, note, resolve, or report
-something about the job, stop and use the Uclusion MCP tool instead.
+messages, plain-text approvals or progress reports in chat). The only
+exception for using another tool to ask, suggest, approve, note, resolve, or report
+is if your question is not about the job but about this flow or something else.
 
 This applies even when the user critiques your prior work and asks you
 to try again ("this isn't good, redo it", "attempt again", "the X is
@@ -36,9 +34,7 @@ not in a local clarification prompt.
 ### 1. Read
 
 Call `get_job` with the short code to load the job and all its child tasks,
-grouped tasks, questions, suggestions, notes, and blockers. Then read any
-documentation and repository resources that explain the surrounding software
-before deciding what to do.
+grouped tasks, questions, suggestions, notes, and blockers.
 
 ### 2. Ask questions
 
@@ -52,6 +48,9 @@ not pack multiple questions into one. Provide options when there is a
 discrete set of choices. Call `resolve` on questions you feel have
 already been answered.
 
+If you have a preferred choice among the options for a question then
+vote on it to inform the user of your opinion.
+
 If later — while approving, executing, or writing the review — you
 catch yourself wanting to say "flag if you'd rather X", "verify that Y
 reads correctly", or "does this feel right?", that is a step-2 question
@@ -64,21 +63,23 @@ Call `make_suggestion` when you see a better path than what the job
 describes. Suggestions are how you push back without blocking; use them
 instead of silently doing something different.
 
-### 4. Approve
+**Precondition — do NOT offer to do work on a task or approve the job while any question on it is still open and unanswered.** 
+
+If some tasks in the job are completely disjoint from other tasks you may ask the user about starting 
+them before questions on the other tasks are answered.
+
+A question counts as answered when there is
+a "For" vote on one of its options, when the user has replied in the question
+with a clear direction.
+
+### 4. Approve - only applies if job is in stage "In Dialog"
+
+Offering to approve a job with open questions defeats the workflow, because the
+implementation decisions those questions gate aren't pinned down yet.
 
 Call `approve_job_or_option` with a certainty score (1–5) and a written
 reason. Feel free to give a low certainty if the job is not well designed or
-is not providing clear value for customers. Approval comes before execution.
-
-**Precondition — do NOT offer to approve the job while any question on it
-is still open and unanswered.** A question counts as answered when there is
-a "For" vote on one of its options, when the user has replied in the question
-with a clear direction, or when you have voted on your preferred option
-yourself in step 4. If any open question is still waiting for a response, go
-back to step 2 — resolve the question, file the follow-up you need, or vote
-your own preferred option — before offering approval to the user. Offering to
-approve a job with open questions defeats the workflow, because the
-implementation decisions those questions gate aren't pinned down yet.
+is not providing clear value for customers.
 
 If the job markdown says that the AI user is a required approver then approval
 is mandatory. Otherwise ask if you should approve the job.
@@ -86,7 +87,11 @@ is mandatory. Otherwise ask if you should approve the job.
 Also approve your preferred option on questions the same way with a certainty 
 score and reason.
 
-### 5. Execute and document
+### 5. Execute and document - only applies if the job is in stage "Accepted"
+
+If the job is not in stage "Accepted" and you are ready to begin, having 
+received answered for all questions and made any suggestions, then you 
+can ask the user to change the job's stage.
 
 **Before doing ANY work in this step, first sweep the job:**
 

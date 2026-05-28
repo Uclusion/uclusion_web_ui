@@ -36,6 +36,9 @@ not in a local clarification prompt.
 Call `get_job` with the short code to load the job and all its child tasks,
 grouped tasks, questions, suggestions, notes, and blockers.
 
+If calling get_job comes back with only a single comment, no Job J-... header,
+then use the single comment workflow below.
+
 ### 2. Ask questions
 
 Call `ask_question` for anything ambiguous OR for any judgment call the
@@ -138,5 +141,15 @@ already made, those are step-2 questions. Go back, file them via
   pick up the thread.
 - The short code (for example `J-Marketing-22`) is the canonical id. Use it
   verbatim when calling tools and when linking artifacts back to the user.
+
+# Uclusion single comment workflow
+A single comment markdown has no Job J-... header.
+
+For a single comment that is a bug use only `get_job`, `add_info`, and `resolve` tools.
+
+If the single comment that is a question use only the tools `get_job`, `add_info`, and for options inside it `approve_job_or_option`.
+
+Use `add_info` to ask questions or explain the work done. 
+
 <!-- /uclusion-workflow:v1 -->
 

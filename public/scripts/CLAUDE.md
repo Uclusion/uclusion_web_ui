@@ -157,6 +157,9 @@ already made, those are step-2 questions. Go back, file them via
   pick up the thread.
 - The short code (for example `J-Marketing-22`) is the canonical id. Use it
   verbatim when calling tools and when linking artifacts back to the user.
+- Offering to commit after all tasks are resolved and the job review has been 
+  opened and the commmit message should begin with the short code so that any 
+  action invoked by the commit can use it.
 
 # Uclusion single comment workflow
 A single comment markdown has no Job J-... header.
@@ -164,6 +167,11 @@ A single comment markdown has no Job J-... header.
 For a single comment that is a bug use only `get_job`, `add_info`, and `resolve` tools.
 
 If the single comment that is a question use only the tools `get_job`, `add_info`, and for options inside it `approve_job_or_option`.
+
+## Notes
+
+- Offer to commit after resolving and the commmit message should begin with the short code 
+  so that any action invoked by the commit can use it.
 
 Use `add_info` to ask questions or explain the work done. 
 

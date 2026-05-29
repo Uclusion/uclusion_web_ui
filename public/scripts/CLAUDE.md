@@ -14,6 +14,15 @@ Run the steps in order. Don't skip ahead: questions and suggestions come
 BEFORE approval, approval comes BEFORE execution, and review comes AFTER a
 testable result exists.
 
+The job's **stage** is not the same as your **step**. The stage (for
+example "In Dialog" or "Accepted") tells you which actions Uclusion
+permits right now — it does NOT tell you which step you are on or let you
+skip earlier steps. In particular, finding a job already in "Accepted"
+does NOT mean your step-2 questions and step-3 suggestions are done.
+Always read the job, raise every question you have, and make your
+suggestions first; reaching "Accepted" only unlocks execution once those
+questions are answered.
+
 When working on a Uclusion job, ALL workflow artifacts — questions,
 suggestions, approvals, info notes, resolutions, and review requests —
 go through the Uclusion MCP tools (`ask_question`, `make_suggestion`,
@@ -92,9 +101,16 @@ score and reason.
 
 ### 5. Execute and document - only applies if the job is in stage "Accepted"
 
-If the job is not in stage "Accepted" and you are ready to begin, having 
-received answered for all questions and made any suggestions, then you 
-can ask the user to change the job's stage.
+"Accepted" means a human has accepted this job into the work queue, which
+unlocks implementation. It does NOT mean steps 2–3 are behind you: an
+already-Accepted job STILL requires you to first read it, file every
+question you have, and make any suggestions. Begin implementation only
+once all of your questions are answered — never assume "Accepted" implies
+there is nothing left to ask.
+
+If the job is not yet in stage "Accepted" and you are ready to begin —
+having had all your questions answered and made any suggestions — then
+ask the user to change the job's stage.
 
 **Before doing ANY work in this step, first sweep the job:**
 

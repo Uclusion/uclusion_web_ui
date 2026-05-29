@@ -48,7 +48,7 @@ function doUpdateInvestibles(state, action) {
       if (investible1.version < investible2.version) return false
       let collision = false
       marketInfos1.forEach((marketInfo1) => {
-        const matched = marketInfos2.find((marketInfo2) => marketInfos1.market_id = marketInfo2.market_id)
+        const matched = marketInfos2.find((aMarketInfo2) => marketInfos1.market_id === aMarketInfo2.market_id)
         if (matched && marketInfo1.version < matched.version) {
           collision = true
         }

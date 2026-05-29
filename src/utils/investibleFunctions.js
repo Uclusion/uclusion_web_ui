@@ -1,6 +1,7 @@
 import { refreshInvestibles } from '../contexts/InvestibesContext/investiblesContextHelper';
 import { getFullStage, isFurtherWorkStage } from '../contexts/MarketStagesContext/marketStagesContextHelper';
 import {
+  clearInvestibleInProgress,
   reopenAutoclosedInvestibleComments,
   resolveInvestibleComments
 } from '../contexts/CommentsContext/commentsContextHelper';
@@ -21,8 +22,15 @@ export function onInvestibleStageChange(targetStageId, newInv, investibleId, mar
       resolveInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);
     }
   }
-  if (marketPresencesDispatch && isFurtherWorkStage(targetStage)) {
-    marketPresencesDispatch(removeInvestments(marketId, investibleId));
+  if (isFurtherWorkStage(targetStage)) {
+    if (marketPresencesDispatch) {
+      marketPresencesDispatch(removeInvestments(marketId, investibleId));
+    }
+    // The backend clears in_progress on the job's tasks when it returns to the backlog - quick add it
+    // so the task ordering doesn't stay stuck showing in_progress tasks ahead of the others.
+    if (commentsState && commentsDispatch) {
+      clearInvestibleInProgress(investibleId, marketId, commentsState, commentsDispatch);
+    }
   }
   if (fullStage.close_comments_on_entrance && commentsState && commentsDispatch) {
     reopenAutoclosedInvestibleComments(investibleId, marketId, commentsState, commentsDispatch);

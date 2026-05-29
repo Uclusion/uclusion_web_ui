@@ -107,6 +107,20 @@ export function resolveInvestibleComments(investibleId, marketId, state, dispatc
   addMarketComments(dispatch, marketId, resolvedComments);
 }
 
+// Quick add in anticipation of the backend clearing in_progress when a job leaves an active stage,
+// so task ordering (which sorts in_progress first) is correct immediately instead of waiting on the load.
+export function clearInvestibleInProgress(investibleId, marketId, state, dispatch) {
+  const comments = getInvestibleComments(investibleId, marketId, state);
+  const inProgressComments = comments.filter((comment) => comment.in_progress && !comment.deleted);
+  if (_.isEmpty(inProgressComments)) {
+    return;
+  }
+  const clearedComments = inProgressComments.map((comment) => {
+    return { ...comment, in_progress: false };
+  });
+  addMarketComments(dispatch, marketId, clearedComments);
+}
+
 export function addCommentsToMarket(updates, state, dispatch) {
   const ticketCodeItems = [];
   let commonMarketId;

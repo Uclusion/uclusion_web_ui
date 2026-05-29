@@ -572,6 +572,7 @@ const messages = defineMessages({
   poked: 'Poked',
   pokedExplanation: 'This notification was poked by its author to increase urgency.',
   pokedBugExplanation: 'This bug was poked by its author to increase urgency.',
+  pictureBugPlaceholder: 'Picture',
   commentRemoveLabel: 'Delete',
   commentCloseThreadLabel: 'Collapse',
   commentCloseThreadLabelExplanation: 'ctrl+shift+e to globally collapse',

@@ -183,10 +183,13 @@ function BugListItem(props) {
       event.dataTransfer.setData('resolved', 'true');
     }
   }
+  // A comment whose body is just an image strips down to an empty title, which would render a blank row.
+  // Fall back to a "Picture" placeholder so the row stays readable.
+  const displayTitle = _.isEmpty(title) ? intl.formatMessage({ id: 'pictureBugPlaceholder' }) : title;
   const titleWithHelp = toolTipId ? <Tooltip key={`inProgressRowKey${id}`} placement='top'
                                              title={<FormattedMessage id={toolTipId} />}>
-      <Title style={{fontSize: smallFont ? '12px' : undefined}}>{title}</Title></Tooltip> :
-    <Title style={{fontSize: smallFont ? '12px' : undefined}}>{title}</Title>;
+      <Title style={{fontSize: smallFont ? '12px' : undefined}}>{displayTitle}</Title></Tooltip> :
+    <Title style={{fontSize: smallFont ? '12px' : undefined}}>{displayTitle}</Title>;
   return (
     <div key={`fragBugListItem${id}`} onContextMenu={recordPositionToggle}>
       {anchorEl && marketId && (
@@ -245,7 +248,7 @@ function BugListItem(props) {
                   <Chip label={`${replyNum}`} size="small" style={{ marginLeft: '5px', marginRight: '15px',
                     backgroundColor: theme.palette.type === 'dark' ? 'grey' : 'white' }}/>
                 </Tooltip>: React.Fragment}
-                {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{title}</TitleB>) : titleWithHelp}
+                {isNew ? (<TitleB style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{displayTitle}</TitleB>) : titleWithHelp}
                 {mobileLayout || !date ? React.Fragment : 
                 (isNew ? (<DateLabelBNotHovered style={{ color: theme.palette.type === 'dark' ? 'white' : 'black' }}>{date}</DateLabelBNotHovered>) :
                   (<DateLabelNotHovered>{date}</DateLabelNotHovered>))}
@@ -280,7 +283,7 @@ function BugListItem(props) {
         {expansionPanel || <React.Fragment />}
       </div>
       {!mobileLayout && (
-        <DragImage id={id} name={title} />
+        <DragImage id={id} name={displayTitle} />
       )}
     </div>
   );

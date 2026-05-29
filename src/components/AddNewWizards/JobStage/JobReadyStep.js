@@ -55,7 +55,7 @@ function JobReadyStep(props) {
       <Typography className={classes.introText}>
         Is this job ready to assign?
       </Typography>
-      <JobDescription marketId={marketId} investibleId={investibleId}/>
+      <JobDescription marketId={marketId} investibleId={investibleId} showAssigned={false}/>
       <div style={{ marginBottom: '2rem' }} />
       <FormControl component="fieldset">
         <RadioGroup

@@ -700,12 +700,18 @@ function MarketMetaData(props) {
       const fullMoveStage = getFullStage(marketStagesState, marketId, stageMoveId);
       const requiresClose = requiresCloseComments(fullMoveStage);
       const requiresOtherAction = requiresAction(fullMoveStage, isSingleUser, stagesInfo.isBlocked, yourVote);
-      if (requiresClose || requiresOtherAction) {
+      // A job with no assignee cannot legitimately enter a stage that takes an assignee (allows_assignment
+      // covers exactly Work Ready, Waiting/Approval and Tasks Complete) so send it to the assignment wizard.
+      // Single user keeps auto-assigning the mover to themselves in the direct path below.
+      const requiresAssignment = !isSingleUser && _.isEmpty(assigned) && fullMoveStage.allows_assignment;
+      if (requiresClose || requiresOtherAction || requiresAssignment) {
         let fullStageLink = `${stageLink}&stageId=${stageMoveId}`;
         if (stagesInfo.isInBlocked) {
           fullStageLink = `${fullStageLink}&isBlocked=true`;
         }
-        if (!requiresClose) {
+        if (requiresAssignment) {
+          fullStageLink += '&isAssign=true';
+        } else if (!requiresClose) {
           fullStageLink += '&isAssign=false';
         }
         navigate(history, fullStageLink);

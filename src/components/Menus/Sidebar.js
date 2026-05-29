@@ -47,9 +47,14 @@ function processRegularItem(properties) {
   const isLink = isBold && !isBlue;
   const isActive = isBold && !isSubMenu && isBlue;
   const backgroundColor = isActive ? (isDark ? 'grey' : '#e0e0e0') : undefined;
-  const textRepresentation = isBold ? (<span
+  const textInner = isBold ? (<span
       style={{fontWeight: 'bold', color: isLink ? '#2F80ED' : undefined}}>{text}</span>)
     : <span>{text}</span>;
+  // The sidebar truncates labels (view/group names can be far longer than fits), so show the full
+  // name on hover - below the item, like the avatar does for a user name - when it's long enough to clip.
+  const textRepresentation = text.length > 20 ? (
+    <Tooltip key={`tipFull${textNoSpaces}`} title={text}>{textInner}</Tooltip>
+  ) : textInner;
   const useIdPrepend =  complexIcon ? idPrepend + index : idPrepend;
 
   return (

@@ -57,8 +57,11 @@ public-facing content should mention a known caveat, tone, scope cuts,
 etc.). "I have a default in mind but the user might disagree" is a
 step-2 question, not a silent decision. One tool call per question — do
 not pack multiple questions into one. Provide options when there is a
-discrete set of choices. Call `resolve` on questions you feel have
-already been answered.
+discrete set of choices. 
+
+Call `resolve` on questions you feel have already been answered. Do this
+immediately when you first become satisfied with the answer or otherwise it becomes 
+harder for the user to track what still needs attention.
 
 If you have a preferred choice among the options for a question then
 vote on it to inform the user of your opinion.

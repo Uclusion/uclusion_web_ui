@@ -189,7 +189,7 @@ function Voting(props) {
                 onClick={(event) => {
                   if (isEditable) {
                     setBeingEdited(event);
-                  } else {
+                  } else if (myUseCompression) {
                     toggleCompression();
                   }
                 }}

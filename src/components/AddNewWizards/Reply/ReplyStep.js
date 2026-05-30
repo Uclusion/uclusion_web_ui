@@ -65,7 +65,7 @@ const useStyles = makeStyles(
 );
 
 function ReplyStep(props) {
-  const { marketId, commentId, updateFormData = () => {}, formData = {} } = props;
+  const { marketId, commentId, isSubtask, updateFormData = () => {}, formData = {} } = props;
   const history = useHistory();
   const radioClasses = useStyles();
   const [commentState, commentDispatch] = useContext(CommentsContext);
@@ -81,7 +81,10 @@ function ReplyStep(props) {
   const { comment_type: parentCommentType, created_by: createdById, investible_id: investibleId } = comment;
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const market = getMarket(marketsState, marketId)
-  const showSubTask = market?.market_type === PLANNING_TYPE && parentCommentType === TODO_TYPE && myPresence.id === createdById && investibleId;
+  // isSubtask is set when the non-author "Grouped" button launches this wizard, so they can open a
+  // grouped subtask or note on someone else's task even though they are not the task author.
+  const showSubTask = market?.market_type === PLANNING_TYPE && parentCommentType === TODO_TYPE && investibleId
+    && (myPresence.id === createdById || isSubtask);
   const inv = comment.investible_id ? getInvestible(investibleState, investibleId) : undefined;
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, comment?.group_id);
@@ -89,8 +92,9 @@ function ReplyStep(props) {
   const [commentAddReplyState, updateCommentAddReplyState, commentAddStateReplyReset] =
     getPageReducerPage(commentAddReplyStateFull, commentAddReplyDispatch, commentId);
   const threadAboveIds = getThreadAboveIds(commentId, marketComments);
-  const comments = showSubTask ? investibleComments.filter((aComment) => (aComment.reply_id === commentId || aComment.id === commentId) && 
-    myPresence.id === aComment.created_by) : marketComments.filter((aComment) => threadAboveIds.includes(aComment.id));
+  const comments = showSubTask ? investibleComments.filter((aComment) => aComment.id === commentId ||
+    (aComment.reply_id === commentId && myPresence.id === aComment.created_by)) :
+    marketComments.filter((aComment) => threadAboveIds.includes(aComment.id));
   const marketInfo = getMarketInfo(inv, marketId) || {};
   const { stage, former_stage_id: formerStageId, assigned } = marketInfo;
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};

@@ -11,6 +11,7 @@ import { ISSUE_TYPE, QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE 
 import { CommentsContext } from '../../contexts/CommentsContext/CommentsContext';
 import { getComment, getCommentRoot } from '../../contexts/CommentsContext/commentsContextHelper';
 import { PLANNING_TYPE } from '../../constants/markets';
+import { BLUE_LEVEL } from '../../constants/notifications';
 
 function CommentReplyEdit(props) {
   const { hidden } = props;
@@ -26,8 +27,8 @@ function CommentReplyEdit(props) {
   const rootComment = getCommentRoot(commentsState, marketId, commentId);
   const market = getMarket(marketsState, marketId);
   const isPlanning = market?.market_type === PLANNING_TYPE;
-  const isSubTask = rootComment?.id !== commentId && rootComment?.comment_type === TODO_TYPE && rootComment?.investible_id 
-  && comment.created_by === rootComment?.created_by && isPlanning;
+  const isSubTask = rootComment?.id !== commentId && rootComment?.comment_type === TODO_TYPE && rootComment?.investible_id
+  && (comment.created_by === rootComment?.created_by || comment.notification_type === BLUE_LEVEL) && isPlanning;
   const loading = !marketId || marketsState.initializing || !marketTokenLoaded(marketId, tokensHash);
   if (loading) {
     // Cannot allow Quill to try to display a picture without a market token

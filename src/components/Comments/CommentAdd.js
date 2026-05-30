@@ -46,7 +46,7 @@ import {
 import { DECISION_TYPE, INITIATIVE_TYPE, PLANNING_TYPE } from '../../constants/markets'
 import { addMarket, getMarket } from '../../contexts/MarketsContext/marketsContextHelper'
 import TokenStorageManager from '../../authorization/TokenStorageManager'
-import { NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
+import { BLUE_LEVEL, NOT_FULLY_VOTED_TYPE } from '../../constants/notifications'
 import WizardStepButtons from '../InboxWizards/WizardStepButtons'
 import AddWizardStepButtons from '../AddNewWizards/WizardStepButtons'
 import { formInvestibleLink, navigate } from '../../utils/marketIdPathFunctions';
@@ -437,11 +437,11 @@ function CommentAdd(props) {
               {...wizardProps}
               validForm={hasValue}
               nextLabel={wizardProps.showSubTask ? 'JobCommentAddTODO' : 'commentAddSendLabel'}
-              onNext={() => handleSave( true)}
+              onNext={() => handleSave( true, wizardProps.showSubTask ? BLUE_LEVEL : undefined)}
               showOtherNext={rootComment?.comment_type !== REPORT_TYPE && wizardProps.parentIsTopLevel &&
                 (ourMarket.market_type !== DECISION_TYPE || rootComment?.comment_type !== TODO_TYPE)}
               otherNextLabel={wizardProps.showSubTask ? 'addAnother' : 'commentAddSendResolve'}
-              onOtherNext={() => handleSave( true, undefined, undefined,
+              onOtherNext={() => handleSave( true, wizardProps.showSubTask ? BLUE_LEVEL : undefined, undefined,
                 true).then(() => {
                 wizardProps.onResolve();
                 if (wizardProps.showSubTask) {

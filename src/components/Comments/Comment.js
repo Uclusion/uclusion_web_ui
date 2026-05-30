@@ -125,7 +125,7 @@ import Reply from './Reply';
 import { isLargeDisplay, stripHTML } from '../../utils/stringFunctions';
 import Gravatar from '../Avatars/Gravatar';
 import styled from 'styled-components';
-import { NOT_FULLY_VOTED_TYPE, RED_LEVEL, UNASSIGNED_TYPE } from '../../constants/notifications';
+import { BLUE_LEVEL, NOT_FULLY_VOTED_TYPE, RED_LEVEL, UNASSIGNED_TYPE } from '../../constants/notifications';
 import NotificationDeletion from '../../pages/Home/YourWork/NotificationDeletion';
 import { dehighlightMessage, getInboxTarget } from '../../contexts/NotificationsContext/notificationsContextHelper';
 import EditIcon from '@material-ui/icons/Edit';
@@ -519,7 +519,9 @@ function isSubTask(comment, commentsState, isPlanning) {
   if (parent.comment_type !== TODO_TYPE) {
     return false;
   }
-  return parent.created_by === comment.created_by;
+  // A reply authored by someone other than the task author is still a grouped subtask when it
+  // carries the BLUE notification level - REPLY + BLUE uniquely identifies a grouped task/note.
+  return parent.created_by === comment.created_by || comment.notification_type === BLUE_LEVEL;
 }
 
 /**
@@ -870,6 +872,9 @@ function Comment(props) {
   const showUnmute = !removeActions && myInlinePresence.abstain && !resolved && enableActions
     && ([QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(commentType));
   const showSubTask = isTask && myPresence === createdBy;
+  // On a task authored by someone else the single button stays a plain "Reply"; offer a separate
+  // "Grouped" button beside it so a non-author can still open a grouped subtask or note.
+  const showSubTaskButton = isTask && myPresence !== createdBy;
   const isDeletable = !isInbox && !beingEdited;
   const linker = 
     <div style={{marginRight: '1rem', marginTop: '-0.6rem'}}>
@@ -1143,6 +1148,18 @@ function Comment(props) {
                 doSpin={false}
               >
                 {!mobileLayout && intl.formatMessage({ id: showSubTask ? 'commentSubTaskLabel' : (thisIsMyNote ? 'addNote' : 'commentReplyLabel') })} {hasReply(comment) && <EditIcon />}
+              </SpinningIconLabelButton>
+            )}
+            {isSent !== false && enableEditing && !removeActions && showSubTaskButton && (
+              <SpinningIconLabelButton
+                onClick={() => navigate(history, `${formWizardLink(REPLY_WIZARD_TYPE, marketId,
+                  undefined, undefined, id, typeObjectId)}&isSubtask=true`)}
+                icon={AddIcon}
+                iconOnly={mobileLayout}
+                id={`commentSubTaskButton${id}`}
+                doSpin={false}
+              >
+                {!mobileLayout && intl.formatMessage({ id: 'commentSubTaskLabel' })}
               </SpinningIconLabelButton>
             )}
             {(!investibleId || isNote) && !removeActions && enableEditing && !mobileLayout && (

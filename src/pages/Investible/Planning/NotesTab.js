@@ -49,19 +49,17 @@ function NotesTab(props) {
     <div>
       {days.map((day) => (
         <div key={day.dayKey} style={{ marginBottom: '2rem' }}>
-          {!_.isEmpty(day.jobLevelNotes) && (
-            <Typography
-              variant="h6"
-              style={{
-                marginTop: '1rem',
-                marginBottom: '0.5rem',
-                paddingBottom: '0.25rem',
-                borderBottom: `1px solid ${theme.palette.divider}`
-              }}
-            >
-              {formatDayLabel(day.dayKey, viewerTz)}
-            </Typography>
-          )}
+          <Typography
+            variant="h6"
+            style={{
+              marginTop: '1rem',
+              marginBottom: '0.5rem',
+              paddingBottom: '0.25rem',
+              borderBottom: `1px solid ${theme.palette.divider}`
+            }}
+          >
+            {formatDayLabel(day.dayKey, viewerTz)}
+          </Typography>
           {!_.isEmpty(day.jobLevelNotes) && (
             <div style={{ marginBottom: '1rem' }}>
               <CommentBox

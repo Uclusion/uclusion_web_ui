@@ -34,6 +34,11 @@ SCRIPT_INSTALL_DIR = os.path.join(
 )
 SYMLINK_DIR = '/usr/local/bin'
 
+# Connect/read timeout (seconds) for every network fetch. Without it a stalled
+# TLS handshake or read blocks urlopen forever and the installer has to be
+# Ctrl-C'd; with it the fetch raises and we fail gracefully instead.
+HTTP_TIMEOUT = 15
+
 # Each entry maps (source filename served by Uclusion, installed filename,
 # symlink name in SYMLINK_DIR). The CLI is downloaded as ``uclusionCLI.py``,
 # installed as ``uclusion.py``, and exposed on ``PATH`` simply as ``uclusion``.
@@ -78,7 +83,7 @@ def get_scripts_base_url(env):
 
 def download_to(url, dest_path):
     print(f"  ⬇️  Downloading {url}")
-    with urllib.request.urlopen(url) as response:
+    with urllib.request.urlopen(url, timeout=HTTP_TIMEOUT) as response:
         if response.status != 200:
             raise RuntimeError(f"Failed to download {url}: status {response.status}")
         with open(dest_path, 'wb') as out:
@@ -374,7 +379,50 @@ def prompt_yes_no(question):
     return answer.strip().lower() in ('y', 'yes')
 
 
-def install_workflow_md(env, target_path, client_label, require_dir=None):
+def make_workflow_md_fetcher(env):
+    """Return a callable that downloads ``CLAUDE.md`` at most once and caches it.
+
+    The same ``CLAUDE.md`` feeds three surfaces in one run — ``~/.claude/CLAUDE.md``,
+    the Cursor ``.mdc``, and ``~/.codex/AGENTS.md`` — so we fetch it lazily on first
+    need and memoize the result (including a failure) instead of pulling the identical
+    URL three times. Lazy means a user who declines every prompt triggers no network
+    call; memoizing a failure means a single bounded timeout, not one per surface.
+    Returns the marker-validated, newline-terminated content, or ``None`` on any
+    download/validation failure.
+    """
+    base_url = get_scripts_base_url(env)
+    url = base_url + 'CLAUDE.md'
+    cache = {}
+
+    def fetch():
+        if 'result' in cache:
+            return cache['result']
+
+        print(f"  ⬇️  Downloading {url}")
+        try:
+            with urllib.request.urlopen(url, timeout=HTTP_TIMEOUT) as response:
+                if response.status != 200:
+                    raise RuntimeError(f"status {response.status}")
+                content = response.read().decode('utf-8')
+        except Exception as err:
+            print(f"  ❌ Failed to download {url}: {err}")
+            cache['result'] = None
+            return None
+
+        if CLAUDE_MD_MARKER not in content or CLAUDE_MD_END_MARKER not in content:
+            print(f"  ❌ Downloaded CLAUDE.md is missing the workflow markers; refusing to write.")
+            cache['result'] = None
+            return None
+
+        if not content.endswith('\n'):
+            content += '\n'
+        cache['result'] = content
+        return content
+
+    return fetch
+
+
+def install_workflow_md(fetch_md, target_path, client_label, require_dir=None):
     """Install or refresh the Uclusion workflow block in ``target_path``.
 
     Used for both ``~/.claude/CLAUDE.md`` (Claude Code) and ``~/.codex/AGENTS.md``
@@ -383,14 +431,12 @@ def install_workflow_md(env, target_path, client_label, require_dir=None):
     block is delimited by ``CLAUDE_MD_MARKER`` and ``CLAUDE_MD_END_MARKER`` so
     that on reruns we can replace it in place without disturbing anything the
     user appended afterwards. ``require_dir`` gates the install on a directory
-    existing (Codex's ``~/.codex``) rather than on the target file.
+    existing (Codex's ``~/.codex``) rather than on the target file. ``fetch_md``
+    supplies the (shared, cached) CLAUDE.md content.
     """
     if require_dir is not None and not os.path.isdir(require_dir):
         print(f"ℹ️  No {require_dir} found; skipping {client_label} workflow file.")
         return
-
-    base_url = get_scripts_base_url(env)
-    url = base_url + 'CLAUDE.md'
 
     exists = os.path.exists(target_path)
     existing = ''
@@ -428,22 +474,9 @@ def install_workflow_md(env, target_path, client_label, require_dir=None):
         print(f"  ⏭  Skipped {os.path.basename(target_path)} update.")
         return
 
-    print(f"  ⬇️  Downloading {url}")
-    try:
-        with urllib.request.urlopen(url) as response:
-            if response.status != 200:
-                raise RuntimeError(f"status {response.status}")
-            content = response.read().decode('utf-8')
-    except Exception as err:
-        print(f"  ❌ Failed to download {url}: {err}")
+    content = fetch_md()
+    if content is None:
         return
-
-    if CLAUDE_MD_MARKER not in content or CLAUDE_MD_END_MARKER not in content:
-        print(f"  ❌ Downloaded CLAUDE.md is missing the workflow markers; refusing to write.")
-        return
-
-    if not content.endswith('\n'):
-        content += '\n'
 
     if action == 'replace':
         start_idx = existing.find(CLAUDE_MD_MARKER)
@@ -469,18 +502,15 @@ def install_workflow_md(env, target_path, client_label, require_dir=None):
         print(f"  ❌ Could not write {target_path}: {err}")
 
 
-def install_cursor_mdc(env):
+def install_cursor_mdc(fetch_md):
     """Install or refresh ~/.cursor/rules/uclusion.mdc as a Cursor rule.
 
     The body of the rule is the same workflow markdown that lands in
-    CLAUDE.md — we download CLAUDE.md, strip the install markers, prepend a
-    description-based Cursor frontmatter, and write the result. Keeping
-    CLAUDE.md as the single source of truth means the two surfaces never
-    drift.
+    CLAUDE.md — we take the (shared, cached) CLAUDE.md content, strip the
+    install markers, prepend a description-based Cursor frontmatter, and write
+    the result. Keeping CLAUDE.md as the single source of truth means the two
+    surfaces never drift.
     """
-    base_url = get_scripts_base_url(env)
-    url = base_url + 'CLAUDE.md'
-
     exists = os.path.exists(CURSOR_MDC_PATH)
     if exists:
         print(f"📝 Found existing {CURSOR_MDC_PATH}")
@@ -495,18 +525,8 @@ def install_cursor_mdc(env):
         print("  ⏭  Skipped uclusion.mdc update.")
         return
 
-    print(f"  ⬇️  Downloading {url}")
-    try:
-        with urllib.request.urlopen(url) as response:
-            if response.status != 200:
-                raise RuntimeError(f"status {response.status}")
-            content = response.read().decode('utf-8')
-    except Exception as err:
-        print(f"  ❌ Failed to download {url}: {err}")
-        return
-
-    if CLAUDE_MD_MARKER not in content or CLAUDE_MD_END_MARKER not in content:
-        print(f"  ❌ Downloaded CLAUDE.md is missing the workflow markers; refusing to write.")
+    content = fetch_md()
+    if content is None:
         return
 
     start_idx = content.find(CLAUDE_MD_MARKER) + len(CLAUDE_MD_MARKER)
@@ -557,9 +577,10 @@ def main():
         update_cursor_mcp(workspace_id, mcp_env)
         update_claude_json_mcp(workspace_id, mcp_env)
         update_codex_config(workspace_id, mcp_env)
-        install_workflow_md(env, CLAUDE_MD_PATH, 'Claude Code')
-        install_cursor_mdc(env)
-        install_workflow_md(env, CODEX_AGENTS_MD_PATH, 'Codex', require_dir=CODEX_HOME)
+        fetch_md = make_workflow_md_fetcher(env)
+        install_workflow_md(fetch_md, CLAUDE_MD_PATH, 'Claude Code')
+        install_cursor_mdc(fetch_md)
+        install_workflow_md(fetch_md, CODEX_AGENTS_MD_PATH, 'Codex', require_dir=CODEX_HOME)
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")
         return 1

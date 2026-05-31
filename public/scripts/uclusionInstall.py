@@ -12,7 +12,9 @@ on ``PATH`` via a ``uclusion`` symlink, so users invoke it simply as
 
 Also writes a workspace config to ``~/.uclusion/uclusion.json`` and registers
 the Uclusion MCP server in ``~/.cursor/mcp.json`` and ``~/.claude.json`` if
-those files already exist.
+those files already exist, and in ``~/.codex/config.toml`` if the ``~/.codex``
+directory exists (Codex treats ``config.toml`` as optional, so directory
+presence — not file presence — is the install signal).
 """
 import argparse
 import json
@@ -56,6 +58,13 @@ CURSOR_MDC_FRONTMATTER = (
     '---\n'
 )
 MCP_PROXY_SYMLINK_PATH = os.path.join(SYMLINK_DIR, 'uclusionMCPProxy.py')
+CODEX_HOME = os.path.join(os.path.expanduser('~'), '.codex')
+CODEX_CONFIG_PATH = os.path.join(CODEX_HOME, 'config.toml')
+CODEX_AGENTS_MD_PATH = os.path.join(CODEX_HOME, 'AGENTS.md')
+# The MCP table we manage in config.toml is delimited by TOML comment markers so
+# reruns can replace it in place without disturbing the user's other settings.
+CODEX_CONFIG_MARKER = '# uclusion-mcp:v1'
+CODEX_CONFIG_END_MARKER = '# /uclusion-mcp:v1'
 
 
 def get_scripts_base_url(env):
@@ -240,6 +249,93 @@ def update_claude_json_mcp(workspace_id, env):
     print(f"  ✅ Updated {CLAUDE_JSON_PATH}")
 
 
+def build_codex_mcp_block(workspace_id, env):
+    """Return the marker-delimited ``[mcp_servers.Uclusion]`` table for config.toml.
+
+    There is no TOML writer in the standard library (``tomllib`` only reads, and
+    only on 3.11+), and the installer must run standalone via ``curl | bash`` with
+    nothing but ``python3``. The table is fixed-shape, so we render the text from a
+    template rather than parse-and-reserialize — which also preserves any comments
+    and formatting the user has elsewhere in the file.
+    """
+    lines = [
+        CODEX_CONFIG_MARKER,
+        '[mcp_servers.Uclusion]',
+        'command = "python3"',
+        'args = [',
+        f'    "{MCP_PROXY_SYMLINK_PATH}",',
+        f'    "{workspace_id}",',
+    ]
+    if env is not None:
+        lines.append(f'    "{env}",')
+    lines.append(']')
+    lines.append(CODEX_CONFIG_END_MARKER)
+    return '\n'.join(lines) + '\n'
+
+
+def update_codex_config(workspace_id, env):
+    """Register the Uclusion MCP server in ``~/.codex/config.toml``.
+
+    Gated on the ``~/.codex`` directory rather than the file: Codex creates the
+    directory on login but leaves ``config.toml`` optional, so requiring the file
+    (as the Cursor/Claude paths do for their JSON) would skip most real users.
+    Our table is appended at the end of the file behind comment markers and, on
+    reruns, stripped and re-appended at the end so it never captures trailing
+    keys the user added after it.
+    """
+    if not os.path.isdir(CODEX_HOME):
+        print(f"ℹ️  No {CODEX_HOME} found; skipping Codex MCP server registration.")
+        return
+
+    print(f"🧩 Registering Uclusion MCP server in {CODEX_CONFIG_PATH}")
+    existing = ''
+    if os.path.exists(CODEX_CONFIG_PATH):
+        try:
+            with open(CODEX_CONFIG_PATH, 'r', encoding='utf-8') as src:
+                existing = src.read()
+        except OSError as err:
+            print(f"  ❌ Could not read {CODEX_CONFIG_PATH}: {err}")
+            return
+
+    has_start = CODEX_CONFIG_MARKER in existing
+    has_end = CODEX_CONFIG_END_MARKER in existing
+    if has_start != has_end:
+        which = 'start' if has_start else 'end'
+        print(f"  ❌ {CODEX_CONFIG_PATH} has the Uclusion {which} marker but not its")
+        print(f"      counterpart; refusing to modify. Remove the orphan marker and re-run.")
+        return
+
+    if not has_start and '[mcp_servers.Uclusion]' in existing:
+        print(f"  ⏭  {CODEX_CONFIG_PATH} already defines [mcp_servers.Uclusion] outside the")
+        print(f"      Uclusion markers; leaving it untouched to avoid a duplicate table.")
+        return
+
+    block = build_codex_mcp_block(workspace_id, env)
+
+    if has_start:
+        start_idx = existing.find(CODEX_CONFIG_MARKER)
+        end_idx = existing.find(CODEX_CONFIG_END_MARKER, start_idx) + len(CODEX_CONFIG_END_MARKER)
+        if end_idx < len(existing) and existing[end_idx] == '\n':
+            end_idx += 1
+        remainder = (existing[:start_idx] + existing[end_idx:]).rstrip()
+        updated = (remainder + '\n\n' + block) if remainder else block
+        verb = 'Refreshed Uclusion MCP server in'
+    elif existing.strip():
+        sep = '' if existing.endswith('\n') else '\n'
+        updated = existing + sep + '\n' + block
+        verb = 'Added Uclusion MCP server to'
+    else:
+        updated = block
+        verb = 'Added Uclusion MCP server to'
+
+    try:
+        with open(CODEX_CONFIG_PATH, 'w', encoding='utf-8') as out:
+            out.write(updated)
+        print(f"  ✅ {verb} {CODEX_CONFIG_PATH}")
+    except OSError as err:
+        print(f"  ❌ Could not write {CODEX_CONFIG_PATH}: {err}")
+
+
 def prompt_yes_no(question):
     """Prompt for a y/N answer; return True only on explicit yes.
 
@@ -278,24 +374,32 @@ def prompt_yes_no(question):
     return answer.strip().lower() in ('y', 'yes')
 
 
-def append_claude_md(env):
-    """Install or refresh the Uclusion workflow block in the user's CLAUDE.md.
+def install_workflow_md(env, target_path, client_label, require_dir=None):
+    """Install or refresh the Uclusion workflow block in ``target_path``.
 
-    The block is delimited by ``CLAUDE_MD_MARKER`` and ``CLAUDE_MD_END_MARKER``
-    so that on reruns we can replace it in place without disturbing anything
-    the user appended afterwards.
+    Used for both ``~/.claude/CLAUDE.md`` (Claude Code) and ``~/.codex/AGENTS.md``
+    (Codex); both clients read a plain-Markdown instructions file and use the
+    same delimited block so the workflow text never drifts between surfaces. The
+    block is delimited by ``CLAUDE_MD_MARKER`` and ``CLAUDE_MD_END_MARKER`` so
+    that on reruns we can replace it in place without disturbing anything the
+    user appended afterwards. ``require_dir`` gates the install on a directory
+    existing (Codex's ``~/.codex``) rather than on the target file.
     """
+    if require_dir is not None and not os.path.isdir(require_dir):
+        print(f"ℹ️  No {require_dir} found; skipping {client_label} workflow file.")
+        return
+
     base_url = get_scripts_base_url(env)
     url = base_url + 'CLAUDE.md'
 
-    exists = os.path.exists(CLAUDE_MD_PATH)
+    exists = os.path.exists(target_path)
     existing = ''
     if exists:
         try:
-            with open(CLAUDE_MD_PATH, 'r', encoding='utf-8') as src:
+            with open(target_path, 'r', encoding='utf-8') as src:
                 existing = src.read()
         except OSError as err:
-            print(f"  ❌ Could not read {CLAUDE_MD_PATH}: {err}")
+            print(f"  ❌ Could not read {target_path}: {err}")
             return
 
     has_start = CLAUDE_MD_MARKER in existing
@@ -303,25 +407,25 @@ def append_claude_md(env):
 
     if has_start != has_end:
         which = 'start' if has_start else 'end'
-        print(f"  ❌ {CLAUDE_MD_PATH} has the Uclusion {which} marker but not its")
+        print(f"  ❌ {target_path} has the Uclusion {which} marker but not its")
         print(f"      counterpart; refusing to modify. Remove the orphan marker and re-run.")
         return
 
     if has_start:
-        print(f"📝 Found Uclusion workflow block in {CLAUDE_MD_PATH}")
+        print(f"📝 Found Uclusion workflow block in {target_path}")
         action = 'replace'
-        prompt = f"  Refresh Uclusion job workflow in {CLAUDE_MD_PATH}?"
+        prompt = f"  Refresh Uclusion job workflow in {target_path}?"
     elif exists:
-        print(f"📝 Found existing {CLAUDE_MD_PATH}")
+        print(f"📝 Found existing {target_path}")
         action = 'append'
-        prompt = f"  Append Uclusion job workflow to {CLAUDE_MD_PATH}?"
+        prompt = f"  Append Uclusion job workflow to {target_path}?"
     else:
-        print(f"📝 No {CLAUDE_MD_PATH} found.")
+        print(f"📝 No {target_path} found.")
         action = 'create'
-        prompt = f"  Create {CLAUDE_MD_PATH} with Uclusion job workflow?"
+        prompt = f"  Create {target_path} with Uclusion job workflow?"
 
     if not prompt_yes_no(prompt):
-        print("  ⏭  Skipped CLAUDE.md update.")
+        print(f"  ⏭  Skipped {os.path.basename(target_path)} update.")
         return
 
     print(f"  ⬇️  Downloading {url}")
@@ -357,12 +461,12 @@ def append_claude_md(env):
         verb = 'Wrote'
 
     try:
-        os.makedirs(os.path.dirname(CLAUDE_MD_PATH), exist_ok=True)
-        with open(CLAUDE_MD_PATH, 'w', encoding='utf-8') as out:
+        os.makedirs(os.path.dirname(target_path), exist_ok=True)
+        with open(target_path, 'w', encoding='utf-8') as out:
             out.write(updated)
-        print(f"  ✅ {verb} {CLAUDE_MD_PATH}")
+        print(f"  ✅ {verb} {target_path}")
     except OSError as err:
-        print(f"  ❌ Could not write {CLAUDE_MD_PATH}: {err}")
+        print(f"  ❌ Could not write {target_path}: {err}")
 
 
 def install_cursor_mdc(env):
@@ -452,8 +556,10 @@ def main():
         mcp_env = None if env == 'production' else env
         update_cursor_mcp(workspace_id, mcp_env)
         update_claude_json_mcp(workspace_id, mcp_env)
-        append_claude_md(env)
+        update_codex_config(workspace_id, mcp_env)
+        install_workflow_md(env, CLAUDE_MD_PATH, 'Claude Code')
         install_cursor_mdc(env)
+        install_workflow_md(env, CODEX_AGENTS_MD_PATH, 'Codex', require_dir=CODEX_HOME)
     except subprocess.CalledProcessError as err:
         print(f"❌ Command failed: {err}")
         return 1

@@ -59,9 +59,12 @@ step-2 question, not a silent decision. One tool call per question — do
 not pack multiple questions into one. Provide options when there is a
 discrete set of choices. 
 
-Call `resolve` on questions you feel have already been answered. Do this
-immediately when you first become satisfied with the answer or otherwise it becomes 
-harder for the user to track what still needs attention.
+A question counts as answered when there is a "For" vote on one of its options that is not 
+marked "From AI user" or when a not AI user has replied in the question with a clear direction.
+Call `resolve` on questions you feel have already been answered. 
+
+Do this immediately when you first become aware the question is answered
+or otherwise it is harder for the user to see what needs attention.
 
 If you have a preferred choice among the options for a question then
 vote on it to inform the user of your opinion.
@@ -82,9 +85,6 @@ instead of silently doing something different.
 
 If some tasks in the job are completely disjoint from other tasks you may ask the user about starting 
 them before questions on the other tasks are answered.
-
-A question counts as answered when there is a "For" vote on one of its options that is not 
-marked "From AI user" or when a not AI user has replied in the question with a clear direction.
 
 ### 4. Approve - only applies if job is in stage "In Dialog" and there is no "From AI user" approval at the job level.
 

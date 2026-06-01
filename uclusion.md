@@ -1,8 +1,8 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#j-marketing-15)| [Backend worst issues](#j-all-293)| 06/06| [Tighten up rules.](#j-all-299)|  |
-| [Can we do better than the existing option UI?](#j-all-303)| [Try in plan mode and change CLAUDE.md if plans don't get written to notes.](#j-all-302)| 06/04| [AI notifications stuff](#j-all-294)|  |
-| [More upgrading.](#j-all-286)| | | [Fix documentation for notes, AI, and everyone view..](#j-all-290)|  |
+| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#j-marketing-15)| [Uclusion is how you collaborate with AI.](#j-all-283)| 05/27| [Tighten up rules.](#j-all-299)|  |
+| [Can we do better than the existing option UI?](#j-all-303)| [Backend worst issues](#j-all-293)| 06/06| [AI notifications stuff](#j-all-294)|  |
+| [More upgrading.](#j-all-286)| [Try in plan mode and change CLAUDE.md if plans don't get written to notes.](#j-all-302)| 06/04| [Fix documentation for notes, AI, and everyone view..](#j-all-290)|  |
 | | | | [Better archive.](#j-all-230)|  |
 | | | | [Bugs B-all-405, B-all-404, B-all-402, T-all-1838, T-all-1808](#j-all-298)|  |
 | | | | [Either fix tip of spear blog of have new tip of spear which shows detail of...](#j-all-292)|  |
@@ -10,7 +10,6 @@
 | | | | [Fix that the Grouped button is not available on someone else's task because...](#j-all-301)| Deployed to stage |
 | | | | [Issues with view creation.](#j-all-289)|  |
 | | | | [Support progress on a task that are notes instead of things you complete](#j-all-284)|  |
-| | | | [Uclusion is how you collaborate with AI.](#j-all-283)|  |
 | | | | [Bugs T-all-1442](#j-all-300)|  |
 | | | | [Bugs B-all-424, B-all-423, B-all-422, B-all-420, B-all-421, B-all-419, B-all-418](#j-all-288)|  |
 | | | | [Problems with approvals.](#j-all-297)|  |
@@ -1495,6 +1494,9 @@ This job is in stage Accepted.
 #### Question Q-all-83<a name="q-all-83"></a> 
 What should the improved option UI optimize for in this pass?
 
+> ##### Reply C-all-937<a name="c-all-937"></a> 
+Implementation is blocked until this question has a human answer or vote. My recommended direction remains O-1, High-density AI workflow, because the job calls out frequent AI-user use and that points toward compact scanning, clearer option status, and faster repeated voting/review.
+
 ### Option O-3<a name="o-3"></a>
 ### Bigger interaction redesign
 Rework option presentation and controls more substantially, accepting a larger UI change and higher review surface.
@@ -1517,6 +1519,13 @@ This job is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
 The job explicitly calls out AI users who will use this interface frequently, so a compact, scannable option UI is likely the highest-value direction for this pass.
 
+#### Assistance 
+#### Question Q-1<a name="q-1"></a> 
+Can you make more clear how this option is different from the screenshot included in the job?
+
+> ##### Reply C-1<a name="c-1"></a> 
+O-1 should differ from the screenshot by reducing each option from a large separated card to a compact scannable row or tight panel: status/vote signal is visible at the left edge, option title and key text are grouped in one reading path, repeated actions are aligned in a predictable control column, and secondary metadata/reasons are visually quieter until needed. The screenshot still reads like a general card UI where every option competes for vertical space; O-1 is specifically a high-throughput review/voting layout for users scanning many options repeatedly.
+
 ## Job J-all-286<a name="j-all-286"></a>
 ### More upgrading.
 
@@ -1531,6 +1540,2165 @@ And check emails also.
 
 
 This job is in stage Further Work.
+## Job J-all-283<a name="j-all-283"></a>
+### Uclusion is how you collaborate with AI.
+The only reason some solo devs have to write anything down is AI. Have AI take a job from CLI and communicate it's plan through the job - ask questions with options and vote on best option, make suggestions when have an idea for changing the job, add tasks, add grouped tasks at code level like it's current plan, and of course blockers if it is stuck.
+
+
+
+
+Going with secret key instead of full Oauth stuff <https://upstash.com/blog/mcp-oauth-implementation> :
+
+<https://www.truefoundry.com/blog/mcp-authentication-in-cursor-oauth-api-keys-and-secure-configuration> - shows Cursor will handle everything from a discovery flow
+
+<https://www.mintlify.com/upstash/context7/mcp/configuration> - verifies this worked in real life.
+
+
+This job is in stage Accepted.
+#### From AI user:
+> ##### $${\color{lightgreen} Reason \space For}$$ E-all-54<a name="e-all-54"></a>
+Approving the job. Strong value: tightening CLAUDE.md (T-2106 precondition at step 5, T-2107 don't-offer-approval-with-open-questions) directly fixes the failure modes you've actually seen in this session and in T-all-2073. Bundling the Cursor `.mdc` install (T-2101) onto the same install code path that already handles `~/.claude/CLAUDE.md` is cheap and broadens reach to Cursor users without duplicating workflow text. Doc update (T-2100) catches the existing gap where `mcp.md` doesn't mention the workflow MD file install at all. One point off for: (a) the user-global `~/.cursor/rules/uclusion.mdc` location is a forward-compat bet — needs verification on a clean Cursor install that the file actually loads from there; if not, follow-up to add a per-project drop is needed. (b) `description:`-based activation in Cursor relies on Cursor's matcher firing on prompts like "work on J-all-283" — robustness depends on how aggressive Cursor's rule matcher is.
+
+#### Reports 
+#### Report R-all-104<a name="r-all-104"></a> 
+All four active tasks (T-all-2106, T-all-2107, T-all-2101, T-all-2100) are implemented. Diff is local — not yet committed.
+
+**`public/scripts/CLAUDE.md`** — three changes in one file:
+
+1. **T-all-2107**: Added a bold "Precondition" paragraph at the top of step 4 that blocks offering approval while any question on the job is still open and unanswered.
+2. **T-all-2106**: Added a bold "Before doing ANY work in this step" precondition checklist at the top of step 5, covering both open-but-answered questions AND tasks that turn out to be already done (the second bullet directly addresses T-all-2073).
+3. **T-all-2101 (copyright)**: Added `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->` on line 2, *inside* the workflow markers so it propagates into users' `~/.claude/CLAUDE.md` on install.
+
+
+**`public/scripts/uclusionInstall.py`** — new install path for the Cursor rule:
+
+1. Added `CURSOR_MDC_PATH = ~/.cursor/rules/uclusion.mdc` and a `CURSOR_MDC_FRONTMATTER` constant (description-based, `alwaysApply: false`).
+2. New `install_cursor_mdc(env)` function: downloads `CLAUDE.md` from the env-specific scripts URL, strips the workflow markers, prepends the frontmatter, and writes the result. y/N prompt before write, mirroring `append_claude_md`.
+3. Wired into `main()` after `append_claude_md`.
+4. **No separate `uclusion.mdc` source file is checked in** — per your direction during execution, CLAUDE.md remains the single source of truth and the mdc is generated at install time. See R-all-103 for the full rationale.
+
+
+**`uclusion-documentation/content/en/Github and CLI integrations/mcp.md`** — T-all-2100:
+
+1. Added a new "Workflow rule files" section between Configuration and Tools.
+2. Documents that the installer offers to drop the workflow MD into `~/.claude/CLAUDE.md` (Claude Code) and `~/.cursor/rules/uclusion.mdc` (Cursor), both prompted, both refresh-safe via the `<!-- uclusion-workflow:v1 -->` marker.
+
+
+**Testable now:**
+
+1. Read the diff on `public/scripts/CLAUDE.md` — the two preconditions are visually distinct (bold + "ANY work" / "NOT offer") and reinforce each other (step 4 blocks approval, step 5 blocks execution).
+2. Render `uclusion-documentation/.../mcp.md` locally to see the new "Workflow rule files" section in context.
+3. The install script can be exercised end-to-end against a stage deploy: run `install.sh <workspaceId> stage` from a clean `$HOME` and confirm both prompts fire, both files land, and a re-run offers refresh rather than duplicating.
+
+
+**Open follow-up to verify (not blocking this review):**
+
+1. Whether `~/.cursor/rules/uclusion.mdc` actually loads in current Cursor. The docs only document `.cursor/rules/` per-project. If it doesn't load, the follow-up is to add a per-project drop alongside (the Q-all-69 O-3 hybrid).
+
+#### Tasks 
+#### Task T-all-2134<a name="t-all-2134"></a> 
+Deploy and test - do report and then pick up with UI job to see if AI knows not to resolve.
+
+
+
+
+**Then not doing the job as its design is stupid.**
+
+#### Resolved 
+#### Resolved Task T-all-2065<a name="t-all-2065"></a> 
+Need to encourage it to resolve tasks that are done and resolve questions that are through with.
+
+#### Resolved Task C-all-854<a name="c-all-854"></a> 
+For secret keys need to make sure banned check happens as currently does in
+
+
+
+
+<https://github.com/Uclusion/uclusion_common/blob/5ef9a6a61b390cd16c945282b6e9abb8cff59383/ucommon/handlers/abstract_request_handler.py#L102>
+
+#### Resolved Task C-all-870<a name="c-all-870"></a> 
+So need a get_task which only gets a task into a context in case you put a prompt there - need to work however they work.
+
+
+
+
+**Maybe task gets task and job gets job? Cause task gets job means AI will think is on task as it won't get this surrounding thing thing.**
+
+
+
+
+But then tricky cause do you get the job for question you want answered and then ask it to answer the question? Kind of requires a lot of skill for the user. Is getting the full job really going to fill the context too much or distract? **Also a user of the UI would never have only a comment in a job without seeing the job.**
+
+#### Resolved Task C-all-882<a name="c-all-882"></a> 
+Screen the AI user out of get followers of job method - won't be in any views.
+
+#### Resolved Task T-all-2003<a name="t-all-2003"></a> 
+Have to output everything the AI puts out so that people can see the "thinking".
+
+#### Resolved Task T-all-2072<a name="t-all-2072"></a> 
+Test suggestion and progress report from CLI.
+
+#### Resolved Task T-all-2102<a name="t-all-2102"></a> 
+Add to the md file that resolved means resolved and don't try to do those again.
+
+#### Resolved Task C-all-851<a name="c-all-851"></a> 
+<https://cursor.com/docs/mcp> has the example we want (possibly with scopes added):
+
+
+
+
+```
+{
+```
+
+```
+"mcpServers": {
+```
+
+```
+"uclusion-mcp-proxy": {
+```
+
+```
+"command": "python3",
+```
+
+```
+"args": ["/home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
+```
+
+```
+}
+```
+
+```
+}
+```
+
+```
+}
+```
+
+
+
+
+We want that one cause don't want them to do a full Uclusion login with Google, Github, or email/password as would go too many screen deep. Cursor says use this when
+
+
+
+
+1. The provider does not support OAuth 2.0 Dynamic Client Registration
+
+
+
+
+
+Which for Uclusion is true - there is no dynamic way to get your secret keys as shown [here](https://www.scalekit.com/blog/dynamic-client-registration-oauth2).
+
+
+
+
+So to make this work you need and endpoint on https://api.example.com/mcp/.well-known/oauth-authorization-server that:
+
+
+
+
+```
+
+
+
+```
+
+```
+async def token_endpoint(
+```
+
+```
+grant_type: str = Form(...),
+```
+
+```
+client_id: str = Form(None),
+```
+
+```
+client_secret: str = Form(None)
+```
+
+```
+):
+```
+
+```
+"""
+```
+
+```
+Step 2: The Token Exchange.
+```
+
+```
+Cursor POSTs the ID and Secret here. You validate them and return a signed JWT.
+```
+
+```
+"""
+```
+
+```
+if grant_type != "client_credentials":
+```
+
+```
+raise HTTPException(status_code=400, detail="unsupported_grant_type")
+```
+
+```
+  
+```
+
+```
+if client_id != EXPECTED_CLIENT_ID or client_secret != EXPECTED_CLIENT_SECRET:
+```
+
+```
+raise HTTPException(status_code=401, detail="invalid_client")
+```
+
+```
+
+
+
+```
+
+```
+return {
+```
+
+```
+"issuer": base_url,
+```
+
+```
+"token_endpoint": f"{base_url}/token",
+```
+
+```
+# Cursor uses the client_credentials grant for machine-to-machine auth
+```
+
+```
+"grant_types_supported": ["client_credentials"],
+```
+
+```
+"response_types_supported": ["token"],
+```
+
+```
+"token_endpoint_auth_methods_supported": ["client_secret_post"]
+```
+
+```
+}
+```
+
+
+
+
+and another endpoint on https://api.example.com/mcp/token that returns:
+
+
+
+
+```
+return {
+```
+
+```
+"access_token": token,
+```
+
+```
+"token_type": "Bearer",
+```
+
+```
+"expires_in": 3600
+```
+
+```
+}
+```
+
+
+
+
+and of course the actual MCP endpoint on https://api.example.com/mcp that is secured by a normal Uclusion token as any other API - for now could just use <https://github.com/modelcontextprotocol/python-sdk/blob/main/examples/mcpserver/simple_echo.py>
+
+> ##### Grouped task C-all-863<a name="c-all-863"></a> 
+```
+2026-04-13 13:23:30.526 [info] Starting new stdio process with command: python3 /home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py 3a2c3b12-336b-4d72-b36c-fd3a27a884b2 dev
+```
+
+```
+2026-04-13 13:23:33.323 [error] Client error for command [
+```
+
+```
+{
+```
+
+```
+"code": "invalid_union",
+```
+
+```
+"errors": [
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+]
+```
+
+```
+],
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input"
+```
+
+```
+}
+```
+
+```
+]
+```
+
+```
+2026-04-13 13:23:33.323 [warning] [V1] initializing -> error: [
+```
+
+```
+{
+```
+
+```
+"code": "invalid_union",
+```
+
+```
+"errors": [
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+],
+```
+
+```
+[
+```
+
+```
+{
+```
+
+```
+"expected": "object",
+```
+
+```
+"code": "invalid_type",
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input: expected object, received string"
+```
+
+```
+}
+```
+
+```
+]
+```
+
+```
+],
+```
+
+```
+"path": [],
+```
+
+```
+"message": "Invalid input"
+```
+
+```
+}
+```
+
+```
+]
+```
+
+
+
+
+Coming from:
+
+```
+/aws/lambda/uclusion-investible-api-dev-mcp_post 2026/04/13/[$LATEST]da08c828fa524be3a18023325d0a7d14 [INFO]    2026-04-13T20:23:33.325Z        d7b2425f-fff5-4b26-b338-7bbceedc9ed1  {'statusCode': 200, 'body': '"{\\"jsonrpc\\":\\"2.0\\",\\"id\\":0,\\"result\\":{\\"protocolVersion\\":\\"2024-11-05\\",\\"capabilities\\":{},\\"serverInfo\\":{\\"name\\":\\"uclusion-mcp-server\\",\\"version\\":\\"1.0.0\\"}}}"', 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': True}, 'isBase64Encoded': False}
+```
+
+```
+
+
+
+```
+
+```
+
+
+
+```
+
+#### Resolved Task T-all-2034<a name="t-all-2034"></a> 
+Fix 'The CLI you never knew but always wanted' section in general and of course it is 'The MCP and CLI you never knew but always wanted'.
+
+
+
+
+Maybe add a fourth box.
+
+#### Resolved Task T-all-1995<a name="t-all-1995"></a> 
+The prompts explain what the agent should do with the assigned jobs approval - use the description as a prompt to plan and add high level tasks and existing tasks as things that must have grouped tasks plans. **Anything you want handled in its own context should go in its own job - so the tasks are all things that require knowing other things in the job.**
+
+
+
+
+Prompt also explains that if in Work Ready then start on all tasks - marking each one currently doing as in progress and resolving ones that are done.
+
+#### Resolved Task C-all-869<a name="c-all-869"></a> 
+Have MCP server in Cursor be part of this script whenever Cursor is present.
+
+
+
+
+~/.cursor/mcp.json
+
+```
+{
+```
+
+```
+"mcpServers": {
+```
+
+```
+"Uclusion": {
+```
+
+```
+"command": "python3",
+```
+
+```
+"args": ["/user/local/bin/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
+```
+
+```
+}
+```
+
+```
+}
+```
+
+```
+}
+```
+
+#### Resolved Task T-all-2052<a name="t-all-2052"></a> 
+Resolve is missing from the CLI.
+
+#### Resolved Question Q-all-70<a name="q-all-70"></a> 
+For T-all-2101 — what activation mechanism should the `uclusion.mdc` frontmatter use? The task notes "Not sure if can globs always apply somehow for Uclusion jobs." Cursor rules support three modes per cursor.com/docs/rules: `alwaysApply: true`, `globs:` (auto-attach when matching files are in context), and `description:` (Cursor decides whether to include based on the description). The Uclusion workflow trigger is the user saying "work on J-…" in chat — it's not tied to any file extension or path — so globs are a poor fit, but it's a judgment call between alwaysApply and description.
+
+> ##### Reply C-all-923<a name="c-all-923"></a> 
+I was hoping you were going to figure this out - you are kind of turning the task back on me.
+
+### Option O-2<a name="o-2"></a>
+### description: "Uclusion job workflow — invoke when working on a Uclusion job/task/bug short code (J-*, T-*, B-*)"
+Let Cursor pull the rule in only when the prompt looks Uclusion-related. Pros: zero context cost on unrelated prompts; matches the way the workflow is actually triggered (by mentioning a short code). Cons: relies on Cursor's matcher firing correctly — if the user says something subtle like "continue with that job" without a short code, the rule may not load. Mitigated by the fact that the workflow really only matters once a short code is mentioned.
+
+
+This job is in stage In Dialog.
+#### From AI user:
+> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+Going with O-2 (description-based) since you asked me to pick. The Uclusion workflow trigger is the user mentioning a J-/T-/B- short code in chat — it's not tied to file extensions, so globs don't fit, and `alwaysApply: true` would burn Cursor context tokens on every unrelated prompt (a refactor request, a config change, etc.). Description-based loading is the natural fit: Cursor pulls the rule in when the prompt looks Uclusion-related, free otherwise. The downside (subtle phrasings like "continue with that job" without a short code may not match) is small because the workflow really only matters once a short code is on the table. Description text: `"Uclusion job workflow — invoke when working on a Uclusion job/task/bug short code (J-*, T-*, B-*)"`.
+
+### Option O-3<a name="o-3"></a>
+### Both files (alwaysApply globally, description-keyed for the Cursor mdc)
+Keep CLAUDE.md as it is (always loaded by Claude Code anyway), and use `description:`-based loading just in the Cursor `.mdc`. Pros: Claude Code users get always-on, Cursor users pay context only when needed. Cons: the two surfaces have subtly different behavior, which could lead to "works in Claude Code, didn't fire in Cursor" support issues.
+
+
+This job is in stage In Dialog.
+### Option O-1<a name="o-1"></a>
+### alwaysApply: true
+Match the behavior of CLAUDE.md (which is always loaded into Claude Code's context). Pros: deterministic — the workflow rules are ALWAYS there when the user mentions a J-/T-/B- short code, no chance of Cursor deciding to omit them. Cons: burns context tokens on every Cursor request, even ones that have nothing to do with Uclusion (e.g. asking Cursor to refactor a function).
+
+
+This job is in stage In Dialog.
+#### Resolved Task T-all-2040<a name="t-all-2040"></a> 
+The script just takes a workspace ID and that breaks input of bug and TODO integration view.
+
+#### Resolved Task T-all-2037<a name="t-all-2037"></a> 
+For MCP has to send full link to question so that user clicks the link and then sees loading till the question is available.
+
+
+
+
+**Verify that see loading until question available also and that is polling at a decent rate to get the question.**
+
+#### Resolved Task T-all-2038<a name="t-all-2038"></a> 
+Change verbiage on get job to make it clear that the rest of the job is just for context.
+
+#### Resolved Task T-all-2077<a name="t-all-2077"></a> 
+Need to see ID on grouped task or don't know which one AI is doing or resolving.
+
+#### Resolved Task T-all-2004<a name="t-all-2004"></a> 
+These comments will be as an AI user that is local to the workspace and has no home account or a dummy home account. The point is that a collaboration with AI to get its opinion on the job, at a high level, is better than nothing.
+
+#### Resolved Question Q-all-49<a name="q-all-49"></a> 
+Do you run CLI each time or just have an agent running all the time that reacts to changes you make in Uclusion?
+
+#### Resolved Task T-all-2005<a name="t-all-2005"></a> 
+Currently can get link or commit message but cannot copy just the ID of a job or comment. Clicking the short code will have to open a drop down that has you choose ID or commit message.
+
+
+
+
+**Actually the drop down can include all info necessary - which might be a full prompt as have in the other task.**
+
+#### Resolved Task C-all-864<a name="c-all-864"></a> 
+How should it work in MCP to get humans to give commands like necessary? Are the examples just in the Uclusion docs or AI should give hints to the human or maybe the hints are in Uclusion or all the above?
+
+#### Resolved Task T-all-2107<a name="t-all-2107"></a> 
+Fix CLAUDE.md to have a precondition to not offer to approve a job until questions have answers.
+
+#### Resolved Task T-all-2066<a name="t-all-2066"></a> 
+Setup [Claude Code](https://code.claude.com/docs) and finish the Archive job using that since ran out of credits on Cursor.
+
+
+
+
+**Finish and deploy other changes to stage before proceed with Archive job.**
+
+#### Resolved Task S-all-58<a name="s-all-58"></a> 
+Be careful with wasting tokens
+
+
+
+
+<https://medium.com/generative-ai/i-spent-a-year-burning-money-on-ai-and-finally-decided-to-do-something-about-it-61854d738d4a>
+
+
+
+
+If can MCP to work then it's both - you can look from the AI side or the Uclusion side.
+
+
+
+
+**However no assistance - you answer AI's questions as you do now and then it creates a plan as tasks and grouped tasks. The job can be created from the AI side also and records prompt and answers in job description. Now people, including you, know what you are working on without sharing an AI session or something funky. Furthermore instead of looking at plans in crappy MD files you can see everything in a job.**
+
+
+
+
+If you want to go the other way and write down things in Uclusion and then pull them into your AI session then of course you can via MCP.
+
+> ##### Grouped task C-all-842<a name="c-all-842"></a> 
+Understand MCP <https://github.com/modelcontextprotocol>
+
+> ##### Grouped task C-all-844<a name="c-all-844"></a> 
+MCP allows defining a prompt for a method:
+
+
+
+
+```
+@prompt(
+```
+
+```
+name="query-data",
+```
+
+```
+description="Fetches data from the SQL database using a SQL query"
+```
+
+```
+)
+```
+
+```
+def query_data(query: str) -> str:
+```
+
+```
+# Logic to fetch data from resource
+```
+
+```
+return f"Result: {db.execute(query)}"
+```
+
+```
+
+
+
+```
+
+> ##### Grouped task C-all-843<a name="c-all-843"></a> 
+<https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization> - has authorization but how do you make Cursor know how to do this for an API call?
+
+
+
+
+**OAuth via Browser (Remote Servers):**
+
+1. Add the URL in Cursor Settings -> Tools & MCP.
+2. Click the blue "Connect" button that appears.
+3. A browser window will pop up to authorize the service, which will then redirect back to Cursor.
+
+
+
+
+
+There is also a discovery flow listed and might have to do that for non Cursor.
+
+#### Resolved Task C-all-850<a name="c-all-850"></a> 
+Cursor has its own UI including tasks:
+
+
+
+
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/b0dc8453-7273-438b-a23c-2d356f3527cc.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+It should be encouraged to create this plan in Uclusion as grouped tasks ahead of time. **For whatever reason Cursor is not outputting the markdown plan Daniel mentioned - maybe you have to tell it use planning mode first or something.**
+
+
+
+
+**Plan mode is an option on the switch agent mode button.**
+
+#### Resolved Task T-all-2132<a name="t-all-2132"></a> 
+Test when reaches stage by creating a latest report.
+
+#### Resolved Task T-all-2068<a name="t-all-2068"></a> 
+During install when a ~/.claude.json is present also add to its list of mcp servers as was done for cursor's mcp.json.
+
+#### Resolved Task T-all-2106<a name="t-all-2106"></a> 
+Fix CLAUDE.md to force it to resolve answered questions before implementation. Maybe make that a step.
+
+#### Resolved Task T-all-2017<a name="t-all-2017"></a> 
+Test get job from MCP.
+
+> ##### Grouped task C-all-867<a name="c-all-867"></a> 
+```
+"params":{"name":"get_job","arguments":{"job_id":"J-Engineering-9"},"_meta":{"progressToken":4}}
+```
+
+#### Resolved Task T-all-2000<a name="t-all-2000"></a> 
+For an AI user need to turn off notifications of anything it won't be doing - for instance answering assistance questions, critical bugs, unassigned jobs, etc.
+
+
+
+
+**Should stick with AI only responds when something assigned to it - to creepy otherwise - later can be a setting.**
+
+#### Resolved Task C-all-861<a name="c-all-861"></a> 
+<https://sso.dev.api.uclusion.com/v1/mcp/.well-known/oauth-authorization-server> works but is never hit and get
+
+
+
+
+```
+2026-04-11 20:09:28.506 [info] Creating streamableHttp transport
+```
+
+```
+2026-04-11 20:09:28.506 [info] No scopes in config, fetching from well-known endpoint
+```
+
+
+
+
+But never hits the endpoint.
+
+
+
+
+Try <https://gemini.google.com/share/d8e348aae17f> proxy idea.
+
+#### Resolved Task C-all-938<a name="c-all-938"></a> 
+Fix the markdown to say when a comment comes from AI user.
+
+#### Resolved Task T-all-1992<a name="t-all-1992"></a> 
+Use this system with the notes job and Cursor.
+
+
+
+
+Use Uclusion to get J-all-284 and also read through the application documentation at https://documentation.uclusion.com/ Then as a product manager ask any questions you have about the business value of this job which was proposed by a junior engineer. Once your questions are answered use Uclusion to add an approval to this job and use add info to record the questions and answers.
+
+> ##### Grouped task C-all-888<a name="c-all-888"></a> 
+```
+File "/opt/python/lib/python3.10/site-packages/ucommon/handlers/abstract_request_handler.py", line 40, in handle_request
+```
+
+```
+response = post_validation_function(event, data, context, validation_context)
+```
+
+```
+File "/var/task/handlers/mcp_serve.py", line 48, in post_validation_function
+```
+
+```
+result_data = handle_call_tool(request.params, user_id, capability, tool_name)
+```
+
+```
+File "/var/task/handlers/mcp_serve.py", line 164, in handle_call_tool
+```
+
+```
+result = approve_job(user_id, arguments, capability)
+```
+
+```
+File "/var/task/handlers/mcp_serve.py", line 146, in approve_job
+```
+
+```
+create_approval(ai_capability['user_id'], found_in_market, ai_capability['capability'], arguments.get('reason'),
+```
+
+```
+TypeError: 'NoneType' object is not subscriptable
+```
+
+
+
+
+Need the upgrade script!!!!!!! Don't run it on demo as they are fine.
+
+#### Resolved Task C-all-859<a name="c-all-859"></a> 
+Start with hello world version where return tool list with one tool and see what JSON get and that token stuff works.
+
+#### Resolved Task T-all-2092<a name="t-all-2092"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/27b17a3e-5296-43b2-8435-8afe4dd9b35d.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+Get rid of default in the inline market comments as did for option ticket codes.
+
+#### Resolved Task C-all-846<a name="c-all-846"></a> 
+When mention a job or task how does AI know whether to plan it as the current user or review it as the AI user? Is this decision taken locally or by the MCP server? What gets passed where?
+
+
+
+
+Cursor will analyze intent from the prompt and then match that against tool descriptions and choose the tool and fill in its arguments based on its JSON schema.
+
+#### Resolved Suggestion S-all-59<a name="s-all-59"></a> 
+Need someone's opinion on whether this would be usable or too big of an abstraction layer over the input to AI. **Maybe Brad would have an opinion?**
+
+
+
+
+FOR INSTANCE ANOTHER WAY TO GO - provide some sort of hook so that the job or task gets created in Uclusion from inside the chat with AI.
+
+#### Resolved Task C-all-884<a name="c-all-884"></a> 
+AI not showing up in new demo market - debug.
+
+#### Resolved Task T-all-2016<a name="t-all-2016"></a> 
+Copy command from copy window in integration setup screen and it has credentials and workspace ID.
+
+
+
+
+Can have AI write the one setup script.
+
+
+
+
+**disrael@uclusion-tuxedo**:**~**$ which aws
+
+/usr/local/bin/aws
+
+
+
+
+Scripts are now located in:
+
+<https://stage.uclusion.com/scripts/>
+
+
+
+
+but this install script will need to take the usual argument defaulting to prod for the url.
+
+
+
+
+Prompt:
+
+
+
+
+In public/scripts add a third script which takes environment and workspaceId as arguments and:
+
+1. Installs the two scripts in public/scripts in /usr/local/bin by downloading them from <https://stage.uclusion.com/scripts/> where the url depends on env as seen in @uclusionCLI.py
+2. Creates a ~/.uclusion folder, if not already existing, and puts a uclusion.json file in it of the form
+
+
+```
+{
+```
+
+```
+"workspaceId": "3a2c3b12-336b-4d72-b36c-fd3a27a884b2",
+```
+
+```
+"extensionsList": [
+```
+
+```
+"js",
+```
+
+```
+"py"
+```
+
+```
+],
+```
+
+```
+"sourcesList": [
+```
+
+```
+"./src"
+```
+
+```
+],
+```
+
+```
+"uclusionMDFileType": "report",
+```
+
+```
+"uclusionMDFilePath": "uclusion.md"
+```
+
+```
+}
+```
+
+where the workspaceId comes from the argument to this script.
+
+1. If there exists a ~/.cursor/mcp.json it edits it to add
+
+
+```
+{
+```
+
+```
+"mcpServers": {
+```
+
+```
+"Uclusion": {
+```
+
+```
+"command": "python3",
+```
+
+```
+"args": ["/user/local/bin/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
+```
+
+```
+}
+```
+
+```
+}
+```
+
+```
+}
+```
+
+Uclusion to the mcpServers as shown above where the second arg is the workspaceId and the third is the env if one was given or no third argument if not.
+
+> ##### Grouped task C-all-886<a name="c-all-886"></a> 
+```
+{
+```
+
+```
+"workspaceId": "3a2c3b12-336b-4d72-b36c-fd3a27a884b2",
+```
+
+```
+"extensionsList": [
+```
+
+```
+"js",
+```
+
+```
+"py"
+```
+
+```
+],
+```
+
+```
+"sourcesList": [
+```
+
+```
+"./src"
+```
+
+```
+],
+```
+
+```
+"uclusionMDFileType": "report",
+```
+
+```
+"uclusionMDFilePath": "uclusion.md"
+```
+
+```
+}
+```
+
+
+
+
+Just puts this file with workspaceId from argumentand they can edit if want later.
+
+#### Resolved Task T-all-2064<a name="t-all-2064"></a> 
+Daniel is right there will have to be a way to ask AI to break out tasks into new jobs where applicable. Saves on context but also is much faster if it can go in parallel.
+
+
+
+
+**On the other hand can just start another task in another session - putting into its own job doesn't save much context and might be confusing.**
+
+#### Resolved Task C-all-885<a name="c-all-885"></a> 
+Make AI avatar image be the standard AI symbol.
+
+#### Resolved Task C-all-838<a name="c-all-838"></a> 
+The prompt defines JSON AI output object and that tells the Uclusion program what APIs to call with what arguments. For the parallel case the prompt says first see if this job can be split into separate jobs and output that JSON if so. If you get that JSON just loop around and call the agent again in a different thread for each job it created.
+
+#### Resolved Task C-all-921<a name="c-all-921"></a> 
+When delete the AI vote it deletes my vote instead.
+
+#### Resolved Task T-all-2103<a name="t-all-2103"></a> 
+Anyone can delete anything from anyone else. Its silly to have it only deletable by that person who might be AI or have left the company.
+
+#### Resolved Task T-all-2083<a name="t-all-2083"></a> 
+Fix approval to work for job or option.
+
+> ##### Grouped task C-all-916<a name="c-all-916"></a> 
+Change documentation.
+
+#### Resolved Task T-all-2047<a name="t-all-2047"></a> 
+Provide a tool for resolving a question and add verbiage to questions tool saying use this when satisfied with an answer.
+
+#### Resolved Task T-all-2061<a name="t-all-2061"></a> 
+Add verbiage to the question tool that makes it clear you separate different question and options into multiple questions.
+
+#### Resolved Task T-all-2071<a name="t-all-2071"></a> 
+Tool and CLI for asking for a review (progress report).
+
+#### Resolved Task T-all-1994<a name="t-all-1994"></a> 
+Claude has to show up as a collaborator in Uclusion - same as GitHub does.
+
+#### Resolved Task C-all-856<a name="c-all-856"></a> 
+Name: add_question_option
+
+Description: Add a new option to a question. The new option will show as created by the human user.
+
+Input schema: question_id, description
+
+
+
+
+Name: add_question_option_approval
+
+Description: Add an option approval which is a certainty value where higher is more certain and a reason for the certainty. The new approval will show as created by the AI user.
+
+Input schema: question_id, certainty - number 1 to 5, reason
+
+
+
+
+Name: add_question_option_info
+
+Description: Add info to an option that will show as created by the AI user.
+
+Input schema: option_id, description
+
+
+
+
+Name: add_suggestion
+
+Description: Add a new suggestion for a job. The new suggestion will show as created by the human user.
+
+Input schema: job_id, description
+
+#### Resolved Task C-all-868<a name="c-all-868"></a> 
+Get the name of the MCP server to be Uclusion so that can say "Use Uclusion MCP to get J-mywork-1."
+
+#### Resolved Task C-all-847<a name="c-all-847"></a> 
+What verbs are we supporting for jobs?
+
+1. Plan - needs to return a link to see the plan in Uclusion and that link should spin if missing that task - which should be the first of the created tasks
+2. Start
+
+
+
+
+
+What verbs are we supporting for tasks?
+
+1. Plan
+2. Start
+
+
+
+
+
+What verbs are we supporting for a question or suggestion?
+
+1. Give opinion
+
+
+
+
+
+What is the full list of tools for a job?
+
+1. Add tasks, questions and options, suggestions, and blockers as user after user has no immediate answer or for task is okay with plan and agrees should be recorded
+2. Start, user as acting user
+
+
+
+
+
+What is the full list of tools for a task?
+
+1. Add grouped task as user
+2. Move task or tasks to new job as AI user, including adding job approval as AI user - of course tell user you did this so they can start job in new chat window. The prompt here should actually say do this for things that should have their own context
+3. Start, user as acting user
+4. Resolve, as AI user
+
+
+
+
+
+What is the full list of tools for a question?
+
+1. Add option approval as AI user
+2. Add option info as AI user
+
+
+
+
+
+What is the full list of tools for a suggestion?
+
+1. Add vote as AI user
+
+#### Resolved Task C-all-858<a name="c-all-858"></a> 
+How to make MCPServer play nice with existing token processing? Do we even need MCPServer or there is some more white box way of meeting the spec? Maybe a different Python library that is less annotation based and more clear.
+
+
+
+
+<https://gemini.google.com/share/69cb45ff2fb8> which is mostly just reading <https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda> and <https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/tree/main/examples/servers/dad-jokes>
+
+
+
+
+ApiEvent:
+
+Type: HttpApi
+
+
+
+
+**What is the difference between streamable HTTP and a REST API of all methods GET, POST, etc?**
+
+
+
+
+The Model Context Protocol (MCP) introduced **Streamable HTTP** in early 2025 to allow AI agents to interact with tools fluidly, receiving partial results as they are generated rather than waiting for a complete task to finish.
+
+
+
+
+But the Uclusion backend doesn't do partial results so this is all nonsense. Given that suppose I just want normal GET and POST REST endpoints?
+
+
+
+
+Also:
+
+
+
+
+**Cold Starts:** Because the adapter spins up a Python subprocess to execute your server, you will incur a slight cold-start penalty. If this becomes an issue for your agent workflows, consider enabling Lambda Provisioned Concurrency.
+
+
+
+
+But that shouldn't be an issue - maybe cost a second or two which is not very meaningful.
+
+
+
+
+The token handling should be fine as can handle that in serverless config as currently. Then just don't even run separate validation as passed in arguments will vary too much and FastMCP can handle it.
+
+#### Resolved Task T-all-2006<a name="t-all-2006"></a> 
+For the purposes of calculating view collaborators, the AI user doesn't count as is not an agent - front end and **back end also.**
+
+
+
+
+You also cannot assign to the AI user or use in a mention.
+
+#### Resolved Task T-all-2101<a name="t-all-2101"></a> 
+CLAUDE.md file also needs to go into something like .cursor/rules/uclusion.mdc file during install. Need a company copyright header also <https://cursor.com/docs/rules> Not sure if can globs always apply somehow for Uclusion jobs.
+
+#### Resolved Task T-all-2001<a name="t-all-2001"></a> 
+For an AI user must remove the rule that cannot put someone else's job into Work Ready.
+
+#### Resolved Question Q-all-68<a name="q-all-68"></a> 
+For T-all-2106 — how should "resolve answered questions before implementation" be incorporated into CLAUDE.md? The current workflow already mentions it in passing inside step 2 ("Call `resolve` on questions you feel have already been answered."), but the task says to "force" it, suggesting that's not strong enough.
+
+### Option O-3<a name="o-3"></a>
+### Strengthen step 2 wording only
+Leave the step layout alone and rewrite step 2's existing sentence to be much more emphatic and self-standing — e.g. promote it into its own paragraph: "Before moving on from step 2, you MUST call `resolve` on every open question whose answer is in the job. Open answered questions left dangling will confuse later sessions." Lightest-touch change.
+
+
+This job is in stage In Dialog.
+### Option O-2<a name="o-2"></a>
+### Add a precondition checklist at the top of step 5
+Keep 6 steps but add a hard precondition bullet list at the top of step 5: "Before doing any work in this step, first: (a) call `resolve` on every open question whose answer is already in the job, (b) call `resolve` on tasks that turn out to be already done." Reads as gating execution without inflating the step count.
+
+
+This job is in stage In Dialog.
+#### From AI user:
+> ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
+Precondition framing is the right mental model: step 5 is "Execute" and the resolve sweep is something you do before any execution work, not a separate phase. Bonus: O-2 also covers tasks that are already done (the failure mode in T-all-2073) — not just questions. O-1's "new step 4.5" is more disruptive (breaks the 1–6 symmetry and the numbering used elsewhere in CLAUDE.md), and O-3 is too weak — it just rewords text in step 2 that the AI has demonstrably been ignoring. One point off for: precondition checklists at the top of a step can still be skimmed past if not visually distinct, so the wording needs to be hard-to-miss ("Before doing ANY work in this step…").
+
+> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+Precondition is the correct way to think about it.
+
+### Option O-1<a name="o-1"></a>
+### New step 4.5 between Approve and Execute
+Insert a dedicated, numbered step between step 4 (Approve) and step 5 (Execute): "### 4.5 Resolve answered questions — Before starting execution, walk every open question on the job and call `resolve` on any whose answer is now in hand. Open questions left dangling become noise for later reviewers." This is the most prominent placement and matches the task's wording "maybe make that a step."
+
+Trade-off: bumps the step count to 7 and slightly disrupts the symmetry of the current 1-2-3-4-5-6 flow.
+
+
+This job is in stage In Dialog.
+#### Resolved Task T-all-2090<a name="t-all-2090"></a> 
+```
+see the shot-by-shot script I added under Q-Default-1.
+```
+
+
+
+
+Add everything but link icon to comments in options.
+
+#### Resolved Task S-all-62<a name="s-all-62"></a> 
+**Trim resolved items out of the `get_job` response by default.**
+
+Today `get_job` returns every resolved task, question, suggestion, and option in full. For long-running jobs like J-all-283 (~80 resolved tasks, many with embedded stack traces / code blocks) the response is 57KB+ and tips past the MCP inline-result budget, forcing the agent to spend extra round-trips paging through a persisted file just to find the few active items it actually needs to act on. The resolved bodies are also low-signal once resolved — the diff and commit history are the source of truth, not the task text.
+
+**Proposed behavior:**
+
+1. By default, render each resolved item as a single line: `Resolved Task T-all-2073 — Claude couldn't tell resolved questions were resolved` (short code + first ~80 chars of title). Drop the body, grouped tasks, and any nested resolved comments. Same treatment for resolved Questions (drop the option bodies — keep just `Resolved Question Q-all-49 — Do you run CLI each time…`) and resolved Suggestions.
+2. Keep the order and section structure (`#### Resolved`) so the AI can still see what's been done at a glance.
+3. Add an opt-in `include_resolved: true` argument for the rare case the AI needs a resolved item's full body (e.g. tracing why a past decision was made). The AI can then make a targeted second call.
+
+
+**Why now:** this is the second J-all-283 session that hit the size cap during a routine read. As more jobs accumulate resolved history, this will get worse for every agent (and every user reading the job in the UI is already paying the same scroll cost).
+
+**Adjacent thought** — a thinner version: just drop **grouped tasks** under resolved tasks and **option bodies** under resolved questions, but keep the resolved task body itself. That's most of the byte savings with less behavior change. Worth considering if a full skeleton-only response feels too aggressive.
+
+#### Resolved Task C-all-853<a name="c-all-853"></a> 
+See if can find an example of an MCP implementation that matches this config file. Either way see if Claude will create or if fast mcp does the handshake necessary to get the uclusion_token back to Cursor for use in all subsequent MCP calls.
+
+
+
+
+**You only get one URL so** the MCP server must be private and its authorizer must look for either token OR secret keys. No authorizers in SSO so probably this lives in investible_api or summaries.
+
+#### Resolved Task T-all-2080<a name="t-all-2080"></a> 
+```
+"params":{"name":"get_job","arguments":{"short_code_id":"Q-Default-1"},"
+```
+
+
+
+
+This failed because it didn't know to look for an option with that short code. Need to add another argument or break this out as its own tool.
+
+
+
+
+**Need to do another argument for this and the question tool and anything else that could be deeper.**
+
+#### Resolved Task C-all-902<a name="c-all-902"></a> 
+CLI also of course.
+
+#### Resolved Task T-all-2131<a name="t-all-2131"></a> 
+Change the CLAUDE.md to specify that a question is not resolved on sole approval by AI user.
+
+#### Resolved Task C-all-913<a name="c-all-913"></a> 
+~/.claude.json
+
+
+
+
+For MCP - says [here](https://code.claude.com/docs/en/settings) with format [here](https://code.claude.com/docs/en/agent-sdk/mcp#from-a-config-file).
+
+#### Resolved Task T-all-2009<a name="t-all-2009"></a> 
+Handle case of someone adds suggestion without voting and then points AI to it for opinion.
+
+#### Resolved Task C-all-860<a name="c-all-860"></a> 
+Getting forbidden back from <https://sso.dev.api.uclusion.com/mcp/.well-known/oauth-authorization-server> and doesn't seem to hit Lambda.
+
+#### Resolved Task T-all-2046<a name="t-all-2046"></a> 
+<https://stage.uclusion.com9721e840-b3ce-4ad2-8b46-675326b397fd/Q-all-61> - missing a slash when got question in cursor.
+
+#### Resolved Task T-all-2015<a name="t-all-2015"></a> 
+get_job by short code will not include all visible in that job so links to stuff outside will not work by hash. **However returning all will be messy and unbounded.**
+
+
+
+
+Currently convert_single_link won't even return the link but instead just the verbiage and that needs to be changed to just keep the full link.
+
+
+
+
+The verbiage on the tool needs to be change also to say these are not included.
+
+
+
+
+**For that matter external links are not either and should not be sucked in indiscriminately cause would also overflow context as unbounded.**
+
+#### Resolved Task C-all-845<a name="c-all-845"></a> 
+As it stands you oauth as yourself with secret keys but then some of your actions require using a different acting user.
+
+#### Resolved Task T-all-2024<a name="t-all-2024"></a> 
+In Integrations CLI is now CLI & MCP - need to fix and make clear all over is combined install and that mcp server directly added to cursor if available when run script.
+
+#### Resolved Task T-all-2007<a name="t-all-2007"></a> 
+Have them add to their ~/.cursor/mcp.json server list a Uclusion server with the correct URL and secret_key_id and secret_key as arguments.
+
+
+
+
+Then just take the hit of authentication each time following what cli.py does.
+
+
+
+
+<https://github.com/modelcontextprotocol/python-sdk/tree/main/examples/mcpserver>
+
+#### Resolved Task C-all-848<a name="c-all-848"></a> 
+Problem with AI adding a question is that there is no moderator at that point - since not agentic.
+
+
+
+
+How get around that? For instance let anyone operate as moderator for an AI question?
+
+
+
+
+Don't have AI ask questions?
+
+
+
+
+Have AI ask locally first and only resort to question when person can't answer and then ask him if he would like a question added and then the **question is added by the user and AI just votes on option likes.**
+
+#### Resolved Task S-all-60<a name="s-all-60"></a> 
+Can we just implement the MCP over regular HTTP?
+
+
+
+
+Also can we just return a tools list when asked to by nailing up the list and then not using FastMPC etc? Just see what the protocol requires.
+
+
+
+
+<https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http>
+
+
+
+
+1. The client **MUST** use HTTP POST to send JSON-RPC messages to the MCP endpoint.
+
+
+
+
+
+So just need to handle JSON-RPC and do some minimal form of the protocol - it's always a standard HTTP POST and no need for HTTP API - <https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html> which doesn't support API keys anyway.
+
+#### Resolved Task T-all-2100<a name="t-all-2100"></a> 
+Fix the documentation to explain installs MD file.
+
+#### Resolved Task T-all-2035<a name="t-all-2035"></a> 
+When a question is created in a job anyone assigned to the job is also an admin of the question instead of just the question creator.
+
+
+
+
+Required because someone not assigned to could create a question with options and then it just sits there if that guy doesn't admin it - in this case the someone is AI.
+
+#### Resolved Task T-all-2098<a name="t-all-2098"></a> 
+Need a better way to get Claude to obey the flow. Can't be telling it each time how to do a job and it just ignored the AI approval required.
+
+
+
+
+Research what people use - is it a system context prompt or what? Need it to be part of the install or available to install manually or something.
+
+
+
+
+**Ask Claude how to do this.**
+
+#### Resolved Task T-all-2081<a name="t-all-2081"></a> 
+Inline markets created for demo have no AI user capability.
+
+#### Resolved Task T-all-2010<a name="t-all-2010"></a> 
+Add get_job by short code to the CLI so that can see the result for testing. Also useful if they wanted to use the CLI themselves instead of MCP.
+
+#### Resolved Task T-all-2021<a name="t-all-2021"></a> 
+Redo the integrations page to have a download command based on public/scripts/install.sh but make it a one liner. Keep the secrets as now as should not be installing secrets they don't know about.
+
+#### Resolved Task T-all-2014<a name="t-all-2014"></a> 
+Come up with plan for tools beyond get that is more reasonable. The MCP thing doesn't work well and it's hard to even get it to use it correctly.
+
+
+
+
+Have one thing that can show in a marketing video that is cool and easy.
+
+
+
+
+**Plus fix the verbiage on tools list so that Cursor does a better job of knowing to run a tool. Might have to make separate tools for all types or list all sorts of things you can get explicitly.**
+
+#### Resolved Task T-all-2002<a name="t-all-2002"></a> 
+[Have a Create AI User button that makes a user specific to a workspace and...](#2f89e4a0-7f3e-4847-8ac0-8da3105248bd)
+
+#### Resolved Suggestion S-all-61<a name="s-all-61"></a> 
+Might need to send question with options as sent false and then update to true after create options and that way force options to show up instead of having to manually sync.
+
+#### Resolved Note R-all-103<a name="r-all-103"></a> 
+**Implementation notes:**
+
+1. **uclusion.mdc is generated at install time, not checked in.** Per direction during execution, the single source of truth stays `public/scripts/CLAUDE.md`. The installer downloads CLAUDE.md, strips the `<!-- uclusion-workflow:v1 -->` / `<!-- /uclusion-workflow:v1 -->` markers, prepends a Cursor description-based YAML frontmatter, and writes the result to `~/.cursor/rules/uclusion.mdc`. The only mdc-specific content checked in is the frontmatter string itself (`CURSOR_MDC_FRONTMATTER` constant in `uclusionInstall.py`). This guarantees the Cursor and Claude Code surfaces never drift.
+
+2. **Copyright header placement.** The single-line `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->` is placed *inside* the workflow markers in `CLAUDE.md` (line 2, after the start marker), so it gets propagated into the user's `~/.claude/CLAUDE.md` when the installer appends/refreshes the block. For `uclusion.mdc`, the same line lands right after the frontmatter — also visible to anyone opening the file.
+
+3. **Cursor frontmatter is `description:`-based, not `alwaysApply: true`.** Picked option O-2 on Q-all-70: Cursor will pull the rule in only when the prompt references a Uclusion short code, so Cursor users don't pay context tokens on every unrelated request.
+
+4. **`~/.cursor/rules/uclusion.mdc` location is a forward-compat bet.** cursor.com/docs/rules only documents `.cursor/rules/` as a project-root path. If the user-global path turns out not to load in current Cursor, the follow-up is to add a per-project drop (Q-all-69 O-3 hybrid pattern); the codified frontmatter and generation logic carry over unchanged.
+
+#### Resolved Task T-all-2082<a name="t-all-2082"></a> 
+Need a copy button on the show secret dev - just have AI do it.
+
+#### Resolved Task C-all-866<a name="c-all-866"></a> 
+Pass the Uclusion URL down to convert_single_link so that not resolved internal links can be fixed up to be absolute.
+
+
+
+
+Should be able to pass it
+
+
+
+
+```
+deployment_group = DeploymentGroupVersionModel.get(account['deployment_group'])
+```
+
+```
+base_url = deployment_group.ui_url
+```
+
+
+
+
+as that is used for sending welcome email but double check what that is in production.
+
+#### Resolved Question Q-all-50<a name="q-all-50"></a> 
+## Who does the Uclusion AI login as?
+
+
+
+
+The notifications must be specific to the workspace Uclusion AI is associated with.
+
+### Option O-1<a name="o-1"></a>
+### Have a Create AI User button that makes a user specific to a workspace and...
+...creates the CLI API keys for it.
+
+
+This job is in stage In Dialog.
+> ##### $${\color{lightgreen} For}$$
+#### Assistance 
+#### Suggestion S-Default-1<a name="s-default-1"></a> 
+This is a dummy account with no API key etc. as AI will never run its own workspace.
+
+#### Resolved 
+#### Resolved Question Q-Default-1<a name="q-default-1"></a> 
+Does this user have its own account? Does it have a dummy account that does not have its own credentials or aggregate notifications?
+
+#### Resolved Task T-all-2036<a name="t-all-2036"></a> 
+lrwxrwxrwx 1 root root 37 Sep 3 2025 **aws** -> **/usr/local/aws-cli/v2/current/bin/aws**
+
+
+
+
+lrwxrwxrwx 1 root root 47 Sep 3 2025 **aws_completer** -> **/usr/local/aws-cli/v2/current/bin/aws_completer**
+
+
+
+
+-rwxr-xr-x 1 root root 29547 May 8 22:40 **uclusionCLI.py**
+
+
+
+
+-rwxr-xr-x 1 root root 5932 May 4 13:28 **uclusionMCPProxy.py**
+
+
+
+
+
+
+
+The correct way to do is to use pointers to an install directory. Also the CLI script should be uclusion.py.
+
+#### Resolved Task C-all-883<a name="c-all-883"></a> 
+~~Make sure AI user cannot be added to a view.~~
+
+
+
+
+~~Make sure AI user cannot be added to a workspace from another workspace.~~
+
+
+
+
+And AI user cannot be added in job add others.
+
+#### Resolved Task T-all-2070<a name="t-all-2070"></a> 
+Tool and CLI for making a suggestion. Otherwise forcing AI to ask very leading questions.
+
+#### Resolved Task T-all-1993<a name="t-all-1993"></a> 
+Figure out how can have Claude look at back end code without losing the IP so can try this with back end also.
+
+
+
+
+For instance the backlog job to finish comments sucking in when go to something in archive.
+
+#### Resolved Task T-all-1996<a name="t-all-1996"></a> 
+Must have the ability to move a task to a new job (or just create a new job period) and work on that job in a new instance of Claude (multi threaded from the original command line invocation).
+
+#### Resolved Task T-all-2008<a name="t-all-2008"></a> 
+Test that task link by short code spins if missing that task.
+
+#### Resolved Task T-all-2039<a name="t-all-2039"></a> 
+Options created by AI show as created by no one in DecisionInvestible. The AI user is not being added to inline markets.
+
+#### Resolved Task T-all-2073<a name="t-all-2073"></a> 
+Claude is not able to distinguish already resolved questions are resolved. Check the markdown and make more clear somehow. Also can add to the resolve tool information how to discern already resolved and not to attempt to resolve them.
+
+
+
+
+Currently looks like this:
+
+
+
+
+```
+Resolved
+```
+
+```
+
+
+
+```
+
+```
+Question Q-all-67
+```
+
+```
+T-all-1946 describes search behavior for Jobs Backlog, Bugs, Notes/Discussion, and Job Progress, but doesn’t mention the new T-all-2056 complete-jobs archive page. When a user is on the T-all-2056 page (with its view + collaborator filter dropdowns) and types in the search field, what happens?
+```
+
+```
+
+
+
+```
+
+```
+Option O-3
+```
+
+```
+...
+```
+
+
+
+
+And that Resolved at top was not enough for AI. Just make it "Resolved Question Q-all-67" etc.
+
+#### Resolved Task C-all-852<a name="c-all-852"></a> 
+How does this flow get you to the Uclusion login page where Github, Google, and name / password are available? Then if they choose Google they are another level deep?
+
+
+
+
+Can we instead:
+
+
+
+
+```
+{
+```
+
+```
+"mcpServers": {
+```
+
+```
+"uclusion": {
+```
+
+```
+"url": "https://production.uclusion.com/mcp?secret_key_id=blah&secret_key=blah"
+```
+
+```
+}
+```
+
+```
+}
+```
+
+```
+}
+```
+
+
+
+
+And those keys can come out of environment variables if preferred to avoid any possibility of being checked in and let people share.
+
+
+
+
+Point is that then we just need to find an MCP server implementation that does the handshake correctly so that Cursor uses the token from then on. The actual security is just the keys and not another login.
+
+#### Resolved Task T-all-2091<a name="t-all-2091"></a> 
+See [Autoplay loop in its own section](https://stage.uclusion.com/dialog/dd56682c-9920-417b-be46-7a30d41bc905/4b66ff31-12ef-490d-9b16-fef90943257f#option933d0f69-9ac0-42a3-9dbc-0d2e1406a69e) - table did not render.
+
+
+
+
+```
+import markdown
+```
+
+```
+
+
+
+```
+
+```
+text = """
+```
+
+```
+
+
+
+```
+
+```
+| Header 1 | Header 2 |
+```
+
+```
+| -------- | -------- |
+```
+
+```
+| Cell 1   | Cell 2   |
+```
+
+```
+"""
+```
+
+```
+
+
+
+```
+
+```
+# Enable the tables extension
+```
+
+```
+html = markdown.markdown(text, extensions=['tables'])
+```
+
+```
+print(html)
+```
+
+```
+
+
+
+```
+
+#### Resolved Question Q-all-69<a name="q-all-69"></a> 
+For T-all-2101 — where should the install script write the Cursor rules file? Cursor's documented `.cursor/rules/` directory is per-project, not user-global, while the rest of `uclusionInstall.py` writes to user-global locations (`~/.claude/CLAUDE.md`, `~/.cursor/mcp.json`, `~/.claude.json`, `~/.uclusion/`). There's no documented `~/.cursor/rules/` convention in cursor.com/docs/rules, so this isn't obvious from the task text.
+
+### Option O-1<a name="o-1"></a>
+### Per-project at $PWD/.cursor/rules/uclusion.mdc
+Treat the install as also seeding the current working directory's project. The installer writes (or refreshes, via markers like CLAUDE.md does) `./.cursor/rules/uclusion.mdc` if the user is sitting in a repo when they run the curl-pipe-bash install. Pros: matches Cursor's documented rule discovery, so it actually fires in Cursor. Cons: behavior depends on $PWD at install time, and the one-liner install isn't usually run from inside a target repo — the user would have to re-run it per repo or copy the file themselves.
+
+
+This job is in stage In Dialog.
+### Option O-3<a name="o-3"></a>
+### Both: ~/.cursor/rules/uclusion.mdc AND offer per-project on demand
+Write the user-global copy as a source-of-truth, and additionally if the installer detects a `.cursor/` directory in $PWD, copy it into `./.cursor/rules/uclusion.mdc` (prompt y/N like CLAUDE.md does). Pros: covers both possibilities without making the user re-run. Cons: more code, and if Cursor doesn't actually read the global path, the per-project copy is the only one that matters anyway.
+
+
+This job is in stage In Dialog.
+### Option O-2<a name="o-2"></a>
+### User-global at ~/.cursor/rules/uclusion.mdc
+Write to a user-global location parallel to `~/.cursor/mcp.json`. Pros: consistent with the rest of the installer (one install, applies everywhere). Cons: Cursor's documented rule discovery is `.cursor/rules/` in the project root, not `~/.cursor/rules/` — so this file may simply never be loaded by Cursor unless that convention is something they support undocumented. Needs verification before we commit.
+
+
+This job is in stage In Dialog.
+#### From AI user:
+> ##### $${\color{yellow} Reason \space For}$$ E-2<a name="e-2"></a>
+Agreeing with your vote on O-2 (user-global `~/.cursor/rules/uclusion.mdc`). Three with low-medium certainty because: (a) cursor.com/docs/rules only documents `.cursor/rules/` as a project-root path, so this is a forward-compatibility bet that Cursor either already reads `~/.cursor/rules/` or will start to; (b) deferring to your local Cursor knowledge — you've got Cursor open and can verify on your machine whether the rule actually loads. If it turns out Cursor ignores the global path, the fallback is to add an O-3-style "also drop a copy in $PWD/.cursor/rules/ if it exists" pass, which is a small follow-up rather than a rework.
+
+> ##### $${\color{orange} Reason \space For}$$ E-1<a name="e-1"></a>
+As you say it was unclear from documentation what this file should be called.
+
+### Option O-4<a name="o-4"></a>
+### Per-project ONLY, gated on detecting a .cursor/ folder in $PWD
+Mirror what the installer already does for ~/.cursor/mcp.json — but flipped: only write `./.cursor/rules/uclusion.mdc` if the user runs the install from inside a directory that already has a `.cursor/` folder (i.e. an existing Cursor project). Pros: no guessing about undocumented global support. Cons: silently does nothing when run from $HOME, which is how most people run it.
+
+
+This job is in stage In Dialog.
+#### Resolved Task T-all-1998<a name="t-all-1998"></a> 
+This should be an npm install so that you can easily put one in your docker container or whatever. Then you just put your keys in a .uclusion/credentials file and include the command for spawning an instance of your AI that accepts markdown input.
+
+> ##### Grouped task C-all-839<a name="c-all-839"></a> 
+Use WebSocketRunner from nodejs_sdk. Also in the main loop check for new notifications and sleep some amount of time if nothing.
+
+> ##### Grouped task C-all-837<a name="c-all-837"></a> 
+When you receive a push event or poll and get a new notification the point is just to group by investible and spawn AI to handle.
+
+> ##### Grouped task C-all-836<a name="c-all-836"></a> 
+Make the agent runner call the same CLI as now but gets you list of investibles and then you call API to get the markdown for each investible. That markdown includes all associated comments or investibles from links as well as images - as it does now.
+
+> ##### Grouped task C-all-840<a name="c-all-840"></a> 
+On startup check also check for Work Ready and assume you are the only instance so should be doing anything left there.
+
+#### Resolved Task T-all-2074<a name="t-all-2074"></a> 
+Links in the table of contents were broken by switching to ticket code - switch the links in table of contents to use ticket code also.
+
+#### Resolved Task T-all-2067<a name="t-all-2067"></a> 
+Need feedback from install like:
+
+
+
+
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/a289d0cc-3b36-4e6f-aa36-be997fac2078.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+#### Resolved Task C-all-862<a name="c-all-862"></a> 
+Move mcp endpoint over to investible as with proxy script don't need it to be any different from CLI and api tokens may not being added to SSO.
+
+
+
+
+Remove the authorizer from SSO so it is back to as before.
+
+
+
+
+Change the URL of mcp in the script.
+
+#### Resolved Task T-all-2096<a name="t-all-2096"></a> 
+Have to remove bullet list when create tasks or else the shadow copy can become out of date and confusing to AI in the markdown.
+
+#### Resolved Task C-all-855<a name="c-all-855"></a> 
+Figure out how Cursor knows to invoke Uclusion MCP when sees something like "plan J-1000" and what sub operations it can perform on that resource - like move task to new job or vote.
+
+
+
+
+<https://modelcontextprotocol.io/specification/2025-11-25/server/resources>
+
+#### Resolved Task T-all-2041<a name="t-all-2041"></a> 
+Retest install script. Make sure CLI still works - try resolving which is untested.
+
+#### Resolved Question Q-all-51<a name="q-all-51"></a> 
+## What if I want to work inside Cursor?
+
+### Option O-1<a name="o-1"></a>
+### Seems this is why have to do MCP instead of just JSON output:
+Model Context Protocol (MCP): This is the primary way to allow Cursor to interact with external tools and APIs dynamically. By setting up an MCP server, you can give the AI "tools" that allow it to fetch data from your own APIs, databases, or local scripts during a chat session.
+
+
+This job is in stage In Dialog.
+#### Assistance 
+#### Suggestion S-Default-1<a name="s-default-1"></a> 
+Then maybe just be yourself instead of an AI user.
+
+#### Resolved Task C-all-887<a name="c-all-887"></a> 
+First test install for stage by removing the current dev cursor server etc. and reinstall using command but with stage.
+
+
+
+
+```
+curl -fsSL https://stage.uclusion.com/scripts/install.sh | bash -s -- dd56682c-9920-417b-be46-7a30d41bc905 stage
+```
+
+#### Resolved Task T-all-2105<a name="t-all-2105"></a> 
+```
+Approving the job. Value proposition is strong: a "the page you're on was built using this very flow" walkthrough is the most credible proof-of-product the landing page can carry, and it directly addresses the gap that AiCollaborationFeature only describes the structure abstractly. The job is well-scoped after Q-8/9/10/11 — drop the fabricated specifics (due date), keep the real ones (real approval, real review report), render as a protocol-diagram-style two-column conversation between "You" and "AI". One point off certainty for: (1) the new visual style needs to coexist with AiCollaborationFeature without competing or duplicating, and (2) the walkthrough is now anchored to real job artifacts, so it will need refresh discipline if the underlying job/questions/options get edited later.</reason>
+```
+
+```
+</invoke>
+```
+
+
+
+
+Getting these end tags on approvals and also on [Use AI to write a walkthrough about using AI to create the walkthrough... - R-Marketing-8](https://stage.uclusion.com/dialog/dd56682c-9920-417b-be46-7a30d41bc905/18ae2d22-4588-4523-9520-52f5f98dbddb#c8997ae31-c38d-43a6-96b0-eca2977c256a) plus extra lines of bullets. See [Use AI to write a walkthrough about using AI to create the walkthrough...](https://stage.uclusion.com/dialog/dd56682c-9920-417b-be46-7a30d41bc905/18ae2d22-4588-4523-9520-52f5f98dbddb)
+
+
+
+
+Looks like we are **not processing the protocol correctly and those tags delineate argument boundaries.**
+
+> ##### Grouped task C-all-922<a name="c-all-922"></a> 
+**Parse Explicitly in Custom Servers:** If you are building your own MCP server, you must write custom logic to strip and deserialize these `<invoke>` blocks or let your host framework handle the translation automatically.
+
+**Check Tool Descriptions:** Ensure your tool descriptions are highly detailed. The more explicitly you define your inputs, the cleaner the tool call format will be.
+
+
+
+
+So this is just something that can happen. Ask Claude for the best way to mitigate - parsing out or saying don't put them in on tool descriptions.
+
+#### Resolved Task C-all-849<a name="c-all-849"></a> 
+Job approval based on what context?
+
+
+
+
+You would have to provide all marketing materials, documentation, etc.
+
+
+
+
+**AI job approval might not be a reasonable feature.**
+
+#### Resolved Question Q-all-71<a name="q-all-71"></a> 
+For T-all-2101 — what copyright header should go on `uclusion.mdc`, and should the same header be retroactively added to `public/scripts/CLAUDE.md` (which currently has none)? The task says "Need a company copyright header also" but doesn't pin down license, year, or scope.
+
+### Option O-2<a name="o-2"></a>
+### Full multi-line license block on both (Apache 2.0 style)
+Standard Apache-2.0 / similar header block at the top of each file. Pros: matches what's at the top of source files in many open-source repos. Cons: the workflow content is prose-not-code, so a code-style license block feels out of place; also the file is meant to be inlined into the user's own `~/.claude/CLAUDE.md`, where a multi-line license block would visually clutter their personal config.
+
+
+This job is in stage In Dialog.
+### Option O-3<a name="o-3"></a>
+### Header on `uclusion.mdc` only; leave CLAUDE.md alone
+Read the task literally — it talks about the new `.mdc` file. The existing `CLAUDE.md` doesn't have a header today and adding one would change a file that's already being copied into users' homes (mid-marker append/replace logic in `append_claude_md`). Safer to scope the change to the new file.
+
+
+This job is in stage In Dialog.
+#### Assistance 
+#### Suggestion S-1<a name="s-1"></a> 
+Read <https://cursor.com/docs/rules> - it says you have to have a header and we just want to do the minimum to be in compliance.
+
+### Option O-4<a name="o-4"></a>
+### SPDX-style identifier on both: `<!-- SPDX-License-Identifier: LicenseRef-Uclusion-Proprietary -->` + copyright line
+Machine-readable SPDX header + human-readable copyright line. Pros: tooling-friendly. Cons: declares a license identifier we may not have actually defined; only matters if Uclusion has a tooling story around SPDX, which I haven't seen evidence of in this repo.
+
+
+This job is in stage In Dialog.
+### Option O-1<a name="o-1"></a>
+### Single-line HTML comment on both: `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->`
+Minimal, single-line, HTML-comment style — invisible when the markdown is rendered, doesn't disrupt the existing `` marker line. Apply to both `uclusion.mdc` and `CLAUDE.md` so the two surfaces stay consistent.
+
+
+This job is in stage In Dialog.
+#### From AI user:
+> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+Approving O-1 (single-line HTML comment on both files) per your S-1 — "minimum to be in compliance." `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->` is one line, invisible when the markdown renders, doesn't clutter the user's `~/.claude/CLAUDE.md` after the install appends, and doesn't disturb the existing `<!-- uclusion-workflow:v1 -->` marker the installer keys off of. Apply to both `uclusion.mdc` and `public/scripts/CLAUDE.md` so the two surfaces stay consistent. Not O-2 (multi-line Apache block — too heavy for prose-as-config), not O-3 (mdc-only — leaves CLAUDE.md inconsistent), not O-4 (SPDX — declares a license identifier we don't appear to have defined elsewhere in the repo).
+
+#### Resolved Task T-all-2133<a name="t-all-2133"></a> 
+Make clear that the fast resolve rule only applies to questions you author in the CLAUDE.md.
+
+#### Resolved Task C-all-898<a name="c-all-898"></a> 
+If you load a question that is not there like <http://localhost:3000/0f13660a-8420-401a-8340-315c9505b2de/Q-Engineering-6> then you just get a white screen instead of a loading screen and polling for Q-.Engineering-6.
+
+#### Resolved Task T-all-1997<a name="t-all-1997"></a> 
+The CLI you run must be on a loop and responding to push events / notifications from Uclusion - has the same listen on socket plus poll that use in browser. See what did for configuration tests.
+
+
+
+
+Plus may need to know that this is user is an agent so can send it an event when it creates a job for itself instead of screening that out - otherwise it won't know to spawn a new thread.
+
+#### Resolved Task T-all-2063<a name="t-all-2063"></a> 
+Remove AI user from list that can be assigned to a job.
+
+#### Resolved Task T-all-2075<a name="t-all-2075"></a> 
+AI writes its comments in markdown so have to convert from markdown to Quill or use an editor that accepts markdown.
+
+
+
+
+Accept markdown from CLI to make testing easier.
+
+
+
+
+```
+import markdown
+```
+
+```
+
+
+
+```
+
+```
+md_text = "# Hello World\nThis is **bold** text."
+```
+
+```
+html = markdown.markdown(md_text)
+```
+
+```
+print(html) # Output: <h1>Hello World</h1><p>This is <strong>bold</strong> text.</p>
+```
+
+```
+
+
+
+```
+
+#### Resolved Task T-all-2130<a name="t-all-2130"></a> 
+Add user name to the approvals - job and option.
+
 ## Job J-all-293<a name="j-all-293"></a>
 ### Backend worst issues
 
@@ -5255,2150 +7423,6 @@ Day boundary uses the browser's local timezone. Different users may see slightly
 
 
 This job is in stage In Dialog.
-## Job J-all-283<a name="j-all-283"></a>
-### Uclusion is how you collaborate with AI.
-The only reason some solo devs have to write anything down is AI. Have AI take a job from CLI and communicate it's plan through the job - ask questions with options and vote on best option, make suggestions when have an idea for changing the job, add tasks, add grouped tasks at code level like it's current plan, and of course blockers if it is stuck.
-
-
-
-
-Going with secret key instead of full Oauth stuff <https://upstash.com/blog/mcp-oauth-implementation> :
-
-<https://www.truefoundry.com/blog/mcp-authentication-in-cursor-oauth-api-keys-and-secure-configuration> - shows Cursor will handle everything from a discovery flow
-
-<https://www.mintlify.com/upstash/context7/mcp/configuration> - verifies this worked in real life.
-
-
-This job is in stage Complete.
-#### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-all-54<a name="e-all-54"></a>
-Approving the job. Strong value: tightening CLAUDE.md (T-2106 precondition at step 5, T-2107 don't-offer-approval-with-open-questions) directly fixes the failure modes you've actually seen in this session and in T-all-2073. Bundling the Cursor `.mdc` install (T-2101) onto the same install code path that already handles `~/.claude/CLAUDE.md` is cheap and broadens reach to Cursor users without duplicating workflow text. Doc update (T-2100) catches the existing gap where `mcp.md` doesn't mention the workflow MD file install at all. One point off for: (a) the user-global `~/.cursor/rules/uclusion.mdc` location is a forward-compat bet — needs verification on a clean Cursor install that the file actually loads from there; if not, follow-up to add a per-project drop is needed. (b) `description:`-based activation in Cursor relies on Cursor's matcher firing on prompts like "work on J-all-283" — robustness depends on how aggressive Cursor's rule matcher is.
-
-#### Reports 
-#### Report R-all-104<a name="r-all-104"></a> 
-All four active tasks (T-all-2106, T-all-2107, T-all-2101, T-all-2100) are implemented. Diff is local — not yet committed.
-
-**`public/scripts/CLAUDE.md`** — three changes in one file:
-
-1. **T-all-2107**: Added a bold "Precondition" paragraph at the top of step 4 that blocks offering approval while any question on the job is still open and unanswered.
-2. **T-all-2106**: Added a bold "Before doing ANY work in this step" precondition checklist at the top of step 5, covering both open-but-answered questions AND tasks that turn out to be already done (the second bullet directly addresses T-all-2073).
-3. **T-all-2101 (copyright)**: Added `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->` on line 2, *inside* the workflow markers so it propagates into users' `~/.claude/CLAUDE.md` on install.
-
-
-**`public/scripts/uclusionInstall.py`** — new install path for the Cursor rule:
-
-1. Added `CURSOR_MDC_PATH = ~/.cursor/rules/uclusion.mdc` and a `CURSOR_MDC_FRONTMATTER` constant (description-based, `alwaysApply: false`).
-2. New `install_cursor_mdc(env)` function: downloads `CLAUDE.md` from the env-specific scripts URL, strips the workflow markers, prepends the frontmatter, and writes the result. y/N prompt before write, mirroring `append_claude_md`.
-3. Wired into `main()` after `append_claude_md`.
-4. **No separate `uclusion.mdc` source file is checked in** — per your direction during execution, CLAUDE.md remains the single source of truth and the mdc is generated at install time. See R-all-103 for the full rationale.
-
-
-**`uclusion-documentation/content/en/Github and CLI integrations/mcp.md`** — T-all-2100:
-
-1. Added a new "Workflow rule files" section between Configuration and Tools.
-2. Documents that the installer offers to drop the workflow MD into `~/.claude/CLAUDE.md` (Claude Code) and `~/.cursor/rules/uclusion.mdc` (Cursor), both prompted, both refresh-safe via the `<!-- uclusion-workflow:v1 -->` marker.
-
-
-**Testable now:**
-
-1. Read the diff on `public/scripts/CLAUDE.md` — the two preconditions are visually distinct (bold + "ANY work" / "NOT offer") and reinforce each other (step 4 blocks approval, step 5 blocks execution).
-2. Render `uclusion-documentation/.../mcp.md` locally to see the new "Workflow rule files" section in context.
-3. The install script can be exercised end-to-end against a stage deploy: run `install.sh <workspaceId> stage` from a clean `$HOME` and confirm both prompts fire, both files land, and a re-run offers refresh rather than duplicating.
-
-
-**Open follow-up to verify (not blocking this review):**
-
-1. Whether `~/.cursor/rules/uclusion.mdc` actually loads in current Cursor. The docs only document `.cursor/rules/` per-project. If it doesn't load, the follow-up is to add a per-project drop alongside (the Q-all-69 O-3 hybrid).
-
-#### Resolved 
-#### Resolved Task T-all-2065<a name="t-all-2065"></a> 
-Need to encourage it to resolve tasks that are done and resolve questions that are through with.
-
-#### Resolved Task C-all-854<a name="c-all-854"></a> 
-For secret keys need to make sure banned check happens as currently does in
-
-
-
-
-<https://github.com/Uclusion/uclusion_common/blob/5ef9a6a61b390cd16c945282b6e9abb8cff59383/ucommon/handlers/abstract_request_handler.py#L102>
-
-#### Resolved Task C-all-870<a name="c-all-870"></a> 
-So need a get_task which only gets a task into a context in case you put a prompt there - need to work however they work.
-
-
-
-
-**Maybe task gets task and job gets job? Cause task gets job means AI will think is on task as it won't get this surrounding thing thing.**
-
-
-
-
-But then tricky cause do you get the job for question you want answered and then ask it to answer the question? Kind of requires a lot of skill for the user. Is getting the full job really going to fill the context too much or distract? **Also a user of the UI would never have only a comment in a job without seeing the job.**
-
-#### Resolved Task C-all-882<a name="c-all-882"></a> 
-Screen the AI user out of get followers of job method - won't be in any views.
-
-#### Resolved Task T-all-2003<a name="t-all-2003"></a> 
-Have to output everything the AI puts out so that people can see the "thinking".
-
-#### Resolved Task T-all-2072<a name="t-all-2072"></a> 
-Test suggestion and progress report from CLI.
-
-#### Resolved Task T-all-2102<a name="t-all-2102"></a> 
-Add to the md file that resolved means resolved and don't try to do those again.
-
-#### Resolved Task C-all-851<a name="c-all-851"></a> 
-<https://cursor.com/docs/mcp> has the example we want (possibly with scopes added):
-
-
-
-
-```
-{
-```
-
-```
-"mcpServers": {
-```
-
-```
-"uclusion-mcp-proxy": {
-```
-
-```
-"command": "python3",
-```
-
-```
-"args": ["/home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
-```
-
-```
-}
-```
-
-```
-}
-```
-
-```
-}
-```
-
-
-
-
-We want that one cause don't want them to do a full Uclusion login with Google, Github, or email/password as would go too many screen deep. Cursor says use this when
-
-
-
-
-1. The provider does not support OAuth 2.0 Dynamic Client Registration
-
-
-
-
-
-Which for Uclusion is true - there is no dynamic way to get your secret keys as shown [here](https://www.scalekit.com/blog/dynamic-client-registration-oauth2).
-
-
-
-
-So to make this work you need and endpoint on https://api.example.com/mcp/.well-known/oauth-authorization-server that:
-
-
-
-
-```
-
-
-
-```
-
-```
-async def token_endpoint(
-```
-
-```
-grant_type: str = Form(...),
-```
-
-```
-client_id: str = Form(None),
-```
-
-```
-client_secret: str = Form(None)
-```
-
-```
-):
-```
-
-```
-"""
-```
-
-```
-Step 2: The Token Exchange.
-```
-
-```
-Cursor POSTs the ID and Secret here. You validate them and return a signed JWT.
-```
-
-```
-"""
-```
-
-```
-if grant_type != "client_credentials":
-```
-
-```
-raise HTTPException(status_code=400, detail="unsupported_grant_type")
-```
-
-```
-  
-```
-
-```
-if client_id != EXPECTED_CLIENT_ID or client_secret != EXPECTED_CLIENT_SECRET:
-```
-
-```
-raise HTTPException(status_code=401, detail="invalid_client")
-```
-
-```
-
-
-
-```
-
-```
-return {
-```
-
-```
-"issuer": base_url,
-```
-
-```
-"token_endpoint": f"{base_url}/token",
-```
-
-```
-# Cursor uses the client_credentials grant for machine-to-machine auth
-```
-
-```
-"grant_types_supported": ["client_credentials"],
-```
-
-```
-"response_types_supported": ["token"],
-```
-
-```
-"token_endpoint_auth_methods_supported": ["client_secret_post"]
-```
-
-```
-}
-```
-
-
-
-
-and another endpoint on https://api.example.com/mcp/token that returns:
-
-
-
-
-```
-return {
-```
-
-```
-"access_token": token,
-```
-
-```
-"token_type": "Bearer",
-```
-
-```
-"expires_in": 3600
-```
-
-```
-}
-```
-
-
-
-
-and of course the actual MCP endpoint on https://api.example.com/mcp that is secured by a normal Uclusion token as any other API - for now could just use <https://github.com/modelcontextprotocol/python-sdk/blob/main/examples/mcpserver/simple_echo.py>
-
-> ##### Grouped task C-all-863<a name="c-all-863"></a> 
-```
-2026-04-13 13:23:30.526 [info] Starting new stdio process with command: python3 /home/disrael/dev/uclusion_web_ui/src/components/Scripts/uclusionMCPProxy.py 3a2c3b12-336b-4d72-b36c-fd3a27a884b2 dev
-```
-
-```
-2026-04-13 13:23:33.323 [error] Client error for command [
-```
-
-```
-{
-```
-
-```
-"code": "invalid_union",
-```
-
-```
-"errors": [
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-]
-```
-
-```
-],
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input"
-```
-
-```
-}
-```
-
-```
-]
-```
-
-```
-2026-04-13 13:23:33.323 [warning] [V1] initializing -> error: [
-```
-
-```
-{
-```
-
-```
-"code": "invalid_union",
-```
-
-```
-"errors": [
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-],
-```
-
-```
-[
-```
-
-```
-{
-```
-
-```
-"expected": "object",
-```
-
-```
-"code": "invalid_type",
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input: expected object, received string"
-```
-
-```
-}
-```
-
-```
-]
-```
-
-```
-],
-```
-
-```
-"path": [],
-```
-
-```
-"message": "Invalid input"
-```
-
-```
-}
-```
-
-```
-]
-```
-
-
-
-
-Coming from:
-
-```
-/aws/lambda/uclusion-investible-api-dev-mcp_post 2026/04/13/[$LATEST]da08c828fa524be3a18023325d0a7d14 [INFO]    2026-04-13T20:23:33.325Z        d7b2425f-fff5-4b26-b338-7bbceedc9ed1  {'statusCode': 200, 'body': '"{\\"jsonrpc\\":\\"2.0\\",\\"id\\":0,\\"result\\":{\\"protocolVersion\\":\\"2024-11-05\\",\\"capabilities\\":{},\\"serverInfo\\":{\\"name\\":\\"uclusion-mcp-server\\",\\"version\\":\\"1.0.0\\"}}}"', 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Credentials': True}, 'isBase64Encoded': False}
-```
-
-```
-
-
-
-```
-
-```
-
-
-
-```
-
-#### Resolved Task T-all-2034<a name="t-all-2034"></a> 
-Fix 'The CLI you never knew but always wanted' section in general and of course it is 'The MCP and CLI you never knew but always wanted'.
-
-
-
-
-Maybe add a fourth box.
-
-#### Resolved Task T-all-1995<a name="t-all-1995"></a> 
-The prompts explain what the agent should do with the assigned jobs approval - use the description as a prompt to plan and add high level tasks and existing tasks as things that must have grouped tasks plans. **Anything you want handled in its own context should go in its own job - so the tasks are all things that require knowing other things in the job.**
-
-
-
-
-Prompt also explains that if in Work Ready then start on all tasks - marking each one currently doing as in progress and resolving ones that are done.
-
-#### Resolved Task C-all-869<a name="c-all-869"></a> 
-Have MCP server in Cursor be part of this script whenever Cursor is present.
-
-
-
-
-~/.cursor/mcp.json
-
-```
-{
-```
-
-```
-"mcpServers": {
-```
-
-```
-"Uclusion": {
-```
-
-```
-"command": "python3",
-```
-
-```
-"args": ["/user/local/bin/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
-```
-
-```
-}
-```
-
-```
-}
-```
-
-```
-}
-```
-
-#### Resolved Task T-all-2052<a name="t-all-2052"></a> 
-Resolve is missing from the CLI.
-
-#### Resolved Question Q-all-70<a name="q-all-70"></a> 
-For T-all-2101 — what activation mechanism should the `uclusion.mdc` frontmatter use? The task notes "Not sure if can globs always apply somehow for Uclusion jobs." Cursor rules support three modes per cursor.com/docs/rules: `alwaysApply: true`, `globs:` (auto-attach when matching files are in context), and `description:` (Cursor decides whether to include based on the description). The Uclusion workflow trigger is the user saying "work on J-…" in chat — it's not tied to any file extension or path — so globs are a poor fit, but it's a judgment call between alwaysApply and description.
-
-> ##### Reply C-all-923<a name="c-all-923"></a> 
-I was hoping you were going to figure this out - you are kind of turning the task back on me.
-
-### Option O-2<a name="o-2"></a>
-### description: "Uclusion job workflow — invoke when working on a Uclusion job/task/bug short code (J-*, T-*, B-*)"
-Let Cursor pull the rule in only when the prompt looks Uclusion-related. Pros: zero context cost on unrelated prompts; matches the way the workflow is actually triggered (by mentioning a short code). Cons: relies on Cursor's matcher firing correctly — if the user says something subtle like "continue with that job" without a short code, the rule may not load. Mitigated by the fact that the workflow really only matters once a short code is mentioned.
-
-
-This job is in stage In Dialog.
-#### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
-Going with O-2 (description-based) since you asked me to pick. The Uclusion workflow trigger is the user mentioning a J-/T-/B- short code in chat — it's not tied to file extensions, so globs don't fit, and `alwaysApply: true` would burn Cursor context tokens on every unrelated prompt (a refactor request, a config change, etc.). Description-based loading is the natural fit: Cursor pulls the rule in when the prompt looks Uclusion-related, free otherwise. The downside (subtle phrasings like "continue with that job" without a short code may not match) is small because the workflow really only matters once a short code is on the table. Description text: `"Uclusion job workflow — invoke when working on a Uclusion job/task/bug short code (J-*, T-*, B-*)"`.
-
-### Option O-3<a name="o-3"></a>
-### Both files (alwaysApply globally, description-keyed for the Cursor mdc)
-Keep CLAUDE.md as it is (always loaded by Claude Code anyway), and use `description:`-based loading just in the Cursor `.mdc`. Pros: Claude Code users get always-on, Cursor users pay context only when needed. Cons: the two surfaces have subtly different behavior, which could lead to "works in Claude Code, didn't fire in Cursor" support issues.
-
-
-This job is in stage In Dialog.
-### Option O-1<a name="o-1"></a>
-### alwaysApply: true
-Match the behavior of CLAUDE.md (which is always loaded into Claude Code's context). Pros: deterministic — the workflow rules are ALWAYS there when the user mentions a J-/T-/B- short code, no chance of Cursor deciding to omit them. Cons: burns context tokens on every Cursor request, even ones that have nothing to do with Uclusion (e.g. asking Cursor to refactor a function).
-
-
-This job is in stage In Dialog.
-#### Resolved Task T-all-2040<a name="t-all-2040"></a> 
-The script just takes a workspace ID and that breaks input of bug and TODO integration view.
-
-#### Resolved Task T-all-2037<a name="t-all-2037"></a> 
-For MCP has to send full link to question so that user clicks the link and then sees loading till the question is available.
-
-
-
-
-**Verify that see loading until question available also and that is polling at a decent rate to get the question.**
-
-#### Resolved Task T-all-2038<a name="t-all-2038"></a> 
-Change verbiage on get job to make it clear that the rest of the job is just for context.
-
-#### Resolved Task T-all-2077<a name="t-all-2077"></a> 
-Need to see ID on grouped task or don't know which one AI is doing or resolving.
-
-#### Resolved Task T-all-2004<a name="t-all-2004"></a> 
-These comments will be as an AI user that is local to the workspace and has no home account or a dummy home account. The point is that a collaboration with AI to get its opinion on the job, at a high level, is better than nothing.
-
-#### Resolved Question Q-all-49<a name="q-all-49"></a> 
-Do you run CLI each time or just have an agent running all the time that reacts to changes you make in Uclusion?
-
-#### Resolved Task T-all-2005<a name="t-all-2005"></a> 
-Currently can get link or commit message but cannot copy just the ID of a job or comment. Clicking the short code will have to open a drop down that has you choose ID or commit message.
-
-
-
-
-**Actually the drop down can include all info necessary - which might be a full prompt as have in the other task.**
-
-#### Resolved Task C-all-864<a name="c-all-864"></a> 
-How should it work in MCP to get humans to give commands like necessary? Are the examples just in the Uclusion docs or AI should give hints to the human or maybe the hints are in Uclusion or all the above?
-
-#### Resolved Task T-all-2107<a name="t-all-2107"></a> 
-Fix CLAUDE.md to have a precondition to not offer to approve a job until questions have answers.
-
-#### Resolved Task T-all-2066<a name="t-all-2066"></a> 
-Setup [Claude Code](https://code.claude.com/docs) and finish the Archive job using that since ran out of credits on Cursor.
-
-
-
-
-**Finish and deploy other changes to stage before proceed with Archive job.**
-
-#### Resolved Task S-all-58<a name="s-all-58"></a> 
-Be careful with wasting tokens
-
-
-
-
-<https://medium.com/generative-ai/i-spent-a-year-burning-money-on-ai-and-finally-decided-to-do-something-about-it-61854d738d4a>
-
-
-
-
-If can MCP to work then it's both - you can look from the AI side or the Uclusion side.
-
-
-
-
-**However no assistance - you answer AI's questions as you do now and then it creates a plan as tasks and grouped tasks. The job can be created from the AI side also and records prompt and answers in job description. Now people, including you, know what you are working on without sharing an AI session or something funky. Furthermore instead of looking at plans in crappy MD files you can see everything in a job.**
-
-
-
-
-If you want to go the other way and write down things in Uclusion and then pull them into your AI session then of course you can via MCP.
-
-> ##### Grouped task C-all-842<a name="c-all-842"></a> 
-Understand MCP <https://github.com/modelcontextprotocol>
-
-> ##### Grouped task C-all-844<a name="c-all-844"></a> 
-MCP allows defining a prompt for a method:
-
-
-
-
-```
-@prompt(
-```
-
-```
-name="query-data",
-```
-
-```
-description="Fetches data from the SQL database using a SQL query"
-```
-
-```
-)
-```
-
-```
-def query_data(query: str) -> str:
-```
-
-```
-# Logic to fetch data from resource
-```
-
-```
-return f"Result: {db.execute(query)}"
-```
-
-```
-
-
-
-```
-
-> ##### Grouped task C-all-843<a name="c-all-843"></a> 
-<https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization> - has authorization but how do you make Cursor know how to do this for an API call?
-
-
-
-
-**OAuth via Browser (Remote Servers):**
-
-1. Add the URL in Cursor Settings -> Tools & MCP.
-2. Click the blue "Connect" button that appears.
-3. A browser window will pop up to authorize the service, which will then redirect back to Cursor.
-
-
-
-
-
-There is also a discovery flow listed and might have to do that for non Cursor.
-
-#### Resolved Task C-all-850<a name="c-all-850"></a> 
-Cursor has its own UI including tasks:
-
-
-
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/b0dc8453-7273-438b-a23c-2d356f3527cc.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-It should be encouraged to create this plan in Uclusion as grouped tasks ahead of time. **For whatever reason Cursor is not outputting the markdown plan Daniel mentioned - maybe you have to tell it use planning mode first or something.**
-
-
-
-
-**Plan mode is an option on the switch agent mode button.**
-
-#### Resolved Task T-all-2132<a name="t-all-2132"></a> 
-Test when reaches stage by creating a latest report.
-
-#### Resolved Task T-all-2068<a name="t-all-2068"></a> 
-During install when a ~/.claude.json is present also add to its list of mcp servers as was done for cursor's mcp.json.
-
-#### Resolved Task T-all-2106<a name="t-all-2106"></a> 
-Fix CLAUDE.md to force it to resolve answered questions before implementation. Maybe make that a step.
-
-#### Resolved Task T-all-2017<a name="t-all-2017"></a> 
-Test get job from MCP.
-
-> ##### Grouped task C-all-867<a name="c-all-867"></a> 
-```
-"params":{"name":"get_job","arguments":{"job_id":"J-Engineering-9"},"_meta":{"progressToken":4}}
-```
-
-#### Resolved Task T-all-2000<a name="t-all-2000"></a> 
-For an AI user need to turn off notifications of anything it won't be doing - for instance answering assistance questions, critical bugs, unassigned jobs, etc.
-
-
-
-
-**Should stick with AI only responds when something assigned to it - to creepy otherwise - later can be a setting.**
-
-#### Resolved Task C-all-861<a name="c-all-861"></a> 
-<https://sso.dev.api.uclusion.com/v1/mcp/.well-known/oauth-authorization-server> works but is never hit and get
-
-
-
-
-```
-2026-04-11 20:09:28.506 [info] Creating streamableHttp transport
-```
-
-```
-2026-04-11 20:09:28.506 [info] No scopes in config, fetching from well-known endpoint
-```
-
-
-
-
-But never hits the endpoint.
-
-
-
-
-Try <https://gemini.google.com/share/d8e348aae17f> proxy idea.
-
-#### Resolved Task T-all-1992<a name="t-all-1992"></a> 
-Use this system with the notes job and Cursor.
-
-
-
-
-Use Uclusion to get J-all-284 and also read through the application documentation at https://documentation.uclusion.com/ Then as a product manager ask any questions you have about the business value of this job which was proposed by a junior engineer. Once your questions are answered use Uclusion to add an approval to this job and use add info to record the questions and answers.
-
-> ##### Grouped task C-all-888<a name="c-all-888"></a> 
-```
-File "/opt/python/lib/python3.10/site-packages/ucommon/handlers/abstract_request_handler.py", line 40, in handle_request
-```
-
-```
-response = post_validation_function(event, data, context, validation_context)
-```
-
-```
-File "/var/task/handlers/mcp_serve.py", line 48, in post_validation_function
-```
-
-```
-result_data = handle_call_tool(request.params, user_id, capability, tool_name)
-```
-
-```
-File "/var/task/handlers/mcp_serve.py", line 164, in handle_call_tool
-```
-
-```
-result = approve_job(user_id, arguments, capability)
-```
-
-```
-File "/var/task/handlers/mcp_serve.py", line 146, in approve_job
-```
-
-```
-create_approval(ai_capability['user_id'], found_in_market, ai_capability['capability'], arguments.get('reason'),
-```
-
-```
-TypeError: 'NoneType' object is not subscriptable
-```
-
-
-
-
-Need the upgrade script!!!!!!! Don't run it on demo as they are fine.
-
-#### Resolved Task C-all-859<a name="c-all-859"></a> 
-Start with hello world version where return tool list with one tool and see what JSON get and that token stuff works.
-
-#### Resolved Task T-all-2092<a name="t-all-2092"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/27b17a3e-5296-43b2-8435-8afe4dd9b35d.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Get rid of default in the inline market comments as did for option ticket codes.
-
-#### Resolved Task C-all-846<a name="c-all-846"></a> 
-When mention a job or task how does AI know whether to plan it as the current user or review it as the AI user? Is this decision taken locally or by the MCP server? What gets passed where?
-
-
-
-
-Cursor will analyze intent from the prompt and then match that against tool descriptions and choose the tool and fill in its arguments based on its JSON schema.
-
-#### Resolved Suggestion S-all-59<a name="s-all-59"></a> 
-Need someone's opinion on whether this would be usable or too big of an abstraction layer over the input to AI. **Maybe Brad would have an opinion?**
-
-
-
-
-FOR INSTANCE ANOTHER WAY TO GO - provide some sort of hook so that the job or task gets created in Uclusion from inside the chat with AI.
-
-#### Resolved Task C-all-884<a name="c-all-884"></a> 
-AI not showing up in new demo market - debug.
-
-#### Resolved Task T-all-2016<a name="t-all-2016"></a> 
-Copy command from copy window in integration setup screen and it has credentials and workspace ID.
-
-
-
-
-Can have AI write the one setup script.
-
-
-
-
-**disrael@uclusion-tuxedo**:**~**$ which aws
-
-/usr/local/bin/aws
-
-
-
-
-Scripts are now located in:
-
-<https://stage.uclusion.com/scripts/>
-
-
-
-
-but this install script will need to take the usual argument defaulting to prod for the url.
-
-
-
-
-Prompt:
-
-
-
-
-In public/scripts add a third script which takes environment and workspaceId as arguments and:
-
-1. Installs the two scripts in public/scripts in /usr/local/bin by downloading them from <https://stage.uclusion.com/scripts/> where the url depends on env as seen in @uclusionCLI.py
-2. Creates a ~/.uclusion folder, if not already existing, and puts a uclusion.json file in it of the form
-
-
-```
-{
-```
-
-```
-"workspaceId": "3a2c3b12-336b-4d72-b36c-fd3a27a884b2",
-```
-
-```
-"extensionsList": [
-```
-
-```
-"js",
-```
-
-```
-"py"
-```
-
-```
-],
-```
-
-```
-"sourcesList": [
-```
-
-```
-"./src"
-```
-
-```
-],
-```
-
-```
-"uclusionMDFileType": "report",
-```
-
-```
-"uclusionMDFilePath": "uclusion.md"
-```
-
-```
-}
-```
-
-where the workspaceId comes from the argument to this script.
-
-1. If there exists a ~/.cursor/mcp.json it edits it to add
-
-
-```
-{
-```
-
-```
-"mcpServers": {
-```
-
-```
-"Uclusion": {
-```
-
-```
-"command": "python3",
-```
-
-```
-"args": ["/user/local/bin/uclusionMCPProxy.py", "3a2c3b12-336b-4d72-b36c-fd3a27a884b2", "dev"]
-```
-
-```
-}
-```
-
-```
-}
-```
-
-```
-}
-```
-
-Uclusion to the mcpServers as shown above where the second arg is the workspaceId and the third is the env if one was given or no third argument if not.
-
-> ##### Grouped task C-all-886<a name="c-all-886"></a> 
-```
-{
-```
-
-```
-"workspaceId": "3a2c3b12-336b-4d72-b36c-fd3a27a884b2",
-```
-
-```
-"extensionsList": [
-```
-
-```
-"js",
-```
-
-```
-"py"
-```
-
-```
-],
-```
-
-```
-"sourcesList": [
-```
-
-```
-"./src"
-```
-
-```
-],
-```
-
-```
-"uclusionMDFileType": "report",
-```
-
-```
-"uclusionMDFilePath": "uclusion.md"
-```
-
-```
-}
-```
-
-
-
-
-Just puts this file with workspaceId from argumentand they can edit if want later.
-
-#### Resolved Task T-all-2064<a name="t-all-2064"></a> 
-Daniel is right there will have to be a way to ask AI to break out tasks into new jobs where applicable. Saves on context but also is much faster if it can go in parallel.
-
-
-
-
-**On the other hand can just start another task in another session - putting into its own job doesn't save much context and might be confusing.**
-
-#### Resolved Task C-all-885<a name="c-all-885"></a> 
-Make AI avatar image be the standard AI symbol.
-
-#### Resolved Task C-all-838<a name="c-all-838"></a> 
-The prompt defines JSON AI output object and that tells the Uclusion program what APIs to call with what arguments. For the parallel case the prompt says first see if this job can be split into separate jobs and output that JSON if so. If you get that JSON just loop around and call the agent again in a different thread for each job it created.
-
-#### Resolved Task C-all-921<a name="c-all-921"></a> 
-When delete the AI vote it deletes my vote instead.
-
-#### Resolved Task T-all-2103<a name="t-all-2103"></a> 
-Anyone can delete anything from anyone else. Its silly to have it only deletable by that person who might be AI or have left the company.
-
-#### Resolved Task T-all-2083<a name="t-all-2083"></a> 
-Fix approval to work for job or option.
-
-> ##### Grouped task C-all-916<a name="c-all-916"></a> 
-Change documentation.
-
-#### Resolved Task T-all-2047<a name="t-all-2047"></a> 
-Provide a tool for resolving a question and add verbiage to questions tool saying use this when satisfied with an answer.
-
-#### Resolved Task T-all-2061<a name="t-all-2061"></a> 
-Add verbiage to the question tool that makes it clear you separate different question and options into multiple questions.
-
-#### Resolved Task T-all-2071<a name="t-all-2071"></a> 
-Tool and CLI for asking for a review (progress report).
-
-#### Resolved Task T-all-1994<a name="t-all-1994"></a> 
-Claude has to show up as a collaborator in Uclusion - same as GitHub does.
-
-#### Resolved Task C-all-856<a name="c-all-856"></a> 
-Name: add_question_option
-
-Description: Add a new option to a question. The new option will show as created by the human user.
-
-Input schema: question_id, description
-
-
-
-
-Name: add_question_option_approval
-
-Description: Add an option approval which is a certainty value where higher is more certain and a reason for the certainty. The new approval will show as created by the AI user.
-
-Input schema: question_id, certainty - number 1 to 5, reason
-
-
-
-
-Name: add_question_option_info
-
-Description: Add info to an option that will show as created by the AI user.
-
-Input schema: option_id, description
-
-
-
-
-Name: add_suggestion
-
-Description: Add a new suggestion for a job. The new suggestion will show as created by the human user.
-
-Input schema: job_id, description
-
-#### Resolved Task C-all-868<a name="c-all-868"></a> 
-Get the name of the MCP server to be Uclusion so that can say "Use Uclusion MCP to get J-mywork-1."
-
-#### Resolved Task C-all-847<a name="c-all-847"></a> 
-What verbs are we supporting for jobs?
-
-1. Plan - needs to return a link to see the plan in Uclusion and that link should spin if missing that task - which should be the first of the created tasks
-2. Start
-
-
-
-
-
-What verbs are we supporting for tasks?
-
-1. Plan
-2. Start
-
-
-
-
-
-What verbs are we supporting for a question or suggestion?
-
-1. Give opinion
-
-
-
-
-
-What is the full list of tools for a job?
-
-1. Add tasks, questions and options, suggestions, and blockers as user after user has no immediate answer or for task is okay with plan and agrees should be recorded
-2. Start, user as acting user
-
-
-
-
-
-What is the full list of tools for a task?
-
-1. Add grouped task as user
-2. Move task or tasks to new job as AI user, including adding job approval as AI user - of course tell user you did this so they can start job in new chat window. The prompt here should actually say do this for things that should have their own context
-3. Start, user as acting user
-4. Resolve, as AI user
-
-
-
-
-
-What is the full list of tools for a question?
-
-1. Add option approval as AI user
-2. Add option info as AI user
-
-
-
-
-
-What is the full list of tools for a suggestion?
-
-1. Add vote as AI user
-
-#### Resolved Task C-all-858<a name="c-all-858"></a> 
-How to make MCPServer play nice with existing token processing? Do we even need MCPServer or there is some more white box way of meeting the spec? Maybe a different Python library that is less annotation based and more clear.
-
-
-
-
-<https://gemini.google.com/share/69cb45ff2fb8> which is mostly just reading <https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda> and <https://github.com/awslabs/run-model-context-protocol-servers-with-aws-lambda/tree/main/examples/servers/dad-jokes>
-
-
-
-
-ApiEvent:
-
-Type: HttpApi
-
-
-
-
-**What is the difference between streamable HTTP and a REST API of all methods GET, POST, etc?**
-
-
-
-
-The Model Context Protocol (MCP) introduced **Streamable HTTP** in early 2025 to allow AI agents to interact with tools fluidly, receiving partial results as they are generated rather than waiting for a complete task to finish.
-
-
-
-
-But the Uclusion backend doesn't do partial results so this is all nonsense. Given that suppose I just want normal GET and POST REST endpoints?
-
-
-
-
-Also:
-
-
-
-
-**Cold Starts:** Because the adapter spins up a Python subprocess to execute your server, you will incur a slight cold-start penalty. If this becomes an issue for your agent workflows, consider enabling Lambda Provisioned Concurrency.
-
-
-
-
-But that shouldn't be an issue - maybe cost a second or two which is not very meaningful.
-
-
-
-
-The token handling should be fine as can handle that in serverless config as currently. Then just don't even run separate validation as passed in arguments will vary too much and FastMCP can handle it.
-
-#### Resolved Task T-all-2006<a name="t-all-2006"></a> 
-For the purposes of calculating view collaborators, the AI user doesn't count as is not an agent - front end and **back end also.**
-
-
-
-
-You also cannot assign to the AI user or use in a mention.
-
-#### Resolved Task T-all-2101<a name="t-all-2101"></a> 
-CLAUDE.md file also needs to go into something like .cursor/rules/uclusion.mdc file during install. Need a company copyright header also <https://cursor.com/docs/rules> Not sure if can globs always apply somehow for Uclusion jobs.
-
-#### Resolved Task T-all-2001<a name="t-all-2001"></a> 
-For an AI user must remove the rule that cannot put someone else's job into Work Ready.
-
-#### Resolved Question Q-all-68<a name="q-all-68"></a> 
-For T-all-2106 — how should "resolve answered questions before implementation" be incorporated into CLAUDE.md? The current workflow already mentions it in passing inside step 2 ("Call `resolve` on questions you feel have already been answered."), but the task says to "force" it, suggesting that's not strong enough.
-
-### Option O-3<a name="o-3"></a>
-### Strengthen step 2 wording only
-Leave the step layout alone and rewrite step 2's existing sentence to be much more emphatic and self-standing — e.g. promote it into its own paragraph: "Before moving on from step 2, you MUST call `resolve` on every open question whose answer is in the job. Open answered questions left dangling will confuse later sessions." Lightest-touch change.
-
-
-This job is in stage In Dialog.
-### Option O-2<a name="o-2"></a>
-### Add a precondition checklist at the top of step 5
-Keep 6 steps but add a hard precondition bullet list at the top of step 5: "Before doing any work in this step, first: (a) call `resolve` on every open question whose answer is already in the job, (b) call `resolve` on tasks that turn out to be already done." Reads as gating execution without inflating the step count.
-
-
-This job is in stage In Dialog.
-#### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
-Precondition framing is the right mental model: step 5 is "Execute" and the resolve sweep is something you do before any execution work, not a separate phase. Bonus: O-2 also covers tasks that are already done (the failure mode in T-all-2073) — not just questions. O-1's "new step 4.5" is more disruptive (breaks the 1–6 symmetry and the numbering used elsewhere in CLAUDE.md), and O-3 is too weak — it just rewords text in step 2 that the AI has demonstrably been ignoring. One point off for: precondition checklists at the top of a step can still be skimmed past if not visually distinct, so the wording needs to be hard-to-miss ("Before doing ANY work in this step…").
-
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
-Precondition is the correct way to think about it.
-
-### Option O-1<a name="o-1"></a>
-### New step 4.5 between Approve and Execute
-Insert a dedicated, numbered step between step 4 (Approve) and step 5 (Execute): "### 4.5 Resolve answered questions — Before starting execution, walk every open question on the job and call `resolve` on any whose answer is now in hand. Open questions left dangling become noise for later reviewers." This is the most prominent placement and matches the task's wording "maybe make that a step."
-
-Trade-off: bumps the step count to 7 and slightly disrupts the symmetry of the current 1-2-3-4-5-6 flow.
-
-
-This job is in stage In Dialog.
-#### Resolved Task T-all-2090<a name="t-all-2090"></a> 
-```
-see the shot-by-shot script I added under Q-Default-1.
-```
-
-
-
-
-Add everything but link icon to comments in options.
-
-#### Resolved Task S-all-62<a name="s-all-62"></a> 
-**Trim resolved items out of the `get_job` response by default.**
-
-Today `get_job` returns every resolved task, question, suggestion, and option in full. For long-running jobs like J-all-283 (~80 resolved tasks, many with embedded stack traces / code blocks) the response is 57KB+ and tips past the MCP inline-result budget, forcing the agent to spend extra round-trips paging through a persisted file just to find the few active items it actually needs to act on. The resolved bodies are also low-signal once resolved — the diff and commit history are the source of truth, not the task text.
-
-**Proposed behavior:**
-
-1. By default, render each resolved item as a single line: `Resolved Task T-all-2073 — Claude couldn't tell resolved questions were resolved` (short code + first ~80 chars of title). Drop the body, grouped tasks, and any nested resolved comments. Same treatment for resolved Questions (drop the option bodies — keep just `Resolved Question Q-all-49 — Do you run CLI each time…`) and resolved Suggestions.
-2. Keep the order and section structure (`#### Resolved`) so the AI can still see what's been done at a glance.
-3. Add an opt-in `include_resolved: true` argument for the rare case the AI needs a resolved item's full body (e.g. tracing why a past decision was made). The AI can then make a targeted second call.
-
-
-**Why now:** this is the second J-all-283 session that hit the size cap during a routine read. As more jobs accumulate resolved history, this will get worse for every agent (and every user reading the job in the UI is already paying the same scroll cost).
-
-**Adjacent thought** — a thinner version: just drop **grouped tasks** under resolved tasks and **option bodies** under resolved questions, but keep the resolved task body itself. That's most of the byte savings with less behavior change. Worth considering if a full skeleton-only response feels too aggressive.
-
-#### Resolved Task C-all-853<a name="c-all-853"></a> 
-See if can find an example of an MCP implementation that matches this config file. Either way see if Claude will create or if fast mcp does the handshake necessary to get the uclusion_token back to Cursor for use in all subsequent MCP calls.
-
-
-
-
-**You only get one URL so** the MCP server must be private and its authorizer must look for either token OR secret keys. No authorizers in SSO so probably this lives in investible_api or summaries.
-
-#### Resolved Task T-all-2080<a name="t-all-2080"></a> 
-```
-"params":{"name":"get_job","arguments":{"short_code_id":"Q-Default-1"},"
-```
-
-
-
-
-This failed because it didn't know to look for an option with that short code. Need to add another argument or break this out as its own tool.
-
-
-
-
-**Need to do another argument for this and the question tool and anything else that could be deeper.**
-
-#### Resolved Task C-all-902<a name="c-all-902"></a> 
-CLI also of course.
-
-#### Resolved Task T-all-2131<a name="t-all-2131"></a> 
-Change the CLAUDE.md to specify that a question is not resolved on sole approval by AI user.
-
-#### Resolved Task C-all-913<a name="c-all-913"></a> 
-~/.claude.json
-
-
-
-
-For MCP - says [here](https://code.claude.com/docs/en/settings) with format [here](https://code.claude.com/docs/en/agent-sdk/mcp#from-a-config-file).
-
-#### Resolved Task T-all-2009<a name="t-all-2009"></a> 
-Handle case of someone adds suggestion without voting and then points AI to it for opinion.
-
-#### Resolved Task C-all-860<a name="c-all-860"></a> 
-Getting forbidden back from <https://sso.dev.api.uclusion.com/mcp/.well-known/oauth-authorization-server> and doesn't seem to hit Lambda.
-
-#### Resolved Task T-all-2046<a name="t-all-2046"></a> 
-<https://stage.uclusion.com9721e840-b3ce-4ad2-8b46-675326b397fd/Q-all-61> - missing a slash when got question in cursor.
-
-#### Resolved Task T-all-2015<a name="t-all-2015"></a> 
-get_job by short code will not include all visible in that job so links to stuff outside will not work by hash. **However returning all will be messy and unbounded.**
-
-
-
-
-Currently convert_single_link won't even return the link but instead just the verbiage and that needs to be changed to just keep the full link.
-
-
-
-
-The verbiage on the tool needs to be change also to say these are not included.
-
-
-
-
-**For that matter external links are not either and should not be sucked in indiscriminately cause would also overflow context as unbounded.**
-
-#### Resolved Task C-all-845<a name="c-all-845"></a> 
-As it stands you oauth as yourself with secret keys but then some of your actions require using a different acting user.
-
-#### Resolved Task T-all-2024<a name="t-all-2024"></a> 
-In Integrations CLI is now CLI & MCP - need to fix and make clear all over is combined install and that mcp server directly added to cursor if available when run script.
-
-#### Resolved Task T-all-2007<a name="t-all-2007"></a> 
-Have them add to their ~/.cursor/mcp.json server list a Uclusion server with the correct URL and secret_key_id and secret_key as arguments.
-
-
-
-
-Then just take the hit of authentication each time following what cli.py does.
-
-
-
-
-<https://github.com/modelcontextprotocol/python-sdk/tree/main/examples/mcpserver>
-
-#### Resolved Task C-all-848<a name="c-all-848"></a> 
-Problem with AI adding a question is that there is no moderator at that point - since not agentic.
-
-
-
-
-How get around that? For instance let anyone operate as moderator for an AI question?
-
-
-
-
-Don't have AI ask questions?
-
-
-
-
-Have AI ask locally first and only resort to question when person can't answer and then ask him if he would like a question added and then the **question is added by the user and AI just votes on option likes.**
-
-#### Resolved Task S-all-60<a name="s-all-60"></a> 
-Can we just implement the MCP over regular HTTP?
-
-
-
-
-Also can we just return a tools list when asked to by nailing up the list and then not using FastMPC etc? Just see what the protocol requires.
-
-
-
-
-<https://modelcontextprotocol.io/specification/2025-03-26/basic/transports#streamable-http>
-
-
-
-
-1. The client **MUST** use HTTP POST to send JSON-RPC messages to the MCP endpoint.
-
-
-
-
-
-So just need to handle JSON-RPC and do some minimal form of the protocol - it's always a standard HTTP POST and no need for HTTP API - <https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-vs-rest.html> which doesn't support API keys anyway.
-
-#### Resolved Task T-all-2100<a name="t-all-2100"></a> 
-Fix the documentation to explain installs MD file.
-
-#### Resolved Task T-all-2035<a name="t-all-2035"></a> 
-When a question is created in a job anyone assigned to the job is also an admin of the question instead of just the question creator.
-
-
-
-
-Required because someone not assigned to could create a question with options and then it just sits there if that guy doesn't admin it - in this case the someone is AI.
-
-#### Resolved Task T-all-2098<a name="t-all-2098"></a> 
-Need a better way to get Claude to obey the flow. Can't be telling it each time how to do a job and it just ignored the AI approval required.
-
-
-
-
-Research what people use - is it a system context prompt or what? Need it to be part of the install or available to install manually or something.
-
-
-
-
-**Ask Claude how to do this.**
-
-#### Resolved Task T-all-2081<a name="t-all-2081"></a> 
-Inline markets created for demo have no AI user capability.
-
-#### Resolved Task T-all-2010<a name="t-all-2010"></a> 
-Add get_job by short code to the CLI so that can see the result for testing. Also useful if they wanted to use the CLI themselves instead of MCP.
-
-#### Resolved Task T-all-2021<a name="t-all-2021"></a> 
-Redo the integrations page to have a download command based on public/scripts/install.sh but make it a one liner. Keep the secrets as now as should not be installing secrets they don't know about.
-
-#### Resolved Task T-all-2014<a name="t-all-2014"></a> 
-Come up with plan for tools beyond get that is more reasonable. The MCP thing doesn't work well and it's hard to even get it to use it correctly.
-
-
-
-
-Have one thing that can show in a marketing video that is cool and easy.
-
-
-
-
-**Plus fix the verbiage on tools list so that Cursor does a better job of knowing to run a tool. Might have to make separate tools for all types or list all sorts of things you can get explicitly.**
-
-#### Resolved Task T-all-2002<a name="t-all-2002"></a> 
-[Have a Create AI User button that makes a user specific to a workspace and...](#2f89e4a0-7f3e-4847-8ac0-8da3105248bd)
-
-#### Resolved Suggestion S-all-61<a name="s-all-61"></a> 
-Might need to send question with options as sent false and then update to true after create options and that way force options to show up instead of having to manually sync.
-
-#### Resolved Note R-all-103<a name="r-all-103"></a> 
-**Implementation notes:**
-
-1. **uclusion.mdc is generated at install time, not checked in.** Per direction during execution, the single source of truth stays `public/scripts/CLAUDE.md`. The installer downloads CLAUDE.md, strips the `<!-- uclusion-workflow:v1 -->` / `<!-- /uclusion-workflow:v1 -->` markers, prepends a Cursor description-based YAML frontmatter, and writes the result to `~/.cursor/rules/uclusion.mdc`. The only mdc-specific content checked in is the frontmatter string itself (`CURSOR_MDC_FRONTMATTER` constant in `uclusionInstall.py`). This guarantees the Cursor and Claude Code surfaces never drift.
-
-2. **Copyright header placement.** The single-line `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->` is placed *inside* the workflow markers in `CLAUDE.md` (line 2, after the start marker), so it gets propagated into the user's `~/.claude/CLAUDE.md` when the installer appends/refreshes the block. For `uclusion.mdc`, the same line lands right after the frontmatter — also visible to anyone opening the file.
-
-3. **Cursor frontmatter is `description:`-based, not `alwaysApply: true`.** Picked option O-2 on Q-all-70: Cursor will pull the rule in only when the prompt references a Uclusion short code, so Cursor users don't pay context tokens on every unrelated request.
-
-4. **`~/.cursor/rules/uclusion.mdc` location is a forward-compat bet.** cursor.com/docs/rules only documents `.cursor/rules/` as a project-root path. If the user-global path turns out not to load in current Cursor, the follow-up is to add a per-project drop (Q-all-69 O-3 hybrid pattern); the codified frontmatter and generation logic carry over unchanged.
-
-#### Resolved Task T-all-2082<a name="t-all-2082"></a> 
-Need a copy button on the show secret dev - just have AI do it.
-
-#### Resolved Task C-all-866<a name="c-all-866"></a> 
-Pass the Uclusion URL down to convert_single_link so that not resolved internal links can be fixed up to be absolute.
-
-
-
-
-Should be able to pass it
-
-
-
-
-```
-deployment_group = DeploymentGroupVersionModel.get(account['deployment_group'])
-```
-
-```
-base_url = deployment_group.ui_url
-```
-
-
-
-
-as that is used for sending welcome email but double check what that is in production.
-
-#### Resolved Question Q-all-50<a name="q-all-50"></a> 
-## Who does the Uclusion AI login as?
-
-
-
-
-The notifications must be specific to the workspace Uclusion AI is associated with.
-
-### Option O-1<a name="o-1"></a>
-### Have a Create AI User button that makes a user specific to a workspace and...
-...creates the CLI API keys for it.
-
-
-This job is in stage In Dialog.
-> ##### $${\color{lightgreen} For}$$
-#### Assistance 
-#### Suggestion S-Default-1<a name="s-default-1"></a> 
-This is a dummy account with no API key etc. as AI will never run its own workspace.
-
-#### Resolved 
-#### Resolved Question Q-Default-1<a name="q-default-1"></a> 
-Does this user have its own account? Does it have a dummy account that does not have its own credentials or aggregate notifications?
-
-#### Resolved Task T-all-2036<a name="t-all-2036"></a> 
-lrwxrwxrwx 1 root root 37 Sep 3 2025 **aws** -> **/usr/local/aws-cli/v2/current/bin/aws**
-
-
-
-
-lrwxrwxrwx 1 root root 47 Sep 3 2025 **aws_completer** -> **/usr/local/aws-cli/v2/current/bin/aws_completer**
-
-
-
-
--rwxr-xr-x 1 root root 29547 May 8 22:40 **uclusionCLI.py**
-
-
-
-
--rwxr-xr-x 1 root root 5932 May 4 13:28 **uclusionMCPProxy.py**
-
-
-
-
-
-
-
-The correct way to do is to use pointers to an install directory. Also the CLI script should be uclusion.py.
-
-#### Resolved Task C-all-883<a name="c-all-883"></a> 
-~~Make sure AI user cannot be added to a view.~~
-
-
-
-
-~~Make sure AI user cannot be added to a workspace from another workspace.~~
-
-
-
-
-And AI user cannot be added in job add others.
-
-#### Resolved Task T-all-2070<a name="t-all-2070"></a> 
-Tool and CLI for making a suggestion. Otherwise forcing AI to ask very leading questions.
-
-#### Resolved Task T-all-1993<a name="t-all-1993"></a> 
-Figure out how can have Claude look at back end code without losing the IP so can try this with back end also.
-
-
-
-
-For instance the backlog job to finish comments sucking in when go to something in archive.
-
-#### Resolved Task T-all-1996<a name="t-all-1996"></a> 
-Must have the ability to move a task to a new job (or just create a new job period) and work on that job in a new instance of Claude (multi threaded from the original command line invocation).
-
-#### Resolved Task T-all-2008<a name="t-all-2008"></a> 
-Test that task link by short code spins if missing that task.
-
-#### Resolved Task T-all-2039<a name="t-all-2039"></a> 
-Options created by AI show as created by no one in DecisionInvestible. The AI user is not being added to inline markets.
-
-#### Resolved Task T-all-2073<a name="t-all-2073"></a> 
-Claude is not able to distinguish already resolved questions are resolved. Check the markdown and make more clear somehow. Also can add to the resolve tool information how to discern already resolved and not to attempt to resolve them.
-
-
-
-
-Currently looks like this:
-
-
-
-
-```
-Resolved
-```
-
-```
-
-
-
-```
-
-```
-Question Q-all-67
-```
-
-```
-T-all-1946 describes search behavior for Jobs Backlog, Bugs, Notes/Discussion, and Job Progress, but doesn’t mention the new T-all-2056 complete-jobs archive page. When a user is on the T-all-2056 page (with its view + collaborator filter dropdowns) and types in the search field, what happens?
-```
-
-```
-
-
-
-```
-
-```
-Option O-3
-```
-
-```
-...
-```
-
-
-
-
-And that Resolved at top was not enough for AI. Just make it "Resolved Question Q-all-67" etc.
-
-#### Resolved Task C-all-852<a name="c-all-852"></a> 
-How does this flow get you to the Uclusion login page where Github, Google, and name / password are available? Then if they choose Google they are another level deep?
-
-
-
-
-Can we instead:
-
-
-
-
-```
-{
-```
-
-```
-"mcpServers": {
-```
-
-```
-"uclusion": {
-```
-
-```
-"url": "https://production.uclusion.com/mcp?secret_key_id=blah&secret_key=blah"
-```
-
-```
-}
-```
-
-```
-}
-```
-
-```
-}
-```
-
-
-
-
-And those keys can come out of environment variables if preferred to avoid any possibility of being checked in and let people share.
-
-
-
-
-Point is that then we just need to find an MCP server implementation that does the handshake correctly so that Cursor uses the token from then on. The actual security is just the keys and not another login.
-
-#### Resolved Task T-all-2091<a name="t-all-2091"></a> 
-See [Autoplay loop in its own section](https://stage.uclusion.com/dialog/dd56682c-9920-417b-be46-7a30d41bc905/4b66ff31-12ef-490d-9b16-fef90943257f#option933d0f69-9ac0-42a3-9dbc-0d2e1406a69e) - table did not render.
-
-
-
-
-```
-import markdown
-```
-
-```
-
-
-
-```
-
-```
-text = """
-```
-
-```
-
-
-
-```
-
-```
-| Header 1 | Header 2 |
-```
-
-```
-| -------- | -------- |
-```
-
-```
-| Cell 1   | Cell 2   |
-```
-
-```
-"""
-```
-
-```
-
-
-
-```
-
-```
-# Enable the tables extension
-```
-
-```
-html = markdown.markdown(text, extensions=['tables'])
-```
-
-```
-print(html)
-```
-
-```
-
-
-
-```
-
-#### Resolved Question Q-all-69<a name="q-all-69"></a> 
-For T-all-2101 — where should the install script write the Cursor rules file? Cursor's documented `.cursor/rules/` directory is per-project, not user-global, while the rest of `uclusionInstall.py` writes to user-global locations (`~/.claude/CLAUDE.md`, `~/.cursor/mcp.json`, `~/.claude.json`, `~/.uclusion/`). There's no documented `~/.cursor/rules/` convention in cursor.com/docs/rules, so this isn't obvious from the task text.
-
-### Option O-1<a name="o-1"></a>
-### Per-project at $PWD/.cursor/rules/uclusion.mdc
-Treat the install as also seeding the current working directory's project. The installer writes (or refreshes, via markers like CLAUDE.md does) `./.cursor/rules/uclusion.mdc` if the user is sitting in a repo when they run the curl-pipe-bash install. Pros: matches Cursor's documented rule discovery, so it actually fires in Cursor. Cons: behavior depends on $PWD at install time, and the one-liner install isn't usually run from inside a target repo — the user would have to re-run it per repo or copy the file themselves.
-
-
-This job is in stage In Dialog.
-### Option O-3<a name="o-3"></a>
-### Both: ~/.cursor/rules/uclusion.mdc AND offer per-project on demand
-Write the user-global copy as a source-of-truth, and additionally if the installer detects a `.cursor/` directory in $PWD, copy it into `./.cursor/rules/uclusion.mdc` (prompt y/N like CLAUDE.md does). Pros: covers both possibilities without making the user re-run. Cons: more code, and if Cursor doesn't actually read the global path, the per-project copy is the only one that matters anyway.
-
-
-This job is in stage In Dialog.
-### Option O-2<a name="o-2"></a>
-### User-global at ~/.cursor/rules/uclusion.mdc
-Write to a user-global location parallel to `~/.cursor/mcp.json`. Pros: consistent with the rest of the installer (one install, applies everywhere). Cons: Cursor's documented rule discovery is `.cursor/rules/` in the project root, not `~/.cursor/rules/` — so this file may simply never be loaded by Cursor unless that convention is something they support undocumented. Needs verification before we commit.
-
-
-This job is in stage In Dialog.
-#### From AI user:
-> ##### $${\color{yellow} Reason \space For}$$ E-2<a name="e-2"></a>
-Agreeing with your vote on O-2 (user-global `~/.cursor/rules/uclusion.mdc`). Three with low-medium certainty because: (a) cursor.com/docs/rules only documents `.cursor/rules/` as a project-root path, so this is a forward-compatibility bet that Cursor either already reads `~/.cursor/rules/` or will start to; (b) deferring to your local Cursor knowledge — you've got Cursor open and can verify on your machine whether the rule actually loads. If it turns out Cursor ignores the global path, the fallback is to add an O-3-style "also drop a copy in $PWD/.cursor/rules/ if it exists" pass, which is a small follow-up rather than a rework.
-
-> ##### $${\color{orange} Reason \space For}$$ E-1<a name="e-1"></a>
-As you say it was unclear from documentation what this file should be called.
-
-### Option O-4<a name="o-4"></a>
-### Per-project ONLY, gated on detecting a .cursor/ folder in $PWD
-Mirror what the installer already does for ~/.cursor/mcp.json — but flipped: only write `./.cursor/rules/uclusion.mdc` if the user runs the install from inside a directory that already has a `.cursor/` folder (i.e. an existing Cursor project). Pros: no guessing about undocumented global support. Cons: silently does nothing when run from $HOME, which is how most people run it.
-
-
-This job is in stage In Dialog.
-#### Resolved Task T-all-1998<a name="t-all-1998"></a> 
-This should be an npm install so that you can easily put one in your docker container or whatever. Then you just put your keys in a .uclusion/credentials file and include the command for spawning an instance of your AI that accepts markdown input.
-
-> ##### Grouped task C-all-839<a name="c-all-839"></a> 
-Use WebSocketRunner from nodejs_sdk. Also in the main loop check for new notifications and sleep some amount of time if nothing.
-
-> ##### Grouped task C-all-837<a name="c-all-837"></a> 
-When you receive a push event or poll and get a new notification the point is just to group by investible and spawn AI to handle.
-
-> ##### Grouped task C-all-836<a name="c-all-836"></a> 
-Make the agent runner call the same CLI as now but gets you list of investibles and then you call API to get the markdown for each investible. That markdown includes all associated comments or investibles from links as well as images - as it does now.
-
-> ##### Grouped task C-all-840<a name="c-all-840"></a> 
-On startup check also check for Work Ready and assume you are the only instance so should be doing anything left there.
-
-#### Resolved Task T-all-2074<a name="t-all-2074"></a> 
-Links in the table of contents were broken by switching to ticket code - switch the links in table of contents to use ticket code also.
-
-#### Resolved Task T-all-2067<a name="t-all-2067"></a> 
-Need feedback from install like:
-
-
-
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/a289d0cc-3b36-4e6f-aa36-be997fac2078.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-#### Resolved Task C-all-862<a name="c-all-862"></a> 
-Move mcp endpoint over to investible as with proxy script don't need it to be any different from CLI and api tokens may not being added to SSO.
-
-
-
-
-Remove the authorizer from SSO so it is back to as before.
-
-
-
-
-Change the URL of mcp in the script.
-
-#### Resolved Task T-all-2096<a name="t-all-2096"></a> 
-Have to remove bullet list when create tasks or else the shadow copy can become out of date and confusing to AI in the markdown.
-
-#### Resolved Task C-all-855<a name="c-all-855"></a> 
-Figure out how Cursor knows to invoke Uclusion MCP when sees something like "plan J-1000" and what sub operations it can perform on that resource - like move task to new job or vote.
-
-
-
-
-<https://modelcontextprotocol.io/specification/2025-11-25/server/resources>
-
-#### Resolved Task T-all-2041<a name="t-all-2041"></a> 
-Retest install script. Make sure CLI still works - try resolving which is untested.
-
-#### Resolved Question Q-all-51<a name="q-all-51"></a> 
-## What if I want to work inside Cursor?
-
-### Option O-1<a name="o-1"></a>
-### Seems this is why have to do MCP instead of just JSON output:
-Model Context Protocol (MCP): This is the primary way to allow Cursor to interact with external tools and APIs dynamically. By setting up an MCP server, you can give the AI "tools" that allow it to fetch data from your own APIs, databases, or local scripts during a chat session.
-
-
-This job is in stage In Dialog.
-#### Assistance 
-#### Suggestion S-Default-1<a name="s-default-1"></a> 
-Then maybe just be yourself instead of an AI user.
-
-#### Resolved Task C-all-887<a name="c-all-887"></a> 
-First test install for stage by removing the current dev cursor server etc. and reinstall using command but with stage.
-
-
-
-
-```
-curl -fsSL https://stage.uclusion.com/scripts/install.sh | bash -s -- dd56682c-9920-417b-be46-7a30d41bc905 stage
-```
-
-#### Resolved Task T-all-2105<a name="t-all-2105"></a> 
-```
-Approving the job. Value proposition is strong: a "the page you're on was built using this very flow" walkthrough is the most credible proof-of-product the landing page can carry, and it directly addresses the gap that AiCollaborationFeature only describes the structure abstractly. The job is well-scoped after Q-8/9/10/11 — drop the fabricated specifics (due date), keep the real ones (real approval, real review report), render as a protocol-diagram-style two-column conversation between "You" and "AI". One point off certainty for: (1) the new visual style needs to coexist with AiCollaborationFeature without competing or duplicating, and (2) the walkthrough is now anchored to real job artifacts, so it will need refresh discipline if the underlying job/questions/options get edited later.</reason>
-```
-
-```
-</invoke>
-```
-
-
-
-
-Getting these end tags on approvals and also on [Use AI to write a walkthrough about using AI to create the walkthrough... - R-Marketing-8](https://stage.uclusion.com/dialog/dd56682c-9920-417b-be46-7a30d41bc905/18ae2d22-4588-4523-9520-52f5f98dbddb#c8997ae31-c38d-43a6-96b0-eca2977c256a) plus extra lines of bullets. See [Use AI to write a walkthrough about using AI to create the walkthrough...](https://stage.uclusion.com/dialog/dd56682c-9920-417b-be46-7a30d41bc905/18ae2d22-4588-4523-9520-52f5f98dbddb)
-
-
-
-
-Looks like we are **not processing the protocol correctly and those tags delineate argument boundaries.**
-
-> ##### Grouped task C-all-922<a name="c-all-922"></a> 
-**Parse Explicitly in Custom Servers:** If you are building your own MCP server, you must write custom logic to strip and deserialize these `<invoke>` blocks or let your host framework handle the translation automatically.
-
-**Check Tool Descriptions:** Ensure your tool descriptions are highly detailed. The more explicitly you define your inputs, the cleaner the tool call format will be.
-
-
-
-
-So this is just something that can happen. Ask Claude for the best way to mitigate - parsing out or saying don't put them in on tool descriptions.
-
-#### Resolved Task C-all-849<a name="c-all-849"></a> 
-Job approval based on what context?
-
-
-
-
-You would have to provide all marketing materials, documentation, etc.
-
-
-
-
-**AI job approval might not be a reasonable feature.**
-
-#### Resolved Question Q-all-71<a name="q-all-71"></a> 
-For T-all-2101 — what copyright header should go on `uclusion.mdc`, and should the same header be retroactively added to `public/scripts/CLAUDE.md` (which currently has none)? The task says "Need a company copyright header also" but doesn't pin down license, year, or scope.
-
-### Option O-2<a name="o-2"></a>
-### Full multi-line license block on both (Apache 2.0 style)
-Standard Apache-2.0 / similar header block at the top of each file. Pros: matches what's at the top of source files in many open-source repos. Cons: the workflow content is prose-not-code, so a code-style license block feels out of place; also the file is meant to be inlined into the user's own `~/.claude/CLAUDE.md`, where a multi-line license block would visually clutter their personal config.
-
-
-This job is in stage In Dialog.
-### Option O-3<a name="o-3"></a>
-### Header on `uclusion.mdc` only; leave CLAUDE.md alone
-Read the task literally — it talks about the new `.mdc` file. The existing `CLAUDE.md` doesn't have a header today and adding one would change a file that's already being copied into users' homes (mid-marker append/replace logic in `append_claude_md`). Safer to scope the change to the new file.
-
-
-This job is in stage In Dialog.
-#### Assistance 
-#### Suggestion S-1<a name="s-1"></a> 
-Read <https://cursor.com/docs/rules> - it says you have to have a header and we just want to do the minimum to be in compliance.
-
-### Option O-4<a name="o-4"></a>
-### SPDX-style identifier on both: `<!-- SPDX-License-Identifier: LicenseRef-Uclusion-Proprietary -->` + copyright line
-Machine-readable SPDX header + human-readable copyright line. Pros: tooling-friendly. Cons: declares a license identifier we may not have actually defined; only matters if Uclusion has a tooling story around SPDX, which I haven't seen evidence of in this repo.
-
-
-This job is in stage In Dialog.
-### Option O-1<a name="o-1"></a>
-### Single-line HTML comment on both: `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->`
-Minimal, single-line, HTML-comment style — invisible when the markdown is rendered, doesn't disrupt the existing `` marker line. Apply to both `uclusion.mdc` and `CLAUDE.md` so the two surfaces stay consistent.
-
-
-This job is in stage In Dialog.
-#### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
-Approving O-1 (single-line HTML comment on both files) per your S-1 — "minimum to be in compliance." `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->` is one line, invisible when the markdown renders, doesn't clutter the user's `~/.claude/CLAUDE.md` after the install appends, and doesn't disturb the existing `<!-- uclusion-workflow:v1 -->` marker the installer keys off of. Apply to both `uclusion.mdc` and `public/scripts/CLAUDE.md` so the two surfaces stay consistent. Not O-2 (multi-line Apache block — too heavy for prose-as-config), not O-3 (mdc-only — leaves CLAUDE.md inconsistent), not O-4 (SPDX — declares a license identifier we don't appear to have defined elsewhere in the repo).
-
-#### Resolved Task C-all-898<a name="c-all-898"></a> 
-If you load a question that is not there like <http://localhost:3000/0f13660a-8420-401a-8340-315c9505b2de/Q-Engineering-6> then you just get a white screen instead of a loading screen and polling for Q-.Engineering-6.
-
-#### Resolved Task T-all-1997<a name="t-all-1997"></a> 
-The CLI you run must be on a loop and responding to push events / notifications from Uclusion - has the same listen on socket plus poll that use in browser. See what did for configuration tests.
-
-
-
-
-Plus may need to know that this is user is an agent so can send it an event when it creates a job for itself instead of screening that out - otherwise it won't know to spawn a new thread.
-
-#### Resolved Task T-all-2063<a name="t-all-2063"></a> 
-Remove AI user from list that can be assigned to a job.
-
-#### Resolved Task T-all-2075<a name="t-all-2075"></a> 
-AI writes its comments in markdown so have to convert from markdown to Quill or use an editor that accepts markdown.
-
-
-
-
-Accept markdown from CLI to make testing easier.
-
-
-
-
-```
-import markdown
-```
-
-```
-
-
-
-```
-
-```
-md_text = "# Hello World\nThis is **bold** text."
-```
-
-```
-html = markdown.markdown(md_text)
-```
-
-```
-print(html) # Output: <h1>Hello World</h1><p>This is <strong>bold</strong> text.</p>
-```
-
-```
-
-
-
-```
-
-#### Resolved Task T-all-2130<a name="t-all-2130"></a> 
-Add user name to the approvals - job and option.
-
 ## Job J-all-300<a name="j-all-300"></a>
 ### Bugs T-all-1442
 

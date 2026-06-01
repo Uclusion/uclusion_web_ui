@@ -83,11 +83,10 @@ instead of silently doing something different.
 If some tasks in the job are completely disjoint from other tasks you may ask the user about starting 
 them before questions on the other tasks are answered.
 
-A question counts as answered when there is
-a "For" vote on one of its options, when the user has replied in the question
-with a clear direction.
+A question counts as answered when there is a "For" vote on one of its options that is not 
+marked "From AI user" or when the user has replied in the question with a clear direction.
 
-### 4. Approve - only applies if job is in stage "In Dialog"
+### 4. Approve - only applies if job is in stage "In Dialog" and there is no "From AI user" approval at the job level.
 
 Offering to approve a job with open questions defeats the workflow, because the
 implementation decisions those questions gate aren't pinned down yet.
@@ -117,10 +116,10 @@ ask the user to change the job's stage.
 
 **Before doing ANY work in this step, first sweep the job:**
 
-- Call `resolve` on every open question whose answer is already in the job
-  (a "For" vote on an option, a clear reply from the user, or a vote you
-  cast yourself in step 4). Open-but-answered questions left dangling will
-  confuse later sessions.
+- Call `resolve` on every open question whose answer is already in the job,
+  a "For" vote on an option that is not marked "From AI user" or a clear reply 
+  from the user. Open-but-answered questions left dangling will confuse later 
+  sessions.
 - Call `resolve` on tasks that turn out to be already done — sometimes a
   task is listed as active but the work is already in the diff, in a prior
   resolved item, or no longer applicable. Don't re-implement those; resolve

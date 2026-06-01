@@ -1,89 +1,19 @@
-| No Estimate | Estimated | | Done |
-|--------------|---------------|--------------|--------------|
-| [Tighten up rules.](#j-all-299)| [Current must fix](#j-all-293)| 05/29| [AI notifications stuff](#j-all-294) |
-| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#j-marketing-15)| | | [Fix documentation for notes, AI, and everyone view..](#j-all-290) |
-| [Other AI integrations.](#j-all-291)| | | [Better archive.](#j-all-230) |
-| [More upgrading.](#j-all-286)| | | [Bugs B-all-405, B-all-404, B-all-402, T-all-1838, T-all-1808](#j-all-298) |
-| | | | [Either fix tip of spear blog of have new tip of spear which shows detail of...](#j-all-292) |
-| | | | [Issues with view creation.](#j-all-289) |
-| | | | [Support progress on a task that are notes instead of things you complete](#j-all-284) |
-| | | | [Uclusion is how you collaborate with AI.](#j-all-283) |
-| | | | [Bugs B-all-424, B-all-423, B-all-422, B-all-420, B-all-421, B-all-419, B-all-418](#j-all-288) |
-| | | | [Problems with approvals.](#j-all-297) |
-## Job J-all-299<a name="j-all-299"></a>
-### Tighten up rules.
-
-This job is in stage Accepted.
-#### Tasks 
-#### Task T-all-2119<a name="t-all-2119"></a> 
-Do a bug from AI. Make sure the rules cover it and that the mcp tools work for it.
-
-#### Resolved 
-#### Resolved Task T-all-2113<a name="t-all-2113"></a> 
-Adding a note is still resolving previous notes for job level at least. Not sure if this is front end or back.
-
-#### Resolved Task C-all-930<a name="c-all-930"></a> 
-Fix this market_jwt vs capability thing. The market_jwt must be created for the inline markets and passed around for planning.
-
-
-
-
-**Plus the error on get_stage which is incomprehensible - debug in dev.**
-
-#### Resolved Task T-all-2110<a name="t-all-2110"></a> 
-Make clear what to do with completely disjoint tasks. Needs to be able to start them without asking if stage is Work Ready.
-
-
-
-
-**Can it do two things at once though? If it can't really go in parallel then is no point.**
-
-#### Resolved Task T-all-2111<a name="t-all-2111"></a> 
-Make stage of job show up in report. Only do approvals in In Dialog. Only do implementation in Accepted.
-
-
-
-
-If you are ready to do work but the job is not in Accepted stage then say so in the chat.
-
-#### Resolved Task T-all-2114<a name="t-all-2114"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/39c8db2c-9a98-4e7f-ae13-1ddc7e9c23ee.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-That second note should be a reply to my reply on the review report or maybe a new review report? If people are reviewing hiding this in notes is weird.
-
-
-
-
-**Actually since turned off notifications for review this is fine.**
-
-#### Resolved Task T-all-2120<a name="t-all-2120"></a> 
-Install again and verify that new rules are installed.
-
-#### Resolved Task T-all-2112<a name="t-all-2112"></a> 
-Make rules concise where possible to save on AI context. The rule only needs to get AI to the correct tool. Then directions for the tool live inside its description.
-
-#### Resolved Task T-all-2121<a name="t-all-2121"></a> 
-Do a report on stage and verify stage names come through.
-
-#### Resolved Task T-all-2117<a name="t-all-2117"></a> 
-Going to have to remove the notification when AI sends a review report because even moving to complete doesn't get rid of it.
-
-
-
-
-Plus very unlikely you want that notification for yourself and crazy unlikely you want the team informed.
-
-#### Resolved Task T-all-2118<a name="t-all-2118"></a> 
-Make clear that questions about the flow are allowed in the chat.
-
-
-
-
-Only questions about the job can go in the job and a question about the flow is not about the job. For instance asking if can start disjoint tasks while waits for answers on other tasks in chat is allowed.
-
+| No Estimate | Estimated | | Done | |
+|--------------|---------------|--------------|--------------|--------------|
+| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#j-marketing-15)| [Backend worst issues](#j-all-293)| 06/06| [Tighten up rules.](#j-all-299)|  |
+| [Can we do better than the existing option UI?](#j-all-303)| | | [AI notifications stuff](#j-all-294)|  |
+| [More upgrading.](#j-all-286)| | | [Fix documentation for notes, AI, and everyone view..](#j-all-290)|  |
+| [Try in plan mode and change CLAUDE.md if plans don't get written to notes.](#j-all-302)| | | [Better archive.](#j-all-230)|  |
+| | | | [Bugs B-all-405, B-all-404, B-all-402, T-all-1838, T-all-1808](#j-all-298)|  |
+| | | | [Either fix tip of spear blog of have new tip of spear which shows detail of...](#j-all-292)|  |
+| | | | [Other AI integrations.](#j-all-291)| Deployed to stage |
+| | | | [Fix that the Grouped button is not available on someone else's task because...](#j-all-301)| Deployed to stage |
+| | | | [Issues with view creation.](#j-all-289)|  |
+| | | | [Support progress on a task that are notes instead of things you complete](#j-all-284)|  |
+| | | | [Uclusion is how you collaborate with AI.](#j-all-283)|  |
+| | | | [Bugs T-all-1442](#j-all-300)|  |
+| | | | [Bugs B-all-424, B-all-423, B-all-422, B-all-420, B-all-421, B-all-419, B-all-418](#j-all-288)|  |
+| | | | [Problems with approvals.](#j-all-297)|  |
 ## Job J-Marketing-15<a name="j-marketing-15"></a>
 ### Build the prompts necessary to get the lastest debuts from Show HN, Product...
 ...Hunt, etc. that meet the small tech startup criteria - have landing page but not too many engineers.
@@ -1547,47 +1477,44 @@ if __name__ == "__main__":
 run_agent()
 ```
 
-## Job J-all-291<a name="j-all-291"></a>
-### Other AI integrations.
-
-This job is in stage Further Work.
-#### Tasks 
-#### Task T-all-2023<a name="t-all-2023"></a> 
-Do Codex (OpenAI) integration too and document.
+## Job J-all-303<a name="j-all-303"></a>
+### Can we do better than the existing option UI?
 
 
 
+Important now that targeting AI users who will use this interface a lot.
 
-See <https://developers.openai.com/codex/mcp> and ~/.codex/config.toml but must try it to verify.
 
+
+
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/62c0d126-f468-4c5f-969b-dca2d4012d43.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+This job is in stage Accepted.
 #### Resolved 
-#### Resolved Task T-all-2022<a name="t-all-2022"></a> 
-Do Claude Code integration also <https://code.claude.com/docs/en/agent-sdk/mcp#connect-to-external-tools-with-mcp> For the config this is going to have to be a documentation thing as they will likely add in code.
+#### Resolved Question Q-all-83<a name="q-all-83"></a> 
+What should the improved option UI optimize for in this pass?
+
+### Option O-3<a name="o-3"></a>
+### Bigger interaction redesign
+Rework option presentation and controls more substantially, accepting a larger UI change and higher review surface.
 
 
+This job is in stage In Dialog.
+### Option O-2<a name="o-2"></a>
+### General visual polish
+Keep the current structure but improve spacing, hierarchy, and visual styling without changing interaction density much.
 
 
-Mention what the install script does (and for cursor if forgot).
-
-> ##### Grouped task C-all-890<a name="c-all-890"></a> 
-Ask for the location of an .mcp.json and add to it.
-
-> ##### Grouped task C-all-892<a name="c-all-892"></a> 
-Can try the same thing in Cursor - it asks its questions in Uclusion and then waits for you to say you are done answering them. **They won't clutter up as you will resolve them.**
-
-#### Resolved Task C-all-891<a name="c-all-891"></a> 
-<https://code.claude.com/docs/en/agent-sdk/user-input#complete-example> - the question answer stuff is pretty shitty out of the box. Makes more sense to allow Claude to ask a question with options in a Uclusion job? However getting a response back to the agent will be a huge pain? Or could we just go simple and the agent waits for human to tell it to read the question again - there might be questions within an option. **That seems optimal as we don't want the agent to run off doing things till we are done thinking.**
+This job is in stage In Dialog.
+### Option O-1<a name="o-1"></a>
+### High-density AI workflow
+Prioritize faster scanning and repeated voting/review by AI users: compact layout, clear option status, fewer visual interruptions.
 
 
-
-
-Have to set this up, try it, and provide a code example in documentation.
-
-#### Resolved Task C-all-890<a name="c-all-890"></a> 
-Ask for the location of an .mcp.json and add to it.
-
-#### Resolved Task C-all-892<a name="c-all-892"></a> 
-Can try the same thing in Cursor - it asks its questions in Uclusion and then waits for you to say you are done answering them. **They won't clutter up as you will resolve them.**
+This job is in stage In Dialog.
+> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+The job explicitly calls out AI users who will use this interface frequently, so a compact, scannable option UI is likely the highest-value direction for this pass.
 
 ## Job J-all-286<a name="j-all-286"></a>
 ### More upgrading.
@@ -1604,7 +1531,7 @@ And check emails also.
 
 This job is in stage Further Work.
 ## Job J-all-293<a name="j-all-293"></a>
-### Current must fix
+### Backend worst issues
 
 This job is in stage Accepted.
 #### Tasks 
@@ -1701,6 +1628,14 @@ This job is in stage Accepted.
 
 
 Getting this on uclusion-websockets-dev-subscribeHandler in production which should be impossible since code should check state of token before using it.
+
+#### Task T-all-2127<a name="t-all-2127"></a> 
+Stage notifications table has 47,991 entries - most likely test data not getting cleared. Can confirm by checking the number on production - if it is high then the problem is demo and if not it is test data.
+
+
+
+
+71,662 comments so likely its not just notifications - things are not getting deleted.
 
 #### Task T-all-2104<a name="t-all-2104"></a> 
 Got a "Notification: New job" from some change I made myself - probably stage change after added a task to a job in Tasks Complete.
@@ -1801,6 +1736,86 @@ The Need better... job has an open question from AI doesn't have a notification 
 
 #### Resolved Task T-all-2085<a name="t-all-2085"></a> 
 Signup button on landing page is broken.
+
+## Job J-all-302<a name="j-all-302"></a>
+### Try in plan mode and change CLAUDE.md if plans don't get written to notes.
+
+This job is in stage Accepted.
+## Job J-all-299<a name="j-all-299"></a>
+### Tighten up rules.
+
+This job is in stage Complete.
+#### Resolved 
+#### Resolved Task T-all-2119<a name="t-all-2119"></a> 
+Do a bug from AI. Make sure the rules cover it and that the mcp tools work for it.
+
+#### Resolved Task T-all-2113<a name="t-all-2113"></a> 
+Adding a note is still resolving previous notes for job level at least. Not sure if this is front end or back.
+
+#### Resolved Task C-all-930<a name="c-all-930"></a> 
+Fix this market_jwt vs capability thing. The market_jwt must be created for the inline markets and passed around for planning.
+
+
+
+
+**Plus the error on get_stage which is incomprehensible - debug in dev.**
+
+#### Resolved Task T-all-2110<a name="t-all-2110"></a> 
+Make clear what to do with completely disjoint tasks. Needs to be able to start them without asking if stage is Work Ready.
+
+
+
+
+**Can it do two things at once though? If it can't really go in parallel then is no point.**
+
+#### Resolved Task T-all-2111<a name="t-all-2111"></a> 
+Make stage of job show up in report. Only do approvals in In Dialog. Only do implementation in Accepted.
+
+
+
+
+If you are ready to do work but the job is not in Accepted stage then say so in the chat.
+
+#### Resolved Task T-all-2114<a name="t-all-2114"></a> 
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/39c8db2c-9a98-4e7f-ae13-1ddc7e9c23ee.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+That second note should be a reply to my reply on the review report or maybe a new review report? If people are reviewing hiding this in notes is weird.
+
+
+
+
+**Actually since turned off notifications for review this is fine.**
+
+#### Resolved Task T-all-2120<a name="t-all-2120"></a> 
+Install again and verify that new rules are installed.
+
+#### Resolved Task T-all-2112<a name="t-all-2112"></a> 
+Make rules concise where possible to save on AI context. The rule only needs to get AI to the correct tool. Then directions for the tool live inside its description.
+
+#### Resolved Task T-all-2121<a name="t-all-2121"></a> 
+Do a report on stage and verify stage names come through.
+
+#### Resolved Task T-all-2125<a name="t-all-2125"></a> 
+Explain commit message rules such that Github actions will correctly kick in.
+
+#### Resolved Task T-all-2117<a name="t-all-2117"></a> 
+Going to have to remove the notification when AI sends a review report because even moving to complete doesn't get rid of it.
+
+
+
+
+Plus very unlikely you want that notification for yourself and crazy unlikely you want the team informed.
+
+#### Resolved Task T-all-2118<a name="t-all-2118"></a> 
+Make clear that questions about the flow are allowed in the chat.
+
+
+
+
+Only questions about the job can go in the job and a question about the flow is not about the job. For instance asking if can start disjoint tasks while waits for answers on other tasks in chat is allowed.
 
 ## Job J-all-294<a name="j-all-294"></a>
 ### AI notifications stuff
@@ -2535,6 +2550,561 @@ People like Brad and Daniel have working systems with things like it leaves a sp
 2. Storing the collaboration in the job much preferred
 3. No subtleties on chat - communication within an option. Or you can approve multiple options in chat but not with a certainty and reason for each.
 4. If want other humans opinions chat is a complete fail.
+
+## Job J-all-291<a name="j-all-291"></a>
+### Other AI integrations.
+
+This job is in stage Complete.
+#### Reports 
+#### Report R-all-121<a name="r-all-121"></a> 
+T-all-2128 (installer hangs at the end) is fixed and ready to test. One file changed: public/scripts/uclusionInstall.py.
+
+Root cause: every urlopen call ran with no timeout, so the stalled TLS handshake while re-downloading CLAUDE.md blocked forever and required a Ctrl-C. Fix (Q-all-82 -> O-1):
+
+1. Added HTTP_TIMEOUT = 15 and applied timeout=HTTP_TIMEOUT to every urlopen. A stall now fails after 15s instead of hanging.
+2. Added make_workflow_md_fetcher(env): CLAUDE.md is downloaded at most once per run and reused for ~/.claude/CLAUDE.md, the Cursor .mdc, and ~/.codex/AGENTS.md (was up to three downloads). install_workflow_md and install_cursor_mdc now consume the shared fetch_md callable. Fetch is lazy and memoizes failures, so a stall costs a single bounded timeout.
+
+
+Verified locally with urlopen stubbed (no live network): all three surfaces write from a single download with timeout=15; a simulated stall yields one network attempt then a clean skip with nothing written. python3 -m py_compile is clean.
+
+To confirm end-to-end on your machine: run install.sh <workspaceid> stage and watch that CLAUDE.md is downloaded once (not once per surface) and that the run completes on its own without needing Ctrl-C. T-all-2128 is resolved.</workspaceid>
+
+Not changed: the live Codex MCP handshake check from R-all-118 (Q-all-81 -> O-3) is still yours to confirm on your authenticated Codex install.
+
+#### Notes 
+#### Note R-all-120<a name="r-all-120"></a> 
+Fixed per Q-all-82 -> O-1 (timeout + fetch CLAUDE.md once), in public/scripts/uclusionInstall.py. (1) Added HTTP_TIMEOUT = 15 and passed timeout=HTTP_TIMEOUT to every urlopen call (download_to and the CLAUDE.md fetch); a stalled TLS handshake now raises after 15s instead of blocking forever, so no Ctrl-C is needed. (2) New make_workflow_md_fetcher(env) returns a memoized closure that downloads CLAUDE.md at most once per run and reuses the bytes for ~/.claude/CLAUDE.md, the Cursor .mdc, and ~/.codex/AGENTS.md (previously the same URL was pulled up to three times). install_workflow_md and install_cursor_mdc now take that fetch_md callable. The fetch is lazy (declining every prompt = no network call) and memoizes failures, so a stall costs one bounded 15s timeout, not one per surface; marker validation and newline normalization moved into the fetcher so all surfaces write byte-identical content. Verified locally with urlopen stubbed: one download, timeout=15 passed, all three files written; on a simulated stall, one network attempt then None for all callers and nothing written. py_compile clean.
+
+#### Note R-all-117<a name="r-all-117"></a> 
+Codex integration implemented in public/scripts/uclusionInstall.py + documented in mcp.md. Key decisions for reviewers:
+
+**Detection (per Q-all-80 → O-1):** Codex paths are gated on the `~/.codex` directory existing, not on config.toml/AGENTS.md pre-existing. Codex creates `~/.codex` on login but leaves config.toml optional, so the Cursor/Claude "skip unless file exists" rule would have missed most users.
+
+**config.toml (C-all-935):** No TOML writer exists in the stdlib (tomllib reads only, 3.11+), and the installer must run standalone via `curl | bash` with just python3 — so the `[mcp_servers.Uclusion]` table is rendered from a template and managed as a `# uclusion-mcp:v1 ... # /uclusion-mcp:v1` comment-delimited block. On rerun the block is stripped and re-appended at the END of the file (a TOML table captures all trailing keys until the next header, so keeping it last avoids swallowing the user's other settings). A hand-written, un-marked `[mcp_servers.Uclusion]` is detected and left untouched to avoid a duplicate-table parse error. Like the Cursor/Claude JSON paths, production drops the env arg (only stage/dev pass it).
+
+**AGENTS.md (C-all-936):**`append_claude_md` was generalized into `install_workflow_md(env, target_path, client_label, require_dir=...)` and now drives both `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md` from the same downloaded CLAUDE.md source, so the workflow text never drifts between surfaces. AGENTS.md uses the same y/N prompt + `<!-- uclusion-workflow:v1 -->` markers, gated on `~/.codex`.
+
+**Verification (per Q-all-81 → O-3):** No live MCP handshake was run here — you said you'll confirm on your authenticated Codex. config.toml output was unit-checked: it round-trips through tomllib, matches the C-all-935 schema exactly, refresh dedups and preserves unrelated tables, and production correctly emits 2 args.
+
+#### Resolved 
+#### Resolved Question Q-all-80<a name="q-all-80"></a> 
+For the Codex (OpenAI) integration in T-all-2023: how should the installer decide whether to configure Codex? Unlike ~/.cursor/mcp.json and ~/.claude.json (which the tools auto-create on first run, so their presence is a reliable "installed" signal), Codex's ~/.codex/config.toml is OPTIONAL — Codex creates the ~/.codex/ directory (with auth.json) on login but often has no config.toml. So mirroring the Cursor/Claude "skip unless the file exists" rule would miss most Codex users.
+
+### Option O-3<a name="o-3"></a>
+### Always create
+Unconditionally create ~/.codex/config.toml and ~/.codex/AGENTS.md regardless of whether Codex appears installed. Maximizes reach but creates ~/.codex for users who don't use Codex.
+
+
+This job is in stage In Dialog.
+### Option O-1<a name="o-1"></a>
+### Gate on ~/.codex/ directory
+Configure Codex (write/refresh config.toml AND AGENTS.md) when the ~/.codex/ directory exists, even if config.toml is absent — creating config.toml when needed. Directory presence signals Codex is installed; a missing config.toml is normal. My recommendation.
+
+
+This job is in stage In Dialog.
+> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+Gating on the ~/.codex/ directory is the right detection signal for Codex specifically. Codex creates ~/.codex/ (with auth.json) on login but treats config.toml as optional, so requiring config.toml to pre-exist (the Cursor/Claude rule) would silently skip nearly every real Codex user. Directory-presence still avoids creating ~/.codex for people who don't use Codex, so it's strictly more useful than O-2 without the over-reach of O-3.
+
+> ##### $${\color{lightgreen} For}$$
+### Option O-2<a name="o-2"></a>
+### Mirror Cursor/Claude exactly
+Only touch config.toml if config.toml already exists; skip entirely otherwise. Most consistent with existing code, but would configure almost no Codex users since config.toml is usually absent.
+
+
+This job is in stage In Dialog.
+#### Resolved Report R-all-118<a name="r-all-118"></a> 
+Codex (OpenAI) integration is complete and ready to test. Two files changed.
+
+**public/scripts/uclusionInstall.py** - New `update_codex_config(workspace_id, env)` writes the `[mcp_servers.Uclusion]` table to `~/.codex/config.toml` (C-all-935), gated on the `~/.codex` directory existing. Wired into `main()` after the Cursor/Claude MCP registration.
+- New `build_codex_mcp_block` renders the TOML table from a template (no stdlib TOML writer; installer must stay standalone-python3). Managed behind `# uclusion-mcp:v1` markers, re-appended at end-of-file on refresh, and skips a hand-written unmarked Uclusion table.
+- `append_claude_md` was generalized to `install_workflow_md(env, target_path, client_label, require_dir=...)`; it now installs the workflow block into both `~/.claude/CLAUDE.md` and `~/.codex/AGENTS.md` (C-all-936), the latter gated on `~/.codex`. Claude Code behavior is unchanged.
+
+**uclusion-documentation/.../mcp.md** - Configuration section now documents the Codex `config.toml` table, the directory-based gating, the refresh markers, and that the Codex CLI (unlike the desktop app) runs on Linux too.
+- Workflow rule files section adds the Codex `~/.codex/AGENTS.md` bullet.
+
+**Tested here:** config.toml generation round-trips through tomllib and matches the C-all-935 schema exactly; rerun/refresh dedups the table and preserves unrelated user tables (`model`, other `[mcp_servers.*]`); production drops the env arg (2 args), stage/dev include it (3); the `~/.codex`-absent case skips cleanly; an unmarked user-defined Uclusion table is left untouched.
+
+**Not tested here (per Q-all-81 → O-3):** no live Codex MCP handshake — you indicated you'll confirm on your authenticated Codex install. The end-to-end check to run there: from a clean `~/.codex`, run `install.sh <workspaceId> stage`, then `codex` and confirm it lists the Uclusion tools and that AGENTS.md picked up the workflow; re-run install and confirm config.toml refreshes in place rather than duplicating.
+
+All tasks (T-all-2023, C-all-935, C-all-936) are resolved. Decision rationale is in note R-all-117.
+
+#### Resolved Task T-all-2128<a name="t-all-2128"></a> 
+Now the script hangs at the end and must be interrupted to get a prompt back:
+
+
+
+
+```
+🧩 Registering Uclusion MCP server in /home/disrael/.cursor/mcp.json
+```
+
+```
+✅ Updated /home/disrael/.cursor/mcp.json
+```
+
+```
+🧩 Registering Uclusion MCP server in /home/disrael/.claude.json
+```
+
+```
+✅ Updated /home/disrael/.claude.json
+```
+
+```
+🧩 Registering Uclusion MCP server in /home/disrael/.codex/config.toml
+```
+
+```
+✅ Added Uclusion MCP server to /home/disrael/.codex/config.toml
+```
+
+```
+📝 Found Uclusion workflow block in /home/disrael/.claude/CLAUDE.md
+```
+
+```
+Refresh Uclusion job workflow in /home/disrael/.claude/CLAUDE.md? [y/N] y
+```
+
+```
+⬇  Downloading https://stage.uclusion.com/scripts/CLAUDE.md
+```
+
+```
+✅ Refreshed Uclusion workflow in /home/disrael/.claude/CLAUDE.md
+```
+
+```
+📝 Found existing /home/disrael/.cursor/rules/uclusion.mdc
+```
+
+```
+Refresh Uclusion Cursor rule at /home/disrael/.cursor/rules/uclusion.mdc? [y/N] y
+```
+
+```
+⬇  Downloading https://stage.uclusion.com/scripts/CLAUDE.md
+```
+
+```
+^CTraceback (most recent call last):
+```
+
+```
+File "/tmp/tmp.J7ZY3TSSwR/uclusionInstall.py", line 575, in <module>
+```
+
+```
+sys.exit(main())
+```
+
+```
+^^^^^^
+```
+
+```
+File "/tmp/tmp.J7ZY3TSSwR/uclusionInstall.py", line 561, in main
+```
+
+```
+install_cursor_mdc(env)
+```
+
+```
+File "/tmp/tmp.J7ZY3TSSwR/uclusionInstall.py", line 500, in install_cursor_mdc
+```
+
+```
+with urllib.request.urlopen(url) as response:
+```
+
+```
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+
+```
+File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
+```
+
+```
+return opener.open(url, data, timeout)
+```
+
+```
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+
+```
+File "/usr/lib/python3.12/urllib/request.py", line 515, in open
+```
+
+```
+response = self._open(req, data)
+```
+
+```
+^^^^^^^^^^^^^^^^^^^^^
+```
+
+```
+File "/usr/lib/python3.12/urllib/request.py", line 532, in _open
+```
+
+```
+result = self._call_chain(self.handle_open, protocol, protocol +
+```
+
+```
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+
+```
+File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
+```
+
+```
+result = func(*args)
+```
+
+```
+^^^^^^^^^^^
+```
+
+```
+File "/usr/lib/python3.12/urllib/request.py", line 1392, in https_open
+```
+
+```
+return self.do_open(http.client.HTTPSConnection, req,
+```
+
+```
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+
+```
+File "/usr/lib/python3.12/urllib/request.py", line 1344, in do_open
+```
+
+```
+h.request(req.get_method(), req.selector, req.data, headers,
+```
+
+```
+File "/usr/lib/python3.12/http/client.py", line 1336, in request
+```
+
+```
+self._send_request(method, url, body, headers, encode_chunked)
+```
+
+```
+File "/usr/lib/python3.12/http/client.py", line 1382, in _send_request
+```
+
+```
+self.endheaders(body, encode_chunked=encode_chunked)
+```
+
+```
+File "/usr/lib/python3.12/http/client.py", line 1331, in endheaders
+```
+
+```
+self._send_output(message_body, encode_chunked=encode_chunked)
+```
+
+```
+File "/usr/lib/python3.12/http/client.py", line 1091, in _send_output
+```
+
+```
+self.send(msg)
+```
+
+```
+File "/usr/lib/python3.12/http/client.py", line 1035, in send
+```
+
+```
+self.connect()
+```
+
+```
+File "/usr/lib/python3.12/http/client.py", line 1477, in connect
+```
+
+```
+self.sock = self._context.wrap_socket(self.sock,
+```
+
+```
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+
+```
+File "/usr/lib/python3.12/ssl.py", line 455, in wrap_socket
+```
+
+```
+return self.sslsocket_class._create(
+```
+
+```
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+
+```
+File "/usr/lib/python3.12/ssl.py", line 1042, in _create
+```
+
+```
+self.do_handshake()
+```
+
+```
+File "/usr/lib/python3.12/ssl.py", line 1320, in do_handshake
+```
+
+```
+self._sslobj.do_handshake()
+```
+
+```
+KeyboardInterrupt
+```
+
+#### Resolved Task C-all-935<a name="c-all-935"></a> 
+```
+[mcp_servers.Uclusion]
+```
+
+```
+command = "python3"
+```
+
+```
+args = [
+```
+
+```
+"/usr/local/bin/uclusionMCPProxy.py",
+```
+
+```
+"dd56682c-9920-417b-be46-7a30d41bc905",
+```
+
+```
+"stage",
+```
+
+```
+]
+```
+
+Goes in ~/.codex/config.toml similar to what was done in the install already.
+
+#### Resolved Question Q-all-81<a name="q-all-81"></a> 
+T-all-2023 says the Codex integration "must try it to verify." I can't run a live verification on this Linux dev box: Codex CLI isn't installed here and trying the MCP handshake needs OpenAI authentication. (Note: the Codex CLI/npm package does run on Linux — only the Codex desktop app is Mac/Windows-only — so the install code itself can configure Codex on any platform; the limitation is purely about me executing a live test here.) How do you want to handle verification?
+
+### Option O-1<a name="o-1"></a>
+### You verify on your machine
+I implement the config.toml + AGENTS.md install paths and docs to match the documented Codex MCP format, and you run the live verification on your authenticated Mac/Windows/Codex. My recommendation.
+
+
+This job is in stage In Dialog.
+> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+The install code is platform-agnostic and can be written and unit-reasoned against the documented config.toml schema without a live OpenAI session, so blocking on auth here (O-2) adds friction for little gain. A real end-to-end MCP handshake is still valuable, but it belongs on your authenticated Codex install rather than fully skipping verification (O-3).
+
+### Option O-3<a name="o-3"></a>
+### Skip live verification
+Trust that matching the documented config.toml schema from developers.openai.com/codex/mcp is sufficient; no end-to-end test before review.
+
+
+This job is in stage In Dialog.
+> ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
+I will be confirming myself.
+
+### Option O-2<a name="o-2"></a>
+### Install + auth Codex here
+I install @openai/codex on this Linux box and you provide OpenAI auth so I can run the MCP handshake end-to-end before handing it back.
+
+
+This job is in stage In Dialog.
+#### Resolved Task T-all-2022<a name="t-all-2022"></a> 
+Do Claude Code integration also <https://code.claude.com/docs/en/agent-sdk/mcp#connect-to-external-tools-with-mcp> For the config this is going to have to be a documentation thing as they will likely add in code.
+
+
+
+
+Mention what the install script does (and for cursor if forgot).
+
+> ##### Grouped task C-all-890<a name="c-all-890"></a> 
+Ask for the location of an .mcp.json and add to it.
+
+> ##### Grouped task C-all-892<a name="c-all-892"></a> 
+Can try the same thing in Cursor - it asks its questions in Uclusion and then waits for you to say you are done answering them. **They won't clutter up as you will resolve them.**
+
+#### Resolved Task C-all-934<a name="c-all-934"></a> 
+<https://www.npmjs.com/package/@openai/codex>
+
+#### Resolved Task C-all-936<a name="c-all-936"></a> 
+The CLAUDE.md must be copied or appended to ~/.codex/AGENTS.md similar to what was done in the install already.
+
+#### Resolved Task C-all-891<a name="c-all-891"></a> 
+<https://code.claude.com/docs/en/agent-sdk/user-input#complete-example> - the question answer stuff is pretty shitty out of the box. Makes more sense to allow Claude to ask a question with options in a Uclusion job? However getting a response back to the agent will be a huge pain? Or could we just go simple and the agent waits for human to tell it to read the question again - there might be questions within an option. **That seems optimal as we don't want the agent to run off doing things till we are done thinking.**
+
+
+
+
+Have to set this up, try it, and provide a code example in documentation.
+
+#### Resolved Task T-all-2023<a name="t-all-2023"></a> 
+Do Codex (OpenAI) integration too and document.
+
+
+
+
+See <https://developers.openai.com/codex/mcp> and ~/.codex/config.toml but must try it to verify.
+
+
+
+
+Codex app is only Mac and Windows similar to Claude desktop.
+
+#### Resolved Task C-all-890<a name="c-all-890"></a> 
+Ask for the location of an .mcp.json and add to it.
+
+#### Resolved Note R-all-119<a name="r-all-119"></a> 
+Fixed per Q-all-82 → O-1 (timeout + fetch CLAUDE.md once). Change is in `public/scripts/uclusionInstall.py`:
+
+1. **Timeout (the load-bearing fix):** added `HTTP_TIMEOUT = 15` and passed `timeout=HTTP_TIMEOUT` to every `urlopen` call (`download_to` for the CLI/proxy scripts, and the CLAUDE.md fetch). A stalled TLS handshake now raises after 15s instead of blocking forever, so the installer never needs a Ctrl-C.
+2. **Single fetch:** new `make_workflow_md_fetcher(env)` returns a memoized closure that downloads CLAUDE.md at most once per run and reuses the bytes for `~/.claude/CLAUDE.md`, the Cursor `.mdc`, and `~/.codex/AGENTS.md`. Previously the identical URL was pulled up to three times (three independent stall chances). `install_workflow_md` and `install_cursor_mdc` now take the `fetch_md` callable instead of downloading themselves.
+
+
+Design notes: the fetch is **lazy** (declining every prompt triggers no network call) and **memoizes failures** too — so a stall costs one bounded 15s timeout, not one per surface. Marker validation and newline normalization moved into the fetcher, so all three surfaces are written from byte-identical content.
+
+Verified locally (urlopen stubbed, no real network): (1) with all three surfaces present and prompts auto-confirmed, exactly one download occurs, `timeout=15` is passed, and all three files are written; (2) on a simulated stall, the fetcher attempts the network once, returns None for all three callers, and writes nothing. `python3 -m py_compile` clean.
+
+#### Resolved Question Q-all-82<a name="q-all-82"></a> 
+T-all-2128: the installer hangs at the end and has to be Ctrl-C'd. The traceback shows it blocked inside `urllib.request.urlopen()` in `install_cursor_mdc` during the TLS handshake while re-downloading `CLAUDE.md` — i.e. a stalled connection. None of the `urlopen` calls in the script pass a `timeout`, so a stalled connection blocks forever instead of failing.
+
+Two contributing facts: (1) no timeout anywhere, and (2) `CLAUDE.md` gets downloaded up to three separate times in one run (once for `~/.claude/CLAUDE.md`, once for the Cursor `.mdc`, once for `~/.codex/AGENTS.md`), so there are three independent chances to stall. How would you like the fix scoped?
+
+### Option O-2<a name="o-2"></a>
+### Timeout only
+Just add a timeout to the urlopen calls so the installer fails fast on a stall. Leaves the triple-download in place (still three chances to stall, but each now bounded).
+
+
+This job is in stage In Dialog.
+### Option O-1<a name="o-1"></a>
+### Timeout + fetch CLAUDE.md once
+Add a connect/read timeout (e.g. 15s) to every urlopen call so a stall fails gracefully instead of hanging, AND download CLAUDE.md a single time per run and reuse the content for CLAUDE.md, the Cursor .mdc, and AGENTS.md. Fixes the hang and removes two redundant network round-trips. Recommended.
+
+
+This job is in stage In Dialog.
+> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+The hang is a missing-timeout problem, so a timeout is the load-bearing fix — without it any single stalled connection blocks forever (O-3 alone doesn't solve it). Fetching CLAUDE.md once is a cheap, low-risk win on top: it's the exact same URL pulled three times in one run, so reusing the content removes two redundant round-trips (two fewer chances to stall) and keeps the three surfaces byte-identical. The combination fully addresses the reported symptom and tightens the network surface; it's the right scope.
+
+> ##### $${\color{lightgreen} For}$$
+### Option O-3<a name="o-3"></a>
+### Dedupe download only
+Download CLAUDE.md once and reuse it, but add no timeout. Reduces stall surface to a single request but that one request can still hang forever.
+
+
+This job is in stage In Dialog.
+#### Resolved Task C-all-892<a name="c-all-892"></a> 
+Can try the same thing in Cursor - it asks its questions in Uclusion and then waits for you to say you are done answering them. **They won't clutter up as you will resolve them.**
+
+## Job J-all-301<a name="j-all-301"></a>
+### Fix that the Grouped button is not available on someone else's task because...
+...instead it is a reply.
+
+
+This job is in stage Complete.
+#### Reports 
+#### Report R-all-116<a name="r-all-116"></a> 
+Ready to review. The Grouped affordance now works on tasks authored by someone else.
+
+What was built:
+- A separate "Grouped" button now appears next to the existing "Reply" button on a task you did not author (own-task behavior is unchanged - still a single "Grouped" button). It opens the reply wizard in grouped subtask/note mode via a new isSubtask flag threaded Wizard.js -> ReplyWizard -> ReplyStep.
+- Grouped subtask replies are saved with notification_type BLUE, and subtask identification now treats a REPLY carrying BLUE as a grouped task in addition to the existing parent-author match. This lets non-authors open subtasks and notes on another person's task and have them recognized as grouped tasks. Sites updated: Reply.js, Comment.js, CommentReplyEdit.js, ReplyStep.js, CommentAdd.js, ReplyWizard.js, Wizard.js.
+
+Decisions are recorded in R-all-115 (notably BLUE as the subtask marker per Q-all-78/O-4, and the separate button per Q-all-79/O-1).
+
+One thing worth a look during review: author-created grouped subtasks are now explicitly saved BLUE rather than via the backend default - please confirm that doesn't weaken the notification the assignee gets when a grouped task is added.
+
+How to test: open a planning task authored by another user, confirm both "Reply" and "Grouped" buttons show; use "Grouped" to add a subtask and a note, and confirm they render as grouped tasks/notes with the in-progress affordances.
+
+Lint passes on all touched files. No automated tests exist for this area.
+
+#### Notes 
+#### Note R-all-115<a name="r-all-115"></a> 
+Implemented. Summary of the change and decisions:
+
+**Identification (REPLY + BLUE = grouped task, per Q-all-78 / option O-4).** Added `|| comment.notification_type === BLUE_LEVEL` to the subtask test beside the existing parent-author check in all four sites: `Reply.js`, `Comment.js` (isSubTask fn), and `CommentReplyEdit.js`. So a reply is recognized as a grouped subtask either when its author equals the task author (legacy data) or when it carries BLUE.
+
+**Button (separate Grouped button next to Reply, per Q-all-79 / option O-1).** On a task you authored the single button is still "Grouped" (unchanged). On someone else's task the existing button stays "Reply" and a new "Grouped" button (`commentSubTaskButton`) appears beside it. It launches the reply wizard with `&isSubtask=true`, threaded through Wizard.js -> ReplyWizard -> ReplyStep, which forces the grouped subtask/note mode for non-authors. The wizard preview now always includes the parent task so a non-author sees what they are grouping under.
+
+**Creation.** Grouped subtask replies are now saved explicitly with notification_type BLUE (CommentAdd, both Send and Add-another paths), which is what makes a non-author's grouped task identifiable as REPLY + BLUE. Notes (REPORT_TYPE) were already saved BLUE. NOTE FOR REVIEW: this means author-created grouped subtasks are now also explicitly BLUE rather than relying on the backend default - please confirm that does not weaken the notification the assignee should receive when a grouped task is added.
+
+Lint passes on all touched files; no existing tests cover this area.
+
+#### Resolved 
+#### Resolved Task T-all-2126<a name="t-all-2126"></a> 
+Fix that the Grouped button is not available on someone else's task because instead it is a reply. That means you won't be able to open subtasks or notes on another person's authored task. Use notification_type as another way to identify replies as subtasks beside the parent author. Then just put the button there next to Reply.
+
+#### Resolved Question Q-all-79<a name="q-all-79"></a> 
+"Then just put the button there next to Reply" — on a task authored by someone else, how should the Grouped affordance appear? Today there is a single button whose label is 'Grouped' on your own task and 'Reply' on others'.
+
+### Option O-2<a name="o-2"></a>
+### Relabel single button to Grouped
+Drop the author check so the existing single button reads 'Grouped' on everyone's task (same as on your own), removing the standalone 'Reply' affordance on tasks. Simpler but loses the plain-reply option on a task.
+
+
+This job is in stage In Dialog.
+### Option O-1<a name="o-1"></a>
+### Separate Grouped button next to Reply
+On others' tasks keep the 'Reply' button and add a distinct 'Grouped' button beside it, so a non-author can choose a plain reply or a grouped subtask/note. Matches the literal 'next to Reply' wording.
+
+
+This job is in stage In Dialog.
+> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+The literal wording "put the button there next to Reply" reads as adding a distinct Grouped button alongside the existing Reply button, not relabeling. It also preserves the ability to make a plain reply on someone else's task, which relabeling would remove.
+
+> ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
+Otherwise will be too tricky to capture the intent.
+
+#### Resolved Question Q-all-78<a name="q-all-78"></a> 
+To identify a reply as a subtask "beside the parent author", which notification_type should count as the subtask signal? Today a reply is a subtask only when its author equals the task author. For non-authors that test fails, so we need a notification_type marker. (Notes are already REPORT_TYPE + BLUE, so BLUE is excluded.) Which value(s) on a REPLY under an investible TODO in a planning market should mark it as a grouped subtask?
+
+### Option O-2<a name="o-2"></a>
+### RED or YELLOW (any non-BLUE level)
+Treat any REPLY carrying a non-null, non-BLUE notification_type as a subtask. More permissive; risks misclassifying a plain reply that happened to get a YELLOW level.
+
+
+This job is in stage In Dialog.
+### Option O-3<a name="o-3"></a>
+### Other value
+A different notification_type marks subtasks (please specify).
+
+
+This job is in stage In Dialog.
+### Option O-4<a name="o-4"></a>
+### Use BLUE  level.
+There is no confusion here because the comment_type is REPLY so REPLY + BLUE equals grouped task.
+
+
+This job is in stage In Dialog.
+### Option O-1<a name="o-1"></a>
+### RED only
+Treat a REPLY with notification_type === RED as a subtask. Grouped tasks are 'must do' work, so RED is the natural marker; plain conversational replies stay YELLOW/null.
+
+
+This job is in stage In Dialog.
+> ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
+RED is the natural marker for a grouped subtask since grouped tasks are "must do" work, while plain conversational replies stay YELLOW/null. Matching on RED only avoids misclassifying an ordinary reply that happens to carry a YELLOW level. Medium certainty because I can't see the backend's default notification_type for subtask replies — if author-created subtasks aren't actually RED today this needs confirming.
 
 ## Job J-all-289<a name="j-all-289"></a>
 ### Issues with view creation.
@@ -4256,6 +4826,20 @@ python rnaseq.py /data/output_docker_4_14/ethan_metadata_04142026_215115.tsv /da
 
 
 This job is in stage Complete.
+#### Reports 
+#### Report R-all-123<a name="r-all-123"></a> 
+T-all-2129 fixed and resolved. Day headers on the Notes tab now render for every day bucket, not just days that have a job-level note.
+
+What was wrong: in NotesTab.js the day header was conditionally rendered with `!_.isEmpty(day.jobLevelNotes)`, so a day containing only task-associated notes (sub-groups) or only resolved tasks showed no date header. Other AI integrations had notes but no job-level note for those days, so its headers were missing.
+
+Fix: render the `formatDayLabel` header unconditionally per day. `groupNotesByDay` only creates a day bucket when there is real content (job-level notes, sub-task notes, or a resolved-here task), so no empty/stray headers result.
+
+To verify: open the Notes tab on a job whose notes are all attached to tasks (no job-level note) — e.g. Other AI integrations — and confirm each day now shows its date header above the collapsed task rows.
+
+#### Notes 
+#### Note R-all-122<a name="r-all-122"></a> 
+Fixed in src/pages/Investible/Planning/NotesTab.js. Root cause was exactly as suspected: the day header (`<Typography>` rendering `formatDayLabel(day.dayKey)`) was gated behind `!_.isEmpty(day.jobLevelNotes)`, so a day that contained only task-associated notes (sub-groups) — or only resolved tasks — rendered no day header. Removed that condition so the header always renders for each day bucket. This is safe because `groupNotesByDay` only creates a day bucket when it has actual content (job-level notes, sub-task notes, or a resolved-here task), so there are no empty days to produce stray headers.
+
 #### Resolved 
 #### Resolved Task T-all-2062<a name="t-all-2062"></a> 
 Do not show choice of note or reply for replying to comments that are not tasks - just show page without radio button choice as before.
@@ -4427,6 +5011,9 @@ Sub-header looks like the compressed row but clicking jumps to the task on the T
 
 
 This job is in stage In Dialog.
+#### Resolved Task T-all-2129<a name="t-all-2129"></a> 
+[Other AI integrations.](#e17a9bfa-c419-46bc-afe2-0c15a13cf95a) has notes but the day headers are not showing. I suspect the day headers are only working for job level notes and if there is no job level note you don't get them.
+
 #### Resolved Task C-all-879<a name="c-all-879"></a> 
 Just have an add_info tool and CLI that takes a short_code_id. If short code is:
 
@@ -6788,6 +7375,129 @@ print(html) # Output: <h1>Hello World</h1><p>This is <strong>bold</strong> text.
 
 ```
 
+## Job J-all-300<a name="j-all-300"></a>
+### Bugs T-all-1442
+
+
+This job is in stage Complete.
+#### Reports 
+#### Report R-all-114<a name="r-all-114"></a> 
+Both backlog-move follow-ups are implemented and ready to test (each is a small, isolated change; lint passes on all touched files).
+
+T-all-2124 — `src/components/AddNewWizards/JobStage/JobReadyStep.js`: the "Is this job ready to assign?" prompt now passes `showAssigned={false}` to JobDescription, so it no longer shows the soon-to-be-removed assignment. Test: from a stage where the job is assigned, move it to the backlog and confirm the wizard's job summary no longer shows the assignee.
+
+T-all-2123 — `src/pages/Investible/Planning/PlanningInvestibleNav.js`: the right-sidebar stage dropdown now routes to the assignment wizard (`&isAssign=true`) when an unassigned, multi-user job is moved into any stage that takes an assignee (Work Ready, Waiting/Approval, Tasks Complete), instead of moving it there unassigned. Single-user keeps auto-assigning the mover. Test (multi-user workspace): open an unassigned backlog job, use the sidebar dropdown to move it to Work Ready — the assignment wizard should appear; repeat for Waiting/Approval and Tasks Complete. Confirm single-user still moves directly with self assigned.
+
+Q-all-77 (scope) is resolved; both tasks are complete and safe to resolve once verified.
+
+#### Notes 
+#### Note R-all-113<a name="r-all-113"></a> 
+Fixed per Q-all-77 / option O-3 (any stage where allows_assignment is not false). In `changeInvestibleStage` (`src/pages/Investible/Planning/PlanningInvestibleNav.js`) added a `requiresAssignment` condition: `!isSingleUser && _.isEmpty(assigned) && fullMoveStage.allows_assignment`. When true the dropdown now navigates to the JobStage wizard with `&isAssign=true` (the assignment picker) instead of moving directly. allows_assignment is truthy for exactly the three stages O-3 named — Work Ready/Accepted, Waiting-Approval/voting, Tasks Complete/in-review — because both `isFurtherWorkStage` and `isNotDoingStage` are defined as `!allows_assignment`, so backlog and not-doing are naturally excluded. Single-user workspaces are excluded from the wizard and keep auto-assigning the mover to themselves in the existing direct-move branch. Lint passes.
+
+#### Note R-all-110<a name="r-all-110"></a> 
+Fix implemented. Root cause: when a job moved back to the backlog, the front end never optimistically cleared the `in_progress` flag on the job's task comments. Task ordering sorts `in_progress` tasks first (`CommentBox.sortInProgress`), so until the backend load arrived the moved job's tasks stayed stuck at the top / ahead of newly-created ones.
+
+Changes:
+1. `src/contexts/CommentsContext/commentsContextHelper.js` — new `clearInvestibleInProgress(investibleId, marketId, state, dispatch)` helper, modeled on `resolveInvestibleComments`. It finds the job's non-deleted comments with `in_progress` set and dispatches them back with `in_progress: false` (no-op if none).
+2. `src/utils/investibleFunctions.js` — `onInvestibleStageChange` now calls `clearInvestibleInProgress` when the target stage is a further-work (backlog) stage, co-located with the existing further-work handling that removes investments. Guarded on `commentsState && commentsDispatch` being present.
+
+This is a quick add in anticipation of the backend clearing the flags, matching the pattern the backend already performs. The primary report paths are covered: the In-Progress card "..." menu (`PlanningJobMenu` -> backlog) and drag-to-backlog (`PlanningDialog`), plus the JobStage/JobAssignee/Job assign wizards and the status wizard. Call sites that pass `undefined` for comments context (e.g. Backlog.js drag between backlog sub-stages, where in_progress is already clear) are safely skipped.
+
+Note: the unrelated reducer comparator defect I raised in S-all-64 was left untouched since that suggestion was resolved.
+
+#### Note R-all-112<a name="r-all-112"></a> 
+Fixed. The "Is this job ready to assign?" prompt shown when moving an assigned job to the backlog is `JobReadyStep` (reached via `StageActionStep` -> further-work branch). Its `JobDescription` was rendering with the default `showAssigned=true`, so it displayed the still-current assignment. `JobDescription` already supports a `showAssigned` prop, so the fix is one line in `src/components/AddNewWizards/JobStage/JobReadyStep.js:58`: pass `showAssigned={false}`. Lint passes.
+
+Holding the review for this until T-all-2123 is also implemented (blocked on Q-all-77) so both backlog-move fixes can be tested together.
+
+#### Resolved 
+#### Resolved Task S-all-64<a name="s-all-64"></a> 
+While tracing the quick-add path I found a concrete defect in the investibles reducer's merge comparator (`src/contexts/InvestibesContext/investiblesContextReducer.js:51`):
+
+```js
+const matched = marketInfos2.find((marketInfo2) => marketInfos1.market_id = marketInfo2.market_id)
+
+```
+Two bugs in that one line: (1) it uses `=` (assignment) instead of `===`, and (2) it references the array `marketInfos1` instead of the loop variable `marketInfo1`. Net effect: the predicate is always truthy, so `matched` is always the FIRST old market_info and the per-market version-collision guard never actually matches by market. It should be:
+
+```js
+const matched = marketInfos2.find((marketInfo2) => marketInfo1.market_id === marketInfo2.market_id)
+
+```
+For a typical single-market job this happens to be harmless (only one market_info, so "first" == "the right one"), which is why most quick-adds work. But it's exactly the kind of latent bug that could let a stale/lower-version market_info win a merge and leave a moved job showing its old stage. I'd like to fix this regardless of the repro answer above. Flagging as a suggestion rather than just doing it since it's adjacent to, but maybe not identical to, the reported symptom.
+
+#### Resolved Task T-all-2124<a name="t-all-2124"></a> 
+When move a job to the backlog from a stage where it is assigned, a wizard prompts whether or not the job should go to backlog ready to assign or just backlog. However the JobDescription used in the wizard shows the current assignment since the job has not moved yet. This is confusing. Instead that invocation JobDescription should not show the current assignment which is probably already a flag available on JobDescription.
+
+#### Resolved Task T-all-2123<a name="t-all-2123"></a> 
+When move a job from the backlog to work ready by using the drop down on the right sidebar, you should go to the wizard for assignment. Instead the job goes to work ready with no assignment and that is prohibited.
+
+#### Resolved Report R-all-111<a name="r-all-111"></a> 
+Ready for review. The move-to-backlog stale task-ordering bug (T-all-1442) is fixed by optimistically clearing the `in_progress` flag on a job's task comments when it returns to the backlog, so tasks no longer stay ordered ahead of newly-created ones while waiting on the backend load.
+
+Two files changed (details in note R-all-110 on the task):
+- `commentsContextHelper.js`: added `clearInvestibleInProgress` helper.
+- `investibleFunctions.js`: `onInvestibleStageChange` calls it on entry to a further-work (backlog) stage.
+
+How to test: open a job in the In Progress column that has one or more tasks marked in progress, move it to the backlog (via the card menu or by dragging), and confirm its tasks immediately drop out of the in-progress-first ordering rather than lingering at the top / ahead of newer items. Lint passes on both changed files. The task is complete and safe to resolve once the behavior checks out.
+
+#### Resolved Task T-all-1442<a name="t-all-1442"></a> 
+Move to backlog did not quick add get rid of in progress and now its weird cause it displays ahead of newly created. In progress is a flag on the tasks in a job that also controls the order the tasks display in. It is the tasks order that messes up if in progress is not cleared. The back end will clear the in progress flags but we want to clear on the front end in anticipation of that happening, IE quick add, in case the load from the back end is slow.
+
+
+
+
+There should be other examples of quick add modifying comments after an operation.
+
+#### Resolved Question Q-all-76<a name="q-all-76"></a> 
+I want to pin down the exact repro for "Move to backlog did not quick add get rid of in progress and now it's weird cause it displays ahead of newly created" before I fix it, because the symptom seems to contradict the current code. The Backlog list sorts by investible.created_at DESC (newest first, `Backlog.js:73`), so an older job moved into the backlog should sort BELOW newly-created backlog jobs — yet you're seeing it appear ABOVE them. Which of these is what you observed (and where)?
+
+### Option O-2<a name="o-2"></a>
+### Wrong order inside Backlog
+The job DID leave In Progress and is now in the backlog, but it sorts ABOVE newly-created backlog jobs when (sorting by created_at) it should be below them. The fix would be about backlog ordering after a move-in, not about the In Progress column.
+
+
+This job is in stage In Dialog.
+### Option O-1<a name="o-1"></a>
+### Stale in In Progress column
+After moving the job to backlog, the optimistic 'quick add' update did NOT remove the job from the In Progress / Accepted column — it's still shown there even though its real stage is now backlog. (The 'displays ahead of newly created' part is a secondary observation about the backlog itself.)
+
+
+This job is in stage In Dialog.
+### Option O-3<a name="o-3"></a>
+### Both symptoms together
+Both happen: the job lingers in In Progress (quick-add didn't remove it) AND it appears ahead of newly-created items in the backlog. They likely share one root cause in the optimistic stage-change update.
+
+
+This job is in stage In Dialog.
+> ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
+My best guess. The phrasing leads with "did not quick add get rid of in progress" (a lingering In Progress entry), and "displays ahead of newly created" reads as a follow-on consequence — which points to a single root cause in the optimistic stage-change update rather than two unrelated issues. Medium certainty because the backlog's created_at DESC sort doesn't obviously produce the "ahead of newly created" symptom on its own, so I'm not fully sure the ordering complaint is just downstream of the stale-update bug.
+
+#### Resolved Question Q-all-77<a name="q-all-77"></a> 
+For T-all-2123 (sidebar stage dropdown skipping the assignment wizard): "Work Ready" is the Accepted stage. The dropdown can also move a job straight to "Waiting / Approval" (the voting stage) — which equally can't legitimately have no assignee. When an UNASSIGNED job is moved out of the backlog via the dropdown, which moves should route to the assignment wizard? (In all cases single-user workspaces would keep their current behavior of auto-assigning the mover to themselves, with no wizard.)
+
+### Option O-2<a name="o-2"></a>
+### Work Ready and Waiting/Approval
+Route to the assignment wizard for any move out of backlog into a stage that requires an assignee (Accepted AND voting/Waiting-Approval) when the job is unassigned. More complete — closes the same 'prohibited unassigned' hole on the voting path too.
+
+
+This job is in stage In Dialog.
+> ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
+My preferred option. The bug's underlying principle — a job in a working stage must have an assignee, so an unassigned move is prohibited — applies identically to Waiting/Approval (voting), which the same dropdown can target. Today an unassigned job moved to voting either falls through to a certainty/approval step (no assignee picker) or, if a vote already exists, moves directly with no assignment, leaving the same prohibited state. Fixing both closes the hole consistently. Certainty 3 rather than higher because the report literally names only Work Ready, so if you'd rather keep the change tightly scoped to avoid touching the voting flow, O-1 is the safer literal fix.
+
+### Option O-1<a name="o-1"></a>
+### Only Work Ready (Accepted)
+Fix exactly what the bug names: only moving an unassigned job to Work Ready / Accepted routes to the assignment wizard. Moving to Waiting/Approval keeps its current behavior. Lowest-risk and literal to the report.
+
+
+This job is in stage In Dialog.
+### Option O-3<a name="o-3"></a>
+### Work Ready, Waiting / Approval, and Tasks Complete.
+This is any stage with appears_in_context true or alternatively any stage where allows_assignment is not false.
+
+
+This job is in stage In Dialog.
+> ##### $${\color{green} For}$$
 ## Job J-all-288<a name="j-all-288"></a>
 ### Bugs B-all-424, B-all-423, B-all-422, B-all-420, B-all-421, B-all-419, B-all-418
 

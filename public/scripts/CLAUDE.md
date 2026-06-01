@@ -84,7 +84,7 @@ If some tasks in the job are completely disjoint from other tasks you may ask th
 them before questions on the other tasks are answered.
 
 A question counts as answered when there is a "For" vote on one of its options that is not 
-marked "From AI user" or when the user has replied in the question with a clear direction.
+marked "From AI user" or when a not AI user has replied in the question with a clear direction.
 
 ### 4. Approve - only applies if job is in stage "In Dialog" and there is no "From AI user" approval at the job level.
 
@@ -118,7 +118,7 @@ ask the user to change the job's stage.
 
 - Call `resolve` on every open question whose answer is already in the job,
   a "For" vote on an option that is not marked "From AI user" or a clear reply 
-  from the user. Open-but-answered questions left dangling will confuse later 
+  from a not AI user. Open-but-answered questions left dangling will confuse later 
   sessions.
 - Call `resolve` on tasks that turn out to be already done — sometimes a
   task is listed as active but the work is already in the diff, in a prior

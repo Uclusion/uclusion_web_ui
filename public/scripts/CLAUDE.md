@@ -67,7 +67,10 @@ Do this immediately when you first become aware the question is answered
 or otherwise it is harder for the user to see what needs attention.
 
 If you have a preferred choice among the options for a question then
-vote on it to inform the user of your opinion.
+vote on it with `approve_job_or_option` to inform the user of your opinion.
+
+Only options that are in stage 'In Dialog' can be voted on or 
+considered as choices for answering the question.
 
 If later — while approving, executing, or writing the review — you
 catch yourself wanting to say "flag if you'd rather X", "verify that Y
@@ -97,9 +100,6 @@ is not providing clear value for customers.
 
 If the job markdown says that the AI user is a required approver then approval
 is mandatory. Otherwise ask if you should approve the job.
-
-Also approve your preferred option on questions the same way with a certainty 
-score and reason.
 
 ### 5. Execute and document - only applies if the job is in stage "Accepted"
 

@@ -1494,6 +1494,7 @@ This job is in stage Accepted.
 #### Question Q-all-83<a name="q-all-83"></a> 
 What should the improved option UI optimize for in this pass?
 
+##### From AI user:
 > ##### Reply C-all-937<a name="c-all-937"></a> 
 Implementation is blocked until this question has a human answer or vote. My recommended direction remains O-1, High-density AI workflow, because the job calls out frequent AI-user use and that points toward compact scanning, clearer option status, and faster repeated voting/review.
 
@@ -1515,13 +1516,16 @@ Prioritize faster scanning and repeated voting/review by AI users: compact layou
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 The job explicitly calls out AI users who will use this interface frequently, so a compact, scannable option UI is likely the highest-value direction for this pass.
 
 #### Assistance 
 #### Question Q-1<a name="q-1"></a> 
 Can you make more clear how this option is different from the screenshot included in the job?
 
+##### From AI user:
 > ##### Reply C-1<a name="c-1"></a> 
 O-1 should differ from the screenshot by reducing each option from a large separated card to a compact scannable row or tight panel: status/vote signal is visible at the left edge, option title and key text are grouped in one reading path, repeated actions are aligned in a predictable control column, and secondary metadata/reasons are visually quieter until needed. The screenshot still reads like a general card UI where every option competes for vertical space; O-1 is specifically a high-throughput review/voting layout for users scanning many options repeatedly.
 
@@ -2246,6 +2250,9 @@ Have MCP server in Cursor be part of this script whenever Cursor is present.
 }
 ```
 
+#### Resolved Task T-all-2135<a name="t-all-2135"></a> 
+Add to CLAUDE.md that you cannot vote for an option that is not In Dialog.
+
 #### Resolved Task T-all-2052<a name="t-all-2052"></a> 
 Resolve is missing from the CLI.
 
@@ -2261,7 +2268,9 @@ Let Cursor pull the rule in only when the prompt looks Uclusion-related. Pros: z
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 Going with O-2 (description-based) since you asked me to pick. The Uclusion workflow trigger is the user mentioning a J-/T-/B- short code in chat — it's not tied to file extensions, so globs don't fit, and `alwaysApply: true` would burn Cursor context tokens on every unrelated prompt (a refactor request, a config change, etc.). Description-based loading is the natural fit: Cursor pulls the rule in when the prompt looks Uclusion-related, free otherwise. The downside (subtle phrasings like "continue with that job" without a short code may not match) is small because the workflow really only matters once a short code is on the table. Description text: `"Uclusion job workflow — invoke when working on a Uclusion job/task/bug short code (J-*, T-*, B-*)"`.
 
 ### Option O-3<a name="o-3"></a>
@@ -2951,7 +2960,9 @@ Keep 6 steps but add a hard precondition bullet list at the top of step 5: "Befo
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
+#### From AI user:
 Precondition framing is the right mental model: step 5 is "Execute" and the resolve sweep is something you do before any execution work, not a separate phase. Bonus: O-2 also covers tasks that are already done (the failure mode in T-all-2073) — not just questions. O-1's "new step 4.5" is more disruptive (breaks the 1–6 symmetry and the numbering used elsewhere in CLAUDE.md), and O-3 is too weak — it just rewords text in step 2 that the AI has demonstrably been ignoring. One point off for: precondition checklists at the top of a step can still be skimmed past if not visually distinct, so the wording needs to be hard-to-miss ("Before doing ANY work in this step…").
 
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
@@ -3472,7 +3483,9 @@ Write to a user-global location parallel to `~/.cursor/mcp.json`. Pros: consiste
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{yellow} Reason \space For}$$ E-2<a name="e-2"></a>
+#### From AI user:
 Agreeing with your vote on O-2 (user-global `~/.cursor/rules/uclusion.mdc`). Three with low-medium certainty because: (a) cursor.com/docs/rules only documents `.cursor/rules/` as a project-root path, so this is a forward-compatibility bet that Cursor either already reads `~/.cursor/rules/` or will start to; (b) deferring to your local Cursor knowledge — you've got Cursor open and can verify on your machine whether the rule actually loads. If it turns out Cursor ignores the global path, the fallback is to add an O-3-style "also drop a copy in $PWD/.cursor/rules/ if it exists" pass, which is a small follow-up rather than a rework.
 
 > ##### $${\color{orange} Reason \space For}$$ E-1<a name="e-1"></a>
@@ -3633,7 +3646,9 @@ Minimal, single-line, HTML-comment style — invisible when the markdown is rend
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 Approving O-1 (single-line HTML comment on both files) per your S-1 — "minimum to be in compliance." `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->` is one line, invisible when the markdown renders, doesn't clutter the user's `~/.claude/CLAUDE.md` after the install appends, and doesn't disturb the existing `<!-- uclusion-workflow:v1 -->` marker the installer keys off of. Apply to both `uclusion.mdc` and `public/scripts/CLAUDE.md` so the two surfaces stay consistent. Not O-2 (multi-line Apache block — too heavy for prose-as-config), not O-3 (mdc-only — leaves CLAUDE.md inconsistent), not O-4 (SPDX — declares a license identifier we don't appear to have defined elsewhere in the repo).
 
 #### Resolved Task T-all-2133<a name="t-all-2133"></a> 
@@ -4274,6 +4289,7 @@ Implemented T-all-2060: two sub-tabs (Open / Resolved) in the Notes / Discussion
 > ##### Reply C-all-914<a name="c-all-914"></a> 
 Move the add buttons to the top instead of inside the open tab - this matches what was done for Bugs and also allows hitting a button even when on the Resolved tab.
 
+##### From AI user:
 > ##### Reply C-all-915<a name="c-all-915"></a> 
 Moved all three add buttons (Note, Question, Suggestion) above the GmailTabs, along with the DismissableText help — matching the Bugs layout. They're now always visible regardless of which sub-tab is active.
 
@@ -4491,7 +4507,9 @@ Guard the init in src/logrocketSetup.js so it only runs against real deploys - e
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 Directly fixes the symptom that actually bothers you (console call sites collapsing to build.umd.js:3190) and does it with the smallest footprint: a guard in src/logrocketSetup.js, no change to deployed environments. It also stops local dev sessions from being recorded into the dev LogRocket project, which is noise nobody reviews. O-2 (disable console capture) leaves LogRocket recording local sessions and, unless scoped by hostname, drops console capture from prod replays too - a real loss for prod debugging. Holding at 4 not 5 only because the exact gate (hostname check vs. a dedicated opt-in env flag) is a minor sub-choice worth your call.
 
 > ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
@@ -4545,6 +4563,7 @@ build.umd.js:3190 Updating with markets struct
 
 If source maps were working shouldn't it do better than ascribing everything to build.umd.js:3190?
 
+##### From AI user:
 > ##### Reply C-all-929<a name="c-all-929"></a> 
 Good catch, but the build.umd.js:3190 attribution is NOT a source-map failure - it's LogRocket. build.umd.js is node_modules/logrocket/dist/build.umd.js, and src/index.js imports ./logrocketSetup as its very first line, which runs LogRocket.init(config.logRocketInstance) unconditionally - including local dev, because REACT_APP_LOGROCKET_INSTANCE=aguwxa/uclusion-dev is set in .env (loaded for dev too).
 
@@ -4564,7 +4583,9 @@ Add a new .env.development file with GENERATE_SOURCEMAP=false. This removes the 
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 Best fit for the task's "reasonably easy and safe" ask and its "when start locally" scope. It's a one-line, dependency-free change confined to .env.development, so production builds keep full source maps and the existing custom start/build scripts are untouched. App code stays debuggable in dev via cheap-module-source-map; the only thing lost is original-source mapping for third-party libs in dev devtools - and the only such lib here is the one whose source maps are already broken. Holding at 4 not 5 because O-2 is the strictly-lossless choice if the team ever wants to debug into library TS sources during dev, but that's a rare need and not worth adding build tooling now.
 
 > ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
@@ -4771,7 +4792,9 @@ Configure Codex (write/refresh config.toml AND AGENTS.md) when the ~/.codex/ dir
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 Gating on the ~/.codex/ directory is the right detection signal for Codex specifically. Codex creates ~/.codex/ (with auth.json) on login but treats config.toml as optional, so requiring config.toml to pre-exist (the Cursor/Claude rule) would silently skip nearly every real Codex user. Directory-presence still avoids creating ~/.codex for people who don't use Codex, so it's strictly more useful than O-2 without the over-reach of O-3.
 
 > ##### $${\color{lightgreen} For}$$
@@ -5083,7 +5106,9 @@ I implement the config.toml + AGENTS.md install paths and docs to match the docu
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 The install code is platform-agnostic and can be written and unit-reasoned against the documented config.toml schema without a live OpenAI session, so blocking on auth here (O-2) adds friction for little gain. A real end-to-end MCP handshake is still valuable, but it belongs on your authenticated Codex install rather than fully skipping verification (O-3).
 
 ### Option O-3<a name="o-3"></a>
@@ -5173,7 +5198,9 @@ Add a connect/read timeout (e.g. 15s) to every urlopen call so a stall fails gra
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 The hang is a missing-timeout problem, so a timeout is the load-bearing fix — without it any single stalled connection blocks forever (O-3 alone doesn't solve it). Fetching CLAUDE.md once is a cheap, low-risk win on top: it's the exact same URL pulled three times in one run, so reusing the content removes two redundant round-trips (two fewer chances to stall) and keeps the three surfaces byte-identical. The combination fully addresses the reported symptom and tightens the network surface; it's the right scope.
 
 > ##### $${\color{lightgreen} For}$$
@@ -5239,7 +5266,9 @@ On others' tasks keep the 'Reply' button and add a distinct 'Grouped' button bes
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 The literal wording "put the button there next to Reply" reads as adding a distinct Grouped button alongside the existing Reply button, not relabeling. It also preserves the ability to make a plain reply on someone else's task, which relabeling would remove.
 
 > ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
@@ -5272,7 +5301,9 @@ Treat a REPLY with notification_type === RED as a subtask. Grouped tasks are 'mu
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 RED is the natural marker for a grouped subtask since grouped tasks are "must do" work, while plain conversational replies stay YELLOW/null. Matching on RED only avoids misclassifying an ordinary reply that happens to carry a YELLOW level. Medium certainty because I can't see the backend's default notification_type for subtask replies — if author-created subtasks aren't actually RED today this needs confirming.
 
 ## Job J-all-289<a name="j-all-289"></a>
@@ -7509,7 +7540,9 @@ Both happen: the job lingers in In Progress (quick-add didn't remove it) AND it 
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 My best guess. The phrasing leads with "did not quick add get rid of in progress" (a lingering In Progress entry), and "displays ahead of newly created" reads as a follow-on consequence — which points to a single root cause in the optimistic stage-change update rather than two unrelated issues. Medium certainty because the backlog's created_at DESC sort doesn't obviously produce the "ahead of newly created" symptom on its own, so I'm not fully sure the ordering complaint is just downstream of the stale-update bug.
 
 #### Resolved Question Q-all-77<a name="q-all-77"></a> 
@@ -7521,7 +7554,9 @@ Route to the assignment wizard for any move out of backlog into a stage that req
 
 
 This option is in stage In Dialog.
+#### From AI user:
 > ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
 My preferred option. The bug's underlying principle — a job in a working stage must have an assignee, so an unassigned move is prohibited — applies identically to Waiting/Approval (voting), which the same dropdown can target. Today an unassigned job moved to voting either falls through to a certainty/approval step (no assignee picker) or, if a vote already exists, moves directly with no assignment, leaving the same prohibited state. Fixing both closes the hole consistently. Certainty 3 rather than higher because the report literally names only Work Ready, so if you'd rather keep the change tightly scoped to avoid touching the voting flow, O-1 is the safer literal fix.
 
 ### Option O-1<a name="o-1"></a>

@@ -1502,20 +1502,19 @@ Implementation is blocked until this question has a human answer or vote. My rec
 Rework option presentation and controls more substantially, accepting a larger UI change and higher review surface.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-2<a name="o-2"></a>
 ### General visual polish
 Keep the current structure but improve spacing, hierarchy, and visual styling without changing interaction density much.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### High-density AI workflow
 Prioritize faster scanning and repeated voting/review by AI users: compact layout, clear option status, fewer visual interruptions.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
 The job explicitly calls out AI users who will use this interface frequently, so a compact, scannable option UI is likely the highest-value direction for this pass.
 
@@ -1557,6 +1556,7 @@ Going with secret key instead of full Oauth stuff <https://upstash.com/blog/mcp-
 This job is in stage Accepted.
 #### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-all-54<a name="e-all-54"></a>
+#### From AI user:
 Approving the job. Strong value: tightening CLAUDE.md (T-2106 precondition at step 5, T-2107 don't-offer-approval-with-open-questions) directly fixes the failure modes you've actually seen in this session and in T-all-2073. Bundling the Cursor `.mdc` install (T-2101) onto the same install code path that already handles `~/.claude/CLAUDE.md` is cheap and broadens reach to Cursor users without duplicating workflow text. Doc update (T-2100) catches the existing gap where `mcp.md` doesn't mention the workflow MD file install at all. One point off for: (a) the user-global `~/.cursor/rules/uclusion.mdc` location is a forward-compat bet — needs verification on a clean Cursor install that the file actually loads from there; if not, follow-up to add a per-project drop is needed. (b) `description:`-based activation in Cursor relies on Cursor's matcher firing on prompts like "work on J-all-283" — robustness depends on how aggressive Cursor's rule matcher is.
 
 #### Reports 
@@ -2260,8 +2260,7 @@ I was hoping you were going to figure this out - you are kind of turning the tas
 Let Cursor pull the rule in only when the prompt looks Uclusion-related. Pros: zero context cost on unrelated prompts; matches the way the workflow is actually triggered (by mentioning a short code). Cons: relies on Cursor's matcher firing correctly — if the user says something subtle like "continue with that job" without a short code, the rule may not load. Mitigated by the fact that the workflow really only matters once a short code is mentioned.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
 Going with O-2 (description-based) since you asked me to pick. The Uclusion workflow trigger is the user mentioning a J-/T-/B- short code in chat — it's not tied to file extensions, so globs don't fit, and `alwaysApply: true` would burn Cursor context tokens on every unrelated prompt (a refactor request, a config change, etc.). Description-based loading is the natural fit: Cursor pulls the rule in when the prompt looks Uclusion-related, free otherwise. The downside (subtle phrasings like "continue with that job" without a short code may not match) is small because the workflow really only matters once a short code is on the table. Description text: `"Uclusion job workflow — invoke when working on a Uclusion job/task/bug short code (J-*, T-*, B-*)"`.
 
@@ -2270,13 +2269,13 @@ Going with O-2 (description-based) since you asked me to pick. The Uclusion work
 Keep CLAUDE.md as it is (always loaded by Claude Code anyway), and use `description:`-based loading just in the Cursor `.mdc`. Pros: Claude Code users get always-on, Cursor users pay context only when needed. Cons: the two surfaces have subtly different behavior, which could lead to "works in Claude Code, didn't fire in Cursor" support issues.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### alwaysApply: true
 Match the behavior of CLAUDE.md (which is always loaded into Claude Code's context). Pros: deterministic — the workflow rules are ALWAYS there when the user mentions a J-/T-/B- short code, no chance of Cursor deciding to omit them. Cons: burns context tokens on every Cursor request, even ones that have nothing to do with Uclusion (e.g. asking Cursor to refactor a function).
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task T-all-2040<a name="t-all-2040"></a> 
 The script just takes a workspace ID and that breaks input of bug and TODO integration view.
 
@@ -2945,14 +2944,13 @@ For T-all-2106 — how should "resolve answered questions before implementation"
 Leave the step layout alone and rewrite step 2's existing sentence to be much more emphatic and self-standing — e.g. promote it into its own paragraph: "Before moving on from step 2, you MUST call `resolve` on every open question whose answer is in the job. Open answered questions left dangling will confuse later sessions." Lightest-touch change.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-2<a name="o-2"></a>
 ### Add a precondition checklist at the top of step 5
 Keep 6 steps but add a hard precondition bullet list at the top of step 5: "Before doing any work in this step, first: (a) call `resolve` on every open question whose answer is already in the job, (b) call `resolve` on tasks that turn out to be already done." Reads as gating execution without inflating the step count.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
 Precondition framing is the right mental model: step 5 is "Execute" and the resolve sweep is something you do before any execution work, not a separate phase. Bonus: O-2 also covers tasks that are already done (the failure mode in T-all-2073) — not just questions. O-1's "new step 4.5" is more disruptive (breaks the 1–6 symmetry and the numbering used elsewhere in CLAUDE.md), and O-3 is too weak — it just rewords text in step 2 that the AI has demonstrably been ignoring. One point off for: precondition checklists at the top of a step can still be skimmed past if not visually distinct, so the wording needs to be hard-to-miss ("Before doing ANY work in this step…").
 
@@ -2966,7 +2964,7 @@ Insert a dedicated, numbered step between step 4 (Approve) and step 5 (Execute):
 Trade-off: bumps the step count to 7 and slightly disrupts the symmetry of the current 1-2-3-4-5-6 flow.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task T-all-2090<a name="t-all-2090"></a> 
 ```
 see the shot-by-shot script I added under Q-Default-1.
@@ -3221,7 +3219,7 @@ The notifications must be specific to the workspace Uclusion AI is associated wi
 ...creates the CLI API keys for it.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} For}$$
 #### Assistance 
 #### Suggestion S-Default-1<a name="s-default-1"></a> 
@@ -3461,20 +3459,19 @@ For T-all-2101 — where should the install script write the Cursor rules file? 
 Treat the install as also seeding the current working directory's project. The installer writes (or refreshes, via markers like CLAUDE.md does) `./.cursor/rules/uclusion.mdc` if the user is sitting in a repo when they run the curl-pipe-bash install. Pros: matches Cursor's documented rule discovery, so it actually fires in Cursor. Cons: behavior depends on $PWD at install time, and the one-liner install isn't usually run from inside a target repo — the user would have to re-run it per repo or copy the file themselves.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-3<a name="o-3"></a>
 ### Both: ~/.cursor/rules/uclusion.mdc AND offer per-project on demand
 Write the user-global copy as a source-of-truth, and additionally if the installer detects a `.cursor/` directory in $PWD, copy it into `./.cursor/rules/uclusion.mdc` (prompt y/N like CLAUDE.md does). Pros: covers both possibilities without making the user re-run. Cons: more code, and if Cursor doesn't actually read the global path, the per-project copy is the only one that matters anyway.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-2<a name="o-2"></a>
 ### User-global at ~/.cursor/rules/uclusion.mdc
 Write to a user-global location parallel to `~/.cursor/mcp.json`. Pros: consistent with the rest of the installer (one install, applies everywhere). Cons: Cursor's documented rule discovery is `.cursor/rules/` in the project root, not `~/.cursor/rules/` — so this file may simply never be loaded by Cursor unless that convention is something they support undocumented. Needs verification before we commit.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{yellow} Reason \space For}$$ E-2<a name="e-2"></a>
 Agreeing with your vote on O-2 (user-global `~/.cursor/rules/uclusion.mdc`). Three with low-medium certainty because: (a) cursor.com/docs/rules only documents `.cursor/rules/` as a project-root path, so this is a forward-compatibility bet that Cursor either already reads `~/.cursor/rules/` or will start to; (b) deferring to your local Cursor knowledge — you've got Cursor open and can verify on your machine whether the rule actually loads. If it turns out Cursor ignores the global path, the fallback is to add an O-3-style "also drop a copy in $PWD/.cursor/rules/ if it exists" pass, which is a small follow-up rather than a rework.
 
@@ -3486,7 +3483,7 @@ As you say it was unclear from documentation what this file should be called.
 Mirror what the installer already does for ~/.cursor/mcp.json — but flipped: only write `./.cursor/rules/uclusion.mdc` if the user runs the install from inside a directory that already has a `.cursor/` folder (i.e. an existing Cursor project). Pros: no guessing about undocumented global support. Cons: silently does nothing when run from $HOME, which is how most people run it.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task T-all-1998<a name="t-all-1998"></a> 
 This should be an npm install so that you can easily put one in your docker container or whatever. Then you just put your keys in a .uclusion/credentials file and include the command for spawning an instance of your AI that accepts markdown input.
 
@@ -3548,7 +3545,7 @@ Retest install script. Make sure CLI still works - try resolving which is untest
 Model Context Protocol (MCP): This is the primary way to allow Cursor to interact with external tools and APIs dynamically. By setting up an MCP server, you can give the AI "tools" that allow it to fetch data from your own APIs, databases, or local scripts during a chat session.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Assistance 
 #### Suggestion S-Default-1<a name="s-default-1"></a> 
 Then maybe just be yourself instead of an AI user.
@@ -3613,13 +3610,13 @@ For T-all-2101 — what copyright header should go on `uclusion.mdc`, and should
 Standard Apache-2.0 / similar header block at the top of each file. Pros: matches what's at the top of source files in many open-source repos. Cons: the workflow content is prose-not-code, so a code-style license block feels out of place; also the file is meant to be inlined into the user's own `~/.claude/CLAUDE.md`, where a multi-line license block would visually clutter their personal config.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-3<a name="o-3"></a>
 ### Header on `uclusion.mdc` only; leave CLAUDE.md alone
 Read the task literally — it talks about the new `.mdc` file. The existing `CLAUDE.md` doesn't have a header today and adding one would change a file that's already being copied into users' homes (mid-marker append/replace logic in `append_claude_md`). Safer to scope the change to the new file.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Assistance 
 #### Suggestion S-1<a name="s-1"></a> 
 Read <https://cursor.com/docs/rules> - it says you have to have a header and we just want to do the minimum to be in compliance.
@@ -3629,14 +3626,13 @@ Read <https://cursor.com/docs/rules> - it says you have to have a header and we 
 Machine-readable SPDX header + human-readable copyright line. Pros: tooling-friendly. Cons: declares a license identifier we may not have actually defined; only matters if Uclusion has a tooling story around SPDX, which I haven't seen evidence of in this repo.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Single-line HTML comment on both: `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->`
 Minimal, single-line, HTML-comment style — invisible when the markdown is rendered, doesn't disrupt the existing `` marker line. Apply to both `uclusion.mdc` and `CLAUDE.md` so the two surfaces stay consistent.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
 Approving O-1 (single-line HTML comment on both files) per your S-1 — "minimum to be in compliance." `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->` is one line, invisible when the markdown renders, doesn't clutter the user's `~/.claude/CLAUDE.md` after the install appends, and doesn't disturb the existing `<!-- uclusion-workflow:v1 -->` marker the installer keys off of. Apply to both `uclusion.mdc` and `public/scripts/CLAUDE.md` so the two surfaces stay consistent. Not O-2 (multi-line Apache block — too heavy for prose-as-config), not O-3 (mdc-only — leaves CLAUDE.md inconsistent), not O-4 (SPDX — declares a license identifier we don't appear to have defined elsewhere in the repo).
 
@@ -4135,6 +4131,7 @@ The current archive was more of a placeholder than a real implementation. This s
 This job is in stage Complete.
 #### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-all-53<a name="e-all-53"></a>
+#### From AI user:
 Direction is correct. The existing archive (`DialogArchives` linked from `DialogOutset` via `formGroupArchiveLink`) is acknowledged in the description as a placeholder, and the code confirms it: a single page lumping complete jobs, not-doing jobs, resolved TODOs, and resolved non-TODO comments together, plus an `ArchiveWarningStep` that effectively warns the resolve is one-way. The proposed refactor — distributing archived content into per-section sub-tabs (Bugs ‘Resolved’, Notes/Discussion ‘Resolved’, Backlog ‘Not Doing’) with drag-back-to-unresolve (C-all-907) and right-click resolve (C-all-910) — is the right shape because (a) it puts archived items where users naturally look, (b) it makes including archived matches in tab-level search counts straightforward (T-all-1946) instead of the current `archivedSize` outset-only badge in `PlanningDialog`, and (c) it makes archive reversible, which is the stated user pain point. The ‘Show all complete’ link (T-all-2056) is necessary because `getSwimlaneInvestiblesForStage` in `userUtils.js` caps complete jobs via `allowed_investibles` and `days_visible`, so older complete work is currently unreachable from the swimlane. C-all-911 (making view-level notes resolvable) lines up with `Comment.js` where `showResolve` is currently false for `REPORT_TYPE` notes without an `investibleId`. T-all-1984 (overlay view inset, no buffer) removes the brittle `dialogOutsetBuffer` coordination between `DialogOutset` and `Screen.js` and is consistent with the right-side fixed-translate pattern already used by the investible page. Held at 4 rather than 5 because of two design ambiguities I posted as a question: (1) T-all-2059 removes the archive page but T-all-2056 says the new ‘Show all complete’ link goes to an archive page — these need to be reconciled (new dedicated complete-jobs page vs. repurposed `DialogArchives`); and (2) the intended search behavior in T-all-1946 — whether archived matches surface inline in the primary tab content or only bump counts while live items remain in the primary tab and matches sit under the Resolved sub-tab. Resolving these before implementation will avoid rework in `PlanningDialog`’s tab-count plumbing (`getTabCount`, `getTagLabel`, the per-tab `tag`/`tagLabel` props) and in route/link cleanup (`formGroupArchiveLink`, `formArchiveCommentLink`, the `groupArchive` action in `Root.js`).
 
 #### Reports 
@@ -4163,13 +4160,13 @@ T-all-1946 describes search behavior for Jobs Backlog, Bugs, Notes/Discussion, a
 Searching from the T-all-2056 page navigates the user back to the parent view with the search applied (so they land on the Job Progress / Jobs Backlog search results which already cover live + complete per the Q-65 outcome). Pro: avoids duplicating search logic on this page. Con: feels like the page is unsearchable in place; breaks user mental model.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Search filters within the active view/collaborator filter, paginated list stays the same
 The view and collaborator dropdown filters remain in effect. The single paginated list of complete jobs simply narrows to those matching the search. No new layout, no sub-tab collapse (there are no sub-tabs on this page). Pro: predictable, consistent with how filters compose on most pages. Con: if the user wants to search across all views/collaborators, they have to first set both dropdowns to ‘All’.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 The user can see the filter results for each view on the Views section of the left side panel for each view that has matches. If he wants those matches he can just click that view.
 
@@ -4178,7 +4175,7 @@ The user can see the filter results for each view on the Views section of the le
 Typing into search temporarily sets both dropdowns to ‘All’ (with a visual hint), so search always covers every complete job in the workspace. When search is cleared, the prior filter selection is restored. Pro: ‘searching reaches everything’ invariant is preserved across all tabs. Con: surprising filter mutation; restoring prior state adds complexity.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Question Q-all-63<a name="q-all-63"></a> 
 Two design points need clarification before implementation. First, T-all-2059 says to remove the current archive implementation (its page and links from `Root.js`/`DialogOutset`), but T-all-2056 says the new ‘Show all complete’ link above complete jobs ‘goes to an archive page for complete jobs that is filtered to the view and collaborator of that row’. Is that new destination a brand-new page, or the existing `DialogArchives` repurposed and scoped to complete-only with view/collaborator filters? Second, for T-all-1946, when a search matches an item that is archived/resolved/not-doing, should the matching items appear inline within the primary tab’s content list, or stay under the new Resolved/Not Doing sub-tab while only the counts roll up to the parent tab? The answer drives whether `PlanningDialog`’s `getTabCount`/`getTagLabel`/per-tab `tag` plumbing needs to combine live and archived result sets or just sum counts.
 
@@ -4190,25 +4187,25 @@ The current DialogArchives page includes Complete jobs, Not Doing jobs, bugs, an
 Same new dedicated `CompleteJobsArchive` page as option 1. But for T-all-1946, live tab content stays live-only during search; archived matches live exclusively under the Resolved / Not Doing sub-tab. The parent tab’s count chip sums live + sub-tab matches so the user sees there are hidden archived hits and clicks into the sub-tab to see them. Simpler to implement (sub-tab filter is independent), keeps primary list semantics clean.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-4<a name="o-4"></a>
 ### Repurpose `DialogArchives` as complete-jobs page + counts-only roll-up
 Same as option 3 (repurpose `DialogArchives` to a complete-jobs-only filtered page), but search behavior follows option 2 (archived matches only appear in the Resolved/Not Doing sub-tab; parent tab count chip rolls up the total).
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-3<a name="o-3"></a>
 ### Repurpose `DialogArchives` as complete-jobs page + inline archived matches
 Do not delete the `DialogArchives` route/component; instead strip out everything except complete jobs and add view + collaborator filters (defaulted to the clicked row, settable to ‘All’). T-all-2059’s ‘remove the current archive’ then really means: remove the not-doing section, resolved-TODO section, and resolved-discussion section from `DialogArchives`, plus the outset link and the resolve warning, since those concerns now live in sub-tabs. Search behavior follows option 1 (inline archived matches in primary tabs).
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### New dedicated complete-jobs page + inline archived matches
 T-all-2056 introduces a NEW page (e.g. `CompleteJobsArchive`) at a new route, separate from the deleted `DialogArchives`. Filters: view dropdown + collaborator dropdown, defaulted to the row that was clicked, both settable to ‘All’. For search (T-all-1946), archived/resolved/not-doing matches appear inline within the primary tab content (jobs/backlog/bugs/notes) alongside live matches, with a visual marker (e.g. greyed/strikethrough or a small ‘resolved’/‘not doing’ chip). The Resolved/Not Doing sub-tab still exists and contains the full archived set; sub-tab counts also reflect the search. This gives users a single scan to find matches regardless of state.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Question Q-all-65<a name="q-all-65"></a> 
 T-all-1946 says the Job Progress tab during search becomes a paginated list of ‘all currently assigned jobs that match the search’. Per the stages documentation, ‘assigned’ jobs can live in Waiting/Approval, Next/Assistance, Work Ready, Tasks Complete, and Not Doing. Today the `PlanningIdeas` swimlanes show Waiting/Approval + Work Ready + Tasks Complete, and Tasks Complete is capped per `stage.allowed_investibles` / `stage.days_visible` in `getSwimlaneInvestiblesForStage`. T-all-2056 also creates a dedicated complete-jobs archive page that reaches all Tasks Complete including the capped-out older ones. Which scope should the Job Progress search list use?
 
@@ -4217,13 +4214,13 @@ T-all-1946 says the Job Progress tab during search becomes a paginated list of �
 Maximally comprehensive: any job in the view that has ever been assigned and matches the search appears, including terminal stages. Conflicts with the stages doc which says Not Doing jobs are ‘visible only in the archive’. Probably wrong but listed for completeness.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-3<a name="o-3"></a>
 ### Live stages + ALL Tasks Complete (uncapped during search)
 Search shows Waiting/Approval + Work Ready + every Tasks Complete job in the view, ignoring the swimlane cap. Not Doing excluded. T-all-2056 archive page is still the right destination for browsing complete jobs without a search; search on Job Progress reaches them too. Pro: user expectation that ‘search finds everything currently assigned’ holds. Con: requires `getSwimlaneInvestiblesForStage` to take an ‘ignore caps for search’ path, or for the search list to bypass that helper entirely.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 Please note that a job is unassigned when it moves to Not Doing so Not Doing jobs cannot have an assignment.
 
@@ -4232,13 +4229,13 @@ Please note that a job is unassigned when it moves to Not Doing so Not Doing job
 Search shows whatever the swimlanes show today — Waiting/Approval, Work Ready, and Tasks Complete subject to the existing `allowed_investibles` / `days_visible` capping. Older capped-out complete jobs are not reachable from Job Progress search and require T-all-2056. Pro: visually consistent with non-search swimlane content. Con: search silently hides matches the user might expect, because the cap was designed for visual density, not search filtering.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Live stages only (exclude Tasks Complete and Not Doing)
 Search shows only Waiting/Approval, Next/Assistance, and Work Ready jobs assigned to anyone in this view. Tasks Complete matches are reachable via the new T-all-2056 complete-jobs archive page (which has its own search). Not Doing matches aren’t reachable from Job Progress at all (stages doc says Not Doing is only visible in the archive). Cleanest separation of concerns and lightest data: `PlanningIdeas` search code paths only need to combine the three live stages.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Question Q-all-64<a name="q-all-64"></a> 
 For T-all-1946, when an active search matches an item that lives in a Resolved / Not Doing sub-tab (a resolved bug, resolved note/discussion, not-doing backlog item, or complete job), how should those matches surface in the parent tab’s UI? This affects whether `PlanningDialog`’s `getTabCount`/`getTagLabel` and the per-tab `tag`/`tagLabel` props need to combine live + archived result sets, or just sum counts while content lists stay segregated by sub-tab. Two clean options below; option C is a compromise.
 
@@ -4247,19 +4244,19 @@ For T-all-1946, when an active search matches an item that lives in a Resolved /
 Default behavior is option B (counts roll up, content stays live-only). Add a small toggle / filter chip next to the search field (or on the tab strip) that, when enabled, switches the primary tab to option A behavior (inline archived matches in the list). Toggle state persists in the existing `BugListContext`-style reducer per view. Benefit: keeps the default clean while letting power users opt into a single-scan view. Cost: one more UI control plus a small amount of state to plumb.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-2<a name="o-2"></a>
 ### Counts-only roll-up; primary content stays live-only
 During search, the primary tab’s content list shows only live (non-archived) matches — exactly as today. The Resolved / Not Doing sub-tab’s count chip shows its own matched count. The parent tab’s count chip rolls up: parent count = live matches + sub-tab matches, so the user sees that hidden archived hits exist and clicks into the sub-tab to see them. Benefit: simpler implementation — each list filter stays independent, no mixed rendering, drag/drop unchanged. Cost: extra click to reach archived matches.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Inline archived matches in the primary tab content
 During search, archived/resolved/not-doing items that match appear in the primary tab’s content list right next to live matches, visually distinguished (e.g. greyed background, strikethrough, or a small ‘resolved’ / ‘not doing’ chip). The Resolved / Not Doing sub-tab still exists and its own count chip also reflects the search. Parent tab count = live matches + archived matches. Benefit: user sees every hit in one scan without having to remember to check the sub-tab. Cost: primary lists now mix two states; `Backlog.js`, `MarketTodos.js`, and the new Notes/Discussion Resolved sub-tab plumbing all need to render two visual variants and exclude the archived ones from drag/drop targets that don’t apply.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Report R-all-101<a name="r-all-101"></a> 
 Implemented T-all-2060: two sub-tabs (Open / Resolved) in the Notes / Discussion section.
 
@@ -4334,7 +4331,7 @@ T-all-1946 says during search the Notes/Discussion sub-tabs collapse and ‘all 
 When search is active on Notes/Discussion, every match — open or resolved — renders as a compressed paginated row like bugs. Pro: consistent with the ‘sub-tabs collapse into the paginated display’ framing in T-all-1946, and matches how Bugs/Backlog already behave. Pro: pagination scales when search hits many items. Con: users lose the in-context body preview of open notes/discussion that `CommentBox` currently shows; they have to click into each row.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 Yes this is what I meant.
 
@@ -4343,13 +4340,13 @@ Yes this is what I meant.
 Two visually distinct stacked sections in the unified search view — first `CommentBox` for open matches, then a compressed paginated row block for resolved matches, divided by a small header. Pro: preserves rich preview for live work where users mostly look. Con: violates ‘sub tabs disappear, all results display together’ in spirit (two sections is effectively two sub-displays); more code to maintain than option A or B.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-2<a name="o-2"></a>
 ### Keep `CommentBox` rendering for all matches during search
 When search is active on Notes/Discussion, all matches (open + resolved) render via `CommentBox` just like the Open sub-tab today, with no pagination collapse. Pro: rich body preview preserved. Con: inconsistent with Bugs/Backlog search behavior; large match sets render heavy; ‘paginated display’ framing in T-all-1946 doesn’t literally apply because there is no current paginated display in Notes/Discussion.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task T-all-1984<a name="t-all-1984"></a> 
 For view inset drop pushing over all existing on the page. Like how chat inset works for Gmail - it does cover stuff up. Pushing over everything ends up being hokey.
 
@@ -4360,6 +4357,7 @@ For view inset drop pushing over all existing on the page. Like how chat inset w
 This job is in stage Complete.
 #### From AI user:
 > ##### $${\color{lightgreen} Reason \space For}$$ E-all-55<a name="e-all-55"></a>
+#### From AI user:
 Three of the five items are genuine defects (B-402 build warning, B-404 silently dropped vote reason, B-405 unexplained disabled buttons) and the other two (T-1808 search-aware sidebar, T-1838 stale draft on "add another") are clear usability fixes with direct customer benefit. Scope is now pinned down by the answered questions, each change is localized and low-risk, and the suggested shared TooltipIconButton fix keeps the disabled-tooltip behavior in one place. Holding at 4 rather than 5 only because a couple of items (T-1808 badge count, T-1838 draft clearing) need manual UI verification to confirm the fix behaves across edge cases.
 
 #### Reports 
@@ -4412,14 +4410,14 @@ T-all-1808: During an active search, what should the "For You" (inbox) menu item
 Show the count of inbox notifications that match the current search, and hide the badge entirely when none match. This mirrors how the group 'Views' entries already display their search-result counts (Screen.js getSidebarGroups), so the whole sidebar reads consistently during a search. Recommended.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} For}$$
 ### Option O-2<a name="o-2"></a>
 ### All search results
 Show the total number of search hits (jobs + comments) across the workspace next to 'For You', regardless of whether each hit is actually an inbox notification.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task T-all-1838<a name="t-all-1838"></a> 
 Add and another does not clear if had previous draft task
 
@@ -4492,8 +4490,7 @@ Separate from the webpack warnings (Q-74): the reason every console log shows bu
 Guard the init in src/logrocketSetup.js so it only runs against real deploys - e.g. bail out when window.location.hostname is 'localhost'/'127.0.0.1', or require a separate REACT_APP_ env flag to opt in. Restores native console call sites locally AND stops recording local dev sessions into the dev LogRocket project (which is noise you probably don't want anyway). Smallest behavioral surprise for prod: nothing changes on deployed environments. My recommendation.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
 Directly fixes the symptom that actually bothers you (console call sites collapsing to build.umd.js:3190) and does it with the smallest footprint: a guard in src/logrocketSetup.js, no change to deployed environments. It also stops local dev sessions from being recorded into the dev LogRocket project, which is noise nobody reviews. O-2 (disable console capture) leaves LogRocket recording local sessions and, unless scoped by hostname, drops console capture from prod replays too - a real loss for prod debugging. Holding at 4 not 5 only because the exact gate (hostname check vs. a dedicated opt-in env flag) is a minor sub-choice worth your call.
 
@@ -4505,13 +4502,13 @@ Allow an opt in for cases where we need to test a change to LogRocket in dev.
 Make no change. Console logs in local dev keep attributing to build.umd.js:3190 and you click through to the LogRocket wrapper instead of the originating source. Only do this if the console attribution doesn't actually bother you and you'd rather not touch LogRocket setup.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-2<a name="o-2"></a>
 ### Keep LogRocket but disable its console capture
 Keep LogRocket.init running everywhere but pass { console: { isEnabled: false } } so it no longer wraps console.*. This restores real call-site attribution in the console while still recording local dev sessions and network/DOM events to the dev LogRocket project. Pick this if replaying your own local dev sessions in LogRocket is something you actually use. Tradeoff: console messages stop being captured into session replays everywhere (dev and prod), not just locally, unless we scope the option by hostname.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Question Q-all-74<a name="q-all-74"></a> 
 T-2116: The "Failed to parse source map" warnings come from CRA's source-map-loader trying to read .ts sources that the transitive dep `positioning@2.0.1` (pulled in by `quill-table-ui`, the editor) references in its sourcemaps but doesn't ship. CRA 5 can't be configured without ejecting, so which fix do you want?
 
@@ -4560,14 +4557,13 @@ So two separate things: (1) the 'Failed to parse source map' webpack warnings fr
 Single-line change to the existing .env file. Simplest possible, but it ALSO disables source maps for production `yarn build`, which makes prod-error debugging harder. Not recommended versus scoping it to .env.development.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### GENERATE_SOURCEMAP=false in .env.development (dev only)
 Add a new .env.development file with GENERATE_SOURCEMAP=false. This removes the source-map-loader pre-rule only for `yarn start` (NODE_ENV=development), so the warnings disappear locally. Production `yarn build` is untouched and still emits full source maps. App code stays debuggable in dev because CRA uses cheap-module-source-map for dev regardless. One line, no new dependencies. Tradeoff: in the dev browser devtools, third-party library code (including the broken positioning/quill-table-ui) shows compiled JS instead of original TS sources - which is exactly the lib that's broken anyway. This is my recommendation: easy, safe, and scoped to local start as the task describes.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
 Best fit for the task's "reasonably easy and safe" ask and its "when start locally" scope. It's a one-line, dependency-free change confined to .env.development, so production builds keep full source maps and the existing custom start/build scripts are untouched. App code stays debuggable in dev via cheap-module-source-map; the only thing lost is original-source mapping for third-party libs in dev devtools - and the only such lib here is the one whose source maps are already broken. Holding at 4 not 5 because O-2 is the strictly-lossless choice if the team ever wants to debug into library TS sources during dev, but that's a rare need and not worth adding build tooling now.
 
@@ -4579,7 +4575,7 @@ Will make it easier to spot actual warnings if these fake ones are gone.
 Add a build-config tool (craco or react-app-rewired) plus a config-overrides.js that excludes node_modules from source-map-loader (or adds webpack ignoreWarnings for this pattern). This silences only these specific warnings while keeping source maps everywhere, dev and prod. Tradeoff: adds a dev dependency and rewires the existing `start`/`build` npm scripts, which carry custom flags (REACT_APP_VERSION, --openssl-legacy-provider, --optimize-for-size, --max-old-space-size). More moving parts and touches the build pipeline, so slightly higher risk than option 1.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Question Q-all-73<a name="q-all-73"></a> 
 B-all-404: The "vote description not saved unless you modify the text" bug happens because the approval editor's default/stored text is only captured in form data when the user actually edits it. How broadly should I fix this?
 
@@ -4588,14 +4584,14 @@ B-all-404: The "vote description not saved unless you modify the text" bug happe
 Fix just the Inbox approval wizard (InboxWizards/Approval/JobApproveStep.js) - the reported path - by reading the editor's stored state at save time if the reason field is empty. I checked the other approval steps (AddNewWizards Decision/Job/Stage/Assignee): they already pre-populate approveReason from form data or fall back to the prior vote body, so they don't exhibit the bug. Recommended - smallest, targeted change.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} For}$$
 ### Option O-2<a name="o-2"></a>
 ### All vote/approval steps
 Harden every step that uses the AddInitialVote editor (7 components) to read the editor's stored state at save time, even though most already handle it. Broader safety net but larger blast radius and more redundant code.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Note R-all-105<a name="r-all-105"></a> 
 Root-caused and fixed in the shared editor util resetEditor (src/components/TextEditors/Utilities/CoreUtils.js), not in the comment "add and another" handler itself. Cause: when the editor is recreated on reset (clearMe's hard reset, or the option "add another" reset), it reused the registry's stale config.value. If the editor had been opened on an existing draft, config.value held that draft text, so getDefaultContents resurrected it after the stored state was cleared. Fix reseeds value with the reset contents so a recreate can't fall back to the old draft. Blast radius: every resetEditor caller that recreates (passes contents/configOverrides/hardReset) - they all intend to clear or set explicit content, so this is consistent; callers passing only an id (no recreate) are unaffected. Verified via lint + jest (31 tests pass); still needs manual UI check of the 3-step repro.
 
@@ -4768,14 +4764,13 @@ For the Codex (OpenAI) integration in T-all-2023: how should the installer decid
 Unconditionally create ~/.codex/config.toml and ~/.codex/AGENTS.md regardless of whether Codex appears installed. Maximizes reach but creates ~/.codex for users who don't use Codex.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Gate on ~/.codex/ directory
 Configure Codex (write/refresh config.toml AND AGENTS.md) when the ~/.codex/ directory exists, even if config.toml is absent — creating config.toml when needed. Directory presence signals Codex is installed; a missing config.toml is normal. My recommendation.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
 Gating on the ~/.codex/ directory is the right detection signal for Codex specifically. Codex creates ~/.codex/ (with auth.json) on login but treats config.toml as optional, so requiring config.toml to pre-exist (the Cursor/Claude rule) would silently skip nearly every real Codex user. Directory-presence still avoids creating ~/.codex for people who don't use Codex, so it's strictly more useful than O-2 without the over-reach of O-3.
 
@@ -4785,7 +4780,7 @@ Gating on the ~/.codex/ directory is the right detection signal for Codex specif
 Only touch config.toml if config.toml already exists; skip entirely otherwise. Most consistent with existing code, but would configure almost no Codex users since config.toml is usually absent.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Report R-all-118<a name="r-all-118"></a> 
 Codex (OpenAI) integration is complete and ready to test. Two files changed.
 
@@ -5087,8 +5082,7 @@ T-all-2023 says the Codex integration "must try it to verify." I can't run a liv
 I implement the config.toml + AGENTS.md install paths and docs to match the documented Codex MCP format, and you run the live verification on your authenticated Mac/Windows/Codex. My recommendation.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
 The install code is platform-agnostic and can be written and unit-reasoned against the documented config.toml schema without a live OpenAI session, so blocking on auth here (O-2) adds friction for little gain. A real end-to-end MCP handshake is still valuable, but it belongs on your authenticated Codex install rather than fully skipping verification (O-3).
 
@@ -5097,7 +5091,7 @@ The install code is platform-agnostic and can be written and unit-reasoned again
 Trust that matching the documented config.toml schema from developers.openai.com/codex/mcp is sufficient; no end-to-end test before review.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
 I will be confirming myself.
 
@@ -5106,7 +5100,7 @@ I will be confirming myself.
 I install @openai/codex on this Linux box and you provide OpenAI auth so I can run the MCP handshake end-to-end before handing it back.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task T-all-2022<a name="t-all-2022"></a> 
 Do Claude Code integration also <https://code.claude.com/docs/en/agent-sdk/mcp#connect-to-external-tools-with-mcp> For the config this is going to have to be a documentation thing as they will likely add in code.
 
@@ -5172,14 +5166,13 @@ Two contributing facts: (1) no timeout anywhere, and (2) `CLAUDE.md` gets downlo
 Just add a timeout to the urlopen calls so the installer fails fast on a stall. Leaves the triple-download in place (still three chances to stall, but each now bounded).
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Timeout + fetch CLAUDE.md once
 Add a connect/read timeout (e.g. 15s) to every urlopen call so a stall fails gracefully instead of hanging, AND download CLAUDE.md a single time per run and reuse the content for CLAUDE.md, the Cursor .mdc, and AGENTS.md. Fixes the hang and removes two redundant network round-trips. Recommended.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
 The hang is a missing-timeout problem, so a timeout is the load-bearing fix — without it any single stalled connection blocks forever (O-3 alone doesn't solve it). Fetching CLAUDE.md once is a cheap, low-risk win on top: it's the exact same URL pulled three times in one run, so reusing the content removes two redundant round-trips (two fewer chances to stall) and keeps the three surfaces byte-identical. The combination fully addresses the reported symptom and tightens the network surface; it's the right scope.
 
@@ -5189,7 +5182,7 @@ The hang is a missing-timeout problem, so a timeout is the load-bearing fix — 
 Download CLAUDE.md once and reuse it, but add no timeout. Reduces stall surface to a single request but that one request can still hang forever.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task C-all-892<a name="c-all-892"></a> 
 Can try the same thing in Cursor - it asks its questions in Uclusion and then waits for you to say you are done answering them. **They won't clutter up as you will resolve them.**
 
@@ -5239,14 +5232,13 @@ Fix that the Grouped button is not available on someone else's task because inst
 Drop the author check so the existing single button reads 'Grouped' on everyone's task (same as on your own), removing the standalone 'Reply' affordance on tasks. Simpler but loses the plain-reply option on a task.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Separate Grouped button next to Reply
 On others' tasks keep the 'Reply' button and add a distinct 'Grouped' button beside it, so a non-author can choose a plain reply or a grouped subtask/note. Matches the literal 'next to Reply' wording.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
 The literal wording "put the button there next to Reply" reads as adding a distinct Grouped button alongside the existing Reply button, not relabeling. It also preserves the ability to make a plain reply on someone else's task, which relabeling would remove.
 
@@ -5261,26 +5253,25 @@ To identify a reply as a subtask "beside the parent author", which notification_
 Treat any REPLY carrying a non-null, non-BLUE notification_type as a subtask. More permissive; risks misclassifying a plain reply that happened to get a YELLOW level.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-3<a name="o-3"></a>
 ### Other value
 A different notification_type marks subtasks (please specify).
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-4<a name="o-4"></a>
 ### Use BLUE  level.
 There is no confusion here because the comment_type is REPLY so REPLY + BLUE equals grouped task.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### RED only
 Treat a REPLY with notification_type === RED as a subtask. Grouped tasks are 'must do' work, so RED is the natural marker; plain conversational replies stay YELLOW/null.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
 RED is the natural marker for a grouped subtask since grouped tasks are "must do" work, while plain conversational replies stay YELLOW/null. Matching on RED only avoids misclassifying an ordinary reply that happens to carry a YELLOW level. Medium certainty because I can't see the backend's default notification_type for subtask replies — if author-created subtasks aren't actually RED today this needs confirming.
 
@@ -7030,19 +7021,19 @@ T-all-2026: How should individual notes display under a sub-header? Today the No
 Like option 1 but clicking navigates to the note (formCommentLink) instead of expanding inline. Matches the 'compressed row' pattern used in CondensedTodos.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Compressed rows by default, click to expand inline
 Each note renders as a one-line row (stripped body preview), same visual as the existing compressedCommentCard. Clicking expands to the full Comment card with replies.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-2<a name="o-2"></a>
 ### Full Comment cards (current Notes tab visual), just regrouped
 Keep the existing CommentBox/Comment rendering exactly, only change is the day headers and task sub-headers wrapping them. Easiest for replies/editing but visually heavy.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 We will be using compressed for tasks and so would be confusing to use for both. Plus for other people seeking status is easier to just scroll than have to click many times to open things.
 
@@ -7072,7 +7063,7 @@ T-all-2026 follow-up to Q-all-56: Tasks have a `resolved` boolean and `updated_a
 If task.resolved is true, group it under the day of updated_at. Wrong if the task was edited after being resolved (rare for resolved tasks), but pragmatic and needs no backend change.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 Users cannot edit resolved comments so this is not just an approximation.
 
@@ -7081,13 +7072,13 @@ Users cannot edit resolved comments so this is not just an approximation.
 Pause the resolved-task-under-day-header piece of T-all-2026 until backend adds a resolved_at column. Notes day-grouping ships first; resolved-task sub-headers ship after backend support lands.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-3<a name="o-3"></a>
 ### Drop the resolved-task display from T-all-2026 entirely - revisit later
 Just implement the notes day/task grouping (matches T-all-2026's own text). Move the 'resolved tasks under day header' behavior (from J-all-284 description) to a brand-new task that includes whatever backend work it needs.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Question Q-all-56<a name="q-all-56"></a> 
 T-all-2026: Is showing resolved tasks under the day header part of this task, or a separate one? The parent J-all-284 description says 'Also displaying under a date header are any resolved tasks and these show as collapsed rows,' but T-all-2026's own text only talks about notes. Resolved tasks already exist on the Tasks tab so dragging them into the Notes tab is a non-trivial additional behavior.
 
@@ -7096,19 +7087,19 @@ T-all-2026: Is showing resolved tasks under the day header part of this task, or
 T-all-2026 only implements day/task grouping for notes. We'll create a separate task in J-all-284 (or add it to backlog) for the resolved-tasks-in-notes behavior.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### In scope for T-all-2026 - include resolved tasks under the day they were resolved
 Under each day header, in addition to notes, also show tasks resolved that day as collapsed rows. They participate in the same day grouping (using resolved_at) but probably belong to their own visual section within the day.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-3<a name="o-3"></a>
 ### If a task is resolved on the day of the day header it shows as a sub header...
 ...even if it has no notes. If it has notes it is already displaying with those notes. If it has no notes just put the text "Resolved." under it.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{yellow} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 Its an edge case because in practice the developer will usually have some note on the task he resolved if he is using notes for status.
 
@@ -7129,7 +7120,7 @@ T-all-2026 follow-up to Q-all-59: Comments in the frontend codebase only carry c
 Have the create/update wizards include the browser timezone in the payload. If backend ignores it harmlessly, we still ship the UI now with the viewer's local TZ. When backend starts persisting it, no UI changes needed.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 I will fix the back end to accept the new field before this ships.
 
@@ -7138,13 +7129,13 @@ I will fix the back end to accept the new field before this ships.
 Pause UI work. Add a sibling task in J-all-284 to (a) add a tz column on comments, (b) populate it from browser Intl.DateTimeFormat().resolvedOptions().timeZone on create/update, (c) return it via SDK. Once that ships, finish T-all-2026.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Use viewer's local browser TZ now, add a separate task to plumb creator TZ end-to-end later
 I'll group days using new Date(updated_at).toLocaleDateString() in the viewer's browser. We get correct-looking day boundaries for the common case (the developer reading their own notes). I'll file a follow-up task in J-all-284 to add created_tz/updated_tz on the backend and switch the grouping over.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task C-all-894<a name="c-all-894"></a> 
 Add associated_comment_id insert and update comment Lambdas.
 
@@ -7173,7 +7164,7 @@ T-all-2026: What should the task sub-header look like and what does clicking it 
 Sub-header is the existing one-line compressed task row. Clicking expands the full task inline (and any non-note replies/grouped tasks) within the Notes tab. Notes still listed below either way.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{yellow} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 On the tasks page I represented associated notes using CondensedTodos that work this way so this should be symmetric. Can copy what I did and just pass an array of one if that is easy.
 
@@ -7182,13 +7173,13 @@ On the tasks page I represented associated notes using CondensedTodos that work 
 Not the full compressed comment widget - just a lightweight header showing the short code (e.g. T-all-2030) and stripped first line of the task body, linking to it. Keeps the Notes tab visually flat.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-2<a name="o-2"></a>
 ### Reuse compressedCommentCard, click navigates to the task (Tasks tab)
 Sub-header looks like the compressed row but clicking jumps to the task on the Tasks tab via formCommentLink. Notes tab itself stays read-only for the task.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task T-all-2129<a name="t-all-2129"></a> 
 [Other AI integrations.](#e17a9bfa-c419-46bc-afe2-0c15a13cf95a) has notes but the day headers are not showing. I suspect the day headers are only working for job level notes and if there is no job level note you don't get them.
 
@@ -7227,20 +7218,20 @@ T-all-2026: Within a given day header, where should job-level notes (no associat
 Job-level notes for that day appear first (bare, no sub-header), followed by the task sub-headers in their sort order. Reads as 'general notes for the day, then per-task work.'
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{lightgreen} For}$$
 ### Option O-2<a name="o-2"></a>
 ### Below all task sub-headers, with no sub-header label
 Task sub-headers come first; job-level notes appear at the bottom of the day group with no sub-header.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-3<a name="o-3"></a>
 ### Treated as their own pseudo sub-header sorted by latest note time
 Job-level notes get an implicit 'Job' sub-header that participates in the 'whichever has the later notes displays later' ordering alongside task sub-headers, so it can land anywhere in the day.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task T-all-2028<a name="t-all-2028"></a> 
 Notes do not export through MCP. Would clutter context. Change verbiage on tool description to mention that.
 
@@ -7255,13 +7246,13 @@ MD file is not good enough for Ethan's supervisor to use.
 Could let Claude do it with the MD file and then change the code to match whatever it comes up with. Remember to tell Claude it has to stay within GitHub supported MD and give it link to that [documentation](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github).
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-2<a name="o-2"></a>
 ### MD files are for AI only.
 If so have to change landing page.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task C-all-900<a name="c-all-900"></a> 
 For notes must calculate from group as do elsewhere.
 
@@ -7282,7 +7273,7 @@ T-all-2026: What direction do day headers themselves scroll? Within a header not
 Matches the J-all-284 example. Reads like a chronological log; today's notes are at the bottom. Consistent with within-header ordering.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{yellow} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 The developer's notes we are trying to accommodate are ascending so that's are target for now.
 
@@ -7291,7 +7282,7 @@ The developer's notes we are trying to accommodate are ascending so that's are t
 More like a typical feed/blog/inbox - today's notes are immediately visible without scrolling. Inconsistent with within-day ordering but better for daily-use ergonomics.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task T-all-2026<a name="t-all-2026"></a> 
 Notes tab displays with a day top header and then a task sub header where this header is a compressed task. Whichever task has the later notes displays later. Job level notes don't have a task sub header.
 
@@ -7327,19 +7318,19 @@ T-all-2026: Which timestamp determines which day-header a note appears under? Th
 A note created Apr 7 and updated Apr 9 shows under BOTH Apr 7 and Apr 9 headers. Matches the literal 'created or updated on' wording but means the same note can appear twice on the Notes tab.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-2<a name="o-2"></a>
 ### Use created_at only (single appearance, creation day)
 A note appears under exactly one day header - the day it was created. Edits never move it. Best when notes are immutable status entries.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Use updated_at only (single appearance, latest day)
 A note appears under exactly one day header - the day of its most recent update (or creation if never updated). Editing a note moves it to today's header. Simplest and matches how a 'daily status' usually works.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 Yes that was just incorrect in spec.
 
@@ -7389,13 +7380,13 @@ A prompt is essentially an experiment. You might export the job later and check 
 **Put a visible flag on the note so that they can control which notes are exported - maybe hiding prompts that didn't work out or notes that are too long or too rambling to be useful for status.**
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Make notes display by day and then by task.
 Whichever task has the later notes displays later.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 #### Resolved Task T-all-2088<a name="t-all-2088"></a> 
 Remove poke, move, and ungroup buttons from notes. Keep poke if the note has mentions.
 
@@ -7407,7 +7398,7 @@ T-all-2026: What time zone defines the 'day' for the day header? Affects when a 
 Each note carries the timezone it was authored in; that's what determines the day. All viewers see the same grouping but it can look 'off' for viewers in other zones.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 It won't look off because as a status report it is expected to be from the author's point of view.
 
@@ -7416,13 +7407,13 @@ It won't look off because as a status report it is expected to be from the autho
 Day header boundaries are 00:00-24:00 UTC. Consistent for everyone, but the example in J-all-284 ('Mar 30 2026' labels) implies wall-clock days, which UTC may not match for west-coast users.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Viewing user's local browser timezone
 Day boundary uses the browser's local timezone. Different users may see slightly different groupings if they're in different zones, but each user sees days that match their wall clock.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ## Job J-all-300<a name="j-all-300"></a>
 ### Bugs T-all-1442
 
@@ -7505,20 +7496,19 @@ I want to pin down the exact repro for "Move to backlog did not quick add get ri
 The job DID leave In Progress and is now in the backlog, but it sorts ABOVE newly-created backlog jobs when (sorting by created_at) it should be below them. The fix would be about backlog ordering after a move-in, not about the In Progress column.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-1<a name="o-1"></a>
 ### Stale in In Progress column
 After moving the job to backlog, the optimistic 'quick add' update did NOT remove the job from the In Progress / Accepted column — it's still shown there even though its real stage is now backlog. (The 'displays ahead of newly created' part is a secondary observation about the backlog itself.)
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-3<a name="o-3"></a>
 ### Both symptoms together
 Both happen: the job lingers in In Progress (quick-add didn't remove it) AND it appears ahead of newly-created items in the backlog. They likely share one root cause in the optimistic stage-change update.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
 My best guess. The phrasing leads with "did not quick add get rid of in progress" (a lingering In Progress entry), and "displays ahead of newly created" reads as a follow-on consequence — which points to a single root cause in the optimistic stage-change update rather than two unrelated issues. Medium certainty because the backlog's created_at DESC sort doesn't obviously produce the "ahead of newly created" symptom on its own, so I'm not fully sure the ordering complaint is just downstream of the stale-update bug.
 
@@ -7530,8 +7520,7 @@ For T-all-2123 (sidebar stage dropdown skipping the assignment wizard): "Work Re
 Route to the assignment wizard for any move out of backlog into a stage that requires an assignee (Accepted AND voting/Waiting-Approval) when the job is unassigned. More complete — closes the same 'prohibited unassigned' hole on the voting path too.
 
 
-This job is in stage In Dialog.
-#### From AI user:
+This option is in stage In Dialog.
 > ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
 My preferred option. The bug's underlying principle — a job in a working stage must have an assignee, so an unassigned move is prohibited — applies identically to Waiting/Approval (voting), which the same dropdown can target. Today an unassigned job moved to voting either falls through to a certainty/approval step (no assignee picker) or, if a vote already exists, moves directly with no assignment, leaving the same prohibited state. Fixing both closes the hole consistently. Certainty 3 rather than higher because the report literally names only Work Ready, so if you'd rather keep the change tightly scoped to avoid touching the voting flow, O-1 is the safer literal fix.
 
@@ -7540,13 +7529,13 @@ My preferred option. The bug's underlying principle — a job in a working stage
 Fix exactly what the bug names: only moving an unassigned job to Work Ready / Accepted routes to the assignment wizard. Moving to Waiting/Approval keeps its current behavior. Lowest-risk and literal to the report.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 ### Option O-3<a name="o-3"></a>
 ### Work Ready, Waiting / Approval, and Tasks Complete.
 This is any stage with appears_in_context true or alternatively any stage where allows_assignment is not false.
 
 
-This job is in stage In Dialog.
+This option is in stage In Dialog.
 > ##### $${\color{green} For}$$
 ## Job J-all-288<a name="j-all-288"></a>
 ### Bugs B-all-424, B-all-423, B-all-422, B-all-420, B-all-421, B-all-419, B-all-418

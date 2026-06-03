@@ -22,6 +22,7 @@ import CustomCodeBlock from './CustomCodeBlock';
 import PropTypes from 'prop-types';
 import { getNameForUrl, getUrlForTicketPath } from '../../utils/marketIdPathFunctions';
 import ImageBlot from './ImageBlot';
+import DividerBlot from './DividerBlot';
 import QuillEditorRegistry from './QuillEditorRegistry';
 import {
   createEditor,
@@ -46,6 +47,7 @@ Quill.register('modules/imageResize', ImageResize);
 Quill.register('modules/mention', QuillMention);
 Quill.register(CustomCodeBlock, true);
 Quill.register(MyLink);
+Quill.register(DividerBlot);
 const useStyles = makeStyles(
   theme => {
     return {

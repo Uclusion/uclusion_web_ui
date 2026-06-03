@@ -40,6 +40,22 @@ specifically is wrong, which direction to take, what to keep vs. throw
 out — are step-2 questions and belong in Uclusion via `ask_question`,
 not in a local clarification prompt.
 
+### Plan mode
+
+Being in plan mode does NOT move workflow artifacts out of Uclusion. Two
+things still hold:
+
+1. **Questions still go through Uclusion.** Any step-2 question — including a
+   choice between approaches you would otherwise surface for a plan — is filed
+   with `ask_question` (and your preference voted with `approve_job_or_option`),
+   not asked in chat or via a local prompt. The only questions that may go
+   through a local prompt are ones not about the job (about this flow itself,
+   tooling, etc.).
+2. **Put the plan in Uclusion.** When you produce a plan, add it to the job with
+   `add_info` rather than leaving it only in chat or a local plan file, then tell
+   the user you placed it there and link it by its short code. The job, not the
+   chat, is where the plan lives so the next session can pick it up.
+
 ### 1. Read
 
 Call `get_job` with the short code to load the job and all its child tasks,

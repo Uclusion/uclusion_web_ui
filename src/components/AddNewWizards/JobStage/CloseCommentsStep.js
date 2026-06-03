@@ -86,8 +86,8 @@ function CloseCommentsStep(props) {
       .then((response) => {
         const { full_investible: newInv, comments } = response;
         addMarketComments(commentsDispatch, marketId, comments);
-        onInvestibleStageChange(stage, newInv, investibleId, marketId, undefined,
-          undefined, investiblesDispatch, () => {}, marketStagesState, undefined,
+        onInvestibleStageChange(stage, newInv, investibleId, marketId, commentsState,
+          commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined,
           getFullStage(marketStagesState, marketId, marketInfo.stage));
         setOperationRunning(false);
         if (isResolve) {

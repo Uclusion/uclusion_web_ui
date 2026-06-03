@@ -118,6 +118,7 @@ function addToolTips (toolbar) {
   setTooltip(toolbar, 'button.ql-strike', 'Strike');
   setTooltip(toolbar, 'button.ql-list', 'Number List', 'Bullet List');
   setTooltip(toolbar, 'button.ql-table', 'Table');
+  setTooltip(toolbar, 'button.ql-divider', 'Divider');
   setTooltip(toolbar, 'span.ql-color', 'Text Color');
   setTooltip(toolbar, 'span.ql-background', 'Background Color');
   setTooltip(toolbar, 'span.ql-align', 'Text Alignment');
@@ -377,6 +378,12 @@ export function generateEditorOptions (id, config) {
             const {editor} = QuillEditorRegistry.getEditor(id);
             editor.format('link', false);
           }
+        },
+        'divider': () => {
+          const {editor} = QuillEditorRegistry.getEditor(id);
+          const range = editor.getSelection(true);
+          editor.insertEmbed(range.index, 'divider', true, 'user');
+          editor.setSelection(range.index + 1, 0, 'silent');
         }
       },
       //for various reasons, the array form is stored in the container property when you're
@@ -388,7 +395,7 @@ export function generateEditorOptions (id, config) {
         [{ color: [] }, { background: [] }],
         [{ align: [] }],
         [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
-        ['link', 'code-block', 'image', 'video'],
+        ['link', 'code-block', 'image', 'video', 'divider'],
         ['table'],
         ['clean'],
       ]
@@ -438,7 +445,7 @@ export function generateEditorOptions (id, config) {
       [{ color: [] }, { background: [] }],
       [{ align: [] }],
       [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
-      ['link', 'code-block'],
+      ['link', 'code-block', 'divider'],
       ['table'],
       ['clean'],
     ];

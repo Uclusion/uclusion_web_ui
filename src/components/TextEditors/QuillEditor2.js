@@ -48,6 +48,10 @@ Quill.register('modules/mention', QuillMention);
 Quill.register(CustomCodeBlock, true);
 Quill.register(MyLink);
 Quill.register(DividerBlot);
+// Custom toolbar formats render a blank button unless given an icon, so supply
+// one for the divider control here (once, at module load).
+const quillIcons = Quill.import('ui/icons');
+quillIcons['divider'] = '<svg viewBox="0 0 18 18"><line class="ql-stroke" x1="3" y1="9" x2="15" y2="9"></line></svg>';
 const useStyles = makeStyles(
   theme => {
     return {

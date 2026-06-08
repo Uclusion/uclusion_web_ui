@@ -15,10 +15,10 @@ import { getLocalDayKey } from '../../../utils/timezoneUtils';
 //     }]
 //   }]
 //
-// Day groups are sorted ascending (oldest at top, today at bottom) per Q-all-60.
-// Sub-groups within a day are sorted ascending by their `timestamp` per Q-all-57
+// Day groups are sorted descending (oldest at bottom, today at top)
+// Sub-groups within a day are sorted descending by their `timestamp` 
 // ("whichever task has the later notes displays later"). Job-level notes for the
-// day render above all sub-groups, with no sub-header, per Q-all-55.
+// day render above all sub-groups, with no sub-header
 //
 // Day membership uses the comment's `tz` field (creator's IANA zone) when present,
 // falling back to viewerTz, per Q-all-59. The note's bucketing key is
@@ -85,32 +85,31 @@ export function groupNotesByDay(notes, tasks, viewerTz) {
     ensureSubGroup(day, task).isResolvedHere = true;
   });
 
-  return _.orderBy(
+  return _.orderBy( 
     Object.values(byDay).map((day) => {
-      const jobLevelNotes = _.orderBy(day.jobLevelNotes, ['updated_at'], ['asc']);
+      const jobLevelNotes = _.orderBy(day.jobLevelNotes, ['updated_at'], ['desc']);
       const subGroups = _.orderBy(
         Object.values(day.bySubTaskId).map((sg) => {
-          const notesAsc = _.orderBy(sg.notes, ['updated_at'], ['asc']);
-          const lastNoteTs = _.last(notesAsc)?.updated_at;
-          const resolveTs = sg.isResolvedHere ? sg.task.updated_at : undefined;
-          const timestamp = [lastNoteTs, resolveTs].filter(Boolean).sort().pop();
-          return { ...sg, notes: notesAsc, timestamp };
+          const notesDesc = _.orderBy(sg.notes, ['updated_at'], ['desc']);
+          const firstNoteTs = _.first(notesDesc)?.updated_at || 0;
+          const resolveTs = sg.isResolvedHere ? sg.task.updated_at : 0;
+          const timestamp = firstNoteTs > resolveTs ? firstNoteTs : resolveTs;
+          return { ...sg, notes: notesDesc, timestamp };
         }),
         ['timestamp'],
-        ['asc']
+        ['desc']
       );
-      const dayTimestamp = [
-        _.last(jobLevelNotes)?.updated_at,
-        _.last(subGroups)?.timestamp
-      ].filter(Boolean).sort().pop();
+      
+      const jobLevelTimestamp = _.first(jobLevelNotes)?.updated_at || 0;
+      const subGroupTimestamp = _.first(subGroups)?.timestamp || 0;
       return {
         dayKey: day.dayKey,
-        timestamp: dayTimestamp,
+        timestamp: jobLevelTimestamp > subGroupTimestamp ? jobLevelTimestamp : subGroupTimestamp,
         jobLevelNotes,
         subGroups
       };
     }),
     ['dayKey'],
-    ['asc']
+    ['desc']
   );
 }

@@ -6,6 +6,8 @@ import { wizardStyles } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
 import { getComment, getCommentRoot, getMarketComments } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
+import { MarketsContext } from '../../../contexts/MarketsContext/MarketsContext';
+import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { getLabelForTerminate, getShowTerminate } from '../../../utils/messageUtils';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
@@ -23,13 +25,20 @@ function DecideAnswerStep(props) {
   const history = useHistory();
   const [commentState] = useContext(CommentsContext);
   const [marketPresencesState] = useContext(MarketPresencesContext);
+  const [marketsState] = useContext(MarketsContext);
   const [, messagesDispatch] = useContext(NotificationsContext);
-  const commentRoot = getCommentRoot(commentState, marketId, commentId) || {id: 'fake'};
-  const comments = getMarketComments(commentState, marketId).filter((comment) => 
+  // For a new option the message points at the inline decision market; the question is that market's parent comment.
+  const { parent_comment_id: parentCommentId, parent_comment_market_id: parentCommentMarketId } =
+    getMarket(marketsState, marketId) || {};
+  const useParentQuestion = message.type === 'UNREAD_OPTION' && !!parentCommentId;
+  const questionMarketId = useParentQuestion ? parentCommentMarketId : marketId;
+  const questionCommentId = useParentQuestion ? parentCommentId : commentId;
+  const commentRoot = getCommentRoot(commentState, questionMarketId, questionCommentId) || {id: 'fake'};
+  const comments = getMarketComments(commentState, questionMarketId).filter((comment) =>
     comment.root_comment_id === commentRoot.id || comment.id === commentRoot.id);
   const classes = wizardStyles();
   const intl = useIntl();
-  const presences = getMarketPresences(marketPresencesState, marketId) || [];
+  const presences = getMarketPresences(marketPresencesState, questionMarketId) || [];
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const isQuestionCreator = commentRoot.created_by === myPresence.id;
   const { useCompression } = formData;
@@ -51,10 +60,10 @@ function DecideAnswerStep(props) {
           button if you don't want further notifications on this vote.
         </Typography>
       )}
-      <JobDescription marketId={marketId} investibleId={commentRoot.investible_id} comments={comments}
+      <JobDescription marketId={questionMarketId} investibleId={commentRoot.investible_id} comments={comments}
                       removeActions={noOptions}
                       showVoting
-                      inboxMessageId={commentId}
+                      inboxMessageId={questionCommentId}
                       useCompression={useCompression && noOptions}
                       toggleCompression={() => updateFormData({useCompression: !useCompression})} />
       <div style={{marginBottom: '2rem'}}/>

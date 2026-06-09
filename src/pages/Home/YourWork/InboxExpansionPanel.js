@@ -159,6 +159,12 @@ export function calculateTitleExpansionPanel(props) {
       setItem(item, openExpansion, <ReviewWizard commentId={commentId} marketId={marketId} message={message} />,
         'DecideReviewTitle', intl);
     }
+  } else if (messageType === 'UNREAD_OPTION') {
+    // The option lives in the inline decision market (commentMarketId). DecideAnswerStep walks up to that
+    // market's parent question so the whole question and its options (including the new one) show with voting.
+    setItem(item, openExpansion, <AnswerWizard marketId={commentMarketId || marketId} commentId={commentId}
+                                               message={message} />,
+      'DecideAnswerTitle', intl);
   } else if (messageType === 'UNREAD_ESTIMATE') {
     setItem(item, openExpansion,
       item.expansionPanel = <EstimateChangeWizard investibleId={investibleId} marketId={marketId}

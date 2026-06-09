@@ -375,6 +375,20 @@ def add_question(credentials, job_short_code, question, options):
     return send(data, 'POST', question_api_url, credentials['api_token'])
 
 
+def add_options(credentials, question_short_code, options):
+    question_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + question_short_code
+    processed_options = []
+    for option in options:
+        processed_options.append({
+            'name': option[0],
+            'description': option[1]
+        })
+    data = {
+        'options': processed_options
+    } 
+    return send(data, 'POST', question_api_url, credentials['api_token'])
+
+
 def add_report(credentials, job_short_code, report):
     report_api_url = 'https://investibles.' + credentials['api_url'] + '/cli/' + job_short_code
     data = {
@@ -721,6 +735,16 @@ def cmd_add_question(args):
     return 0
 
 
+def cmd_add_options(args):
+    result = initialize(args.env)
+    if result is None:
+        return 1
+    credentials, _config, _stages = result
+    response = add_options(credentials, args.question_short_code, args.options)
+    print(response)
+    return 0
+
+
 def cmd_add_suggestion(args):
     result = initialize(args.env)
     if result is None:
@@ -877,6 +901,26 @@ def build_parser():
     )
 
     add_question_parser.set_defaults(func=cmd_add_question)
+
+    add_options_parser = subparsers.add_parser(
+        'add_options',
+        help='Add options to a question by question short code.',
+    )
+    add_options_parser.add_argument(
+        'question_short_code',
+        help='The short code id of the question to add the options to (e.g. Q-abc-123).',
+    )
+    add_options_parser.add_argument(
+        '-o', '--option',
+        action='append',
+        nargs=2,
+        metavar=('NAME', 'DESCRIPTION'),
+        dest='options',
+        default=[],
+        help='An option for the question as NAME DESCRIPTION. Repeat the flag to add multiple options.',
+    )
+
+    add_options_parser.set_defaults(func=cmd_add_options)
 
     add_suggestion_parser = subparsers.add_parser(
         'add_suggestion',

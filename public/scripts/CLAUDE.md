@@ -189,7 +189,9 @@ already made, those are step-2 questions. Go back, file them via
   as Uclusion artifacts so the next session (yours or someone else's) can
   pick up the thread.
 - The short code (for example `J-Marketing-22`) is the canonical id. Use it
-  verbatim when calling tools and when linking artifacts back to the user.
+  verbatim when calling tools, in the chat, commit messages, and code comments
+  that are not refererencing a question. For a code comment that references a 
+  question use the full link returned on question creation if you have it.
 - Offering to commit after all tasks are resolved and the job review has been 
   opened and the commmit message should begin with the short code so that any 
   action invoked by the commit can use it.

@@ -46,12 +46,15 @@ function StageActionStep(props) {
   const inv = getInvestible(investiblesState, investibleId);
   const editorName = getJobApproveEditorName(investibleId);
   const marketInfo = getMarketInfo(inv, marketId) || {};
-  const { required_approvers: requiredApprovers, assigned } = marketInfo;
+  const { required_approvers: requiredApprovers, assigned, stage: currentStageId } = marketInfo;
   const {approveUploadedFiles, approveReason, approveQuantity, stage, wasDeleted,
     originalReason, originalQuantity, userId, approveReasonVersion } = formData;
   const fullMoveStage = getFullStage(marketStagesState, marketId, stage);
   const validForm = approveQuantity > 0;
   const isAssignedToMe = assigned?.includes(userId);
+  // When the job was already moved into this stage before the wizard opened (dropdown or drag and drop
+  // into approval / paused) this prompt only collects the approval, so skipping approvals doesn't apply
+  const alreadyInMoveStage = currentStageId === stage;
 
   if (_.isEmpty(fullMoveStage)) {
     return React.Fragment;
@@ -176,7 +179,7 @@ function StageActionStep(props) {
         validForm={validForm}
         onNext={onNext}
         nextLabel="JobWizardApproveJob"
-        showOtherNext={_.isEmpty(requiredApprovers) && isAssignedToMe}
+        showOtherNext={_.isEmpty(requiredApprovers) && isAssignedToMe && !alreadyInMoveStage}
         otherNextValid
         onOtherNext={start}
         otherNextLabel="skipAllApprovals"

@@ -28,17 +28,16 @@ import StageActionStep from './StageActionStep';
 import { editorEmpty } from '../../TextEditors/Utilities/CoreUtils';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 
-export function requiresAction(fullMoveStage, isSingleUser, isBlocked, yourVote) {
+export function requiresAction(fullMoveStage, isSingleUser, isBlocked) {
   if (!_.isEmpty(fullMoveStage)&&!isNotDoingStage(fullMoveStage)) {
     // Not prompting for review if single user
     if (fullMoveStage.close_comments_on_entrance && !isSingleUser) {
       return true;
     }
-    // Not prompting for certainty if single user
+    // Not prompting for certainty if single user - team prompts to add or update approval even with an
+    // existing vote so the flow matches drag and drop and can chain to the remove in progress wizard
     if (fullMoveStage.allows_investment && !isSingleUser) {
-      if (!yourVote || yourVote.deleted) {
-        return true;
-      }
+      return true;
     }
     if (isFurtherWorkStage(fullMoveStage)&&!isBlocked) {
       return true;

@@ -301,7 +301,6 @@ export default function PlanningInvestibleNav(props) {
         assigned={assigned}
         isAssigned={isAssigned}
         isSingleUser={isSingleUser}
-        yourVote={yourVote}
         userId={userId}
         tasksInProgress={tasksInProgress}
       />
@@ -651,7 +650,6 @@ function MarketMetaData(props) {
     assigned,
     isAssigned,
     isSingleUser,
-    yourVote,
     userId,
     tasksInProgress
   } = props;
@@ -699,7 +697,7 @@ function MarketMetaData(props) {
     if (stageMoveId !== stageId) {
       const fullMoveStage = getFullStage(marketStagesState, marketId, stageMoveId);
       const requiresClose = requiresCloseComments(fullMoveStage);
-      const requiresOtherAction = requiresAction(fullMoveStage, isSingleUser, stagesInfo.isBlocked, yourVote);
+      const requiresOtherAction = requiresAction(fullMoveStage, isSingleUser, stagesInfo.isBlocked);
       // A job with no assignee cannot legitimately enter a stage that takes an assignee (allows_assignment
       // covers exactly Work Ready, Waiting/Approval and Tasks Complete) so send it to the assignment wizard.
       // Single user keeps auto-assigning the mover to themselves in the direct path below.
@@ -713,6 +711,29 @@ function MarketMetaData(props) {
           fullStageLink += '&isAssign=true';
         } else if (!requiresClose) {
           fullStageLink += '&isAssign=false';
+        }
+        const approvalPromptOnly = !requiresClose && !requiresAssignment && !stagesInfo.isInBlocked &&
+          fullMoveStage.allows_investment;
+        if (approvalPromptOnly) {
+          // The approval wizard does not move the job, so like drag and drop change the stage first
+          // and then prompt to add or update the approval
+          setOperationRunning(true);
+          const moveInfo = {
+            marketId,
+            investibleId,
+            stageInfo: {
+              current_stage_id: stageId,
+              stage_id: fullMoveStage.id
+            },
+          };
+          return stageChangeInvestible(moveInfo)
+            .then((newInv) => {
+              onInvestibleStageChange(fullMoveStage.id, newInv, investibleId, marketId, commentsState,
+                commentsDispatch, investiblesDispatch, () => {}, marketStagesState, undefined, fullMoveStage,
+                marketPresencesDispatch);
+              setOperationRunning(false);
+              navigate(history, fullStageLink);
+            });
         }
         navigate(history, fullStageLink);
       } else {

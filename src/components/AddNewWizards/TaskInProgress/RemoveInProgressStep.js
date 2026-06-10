@@ -5,7 +5,7 @@ import WizardStepContainer from '../WizardStepContainer';
 import WizardStepButtons from '../WizardStepButtons';
 import { WizardStylesContext } from '../WizardStylesContext';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
-import { formCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formCommentLink, formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
 import { updateComment } from '../../../api/comments';
@@ -14,12 +14,24 @@ import { CommentsContext } from '../../../contexts/CommentsContext/CommentsConte
 import _ from 'lodash';
 
 function RemoveInProgressStep (props) {
-  const { otherInProgress, comment, formData = {}, updateFormData = () => {}, marketId } = props;
+  const { otherInProgress, comment, formData = {}, updateFormData = () => {}, marketId, investibleId } = props;
   const [commentsState, commentsDispatch] = useContext(CommentsContext);
   const [, setOperationRunning] = useContext(OperationInProgressContext);
   const classes = useContext(WizardStylesContext);
   const history = useHistory();
   const { useCompression } = formData;
+
+  function onDone() {
+    if (!_.isEmpty(comment)) {
+      navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
+    } else if (investibleId) {
+      // Came from a stage change flow - going back would land on the wizard that sent us here
+      navigate(history, formInvestibleLink(marketId, investibleId));
+    } else {
+      // Just go back where came from
+      navigate(history);
+    }
+  }
 
   function removeInProgress() {
     const promises = [];
@@ -33,12 +45,7 @@ function RemoveInProgressStep (props) {
     });
     return Promise.all(promises).then(() => {
       setOperationRunning(false);
-      if (_.isEmpty(comment)) {
-        // Just go back where came from
-        navigate(history);
-      } else {
-        navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
-      }
+      onDone();
     });
   }
 
@@ -81,14 +88,7 @@ function RemoveInProgressStep (props) {
         nextLabel='removeInProgress'
         onNext={removeInProgress}
         showTerminate
-        onTerminate={() => {
-          if (_.isEmpty(comment)) {
-            // Just go back where came from
-            navigate(history);
-          } else {
-            navigate(history, formCommentLink(comment.market_id, comment.group_id, comment.investible_id, comment.id));
-          }
-        }}
+        onTerminate={onDone}
         terminateLabel="OnboardingWizardGoBack"
       />
     </WizardStepContainer>

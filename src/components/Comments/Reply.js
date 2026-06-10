@@ -233,8 +233,9 @@ function Reply(props) {
   const parentComment = getComment(commentsState, marketId, comment.reply_id);
   const market = getMarket(marketsState, marketId);
   const { investible_id: investibleId, group_id: groupId } = comment || {};
+  // Can make a task out of any reply, even when the root comment is resolved
   const showConvert = investibleId && [REPORT_TYPE, TODO_TYPE, ISSUE_TYPE, QUESTION_TYPE, SUGGEST_CHANGE_TYPE].includes(rootComment?.comment_type)
-    && !isInbox && market?.market_type !== DECISION_TYPE && !rootComment?.resolved && rootComment?.notification_type !== BLUE_LEVEL;
+    && !isInbox && market?.market_type !== DECISION_TYPE && rootComment?.notification_type !== BLUE_LEVEL;
   const isSubTask = market?.market_type === PLANNING_TYPE && rootComment?.comment_type === TODO_TYPE && investibleId &&
     (comment.created_by === rootComment?.created_by || comment.notification_type === BLUE_LEVEL);
   const isTopLevelSubTask = isSubTask && rootComment?.id === comment.reply_id;
@@ -451,20 +452,25 @@ function Reply(props) {
             doFloatRight
           />
         )}
-        {showConvert && myPresenceIsAssigned && !mobileLayout && (
+        {showConvert && !mobileLayout && (
           <TooltipIconButton
             disabled={operationRunning !== false}
             onClick={(event) => {
               preventDefaultAndProp(event);
-              return moveToTask();
+              if (myPresenceIsAssigned) {
+                return moveToTask();
+              }
+              navigate(history,
+                `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
+                  BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}&useType=Task`);
             }}
             icon={<ListAltIcon fontSize='small' htmlColor={ACTION_BUTTON_COLOR} />}
             size='small'
-            translationId='ungroupLabel'
+            translationId={isTopLevelSubTask ? 'ungroupLabel' : 'makeTask'}
             doFloatRight
           />
         )}
-        {showConvert && isTopLevelSubTask && (
+        {showConvert && isTopLevelSubTask && !rootComment?.resolved && (
           <TooltipIconButton
             disabled={operationRunning !== false}
             onClick={(event) => {
@@ -530,12 +536,17 @@ function Reply(props) {
             label={mobileLayout ? undefined : intl.formatMessage({ id: 'inProgress' })}
           />
         )}
-        {showConvert && myPresenceIsAssigned  && mobileLayout && (
+        {showConvert && mobileLayout && (
           <Button
             className={classes.action}
             onClick={(event) => {
               preventDefaultAndProp(event);
-              return moveToTask();
+              if (myPresenceIsAssigned) {
+                return moveToTask();
+              }
+              navigate(history,
+                `${formMarketAddInvestibleLink(marketId, groupId, undefined, undefined,
+                  BUG_WIZARD_TYPE)}&fromCommentId=${comment.id}&useType=Task`);
             }}
             variant="text"
           >
@@ -558,6 +569,7 @@ function Reply(props) {
             isInbox={isInbox}
             useCompression={useCompression}
             inboxMessageId={inboxMessageId}
+            myPresenceIsAssigned={myPresenceIsAssigned}
             wizardProps={wizardProps}
           />
         </div>
@@ -580,6 +592,7 @@ function Reply(props) {
               replyEditId={replyEditId}
               isInbox={isInbox}
               inboxMessageId={inboxMessageId}
+              myPresenceIsAssigned={myPresenceIsAssigned}
               wizardProps={wizardProps}
             />
           </div>
@@ -613,7 +626,7 @@ const useThreadedReplyStyles = makeStyles(
  */
 function ThreadedReplies(props) {
   const { replies: replyIds, enableEditing, replyEditId, isInbox, wizardProps, useCompression,
-    inboxMessageId} = props;
+    inboxMessageId, myPresenceIsAssigned} = props;
 
   const comments = React.useContext(LocalCommentsContext).comments;
   const classes = useThreadedReplyStyles();
@@ -644,6 +657,7 @@ function ThreadedReplies(props) {
                   replyEditId={replyEditId}
                   isInbox={isInbox}
                   inboxMessageId={inboxMessageId}
+                  myPresenceIsAssigned={myPresenceIsAssigned}
                   wizardProps={wizardProps}
                 />
               );
@@ -668,6 +682,7 @@ function ThreadedReplies(props) {
               replyEditId={replyEditId}
               inboxMessageId={inboxMessageId}
               isInbox={isInbox}
+              myPresenceIsAssigned={myPresenceIsAssigned}
               wizardProps={wizardProps}
             />
           );
@@ -679,10 +694,12 @@ function ThreadedReplies(props) {
 }
 
 function ThreadedReply(props) {
-  const { comment, enableEditing, messages, replyEditId, isInbox, inboxMessageId, wizardProps } = props;
+  const { comment, enableEditing, messages, replyEditId, isInbox, inboxMessageId, wizardProps,
+    myPresenceIsAssigned } = props;
   return <Reply key={`c${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment}
                 enableEditing={enableEditing} messages={messages} replyEditId={replyEditId}
-                isInbox={isInbox} inboxMessageId={inboxMessageId} wizardProps={wizardProps} />;
+                isInbox={isInbox} inboxMessageId={inboxMessageId} wizardProps={wizardProps}
+                myPresenceIsAssigned={myPresenceIsAssigned} />;
 }
 
 function useCommenter(comment, presences) {

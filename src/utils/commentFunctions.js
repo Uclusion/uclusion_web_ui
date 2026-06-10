@@ -117,7 +117,8 @@ export function extractTodosList(body) {
   const bodies = [];
 
   for (const li of liElements) {
-    bodies.unshift(`<p>${li.textContent.trim()}</p>`);
+    // Use innerHTML so markup like links survives the conversion to a task
+    bodies.unshift(`<p>${li.innerHTML.trim()}</p>`);
   }
 
   return bodies;

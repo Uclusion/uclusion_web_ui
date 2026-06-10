@@ -57,7 +57,8 @@ function TaskInProgressWizard(props) {
     <WizardStylesProvider>
       <FormdataWizard name={`task_in_progress_wizard${comment?.investible_id}`}
                       defaultFormData={{useCompression: true}} useLocalStorage={false}>
-          <RemoveInProgressStep otherInProgress={otherInProgress || tasksInProgress} comment={comment} marketId={marketId} />
+          <RemoveInProgressStep otherInProgress={otherInProgress || tasksInProgress} comment={comment}
+                                marketId={marketId} investibleId={investibleId} />
       </FormdataWizard>
     </WizardStylesProvider>
   );

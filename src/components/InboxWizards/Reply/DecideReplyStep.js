@@ -22,19 +22,24 @@ import {
   removeInlineMarketMessages
 } from '../../../utils/messageUtils';
 import _ from 'lodash';
-import { resolveComment } from '../../../api/comments';
+import { resolveComment, updateComment } from '../../../api/comments';
 import { getFullStage, isRequiredInputStage } from '../../../contexts/MarketStagesContext/marketStagesContextHelper';
 import { addInvestible, getInvestible } from '../../../contexts/InvestibesContext/investiblesContextHelper';
 import { OperationInProgressContext } from '../../../contexts/OperationInProgressContext/OperationInProgressContext';
 import { getMarketInfo } from '../../../utils/userFunctions';
 import { MarketStagesContext } from '../../../contexts/MarketStagesContext/MarketStagesContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
-import { REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
+import { REPORT_TYPE, SUGGEST_CHANGE_TYPE, TODO_TYPE } from '../../../constants/comments';
 import { useHistory } from 'react-router';
 import { isSingleAssisted } from '../../../utils/commentFunctions';
 import { getMarketPresences } from '../../../contexts/MarketPresencesContext/marketPresencesHelper';
 import { MarketPresencesContext } from '../../../contexts/MarketPresencesContext/MarketPresencesContext';
-import { formMarketAddInvestibleLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
+import {
+  formCommentLink,
+  formMarketAddInvestibleLink,
+  formWizardLink,
+  navigate
+} from '../../../utils/marketIdPathFunctions';
 import { BUG_WIZARD_TYPE, REPLY_WIZARD_TYPE } from '../../../constants/markets';
 import { hasReply } from '../../AddNewWizards/Reply/ReplyStep';
 
@@ -54,7 +59,8 @@ function DecideReplyStep(props) {
   const { type: messageType } = message;
   const comment = getComment(commentState, marketId, commentId)
   const isDirectReply = commentRoot.id === comment.reply_id;
-  const canResolve = commentType !== REPORT_TYPE;
+  const rootResolved = commentRoot.resolved;
+  const canResolve = commentType !== REPORT_TYPE && !rootResolved;
   const investibleComments = getInvestibleComments(commentRoot.investible_id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, commentRoot.group_id);
   const comments = marketComments.filter((comment) =>
@@ -124,6 +130,15 @@ function DecideReplyStep(props) {
     BUG_WIZARD_TYPE)}&fromCommentId=${commentId}`;
   const moveToTask = () => navigate(history, `${baseMoveUrl}&useType=Task`);
 
+  function makeTask() {
+    return updateComment({marketId, commentId, commentType: TODO_TYPE}).then((taskComment) => {
+      addCommentToMarket(taskComment, commentState, commentDispatch);
+      setOperationRunning(false);
+      dismissWorkListItem(message, messagesDispatch);
+      navigate(history, formCommentLink(marketId, taskComment.group_id, taskComment.investible_id, taskComment.id));
+    });
+  }
+
   const showTerminate = getShowTerminate(message);
   const showResolve = showTerminate && isDirectReply && canResolve;
   return (
@@ -160,9 +175,10 @@ function DecideReplyStep(props) {
         spinOnClick={false}
         onNextDoAdvance={false}
         showOtherNext
-        otherNextLabel={isMySuggestion ? 'otherOptionsLabel' : (showResolve ? 'issueResolveLabel' : 'moveToTaskLabel')}
-        onOtherNext={isMySuggestion ? undefined : (showResolve ? resolve : moveToTask)}
-        otherSpinOnClick={!isMySuggestion && showResolve}
+        otherNextLabel={isMySuggestion ? 'otherOptionsLabel' :
+          (showResolve ? 'issueResolveLabel' : (rootResolved ? 'makeTask' : 'moveToTaskLabel'))}
+        onOtherNext={isMySuggestion ? undefined : (showResolve ? resolve : (rootResolved ? makeTask : moveToTask))}
+        otherSpinOnClick={!isMySuggestion && (showResolve || rootResolved)}
         isOtherFinal={!isMySuggestion}
         onOtherNextDoAdvance={isMySuggestion}
         showTerminate={showTerminate || (!isMySuggestion && canResolve)}

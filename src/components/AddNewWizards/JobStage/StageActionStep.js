@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import WizardStepContainer from '../WizardStepContainer';
 import { WizardStylesContext } from '../WizardStylesContext';
 import WizardStepButtons from '../WizardStepButtons';
-import { formInvestibleLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formInvestibleLink, formWizardLink, navigate } from '../../../utils/marketIdPathFunctions';
 import { useHistory } from 'react-router';
 import AddInitialVote from '../../../pages/Investible/Voting/AddInitialVote';
 import { processTextAndFilesForSave } from '../../../api/files';
@@ -30,6 +30,8 @@ import JobReadyStep from './JobReadyStep';
 import { stageChangeInvestible } from '../../../api/investibles';
 import { onInvestibleStageChange } from '../../../utils/investibleFunctions';
 import { getMarketInfo } from '../../../utils/userFunctions';
+import { getInvestibleComments } from '../../../contexts/CommentsContext/commentsContextHelper';
+import { IN_PROGRESS_WIZARD_TYPE } from '../../../constants/markets';
 
 function StageActionStep(props) {
   const { marketId, groupId, updateFormData = () => {}, formData = {}, investibleId, currentReasonId, assignId } = props;
@@ -94,7 +96,13 @@ function StageActionStep(props) {
     };
     return updateInvestment(updateInfo).then((result) => {
       doQuick(result);
-      navigate(history, `${formInvestibleLink(marketId, investibleId)}#cv${userId}`);
+      const investibleComments = getInvestibleComments(investibleId, marketId, commentsState);
+      const tasksInProgress = investibleComments.find((comment) => !comment.resolved && !comment.deleted && comment.in_progress);
+      if (!_.isEmpty(tasksInProgress) && fullMoveStage.allows_investment) {
+        navigate(history, formWizardLink(IN_PROGRESS_WIZARD_TYPE, marketId, investibleId));
+      } else {
+        navigate(history, `${formInvestibleLink(marketId, investibleId)}#cv${userId}`);
+      }
     })
   }
 

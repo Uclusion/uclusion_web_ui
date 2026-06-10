@@ -1,23 +1,153 @@
 | No Estimate | Estimated | | Done | |
 |--------------|---------------|--------------|--------------|--------------|
-| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#j-marketing-15)| [Backend worst issues](#j-all-293)| 06/06| [Tighten up rules.](#j-all-299)|  |
-| [More upgrading.](#j-all-286)| | | [AI notifications stuff](#j-all-294)|  |
-| [Fix the blog layout.](#j-all-306)| | | [Fix documentation for notes, AI, and everyone view..](#j-all-290)|  |
-| | | | [Better archive.](#j-all-230)|  |
+| [ Backend issues](#j-all-195)| [Front end AI ready](#j-all-310)| 06/18| [Sublists still not coming in correctly.](#j-all-307)|  |
+| [Build the prompts necessary to get the lastest debuts from Show HN, Product...](#j-marketing-15)| [More with notes.](#j-all-308)| 06/09| [Tighten up rules.](#j-all-299)|  |
 | | | | [Bugs B-all-405, B-all-404, B-all-402, T-all-1838, T-all-1808](#j-all-298)|  |
-| | | | [Either fix tip of spear blog of have new tip of spear which shows detail of...](#j-all-292)|  |
+| | | | [AI delayed notifications.](#j-all-309)|  |
 | | | | [Other AI integrations.](#j-all-291)| Deployed to production |
 | | | | [Can we do better than the existing option UI?](#j-all-303)|  |
 | | | | [Fix that the Grouped button is not available on someone else's task because...](#j-all-301)| Deployed to production |
-| | | | [Issues with view creation.](#j-all-289)|  |
+| | | | [More upgrading.](#j-all-286)|  |
 | | | | [Support progress on a task that are notes instead of things you complete](#j-all-284)|  |
 | | | | [Uclusion is how you collaborate with AI.](#j-all-283)|  |
 | | | | [The markdown conversion in back end Python is creating HR tags not supported...](#j-all-304)| Deployed to production |
 | | | | [Bugs T-all-1442](#j-all-300)|  |
-| | | | [Bugs B-all-424, B-all-423, B-all-422, B-all-420, B-all-421, B-all-419, B-all-418](#j-all-288)|  |
+| | | | [More AI integration issues.](#j-all-311)|  |
+| | | | [Fix the blog layout.](#j-all-306)|  |
 | | | | [Problems with approvals.](#j-all-297)|  |
 | | | | [Bugs B-all-428](#j-all-305)|  |
 | | | | [Try in plan mode and change CLAUDE.md if plans don't get written to notes.](#j-all-302)|  |
+## Job J-all-195<a name="j-all-195"></a>
+###  Backend issues
+Otherwise async spins forever and costs money. No schedule investible for demo markets was supposedly done but seems not (see schedule table).
+
+
+This job is in stage Further Work.
+#### Tasks 
+#### Task T-all-1632<a name="t-all-1632"></a> 
+Over 30K investible infos on stage - they are not getting deleted.
+
+#### Task T-all-1633<a name="t-all-1633"></a> 
+Notifications table is also not getting cleaned - over 50K.
+
+#### Task T-all-2099<a name="t-all-2099"></a> 
+```
+4212:/aws/lambda/uclusion-websockets-dev-subscribeHandler 2026/05/24/[$LATEST]2aaec6c659064b87a56026d1027d2c5d [ERROR] ExpiredSignatureError: Signature has expired
+```
+
+```
+4371-Traceback (most recent call last):
+```
+
+```
+4406-  File "/var/task/handlers/subscribe.py", line 20, in subscribe
+```
+
+```
+4472-    if not begin_connection_tracking(connection_info, payload):
+```
+
+```
+4540-  File "/var/task/utils/websocket_utils.py", line 55, in begin_connection_tracking
+```
+
+```
+4625-    external_id = get_external_id(payload)
+```
+
+```
+4672-  File "/var/task/utils/websocket_utils.py", line 73, in get_external_id
+```
+
+```
+4747-    return get_external_id_for_token(identity_token)
+```
+
+```
+4804-  File "/opt/python/lib/python3.10/site-packages/ucommon/capabilities/capability_marshaller.py", line 63, in get_external_id_for_token
+```
+
+```
+4941-    claims = parse_capability(id_token)
+```
+
+```
+4985-  File "/opt/python/lib/python3.10/site-packages/ucommon/capabilities/capability_marshaller.py", line 46, in parse_capability
+```
+
+```
+5113-    raise e
+```
+
+```
+5129-  File "/opt/python/lib/python3.10/site-packages/ucommon/capabilities/capability_marshaller.py", line 38, in parse_capability
+```
+
+```
+5257-    decoded = jwt.decode(capability_string, secret_key, algorithms=capability_algorithm)
+```
+
+```
+5350-  File "/opt/python/lib/python3.10/site-packages/jwt/api_jwt.py", line 368, in decode
+```
+
+```
+5438-    decoded = self.decode_complete(
+```
+
+```
+5478-  File "/opt/python/lib/python3.10/site-packages/jwt/api_jwt.py", line 275, in decode_complete
+```
+
+```
+5575-    self._validate_claims(
+```
+
+```
+5606-  File "/opt/python/lib/python3.10/site-packages/jwt/api_jwt.py", line 408, in _validate_claims
+```
+
+```
+5704-    self._validate_exp(payload, now, leeway)
+```
+
+```
+5753-  File "/opt/python/lib/python3.10/site-packages/jwt/api_jwt.py", line 511, in _validate_exp
+```
+
+```
+5848:    raise ExpiredSignatureError("Signature has expired")
+```
+
+
+
+
+Getting this on uclusion-websockets-dev-subscribeHandler in production which should be impossible since code should check state of token before using it.
+
+#### Task T-all-2127<a name="t-all-2127"></a> 
+Stage notifications table has 47,991 entries - most likely test data not getting cleared. Can confirm by checking the number on production - if it is high then the problem is demo and if not it is test data.
+
+
+
+
+71,662 comments so likely its not just notifications - things are not getting deleted.
+
+#### Task T-all-1711<a name="t-all-1711"></a> 
+The bundle size is significantly larger than recommended.
+
+Consider reducing it with code splitting: <https://goo.gl/9VhYWB>
+
+You can also analyze the project dependencies: <https://goo.gl/LeUzfb>
+
+#### Task T-all-1565<a name="t-all-1565"></a> 
+Seems demos are invalidated before creation cause get 404 on get demo till first demo created.
+
+#### Task B-all-418<a name="b-all-418"></a> 
+Clear notification_configs of demo users and don't create them to begin with. Tricky though unless we are going to disable changing configs in demo?
+
+#### Task T-all-1564<a name="t-all-1564"></a> 
+Demo markets not in use must be archived or not have async schedules.
+
 ## Job J-Marketing-15<a name="j-marketing-15"></a>
 ### Build the prompts necessary to get the lastest debuts from Show HN, Product...
 ...Hunt, etc. that meet the small tech startup criteria - have landing page but not too many engineers.
@@ -1481,264 +1611,1318 @@ if __name__ == "__main__":
 run_agent()
 ```
 
-## Job J-all-286<a name="j-all-286"></a>
-### More upgrading.
+## Job J-all-310<a name="j-all-310"></a>
+### Front end AI ready
 
-
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/461a740d-8f1b-4a51-a98e-53b06e6b7e5e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-And check emails also.
-
-
-This job is in stage Further Work.
-## Job J-all-306<a name="j-all-306"></a>
-### Fix the blog layout.
-
-
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/e821f20f-330e-48bf-bcd3-45adf119652c.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-It should be Uclusion logo, maybe slightly smaller, MAIN WEBSITE next to it, and both link to the same place. Then less padding below so the total effect is more like the landing page header.
-
-
-This job is in stage Accepted.
-#### Assistance 
-#### Question Q-all-87<a name="q-all-87"></a> 
-For the new header, what should happen to the existing nav links (Blog Home, Startup, Engineering, Remote, UI Repo)? The job describes the header as "Uclusion logo ... MAIN WEBSITE next to it," which could mean either relocating the Main Website link beside the logo while keeping the rest of the blog nav, or stripping the header down to just logo + Main Website for a minimal landing-page look.
-
-### Option O-1<a name="o-1"></a>
-### Keep blog nav links
-Move/merge MAIN WEBSITE next to the logo on the left (both linking to the main site) and remove the now-duplicate right-side Main Website item, but keep Blog Home, Startup, Engineering, Remote, and UI Repo on the right so the blog stays navigable.
-
-
-This option is in stage In Dialog.
-#### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
-#### From AI user:
-"MAIN WEBSITE next to it" reads most naturally as relocating that one link beside the logo, not deleting the others. The padding/landing-page comment is about vertical spacing, not about which links exist. Removing the category links (Startup/Engineering/Remote) would cost the blog its primary navigation, which seems like a usability regression rather than the intent. Keep them on the right; just merge MAIN WEBSITE into the left brand and drop the duplicate.
-
-> ##### $${\color{green} For}$$
-No reason given.
-
-### Option O-2<a name="o-2"></a>
-### Logo + Main Website only
-Strip the header to just the Uclusion logo and MAIN WEBSITE (remove the category links and UI Repo) for a minimal header that most closely mirrors the landing page header.
-
-
-This option is in stage In Dialog.
-## Job J-all-293<a name="j-all-293"></a>
-### Backend worst issues
 
 This job is in stage Accepted.
 #### Tasks 
-#### Task T-all-2099<a name="t-all-2099"></a> 
-```
-4212:/aws/lambda/uclusion-websockets-dev-subscribeHandler 2026/05/24/[$LATEST]2aaec6c659064b87a56026d1027d2c5d [ERROR] ExpiredSignatureError: Signature has expired
-```
+#### Task B-all-430<a name="b-all-430"></a> 
+On a reply to a resolved task the notification wizard should not have Resolve as middle button but instead Make task and the reply itself should also have make task button on it regardless of its parent being resolved. **Actually even after unresolve parent there is still no Make task button - so that is just a bug - can make a task out of anything.**
 
-```
-4371-Traceback (most recent call last):
-```
+#### Task B-all-350<a name="b-all-350"></a> 
+Fix resolving in progress for team as did for single - requires sending from approval prompt to remove in progress wizard when necessary.
 
-```
-4406-  File "/var/task/handlers/subscribe.py", line 20, in subscribe
-```
+#### Task B-all-432<a name="b-all-432"></a> 
+If during job creation you create a bullet point in the description with a link the link is lost in the resulting task.
 
-```
-4472-    if not begin_connection_tracking(connection_info, payload):
-```
+## Job J-all-308<a name="j-all-308"></a>
+### More with notes.
 
-```
-4540-  File "/var/task/utils/websocket_utils.py", line 55, in begin_connection_tracking
-```
 
-```
-4625-    external_id = get_external_id(payload)
-```
-
-```
-4672-  File "/var/task/utils/websocket_utils.py", line 73, in get_external_id
-```
-
-```
-4747-    return get_external_id_for_token(identity_token)
-```
-
-```
-4804-  File "/opt/python/lib/python3.10/site-packages/ucommon/capabilities/capability_marshaller.py", line 63, in get_external_id_for_token
-```
-
-```
-4941-    claims = parse_capability(id_token)
-```
-
-```
-4985-  File "/opt/python/lib/python3.10/site-packages/ucommon/capabilities/capability_marshaller.py", line 46, in parse_capability
-```
-
-```
-5113-    raise e
-```
-
-```
-5129-  File "/opt/python/lib/python3.10/site-packages/ucommon/capabilities/capability_marshaller.py", line 38, in parse_capability
-```
-
-```
-5257-    decoded = jwt.decode(capability_string, secret_key, algorithms=capability_algorithm)
-```
-
-```
-5350-  File "/opt/python/lib/python3.10/site-packages/jwt/api_jwt.py", line 368, in decode
-```
-
-```
-5438-    decoded = self.decode_complete(
-```
-
-```
-5478-  File "/opt/python/lib/python3.10/site-packages/jwt/api_jwt.py", line 275, in decode_complete
-```
-
-```
-5575-    self._validate_claims(
-```
-
-```
-5606-  File "/opt/python/lib/python3.10/site-packages/jwt/api_jwt.py", line 408, in _validate_claims
-```
-
-```
-5704-    self._validate_exp(payload, now, leeway)
-```
-
-```
-5753-  File "/opt/python/lib/python3.10/site-packages/jwt/api_jwt.py", line 511, in _validate_exp
-```
-
-```
-5848:    raise ExpiredSignatureError("Signature has expired")
-```
+This job is in stage Accepted.
+#### Tasks 
+#### Task B-all-431<a name="b-all-431"></a> 
+**If there is a reply to a note then you must include it - regardless of flag.**
 
 
 
 
-Getting this on uclusion-websockets-dev-subscribeHandler in production which should be impossible since code should check state of token before using it.
+**Also consider only screening out AI notes OR COMPRESSING so that AI knows the notes are there and can ask for them.**
 
-#### Task T-all-2127<a name="t-all-2127"></a> 
-Stage notifications table has 47,991 entries - most likely test data not getting cleared. Can confirm by checking the number on production - if it is high then the problem is demo and if not it is test data.
+#### Task T-all-2140<a name="t-all-2140"></a> 
+Can't delete a child note see Tell other like minded developers how to control the AI flow and offer them... - R-Marketing-11
+
+#### Task T-all-2140<a name="t-all-2140"></a> 
+Can't add a note to a resolved task and no reason not to allow that.
+
+#### Task T-all-2141<a name="t-all-2141"></a> 
+Add to the Notes explain text and also documentation that they don't by default get included by get job but can be if include all is used.
 
 
 
 
-71,662 comments so likely its not just notifications - things are not getting deleted.
+Also explain treatment of reviews.
 
-#### Task T-all-2104<a name="t-all-2104"></a> 
-Got a "Notification: New job" from some change I made myself - probably stage change after added a task to a job in Tasks Complete.
+## Job J-all-307<a name="j-all-307"></a>
+### Sublists still not coming in correctly.
+-Why he is similar below should be displayed as a list under the first item of the list but instead is number 2. and the same indention as its parent.
 
-#### Task B-all-418<a name="b-all-418"></a> 
-Clear notification_configs of demo users and don't create them to begin with. Tricky though unless we are going to disable changing configs in demo?
+
+
+
+```
+Uclusion.add_info({"short_code_id":"C-Marketing-182","tz":"America/Los_Angeles","certainty":4,"info":"Research note for C-Marketing-182, scoped only to
+```
+
+```
+this grouped task.\n\nAssumption used: \"people like Victor\" means serious builders who publicly show the same pattern Victor shows: they are using
+```
+
+```
+coding agents on real work, they have already built some kind of control layer themselves (CLAUDE.md / AGENTS.md / Cursor rules / MCP / memory /
+```
+
+```
+review gates), and their workflow exposes how agents drift, forget, or need governance.\n\n## Highest-signal people to study / contact\n\n1. Peter
+```
+
+```
+Steinberger / `steipete`\n- Why he is similar: founder/operator profile, heavy Claude Code / Cursor user, built public agent rules and then moved on
+```
+
+```
+to newer agent scripts. His `agent-rules` repo is explicitly rules and knowledge for Claude Code or Cursor, with project rules, global rules, MCP
+```
+
+```
+setup, commit/check/issue workflows, and automation around screenshots/Safari.\n- Why useful for Uclusion: he is likely build-vs-buy skeptical, but
+```
+
+```
+exactly the kind of person who can tell us whether durable questions/approvals/reviews are a missing layer beyond rules and scripts.\n- Sources:
+```
+
+```
+https://github.com/steipete/agent-rules, https://github.com/steipete/agent-scripts, https://github.com/steipete, https://steipete.me/\n- Outreach
+```
+
+```
+angle: \"You have already built a lot of the rules/MCP side. Where does an agent stop and persist a product decision today when it needs a human
+```
+
+```
+answer before continuing?\"\n\n2. Seth Hobson / `wshobson`\n- Why he is similar: senior applied-AI / MLOps engineer and founder; built a large
+```
+
+```
+multi-harness agentic plugin marketplace that emits native artifacts for Claude Code, Codex CLI, Cursor, OpenCode, Gemini, and Copilot from one
+```
+
+```
+Markdown source. His repo has AGENTS.md as canonical context, generated per-harness outputs, validation, drift checks, and smoke tests.\n- Why useful
+```
+
+```
+for Uclusion: this is the strongest \"I built my own rails\" signal I found. He is not just using rules; he is maintaining an entire cross-harness
+```
+
+```
+workflow/control surface.\n- Sources: https://github.com/wshobson, https://github.com/wshobson/agents,
+```
+
+```
+https://github.com/wshobson/agents/blob/main/AGENTS.md, https://claudedigest.com/ecosystem/community-skill-wshobson-agents\n- Outreach angle: \"Your
+```
+
+```
+marketplace solves portable agent skills/rules. What still breaks when several agents and humans need to coordinate decisions, reviews, and approvals
+```
+
+```
+around one real job?\"\n\n3. Francisco Cerda Puigserver / NEXO Brain\n- Why he is similar: solo founder building WAzion with AI agents daily; created
+```
+
+```
+NEXO Brain because agents forgot the same corrections and mistakes across sessions. NEXO evolved into a shared memory/runtime for Claude Code, Codex,
+```
+
+```
+Claude Desktop, and MCP workflows.\n- Why useful for Uclusion: his pain is almost exactly the persistence problem, but solved as memory rather than
+```
+
+```
+collaboration workflow. He can tell us where memory stops being enough and where explicit decisions/reviews become necessary.\n- Sources:
+```
+
+```
+https://nexo-brain.com/, https://github.com/NEXOBRAIN\n- Outreach angle: \"You solved continuity as memory. In your own workflow, where do decisions,
+```
+
+```
+approvals, and 'stop until human answers' events live?\"\n\n4. Kailesk Khumar / HouseofMVPs / CodeSight\n- Why he is similar: founder of HouseofMVPs
+```
+
+```
+and author of CodeSight, Ultraship, and claude-rank. CodeSight generates CLAUDE.md, .cursorrules, copilot instructions, codex.md, and AGENTS.md; it
+```
+
+```
+also runs as an MCP server so Claude Code/Cursor can fetch project context on demand.\n- Why useful for Uclusion: he is shipping AI-assisted products
+```
+
+```
+for clients, so his workflow likely has client decisions and review gates that cannot be solved by context alone.\n- Sources:
+```
+
+```
+https://github.com/Houseofmvps/codesight, https://houseofmvps.com/about, https://gist.github.com/Houseofmvps\n- Outreach angle: \"When an AI-built MVP
+```
+
+```
+needs a founder/client decision mid-build, do you put that in docs, chat, Linear/GitHub, or something else?\"\n\n5. `kablerecord` / Founder of OSQR\n-
+```
+
+```
+Why he is similar: solo founder who publicly wrote about building a 1.1M-line SaaS with Claude Code and a 1,200-line CLAUDE.md. His stated pattern is
+```
+
+```
+that every rule exists because something broke; this is the clearest public scar-tissue example.\n- Why useful for Uclusion: very likely to have
+```
+
+```
+concrete stories about what the agent forgot, what needed governance, and where a giant CLAUDE.md stopped being the right artifact.\n- Sources:
+```
+
+```
+https://dev.to/kablerecord/my-claudemd-is-1200-lines-heres-what-i-learned-building-a-1m-line-saas-with-ai-25af, https://gist.github.com/kablerecord,
+```
+
+```
+https://dev.to/kablerecord\n- Outreach angle: \"Your CLAUDE.md captures lessons after failures. What would have helped before the failure: a
+```
+
+```
+persistent question, an approval gate, or a review artifact?\"\n\n6. AgentLint creator/operator\n- Why he is similar: built a GitHub app / CLI around
+```
+
+```
+auditing CLAUDE.md, AGENTS.md, Cursor rules, hooks, and skills for contradictions, stale pointers, and harness mismatches. Public posts describe the
+```
+
+```
+exact problem of rules drifting across tools.\n- Why useful for Uclusion: AgentLint is deterministic harness governance; Uclusion is collaborative
+```
+
+```
+workflow governance. This is a near-neighbor who may understand the market language and the buyer objections.\n- Sources: https://agentlint.net/,
+```
+
+```
+https://www.agentlint.app/, https://www.agentlint.app/blog/agents-md-as-single-source-of-truth/,
+```
+
+```
+https://www.reddit.com/r/buildinpublic/comments/1tleu12/three_weeks_in_on_my_github_app_still_at_0_mrr/\n- Outreach angle: \"You catch rule drift in
+```
+
+```
+PRs. What catches decision drift while the agent is actively working and needs a human call?\"\n\n7. Ian Nuttall / `iannuttall`\n- Why he is similar:
+```
+
+```
+built `source-agents`, a tool to keep AGENTS.md and CLAUDE.md clean, consistent, and sourcing correctly across projects. Lower signal than the people
+```
+
+```
+above because the repo is archived and smaller, but it is exactly in the rules-drift pain area.\n- Why useful for Uclusion: good interview target for
+```
+
+```
+the narrow AGENTS.md/CLAUDE.md sync pain and how much people will adopt tooling around it.\n- Sources: https://github.com/iannuttall/source-agents\n-
+```
+
+```
+Outreach angle: \"What made you build a sync tool rather than just keep one file manually? Where did the workflow still break?\"\n\n8. Maciej
+```
+
+```
+Ciemborowicz / `ciembor`\n- Why he is similar: created `agent-rules-books`, a large rules/skills collection for Codex, Cursor, and Claude Code derived
+```
+
+```
+from software engineering books. He has thought publicly about token pollution, lack of measurement, and whether rules actually change agent
+```
+
+```
+behavior.\n- Why useful for Uclusion: less direct as a buyer, but useful for understanding how builders think about instruction quality, evaluation,
+```
+
+```
+and rules fatigue.\n- Sources: https://github.com/ciembor/agent-rules-books, https://ciembor.github.io/agent-rules-books/,
+```
+
+```
+https://maciej-ciemborowicz.eu/articles/13_programming_books_as_ai_agents_rules\n- Outreach angle: \"Rules improve the agent's priors, but where
+```
+
+```
+should the agent persist exceptions, decisions, and review outcomes?\"\n\n## Pattern from the research\n\nThe useful cohort is narrower than \"Claude
+```
+
+```
+Code / Cursor users.\" The best prospects have one of these visible artifacts:\n- A public CLAUDE.md / AGENTS.md / .cursor/rules setup with real
+```
+
+```
+project-specific process.\n- A tool that syncs, lints, evaluates, or generates those files.\n- An MCP server or context/memory layer built because
+```
+
+```
+ordinary chat forgot too much.\n- A multi-agent orchestration workflow with explicit review/verification gates.\n\nThe likely objection is also
+```
+
+```
+consistent: these people are builders and will often say \"I can script that.\" The Uclusion wedge should not be \"better rules.\" It should be the
+```
+
+```
+thing scripts/rules do badly: durable decision objects, human/agent approvals, review artifacts, and an audit trail across workspaces and
+```
+
+```
+sessions.\n\n## Best next step\n\nStart with 4 opinion interviews, not selling:\n1. Peter Steinberger\n2. Seth Hobson\n3. Francisco Cerda
+```
+
+```
+Puigserver\n4. kablerecord / OSQR founder\n\nAsk each the same concrete workflow question: \"When the agent is midway through real work and needs a
+```
+
+```
+decision it should not guess, where does that decision live, and how does the next agent/session know it happened?\""})
+```
+
+
+
+
+The output HTML was:
+
+```
+<p>Research note for C-Marketing-182, scoped only to this grouped task.</p><p>Assumption used: "people like Victor" means serious builders who publicly show the same pattern Victor shows: they are using coding agents on real work, they have already built some kind of control layer themselves (CLAUDE.md / AGENTS.md / Cursor rules / MCP / memory / review gates), and their workflow exposes how agents drift, forget, or need governance.</p><h2>Highest-signal people to study / contact</h2><ol><li data-list="ordered"><span class="ql-ui"></span>Peter Steinberger / <code>steipete</code></li><li data-list="ordered"><span class="ql-ui"></span>Why he is similar: founder/operator profile, heavy Claude Code / Cursor user, built public agent rules and then moved on to newer agent scripts. His <code>agent-rules</code> repo is explicitly rules and knowledge for Claude Code or Cursor, with project rules, global rules, MCP setup, commit/check/issue workflows, and automation around screenshots/Safari.</li><li data-list="ordered"><span class="ql-ui"></span>Why useful for Uclusion: he is likely build-vs-buy skeptical, but exactly the kind of person who can tell us whether durable questions/approvals/reviews are a missing layer beyond rules and scripts.</li><li data-list="ordered"><span class="ql-ui"></span>Sources: https://github.com/steipete/agent-rules, https://github.com/steipete/agent-scripts, https://github.com/steipete, https://steipete.me/</li><li data-list="ordered"><span class="ql-ui"></span><p>Outreach angle: "You have already built a lot of the rules/MCP side. Where does an agent stop and persist a product decision today when it needs a human answer before continuing?"</p></li><li data-list="ordered"><span class="ql-ui"></span><p>Seth Hobson / <code>wshobson</code></p></li><li data-list="ordered"><span class="ql-ui"></span>Why he is similar: senior applied-AI / MLOps engineer and founder; built a large multi-harness agentic plugin marketplace that emits native artifacts for Claude Code, Codex CLI, Cursor, OpenCode, Gemini, and Copilot from one Markdown source. His repo has AGENTS.md as canonical context, generated per-harness outputs, validation, drift checks, and smoke tests.</li><li data-list="ordered"><span class="ql-ui"></span>Why useful for Uclusion: this is the strongest "I built my own rails" signal I found. He is not just using rules; he is maintaining an entire cross-harness workflow/control surface.</li><li data-list="ordered"><span class="ql-ui"></span>Sources: https://github.com/wshobson, https://github.com/wshobson/agents, https://github.com/wshobson/agents/blob/main/AGENTS.md, https://claudedigest.com/ecosystem/community-skill-wshobson-agents</li><li data-list="ordered"><span class="ql-ui"></span><p>Outreach angle: "Your marketplace solves portable agent skills/rules. What still breaks when several agents and humans need to coordinate decisions, reviews, and approvals around one real job?"</p></li><li data-list="ordered"><span class="ql-ui"></span><p>Francisco Cerda Puigserver / NEXO Brain</p></li><li data-list="ordered"><span class="ql-ui"></span>Why he is similar: solo founder building WAzion with AI agents daily; created NEXO Brain because agents forgot the same corrections and mistakes across sessions. NEXO evolved into a shared memory/runtime for Claude Code, Codex, Claude Desktop, and MCP workflows.</li><li data-list="ordered"><span class="ql-ui"></span>Why useful for Uclusion: his pain is almost exactly the persistence problem, but solved as memory rather than collaboration workflow. He can tell us where memory stops being enough and where explicit decisions/reviews become necessary.</li><li data-list="ordered"><span class="ql-ui"></span>Sources: https://nexo-brain.com/, https://github.com/NEXOBRAIN</li><li data-list="ordered"><span class="ql-ui"></span><p>Outreach angle: "You solved continuity as memory. In your own workflow, where do decisions, approvals, and 'stop until human answers' events live?"</p></li><li data-list="ordered"><span class="ql-ui"></span><p>Kailesk Khumar / HouseofMVPs / CodeSight</p></li><li data-list="ordered"><span class="ql-ui"></span>Why he is similar: founder of HouseofMVPs and author of CodeSight, Ultraship, and claude-rank. CodeSight generates CLAUDE.md, .cursorrules, copilot instructions, codex.md, and AGENTS.md; it also runs as an MCP server so Claude Code/Cursor can fetch project context on demand.</li><li data-list="ordered"><span class="ql-ui"></span>Why useful for Uclusion: he is shipping AI-assisted products for clients, so his workflow likely has client decisions and review gates that cannot be solved by context alone.</li><li data-list="ordered"><span class="ql-ui"></span>Sources: https://github.com/Houseofmvps/codesight, https://houseofmvps.com/about, https://gist.github.com/Houseofmvps</li><li data-list="ordered"><span class="ql-ui"></span><p>Outreach angle: "When an AI-built MVP needs a founder/client decision mid-build, do you put that in docs, chat, Linear/GitHub, or something else?"</p></li><li data-list="ordered"><span class="ql-ui"></span><p><code>kablerecord</code> / Founder of OSQR</p></li><li data-list="ordered"><span class="ql-ui"></span>Why he is similar: solo founder who publicly wrote about building a 1.1M-line SaaS with Claude Code and a 1,200-line CLAUDE.md. His stated pattern is that every rule exists because something broke; this is the clearest public scar-tissue example.</li><li data-list="ordered"><span class="ql-ui"></span>Why useful for Uclusion: very likely to have concrete stories about what the agent forgot, what needed governance, and where a giant CLAUDE.md stopped being the right artifact.</li><li data-list="ordered"><span class="ql-ui"></span>Sources: https://dev.to/kablerecord/my-claudemd-is-1200-lines-heres-what-i-learned-building-a-1m-line-saas-with-ai-25af, https://gist.github.com/kablerecord, https://dev.to/kablerecord</li><li data-list="ordered"><span class="ql-ui"></span><p>Outreach angle: "Your CLAUDE.md captures lessons after failures. What would have helped before the failure: a persistent question, an approval gate, or a review artifact?"</p></li><li data-list="ordered"><span class="ql-ui"></span><p>AgentLint creator/operator</p></li><li data-list="ordered"><span class="ql-ui"></span>Why he is similar: built a GitHub app / CLI around auditing CLAUDE.md, AGENTS.md, Cursor rules, hooks, and skills for contradictions, stale pointers, and harness mismatches. Public posts describe the exact problem of rules drifting across tools.</li><li data-list="ordered"><span class="ql-ui"></span>Why useful for Uclusion: AgentLint is deterministic harness governance; Uclusion is collaborative workflow governance. This is a near-neighbor who may understand the market language and the buyer objections.</li><li data-list="ordered"><span class="ql-ui"></span>Sources: https://agentlint.net/, https://www.agentlint.app/, https://www.agentlint.app/blog/agents-md-as-single-source-of-truth/, https://www.reddit.com/r/buildinpublic/comments/1tleu12/three_weeks_in_on_my_github_app_still_at_0_mrr/</li><li data-list="ordered"><span class="ql-ui"></span><p>Outreach angle: "You catch rule drift in PRs. What catches decision drift while the agent is actively working and needs a human call?"</p></li><li data-list="ordered"><span class="ql-ui"></span><p>Ian Nuttall / <code>iannuttall</code></p></li><li data-list="ordered"><span class="ql-ui"></span>Why he is similar: built <code>source-agents</code>, a tool to keep AGENTS.md and CLAUDE.md clean, consistent, and sourcing correctly across projects. Lower signal than the people above because the repo is archived and smaller, but it is exactly in the rules-drift pain area.</li><li data-list="ordered"><span class="ql-ui"></span>Why useful for Uclusion: good interview target for the narrow AGENTS.md/CLAUDE.md sync pain and how much people will adopt tooling around it.</li><li data-list="ordered"><span class="ql-ui"></span>Sources: https://github.com/iannuttall/source-agents</li><li data-list="ordered"><span class="ql-ui"></span><p>Outreach angle: "What made you build a sync tool rather than just keep one file manually? Where did the workflow still break?"</p></li><li data-list="ordered"><span class="ql-ui"></span><p>Maciej Ciemborowicz / <code>ciembor</code></p></li><li data-list="ordered"><span class="ql-ui"></span>Why he is similar: created <code>agent-rules-books</code>, a large rules/skills collection for Codex, Cursor, and Claude Code derived from software engineering books. He has thought publicly about token pollution, lack of measurement, and whether rules actually change agent behavior.</li><li data-list="ordered"><span class="ql-ui"></span>Why useful for Uclusion: less direct as a buyer, but useful for understanding how builders think about instruction quality, evaluation, and rules fatigue.</li><li data-list="ordered"><span class="ql-ui"></span>Sources: https://github.com/ciembor/agent-rules-books, https://ciembor.github.io/agent-rules-books/, https://maciej-ciemborowicz.eu/articles/13_programming_books_as_ai_agents_rules</li><li data-list="ordered"><span class="ql-ui"></span>Outreach angle: "Rules improve the agent's priors, but where should the agent persist exceptions, decisions, and review outcomes?"</li></ol><h2>Pattern from the research</h2><p>The useful cohort is narrower than "Claude Code / Cursor users." The best prospects have one of these visible artifacts:
+```
+
+```
+- A public CLAUDE.md / AGENTS.md / .cursor/rules setup with real project-specific process.
+```
+
+```
+- A tool that syncs, lints, evaluates, or generates those files.
+```
+
+```
+- An MCP server or context/memory layer built because ordinary chat forgot too much.
+```
+
+```
+- A multi-agent orchestration workflow with explicit review/verification gates.</p><p>The likely objection is also consistent: these people are builders and will often say "I can script that." The Uclusion wedge should not be "better rules." It should be the thing scripts/rules do badly: durable decision objects, human/agent approvals, review artifacts, and an audit trail across workspaces and sessions.</p><h2>Best next step</h2><p>Start with 4 opinion interviews, not selling:
+```
+
+```
+1. Peter Steinberger
+```
+
+```
+2. Seth Hobson
+```
+
+```
+3. Francisco Cerda Puigserver
+```
+
+```
+4. kablerecord / OSQR founder</p><p>Ask each the same concrete workflow question: "When the agent is midway through real work and needs a decision it should not guess, where does that decision live, and how does the next agent/session know it happened?"</p>
+```
+
+
+
+
+And the code on the back end is:
+
+```
+import logging
+```
+
+```
+import os
+```
+
+```
+import re
+```
+
+```
+import markdown
+```
+
+```
+from bs4 import BeautifulSoup, NavigableString
+```
+
+```
+from ucommon.handlers.abstract_request_handler import handle_request
+```
+
+```
+from ucommon.utils.roles import AccountAdmin
+```
+
+```
+from ucommon.utils.utils import invoke_lambda, add_login_capability, MarketSubType, prepare_market_and_user, MarketType
+```
+
+```
+from request_validators.create_comment_request_validator import CreateCommentValidator
+```
+
+```
+
+
+
+```
+
+```
+
+
+
+```
+
+```
+markets_service_prefix = os.environ['marketsServicePrefix']
+```
+
+```
+logger = logging.getLogger()
+```
+
+```
+logger.setLevel(os.environ['logLevel'])
+```
+
+```
+
+
+
+```
+
+```
+
+
+
+```
+
+```
+def create(event, context):
+```
+
+```
+return handle_request(event, context, CreateCommentValidator(), post_validation_function)
+```
+
+```
+
+
+
+```
+
+```
+
+
+
+```
+
+```
+def post_validation_function(event, data, context, validation_context):
+```
+
+```
+reply_id = data.get('reply_id')
+```
+
+```
+uploaded_files = data.get('uploaded_files')
+```
+
+```
+event_market_capability = validation_context['market_capability']
+```
+
+```
+user_id = validation_context['user_id']
+```
+
+```
+group_id = data.get('group_id')
+```
+
+```
+investible_id = validation_context['investible_id']
+```
+
+```
+created = create_comment(event_market_capability, group_id,
+```
+
+```
+investible_id,
+```
+
+```
+user_id, data['body'], reply_id, data['comment_type'],
+```
+
+```
+uploaded_files, data.get('mentions'), data.get('notification_type'),
+```
+
+```
+data.get('market_type'), data.get('is_sent'), data.get('associated_comment_id'),
+```
+
+```
+data.get('tz'), False)
+```
+
+```
+if data.get('market_type') is not None:
+```
+
+```
+payload = {
+```
+
+```
+'market_type': data.get('market_type'),
+```
+
+```
+'parent_comment_id': created['id'],
+```
+
+```
+'market_sub_type': MarketSubType.AUTO_INLINE.name,
+```
+
+```
+'acting_user_id': user_id
+```
+
+```
+}
+```
+
+```
+if data.get('is_restricted') is not None:
+```
+
+```
+payload['is_restricted'] = data['is_restricted']
+```
+
+```
+account_capability = {'role': AccountAdmin.__name__,
+```
+
+```
+'id': event_market_capability['account_id'],
+```
+
+```
+'api_key': event_market_capability['api_key'],
+```
+
+```
+'is_admin': True,
+```
+
+```
+'type': 'account',
+```
+
+```
+'external_id': event_market_capability['external_id'],
+```
+
+```
+'user_id': user_id}
+```
+
+```
+response = invoke_lambda(markets_service_prefix + 'markets_create', account_capability, payload)
+```
+
+```
+inline_market_capability = response['capability']
+```
+
+```
+market = response['market']
+```
+
+```
+token, user = add_login_capability(user_id, market['id'], inline_market_capability, market['market_type'],
+```
+
+```
+event_market_capability['api_key'], True, market['account_id'],
+```
+
+```
+event_market_capability['external_id'])
+```
+
+```
+prepare_market_and_user(market, user)
+```
+
+```
+create_response = {'market': market, 'presence': user, 'stages': response['stages'], 'token': token,
+```
+
+```
+'parent': response['parent']}
+```
+
+```
+if 'investible' in response:
+```
+
+```
+create_response['investible'] = response['investible']
+```
+
+```
+return create_response
+```
+
+```
+return created
+```
+
+```
+
+
+
+```
+
+```
+
+
+
+```
+
+```
+def _flatten_list(list_el, depth, output):
+```
+
+```
+list_type = 'bullet' if list_el.name == 'ul' else 'ordered'
+```
+
+```
+for li in list_el.find_all('li', recursive=False):
+```
+
+```
+# Pull nested <ul>/<ol> out of this <li> so the <li>'s own content stands alone
+```
+
+```
+nested = [c.extract() for c in list(li.children)
+```
+
+```
+if getattr(c, 'name', None) in ('ul', 'ol')]
+```
+
+```
+# Drop whitespace-only text nodes left behind by the extraction
+```
+
+```
+for c in list(li.children):
+```
+
+```
+if isinstance(c, NavigableString) and not c.strip():
+```
+
+```
+c.extract()
+```
+
+```
+output.append((li, depth, list_type))
+```
+
+```
+for n in nested:
+```
+
+```
+_flatten_list(n, depth + 1, output)
+```
+
+```
+
+
+
+```
+
+```
+
+
+
+```
+
+```
+def markdown_to_quill_html(body):
+```
+
+```
+html = markdown.markdown(body, extensions=['extra'])
+```
+
+```
+soup = BeautifulSoup(html, 'html.parser')
+```
+
+```
+
+
+
+```
+
+```
+# Top-level lists = lists not nested inside an <li>
+```
+
+```
+top_lists = [l for l in soup.find_all(['ul', 'ol'])
+```
+
+```
+if l.parent.name != 'li']
+```
+
+```
+
+
+
+```
+
+```
+for top in top_lists:
+```
+
+```
+flat = []
+```
+
+```
+_flatten_list(top, 0, flat)
+```
+
+```
+new_ol = soup.new_tag('ol')
+```
+
+```
+for li, depth, list_type in flat:
+```
+
+```
+li['data-list'] = list_type
+```
+
+```
+if depth > 0:
+```
+
+```
+li['class'] = li.get('class', []) + [f'ql-indent-{depth}']
+```
+
+```
+li.insert(0, soup.new_tag('span', attrs={'class': 'ql-ui'}))
+```
+
+```
+new_ol.append(li)
+```
+
+```
+top.replace_with(new_ol)
+```
+
+```
+
+
+
+```
+
+```
+# Quill emits no whitespace between block tags, nor at <li> content edges
+```
+
+```
+out = str(soup)
+```
+
+```
+out = re.sub(r'>\s+<', '><', out)
+```
+
+```
+out = re.sub(r'(<li[^>]*>)\s+', r'\1', out)
+```
+
+```
+out = re.sub(r'\s+</li>', '</li>', out)
+```
+
+```
+return out
+```
+
+```
+
+
+
+```
+
+```
+
+
+
+```
+
+```
+_TOOL_CALL_TAGS_RE = re.compile(
+```
+
+```
+r'</?(?:antml:)?(?:function_calls|invoke|parameter|tool_use|tool_call|reason)\b[^>]*>',
+```
+
+```
+re.IGNORECASE | re.DOTALL,
+```
+
+```
+)
+```
+
+```
+
+
+
+```
+
+```
+
+
+
+```
+
+```
+def strip_tool_call_leakage(text):
+```
+
+```
+return _TOOL_CALL_TAGS_RE.sub('', text)
+```
+
+```
+
+
+
+```
+
+```
+
+
+
+```
+
+```
+def create_comment(market_capability, group_id, investible_id, user_id, body, reply_id, comment_type, uploaded_files,
+```
+
+```
+mentions, notification_type, inline_holder, is_sent, associated_comment_id, tz=None,
+```
+
+```
+convert_from_markdown=True):
+```
+
+```
+html_body = body
+```
+
+```
+if convert_from_markdown:
+```
+
+```
+body = strip_tool_call_leakage(body)
+```
+
+```
+# Assume AI user whether from CLI or MCP is feeding us markdown input
+```
+
+```
+html_body = markdown_to_quill_html(body)
+```
+
+```
+payload = {
+```
+
+```
+'acting_user_id': user_id,
+```
+
+```
+'group_id': group_id,
+```
+
+```
+'body': html_body,
+```
+
+```
+'comment_type': comment_type
+```
+
+```
+}
+```
+
+```
+if inline_holder == MarketType.INITIATIVE.name:
+```
+
+```
+# inline holder controls notifications and for a DECISION go ahead as normal since waiting on first option
+```
+
+```
+payload['inline_holder'] = inline_holder
+```
+
+```
+if is_sent is not None:
+```
+
+```
+payload['is_sent'] = is_sent
+```
+
+```
+if investible_id is not None:
+```
+
+```
+payload['investible_id'] = investible_id
+```
+
+```
+if reply_id is not None:
+```
+
+```
+payload['reply_id'] = reply_id
+```
+
+```
+if associated_comment_id is not None:
+```
+
+```
+payload['associated_comment_id'] = associated_comment_id
+```
+
+```
+if uploaded_files is not None:
+```
+
+```
+payload['uploaded_files'] = uploaded_files
+```
+
+```
+if mentions is not None:
+```
+
+```
+payload['mentions'] = mentions
+```
+
+```
+if notification_type is not None:
+```
+
+```
+payload['notification_type'] = notification_type
+```
+
+```
+if tz is not None:
+```
+
+```
+payload['tz'] = tz
+```
+
+```
+return invoke_lambda(markets_service_prefix + 'comments_create', market_capability, payload)
+```
+
+
+This job is in stage Complete.
+#### Reports 
+#### Report R-all-138<a name="r-all-138"></a> 
+Live render test for the deployed R-all-136 fix. Each block below is raw markdown submitted through the conversion — view this comment to confirm how it displays.
+
+Case 1 — reported pattern (number, then abutting sub-bullets with no blank line). The reasons should appear as an indented bullet sublist UNDER each number, and the people should stay numbered 1, 2, 3:
+
+1. Peter Steinberger
+
+2. Why he is similar: heavy Claude Code / Cursor user who built public agent rules
+
+3. Why useful: can say whether durable questions/approvals are a missing layer
+
+4. Sources: github.com/steipete
+
+5. Seth Hobson
+
+6. Why he is similar: built a cross-harness agentic plugin marketplace
+
+7. Why useful: strongest "I built my own rails" signal
+
+8. Sources: github.com/wshobson/agents
+
+9. Francisco Cerda Puigserver
+
+10. Why he is similar: built NEXO Brain because agents forgot corrections across sessions
+
+11. Why useful: shows where memory stops being enough
+
+Case 2 — standalone bullet list (preceded by this sentence and a blank line) should stay flat top-level bullets, NOT nested:
+
+1. A public CLAUDE.md / AGENTS.md setup with real process
+2. A tool that syncs, lints, or generates those files
+3. An MCP server or memory layer built because chat forgot too much
+
+
+Case 3 — pure numbered list should stay numbered with no spurious sub-bullets:
+
+1. Peter Steinberger
+2. Seth Hobson
+3. Francisco Cerda Puigserver
+
+
+If Case 1 shows the reasons indented as bullets under each number, Case 2 stays a flat bullet list, and Case 3 stays a clean 1/2/3, the fix is confirmed in production. Backed by the 10/10 local test suite in R-all-136.
+
+#### Notes 
+#### Note R-all-135<a name="r-all-135"></a> 
+Implementation for O-1 (preprocess indentation in markdown_to_quill_html). Two changes to the comments-create lambda.
+
+CHANGE 1 — add this new helper above markdown_to_quill_html:
+
+```python
+def _nest_abutting_bullets(body, indent=4):
+    """Reindent a bullet run that immediately follows an ordered-list item.
+
+    The AI emits sub-bullets at zero indentation directly under a numbered
+    item with no blank line between, e.g.
+
+        1. Parent
+        - child
+        - child
+
+    Python-Markdown (no `sane_lists`) merges the marker change into the same
+    ordered list, so the children render as sibling numbered items. We shift
+    the abutting bullet run one level deeper so Markdown nests it under the
+    parent and _flatten_list emits it at depth 1 as 'bullet'.
+
+    The run is keyed strictly on a bullet line abutting an ordered item with
+    NO intervening blank line, so genuine top-level bullet lists -- which are
+    separated from preceding content by a blank line -- are left untouched.
+    """
+    ordered_re = re.compile(r'^(\s*)\d+\.\s+\S')
+    bullet_re = re.compile(r'^(\s*)[-*+]\s+\S')
+    pad = ' ' * indent
+
+    out = []
+    in_run = False
+    base_indent = 0
+    prev_ordered = False
+    for line in body.split('\n'):
+        if not line.strip():
+            # A blank line breaks the abutment and ends any active run.
+            in_run = False
+            prev_ordered = False
+            out.append(line)
+            continue
+        is_bullet = bool(bullet_re.match(line))
+        if in_run:
+            indent_len = len(line) - len(line.lstrip(' '))
+            if is_bullet or indent_len > base_indent:
+                # A bullet within the run, or an indented continuation line.
+                out.append(pad + line)
+                continue
+            # A non-indented, non-bullet line ends the run.
+            in_run = False
+        if is_bullet and prev_ordered:
+            in_run = True
+            base_indent = len(bullet_re.match(line).group(1))
+            out.append(pad + line)
+            prev_ordered = False
+            continue
+        prev_ordered = bool(ordered_re.match(line))
+        out.append(line)
+    return '\n'.join(out)
+
+```
+CHANGE 2 — call it as the first line of markdown_to_quill_html, before markdown.markdown():
+
+```python
+def markdown_to_quill_html(body):
+    body = _nest_abutting_bullets(body)
+    html = markdown.markdown(body, extensions=['extra'])
+    ...rest unchanged...
+
+```
+Why this is sufficient (traced against the C-Marketing-182 sample):
+- "1. Peter ..." followed with no blank line by four "- ..." lines -> the four bullets are reindented by 4 spaces. Markdown then nests them as a
+
+1. ; _flatten_list emits Peter at depth 0 (ordered) and the four reasons at depth 1 (bullet, ql-indent-1). Same for Seth (#2) etc. Result: people stay numbered at the top level, reasons become an indented bullet sublist -- the requested behavior.
+- The "Best next step" numbered list (1..4 with no following bullets) is untouched.
+- The "Pattern from the research" bullet list is preceded by a blank line, so prev_ordered is reset and it stays a top-level bullet list -- untouched.
+
+
+
+
+Notes / scope:
+- No change to _flatten_list; it already handles correctly-nested input.
+- Existing loose-list
+
+wrapping (from blank lines between items) is a separate cosmetic Python-Markdown behavior and is intentionally left alone here.
+- Deploy this, then per your note I'll open a review with tests covering: the abutting case (nests), a blank-line-separated top-level bullet list (untouched), a pure numbered list (untouched), and already-indented nested input (unchanged).
+
+#### Note R-all-134<a name="r-all-134"></a> 
+Root-cause diagnosis (working only from the code/HTML pasted in this job; I have no backend repo access).
+
+The sublist breakage happens during `markdown.markdown()`, BEFORE `_flatten_list` ever runs — so it cannot be fixed inside `_flatten_list`.
+
+What the AI emitted is mixed-marker, zero-indent markdown with no blank line between a number and its bullets:
+
+```
+1. Peter Steinberger / `steipete`
+- Why he is similar: ...
+- Why useful for Uclusion: ...
+- Sources: ...
+- Outreach angle: "..."
+
+2. Seth Hobson / `wshobson`
+- Why he is similar: ...
+
+```
+Python-Markdown (default config, `extra` does NOT include `sane_lists`) treats a change of list marker at the same indent as a continuation of the SAME list, keeping the first marker (ordered). So all 40 lines collapse into one flat `<ol>`, and "Why he is similar" becomes ordered item #2 at the parent's indent — exactly the reported symptom.
+
+Confirming evidence in the pasted HTML output: every `<li>` is `data-list="ordered"`, none carry a `ql-indent-*` class, and the loose-vs-tight `<p>` wrapping pattern is what Python-Markdown produces for a single list whose items are separated by blank lines.
+
+Consequence: by the time the soup reaches `_flatten_list`, the `-` vs `1.` information is already gone — every item is an `<ol><li>` at depth 0. Any fix therefore has to act at/before parse time (preprocess the markdown's indentation, or change the parser config), not in the flatten step.
+
+#### Note R-all-136<a name="r-all-136"></a> 
+Tested the deployed fix locally (markdown 3.10.2 + beautifulsoup4, reproducing the lambda's _nest_abutting_bullets / _flatten_list / markdown_to_quill_html). 10/10 assertions pass with one correction below.
+
+IMPORTANT — the version posted in R-all-135 (which you deployed) has a latent over-indentation bug. It works for the C-Marketing-182 doc (all bullets are zero-indent there), but if input bullets are ALREADY correctly indented under a number, the unconditional +4 shift pushes them to 8 spaces, where Python-Markdown treats them as a code block and they get swallowed into the parent item's text. The corrected helper adds a guard so it only promotes bullets that are not already indented enough to nest. Please redeploy with this version:
+
+```python
+def _nest_abutting_bullets(body, indent=4):
+    """Reindent a bullet run that immediately follows an ordered-list item.
+
+    The AI emits sub-bullets at zero indentation directly under a numbered
+    item with no blank line between, e.g.
+
+        1. Parent
+            - child
+            - child
+
+    Python-Markdown (no `sane_lists`) merges the marker change into the same
+    ordered list, so the children render as sibling numbered items. We shift
+    such an abutting bullet run one level deeper so Markdown nests it under the
+    parent and _flatten_list emits it at depth 1 as 'bullet'.
+
+    The run is keyed strictly on a bullet line abutting an ordered item with
+    NO intervening blank line, so genuine top-level bullet lists -- separated
+    from preceding content by a blank line -- are left untouched. Bullets that
+    are already indented enough to nest are also left untouched.
+    """
+    ordered_re = re.compile(r'^(\s*)\d+\.\s+\S')
+    bullet_re = re.compile(r'^(\s*)[-*+]\s+\S')
+    pad = ' ' * indent
+
+    out = []
+    in_run = False
+    base_indent = 0
+    prev_ordered_indent = None  # leading spaces of the abutting ordered item, else None
+    for line in body.split('\n'):
+        if not line.strip():
+            # A blank line breaks the abutment and ends any active run.
+            in_run = False
+            prev_ordered_indent = None
+            out.append(line)
+            continue
+        bullet_m = bullet_re.match(line)
+        if in_run:
+            indent_len = len(line) - len(line.lstrip(' '))
+            if bullet_m or indent_len > base_indent:
+                # A bullet within the run, or an indented continuation line.
+                out.append(pad + line)
+                continue
+            # A non-indented, non-bullet line ends the run.
+            in_run = False
+        if bullet_m and prev_ordered_indent is not None:
+            bullet_indent = len(bullet_m.group(1))
+            # Only promote a bullet that is NOT already indented enough to nest;
+            # otherwise Python-Markdown already nests it and a further shift
+            # would over-indent it into a code block.
+            if bullet_indent < prev_ordered_indent + indent:
+                in_run = True
+                base_indent = bullet_indent
+                out.append(pad + line)
+                prev_ordered_indent = None
+                continue
+        ordered_m = ordered_re.match(line)
+        prev_ordered_indent = len(ordered_m.group(1)) if ordered_m else None
+        out.append(line)
+    return '\n'.join(out)
+
+```
+Change 2 (first line of markdown_to_quill_html: `body = _nest_abutting_bullets(body)`) is unchanged from R-all-135.
+
+Verified output for the reported shape (Peter/Seth) — people stay numbered at top level, reasons become an indented bullet sublist:
+
+```
+<ol><li data-list="ordered">...Peter Steinberger</li>
+<li class="ql-indent-1" data-list="bullet">...Why he is similar...</li>
+<li class="ql-indent-1" data-list="bullet">...Why useful...</li>
+<li class="ql-indent-1" data-list="bullet">...Sources...</li>
+<li data-list="ordered">...Seth Hobson</li>
+<li class="ql-indent-1" data-list="bullet">...Why he is similar...</li>
+<li class="ql-indent-1" data-list="bullet">...Why useful...</li></ol>
+
+```
+Test suite (10 assertions, all passing) covering: T1 abutting bullets nest under the number and the next number is NOT absorbed; T2 blank-separated top-level bullet list untouched; T3 pure numbered list untouched; T4 already-indented input untouched (the regression guard); T5 documents the known limitation; T6 one-level nesting with no text-swallowing of deeper source:
+
+```python
+import re
+import markdown
+from bs4 import BeautifulSoup, NavigableString
+
+# (paste the deployed _nest_abutting_bullets, _flatten_list, markdown_to_quill_html here)
+
+def li_summary(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    rows = []
+    for li in soup.find_all('li'):
+        depth = 0
+        for c in (li.get('class', []) or []):
+            if c.startswith('ql-indent-'):
+                depth = int(c.split('-')[-1])
+        rows.append((li.get('data-list'), depth, li.get_text()[:30]))
+    return rows
+
+# T1 -- the reported bug
+src1 = "## People\n\n1. Peter Steinberger\n- Why he is similar: x\n- Why useful: y\n- Sources: z\n\n2. Seth Hobson\n- Why he is similar: a\n- Why useful: b\n"
+r = li_summary(markdown_to_quill_html(src1))
+assert r[0] == ('ordered', 0, 'Peter Steinberger')
+assert all(x[:2] == ('bullet', 1) for x in r[1:4])
+assert r[4] == ('ordered', 0, 'Seth Hobson')
+assert all(x[:2] == ('bullet', 1) for x in r[5:7])
+assert [x for x in r if x[1] == 0 and x[0] == 'ordered'] == \
+       [('ordered', 0, 'Peter Steinberger'), ('ordered', 0, 'Seth Hobson')]
+
+# T2 -- standalone bullet list untouched
+r = li_summary(markdown_to_quill_html("Intro.\n\n- alpha\n- beta\n- gamma\n"))
+assert r == [('bullet', 0, 'alpha'), ('bullet', 0, 'beta'), ('bullet', 0, 'gamma')]
+
+# T3 -- pure numbered list untouched
+r = li_summary(markdown_to_quill_html("Start:\n\n1. Peter\n2. Seth\n3. Francisco\n"))
+assert r == [('ordered', 0, 'Peter'), ('ordered', 0, 'Seth'), ('ordered', 0, 'Francisco')]
+
+# T4 -- already-indented input untouched (regression guard)
+r = li_summary(markdown_to_quill_html("1. Parent\n    - child a\n    - child b\n"))
+assert r[0] == ('ordered', 0, 'Parent')
+assert all(x[0] == 'bullet' and x[1] >= 1 for x in r[1:3])
+
+# T5 -- known limitation: blank-separated bullets after numbers stay merged-ordered
+r = li_summary(markdown_to_quill_html("1. one\n2. two\n\n- loose a\n- loose b\n"))
+assert all(x[0] == 'ordered' for x in r)
+
+# T6 -- one-level nesting, nothing swallowed
+r = li_summary(markdown_to_quill_html("1. Parent\n- child\n  - grandchild\n"))
+assert r[0] == ('ordered', 0, 'Parent')
+assert all(x[0] == 'bullet' for x in r[1:])
+assert any('grandchild' in x[2] for x in r)
+
+print("all assertions passed")
+
+```
+Known limitation (T5), explicitly out of O-1 scope: a bullet list separated from a preceding ordered list by ONLY a blank line (no intervening prose) is still merged into the ordered list by Python-Markdown. O-1 intentionally does not touch blank-separated bullets because that would wrongly nest genuine top-level lists (T2). Resolving T5 would require the rejected sane_lists (O-3). The C-Marketing-182 doc does not hit this shape (its "Pattern" bullets are preceded by prose, its "Best next step" is a pure numbered list), so the reported artifact renders correctly.
 
 #### Resolved 
-#### Resolved Task T-all-2089<a name="t-all-2089"></a> 
-When hit Add and another from task creation the Quill tool bar is on top for a few seconds and then goes to bottom.
+#### Resolved Question Q-all-88<a name="q-all-88"></a> 
+To make the `-` sub-bullets nest under their parent numbered item, which fix approach do you want? The blocker is that the AI emits zero-indent bullets after a number, and Python-Markdown destroys the marker distinction during parsing — so the fix must act at/before parse time. Each option produces materially different code and behavior.
 
-#### Resolved Task T-all-2086<a name="t-all-2086"></a> 
-Control arrow up not working on Mac - have to have key strokes that work there and change the key strokes that show.
+### Option O-3<a name="o-3"></a>
+### Add the sane_lists parser extension
+Add 'sane_lists' to markdown.markdown(extensions=[...]) so a marker change (- after 1.) is NOT merged into the ordered list. NOTE: by itself this yields a SIBLING
 
-
-
-
-On a Mac, pressing **Control + Up Arrow** (⌃ + ↑) opens **Mission Control**.
+after the item, not a sublist nested UNDER the number, so it stops the wrong-numbering but does not by itself produce the requested 'indented under the first item' nesting unless combined with option 1. Lowest effort, partial fix.
 
 
+This option is in stage In Dialog.
+### Option O-2<a name="o-2"></a>
+### Fix at the source (AI emits indented markdown)
+Leave markdown_to_quill_html unchanged and instead make the AI/CLI emit properly indented nested markdown (sub-bullets indented by 4 spaces under their number). The existing _flatten_list already handles correctly-nested input. Pro: no fragile heuristic in the converter; markdown stays semantically correct. Con: doesn't fix already-stored/incoming malformed comments, and depends on prompt/generation changes outside this function.
 
 
-On a Mac, the **Control (⌃) + Right Arrow** shortcut is primarily used to navigate between different full-screen apps or desktop spaces (Mission Control)
+This option is in stage In Dialog.
+### Option O-1<a name="o-1"></a>
+### Preprocess indentation in markdown_to_quill_html
+Before calling markdown.markdown(), reindent each `-`/`*` bullet line that immediately follows (no blank line) an ordered-list item so it becomes a true child (indent by tab_length). Python-Markdown then nests it, and _flatten_list emits it at depth 1 as 'bullet' (correct indentation + bullet glyph). Pro: fixes the artifact exactly as already produced by the AI, no dependency on changing AI output. Con: a heuristic in the converter; needs care not to disturb legitimately top-level bullet lists (key it on a bullet line directly abutting an ordered item with no intervening blank line).
 
 
+This option is in stage In Dialog.
+#### From AI user:
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
+This is the only approach that fixes the artifact exactly as the AI already emits it, with no dependency on changing AI/CLI generation and no reliance on stored malformed comments being regenerated. Option O-2 (fix at source) leaves the converter unable to handle real-world zero-indent input — the very thing this job is about — and won't fix existing comments. Option O-3 (sane_lists) only stops the wrong numbering; on its own it yields a sibling bullet list, not the requested nesting under the parent number, so it's a partial fix at best. O-1 keeps the fix self-contained in markdown_to_quill_html and feeds _flatten_list correctly-nested input, which it already handles. The heuristic risk is bounded: key the reindent strictly on a bullet line directly abutting an ordered-list item with no intervening blank line, so genuine top-level bullet lists (which are preceded by a blank line) are untouched.
 
+> ##### $${\color{yellow} 50 out of 100 - Somewhat Certain Reason \space For}$$ E-2<a name="e-2"></a>
+Generate the code and I will deploy it. Then once deployed I will let you know so you can create a review with tests and we can see how it displays.
 
-So those are taken on Mac.
+#### Resolved Report R-all-137<a name="r-all-137"></a> 
+Ready for review. The O-1 sublist fix (_nest_abutting_bullets, preprocessing markdown before Python-Markdown) is implemented and verified against a local reproduction of the lambda's conversion pipeline (markdown 3.10.2 + beautifulsoup4).
 
+What was built:
+- _nest_abutting_bullets reindents a bullet run that immediately abuts an ordered-list item (no blank line between), so Python-Markdown nests it under the number instead of merging the marker change into one flat ordered list. The reported symptom -- "Why he is similar" rendering as a numbered sibling at the parent's indent -- is resolved: the people stay numbered at the top level and their reasons become an indented bullet sublist (data-list="bullet", ql-indent-1).
 
+Tests: 10/10 assertions pass (full suite in R-all-136). Coverage: reported bug nests correctly and the next number is not absorbed (T1); standalone blank-separated bullet list untouched (T2); pure numbered list untouched (T3); already-correctly-indented input untouched (T4); known limitation pinned (T5); one-level nesting with no text-swallowing (T6).
 
+Action needed before this is fully correct in prod:
+- Testing found a latent bug in the version deployed from R-all-135: an unconditional +4 shift over-indents bullets that are ALREADY correctly indented (8 spaces -> Python-Markdown reads them as a code block and swallows them into the parent's text). It does not affect the C-Marketing-182 doc (all zero-indent there), but it regresses well-formed input. The corrected helper in R-all-136 adds a guard and passes T4. Please redeploy with the R-all-136 version.
 
-```
-const checkMac = window.navigator.userAgentData
-```
+Known limitation (out of O-1 scope, documented in R-all-136): a bullet list separated from a preceding ordered list by only a blank line (no intervening prose) is still merged into the ordered list by Python-Markdown; fixing it would require the rejected sane_lists (O-3). The reported doc does not hit this shape.
 
-```
-? window.navigator.userAgentData.platform === 'macOS'
-```
-
-```
-: /Mac/i.test(window.navigator.userAgent);
-```
-
-
-
-
-So it should be
-
-
-
-
-```
-Control + Option + Arrow Up
-```
-
-
-
-
-and all of them are option on Mac. Check if the definition in the keystroke command is still alt or you use option there also.
-
-#### Resolved Task T-all-2097<a name="t-all-2097"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/19514962-8a40-491d-a086-388ac5d87871.jpg?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-On mobile drop the verbiage 'Suggestion' and just use the icon.
-
-#### Resolved Task T-all-2109<a name="t-all-2109"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/52aef534-f395-45de-82ba-c771fffe69de.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-Console minisearch error and no object version errors on stage should be debugged and cleaned up.
-
-#### Resolved Task T-all-2108<a name="t-all-2108"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/ddf7f41f-1b67-464d-b363-47e730613ca4.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-This message is deleted true.
-
-> ##### Grouped task C-all-924<a name="c-all-924"></a> 
-Don't allow anything without a market ID to store on disk:
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/6ca66b32-485c-4c7b-80da-7627b627aa93.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-#### Resolved Task C-all-926<a name="c-all-926"></a> 
-Find out why reply to a comment did not back end delete the not fully voted notification for that user.
-
-#### Resolved Task C-all-925<a name="c-all-925"></a> 
-Use isInInbox on side bar message count.
-
-#### Resolved Task T-all-2093<a name="t-all-2093"></a> 
-Anchors on status report screwed up again somehow missing.
-
-#### Resolved Task T-all-2084<a name="t-all-2084"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/aa6b25ea-a06c-4d5d-97f8-d5e88328a15e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-Number of issues here.
-
-> ##### Grouped task C-all-917<a name="c-all-917"></a> 
-The Need better... job has an open question from AI doesn't have a notification since I asked a question. However it for sure should show in the compressed in progress list.
-
-#### Resolved Task T-all-2085<a name="t-all-2085"></a> 
-Signup button on landing page is broken.
+Once you redeploy R-all-136 and confirm it displays correctly on the live comment, this can be resolved. Happy to commit the change with the J-all-307 prefix if you want it in the repo.
 
 ## Job J-all-299<a name="j-all-299"></a>
 ### Tighten up rules.
@@ -1816,382 +3000,13 @@ Make clear that questions about the flow are allowed in the chat.
 
 Only questions about the job can go in the job and a question about the flow is not about the job. For instance asking if can start disjoint tasks while waits for answers on other tasks in chat is allowed.
 
-## Job J-all-294<a name="j-all-294"></a>
-### AI notifications stuff
-Cause they are already seeing them on the agent side also.
-
-
-This job is in stage Complete.
-#### Resolved 
-#### Resolved Task T-all-2079<a name="t-all-2079"></a> 
-Still showing on the open tasks tab.
-
-
-
-
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/bf002da2-2751-4d34-82a2-a288d30fd66c.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-#### Resolved Task T-all-2069<a name="t-all-2069"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/4913fafe-ce2e-4888-b24e-3ae10d577149.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-
-
-
-Unclear if we want resolve notifications from AI user resolving. And **even if we do they need to be rolled up per job.**
-
-
-
-
-SCREW THIS JUST DON'T GENERATE THESE FOR AI - RELY ON IT ASKING ON ITS SIDE.
-
-## Job J-all-290<a name="j-all-290"></a>
-### Fix documentation for notes, AI, and everyone view..
-
-This job is in stage Complete.
-#### Resolved 
-#### Resolved Task C-all-889<a name="c-all-889"></a> 
-As much of this prompt as possible goes into the description of the tool. May or may not work there but worth a shot.
-
-#### Resolved Task T-all-2042<a name="t-all-2042"></a> 
-Fix documentation to include new functionality and change CLI section name to MCP & CLI.
-
-#### Resolved Task T-all-2050<a name="t-all-2050"></a> 
-AI documentation.
-
-#### Resolved Task C-all-881<a name="c-all-881"></a> 
-Need add_approval tool and CLI also.
-
-#### Resolved Task C-all-880<a name="c-all-880"></a> 
-get_job has to support getting market level comments like bugs etc. - too confusing otherwise.
-
-#### Resolved Task C-all-872<a name="c-all-872"></a> 
-Write example prompts for above to see if doable.
-
-#### Resolved Task C-all-871<a name="c-all-871"></a> 
-Use Uclusion to get J-all-284 and also read through the application documentation at https://documentation.uclusion.com/ Then as a product manager ask any questions you have about the business value of this job which was proposed by a junior engineer. Once your questions are answered use Uclusion to add an approval to this job and use add info to record the questions and answers.
-
-
-
-
-**Put above prompt that works for you into documentation and maybe elsewhere as an example. In reality they will have to tune.**
-
-> ##### Grouped task C-all-889<a name="c-all-889"></a> 
-As much of this prompt as possible goes into the description of the tool. May or may not work there but worth a shot.
-
-> ##### Grouped task C-all-881<a name="c-all-881"></a> 
-Need add_approval tool and CLI also.
-
-> ##### Grouped task C-all-880<a name="c-all-880"></a> 
-get_job has to support getting market level comments like bugs etc. - too confusing otherwise.
-
-> ##### Grouped task C-all-872<a name="c-all-872"></a> 
-Write example prompts for above to see if doable.
-
-> ##### Grouped task C-all-876<a name="c-all-876"></a> 
-This [video](https://www.youtube.com/watch?v=h0hdaHPKDdI), at the end, explains how want reviews of specs ahead of time.
-
-
-
-
-So making that happen has to be the main marketable example. Anything else is just parlor tricks. Currently planning mode gives you a nice md file and you could have a review of that file.
-
-
-
-
-**However this CEO is wrongly assuming that the features were all worth doing and now with AI speeding things up the chances of FEATURE FACTORY ARE 100% so need Uclusion there. What's missing is the AGILE DEVELOPER WHO THINKS ABOUT THE FEATURE AND REALIZES WHAT'S WRONG WITH IT.**
-
-
-
-
-LIKE IT OR NOT WE HAVE TO GO BACK TO TRYING TO GET AI TO HAVE AN OPINION ON THE VALUE OF THE FEATURE ALTOGETHER. TO RATE CERTAINTY ON WHETHER OR NOT PEOPLE WILL LIKE THE FEATURE WHICH MUST HAVE A DETAILED EXPLANATION OF IT AND ITS VALUE. Then once they are use to have AI opinion its nature to try to get human opinion and the approval game is afoot.
-
-> ##### Grouped task C-all-877<a name="c-all-877"></a> 
-For a solo developer, the risk of technical debt and "hacks" is high. The AI Job Reviewer provides a standardized, rigorous check that mimics a senior engineer's "Definition of Done". By using MCP to pull in context from "all servers" (including GitHub, database schemas, and documentation), the AI can perform a "Criteria-Grounded Verification" that ensures every job is actionable and verifiable. The primary limitation is the AI's struggle with judging the *novelty* or *long-term business significance* of a project, which must remain a human responsibility.
-
-
-
-
-
-
-
-**So it thinks AI can't do business ROI and is mostly after DoD. Which if we believe that then this is about adding tasks, grouped tasks, and notes and don't need the approval and certainty score. Emphasis should be on reading the code base to fill in blind spots, recommend testing, find potential feature conflicts etc.**
-
-> ##### Grouped task C-all-878<a name="c-all-878"></a> 
-get_job tool has to screen out existing approvals.
-
-#### Resolved Task C-all-876<a name="c-all-876"></a> 
-This [video](https://www.youtube.com/watch?v=h0hdaHPKDdI), at the end, explains how want reviews of specs ahead of time.
-
-
-
-
-So making that happen has to be the main marketable example. Anything else is just parlor tricks. Currently planning mode gives you a nice md file and you could have a review of that file.
-
-
-
-
-**However this CEO is wrongly assuming that the features were all worth doing and now with AI speeding things up the chances of FEATURE FACTORY ARE 100% so need Uclusion there. What's missing is the AGILE DEVELOPER WHO THINKS ABOUT THE FEATURE AND REALIZES WHAT'S WRONG WITH IT.**
-
-
-
-
-LIKE IT OR NOT WE HAVE TO GO BACK TO TRYING TO GET AI TO HAVE AN OPINION ON THE VALUE OF THE FEATURE ALTOGETHER. TO RATE CERTAINTY ON WHETHER OR NOT PEOPLE WILL LIKE THE FEATURE WHICH MUST HAVE A DETAILED EXPLANATION OF IT AND ITS VALUE. Then once they are use to have AI opinion its nature to try to get human opinion and the approval game is afoot.
-
-#### Resolved Task T-all-2053<a name="t-all-2053"></a> 
-Missed the what is Uclusion page in rewrite.
-
-#### Resolved Task C-all-877<a name="c-all-877"></a> 
-For a solo developer, the risk of technical debt and "hacks" is high. The AI Job Reviewer provides a standardized, rigorous check that mimics a senior engineer's "Definition of Done". By using MCP to pull in context from "all servers" (including GitHub, database schemas, and documentation), the AI can perform a "Criteria-Grounded Verification" that ensures every job is actionable and verifiable. The primary limitation is the AI's struggle with judging the *novelty* or *long-term business significance* of a project, which must remain a human responsibility.
-
-
-
-
-
-
-
-**So it thinks AI can't do business ROI and is mostly after DoD. Which if we believe that then this is about adding tasks, grouped tasks, and notes and don't need the approval and certainty score. Emphasis should be on reading the code base to fill in blind spots, recommend testing, find potential feature conflicts etc.**
-
-#### Resolved Task T-all-2051<a name="t-all-2051"></a> 
-Add explanation of everyone group.
-
-#### Resolved Task C-all-878<a name="c-all-878"></a> 
-get_job tool has to screen out existing approvals.
-
-## Job J-all-230<a name="j-all-230"></a>
-### Better archive.
-The current archive was more of a placeholder than a real implementation. This should be cleaned up now because if you archive something and change your mind it is very difficult to get back.
-
-
-This job is in stage Complete.
-#### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-all-53<a name="e-all-53"></a>
-#### From AI user:
-Direction is correct. The existing archive (`DialogArchives` linked from `DialogOutset` via `formGroupArchiveLink`) is acknowledged in the description as a placeholder, and the code confirms it: a single page lumping complete jobs, not-doing jobs, resolved TODOs, and resolved non-TODO comments together, plus an `ArchiveWarningStep` that effectively warns the resolve is one-way. The proposed refactor — distributing archived content into per-section sub-tabs (Bugs ‘Resolved’, Notes/Discussion ‘Resolved’, Backlog ‘Not Doing’) with drag-back-to-unresolve (C-all-907) and right-click resolve (C-all-910) — is the right shape because (a) it puts archived items where users naturally look, (b) it makes including archived matches in tab-level search counts straightforward (T-all-1946) instead of the current `archivedSize` outset-only badge in `PlanningDialog`, and (c) it makes archive reversible, which is the stated user pain point. The ‘Show all complete’ link (T-all-2056) is necessary because `getSwimlaneInvestiblesForStage` in `userUtils.js` caps complete jobs via `allowed_investibles` and `days_visible`, so older complete work is currently unreachable from the swimlane. C-all-911 (making view-level notes resolvable) lines up with `Comment.js` where `showResolve` is currently false for `REPORT_TYPE` notes without an `investibleId`. T-all-1984 (overlay view inset, no buffer) removes the brittle `dialogOutsetBuffer` coordination between `DialogOutset` and `Screen.js` and is consistent with the right-side fixed-translate pattern already used by the investible page. Held at 4 rather than 5 because of two design ambiguities I posted as a question: (1) T-all-2059 removes the archive page but T-all-2056 says the new ‘Show all complete’ link goes to an archive page — these need to be reconciled (new dedicated complete-jobs page vs. repurposed `DialogArchives`); and (2) the intended search behavior in T-all-1946 — whether archived matches surface inline in the primary tab content or only bump counts while live items remain in the primary tab and matches sit under the Resolved sub-tab. Resolving these before implementation will avoid rework in `PlanningDialog`’s tab-count plumbing (`getTabCount`, `getTagLabel`, the per-tab `tag`/`tagLabel` props) and in route/link cleanup (`formGroupArchiveLink`, `formArchiveCommentLink`, the `groupArchive` action in `Root.js`).
-
-#### Reports 
-#### Report R-all-102<a name="r-all-102"></a> 
-Completed all three tasks for the Better Archive job:
-
-**T-all-2059 — Remove old archive implementation** - Removed the archive link from the view outset (`DialogOutset.js`) along with its imports
-- Removed the archive warning wizard invocation when resolving view-level comments (`Comment.js`) — resolving now calls `resolveComment` directly without the confirmation dialog
-- Removed archive-related computations and navigation from `PlanningDialog.js`
-
-**T-all-2056 — Show all complete link + complete-jobs archive page** - Added "Show all complete" link at the bottom of the Tasks Complete column in the swimlane (`PlanningIdeas.js`), left-justified within that column
-- Added `formCompleteJobsLink(marketId, groupId, presenceId)` helper that appends `&assigneeId=` to the archive URL
-- Rewrote `DialogArchives.js` as a complete-jobs-only page with view and collaborator filter dropdowns, paginated `BacklogListItem` rows, and a "Tasks Complete" SubSection header; fixed dark mode by replacing hardcoded black colors with `theme.palette.text.primary` in both the SubSection and the filter dropdowns
-
-**T-all-1946 — Search collapses sub-tabs to unified paginated lists** - Jobs Backlog: during search, collapses Ready/Not Ready/Not Doing tabs into a single paginated list (Not Doing excluded per design); notification count and bold suppressed in Job Progress search results
-- Bugs/Todos (`MarketTodos.js`): during search, collapses sub-tabs into a unified list
-- Notes/Discussion (`DiscussionSection.js`): during search, shows all matching open + resolved items as compressed paginated `BugListItem` rows; removed resolved count from the tab label
-- Job Progress (`PlanningDialog.js`): during search, replaces swimlanes with a paginated list covering live stages + all Tasks Complete (uncapped), with notifications suppressed
-
-#### Resolved 
-#### Resolved Question Q-all-67<a name="q-all-67"></a> 
-T-all-1946 describes search behavior for Jobs Backlog, Bugs, Notes/Discussion, and Job Progress, but doesn’t mention the new T-all-2056 complete-jobs archive page. When a user is on the T-all-2056 page (with its view + collaborator filter dropdowns) and types in the search field, what happens?
-
-### Option O-3<a name="o-3"></a>
-### Search is global — redirect to a global complete-jobs search results page
-Searching from the T-all-2056 page navigates the user back to the parent view with the search applied (so they land on the Job Progress / Jobs Backlog search results which already cover live + complete per the Q-65 outcome). Pro: avoids duplicating search logic on this page. Con: feels like the page is unsearchable in place; breaks user mental model.
-
-
-This option is in stage In Dialog.
-### Option O-1<a name="o-1"></a>
-### Search filters within the active view/collaborator filter, paginated list stays the same
-The view and collaborator dropdown filters remain in effect. The single paginated list of complete jobs simply narrows to those matching the search. No new layout, no sub-tab collapse (there are no sub-tabs on this page). Pro: predictable, consistent with how filters compose on most pages. Con: if the user wants to search across all views/collaborators, they have to first set both dropdowns to ‘All’.
-
-
-This option is in stage In Dialog.
-> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
-The user can see the filter results for each view on the Views section of the left side panel for each view that has matches. If he wants those matches he can just click that view.
-
-### Option O-2<a name="o-2"></a>
-### Search auto-broadens filters to ‘All’ while active
-Typing into search temporarily sets both dropdowns to ‘All’ (with a visual hint), so search always covers every complete job in the workspace. When search is cleared, the prior filter selection is restored. Pro: ‘searching reaches everything’ invariant is preserved across all tabs. Con: surprising filter mutation; restoring prior state adds complexity.
-
-
-This option is in stage In Dialog.
-#### Resolved Question Q-all-63<a name="q-all-63"></a> 
-Two design points need clarification before implementation. First, T-all-2059 says to remove the current archive implementation (its page and links from `Root.js`/`DialogOutset`), but T-all-2056 says the new ‘Show all complete’ link above complete jobs ‘goes to an archive page for complete jobs that is filtered to the view and collaborator of that row’. Is that new destination a brand-new page, or the existing `DialogArchives` repurposed and scoped to complete-only with view/collaborator filters? Second, for T-all-1946, when a search matches an item that is archived/resolved/not-doing, should the matching items appear inline within the primary tab’s content list, or stay under the new Resolved/Not Doing sub-tab while only the counts roll up to the parent tab? The answer drives whether `PlanningDialog`’s `getTabCount`/`getTagLabel`/per-tab `tag` plumbing needs to combine live and archived result sets or just sum counts.
-
-> ##### Reply C-all-912<a name="c-all-912"></a> 
-The current DialogArchives page includes Complete jobs, Not Doing jobs, bugs, and discussion all in one page. In the new system there is no all in one page for these archived items. Whether it is easier to remove stuff from the current page or create a new page is unclear - the existing page also has issues with the way it looks.
-
-### Option O-2<a name="o-2"></a>
-### New dedicated complete-jobs page + counts-only roll-up
-Same new dedicated `CompleteJobsArchive` page as option 1. But for T-all-1946, live tab content stays live-only during search; archived matches live exclusively under the Resolved / Not Doing sub-tab. The parent tab’s count chip sums live + sub-tab matches so the user sees there are hidden archived hits and clicks into the sub-tab to see them. Simpler to implement (sub-tab filter is independent), keeps primary list semantics clean.
-
-
-This option is in stage In Dialog.
-### Option O-4<a name="o-4"></a>
-### Repurpose `DialogArchives` as complete-jobs page + counts-only roll-up
-Same as option 3 (repurpose `DialogArchives` to a complete-jobs-only filtered page), but search behavior follows option 2 (archived matches only appear in the Resolved/Not Doing sub-tab; parent tab count chip rolls up the total).
-
-
-This option is in stage In Dialog.
-### Option O-3<a name="o-3"></a>
-### Repurpose `DialogArchives` as complete-jobs page + inline archived matches
-Do not delete the `DialogArchives` route/component; instead strip out everything except complete jobs and add view + collaborator filters (defaulted to the clicked row, settable to ‘All’). T-all-2059’s ‘remove the current archive’ then really means: remove the not-doing section, resolved-TODO section, and resolved-discussion section from `DialogArchives`, plus the outset link and the resolve warning, since those concerns now live in sub-tabs. Search behavior follows option 1 (inline archived matches in primary tabs).
-
-
-This option is in stage In Dialog.
-### Option O-1<a name="o-1"></a>
-### New dedicated complete-jobs page + inline archived matches
-T-all-2056 introduces a NEW page (e.g. `CompleteJobsArchive`) at a new route, separate from the deleted `DialogArchives`. Filters: view dropdown + collaborator dropdown, defaulted to the row that was clicked, both settable to ‘All’. For search (T-all-1946), archived/resolved/not-doing matches appear inline within the primary tab content (jobs/backlog/bugs/notes) alongside live matches, with a visual marker (e.g. greyed/strikethrough or a small ‘resolved’/‘not doing’ chip). The Resolved/Not Doing sub-tab still exists and contains the full archived set; sub-tab counts also reflect the search. This gives users a single scan to find matches regardless of state.
-
-
-This option is in stage In Dialog.
-#### Resolved Question Q-all-65<a name="q-all-65"></a> 
-T-all-1946 says the Job Progress tab during search becomes a paginated list of ‘all currently assigned jobs that match the search’. Per the stages documentation, ‘assigned’ jobs can live in Waiting/Approval, Next/Assistance, Work Ready, Tasks Complete, and Not Doing. Today the `PlanningIdeas` swimlanes show Waiting/Approval + Work Ready + Tasks Complete, and Tasks Complete is capped per `stage.allowed_investibles` / `stage.days_visible` in `getSwimlaneInvestiblesForStage`. T-all-2056 also creates a dedicated complete-jobs archive page that reaches all Tasks Complete including the capped-out older ones. Which scope should the Job Progress search list use?
-
-### Option O-4<a name="o-4"></a>
-### Live stages + ALL Tasks Complete + ALL Not Doing (everything ever assigned)
-Maximally comprehensive: any job in the view that has ever been assigned and matches the search appears, including terminal stages. Conflicts with the stages doc which says Not Doing jobs are ‘visible only in the archive’. Probably wrong but listed for completeness.
-
-
-This option is in stage In Dialog.
-### Option O-3<a name="o-3"></a>
-### Live stages + ALL Tasks Complete (uncapped during search)
-Search shows Waiting/Approval + Work Ready + every Tasks Complete job in the view, ignoring the swimlane cap. Not Doing excluded. T-all-2056 archive page is still the right destination for browsing complete jobs without a search; search on Job Progress reaches them too. Pro: user expectation that ‘search finds everything currently assigned’ holds. Con: requires `getSwimlaneInvestiblesForStage` to take an ‘ignore caps for search’ path, or for the search list to bypass that helper entirely.
-
-
-This option is in stage In Dialog.
-> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
-Please note that a job is unassigned when it moves to Not Doing so Not Doing jobs cannot have an assignment.
-
-### Option O-2<a name="o-2"></a>
-### Live stages + visible Tasks Complete (current swimlane scope)
-Search shows whatever the swimlanes show today — Waiting/Approval, Work Ready, and Tasks Complete subject to the existing `allowed_investibles` / `days_visible` capping. Older capped-out complete jobs are not reachable from Job Progress search and require T-all-2056. Pro: visually consistent with non-search swimlane content. Con: search silently hides matches the user might expect, because the cap was designed for visual density, not search filtering.
-
-
-This option is in stage In Dialog.
-### Option O-1<a name="o-1"></a>
-### Live stages only (exclude Tasks Complete and Not Doing)
-Search shows only Waiting/Approval, Next/Assistance, and Work Ready jobs assigned to anyone in this view. Tasks Complete matches are reachable via the new T-all-2056 complete-jobs archive page (which has its own search). Not Doing matches aren’t reachable from Job Progress at all (stages doc says Not Doing is only visible in the archive). Cleanest separation of concerns and lightest data: `PlanningIdeas` search code paths only need to combine the three live stages.
-
-
-This option is in stage In Dialog.
-#### Resolved Question Q-all-64<a name="q-all-64"></a> 
-For T-all-1946, when an active search matches an item that lives in a Resolved / Not Doing sub-tab (a resolved bug, resolved note/discussion, not-doing backlog item, or complete job), how should those matches surface in the parent tab’s UI? This affects whether `PlanningDialog`’s `getTabCount`/`getTagLabel` and the per-tab `tag`/`tagLabel` props need to combine live + archived result sets, or just sum counts while content lists stay segregated by sub-tab. Two clean options below; option C is a compromise.
-
-### Option O-3<a name="o-3"></a>
-### Counts-only roll-up by default + a one-click ‘Include resolved’ toggle on the primary tab
-Default behavior is option B (counts roll up, content stays live-only). Add a small toggle / filter chip next to the search field (or on the tab strip) that, when enabled, switches the primary tab to option A behavior (inline archived matches in the list). Toggle state persists in the existing `BugListContext`-style reducer per view. Benefit: keeps the default clean while letting power users opt into a single-scan view. Cost: one more UI control plus a small amount of state to plumb.
-
-
-This option is in stage In Dialog.
-### Option O-2<a name="o-2"></a>
-### Counts-only roll-up; primary content stays live-only
-During search, the primary tab’s content list shows only live (non-archived) matches — exactly as today. The Resolved / Not Doing sub-tab’s count chip shows its own matched count. The parent tab’s count chip rolls up: parent count = live matches + sub-tab matches, so the user sees that hidden archived hits exist and clicks into the sub-tab to see them. Benefit: simpler implementation — each list filter stays independent, no mixed rendering, drag/drop unchanged. Cost: extra click to reach archived matches.
-
-
-This option is in stage In Dialog.
-### Option O-1<a name="o-1"></a>
-### Inline archived matches in the primary tab content
-During search, archived/resolved/not-doing items that match appear in the primary tab’s content list right next to live matches, visually distinguished (e.g. greyed background, strikethrough, or a small ‘resolved’ / ‘not doing’ chip). The Resolved / Not Doing sub-tab still exists and its own count chip also reflects the search. Parent tab count = live matches + archived matches. Benefit: user sees every hit in one scan without having to remember to check the sub-tab. Cost: primary lists now mix two states; `Backlog.js`, `MarketTodos.js`, and the new Notes/Discussion Resolved sub-tab plumbing all need to render two visual variants and exclude the archived ones from drag/drop targets that don’t apply.
-
-
-This option is in stage In Dialog.
-#### Resolved Report R-all-101<a name="r-all-101"></a> 
-Implemented T-all-2060: two sub-tabs (Open / Resolved) in the Notes / Discussion section.
-
-**What changed:**
-- Created `DiscussionSection.js` — a new component (following the same pattern as `Backlog.js` and `MarketTodos.js`) that renders:
- - **Open tab**: exactly the existing layout — add buttons for Note/Question/Suggestion, dismissable help text, and `CommentBox`.
- - **Resolved tab**: paginated `BugListItem` rows for resolved questions, suggestions, and notes, with expandable `Comment` panels.
- - Dragging a resolved item and dropping it on the **Open** tab calls `updateComment({ resolved: false })` to unresolve it (the same mechanism `MarketTodos` uses).
-- Updated `PlanningDialog.js`:
- - Replaced the inline discussion section JSX with `<DiscussionSection>`.
- - Added `resolvedDiscussionComments` computation (resolved group-level non-bug comments).
- - Removed now-unused imports (`Grid`, `CommentBox`, `EditIcon`, `hasDiscussionComment`) and the unused `questionSuggestionNotesGroupComments` variable.
-- Build is clean with no errors or warnings in the changed files.
-
-> ##### Reply C-all-914<a name="c-all-914"></a> 
-Move the add buttons to the top instead of inside the open tab - this matches what was done for Bugs and also allows hitting a button even when on the Resolved tab.
-
-##### From AI user:
-> ##### Reply C-all-915<a name="c-all-915"></a> 
-Moved all three add buttons (Note, Question, Suggestion) above the GmailTabs, along with the DismissableText help — matching the Bugs layout. They're now always visible regardless of which sub-tab is active.
-
-#### Resolved Task C-all-908<a name="c-all-908"></a> 
-This includes removing the archive link from the view outset.
-
-#### Resolved Task T-all-2057<a name="t-all-2057"></a> 
-On Job backlog add a third tab 'Not Doing'. This tab shows Not Doing backlog in the same display used for the other two.
-
-#### Resolved Task T-all-1946<a name="t-all-1946"></a> 
-When a search is active the sub tabs under the Jobs Backlog, Bugs, and Notes / Discussion section disappear and all results display together with the paginated display currently used. No visual indication of what type of result they are is necessary and counts on the parent tab will reflect everything showing beneath it.
-
-
-
-
-Similarly on the Job Progress tab the current page will not show and instead a page just like the paginated one that shows on Jobs Backlog except it will just contain all currently assigned jobs that match the search.
-
-#### Resolved Task T-all-2059<a name="t-all-2059"></a> 
-Overwrite or remove the current archive implementation - including its page and linking in root.
-
-#### Resolved Task T-all-2056<a name="t-all-2056"></a> 
-Above complete jobs at the same level as the collaborator avatar, there is a new link to 'Show all complete'. This link goes to an archive page for complete jobs that is filtered to the view and collaborator of that row. These filters can be removed by selected All from the view and collaborator drop down filters.
-
-#### Resolved Task C-all-911<a name="c-all-911"></a> 
-Make notes in the Notes / Discussion section IE ones having no investible ID be resolvable.
-
-#### Resolved Task T-all-2060<a name="t-all-2060"></a> 
-Have two sub tabs in the Notes / Discussion section like what is done for Bugs and Job Backlog. The first tab is 'Open" and display everything exactly as now. The second tab is 'Resolved' and it holds compressed paginated rows for all resolved notes and discussion using the same form as bugs tabs.
-
-
-
-
-Again dropping a resolved notes / discussion to the other tab will unresolve it.
-
-#### Resolved Task T-all-2058<a name="t-all-2058"></a> 
-On Bugs add a fourth tab 'Resolved'. This tab shows resolved bugs in the same display used for the other three.
-
-> ##### Grouped task C-all-910<a name="c-all-910"></a> 
-Resolved will be a choice on the right click menu as the other bug types are currently - when not in resolved already of course.
-
-> ##### Grouped task C-all-907<a name="c-all-907"></a> 
-If you drag a bug from resolved to another tab its notification_type might change but also it unresolves.
-
-> ##### Grouped task C-all-906<a name="c-all-906"></a> 
-If you create a job from a resolved bug the task it becomes is not resolved anymore.
-
-#### Resolved Task C-all-909<a name="c-all-909"></a> 
-This includes removing the warning you get when resolving a view level comment like bugs or discussion. Since there will be a link to where resolved went on the same page that warning is no longer necessary.
-
-#### Resolved Question Q-all-66<a name="q-all-66"></a> 
-T-all-1946 says during search the Notes/Discussion sub-tabs collapse and ‘all results display together with the paginated display currently used’. Bugs and Backlog already use compressed paginated rows in both sub-tabs, so ‘currently used’ is unambiguous there. But Notes/Discussion today uses `CommentBox` (full-bodied rendered comments) in the Open section, while T-all-2060’s new Resolved sub-tab will use bugs-style compressed paginated rows. Which form should the unified Notes/Discussion search list use?
-
-### Option O-1<a name="o-1"></a>
-### Compressed paginated rows (bugs/backlog form) for all matches during search
-When search is active on Notes/Discussion, every match — open or resolved — renders as a compressed paginated row like bugs. Pro: consistent with the ‘sub-tabs collapse into the paginated display’ framing in T-all-1946, and matches how Bugs/Backlog already behave. Pro: pagination scales when search hits many items. Con: users lose the in-context body preview of open notes/discussion that `CommentBox` currently shows; they have to click into each row.
-
-
-This option is in stage In Dialog.
-> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
-Yes this is what I meant.
-
-### Option O-3<a name="o-3"></a>
-### Mixed: Open matches in `CommentBox`, Resolved matches in compressed rows below
-Two visually distinct stacked sections in the unified search view — first `CommentBox` for open matches, then a compressed paginated row block for resolved matches, divided by a small header. Pro: preserves rich preview for live work where users mostly look. Con: violates ‘sub tabs disappear, all results display together’ in spirit (two sections is effectively two sub-displays); more code to maintain than option A or B.
-
-
-This option is in stage In Dialog.
-### Option O-2<a name="o-2"></a>
-### Keep `CommentBox` rendering for all matches during search
-When search is active on Notes/Discussion, all matches (open + resolved) render via `CommentBox` just like the Open sub-tab today, with no pagination collapse. Pro: rich body preview preserved. Con: inconsistent with Bugs/Backlog search behavior; large match sets render heavy; ‘paginated display’ framing in T-all-1946 doesn’t literally apply because there is no current paginated display in Notes/Discussion.
-
-
-This option is in stage In Dialog.
-#### Resolved Task T-all-1984<a name="t-all-1984"></a> 
-For view inset drop pushing over all existing on the page. Like how chat inset works for Gmail - it does cover stuff up. Pushing over everything ends up being hokey.
-
 ## Job J-all-298<a name="j-all-298"></a>
 ### Bugs B-all-405, B-all-404, B-all-402, T-all-1838, T-all-1808
 
 
 This job is in stage Complete.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-all-55<a name="e-all-55"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-all-55<a name="e-all-55"></a>
 #### From AI user:
 Three of the five items are genuine defects (B-402 build warning, B-404 silently dropped vote reason, B-405 unexplained disabled buttons) and the other two (T-1808 search-aware sidebar, T-1838 stale draft on "add another") are clear usability fixes with direct customer benefit. Scope is now pinned down by the answered questions, each change is localized and low-risk, and the suggested shared TooltipIconButton fix keeps the disabled-tooltip behavior in one place. Holding at 4 rather than 5 only because a couple of items (T-1808 badge count, T-1838 draft clearing) need manual UI verification to confirm the fix behaves across edge cases.
 
@@ -2246,7 +3061,7 @@ Show the count of inbox notifications that match the current search, and hide th
 
 
 This option is in stage In Dialog.
-> ##### $${\color{lightgreen} For}$$
+> ##### $${\color{lightgreen} 75 out of 100 - Certain For}$$
 No reason given.
 
 ### Option O-2<a name="o-2"></a>
@@ -2329,11 +3144,11 @@ Guard the init in src/logrocketSetup.js so it only runs against real deploys - e
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 Directly fixes the symptom that actually bothers you (console call sites collapsing to build.umd.js:3190) and does it with the smallest footprint: a guard in src/logrocketSetup.js, no change to deployed environments. It also stops local dev sessions from being recorded into the dev LogRocket project, which is noise nobody reviews. O-2 (disable console capture) leaves LogRocket recording local sessions and, unless scoped by hostname, drops console capture from prod replays too - a real loss for prod debugging. Holding at 4 not 5 only because the exact gate (hostname check vs. a dedicated opt-in env flag) is a minor sub-choice worth your call.
 
-> ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-2<a name="e-2"></a>
 Allow an opt in for cases where we need to test a change to LogRocket in dev.
 
 ### Option O-3<a name="o-3"></a>
@@ -2405,11 +3220,11 @@ Add a new .env.development file with GENERATE_SOURCEMAP=false. This removes the 
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 Best fit for the task's "reasonably easy and safe" ask and its "when start locally" scope. It's a one-line, dependency-free change confined to .env.development, so production builds keep full source maps and the existing custom start/build scripts are untouched. App code stays debuggable in dev via cheap-module-source-map; the only thing lost is original-source mapping for third-party libs in dev devtools - and the only such lib here is the one whose source maps are already broken. Holding at 4 not 5 because O-2 is the strictly-lossless choice if the team ever wants to debug into library TS sources during dev, but that's a rare need and not worth adding build tooling now.
 
-> ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-2<a name="e-2"></a>
 Will make it easier to spot actual warnings if these fake ones are gone.
 
 ### Option O-2<a name="o-2"></a>
@@ -2427,7 +3242,7 @@ Fix just the Inbox approval wizard (InboxWizards/Approval/JobApproveStep.js) - t
 
 
 This option is in stage In Dialog.
-> ##### $${\color{lightgreen} For}$$
+> ##### $${\color{lightgreen} 75 out of 100 - Certain For}$$
 No reason given.
 
 ### Option O-2<a name="o-2"></a>
@@ -2538,31 +3353,44 @@ webpack compiled with 2 warnings
 
 Is there a reasonably easy and safe way to fix the above warnings that are happening when start locally.
 
-## Job J-all-292<a name="j-all-292"></a>
-### Either fix tip of spear blog of have new tip of spear which shows detail of...
-...interaction with AI.
-
+## Job J-all-309<a name="j-all-309"></a>
+### AI delayed notifications.
 
 This job is in stage Complete.
 #### Resolved 
-#### Resolved Task T-all-2055<a name="t-all-2055"></a> 
-Do we want pictures of question interface?
+#### Resolved Task C-all-940<a name="c-all-940"></a> 
+Add to documentation that these notifications are silenced in favor of your existing system.
+
+#### Resolved Task T-all-2142<a name="t-all-2142"></a> 
+Setup Claude mobile so can experience this as others do.
+
+#### Resolved Task B-all-433<a name="b-all-433"></a> 
+Option notification resulting in a Can you answer notification - won't get question since it uses inline flag and so waits for option to notify.
 
 
 
 
-Do we want to go through entire example with AI and job in Uclusion?
-
-#### Resolved Task T-all-2054<a name="t-all-2054"></a> 
-People like Brad and Daniel have working systems with things like it leaves a space for you to type your own option. The "chat" interface seems to be what they are going for - why is this better?
+**Will this be spam that you get while you are trying to work? Cause you don't know why you see new message.**
 
 
 
 
-1. Chat interface sucks - especially for many questions at once or any question with options where an option requires considerable explanation.
-2. Storing the collaboration in the job much preferred
-3. No subtleties on chat - communication within an option. Or you can approve multiple options in chat but not with a certainty and reason for each.
-4. If want other humans opinions chat is a complete fail.
+INSTEAD PUT THEM ON A DELAY? - CAN EVEN MAKE THAT ADJUSTABLE IN WORKSPACE SETTINGS.
+
+
+
+
+Or silence all of them since
+
+
+
+
+**For long tasks, Claude Code (the AI command-line tool) features mobile push notifications and configurable hooks that can alert your phone or desktop when it finishes a task, needs permission, or has a question.**
+
+
+
+
+Why introduce a competing system?
 
 ## Job J-all-291<a name="j-all-291"></a>
 ### Other AI integrations.
@@ -2616,11 +3444,11 @@ Configure Codex (write/refresh config.toml AND AGENTS.md) when the ~/.codex/ dir
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 Gating on the ~/.codex/ directory is the right detection signal for Codex specifically. Codex creates ~/.codex/ (with auth.json) on login but treats config.toml as optional, so requiring config.toml to pre-exist (the Cursor/Claude rule) would silently skip nearly every real Codex user. Directory-presence still avoids creating ~/.codex for people who don't use Codex, so it's strictly more useful than O-2 without the over-reach of O-3.
 
-> ##### $${\color{lightgreen} For}$$
+> ##### $${\color{lightgreen} 75 out of 100 - Certain For}$$
 No reason given.
 
 ### Option O-2<a name="o-2"></a>
@@ -2932,7 +3760,7 @@ I implement the config.toml + AGENTS.md install paths and docs to match the docu
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 The install code is platform-agnostic and can be written and unit-reasoned against the documented config.toml schema without a live OpenAI session, so blocking on auth here (O-2) adds friction for little gain. A real end-to-end MCP handshake is still valuable, but it belongs on your authenticated Codex install rather than fully skipping verification (O-3).
 
@@ -2942,7 +3770,7 @@ Trust that matching the documented config.toml schema from developers.openai.com
 
 
 This option is in stage In Dialog.
-> ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-2<a name="e-2"></a>
 I will be confirming myself.
 
 ### Option O-2<a name="o-2"></a>
@@ -3024,11 +3852,11 @@ Add a connect/read timeout (e.g. 15s) to every urlopen call so a stall fails gra
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 The hang is a missing-timeout problem, so a timeout is the load-bearing fix — without it any single stalled connection blocks forever (O-3 alone doesn't solve it). Fetching CLAUDE.md once is a cheap, low-risk win on top: it's the exact same URL pulled three times in one run, so reusing the content removes two redundant round-trips (two fewer chances to stall) and keeps the three surfaces byte-identical. The combination fully addresses the reported symptom and tightens the network surface; it's the right scope.
 
-> ##### $${\color{lightgreen} For}$$
+> ##### $${\color{lightgreen} 75 out of 100 - Certain For}$$
 No reason given.
 
 ### Option O-3<a name="o-3"></a>
@@ -3081,7 +3909,7 @@ Prioritize faster scanning and repeated voting/review by AI users: compact layou
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 The job explicitly calls out AI users who will use this interface frequently, so a compact, scannable option UI is likely the highest-value direction for this pass.
 
@@ -3147,11 +3975,11 @@ On others' tasks keep the 'Reply' button and add a distinct 'Grouped' button bes
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 The literal wording "put the button there next to Reply" reads as adding a distinct Grouped button alongside the existing Reply button, not relabeling. It also preserves the ability to make a plain reply on someone else's task, which relabeling would remove.
 
-> ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-2<a name="e-2"></a>
 Otherwise will be too tricky to capture the intent.
 
 #### Resolved Question Q-all-78<a name="q-all-78"></a> 
@@ -3182,29 +4010,24 @@ Treat a REPLY with notification_type === RED as a subtask. Grouped tasks are 'mu
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{yellow} 50 out of 100 - Somewhat Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 RED is the natural marker for a grouped subtask since grouped tasks are "must do" work, while plain conversational replies stay YELLOW/null. Matching on RED only avoids misclassifying an ordinary reply that happens to carry a YELLOW level. Medium certainty because I can't see the backend's default notification_type for subtask replies — if author-created subtasks aren't actually RED today this needs confirming.
 
-## Job J-all-289<a name="j-all-289"></a>
-### Issues with view creation.
+## Job J-all-286<a name="j-all-286"></a>
+### More upgrading.
+
+
+
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/461a740d-8f1b-4a51-a98e-53b06e6b7e5e.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+And check emails also.
+
 
 This job is in stage Complete.
-#### Resolved 
-#### Resolved Task B-all-419<a name="b-all-419"></a> 
-When create new TEAM view and don't add any people hits the back end follow endpoint with empty and errors.
-
-#### Resolved Task C-all-904<a name="c-all-904"></a> 
-Still supporting Everyone group but no mention on creation page or in documentation of what it does. In code looks like it is a short cut for automatically adding anyone who joins.
-
-#### Resolved Task C-all-905<a name="c-all-905"></a> 
-Since there are three choices - TEAM, AUTONOMOUS, or EVERYONE will have to have radio button choice and help text for each.
-
-
-
-
-**That's fine since creating a view is not very common.**
-
 ## Job J-all-284<a name="j-all-284"></a>
 ### Support progress on a task that are notes instead of things you complete
 Task related notes display as collapsed rows under a task where currently only have grouped tasks. Notes can also just be job related. Both display on their own notes tab with date headers so can easily see all notes taken on a day. Also displaying under a date header are any resolved tasks and these show as collapsed rows.
@@ -4945,7 +5768,7 @@ Keep the existing CommentBox/Comment rendering exactly, only change is the day h
 
 
 This option is in stage In Dialog.
-> ##### $${\color{lightgreen} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 We will be using compressed for tasks and so would be confusing to use for both. Plus for other people seeking status is easier to just scroll than have to click many times to open things.
 
 #### Resolved Task T-all-2087<a name="t-all-2087"></a> 
@@ -4975,7 +5798,7 @@ If task.resolved is true, group it under the day of updated_at. Wrong if the tas
 
 
 This option is in stage In Dialog.
-> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+> ##### $${\color{green} 100 out of 100 - Very Certain Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 Users cannot edit resolved comments so this is not just an approximation.
 
 ### Option O-2<a name="o-2"></a>
@@ -5011,7 +5834,7 @@ This option is in stage In Dialog.
 
 
 This option is in stage In Dialog.
-> ##### $${\color{yellow} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+> ##### $${\color{yellow} 50 out of 100 - Somewhat Certain Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 Its an edge case because in practice the developer will usually have some note on the task he resolved if he is using notes for status.
 
 #### Resolved Task T-all-2030<a name="t-all-2030"></a> 
@@ -5032,7 +5855,7 @@ Have the create/update wizards include the browser timezone in the payload. If b
 
 
 This option is in stage In Dialog.
-> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+> ##### $${\color{green} 100 out of 100 - Very Certain Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 I will fix the back end to accept the new field before this ships.
 
 ### Option O-2<a name="o-2"></a>
@@ -5076,7 +5899,7 @@ Sub-header is the existing one-line compressed task row. Clicking expands the fu
 
 
 This option is in stage In Dialog.
-> ##### $${\color{yellow} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+> ##### $${\color{yellow} 50 out of 100 - Somewhat Certain Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 On the tasks page I represented associated notes using CondensedTodos that work this way so this should be symmetric. Can copy what I did and just pass an array of one if that is easy.
 
 ### Option O-3<a name="o-3"></a>
@@ -5130,7 +5953,7 @@ Job-level notes for that day appear first (bare, no sub-header), followed by the
 
 
 This option is in stage In Dialog.
-> ##### $${\color{lightgreen} For}$$
+> ##### $${\color{lightgreen} 75 out of 100 - Certain For}$$
 No reason given.
 
 ### Option O-2<a name="o-2"></a>
@@ -5187,7 +6010,7 @@ Matches the J-all-284 example. Reads like a chronological log; today's notes are
 
 
 This option is in stage In Dialog.
-> ##### $${\color{yellow} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+> ##### $${\color{yellow} 50 out of 100 - Somewhat Certain Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 The developer's notes we are trying to accommodate are ascending so that's are target for now.
 
 ### Option O-2<a name="o-2"></a>
@@ -5244,7 +6067,7 @@ A note appears under exactly one day header - the day of its most recent update 
 
 
 This option is in stage In Dialog.
-> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+> ##### $${\color{green} 100 out of 100 - Very Certain Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 Yes that was just incorrect in spec.
 
 #### Resolved Task T-all-2012<a name="t-all-2012"></a> 
@@ -5312,7 +6135,7 @@ Each note carries the timezone it was authored in; that's what determines the da
 
 
 This option is in stage In Dialog.
-> ##### $${\color{green} Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
+> ##### $${\color{green} 100 out of 100 - Very Certain Reason \space For}$$ E-Default-1<a name="e-default-1"></a>
 It won't look off because as a status report it is expected to be from the author's point of view.
 
 ### Option O-3<a name="o-3"></a>
@@ -5343,7 +6166,7 @@ Going with secret key instead of full Oauth stuff <https://upstash.com/blog/mcp-
 
 This job is in stage Complete.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-all-54<a name="e-all-54"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-all-54<a name="e-all-54"></a>
 #### From AI user:
 Approving the job. Strong value: tightening CLAUDE.md (T-2106 precondition at step 5, T-2107 don't-offer-approval-with-open-questions) directly fixes the failure modes you've actually seen in this session and in T-all-2073. Bundling the Cursor `.mdc` install (T-2101) onto the same install code path that already handles `~/.claude/CLAUDE.md` is cheap and broadens reach to Cursor users without duplicating workflow text. Doc update (T-2100) catches the existing gap where `mcp.md` doesn't mention the workflow MD file install at all. One point off for: (a) the user-global `~/.cursor/rules/uclusion.mdc` location is a forward-compat bet — needs verification on a clean Cursor install that the file actually loads from there; if not, follow-up to add a per-project drop is needed. (b) `description:`-based activation in Cursor relies on Cursor's matcher firing on prompts like "work on J-all-283" — robustness depends on how aggressive Cursor's rule matcher is.
 
@@ -6044,7 +6867,7 @@ Let Cursor pull the rule in only when the prompt looks Uclusion-related. Pros: z
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 Going with O-2 (description-based) since you asked me to pick. The Uclusion workflow trigger is the user mentioning a J-/T-/B- short code in chat — it's not tied to file extensions, so globs don't fit, and `alwaysApply: true` would burn Cursor context tokens on every unrelated prompt (a refactor request, a config change, etc.). Description-based loading is the natural fit: Cursor pulls the rule in when the prompt looks Uclusion-related, free otherwise. The downside (subtle phrasings like "continue with that job" without a short code may not match) is small because the workflow really only matters once a short code is on the table. Description text: `"Uclusion job workflow — invoke when working on a Uclusion job/task/bug short code (J-*, T-*, B-*)"`.
 
@@ -6744,11 +7567,11 @@ Keep 6 steps but add a hard precondition bullet list at the top of step 5: "Befo
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-2<a name="e-2"></a>
 #### From AI user:
 Precondition framing is the right mental model: step 5 is "Execute" and the resolve sweep is something you do before any execution work, not a separate phase. Bonus: O-2 also covers tasks that are already done (the failure mode in T-all-2073) — not just questions. O-1's "new step 4.5" is more disruptive (breaks the 1–6 symmetry and the numbering used elsewhere in CLAUDE.md), and O-3 is too weak — it just rewords text in step 2 that the AI has demonstrably been ignoring. One point off for: precondition checklists at the top of a step can still be skimmed past if not visually distinct, so the wording needs to be hard-to-miss ("Before doing ANY work in this step…").
 
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 Precondition is the correct way to think about it.
 
 ### Option O-1<a name="o-1"></a>
@@ -7014,7 +7837,7 @@ The notifications must be specific to the workspace Uclusion AI is associated wi
 
 
 This option is in stage In Dialog.
-> ##### $${\color{lightgreen} For}$$
+> ##### $${\color{lightgreen} 75 out of 100 - Certain For}$$
 No reason given.
 
 #### Assistance 
@@ -7269,11 +8092,11 @@ Write to a user-global location parallel to `~/.cursor/mcp.json`. Pros: consiste
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{yellow} Reason \space For}$$ E-2<a name="e-2"></a>
+> ##### $${\color{yellow} 50 out of 100 - Somewhat Certain Reason \space For}$$ E-2<a name="e-2"></a>
 #### From AI user:
 Agreeing with your vote on O-2 (user-global `~/.cursor/rules/uclusion.mdc`). Three with low-medium certainty because: (a) cursor.com/docs/rules only documents `.cursor/rules/` as a project-root path, so this is a forward-compatibility bet that Cursor either already reads `~/.cursor/rules/` or will start to; (b) deferring to your local Cursor knowledge — you've got Cursor open and can verify on your machine whether the rule actually loads. If it turns out Cursor ignores the global path, the fallback is to add an O-3-style "also drop a copy in $PWD/.cursor/rules/ if it exists" pass, which is a small follow-up rather than a rework.
 
-> ##### $${\color{orange} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{orange} 25 out of 100 - Somewhat Uncertain Reason \space For}$$ E-1<a name="e-1"></a>
 As you say it was unclear from documentation what this file should be called.
 
 ### Option O-4<a name="o-4"></a>
@@ -7432,7 +8255,7 @@ Minimal, single-line, HTML-comment style — invisible when the markdown is rend
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 Approving O-1 (single-line HTML comment on both files) per your S-1 — "minimum to be in compliance." `<!-- Copyright (c) 2026 Uclusion, Inc. All rights reserved. -->` is one line, invisible when the markdown renders, doesn't clutter the user's `~/.claude/CLAUDE.md` after the install appends, and doesn't disturb the existing `<!-- uclusion-workflow:v1 -->` marker the installer keys off of. Apply to both `uclusion.mdc` and `public/scripts/CLAUDE.md` so the two surfaces stay consistent. Not O-2 (multi-line Apache block — too heavy for prose-as-config), not O-3 (mdc-only — leaves CLAUDE.md inconsistent), not O-4 (SPDX — declares a license identifier we don't appear to have defined elsewhere in the repo).
 
@@ -7882,7 +8705,7 @@ Ship the <hr> DividerBlot now. Definition lists and are rare in agent-generated 
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 Prefer HR-only. <hr/> is the tag actually causing the reported bug and the only one observed in real content. Definition lists and are rare in agent/markdown output; building speculative blots for tags that may never appear adds maintenance surface for little value. Easy to add later if they show up.
 
@@ -7919,11 +8742,11 @@ Add it to the full toolbar and the uploadDisabled variant (both are rich editors
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{yellow} 50 out of 100 - Somewhat Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 The full and uploadDisabled bars are both rich editors (they already carry header, list, table, code-block) where a horizontal rule is a natural fit. The simple bar is intentionally minimal for short replies, where a block divider rarely makes sense and would add clutter. Conservative but complete — covers the surfaces that benefit without bloating the reply box.
 
-> ##### $${\color{lightgreen} Reason \space For}$$ E-2<a name="e-2"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-2<a name="e-2"></a>
 I doubt the simple layout is being used anywhere.
 
 #### Resolved Task T-all-2136<a name="t-all-2136"></a> 
@@ -7951,11 +8774,11 @@ The raw body contains <hr/> (escaped). This is my bet — it matches the symptom
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{lightgreen} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 The literal `<hr/>` text symptom is reproduced ONLY by escaped `&lt;hr/&gt;` input; every real `<hr>` element (`<hr>`, `<hr/>`, `<hr />`) converts cleanly to a divider via the registered DividerBlot in a jsdom repro against the actual installed Quill 2.0.3. That points strongly at the content arriving HTML-escaped, so the fix likely belongs in the backend's markdown_to_quill_html output, not in another frontend blot.
 
-> ##### $${\color{green} Reason \space For}$$ E-2<a name="e-2"></a>
+> ##### $${\color{green} 100 out of 100 - Very Certain Reason \space For}$$ E-2<a name="e-2"></a>
 I changed in the database to the correct hr and the divider showed fine.
 
 ## Job J-all-300<a name="j-all-300"></a>
@@ -8054,7 +8877,7 @@ Both happen: the job lingers in In Progress (quick-add didn't remove it) AND it 
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{yellow} 50 out of 100 - Somewhat Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 My best guess. The phrasing leads with "did not quick add get rid of in progress" (a lingering In Progress entry), and "displays ahead of newly created" reads as a follow-on consequence — which points to a single root cause in the optimistic stage-change update rather than two unrelated issues. Medium certainty because the backlog's created_at DESC sort doesn't obviously produce the "ahead of newly created" symptom on its own, so I'm not fully sure the ordering complaint is just downstream of the stale-update bug.
 
@@ -8068,7 +8891,7 @@ Route to the assignment wizard for any move out of backlog into a stage that req
 
 This option is in stage In Dialog.
 #### From AI user:
-> ##### $${\color{yellow} Reason \space For}$$ E-1<a name="e-1"></a>
+> ##### $${\color{yellow} 50 out of 100 - Somewhat Certain Reason \space For}$$ E-1<a name="e-1"></a>
 #### From AI user:
 My preferred option. The bug's underlying principle — a job in a working stage must have an assignee, so an unassigned move is prohibited — applies identically to Waiting/Approval (voting), which the same dropdown can target. Today an unassigned job moved to voting either falls through to a certainty/approval step (no assignee picker) or, if a vote already exists, moves directly with no assignment, leaving the same prohibited state. Fixing both closes the hole consistently. Certainty 3 rather than higher because the report literally names only Work Ready, so if you'd rather keep the change tightly scoped to avoid touching the voting flow, O-1 is the safer literal fix.
 
@@ -8084,40 +8907,206 @@ This is any stage with appears_in_context true or alternatively any stage where 
 
 
 This option is in stage In Dialog.
-> ##### $${\color{green} For}$$
+> ##### $${\color{green} 100 out of 100 - Very Certain For}$$
 No reason given.
 
-## Job J-all-288<a name="j-all-288"></a>
-### Bugs B-all-424, B-all-423, B-all-422, B-all-420, B-all-421, B-all-419, B-all-418
+## Job J-all-311<a name="j-all-311"></a>
+### More AI integration issues.
+
+This job is in stage Complete.
+#### Reports 
+#### Report R-all-141<a name="r-all-141"></a> 
+T-2143 is ready to test. Added an `UNREAD_OPTION` branch in `calculateTitleExpansionPanel` (src/pages/Home/YourWork/InboxExpansionPanel.js) that routes to `AnswerWizard` (marketId = message.market_id, commentId = parent question comment parsed from `type_object_id`), per the Q-all-89 answer. This fixes the blank `/inbox/UNREAD_OPTION_<id>` page — opening a 'new option' notification now shows the question with all options and voting. Lint passes.
+
+To verify: reload your local repro at `/inbox/UNREAD_OPTION_85d30825-...` — it should render the decision/answer wizard instead of a blank page.
+
+Not done (intentionally): T-2144's inbox-vs-counts screening consistency. Per C-all-942 that's being handled on the backend (clearing the notification on resolve), so I left `InboxRow` and `getInboxCount` unchanged — see note R-all-139. T-2144, B-435, and B-434 remain open and were not part of this change.
+
+> ##### Reply C-all-943<a name="c-all-943"></a> 
+<http://localhost:3000/inbox/UNREAD_OPTION_85d30825-8a84-4fef-ba42-a976a53e356c> now has the correct title and subtext instead of being blank. Unfortunately the question it is supposed to display does not.
+
+##### From AI user:
+> ##### Reply C-all-944<a name="c-all-944"></a> 
+Follow-up for C-943 (title/subtext showed but the question didn't). The object id in `type_object_id`/`link` (e.g. 767afdb3) is the story investible, not the question comment, so `getCommentRoot` found nothing. An inline option's question is the inline decision market's `parent_comment_id` (in `parent_comment_market_id`) — same lookup `DecideResponseStep` uses. Two changes: (1) InboxExpansionPanel now routes UNREAD_OPTION to AnswerWizard with the inline decision market (`comment_market_id`) + `comment_id`; (2) DecideAnswerStep, only when `message.type === 'UNREAD_OPTION'` and the market has a parent comment, walks up to that parent question and renders it with options + voting (existing decision flows unchanged). Please reload `/inbox/UNREAD_OPTION_85d30825-...` — the question with its options should now display.
+
+#### Notes 
+#### Note R-all-139<a name="r-all-139"></a> 
+Per C-all-942 (answer to Q-all-90) the front-end consistency fix is intentionally NOT being made here — the real fix is the backend clearing the UNREAD_OPTION notification when its parent question resolves, after which the inbox-vs-counts mismatch becomes an extreme corner case. So `InboxRow` (parent-resolved screen) and `getInboxCount` were left as-is on the web-ui side.
+
+#### Note R-all-140<a name="r-all-140"></a> 
+Fixed the blank `/inbox/UNREAD_OPTION_<id>` page. Root cause: `UNREAD_OPTION` had no branch in `calculateTitleExpansionPanel` (src/pages/Home/YourWork/InboxExpansionPanel.js), so opening the work item rendered an empty `<React.Fragment/>` in `WorkListItem`. Per Q-all-89, added a branch routing UNREAD_OPTION to `AnswerWizard` (DecideAnswerStep) with marketId = message.market_id (the parent market) and commentId = the parent question comment id parsed from `type_object_id` (UNREAD_OPTION_<questioncommentid>). This shows the question with all options including the newly added one, plus voting — the same wizard decisions already use.</questioncommentid>
+
+#### Resolved 
+#### Resolved Task B-all-436<a name="b-all-436"></a> 
+Got Notification: New or updated option from AI adding options even though thought that was turned off.
+
+#### Resolved Task T-all-2144<a name="t-all-2144"></a> 
+The navigation button and sidebar counts both inbox and view are showing a new message while nothing in inbox. This is because the inbox is screening the message for the option being out of date and the other counts are not.
+
+
+
+
+**Really need to use the same message screening in all 4 places but then unclear how anyone knows problem happened - maybe prod does differently than stage?**
+
+#### Resolved Question Q-all-89<a name="q-all-89"></a> 
+T-2143 / blank inbox URL — root cause found. An `UNREAD_OPTION` ("New or updated option") notification has no branch in `calculateTitleExpansionPanel` (src/pages/Home/YourWork/InboxExpansionPanel.js). So opening `/inbox/UNREAD_OPTION_<id>` makes `WorkListItem` render an empty `<React.Fragment/>` (WorkListItem.js ~line 210) → the blank page (this happens whether or not the parent question is resolved). The message points at the parent question (the object part of `type_object_id` is the question comment, in `market_id`) and carries the new option's `investible_id` inside the inline decision (`link_type: INLINE_STORY_INVESTIBLE`). When a user clicks a "new option" notification, what should it open?
+
+### Option O-3<a name="o-3"></a>
+### Respond within the option (RespondInOptionWizard)
+Route to RespondInOptionWizard / DecideResponseStep so the user replies/responds in the context of the option.
+
+
+This option is in stage In Dialog.
+### Option O-1<a name="o-1"></a>
+### Open the decision (AnswerWizard)
+Route UNREAD_OPTION to AnswerWizard / DecideAnswerStep (marketId = parent market, commentId = parent question comment root). This shows the question with all of its options including the newly added one, with voting — same wizard NOT_FULLY_VOTED decisions already use. Most consistent with existing decision UX.
+
+
+This option is in stage In Dialog.
+#### From AI user:
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
+A 'new option' notification is most useful when it drops you into the decision showing the question with all options (including the new one) and voting. AnswerWizard/DecideAnswerStep already does exactly this and is what NOT_FULLY_VOTED decisions use, so it's the least surprising and most reusable. Opening only the bare option (O-2) loses the voting context, and RespondInOptionWizard (O-3) is for replying within an option rather than reviewing a newly added one.
+
+> ##### $${\color{green} 100 out of 100 - Very Certain Reason \space For}$$ E-2<a name="e-2"></a>
+This is the consistent choice.
+
+### Option O-2<a name="o-2"></a>
+### Open just the new option investible
+Navigate to / render the specific newly added option investible via its investible_link, so the user sees only the option that was added rather than the whole question.
+
+
+This option is in stage In Dialog.
+#### Resolved Task T-all-2143<a name="t-all-2143"></a> 
+This message shows up and somehow gets screened out of showing in the inbox - not because of version.
+
+
+
+
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/cab567b4-b0d8-42e2-bf1a-28cf41cd1ef1.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+#### Resolved Task B-all-435<a name="b-all-435"></a> 
+Add 2 / 5 - Somewaht Uncertain instead of just the color.
+
+#### Resolved Task B-all-434<a name="b-all-434"></a> 
+MD file has to specify using links in code comments:
+
+
+
+
+```
+// Day membership uses the comment's `tz` field (creator's IANA zone) when present,
+```
+
+```
+// falling back to viewerTz, per Q-all-59. The note's bucketing key is
+```
+
+```
+// floor(updated_at) per Q-all-54, and a resolved task's day is
+```
+
+```
+// floor(task.updated_at) per Q-all-62 (resolved comments cannot be edited so
+```
+
+```
+// updated_at reflects the resolve event).
+```
+
+#### Resolved Question Q-all-90<a name="q-all-90"></a> 
+T-2144 consistency — the inbox screens an UNREAD_OPTION whose parent question is resolved: `InboxRow` (src/pages/Home/YourWork/InboxRow.js ~line 189) returns nothing when `rootComment.resolved` (and for this notification rootComment = the option's parent question). But the nav button + sidebar counts use `getInboxCount` (src/contexts/NotificationsContext/notificationsContextHelper.js) which only checks `isInInbox` and does NOT apply that parent-resolved screen — so the 4 places disagree (counts show a message the inbox hides). When the option's parent question is already resolved/decided, how should the 4 places be reconciled?
+
+> ##### Reply C-all-942<a name="c-all-942"></a> 
+We can skip this problem on the front end for now. The bigger issue is that the back end is not clearing this notification on resolve - I will fix that and then this will be an extreme corner case.
+
+### Option O-1<a name="o-1"></a>
+### Show consistently (keep notification)
+Don't screen UNREAD_OPTION on parent-resolved; show it in the inbox (using whatever wizard wins Q-all-89) and keep counting it. Rationale: B-436 shows the worry is unexpected/silent option notifications — a new option arriving is worth seeing even after the question resolved, and silent disappearance hides that something happened.
+
+
+This option is in stage In Dialog.
+#### From AI user:
+> ##### $${\color{yellow} 50 out of 100 - Somewhat Certain Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
+Lean toward showing consistently. B-436 shows the real concern is option notifications appearing unexpectedly/silently, so silently dropping them in all 4 places makes it harder to know an option arrived (your noted downside). Keeping it visible plus a working wizard makes the 4 places agree and preserves the audit trail. Only moderate certainty because if these notifications are genuinely noise on decided questions, hiding everywhere is defensible.
+
+### Option O-2<a name="o-2"></a>
+### Hide consistently (screen everywhere)
+Apply the same parent-resolved screen used by InboxRow to getInboxCount (and thus the nav button + sidebar), so all 4 places drop the notification once the parent question is resolved. Rationale: a new option on an already-decided question is stale. Downside you noted: nobody sees that the option arrived.
+
+
+This option is in stage In Dialog.
+#### Resolved Task C-all-941<a name="c-all-941"></a> 
+Make add option part of CLI so can test this.
+
+#### Resolved Task T-all-2145<a name="t-all-2145"></a> 
+Make the options that have messages show bold as per usual.
+
+## Job J-all-306<a name="j-all-306"></a>
+### Fix the blog layout.
+
+
+
+![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/e821f20f-330e-48bf-bcd3-45adf119652c.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+
+
+
+
+It should be Uclusion logo, maybe slightly smaller, MAIN WEBSITE next to it, and both link to the same place. Then less padding below so the total effect is more like the landing page header.
 
 
 This job is in stage Complete.
+#### Reports 
+#### Report R-all-132<a name="r-all-132"></a> 
+Blog header reworked and ready to look at (built and rendered locally).
+
+What's there now:
+- The Uclusion logo (slightly smaller, 50px) with "MAIN WEBSITE" beside it, both forming one link to https://www.uclusion.com/.
+- The duplicate right-side "Main Website" item removed; Blog Home, Startup, Engineering, Remote, and UI Repo kept on the right (per Q-all-87 = O-1).
+- Reduced header padding and tightened the gap below it so content sits closer, closer to the landing-page header feel.
+
+Verified by building the site (jekyll build) and screenshotting the rendered homepage. Details and the decision about the logo now linking to the main site are in R-all-131. Pixel values for logo size/padding are easy to nudge if you want it tighter or looser.
+
+#### Notes 
+#### Note R-all-133<a name="r-all-133"></a> 
+Follow-up fix: the "MAIN WEBSITE" label now matches the rest of the header text. The Bootstrap navbar-brand defaults to a larger font-size, which had made the label bigger than the nav links. The brand is now a flex row (`display: inline-flex; align-items: center`) so the logo and label are vertically centered together, and the label's font-size is keyed off the same 0.9rem base as the nav items so it renders identically to Blog Home / Startup / etc. Re-built and screenshotted to confirm.
+
+#### Note R-all-131<a name="r-all-131"></a> 
+Header rework implemented per Q-all-87 = O-1 (keep blog nav).
+
+Changes:
+- `_layouts/default.html`: The Uclusion logo and a new "MAIN WEBSITE" label now sit together inside a single `navbar-brand` link, both pointing to https://www.uclusion.com/ (so logo + text link to the same place). Removed the now-duplicate right-side "Main Website" nav item. Kept Blog Home, Startup, Engineering, Remote, and UI Repo on the right.
+- `assets/css/custom.scss`: logo max-height 60px -> 50px (slightly smaller); navbar vertical padding 1.5rem -> 0.75rem; `.site-content` padding-top 2rem -> 1rem and margin-top 57px -> 50px, so there is less padding below the header and content sits closer (closer to the landing-page header feel). The "MAIN WEBSITE" text is styled to match the existing nav links (uppercase, 500 weight, #333, 0.94em, 1px letter-spacing).
+
+Decision note: the logo previously linked to the blog home; it now links to the main website, since the brand pairs with the "MAIN WEBSITE" label and the job said both should link to the same place.
+
+The exact reduced pixel values (logo height, padding) are easy to fine-tune if the spacing should be tighter or looser.
+
 #### Resolved 
-#### Resolved Task B-all-422<a name="b-all-422"></a> 
-If you resolve a progress report it takes you to create another (weird but okay) and then if you hit "Resolve only" it spins forever.
+#### Resolved Question Q-all-87<a name="q-all-87"></a> 
+For the new header, what should happen to the existing nav links (Blog Home, Startup, Engineering, Remote, UI Repo)? The job describes the header as "Uclusion logo ... MAIN WEBSITE next to it," which could mean either relocating the Main Website link beside the logo while keeping the rest of the blog nav, or stripping the header down to just logo + Main Website for a minimal landing-page look.
 
-#### Resolved Task B-all-424<a name="b-all-424"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/fa18358b-9fc5-4f12-8440-eed5207566cf.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
-
-#### Resolved Task B-all-421<a name="b-all-421"></a> 
-![](https://stage.imagecdn.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/6a9a26f6-c3a0-4b4b-9892-305c062629c1.png?authorization=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoibWFya2V0IiwiaWQiOiJkZDU2NjgyYy05OTIwLTQxN2ItYmU0Ni03YTMwZDQxYmM5MDUifQ.6eorgEPjCeaeDMJJ_FuHFK62keGbS2c87bH7hamwTUw)
+### Option O-1<a name="o-1"></a>
+### Keep blog nav links
+Move/merge MAIN WEBSITE next to the logo on the left (both linking to the main site) and remove the now-duplicate right-side Main Website item, but keep Blog Home, Startup, Engineering, Remote, and UI Repo on the right so the blog stays navigable.
 
 
+This option is in stage In Dialog.
+#### From AI user:
+> ##### $${\color{lightgreen} 75 out of 100 - Certain Reason \space For}$$ E-1<a name="e-1"></a>
+#### From AI user:
+"MAIN WEBSITE next to it" reads most naturally as relocating that one link beside the logo, not deleting the others. The padding/landing-page comment is about vertical spacing, not about which links exist. Removing the category links (Startup/Engineering/Remote) would cost the blog its primary navigation, which seems like a usability regression rather than the intent. Keep them on the right; just merge MAIN WEBSITE into the left brand and drop the duplicate.
+
+> ##### $${\color{green} 100 out of 100 - Very Certain For}$$
+No reason given.
+
+### Option O-2<a name="o-2"></a>
+### Logo + Main Website only
+Strip the header to just the Uclusion logo and MAIN WEBSITE (remove the category links and UI Repo) for a minimal header that most closely mirrors the landing page header.
 
 
-Create and add another should be just Create and another so fits.
-
-#### Resolved Task B-all-420<a name="b-all-420"></a> 
-Dark mode issues:
-
-
-
-
-The words 'Grouped task' are in white instead of black in dark mode when for instance change in progress task and have grouped task already in progress.
-
-#### Resolved Task B-all-423<a name="b-all-423"></a> 
-AI says the jest tests are failing on import issue. See if that is true for how we run it and fix if so. Otherwise figure out how it runs them and try to get that to work.
-
+This option is in stage In Dialog.
 ## Job J-all-297<a name="j-all-297"></a>
 ### Problems with approvals.
 1. When chose Use approvals on create job flow got a notification (presumably to approve) which then disappeared when chose a required approver.

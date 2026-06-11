@@ -402,18 +402,19 @@ function PlanningInvestible(props) {
   const reportsCommentsSearched = investibleCommentsSearched.filter(
     comment => comment.comment_type === REPORT_TYPE && comment.notification_type !== 'BLUE'
   );
-  const [reportsOpen, setReportsOpen] = useState(!_.isEmpty(reportsCommentsSearched));
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   const [pageStateFull, pageDispatch] = usePageStateReducer('investible');
   const isAssigned = assigned.includes(userId);
   const [pageState, updatePageState] = getPageReducerPage(pageStateFull, pageDispatch, investibleId,
-    {sectionOpen: fullStage.move_on_comment ? 'assistanceSection' :
+    {reportsOpenRaw: true, sectionOpen: fullStage.move_on_comment ? 'assistanceSection' :
         (isAcceptedStage(fullStage) && isAssigned ? 'tasksSection' : 'descriptionVotingSection')});
   const {
     sectionOpen,
     compressionHash,
-    showDiff
+    showDiff,
+    reportsOpenRaw
   } = pageState;
+  const reportsOpen = !_.isEmpty(search) ? !_.isEmpty(reportsCommentsSearched) : reportsOpenRaw;
   const inCurrentVotingStage = getInCurrentVotingStage(
     marketStagesState,
     marketId
@@ -715,7 +716,7 @@ function PlanningInvestible(props) {
   }
 
   function toggleReports() {
-    setReportsOpen(!reportsOpen);
+    updatePageState({reportsOpenRaw: !reportsOpenRaw});
   }
 
   const assistanceTag = numNewAssistanceMessages > 0 && _.isEmpty(search) ? `${numNewAssistanceMessages}` : 
@@ -909,7 +910,7 @@ function PlanningInvestible(props) {
                         translationId="createNewStatus"
                       />}
                   </h2>
-                  <IconButton id='reportsToggleId' onClick={() => toggleReports()} style={{
+                  <IconButton id='reportsToggleId' onClick={() => toggleReports()} disabled={!_.isEmpty(search)} style={{
                       marginBottom: 0,
                       paddingBottom: 0, marginTop: 0, paddingTop: '4px'
                     }}>

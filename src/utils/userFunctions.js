@@ -75,6 +75,11 @@ export function onSignOut() {
     .then(() => Auth.signOut());
 }
 
+export function isMobileDevice() {
+  return window.navigator.userAgentData ? window.navigator.userAgentData.mobile
+    : /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent);
+}
+
 export function getVotesForInvestible(marketPresences, investibleId) {
   return (marketPresences || []).filter(presence => {
     const { investments } = presence;

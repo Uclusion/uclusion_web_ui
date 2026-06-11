@@ -1,15 +1,24 @@
-import React, { useEffect } from 'react'
+import React, { useContext, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
+import _ from 'lodash'
 import useWebSocket from 'react-use-websocket';
 import config from '../config'
 import { sendInfoPersistent, toastError } from '../utils/userMessage'
 import { pushMessage } from '../utils/MessageBusUtils'
 import { getLoginPersistentItem, setLoginPersistentItem } from '../components/localStorageUtils'
-import { isSignedOut, onSignOut } from '../utils/userFunctions'
+import { isMobileDevice, isSignedOut, onSignOut } from '../utils/userFunctions'
 import { refreshNotifications, refreshVersions, VERSIONS_EVENT } from '../api/versionedFetchUtils';
 import { PUSH_ACCOUNT_CHANNEL, PUSH_HOME_USER_CHANNEL } from './AccountContext/accountContextMessages'
 import { getLogin } from '../api/homeAccount';
 import { getAppVersion } from '../api/sso';
+import { MarketsContext } from './MarketsContext/MarketsContext'
+import { MarketPresencesContext } from './MarketPresencesContext/MarketPresencesContext'
+import {
+  getMarketDetailsForType,
+  getNotHiddenMarketDetailsForUser,
+  marketIsDemo
+} from './MarketsContext/marketsContextHelper'
+import { PLANNING_TYPE } from '../constants/markets'
 
 const WebSocketContext = React.createContext([
   {}, () => {
@@ -17,19 +26,43 @@ const WebSocketContext = React.createContext([
 ]);
 
 export const LAST_LOGIN_APP_VERSION = 'login_version';
+export const LAST_SCRIPT_REINSTALL_VERSION = 'script_reinstall_version';
 
-export function notifyNewApplicationVersion(currentVersion, cacheClearVersion) {
-  const { version } = config;
-  let loginVersion = getLoginPersistentItem(LAST_LOGIN_APP_VERSION);
-  if (!loginVersion) {
-    // if we don't have any login version stored then initialize for fresh install
-    setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion);
-    loginVersion = cacheClearVersion;
+// J-all-314 the AI integration install must be re-run when scripts or rules change.
+// The flag is a boolean so dedupe by remembering which app_version was already handled.
+function notifyScriptReinstall(currentVersion, requiresScriptReinstall, hasNonDemoWorkspace) {
+  let scriptVersion = getLoginPersistentItem(LAST_SCRIPT_REINSTALL_VERSION);
+  if (!scriptVersion) {
+    // if we don't have any script version stored then initialize for fresh install
+    setLoginPersistentItem(LAST_SCRIPT_REINSTALL_VERSION, currentVersion);
+    scriptVersion = currentVersion;
   }
-  if (cacheClearVersion && (!Number.isInteger(loginVersion) || loginVersion < cacheClearVersion)) {
-    console.log(`Sign out with cache clear version ${cacheClearVersion} and login version ${loginVersion}`);
+  // Mobile users cannot run the install command and demo only users have nothing to reinstall
+  if (!requiresScriptReinstall || isMobileDevice() || !hasNonDemoWorkspace) {
+    return;
+  }
+  if (scriptVersion !== currentVersion) {
+    console.log(`Script reinstall with current version ${currentVersion} and seen version ${scriptVersion}`);
+    const markSeen = () => setLoginPersistentItem(LAST_SCRIPT_REINSTALL_VERSION, currentVersion);
+    sendInfoPersistent({ id: 'noticeScriptReinstall' }, {}, markSeen);
+  }
+}
+
+export function notifyNewApplicationVersion(currentVersion, requiresCacheClear, requiresScriptReinstall,
+  hasNonDemoWorkspace) {
+  notifyScriptReinstall(currentVersion, requiresScriptReinstall, hasNonDemoWorkspace);
+  const { version } = config;
+  // requires_cache_clear is a boolean so dedupe by remembering which app_version already signed out
+  let loginVersion = getLoginPersistentItem(LAST_LOGIN_APP_VERSION);
+  if (!loginVersion || loginVersion === true) {
+    // initialize for fresh install or legacy storage of the boolean instead of a version
+    setLoginPersistentItem(LAST_LOGIN_APP_VERSION, currentVersion);
+    loginVersion = currentVersion;
+  }
+  if (requiresCacheClear && loginVersion !== currentVersion) {
+    console.log(`Sign out with current version ${currentVersion} and login version ${loginVersion}`);
     const reloader = () => {
-      setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion);
+      setLoginPersistentItem(LAST_LOGIN_APP_VERSION, currentVersion);
       onSignOut().catch((error) => {
         console.error(error);
         toastError(error, 'errorSignOutFailed');
@@ -53,6 +86,13 @@ function subscribe(sendMessage) {
 
 function WebSocketProvider(props) {
   const { children, config } = props;
+  const [marketsState] = useContext(MarketsContext);
+  const [marketPresencesState] = useContext(MarketPresencesContext);
+  // Ref so the websocket and interval callbacks see the latest value instead of a stale closure
+  const hasNonDemoRef = useRef(false);
+  const myNotHiddenMarketsState = getNotHiddenMarketDetailsForUser(marketsState, marketPresencesState);
+  const planningDetails = getMarketDetailsForType(myNotHiddenMarketsState, marketPresencesState, PLANNING_TYPE);
+  hasNonDemoRef.current = !_.isEmpty((planningDetails || []).filter((market) => !marketIsDemo(market)));
   const { sendMessage } = useWebSocket(
     config.webSockets.wsUrl,
     {
@@ -62,13 +102,15 @@ function WebSocketProvider(props) {
       },
       onMessage: (message) => {
         console.info('WebSocket message received', message);
-        const { event_type: event, version, app_version: currentVersion, 
-          requires_cache_clear: cacheClearVersion} = JSON.parse(message.data);
+        const { event_type: event, version, app_version: currentVersion,
+          requires_cache_clear: requiresCacheClear,
+          requires_script_reinstall: requiresScriptReinstall} = JSON.parse(message.data);
         switch (event) {
           case 'pong':
             break;
           case 'UI_UPDATE_REQUIRED':
-            notifyNewApplicationVersion(currentVersion, cacheClearVersion);
+            notifyNewApplicationVersion(currentVersion, requiresCacheClear, requiresScriptReinstall,
+              hasNonDemoRef.current);
             break;
           case 'user':
             pushMessage(PUSH_HOME_USER_CHANNEL, { event: VERSIONS_EVENT, version });
@@ -102,8 +144,10 @@ function WebSocketProvider(props) {
       if (!isSignedOut()) {
         refresh();
         getAppVersion().then((version) => {
-          const { app_version: currentVersion, requires_cache_clear: cacheClearVersion } = version;
-          notifyNewApplicationVersion(currentVersion, cacheClearVersion);
+          const { app_version: currentVersion, requires_cache_clear: requiresCacheClear,
+            requires_script_reinstall: requiresScriptReinstall } = version;
+          notifyNewApplicationVersion(currentVersion, requiresCacheClear, requiresScriptReinstall,
+            hasNonDemoRef.current);
         }).catch(() => console.warn('Error checking version'));
       }
     }, 300000, ()=>refreshVersions().then(() => console.info('Refreshed versions from interval')));

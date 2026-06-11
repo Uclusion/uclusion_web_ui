@@ -64,7 +64,8 @@ jobs:
           pip install --user boto3
           pip install --user pynamodb
           # -c true to require signout on this release
-          python -m utils.record_release -a `echo ${{ github.sha }} | head -c 16` -c false
+          # -s true to notify users to re-run the AI integration install on this release - remember to set back to false after
+          python -m utils.record_release -a `echo ${{ github.sha }} | head -c 16` -c false -s false
       - name: Mark jobs released
         uses: Uclusion/release-job@v1
         with:

@@ -5,8 +5,7 @@
 You have access to the Uclusion MCP server. When the user asks you to work on
 a Uclusion job, task, bug, or comment (anything referenced by a short code
 like `J-Marketing-22`, `T-Marketing-180`, or `B-...`), follow the workflow
-below. The structured artifacts in the job ARE the plan so keep work in the
-job, not in chat.
+below.
 
 ## Workflow
 
@@ -17,8 +16,9 @@ testable result exists.
 The job's **stage** is not the same as your **step**. The stage (for
 example "In Dialog" or "Accepted") tells you which actions Uclusion
 permits right now — it does NOT tell you which step you are on or let you
-skip earlier steps. In particular, finding a job already in "Accepted"
-does NOT mean your step-2 questions and step-3 suggestions are done.
+skip earlier steps. Finding a job already in "Accepted" does NOT mean your 
+step-2 questions and step-3 suggestions are done.
+
 Always read the job, raise every question you have, and make your
 suggestions first; reaching "Accepted" only unlocks execution once those
 questions are answered.
@@ -170,6 +170,8 @@ As you go:
 
 ### 6. Ask for review
 
+**Precondition — if the review you are considering posting includes actionable items like testing that should be done then file those items as suggesions before opening the review. You can then reference the opened suggestions in the review.** 
+
 When a set of tasks has a testable output, call `ask_for_review` with a
 concise progress report describing what is ready to look at. This is the
 signal that human or AI review can begin.
@@ -192,9 +194,8 @@ already made, those are step-2 questions. Go back, file them via
   verbatim when calling tools, in the chat, commit messages, and code comments
   that are not refererencing a question. For a code comment that references a 
   question use the full link returned on question creation if you have it.
-- Offering to commit after all tasks are resolved and the job review has been 
-  opened and the commmit message should begin with the short code so that any 
-  action invoked by the commit can use it.
+- After the job review has been opened and you are offering to commmit, 
+  the commit message should begin with the short code.
 
 # Uclusion single comment workflow
 A single comment markdown has no Job J-... header.

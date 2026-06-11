@@ -29,40 +29,46 @@ export const LAST_LOGIN_APP_VERSION = 'login_version';
 export const LAST_SCRIPT_REINSTALL_VERSION = 'script_reinstall_version';
 
 // J-all-314 the AI integration install must be re-run when scripts or rules change.
-// The flag is a boolean so dedupe by remembering which app_version was already handled.
-function notifyScriptReinstall(currentVersion, requiresScriptReinstall, hasNonDemoWorkspace) {
-  let scriptVersion = getLoginPersistentItem(LAST_SCRIPT_REINSTALL_VERSION);
-  if (!scriptVersion) {
-    // if we don't have any script version stored then initialize for fresh install
-    setLoginPersistentItem(LAST_SCRIPT_REINSTALL_VERSION, currentVersion);
-    scriptVersion = currentVersion;
-  }
-  // Mobile users cannot run the install command and demo only users have nothing to reinstall
-  if (!requiresScriptReinstall || isMobileDevice() || !hasNonDemoWorkspace) {
+// The backend persists the version that last required a reinstall so users who skip
+// that release still see the mismatch when they next return.
+function notifyScriptReinstall(scriptReinstallVersion, hasNonDemoWorkspace) {
+  if (!scriptReinstallVersion) {
+    // no release has required a reinstall yet
     return;
   }
-  if (scriptVersion !== currentVersion) {
-    console.log(`Script reinstall with current version ${currentVersion} and seen version ${scriptVersion}`);
-    const markSeen = () => setLoginPersistentItem(LAST_SCRIPT_REINSTALL_VERSION, currentVersion);
+  const seenVersion = getLoginPersistentItem(LAST_SCRIPT_REINSTALL_VERSION);
+  if (!seenVersion) {
+    // a fresh install just ran the latest scripts so initialize silently
+    setLoginPersistentItem(LAST_SCRIPT_REINSTALL_VERSION, scriptReinstallVersion);
+    return;
+  }
+  // Mobile users cannot run the install command and demo only users have nothing to reinstall
+  if (isMobileDevice() || !hasNonDemoWorkspace) {
+    return;
+  }
+  if (seenVersion !== scriptReinstallVersion) {
+    console.log(`Script reinstall with required version ${scriptReinstallVersion} and seen version ${seenVersion}`);
+    const markSeen = () => setLoginPersistentItem(LAST_SCRIPT_REINSTALL_VERSION, scriptReinstallVersion);
     sendInfoPersistent({ id: 'noticeScriptReinstall' }, {}, markSeen);
   }
 }
 
-export function notifyNewApplicationVersion(currentVersion, requiresCacheClear, requiresScriptReinstall,
+export function notifyNewApplicationVersion(currentVersion, cacheClearVersion, scriptReinstallVersion,
   hasNonDemoWorkspace) {
-  notifyScriptReinstall(currentVersion, requiresScriptReinstall, hasNonDemoWorkspace);
+  notifyScriptReinstall(scriptReinstallVersion, hasNonDemoWorkspace);
   const { version } = config;
-  // requires_cache_clear is a boolean so dedupe by remembering which app_version already signed out
+  // The backend persists the version that last required a cache clear so users who skip
+  // that release are still signed out when they next return
   let loginVersion = getLoginPersistentItem(LAST_LOGIN_APP_VERSION);
   if (!loginVersion || loginVersion === true) {
     // initialize for fresh install or legacy storage of the boolean instead of a version
-    setLoginPersistentItem(LAST_LOGIN_APP_VERSION, currentVersion);
-    loginVersion = currentVersion;
+    setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion || currentVersion);
+    loginVersion = cacheClearVersion || currentVersion;
   }
-  if (requiresCacheClear && loginVersion !== currentVersion) {
-    console.log(`Sign out with current version ${currentVersion} and login version ${loginVersion}`);
+  if (cacheClearVersion && loginVersion !== cacheClearVersion) {
+    console.log(`Sign out with required version ${cacheClearVersion} and login version ${loginVersion}`);
     const reloader = () => {
-      setLoginPersistentItem(LAST_LOGIN_APP_VERSION, currentVersion);
+      setLoginPersistentItem(LAST_LOGIN_APP_VERSION, cacheClearVersion);
       onSignOut().catch((error) => {
         console.error(error);
         toastError(error, 'errorSignOutFailed');
@@ -103,13 +109,13 @@ function WebSocketProvider(props) {
       onMessage: (message) => {
         console.info('WebSocket message received', message);
         const { event_type: event, version, app_version: currentVersion,
-          requires_cache_clear: requiresCacheClear,
-          requires_script_reinstall: requiresScriptReinstall} = JSON.parse(message.data);
+          cache_clear_version: cacheClearVersion,
+          script_reinstall_version: scriptReinstallVersion} = JSON.parse(message.data);
         switch (event) {
           case 'pong':
             break;
           case 'UI_UPDATE_REQUIRED':
-            notifyNewApplicationVersion(currentVersion, requiresCacheClear, requiresScriptReinstall,
+            notifyNewApplicationVersion(currentVersion, cacheClearVersion, scriptReinstallVersion,
               hasNonDemoRef.current);
             break;
           case 'user':
@@ -144,9 +150,9 @@ function WebSocketProvider(props) {
       if (!isSignedOut()) {
         refresh();
         getAppVersion().then((version) => {
-          const { app_version: currentVersion, requires_cache_clear: requiresCacheClear,
-            requires_script_reinstall: requiresScriptReinstall } = version;
-          notifyNewApplicationVersion(currentVersion, requiresCacheClear, requiresScriptReinstall,
+          const { app_version: currentVersion, cache_clear_version: cacheClearVersion,
+            script_reinstall_version: scriptReinstallVersion } = version;
+          notifyNewApplicationVersion(currentVersion, cacheClearVersion, scriptReinstallVersion,
             hasNonDemoRef.current);
         }).catch(() => console.warn('Error checking version'));
       }

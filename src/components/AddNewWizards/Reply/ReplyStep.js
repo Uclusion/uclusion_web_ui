@@ -81,10 +81,15 @@ function ReplyStep(props) {
   const { comment_type: parentCommentType, created_by: createdById, investible_id: investibleId } = comment;
   const myPresence = presences.find((presence) => presence.current_user) || {};
   const market = getMarket(marketsState, marketId)
+  // A resolved task cannot take replies or grouped subtasks but a note is still allowed since it
+  // does not reopen the task - see T-all-2142
+  const noteOnly = market?.market_type === PLANNING_TYPE && parentCommentType === TODO_TYPE && investibleId
+    && comment.resolved;
   // isSubtask is set when the non-author "Grouped" button launches this wizard, so they can open a
   // grouped subtask or note on someone else's task even though they are not the task author.
   const showSubTask = market?.market_type === PLANNING_TYPE && parentCommentType === TODO_TYPE && investibleId
-    && (myPresence.id === createdById || isSubtask);
+    && (myPresence.id === createdById || isSubtask) && !noteOnly;
+  const useCommentType = noteOnly ? REPORT_TYPE : commentType;
   const inv = comment.investible_id ? getInvestible(investibleState, investibleId) : undefined;
   const investibleComments = getInvestibleComments(inv?.investible?.id, marketId, commentState);
   const marketComments = getMarketComments(commentState, marketId, comment?.group_id);
@@ -92,7 +97,7 @@ function ReplyStep(props) {
   const [commentAddReplyState, updateCommentAddReplyState, commentAddStateReplyReset] =
     getPageReducerPage(commentAddReplyStateFull, commentAddReplyDispatch, commentId);
   const threadAboveIds = getThreadAboveIds(commentId, marketComments);
-  const comments = showSubTask ? investibleComments.filter((aComment) => aComment.id === commentId ||
+  const comments = showSubTask || noteOnly ? investibleComments.filter((aComment) => aComment.id === commentId ||
     (aComment.reply_id === commentId && myPresence.id === aComment.created_by)) :
     marketComments.filter((aComment) => threadAboveIds.includes(aComment.id));
   const marketInfo = getMarketInfo(inv, marketId) || {};
@@ -149,7 +154,7 @@ function ReplyStep(props) {
       {...props}
       isLarge
     >
-      {!showSubTask && (
+      {!showSubTask && !noteOnly && (
         <Typography className={classes.introText}>
           What is your reply?
         </Typography>
@@ -159,7 +164,12 @@ function ReplyStep(props) {
           What is your grouped task or note?
         </Typography>
       )}
-      {!showSubTask && (
+      {noteOnly && (
+        <Typography className={classes.introText}>
+          What is your note?
+        </Typography>
+      )}
+      {!showSubTask && !noteOnly && (
         <Typography className={classes.introSubText} variant="subtitle1">
           For response from more than the author of this comment use @ mentions.
         </Typography>
@@ -214,15 +224,15 @@ function ReplyStep(props) {
           </RadioGroup>
         </FormControl>
       )}
-      {!showSubTask && (
+      {!showSubTask && !noteOnly && (
         <div className={classes.borderBottom}/>
       )}
       <CommentAdd
         nameKey="CommentAddReply"
-        type={commentType}
+        type={useCommentType}
         parent={comment}
-        wizardProps={{...props, isReply: commentType === REPLY_TYPE, isNote: commentType === REPORT_TYPE,
-          onResolve: showSubTask ? () => {} : resolve, showSubTask, parentIsTopLevel}}
+        wizardProps={{...props, isReply: useCommentType === REPLY_TYPE, isNote: useCommentType === REPORT_TYPE,
+          onResolve: showSubTask || noteOnly ? () => {} : resolve, showSubTask, parentIsTopLevel}}
         commentAddState={commentAddReplyState}
         updateCommentAddState={updateCommentAddReplyState}
         commentAddStateReset={commentAddStateReplyReset}

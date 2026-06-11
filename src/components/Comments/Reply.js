@@ -565,6 +565,8 @@ function Reply(props) {
           <ThreadedReplies
             replies={comment.children}
             enableEditing={enableEditing}
+            enableActions={enableActions}
+            isDeletable={isDeletable}
             replyEditId={replyEditId}
             isInbox={isInbox}
             useCompression={useCompression}
@@ -589,6 +591,8 @@ function Reply(props) {
             <ThreadedReplies
               replies={comment.children}
               enableEditing={enableEditing}
+              enableActions={enableActions}
+              isDeletable={isDeletable}
               replyEditId={replyEditId}
               isInbox={isInbox}
               inboxMessageId={inboxMessageId}
@@ -626,7 +630,7 @@ const useThreadedReplyStyles = makeStyles(
  */
 function ThreadedReplies(props) {
   const { replies: replyIds, enableEditing, replyEditId, isInbox, wizardProps, useCompression,
-    inboxMessageId, myPresenceIsAssigned} = props;
+    inboxMessageId, myPresenceIsAssigned, enableActions, isDeletable} = props;
 
   const comments = React.useContext(LocalCommentsContext).comments;
   const classes = useThreadedReplyStyles();
@@ -654,6 +658,8 @@ function ThreadedReplies(props) {
                   comment={reply}
                   key={`threadc${reply.id}`}
                   enableEditing={enableEditing}
+                  enableActions={enableActions}
+                  isDeletable={isDeletable}
                   replyEditId={replyEditId}
                   isInbox={isInbox}
                   inboxMessageId={inboxMessageId}
@@ -679,6 +685,8 @@ function ThreadedReplies(props) {
               comment={reply}
               key={`threadc${reply.id}`}
               enableEditing={enableEditing}
+              enableActions={enableActions}
+              isDeletable={isDeletable}
               replyEditId={replyEditId}
               inboxMessageId={inboxMessageId}
               isInbox={isInbox}
@@ -695,10 +703,11 @@ function ThreadedReplies(props) {
 
 function ThreadedReply(props) {
   const { comment, enableEditing, messages, replyEditId, isInbox, inboxMessageId, wizardProps,
-    myPresenceIsAssigned } = props;
+    myPresenceIsAssigned, enableActions, isDeletable } = props;
   return <Reply key={`c${comment.id}`} id={`c${comment.id}`} className={props.className} comment={comment}
                 enableEditing={enableEditing} messages={messages} replyEditId={replyEditId}
                 isInbox={isInbox} inboxMessageId={inboxMessageId} wizardProps={wizardProps}
+                enableActions={enableActions} isDeletable={isDeletable}
                 myPresenceIsAssigned={myPresenceIsAssigned} />;
 }
 

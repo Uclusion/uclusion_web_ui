@@ -1038,7 +1038,8 @@ function PlanningInvestible(props) {
                                    <li>Suggestion - others vote on this idea and then can be converted to a task</li>
                                    <li>Blocking issue - asks for help clearing the blocker</li>
                                  </ul>) : (sectionOpen === 'tasksSection' ? (<div>Tasks can be moved between jobs or converted to or from bugs.</div>) : 
-                                 (<div>Notes can be added to at the task or job level.</div>))
+                                 (<div>Notes can be added to at the task or job level. The AI's get_job only
+                                   includes notes when include_all_resolved is passed or a note has a reply.</div>))
                              }/>
             {sectionOpen === 'notesSection' ? (
               <NotesTab

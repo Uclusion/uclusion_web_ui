@@ -74,7 +74,10 @@ the job, stop and call `add_info` first.
 ### 1. Read
 
 Call `get_job` with the short code to load the job and all its child tasks,
-grouped tasks, questions, suggestions, notes, and blockers.
+grouped tasks, questions, suggestions, blockers, and reviews. Notes are only
+included when `include_all_resolved` is true, except a note with a reply which
+is always included; the same flag also returns resolved comments in full
+instead of truncated.
 
 If calling get_job comes back with only a single comment, no Job J-... header,
 then use the single comment workflow below.

@@ -1162,6 +1162,18 @@ function Comment(props) {
                 {!mobileLayout && intl.formatMessage({ id: 'commentSubTaskLabel' })}
               </SpinningIconLabelButton>
             )}
+            {isSent !== false && isTask && resolved && enableActions && !removeActions && (
+              <SpinningIconLabelButton
+                onClick={() => navigate(history, formWizardLink(REPLY_WIZARD_TYPE, marketId,
+                  undefined, undefined, id, typeObjectId))}
+                icon={AddIcon}
+                iconOnly={mobileLayout}
+                id={`commentAddNoteButton${id}`}
+                doSpin={false}
+              >
+                {!mobileLayout && intl.formatMessage({ id: 'addNote' })}
+              </SpinningIconLabelButton>
+            )}
             {(!investibleId || isNote) && !removeActions && enableEditing && !mobileLayout && (
               <FormControlLabel
                 id='isVisibleCheckbox'
@@ -1381,6 +1393,8 @@ function Comment(props) {
                   comment={child}
                   marketId={marketId}
                   enableEditing={enableEditing}
+                  enableActions={enableActions}
+                  isDeletable={isDeletable}
                   replyEditId={replyEditId}
                   inboxMessageId={inboxMessageId}
                   isInbox={isInbox}

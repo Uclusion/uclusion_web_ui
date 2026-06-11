@@ -469,18 +469,18 @@ def is_todo(text: str, extension: str) -> bool:
         '.sh': r'^\s*#\s*TODO',
         '.pl': r'^\s*#\s*TODO',
 
-        # C-style languages using '//'
-        '.js': r'^\s*//\s*TODO',
-        '.ts': r'^\s*//\s*TODO',
-        '.java': r'^\s*//\s*TODO',
-        '.c': r'^\s*(//|/\*)\s*TODO', # Handles // and /*
-        '.cpp': r'^\s*(//|/\*)\s*TODO', # Handles // and /*
-        '.cs': r'^\s*//\s*TODO',
-        '.go': r'^\s*//\s*TODO',
-        '.rs': r'^\s*//\s*TODO',
-        '.swift': r'^\s*//\s*TODO',
-        '.kt': r'^\s*//\s*TODO',
-        '.php': r'^\s*(//|#)\s*TODO', # PHP supports both // and #
+        # C-style languages using '//' or '/*'
+        '.js': r'^\s*(//|/\*)\s*TODO',
+        '.ts': r'^\s*(//|/\*)\s*TODO',
+        '.java': r'^\s*(//|/\*)\s*TODO',
+        '.c': r'^\s*(//|/\*)\s*TODO',
+        '.cpp': r'^\s*(//|/\*)\s*TODO',
+        '.cs': r'^\s*(//|/\*)\s*TODO',
+        '.go': r'^\s*(//|/\*)\s*TODO',
+        '.rs': r'^\s*(//|/\*)\s*TODO',
+        '.swift': r'^\s*(//|/\*)\s*TODO',
+        '.kt': r'^\s*(//|/\*)\s*TODO',
+        '.php': r'^\s*(//|#|/\*)\s*TODO', # PHP supports //, # and /*
 
         # HTML/XML/CSS
         '.html': r'^\s*<!--\s*TODO',
@@ -526,6 +526,46 @@ def get_done_line(context):
     return line[:todo_index] + 'DONE' + line[todo_index + 4:]
 
 
+# Block comments are the only multi-line TODO format supported. Languages with
+# only single-line comments (#, ;) stay single-line because there is no
+# terminator to tell an intended continuation from an unrelated comment.
+BLOCK_COMMENT_CLOSERS = {'/*': '*/', '<!--': '-->'}
+
+
+def get_block_comment_closer(line):
+    """Returns the closing marker if this TODO line opens a block comment,
+    otherwise None."""
+    stripped = line.strip()
+    for opener, closer in BLOCK_COMMENT_CLOSERS.items():
+        if stripped.startswith(opener):
+            return closer
+    return None
+
+
+def gather_block_comment(all_lines, start_line_number, closer):
+    """Collects continuation lines of a block comment until the closing marker.
+
+    A leading '*' on a continuation line (javadoc style) is stripped. Returns
+    (extra_text, last_line_number) where last_line_number is the line holding
+    the closing marker (or the last line of the file if never closed).
+    """
+    parts = []
+    line_number = start_line_number + 1
+    while line_number < len(all_lines):
+        stripped = all_lines[line_number].strip()
+        closed = closer in stripped
+        if closed:
+            stripped = stripped[:stripped.index(closer)].strip()
+        if closer == '*/' and stripped.startswith('*'):
+            stripped = stripped[1:].strip()
+        if stripped:
+            parts.append(stripped)
+        if closed:
+            break
+        line_number += 1
+    return ' '.join(parts), min(line_number, len(all_lines) - 1)
+
+
 def process_code_file(root, file, extension, credentials, stages, resolved_ticket_codes):
     file_path = os.path.join(root, file)
     try:
@@ -533,18 +573,39 @@ def process_code_file(root, file, extension, credentials, stages, resolved_ticke
             line_contexts = []
             all_lines = code_file.readlines()
             line_number = 0
-            for line in all_lines:
+            while line_number < len(all_lines):
+                line = all_lines[line_number]
                 if is_todo(line, extension):
                     # TODO J-all-214 this split will not work with multi-line comments
                     line_split = line.split('|', 1)
                     if len(line_split) > 1:
                         todo, comment = line_split
-                        new_content = sync_comment(comment, credentials, stages)
-                        description = get_description(new_content)
-                        ticket_code = get_ticket_code(new_content, credentials)
-                        line_context = {'ticket_code': ticket_code, 'description': description[3: -4],
-                                        'line_number': line_number, 'line': line}
-                        line_contexts.append(line_context)
+                        closer = get_block_comment_closer(line)
+                        if closer is None:
+                            new_content = sync_comment(comment, credentials, stages)
+                            description = get_description(new_content)
+                            ticket_code = get_ticket_code(new_content, credentials)
+                            line_context = {'ticket_code': ticket_code, 'description': description[3: -4],
+                                            'line_number': line_number, 'line': line}
+                            line_contexts.append(line_context)
+                        else:
+                            # Block comment: send the full text but rewrite only the
+                            # first line so the block structure stays intact in the file
+                            first_line_text = comment.strip('\n')
+                            if closer in comment:
+                                comment = comment[:comment.index(closer)]
+                                end_line_number = line_number
+                            else:
+                                extra_text, end_line_number = gather_block_comment(all_lines, line_number, closer)
+                                if extra_text:
+                                    comment = f"{comment.strip()} {extra_text}"
+                            new_content = sync_comment(comment, credentials, stages)
+                            ticket_code = get_ticket_code(new_content, credentials)
+                            line_context = {'ticket_code': ticket_code,
+                                            'description': first_line_text.strip(),
+                                            'line_number': line_number, 'line': line}
+                            line_contexts.append(line_context)
+                            line_number = end_line_number
                     elif 'J-' in line or 'B-' in line:
                         if 'J-' in line:
                             ticket_code = get_ticket_code_from_line(line, 'J-')

@@ -571,7 +571,7 @@ function PlanningInvestible(props) {
   );
   const openTodoCommentsSearched = todoCommentsSearched.filter((comment) => !comment.resolved);
   const openTodoCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
-    openTodoCommentsSearched.includes(comment.root_comment_id));
+    openTodoCommentsSearched.some((parent) => parent.id === comment.root_comment_id));
   const openTodoCommentsSearchedAll = openTodoCommentsSearched.concat(openTodoCommentsRepliesSearched);
   const todoCommentsResolvedSearched = todoCommentsSearched.filter((comment) => comment.resolved);
   const questionCommentsSearched = investibleCommentsSearched.filter(
@@ -589,10 +589,10 @@ function PlanningInvestible(props) {
     comment => comment.comment_type === REPORT_TYPE && comment.notification_type === 'BLUE'
   );
   const notesCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
-    notesCommentsSearched.includes(comment.root_comment_id));
+    notesCommentsSearched.some((parent) => parent.id === comment.root_comment_id));
   const notesCommentsAllSearched = notesCommentsSearched.concat(notesCommentsRepliesSearched);
   const assistanceCommentsRepliesSearched = investibleComments.filter((comment) => comment.comment_type === REPLY_TYPE &&
-    assistanceCommentsSearched.includes(comment.root_comment_id));
+    assistanceCommentsSearched.some((parent) => parent.id === comment.root_comment_id));
   const assistanceCommentsSearchedAll = assistanceCommentsSearched.concat(assistanceCommentsRepliesSearched);
   const newAssistanceMessages = findMessagesForCommentIds(assistanceCommentsSearchedAll?.map((comment) => comment.id), 
     messagesState, true);

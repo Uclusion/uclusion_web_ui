@@ -81,8 +81,11 @@ function CondensedTodos(props) {
   const tabCommentsRaw = inNotesTab ? comments : (showOpen ? openComments : resolvedComments);
   const tabComments = sortInProgress(_.orderBy(tabCommentsRaw, ['updated_at', 'body'], ['desc', 'asc']), 
     investibleComments);
-  const resolvedTodoMessages = findMessagesForCommentIds(resolvedComments?.map((comment) => comment.id), 
-    messagesState, true);
+  const resolvedCommentIds = resolvedComments.map((comment) => comment.id);
+  const resolvedCommentsReplies = (investibleComments || []).filter((comment) =>
+    resolvedCommentIds.includes(comment.root_comment_id));
+  const resolvedTodoMessages = findMessagesForCommentIds(
+    resolvedCommentIds.concat(resolvedCommentsReplies.map((comment) => comment.id)), messagesState, true);
   const hasResolvedTodoMessages = !_.isEmpty(resolvedTodoMessages);
 
   useEffect(() => {

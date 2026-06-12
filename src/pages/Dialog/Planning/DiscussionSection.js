@@ -89,7 +89,7 @@ function DiscussionSection(props) {
       }
     }
     return () => {};
-  }, [comments, resolvedComments, hash, history, tabIndex]);
+  }, [comments, resolvedComments, hash, history, tabIndex, hidden]);
 
   const sortedRoots = getSortedRoots(comments, searchResults);
   const questionSuggestionNotesComments = sortedRoots.filter(c =>

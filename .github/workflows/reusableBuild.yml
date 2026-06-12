@@ -55,6 +55,7 @@ jobs:
         run: |
           mv uclusion_sdk ..
           yarn install
+          npx -y update-browserslist-db@latest
           cp ${{ inputs.environment }}.env .env
           npm run-script build
           npm run-script deploy-${{ inputs.environment }}

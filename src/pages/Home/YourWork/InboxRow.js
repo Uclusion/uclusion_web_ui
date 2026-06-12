@@ -4,8 +4,10 @@ import { getMarketInfo } from '../../../utils/userFunctions';
 import { getMarket } from '../../../contexts/MarketsContext/marketsContextHelper';
 import { getComment, getCommentRoot } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { stripHTML } from '../../../utils/stringFunctions';
+import { formCommentLink } from '../../../utils/marketIdPathFunctions';
 import { calculateTitleExpansionPanel } from './InboxExpansionPanel';
 import WorkListItem from './WorkListItem';
+import BlockedNotificationPanel from './BlockedNotificationPanel';
 import React, { useContext } from 'react';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
 import { InvestiblesContext } from '../../../contexts/InvestibesContext/InvestiblesContext';
@@ -155,6 +157,7 @@ function InboxRow(props) {
   const fullStage = getFullStage(marketStagesState, marketId, stage) || {};
   let rootComment;
   let originalComment;
+  let rootCommentLink;
   if (commentId) {
     const { parent_comment_id: inlineParentCommentId, parent_comment_market_id: parentMarketId } = market
     let useMarketId = commentMarketId || marketId;
@@ -166,6 +169,8 @@ function InboxRow(props) {
     }
     rootComment = getCommentRoot(commentState, useMarketId, useCommentId);
     if (rootComment) {
+      rootCommentLink = formCommentLink(useMarketId, rootComment.group_id, rootComment.investible_id,
+        rootComment.id);
       if (rootComment.id !== commentId) {
         originalComment = getComment(commentState, commentMarketId || marketId, commentId) || {};
         const comment = stripHTML(originalComment.body);
@@ -186,7 +191,10 @@ function InboxRow(props) {
   const isMentioned = originalComment?.mentions?.find((mention) => mention.user_id === userId);
   item.icon = getPriorityIcon(message, isAssigned, isMentioned, originalComment);
 
-  if (rootComment?.resolved && !typeObjectId?.includes('UNREAD_RESOLVED') && !typeObjectId?.includes('UNREAD_REPLY')) {
+  const isStaleResolved = !!rootComment?.resolved && !typeObjectId?.includes('UNREAD_RESOLVED') &&
+    !typeObjectId?.includes('UNREAD_REPLY');
+  if (isStaleResolved && !expansionOpen) {
+    // Per Q-all-105 notifications out of date with a resolved comment stay hidden in the list view
     console.warn('Notification out of date with a resolved comment')
     console.warn(message);
     return React.Fragment;
@@ -197,7 +205,17 @@ function InboxRow(props) {
   if (messageType === 'USER_POKED') {
     item.market = intl.formatMessage({id: 'pleaseUpgrade'});
   }
-  calculateTitleExpansionPanel({ item, openExpansion: expansionOpen, intl });
+  if (isStaleResolved) {
+    // Per Q-all-104 a blocked wizard must explain why and offer dismiss plus a link to the resolved comment
+    item.expansionPanel = <BlockedNotificationPanel message={message} explanationId="blockedNotificationResolved"
+                                                    commentLink={rootCommentLink}/>;
+  } else {
+    calculateTitleExpansionPanel({ item, openExpansion: expansionOpen, intl });
+    if (expansionOpen && !item.expansionPanel) {
+      item.expansionPanel = <BlockedNotificationPanel message={message}
+                                                      explanationId="blockedNotificationGeneric"/>;
+    }
+  }
   return <WorkListItem key={`inboxRow${getMessageId(message)}`} id={getMessageId(message)} checked={checked}
                        determinateDispatch={determinateDispatch} useSelect={isDeletable} read={!message.is_highlighted}
                        expansionOpen={expansionOpen} {...item} />;

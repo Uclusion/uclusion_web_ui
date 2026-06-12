@@ -158,7 +158,7 @@ function PlanningDialog(props) {
     [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
   const resolvedDiscussionComments = marketComments.filter(comment =>
     comment.group_id === groupId && !comment.investible_id && comment.resolved &&
-    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE, REPLY_TYPE].includes(comment.comment_type)) || [];
+    [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(comment.comment_type)) || [];
   const [marketPresencesState] = useContext(MarketPresencesContext);
   const [jobSearchPage, setJobSearchPage] = useState(1);
   const [pageStateFull, pageDispatch] = usePageStateReducer('group');
@@ -289,15 +289,9 @@ function PlanningDialog(props) {
           if (!_.isEmpty(found)) {
             const rootComment = filterToRoot(comments, found.id);
             if (_.isEmpty(rootComment.investible_id)) {
-              if (!rootComment.resolved) {
-                if (rootComment.comment_type !== TODO_TYPE) {
-                  // TO DO TYPE handled by MarketTodos so is no op here
-                  if (sectionOpen !== 'discussionSection') {
-                    updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
-                  }
-                }
-              } else {
-                // resolved comment — open the discussion section where the resolved sub-tab lives
+              if (rootComment.comment_type !== TODO_TYPE) {
+                // TO DO TYPE, resolved or not, handled by MarketTodos so is no op here
+                // DiscussionSection switches to its resolved tab when the comment is resolved
                 if (sectionOpen !== 'discussionSection') {
                   updatePageState({ sectionOpen: 'discussionSection', tabIndex: 3 });
                 }

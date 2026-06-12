@@ -1346,6 +1346,10 @@ const messages = defineMessages({
   // Notifications
   notificationDismiss: 'Dismiss',
   notificationDismissThread: 'Dismiss thread',
+  blockedNotificationTitle: 'No actions available',
+  blockedNotificationResolved: 'This notification has no actions because its comment was already resolved.',
+  blockedNotificationGeneric: 'This notification has no actions, likely because the item it refers to changed after the notification was sent.',
+  blockedNotificationViewComment: 'View resolved comment',
 
   //Hot keys
   hotKeyTODO: 'ctrl+a',

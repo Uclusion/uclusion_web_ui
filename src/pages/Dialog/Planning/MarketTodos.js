@@ -247,14 +247,24 @@ function MarketTodos(props) {
       const todoParents = comments.filter(comment => comment.comment_type === TODO_TYPE &&
         !comment.investible_id && !comment.resolved) || [];
       const todoCommentIds = getThreadIds(todoParents, comments);
-      const foundCommentId = todoCommentIds.find((anId) => hash.includes(anId));
+      let foundCommentId = todoCommentIds.find((anId) => hash.includes(anId));
+      let searchComments = comments;
+      if (!foundCommentId) {
+        const resolvedParents = (resolvedTodoComments || []).filter((comment) =>
+          comment.comment_type === TODO_TYPE);
+        const resolvedCommentIds = getThreadIds(resolvedParents, resolvedTodoComments || []);
+        foundCommentId = resolvedCommentIds.find((anId) => hash.includes(anId));
+        searchComments = resolvedTodoComments || [];
+      }
       if (foundCommentId) {
-        const foundComment = comments.find((comment) => comment.id === foundCommentId);
+        const foundComment = searchComments.find((comment) => comment.id === foundCommentId);
         const { root_comment_id: rootId } = foundComment;
-        const rootComment = !rootId ? foundComment : comments.find((comment) => comment.id === rootId);
+        const rootComment = !rootId ? foundComment : searchComments.find((comment) => comment.id === rootId);
         if (rootComment) {
-          const { notification_type: notificationType } = rootComment;
-          if (notificationType === RED_LEVEL) {
+          const { notification_type: notificationType, resolved } = rootComment;
+          if (resolved) {
+            bugDispatch(setTab(3));
+          } else if (notificationType === RED_LEVEL) {
             bugDispatch(setTab(0));
           } else if (notificationType === YELLOW_LEVEL) {
             bugDispatch(setTab(1));
@@ -280,7 +290,7 @@ function MarketTodos(props) {
       }
     }
     return () => {};
-  }, [comments, hash, hidden, history, messagesState, sectionOpen, setSectionOpen, isInbox]);
+  }, [comments, resolvedTodoComments, hash, hidden, history, messagesState, sectionOpen, setSectionOpen, isInbox]);
 
   useEffect(() => {
     if (openDefaultId && message?.type === UNASSIGNED_TYPE) {

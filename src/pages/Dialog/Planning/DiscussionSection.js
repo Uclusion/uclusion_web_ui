@@ -1,6 +1,6 @@
-import React, { useContext, useReducer } from 'react';
+import React, { useContext, useEffect, useReducer } from 'react';
 import { useIntl } from 'react-intl';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 import _ from 'lodash';
 import { Box, Grid, IconButton, Link, useMediaQuery, useTheme } from '@material-ui/core';
 import CommentBox from '../../../containers/CommentBox/CommentBox';
@@ -14,11 +14,12 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import { DISCUSSION_WIZARD_TYPE } from '../../../constants/markets';
 import { QUESTION_TYPE, REPORT_TYPE, SUGGEST_CHANGE_TYPE } from '../../../constants/comments';
-import { formMarketAddCommentLink, navigate } from '../../../utils/marketIdPathFunctions';
+import { formMarketAddCommentLink, navigate, removeHash } from '../../../utils/marketIdPathFunctions';
 import BugListItem from '../../../components/Comments/BugListItem';
 import Comment from '../../../components/Comments/Comment';
-import getReducer, { PAGE_SIZE, setPage, setTab } from '../../../components/Comments/BugListContext';
-import { getPaginatedItems } from '../../../utils/messageUtils';
+import getReducer, { PAGE_SIZE, pin, setPage, setTab } from '../../../components/Comments/BugListContext';
+import { getPaginatedItems, getRealPage } from '../../../utils/messageUtils';
+import { getThreadIds } from '../../../utils/commentFunctions';
 import { updateComment } from '../../../api/comments';
 import { addCommentToMarket } from '../../../contexts/CommentsContext/commentsContextHelper';
 import { CommentsContext } from '../../../contexts/CommentsContext/CommentsContext';
@@ -43,6 +44,8 @@ function DiscussionSection(props) {
 
   const intl = useIntl();
   const history = useHistory();
+  const location = useLocation();
+  const { hash } = location;
   const theme = useTheme();
   const mobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const wizardClasses = wizardStyles();
@@ -55,12 +58,38 @@ function DiscussionSection(props) {
 
   const [sectionState, sectionDispatch] = useReducer(getReducer(),
     { page: 1, tabIndex: 0, expansionState: {}, pageState: {}, defaultPage: 1 });
-  const { tabIndex, page, expansionState = {} } = sectionState;
+  const { tabIndex, page: originalPage, expansionState = {}, pinned } = sectionState;
 
   const resolvedRoots = _.orderBy(
     resolvedComments.filter(c => [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(c.comment_type)),
     ['updated_at'], ['desc']
   );
+
+  useEffect(() => {
+    if (hash && !hidden) {
+      const resolvedCommentIds = getThreadIds(resolvedComments, comments);
+      const foundCommentId = resolvedCommentIds.find((anId) => hash.includes(anId));
+      if (foundCommentId) {
+        const foundComment = resolvedComments.find((comment) => comment.id === foundCommentId);
+        const { root_comment_id: rootId } = foundComment;
+        const rootComment = !rootId ? foundComment : resolvedComments.find((comment) => comment.id === rootId);
+        if (rootComment) {
+          sectionDispatch(setTab(1));
+          sectionDispatch(pin(rootComment.id));
+          removeHash(history);
+        }
+      } else if (tabIndex === 1) {
+        // A link to an open comment must switch back to the open tab or it won't be in the DOM to scroll to
+        const openParents = comments.filter((comment) =>
+          [QUESTION_TYPE, SUGGEST_CHANGE_TYPE, REPORT_TYPE].includes(comment.comment_type));
+        const openCommentIds = getThreadIds(openParents, comments);
+        if (openCommentIds.find((anId) => hash.includes(anId))) {
+          sectionDispatch(setTab(0));
+        }
+      }
+    }
+    return () => {};
+  }, [comments, resolvedComments, hash, history, tabIndex]);
 
   const sortedRoots = getSortedRoots(comments, searchResults);
   const questionSuggestionNotesComments = sortedRoots.filter(c =>
@@ -73,6 +102,7 @@ function DiscussionSection(props) {
   const searchUnifiedItems = isSearchActive
     ? _.orderBy([...questionSuggestionNotesComments, ...searchResolvedRoots], ['updated_at'], ['desc'])
     : [];
+  const page = getRealPage(isSearchActive ? searchUnifiedItems : resolvedRoots, pinned, originalPage, PAGE_SIZE);
   const searchPaginated = getPaginatedItems(searchUnifiedItems, page, PAGE_SIZE);
 
   const resolvedPaginated = getPaginatedItems(resolvedRoots, page, PAGE_SIZE);

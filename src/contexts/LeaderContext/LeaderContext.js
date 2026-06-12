@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useRef, useState } from 'react';
 import reducer, { updateLeader } from './leaderContextReducer'
 import { refreshNotifications, refreshVersions } from '../../api/versionedFetchUtils';
 import { AccountContext } from '../AccountContext/AccountContext';
@@ -25,6 +25,23 @@ const LeaderContext = React.createContext(EMPTY_STATE);
 let leaderContextHack = {};
 export { leaderContextHack };
 
+export const CLAIM_LEADERSHIP = 'claimLeadership';
+export const LOGOUT = 'logout';
+
+function runForLeadership(tab, dispatch) {
+  return tab.waitForLeadership(() => {
+    if (isSignedOut()) {
+      console.info('Logging out after seeing leadership change');
+      onSignOut().then(() => console.info('Done logging out'));
+    } else {
+      console.info(`Claiming leadership`);
+      // Could use broadcast ID to send message out to others to refresh out of login page
+      // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
+      dispatch(updateLeader(true));
+    }
+  });
+}
+
 function LeaderProvider(props) {
   const { children, authState, userId } = props;
   const [state, dispatch] = useReducer(reducer, EMPTY_STATE);
@@ -40,27 +57,30 @@ function LeaderProvider(props) {
   const [, ticketsDispatch] = useContext(TicketIndexContext);
   const [index] = useContext(SearchIndexContext);
   const [myTab, setMyTab] = useState(new Tab('uclusion'));
+  const electionStartedRef = useRef(false);
   const isUserLoaded = userIsLoaded(userState, marketsState);
   const { isLeader } = state;
 
   useEffect(() => {
-    if (authState === 'signedIn' && userId) {
+    if (authState === 'signedIn' && userId && !electionStartedRef.current) {
+      electionStartedRef.current = true;
       myTab.addEventListener('message', (event) => {
         console.info('Received tab message: ', event.data);
-        // Currently there is only one message can receive
-        onSignOut().then(() => console.info('Done logging out'));
-      });
-      myTab.waitForLeadership(() => {
-        if (isSignedOut()) {
-          console.info('Logging out after seeing leadership change');
+        if (event.data === CLAIM_LEADERSHIP) {
+          // B-all-446 a newly opened tab is grabbing leadership because it is known fresh.
+          // waitForLeadership relinquishes any held or queued leadership before requesting,
+          // so this re-queues behind the new tab and gets leadership back if it closes.
+          dispatch(updateLeader(false));
+          runForLeadership(myTab, dispatch);
+        } else if (event.data === LOGOUT) {
           onSignOut().then(() => console.info('Done logging out'));
-        } else {
-          console.info(`Claiming leadership`);
-          // Could use broadcast ID to send message out to others to refresh out of login page
-          // but its a bit risky as can somehow infinite refresh and corner of corner case anyway
-          dispatch(updateLeader(true));
         }
       });
+      runForLeadership(myTab, dispatch);
+      // B-all-446 take leadership from existing tabs - the old leader may have missed a sync
+      // notification or be in a weird state, and only this tab is guaranteed fresh. Must be
+      // sent after runForLeadership so this tab's lock request precedes the re-queues.
+      myTab.send(CLAIM_LEADERSHIP);
     }
     return () => {};
   }, [authState, myTab, setMyTab, userId]);
@@ -68,7 +88,7 @@ function LeaderProvider(props) {
   useEffect(() => {
     if (authState !== 'signedIn') {
       console.info('Sending logout');
-      myTab.send('logout');
+      myTab.send(LOGOUT);
       myTab.close();
       window.location.reload(true);
     }
@@ -87,6 +107,14 @@ function LeaderProvider(props) {
       } else {
         // Required to get initialized true in notifications context plus really don't need a leader for notifications
         refreshNotifications();
+        // T-all-2153 a new tab must promptly fetch data even when the leadership claim stalls
+        // (a wedged old leader never relinquishes the lock). Fetch to memory after a grace
+        // period unless leadership arrives first and does the full refresh to disk.
+        const timer = setTimeout(() => {
+          console.info('Refreshing versions without leadership');
+          refreshVersions().catch(() => console.warn('Error refreshing'));
+        }, 3000);
+        return () => clearTimeout(timer);
       }
     }
     return () => {};

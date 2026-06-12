@@ -70,22 +70,40 @@ export const BANNED_LIST = 'banned_list';
 export class MatchError extends Error {}
 
 let runner;
+// Q-all-111 refresh state is per tab - every tab must do its own fetch to update its own
+// memory, so the old cross tab REFRESH_LOCK only discarded refreshes other tabs needed.
+// Coalesce within the tab instead: a refresh requested mid-refresh runs exactly once after.
+let refreshInProgress = false;
+let refreshQueued = false;
+let queuedDispatchers = undefined;
 const matchErrorHandlingVersionRefresh = (dispatchers=undefined) => {
-  return navigator.locks.request("REFRESH_LOCK", {ifAvailable: true},
-    async (aLock) => {
-    if (aLock) {
-      return doVersionRefresh(dispatchers)
-        .catch((error) => {
-          if (error instanceof MatchError) {
-            // just log match problems
-            console.info('Ignoring match error');
-            console.info(error);
-          } else {
-            // Nowhere to raise this to so just put out as error
-            console.info('doVersionRefresh error');
-            console.error(error);
-          }
-        });
+  if (refreshInProgress) {
+    refreshQueued = true;
+    if (dispatchers) {
+      queuedDispatchers = dispatchers;
+    }
+    return Promise.resolve(false);
+  }
+  refreshInProgress = true;
+  return doVersionRefresh(dispatchers)
+    .catch((error) => {
+      if (error instanceof MatchError) {
+        // just log match problems
+        console.info('Ignoring match error');
+        console.info(error);
+      } else {
+        // Nowhere to raise this to so just put out as error
+        console.info('doVersionRefresh error');
+        console.error(error);
+      }
+    })
+    .then(() => {
+      refreshInProgress = false;
+      if (refreshQueued) {
+        refreshQueued = false;
+        const dispatchersForQueued = queuedDispatchers;
+        queuedDispatchers = undefined;
+        return matchErrorHandlingVersionRefresh(dispatchersForQueued);
       }
     });
 };
@@ -95,8 +113,8 @@ export function startRefreshRunner() {
 }
 
 /**
- * If ignoreIfInProgress is false, then will execute a single version refresh.
- * Otherwise, will start up a refreshRunner or if it's already started do nothing
+ * Executes a version refresh, coalescing with any refresh already running in this tab,
+ * and makes sure a refreshRunner is started so max drift is honored
  * @param dispatchers
  * @returns {Promise<*>}
  */
@@ -106,7 +124,7 @@ export function refreshVersions (dispatchers=undefined) {
     console.info('Not refreshing when signed out')
     return Promise.resolve(true); // also do nothing when signed out
   }
-  return matchErrorHandlingVersionRefresh(true, dispatchers).then(() => {
+  return matchErrorHandlingVersionRefresh(dispatchers).then(() => {
     // If missing always start a runner so max drift is honored
     if (runner == null){
       return startRefreshRunner();

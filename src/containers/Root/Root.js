@@ -47,13 +47,24 @@ import GroupManage from '../../pages/DialogSettings/GroupManage';
 import ManageMarketUsers from '../../pages/Dialog/UserManagement/ManageMarketUsers';
 import DemoFull from '../../pages/Dialog/Planning/DemoFull';
 import { useButtonColors } from '../../components/Buttons/ButtonConstants';
+import { InvestiblesContext } from '../../contexts/InvestibesContext/InvestiblesContext';
+import { MarketGroupsContext } from '../../contexts/MarketGroupsContext/MarketGroupsContext';
+import { getInvestible } from '../../contexts/InvestibesContext/investiblesContextHelper';
+import { getComment } from '../../contexts/CommentsContext/commentsContextHelper';
+import { getGroup } from '../../contexts/MarketGroupsContext/marketGroupsContextHelper';
+
+// T-all-2154 poll fast while a URL references data not yet local, then back off so a tab
+// parked on a dead link does not hit the API every two seconds indefinitely
+const DATA_POLL_FAST_MS = 2000;
+const DATA_POLL_SLOW_MS = 30000;
+const DATA_POLL_FAST_CUTOFF_MS = 60000;
 
 function Root(props) {
   const { authState } = props;
   const history = useHistory();
   const location = useLocation();
   const intl = useIntl();
-  const { pathname, search } = location;
+  const { pathname, search, hash } = location;
   const { marketId, investibleId, action } = decomposeMarketPath(pathname);
   const [userState] = useContext(AccountContext);
   const { lightBlueColor } = useButtonColors();
@@ -61,6 +72,8 @@ function Root(props) {
   const [ticketState] = useContext(TicketIndexContext);
   const [marketsState] = useContext(MarketsContext);
   const [commentsState] = useContext(CommentsContext);
+  const [investiblesState] = useContext(InvestiblesContext);
+  const [groupsState] = useContext(MarketGroupsContext);
   const [offlineTimer, setOfflineTimer] = useState(undefined);
   const values = queryString.parse(search || '') || {};
   const { utm_campaign: utm } = values;
@@ -180,37 +193,71 @@ function Root(props) {
     hideTodoAdd() && hideCommentReplyEdit() && hideDemoLoad() && hideGroupManage() && !isTicketPath(pathname));
 
   const isUserLoaded = userIsLoaded(userState, marketsState);
-  const ticketPollIntervalRef = useRef(null);
+  const dataPollTimerRef = useRef(null);
 
   useEffect(() => {
-    function clearTicketPoll() {
-      if (ticketPollIntervalRef.current) {
-        clearInterval(ticketPollIntervalRef.current);
-        ticketPollIntervalRef.current = null;
+    function clearDataPoll() {
+      if (dataPollTimerRef.current) {
+        clearTimeout(dataPollTimerRef.current);
+        dataPollTimerRef.current = null;
       }
+    }
+    function startDataPoll() {
+      if (dataPollTimerRef.current) {
+        return;
+      }
+      const startedAt = Date.now();
+      const poll = () => {
+        doVersionRefresh().catch(() => console.warn('Error refreshing for missing data'));
+        const delay = Date.now() - startedAt > DATA_POLL_FAST_CUTOFF_MS ? DATA_POLL_SLOW_MS : DATA_POLL_FAST_MS;
+        dataPollTimerRef.current = setTimeout(poll, delay);
+      };
+      dataPollTimerRef.current = setTimeout(poll, DATA_POLL_FAST_MS);
+    }
+    function isMissingDialogData() {
+      if (action !== 'dialog' || _.isEmpty(marketId)) {
+        return false;
+      }
+      if (marketsState.initializing || commentsState.initializing || investiblesState.initializing ||
+        groupsState.initializing) {
+        // Cannot tell what is missing until local storage loads
+        return false;
+      }
+      if (!_.isEmpty(investibleId) && _.isEmpty(getInvestible(investiblesState, investibleId)) &&
+        _.isEmpty(getGroup(groupsState, marketId, investibleId))) {
+        // The third path token is an investible on job URLs and a group on group URLs
+        return true;
+      }
+      if (hash && hash.startsWith('#c') && !hash.startsWith('#cv')) {
+        const commentId = hash.substring(2);
+        return _.isEmpty(getComment(commentsState, marketId, commentId));
+      }
+      return false;
     }
     if (isTicketPath(pathname)) {
       const url = getUrlForTicketPath(pathname, ticketState, marketsState, commentsState);
       if (url) {
-        clearTicketPoll();
+        clearDataPoll();
         navigate(history, url, true);
-      } else if (!ticketPollIntervalRef.current) {
+      } else {
         // Poll until we have enough data locally to resolve the ticket path to a URL.
         // Each refresh dispatches into the ticket/markets/comments contexts, which re-runs this
         // effect and gives us another chance to resolve the URL.
-        ticketPollIntervalRef.current = setInterval(() => {
-          doVersionRefresh().catch(() => console.warn('Error refreshing for ticket'));
-        }, 2000);
+        startDataPoll();
       }
+    } else if (isMissingDialogData()) {
+      // T-all-2154 dialog URLs can also reference data not yet local, e.g. a new job or comment
+      startDataPoll();
     } else {
-      clearTicketPoll();
+      clearDataPoll();
     }
-  },  [pathname, history, ticketState, marketsState, commentsState]);
+  },  [pathname, hash, action, marketId, investibleId, history, ticketState, marketsState, commentsState,
+    investiblesState, groupsState]);
 
   useEffect(() => {
-    if (authState !== 'signedIn' && ticketPollIntervalRef.current) {
-      clearInterval(ticketPollIntervalRef.current);
-      ticketPollIntervalRef.current = null;
+    if (authState !== 'signedIn' && dataPollTimerRef.current) {
+      clearTimeout(dataPollTimerRef.current);
+      dataPollTimerRef.current = null;
     }
   },  [authState]);
 

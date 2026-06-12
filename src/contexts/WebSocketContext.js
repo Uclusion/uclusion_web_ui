@@ -81,6 +81,15 @@ export function notifyNewApplicationVersion(currentVersion, cacheClearVersion, s
   }
 }
 
+function checkAppVersion(hasNonDemoRef) {
+  return getAppVersion().then((version) => {
+    const { app_version: currentVersion, cache_clear_version: cacheClearVersion,
+      script_reinstall_version: scriptReinstallVersion } = version;
+    notifyNewApplicationVersion(currentVersion, cacheClearVersion, scriptReinstallVersion,
+      hasNonDemoRef.current);
+  }).catch(() => console.warn('Error checking version'));
+}
+
 function subscribe(sendMessage) {
   return getLogin().then((accountData) => {
     const { uclusion_token: accountToken } = accountData;
@@ -145,16 +154,22 @@ function WebSocketProvider(props) {
     }
   );
 
+  // The toast notices do not survive a refresh or page close so check on load instead of
+  // leaving a gap until the first interval tick. Runs again when the user's workspaces finish
+  // loading because the reinstall notice is suppressed until demo status is known. See
+  // https://stage.uclusion.com/dd56682c-9920-417b-be46-7a30d41bc905/Q-all-106
+  const hasNonDemo = hasNonDemoRef.current;
   useEffect(() => {
-    const interval = setInterval((refresh) => { ;
+    if (!isSignedOut()) {
+      checkAppVersion(hasNonDemoRef);
+    }
+  }, [hasNonDemo]);
+
+  useEffect(() => {
+    const interval = setInterval((refresh) => {
       if (!isSignedOut()) {
         refresh();
-        getAppVersion().then((version) => {
-          const { app_version: currentVersion, cache_clear_version: cacheClearVersion,
-            script_reinstall_version: scriptReinstallVersion } = version;
-          notifyNewApplicationVersion(currentVersion, cacheClearVersion, scriptReinstallVersion,
-            hasNonDemoRef.current);
-        }).catch(() => console.warn('Error checking version'));
+        checkAppVersion(hasNonDemoRef);
       }
     }, 300000, ()=>refreshVersions().then(() => console.info('Refreshed versions from interval')));
     return () => {

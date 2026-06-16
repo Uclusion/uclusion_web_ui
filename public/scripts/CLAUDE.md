@@ -132,6 +132,19 @@ Call `approve_job_or_option` with a certainty score (1–5) and a written
 reason. Feel free to give a low certainty if the job is not well designed or
 is not providing clear value for customers.
 
+Before you approve, surface and test the job's premise — do not assume it.
+Most jobs carry an unstated assumption about why they are worth doing: the
+strategy behind them, the value they deliver, or that the described approach
+will actually work. Name that premise explicitly and ground it against
+evidence you can reach — related and sibling jobs, prior decisions, and prior
+results already in Uclusion, plus plain reasoning about whether the approach is
+likely to succeed. If the premise is weak, untested, already contradicted by
+an earlier decision, or you need more information that is a step-2 question: file 
+it with `ask_question`. A low or moderate certainty with a written
+reason is the correct outcome when the premise does not hold up — approving on
+the author's say-so is not. Do this on your own initiative; the user should not
+have to challenge you before you check whether the job is actually worth doing.
+
 If the job markdown says that the AI user is a required approver then approval
 is mandatory. Otherwise ask if you should approve the job.
 

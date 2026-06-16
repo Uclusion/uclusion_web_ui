@@ -229,7 +229,9 @@ function IntegrationPreferences (props) {
               padChildren
             >
               <Typography variant="subtitle1" style={{paddingBottom: '1rem'}}>
-                See <Link href="https://documentation.uclusion.com/cli" target="_blank">MCP & CLI</Link> documentation.
+                See <Link href="https://documentation.uclusion.com/github-and-cli-integrations/mcp" target="_blank">MCP</Link> documentation for details
+                on how Uclusion connects to your AI coding tools. Also 
+                installs <Link href="https://documentation.uclusion.com/github-and-cli-integrations" target="_blank">Uclusion CLI</Link>.
                 Installation command:
               </Typography>
               <CopyCommand
